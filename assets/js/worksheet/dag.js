@@ -510,62 +510,94 @@ window.DagPanel = (function($, DagPanel) {
         };
     }
 
+    function addDataFlowAction($dagWrap) {
+        if ($dagWrap.hasClass('fromRetina')) {
+            return;
+        }
+
+        var formBusy = $('#workspaceMenu').children().filter(function() {
+            return !$(this).hasClass('xc-hidden') &&
+                    !$(this).hasClass('menuSection');
+        }).length > 0;
+
+        if (!formBusy) {
+            var tableId = $dagWrap.data('id');
+            DagFunction.focusTable(tableId);
+            if (!gTables[tableId].isLocked &&
+                !$dagWrap.hasClass('fromRetina')) {
+                DFCreateView.show($dagWrap);
+            }
+        }
+    }
+
+    function saveImageAction($dagWrap, tableName) {
+        var deferred = PromiseHelper.deferred();
+        Dag.createSavableCanvas($dagWrap, tableName)
+        .then(function() {
+            var success = false;
+            var canvas = $dagWrap.find('canvas').eq(1)[0];
+            if ($('html').hasClass('microsoft')) { // for IE
+                var blob = canvas.msToBlob();
+                var name = tableName + '.png';
+                success = window.navigator.msSaveBlob(blob, name);
+                deferred.resolve();
+            } else {
+                success = downloadImage(canvas, tableName);
+            }
+            $dagWrap.find('canvas').eq(1).remove();
+            if (success) {
+                deferred.resolve();
+            }
+            deferred.reject();
+        })
+        .fail(deferred.reject);
+        return deferred;
+    }
+
+    function newTabImageAction($dagWrap) {
+        var deferred = PromiseHelper.deferred();
+        Dag.createSavableCanvas($dagWrap)
+        .then(function() {
+            var canvas = $dagWrap.find('canvas').eq(1)[0];
+            var lnk = canvas.toDataURL("image/png");
+            if (lnk.length < 8) {
+                // was not able to make url because image is
+                //probably too large
+                Alert.show({
+                    "title"  : ErrTStr.LargeImgTab,
+                    "msg"    : ErrTStr.LargeImgText,
+                    "isAlert": true
+                });
+                $dagWrap.find('.dagImage').addClass('unsavable');
+                deferred.reject(ErrTStr.LargeImgText);
+            } else {
+                var newTab = window.open(lnk);
+                deferred.resolve(newTab);
+            }
+            $dagWrap.find('canvas').eq(1).remove();
+        })
+        .fail(deferred.reject);
+
+        return deferred;
+    }
+
     function setupDataFlowBtn() {
         $dagPanel.on('click', '.addDataFlow', function() {
-            var formBusy = $('#workspaceMenu').children().filter(function() {
-                return !$(this).hasClass('xc-hidden') &&
-                        !$(this).hasClass('menuSection');
-            }).length > 0;
-
-            if (!formBusy) {
-                var $dagWrap = $(this).closest('.dagWrap');
-                var tableId = $dagWrap.data('id');
-                DagFunction.focusTable(tableId);
-                if (!gTables[tableId].isLocked &&
-                    !$dagWrap.hasClass('fromRetina')) {
-                    DFCreateView.show($dagWrap);
-                }
-            }
+            var self = this;
+            var $dagWrap = $(self).closest(".dagWrap");
+            addDataFlowAction($dagWrap);
         });
 
         $dagPanel.on('click', '.saveImageBtn', function() {
             var $dagWrap = $(this).closest('.dagWrap');
             var tableName = $dagWrap.find('.dagTable[data-index="0"]')
                                         .data('tablename');
-            Dag.createSavableCanvas($dagWrap)
-            .then(function() {
-                var canvas = $dagWrap.find('canvas').eq(1)[0];
-                if ($('html').hasClass('microsoft')) { // for IE
-                    var blob = canvas.msToBlob();
-                    var name = tableName + '.png';
-                    window.navigator.msSaveBlob(blob, name);
-                } else {
-                    downloadImage(canvas, tableName);
-                }
-                $dagWrap.find('canvas').eq(1).remove();
-            });
+            saveImageAction($dagWrap, tableName);
         });
 
         $dagPanel.on('click', '.newTabImageBtn', function() {
             var $dagWrap = $(this).closest('.dagWrap');
-            Dag.createSavableCanvas($dagWrap)
-            .then(function() {
-                var canvas = $dagWrap.find('canvas').eq(1)[0];
-                var lnk = canvas.toDataURL("image/png");
-                if (lnk.length < 8) {
-                    // was not able to make url because image is
-                    //probably too large
-                    Alert.show({
-                        "title"  : ErrTStr.LargeImgTab,
-                        "msg"    : ErrTStr.LargeImgText,
-                        "isAlert": true
-                    });
-                    $dagWrap.find('.dagImage').addClass('unsavable');
-                } else {
-                    window.open(lnk);
-                }
-                $dagWrap.find('canvas').eq(1).remove();
-            });
+            newTabImageAction($dagWrap);
         });
     }
 
@@ -586,39 +618,10 @@ window.DagPanel = (function($, DagPanel) {
 
             switch (action) {
                 case ('saveImage'):
-                    Dag.createSavableCanvas($dagWrap)
-                    .then(function() {
-                        var canvas = $dagWrap.find('canvas').eq(1)[0];
-                        if ($('html').hasClass('microsoft')) { // for IE
-                            var blob = canvas.msToBlob();
-                            var name = tableName + '.png';
-                            window.navigator.msSaveBlob(blob, name);
-                        } else {
-                            downloadImage(canvas, tableName);
-                        }
-                        $dagWrap.find('canvas').eq(1).remove();
-                    });
-
+                    saveImageAction($dagWrap, tableName);
                     break;
                 case ('newTabImage'):
-                    Dag.createSavableCanvas($dagWrap)
-                    .then(function() {
-                        var canvas = $dagWrap.find('canvas').eq(1)[0];
-                        var lnk = canvas.toDataURL("image/png");
-                        if (lnk.length < 8) {
-                            // was not able to make url because image is
-                            //probably too large
-                            Alert.show({
-                                "title"  : ErrTStr.LargeImgTab,
-                                "msg"    : ErrTStr.LargeImgText,
-                                "isAlert": true
-                            });
-                            $dagWrap.find('.dagImage').addClass('unsavable');
-                        } else {
-                            window.open(lnk);
-                        }
-                        $dagWrap.find('canvas').eq(1).remove();
-                    });
+                    newTabImageAction($dagWrap);
                     break;
                 case ('expandAll'):
                     Dag.expandAll($dagWrap);
@@ -627,9 +630,10 @@ window.DagPanel = (function($, DagPanel) {
                     Dag.collapseAll($dagWrap);
                     break;
                 case ('dataflow'):
-                    if (!$dagWrap.hasClass('fromRetina')) {
-                        DFCreateView.show($dagWrap);
-                    }
+                    // Note: this refactor adds formbusy check to right click
+                    // and is retina check to button setting.
+                    // ***Remove this comment in final patch set after review***
+                    addDataFlowAction($dagWrap);
                     break;
                 case ('none'):
                     // do nothing;
@@ -669,7 +673,7 @@ window.DagPanel = (function($, DagPanel) {
                 "isAlert": true
             });
             $(canvas).closest('.dagImage').addClass('unsavable');
-            return;
+            return false;
         }
 
         /// create a "fake" click-event to trigger the download
@@ -679,12 +683,17 @@ window.DagPanel = (function($, DagPanel) {
             e.initMouseEvent("click", true, true, window,
                              0, 0, 0, 0, 0, false, false, false,
                              false, 0, null);
-
+            // dispatchEvent return value not related to success
             lnk.dispatchEvent(e);
         } else if (lnk.fireEvent) {
-
+            // fireevent has no return value
             lnk.fireEvent("onclick");
+        } else {
+            // No event fired.
+            return false;
         }
+        // Event fired, not sure if successful
+        return true;
     }
 
     function positionAndShowRightClickDropdown(e, $menu) {
@@ -705,7 +714,7 @@ window.DagPanel = (function($, DagPanel) {
         }
 
         top = e.pageY + topMargin;
-        
+
 
         // hack needed as of 9/26/2016
         if (!window.isBrowserIE) {
@@ -801,7 +810,7 @@ window.DagPanel = (function($, DagPanel) {
         } else {
             left -= menuWidth;
         }
-        
+
         left = Math.max(2, left);
         if ($target.is('.tableTitle')) {
             top = $target[0].getBoundingClientRect().bottom + topMargin;
@@ -829,7 +838,7 @@ window.DagPanel = (function($, DagPanel) {
                 left = rightBoundary - (menuWidth + dagPanelLeft +
                                         $menu.width());
             }
-            
+
             $menu.css('left', left).addClass('leftColMenu');
         }
 
@@ -842,7 +851,6 @@ window.DagPanel = (function($, DagPanel) {
         }
         $('.tooltip').hide();
     }
-
 
     function dagTableDropDownActions($menu) {
         $menu.find('.addTable').mouseup(function(event) {
@@ -1269,6 +1277,14 @@ window.DagPanel = (function($, DagPanel) {
         });
     }
 
+    if (window.unitTestMode) {
+        DagPanel.__testOnly__ = {};
+        DagPanel.__testOnly__.addDataFlowAction = addDataFlowAction;
+        DagPanel.__testOnly__.saveImageAction = saveImageAction;
+        DagPanel.__testOnly__.newTabImageAction = newTabImageAction;
+        DagPanel.__testOnly__.generateIcvTable = generateIcvTable;
+    }
+
     return (DagPanel);
 
 }(jQuery, {}));
@@ -1483,40 +1499,41 @@ window.Dag = (function($, Dag) {
         $container.data('allDagInfo', allDagInfo);
     };
 
-    Dag.renameAllOccurrences = function(oldTableName, newTableName) {
-        $dagPanel = $('#dagPanel');
+    // Table rename is now defunct
+    // Dag.renameAllOccurrences = function(oldTableName, newTableName) {
+    //     $dagPanel = $('#dagPanel');
 
-        $dagPanel.find('.tableName').filter(function() {
-            return ($(this).text() === oldTableName);
-        }).text(newTableName);
+    //     $dagPanel.find('.tableName').filter(function() {
+    //         return ($(this).text() === oldTableName);
+    //     }).text(newTableName);
 
-        var $dagTableTitles = $dagPanel.find('.tableTitle').filter(function() {
-            return ($(this).text() === oldTableName);
-        });
-        $dagTableTitles.text(newTableName)
-                       .attr('data-original-title', newTableName);
+    //     var $dagTableTitles = $dagPanel.find('.tableTitle').filter(function() {
+    //         return ($(this).text() === oldTableName);
+    //     });
+    //     $dagTableTitles.text(newTableName)
+    //                    .attr('data-original-title', newTableName);
 
-        $dagTableTitles.parent().data('tablename', newTableName);
-        var $dagParentsTitles = $dagPanel.find('.parentsTitle').filter(function() {
-            return ($(this).text() === oldTableName);
-        });
+    //     $dagTableTitles.parent().data('tablename', newTableName);
+    //     var $dagParentsTitles = $dagPanel.find('.parentsTitle').filter(function() {
+    //         return ($(this).text() === oldTableName);
+    //     });
 
-        $dagParentsTitles.text(newTableName);
-        var $actionTypes = $dagParentsTitles.closest('.actionType');
-        $actionTypes.each(function() {
-            var tooltipText = $(this).attr('data-original-title');
-            var newText;
-            if (tooltipText) {
-                newText = tooltipText.replace(oldTableName, newTableName);
-                $(this).attr('data-original-title', newText);
-            }
-            var title = $(this).attr('title');
-            if (title) {
-                newText = title.replace(oldTableName, newTableName);
-                $(this).attr('title', newText);
-            }
-        });
-    };
+    //     $dagParentsTitles.text(newTableName);
+    //     var $actionTypes = $dagParentsTitles.closest('.actionType');
+    //     $actionTypes.each(function() {
+    //         var tooltipText = $(this).attr('data-original-title');
+    //         var newText;
+    //         if (tooltipText) {
+    //             newText = tooltipText.replace(oldTableName, newTableName);
+    //             $(this).attr('data-original-title', newText);
+    //         }
+    //         var title = $(this).attr('title');
+    //         if (title) {
+    //             newText = title.replace(oldTableName, newTableName);
+    //             $(this).attr('title', newText);
+    //         }
+    //     });
+    // };
 
     Dag.makeInactive = function(tableId, nameProvided) {
         var tableName;
@@ -3605,7 +3622,7 @@ window.Dag = (function($, Dag) {
             var parent = parentChildMap[parents[0]]; // top-most parent
             var parentX = canvasWidth - parent.x + 26;
             var parentY = Math.round(parent.y) + dagTableHeight / 2;
-            
+
             drawLine(ctx, tableX, tableY); // line entering table
 
             var curvedLineCoor = {

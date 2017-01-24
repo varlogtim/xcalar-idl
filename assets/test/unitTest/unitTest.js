@@ -85,6 +85,12 @@ window.UnitTest = (function(UnitTest, $) {
         $('#toggleXCSize').click(function() {
             $('#xc').toggleClass('large');
         });
+
+        // Uncomment this to add button to increase blanket size.
+
+        // $('#toggleCoverageSize').click(function() {
+        //     $('#blanket-main').toggleClass('large');
+        // });
     };
 
     UnitTest.testFinish = function(checkFunc) {
@@ -244,7 +250,7 @@ window.UnitTest = (function(UnitTest, $) {
             return DeleteTableModal.__testOnly__.closeModal();
         })
         .then(deferred.resolve);
-        
+
         return deferred.promise();
     }
 

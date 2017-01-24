@@ -56,6 +56,8 @@ window.FnBar = (function(FnBar, $) {
                 event.stopPropagation();
                 functionBarEnter();
             } else {
+                // Note: hitting "x" on the tooltip that results from this
+                // deselects the current column
                 var funcStr = "\"" + val.slice(0, mismatch.index) +
                                 '<span class="mismatchBracket">' +
                                 mismatch.char + "</span>" +
@@ -102,6 +104,9 @@ window.FnBar = (function(FnBar, $) {
         editor.on("beforeChange", function(instance, change) {
         // remove ALL \n
             var newText = change.text.join("").replace(/\n/g, "");
+            // Notes: "change" arg is incremental- user can type in "="
+            // anywhere and be caught by this, but doesn't catch paste as long
+            // as equal sign is not at beginning
             if (newText.trim().indexOf("=") === 0 &&
                 lastFocusedCol === undefined) {
                 // No active column, disallow user from typing in a
@@ -152,7 +157,7 @@ window.FnBar = (function(FnBar, $) {
                 }
                 lastFocusedCol = undefined;
                 colNamesCache = {};
-                
+
                 var args = {
                     "value"         : trimmedVal,
                     "searchBar"     : searchHelper,
@@ -241,6 +246,7 @@ window.FnBar = (function(FnBar, $) {
     };
 
     FnBar.focusOnCol = function($colInput, tableId, colNum, forceFocus) {
+        // Note: forceFocus is ONLY ever true in colmanager.renamecol
         var newFocus = false;
         if (lastFocusedCol == null) {
             newFocus = true;
@@ -458,7 +464,7 @@ window.FnBar = (function(FnBar, $) {
             if (list.length === 1 && curWord === list[0].text) {
                 list = [];
             }
-            
+
             return ({
                 list: list,
                 from: CodeMirror.Pos(0, start),
@@ -482,7 +488,7 @@ window.FnBar = (function(FnBar, $) {
                 }
             }
         });
-    
+
 
         function autcompleteSelect(cm, data, completion) {
             var text = completion.templateTwo || completion.text;

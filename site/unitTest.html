@@ -66,6 +66,10 @@
             .hideCoverage #blanket-main {
                 display: none;
             }
+
+            #blanket-main.large {
+                height: 1000px !important;
+            }
         </style>
     </head>
     <body id="unitTestBody" class="hideTest hideCoverage">
@@ -75,6 +79,7 @@
             <button id="toggleXC">Show/Hide XC</button>
             <button id="toggleTestSize">Toggle Test Size</button>
             <button id="toggleXCSize">Toggle XC Size</button>
+            <!--<button id="toggleCoverageSize">Toggle Coverage Size</button>-->
             <button id="backXC">Back To Xcalar Design</button>
         </div>
         <div id="mocha"></div>

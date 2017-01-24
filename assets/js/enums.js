@@ -155,6 +155,7 @@ var fakeEvent = {
     "mouseup"   : {"type": "mouseup", "which": 1},
     "mousedown" : {"type": "mousedown", "which": 1},
     "mouseenter": {"type": "mouseenter", "which": 1},
+    "mouseleave": {"type": "mouseleave", "which": 1},
     "enter"     : {"type": "keypress", "which": 13},
     "enterKeydown": {"type": "keydown", "which": 13},
     "input": {"type": "input"}
