@@ -2,6 +2,8 @@ window.TableList = (function($, TableList) {
     var searchHelper;
     var focusedListNum;
     var pendingCount = 0; // number of pending refreshTable calls
+    var canceledTables = {}; // stores tables that are canceled and should not
+                            // appear in the orphaned list
 
     TableList.setup = function() {
         // setup table list section listeners
@@ -619,6 +621,15 @@ window.TableList = (function($, TableList) {
         focusedListNum = null;
     };
 
+    TableList.addToCanceledList = function(tableName) {
+        canceledTables[tableName] = true;
+        TableList.removeTable(tableName, TableType.Orphan);
+    };
+
+    TableList.removeFromCanceledList = function(tableName) {
+        delete canceledTables[tableName];
+    };    
+
     // affects the display of the activeTableListSection instruction msg
     // pendingCount will have a positive value during TblManager.refreshTables
     // and will hide the instruction msg and will unhide when count returns to 0
@@ -983,8 +994,12 @@ window.TableList = (function($, TableList) {
     function generateOrphanList(tables) {
         var numTables = tables.length;
         var html = "";
-        for (var i = 0; i < numTables; i++) {
+        for (var i = 0; i < tables.length; i++) {
             var tableName = tables[i];
+            if (canceledTables[tableName]) { // do not show canceled tables
+                numTables--;
+                continue;
+            }
             var tableId = xcHelper.getTableId(tableName);
             html += '<li class="clearfix tableInfo" ' +
                     'data-id="' + tableId + '"' +

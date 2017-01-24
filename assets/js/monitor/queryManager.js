@@ -260,6 +260,7 @@ window.QueryManager = (function(QueryManager, $) {
         // unfinished tables will be dropped when Transaction.fail is reached
         var onlyFinishedTables = true;
         dropCanceledTables(mainQuery, onlyFinishedTables);
+        tableListCanceled(mainQuery);
 
         var currStep = mainQuery.currStep;
 
@@ -361,6 +362,7 @@ window.QueryManager = (function(QueryManager, $) {
         }
         var onlyFinishedTables = false;
         dropCanceledTables(mainQuery, onlyFinishedTables);
+        clearTableListCanceled(mainQuery);
         delete canceledQueries[id];
     };
 
@@ -1378,6 +1380,34 @@ window.QueryManager = (function(QueryManager, $) {
             tableId = xcHelper.getTableId(srcTables[i]);
             if (gTables[tableId]) {
                 xcHelper.unlockTable(tableId);
+            }
+        }
+    }
+
+    function tableListCanceled(mainQuery) {
+        var queryStr = mainQuery.getQuery();
+        var queries = xcHelper.parseQuery(queryStr);
+        var numQueries = queries.length;
+        var tables = [];
+        for (var i = 0; i < numQueries; i++) {
+            if (queries[i].dstTable) {
+                if (queries[i].dstTable.indexOf(gDSPrefix) === -1) {
+                    TableList.addToCanceledList(queries[i].dstTable);
+                }
+            }
+        }
+    }
+
+    function clearTableListCanceled(mainQuery) {
+        var queryStr = mainQuery.getQuery();
+        var queries = xcHelper.parseQuery(queryStr);
+        var numQueries = queries.length;
+        var tables = [];
+        for (var i = 0; i < numQueries; i++) {
+            if (queries[i].dstTable) {
+                if (queries[i].dstTable.indexOf(gDSPrefix) === -1) {
+                    TableList.removeFromCanceledList(queries[i].dstTable);
+                }
             }
         }
     }
