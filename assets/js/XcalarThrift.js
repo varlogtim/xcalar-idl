@@ -3568,7 +3568,6 @@ function XcalarDemoFileAppend(fileName, fileContents) {
 
 function XcalarDemoFileDelete(fileName) {
     var deferred = jQuery.Deferred();
-
     xcalarDemoFileDelete(tHandle, fileName)
     .then(function(retJson) {
         if (retJson && retJson.error && retJson.error.length > 0) {

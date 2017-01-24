@@ -2632,7 +2632,7 @@ ExtCategorySet.prototype = {
 
 /* Datastore File Upload */
 // handles the queue of XcalarDemoFileAppend calls
-function DSFileUpload(name, size, options) {
+function DSFileUpload(name, size, fileObj, options) {
     this.name = name;
     this.chunks = [];
     this.totalSize = size;
@@ -2644,16 +2644,13 @@ function DSFileUpload(name, size, options) {
     this.onUpdateCallback = options.onUpdate;
     this.onErrorCallback = options.onError;
     this.times = [];
-
-    this.__init();
+    this.fileObj = fileObj; // needs this reference of fileObj when
+                            // refreshing files
 
     return this;
 }
 
 DSFileUpload.prototype = {
-    __init: function() {
-        // nothing to init yet
-    },
     add: function(content, chunkSize) {
         if (this.status === "canceled") {
             return;
@@ -2667,6 +2664,9 @@ DSFileUpload.prototype = {
     },
     getSizeCompleted: function() {
         return this.sizeCompleted;
+    },
+    getFileObj: function() {
+        return this.fileObj;
     },
     complete: function(callback) {
         this.status = 'done';
@@ -2699,7 +2699,6 @@ DSFileUpload.prototype = {
         XcalarDemoFileAppend(self.name, self.chunks[0].content)
         .then(function() {
             if (self.status === "canceled") {
-                console.log('canceling');
                 XcalarDemoFileDelete(self.name);
                 return;
             }
@@ -2713,6 +2712,9 @@ DSFileUpload.prototype = {
                 self.onCompleteCallback();
                 self.complete();
                 console.log("upload done");
+            } else {
+                // no chunks in the stream but worker is not done so .add
+                // and .__stream will get called again eventually
             }
         })
         .fail(function(err) {

@@ -924,12 +924,11 @@ window.xcHelper = (function($, xcHelper) {
         }
     };
 
-    xcHelper.showRefreshIcon = function($location, manualClose, options) {
-        options = options || {};
-
+    xcHelper.showRefreshIcon = function($location, manualClose, promise) {
         var $waitingIcon = $('<div class="refreshIcon"><img src=""' +
                             'style="display:none;height:0px;width:0px;' +
                             '"></div>');
+        var spinTime = 1500;
         $location.append($waitingIcon);
         $waitingIcon.find('img').show();
         setTimeout(function() {
@@ -938,13 +937,26 @@ window.xcHelper = (function($, xcHelper) {
                                     .width(35);
         }, 0);
 
-        if (!manualClose) {
+        if (promise) {
+            // guarantees waitingIcon shows for at least 1.5 seconds
+            var startTime = Date.now();
+            promise.always(function() {
+                var elapsedTime = Date.now() - startTime;
+                var timeout = Math.max(0, spinTime - elapsedTime);
+                setTimeout(function() {
+                    $waitingIcon.fadeOut(100, function() {
+                        $waitingIcon.remove();
+                    });
+                }, timeout);
+            });
+        } else if (!manualClose) {
             setTimeout(function(){
                 $waitingIcon.fadeOut(100, function() {
                     $waitingIcon.remove();
                 });
-            }, 1400);
+            }, spinTime);
         }
+
         return ($waitingIcon);
     };
 
@@ -1642,6 +1654,10 @@ window.xcHelper = (function($, xcHelper) {
         // cannot have any characters other than alphanumeric
         // or _ -
         return !/[^a-zA-Z\d\_\-]/.test(str);
+    };
+
+    xcHelper.escapeDblQuoteForHTML = function(str) {
+        return str.replace(/\"/g, "&quot;");
     };
 
     xcHelper.hasInvalidCharInCol = function(str) {

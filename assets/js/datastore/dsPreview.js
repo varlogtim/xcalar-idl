@@ -358,7 +358,11 @@ window.DSPreview = (function($, DSPreview) {
                     DSForm.show({"noReset": true});
                 }
             } else {
-                FileBrowser.show(protocol, path);
+                if (XVM.getLicenseMode() === XcalarMode.Demo) {
+                    DSUploader.show();
+                } else {
+                    FileBrowser.show(protocol, path);
+                }
             }
         });
 

@@ -751,6 +751,25 @@ table.datasetTable {
 
     #dsUploaderMain {
         position: relative;
+        .fileName {
+            width: ~"calc(40% - 16px)";
+        }
+        .fileDate {
+            width: ~"calc(30% - 16px)";
+        }
+        .fileSize {
+            width: ~"calc(30% - 90px)";
+        }
+        .refresh {
+            float: right;
+            .size(40px, 100%);
+            font-size: 14px;
+            line-height: 40px;
+            margin-right: 10px;
+            text-align: center;
+            color: @color-font-darkGray;
+            cursor: pointer;
+        }
     }
 
     #dsUploaderContainer {
@@ -823,9 +842,7 @@ table.datasetTable {
                 color: @color-font-softBlue;
             }
         }
-        .fileSize {
-            width: ~"calc(33% - 90px)";
-        }
+
         .xi-cancel, .xi-trash {
             float: right;
             width: 40px;

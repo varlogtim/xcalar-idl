@@ -570,6 +570,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
         var gErrKey      = generateKey(wkbkId, "gErr");
         var gUserKey     = generateKey(username, 'gUser');
         var gSettingsKey = generateKey("", 'gSettings'); // global key
+        var gPendingUploadsKey = generateKey("", 'gPUploads'); // global key
 
         var keys = {
             gStorageKey   : gInfoKey,
@@ -577,7 +578,8 @@ window.WorkbookManager = (function($, WorkbookManager) {
             gLogKey       : gLogKey,
             gErrKey       : gErrKey,
             gUserKey      : gUserKey,
-            gSettingsKey  : gSettingsKey
+            gSettingsKey  : gSettingsKey,
+            gPendingUploadsKey: gPendingUploadsKey
         };
 
         KVStore.setup(keys);

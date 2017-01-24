@@ -188,6 +188,7 @@ window.KVStore = (function($, KVStore) {
         var gInfosUser = {};
         var gInfosSetting = {};
         var gInfosMeta = {};
+        var gPendingUploads = [];
         var isEmpty = false;
 
         getEmataInfo()
@@ -201,6 +202,10 @@ window.KVStore = (function($, KVStore) {
         })
         .then(function(settingMeta) {
             gInfosSetting = settingMeta;
+            return getPendingUploads();
+        })
+        .then(function(uploadsMeta) {
+            gPendingUploads = uploadsMeta;
             return getMetaInfo();
         })
         .then(function(meta) {
@@ -236,6 +241,9 @@ window.KVStore = (function($, KVStore) {
                     console.error(error.stack);
                     return PromiseHelper.reject(error);
                 }
+            })
+            .then(function() {
+                return DSUploader.restore(gPendingUploads);
             })
             .then(function() {
                 if (isEmpty) {
@@ -298,6 +306,13 @@ window.KVStore = (function($, KVStore) {
 
     function getSettingInfo() {
         return getInfo(KVStore.gSettingsKey, gKVScope.GLOB);
+    }
+
+    function getPendingUploads() {
+        if (XVM.getLicenseMode() !== XcalarMode.Demo) {
+            return PromiseHelper.resolve();
+        }
+        return getInfo(KVStore.gPendingUploadsKey, gKVScope.GLOB);
     }
 
     function getMetaInfo() {
