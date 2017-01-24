@@ -3883,3 +3883,117 @@ xcalarApiDeleteDatasets = runEntity.xcalarApiDeleteDatasets = function (thriftHa
     return (deferred.promise());
 };
 
+xcalarDemoFileWorkItem = runEntity.xcalarDemoFileWorkItem = function(inJson) {
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiInputT();
+
+    workItem.api = XcalarApisT.XcalarApiDemoFile;
+    workItem.input.demoFileInput = new XcalarApiDemoFileInputT();
+    workItem.input.demoFileInput.inputJson = inJson;
+    return (workItem);
+};
+
+xcalarDemoFileCreate = runEntity.xcalarDemoFileCreate = function(thriftHandle, fileName) {
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarDemoFileCreate(fileName = " + fileName +
+                                         ")");
+    }
+
+    var inputObj = {"func": "demoCreate", "fileName": fileName};
+
+    var workItem = xcalarDemoFileWorkItem(JSON.stringify(inputObj));
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        var demoFileOutput = result.output.outputResult.demoFileOutput;
+        var status = result.output.hdr.status;
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            deferred.reject(status);
+        }
+
+        // demoFileOutput has a outputJson field which is a json formatted string
+        // with a field called 'error' if something went wrong
+        deferred.resolve(JSON.parse(demoFileOutput.outputJson));
+    })
+    .fail(function(error) {
+        console.log("xcalarDemoFileCreate() caught exception:", error);
+        deferred.reject(error);
+    });
+
+    return (deferred.promise());
+};
+
+xcalarDemoFileAppend = runEntity.xcalarDemoFileAppend = function(thriftHandle, fileName, fileContents) {
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarDemoFileAppend(fileName = " + fileName +
+                                         "fileContents = " + fileContents +
+                                         ")");
+    }
+
+    var inputObj = {"func": "demoAppend",
+                    "fileName": fileName,
+                    "data": btoa(fileContents)};
+
+    var workItem = xcalarDemoFileWorkItem(JSON.stringify(inputObj));
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        var demoFileOutput = result.output.outputResult.demoFileOutput;
+        var status = result.output.hdr.status;
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            deferred.reject(status);
+        }
+
+        // demoFileOutput has a outputJson field which is a json formatted string
+        // with a field called 'error' if something went wrong
+        deferred.resolve(JSON.parse(demoFileOutput.outputJson));
+    })
+    .fail(function(error) {
+        console.log("xcalarDemoFileAppend() caught exception:", error);
+        deferred.reject(error);
+    });
+
+    return (deferred.promise());
+};
+
+xcalarDemoFileDelete = runEntity.xcalarDemoFileDelete = function(thriftHandle, fileName) {
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarDemoFileDelete(fileName = " + fileName +
+                                         ")");
+    }
+
+    var inputObj = {"func": "demoDelete", "fileName": fileName};
+
+    var workItem = xcalarDemoFileWorkItem(JSON.stringify(inputObj));
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        var demoFileOutput = result.output.outputResult.demoFileOutput;
+        var status = result.output.hdr.status;
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            deferred.reject(status);
+        }
+
+        // demoFileOutput has a outputJson field which is a json formatted string
+        // with a field called 'error' if something went wrong
+        deferred.resolve(JSON.parse(demoFileOutput.outputJson));
+    })
+    .fail(function(error) {
+        console.log("xcalarDemoFileDelete() caught exception:", error);
+        deferred.reject(error);
+    });
+
+    return (deferred.promise());
+};

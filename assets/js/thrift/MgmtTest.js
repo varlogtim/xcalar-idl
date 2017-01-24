@@ -3537,6 +3537,83 @@ PromiseHelper = (function(PromiseHelper, $) {
         });
     }
 
+    function testDemoFile(test) {
+        var testFileName = "mgmtdTest";
+        var url = "demo:///" + testFileName;
+        var fileContents = "ABCD1234!@#$";
+
+        xcalarListFiles(thriftHandle, "demo:///")
+        .then(function(listFilesOutput) {
+            for (var ii = 0; ii < listFilesOutput.numFiles; ii++) {
+                var fileName = listFilesOutput.files[ii].name;
+                if (fileName === testFileName) {
+                    return xcalarDemoFileDelete(thriftHandle, fileName);
+                }
+            }
+        })
+        .then(function(result) {
+            printResult(result);
+            return xcalarDemoFileCreate(thriftHandle, testFileName);
+        })
+        .then(function(createResult) {
+            printResult(createResult);
+            test.assert(createResult.error == null);
+            return xcalarDemoFileAppend(thriftHandle, testFileName, fileContents);
+        })
+        .then(function(appendResult) {
+            printResult(appendResult);
+            test.assert(appendResult.error == null);
+            return xcalarPreview(thriftHandle, url, "*", false, 100, 0);
+        })
+        .then(function(previewResult) {
+            var preview = JSON.parse(previewResult.outputJson)
+            test.assert(atob(preview.base64Data) === fileContents);
+            return xcalarDemoFileDelete(thriftHandle, testFileName);
+        })
+        .then(function(deleteResult) {
+            test.assert(deleteResult.error == null);
+            test.pass();
+        })
+        .fail(function(reason) {
+            test.fail(StatusTStr[reason]);
+        });
+    }
+
+    function testDemoFileAlreadyExists(test) {
+        var testFileName = "mgmtdTestAlreadyExist";
+        var url = "demo:///" + testFileName;
+
+        xcalarListFiles(thriftHandle, "demo:///")
+        .then(function(listFilesOutput) {
+            for (var ii = 0; ii < listFilesOutput.numFiles; ii++) {
+                var fileName = listFilesOutput.files[ii].name;
+                if (fileName === testFileName) {
+                    return xcalarDemoFileDelete(thriftHandle, fileName);
+                }
+            }
+        })
+        .then(function(result) {
+            if (result != null) {
+                printResult(result);
+                test.assert(result.error == null);
+            }
+            return xcalarDemoFileCreate(thriftHandle, testFileName);
+        })
+        .then(function(createResult) {
+            printResult(createResult);
+            test.assert(createResult.error == null);
+            return xcalarDemoFileCreate(thriftHandle, testFileName);
+        })
+        .then(function(result) {
+            test.assert(result.error != null);
+            test.assert(result.error.indexOf("already exists") !== -1);
+            test.pass();
+        })
+        .fail(function(reason) {
+            test.fail(StatusTStr[reason]);
+        });
+    }
+
     function testFuncDriverList(test) {
         xcalarApiListFuncTest(thriftHandle, "libhello::*")
         .done(function(listFuncTestOutput) {
@@ -3767,6 +3844,9 @@ PromiseHelper = (function(PromiseHelper, $) {
 
     // Re-enabled with delete DHT added
     addTestCase(testCreateDht, "create DHT test", defaultTimeout, TestCaseEnabled, "");
+
+    addTestCase(testDemoFile, "demo file ops test", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testDemoFileAlreadyExists, "demo file already exist test", defaultTimeout, TestCaseEnabled, "");
 
     // XXX re-enable when the query-DAG bug is fixed
     addTestCase(testDeleteTable, "delete table", defaultTimeout, TestCaseDisabled, "");

@@ -15097,6 +15097,112 @@ XcalarApiPreviewOutputT.prototype.write = function(output) {
   return;
 };
 
+XcalarApiDemoFileInputT = function(args) {
+  this.inputJson = null;
+  if (args) {
+    if (args.inputJson !== undefined) {
+      this.inputJson = args.inputJson;
+    }
+  }
+};
+XcalarApiDemoFileInputT.prototype = {};
+XcalarApiDemoFileInputT.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.STRING) {
+        this.inputJson = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 0:
+        input.skip(ftype);
+        break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+XcalarApiDemoFileInputT.prototype.write = function(output) {
+  output.writeStructBegin('XcalarApiDemoFileInputT');
+  if (this.inputJson !== null && this.inputJson !== undefined) {
+    output.writeFieldBegin('inputJson', Thrift.Type.STRING, 1);
+    output.writeString(this.inputJson);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
+XcalarApiDemoFileOutputT = function(args) {
+  this.outputJson = null;
+  if (args) {
+    if (args.outputJson !== undefined) {
+      this.outputJson = args.outputJson;
+    }
+  }
+};
+XcalarApiDemoFileOutputT.prototype = {};
+XcalarApiDemoFileOutputT.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.STRING) {
+        this.outputJson = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 0:
+        input.skip(ftype);
+        break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+XcalarApiDemoFileOutputT.prototype.write = function(output) {
+  output.writeStructBegin('XcalarApiDemoFileOutputT');
+  if (this.outputJson !== null && this.outputJson !== undefined) {
+    output.writeFieldBegin('outputJson', Thrift.Type.STRING, 1);
+    output.writeString(this.outputJson);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
 XcalarApiBulkLoadInputT = function(args) {
   this.dataset = null;
   this.loadArgs = null;
@@ -23844,6 +23950,7 @@ XcalarApiInputT = function(args) {
   this.errorpointSetInput = null;
   this.appRunInput = null;
   this.appReapInput = null;
+  this.demoFileInput = null;
   if (args) {
     if (args.loadInput !== undefined) {
       this.loadInput = args.loadInput;
@@ -24057,6 +24164,9 @@ XcalarApiInputT = function(args) {
     }
     if (args.appReapInput !== undefined) {
       this.appReapInput = args.appReapInput;
+    }
+    if (args.demoFileInput !== undefined) {
+      this.demoFileInput = args.demoFileInput;
     }
   }
 };
@@ -24634,6 +24744,14 @@ XcalarApiInputT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 72:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.demoFileInput = new XcalarApiDemoFileInputT();
+        this.demoFileInput.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -24998,6 +25116,11 @@ XcalarApiInputT.prototype.write = function(output) {
   if (this.appReapInput !== null && this.appReapInput !== undefined) {
     output.writeFieldBegin('appReapInput', Thrift.Type.STRUCT, 71);
     this.appReapInput.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.demoFileInput !== null && this.demoFileInput !== undefined) {
+    output.writeFieldBegin('demoFileInput', Thrift.Type.STRUCT, 72);
+    this.demoFileInput.write(output);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -26355,6 +26478,7 @@ XcalarApiOutputResultT = function(args) {
   this.getLicenseOutput = null;
   this.appRunOutput = null;
   this.appReapOutput = null;
+  this.demoFileOutput = null;
   if (args) {
     if (args.getVersionOutput !== undefined) {
       this.getVersionOutput = args.getVersionOutput;
@@ -26511,6 +26635,9 @@ XcalarApiOutputResultT = function(args) {
     }
     if (args.appReapOutput !== undefined) {
       this.appReapOutput = args.appReapOutput;
+    }
+    if (args.demoFileOutput !== undefined) {
+      this.demoFileOutput = args.demoFileOutput;
     }
   }
 };
@@ -26943,6 +27070,14 @@ XcalarApiOutputResultT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 53:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.demoFileOutput = new XcalarApiDemoFileOutputT();
+        this.demoFileOutput.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -27212,6 +27347,11 @@ XcalarApiOutputResultT.prototype.write = function(output) {
   if (this.appReapOutput !== null && this.appReapOutput !== undefined) {
     output.writeFieldBegin('appReapOutput', Thrift.Type.STRUCT, 52);
     this.appReapOutput.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.demoFileOutput !== null && this.demoFileOutput !== undefined) {
+    output.writeFieldBegin('demoFileOutput', Thrift.Type.STRUCT, 53);
+    this.demoFileOutput.write(output);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -27689,7 +27829,8 @@ XcalarApisT = {
   'XcalarApiGetLicense' : 87,
   'XcalarApiAppRun' : 88,
   'XcalarApiAppReap' : 89,
-  'XcalarApiFunctionInvalid' : 90
+  'XcalarApiDemoFile' : 90,
+  'XcalarApiFunctionInvalid' : 91
 };
 XcalarApisTStr = {0 : 'XcalarApiUnknown',
 1 : 'XcalarApiGetVersion',
@@ -27781,7 +27922,8 @@ XcalarApisTStr = {0 : 'XcalarApiUnknown',
 87 : 'XcalarApiGetLicense',
 88 : 'XcalarApiAppRun',
 89 : 'XcalarApiAppReap',
-90 : 'XcalarApiFunctionInvalid'
+90 : 'XcalarApiDemoFile',
+91 : 'XcalarApiFunctionInvalid'
 };
 //
 // Autogenerated by Thrift Compiler (0.9.2)
@@ -29250,9 +29392,9 @@ XcalarApiServiceClient.prototype.recv_queueWork = function() {
 
 
 XcalarApiVersionT = {
-  'XcalarApiVersionSignature' : 45588176
+  'XcalarApiVersionSignature' : 127907680
 };
-XcalarApiVersionTStr = {45588176 : '2b79ed02c46be2c9fb513612d0b9cfd8'
+XcalarApiVersionTStr = {127907680 : '79fb760cb9d7ec8741348ca915ad7bcc'
 };
 // Async extension for XcalarApiService.js
 XcalarApiServiceClient.prototype.queueWorkAsync = function(workItem) {
@@ -33189,6 +33331,120 @@ xcalarApiDeleteDatasets = runEntity.xcalarApiDeleteDatasets = function (thriftHa
     return (deferred.promise());
 };
 
+xcalarDemoFileWorkItem = runEntity.xcalarDemoFileWorkItem = function(inJson) {
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiInputT();
+
+    workItem.api = XcalarApisT.XcalarApiDemoFile;
+    workItem.input.demoFileInput = new XcalarApiDemoFileInputT();
+    workItem.input.demoFileInput.inputJson = inJson;
+    return (workItem);
+};
+
+xcalarDemoFileCreate = runEntity.xcalarDemoFileCreate = function(thriftHandle, fileName) {
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarDemoFileCreate(fileName = " + fileName +
+                                         ")");
+    }
+
+    var inputObj = {"func": "demoCreate", "fileName": fileName};
+
+    var workItem = xcalarDemoFileWorkItem(JSON.stringify(inputObj));
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        var demoFileOutput = result.output.outputResult.demoFileOutput;
+        var status = result.output.hdr.status;
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            deferred.reject(status);
+        }
+
+        // demoFileOutput has a outputJson field which is a json formatted string
+        // with a field called 'error' if something went wrong
+        deferred.resolve(JSON.parse(demoFileOutput.outputJson));
+    })
+    .fail(function(error) {
+        console.log("xcalarDemoFileCreate() caught exception:", error);
+        deferred.reject(error);
+    });
+
+    return (deferred.promise());
+};
+
+xcalarDemoFileAppend = runEntity.xcalarDemoFileAppend = function(thriftHandle, fileName, fileContents) {
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarDemoFileAppend(fileName = " + fileName +
+                                         "fileContents = " + fileContents +
+                                         ")");
+    }
+
+    var inputObj = {"func": "demoAppend",
+                    "fileName": fileName,
+                    "data": btoa(fileContents)};
+
+    var workItem = xcalarDemoFileWorkItem(JSON.stringify(inputObj));
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        var demoFileOutput = result.output.outputResult.demoFileOutput;
+        var status = result.output.hdr.status;
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            deferred.reject(status);
+        }
+
+        // demoFileOutput has a outputJson field which is a json formatted string
+        // with a field called 'error' if something went wrong
+        deferred.resolve(JSON.parse(demoFileOutput.outputJson));
+    })
+    .fail(function(error) {
+        console.log("xcalarDemoFileAppend() caught exception:", error);
+        deferred.reject(error);
+    });
+
+    return (deferred.promise());
+};
+
+xcalarDemoFileDelete = runEntity.xcalarDemoFileDelete = function(thriftHandle, fileName) {
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarDemoFileDelete(fileName = " + fileName +
+                                         ")");
+    }
+
+    var inputObj = {"func": "demoDelete", "fileName": fileName};
+
+    var workItem = xcalarDemoFileWorkItem(JSON.stringify(inputObj));
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        var demoFileOutput = result.output.outputResult.demoFileOutput;
+        var status = result.output.hdr.status;
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            deferred.reject(status);
+        }
+
+        // demoFileOutput has a outputJson field which is a json formatted string
+        // with a field called 'error' if something went wrong
+        deferred.resolve(JSON.parse(demoFileOutput.outputJson));
+    })
+    .fail(function(error) {
+        console.log("xcalarDemoFileDelete() caught exception:", error);
+        deferred.reject(error);
+    });
+
+    return (deferred.promise());
+};
 // Scroll all the way down to add test cases
 // Or search for function addTestCase
 
@@ -36728,6 +36984,83 @@ PromiseHelper = (function(PromiseHelper, $) {
         });
     }
 
+    function testDemoFile(test) {
+        var testFileName = "mgmtdTest";
+        var url = "demo:///" + testFileName;
+        var fileContents = "ABCD1234!@#$";
+
+        xcalarListFiles(thriftHandle, "demo:///")
+        .then(function(listFilesOutput) {
+            for (var ii = 0; ii < listFilesOutput.numFiles; ii++) {
+                var fileName = listFilesOutput.files[ii].name;
+                if (fileName === testFileName) {
+                    return xcalarDemoFileDelete(thriftHandle, fileName);
+                }
+            }
+        })
+        .then(function(result) {
+            printResult(result);
+            return xcalarDemoFileCreate(thriftHandle, testFileName);
+        })
+        .then(function(createResult) {
+            printResult(createResult);
+            test.assert(createResult.error == null);
+            return xcalarDemoFileAppend(thriftHandle, testFileName, fileContents);
+        })
+        .then(function(appendResult) {
+            printResult(appendResult);
+            test.assert(appendResult.error == null);
+            return xcalarPreview(thriftHandle, url, "*", false, 100, 0);
+        })
+        .then(function(previewResult) {
+            var preview = JSON.parse(previewResult.outputJson)
+            test.assert(atob(preview.base64Data) === fileContents);
+            return xcalarDemoFileDelete(thriftHandle, testFileName);
+        })
+        .then(function(deleteResult) {
+            test.assert(deleteResult.error == null);
+            test.pass();
+        })
+        .fail(function(reason) {
+            test.fail(StatusTStr[reason]);
+        });
+    }
+
+    function testDemoFileAlreadyExists(test) {
+        var testFileName = "mgmtdTestAlreadyExist";
+        var url = "demo:///" + testFileName;
+
+        xcalarListFiles(thriftHandle, "demo:///")
+        .then(function(listFilesOutput) {
+            for (var ii = 0; ii < listFilesOutput.numFiles; ii++) {
+                var fileName = listFilesOutput.files[ii].name;
+                if (fileName === testFileName) {
+                    return xcalarDemoFileDelete(thriftHandle, fileName);
+                }
+            }
+        })
+        .then(function(result) {
+            if (result != null) {
+                printResult(result);
+                test.assert(result.error == null);
+            }
+            return xcalarDemoFileCreate(thriftHandle, testFileName);
+        })
+        .then(function(createResult) {
+            printResult(createResult);
+            test.assert(createResult.error == null);
+            return xcalarDemoFileCreate(thriftHandle, testFileName);
+        })
+        .then(function(result) {
+            test.assert(result.error != null);
+            test.assert(result.error.indexOf("already exists") !== -1);
+            test.pass();
+        })
+        .fail(function(reason) {
+            test.fail(StatusTStr[reason]);
+        });
+    }
+
     function testFuncDriverList(test) {
         xcalarApiListFuncTest(thriftHandle, "libhello::*")
         .done(function(listFuncTestOutput) {
@@ -36958,6 +37291,9 @@ PromiseHelper = (function(PromiseHelper, $) {
 
     // Re-enabled with delete DHT added
     addTestCase(testCreateDht, "create DHT test", defaultTimeout, TestCaseEnabled, "");
+
+    addTestCase(testDemoFile, "demo file ops test", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testDemoFileAlreadyExists, "demo file already exist test", defaultTimeout, TestCaseEnabled, "");
 
     // XXX re-enable when the query-DAG bug is fixed
     addTestCase(testDeleteTable, "delete table", defaultTimeout, TestCaseDisabled, "");

@@ -5,7 +5,7 @@ window.DSUploader = (function($, DSUploader) {
     var $innerContainer; // innerdsUploader
     var droppedFiles = null;
     var allFiles = [{name: "bin", status: "done", attr: {size: 5 * MB, mtime: Date.now()}}];
-    window.gDsUploadEnabled = false;
+    window.gDsUploadEnabled = true;
     var reverseSort = false;
     var defaultSortKey = "type";
     var sortKey = defaultSortKey;
