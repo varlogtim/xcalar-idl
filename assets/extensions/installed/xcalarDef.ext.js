@@ -395,6 +395,7 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
         var winColNames = [];
         var defChain = [];
         var newTableName, newColName, mapStr, prefix, col;
+        newTableName = srcTable;
 
         // extract all fatptr cols as immediates by casting to same type
         for (var i = 0; i < winCols.length; i++) {
