@@ -366,10 +366,6 @@ window.DSPreview = (function($, DSPreview) {
         $form.on("click", ".confirm", function() {
             var $submitBtn = $(this).blur();
             var toCreateTable = $submitBtn.hasClass("createTable");
-            xcHelper.disableSubmit($submitBtn);
-            // enableSubmit is done during the next showing of the form
-            // If the form isn't shown, there's no way it can be submitted
-            // anyway
             submitForm(toCreateTable);
         });
     }
@@ -637,11 +633,19 @@ window.DSPreview = (function($, DSPreview) {
                 "title"    : DSFormTStr.CreateWarn,
                 "msg"      : DSFormTStr.CreateWarnMsg,
                 "onConfirm": innerDeferred.resolve,
-                "onCancel" : innerDeferred.reject
+                "onCancel" : function() {
+                    xcHelper.enableSubmit($form.find('.confirm'));
+                    innerDeferred.reject();
+                }
             });
 
             return innerDeferred.promise();
         }
+
+        xcHelper.disableSubmit($form.find('.confirm'));
+        // enableSubmit is done during the next showing of the form
+        // If the form isn't shown, there's no way it can be submitted
+        // anyway
 
         alertHelper()
         .then(function() {
