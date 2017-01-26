@@ -2921,6 +2921,8 @@ window.xcHelper = (function($, xcHelper) {
         }
     }
 
+    // custom options for each $menu type
+    // adds classes, decides whether to close the menu and return;
     function menuHelper($dropdownIcon, $menu, $subMenu, menuId, tableId, options) {
         var toClose = options.toClose;
         if (toClose instanceof Function && options.toClose() === true) {
@@ -2953,6 +2955,7 @@ window.xcHelper = (function($, xcHelper) {
                     !$menu.hasClass('tdMenu')) {
                     return "closeMenu";
                 }
+                updateColDropdown($menu, $subMenu, tableId, options);
                 if (options.multipleColNums) {
                     $menu.data('columns', options.multipleColNums);
                 } else {
@@ -2971,6 +2974,24 @@ window.xcHelper = (function($, xcHelper) {
             default:
                 $('.highlightBox').remove();
                 break;
+        }
+    }
+
+    function updateColDropdown($menu, $subMenu, tableId, options) {
+        var progCol = gTables[tableId].getCol(options.colNum);
+        var $lis = $subMenu.find(".typeList");
+        $lis.removeClass("unavailable");
+        xcTooltip.remove($lis);
+        if (!options.multipleColNums && progCol.isKnownType()) {
+            var type = progCol.getType();
+            if (type === ColumnType.float) {
+                $subMenu.find(".type-float").addClass("unavailable");
+                xcTooltip.add($li, {title: TooltipTStr.ColumnAlreadyFloat});
+            } else if (type === ColumnType.integer) {
+                var $li = $subMenu.find(".type-integer");
+                $li.addClass("unavailable");
+                xcTooltip.add($li, {title: TooltipTStr.ColumnAlreadyInt});
+            } 
         }
     }
 

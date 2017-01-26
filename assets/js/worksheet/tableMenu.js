@@ -607,7 +607,7 @@ window.TblMenu = (function(TblMenu, $) {
         });
 
         $subMenu.on('mouseup', '.typeList', function(event) {
-            if (event.which !== 1) {
+            if (event.which !== 1 || $(this).hasClass('unavailable')) {
                 return;
             }
 
