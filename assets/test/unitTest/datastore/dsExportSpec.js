@@ -86,8 +86,14 @@ describe("DSExport", function() {
             $form.find(".udfModuleListWrap li")
             .eq(0).trigger(fakeEvent.mouseup);
             expect($form.find(".udfModuleName").val()).to.not.equal("");
-            expect($form.find(".udfFuncListWrap").css("pointer-events"))
-            .to.equal("auto");
+            if (isBrowserMicrosoft) {
+                expect($form.find(".udfFuncListWrap").css("pointer-events"))
+                .to.equal("visiblePainted");
+            } else {
+                expect($form.find(".udfFuncListWrap").css("pointer-events"))
+                .to.equal("auto");
+            }
+            
             $form.find(".udfFuncName").val("test");
             expect($form.find(".udfFuncName").val()).to.equal("test");
             expect($form.find(".placeholderRow:visible").length).to.equal(0);
@@ -146,8 +152,13 @@ describe("DSExport", function() {
             $form.find(".udfModuleListWrap li")
             .eq(0).trigger(fakeEvent.mouseup);
             expect($form.find(".udfModuleName").val()).to.not.equal("");
-            expect($form.find(".udfFuncListWrap").css("pointer-events"))
-            .to.equal("auto");
+            if (isBrowserMicrosoft) {
+                expect($form.find(".udfFuncListWrap").css("pointer-events"))
+                .to.equal("visiblePainted");
+            } else {
+                expect($form.find(".udfFuncListWrap").css("pointer-events"))
+                .to.equal("auto");
+            }
             $form.find(".udfFuncList li").eq(0).trigger(fakeEvent.mouseup);
             expect($form.find(".udfFuncName").val()).to.not.equal("");
             expect($form.find(".udfFuncName").val())

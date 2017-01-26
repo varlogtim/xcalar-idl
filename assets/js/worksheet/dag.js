@@ -691,13 +691,21 @@ window.DagPanel = (function($, DagPanel) {
         var topMargin = 3;
         var leftMargin = dagPanelLeft - 7;
         var menuWidth = 0;
+        var left;
+        var top;
         if (MainMenu.isMenuOpen()) {
             menuWidth = 285;
         }
-        leftMargin += menuWidth;
 
-        var top = e.pageY + topMargin;
-        var left = e.pageX - leftMargin;
+        if (window.isBrowserIE) {
+            left = e.pageX;
+        } else {
+            leftMargin += menuWidth;
+            left = e.pageX - leftMargin;
+        }
+
+        top = e.pageY + topMargin;
+        
 
         // hack needed as of 9/26/2016
         if (!window.isBrowserIE) {
@@ -761,7 +769,12 @@ window.DagPanel = (function($, DagPanel) {
         var rightBoundary = $(window).width() - 5;
 
         if ($menu[0].getBoundingClientRect().right > rightBoundary) {
-            left = rightBoundary - (menuWidth + dagPanelLeft + $menu.width());
+            if (isBrowserMicrosoft) {
+                left = rightBoundary - $menu.width();
+            } else {
+                left = rightBoundary - (menuWidth + dagPanelLeft +
+                                        $menu.width());
+            }
             $menu.css('left', left).addClass('leftColMenu');
         }
 
@@ -783,7 +796,12 @@ window.DagPanel = (function($, DagPanel) {
         if (MainMenu.isMenuOpen()) {
             menuWidth = 285;
         }
-        left -= menuWidth;
+        if (window.isBrowserIE) {
+            left += leftMargin;
+        } else {
+            left -= menuWidth;
+        }
+        
         left = Math.max(2, left);
         if ($target.is('.tableTitle')) {
             top = $target[0].getBoundingClientRect().bottom + topMargin;
@@ -805,7 +823,13 @@ window.DagPanel = (function($, DagPanel) {
         var rightBoundary = $(window).width() - 5;
 
         if ($menu[0].getBoundingClientRect().right > rightBoundary) {
-            left = rightBoundary - (menuWidth + dagPanelLeft + $menu.width());
+            if (window.isBrowserIE) {
+                left = rightBoundary - $menu.width();
+            } else {
+                left = rightBoundary - (menuWidth + dagPanelLeft +
+                                        $menu.width());
+            }
+            
             $menu.css('left', left).addClass('leftColMenu');
         }
 
@@ -1930,9 +1954,13 @@ window.Dag = (function($, Dag) {
         if (MainMenu.isMenuOpen()) {
             menuWidth = 285;
         }
-        left -= menuWidth;
-        left = Math.max(2, left);
+         if (window.isBrowserIE) {
+            left += leftMargin;
+        } else {
+            left -= menuWidth;
+        }
 
+        left = Math.max(2, left);
         top = Math.max(2, top - height); // at least 2px from the top
 
         // hack needed as of 9/26/2016
@@ -1949,7 +1977,12 @@ window.Dag = (function($, Dag) {
         var rightBoundary = $(window).width() - 5;
 
         if ($schema[0].getBoundingClientRect().right > rightBoundary) {
-            left = rightBoundary - (menuWidth + dagPanelLeft + $schema.width());
+            if (isBrowserMicrosoft) {
+                left = rightBoundary - $schema.width();
+            } else {
+                left = rightBoundary - (menuWidth + dagPanelLeft +
+                                        $schema.width());
+            }
             $schema.css('left', left);
         }
 

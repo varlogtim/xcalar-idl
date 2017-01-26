@@ -278,7 +278,7 @@ window.DSExport = (function($, DSExport) {
         if (type === "UDF") {
             $editForm.find('.udfSelectorRow').addClass('active');
             $editForm.find('.udfModuleName').val($grid.data('module'));
-            $editForm.find('.udfFuncName').val($grid.data('fn'));
+            $editForm.find('.udfFuncName').val($grid.data('fnname'));
         }
     }
 
@@ -534,8 +534,9 @@ window.DSExport = (function($, DSExport) {
         var extraDataAttr = "";
         if (target.options.module && target.options.fn) {
             extraDataAttr = 'data-module="' + target.options.module + '" ' +
-                            'data-fn="' + target.options.fn + '"';
+                            'data-fnname="' + target.options.fn + '"';
         }
+
         var html = '<div class="target grid-unit" data-name="' + name + '" ' +
                     'data-formatarg="' + formatArg + '" ' + extraDataAttr +
                     '>' +

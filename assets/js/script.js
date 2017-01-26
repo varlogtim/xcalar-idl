@@ -763,6 +763,17 @@ window.StartManager = (function(StartManager, $) {
         }
 
         $(document).mousedown(function(event) {
+            if (window.isBrowserMicrosoft && event.shiftKey) {
+                // prevents text from being selected on shift click
+                var cachedFn = document.onselectstart;
+                document.onselectstart = function(){ 
+                    return false;
+                };
+                setTimeout(function() {
+                    document.onselectstart = cachedFn; 
+                }, 0);
+            }
+
             var $target = $(event.target);
             gMouseEvents.setMouseDownTarget($target);
             var clickable = $target.closest('.menu').length > 0 ||

@@ -596,11 +596,13 @@ function viewRelatedFunctionTest() {
         assert.isTrue($scheduleDetail.is(":visible"));
         assert.isTrue($scheduleInfos.is(":visible"));
         assert.isTrue($modScheduleForm.is(":visible"));
-
-        assert.equal($scheduleInfos.find(".created .text").text(),
+        if (!isBrowserMicrosoft) {
+            assert.equal($scheduleInfos.find(".created .text").text(),
                     dateText + " 11:13 PM");
-        assert.equal($scheduleInfos.find(".modified .text").text(),
+            assert.equal($scheduleInfos.find(".modified .text").text(),
                     dateText + " 11:13 PM");
+        }
+        
         assert.equal($scheduleInfos.find(".frequency .text").text(), "hourly");
         assert.equal($scheduleInfos.find(".recur .text").text(), "10");
         assert.equal($scheduleInfos.find(".lastRunInfo .text").text(), "N/A");
@@ -712,10 +714,13 @@ function viewRelatedFunctionTest() {
         });
         Scheduler.__testOnly__.fillInScheduleDetail(schedule);
         var $scheduleInfos = $("#scheduleInfos");
-        assert.equal($scheduleInfos.find(".created .text").text(),
-                    "1/23/2017 8:30 PM");
-        assert.equal($scheduleInfos.find(".modified .text").text(),
-                    "1/23/2017 8:30 PM");
+        if (!isBrowserMicrosoft) {
+            assert.equal($scheduleInfos.find(".created .text").text(),
+                        "1/23/2017 8:30 PM");
+            assert.equal($scheduleInfos.find(".modified .text").text(),
+                        "1/23/2017 8:30 PM");
+        }
+        
         assert.equal($scheduleInfos.find(".frequency .text").text(), "monthly");
         assert.equal($scheduleInfos.find(".recur .text").text(), "7");
         assert.equal($scheduleInfos.find(".lastRunInfo .text").text(), "N/A");
