@@ -765,7 +765,7 @@ window.xcHelper = (function($, xcHelper) {
             timeStamp = unixTime * 1000;
         }
         var noSeconds = options.noSeconds || false;
-        
+
         time = xcHelper.getTime(null, timeStamp, noSeconds) + " " +
                xcHelper.getDate("-", null, timeStamp);
         return time;
@@ -1000,7 +1000,8 @@ window.xcHelper = (function($, xcHelper) {
         $container.on("click", ".radioButton", function() {
             var $radioButton = $(this);
             if ($radioButton.hasClass("active") ||
-                $radioButton.hasClass("disabled"))
+                $radioButton.hasClass("disabled") ||
+                $radioButton.hasClass("unavailable"))
             {
                 return;
             }
@@ -2715,6 +2716,16 @@ window.xcHelper = (function($, xcHelper) {
         }
     };
 
+    xcHelper.disableMenuItem = function($menuLi, tooltipOptions) {
+        $menuLi.addClass("unavailable");
+        xcTooltip.add($menuLi, tooltipOptions);
+    };
+
+    xcHelper.enableMenuItem = function($menuLi) {
+        $menuLi.removeClass("unavailable");
+        xcTooltip.remove($menuLi);
+    };
+
     /*
     options: {
         mouseCoors: {x: float, y: float},
@@ -2927,6 +2938,11 @@ window.xcHelper = (function($, xcHelper) {
                     return "closeMenu";
                 }
                 updateTableDropdown($menu, options);
+                // XXX This really shouldn't be here...
+                if (XVM.getLicenseMode() === XcalarMode.Demo) {
+                    xcHelper.disableMenuItem($("#tableMenu .exportTable"),
+                                          {"title": TooltipTStr.NotInDemoMode});
+                }
                 $('.highlightBox').remove();
                 break;
             case ('colMenu'):
@@ -3028,7 +3044,7 @@ window.xcHelper = (function($, xcHelper) {
             if ($div.text().trim() !== "" && !isMultiCell) {
                 // when  only one cell is selected
                 $jsonModalLi.removeClass("hidden");
-                
+
                 // do not allow pullall from data cell
                 if (!options.isDataTd) {
                     $unnestLi.removeClass("hidden");
@@ -3046,7 +3062,7 @@ window.xcHelper = (function($, xcHelper) {
                     // when only one cell is selected
 
                     var mixedVal;
-             
+
                     try {
                         mixedVal = JSON.parse(text);
                     } catch (err) {
@@ -3089,14 +3105,12 @@ window.xcHelper = (function($, xcHelper) {
             $subMenu.find('.moveRight').removeClass('unavailable');
         }
         var $dagWrap = $('#dagWrap-' + tableId);
+
         if ($dagWrap.hasClass('fromRetina')) {
-            $menu.find('.createDf').addClass('unavailable');
-            xcTooltip.add($menu.find('.createDf'), {
-                title: DFGTStr.CannotCreateMsg
-            });
+            xcHelper.disableMenuItem($menu.find('.createDf'),
+                                     {title: DFGTStr.CannotCreateMsg});
         } else {
-            $menu.find('.createDf').removeClass('unavailable');
-            xcTooltip.remove($menu.find('.createDf'));
+            xcHelper.enableMenuItem($menu.find('.createDf'));
         }
     }
 

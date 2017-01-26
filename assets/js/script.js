@@ -122,6 +122,8 @@ window.StartManager = (function(StartManager, $) {
             JoinView.restore();
             FileBrowser.restore();
 
+            XVM.initMode();
+
             WSManager.focusOnWorksheet();
             // This adds a new failure mode to setup.
             return extPromise;
@@ -728,13 +730,13 @@ window.StartManager = (function(StartManager, $) {
             if (!mainFrameScrolling) {
                 mainFrameScrolling = true;
                 // apply the following actions only once per scroll session
-                
+
                 if ($(this).hasClass('scrollLocked')) {
                     scrollPrevented = true;
                 } else {
                     $('.menu').hide();
                 }
-                
+
                 removeMenuKeyboardNavigation();
                 $(".highlightBox").remove();
                 // table head's dropdown has position issue if not hide
@@ -805,13 +807,13 @@ window.StartManager = (function(StartManager, $) {
 
         var dragCount = 0; // tracks document drag enters and drag leaves
         // as multiple enters/leaves get triggered by children
- 
+
         $(document).on('dragenter', function(event) {
             var dt = event.originalEvent.dataTransfer;
             if (dt.types && (dt.types.indexOf ?
                 dt.types.indexOf('Files') !== -1 :
                 dt.types.contains('Files'))) {
-               
+
                 event.stopPropagation();
                 event.preventDefault();
 

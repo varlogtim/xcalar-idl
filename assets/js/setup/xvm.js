@@ -194,7 +194,18 @@ window.XVM = (function(XVM) {
         });
     };
 
-    // upgrdae the version info, do not implement yet!
+    XVM.initMode = function() {
+        // This function hides all the stuff that's not supposed to be there
+        // according to the modes
+        // This function is the last to be called in the initialize phase
+        if (licenseMode === XcalarMode.Demo) {
+            $("#dataStoresTab #outButton").addClass("xc-hidden");
+            xcTooltip.changeText($("#importDataButton"), TooltipTStr.PointDemo);
+            $("#monitorDsSampleInput").closest(".optionSet").hide()
+        }
+    }
+
+    // upgrade the version info, do not implement yet!
     XVM.upgrade = function() {
 
     };

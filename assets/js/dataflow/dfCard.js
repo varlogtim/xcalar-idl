@@ -327,6 +327,13 @@ window.DFCard = (function($, DFCard) {
                 $dagWrap.removeClass("xc-hidden");
                 var width = $dagWrap.find('canvas').attr('width');
                 $dagWrap.find('.dagImageWrap').scrollLeft(width);
+                if (XVM.getLicenseMode() === XcalarMode.Demo) {
+                    $dagWrap.find(".advancedOpts [data-option='import']").click();
+                    var $name = $dagWrap
+                                .find(".dagTable.export .exportTableName");
+                    $name.html($(this).val());
+                    xcTooltip.changeText($name, $(this).val());
+                }
             } else {
                 $dagWrap.removeClass("xc-hidden");
             }
@@ -513,6 +520,12 @@ window.DFCard = (function($, DFCard) {
 
         $dfCard.find('.cardMain').children('.hint').remove();
         $dfCard.find('.cardMain').append(html);
+
+        if (XVM.getLicenseMode() === XcalarMode.Demo) {
+            xcHelper.disableMenuItem($dfCard
+                                 .find(".advancedOpts [data-option='default']"),
+                                          {"title": TooltipTStr.NotInDemoMode});
+        }
 
         var nodes = DF.getDataflow(dataflowName).retinaNodes;
         var $dagWrap = getDagWrap(dataflowName);

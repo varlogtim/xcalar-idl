@@ -87,6 +87,8 @@ TooltipTStr = {
     'ParamValNoChange': 'This parameter value cannot be changed',
     'DeleteFile': 'Delete file',
     'CancelUpload': 'Cancel upload',
+    "PointDemo": "Add File / Create Dataset Ref",
+    "NotInDemoMode": "Feature not available in cloud preview",
     // Sync with htmlTStr
     "IcvRestriction": 'Erroneous rows(ER) table only available for Map and Group By',
     "OnlyInOpMode": "Feature only available in Operational mode",

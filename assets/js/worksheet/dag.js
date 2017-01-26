@@ -436,7 +436,7 @@ window.DagPanel = (function($, DagPanel) {
                 $menu.find('.addTable, .revertTable').removeClass('hidden');
                 $menu.find('.focusTable, .archiveTable').addClass('hidden');
             }
-            
+
             var $dagWrap = $dagTable.closest('.dagWrap');
             if ($dagWrap.hasClass('locked')) {
                 $menu.find('.revertTable').addClass('unavailable');
@@ -457,18 +457,23 @@ window.DagPanel = (function($, DagPanel) {
             // var $genNonIcvLi = $menu.find('.generateNonIcv');
 
             if ($dagTable.find(".dagTableIcon").hasClass("icv")) {
-                $genIcvLi.addClass('unavailable');
-                xcTooltip.changeText($genIcvLi, TooltipTStr.AlreadyIcv);
-                xcTooltip.enable($genIcvLi);
+                xcHelper.disableMenuItem($genIcvLi,
+                                         {"title": TooltipTStr.AlreadyIcv});
+                // $genIcvLi.addClass('unavailable');
+                // xcTooltip.changeText($genIcvLi, TooltipTStr.AlreadyIcv);
+                // xcTooltip.enable($genIcvLi);
             } else {
                 if (!$dagTable.hasClass("icv") &&
                     (operator === 'map' || operator === 'groupBy')) {
-                    $genIcvLi.removeClass('unavailable');
-                    xcTooltip.disable($genIcvLi);
+                    // $genIcvLi.removeClass('unavailable');
+                    // xcTooltip.disable($genIcvLi);
+                    xcHelper.enableMenuItem($genIcvLi);
                 } else {
-                    $genIcvLi.addClass('unavailable');
-                    xcTooltip.changeText($genIcvLi, TooltipTStr.IcvRestriction);
-                    xcTooltip.enable($genIcvLi);
+                    // $genIcvLi.addClass('unavailable');
+                    // xcTooltip.changeText($genIcvLi, TooltipTStr.IcvRestriction);
+                    // xcTooltip.enable($genIcvLi);
+                    xcHelper.disableMenuItem($genIcvLi,
+                                         {"title": TooltipTStr.IcvRestriction});
                 }
             }
 

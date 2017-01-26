@@ -18,7 +18,7 @@ window.TblMenu = (function(TblMenu, $) {
         var $allMenus = $tableMenu.add($subMenu);
 
         $tableMenu.on('mouseup', '.archiveTable', function(event) {
-            if (event.which !== 1) {
+            if (event.which !== 1 || $(this).hasClass("unavailable")) {
                 return;
             }
             var tableId = $tableMenu.data('tableId');
@@ -26,7 +26,7 @@ window.TblMenu = (function(TblMenu, $) {
         });
 
         $tableMenu.on('mouseup', '.hideTable', function(event) {
-            if (event.which !== 1) {
+            if (event.which !== 1 || $(this).hasClass("unavailable")) {
                 return;
             }
 
@@ -35,7 +35,7 @@ window.TblMenu = (function(TblMenu, $) {
         });
 
         $tableMenu.on('mouseup', '.unhideTable', function(event) {
-            if (event.which !== 1) {
+            if (event.which !== 1 || $(this).hasClass("unavailable")) {
                 return;
             }
             var tableId = $tableMenu.data('tableId');
@@ -43,7 +43,7 @@ window.TblMenu = (function(TblMenu, $) {
         });
 
         $tableMenu.on('mouseup', '.deleteTable', function(event) {
-            if (event.which !== 1) {
+            if (event.which !== 1 || $(this).hasClass("unavailable")) {
                 return;
             }
             var tableId = $tableMenu.data('tableId');
@@ -61,7 +61,7 @@ window.TblMenu = (function(TblMenu, $) {
         });
 
         $tableMenu.on('mouseup', '.exportTable', function(event) {
-            if (event.which !== 1) {
+            if (event.which !== 1 || $(this).hasClass("unavailable")) {
                 return;
             }
             var tableId = $tableMenu.data('tableId');
@@ -69,7 +69,7 @@ window.TblMenu = (function(TblMenu, $) {
         });
 
         $tableMenu.on('mouseup', '.exitOp', function(event) {
-            if (event.which !== 1) {
+            if (event.which !== 1 || $(this).hasClass("unavailable")) {
                 return;
             }
             var exitType = $(this).data('exittype');
@@ -102,7 +102,7 @@ window.TblMenu = (function(TblMenu, $) {
 
         // xx currently not visible
         $tableMenu.on('mouseup', '.copyColNames', function(event) {
-            if (event.which !== 1) {
+            if (event.which !== 1 || $(this).hasClass("unavailable")) {
                 return;
             }
 
@@ -131,7 +131,7 @@ window.TblMenu = (function(TblMenu, $) {
         });
 
         $tableMenu.on('mouseup', '.delAllDuplicateCols', function(event) {
-            if (event.which !== 1) {
+            if (event.which !== 1 || $(this).hasClass("unavailable")) {
                 return;
             }
             var tableId = $tableMenu.data('tableId');
@@ -139,7 +139,7 @@ window.TblMenu = (function(TblMenu, $) {
         });
 
         $tableMenu.on('mouseup', '.multiCast', function(event) {
-            if (event.which !== 1) {
+            if (event.which !== 1 || $(this).hasClass("unavailable")) {
                 return;
             }
             var tableId = $tableMenu.data('tableId');
@@ -147,22 +147,21 @@ window.TblMenu = (function(TblMenu, $) {
         });
 
         $tableMenu.on('mouseup', '.corrAgg', function(event) {
-            if (event.which !== 1) {
+            if (event.which !== 1 || $(this).hasClass("unavailable")) {
                 return;
             }
             var tableId = $tableMenu.data('tableId');
             AggModal.corrAgg(tableId);
         });
 
-        // opeartion for move to worksheet and copy to worksheet
+        // operation for move to worksheet and copy to worksheet
         $tableMenu.on('mouseenter', '.moveTable', function() {
             var $list = $subMenu.find(".list");
             $list.empty().append(WSManager.getWSLists(false));
-            
         });
 
         $tableMenu.on('mouseup', '.createDf', function(event) {
-            if (event.which !== 1) {
+            if (event.which !== 1 || $(this).hasClass("unavailable")) {
                 return;
             }
             var tableId = $tableMenu.data('tableId');
