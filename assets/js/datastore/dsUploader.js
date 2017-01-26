@@ -416,9 +416,11 @@ window.DSUploader = (function($, DSUploader) {
         var $icon = getDSIcon(name);
         $icon.find(".fileName").html(name + " (" + CommonTxtTstr.Uploading +
                                      ")");
-        $icon.find(".fileSize").html("(" + xcHelper.sizeTranslator(sizeCompleted) +
-                                    "/" + xcHelper.sizeTranslator(file.size) +
-                                    ")");
+        var sizeProgress = xcHelper.sizeTranslator(sizeCompleted) + "/" +
+                           xcHelper.sizeTranslator(file.size) + " (" + 
+                           Math.floor(100 * sizeCompleted / file.size) +"%)";
+
+        $icon.find(".fileSize").html(sizeProgress);
         fileObj.sizeCompleted = sizeCompleted;
     }
 
@@ -508,6 +510,7 @@ window.DSUploader = (function($, DSUploader) {
         var titleName = xcHelper.escapeDblQuoteForHTML(name);
         var displayName = xcHelper.escapeHTMLSepcialChar(name);
         var size = xcHelper.sizeTranslator(fileInfo.attr.size);
+        var sizeCompleted = xcHelper.sizeTranslator(fileInfo.sizeCompleted);
         var mtime = fileInfo.attr.mtime;
         var isDirectory = false;
 
@@ -523,8 +526,9 @@ window.DSUploader = (function($, DSUploader) {
         if (fileInfo.status === "inProgress") {
             status += " isLoading ";
             displayName = displayName + " (" + CommonTxtTstr.Uploading + ")";
-            size = "(" + xcHelper.sizeTranslator(fileInfo.sizeCompleted) +
-                    "/" + size + ")";
+            size = sizeCompleted + "/" + size + " (" +
+                Math.floor(100 * fileInfo.sizeCompleted / fileInfo.attr.size) +
+                "%)";
         }
         if (isCreating) {
             status += " isCreating ";

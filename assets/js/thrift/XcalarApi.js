@@ -3985,6 +3985,9 @@ xcalarDemoFileDelete = runEntity.xcalarDemoFileDelete = function(thriftHandle, f
             deferred.reject(status);
         }
 
+        if (!demoFileOutput.outputJson) {
+            demoFileOutput.outputJson = '{"error":532}';
+        }
         // demoFileOutput has a outputJson field which is a json formatted string
         // with a field called 'error' if something went wrong
         deferred.resolve(JSON.parse(demoFileOutput.outputJson));
