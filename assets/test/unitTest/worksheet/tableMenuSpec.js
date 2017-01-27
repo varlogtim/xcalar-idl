@@ -213,7 +213,7 @@ describe('TableMenu', function() {
                 it('aggregate', function() {
                     var cachedFunc = OperationsView.close;
                     var called = false;
-                    OperationsView.close = function($dagWrap) {
+                    OperationsView.close = function() {
                         called = true;
                     };
 
@@ -228,7 +228,7 @@ describe('TableMenu', function() {
                 it('filter', function() {
                     var cachedFunc = OperationsView.close;
                     var called = false;
-                    OperationsView.close = function($dagWrap) {
+                    OperationsView.close = function() {
                         called = true;
                     };
 
@@ -243,7 +243,7 @@ describe('TableMenu', function() {
                 it('Groupby', function() {
                     var cachedFunc = OperationsView.close;
                     var called = false;
-                    OperationsView.close = function($dagWrap) {
+                    OperationsView.close = function() {
                         called = true;
                     };
 
@@ -258,7 +258,7 @@ describe('TableMenu', function() {
                 it('Map', function() {
                     var cachedFunc = OperationsView.close;
                     var called = false;
-                    OperationsView.close = function($dagWrap) {
+                    OperationsView.close = function() {
                         called = true;
                     };
 
@@ -273,7 +273,7 @@ describe('TableMenu', function() {
                 it('Export', function() {
                     var cachedFunc = ExportView.close;
                     var called = false;
-                    ExportView.close = function($dagWrap) {
+                    ExportView.close = function() {
                         called = true;
                     };
 
@@ -288,7 +288,7 @@ describe('TableMenu', function() {
                 it('SmartCast', function() {
                     var cachedFunc = SmartCastView.close;
                     var called = false;
-                    SmartCastView.close = function($dagWrap) {
+                    SmartCastView.close = function() {
                         called = true;
                     };
 
@@ -303,7 +303,7 @@ describe('TableMenu', function() {
                 it('Join', function() {
                     var cachedFunc = JoinView.close;
                     var called = false;
-                    JoinView.close = function($dagWrap) {
+                    JoinView.close = function() {
                         called = true;
                     };
 
@@ -318,7 +318,7 @@ describe('TableMenu', function() {
                 it('ext', function() {
                     var cachedFunc = BottomMenu.close;
                     var called = false;
-                    BottomMenu.close = function($dagWrap) {
+                    BottomMenu.close = function() {
                         called = true;
                     };
 
@@ -333,7 +333,7 @@ describe('TableMenu', function() {
                 it('dataflow', function() {
                     var cachedFunc = DFCreateView.close;
                     var called = false;
-                    DFCreateView.close = function($dagWrap) {
+                    DFCreateView.close = function() {
                         called = true;
                     };
 
@@ -350,6 +350,12 @@ describe('TableMenu', function() {
 
         describe('submenu', function() {
             it('moveTable input', function() {
+                var $list = $tableSubMenu.find(".list");
+                $list.empty().append(WSManager.getWSLists(true));
+
+                var curWsId = WSManager.getActiveWS();
+                var wsName = WSManager.getWSById(curWsId).getName();
+
                 var cachedFunc = WSManager.moveTable;
                 var called = false;
                 WSManager.moveTable = function(tId, wId) {
@@ -357,12 +363,6 @@ describe('TableMenu', function() {
                     expect(wId).to.equal(curWsId);
                     called = true;
                 };
-
-                var $list = $tableSubMenu.find(".list");
-                $list.empty().append(WSManager.getWSLists(true));
-
-                var curWsId = WSManager.getActiveWS();
-                var wsName = WSManager.getWSById(curWsId).getName();
 
                 $tableSubMenu.find('.moveTable input').val("");
                 $tableSubMenu.find('.moveTable input').trigger(fakeEvent.enter);
@@ -761,7 +761,7 @@ describe('TableMenu', function() {
                 it('aggregate', function() {
                     var cachedFunc = OperationsView.close;
                     var called = false;
-                    OperationsView.close = function($dagWrap) {
+                    OperationsView.close = function() {
                         called = true;
                     };
 
@@ -776,7 +776,7 @@ describe('TableMenu', function() {
                 it('filter', function() {
                     var cachedFunc = OperationsView.close;
                     var called = false;
-                    OperationsView.close = function($dagWrap) {
+                    OperationsView.close = function() {
                         called = true;
                     };
 
@@ -791,7 +791,7 @@ describe('TableMenu', function() {
                 it('Groupby', function() {
                     var cachedFunc = OperationsView.close;
                     var called = false;
-                    OperationsView.close = function($dagWrap) {
+                    OperationsView.close = function() {
                         called = true;
                     };
 
@@ -806,7 +806,7 @@ describe('TableMenu', function() {
                 it('Map', function() {
                     var cachedFunc = OperationsView.close;
                     var called = false;
-                    OperationsView.close = function($dagWrap) {
+                    OperationsView.close = function() {
                         called = true;
                     };
 
@@ -821,7 +821,7 @@ describe('TableMenu', function() {
                 it('Export', function() {
                     var cachedFunc = ExportView.close;
                     var called = false;
-                    ExportView.close = function($dagWrap) {
+                    ExportView.close = function() {
                         called = true;
                     };
 
@@ -836,7 +836,7 @@ describe('TableMenu', function() {
                 it('SmartCast', function() {
                     var cachedFunc = SmartCastView.close;
                     var called = false;
-                    SmartCastView.close = function($dagWrap) {
+                    SmartCastView.close = function() {
                         called = true;
                     };
 
@@ -851,7 +851,7 @@ describe('TableMenu', function() {
                 it('Join', function() {
                     var cachedFunc = JoinView.close;
                     var called = false;
-                    JoinView.close = function($dagWrap) {
+                    JoinView.close = function() {
                         called = true;
                     };
 
@@ -866,7 +866,7 @@ describe('TableMenu', function() {
                 it('ext', function() {
                     var cachedFunc = BottomMenu.close;
                     var called = false;
-                    BottomMenu.close = function($dagWrap) {
+                    BottomMenu.close = function() {
                         called = true;
                     };
 
@@ -881,7 +881,7 @@ describe('TableMenu', function() {
                 it('dataflow', function() {
                     var cachedFunc = DFCreateView.close;
                     var called = false;
-                    DFCreateView.close = function($dagWrap) {
+                    DFCreateView.close = function() {
                         called = true;
                     };
 

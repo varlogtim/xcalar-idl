@@ -20,7 +20,7 @@ describe('TableList Test', function() {
                 TableList.refreshOrphanList()
                 .then(function() {
                     done();
-                })
+                });
             });
         });
     });
@@ -54,7 +54,7 @@ describe('TableList Test', function() {
             //decrement again
             TableList.updatePendingState(false);
             expect($listWrap.hasClass('pending')).to.be.false;
-        }); 
+        });
     });
 
     describe('table search', function() {

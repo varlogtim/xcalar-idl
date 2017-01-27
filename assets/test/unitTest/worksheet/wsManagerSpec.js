@@ -1,10 +1,6 @@
-describe('Worksheet Test', function() {
-    var $tabs;
-    var minModeCache;
-
+describe("Worksheet Test", function() {
     before(function() {
-        minModeCache = gMinModeOn;
-        gMinModeOn = true;
+        UnitTest.onMinMode();
     });
 
     describe("Clean and Restore Test", function() {
@@ -18,7 +14,7 @@ describe('Worksheet Test', function() {
 
         it("Should clear worksheet", function() {
             WSManager.clear();
-            expect(WSManager.getNumOfWS()).to.equal(1);       
+            expect(WSManager.getNumOfWS()).to.equal(1);
         });
 
         it("Should restore worksheet", function() {
@@ -28,7 +24,7 @@ describe('Worksheet Test', function() {
 
         it("Should be an error when initalize is wrong", function() {
             var oldFunc = TableList.initialize;
-            TableList.initialize = function() { throw "test error" };
+            TableList.initialize = function() { throw "test error"; };
             WSManager.initialize();
             assert.isTrue($("#alertModal").is(":visible"));
             $("#alertModal .close").click();
@@ -64,7 +60,7 @@ describe('Worksheet Test', function() {
             var activeWorksheet = WSManager.getActiveWS();
             var $worksheetTab = $("#worksheetTabs .worksheetTab.active");
             expect(activeWorksheet).to.equal($worksheetTab.data("ws"));
-        })
+        });
 
         it("Should get active worksheets list", function() {
             var worksheets = WSManager.getWSList();
@@ -212,11 +208,11 @@ describe('Worksheet Test', function() {
             WSManager.focusOnWorksheet(worksheetId1);
             var numWS = WSManager.getNumOfWS();
             var html = WSManager.getWSLists();
-            var $list = $('<div>' + html + '</div>');
+            var $list = $("<div>" + html + "</div>");
             expect($list.find("li").length).to.equal(numWS - 1);
 
             html = WSManager.getWSLists(true);
-            $list = $('<div>' + html + '</div>');
+            $list = $("<div>" + html + "</div>");
             expect($list.find("li").length).to.equal(numWS);
         });
 
@@ -561,7 +557,7 @@ describe('Worksheet Test', function() {
         });
 
         it("Should remove from tempHidden, undone and lock tables", function() {
-            var lists = ["tempHiddenTables",  "undoneTables", "lockedTables"];
+            var lists = ["tempHiddenTables", "undoneTables", "lockedTables"];
 
             lists.forEach(function(tableType) {
                 var testTableId = xcHelper.randName("removeTable");
@@ -602,7 +598,7 @@ describe('Worksheet Test', function() {
         var worksheet2, worksheetId2;
         var dsName;
         var table1, tableId1;
-        var table2, tableId2;
+        var table2;
 
         before(function(done) {
             var worksheetName1 = xcHelper.randName("testWS1-");
@@ -686,8 +682,6 @@ describe('Worksheet Test', function() {
         });
 
         it("Should delete worksheet with hide table", function(done) {
-            var noSheetTables = WSManager.getNoSheetTables();
-            var len = noSheetTables.length;
             WSManager.delWS(worksheetId1, DelWSType.Archive);
             expect(WSManager.getWSById(worksheetId1) == null).to.be.true;
             // undo it
@@ -723,17 +717,17 @@ describe('Worksheet Test', function() {
     });
 
     after(function() {
-        gMinModeOn = minModeCache;
+        UnitTest.offMinMode();
     });
 });
 
 function ensureWorksheetsExist(minNumWS) {
     var reqNumWS = minNumWS || 1;
-    var numWS = $('#worksheetTabs').find('.worksheetTab').length;
+    var numWS = $("#worksheetTabs").find(".worksheetTab").length;
     var numWSNeeded = Math.max(0, reqNumWS - numWS);
     if (numWSNeeded > 0) {
         for (var i = 0; i < numWSNeeded; i++) {
-            $('#addWorksheet').click();
+            $("#addWorksheet").click();
         }
     }
 }

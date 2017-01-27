@@ -219,8 +219,7 @@ describe('JoinView', function() {
     describe('clause column pickers', function() {
         it('clause column pickers should work', function() {
             var colName1 = prefix + gPrefixSign + "average_stars";
-            var colName2 = prefix + gPrefixSign + "compliments";
-            var colName3 = prefix + gPrefixSign + "four";
+            var colName2 = prefix + gPrefixSign + "four";
             $joinForm.find('.leftClause').val("").change();
             $joinForm.find('.rightClause').val("").change();
             expect($joinForm.find('.leftClause').val()).to.equal("");
@@ -239,7 +238,7 @@ describe('JoinView', function() {
             // type boolean should work
             $joinForm.find('.rightClause').focus().trigger('focus');
             $table.find('.header').eq(4).click();
-            expect($joinForm.find('.rightClause').val()).to.equal(colName3);
+            expect($joinForm.find('.rightClause').val()).to.equal(colName2);
 
             // add another row of clauses
             JoinView.__testOnly__.addClause();
@@ -252,7 +251,7 @@ describe('JoinView', function() {
 
             $joinForm.find('.rightClause').eq(1).focus().trigger('focus');
             $table.find('.header').eq(4).click();
-            expect($joinForm.find('.rightClause').eq(1).val()).to.equal(colName3);
+            expect($joinForm.find('.rightClause').eq(1).val()).to.equal(colName2);
 
             // remove last clause row
             $joinForm.find('.middleIcon:eq(1)').click();
@@ -299,7 +298,7 @@ describe('JoinView', function() {
 
             // start test for right table
 
-            var numCols = $joinForm.find('.rightCols li').length;
+            numCols = $joinForm.find('.rightCols li').length;
             expect(numCols).to.be.gt(4);
             expect($joinForm.find('.rightCols li.checked').length).to.equal(numCols);
 
@@ -312,7 +311,7 @@ describe('JoinView', function() {
             // deselect and select all
             $joinForm.find('.rightColHeading .checkbox').click();
             expect($joinForm.find('.rightCols li.checked').length).to.equal(0);
-             expect($joinForm.find('.rightColHeading .checkbox').hasClass('checked')).to.be.false;
+            expect($joinForm.find('.rightColHeading .checkbox').hasClass('checked')).to.be.false;
             $joinForm.find('.rightColHeading .checkbox').click();
             expect($joinForm.find('.rightCols li.checked').length).to.equal(numCols);
             expect($joinForm.find('.rightColHeading .checkbox').hasClass('checked')).to.be.true;
@@ -345,7 +344,7 @@ describe('JoinView', function() {
 
         it('smart suggest error should show if both inputs filled', function() {
             var cachededTooltipFunc = xcTooltip.transient;
-            xcTooltip.transient = function($el, options, time) {
+            xcTooltip.transient = function($el, options) {
                 expect($el.is($joinForm.find('.smartSuggest').siblings('.suggError'))).to.be.true;
                 expect(options.title).to.equal(JoinTStr.NoColToCheck);
             };

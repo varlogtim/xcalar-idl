@@ -16,18 +16,17 @@ describe('JsonModal Test', function() {
             prefix = tPrefix;
             $jsonModal = $('#jsonModal');
             tableId = xcHelper.getTableId(tableName);
-            $table = $('#xcTable-' + tableId)
-            JSONModal.show($table.find('.jsonElement').eq(0))
+            $table = $('#xcTable-' + tableId);
+            JSONModal.show($table.find('.jsonElement').eq(0));
             // allow modal to fade in
             setTimeout(function() {
                 done();
             }, 500);
         });
     });
-    
+
     describe('check data browser initial state', function() {
         it('top row should be correct', function() {
-            
             expect($jsonModal.find('.compareIcon').length).to.equal(1);
             expect($jsonModal.find('.compareIcon .xi-ckbox-empty:visible').length).to.equal(1);
             expect($jsonModal.find('.compareIcon .xi-ckbox-selected').length).to.equal(1);
@@ -78,7 +77,7 @@ describe('JsonModal Test', function() {
                 setTimeout(function() {
                     done();
                 }, 300);
-            }, 500); 
+            }, 500);
         });
 
         it('array in mixed col should work', function(done) {
@@ -96,11 +95,11 @@ describe('JsonModal Test', function() {
                 setTimeout(function() {
                     done();
                 }, 300);
-            }, 500); 
+            }, 500);
         });
 
         after(function(done) {
-            JSONModal.show($table.find('.jsonElement').eq(0))
+            JSONModal.show($table.find('.jsonElement').eq(0));
             // allow modal to fade in
             setTimeout(function() {
                 done();
@@ -142,7 +141,7 @@ describe('JsonModal Test', function() {
                 expect($averageStarsKey.siblings().text()).to.equal("3.54");
                 $averageStarsKey.click();
                 var $headerInput = $table.find('.editableHead').filter(function() {
-                    return ($(this).val() === "average_stars")
+                    return ($(this).val() === "average_stars");
                 });
                 expect($headerInput.length).to.equal(1);
                 expect($headerInput.closest('th').hasClass('col12')).to.be.true;
@@ -170,8 +169,8 @@ describe('JsonModal Test', function() {
             // trigger pull col
             $complimentsNoteKey.click();
 
-            var $headerInput = $table.find('.editableHead').filter(function() {
-                return ($(this).val() === "compliments.note")
+            $headerInput = $table.find('.editableHead').filter(function() {
+                return ($(this).val() === "compliments.note");
             });
             expect($headerInput.length).to.equal(1);
             expect($headerInput.closest('th').hasClass('col13')).to.be.true;
@@ -233,8 +232,8 @@ describe('JsonModal Test', function() {
             // trigger pull col
             $complimentsCoolKey.click();
 
-            var $headerInput = $table.find('.editableHead').filter(function() {
-                return ($(this).val() === "compliments.cool")
+            $headerInput = $table.find('.editableHead').filter(function() {
+                return ($(this).val() === "compliments.cool");
             });
             expect($headerInput.length).to.equal(1);
             expect($headerInput.closest('th').hasClass('col' + (colNum + 1))).to.be.true;
@@ -255,8 +254,7 @@ describe('JsonModal Test', function() {
                     done();
                 }, 300);
             }, 500);
-            
-        }); 
+        });
     });
 
     describe('multiple json panels', function() {
@@ -517,7 +515,8 @@ describe('JsonModal Test', function() {
         var selectTab;
         before(function() {
             selectTab = JSONModal.__testOnly__.selectTab;
-        })
+        });
+
         it('tabbing should work', function() {
             expect($jsonModal.find('.tab').length).to.equal(2);
             expect($jsonModal.find('.tab.seeAll').hasClass('active')).to.be.true;
@@ -540,12 +539,11 @@ describe('JsonModal Test', function() {
             expect($jsonModal.find('.prefix').is(":visible")).to.be.true;
             expect($jsonModal.find('.mainKey').length).to.equal(12);
             expect($jsonModal.find('.mainKey:visible').length).to.equal(12);
-       }); 
+        });
     });
 
-
     describe('function rehighlightTds', function() {
-       it('rehighlightTds should work', function() {
+        it('rehighlightTds should work', function() {
             var numRows = $table.find('tbody tr').length;
             expect(numRows).to.be.gt(30);
             expect($table.find('.jsonElement').length).to.equal(numRows);
@@ -555,17 +553,17 @@ describe('JsonModal Test', function() {
 
             JSONModal.rehighlightTds($table);
             expect($table.find('.modalHighlighted').length).to.be.gt(30);
-       }); 
+        });
     });
 
-    describe('pull all button', function(done) {
+    describe('pull all button', function() {
         before(function(done) {
             var numCols = gTables[tableId].tableCols.length;
             var colNums = [];
             for (var i = 0; i < numCols - 1; i++) {
                 colNums.push(i + 1); // colnums 1 indexed
             }
-            ColManager.delCol(colNums, tableId, {noAnimate:true})
+            ColManager.delCol(colNums, tableId, {noAnimate: true})
             .then(function() {
                 done();
             });

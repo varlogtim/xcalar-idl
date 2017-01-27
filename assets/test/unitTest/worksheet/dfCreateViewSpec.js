@@ -157,7 +157,7 @@ describe('DFCreateView', function() {
             expect($("#statusBox").is(":visible")).to.be.true;
             StatusBox.forceHide();
             expect($("#statusBox").is(":visible")).to.be.false;
-        }); 
+        });
     });
 
     describe('submit form', function() {
@@ -234,7 +234,7 @@ describe('DFCreateView', function() {
         after(function(done) {
             DFCard.__testOnly__.deleteDataflow(testDfName)
             .always(function() {
-                done(); 
+                done();
             });
         });
     });

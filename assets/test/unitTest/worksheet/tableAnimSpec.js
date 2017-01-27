@@ -88,10 +88,9 @@ describe('TblAnim', function() {
             expect(gMouseStatus).to.equal('resizingCol');
             expect(gRescol.cellMinWidth).to.equal(15);
             expect($th.outerWidth()).to.equal(gRescol.cellMinWidth);
-           
             // increasing width by 10px
             newX = 10;
-            var e = $.Event('mousemove', {pageX: newX});
+            e = $.Event('mousemove', {pageX: newX});
             TblAnim.__testOnly__.onColResize(e);
             expect($th.outerWidth()).to.equal(startWidth + newX);
         });
@@ -162,14 +161,12 @@ describe('TblAnim', function() {
         var $th;
         var startWidth;
         var startX = 0;
-        var initialTableWrapWidth;
 
         before(function() {
             $el = $('#dsTable').find('.colGrab').eq(0);
             $th = $el.closest('th');
             startWidth = $th.outerWidth();
             startX = 0;
-            initialTableWrapWidth = $('#dsTableWrap').width();
         });
 
         it('startColResize should work', function() {
@@ -295,10 +292,9 @@ describe('TblAnim', function() {
             expect(gMouseStatus).to.equal('rowMove');
             expect(gRescol.minCellHeight).to.equal(25);
             expect($tr.outerHeight()).to.equal(gRescol.minCellHeight);
-           
             // increasing height by 10px
             newY = 10;
-            var e = $.Event('mousemove', {pageY: newY});
+            e = $.Event('mousemove', {pageY: newY});
             TblAnim.__testOnly__.onRowResize(e);
             expect($tr.outerHeight()).to.equal(startHeight + newY);
             expect($tr.find('td > div').eq(0).css('max-height')).to.equal("35px");
@@ -347,14 +343,13 @@ describe('TblAnim', function() {
             expect($tr.hasClass('changedHeight')).to.be.true;
 
             // resize to below minimum height
-            // 
             TblAnim.resizeRow(0, tableId, 90, 10);
             expect($tr.outerHeight()).to.equal(25);
             expect($tr.find('td > div').eq(0).css('max-height')).to.equal("25px");
             expect($tr.find('td > div').eq(1).css('max-height')).to.equal("21px");
 
-            var table = gTables[tableId];
-            var rowObj = table.rowHeights;
+            table = gTables[tableId];
+            rowObj = table.rowHeights;
             expect(rowObj[0]).to.be.undefined;
             expect($tr.hasClass('changedHeight')).to.be.false;
         });
@@ -395,7 +390,7 @@ describe('TblAnim', function() {
             expect(gMouseStatus).to.equal("checkingMovingCol");
 
             newX = 5;
-            var e = $.Event('mousemove', {pageX: newX});
+            e = $.Event('mousemove', {pageX: newX});
             TblAnim.__testOnly__.checkColDrag(e);
             expect(gMouseStatus).to.equal("dragging");
             var numCols = gTables[tableId].tableCols.length;
@@ -493,9 +488,8 @@ describe('TblAnim', function() {
             expect($tableWrap.hasClass('tableDragging')).to.be.false;
 
             newX = 5;
-            var e = $.Event('mousemove', {pageX: newX});
+            e = $.Event('mousemove', {pageX: newX});
             TblAnim.__testOnly__.checkTableDrag(e);
-
 
             expect(gMouseStatus).to.equal("dragging");
             expect($tableWrap.hasClass('tableDragging')).to.be.true;
@@ -548,7 +542,6 @@ describe('TblAnim', function() {
             expect($tableWrap.hasClass('tableDragging')).to.be.false;
         });
     });
-  
 
     after(function(done) {
         UnitTest.deleteTable(tableName2)
@@ -556,7 +549,7 @@ describe('TblAnim', function() {
             UnitTest.deleteAll(tableName, testDs)
             .always(function() {
                 done();
-            })
+            });
         });
     });
 });

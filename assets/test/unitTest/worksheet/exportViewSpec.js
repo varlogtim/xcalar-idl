@@ -120,7 +120,7 @@ describe('ExportView', function() {
         var $advancedSection;
         before(function() {
             $advancedSection = $exportForm.find('.advancedSection');
-        })
+        });
 
         it('tableList menu should select table', function() {
             var $tableList = $exportForm.find('.tableList');
@@ -134,7 +134,7 @@ describe('ExportView', function() {
             expect($ul.is(":visible")).to.be.true;
             expect($ul.find('li').length).to.be.gt(1);
             var $selectedLi = $ul.find('li').filter(function() {
-               return $(this).text() === tableName; 
+                return $(this).text() === tableName;
             });
             expect($selectedLi.length).to.equal(1);
             expect($ul.find('li.selected').is($selectedLi)).to.be.true;
@@ -158,15 +158,14 @@ describe('ExportView', function() {
             // select new new table
             $tableList.trigger(fakeEvent.click);
             $tableList.find('li').filter(function() {
-                return $(this).text() === tableName; 
-            }).trigger(fakeEvent.mouseup);;
+                return $(this).text() === tableName;
+            }).trigger(fakeEvent.mouseup);
 
             expect($tableList.find('.text').text()).to.equal(tableName);
             expect($exportForm.find('.cols li.checked').length).to.equal(numCols);
         });
 
         it('column picker should work', function() {
-            var $tableList = $exportForm.find('.tableList');
             var numCols = $exportForm.find('.cols li').length;
             expect(numCols).to.be.gt(4);
             expect($exportForm.find('.cols li.checked').length).to.equal(numCols);
@@ -279,14 +278,14 @@ describe('ExportView', function() {
             $exportForm.find('.splitType .radioButton:eq(1)').click();
             $exportForm.find('.headerType .radioButton:eq(1)').click();
             $exportForm.find('.createRule .radioButton:eq(2)').click();
-            var options = getAdvancedOptions();
+            options = getAdvancedOptions();
             expect(options.createRule).to.equal(ExExportCreateRuleT.ExExportAppendOnly);
             expect(options.headerType).to.equal(ExSFHeaderTypeT.ExSFHeaderNone);
             expect(options.splitType).to.equal(ExSFFileSplitTypeT.ExSFFileSplitNone);
             expect($exportForm.find('.headerType .subHeading').hasClass('xc-disabled')).to.be.true;
 
             ExportView.__testOnly__.restoreAdvanced();
-            var options = getAdvancedOptions();
+            options = getAdvancedOptions();
             expect(options.createRule).to.equal(ExExportCreateRuleT.ExExportCreateOnly);
             expect(options.format).to.equal(DfFormatTypeT.DfFormatCsv);
             expect(options.headerType).to.equal(ExSFHeaderTypeT.ExSFHeaderEveryFile);
@@ -328,7 +327,7 @@ describe('ExportView', function() {
             UnitTest.deleteAll(tableName, testDs)
             .always(function() {
                 done();
-            })
+            });
         });
     });
 });

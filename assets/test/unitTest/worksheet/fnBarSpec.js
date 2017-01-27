@@ -67,7 +67,7 @@ describe('FnBar', function() {
                 expect(tId).to.equal(tableId);
                 expect(colNum).to.equal(1);
                 return PromiseHelper.resolve();
-            }
+            };
 
             editor.setValue('= filter(eq(' + prefix + gPrefixSign + 'wrongName, 0))');
 

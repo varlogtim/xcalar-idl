@@ -25,7 +25,7 @@ describe('Smart Cast View Test', function() {
     });
 
     describe("Basic Function Test", function() {
-         it("Should show the Cast View", function() {
+        it("Should show the Cast View", function() {
             SmartCastView.show(tableId);
 
             assert.isTrue($castView.is(":visible"));
@@ -74,7 +74,7 @@ describe('Smart Cast View Test', function() {
             var test = false;
             ColManager.changeType = function() {
                 test = true;
-            }
+            };
 
             // nothing to cacst
             SmartCastView.__testOnly__.submitForm();

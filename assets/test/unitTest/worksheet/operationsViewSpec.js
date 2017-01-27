@@ -6,7 +6,7 @@ describe('OperationsView', function() {
     before(function(done) {
         UnitTest.onMinMode();
         var testDSObj = testDatasets.fakeYelp;
-        UnitTest.min
+        UnitTest.onMinMode();
         UnitTest.addAll(testDSObj, "unitTestFakeYelp")
         .always(function(ds, tName, tPrefix) {
             testDs = ds;
@@ -15,7 +15,7 @@ describe('OperationsView', function() {
             done();
         });
     });
-    
+
     describe('function hasFuncFormat', function() {
         var func;
         before(function() {
@@ -146,17 +146,14 @@ describe('OperationsView', function() {
                 aggNames.push(oldAggNames[i]);
             }
         });
-        
     });
 
     describe('function getMatchingColNames', function() {
-          it('getMatchingColNames() should work', function() {
+        it('getMatchingColNames() should work', function() {
             var fn = OperationsView.__testOnly__.getMatchingColNames;
             var colNames = OperationsView.__testOnly__.colNames;
             var oldColNames = xcHelper.deepCopy(colNames);
-            for (var i in colNames)  {
-                delete colNames[i];// empty the object;
-            }
+            emptyColName();
             colNames["ayz"] = "ayz";
             colNames["abc"] = "abc";
             colNames["abcd"] = "Abcd";
@@ -173,11 +170,16 @@ describe('OperationsView', function() {
             expect(fn("a")).to.deep.equal(["ayz", "abc", "Abcd"]);
             expect(fn("ab")).to.deep.equal(["abc", "Abcd"]);
 
-            for (var i in colNames)  {
-                delete colNames[i];// empty the object;
+            emptyColName();
+
+            for (var oldName in oldColNames) {
+                colNames[oldName] = oldColNames[oldName];
             }
-            for (var i in oldColNames) {
-                colNames[i] = oldColNames[i];
+
+            function emptyColName() {
+                for (var i in colNames) {
+                    delete colNames[i];// empty the object;
+                }
             }
         });
     });
@@ -194,9 +196,7 @@ describe('OperationsView', function() {
         var getExistingTypes;
         var argumentFormatHelper;
         var parseType;
-        var columns;
         var someColumns;
-        // allcolumnNames = ["average_stars","compliments","elite", "four","friends","mixVal","one", "review_count","two.three", "user_id", "votes", yelping_since", "DATA"];
         var someColumnNames = ["average_stars","compliments","four","friends","mixVal","review_count","yelping_since", "DATA"];
 
         before(function(done) {
@@ -295,7 +295,7 @@ describe('OperationsView', function() {
             it.skip('should detect if arg types are valid or invalid', function() {
                 cols = gTables[tableId].tableCols;
                        // yelping_since, votes,  one,two\\.three,review_count,four,average_stars, mixVal
-                someColumns = [cols[11], cols[10], cols[6], cols[8], cols[7], cols[3], cols[0], cols[5]]
+                someColumns = [cols[11], cols[10], cols[6], cols[8], cols[7], cols[3], cols[0], cols[5]];
 
                 expect(cols.length).to.equal(13);
                 var testArgs = [];
@@ -323,15 +323,15 @@ describe('OperationsView', function() {
                 var testArgs1 = ["str", "null", "undefined", "sp aced", "com,ma", "d.ot", gColPrefix, "\\" + gColPrefix, gColPrefix + "a", "\\" + gColPrefix + "a", "a\\" + gColPrefix, "5a", "a5", -5, 5, 3.2, 0];
                 var testArgs2 = [];
                 var testArgs2Unprefixed = [];
-                for (var i = 0; i < someColumnNames.length; i++) {
-                    colName = someColumnNames[i];
+                someColumnNames.forEach(function(colName) {
                     if (colName !== "DATA") {
                         colName = xcHelper.getPrefixColName(prefix, colName);
                     }
 
                     testArgs2.push(gColPrefix + colName);
                     testArgs2Unprefixed.push(colName);
-                }
+                });
+
                 var arg1Types = [];
                 var arg2Types = [];
                 for (var i = 0; i < testArgs1.length; i++) {
@@ -399,7 +399,7 @@ describe('OperationsView', function() {
                 setTimeout(function() {
                     done();
                 }, 500);
-            })
+            });
             
             it('2 selected columns should produce 2 group on inputs', function(done) {
                 OperationsView.show(tableId, [1, 2], 'group by')
@@ -512,7 +512,7 @@ describe('OperationsView', function() {
                     }
                     if (hasValidTypes !== argInfos[count].isPassing) {
                         console.error('types allowed: ' + arg1ValidTypes, '   type provided: ' + arg1Types[i]);
-                        console.warn('types allowed: ' +  arg2ValidTypes, '   type provided: ' + arg2Types[j]);
+                        console.warn('types allowed: ' + arg2ValidTypes, '   type provided: ' + arg2Types[j]);
                         console.info('arg1: ' + testArgs1[i], '   arg2: ' + testArgs2[j], '   argInfos: ' + argInfos[count]);
                         debugger;
                     }
@@ -532,7 +532,6 @@ describe('OperationsView', function() {
         var $categoryMenu;
         var $functionsMenu;
         var $argInputs;
-        var operatorsMap;
 
         before(function(done) {
             $operationsView = $('#operationsView');
@@ -721,13 +720,14 @@ describe('OperationsView', function() {
             expect($argSection.find('.arg').eq(1).val()).to.equal("");
             expect($argSection.find('.arg').eq(1).is(document.activeElement)).to.be.true;
 
-            $functionsInput.val('').trigger({type:"keydown", which: keyCode.Tab});
+            $functionsInput.val('').trigger({type: "keydown", which: keyCode.Tab});
             expect($argSection.length).to.equal(1);
             expect($argSection.hasClass('inactive')).to.be.true;
 
-            $functionsInput.val('and').trigger({type:"keydown", which: keyCode.Tab});
+            $functionsInput.val('and').trigger({type: "keydown", which: keyCode.Tab});
             expect($argSection.hasClass('inactive')).to.be.false;
-            var prefixCol = xcHelper.getPrefixColName(prefix, 'average_stars');
+
+            prefixCol = xcHelper.getPrefixColName(prefix, 'average_stars');
             expect($argSection.find('.arg').eq(0).val()).to.equal(gColPrefix + prefixCol);
             expect($argSection.find('.arg').eq(1).val()).to.equal("");
             expect($argSection.find('.arg').eq(1).is(document.activeElement)).to.be.true;
@@ -774,16 +774,16 @@ describe('OperationsView', function() {
             expect(numLis).to.be.gt(10);
             expect($functionsList.find('li.highlighted').length).to.equal(0);
 
-            $('body').trigger({type:"keydown", which: keyCode.Down});
+            $('body').trigger({type: "keydown", which: keyCode.Down});
             expect($functionsList.find('li.highlighted').length).to.equal(1);
             expect($functionsList.find('li').eq(0).hasClass('highlighted')).to.be.true;
 
-            $('body').trigger({type:"keydown", which: keyCode.Up});
+            $('body').trigger({type: "keydown", which: keyCode.Up});
             expect($functionsList.find('li.highlighted').length).to.equal(1);
             expect($functionsList.find('li').last().hasClass('highlighted')).to.be.true;
 
-            $('body').trigger({type:"keydown", which: keyCode.Down});
-            $('body').trigger({type:"keydown", which: keyCode.Down});
+            $('body').trigger({type: "keydown", which: keyCode.Down});
+            $('body').trigger({type: "keydown", which: keyCode.Down});
             expect($functionsList.find('li.highlighted').length).to.equal(1);
             expect($functionsList.find('li').eq(1).hasClass('highlighted')).to.be.true;
             expect($functionsInput.val()).to.equal("between");
@@ -801,7 +801,6 @@ describe('OperationsView', function() {
         var tableId;
         var $operationsView;
         var $functionsInput;
-        var $functionsList;
         var $argSection;
         var $filterForm;
 
@@ -915,7 +914,6 @@ describe('OperationsView', function() {
         var $filterInput;
         var $categoryMenu;
         var $functionsMenu;
-        var $argInputs;
         var $strPreview;
 
         before(function(done) {
@@ -933,17 +931,15 @@ describe('OperationsView', function() {
             });
         });
 
-
         describe('map\'s search filter', function() {
-            
             it('filter on input should update menus', function() {
                 $filterInput.val('add').trigger(fakeEvent.input);
                 var $catLis = $categoryMenu.find('li:visible').filter(function() {
-                    return ($(this).text().indexOf('user') === -1); 
+                    return ($(this).text().indexOf('user') === -1);
                 });
 
                 var $funcLis = $functionsMenu.find('li:visible').filter(function() {
-                    return ($(this).text().indexOf(':') === -1); 
+                    return ($(this).text().indexOf(':') === -1);
                 });
                 expect($catLis).to.have.length(2);
                 expect($catLis.text()).to.equal("arithmeticconversion");
@@ -957,13 +953,13 @@ describe('OperationsView', function() {
 
                 $filterInput.val('add').trigger(fakeEvent.input);
                 $funcLis = $functionsMenu.find('li:visible').filter(function() {
-                    return ($(this).text().indexOf(':') === -1); 
+                    return ($(this).text().indexOf(':') === -1);
                 });
                 expect($funcLis.text()).to.equal("addipAddrToIntmacAddrToInt");
 
                 $filterInput.val('sub').trigger(fakeEvent.input);
                 $funcLis = $functionsMenu.find('li:visible').filter(function() {
-                    return ($(this).text().indexOf(':') === -1); 
+                    return ($(this).text().indexOf(':') === -1);
                 });
                 expect($funcLis.text()).to.equal("subsubstring");
             });
@@ -978,7 +974,7 @@ describe('OperationsView', function() {
                 expect($categoryMenu.find('li').eq(0).hasClass('active')).to.be.true;
 
                 $filterInput.trigger({type: "keydown", which: keyCode.Down});
-                 expect($categoryMenu.find('li.active').length).to.equal(1);
+                expect($categoryMenu.find('li.active').length).to.equal(1);
                 expect($categoryMenu.find('li').eq(1).hasClass('active')).to.be.true;
 
                 $filterInput.trigger({type: "keydown", which: keyCode.Up});
@@ -1054,7 +1050,7 @@ describe('OperationsView', function() {
                     return ($(this).text() === "default:splitWithDelim");
                 }).trigger(fakeEvent.click);
 
-                var $argInputs = $operationsView.find('.arg[type=text]:visible');
+                $argInputs = $operationsView.find('.arg[type=text]:visible');
                 expect($argInputs.eq(0).val()).to.equal(gColPrefix + prefixCol);
                 expect($argInputs.eq(1).val()).to.equal("");
                 expect($argInputs.eq(2).val()).to.equal("");
@@ -1093,18 +1089,17 @@ describe('OperationsView', function() {
                 var prefixCol = xcHelper.getPrefixColName(prefix, "yelping_since");
                 var options = {
                     category: "string",
-                    func: "concat",
-                    args: [{
+                    func    : "concat",
+                    args    : [{
                         num: 0,
                         str: gColPrefix + prefixCol
-                    },
-                    {
+                    }, {
                         num: 1,
                         str: "zz"
                     }],
-                    expectedMapStr: 'concat(' + prefixCol + ', "zz")',
+                    expectedMapStr   : 'concat(' + prefixCol + ', "zz")',
                     expectedCliMapStr: 'concat(' + prefixCol + ', "zz")',
-                    transform: function(colVal) {
+                    transform        : function(colVal) {
                         return (colVal + this.args[1].str);
                     }
                 };
@@ -1119,17 +1114,17 @@ describe('OperationsView', function() {
                 var prefixCol = xcHelper.getPrefixColName(prefix, "yelping_since");
                 var options = {
                     category: "string",
-                    func: "concat",
-                    args: [{
+                    func    : "concat",
+                    args    : [{
                         num: 0,
                         str: gColPrefix + prefixCol
                     },{
                         num: 1,
                         str: ""
                     }],
-                    expectedMapStr: 'concat(' + prefixCol + ', "")',
+                    expectedMapStr   : 'concat(' + prefixCol + ', "")',
                     expectedCliMapStr: 'concat(' + prefixCol + 'yelping_since, "")',
-                    transform: null
+                    transform        : null
                 };
 
                 runMap(options)
@@ -1141,11 +1136,17 @@ describe('OperationsView', function() {
             it ('arithmetic-add with string should not work', function(done) {
                 var options = {
                     category: "arithmetic",
-                    func: "add",
-                    args: [{num: 0, str: '"2"'}, {num: 1, str: '"3"'}],
-                    expectedMapStr: 'add("2", "3")',
+                    func    : "add",
+                    args    : [{
+                        num: 0,
+                        str: '"2"'
+                    }, {
+                        num: 1,
+                        str: '"3"'
+                    }],
+                    expectedMapStr   : 'add("2", "3")',
                     expectedCliMapStr: 'add("2", "3")',
-                    transform: null
+                    transform        : null
                 };
 
                 runMap(options)
@@ -1157,13 +1158,23 @@ describe('OperationsView', function() {
 
             it ('udf default:splitWithDelim should work', function(done) {
                 var prefixCol = xcHelper.getPrefixColName(prefix, "yelping_since");
+                var mapStr = 'default:splitWithDelim(' + prefixCol + ', 1, "-")';
                 var options = {
                     category: "user-defined",
-                    func: "default:splitWithDelim",
-                    args: [{num: 0, str: gColPrefix + prefixCol},{num: 1,str: 1}, {num:2, str: "\"-\""}],
-                    expectedMapStr: 'default:splitWithDelim(' + prefixCol + ', 1, "-")',
-                    expectedCliMapStr: 'default:splitWithDelim(' + prefixCol + ', 1, "-")',
-                    transform: function(colVal) {
+                    func    : "default:splitWithDelim",
+                    args    : [{
+                        num: 0,
+                        str: gColPrefix + prefixCol
+                    }, {
+                        num: 1,
+                        str: 1
+                    }, {
+                        num: 2,
+                        str: "\"-\""
+                    }],
+                    expectedMapStr   : mapStr,
+                    expectedCliMapStr: mapStr,
+                    transform        : function(colVal) {
                         var delim = "-";
                         var index = this.args[1].str;
                         return colVal.split(delim).splice(index).join(delim);
@@ -1180,11 +1191,17 @@ describe('OperationsView', function() {
                 var prefixCol = xcHelper.getPrefixColName(prefix, "yelping_since");
                 var options = {
                     category: "arithmetic",
-                    func: "add",
-                    args: [{num: 0,str: 'int(' + prefixCol + ', 10)'}, {num:1, str: 5}],
-                    expectedMapStr: 'add(int(' + prefixCol + ', 10), 5)',
+                    func    : "add",
+                    args    : [{
+                        num: 0,
+                        str: 'int(' + prefixCol + ', 10)'
+                    }, {
+                        num: 1,
+                        str: 5
+                    }],
+                    expectedMapStr   : 'add(int(' + prefixCol + ', 10), 5)',
                     expectedCliMapStr: 'add(int(' + prefixCol + ', 10), 5)',
-                    transform: function(colVal) {
+                    transform        : function(colVal) {
                         return parseInt(colVal) + this.args[1].str + "";
                     }
                 };
@@ -1226,7 +1243,7 @@ describe('OperationsView', function() {
                         innerDeferred.resolve();
                     }, 250);
                     return innerDeferred.promise();
-                }
+                };
              
                 promise()
                 .then(function() {
@@ -1235,10 +1252,8 @@ describe('OperationsView', function() {
                 .then(function() {
                     expect(options.transform).to.not.be.null;
                     var $tableWrap;
-                    var tableId;
                     $('.xcTableWrap').each(function() {
                         if ($(this).find('.tableName').val().indexOf(testDs) > -1) {
-                            tableId = $(this).find('.hashName').text().slice(1);
                             $tableWrap = $(this);
                             return false;
                         }
@@ -1247,8 +1262,8 @@ describe('OperationsView', function() {
                     var newCellText = $tableWrap.find('.row0 .col1 .originalData').text();
                     expect(newCellText).to.equal(options.transform(orgCellText));
 
-                    var orgCellText = $tableWrap.find('.row15 .col13 .originalData').text();
-                    var newCellText = $tableWrap.find('.row15 .col1 .originalData').text();
+                    orgCellText = $tableWrap.find('.row15 .col13 .originalData').text();
+                    newCellText = $tableWrap.find('.row15 .col1 .originalData').text();
                     expect(newCellText).to.equal(options.transform(orgCellText));
                     var sqlCli = SQL.viewLastAction(true).cli;
                    
@@ -1269,12 +1284,9 @@ describe('OperationsView', function() {
 
         after(function(done) {
             OperationsView.close();
-            var tableId;
-            tableId = xcHelper.getTableId(tableName);
-
             // allow time for operations view to close
             setTimeout(function() {
-               done(); 
+                done();
             }, 300);
         });
     });
@@ -1294,7 +1306,7 @@ describe('OperationsView', function() {
                 $functionsInput = $aggForm.find('.functionsInput:visible');
                 done();
             });
-        }); 
+        });
 
         describe('check aggregate form initial state', function() {
             it('agg form elements should be visible', function() {
@@ -1351,13 +1363,12 @@ describe('OperationsView', function() {
                 var $resultInput = $aggForm.find('.colNameSection .arg');
                  // xx focus testing only works if you're actually focused on this window
                 if (document.hasFocus()) {
-                     expect($resultInput.val()).to.equal("");
+                    expect($resultInput.val()).to.equal("");
                     $resultInput.focus();
                     expect($resultInput.val()).to.equal(gAggVarPrefix);
                     $resultInput.blur();
                     expect($resultInput.val()).to.equal("");
                 }
-               
 
                 $resultInput.val('something').trigger('input');
                 expect($resultInput.val()).to.equal(gAggVarPrefix + 'something');
@@ -1414,7 +1425,7 @@ describe('OperationsView', function() {
                     func: "count",
                     args: [{
                         num: 0,
-                        str: gColPrefix + prefix + gPrefixSign + "yelping_since"
+                        str: gColPrefix + prefixCol
                     }],
                     output: "1,000"
                 };
@@ -1431,9 +1442,8 @@ describe('OperationsView', function() {
                     func: "count",
                     args: [{
                         num: 0,
-                        str: gColPrefix + prefix + gPrefixSign + "yelping_since"
-                    },
-                    {
+                        str: gColPrefix + prefixCol
+                    },{
                         num: 1,
                         str: gAggVarPrefix + "yelping_since"
                     },
@@ -1453,7 +1463,7 @@ describe('OperationsView', function() {
                     func: "invalid",
                     args: [{
                         num: 0,
-                        str: gColPrefix + prefix + gPrefixSign + "yelping_since"
+                        str: gColPrefix + prefixCol
                     }],
                     output: null
                 };
@@ -1470,7 +1480,7 @@ describe('OperationsView', function() {
                     func: "avg",
                     args: [{
                         num: 0,
-                        str: gColPrefix + prefix + gPrefixSign + "yelping_since"
+                        str: gColPrefix + prefixCol
                     }],
                     output: null
                 };
@@ -1494,11 +1504,11 @@ describe('OperationsView', function() {
                     var argNum = args[i].num;
                     $argInputs.eq(argNum).val(args[i].str).trigger(fakeEvent.input);
                 }
-             
+
                 submitForm()
                 .then(function() {
                     expect(options.output).to.not.be.null;
-                    var alertText = $('#alertContent .text').text().trim(); 
+                    var alertText = $('#alertContent .text').text().trim();
                     expect(alertText).to.equal('{"Value":' + options.output +'}');
                     if (args[1]) {
                         Aggregates.deleteAggs([args[1].str.slice(1)])
@@ -1514,32 +1524,30 @@ describe('OperationsView', function() {
                             OperationsView.show(tableId, [1], 'aggregate')
                             .then(function() {
                                 deferred.resolve();
-                            }); 
+                            });
                         });
                     } else {
                         OperationsView.show(tableId, [1], 'aggregate')
                         .then(function() {
                             deferred.resolve();
-                        }); 
+                        });
                     }
                 })
                 .fail(function() {
                     Alert.forceClose();
                     expect(options.output).to.be.null;
-                    
                     deferred.reject();
                 });
 
                 return deferred.promise();
             }
-
         });
-        
+
         after(function(done) {
             OperationsView.close();
             // allow time for operations view to close
             setTimeout(function() {
-               done(); 
+                done();
             }, 500);
         });
     });
