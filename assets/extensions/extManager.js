@@ -156,7 +156,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         });
 
         $("#extension-ops-script").load("assets/extensions/extensions.html",
-                                   undefined, function(response, status, xhr) {
+        undefined, function(response, status, xhr) {
             setupPart2(response, status, xhr)
             .then(deferred.resolve)
             .fail(deferred.reject);
@@ -900,14 +900,13 @@ window.ExtensionManager = (function(ExtensionManager, $) {
 
         $arguments.each(function(i) {
             var argInfo = extFields[i];
-            // check type column later
-            var res = checkArg(argInfo, $(this));
-            if (!res.valid) {
-                invalidArg = true;
-                return false;
-            }
-
-            if (argInfo.type !== "column") {
+            // check table type first
+            if (argInfo.type === "table") {
+                var res = checkTableArg($(this));
+                if (!res.valid) {
+                    invalidArg = true;
+                    return false;
+                }
                 args[argInfo.fieldClass] = res.arg;
             }
         });
@@ -918,8 +917,8 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         // check col names
         $arguments.each(function(i) {
             var argInfo = extFields[i];
-            if (argInfo.type === "column") {
-                var res = checkArg(argInfo, $(this), extTableId, args, true);
+            if (argInfo.type !== "table") {
+                var res = checkArg(argInfo, $(this), extTableId, args);
                 if (!res.valid) {
                     invalidArg = true;
                     return false;
@@ -935,7 +934,29 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         }
     }
 
-    function checkArg(argInfo, $input, extTableId, args, checkColName) {
+    function checkTableArg($input) {
+        var arg = $input.val();
+        if (arg === "") {
+            StatusBox.show(ErrTStr.NoEmpty, $input);
+            return { "vaild": false };
+        }
+
+        var tableId = xcHelper.getTableId(arg);
+        if (tableId == null || !gTables.hasOwnProperty(tableId)) {
+            StatusBox.show(ErrTStr.NoTable, $input);
+            return { "vaild": false };
+        }
+
+        var worksheet = WSManager.getWSFromTable(tableId);
+        var tableArg = new XcSDK.Table(arg, worksheet);
+
+        return ({
+            "valid": true,
+            "arg"  : tableArg
+        });
+    }
+
+    function checkArg(argInfo, $input, extTableId, args) {
         var arg;
         var argType = argInfo.type;
         var typeCheck = argInfo.typeCheck || {};
@@ -974,36 +995,16 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         if (arg === "") {
             StatusBox.show(ErrTStr.NoEmpty, $input);
             return { "vaild": false };
-        }
-
-        if (argType === "table") {
-            var tableId = xcHelper.getTableId(arg);
-            if (tableId == null || !gTables.hasOwnProperty(tableId)) {
-                StatusBox.show(ErrTStr.NoTable, $input);
-                return { "vaild": false };
-            }
-
-            var worksheet = WSManager.getWSFromTable(tableId);
-            arg = new XcSDK.Table(arg, worksheet);
-
-            return ({
-                "valid": true,
-                "arg"  : arg
-            });
-
         } else if (argType === "column") {
             // check in first round
-            if (!checkColName && !xcHelper.hasValidColPrefix(arg)) {
+            if (!xcHelper.hasValidColPrefix(arg)) {
                 StatusBox.show(ErrTStr.ColInModal, $input);
                 return { "vaild": false };
             }
 
-            // check in second round
-            if (checkColName) {
-                arg = getColInfo(arg, typeCheck, $input, extTableId, args);
-                if (arg == null) {
-                    return { "vaild": false };
-                }
+            arg = getColInfo(arg, typeCheck, $input, extTableId, args);
+            if (arg == null) {
+                return { "vaild": false };
             }
         } else if (argType === "number") {
             arg = Number(arg);
@@ -1035,6 +1036,22 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                 StatusBox.show(error, $input);
                 return { "vaild": false };
             }
+        } else if (argType === "string") {
+            if (typeCheck.newColumnName) {
+                var tableId = getAssociateTable(args, typeCheck, extTableId);
+                if (tableId != null && gTables.hasOwnProperty(tableId)) {
+                    var table = gTables[tableId];
+                    if (table.hasCol(arg, "")) {
+                        error = xcHelper.replaceMsg(ErrWRepTStr.ColConflict, {
+                            "name" : arg,
+                            "table": table.getName()
+                        });
+
+                        StatusBox.show(error, $input);
+                        return { "vaild": false };
+                    }
+                }
+            }
         }
 
         return {
@@ -1063,18 +1080,10 @@ window.ExtensionManager = (function(ExtensionManager, $) {
 
         for (var i = 0, len = colLen; i < len; i++) {
             var shouldCheck = true;
-            var tableId;
-            if (typeCheck.tableField != null) {
-                var tableArg = args[typeCheck.tableField];
-                if (tableArg != null) {
-                    tableId = xcHelper.getTableId(tableArg.getName());
-                } else {
-                    // invalid table filed, not checking
-                    shouldCheck = false;
-                }
-            } else {
-                // if not specify table id, then use extTableId
-                tableId = extTableId;
+            var tableId = getAssociateTable(args, typeCheck, extTableId);
+            if (tableId == null) {
+                // invalid table filed, not checking
+                shouldCheck = false;
             }
 
             if (!gTables.hasOwnProperty(tableId)) {
@@ -1126,6 +1135,24 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         } else {
             return cols[0];
         }
+    }
+
+    function getAssociateTable(args, typeCheck, extTableId) {
+        var tableId = null;
+        if (typeCheck.tableField != null) {
+            var tableArg = args[typeCheck.tableField];
+            if (tableArg != null) {
+                tableId = xcHelper.getTableId(tableArg.getName());
+            } else {
+                // invalid table filed
+                tableId = null;
+            }
+        } else {
+            // if not specify table id, then use extTableId
+            tableId = extTableId;
+        }
+
+        return tableId;
     }
 
     return (ExtensionManager);

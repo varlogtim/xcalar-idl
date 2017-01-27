@@ -1,6 +1,6 @@
 // module name must start with "UExt"
 window.UExtGenRowNum = (function(UExtGenRowNum) {
-    /* 
+    /*
      * Note of UExtGenRowNum.buttons:
      * 1. it must be an array, each element is an object,
      *    which specify one function,
@@ -26,15 +26,18 @@ window.UExtGenRowNum = (function(UExtGenRowNum) {
         "arrayOfFields": [{
             "type"      : "string",
             "name"      : "New Column Name",
-            "fieldClass": "newColName"
+            "fieldClass": "newColName",
+            "typeCheck" : {
+                "newColumnName": true
+            }
         }]
     }];
 
-    // UExtGenRowNum.actionFn must reutrn a XcSDK.Extension obj or null 
+    // UExtGenRowNum.actionFn must reutrn a XcSDK.Extension obj or null
     UExtGenRowNum.actionFn = function(functionName) {
         // it's a good convention to use switch/case to handle
         // different function in the extension and handle errors.
-        switch(functionName) {
+        switch (functionName) {
             case "genRowNum":
                 return (genRowNum());
             default:

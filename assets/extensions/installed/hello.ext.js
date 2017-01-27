@@ -93,6 +93,9 @@ window.UExtHello = (function(UExtHello) {
      *       columnType: Optional, an array to restrict the column argument's
      *                   type, each element in the array can be
      *                   "number", "string", "boolean"...
+     *       newColumnName: Optional, for string type of field only,
+     *                      when set true, will check if any column,
+     *                      for this table exists
      *       multiColumn: Optional, when set true, the field can accept more
      *                    than one column as input. Otherwise, only allow
      *                    one column as input.

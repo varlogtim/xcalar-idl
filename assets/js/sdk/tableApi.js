@@ -20,12 +20,12 @@ window.XcSDK.Table = function(tableName, worksheet) {
 };
 
 window.XcSDK.Table.prototype = {
-    "getName": function() {
+    getName: function() {
         return this.tableName;
     },
 
     // XXX Comment it util it has any use case
-    // "getCopyOfColumns": function() {
+    // getCopyOfColumns: function() {
     //     // to check columns
     //     // XXX not test yet
     //     var cols = [];
@@ -41,7 +41,7 @@ window.XcSDK.Table.prototype = {
     //     return cols;
     // },
 
-    "getColNum": function(col) {
+    getColNum: function(col) {
         if (!(col instanceof XcSDK.Column)) {
             console.error("column must be of type XcSDK.Column");
             return -1;
@@ -59,15 +59,15 @@ window.XcSDK.Table.prototype = {
         return -1;
     },
 
-    "isInWorksheet": function() {
+    isInWorksheet: function() {
         return this.active;
     },
 
-    "getTablesToReplace": function() {
+    getTablesToReplace: function() {
         return this.tablesToReplace;
     },
 
-    "addToWorksheet": function(tablesToReplace, txId) {
+    addToWorksheet: function(tablesToReplace, txId) {
         var tableName = this.tableName;
         var ws = this.worksheet;
         var tableCols = this.tableCols;
@@ -118,7 +118,7 @@ window.XcSDK.Table.prototype = {
                                       ws, txId);
     },
 
-    "addCol": function(col, position) {
+    addCol: function(col, position) {
         if (!(col instanceof XcSDK.Column)) {
             console.error("column must be of type XcSDK.Column");
             return this;
@@ -137,6 +137,11 @@ window.XcSDK.Table.prototype = {
         }
 
         var colName = col.getName();
+        if (this.hasCol(colName)) {
+            console.error(ErrTStr.ColumnConflict);
+            return this;
+        }
+
         var frontName = xcHelper.parsePrefixColName(colName).name;
         var progCol = ColManager.newPullCol(frontName, colName, col.getType());
         if (len === 0) {
@@ -152,7 +157,19 @@ window.XcSDK.Table.prototype = {
         return this;
     },
 
-    "deleteCol": function(col) {
+    hasCol: function(colName) {
+        var tableCols = this.tableCols;
+        for (var i = 0, len = tableCols.length; i < len; i++) {
+            var backColName = tableCols[i].getBackColName();
+            if (colName === backColName) {
+                return true;
+            }
+        }
+
+        return false;
+    },
+
+    deleteCol: function(col) {
         if (!(col instanceof XcSDK.Column)) {
             console.error("column must be of type XcSDK.Column");
             return false;
@@ -171,7 +188,7 @@ window.XcSDK.Table.prototype = {
         return false;
     },
 
-    "deleteAllCols": function() {
+    deleteAllCols: function() {
         this.tableCols = [];
         return this;
     }
