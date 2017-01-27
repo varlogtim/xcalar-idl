@@ -154,6 +154,7 @@ CommonTxtTstr = {
 };
 
 ErrTStr = {
+    'Error': 'Error',
     'Unknown': 'Unknown Error',
     'NoEmpty': 'Please fill out this field.',
     'PositiveInteger' : 'Please Enter a positive Integer as number of Runs',

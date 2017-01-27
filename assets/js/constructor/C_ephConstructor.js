@@ -2086,7 +2086,7 @@ MenuHelper.prototype = {
             });
         }
 
-        // XX Need to find and document the use case of this otherwise remove
+        // XXX Need to find and document the use case of this otherwise remove
         // because hidedropdown seems to only be called on mouseup now
         // $dropDownList.on("mousedown", function(event) {
         //     if (event.which === 1) {
@@ -2646,13 +2646,12 @@ function DSFileUpload(name, size, fileObj, options) {
     this.times = [];
     this.fileObj = fileObj; // needs this reference of fileObj when
                             // refreshing files
-
     return this;
 }
 
 DSFileUpload.prototype = {
     add: function(content, chunkSize) {
-        if (this.status === "canceled") {
+        if (this.status === "canceled" || this.status === "errored") {
             return;
         }
 
@@ -2668,25 +2667,25 @@ DSFileUpload.prototype = {
     getFileObj: function() {
         return this.fileObj;
     },
-    complete: function(callback) {
+    complete: function() {
         this.status = 'done';
     },
     cancel: function() {
-        var deferred = jQuery.Deferred();
         var self = this;
         self.status = 'canceled';
         self.chunks = [];
-
         // cannot call delete during an append so _stream checks for 
         // self.status === 'canceled' and stops streaming and deletes
-
-        return deferred.promise();
+    },
+    errored: function() {
+        self.status = 'errored';
     },
     workerDone: function() {
         this.isWorkerDone = true;
     },
     errorAdding: function(err) {
-        this.status = 'errored';
+        // occurs when worker fails
+        this.status = "errored";
         Alert.error(DSTStr.UploadFailed, err);
         this.onErrorCallback();
     },
@@ -2706,6 +2705,10 @@ DSFileUpload.prototype = {
             self.sizeCompleted += self.chunks[0].size;
             self.onUpdateCallback(self.sizeCompleted);
             self.chunks.shift();
+            if (self.status === "errored") {
+                return;
+            }
+
             if (self.chunks.length) {
                 self.__stream();
             } else if (self.isWorkerDone) {
@@ -2718,13 +2721,12 @@ DSFileUpload.prototype = {
             }
         })
         .fail(function(err) {
-
             Alert.error(DSTStr.UploadFailed, err);
-            // xx need to handle fails and storing the progress so we can
+            // XXX need to handle fails and storing the progress so we can
             // try from where we left off
 
-            // xx deletes the file for now
             self.onErrorCallback();
+            self.errored();
         });
     }
 };

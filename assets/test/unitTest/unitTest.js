@@ -270,13 +270,20 @@ window.UnitTest = (function(UnitTest, $) {
         var $alertModal = $("#alertModal");
         assert.isTrue($alertModal.is(":visible"));
         expect($("#alertHeader .text").text()).to.equal(title);
+        if (options.inputVal != null) {
+            $alertModal.find('input').val(options.inputVal);
+        }
         if (options.confirm)  {
             $alertModal.find(".confirm").click();
         } else {
             $alertModal.find(".cancel").click();
         }
 
-        assert.isFalse($alertModal.is(":visible"));
+        if (!options.nextAlert) { // ignore this check if test has another
+            // modal opening immediately after
+            assert.isFalse($alertModal.is(":visible"));
+        }
+       
     };
 
     UnitTest.hasAlertWithText = function(text, options) {
@@ -284,13 +291,18 @@ window.UnitTest = (function(UnitTest, $) {
         var $alertModal = $("#alertModal");
         assert.isTrue($alertModal.is(":visible"));
         expect($("#alertContent .text").text()).to.equal(text);
+        if (options.inputVal != null) {
+            $alertModal.find('input').val(options.inputVal);
+        }
         if (options.confirm)  {
             $alertModal.find(".confirm").click();
         } else {
             $alertModal.find(".cancel").click();
         }
 
-        assert.isFalse($alertModal.is(":visible"));
+        if (!options.nextAlert) {
+            assert.isFalse($alertModal.is(":visible"));
+        }
     };
 
     return (UnitTest);

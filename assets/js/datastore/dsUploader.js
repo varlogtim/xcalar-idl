@@ -33,7 +33,8 @@ window.DSUploader = (function($, DSUploader) {
     };
 
     DSUploader.restore = function(pendingUploads) {
-        if (XVM.getLicenseMode() !== XcalarMode.Demo) {
+        if (XVM.getLicenseMode() !== XcalarMode.Demo ||
+            !pendingUploads) {
             return PromiseHelper.resolve();
         }
         var deferred = jQuery.Deferred();
@@ -60,7 +61,8 @@ window.DSUploader = (function($, DSUploader) {
     DSUploader.refreshFiles = function() {
         var deferred = jQuery.Deferred();
         if (!dsUploaderEnabled) {
-            return;
+            deferred.resolve();
+            return deferred.promise();
         }
 
         var promise =  XcalarListFiles("demo:///", false);
@@ -73,9 +75,6 @@ window.DSUploader = (function($, DSUploader) {
             var name;
             allFiles = results.files;
             for (var i = 0; i < allFiles.length; i++) {
-                 //xx temp
-                name = allFiles[i].name.split("/");
-                name = name[name.length - 1];
                 if (name in uploads) {
                     allFiles[i] = uploads[name].getFileObj();
                 }
@@ -115,7 +114,7 @@ window.DSUploader = (function($, DSUploader) {
                 cancelUpload($grid);
             } else if ($target.closest('.delete').length) {
                 deleteFileConfirm($grid);
-            } else if (!$grid.hasClass('isLoading')) {
+            } else if (!$grid.hasClass('inProgress')) {
                 submitForm($grid);
             }
         });
@@ -141,7 +140,7 @@ window.DSUploader = (function($, DSUploader) {
     function setupDragDrop() {
         var dragCount = 0;
         $uploaderMain.on('drag dragstart dragend dragover dragenter ' +
-            'dragleave drop', function(event) {
+            'dragleave', function(event) {
             event.preventDefault();
             event.stopPropagation();
         });
@@ -182,8 +181,6 @@ window.DSUploader = (function($, DSUploader) {
             if (!files || !files.length) {
                 return;
             }
-            cachedEvent = event.originalEvent;
-            $('.fileDroppable').removeClass('fileDragging');
             submitFiles(files, event.originalEvent);
         });
     }
@@ -211,12 +208,6 @@ window.DSUploader = (function($, DSUploader) {
 
     function submitForm($icon) {
         var name = decodeURI($icon.data("name"));
-
-        //xx temp
-        name = name.split("/");
-        name = name[name.length - 1];
-        // end temp
-
         var path = "demo:///" + name;
         var format = null;
         var options = {
@@ -228,13 +219,10 @@ window.DSUploader = (function($, DSUploader) {
     }
 
     function submitFiles(files, event) {
+        cachedEvent = event;
         if (files.length > 1) {
-            Alert.show({title: DSTStr.InvalidUpload,
-                        msg: DSTStr.OneFileUpload});
-            return;
-        }
-
-        if (checkInvalidFileSize(files[0])) {
+            showAlert('multipleFiles');
+        } else if (checkInvalidFileSize(files[0])) {
             showAlert('invalidSize');
         } else if (checkFileNameDuplicate(files[0].name)) {
             showAlert('duplicateName', {name: files[0].name, file: files[0]});
@@ -294,8 +282,9 @@ window.DSUploader = (function($, DSUploader) {
             case ('invalidFolder'):
                 Alert.error(DSTStr.InvalidUpload, DSTStr.InvalidFolderDesc);
                 break;
-            case ('uploadComplete'):
-                Alert.error(DSTStr.UploadCompleted, DSTStr.UploadCompletedDesc);
+            case ('multipleFiles'):
+                Alert.show({title: DSTStr.InvalidUpload,
+                msg: DSTStr.OneFileUpload});
                 break;
             default:
                 break;
@@ -342,14 +331,13 @@ window.DSUploader = (function($, DSUploader) {
 
             var creating = true;
             var html = getOneFileHtml(fileObj, creating);
-            $innerContainer.append(html);
+            var $grid = $(html);
+            $innerContainer.append($grid);
 
-            // xx need separate loading status for when file is creating
             XcalarDemoFileCreate(name)
             .then(function() {
-                var $icon = getDSIcon(name);
-                $icon.removeClass('isCreating');
-                return uploadFile(fileObj, file, name);
+                $grid.removeClass('isCreating');
+                uploadFile(fileObj, file);
             })
             .fail(function(err) {
                 if (err.error && err.error.indexOf('already exists') > -1) {
@@ -357,21 +345,18 @@ window.DSUploader = (function($, DSUploader) {
                 } else {
                     Alert.error(DSTStr.UploadFailed, err);
                 }
-                
-                var $icon = getDSIcon(name);
-                $icon.remove();
-                removeFileFromCache(name);
+                $grid.remove();
             });
         }
     }
 
-    function uploadFile(fileObj, file, name) {
-        var deferred = jQuery.Deferred();
+    function uploadFile(fileObj, file) {
+        var name = fileObj.name;
         var dsUploadWorker = new Worker(paths.dsUploadWorker);
         var dsFileUpload = new DSFileUpload(name, file.size, fileObj, {
-            onComplete: uploadComplete.bind(null, fileObj, file, name),
+            onComplete: uploadComplete.bind(null, fileObj, name),
             onUpdate: updateProgress.bind(null, fileObj, file, name),
-            onError: onError.bind(null, fileObj, file, name)
+            onError: onError.bind(null, fileObj, name)
         });
         uploads[name] = dsFileUpload;
 
@@ -383,7 +368,8 @@ window.DSUploader = (function($, DSUploader) {
         dsUploadWorker.postMessage(file);
 
         dsUploadWorker.onmessage = function(ret) {
-            if (dsFileUpload.getStatus === "canceled") {
+            if (dsFileUpload.getStatus() === "canceled" ||
+                dsFileUpload.getStatus() === "errored") {
                 return;
             }
             if (ret.data.status === "loading") {
@@ -400,12 +386,12 @@ window.DSUploader = (function($, DSUploader) {
         };
     }
 
-    function uploadComplete(fileObj, file, name) {
-        var $icon = getDSIcon(name);
-        $icon.removeClass("isLoading").find(".fileSize").html(
+    function uploadComplete(fileObj, name) {
+        var $grid = getDSIcon(name);
+        $grid.removeClass("inProgress").find(".fileSize").html(
                                 xcHelper.sizeTranslator(fileObj.attr.size));
         var displayName = xcHelper.escapeHTMLSepcialChar(name);
-        $icon.find(".fileName").html(displayName);
+        $grid.find(".fileName").html(displayName);
         fileObj.status = "done";
         delete uploads[name];
         commit();
@@ -424,12 +410,13 @@ window.DSUploader = (function($, DSUploader) {
         fileObj.sizeCompleted = sizeCompleted;
     }
 
-    // xx temporary, should not delete file if error
-    function onError(fileObj, file, name) {
-        var $icon = getDSIcon(name);
-        $icon.remove();
-        removeFileFromCache(name);
-        uploads[name].cancel(); // xx temp, should not cancel and delete file
+    function onError(fileObj, name) {
+        var $grid = getDSIcon(name);
+        $grid.removeClass("inProgress").addClass("isError");
+        var displayName = xcHelper.escapeHTMLSepcialChar(name);
+        $grid.find(".fileName").html(displayName + " (" + ErrTStr.Error + ")");
+        fileObj.status = "errored";
+
         delete uploads[name];
         commit();
     }
@@ -441,7 +428,7 @@ window.DSUploader = (function($, DSUploader) {
             "title"    : DSTStr.CancelUpload,
             "msg"      : DSTStr.CancelUploadDesc,
             "onConfirm": function() {
-                if ($icon.hasClass('isLoading')) {
+                if ($icon.hasClass('inProgress')) {
                     $icon.remove();
                     removeFileFromCache(name);
 
@@ -456,6 +443,7 @@ window.DSUploader = (function($, DSUploader) {
     }
 
     function deleteFileConfirm($icon) {
+        var deferred = jQuery.Deferred();
         var name = decodeURI($icon.data("name"));
         var msg = xcHelper.replaceMsg(DSTStr.DelUploadMsg, {"filename": name});
 
@@ -463,27 +451,37 @@ window.DSUploader = (function($, DSUploader) {
             "title"    : DSTStr.DelUpload,
             "msg"      : msg,
             "onConfirm": function() {
-                deleteFile($icon, name);
+                deleteFile($icon, name)
+                .then(deferred.resolve)
+                .fail(deferred.reject);
             }
         });
+
+        return deferred.promise();
     }
 
     function deleteFile($icon, name) {
         var deferred = jQuery.Deferred();
-
-        //xx temp
-        var origName = name;
-        name = name.split("/");
-        name = name[name.length - 1];
-
+        $icon.addClass("isDeleting");
         XcalarDemoFileDelete(name)
         .then(function() {
             $icon.remove();
-            removeFileFromCache(origName);
+            removeFileFromCache(name);
             deferred.resolve();
         })
         .fail(function(err) {
-            Alert.error(DSTStr.CouldNotDelete, err);
+            if (err && err.error) {
+                err = err.error;
+            }
+
+            if (err.indexOf("not exist") > -1) {
+                $icon.remove();
+                removeFileFromCache(name);
+            } else {
+                Alert.error(DSTStr.CouldNotDelete, err);
+                $icon.removeClass("isDeleting");
+            }
+            
             deferred.reject();
         });
 
@@ -512,10 +510,9 @@ window.DSUploader = (function($, DSUploader) {
         var size = xcHelper.sizeTranslator(fileInfo.attr.size);
         var sizeCompleted = xcHelper.sizeTranslator(fileInfo.sizeCompleted);
         var mtime = fileInfo.attr.mtime;
-        var isDirectory = false;
 
-        var gridClass = isDirectory ? "folder" : "ds";
-        var iconClass = isDirectory ? "xi-folder" : "xi_data";
+        var gridClass = "ds";
+        var iconClass = "xi_data";
         var timeOptions = {
             // hasMilliseconds: true,
             noSeconds: true
@@ -524,8 +521,14 @@ window.DSUploader = (function($, DSUploader) {
         var status = "";
 
         if (fileInfo.status === "inProgress") {
-            status += " isLoading ";
+            status += " inProgress ";
             displayName = displayName + " (" + CommonTxtTstr.Uploading + ")";
+            size = sizeCompleted + "/" + size + " (" +
+                Math.floor(100 * fileInfo.sizeCompleted / fileInfo.attr.size) +
+                "%)";
+        } else if (fileInfo.status === "errored") {
+            status += " isError ";
+            displayName = displayName + " (" + ErrTStr.Error + ")";
             size = sizeCompleted + "/" + size + " (" +
                 Math.floor(100 * fileInfo.sizeCompleted / fileInfo.attr.size) +
                 "%)";
@@ -675,5 +678,26 @@ window.DSUploader = (function($, DSUploader) {
         $innerContainer.html(html);
     }
 
+    DSUploader.submitFiles = submitFiles;
+
+    /* Unit Test Only */
+    if (window.unitTestMode) {
+        DSUploader.__testOnly__ = {};
+        DSUploader.__testOnly__.submitFiles = submitFiles;
+        DSUploader.__testOnly__.allFiles = allFiles;
+        DSUploader.__testOnly__.loadFile = loadFile;
+        DSUploader.__testOnly__.uploadFile = uploadFile;
+        DSUploader.__testOnly__.uploads = uploads;
+        DSUploader.__testOnly__.submitForm = submitForm;
+        DSUploader.__testOnly__.cancelUpload = cancelUpload;
+        DSUploader.__testOnly__.getOneFileHtml = getOneFileHtml;
+        DSUploader.__testOnly__.uploadComplete = uploadComplete;
+        DSUploader.__testOnly__.updateProgress = updateProgress;
+        DSUploader.__testOnly__.deleteFileConfirm = deleteFileConfirm;
+        DSUploader.__testOnly__.onError = onError;
+        DSUploader.__testOnly__.getDSIcon = getDSIcon;
+
+    }
+    /* End Of Unit Test Only */
     return (DSUploader);
 }(jQuery, {}));

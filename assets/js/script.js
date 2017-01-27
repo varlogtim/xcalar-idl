@@ -818,7 +818,7 @@ window.StartManager = (function(StartManager, $) {
 
         var dragCount = 0; // tracks document drag enters and drag leaves
         // as multiple enters/leaves get triggered by children
-
+        // 
         $(document).on('dragenter', function(event) {
             var dt = event.originalEvent.dataTransfer;
             if (dt.types && (dt.types.indexOf ?
@@ -859,6 +859,11 @@ window.StartManager = (function(StartManager, $) {
                     $('.fileDroppable').removeClass('fileDragging');
                 }
             }
+        });
+
+        $(document).on('drop', function(event) {
+            event.preventDefault();
+            $('.fileDroppable').removeClass('fileDragging');
         });
 
         $(window).blur(function() {

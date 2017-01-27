@@ -817,7 +817,7 @@ table.datasetTable {
     .grid-unit {
         cursor: pointer;
         
-        &.isLoading {
+        &.inProgress {
             .fileName {
                 opacity: 0.5;
             }
@@ -828,7 +828,7 @@ table.datasetTable {
                 display: none;
             }
         }
-        &.isCreating {
+        &.isCreating, &.isDeleting {
             pointer-events: none;
         }
 
