@@ -24,7 +24,7 @@ function setupHostName() {
 
     // If you have special ports, it needs to be part of the hostname
     if (!hostname.startsWith(protocol)) {
-        hostname = "http://" + hostname;
+        hostname = "https://" + hostname;
     }
 }
 // for convenience, add the function list here and make them

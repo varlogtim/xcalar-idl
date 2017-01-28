@@ -168,7 +168,7 @@ $(document).ready(function() {
 
         // If you have special ports, it needs to be part of the hostname
         if (!hostname.startsWith(protocol)) {
-            hostname = "http://" + hostname;
+            hostname = "https://" + hostname;
         }
     }
 

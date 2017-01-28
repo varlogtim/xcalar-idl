@@ -4,6 +4,7 @@ var fs = require('fs');
 var os = require('os');
 var path = require('path');
 var timer = require('timers');
+var https = require('https');
 
 var ssf = require('./supportStatusFile');
 var tail = require('./tail');
@@ -163,20 +164,33 @@ function sendCommandToSlaves(action, str, hosts) {
     }
 
     function postRequest(hostName, str) {
-        jQuery.ajax({
-            type: 'POST',
-            data: JSON.stringify(str),
-            contentType: 'application/json',
-            url: "http://" + hostName + "/app" + action,
-            // If one node fails for monitoring logs, we may still want to read
-            // the logs from other logs, should not wait too long
-            timeout: action == "/monitorLogs/slave" ? timeout * monitorFactor : timeout * expendFactor,
-            success: function(data) {
+        if(str) {
+           var postData = JSON.stringify(str);
+        } else {
+            // content can not be empty
+           var postData = "{}";
+        }
+        // var postData = str;
+        var options = {
+          host: hostName,
+          port: 443,
+          path: '/app' + action,
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Content-Length': Buffer.byteLength(postData)
+           }
+        };
+        var req = https.request(options, function(res) {
+            res.setEncoding('utf8');
+            res.on('data', (data) => {
+                process.stdout.write(data);
                 var ret = data;
                 var retMsg;
                 if (ret.status === Status.Ok) {
                     retMsg = ret;
-                } else if (ret.status === Status.Error || ret.status === Status.Incomplete) {
+                } else if (ret.status === Status.Error
+                    || ret.status === Status.Incomplete) {
                     retMsg = ret;
                     hasFailure = true;
                 } else {
@@ -195,25 +209,36 @@ function sendCommandToSlaves(action, str, hosts) {
                         mainDeferred.resolve(returns);
                     }
                 }
-            },
-            error: function(error, textStatus) {
-                retMsg = {
-                    status: Status.Error,
-                    error: error,
-                    logs: textStatus
-                };
-                returns[hostName] = retMsg;
-                hasFailure = true;
-                numDone++;
-                if (numDone === hosts.length) {
-                    if (hasFailure) {
-                        mainDeferred.reject(returns);
-                    } else {
-                        mainDeferred.resolve(returns);
-                    }
+            });
+        });
+        req.on('socket', function (socket) {
+            // 2 is for restart command (need double time)
+            socket.setTimeout(action == "/monitorLogs/slave" ?
+                timeout * monitorFactor : 2 * timeout * expendFactor);
+            socket.on('timeout', function() {
+                req.abort();
+            });
+        });
+        req.on('error', (error) => {
+            console.error(error);
+            retMsg = {
+                status: Status.Error,
+                error: error,
+                logs: error.message
+            };
+            returns[hostName] = retMsg;
+            hasFailure = true;
+            numDone++;
+            if (numDone === hosts.length) {
+                if (hasFailure) {
+                    mainDeferred.reject(returns);
+                } else {
+                    mainDeferred.resolve(returns);
                 }
             }
         });
+        req.write(postData);
+        req.end();
     }
     return mainDeferred.promise();
 }
@@ -224,7 +249,8 @@ function generateLogs(action, results) {
         for (var key in results) {
             var resSlave = results[key];
             str = str + "Host: " +  key + "\n"
-                      + "Return Status: " + ssf.getStatus(resSlave["status"]) + "\n";
+                      + "Return Status: "
+                      + ssf.getStatus(resSlave["status"]) + "\n";
             if (resSlave["logs"]) {
                 str = str + "Logs: " + resSlave["logs"] + "\n\n";
             } else if (resSlave["error"]) {
@@ -250,8 +276,26 @@ function xcalarStop(res) {
 
 function xcalarRestart(res) {
     console.log("Enter Xcalar Restart");
-    var command = 'service xcalar restart';
-    return executeCommand(command, res);
+    var deferred = jQuery.Deferred();
+    xcalarStop()
+    .always(function(data1) {
+        xcalarStart()
+        .then(function(data2) {
+            var retMsg = {"status": Status.Ok,
+                      "logs" : new Buffer("Success: " + data1 +
+                       " " + data2).toString('base64')};
+            res.send(retMsg);
+            deferred.resolve();
+        })
+        .fail(function(data2) {
+            var retMsg = {"status": Status.Ok,
+                          "logs" : new Buffer("Fail: " + data1 +
+                            " " + data2).toString('base64')};
+            res.send(retMsg);
+            deferred.reject();
+        });
+    });
+    return deferred.promise();
 }
 
 function xcalarStatus(res) {
@@ -279,7 +323,8 @@ function removeSessionFiles(filePath, res) {
         if (!isLegalPath) {
             console.log("The filename " + completePath + " is illegal");
             var retMsg = {"status": Status.Error,
-                          "error" : new Error("Please Send a legal Session file/folder name.")};
+                          "error" : new Error("Please Send a" +
+                          " legal Session file/folder name.")};
             res.send(retMsg);
             return;
         }
@@ -302,7 +347,8 @@ function removeSessionFiles(filePath, res) {
             file = "all files under session folder";
         }
         var retMsg = {"status": Status.Ok,
-                      "logs" : new Buffer("Remove " + file + " successfully!").toString('base64')};
+                      "logs" : new Buffer("Remove " + file
+                        + " successfully!").toString('base64')};
         res.send(retMsg);
         deferredOut.resolve();
     })
@@ -374,7 +420,7 @@ function executeCommand(command, res) {
             res.send(result);
         }
         timer.clearTimeout(intervalID);
-        deferred.resolve();
+        deferred.resolve(lines);
     }, timeout);
 
     out.stdout.on('data', function(data) {
@@ -391,7 +437,7 @@ function executeCommand(command, res) {
                       "logs" : lines};
             res.send(result);
         }
-        deferred.resolve();
+        deferred.resolve(lines);
     });
 
     out.stdout.on('error', function(data) {

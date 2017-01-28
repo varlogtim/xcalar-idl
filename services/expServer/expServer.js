@@ -350,11 +350,12 @@ app.post("/recentLogs", function(req, res) {
 
     support.hasLogFile(file)
     .then(function() {
-        var str = {"requireLineNum" : requireLineNum, "filename": file};
+        var str = {requireLineNum : requireLineNum, filename: file};
         support.masterExecuteAction("/recentLogs", res, str);
     })
     .fail(function() {
         var str = {"requireLineNum" : requireLineNum};
+        // var str = {"requireLineNum" : requireLineNum};
         support.masterExecuteAction("/recentJournals", res, str);
     });
 });
@@ -599,6 +600,7 @@ app.post('/login', function(req, res) {
 });
 
 var httpServer = http.createServer(app);
+require('ssl-root-cas').addFile('/etc/apache2/ssl/ca.pem').inject();
 var port = 12124;
 httpServer.listen(port, function() {
     var hostname = process.env.DEPLOY_HOST;
