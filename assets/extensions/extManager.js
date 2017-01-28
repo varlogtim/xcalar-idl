@@ -451,6 +451,12 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             submitArgs();
         });
 
+        $extArgs.on("keypress", ".argument", function(event) {
+            if (event.which === keyCode.Enter) {
+                submitArgs();
+            } 
+        });
+
         $extArgs.on("focus", ".argument.type-column", function() {
             $lastInputFocused = $(this);
         });
