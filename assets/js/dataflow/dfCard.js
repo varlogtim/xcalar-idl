@@ -328,11 +328,13 @@ window.DFCard = (function($, DFCard) {
                 var width = $dagWrap.find('canvas').attr('width');
                 $dagWrap.find('.dagImageWrap').scrollLeft(width);
                 if (XVM.getLicenseMode() === XcalarMode.Demo) {
-                    $dagWrap.find(".advancedOpts [data-option='import']").click();
-                    var $name = $dagWrap
-                                .find(".dagTable.export .exportTableName");
-                    $name.html($(this).val());
-                    xcTooltip.changeText($name, $(this).val());
+                    var $name = $dagWrap.find(".dagTable.export .exportTableName");
+                    var exportName = xcHelper.getTableName($name.text());
+                    var $option = $dagWrap.find(".advancedOpts [data-option='import']");
+                    $option.click();
+                    $option.find("input").val(exportName);
+                    $name.text(exportName);
+                    xcTooltip.changeText($name, exportName);
                 }
             } else {
                 $dagWrap.removeClass("xc-hidden");
