@@ -450,6 +450,7 @@ window.RowManager = (function($, RowManager) {
         } else if (direction === RowDirection.Bottom && scrollPosition) {
             $xcTbodyWrap.scrollTop(scrollPosition);
         }
+        moveFirstColumn();
     }
 
     function cleanupMissingRows(info, rowPosition, direction) {
