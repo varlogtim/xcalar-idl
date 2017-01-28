@@ -67,7 +67,7 @@ window.UnitTest = (function(UnitTest, $) {
         });
 
         $('#backXC').click(function() {
-            freeAllResultSetsSync(true)
+            TblManager.freeAllResultSetsSync(true)
             .then(Support.releaseSession)
             .then(function() {
                 removeUnloadPrompt();
@@ -270,20 +270,13 @@ window.UnitTest = (function(UnitTest, $) {
         var $alertModal = $("#alertModal");
         assert.isTrue($alertModal.is(":visible"));
         expect($("#alertHeader .text").text()).to.equal(title);
-        if (options.inputVal != null) {
-            $alertModal.find('input').val(options.inputVal);
-        }
         if (options.confirm)  {
             $alertModal.find(".confirm").click();
         } else {
             $alertModal.find(".cancel").click();
         }
 
-        if (!options.nextAlert) { // ignore this check if test has another
-            // modal opening immediately after
-            assert.isFalse($alertModal.is(":visible"));
-        }
-       
+        assert.isFalse($alertModal.is(":visible"));
     };
 
     UnitTest.hasAlertWithText = function(text, options) {
@@ -291,18 +284,13 @@ window.UnitTest = (function(UnitTest, $) {
         var $alertModal = $("#alertModal");
         assert.isTrue($alertModal.is(":visible"));
         expect($("#alertContent .text").text()).to.equal(text);
-        if (options.inputVal != null) {
-            $alertModal.find('input').val(options.inputVal);
-        }
         if (options.confirm)  {
             $alertModal.find(".confirm").click();
         } else {
             $alertModal.find(".cancel").click();
         }
 
-        if (!options.nextAlert) {
-            assert.isFalse($alertModal.is(":visible"));
-        }
+        assert.isFalse($alertModal.is(":visible"));
     };
 
     return (UnitTest);
