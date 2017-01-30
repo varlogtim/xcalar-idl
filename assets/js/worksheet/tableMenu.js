@@ -130,14 +130,6 @@ window.TblMenu = (function(TblMenu, $) {
             copyToClipboard(allColNames, true);
         });
 
-        $tableMenu.on('mouseup', '.delAllDuplicateCols', function(event) {
-            if (event.which !== 1 || $(this).hasClass("unavailable")) {
-                return;
-            }
-            var tableId = $tableMenu.data('tableId');
-            ColManager.delAllDupCols(tableId);
-        });
-
         $tableMenu.on('mouseup', '.multiCast', function(event) {
             if (event.which !== 1 || $(this).hasClass("unavailable")) {
                 return;
@@ -338,15 +330,6 @@ window.TblMenu = (function(TblMenu, $) {
             ColManager.delCol([colNum], tableId);
         });
 
-        $colMenu.on('mouseup', '.deleteDuplicates', function(event) {
-            if (event.which !== 1) {
-                return;
-            }
-            var colNum = $colMenu.data('colNum');
-            var tableId = $colMenu.data('tableId');
-            ColManager.delDupCols(colNum, tableId);
-        });
-
         $subMenu.on('click', '.inputAction', function() {
             $(this).siblings('input').trigger(fakeEvent.enter);
         });
@@ -533,16 +516,6 @@ window.TblMenu = (function(TblMenu, $) {
                 $numInput.val("").blur();
                 closeMenu($allMenus);
             }
-        });
-
-        $colMenu.on('mouseup', '.duplicate', function(event) {
-            if (event.which !== 1) {
-                return;
-            }
-
-            var colNum = $colMenu.data('colNum');
-            var tableId = $colMenu.data('tableId');
-            ColManager.dupCol(colNum, tableId);
         });
 
         $colMenu.on('mouseup', '.hide', function(event) {

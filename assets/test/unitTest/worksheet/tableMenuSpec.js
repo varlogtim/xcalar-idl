@@ -128,23 +128,6 @@ describe('TableMenu', function() {
                 ExportView.show = cachedFunc;
             });
 
-            it('delAllDuplicateCols', function() {
-                var cachedFunc = ColManager.delAllDupCols;
-                var called = false;
-                ColManager.delAllDupCols = function(tId) {
-                    expect(tId).to.equal(tableId);
-                    called = true;
-                };
-
-                $tableMenu.find('.delAllDuplicateCols').trigger(rightMouseup);
-                expect(called).to.be.false;
-
-                $tableMenu.find('.delAllDuplicateCols').trigger(fakeEvent.mouseup);
-                expect(called).to.be.true;
-
-                ColManager.delAllDupCols = cachedFunc;
-            });
-
             it('multiCast', function() {
                 var cachedFunc = SmartCastView.show;
                 var called = false;
@@ -552,43 +535,6 @@ describe('TableMenu', function() {
                 expect(called).to.be.true;
 
                 ColManager.delCol = cachedFunc;
-            });
-
-            it('deleteDuplicates', function() {
-                var cachedFunc = ColManager.delDupCols;
-                var called = false;
-                ColManager.delDupCols = function(colNum, tId) {
-                    expect(colNum).to.equal(12);
-                    expect(tId).to.equal(tableId);
-                    called = true;
-                };
-
-                $colMenu.find('.deleteDuplicates').trigger(rightMouseup);
-                expect(called).to.be.false;
-
-                $colMenu.find('.deleteDuplicates').trigger(fakeEvent.mouseup);
-                expect(called).to.be.true;
-
-                ColManager.delDupCols = cachedFunc;
-            });
-
-
-            it('duplicate', function() {
-                var cachedFunc = ColManager.dupCol;
-                var called = false;
-                ColManager.dupCol = function(colNum, tId) {
-                    expect(colNum).to.equal(12);
-                    expect(tId).to.equal(tableId);
-                    called = true;
-                };
-
-                $colMenu.find('.duplicate').trigger(rightMouseup);
-                expect(called).to.be.false;
-
-                $colMenu.find('.duplicate').trigger(fakeEvent.mouseup);
-                expect(called).to.be.true;
-
-                ColManager.dupCol = cachedFunc;
             });
 
             it('hide', function() {

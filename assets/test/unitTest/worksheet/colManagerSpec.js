@@ -561,42 +561,6 @@ describe('ColManager Test', function() {
             $target.remove();
         });
 
-        it("Should Duplicate Column", function() {
-            var table = gTables[tableId];
-            var colLen = getColLen(tableId);
-            var progCol = table.getCol(1);
-
-            ColManager.dupCol(1, tableId);
-            expect(getColLen(tableId) - colLen).to.equal(1);
-            var dupCol = table.getCol(2);
-            expect(dupCol.getFrontColName())
-            .not.to.equal(progCol.getFrontColName());
-            expect(dupCol.getBackColName())
-            .to.equal(progCol.getBackColName());
-        });
-
-        it("Should Delete Duplicate Column", function() {
-            var table = gTables[tableId];
-            var colLen = getColLen(tableId);
-            var progCol = table.getCol(1);
-
-            ColManager.delDupCols(2, tableId);
-
-            expect(getColLen(tableId) - colLen).to.equal(-1);
-            expect(table.getCol(2).getBackColName())
-            .not.to.equal(progCol.getBackColName());
-        });
-
-        it("Should Delete All Dups", function() {
-            var colLen = getColLen(tableId);
-            ColManager.dupCol(1, tableId);
-            ColManager.dupCol(2, tableId);
-            ColManager.dupCol(3, tableId);
-
-            ColManager.delAllDupCols(tableId);
-            expect(getColLen(tableId) - colLen).to.equal(0);
-        });
-
         it("Should hide and unhide column", function(done) {
             var colNum = 1;
             var $th = $("#xcTable-" + tableId).find(".th.col" + colNum);
@@ -606,7 +570,7 @@ describe('ColManager Test', function() {
             .then(function() {
                 expect($th.outerWidth()).to.equal(gHiddenColumnWidth);
                 expect(progCol.hasHidden()).to.be.true;
-                
+
                 return ColManager.unhideCols([colNum], tableId);
             })
             .then(function() {
@@ -630,7 +594,7 @@ describe('ColManager Test', function() {
             .then(function() {
                 expect($th.outerWidth()).to.equal(gHiddenColumnWidth);
                 expect(progCol.hasHidden()).to.be.true;
-                
+
                 return ColManager.unhideCols([colNum], tableId);
             })
             .then(function() {

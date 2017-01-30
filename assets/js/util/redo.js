@@ -184,34 +184,6 @@ window.Redo = (function($, Redo) {
         return PromiseHelper.resolve(null);
     };
 
-    redoFuncs[SQLOps.DupCol] = function(options) {
-        focusTableHelper(options);
-        ColManager.dupCol(options.colNum, options.tableId);
-        return PromiseHelper.resolve(null);
-    };
-
-    redoFuncs[SQLOps.DelDupCol] = function(options) {
-        focusTableHelper(options);
-        // delCol is 1 indexed;
-        var colNums = options.colNums;
-        var newColNums = [];
-        for (var i = 0; i < colNums.length; i++) {
-            newColNums.push(colNums[i] + 1);
-        }
-        return (ColManager.delCol(newColNums, options.tableId));
-    };
-
-    redoFuncs[SQLOps.DelAllDupCols] = function(options) {
-        focusTableHelper(options);
-        // delCol is 1 indexed;
-        var colNums = options.colNums;
-        var newColNums = [];
-        for (var i = 0; i < colNums.length; i++) {
-            newColNums.push(colNums[i] + 1);
-        }
-        return (ColManager.delCol(newColNums, options.tableId));
-    };
-
     redoFuncs[SQLOps.ReorderCol] = function(options) {
         focusTableHelper(options);
         ColManager.reorderCol(options.tableId, options.oldColNum,

@@ -4,9 +4,6 @@ describe("SQL Test", function() {
             var isBackendOperation = SQL.__testOnly__.isBackendOperation;
 
             var testCases = [{
-                "operation": SQLOps.DupCol,
-                "expect"   : false
-            },{
                 "operation": SQLOps.DestroyDS,
                 "expect"   : true
             },{
@@ -38,9 +35,6 @@ describe("SQL Test", function() {
             },{
                 "operation": SQLOps.PreviewDS,
                 "expect"   : UndoType.Skip
-            },{
-                "operation": SQLOps.DupCol,
-                "expect"   : UndoType.Valid
             }];
 
             testCases.forEach(function(test) {
@@ -59,15 +53,6 @@ describe("SQL Test", function() {
             var getCliMachine = SQL.__testOnly__.getCliMachine;
 
             var testCases = [{
-                "operation": SQLOps.DupCol,
-                "error"    : "test error",
-                "cli"      : "test",
-                "expect"   : ""
-            },{
-                "operation": SQLOps.DupCol,
-                "cli"      : "test",
-                "expect"   : ""
-            },{
                 "operation": SQLOps.DestroyDS,
                 "cli"      : "test",
                 "expect"   : '<span class="cliWrap" data-cli=1>test</span>'
@@ -91,17 +76,8 @@ describe("SQL Test", function() {
             var getCliHTML = SQL.__testOnly__.getCliHTML;
 
             var testCases = [{
-                "operation": SQLOps.DupCol,
-                "error"    : "test error",
-                "isValid"  : false
-            },{
                 "operation": SQLOps.PreviewDS, // cannot undoable
                 "isValid"  : false
-            },{
-                "operation": SQLOps.DupCol,
-                "title"    : "test",
-                "key"      : "testKey",
-                "isValid"  : true
             }];
 
             testCases.forEach(function(test) {
@@ -190,8 +166,6 @@ describe("SQL Test", function() {
             SQL.add("test", {}, "testCli", true);
             expect(logs.length - len).to.equal(0);
 
-            SQL.add("test", {"operation": SQLOps.DupCol}, "testCli", true);
-            expect(logs.length - len).to.equal(1);
         });
 
         it("SQL.errorLog should work", function() {
@@ -250,7 +224,6 @@ describe("SQL Test", function() {
                 if (len !== 0) {
                     expect(logs.length).not.to.equal(len);
                 }
-                
                 done();
             })
             .fail(function() {
@@ -280,7 +253,7 @@ describe("SQL Test", function() {
             };
 
             Support.stopHeartbeatCheck();
-            SQL.add("test", {"operation": SQLOps.DupCol}, "testCli", true);
+            SQL.add("test", {"operation": SQLOps.HideCols}, "testCli", true);
         });
 
         it("SQL.isUndo should work", function() {

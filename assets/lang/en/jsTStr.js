@@ -455,18 +455,18 @@ WKBKTStr = {
     'Location': 'Workbook Browser',
     'NewWKBK': 'New Workbook',
     'NewWKBKInstr': 'Get started with Xcalar Design by creating a new ' +
-                    'workbook. Give your new workbook a name and click on ' +
-                    'the Create Workbook Button. Once the workbook is ' +
-                    'created, mouse over it and click on the Play button to ' +
+                    'workbook. Give your new workbook a name and click ' +
+                    'the Create Workbook Button. After the workbook is ' +
+                    'created, mouse over it and click the Play button to ' +
                     'get started with your new Workbook. Alternatively, ' +
                     'start with one of Xcalar Design\'s tutorials to learn ' +
                     'more.',
     'CurWKBKInstr': 'To continue with your currently active workbook, hover ' +
                     'over the card with a blue background and click on the ' +
                     'play button. You can switch to another workbook by ' +
-                    'hovering over the other workbook and click on the ' +
+                    'hovering over the other workbook and click the ' +
                     'play button. To create a duplicate of any of the ' +
-                    'workbooks, hover over the workbook card and click on ' +
+                    'workbooks, hover over the workbook card and click ' +
                     'the duplicate button.',
     'NoOldWKBK': 'Cannot Retrieve Old Workbook',
     'NoOldWKBKInstr': 'If you still see the error after re-login, ' +

@@ -930,9 +930,6 @@ window.SQL = (function($, SQL) {
 
         switch (operation) {
             // front end opeartion
-            case (SQLOps.DupCol):
-            case (SQLOps.DelDupCol):
-            case (SQLOps.DelAllDupCols):
             case (SQLOps.DeleteCol):
             case (SQLOps.ReorderCol):
             case (SQLOps.ReorderTable):

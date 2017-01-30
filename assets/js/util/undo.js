@@ -386,21 +386,6 @@ window.Undo = (function($, Undo) {
                                  {"noAnimate": true}));
     };
 
-    undoFuncs[SQLOps.DupCol] = function(options) {
-        focusTableHelper(options);
-        return (ColManager.delCol([options.colNum + 1], options.tableId));
-    };
-
-    undoFuncs[SQLOps.DelDupCol] = function(options) {
-        undoDeleteHelper(options);
-        return PromiseHelper.resolve(null);
-    };
-
-    undoFuncs[SQLOps.DelAllDupCols] = function(options) {
-        undoDeleteHelper(options);
-        return PromiseHelper.resolve(null);
-    };
-
     undoFuncs[SQLOps.ReorderCol] = function(options) {
         focusTableHelper(options);
         ColManager.reorderCol(options.tableId, options.newColNum,
