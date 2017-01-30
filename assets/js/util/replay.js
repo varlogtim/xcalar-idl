@@ -738,24 +738,6 @@ window.Replay = (function($, Replay) {
         return ColManager.unhideCols.apply(window, args);
     };
 
-    replayFuncs[SQLOps.DupCol] = function(options) {
-        var args = getArgs(options);
-        ColManager.dupCol.apply(window, args);
-        return PromiseHelper.resolve(null);
-    };
-
-    replayFuncs[SQLOps.DelDupCol] = function(options) {
-        var args = getArgs(options);
-        ColManager.delDupCols.apply(window, args);
-        return PromiseHelper.resolve(null);
-    };
-
-    replayFuncs[SQLOps.DelAllDupCols] = function(options) {
-        var args = getArgs(options);
-        ColManager.delAllDupCols.apply(window, args);
-        return PromiseHelper.resolve(null);
-    };
-
     replayFuncs[SQLOps.TextAlign] = function(options) {
         var args = getArgs(options);
         ColManager.textAlign.apply(window, args);

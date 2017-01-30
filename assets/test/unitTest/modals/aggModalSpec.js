@@ -174,18 +174,13 @@ describe("Agg Modal Test", function() {
         });
     });
 
-    describe("Behavior Test", function() {
-        var aggColLen = 3;
-
-        before(function() {
-            // make a dup of a number col
-            ColManager.dupCol(1, tableId);
-        });
+    describe("Agg Behavior Test", function() {
+        var aggColLen = 2;
 
         it("AggModal.quickAgg should work", function(done) {
             AggModal.quickAgg(tableId)
             .then(function() {
-                // 3 rows
+                // 2 rows
                 expect($quickAgg.find(".aggContainer .aggCol").length)
                 .to.equal(aggColLen);
                 assert.isTrue($quickAgg.is(":visible"));
@@ -199,7 +194,7 @@ describe("Agg Modal Test", function() {
         it("AggModal.corrAgg should work", function(done) {
             AggModal.corrAgg(tableId)
             .then(function() {
-                // 3 rows
+                // 2 rows
                 expect($corr.find(".aggContainer .aggCol").length)
                 .to.equal(aggColLen);
                 assert.isTrue($corr.is(":visible"));
