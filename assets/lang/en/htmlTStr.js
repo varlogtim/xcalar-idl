@@ -243,8 +243,7 @@ module.exports = {
 
     "UDF": {
         "ADD": "ADD",
-        "App": "APP",
-        "AppName": "App name (lowercase)",
+        "Plugin": "Plugin",
         "Browse": "Browse File",
         "BlankFunc": "Blank Function",
         "Editor": "Editor",

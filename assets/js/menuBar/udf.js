@@ -9,7 +9,7 @@ window.UDF = (function($, UDF) {
                     "# UDFs can only support\n" +
                     "# return values of \n" +
                     "# type String.\n\n"+
-                    "# Apps should include \n" +
+                    "# Plugins should include \n" +
                     "# a main function.\n\n" +
                     "# Function names that \n" +
                     "# start with __ are\n" +
@@ -235,7 +235,7 @@ window.UDF = (function($, UDF) {
             if ($li.find(".icon").attr("data-uploadType") === "UDF") {
                 $("#udf-fnName").attr("placeholder", UDFTStr.NameHint);
             } else {
-                $("#udf-fnName").attr("placeholder", UDFTStr.AppName);
+                $("#udf-fnName").attr("placeholder", UDFTStr.PluginName);
             }
         }
 
