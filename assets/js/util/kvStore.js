@@ -326,11 +326,11 @@ window.KVStore = (function($, KVStore) {
         var newMeta = oldMeta;
         for (var i = 0; i < currentVersion - persistedVersion; i++) {
             var versionToBe = (persistedVersion + (i + 1));
-            var constor = constorName + "V" + versionToBe;
+            var ctor = constorName + "V" + versionToBe;
 
-            xcAssert(window[constor] != null &&
-                    typeof window[constor] === "function");
-            newMeta = new window[constor](newMeta);
+            xcAssert(window[ctor] != null &&
+                    typeof window[ctor] === "function");
+            newMeta = new window[ctor](newMeta);
         }
         return newMeta;
     };

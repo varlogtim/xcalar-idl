@@ -490,7 +490,7 @@ window.DSPreview = (function($, DSPreview) {
 
     function cacheUDF(udfModule, udfFunc) {
         // cache udf module and func name
-        if (udfModule !== "" && udfFunc !== "") {
+        if (udfModule && udfFunc) {
             lastUDFModule = udfModule;
             lastUDFFunc = udfFunc;
             return true;
@@ -558,14 +558,14 @@ window.DSPreview = (function($, DSPreview) {
         }
 
         //delims
-        applyFieldDelim(options.fieldDelim);
-        applyLineDelim(options.lineDelim);
+        applyFieldDelim(options.fieldDelim || "");
+        applyLineDelim(options.lineDelim || "");
 
         // quote char
-        applyQuote(options.quoteChar);
+        applyQuote(options.quoteChar || "");
 
         // skip rows
-        $("#dsForm-skipRows").val(options.skipRows);
+        $("#dsForm-skipRows").val(options.skipRows || 0);
 
         detectArgs = {
             "fieldDelim": options.fieldDelim,

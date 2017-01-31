@@ -892,7 +892,9 @@ window.DS = (function ($, DS) {
                 continue;
             }
 
-            searchHash[dsName] = datasets.datasets[i];
+            if (datasets.datasets[i].isListable) {
+                searchHash[dsName] = datasets.datasets[i];
+            }
         }
 
         var cache;
@@ -954,13 +956,13 @@ window.DS = (function ($, DS) {
 
             if (ds != null) {
                 format = DfFormatTypeTStr[ds.formatType].toUpperCase();
-                
+
                 if (xcHelper.parseDSName(dsName).user === userPrefix) {
                     // XXX this case appears when same use switch workbook
                     // and lose the folder meta
                     // should change when we support user scope session
                     DS.addCurrentUserDS(ds.name, format, ds.url);
-                } else if (ds.isListable) {
+                } else {
                     // only when other user's ds is listable, show it
                     DS.addOtherUserDS(ds.name, format, ds.url);
                 }
