@@ -12,6 +12,10 @@ window.PromiseHelper = (function(PromiseHelper, $) {
     function will not touch this argument and will not use it unless the caller
     manipulates it in side condition
     */
+    PromiseHelper.deferred = function() {
+        return jQuery.Deferred();
+    };
+
     PromiseHelper.doWhile = function(oneIter, args, condition, opaqueArgs) {
         // XXX: Type check!
         function doWork() {
@@ -109,6 +113,10 @@ window.PromiseHelper = (function(PromiseHelper, $) {
     promiseArray[i+1] will start.
     */
     PromiseHelper.chain = function(promiseArray) {
+        // Takes an array of promise *generators*.
+        // This means that promisearray[i]() itself calls a promise.
+        // Reason for this being, promises start executing the moment they are
+        // called, so you need to prevent them from being called in the first place.
         if (!promiseArray ||
             !Array.isArray(promiseArray) ||
             typeof promiseArray[0] !== "function") {
@@ -119,6 +127,21 @@ window.PromiseHelper = (function(PromiseHelper, $) {
             head = head.then(promiseArray[i]);
         }
         return (head);
+    };
+
+    PromiseHelper.chainHelper = function(promiseFunction, valueArr) {
+        // Takes a function that returns a promise, and an array of values
+        // to pass to that promise in a chain order..
+        var promiseGeneratorClosures = [];
+        for (var i = 0; i < valueArr.length; i++) {
+            var promiseClosure = (function(someArg) {
+                return (function() {
+                    return promiseFunction(someArg);
+                });
+            })(valueArr[i]);
+            promiseGeneratorClosures.push(promiseClosure);
+        }
+        return PromiseHelper.chain(promiseGeneratorClosures);
     };
 
     /* return a promise with resvoled value */

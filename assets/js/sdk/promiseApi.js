@@ -1,23 +1,33 @@
 window.XcSDK = window.XcSDK || {};
 window.XcSDK.Promise = {
     "deferred": function() {
-        return jQuery.Deferred();
+        return PromiseHelper.deferred();
     },
 
     "resolve": function() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         deferred.resolve.apply(this, arguments);
         return deferred.promise();
     },
 
     "reject": function() {
-        var deferred = jQuery.Deferred();
+        var deferred = PromiseHelper.deferred();
         deferred.reject.apply(this, arguments);
         return deferred.promise();
     },
 
     "chain": function(promises) {
+        // Takes an array of promise *generators*.
+        // This means that promisearray[i]() itself calls a promise.
+        // Reason for this being, promises start executing the moment they are
+        // called, so you need to prevent them from being called in the first place.
         return PromiseHelper.chain(promises);
+    },
+
+    "chainHelper": function(promiseFunction, valueArr) {
+        // Takes a function that returns a promise, and an array of values
+        // to pass to that promise in a chain order.
+        return PromiseHelper.chainHelper(promiseFunction, valueArr);
     },
 
     "when": function() {
