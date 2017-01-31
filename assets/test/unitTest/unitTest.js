@@ -7,7 +7,7 @@ mocha.setup({
     // e.g. /Mocha Setup Test|Workbook Test/
     // default:
     // "grep": /Mocha Setup Test|.*/
-    "grep": /Mocha Setup Test|DSUploader Test/
+    "grep": /Mocha Setup Test|.*/
 });
 // global
 expect = chai.expect;

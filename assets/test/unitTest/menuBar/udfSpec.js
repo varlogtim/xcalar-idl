@@ -426,7 +426,7 @@ describe("UDF Test", function() {
             $("#udf-uploadTypeMenu").find(".xi-add-app").closest("li")
                                     .trigger(fakeEvent.mouseup);
             assert.isTrue($("#udf-fnName").attr("placeholder").toLowerCase()
-                                          .indexOf("app") > -1);
+                                          .indexOf("plugin") > -1);
             editor.setValue(func);
             $fnName.val(xcHelper.randName("baabaa", 5));
 
