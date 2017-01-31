@@ -122,9 +122,19 @@ describe('TableMenu', function() {
                 $tableMenu.find('.exportTable').trigger(rightMouseup);
                 expect(called).to.be.false;
 
+                var isUnavailable = false;
+                if (!$tableMenu.find(".exportTable").hasClass("unavailable")) {
+                    isUnavailable = true;
+                    // temporarily remove unavailable class for testing
+                    $tableMenu.find(".exportTable").removeClass("unavailable");
+                }
+
                 $tableMenu.find('.exportTable').trigger(fakeEvent.mouseup);
                 expect(called).to.be.true;
-
+               
+                if (isUnavailable) {
+                    $tableMenu.find(".exportTable").addClass("unavailable");
+                }
                 ExportView.show = cachedFunc;
             });
 

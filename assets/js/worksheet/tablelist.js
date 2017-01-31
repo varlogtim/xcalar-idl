@@ -17,7 +17,7 @@ window.TableList = (function($, TableList) {
             $("#tableListSectionTabs .active").removeClass("active");
             $tab.addClass("active");
 
-            var $sections = $("#tableListSections .tableListSection").hide();
+            var $sections = $tableListSections.find(".tableListSection").hide();
             $sections.eq(index).show();
             focusedListNum = null;
         });
@@ -91,19 +91,11 @@ window.TableList = (function($, TableList) {
         });
 
         $("#orphanedTableListSection .refresh").click(function() {
-            var $section = $("#orphanedTableListSection");
-            searchHelper.clearSearch(function() {
-                clearTableListFilter($section);
-            });
-            clearAll($section);
             TableList.refreshOrphanList(true);
-            focusedListNum = null;
         });
 
         $("#constantsListSection .refresh").click(function() {
-            clearAll($("#constantsListSection"));
             TableList.refreshConstantList(true);
-            focusedListNum = null;
         });
 
         $tableListSections.on("mouseenter", ".tableName", function(){
@@ -135,8 +127,6 @@ window.TableList = (function($, TableList) {
                 searchHelper.clearSearch(function() {
                     clearTableListFilter($("#orphanedTableListSection"), null);
                 });
-            } else {
-                console.error("Error Case!");
             }
             focusedListNum = null;
         });
@@ -154,9 +144,6 @@ window.TableList = (function($, TableList) {
                 title = SideBarTStr.DropConsts;
                 msg = SideBarTStr.DropConstsMsg;
                 tableType = "constant";
-            } else {
-                console.error("Error Case!");
-                return;
             }
 
             Alert.show({
@@ -206,13 +193,45 @@ window.TableList = (function($, TableList) {
     };
 
     TableList.initialize = function() {
-        initializeTableList();
+        var deferred = jQuery.Deferred();
+
+        var activeTables = [];
+        var archivedTables = [];
+
+        for (var tableId in gTables) {
+            var table = gTables[tableId];
+            var tableType = table.getType();
+            if (tableType === TableType.Orphan ||
+                tableType === TableType.Trash ||
+                tableType === TableType.Undone) {
+                continue;
+            }
+
+            if (tableType === TableType.Active) {
+                activeTables.push(table);
+            } else if (tableType === TableType.Archived) {
+                archivedTables.push(table);
+            }
+        }
+
+        TableList.addTables(activeTables, IsActive.Active);
+        TableList.addTables(archivedTables, IsActive.Inactive);
+
+        generateOrphanList(gOrphanTables)
+        generateConstList()
+        .then(deferred.resolve)
+        .then(deferred.reject);
+
+        return (deferred.promise());
     };
 
     TableList.clear = function() {
-        $(".tableListSections").find(".submit").addClass("xc-hidden")
+        $("#tableListSections").find(".submit").addClass("xc-hidden")
                             .end()
                             .find(".tableLists").empty();
+        searchHelper.clearSearch(function() {
+            clearTableListFilter($("#orphanedTableListSection"));
+        });
     };
 
     TableList.addTables = function(tables, active, options) {
@@ -268,6 +287,7 @@ window.TableList = (function($, TableList) {
                               .text(colNum + ". " + newColName);
     };
 
+    // used to refresh table name and columns
     TableList.updateTableInfo = function(tableId) {
         var $tableList = $('#activeTablesList .tableInfo[data-id="' +
                             tableId + '"]');
@@ -528,6 +548,14 @@ window.TableList = (function($, TableList) {
         var deferred = jQuery.Deferred();
         focusedListNum = null;
 
+        var $section = $("#orphanedTableListSection");
+        // clear the search bar
+        searchHelper.clearSearch(function() {
+            clearTableListFilter($section);
+        });
+        // deselect tables
+        clearAll($section);
+
         xcHelper.getBackTableSet()
         .then(function(backTableSet) {
             var tableMap = backTableSet;
@@ -673,23 +701,18 @@ window.TableList = (function($, TableList) {
 
     TableList.refreshConstantList = function(waitIcon) {
         var deferred = jQuery.Deferred();
-        var $waitingIcon;
-        if (waitIcon) {
-            $waitingIcon = xcHelper.showRefreshIcon($('#constantsListSection'));
-        }
+        var promise = generateConstList();
+        
         focusedListNum = null;
         clearAll($('#constantsListSection'));
-        var startTime = Date.now();
-        generateConstList()
+
+        if (waitIcon) {
+            xcHelper.showRefreshIcon($('#constantsListSection'), false, promise);
+        }
+
+        promise
         .then(deferred.resolve)
-        .fail(deferred.reject)
-        .always(function() {
-            if (waitIcon && Date.now() - startTime > 2000) {
-                $waitingIcon.fadeOut(100, function() {
-                    $waitingIcon.remove();
-                });
-            }
-        });
+        .fail(deferred.reject);
 
         return deferred.promise();
     };
@@ -792,6 +815,7 @@ window.TableList = (function($, TableList) {
         return res;
     }
 
+    // for active and archived tables only
     function generateTableLists(tables, active, options) {
         options = options || {};
         var sortedTables = sortTableByTime(tables); // from oldest to newest
@@ -966,31 +990,6 @@ window.TableList = (function($, TableList) {
         TableList.tablesToHiddenWS(hiddenWS);
     }
 
-    function generateColumnList(tableCols, numCols) {
-        var html = '<ul class="columnList">';
-        for (var i = 0, no = 1; i < numCols; i++, no++) {
-            var progCol = tableCols[i];
-            if (progCol.isDATACol()) {
-                continue; // skip DATA col
-            }
-            var typeClass = "xi-" + progCol.getType();
-
-            html += '<li class="column">' +
-                        '<div class="iconWrap">' +
-                            '<i class="icon center fa-16 ' + typeClass + '">' +
-                            '</i>' +
-                        '</div>' +
-                        '<span class="text">' +
-                            no + ". " + progCol.getFrontColName(true) +
-                        '</span>' +
-                    '</li>';
-        }
-
-        html += '</ul>';
-
-        return html;
-    }
-
     function generateOrphanList(tables) {
         var numTables = tables.length;
         var html = "";
@@ -1145,6 +1144,31 @@ window.TableList = (function($, TableList) {
         return (deferred.promise());
     }
 
+    function generateColumnList(tableCols, numCols) {
+        var html = '<ul class="columnList">';
+        for (var i = 0, no = 1; i < numCols; i++, no++) {
+            var progCol = tableCols[i];
+            if (progCol.isDATACol()) {
+                continue; // skip DATA col
+            }
+            var typeClass = "xi-" + progCol.getType();
+
+            html += '<li class="column">' +
+                        '<div class="iconWrap">' +
+                            '<i class="icon center fa-16 ' + typeClass + '">' +
+                            '</i>' +
+                        '</div>' +
+                        '<span class="text">' +
+                            no + ". " + progCol.getFrontColName(true) +
+                        '</span>' +
+                    '</li>';
+        }
+
+        html += '</ul>';
+
+        return html;
+    }
+
     function sortConst(a, b) {
         var order = ColumnSortOrder.ascending;
         return xcHelper.sortVals(a.dagName, b.dagName, order);
@@ -1159,23 +1183,17 @@ window.TableList = (function($, TableList) {
             constName = $(this).closest('.tableInfo').data('id');
             constNames.push(constName);
         });
+        var constsToRemove = constNames;
 
         Aggregates.deleteAggs(constNames)
-        .then(function() {
-            for (var i = 0; i < constNames.length; i++) {
-                $constSection.find('.tableInfo[data-id="' +
-                                        constNames[i] + '"]').remove();
-            }
-            deferred.resolve();
-        })
         .fail(function(successConsts) {
-            for (var i = 0; i < successConsts.length; i++) {
-                $constSection.find('.tableInfo[data-id="' +
-                                        successConsts[i] + '"]').remove();
-            }
-            deferred.reject();
+            constsToRemove = successConsts;
         })
         .always(function() {
+            for (var i = 0; i < constsToRemove.length; i++) {
+                $constSection.find('.tableInfo[data-id="' +
+                                        constsToRemove[i] + '"]').remove();
+            }
             var $submitBtns = $constSection.find(".submit");
 
             if ($constSection.find(".addTableBtn.selected").length === 0) {
@@ -1189,6 +1207,7 @@ window.TableList = (function($, TableList) {
             } else {
                 $constSection.removeClass('empty');
             }
+            deferred.resolve();
         });
 
         return deferred.promise();
@@ -1253,21 +1272,19 @@ window.TableList = (function($, TableList) {
     }
 
     function deleteFromList($section, tableType) {
-        var $waitingIcon = xcHelper.showRefreshIcon($section, true);
         $section.addClass('locked');
 
-        var deferred;
+        var promise;
         if (tableType === "constant") {
-            deferred = deleteConstants();
+            promise = deleteConstants();
         } else {
-            deferred = TableList.tableBulkAction("delete", tableType);
+            promise = TableList.tableBulkAction("delete", tableType);
         }
 
-        deferred
+        xcHelper.showRefreshIcon($section, true, promise);
+
+        promise
         .always(function() {
-            $waitingIcon.fadeOut(100, function() {
-                $waitingIcon.remove();
-            });
             $section.removeClass('locked');
         });
     }
@@ -1294,7 +1311,7 @@ window.TableList = (function($, TableList) {
                 "title"  : SideBarTStr.SendToWS,
                 "instr"  : SideBarTStr.NoSheetTableInstr,
                 "optList": {
-                    "label": SideBarTStr.WSTOSend + ":",
+                    "label": SideBarTStr.WSTOSend,
                     "list" : WSManager.getWSLists(true)
                 },
                 "onConfirm": function() {
@@ -1347,17 +1364,18 @@ window.TableList = (function($, TableList) {
     }
 
     function focusOnTableColumn($listCol) {
-        // var colName = $listCol.text();
         var colNum = $listCol.index();
         var tableId = $listCol.closest('.tableInfo').data('id');
-        var tableCols = gTables[tableId].tableCols;
-        // var numTableCols = tableCols.length;
+        var tableCols = gTables[tableId].getAllCols();
+
+        // if dataCol is found before colNum, increment colNum by 1 and exit
         for (var i = 0; i <= colNum; i++) {
             if (tableCols[i].isDATACol()) {
                 colNum++;
                 break;
             }
         }
+        colNum = colNum + 1;
 
         var wsId = WSManager.getWSFromTable(tableId);
         $('#worksheetTab-' + wsId).trigger(fakeEvent.mousedown);
@@ -1369,35 +1387,8 @@ window.TableList = (function($, TableList) {
             animation = true;
         }
 
-        colNum = colNum + 1;
+        
         xcHelper.centerFocusedColumn(tableId, colNum, animation);
-    }
-
-    function initializeTableList() {
-        var activeTables = [];
-        var archivedTables = [];
-
-        for (var tableId in gTables) {
-            var table = gTables[tableId];
-            var tableType = table.getType();
-            if (tableType === TableType.Orphan ||
-                tableType === TableType.Trash ||
-                tableType === TableType.Undone) {
-                continue;
-            }
-
-            if (tableType === TableType.Active) {
-                activeTables.push(table);
-            } else if (tableType === TableType.Archived) {
-                archivedTables.push(table);
-            }
-        }
-
-        TableList.addTables(activeTables, IsActive.Active);
-        TableList.addTables(archivedTables, IsActive.Inactive);
-
-        generateOrphanList(gOrphanTables);
-        generateConstList();
     }
 
     function focusOnLastTable(tableNames) {

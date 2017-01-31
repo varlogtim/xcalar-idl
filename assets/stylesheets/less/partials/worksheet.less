@@ -1110,6 +1110,22 @@ ul.CodeMirror-hints {
 
             &.hiddenWS {
                 opacity: 0.6;
+                .addTableBtn {
+                    pointer-events: none;
+                }
+                &:hover {
+                    .addTableBtn {
+                        .icon {
+                            &.xi_table {
+                                display: inline-block;
+                            }
+
+                            &.xi-ckbox-empty {
+                                display: none;
+                            }
+                        }
+                    }
+                }
             }
 
             &.transition {
