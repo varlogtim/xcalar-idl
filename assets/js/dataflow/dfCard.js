@@ -286,19 +286,18 @@ window.DFCard = (function($, DFCard) {
 
     function addListeners() {
         $dfMenu.on('click', '.refreshBtn', function() {
-            var dfKey = KVStore.gEphStorageKey;
             xcHelper.showRefreshIcon($(".dfgList"));
-            KVStore.get(dfKey)
-            .then(function(ret) {
-                var dfStruct;
+
+            KVStore.getEmataInfo()
+            .then(function(eMeta) {
+                var ephMetaInfos;
                 try {
-                    dfStruct = JSON.parse(ret);
+                    ephMetaInfos = new EMetaConstructor(eMeta);
                 } catch (error) {
                     return;
                 }
-                if (dfStruct) {
-                    var key = new EMetaConstructor().getMetaKeys().DF;
-                    DF.restore(dfStruct[key])
+                if (ephMetaInfos) {
+                    DF.restore(ephMetaInfos.getDFMeta())
                     .then(function() {
                         DF.initialize();
                     });
@@ -436,14 +435,14 @@ window.DFCard = (function($, DFCard) {
             }
         });
 
-        $dfCard.on("input", ".advancedOpts input", function(event) {
+        $dfCard.on("input", ".advancedOpts input", function() {
             var $name = $(this).closest(".dagWrap")
                               .find(".dagTable.export .exportTableName");
             $name.html($(this).val());
             xcTooltip.changeText($name, $(this).val());
         });
 
-        $dfCard.on("focus", ".advancedOpts input", function(event) {
+        $dfCard.on("focus", ".advancedOpts input", function() {
             $(this).closest(".advancedOpts").find('[data-option="import"]')
                    .click();
             var $name = $(this).closest(".dagWrap")

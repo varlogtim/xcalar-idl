@@ -1697,6 +1697,7 @@ describe('xcHelper Test', function() {
         expect(xcHelper.numToStr(1.12345, 5)).to.equal("1.12345");
         expect(xcHelper.numToStr(null)).to.equal(null);
         expect(xcHelper.numToStr(undefined)).to.equal(undefined);
+        expect(xcHelper.numToStr("not a num")).to.equal("not a num");
     });
 
     it('xcHelper.fillInputFromCell should work', function() {

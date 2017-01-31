@@ -2666,11 +2666,19 @@ window.xcHelper = (function($, xcHelper) {
         if (maxDecimals == null) {
             maxDecimals = 3;
         }
+
+        var res = value;
         if (value != null) {
-            value = Number(value).toLocaleString("en",
-                                        {"maximumFractionDigits": maxDecimals});
+            res = Number(value);
+            if (isNaN(res)) {
+                return value;
+            }
+
+            res = res.toLocaleString("en", {
+                "maximumFractionDigits": maxDecimals
+            });
         }
-        return value;
+        return res;
     };
 
     xcHelper.getColNameMap = function(tableId) {
@@ -2984,14 +2992,17 @@ window.xcHelper = (function($, xcHelper) {
         xcTooltip.remove($lis);
         if (!options.multipleColNums && progCol.isKnownType()) {
             var type = progCol.getType();
+            var $li;
+
             if (type === ColumnType.float) {
-                $subMenu.find(".type-float").addClass("unavailable");
+                $li = $subMenu.find(".type-float");
+                $li.addClass("unavailable");
                 xcTooltip.add($li, {title: TooltipTStr.ColumnAlreadyFloat});
             } else if (type === ColumnType.integer) {
-                var $li = $subMenu.find(".type-integer");
+                $li = $subMenu.find(".type-integer");
                 $li.addClass("unavailable");
                 xcTooltip.add($li, {title: TooltipTStr.ColumnAlreadyInt});
-            } 
+            }
         }
     }
 

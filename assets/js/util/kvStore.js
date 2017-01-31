@@ -188,7 +188,7 @@ window.KVStore = (function($, KVStore) {
         var gPendingUploads = [];
         var isEmpty = false;
 
-        getEmataInfo()
+        KVStore.getEmataInfo()
         .then(function(eMeta) {
             gInfosE = eMeta;
             return getUserInfo();
@@ -263,6 +263,13 @@ window.KVStore = (function($, KVStore) {
         return deferred.promise();
     };
 
+    KVStore.getEmataInfo = function() {
+        // If the ephmeral datastructure is corrupt, we move ahead with the
+        // rest of the restore since ephemeral isn't that important
+        var ignoreFail = true;
+        return getInfo(KVStore.gEphStorageKey, gKVScope.EPHM, ignoreFail);
+    };
+
     function getInfo(infoKey, infoScope, ignoreFail) {
         var deferred = jQuery.Deferred();
 
@@ -288,13 +295,6 @@ window.KVStore = (function($, KVStore) {
         });
 
         return deferred.promise();
-    }
-
-    function getEmataInfo() {
-        // If the ephmeral datastructure is corrupt, we move ahead with the
-        // rest of the restore since ephemeral isn't that important
-        var ignoreFail = true;
-        return getInfo(KVStore.gEphStorageKey, gKVScope.EPHM, ignoreFail);
     }
 
     function getUserInfo() {
