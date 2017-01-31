@@ -960,7 +960,8 @@ window.DS = (function ($, DS) {
                     // and lose the folder meta
                     // should change when we support user scope session
                     DS.addCurrentUserDS(ds.name, format, ds.url);
-                } else {
+                } else if (ds.isListable) {
+                    // only when other user's ds is listable, show it
                     DS.addOtherUserDS(ds.name, format, ds.url);
                 }
             }
