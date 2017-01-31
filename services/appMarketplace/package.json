@@ -1,0 +1,17 @@
+{
+  "name": "file_upload",
+  "version": "0.0.1",
+  "dependencies": {
+    "express": "4.13.3",
+    "body-parser": "*",
+    "jquery": "^1.5.1",
+    "jsdom": "^1.2.1",
+    "fstream": "*",
+    "easy-zip": "*"
+  },
+  "devDependencies": {
+    "should": "~7.1.0",
+    "mocha": "~2.3.3",
+    "supertest": "~1.1.0"
+  }
+}
