@@ -243,7 +243,7 @@ module.exports = {
 
     "UDF": {
         "ADD": "ADD",
-        "Plugin": "Plugin",
+        "App": "XPU App",
         "Browse": "Browse File",
         "BlankFunc": "Blank Function",
         "Editor": "Editor",

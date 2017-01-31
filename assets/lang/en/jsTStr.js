@@ -709,7 +709,7 @@ UDFTStr = {
     "DelFail": "Delete UDF Failed",
     // Must be kept consistent with htmlTStr.UDF
     "NameHint": "Module name (lowercase)",
-    "PluginName": "Plugin name (lowercase)"
+    "AppName": "XPU App name (lowercase)"
 };
 
 TblTStr = {
