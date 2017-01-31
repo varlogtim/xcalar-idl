@@ -726,6 +726,8 @@ window.SQL = (function($, SQL) {
     }
 
     function updateUndoRedoState() {
+        xcTooltip.hideAll();
+
         var hasLockedTables = false;
         var allWS = WSManager.getWorksheets();
         for (var ws in allWS) {
@@ -743,17 +745,16 @@ window.SQL = (function($, SQL) {
         if (next === logs.length) {
             // when nothing to redo
             $redo.addClass("disabled")
-                 .attr("data-original-title", TooltipTStr.NoRedo)
                  .data("lastmessage", TooltipTStr.NoRedo)
                  .data("laststate", "disabled");
+            xcTooltip.changeText($redo, TooltipTStr.NoRedo);
 
         } else if (getUndoType(logs[next]) !== UndoType.Valid) {
             console.error("Have invalid sql to redo", sql);
             $redo.addClass("disabled")
-                 .attr("data-original-title", TooltipTStr.NoRedo)
                  .data("lastmessage", TooltipTStr.NoRedo)
                  .data("laststate", "disabled");
-
+            xcTooltip.changeText($redo, TooltipTStr.NoRedo);
         } else {
             // when can redo
             var redoTitle = xcHelper.replaceMsg(TooltipTStr.Redo, {
@@ -761,9 +762,9 @@ window.SQL = (function($, SQL) {
             });
 
             $redo.removeClass("disabled")
-                 .attr("data-original-title", redoTitle)
                  .data("lastmessage", redoTitle)
                  .data("laststate", "enabled");
+            xcTooltip.changeText($redo, redoTitle);
         }
 
         // check undo
@@ -776,10 +777,9 @@ window.SQL = (function($, SQL) {
         if (cur === -1) {
             // when no operation to undo
             $undo.addClass("disabled")
-                 .attr("data-original-title", TooltipTStr.NoUndoNoOp)
                  .data("lastmessage", TooltipTStr.NoUndoNoOp)
                  .data("laststate", "disabled");
-
+            xcTooltip.changeText($undo, TooltipTStr.NoUndoNoOp);
         } else if (getUndoType(logs[cur]) !== UndoType.Valid) {
             // when cannot undo
             undoTitle = xcHelper.replaceMsg(TooltipTStr.NoUndo, {
@@ -787,26 +787,27 @@ window.SQL = (function($, SQL) {
             });
 
             $undo.addClass("disabled")
-                 .attr("data-original-title", undoTitle)
                  .data("lastmessage", undoTitle)
                  .data("laststate", "disabled");
+            xcTooltip.changeText($undo, undoTitle);
         } else {
             // when can undo
             undoTitle = xcHelper.replaceMsg(TooltipTStr.Undo, {
                 "op": logs[cur].getTitle()
             });
             $undo.removeClass("disabled")
-                 .attr("data-original-title", undoTitle)
                  .data("lastmessage", undoTitle)
                  .data("laststate", "enabled");
+            xcTooltip.changeText($undo, undoTitle);
         }
 
         // change tooltip if lockedtables exist
         if (hasLockedTables) {
-            $redo.addClass("disabled")
-                 .attr("data-original-title", TooltipTStr.LockedTableRedo);
-            $undo.addClass("disabled")
-                 .attr("data-original-title", TooltipTStr.LockedTableUndo);
+            $redo.addClass("disabled");
+            xcTooltip.changeText($redo, TooltipTStr.LockedTableRedo);
+
+            $undo.addClass("disabled");
+            xcTooltip.changeText($undo, TooltipTStr.LockedTableUndo);
         }
     }
 
