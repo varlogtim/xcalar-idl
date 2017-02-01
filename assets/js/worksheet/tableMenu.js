@@ -739,6 +739,25 @@ window.TblMenu = (function(TblMenu, $) {
                     } else {
                         colVal = false;
                     }
+                } else if ($header.hasClass("type-mixed")) {
+                    colVal = $td.find('.originalData').text();
+                    var type = ColManager.getCellType($td, tableId);
+                    if (type === ColumnType.string) {
+                        colVal = JSON.stringify(colVal);
+                    } else if (type === ColumnType.integer ||
+                        type === ColumnType.float) {
+                        colVal = parseFloat(colVal);
+                    } else if (type === ColumnType.boolean) {
+                        if (colVal === "true") {
+                            colVal = true;
+                        } else {
+                            colVal = false;
+                        }
+                    } else {
+                        // should not be filtering anything else in mixed col
+                        notValid = true;
+                        return false;
+                    }
                 } else {
                     notValid = true;
                     return false;

@@ -1987,44 +1987,87 @@ describe('xcHelper Test', function() {
         });
 
         describe("hasMixedCells() test", function() {
+            var tableId = "ZZ1";
+            var $table;
+
             before(function() {
-                // second cell has undefined val
-                var html = '<table id="xcTable-123">'+
-                                '<tr>' +
-                                    '<td><div>someVal</div></td>' +
+                var progCol1 = new ProgCol({
+                    "name"    : "testCol",
+                    "backName": "testCol",
+                    "isNewCol": false,
+                    "type"    : "mixed",
+                    "func"    : {
+                        "name": "pull"
+                    }
+                });
+
+                var progCol2 = new ProgCol({
+                    "name"    : "DATA",
+                    "backName": "DATA",
+                    "isNewCol": false,
+                    "func"    : {
+                        "name": "raw"
+                    }
+                });
+                var table = new TableMeta({
+                    "tableName": "unitTest#ZZ1",
+                    "tableId"  : tableId,
+                    "tableCols": [progCol1, progCol2],
+                    "isLocked" : false
+                });
+
+                gTables[tableId] = table;
+
+                var html = '<table id="xcTable-ZZ1">'+
+                                '<tr class="row0">' +
+                                    '<td class="col1"><div>3</div></td>' +
+                                    '<td class="col2"><div class="originalData">{"testCol":3}</div></td>' +
                                 '</tr>' +
-                                '<tr>' +
-                                    '<td><div class="undefined">FNF</div></td>' +
+                                '<tr class="row1">' +
+                                    '<td class="col1"><div class="undefined">FNF</div></td>' +
+                                    '<td class="col2"><div class="originalData">{"a":"b"}</div></td>' +
                                 '</tr>' +
-                                '<tr>' +
-                                    '<td><div>otherVal</div></td>' +
+                                '<tr class="row2">' +
+                                    '<td class="col1"><div>4</div></td>' +
+                                    '<td class="col2"><div class="originalData">{"testCol":4}</div></td>' +
+                                '</tr>' +
+                                '<tr class="row3">' +
+                                    '<td class="col1"><div>{"key":"val"}</div></td>' +
+                                    '<td class="col2"><div class="originalData">{"testCol":{"key":"val"}}</div></td>' +
                                 '</tr>' +
                             +'<table>';
                 $("#container").append(html);
-
+                $table = $("#xcTable-ZZ1");
             });
+
             it("hasMixedCells() should work", function() {
-                var fn = xcHelper.__testOnly__.hasMixedCells;
-                var tableId = "123";
-                var $table = $("#xcTable-" + tableId);
+                var fn = xcHelper.__testOnly__.isInvalidMixed;
+                var hightlightBox = '<div class="highlightBox"></div>';
                 expect($table.length).to.equal(1);
-                expect($table.find('td').length).to.equal(3);
+                expect($table.find('td').length).to.equal(8);
 
 
-                $table.find("td").eq(1).append('<div class="highlightBox"></div>');
+                $table.find("td").eq(2).append(hightlightBox);
                 expect(fn(tableId)).to.be.false;
 
-                $table.find("td").eq(0).append('<div class="highlightBox"></div>');
+                $table.find("td").eq(0).append(hightlightBox);
                 expect(fn(tableId)).to.be.true;
 
-                $table.find("td").eq(1).find(".highlightBox").remove();
-                $table.find("td").eq(3).append('<div class="highlightBox"></div>');
+                $table.find("td").eq(2).find(".highlightBox").remove();
+                $table.find("td").eq(4).append(hightlightBox);
                 expect(fn(tableId)).to.be.false;
 
                 $table.find(".highlightBox").remove();
+
+                $table.find("td").eq(6).append(hightlightBox);
+                expect(fn(tableId)).to.be.true;
+
+                $table.find(".highlightBox").remove();
+
             });
             after(function() {
-                $("#xcTable-123").remove();
+                $table.remove();
+                delete gTables[tableId];
             });
         });
 

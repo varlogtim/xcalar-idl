@@ -1347,6 +1347,32 @@ window.ColManager = (function($, ColManager) {
         return (i + 1);
     };
 
+    // used for mixed columns when we want to get the type inside a td
+    ColManager.getCellType = function($td, tableId) {
+        var table = gTables[tableId];
+        var tdColNum = xcHelper.parseColNum($td);
+        var colName = table.getCol(tdColNum).getBackColName();
+        var dataColNum = gTables[tableId].getColNumByBackName("DATA");
+        var $table = $("#xcTable-" + tableId);
+        var rowNum = xcHelper.parseRowNum($td.closest("tr"));
+        var $dataTd = $table.find(".row" + rowNum + " .col" + dataColNum);
+        var data = $dataTd.find('.originalData').text();
+        var parsed = false;
+
+        try {
+            data = JSON.parse(data);
+            parsed = true;
+        } catch (error) {
+            console.error(error, data);
+        }
+        if (!parsed) {
+            return ColumnType.undefined;
+        }
+        
+        var val = data[colName];
+        return (xcHelper.parseColType(val));
+    };
+
     function isValidColToPull(colName) {
         if (colName === "" || colName == null) {
             return false;

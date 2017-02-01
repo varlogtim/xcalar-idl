@@ -2764,7 +2764,7 @@ window.xcHelper = (function($, xcHelper) {
         offsetY: float,
         classes: string, ("class1 class2") to assign to $menu
         colNum: integer,
-        isMutiCol: boolean,
+        isMultiCol: boolean,
         multipleColumns: [integers],
         isUnselect: boolean,
         shiftKey: boolean,
@@ -3036,19 +3036,22 @@ window.xcHelper = (function($, xcHelper) {
         // filter options unavailable
         var tableCol = gTables[tableId].tableCols[options.colNum - 1];
         var columnType = tableCol.type;
-        var isChildOfArray = $('#xcTable-' + tableId)
-                                .find('th.col' + options.colNum)
-                                .find('.header').hasClass('childOfArray');
+        var isChildOfArray = tableCol.isChildOfArray();
         // allow fnfs but not array elements, multi-type, or anything but
         // valid types
-        var validTypes = ["string", "float", "integer", "boolean"];
+
+        var filterTypes = ["string", "float", "integer", "boolean", "mixed"];
+        var shouldNotFilter = options.isMultiCol || isChildOfArray ||
+                            filterTypes.indexOf(columnType) === -1 || 
+                            isInvalidMixed(tableId, columnType, options);
+        var notAllowed = $div.find('.null, .blank').length;
+
         var isMultiCell = $("#xcTable-" + tableId).find(".highlightBox")
                                                   .length > 1;
-        var shouldNotFilter = options.isMutiCol || isChildOfArray ||
-                            validTypes.indexOf(columnType) === -1 ||
-                            hasMixedCells(tableId);
+
         var notAllowed = $div.find('.null, .blank').length;
         
+
 
         var $tdFilter  = $menu.find(".tdFilter");
         var $tdExclude = $menu.find(".tdExclude");
@@ -3061,7 +3064,7 @@ window.xcHelper = (function($, xcHelper) {
             $tdExclude.removeClass("unavailable");
         }
 
-        if (!options.isMutiCol &&
+        if (!options.isMultiCol &&
             (tableCol.getFormat() !== ColFormat.Default ||
             tableCol.getDecimal() > -1))
         {
@@ -3100,6 +3103,36 @@ window.xcHelper = (function($, xcHelper) {
         } else {
             return false;
         }
+    }
+
+
+    // used for deciding if cell can be filtered
+    // returns true if cell is mixed and not an object or array
+    // assumes column is mixed and cells from only 1 column are highlighted
+    function isInvalidMixed(tableId) {
+        var filterTypes = ["string", "float", "integer", "boolean", "undefined"];
+        var $highlightBoxes = $("#xcTable-" + tableId).find(".highlightBox");
+        var type;
+        var $td;
+        var invalidFound = false;
+        var typeFound;
+        $highlightBoxes.each(function() {
+            $td = $(this).closest('td');
+            type = ColManager.getCellType($td, tableId);
+            if (filterTypes.indexOf(type) === -1) {
+                invalidFound = true;
+                return false;
+            }
+            if (!typeFound) {
+                typeFound = type;
+            } else if (type !== typeFound) {
+                // cannot filter more than 1 type
+                invalidFound = true;
+                return false;
+            }
+        });
+
+        return invalidFound;
     }
 
     function toggleUnnestandJsonOptions($menu, $div, columnType,
@@ -3202,7 +3235,7 @@ window.xcHelper = (function($, xcHelper) {
         xcHelper.__testOnly__ = {};
         xcHelper.__testOnly__.toggleUnnestandJsonOptions =
                               toggleUnnestandJsonOptions;
-        xcHelper.__testOnly__.hasMixedCells = hasMixedCells;
+        xcHelper.__testOnly__.isInvalidMixed = isInvalidMixed;
     }
     /* End Of Unit Test Only */
 

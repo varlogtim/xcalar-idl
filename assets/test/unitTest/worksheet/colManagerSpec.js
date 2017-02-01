@@ -36,6 +36,74 @@ describe('ColManager Test', function() {
             var progCol = ColManager.newDATACol();
             expect(progCol.isDATACol()).to.be.true;
         });
+
+        describe("ColManager.getCellType() test", function() {
+            var tableId = "ZZ1";
+            var $table;
+
+            before(function() {
+                var progCol1 = new ProgCol({
+                    "name"    : "testCol",
+                    "backName": "testCol",
+                    "isNewCol": false,
+                    "type"    : "mixed",
+                    "func"    : {
+                        "name": "pull"
+                    }
+                });
+
+                var progCol2 = new ProgCol({
+                    "name"    : "DATA",
+                    "backName": "DATA",
+                    "isNewCol": false,
+                    "func"    : {
+                        "name": "raw"
+                    }
+                });
+                var table = new TableMeta({
+                    "tableName": "unitTest#ZZ1",
+                    "tableId"  : tableId,
+                    "tableCols": [progCol1, progCol2],
+                    "isLocked" : false
+                });
+
+                gTables[tableId] = table;
+
+                var html = '<table id="xcTable-ZZ1">'+
+                                '<tr class="row0">' +
+                                    '<td class="col1"><div>3</div></td>' +
+                                    '<td class="col2"><div class="originalData">{"testCol":"3"}</div></td>' +
+                                '</tr>' +
+                                '<tr class="row1">' +
+                                    '<td class="col1"><div class="undefined">FNF</div></td>' +
+                                    '<td class="col2"><div class="originalData">{"a":"b"}</div></td>' +
+                                '</tr>' +
+                                '<tr class="row2">' +
+                                    '<td class="col1"><div>3</div></td>' +
+                                    '<td class="col2"><div class="originalData">{"testCol":3}</div></td>' +
+                                '</tr>' +
+                                '<tr class="row3">' +
+                                    '<td class="col1"><div>[3,4]</div></td>' +
+                                    '<td class="col2"><div class="originalData">{"testCol":[3,4]}</div></td>' +
+                                '</tr>' +
+                            +'<table>';
+                $("#container").append(html);
+                $table = $("#xcTable-ZZ1");
+            });
+
+            it("ColManager.getCellType should work", function() {
+                var fn = ColManager.getCellType;
+                expect(fn($table.find("td").eq(0), tableId)).to.equal('string');
+                expect(fn($table.find("td").eq(2), tableId)).to.equal('undefined');
+                expect(fn($table.find("td").eq(4), tableId)).to.equal('integer');
+                expect(fn($table.find("td").eq(6), tableId)).to.equal('array');
+            });
+
+            after(function() {
+                $table.remove();
+                delete gTables["ZZ1"];
+            });
+        });
     });
 
     describe("Helper Function Test", function() {

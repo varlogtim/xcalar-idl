@@ -1208,6 +1208,28 @@ describe('TableMenu Test', function() {
             xcFunction.filter = cachedFunc;
         });
 
+        it('tdFilter on mixed column', function() {
+            $table.find('td.col6').eq(0).trigger(fakeEvent.mousedown);
+            var cellText = $table.find('td.col6').eq(0).text();
+            var cachedFunc = xcFunction.filter;
+            var called = false;
+            xcFunction.filter = function(colNum, tId, options) {
+                expect(colNum).to.equal(6);
+                expect(tId).to.equal(tableId);
+                expect(options.filterString).to.equal('eq(' + prefix + gPrefixSign + 'mixVal, "' + cellText + '")' );
+                expect(options.operator).to.equal("Filter");
+                called = true;
+            };
+
+            $cellMenu.find('.tdFilter').trigger(rightMouseup);
+            expect(called).to.be.false;
+
+            $cellMenu.find('.tdFilter').trigger(fakeEvent.mouseup);
+            expect(called).to.be.true;
+
+            xcFunction.filter = cachedFunc;
+        });
+
         it('tdExclude', function() {
             $table.find('td.col12').eq(0).trigger(fakeEvent.mousedown);
             var cellText = $table.find('td.col12').eq(0).text();
