@@ -9,6 +9,7 @@ if (window.isBrowserSafari || window.isBrowserMicrosoft || !hasFlash ||
 
 $(document).ready(function() {
     var hostname = "";
+    var isSubmitDisabled = false;
     setupHostName();
 
     if (!hasFlash ||
@@ -24,6 +25,10 @@ $(document).ready(function() {
     $("#loginForm").submit(function(event) {
         // prevents form from having it's default action
         event.preventDefault();
+        if (isSubmitDisabled) {
+            // submit was already triggered
+            return;
+        }
         var username = $("#loginNameBox").val().trim();
         if (username === "") {
             return;
@@ -34,6 +39,7 @@ $(document).ready(function() {
         var str = {"xipassword": pass, "xiusername": username};
 
         if (gLoginEnabled) {
+            isSubmitDisabled = true;
             $.ajax({
                 "type"       : "POST",
                 "data"       : JSON.stringify(str),
@@ -53,6 +59,7 @@ $(document).ready(function() {
                     } else if (ret.status === Status.Error) {
                         alert('Incorrect Password. Please try again.');
                         console.log('return error', data, ret);
+                        isSubmitDisabled = false;
                     } else {
                         //Auth server probably down or something. Just let them in
                         console.log('shouldnt be here', data, ret);
@@ -72,6 +79,7 @@ $(document).ready(function() {
         }
 
         function submit() {
+            isSubmitDisabled = false;
             var fullUsername = username;
             var index = username.indexOf("/");
             if (index > 0) {
