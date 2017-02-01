@@ -113,16 +113,17 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
         // XXX end fake data
 
         // XXX hard coded
-        var host = "https://euler:3001";
+        var host = "https://authentication.xcalar.net/marketplace";
 
         $.ajax({
-            "type"       : "POST",
-            "contentType": "application/json",
-            "url"        : host + "/list",
-            "success"    : function(data) {
+            "type"    : "GET",
+            "jsonp"   : "callback",
+            "dataType": "jsonp",
+            "url"     : host + "/list",
+            "success" : function(data) {
                 $panel.removeClass("wait");
                 try {
-                    var d = JSON.parse(data);
+                    var d = data;
                     initializeExtCategory(d);
                 } catch (error) {
                     handleError(error);

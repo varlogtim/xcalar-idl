@@ -2532,7 +2532,7 @@ ExtCategorySet.prototype = {
     },
 
     addExtension: function(extension) {
-        var categoryName = extension.category;
+        var categoryName = extension.category || ExtTStr.XcCategory;
         var extCategory;
 
         if (this.has(categoryName)) {
