@@ -1617,8 +1617,8 @@ window.TestSuite = (function($, TestSuite) {
         TestSuite.add(retinaTest, "RetinaTest",
                       defaultTimeout, TestCaseEnabled);
         // interactive mode not run test
-        var retinaEnabled = (XVM.getLicenseMode() === XcalarMode.Mod) ?
-                            TestCaseDisabled : TestCaseEnabled;
+        var retinaEnabled = (XVM.getLicenseMode() === XcalarMode.Oper) ?
+                            TestCaseEnabled : TestCaseDisabled;
 
         TestSuite.add(runRetinaTest, "RunRetinaTest",
                       defaultTimeout, retinaEnabled);

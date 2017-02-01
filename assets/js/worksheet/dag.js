@@ -1499,41 +1499,40 @@ window.Dag = (function($, Dag) {
         $container.data('allDagInfo', allDagInfo);
     };
 
-    // Table rename is now defunct
-    // Dag.renameAllOccurrences = function(oldTableName, newTableName) {
-    //     $dagPanel = $('#dagPanel');
+    Dag.renameAllOccurrences = function(oldTableName, newTableName) {
+        var $dagPanel = $('#dagPanel');
 
-    //     $dagPanel.find('.tableName').filter(function() {
-    //         return ($(this).text() === oldTableName);
-    //     }).text(newTableName);
+        $dagPanel.find('.tableName').filter(function() {
+            return ($(this).text() === oldTableName);
+        }).text(newTableName);
 
-    //     var $dagTableTitles = $dagPanel.find('.tableTitle').filter(function() {
-    //         return ($(this).text() === oldTableName);
-    //     });
-    //     $dagTableTitles.text(newTableName)
-    //                    .attr('data-original-title', newTableName);
+        var $dagTableTitles = $dagPanel.find('.tableTitle').filter(function() {
+            return ($(this).text() === oldTableName);
+        });
+        $dagTableTitles.text(newTableName)
+                       .attr('data-original-title', newTableName);
 
-    //     $dagTableTitles.parent().data('tablename', newTableName);
-    //     var $dagParentsTitles = $dagPanel.find('.parentsTitle').filter(function() {
-    //         return ($(this).text() === oldTableName);
-    //     });
+        $dagTableTitles.parent().data('tablename', newTableName);
+        var $dagParentsTitles = $dagPanel.find('.parentsTitle').filter(function() {
+            return ($(this).text() === oldTableName);
+        });
 
-    //     $dagParentsTitles.text(newTableName);
-    //     var $actionTypes = $dagParentsTitles.closest('.actionType');
-    //     $actionTypes.each(function() {
-    //         var tooltipText = $(this).attr('data-original-title');
-    //         var newText;
-    //         if (tooltipText) {
-    //             newText = tooltipText.replace(oldTableName, newTableName);
-    //             $(this).attr('data-original-title', newText);
-    //         }
-    //         var title = $(this).attr('title');
-    //         if (title) {
-    //             newText = title.replace(oldTableName, newTableName);
-    //             $(this).attr('title', newText);
-    //         }
-    //     });
-    // };
+        $dagParentsTitles.text(newTableName);
+        var $actionTypes = $dagParentsTitles.closest('.actionType');
+        $actionTypes.each(function() {
+            var tooltipText = $(this).attr('data-original-title');
+            var newText;
+            if (tooltipText) {
+                newText = tooltipText.replace(oldTableName, newTableName);
+                $(this).attr('data-original-title', newText);
+            }
+            var title = $(this).attr('title');
+            if (title) {
+                newText = title.replace(oldTableName, newTableName);
+                $(this).attr('title', newText);
+            }
+        });
+    };
 
     Dag.makeInactive = function(tableId, nameProvided) {
         var tableName;
