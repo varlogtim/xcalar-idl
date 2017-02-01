@@ -30,8 +30,8 @@ window.ExportView = (function($, ExportView) {
         $colList = $exportView.find('.cols');
 
         var columnPicker = {
-            "state"        : "exportState",
-            "noEvent"      : true,
+            "state": "exportState",
+            "noEvent": true,
             "validColTypes": validTypes
         };
         formHelper = new FormHelper($exportView, {
@@ -289,7 +289,7 @@ window.ExportView = (function($, ExportView) {
         var deferred = jQuery.Deferred();
         var isValid = xcHelper.validate([
             {
-                "$ele" : $exportView.find('.tableList').find(".text"),
+                "$ele": $exportView.find('.tableList').find(".text"),
                 "error": ErrTStr.TableNotExists,
                 "check": function() {
                     return !gTables[tableId];
@@ -316,14 +316,14 @@ window.ExportView = (function($, ExportView) {
                 "$ele": $exportName // checks if it's empty
             },
             {
-                "$ele" : $exportName,
+                "$ele": $exportName,
                 "error": ErrTStr.NoSpecialChar,
                 "check": function() {
                     return xcHelper.hasSpecialChar(exportName, null, true);
                 }
             },
             {
-                "$ele" : $exportName,
+                "$ele": $exportName,
                 "error": ErrTStr.TooLong,
                 "check": function() {
                     return (exportName.length >=
@@ -342,14 +342,14 @@ window.ExportView = (function($, ExportView) {
 
         isValid = xcHelper.validate([
             {
-                "$ele" : $columnsExportSection,
+                "$ele": $columnsExportSection,
                 "error": ErrTStr.NoColumns,
                 "check": function() {
                     return (frontColumnNames.length === 0);
                 }
             },
             {
-                "$ele" : $columnsExportSection,
+                "$ele": $columnsExportSection,
                 "error": ErrTStr.InvalidColName,
                 "check": function() {
                     if (!gExportNoCheck) {
@@ -385,7 +385,7 @@ window.ExportView = (function($, ExportView) {
             }
 
             xcHelper.validate([{
-                "$ele" : $exportColumns,
+                "$ele": $exportColumns,
                 "error": errorText,
                 "check": function() {
                     return (true);
@@ -407,7 +407,7 @@ window.ExportView = (function($, ExportView) {
         var advancedOptions = getAdvancedOptions();
         if (advancedOptions.error) {
             xcHelper.validate([{
-                "$ele" : advancedOptions.$target,
+                "$ele": advancedOptions.$target,
                 "error": advancedOptions.errorMsg,
                 "check": function() {
                     return true;
@@ -420,7 +420,7 @@ window.ExportView = (function($, ExportView) {
         .then(function(hasDuplicate) {
             if (hasDuplicate) {
                 xcHelper.validate([{
-                    "$ele" : $exportName,
+                    "$ele": $exportName,
                     "error": ErrTStr.ExportConflict,
                     "check": function() {
                         return true;
@@ -779,8 +779,8 @@ window.ExportView = (function($, ExportView) {
         var delimLists = new MenuHelper(
             $exportView.find('.csvRow').find(".dropDownList"), {
                 "container": "#exportView",
-                "bounds"   : "#exportView",
-                "onSelect" : function($li) {
+                "bounds": "#exportView",
+                "onSelect": function($li) {
                     var $input = $li.closest(".dropDownList").find(".text");
                     switch ($li.attr("name")) {
                         case "default":

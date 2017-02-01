@@ -971,7 +971,7 @@ var GenSettings = (function(_super) {
         getAdminAndXcSettings: function() {
             return new GenSettings(null, {
                 "adminSettings": this.adminSettings,
-                "xcSettings"   : this.xcSettings
+                "xcSettings": this.xcSettings
             });
         }
     });
@@ -1594,14 +1594,14 @@ var DSObj = (function(_super) {
             //check name confliction
             var isValid = xcHelper.validate([
                 {
-                    "$ele" : DS.getGrid(self.id),
+                    "$ele": DS.getGrid(self.id),
                     "error": ErrTStr.NoSpecialChar,
                     "check": function() {
                         return /[^a-zA-Z\(\)\d\s:]/.test(newName);
                     }
                 },
                 {
-                    "$ele" : DS.getGrid(self.id),
+                    "$ele": DS.getGrid(self.id),
                     "error": error,
                     "check": function() {
                         return (parent.checkNameConflict(self.id, newName,
@@ -1609,7 +1609,7 @@ var DSObj = (function(_super) {
                     }
                 },
                 {
-                    "$ele" : DS.getGrid(self.id),
+                    "$ele": DS.getGrid(self.id),
                     "error": ErrTStr.PreservedName,
                     "check": function() {
                         return newName === DSObjTerm.OtherUserFolder;

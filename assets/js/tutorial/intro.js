@@ -1,27 +1,27 @@
 window.Intro = (function($, Intro) {
     // default options
     var options = {
-        overlayOpacity    : 0.5,
-        popoverPosition   : 'bottom',
+        overlayOpacity: 0.5,
+        popoverPosition: 'bottom',
         popoverHorzPadding: 37,
         popoverVertPadding: 15,
-        popoverMargin     : 10,
-        highlightPadding  : 10,
-        popoverText       : [],
-        preventSelection  : true, // prevent highlighted area from being clickable
-        loop              : false, // if true, returns to step 1 after last step
-        includeNumbering  : false,
-        closeOnModalClick : false, // close modal when background is clicked
-        ignoreHidden      : true, // will ignore data-intro elements that arent' visible
-        onStart           : "",
-        onComplete        : "",
-        onNextStep        : "",
-        onPrevStep        : "",
-        onSkipToEnd       : "",
-        onSkipToStart     : "",
-        actionsRequired   : "",
-        video             : false,
-        videoBreakpoints  : []
+        popoverMargin: 10,
+        highlightPadding: 10,
+        popoverText: [],
+        preventSelection: true, // prevent highlighted area from being clickable
+        loop: false, // if true, returns to step 1 after last step
+        includeNumbering: false,
+        closeOnModalClick: false, // close modal when background is clicked
+        ignoreHidden: true, // will ignore data-intro elements that arent' visible
+        onStart: "",
+        onComplete: "",
+        onNextStep: "",
+        onPrevStep: "",
+        onSkipToEnd: "",
+        onSkipToStart: "",
+        actionsRequired: "",
+        video: false,
+        videoBreakpoints: []
     };
     // var options = {};
     var $currElem;
@@ -94,7 +94,7 @@ window.Intro = (function($, Intro) {
     };
 
     function orderStepElems() {
-        var orderArray = options.popoverText._order;
+        // var orderArray = options.popoverText._order;
 
         $stepElems.sort(function (a, b) {
             var stepAName = $(a).data('introstep');
@@ -291,24 +291,24 @@ window.Intro = (function($, Intro) {
         if (back) {
             if (!skip && typeof options.onPrevStep === "function") {
                 options.onPrevStep({
-                    $currElem  : $currElem,
+                    $currElem: $currElem,
                     currentStep: steps.currentStep + 1// return as 1 indexed
                 });
             } else if (skip && typeof options.onSkipToStart === "function") {
                 options.onSkipToStart({
-                    $currElem  : $currElem,
+                    $currElem: $currElem,
                     currentStep: steps.currentStep + 1
                 });
             }
         } else {
             if (!skip && typeof options.onNextStep === "function") {
                 options.onNextStep({
-                    $currElem  : $currElem,
+                    $currElem: $currElem,
                     currentStep: steps.currentStep + 1
                 });
             } else if (skip && typeof options.onSkipToEnd === "function") {
                 options.onSkipToEnd({
-                    $currElem  : $currElem,
+                    $currElem: $currElem,
                     currentStep: steps.currentStep + 1
                 });
             }
@@ -333,10 +333,10 @@ window.Intro = (function($, Intro) {
         var rect = currElemRect;
         if (options.preventSelection) {
             $('#intro-elementLayer').css({
-                width : rect.width + 4,
+                width: rect.width + 4,
                 height: rect.height + 8,
-                top   : rect.top - 2,
-                left  : rect.left - 2
+                top: rect.top - 2,
+                left: rect.left - 2
             });
         }
     }
@@ -457,10 +457,10 @@ window.Intro = (function($, Intro) {
     function moveHighlightBox() {
         var rect = currElemRect;
         $('#intro-highlightBox').css({
-            width : rect.width,
+            width: rect.width,
             height: rect.height,
-            top   : rect.top,
-            left  : rect.left
+            top: rect.top,
+            left: rect.left
         });
 
         var left = rect.left - options.highlightPadding;
@@ -594,9 +594,9 @@ window.Intro = (function($, Intro) {
         var width = $video.width();
         var height = $video.height();
         $videoCloseArea.css({
-            top   : offsetTop,
-            left  : offsetLeft,
-            width : width,
+            top: offsetTop,
+            left: offsetLeft,
+            width: width,
             height: height
         });
     }

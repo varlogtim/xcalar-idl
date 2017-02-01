@@ -41,7 +41,7 @@ window.xcConsole = (function(xcConsole, $) {
                 }
                 console.log.apply(this, args.concat(originMsg));
             }
-        }       
+        }
     };
 
     xcConsole.error = function() {
@@ -92,15 +92,15 @@ window.xcConsole = (function(xcConsole, $) {
         var $alert = $("#debugAlert");
 
         $alert.draggable({
-            "handle"     : ".title",
-            "cursor"     : "-webkit-grabbing",
+            "handle": ".title",
+            "cursor": "-webkit-grabbing",
             "containment": "window"
         });
 
         $alert.resizable({
-            "handles"    : "n, e, s, w, se",
-            "minHeight"  : 100,
-            "minWidth"   : 200,
+            "handles": "n, e, s, w, se",
+            "minHeight": 100,
+            "minWidth": 200,
             "containment": "document"
         });
 

@@ -35,20 +35,20 @@ window.AggModal = (function($, AggModal) {
         var minHeight = 300;
 
         modalHelper = new ModalHelper($aggModal, {
-            "minWidth" : minWidth,
+            "minWidth": minWidth,
             "minHeight": minHeight
         });
 
         $aggModal.resizable({
-            "handles"    : "n, e, s, w, se",
-            "minHeight"  : minHeight,
-            "minWidth"   : minWidth,
+            "handles": "n, e, s, w, se",
+            "minHeight": minHeight,
+            "minWidth": minWidth,
             "containment": "document"
         });
 
         $aggModal.draggable({
-            "handle"     : ".modalHeader",
-            "cursor"     : "-webkit-grabbing",
+            "handle": ".modalHeader",
+            "cursor": "-webkit-grabbing",
             "containment": "window"
         });
 
@@ -124,12 +124,12 @@ window.AggModal = (function($, AggModal) {
 
         var sql = {
             "operation": SQLOps.QuickAgg,
-            "tableId"  : tableId,
+            "tableId": tableId,
             "tableName": tableName
         };
         var txId = Transaction.start({
             "operation": SQLOps.QuickAgg,
-            "sql"      : sql
+            "sql": sql
         });
 
         $quickAgg.attr("data-state", "pending");
@@ -144,7 +144,7 @@ window.AggModal = (function($, AggModal) {
             console.error("Quick Aggregate Fails", error);
             Transaction.fail(txId, {
                 "noAlert": true,
-                "error"  : error
+                "error": error
             });
             deferred.reject(error);
         });
@@ -175,12 +175,12 @@ window.AggModal = (function($, AggModal) {
 
         var sql = {
             "operation": SQLOps.Corr,
-            "tableId"  : tableId,
+            "tableId": tableId,
             "tableName": tableName
         };
         var txId = Transaction.start({
             "operation": SQLOps.Corr,
-            "sql"      : sql
+            "sql": sql
         });
 
         $corr.attr("data-state", "pending");
@@ -195,7 +195,7 @@ window.AggModal = (function($, AggModal) {
             console.error("Quick Aggregate Fails", error);
             Transaction.fail(txId, {
                 "noAlert": true,
-                "error"  : error
+                "error": error
             });
             deferred.reject(error);
         });
@@ -243,7 +243,7 @@ window.AggModal = (function($, AggModal) {
                 var isChildOfArray = $table.find(".th.col" + colNum + " .header")
                                         .hasClass("childOfArray");
                 aggCols.push({
-                    "col"           : progCol,
+                    "col": progCol,
                     "isChildOfArray": isChildOfArray
                 });
             }

@@ -8,21 +8,20 @@ window.LicenseModal = (function($, LicenseModal) {
         var minHeight = 220;
 
         modalHelper = new ModalHelper($modal, {
-            "minWidth" : minWidth,
+            "minWidth": minWidth,
             "minHeight": minHeight
         });
 
         $modal.resizable({
-            // "handles"    : "n, e, s, w, se",
-            "handles"    : "e, w",
-            "minHeight"  : minHeight,
-            "minWidth"   : minWidth,
+            "handles": "e, w",
+            "minHeight": minHeight,
+            "minWidth": minWidth,
             "containment": "document"
         });
 
         $modal.draggable({
-            "handle"     : ".modalHeader",
-            "cursor"     : "-webkit-grabbing",
+            "handle": ".modalHeader",
+            "cursor": "-webkit-grabbing",
             "containment": "window"
         });
 

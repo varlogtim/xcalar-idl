@@ -183,16 +183,16 @@ window.DagFunction = (function($, DagFunction) {
             xcHelper.centerFocusedTable($tableWrap, true);
 
             SQL.add("Revert Table", {
-                "operation"     : SQLOps.RevertTable,
-                "tableName"     : newTableName,
-                "oldTableName"  : oldTableName,
-                "oldTableId"    : oldTableId,
-                "tableId"       : newTableId,
-                "tableType"     : tableType,
-                "worksheet"     : worksheet,
+                "operation": SQLOps.RevertTable,
+                "tableName": newTableName,
+                "oldTableName": oldTableName,
+                "oldTableId": oldTableId,
+                "tableId": newTableId,
+                "tableType": tableType,
+                "worksheet": worksheet,
                 "worksheetIndex": WSManager.indexOfWS(worksheet),
-                "htmlExclude"   : ["tableType", "oldTableName", "worksheet",
-                                   "worksheetIndex"]
+                "htmlExclude": ["tableType", "oldTableName", "worksheet",
+                                "worksheetIndex"]
             });
         });
     };
@@ -485,16 +485,16 @@ window.DagFunction = (function($, DagFunction) {
             finalTableName = finalTreeValue.struct.dstTable.tableName;
         }
         var sql = {
-            "operation"   : SQLOps.Query,
-            "tableName"   : tableName,
-            "tableId"     : tableId,
+            "operation": SQLOps.Query,
+            "tableName": tableName,
+            "tableId": tableId,
             "newTableName": finalTableName
         };
         var txId = Transaction.start({
-            "msg"      : 'Rerun: ' + tableName,
+            "msg": 'Rerun: ' + tableName,
             "operation": SQLOps.Query,
-            "sql"      : sql,
-            "steps"    : 1
+            "sql": sql,
+            "steps": 1
         });
         xcHelper.lockTable(tableId, txId);
         getXcalarQueryCli(treeNodesToRerun)
@@ -508,7 +508,7 @@ window.DagFunction = (function($, DagFunction) {
             console.log(finalTableName);
             Transaction.done(txId, {
                 "msgTable": xcHelper.getTableId(finalTableName),
-                "sql"     : sql
+                "sql": sql
             });
 
             var worksheet = WSManager.getWSFromTable(tableId);
@@ -521,7 +521,7 @@ window.DagFunction = (function($, DagFunction) {
             console.error(error);
             Transaction.fail(txId, {
                 "failMsg": StatusMessageTStr.StoredProcFailed,
-                "error"  : error
+                "error": error
             });
         });
     };

@@ -13,16 +13,16 @@ window.Transaction = (function(Transaction, $) {
 
         if (options.msg != null) {
             msgId = StatusMessage.addMsg({
-                "msg"      : options.msg,
+                "msg": options.msg,
                 "operation": operation
             });
         }
 
         var curId = txIdCount;
         var txLog = new TXLog({
-            "msgId"    : msgId,
+            "msgId": msgId,
             "operation": operation,
-            "sql"      : options.sql
+            "sql": options.sql
         });
 
         txCache[curId] = txLog;
@@ -38,11 +38,11 @@ window.Transaction = (function(Transaction, $) {
                 operation += " " + options.functionName;
             }
             var queryOptions = {
-                numSteps  : numSubQueries,
+                numSteps: numSubQueries,
                 cancelable: options.cancelable,
                 exportName: options.exportName
             };
-            
+
             QueryManager.addQuery(curId, operation, queryOptions);
         }
 

@@ -162,20 +162,20 @@ window.StartManager = (function(StartManager, $) {
             } else if (error === WKBKTStr.Hold) {
                 // when seesion is hold by others
                 Alert.show({
-                    "title"  : WKBKTStr.Hold,
-                    "msg"    : WKBKTStr.HoldMsg,
+                    "title": WKBKTStr.Hold,
+                    "msg": WKBKTStr.HoldMsg,
                     "buttons": [
                         {
-                            "name"     : CommonTxtTstr.Back,
+                            "name": CommonTxtTstr.Back,
                             "className": "cancel",
-                            "func"     : function() {
+                            "func": function() {
                                 logoutRedirect();
                             }
                         },
                         {
-                            "name"     : WKBKTStr.Release,
+                            "name": WKBKTStr.Release,
                             "className": "cancel",
-                            "func"     : function() {
+                            "func": function() {
                                 Support.forceReleaseSession();
                             }
                         }
@@ -184,12 +184,12 @@ window.StartManager = (function(StartManager, $) {
                 });
             } else if (error.status === StatusT.StatusSessionNotFound) {
                 Alert.show({
-                    "title"     : WKBKTStr.NoOldWKBK,
-                    "instr"     : WKBKTStr.NoOldWKBKInstr,
-                    "msg"       : WKBKTStr.NoOldWKBKMsg,
+                    "title": WKBKTStr.NoOldWKBK,
+                    "instr": WKBKTStr.NoOldWKBKInstr,
+                    "msg": WKBKTStr.NoOldWKBKMsg,
                     "lockScreen": true,
-                    "logout"    : true,
-                    "buttons"   : [{
+                    "logout": true,
+                    "buttons": [{
                         "name": WKBKTStr.NewWKBK,
                         "func": function() {
                             WorkbookManager.inActiveAllWKBK();
@@ -243,7 +243,7 @@ window.StartManager = (function(StartManager, $) {
             var modalSpecs;
             var windowSpecs = {
                 winHeight: $(window).height(),
-                winWidth : $(window).width()
+                winWidth: $(window).width()
             };
 
             $(window).resize(function() {
@@ -253,8 +253,8 @@ window.StartManager = (function(StartManager, $) {
                     if ($modal.length) {
                         modalSpecs = {
                             $modal: $modal,
-                            top   : $modal.offset().top,
-                            left  : $modal.offset().left
+                            top: $modal.offset().top,
+                            left: $modal.offset().left
                         };
                     } else {
                         modalSpecs = null;
@@ -345,7 +345,7 @@ window.StartManager = (function(StartManager, $) {
             var $target = $(this);
             xcHelper.dropdownOpen($target, $menu, {
                 "offsetY": -3,
-                "toggle" : true
+                "toggle": true
             });
         });
 
@@ -662,7 +662,7 @@ window.StartManager = (function(StartManager, $) {
         var modalSpecs;
         var windowSpecs = {
             winHeight: $(window).height(),
-            winWidth : $(window).width()
+            winWidth: $(window).width()
         };
 
         $(window).resize(function(event) {
@@ -674,8 +674,8 @@ window.StartManager = (function(StartManager, $) {
                 if ($modal.length) {
                     modalSpecs = {
                         $modal: $modal,
-                        top   : $modal.offset().top,
-                        left  : $modal.offset().left
+                        top: $modal.offset().top,
+                        left: $modal.offset().left
                     };
                 } else {
                     modalSpecs = null;
@@ -767,11 +767,11 @@ window.StartManager = (function(StartManager, $) {
             if (window.isBrowserMicrosoft && event.shiftKey) {
                 // prevents text from being selected on shift click
                 var cachedFn = document.onselectstart;
-                document.onselectstart = function(){ 
+                document.onselectstart = function() {
                     return false;
                 };
                 setTimeout(function() {
-                    document.onselectstart = cachedFn; 
+                    document.onselectstart = cachedFn;
                 }, 0);
             }
 
@@ -819,7 +819,6 @@ window.StartManager = (function(StartManager, $) {
 
         var dragCount = 0; // tracks document drag enters and drag leaves
         // as multiple enters/leaves get triggered by children
-        // 
         $(document).on('dragenter', function(event) {
             var dt = event.originalEvent.dataTransfer;
             if (dt.types && (dt.types.indexOf ?
@@ -889,12 +888,12 @@ window.StartManager = (function(StartManager, $) {
             var mouseDownTime = gMouseEvents.getLastMouseDownTime();
 
             var info = {
-                "error"        : error,
-                "url"          : url,
-                "line"         : line,
-                "column"       : column,
+                "error": error,
+                "url": url,
+                "line": line,
+                "column": column,
                 "lastMouseDown": {
-                    "el"  : mouseDownTargetHTML,
+                    "el": mouseDownTargetHTML,
                     "time": mouseDownTime
                 }
             };

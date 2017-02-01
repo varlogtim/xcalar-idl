@@ -75,11 +75,11 @@ window.Aggregates = (function(Aggregates, $) {
         var promises = [];
         var sql = {
             "operation": SQLOps.DeleteAgg,
-            "aggs"     : aggNames
+            "aggs": aggNames
         };
         var txId = Transaction.start({
             "operation": SQLOps.DeleteAgg,
-            "sql"      : sql
+            "sql": sql
         });
 
         for (var i = 0; i < aggNames.length; i++) {
@@ -153,7 +153,7 @@ window.Aggregates = (function(Aggregates, $) {
         } else {
             errorMsg = fails[0].error + ". " + ErrTStr.NoConstsDeleted;
             Transaction.fail(txId, {
-                "error"  : errorMsg,
+                "error": errorMsg,
                 "failMsg": StatusMessageTStr.DeleteConstFailed
             });
         }

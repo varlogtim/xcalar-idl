@@ -132,9 +132,8 @@ window.XVM = (function(XVM) {
             } else if (version < kvVersion) {
                 needUpgrade = true;
             }
-            // XXX test only
-            // needUpgrade = true;
-            if (needUpgrade)  {
+
+            if (needUpgrade) {
                 return WorkbookManager.triggerUpgrade(version);
             }
         })
@@ -166,15 +165,15 @@ window.XVM = (function(XVM) {
             });
 
             Alert.show({
-                "title"     : DemoTStr.title,
-                "msg"       : msg,
+                "title": DemoTStr.title,
+                "msg": msg,
                 "lockScreen": true,
-                "expired"   : true
+                "expired": true
             });
         } else {
             Alert.show({
-                "title"  : DemoTStr.title,
-                "msg"    : getExpireCountDownMsg(expireTime - currentTime),
+                "title": DemoTStr.title,
+                "msg": getExpireCountDownMsg(expireTime - currentTime),
                 "isAlert": true
             });
         }
@@ -214,8 +213,9 @@ window.XVM = (function(XVM) {
         if (licenseMode === XcalarMode.Demo) {
             $("#dataStoresTab #outButton").addClass("xc-hidden");
             xcTooltip.changeText($("#importDataButton"), TooltipTStr.PointDemo);
-            $("#monitorDsSampleInput").closest(".optionSet").hide()
+            $("#monitorDsSampleInput").closest(".optionSet").hide();
         }
-    }
+    };
+
     return (XVM);
 }({}));

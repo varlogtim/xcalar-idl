@@ -1,10 +1,10 @@
 window.Tips = (function($, Tips) {
     var $targets   = [];
     var defaultOpt = {
-        "trigger"  : "manual",
+        "trigger": "manual",
         "placement": "top",
         "container": "body",
-        "template" : '<div class="tooltip tutorial" role="tooltip">' +
+        "template": '<div class="tooltip tutorial" role="tooltip">' +
                         '<div class="tooltip-arrow"></div>' +
                         '<div class="tooltip-inner"></div>' +
                      '</div>'
@@ -115,7 +115,7 @@ window.Tips = (function($, Tips) {
         var $rowScroller = $("#rowScrollerArea .rowScroller:visible");
         if ($rowScroller.length > 0) {
             setTooltip($rowScroller, {
-                "title"    : TipsTStr.Scrollbar,
+                "title": TipsTStr.Scrollbar,
                 "container": "#workspaceBar",
                 "placement": "left"
             });
@@ -123,7 +123,7 @@ window.Tips = (function($, Tips) {
 
         // // function bar
         // setTooltip($("#fnBar"), {
-        //     "title"    : "Programmatically manipulating the table",
+        //     "title": "Programmatically manipulating the table",
         //     "container": "#workspaceBar",
         // });
     }
@@ -132,7 +132,7 @@ window.Tips = (function($, Tips) {
         // tips for add worksheet tab
         var $wsIcon = $(".worksheetTab.active .wsMenu");
         setTooltip($wsIcon, {
-            "title"    : TipsTStr.WSOpts,
+            "title": TipsTStr.WSOpts,
             "container": "#worksheetTabs"
         });
     }
@@ -156,12 +156,12 @@ window.Tips = (function($, Tips) {
             // padding:"1px" is a trick to put this tip in right place,
             // the format is not right, should be corrected
             setTooltip($header.find(".type"), {
-                "title"    : TipsTStr.DataType,
+                "title": TipsTStr.DataType,
                 "container": tableId,
-                "template" : templateZ10,
-                "viewport" : {
+                "template": templateZ10,
+                "viewport": {
                     "selector": tableId,
-                    "padding" : "1px"
+                    "padding": "1px"
                 }
             });
 
@@ -184,10 +184,10 @@ window.Tips = (function($, Tips) {
             {
                 var $lineMarker = $ele;
                 setTooltip($lineMarker, {
-                    "title"    : TipsTStr.LineMarker,
+                    "title": TipsTStr.LineMarker,
                     "placement": "right",
                     "container": tableId,
-                    "template" : templateZ10
+                    "template": templateZ10
                 });
             }
 
@@ -196,12 +196,12 @@ window.Tips = (function($, Tips) {
             // no matter tdX finds the line marker
             var $tr = $ele.closest("tr");
             setTooltip($tr.find(".jsonElement"), {
-                "title"    : TipsTStr.JSONEle,
+                "title": TipsTStr.JSONEle,
                 "container": tableId,
-                "template" : templateZ10,
-                "viewport" : {
+                "template": templateZ10,
+                "viewport": {
                     "selector": tableId,
-                    "padding" : "1px"
+                    "padding": "1px"
                 }
             });
         }
@@ -214,7 +214,7 @@ window.Tips = (function($, Tips) {
             var $grid = $grids.eq($grids.length - 1);
             // grid view section
             setTooltip($grid, {
-                "title"    : TipsTStr.DragGrid,
+                "title": TipsTStr.DragGrid,
                 "container": dataView,
                 "placement": "right"
             });
@@ -222,15 +222,15 @@ window.Tips = (function($, Tips) {
 
         // dataset table
         setTooltip($("#dsTable"), {
-            "title"    : TipsTStr.DSTable,
+            "title": TipsTStr.DSTable,
             "container": "#dsTableView"
         });
 
         // data cart area
         setTooltip($("#dataCartWrap"), {
-            "title"    : TipsTStr.DSCart,
+            "title": TipsTStr.DSCart,
             "container": "#dataCartContainer",
-            "template" : templateZ0,
+            "template": templateZ0,
             "placement": "left"
         });
     }
@@ -239,14 +239,14 @@ window.Tips = (function($, Tips) {
         // tablelist in activeTableListSection
         var $tableList = $("#activeTableListSection").find(".tableListBox").eq(0);
         setTooltip($tableList, {
-            "title"    : TipsTStr.TablList,
+            "title": TipsTStr.TablList,
             "container": "#activeTablesList .timeLine:first-child"
         });
 
         // tablelist in archivedList
         $tableList = $("#archivedTableListSection").find(".tableListBox").eq(0);
         setTooltip($tableList, {
-            "title"    : TipsTStr.TablList,
+            "title": TipsTStr.TablList,
             "container": "#archivedTableListSection .timeLine:first-child"
         });
     }
@@ -258,7 +258,7 @@ window.Tips = (function($, Tips) {
 
         if ($jsonModal.is(":visible")) {
             setTooltip($jsonModal.find(".jKey").eq(0), {
-                "title"    : TipsTStr.PullColumn,
+                "title": TipsTStr.PullColumn,
                 "container": getIdStr($jsonModal),
                 "placement": "left"
             });

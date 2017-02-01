@@ -5,13 +5,13 @@ var __isVersionV0 = function(options) {
 // kvStore.js
 var METAConstructorV1 = (function() {
     var METAKeys = {
-        "TI"   : "TILookup",
-        "WS"   : "worksheets",
-        "AGGS" : "aggregates",
-        "CART" : "datacarts",
+        "TI": "TILookup",
+        "WS": "worksheets",
+        "AGGS": "aggregates",
+        "CART": "datacarts",
         "STATS": "statsCols",
-        "LOGC" : "sqlcursor",
-        "TPFX" : "tablePrefix",
+        "LOGC": "sqlcursor",
+        "TPFX": "tablePrefix",
         "QUERY": "query"
     };
 
@@ -180,7 +180,7 @@ var EMetaConstructorV1 = (function() {
 // userSettings.js
 var UserInfoConstructorV1 = (function() {
     var UserInfoKeys = {
-        "DS"  : "gDSObj",
+        "DS": "gDSObj",
         "PREF": "userpreference"
     };
 
@@ -403,19 +403,19 @@ var ProgColV1 = (function() {
     */
     function ProgColV1(options) {
         var defaultOptions = {
-            "childOfArray" : false,
-            "decimal"      : -1,
-            "format"       : null,
-            "immediate"    : false,
-            "knownType"    : false,
-            "isHidden"     : false,
-            "isNewCol"     : true,
-            "name"         : "",
+            "childOfArray": false,
+            "decimal": -1,
+            "format": null,
+            "immediate": false,
+            "knownType": false,
+            "isHidden": false,
+            "isNewCol": true,
+            "name": "",
             "sizedToHeader": true,
-            "textAlign"    : ColTextAlign.Left,
-            "type"         : ColumnType.undefined,
-            "userStr"      : "",
-            "width"        : gNewCellWidth
+            "textAlign": ColTextAlign.Left,
+            "type": ColumnType.undefined,
+            "userStr": "",
+            "width": gNewCellWidth
         };
         options = $.extend(defaultOptions, options);
 
@@ -485,11 +485,11 @@ var GenSettingsV1 = (function() {
         userConfigParms = userConfigParms || {};
         options = options || {};
         var defaultSettings = {
-            "hideDataCol"         : false,
-            "skipSplash"          : false,
+            "hideDataCol": false,
+            "skipSplash": false,
             "monitorGraphInterval": 3, // in seconds
-            "commitInterval"      : 120, // in seconds
-            "DsDefaultSampleSize" : 10 * GB
+            "commitInterval": 120, // in seconds
+            "DsDefaultSampleSize": 10 * GB
         };
         defaultSettings = $.extend({}, defaultSettings, userConfigParms);
 

@@ -95,7 +95,7 @@ window.DS = (function ($, DS) {
         }
 
         var ds = createDS({
-            "name"    : DSTStr.NewFolder,
+            "name": DSTStr.NewFolder,
             "isFolder": true
         });
 
@@ -114,14 +114,14 @@ window.DS = (function ($, DS) {
         var dsName = parsedRes.dsName;
 
         return createDS({
-            "id"        : fullDSName, // user the fulldsname as a unique id
-            "name"      : dsName,
-            "user"      : user,
-            "fullName"  : fullDSName,
+            "id": fullDSName, // user the fulldsname as a unique id
+            "name": dsName,
+            "user": user,
+            "fullName": fullDSName,
             "uneditable": false,
-            "isFolder"  : false,
-            "format"    : format,
-            "path"      : path
+            "isFolder": false,
+            "format": format,
+            "path": path
         });
     };
 
@@ -147,33 +147,26 @@ window.DS = (function ($, DS) {
 
         if (userFolderObj === null) {
             userFolderObj = createDS({
-                "id"        : user,
-                "name"      : user,
-                "user"      : user,
+                "id": user,
+                "name": user,
+                "user": user,
                 "uneditable": true,
-                "isFolder"  : true,
-                "parentId"  : DSObjTerm.OtherUserFolderId
+                "isFolder": true,
+                "parentId": DSObjTerm.OtherUserFolderId
             });
         }
 
         return createDS({
-            "id"        : fullDSName, // user the fulldsname as a unique id
-            "name"      : dsName,
-            "user"      : user,
-            "fullName"  : fullDSName,
+            "id": fullDSName, // user the fulldsname as a unique id
+            "name": dsName,
+            "user": user,
+            "fullName": fullDSName,
             "uneditable": true,
-            "isFolder"  : false,
-            "format"    : format,
-            "path"      : path,
-            "parentId"  : userFolderObj.getId()
+            "isFolder": false,
+            "format": format,
+            "path": path,
+            "parentId": userFolderObj.getId()
         });
-
-        // SQL.add("Add Other User's Dataset", {
-        //     "operation": SQLOps.AddOtherUserDS,
-        //     "name"     : fullDSName,
-        //     "format"   : format,
-        //     "path"     : path
-        // });
     };
 
     DS.focusOn = function($grid) {
@@ -243,7 +236,7 @@ window.DS = (function ($, DS) {
         var sql = {
             "operation": SQLOps.DSPoint,
             "pointArgs": pointArgs,
-            "options"  : options
+            "options": options
         };
 
         return pointToHelper(dsObj, createTable, sql);
@@ -256,10 +249,10 @@ window.DS = (function ($, DS) {
         }
 
         var sql = {
-            "operation"  : SQLOps.DSPoint,
-            "dsName"     : dsObj.getName(),
+            "operation": SQLOps.DSPoint,
+            "dsName": dsObj.getName(),
             "previewSize": previewSize,
-            "isRetry"    : true
+            "isRetry": true
         };
 
         dsObj.setPreviewSize(previewSize);
@@ -334,9 +327,9 @@ window.DS = (function ($, DS) {
             });
             // add alert
             Alert.show({
-                "title"   : AlertTStr.NoDel,
-                "msg"     : msg,
-                "isAlert" : true,
+                "title": AlertTStr.NoDel,
+                "msg": msg,
+                "isAlert": true,
                 "onCancel": focsueOnTracker
             });
 
@@ -364,8 +357,8 @@ window.DS = (function ($, DS) {
 
             // add alert
             Alert.show({
-                "title"    : title,
-                "msg"      : msg,
+                "title": title,
+                "msg": msg,
                 "onConfirm": callback
             });
         } else if (removeDS($grid) === true) {
@@ -430,14 +423,14 @@ window.DS = (function ($, DS) {
         dsLookUpTable = {};
 
         homeFolder = new DSObj({
-            "id"        : homeDirId,
-            "name"      : DSObjTerm.homeDir,
-            "fullName"  : DSObjTerm.homeDir,
-            "user"      : Support.getUser(),
-            "parentId"  : DSObjTerm.homeParentId,
+            "id": homeDirId,
+            "name": DSObjTerm.homeDir,
+            "fullName": DSObjTerm.homeDir,
+            "user": Support.getUser(),
+            "parentId": DSObjTerm.homeParentId,
             "uneditable": false,
-            "isFolder"  : true,
-            "isRecur"   : false
+            "isFolder": true,
+            "isRecur": false
         });
 
         dsLookUpTable[homeFolder.getId()] = homeFolder;
@@ -498,7 +491,7 @@ window.DS = (function ($, DS) {
             delDSHelper($gridToReplace, dsObjToReplace, {
                 // it fail, show it back
                 "failToShow": true,
-                "noDeFocus" : true
+                "noDeFocus": true
             });
         } else {
             $gridView.append($ds);
@@ -514,10 +507,10 @@ window.DS = (function ($, DS) {
 
     function createOtherUserFolder() {
         var folder = createDS({
-            "id"        : DSObjTerm.OtherUserFolderId,
-            "name"      : DSObjTerm.OtherUserFolder,
-            "parentId"  : homeDirId,
-            "isFolder"  : true,
+            "id": DSObjTerm.OtherUserFolderId,
+            "name": DSObjTerm.OtherUserFolder,
+            "parentId": homeDirId,
+            "isFolder": true,
             "uneditable": true
         });
 
@@ -538,10 +531,10 @@ window.DS = (function ($, DS) {
         DataStore.update();
 
         var txId = Transaction.start({
-            "msg"      : StatusMessageTStr.LoadingDataset + ": " + dsName,
+            "msg": StatusMessageTStr.LoadingDataset + ": " + dsName,
             "operation": SQLOps.DSPoint,
-            "sql"      : sql,
-            "steps"    : 1
+            "sql": sql,
+            "steps": 1
         });
 
         $grid.data("txid", txId);
@@ -578,7 +571,7 @@ window.DS = (function ($, DS) {
 
             var msgOptions = {
                 "newDataSet": true,
-                "dataSetId" : dsObj.getId()
+                "dataSetId": dsObj.getId()
             };
             Transaction.done(txId, {
                 msgOptions: msgOptions
@@ -604,7 +597,7 @@ window.DS = (function ($, DS) {
 
             Transaction.fail(txId, {
                 "failMsg": StatusMessageTStr.LoadFailed,
-                "error"  : error
+                "error": error
             });
 
             deferred.reject(error);
@@ -673,12 +666,12 @@ window.DS = (function ($, DS) {
 
         var sql = {
             "operation": SQLOps.DestroyDS,
-            "dsName"   : dsName,
-            "dsId"     : dsId
+            "dsName": dsName,
+            "dsId": dsId
         };
         var txId = Transaction.start({
             "operation": SQLOps.DestroyDS,
-            "sql"      : sql
+            "sql": sql
         });
 
         dsObj.release()
@@ -719,7 +712,7 @@ window.DS = (function ($, DS) {
 
             Transaction.fail(txId, {
                 "failMsg": DSTStr.DelDSFail,
-                "error"  : error,
+                "error": error,
                 "noAlert": noAlert
             });
             deferred.reject(error);
@@ -757,10 +750,10 @@ window.DS = (function ($, DS) {
         if (dsObj.beFolderWithDS()) {
             // add alert
             Alert.show({
-                "title"   : DSTStr.DelFolder,
-                "instr"   : DSTStr.DelFolderInstr,
-                "msg"     : DSTStr.DelFolderMsg,
-                "isAlert" : true,
+                "title": DSTStr.DelFolder,
+                "instr": DSTStr.DelFolderInstr,
+                "msg": DSTStr.DelFolderMsg,
+                "isAlert": true,
                 "onCancel": focsueOnTracker
             });
 
@@ -828,8 +821,8 @@ window.DS = (function ($, DS) {
             return true;
         } else {
             Alert.show({
-                "title"  : DSTStr.NoNewFolder,
-                "msg"    : DSTStr.NoNewFolderMsg,
+                "title": DSTStr.NoNewFolder,
+                "msg": DSTStr.NoNewFolderMsg,
                 "isAlert": true
             });
             return false;
@@ -868,23 +861,23 @@ window.DS = (function ($, DS) {
                 // then we delete it on start up time
                 var sql = {
                     "operation": SQLOps.DestroyPreviewDS,
-                    "dsName"   : dsName
+                    "dsName": dsName
                 };
                 var txId = Transaction.start({
                     "operation": SQLOps.DestroyPreviewDS,
-                    "sql"      : sql
+                    "sql": sql
                 });
 
                 destroyDataset(dsName, txId)
                 .then(function() {
                     Transaction.done(txId, {
                         "noCommit": true,
-                        "noSql"   : true
+                        "noSql": true
                     });
                 })
                 .fail(function(error) {
                     Transaction.fail(txId, {
-                        "error"  : error,
+                        "error": error,
                         "noAlert": true
                     });
                 });
@@ -935,7 +928,7 @@ window.DS = (function ($, DS) {
 
                     obj = $.extend(obj, {
                         "format": format,
-                        "path"  : ds.url
+                        "path": ds.url
                     });
 
                     createDS(obj);
@@ -1183,8 +1176,8 @@ window.DS = (function ($, DS) {
 
             xcHelper.dropdownOpen($target, $gridMenu, {
                 "mouseCoors": {"x": event.pageX, "y": event.pageY + 10},
-                "classes"   : classes,
-                "floating"  : true
+                "classes": classes,
+                "floating": true
             });
             return false;
         };

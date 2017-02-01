@@ -100,15 +100,15 @@ window.UDF = (function($, UDF) {
 
         editor = CodeMirror.fromTextArea(textArea, {
             "mode": {
-                "name"                  : "python",
-                "version"               : 3,
+                "name": "python",
+                "version": 3,
                 "singleLineStringErrors": false
             },
-            "theme"            : "rubyblue",
-            "lineNumbers"      : true,
-            "indentWithTabs"   : false,
-            "indentUnit"       : 4,
-            "matchBrackets"    : true,
+            "theme": "rubyblue",
+            "lineNumbers": true,
+            "indentWithTabs": false,
+            "indentUnit": 4,
+            "matchBrackets": true,
             "autoCloseBrackets": true
         });
 
@@ -173,16 +173,16 @@ window.UDF = (function($, UDF) {
 
         /* Template dropdown list */
         new MenuHelper($("#udf-fnList"), {
-            "onSelect"     : selectUDFFuncList,
-            "container"    : "#udfSection",
-            "bounds"       : '#udfSection',
+            "onSelect": selectUDFFuncList,
+            "container": "#udfSection",
+            "bounds": "#udfSection",
             "bottomPadding": 2
         }).setupListeners();
 
         new MenuHelper($("#udf-uploadType"), {
-            "onSelect"     : selectTypeList,
-            "container"    : "#udfSection",
-            "bounds"       : '#udfSection',
+            "onSelect": selectTypeList,
+            "container": "#udfSection",
+            "bounds": "#udfSection",
             "bottomPadding": 2
         }).setupListeners();
         /* end of function input section */
@@ -313,8 +313,8 @@ window.UDF = (function($, UDF) {
         $udfManager.on("click", ".udf .delete", function() {
             var moduleName = $(this).closest(".udf").find(".text").text();
             Alert.show({
-                "title"    : UDFTStr.DelTitle,
-                "msg"      : UDFTStr.DelMsg,
+                "title": UDFTStr.DelTitle,
+                "msg": UDFTStr.DelMsg,
                 "onConfirm": function() {
                     deleteUDF(moduleName);
                 }
@@ -342,8 +342,8 @@ window.UDF = (function($, UDF) {
         // set up codemirror autcomplete command
         CodeMirror.commands.autocompleteUDF = function(cm) {
             CodeMirror.showHint(cm, CodeMirror.pythonHint, {
-                alignWithWord        : true,
-                completeSingle       : false,
+                alignWithWord: true,
+                completeSingle: false,
                 completeOnSingleClick: true
             });
         };
@@ -535,10 +535,10 @@ window.UDF = (function($, UDF) {
             });
 
             Alert.show({
-                "title"         : SideBarTStr.DupUDF,
-                "msg"           : msg,
-                "onConfirm"     : function() { uploadHelper("UDF"); },
-                "onCancel"      : function() { deferred.resolve(); },
+                "title": SideBarTStr.DupUDF,
+                "msg": msg,
+                "onConfirm": function() { uploadHelper("UDF"); },
+                "onCancel": function() { deferred.resolve(); },
                 "focusOnConfirm": true
             });
         } else {
@@ -639,7 +639,7 @@ window.UDF = (function($, UDF) {
 
         return {
             "reason": reason,
-            "line"  : line
+            "line": line
         };
     }
 
@@ -662,8 +662,8 @@ window.UDF = (function($, UDF) {
             msg.className = "lint-error";
             udfWidgets.push(editor.addLineWidget(error.line - 1, msg, {
                 "coverGutter": false,
-                "noHScroll"  : true,
-                "above"      : true
+                "noHScroll": true,
+                "above": true
             }));
         });
 

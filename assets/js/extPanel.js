@@ -116,11 +116,11 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
         var host = "https://authentication.xcalar.net/marketplace";
 
         $.ajax({
-            "type"    : "GET",
-            "jsonp"   : "callback",
+            "type": "GET",
+            "jsonp": "callback",
             "dataType": "jsonp",
-            "url"     : host + "/list",
-            "success" : function(data) {
+            "url": host + "/list",
+            "success": function(data) {
                 $panel.removeClass("wait");
                 try {
                     var d = data;

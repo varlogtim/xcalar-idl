@@ -5,14 +5,14 @@ window.AboutModal = (function($, AboutModal) {
     AboutModal.setup = function() {
         $modal = $("#aboutModal");
         modalHelper = new ModalHelper($modal, {
-            "noResize"    : true,
+            "noResize": true,
             "noBackground": true,
-            "center"      : {"verticalQuartile": true}
+            "center": {"verticalQuartile": true}
         });
 
         $modal.draggable({
-            "handle"     : ".modalHeader",
-            "cursor"     : "-webkit-grabbing",
+            "handle": ".modalHeader",
+            "cursor": "-webkit-grabbing",
             "containment": "window"
         });
 

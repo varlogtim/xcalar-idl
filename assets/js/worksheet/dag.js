@@ -169,7 +169,6 @@ window.DagPanel = (function($, DagPanel) {
                     $dagArea.css('height', 'calc(' + (100 - dagTopPct) + '% - 5px)');
                     $panelSwitch.addClass('active');
 
-
                     Dag.focusDagForActiveTable();
                     clickDisabled = true;
                     setTimeout(function() {
@@ -241,9 +240,9 @@ window.DagPanel = (function($, DagPanel) {
         var $xcTables;
 
         $dagPanel.resizable({
-            handles    : "n",
+            handles: "n",
             containment: 'parent',
-            start      : function(event, ui) {
+            start: function(event, ui) {
                 $dagPanel.addClass('noTransform');
                 $dagPanel.css('top', dagPanelTop);
                 ui.originalPosition.top = dagPanelTop;
@@ -363,10 +362,10 @@ window.DagPanel = (function($, DagPanel) {
     function setDagTranslate(pct) {
         $dagPanel.css({
             '-webkit-transform': 'translate3d(0, ' + pct + '%, 0)',
-            '-moz-transform'   : 'translate3d(0, ' + pct + '%, 0)',
-            '-ms-transform'    : 'translate3d(0, ' + pct + '%, 0)',
-            '-o-transform'     : 'translate3d(0, ' + pct + '%, 0)',
-            'transform'        : 'translate3d(0, ' + pct + '%, 0)'
+            '-moz-transform': 'translate3d(0, ' + pct + '%, 0)',
+            '-ms-transform': 'translate3d(0, ' + pct + '%, 0)',
+            '-o-transform': 'translate3d(0, ' + pct + '%, 0)',
+            'transform': 'translate3d(0, ' + pct + '%, 0)'
         });
     }
 
@@ -564,8 +563,8 @@ window.DagPanel = (function($, DagPanel) {
                 // was not able to make url because image is
                 //probably too large
                 Alert.show({
-                    "title"  : ErrTStr.LargeImgTab,
-                    "msg"    : ErrTStr.LargeImgText,
+                    "title": ErrTStr.LargeImgTab,
+                    "msg": ErrTStr.LargeImgText,
                     "isAlert": true
                 });
                 $dagWrap.find('.dagImage').addClass('unsavable');
@@ -650,7 +649,6 @@ window.DagPanel = (function($, DagPanel) {
     }
 
     function downloadImage(canvas, filename) {
-
         if (filename.split(".").pop().toLowerCase !== "png") {
             filename = filename += ".png";
         }
@@ -668,8 +666,8 @@ window.DagPanel = (function($, DagPanel) {
         if (lnk.href.length < 8) {
             // was not able to make url because image is probably too large
             Alert.show({
-                "title"  : ErrTStr.LargeImgSave,
-                "msg"    : ErrTStr.LargeImgText,
+                "title": ErrTStr.LargeImgSave,
+                "msg": ErrTStr.LargeImgText,
                 "isAlert": true
             });
             $(canvas).closest('.dagImage').addClass('unsavable');
@@ -1021,19 +1019,18 @@ window.DagPanel = (function($, DagPanel) {
             case (XcalarApisT.XcalarApiMap):
                 options = {"replaceColumn": true};
                 sql = {
-                    "operation" : SQLOps.Map,
-                    "tableName" : origTableName,
-                    "tableId"   : origTableId,
-                    //"colNum"    : colNum,
-                    "fieldName" : xcalarInput.newFieldName,
-                    "mapString" : xcalarInput.evalStr,
+                    "operation": SQLOps.Map,
+                    "tableName": origTableName,
+                    "tableId": origTableId,
+                    "fieldName": xcalarInput.newFieldName,
+                    "mapString": xcalarInput.evalStr,
                     "mapOptions": options
                 };
                 txId = Transaction.start({
-                    "msg"      : StatusMessageTStr.Map + " erroneous rows",
+                    "msg": StatusMessageTStr.Map + " erroneous rows",
                     "operation": SQLOps.Map,
-                    "sql"      : sql,
-                    "steps"    : 1
+                    "sql": sql,
+                    "steps": 1
                 });
 
                 idx = -1;
@@ -1055,15 +1052,15 @@ window.DagPanel = (function($, DagPanel) {
                     }
                     Transaction.done(txId, {
                         "msgTable": newTableId,
-                        "sql"     : sql
+                        "sql": sql
                     });
 
                 })
                 .fail(function(error) {
                     Transaction.fail(txId, {
                         "failMsg": StatusMessageTStr.MapFailed,
-                        "error"  : error,
-                        "sql"    : sql
+                        "error": error,
+                        "sql": sql
                     });
                     StatusBox.show(ErrTStr.IcvFailed, $errMsgTarget);
                 });
@@ -1072,17 +1069,17 @@ window.DagPanel = (function($, DagPanel) {
                 options = {"replaceColumn": true};
                 // XXX This is going to screw up replay
                 sql = {
-                    "operation"   : SQLOps.GroupBy,
-                    "tableName"   : origTableName,
-                    "tableId"     : origTableId,
-                    "newColName"  : xcalarInput.newFieldName,
+                    "operation": SQLOps.GroupBy,
+                    "tableName": origTableName,
+                    "tableId": origTableId,
+                    "newColName": xcalarInput.newFieldName,
                     "newTableName": newTableName,
                 };
                 txId = Transaction.start({
-                    "msg"      : StatusMessageTStr.GroupBy + " ICV mode",
+                    "msg": StatusMessageTStr.GroupBy + " ICV mode",
                     "operation": SQLOps.GroupBy,
-                    "sql"      : sql,
-                    "steps"    : 1
+                    "sql": sql,
+                    "steps": 1
                 });
 
                 idx = -1;
@@ -1102,14 +1099,14 @@ window.DagPanel = (function($, DagPanel) {
                     }
                     Transaction.done(txId, {
                         "msgTable": newTableId,
-                        "sql"     : sql
+                        "sql": sql
                     });
                 })
                 .fail(function(error) {
                     Transaction.fail(txId, {
                         "failMsg": StatusMessageTStr.GroupByFailed,
-                        "error"  : error,
-                        "sql"    : sql
+                        "error": error,
+                        "sql": sql
                     });
                     StatusBox.show(ErrTStr.IcvFailed, $errMsgTarget);
                 });
@@ -1169,8 +1166,8 @@ window.DagPanel = (function($, DagPanel) {
                 "table": tableName
             });
             Alert.show({
-                "title"    : TblTStr.Del,
-                "msg"      : msg,
+                "title": TblTStr.Del,
+                "msg": msg,
                 "onConfirm": function() {
                     TblManager.deleteTables(tableId, TableType.Active);
                 }
@@ -1232,7 +1229,7 @@ window.DagPanel = (function($, DagPanel) {
                 };
                 var txId = Transaction.start({
                     "operation": SQLOps.DeleteTable,
-                    "sql"      : sql
+                    "sql": sql
                 });
 
                 XIApi.deleteTable(txId, tableName)
@@ -1244,7 +1241,7 @@ window.DagPanel = (function($, DagPanel) {
                 .fail(function(error) {
                     Transaction.fail(txId, {
                         "failMsg": StatusMessageTStr.DeleteTableFailed,
-                        "error"  : error
+                        "error": error
                     });
                 });
             }
@@ -1455,12 +1452,12 @@ window.Dag = (function($, Dag) {
     Dag.createDagImage = function(nodeArray, $container, options) {
         options = options || {};
         var storedInfo = {
-            x             : 0,
-            y             : 0,
-            height        : 0,
-            width         : 0,
+            x: 0,
+            y: 0,
+            height: 0,
+            width: 0,
             condensedWidth: 0,
-            groups        : {}
+            groups: {}
         };
 
         var numNodes = nodeArray.length;
@@ -1491,9 +1488,9 @@ window.Dag = (function($, Dag) {
         drawAllLines($container, dagInfo, numNodes, width, options);
 
         var allDagInfo = {
-            nodes         : dagInfo,
-            depth         : dagDepth,
-            groups        : storedInfo.groups,
+            nodes: dagInfo,
+            depth: dagDepth,
+            groups: storedInfo.groups,
             condensedWidth: width
         };
         $container.data('allDagInfo', allDagInfo);
@@ -1550,9 +1547,9 @@ window.Dag = (function($, Dag) {
         $dags.removeClass('Ready')
              .addClass('Dropped');
         $dags.find('.dagTableIcon ').attr({
-            "data-toggle"        : "tooltip",
-            "data-placement"     : "top",
-            "data-container"     : "body",
+            "data-toggle": "tooltip",
+            "data-placement": "top",
+            "data-container": "body",
             "data-original-title": xcHelper.replaceMsg(TooltipTStr.DroppedTable,
                                                        {"tablename": tableName})
         });
@@ -1970,7 +1967,8 @@ window.Dag = (function($, Dag) {
         if (MainMenu.isMenuOpen()) {
             menuWidth = 285;
         }
-         if (window.isBrowserIE) {
+
+        if (window.isBrowserIE) {
             left += leftMargin;
         } else {
             left -= menuWidth;
@@ -2051,7 +2049,7 @@ window.Dag = (function($, Dag) {
         var prevScrollLeft = $dagImage.parent().scrollLeft();
         var numGroupNodes = group.length;
         var storedInfo = {
-            width   : dagImageWidth,
+            width: dagImageWidth,
             groupLen: numGroupNodes
         };
         var horzShift = -(dagTableWidth * 0.3);
@@ -2142,7 +2140,7 @@ window.Dag = (function($, Dag) {
         var prevScrollLeft = $dagImage.parent().scrollLeft();
         var numGroupNodes = group.length;
         var storedInfo = {
-            "width"   : 0,
+            "width": 0,
             "groupLen": numGroupNodes
         };
         var horzShift = (dagTableWidth * 0.3);
@@ -2512,7 +2510,8 @@ window.Dag = (function($, Dag) {
                                              (group.length * dagTableWidth) +
                                              Math.round(0.11 * dagTableWidth);
                 $expandIcon.css('right', newRight);
-                var $groupOutline = $expandIcon.next();
+
+                $groupOutline = $expandIcon.next();
                 $groupOutline.removeClass('visible').hide();
                 var size = $expandIcon.data('size');
                 var tooltip;
@@ -2586,7 +2585,6 @@ window.Dag = (function($, Dag) {
         var vertScrolling = false;
         var vertScrollingTimeout;
         $('.dagArea').scroll(function() {
-
             if (!vertScrolling) {
                 if ($('#dagSchema').is(':visible') && scrollPosition > -1) {
                     $(this).scrollTop(scrollPosition);
@@ -3010,7 +3008,7 @@ window.Dag = (function($, Dag) {
                 tooltipTxt = CommonTxtTstr.ClickToOpts;
             }
 
-            if (dagNode.api == XcalarApisT.XcalarApiExport) {
+            if (dagNode.api === XcalarApisT.XcalarApiExport) {
                 html += '<div class="dagTable ' + state + '" ' +
                         'data-tablename="' + tableName + '" ' +
                         'data-index="' + index + '" ' +
@@ -3095,7 +3093,7 @@ window.Dag = (function($, Dag) {
             }
             groups[condensedId] = {
                 "collapsed": true,
-                "group"    : groupCopy
+                "group": groupCopy
             };
             group.length = 0;
         }
@@ -3326,14 +3324,14 @@ window.Dag = (function($, Dag) {
                 info.text = filterStr;
                 filterType = "";
                 var filterTypeMap = {
-                    "gt"   : "greater than",
-                    "ge"   : "reater than or equal to",
-                    "eq"   : "equal to",
-                    "lt"   : "less than",
-                    "le"   : "less than or equal to",
+                    "gt": "greater than",
+                    "ge": "reater than or equal to",
+                    "eq": "equal to",
+                    "lt": "less than",
+                    "le": "less than or equal to",
                     "regex": "regex",
-                    "like" : "like",
-                    "not"  : "not"
+                    "like": "like",
+                    "not": "not"
                 };
 
                 if (filterTypeMap[abbrFilterType]) {

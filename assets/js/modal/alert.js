@@ -12,19 +12,19 @@ window.Alert = (function($, Alert){
 
         modalHelper = new ModalHelper($modal, {
             "noResize": true,
-            "center"  : {"verticalQuartile": true}
+            "center": {"verticalQuartile": true}
         });
 
         $modal.draggable({
-            "handle"     : ".modalHeader",
-            "cursor"     : "-webkit-grabbing",
+            "handle": ".modalHeader",
+            "cursor": "-webkit-grabbing",
             "containment": "window"
         });
 
         $modal.resizable({
-            "handles"    : "n, e, s, w, se",
-            "minHeight"  : 167,
-            "minWidth"   : 500,
+            "handles": "n, e, s, w, se",
+            "minHeight": 167,
+            "minWidth": 500,
             "containment": "document"
         });
 
@@ -121,8 +121,8 @@ window.Alert = (function($, Alert){
         }
 
         var alertOptions = {
-            "title"  : title,
-            "msg"    : msg,
+            "title": title,
+            "msg": msg,
             "isAlert": true
         };
         alertOptions = $.extend(options, alertOptions);
@@ -252,7 +252,7 @@ window.Alert = (function($, Alert){
             $("#alertUserInputArea").find('.label').html(options.userInput.label);
             $("#alertUserInput").val(options.userInput.autofill);
             setTimeout(function() {
-                // otherwise it doesn't get focused and range doesn't get 
+                // otherwise it doesn't get focused and range doesn't get
                 // selected
                 $("#alertUserInput").focus().range(0);
             }, 0);

@@ -1,21 +1,21 @@
 window.Installer = (function(Installer, $) {
 
     var finalStruct = {
-        "nfsOption"    : undefined,
-        "hostnames"    : [],
+        "nfsOption": undefined,
+        "hostnames": [],
         "privHostNames": [],
-        "username"     : "",
-        "port"         : 22,
-        "credentials"  : {} // Either password or sshKey
+        "username": "",
+        "port": 22,
+        "credentials": {} // Either password or sshKey
     };
 
     var Status = {
         "Error": -1,
         "Unknown": 0,
         "Ok": 1,
-        "Done"   : 2,
+        "Done": 2,
         "Running": 3
-    }
+    };
 
     var intervalTimer;
     var statusApi;
@@ -212,13 +212,12 @@ window.Installer = (function(Installer, $) {
     function sendViaHttps(action, arrayToSend, successCB, failureCB) {
         try {
             jQuery.ajax({
-                method     : "POST",
-                //url        : "http://cantor.int.xcalar.com:12124/"+action,
-                url        : document.location.origin+"/install/"+action,
-                data       : JSON.stringify(arrayToSend),
+                method: "POST",
+                url: document.location.origin + "/install/" + action,
+                data: JSON.stringify(arrayToSend),
                 contentType: "application/json",
-                success    : successCB,
-                error      : failureCB
+                success: successCB,
+                error: failureCB
             });
         } catch (e) {
             // XXX Handle the different statuses and display relevant
@@ -718,8 +717,8 @@ window.Installer = (function(Installer, $) {
 
         if ($(".ldapParams:not(.hidden)").hasClass("xcalarLdapOptions")) {
             var struct = {
-                "domainName" : values[0],
-                "password"   : values[1],
+                "domainName": values[0],
+                "password": values[1],
                 "companyName": values[3]
             };
 
@@ -748,12 +747,12 @@ window.Installer = (function(Installer, $) {
             var tlsOption = $(".useTLS.radioButton.active").data("option");
 
             var struct = {
-                "ldap_uri"     : values[0],
-                "userDN"       : values[1],
-                "searchFilter" : values[2],
+                "ldap_uri": values[0],
+                "userDN": values[1],
+                "searchFilter": values[2],
                 "serverKeyFile": values[3],
-                "activeDir"    : adOption.toString(),
-                "useTLS"       : tlsOption.toString()
+                "activeDir": adOption.toString(),
+                "useTLS": tlsOption.toString()
             };
 
             console.log(struct);
@@ -902,18 +901,6 @@ window.Installer = (function(Installer, $) {
     return (Installer);
 }({}, jQuery));
 
-
 $(document).ready(function() {
     Installer.setup();
 });
-
-
-
-
-
-
-
-
-
-
-

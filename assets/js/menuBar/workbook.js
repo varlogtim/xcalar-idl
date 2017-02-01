@@ -312,8 +312,8 @@ window.Workbook = (function($, Workbook) {
             clearActives();
             var $workbookBox = $(this).closest(".workbookBox");
             Alert.show({
-                "title"    : WKBKTStr.Delete,
-                "msg"      : WKBKTStr.DeleteMsg,
+                "title": WKBKTStr.Delete,
+                "msg": WKBKTStr.DeleteMsg,
                 "onConfirm": function() {
                     deleteWorkbookHelper($workbookBox);
                 }
@@ -434,14 +434,14 @@ window.Workbook = (function($, Workbook) {
 
         var isValid = xcHelper.validate([
             {
-                "$ele"    : $newWorkbookInput,
+                "$ele": $newWorkbookInput,
                 "formMode": true
             },
             {
-                "$ele"    : $newWorkbookInput,
+                "$ele": $newWorkbookInput,
                 "formMode": true,
-                "error"   : error,
-                "check"   : function() {
+                "error": error,
+                "check": function() {
                     var workbooks = WorkbookManager.getWorkbooks();
                     for (var wkbkId in workbooks) {
                         if (workbooks[wkbkId].getName() === workbookName) {
@@ -511,7 +511,7 @@ window.Workbook = (function($, Workbook) {
         var deferred = jQuery.Deferred();
         // placeholder
         var workbook = new WKBK({
-            "id"  : "",
+            "id": "",
             "name": ""
         });
         var extraClasses = ["loading", "new", "animating"];

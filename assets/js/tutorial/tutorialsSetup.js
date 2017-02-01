@@ -16,11 +16,11 @@ window.TutorialsSetup = (function($, TutorialsSetup) {
         $('#workbookWT').click(function() {
             // reset options set by datastorepreview1
             var options = {
-                ignoreHidden : true,
-                onStart      : "",
-                onNextStep   : "",
-                onPrevStep   : "",
-                onSkipToEnd  : "",
+                ignoreHidden: true,
+                onStart: "",
+                onNextStep: "",
+                onPrevStep: "",
+                onSkipToEnd: "",
                 onSkipToStart: ""
             };
 
@@ -71,7 +71,7 @@ window.TutorialsSetup = (function($, TutorialsSetup) {
         $('#datastoreWT1').click(function() {
             var options = {
                 ignoreHidden: false,
-                onNextStep  : function(introObj) {
+                onNextStep: function(introObj) {
                     if (introObj.currentStep === 5) {
                         dsDemo1ToggleForm(true);
                     }
@@ -94,11 +94,11 @@ window.TutorialsSetup = (function($, TutorialsSetup) {
 
         $('#datastoreWT2').click(function() {
             var options = {
-                ignoreHidden : true,
-                onStart      : "",
-                onNextStep   : "",
-                onPrevStep   : "",
-                onSkipToEnd  : "",
+                ignoreHidden: true,
+                onStart: "",
+                onNextStep: "",
+                onPrevStep: "",
+                onSkipToEnd: "",
                 onSkipToStart: ""
             };
             introHelper('datastoreDemo2', WalkThroughTStr.w3, options);

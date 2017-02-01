@@ -11,7 +11,7 @@ window.SQL = (function($, SQL) {
     var sqlToCommit = "";
     var errToCommit = "";
     var sqlCache = {
-        "logs"  : [],
+        "logs": [],
         "errors": []
     };
     var logs = sqlCache.logs;
@@ -25,8 +25,8 @@ window.SQL = (function($, SQL) {
     var sqlLocalStoreKey = "xcalar-query";
     var sqlRestoreError = "restore sql error";
     var UndoType = {
-        "Valid"  : 0,   // can undo/redo
-        "Skip"   : 1,   // should skip undo/redo
+        "Valid": 0,   // can undo/redo
+        "Skip": 1,   // should skip undo/redo
         "Invalid": 2    // cannot undo/redo
     };
 
@@ -164,9 +164,9 @@ window.SQL = (function($, SQL) {
         }
 
         var sql = new XcLog({
-            "title"  : title,
+            "title": title,
             "options": options,
-            "cli"    : cli
+            "cli": cli
         });
 
         addLog(sql, false, willCommit);
@@ -182,10 +182,10 @@ window.SQL = (function($, SQL) {
 
     SQL.errorLog = function(title, options, cli, error) {
         var sql = new XcLog({
-            "title"  : title,
+            "title": title,
             "options": options,
-            "cli"    : cli,
-            "error"  : error
+            "cli": cli,
+            "error": error
         });
         errors.push(sql);
 
@@ -459,7 +459,7 @@ window.SQL = (function($, SQL) {
         sqlToCommit = "";
         errToCommit = "";
         sqlCache = {
-            "logs"  : [],
+            "logs": [],
             "errors": []
         };
 

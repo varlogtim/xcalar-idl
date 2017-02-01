@@ -132,7 +132,7 @@ function DSFormAdvanceOption($section, container) {
             $input.val($li.text());
         },
         "container": container,
-        "bounds"   : container
+        "bounds": container
     }).setupListeners();
 
     xcHelper.optionButtonEvent($limit, function(option) {
@@ -281,9 +281,9 @@ DSFormAdvanceOption.prototype = {
         }
 
         return {
-            "pattern"    : pattern,
-            "isRecur"    : isRecur,
-            "isRegex"    : isRegex,
+            "pattern": pattern,
+            "isRecur": isRecur,
+            "isRegex": isRegex,
             "previewSize": previewSize
         };
     }
@@ -788,7 +788,7 @@ ModalHelper.prototype = {
                 $modal.width(winWidth - 14);
                 $modal.height(winHeight - 9);
                 $modal.css({
-                    "top" : 0,
+                    "top": 0,
                     "left": Math.round((winWidth - $modal.width()) / 2)
                 });
                 if (options.resizeCallback) {
@@ -850,7 +850,7 @@ ModalHelper.prototype = {
             $modal.width(width).height(height);
             $modal.css({
                 "minHeight": minHeight,
-                "minWidth" : minWidth
+                "minWidth": minWidth
             });
         }
 
@@ -895,9 +895,9 @@ ModalHelper.prototype = {
                     // multiple confirm buttons
                     StatusBox.show(ErrTStr.SelectOption,
                                     $modal.find('.modalBottom'), false, {
-                                        "type"      : "info",
+                                        "type": "info",
                                         "highZindex": true,
-                                        "offsetY"   : 12
+                                        "offsetY": 12
                                     });
                 }
                 return false;
@@ -1047,7 +1047,7 @@ ModalHelper.prototype = {
 
         $modal.css({
             "left": left,
-            "top" : top
+            "top": top
         });
     },
     // options:
@@ -1547,13 +1547,13 @@ FormHelper.prototype = {
         }).addClass("noColumnPicker");
 
         xcTooltip.add($arrayHeaders, {
-            title    : ColTStr.NoOperateArray,
+            title: ColTStr.NoOperateArray,
             container: "body",
             placement: "bottom"
         });
 
         xcTooltip.add($objHeaders, {
-            title    : ColTStr.NoOperateObject,
+            title: ColTStr.NoOperateObject,
             container: "body",
             placement: "bottom"
         });
@@ -1584,7 +1584,7 @@ FormHelper.prototype = {
             $otherHeaders.addClass("noColumnPicker");
 
             xcTooltip.add($otherHeaders, {
-                title    : ColTStr.NoOperateGeneral,
+                title: ColTStr.NoOperateGeneral,
                 container: "body",
                 placement: "bottom"
             });
@@ -1909,10 +1909,10 @@ function RangeSlider($rangeSliderWrap, prefName, options) {
     this.options = options;
 
     $rangeSliderWrap.find('.leftArea').resizable({
-        "handles" : "e",
+        "handles": "e",
         "minWidth": self.minWidth,
         "maxWidth": self.maxWidth,
-        "stop"    : function(event, ui) {
+        "stop": function(event, ui) {
             var val = self.updateInput(ui.size.width);
             UserSettings.setPref(prefName, val, true);
             if (options.onChangeEnd) {
@@ -2045,12 +2045,12 @@ function MenuHelper($dropDownList, options) {
     this.id = MenuHelper.counter;
 
     this.timer = {
-        "fadeIn"           : null,
-        "fadeOut"          : null,
+        "fadeIn": null,
+        "fadeOut": null,
         "setMouseMoveFalse": null,
-        "hovering"         : null,
-        "scroll"           : null,
-        "mouseScroll"      : null
+        "hovering": null,
+        "scroll": null,
+        "mouseScroll": null
     };
 
     this.setupListScroller();

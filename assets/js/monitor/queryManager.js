@@ -45,12 +45,12 @@ window.QueryManager = (function(QueryManager, $) {
         }
 
         var mainQuery = new XcQuery({
-            "name"      : name,
-            "fullName"  : fullName,
-            "time"      : time,
-            "type"      : type,
-            "id"        : id,
-            "numSteps"  : numSteps,
+            "name": name,
+            "fullName": fullName,
+            "time": time,
+            "type": type,
+            "id": id,
+            "numSteps": numSteps,
             "cancelable": options.cancelable
         });
 
@@ -62,7 +62,7 @@ window.QueryManager = (function(QueryManager, $) {
         focusOnQuery($query);
         updateStatusDetail({
             "start": time,
-            "op"   : name,
+            "op": name,
         }, id, QueryStatus.Run, true);
 
         if (type === "xcQuery") {
@@ -82,13 +82,13 @@ window.QueryManager = (function(QueryManager, $) {
         var time = new Date().getTime();
         options = options || {};
         var subQuery = new XcSubQuery({
-            "name"          : name,
-            "time"          : time,
-            "query"         : query,
-            "dstTable"      : dstTable,
-            "id"            : id,
-            "index"         : mainQuery.subQueries.length,
-            "queryName"     : queryName,
+            "name": name,
+            "time": time,
+            "query": query,
+            "dstTable": dstTable,
+            "id": id,
+            "index": mainQuery.subQueries.length,
+            "queryName": queryName,
             "exportFileName": options.exportFileName
         });
         mainQuery.addSubQuery(subQuery);
@@ -143,10 +143,10 @@ window.QueryManager = (function(QueryManager, $) {
         clearInterval(queryCheckLists[id]);
         updateQueryBar(id, 100);
         updateStatusDetail({
-            "start"    : getQueryTime(mainQuery.getTime()),
-            "elapsed"  : getElapsedTimeStr(mainQuery.getElapsedTime()),
+            "start": getQueryTime(mainQuery.getTime()),
+            "elapsed": getElapsedTimeStr(mainQuery.getElapsedTime()),
             "remaining": CommonTxtTstr.NA,
-            "total"    : getElapsedTimeStr(mainQuery.getElapsedTime())
+            "total": getElapsedTimeStr(mainQuery.getElapsedTime())
         }, id);
         updateOutputSection(id);
     };
@@ -221,10 +221,10 @@ window.QueryManager = (function(QueryManager, $) {
         if ($query.hasClass('active')) {
             updateQueryTextDisplay("");
             updateStatusDetail({
-                "start"    : CommonTxtTstr.NA,
-                "elapsed"  : CommonTxtTstr.NA,
+                "start": CommonTxtTstr.NA,
+                "elapsed": CommonTxtTstr.NA,
                 "remaining": CommonTxtTstr.NA,
-                "total"    : CommonTxtTstr.NA,
+                "total": CommonTxtTstr.NA,
             }, id, QueryStatus.RM);
             updateOutputSection(id, true);
         }
@@ -329,10 +329,10 @@ window.QueryManager = (function(QueryManager, $) {
         mainQuery.setElapsedTime();
         updateQueryBar(id, null, false, true, true);
         updateStatusDetail({
-            "start"    : getQueryTime(mainQuery.getTime()),
-            "elapsed"  : getElapsedTimeStr(mainQuery.getElapsedTime(), true),
+            "start": getQueryTime(mainQuery.getTime()),
+            "elapsed": getElapsedTimeStr(mainQuery.getElapsedTime(), true),
             "remaining": CommonTxtTstr.NA,
-            "total"    : getElapsedTimeStr(mainQuery.getElapsedTime())
+            "total": getElapsedTimeStr(mainQuery.getElapsedTime())
         }, id);
         updateOutputSection(id, true);
         var $query = $('.query[data-id="' + id + '"]');
@@ -408,7 +408,7 @@ window.QueryManager = (function(QueryManager, $) {
     // XX used for testing;
     QueryManager.getAll = function() {
         return ({
-            "queryLists"     : queryLists,
+            "queryLists": queryLists,
             "queryCheckLists": queryCheckLists
         });
     };
@@ -441,18 +441,18 @@ window.QueryManager = (function(QueryManager, $) {
             }
             fullName = name;
             query = new XcQuery({
-                "name"            : name,
-                "fullName"        : fullName,
-                "time"            : queries[i].time,
-                "id"              : i - numQueries,
-                "numSteps"        : 1,
-                "queryStr"        : cli,
-                "sqlNum"          : queries[i].sqlNum,
-                "elapsedTime"     : queries[i].elapsedTime,
-                "outputTableName" : queries[i].outputTableName,
+                "name": name,
+                "fullName": fullName,
+                "time": queries[i].time,
+                "id": i - numQueries,
+                "numSteps": 1,
+                "queryStr": cli,
+                "sqlNum": queries[i].sqlNum,
+                "elapsedTime": queries[i].elapsedTime,
+                "outputTableName": queries[i].outputTableName,
                 "outputTableState": queries[i].outputTableState,
-                "state"           : queries[i].state,
-                "type"            : "restored"
+                "state": queries[i].state,
+                "type": "restored"
             });
             queryLists[i - numQueries] = query;
             html += getQueryHTML(query, true);
@@ -468,12 +468,12 @@ window.QueryManager = (function(QueryManager, $) {
         for (var i = 0; i < subQueries.length; i++) {
             var time = new Date().getTime();
             var subQuery = new XcSubQuery({
-                "name"    : subQueries[i].name,
-                "time"    : time,
-                "query"   : subQueries[i].query,
+                "name": subQueries[i].name,
+                "time": time,
+                "query": subQueries[i].query,
                 "dstTable": subQueries[i].dstTable,
-                "id"      : id,
-                "index"   : mainQuery.subQueries.length
+                "id": id,
+                "index": mainQuery.subQueries.length
             });
             mainQuery.addSubQuery(subQuery);
             updateQueryTextDisplay(mainQuery.getQuery());
@@ -662,10 +662,10 @@ window.QueryManager = (function(QueryManager, $) {
         }
         updateHeadingSection(mainQuery);
         updateStatusDetail({
-            "start"    : startTime,
-            "elapsed"  : elapsedTime,
+            "start": startTime,
+            "elapsed": elapsedTime,
             "remaining": CommonTxtTstr.NA,
-            "total"    : totalTime
+            "total": totalTime
         }, queryId);
         updateQueryTextDisplay(query);
         updateOutputSection(queryId);
@@ -885,10 +885,10 @@ window.QueryManager = (function(QueryManager, $) {
                 updateQueryBar(id, res, false, false, doNotAnimate);
                 mainQuery.setElapsedTime();
                 updateStatusDetail({
-                    "start"    : getQueryTime(mainQuery.getTime()),
-                    "elapsed"  : getElapsedTimeStr(mainQuery.getElapsedTime(), true),
+                    "start": getQueryTime(mainQuery.getTime()),
+                    "elapsed": getElapsedTimeStr(mainQuery.getElapsedTime(), true),
                     "remaining": CommonTxtTstr.NA,
-                    "total"    : CommonTxtTstr.NA
+                    "total": CommonTxtTstr.NA
                 }, id);
             }
         })
@@ -1259,12 +1259,12 @@ window.QueryManager = (function(QueryManager, $) {
             if (queryObj.state === QueryStatus.Done ||
                 queryObj.state === QueryStatus.Cancel) {
                 abbrQueryObj = {
-                    "sqlNum"          : queryObj.sqlNum,
-                    "time"            : queryObj.time,
-                    "elapsedTime"     : queryObj.elapsedTime,
-                    "outputTableName" : queryObj.getOutputTableName(),
+                    "sqlNum": queryObj.sqlNum,
+                    "time": queryObj.time,
+                    "elapsedTime": queryObj.elapsedTime,
+                    "outputTableName": queryObj.getOutputTableName(),
                     "outputTableState": queryObj.getOutputTableState(),
-                    "state"           : queryObj.state
+                    "state": queryObj.state
                 };
                 if (queryObj.state === QueryStatus.Cancel) {
                     abbrQueryObj.name = queryObj.name;
@@ -1389,7 +1389,6 @@ window.QueryManager = (function(QueryManager, $) {
         var queryStr = mainQuery.getQuery();
         var queries = xcHelper.parseQuery(queryStr);
         var numQueries = queries.length;
-        var tables = [];
         for (var i = 0; i < numQueries; i++) {
             if (queries[i].dstTable) {
                 if (queries[i].dstTable.indexOf(gDSPrefix) === -1) {
@@ -1403,7 +1402,6 @@ window.QueryManager = (function(QueryManager, $) {
         var queryStr = mainQuery.getQuery();
         var queries = xcHelper.parseQuery(queryStr);
         var numQueries = queries.length;
-        var tables = [];
         for (var i = 0; i < numQueries; i++) {
             if (queries[i].dstTable) {
                 if (queries[i].dstTable.indexOf(gDSPrefix) === -1) {

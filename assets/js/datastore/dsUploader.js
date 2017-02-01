@@ -121,7 +121,7 @@ window.DSUploader = (function($, DSUploader) {
 
          // click on title to sort
         var titleLabel = ".title .label, .title .xi-sort";
-        $uploaderMain.on("click", titleLabel, function(event) {
+        $uploaderMain.on("click", titleLabel, function() {
             var $title = $(this).closest(".title");
 
             // event.stopPropagation();
@@ -132,7 +132,7 @@ window.DSUploader = (function($, DSUploader) {
             if ($title.hasClass("select")) {
                 reverseFiles();
             } else {
-                sortAction($title, false);
+                sortAction($title);
             }
         });
     }
@@ -200,7 +200,6 @@ window.DSUploader = (function($, DSUploader) {
             if ($browserBtn.val().trim() === "") {
                 return;
             }
-            var path = $(this).val().replace(/C:\\fakepath\\/i, '');
             var file = $browserBtn[0].files;
             submitFiles(file);
         });
@@ -211,7 +210,7 @@ window.DSUploader = (function($, DSUploader) {
         var path = "demo:///" + name;
         var format = null;
         var options = {
-            "path"  : path,
+            "path": path,
             "format": format,
         };
 
@@ -250,10 +249,12 @@ window.DSUploader = (function($, DSUploader) {
         switch (type) {
             case ('invalidName'):
                 Alert.show({
-                    "title"    : DSTStr.InvalidFileName,
-                    "msg"      : DSTStr.InvalidFileDesc,
-                    "userInput": {"label":  DSTStr.NewName + ":",
-                                  "autofill": args.oldName},
+                    "title": DSTStr.InvalidFileName,
+                    "msg": DSTStr.InvalidFileDesc,
+                    "userInput": {
+                        "label": DSTStr.NewName + ":",
+                        "autofill": args.oldName
+                    },
                     "onConfirm": function() {
                         var newName = $("#alertUserInput").val();
                         validateAndSubmitNewName(args.file, newName,
@@ -263,10 +264,12 @@ window.DSUploader = (function($, DSUploader) {
                 break;
             case ('duplicateName'):
                 Alert.show({
-                    "title"    : DSTStr.DupFileName,
-                    "msg"      : DSTStr.DupFileNameDesc,
-                    "userInput": {"label": DSTStr.NewName + ":",
-                                  "autofill": args.name},
+                    "title": DSTStr.DupFileName,
+                    "msg": DSTStr.DupFileNameDesc,
+                    "userInput": {
+                        "label": DSTStr.NewName + ":",
+                        "autofill": args.name
+                    },
                     "onConfirm": function() {
                         var newName = $("#alertUserInput").val();
                         validateAndSubmitNewName(args.file, newName, args.name);
@@ -275,16 +278,18 @@ window.DSUploader = (function($, DSUploader) {
                 break;
             case ('invalidSize'):
                 var msg = xcHelper.replaceMsg(ErrWRepTStr.InvalidSampleSize, {
-                                            size: "2 GB"
-                                        });
+                    size: "2 GB"
+                });
                 Alert.error(CommonTxtTstr.InvalidSize, msg);
                 break;
             case ('invalidFolder'):
                 Alert.error(DSTStr.InvalidUpload, DSTStr.InvalidFolderDesc);
                 break;
             case ('multipleFiles'):
-                Alert.show({title: DSTStr.InvalidUpload,
-                msg: DSTStr.OneFileUpload});
+                Alert.show({
+                    title: DSTStr.InvalidUpload,
+                    msg: DSTStr.OneFileUpload
+                });
                 break;
             default:
                 break;
@@ -308,14 +313,15 @@ window.DSUploader = (function($, DSUploader) {
         var folderFound = false;
 
         if (event && event.dataTransfer.items &&
-            event.dataTransfer.items.length) {
+            event.dataTransfer.items.length)
+        {
             [].forEach.call(event.dataTransfer.items, function(item) {
                 var entry = item.webkitGetAsEntry();
                 if (entry && entry.isDirectory) {
                     folderFound = true;
                     return false;
                 }
-           });
+            });
         }
 
         if (folderFound) {
@@ -403,7 +409,7 @@ window.DSUploader = (function($, DSUploader) {
         $icon.find(".fileName").html(name + " (" + CommonTxtTstr.Uploading +
                                      ")");
         var sizeProgress = xcHelper.sizeTranslator(sizeCompleted) + "/" +
-                           xcHelper.sizeTranslator(file.size) + " (" + 
+                           xcHelper.sizeTranslator(file.size) + " (" +
                            Math.floor(100 * sizeCompleted / file.size) +"%)";
 
         $icon.find(".fileSize").html(sizeProgress);
@@ -423,12 +429,11 @@ window.DSUploader = (function($, DSUploader) {
 
     function cancelUpload($icon) {
         var name =  decodeURI($icon.data("name"));
-
-         Alert.show({
-            "title"    : DSTStr.CancelUpload,
-            "msg"      : DSTStr.CancelUploadDesc,
+        Alert.show({
+            "title": DSTStr.CancelUpload,
+            "msg": DSTStr.CancelUploadDesc,
             "onConfirm": function() {
-                if ($icon.hasClass('inProgress')) {
+                if ($icon.hasClass("inProgress")) {
                     $icon.remove();
                     removeFileFromCache(name);
 
@@ -448,8 +453,8 @@ window.DSUploader = (function($, DSUploader) {
         var msg = xcHelper.replaceMsg(DSTStr.DelUploadMsg, {"filename": name});
 
         Alert.show({
-            "title"    : DSTStr.DelUpload,
-            "msg"      : msg,
+            "title": DSTStr.DelUpload,
+            "msg": msg,
             "onConfirm": function() {
                 deleteFile($icon, name)
                 .then(deferred.resolve)
@@ -639,7 +644,7 @@ window.DSUploader = (function($, DSUploader) {
         getHTMLFromFiles(allFiles);
     }
 
-    function sortAction($option, isFromSortOption) {
+    function sortAction($option) {
         var key = $option.data("sortkey");
 
         reverseSort = false;

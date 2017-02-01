@@ -11,7 +11,6 @@ window.BottomMenu = (function($, BottomMenu) {
         setupButtons();
         SQL.setup();
         UDF.setup();
-        // CLIBox.setup();
         Help.setup();
     };
 
@@ -63,8 +62,8 @@ window.BottomMenu = (function($, BottomMenu) {
         });
 
         $menuPanel.draggable({
-            "handle"     : ".heading.draggable",
-            "cursor"     : "-webkit-grabbing",
+            "handle": ".heading.draggable",
+            "cursor": "-webkit-grabbing",
             "containment": "window"
         });
 
@@ -93,10 +92,10 @@ window.BottomMenu = (function($, BottomMenu) {
         var editor; // cannot assign it here because may not be ready
 
         $menuPanel.resizable({
-            "handles"  : "n, e, s, w, se",
-            "minWidth" : 295,
+            "handles": "n, e, s, w, se",
+            "minWidth": 295,
             "minHeight": 300,
-            "start"    : function() {
+            "start": function() {
                 if (!$menuPanel.hasClass('poppedOut')) {
                     poppedOut = false;
                 } else {
@@ -325,7 +324,7 @@ window.BottomMenu = (function($, BottomMenu) {
         $('.tooltip').hide();
         $menuPanel.css({
             "left": offset.left - 5,
-            "top" : offset.top - 5
+            "top": offset.top - 5
         });
         $('#container').addClass('bottomMenuOut');
         if ($('#workspacePanel').hasClass('active')) {

@@ -52,8 +52,8 @@ window.TblMenu = (function(TblMenu, $) {
 
             var msg = xcHelper.replaceMsg(TblTStr.DelMsg, {"table": tableName});
             Alert.show({
-                "title"    : TblTStr.Del,
-                "msg"      : msg,
+                "title": TblTStr.Del,
+                "msg": msg,
                 "onConfirm": function() {
                     TblManager.deleteTables(tableId, TableType.Active);
                 }
@@ -176,8 +176,8 @@ window.TblMenu = (function(TblMenu, $) {
         $subMenu.on('keypress', '.moveTable input', function(event) {
             if (event.which === keyCode.Enter) {
                 var tableId = $tableMenu.data('tableId');
-                var $input  = $(this);
-                var wsName  = $input.val().trim();
+                var $input = $(this);
+                var wsName = $input.val().trim();
                 var $option = $input.siblings(".list").find("li").filter(function() {
                     return ($(this).text() === wsName);
                 });
@@ -188,9 +188,9 @@ window.TblMenu = (function(TblMenu, $) {
                         "side": "left"
                     },
                     {
-                        "$ele" : $input,
+                        "$ele": $input,
                         "error": ErrTStr.InvalidWSInList,
-                        "side" : "left",
+                        "side": "left",
                         "check": function () {
                             return ($option.length === 0);
                         }
@@ -346,10 +346,10 @@ window.TblMenu = (function(TblMenu, $) {
 
         $subMenu.on('keypress', '.rename input', function(event) {
             if (event.which === keyCode.Enter) {
-                var $input  = $(this);
+                var $input = $(this);
                 var tableId = $colMenu.data('tableId');
                 var colName = $input.val().trim();
-                var colNum  = $colMenu.data('colNum');
+                var colNum = $colMenu.data('colNum');
 
                 if (colName === "") {
                     StatusBox.show(ErrTStr.NoEmpty, $input, null);
@@ -410,7 +410,7 @@ window.TblMenu = (function(TblMenu, $) {
                     "num2": 14
                 });
                 StatusBox.show(error, $input, null, {
-                    "side"     : "left",
+                    "side": "left",
                     "closeable": true
                 });
                 return;
@@ -490,7 +490,7 @@ window.TblMenu = (function(TblMenu, $) {
                     numColToGet = Number(num);
                     var isValid = xcHelper.validate([
                         {
-                            "$ele" : $numInput,
+                            "$ele": $numInput,
                             "error": ErrTStr.OnlyNumber,
                             "check": function() {
                                 return (isNaN(numColToGet) ||
@@ -498,7 +498,7 @@ window.TblMenu = (function(TblMenu, $) {
                             }
                         },
                         {
-                            "$ele" : $numInput,
+                            "$ele": $numInput,
                             "error": ErrTStr.OnlyPositiveNumber,
                             "check": function() {
                                 return (numColToGet < 1);
@@ -595,14 +595,14 @@ window.TblMenu = (function(TblMenu, $) {
                     colNum = colNums[i];
                     colTypeInfos.push({
                         "colNum": colNum,
-                        "type"  : newType
+                        "type": newType
                     });
                 }
             } else {
                 colNum = $colMenu.data("colNum");
                 colTypeInfos.push({
                     "colNum": colNum,
-                    "type"  : newType
+                    "type": newType
                 });
             }
             var tableId = $colMenu.data('tableId');
@@ -917,9 +917,9 @@ window.TblMenu = (function(TblMenu, $) {
             });
 
             Alert.show({
-                "title"  : IndexTStr.SuggTitle,
-                "instr"  : instr,
-                "msg"    : IndexTStr.SuggMsg,
+                "title": IndexTStr.SuggTitle,
+                "instr": instr,
+                "msg": IndexTStr.SuggMsg,
                 "buttons": [{
                     "name": IndexTStr.NoCast,
                     "func": function() {

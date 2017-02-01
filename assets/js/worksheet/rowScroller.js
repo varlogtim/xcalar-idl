@@ -21,7 +21,6 @@ window.RowScroller = (function($, RowScroller) {
                 return;
             }
 
-
             var tableId = gActiveTableId;
             if ($('#rowScroller-' + tableId).hasClass('scrolling')) {
                 return;
@@ -153,10 +152,10 @@ window.RowScroller = (function($, RowScroller) {
             var numRowsToAdd = Math.min(gMaxEntriesPerPage, table.resultSetMax);
             var info = {
                 "lastRowToDisplay": backRow + numRowsToAdd,
-                "targetRow"       : targetRow,
-                "bulk"            : true,
-                "tableId"         : tableId,
-                "currentFirstRow" : backRow
+                "targetRow": targetRow,
+                "bulk": true,
+                "tableId": tableId,
+                "currentFirstRow": backRow
             };
             $('#rowScroller-' + tableId).addClass('scrolling');
 
@@ -313,7 +312,7 @@ window.RowScroller = (function($, RowScroller) {
         if (resultTextLength > $rowInput.attr('size')) {
             $rowInput.attr({
                 'maxLength': resultTextLength,
-                'size'     : resultTextLength
+                'size': resultTextLength
             });
         }
     };
@@ -535,8 +534,8 @@ window.RowScroller = (function($, RowScroller) {
         var pctRowsShowing = 100 * (numRowsShowing / totalRows);
 
         return ({
-            topRow        : topRow,
-            botRow        : botRow,
+            topRow: topRow,
+            botRow: botRow,
             numRowsShowing: numRowsShowing,
             pctRowsShowing: pctRowsShowing
         });

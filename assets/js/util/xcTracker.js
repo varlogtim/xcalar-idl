@@ -25,9 +25,9 @@ window.xcTracker = (function(xcTracker, $) {
     xcTracker.track = function(category, data) {
         var id = getTrackId();
         var cachedData = {
-            "id"      : id,
+            "id": id,
             "category": category || "",
-            "data"    : data
+            "data": data
         };
 
         cache += ", " + JSON.stringify(cachedData);

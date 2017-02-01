@@ -29,7 +29,7 @@ window.SmartCastView = (function($, SmartCastView) {
 
         $castView.on("click", ".confirm", function() {
             var isValid = xcHelper.validate([{
-                "$ele" : $castTable,
+                "$ele": $castTable,
                 "error": ErrTStr.NoCast,
                 "check": function() {
                     return ($castTable.find(".row").length === 0);
@@ -65,9 +65,9 @@ window.SmartCastView = (function($, SmartCastView) {
 
             xcHelper.dropdownOpen($col, $castMenu, {
                 "mouseCoors": {"x": bound.left + 8, "y": bound.bottom},
-                "classes"   : initialType,
-                "floating"  : true,
-                "toggle"    : true
+                "classes": initialType,
+                "floating": true,
+                "toggle": true
             });
         });
 
@@ -88,7 +88,7 @@ window.SmartCastView = (function($, SmartCastView) {
         smartSuggest(tableId);
 
         var columnPicker = {
-            "state"      : "smartCastState",
+            "state": "smartCastState",
             "validColTypes": validTypes,
             "colCallback": function($target) {
                 var id = $target.closest(".xcTable").data("id");
@@ -159,7 +159,7 @@ window.SmartCastView = (function($, SmartCastView) {
 
             colTypeInfos.push({
                 "colNum": colNum,
-                "type"  : newType
+                "type": newType
             });
         }
 
@@ -304,7 +304,7 @@ window.SmartCastView = (function($, SmartCastView) {
 
         var $th = $("#xcTable-" + curTableId).find("th.col" + colNum);
         xcTooltip.transient($th, {
-            "title"    : TooltipTStr.FocusColumn,
+            "title": TooltipTStr.FocusColumn,
             "container": "#container",
         }, 1000);
     }

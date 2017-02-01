@@ -41,7 +41,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
         var newWkbks = {};
         for (var wkbkId in oldWkbks) {
             var wkbk = oldWkbks[wkbkId];
-            newWkbks[wkbkId] = KVStore.upgrade(wkbk, "WKBK"); 
+            newWkbks[wkbkId] = KVStore.upgrade(wkbk, "WKBK");
         }
 
         return newWkbks;
@@ -131,8 +131,8 @@ window.WorkbookManager = (function($, WorkbookManager) {
         XcalarNewWorkbook(wkbkName, isCopy, copySrcName)
         .then(function() {
             var options = {
-                "id"     : getWKBKId(wkbkName),
-                "name"   : wkbkName,
+                "id": getWKBKId(wkbkName),
+                "name": wkbkName,
                 "srcUser": username,
                 "curUser": username
             };
@@ -229,8 +229,9 @@ window.WorkbookManager = (function($, WorkbookManager) {
                     deferred.resolve();
                 } else {
                     if (!ret) {
-                        ret = {error:
-                                    "Error occurred while switching workbooks"};
+                        ret = {
+                            error: "Error occurred while switching workbooks"
+                        };
                     }
                     $("#initialLoadScreen").hide();
                     deferred.reject(ret);
@@ -315,13 +316,13 @@ window.WorkbookManager = (function($, WorkbookManager) {
                 $("#initialLoadScreen").hide();
 
                 Alert.show({
-                    "title"   : WKBKTStr.SwitchErr,
-                    "msg"     : WKBKTStr.SwitchErrMsg,
+                    "title": WKBKTStr.SwitchErr,
+                    "msg": WKBKTStr.SwitchErrMsg,
                     "onCancel": function() { innerDeferred.reject(); },
-                    "buttons" : [{
-                        "name"     : CommonTxtTstr.Continue,
+                    "buttons": [{
+                        "name": CommonTxtTstr.Continue,
                         "className": "continue",
-                        "func"     : function() {
+                        "func": function() {
                             $("#initialLoadScreen").show();
                             innerDeferred.resolve();
                         }
@@ -444,8 +445,8 @@ window.WorkbookManager = (function($, WorkbookManager) {
         })
         .then(function() {
             var options = {
-                "id"     : newWKBKId,
-                "name"   : newName,
+                "id": newWKBKId,
+                "name": newName,
                 "created": srcWKBK.created,
                 "srcUser": srcWKBK.srcUser,
                 "curUser": srcWKBK.curUser
@@ -570,14 +571,12 @@ window.WorkbookManager = (function($, WorkbookManager) {
 
     WorkbookManager.triggerUpgrade = function(version) {
         var deferred = jQuery.Deferred();
-        var workbooks;
         var sessions;
 
         initializeVariable(version);
 
         WorkbookManager.getWKBKsAsync()
         .then(function(oldWorkbooks, sessionInfo) {
-            workbooks = oldWorkbooks;
             sessions = sessionInfo;
 
             return checkSessionWritable(sessions);
@@ -624,8 +623,8 @@ window.WorkbookManager = (function($, WorkbookManager) {
         var gPendingUploadsKey = generateKey("", "gPUploads");
 
         return {
-            "gEphStorageKey"    : gEphInfoKey,
-            "gSettingsKey"      : gSettingsKey,
+            "gEphStorageKey": gEphInfoKey,
+            "gSettingsKey": gSettingsKey,
             "gPendingUploadsKey": gPendingUploadsKey
         };
     }
@@ -647,8 +646,8 @@ window.WorkbookManager = (function($, WorkbookManager) {
 
         return {
             "gStorageKey": gStorageKey,
-            "gLogKey"    : gLogKey,
-            "gErrKey"    : gErrKey
+            "gLogKey": gLogKey,
+            "gErrKey": gErrKey
         };
     }
 
@@ -810,8 +809,8 @@ window.WorkbookManager = (function($, WorkbookManager) {
             } else {
                 console.warn("Error!", wkbkName, "has no meta.");
                 wkbk = new WKBK({
-                    "id"    : wkbkId,
-                    "name"  : wkbkName,
+                    "id": wkbkId,
+                    "name": wkbkName,
                     "noMeta": true
                 });
             }
@@ -834,8 +833,8 @@ window.WorkbookManager = (function($, WorkbookManager) {
 
         return {
             "global": globalKeys,
-            "user"  : userKeys,
-            "wkbk"  : wkbkKeys
+            "user": userKeys,
+            "wkbk": wkbkKeys
         };
     }
 

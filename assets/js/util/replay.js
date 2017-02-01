@@ -52,12 +52,12 @@ window.Replay = (function($, Replay) {
 
         var sql = {
             "operation": SQLOps.Replay,
-            "cli"      : cli
+            "cli": cli
         };
         var txId = Transaction.start({
             "operation": SQLOps.Replay,
-            "sql"      : sql,
-            "steps"    : steps
+            "sql": sql,
+            "steps": steps
         });
 
         var queryName = xcHelper.randName("replay");
@@ -198,12 +198,12 @@ window.Replay = (function($, Replay) {
             // not checking for table list order, just for content
 
             var info = {
-                "tables"       : activeTables,
-                "wsMeta"       : wsMeta,
-                "firstRowText" : $('.xcTable tbody').find('tr:first').text(),
+                "tables": activeTables,
+                "wsMeta": wsMeta,
+                "firstRowText": $('.xcTable tbody').find('tr:first').text(),
                 "tableListText": tableListText,
-                "dagText"      : $('#dagPanel .dagWrap:not(.inActive)').text().replace(/\s\s/g, ""),
-                "lastAction"   : SQL.viewLastAction()
+                "dagText": $('#dagPanel .dagWrap:not(.inActive)').text().replace(/\s\s/g, ""),
+                "lastAction": SQL.viewLastAction()
             };
 
             function getActiveTables() {
@@ -863,15 +863,15 @@ window.Replay = (function($, Replay) {
                                 wsId, null, {isUndo: true})
         .then(function() {
             SQL.add("Revert Table", {
-                "operation"     : SQLOps.RevertTable,
-                "tableName"     : newTableName,
-                "oldTableName"  : oldTableName,
-                "tableId"       : newTableId,
-                "oldTableId"    : oldTableId,
-                "tableType"     : options.tableType,
-                "worksheet"     : wsId,
+                "operation": SQLOps.RevertTable,
+                "tableName": newTableName,
+                "oldTableName": oldTableName,
+                "tableId": newTableId,
+                "oldTableId": oldTableId,
+                "tableType": options.tableType,
+                "worksheet": wsId,
                 "worksheetIndex": options.worksheetIndex,
-                "htmlExclude"   : ["tableType", "oldTableName"]
+                "htmlExclude": ["tableType", "oldTableName"]
             });
             deferred.resolve();
         })

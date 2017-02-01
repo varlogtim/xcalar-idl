@@ -67,7 +67,7 @@ window.TblAnim = (function($, TblAnim) {
             }
 
             hideOffScreenTables({
-                marginLeft : 0,
+                marginLeft: 0,
                 marginRight: rescol.startWidth
             });
 
@@ -161,13 +161,13 @@ window.TblAnim = (function($, TblAnim) {
 
         if (!isDatastore && wasResized) {
             SQL.add("Resize Column", {
-                "operation"  : SQLOps.DragResizeTableCol,
-                "tableName"  : gTables[rescol.tableId].tableName,
-                "tableId"    : rescol.tableId,
-                "colNum"     : rescol.index,
-                "fromWidth"  : rescol.startWidth,
-                "toWidth"    : rescol.newWidth,
-                "widthState" : widthState,
+                "operation": SQLOps.DragResizeTableCol,
+                "tableName": gTables[rescol.tableId].tableName,
+                "tableId": rescol.tableId,
+                "colNum": rescol.index,
+                "fromWidth": rescol.startWidth,
+                "toWidth": rescol.newWidth,
+                "widthState": widthState,
                 "htmlExclude": ["colNum", "fromWidth", "toWidth", "widthState"]
             });
         }
@@ -275,11 +275,11 @@ window.TblAnim = (function($, TblAnim) {
 
             $selectedCols.each(function() {
                 newColumnWidths.push(autosizeCol($(this), {
-                    "dblClick"      : true,
-                    "minWidth"      : minWidth,
+                    "dblClick": true,
+                    "minWidth": minWidth,
                     "unlimitedWidth": true,
-                    "includeHeader" : includeHeader,
-                    "datastore"     : target === "datastore"
+                    "includeHeader": includeHeader,
+                    "datastore": target === "datastore"
                 }));
             });
 
@@ -293,18 +293,18 @@ window.TblAnim = (function($, TblAnim) {
                 }
 
                 SQL.add("Resize Columns", {
-                    "operation"      : SQLOps.ResizeTableCols,
-                    "tableName"      : table.tableName,
-                    "tableId"        : tableId,
-                    "resizeTo"       : resizeTo,
-                    "columnNums"     : colNums,
+                    "operation": SQLOps.ResizeTableCols,
+                    "tableName": table.tableName,
+                    "tableId": tableId,
+                    "resizeTo": resizeTo,
+                    "columnNums": colNums,
                     "oldColumnWidths": oldColumnWidths,
                     "newColumnWidths": newColumnWidths,
-                    "oldWidthStates" : oldWidthStates,
-                    "newWidthStates" : newWidthStates,
-                    "htmlExclude"    : ["columnNums", "oldColumnWidths",
-                                        "newColumnWidths","oldWidthStates",
-                                        "newWidthStates"]
+                    "oldWidthStates": oldWidthStates,
+                    "newWidthStates": newWidthStates,
+                    "htmlExclude": ["columnNums", "oldColumnWidths",
+                                    "newColumnWidths","oldWidthStates",
+                                    "newWidthStates"]
                 });
             }
         }
@@ -344,16 +344,16 @@ window.TblAnim = (function($, TblAnim) {
         matchHeaderSizes($table);
 
         SQL.add("Resize Column", {
-            "operation"    : SQLOps.DragResizeTableCol,
-            "tableName"    : gTables[tableId].tableName,
-            "tableId"      : tableId,
-            "colNum"       : colNum,
-            "fromWidth"    : fromWidth,
-            "toWidth"      : toWidth,
+            "operation": SQLOps.DragResizeTableCol,
+            "tableName": gTables[tableId].tableName,
+            "tableId": tableId,
+            "colNum": colNum,
+            "fromWidth": fromWidth,
+            "toWidth": toWidth,
             "oldWidthState": oldWidthState,
             "newWidthState": newWidthState,
-            "htmlExclude"  : ["colNum", "fromWidth", "toWidth",
-                                "oldWidthState", "newWidthState"]
+            "htmlExclude": ["colNum", "fromWidth", "toWidth",
+                            "oldWidthState", "newWidthState"]
         });
     };
 
@@ -481,12 +481,12 @@ window.TblAnim = (function($, TblAnim) {
 
 
         SQL.add("Resize Row", {
-            "operation"  : SQLOps.DragResizeRow,
-            "tableName"  : gTables[rowInfo.tableId].tableName,
-            "tableId"    : rowInfo.tableId,
-            "rowNum"     : rowNum - 1,
-            "fromHeight" : rowInfo.startHeight,
-            "toHeight"   : newRowHeight,
+            "operation": SQLOps.DragResizeRow,
+            "tableName": gTables[rowInfo.tableId].tableName,
+            "tableId": rowInfo.tableId,
+            "rowNum": rowNum - 1,
+            "fromHeight": rowInfo.startHeight,
+            "toHeight": newRowHeight,
             "htmlExclude": ["rowNum", "fromHeight", "toHeight"]
         });
     }
@@ -531,12 +531,12 @@ window.TblAnim = (function($, TblAnim) {
         RowScroller.updateViewRange(tableId);
 
         SQL.add("Resize Row", {
-            "operation"  : SQLOps.DragResizeRow,
-            "tableName"  : gTables[tableId].tableName,
-            "tableId"    : tableId,
-            "rowNum"     : rowNum,
-            "fromHeight" : fromHeight,
-            "toHeight"   : toHeight,
+            "operation": SQLOps.DragResizeRow,
+            "tableName": gTables[tableId].tableName,
+            "tableId": tableId,
+            "rowNum": rowNum,
+            "fromHeight": fromHeight,
+            "toHeight": toHeight,
             "htmlExclude": ["rowNum", "fromHeight", "toHeight"]
         });
     };
@@ -629,7 +629,7 @@ window.TblAnim = (function($, TblAnim) {
         rightLimit = Math.max(rightLimit, mfScrollLeft);
 
         var hideOptions = {
-            marginLeft : mfScrollLeft - leftLimit,
+            marginLeft: mfScrollLeft - leftLimit,
             marginRight: rightLimit - mfScrollLeft
         };
         hideOffScreenTables(hideOptions);
@@ -1021,7 +1021,7 @@ window.TblAnim = (function($, TblAnim) {
 
         gMouseStatus = null;
         dragInfo.$table.removeClass('tableDragging').css({
-            'left'  : '0px',
+            'left': '0px',
             'height': '100%'
         });
         dragInfo.$el.find('.tableGrab').removeClass('noDropdown');

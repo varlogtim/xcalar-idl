@@ -38,8 +38,8 @@ window.DFParamModal = (function($, DFParamModal){
         $paramLists = $("#dagModleParamList");
         $editableRow = $dfgParamModal.find(".editableRow");
         modalHelper = new ModalHelper($dfgParamModal, {
-            "minHeight"   : minHeight,
-            "minWidth"    : minWidth,
+            "minHeight": minHeight,
+            "minWidth": minWidth,
             resizeCallback: function() {
                 var tableW = $paramLists.closest(".tableContainer").width();
                 $paramLists.width(tableW);
@@ -47,17 +47,17 @@ window.DFParamModal = (function($, DFParamModal){
         });
 
         $dfgParamModal.draggable({
-            "handle"     : ".modalHeader",
-            "cursor"     : "-webkit-grabbing",
+            "handle": ".modalHeader",
+            "cursor": "-webkit-grabbing",
             "containment": "window"
         });
 
         $dfgParamModal.resizable({
-            "handles"    : "n, e, s, w, se",
-            "minHeight"  : minHeight,
-            "minWidth"   : minWidth,
+            "handles": "n, e, s, w, se",
+            "minHeight": minHeight,
+            "minWidth": minWidth,
             "containment": "document",
-            "resize"     : function() {
+            "resize": function() {
                 // need a fixed width to fix the scroll bar
                 var tableW = $paramLists.closest(".tableContainer").width();
                 $paramLists.width(tableW);
@@ -114,9 +114,9 @@ window.DFParamModal = (function($, DFParamModal){
         });
 
         $dfgParamModal.draggable({
-            handle     : '.modalHeader',
+            handle: '.modalHeader',
             containment: 'window',
-            cursor     : '-webkit-grabbing'
+            cursor: '-webkit-grabbing'
         });
     };
 
@@ -131,7 +131,7 @@ window.DFParamModal = (function($, DFParamModal){
         $iconTrigger = $currentIcon; // Set cache
 
         $dfgParamModal.data({
-            "id" : id,
+            "id": id,
             "dfg": dfName
         });
         var defaultText = ""; // The html corresponding to Current Query:
@@ -253,10 +253,10 @@ window.DFParamModal = (function($, DFParamModal){
                         $list.find('.scrollArea.bottom').css('bottom', 0);
                     });
                 },
-                "container"    : "#dfgParameterModal",
-                "bounds"       : "#dfgParameterModal .modalTopMain",
+                "container": "#dfgParameterModal",
+                "bounds": "#dfgParameterModal .modalTopMain",
                 "bottomPadding": 2,
-                "exclude"      : '.draggableDiv, .defaultParam'
+                "exclude": '.draggableDiv, .defaultParam'
             });
             dropdownHelper.setupListeners();
 
@@ -673,7 +673,7 @@ window.DFParamModal = (function($, DFParamModal){
 
             params.push({
                 "name": name,
-                "val" : val
+                "val": val
             });
         });
 
@@ -752,7 +752,7 @@ window.DFParamModal = (function($, DFParamModal){
                     break;
             }
             return {
-                "paramType" : paramType,
+                "paramType": paramType,
                 "paramValue": paramValue,
                 "paramQuery": paramQuery
             };
@@ -825,7 +825,7 @@ window.DFParamModal = (function($, DFParamModal){
                     DF.getDataflow(retName).retinaNodes =
                                                 retStruct.retina.retinaDag.node;
                     var paramInfo = {
-                        "paramType" : paramType,
+                        "paramType": paramType,
                         "paramValue": paramValue,
                         "paramQuery": paramQuery
                     };

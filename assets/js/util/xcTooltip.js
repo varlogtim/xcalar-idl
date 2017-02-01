@@ -9,8 +9,8 @@ window.xcTooltip = (function(xcTooltip, $) {
     xcTooltip.setup = function() {
         $("body").tooltip({
             "selector": '[data-toggle="tooltip"]',
-            "html"    : true,
-            "delay"   : {
+            "html": true,
+            "delay": {
                 "show": 250,
                 "hide": 100
             }
@@ -25,7 +25,7 @@ window.xcTooltip = (function(xcTooltip, $) {
     // can accept multiple elements as $element
     xcTooltip.add = function($element, options) {
         var defaultOptions = {
-            "title"    : "",
+            "title": "",
             "container": "body",
             "placement": "top"
         };
@@ -57,11 +57,11 @@ window.xcTooltip = (function(xcTooltip, $) {
     // tooltip on element that only show for a short time
     xcTooltip.transient = function($element, options, delay) {
         var defaultOptions = {
-            "title"    : "",
+            "title": "",
             "placement": "top",
             "animation": true,
             "container": "body",
-            "trigger"  : "manual"
+            "trigger": "manual"
         };
 
         options = $.extend(defaultOptions, options);

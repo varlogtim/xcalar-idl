@@ -21,10 +21,10 @@ window.DFCreateView = (function($, DFCreateView) {
         $colList = $dfView.find('.cols');
 
         formHelper = new FormHelper($dfView, {
-            "focusOnOpen" : true,
+            "focusOnOpen": true,
             "columnPicker": {
-                "state"        : "dataflowState",
-                "noEvent"      : true,
+                "state": "dataflowState",
+                "noEvent": true,
                 "validColTypes": validTypes
             }
         });
@@ -222,13 +222,9 @@ window.DFCreateView = (function($, DFCreateView) {
     }
 
     function saveDataFlow(dataflowName, columns, tableName) {
-        var dataflowParams = {
-            "columns"  : columns
-        };
-
+        var dataflowParams = {"columns": columns};
         var df = new Dataflow(dataflowName, dataflowParams);
-
-        return (DF.addDataflow(dataflowName, df, tableName));
+        return DF.addDataflow(dataflowName, df, tableName);
     }
 
     function addFormEvents() {
@@ -290,14 +286,14 @@ window.DFCreateView = (function($, DFCreateView) {
                 "$ele": $newNameInput
             },
             {
-                "$ele" : $newNameInput,
+                "$ele": $newNameInput,
                 "error": ErrTStr.DFConflict,
                 "check": function() {
                     return DF.hasDataflow(dfName);
                 }
             },
             {
-                "$ele" : $newNameInput,
+                "$ele": $newNameInput,
                 "error": ErrTStr.DFNameIllegal,
                 "check": function() {
                     var regex = new RegExp("^[a-zA-Z0-9_-]*$");
@@ -311,7 +307,7 @@ window.DFCreateView = (function($, DFCreateView) {
     function validateCurTable() {
         var isValid = xcHelper.validate([
             {
-                "$ele" : $dfView.find('.confirm'),
+                "$ele": $dfView.find('.confirm'),
                 "error": ErrTStr.TableNotExists,
                 "check": function() {
                     return !gTables[tableId];
@@ -350,7 +346,7 @@ window.DFCreateView = (function($, DFCreateView) {
 
         if (frontColNames.length === 0) {
             xcTooltip.transient($colList, {
-                "title"   : TooltipTStr.ChooseColToExport,
+                "title": TooltipTStr.ChooseColToExport,
                 "template": xcTooltip.Template.Error
             }, 1500);
 
@@ -368,7 +364,7 @@ window.DFCreateView = (function($, DFCreateView) {
         for (var i = 0, len = frontColNames.length; i < len; i++) {
             columns.push({
                 "frontCol": frontColNames[i],
-                "backCol" : backColNames[i]
+                "backCol": backColNames[i]
             });
         }
 

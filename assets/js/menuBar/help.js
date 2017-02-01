@@ -195,9 +195,9 @@ window.Help = (function($, Help) {
             }
             if (!categories[topic]) {
                 categories[topic] = {
-                    "title"    : topic,
+                    "title": topic,
                     "subTopics": [],
-                    "fullName" : fullName
+                    "fullName": fullName
                 };
             }
             // If topic and page.title are the same, then it's the link

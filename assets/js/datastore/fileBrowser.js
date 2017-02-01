@@ -179,8 +179,8 @@ window.FileBrowser = (function($, FileBrowser) {
 
         new MenuHelper($pathSection, {
             "onlyClickIcon": true,
-            "onSelect"     : goToPath,
-            "container"    : "#fileBrowser"
+            "onSelect": goToPath,
+            "container": "#fileBrowser"
         }).setupListeners();
 
         var timer;
@@ -720,7 +720,7 @@ window.FileBrowser = (function($, FileBrowser) {
         }
 
         var options = {
-            "path"  : path,
+            "path": path,
             "format": format,
         };
 
@@ -1367,7 +1367,7 @@ window.FileBrowser = (function($, FileBrowser) {
             }
             // focuse on grid
             $grid.click();
-            
+
             var classes = "";
             if (isDS($grid)) {
                 classes = "dsOpts";
@@ -1376,7 +1376,7 @@ window.FileBrowser = (function($, FileBrowser) {
             }
 
             xcHelper.dropdownOpen($target, $fileBrowserMenu, {
-                "classes" : classes,
+                "classes": classes,
                 "floating": true
             });
             return false;

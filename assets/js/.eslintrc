@@ -49,7 +49,6 @@
         ],
         "key-spacing": [
             1, {
-                "align": "colon",
                 "beforeColon": false,
                 "afterColon": true
         }],

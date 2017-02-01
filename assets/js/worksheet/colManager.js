@@ -15,12 +15,12 @@ window.ColManager = (function($, ColManager) {
 
         return ColManager.newCol({
             "backName": backColName,
-            "name"    : colName,
-            "type"    : type || null,
-            "width"   : width,
+            "name": colName,
+            "type": type || null,
+            "width": width,
             "isNewCol": false,
-            "userStr" : '"' + colName + '" = pull(' + backColName + ')',
-            "func"    : {
+            "userStr": '"' + colName + '" = pull(' + backColName + ')',
+            "func": {
                 "name": "pull",
                 "args": [backColName]
             }
@@ -31,11 +31,11 @@ window.ColManager = (function($, ColManager) {
     ColManager.newDATACol = function() {
         return ColManager.newCol({
             "backName": "DATA",
-            "name"    : "DATA",
-            "type"    : ColumnType.object,
-            "width"   : "auto",// to be determined when building table
-            "userStr" : "DATA = raw()",
-            "func"    : {
+            "name": "DATA",
+            "type": ColumnType.object,
+            "width": "auto",// to be determined when building table
+            "userStr": "DATA = raw()",
+            "func": {
                 "name": "raw",
                 "args": []
             },
@@ -47,7 +47,7 @@ window.ColManager = (function($, ColManager) {
     ColManager.addNewCol = function(colNum, tableId, direction, colOptions) {
         var defaultOptions = {
             "isNewCol": true,
-            "width"   : xcHelper.getDefaultColWidth("")
+            "width": xcHelper.getDefaultColWidth("")
         };
         var actulColOptoins = $.extend(defaultOptions, colOptions);
         var progCol = ColManager.newCol(actulColOptoins);
@@ -58,10 +58,10 @@ window.ColManager = (function($, ColManager) {
         SQL.add("Add New Column", {
             "operation": SQLOps.AddNewCol,
             "tableName": gTables[tableId].getName(),
-            "tableId"  : tableId,
-            "colNum"   : colNum,
+            "tableId": tableId,
+            "colNum": colNum,
             "direction": direction,
-            "options"  : colOptions
+            "options": colOptions
         });
     };
 
@@ -115,12 +115,12 @@ window.ColManager = (function($, ColManager) {
 
              // add SQL
             SQL.add("Delete Column", {
-                "operation"  : SQLOps.DeleteCol,
-                "tableName"  : table.getName(),
-                "tableId"    : tableId,
-                "colNames"   : colNames,
-                "colNums"    : colNums,
-                "progCols"   : progCols,
+                "operation": SQLOps.DeleteCol,
+                "tableName": table.getName(),
+                "tableId": tableId,
+                "colNames": colNames,
+                "colNums": colNums,
+                "progCols": progCols,
                 "htmlExclude": ["progCols"]
             });
             deferred.resolve();
@@ -146,19 +146,19 @@ window.ColManager = (function($, ColManager) {
 
         var newColNum = addColHelper(colNum, tableId, progCol, {
             "direction": direction,
-            "select"   : true,
+            "select": true,
             "noAnimate": true
         });
 
         var sqlOptions = {
-            "operation"     : SQLOps.PullCol,
-            "tableName"     : table.getName(),
-            "tableId"       : tableId,
-            "newColName"    : newColName,
-            "colNum"        : colNum,
-            "direction"     : direction,
+            "operation": SQLOps.PullCol,
+            "tableName": table.getName(),
+            "tableId": tableId,
+            "newColName": newColName,
+            "colNum": colNum,
+            "direction": direction,
             "pullColOptions": options,
-            "htmlExclude"   : ["pullColOptions"]
+            "htmlExclude": ["pullColOptions"]
         };
 
         ColManager.execCol("pull", usrStr, tableId, newColNum, {noLog: true})
@@ -187,17 +187,17 @@ window.ColManager = (function($, ColManager) {
         var curTableName = tableName;
 
         var sql = {
-            "operation"   : SQLOps.ChangeType,
-            "tableName"   : tableName,
-            "tableId"     : tableId,
+            "operation": SQLOps.ChangeType,
+            "tableName": tableName,
+            "tableId": tableId,
             "colTypeInfos": colTypeInfos
         };
 
         var txId = Transaction.start({
-            "msg"      : StatusMessageTStr.ChangeType,
+            "msg": StatusMessageTStr.ChangeType,
             "operation": SQLOps.ChangeType,
-            "sql"      : sql,
-            "steps"    : numColInfos
+            "sql": sql,
+            "steps": numColInfos
         });
 
         xcHelper.lockTable(tableId, txId);
@@ -216,7 +216,7 @@ window.ColManager = (function($, ColManager) {
             xcHelper.unlockTable(tableId);
             Transaction.done(txId, {
                 "msgTable": newTableId,
-                "sql"     : sql
+                "sql": sql
             });
             deferred.resolve(newTableId);
         })
@@ -225,7 +225,7 @@ window.ColManager = (function($, ColManager) {
 
             Transaction.fail(txId, {
                 "failMsg": StatusMessageTStr.ChangeTypeFailed,
-                "error"  : error
+                "error": error
             });
             deferred.reject(error);
         });
@@ -257,7 +257,7 @@ window.ColManager = (function($, ColManager) {
 
                 var mapOptions = {
                     "replaceColumn": true,
-                    "resize"       : true
+                    "resize": true
                 };
                 var srcTableId = xcHelper.getTableId(srcTable);
                 var srcTableCols = gTables[srcTableId].tableCols;
@@ -312,9 +312,9 @@ window.ColManager = (function($, ColManager) {
         var newFieldNames = [];
 
         var txId = Transaction.start({
-            "msg"      : StatusMessageTStr.SplitColumn,
+            "msg": StatusMessageTStr.SplitColumn,
             "operation": SQLOps.SplitCol,
-            "steps"    : -1
+            "steps": -1
         });
 
         xcHelper.lockTable(tableId, txId);
@@ -377,20 +377,20 @@ window.ColManager = (function($, ColManager) {
             xcHelper.unlockTable(tableId);
 
             var sql = {
-                "operation"   : SQLOps.SplitCol,
-                "tableName"   : tableName,
-                "tableId"     : tableId,
+                "operation": SQLOps.SplitCol,
+                "tableName": tableName,
+                "tableId": tableId,
                 "newTableName": newTableNames[numColToGet],
-                "colNum"      : colNum,
-                "delimiter"   : delimiter,
-                "numColToGet" : userNumColToGet,
-                "numNewCols"  : numColToGet,
-                "htmlExclude" : ['numColToGet']
+                "colNum": colNum,
+                "delimiter": delimiter,
+                "numColToGet": userNumColToGet,
+                "numNewCols": numColToGet,
+                "htmlExclude": ['numColToGet']
             };
 
             Transaction.done(txId, {
                 "msgTable": newTableId,
-                "sql"     : sql
+                "sql": sql
             });
             // resolve will be used in testing
             deferred.resolve(newTableId);
@@ -399,15 +399,15 @@ window.ColManager = (function($, ColManager) {
             xcHelper.unlockTable(tableId);
 
             var sql = {
-                "operation"   : SQLOps.SplitCol,
-                "tableName"   : tableName,
-                "tableId"     : tableId,
+                "operation": SQLOps.SplitCol,
+                "tableName": tableName,
+                "tableId": tableId,
                 "newTableName": newTableNames[numColToGet],
-                "colNum"      : colNum,
-                "delimiter"   : delimiter,
-                "numColToGet" : userNumColToGet,
-                "numNewCols"  : numColToGet,
-                "htmlExclude" : ['numColToGet']
+                "colNum": colNum,
+                "delimiter": delimiter,
+                "numColToGet": userNumColToGet,
+                "numNewCols": numColToGet,
+                "htmlExclude": ['numColToGet']
             };
 
             if (error === SQLType.Cancel) {
@@ -416,8 +416,8 @@ window.ColManager = (function($, ColManager) {
             } else {
                 Transaction.fail(txId, {
                     "failMsg": StatusMessageTStr.SplitColumnFailed,
-                    "error"  : error,
-                    "sql"    : sql
+                    "error": error,
+                    "sql": sql
                 });
                 deferred.reject(error);
             }
@@ -503,8 +503,8 @@ window.ColManager = (function($, ColManager) {
                 });
 
                 Alert.show({
-                    "title"    : ColTStr.SplitColWarn,
-                    "msg"      : msg,
+                    "title": ColTStr.SplitColWarn,
+                    "msg": msg,
                     "onConfirm": function() {
                         curDeferred.resolve(numToSplit, numDelim);
                     },
@@ -558,8 +558,8 @@ window.ColManager = (function($, ColManager) {
         $editableHead.val(newName).attr("value", newName);
         if (!keepEditable && curCol.sizedToHeader) {
             autosizeCol($th, {
-                "dblClick"     : true,
-                "minWidth"     : 17,
+                "dblClick": true,
+                "minWidth": 17,
                 "includeHeader": true
             });
         }
@@ -568,14 +568,14 @@ window.ColManager = (function($, ColManager) {
         TableList.updateColName(tableId, colNum, newName);
 
         SQL.add("Rename Column", {
-            "operation"  : SQLOps.RenameCol,
-            "tableName"  : table.tableName,
-            "tableId"    : tableId,
-            "colName"    : oldName,
-            "colNum"     : colNum,
-            "newName"    : newName,
-            "wasNew"     : wasEditable,
-            "prevWidth"  : prevWidth,
+            "operation": SQLOps.RenameCol,
+            "tableName": table.tableName,
+            "tableId": tableId,
+            "colName": oldName,
+            "colNum": colNum,
+            "newName": newName,
+            "wasNew": wasEditable,
+            "prevWidth": prevWidth,
             "htmlExclude": ["wasNew", "prevWidth"]
         });
 
@@ -612,13 +612,13 @@ window.ColManager = (function($, ColManager) {
         }
 
         SQL.add("Change Format", {
-            "operation"  : SQLOps.ChangeFormat,
-            "tableName"  : table.getName(),
-            "tableId"    : tableId,
-            "colNames"   : colNames,
-            "colNums"    : filteredColNums,
-            "formats"    : filteredFormats,
-            "oldFormats" : oldFormats,
+            "operation": SQLOps.ChangeFormat,
+            "tableName": table.getName(),
+            "tableId": tableId,
+            "colNames": colNames,
+            "colNums": filteredColNums,
+            "formats": filteredFormats,
+            "oldFormats": oldFormats,
             "htmlExclude": ["oldFormats"]
         });
     };
@@ -640,14 +640,14 @@ window.ColManager = (function($, ColManager) {
         });
 
         SQL.add("Round To Fixed", {
-            "operation"   : SQLOps.RoundToFixed,
-            "tableName"   : table.getName(),
-            "tableId"     : tableId,
-            "colNames"    : colNames,
-            "colNums"     : colNums,
-            "decimals"    : decimals,
+            "operation": SQLOps.RoundToFixed,
+            "tableName": table.getName(),
+            "tableId": tableId,
+            "colNames": colNames,
+            "colNums": colNums,
+            "decimals": decimals,
             "prevDecimals": prevDecimals,
-            "htmlExclude" : ["prevDecimals"]
+            "htmlExclude": ["prevDecimals"]
         });
     };
 
@@ -706,8 +706,8 @@ window.ColManager = (function($, ColManager) {
         SQL.add("Change Column Order", {
             "operation": SQLOps.ReorderCol,
             "tableName": table.tableName,
-            "tableId"  : tableId,
-            "colName"  : colName,
+            "tableId": tableId,
+            "colName": colName,
             "oldColNum": oldColNum,
             "newColNum": newColNum
         });
@@ -728,10 +728,10 @@ window.ColManager = (function($, ColManager) {
                 var frontName = origCol.name;
                 var wasNewCol = origCol.isNewCol;
                 var progCol = ColManager.newCol({
-                    "name"         : frontName,
-                    "width"        : origCol.width,
-                    "userStr"      : usrStr,
-                    "isNewCol"     : false,
+                    "name": frontName,
+                    "width": origCol.width,
+                    "userStr": usrStr,
+                    "isNewCol": false,
                     "sizedToHeader": origCol.sizedToHeader
                 });
                 progCol.parseFunc();
@@ -754,21 +754,21 @@ window.ColManager = (function($, ColManager) {
 
                 if (!args || !args.noLog) {
                     var sqlOptions = {
-                        "operation"     : SQLOps.PullCol,
-                        "tableName"     : table.tableName,
-                        "tableId"       : tableId,
-                        "colName"       : frontName,
-                        "colNum"        : colNum,
-                        "usrStr"        : usrStr,
-                        "origUsrStr"    : origUsrStr,
-                        "wasNewCol"     : wasNewCol,
-                        "func"          : origFunc,
-                        "type"          : origType,
-                        "backName"      : backName,
+                        "operation": SQLOps.PullCol,
+                        "tableName": table.tableName,
+                        "tableId": tableId,
+                        "colName": frontName,
+                        "colNum": colNum,
+                        "usrStr": usrStr,
+                        "origUsrStr": origUsrStr,
+                        "wasNewCol": wasNewCol,
+                        "func": origFunc,
+                        "type": origType,
+                        "backName": backName,
                         "pullColOptions": {"source": "fnBar"},
-                        "htmlExclude"   : ["pullColOptions", "usrStr",
-                                            "origUsrStr", "wasNewCol", "func",
-                                            "type", "backName"]
+                        "htmlExclude": ["pullColOptions", "usrStr",
+                                        "origUsrStr", "wasNewCol", "func",
+                                        "type", "backName"]
                     };
                     SQL.add("Pull Column", sqlOptions);
                 }
@@ -870,7 +870,7 @@ window.ColManager = (function($, ColManager) {
         if (isInvalid) {
             var $toolTipTarget = $colInput.parent();
             xcTooltip.transient($toolTipTarget, {
-                "title"   : error,
+                "title": error,
                 "template": xcTooltip.Template.Error
             });
 
@@ -944,9 +944,9 @@ window.ColManager = (function($, ColManager) {
             SQL.add("Hide Columns", {
                 "operation": SQLOps.HideCols,
                 "tableName": table.getName(),
-                "tableId"  : tableId,
-                "colNames" : colNames,
-                "colNums"  : colNums
+                "tableId": tableId,
+                "colNames": colNames,
+                "colNums": colNums
             });
 
             deferred.resolve();
@@ -1007,9 +1007,9 @@ window.ColManager = (function($, ColManager) {
             SQL.add("Unhide Columns", {
                 "operation": SQLOps.UnHideCols,
                 "tableName": table.getName(),
-                "tableId"  : tableId,
-                "colNames" : colNames,
-                "colNums"  : colNums
+                "tableId": tableId,
+                "colNames": colNames,
+                "colNums": colNums
             });
 
             deferred.resolve();
@@ -1050,15 +1050,15 @@ window.ColManager = (function($, ColManager) {
         }
 
         SQL.add("Text Align", {
-            "operation"      : SQLOps.TextAlign,
-            "tableName"      : table.getName(),
-            "tableId"        : tableId,
-            "colNames"       : colNames,
-            "colNums"        : colNums,
-            "alignment"      : alignment,
-            "prevAlignments" : prevAlignments,
+            "operation": SQLOps.TextAlign,
+            "tableName": table.getName(),
+            "tableId": tableId,
+            "colNames": colNames,
+            "colNums": colNums,
+            "alignment": alignment,
+            "prevAlignments": prevAlignments,
             "cachedAlignment": cachedAlignment,
-            "htmlExclude"    : ["prevAlignments", "cachedAlignment"]
+            "htmlExclude": ["prevAlignments", "cachedAlignment"]
         });
     };
 
@@ -1140,7 +1140,7 @@ window.ColManager = (function($, ColManager) {
                 var indexed = (indexedColNums.indexOf(col) > -1);
                 var parseOptions = {
                     "hasIndexStyle": hasIndexStyle,
-                    "indexed"      : indexed
+                    "indexed": indexed
                 };
                 var res = parseTdHelper(tdValue, nested,
                                         tableCols[col], parseOptions);
@@ -1167,15 +1167,10 @@ window.ColManager = (function($, ColManager) {
             styleColHeadHelper(colNum, tableId);
         }
 
-      
         return $tBody;
     };
 
     function attachRows($table, $rows, rowToPrependTo, direction, numRows) {
-        
-        var startingLength = $table.find('tr').length;
-        var numTempRows = $table.find(".tempRow").length;
-
         if (direction === RowDirection.Top) {
             if (rowToPrependTo != null && rowToPrependTo > -1) {
                 var $rowToPrependTo = getRowToPrependTo($table, rowToPrependTo);
@@ -1192,7 +1187,7 @@ window.ColManager = (function($, ColManager) {
                 $table.find(".tempRow").slice(0, numRows).remove();
                 $table.find('tbody').prepend($rows);
             }
-        } else { 
+        } else {
             var $prevRow = $table.find(".tempRow").eq(0).prev();
             $table.find(".tempRow").slice(0, numRows).remove();
             if ($prevRow.length) {
@@ -1204,8 +1199,8 @@ window.ColManager = (function($, ColManager) {
     }
 
     function getRowToPrependTo($table, rowNum) {
-         // $('.row' + rowNum) may not exist, 
-         // so we find the previous row and call next
+        // $('.row' + rowNum) may not exist,
+        // so we find the previous row and call next
         var $row = $table.find(".row" + (rowNum - 1)).next();
 
         if (!$row.length) {
@@ -1269,10 +1264,10 @@ window.ColManager = (function($, ColManager) {
         SQL.add("Pull All Columns", {
             "operation": SQLOps.PullAllCols,
             "tableName": table.getName(),
-            "tableId"  : tableId,
-            "colNum"   : colNum,
-            "colNums"  : colNums,
-            "rowNum"   : rowNum
+            "tableId": tableId,
+            "colNum": colNum,
+            "colNums": colNums,
+            "rowNum": rowNum
         });
     };
 
@@ -1453,7 +1448,7 @@ window.ColManager = (function($, ColManager) {
 
         var td = getTableCellHtml(formatVal, truncated, parsedVal, isDATACol);
         return {
-            "td"     : td,
+            "td": td,
             "tdClass": tdClass.trim(),
         };
     }
@@ -1488,8 +1483,8 @@ window.ColManager = (function($, ColManager) {
         }
 
         return ({
-            "tdValue"       : tdValue,
-            "knf"           : knf,
+            "tdValue": tdValue,
+            "knf": knf,
             "isChildOfArray": isChildOfArray
         });
     }
@@ -1572,7 +1567,7 @@ window.ColManager = (function($, ColManager) {
             var jsonStr = $jsonTd.find('.originalData').text();
             var tdValue = parseRowJSON(jsonStr) || "";
             var res = parseTdHelper(tdValue, nested, progCol, {
-                "indexed"      : indexed,
+                "indexed": indexed,
                 "hasIndexStyle": hasIndexStyle
             });
 
@@ -1753,7 +1748,7 @@ window.ColManager = (function($, ColManager) {
 
                 if (!table.hasColWithBackName(escapedColName)) {
                     parsedCols.push({
-                        "colName"       : colName,
+                        "colName": colName,
                         "escapedColName": escapedColName
                     });
                 }
@@ -1779,7 +1774,7 @@ window.ColManager = (function($, ColManager) {
 
                 if (!table.hasColWithBackName(escapedColName)) {
                     parsedCols.push({
-                        "colName"       : colName,
+                        "colName": colName,
                         "escapedColName": escapedColName
                     });
                 }

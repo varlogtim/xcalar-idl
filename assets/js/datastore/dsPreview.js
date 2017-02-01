@@ -44,9 +44,9 @@ window.DSPreview = (function($, DSPreview) {
     var colGrabTemplate = '<div class="colGrab" data-sizedtoheader="false"></div>';
 
     var formatMap = {
-        "JSON" : "JSON",
-        "CSV"  : "CSV",
-        "TEXT" : "raw",
+        "JSON": "JSON",
+        "CSV": "CSV",
+        "TEXT": "raw",
         "EXCEL": "Excel",
     };
 
@@ -110,7 +110,7 @@ window.DSPreview = (function($, DSPreview) {
                 return;
             }
             TblAnim.startColResize($(this), event, {
-                target  : "datastore",
+                target: "datastore",
                 minWidth: 25
             });
         });
@@ -233,7 +233,7 @@ window.DSPreview = (function($, DSPreview) {
                 selectUDFModule(module);
             },
             "container": "#importDataForm-content",
-            "bounds"   : "#importDataForm-content"
+            "bounds": "#importDataForm-content"
         }).setupListeners();
 
         new MenuHelper($udfFuncList, {
@@ -242,7 +242,7 @@ window.DSPreview = (function($, DSPreview) {
                 selectUDFFunc(func);
             },
             "container": "#importDataForm-content",
-            "bounds"   : "#importDataForm-content"
+            "bounds": "#importDataForm-content"
         }).setupListeners();
 
         // set up format dropdownlist
@@ -253,20 +253,20 @@ window.DSPreview = (function($, DSPreview) {
                 toggleFormat(format, text);
             },
             "container": "#importDataForm-content",
-            "bounds"   : "#importDataForm-content"
+            "bounds": "#importDataForm-content"
         }).setupListeners();
 
         // setUp line delimiter and field delimiter
         new MenuHelper($("#lineDelim"), {
-            "onSelect" : selectDelim,
+            "onSelect": selectDelim,
             "container": "#importDataForm-content",
-            "bounds"   : "#importDataForm-content"
+            "bounds": "#importDataForm-content"
         }).setupListeners();
 
         new MenuHelper($("#fieldDelim"), {
-            "onSelect" : selectDelim,
+            "onSelect": selectDelim,
             "container": "#importDataForm-content",
-            "bounds"   : "#importDataForm-content"
+            "bounds": "#importDataForm-content"
         }).setupListeners();
 
         function selectDelim($li) {
@@ -451,7 +451,7 @@ window.DSPreview = (function($, DSPreview) {
             $udfFuncList.addClass("disabled")
                     .find("input").val("");
             $udfFuncList.parent().tooltip({
-                "title"    : TooltipTStr.ChooseUdfModule,
+                "title": TooltipTStr.ChooseUdfModule,
                 "placement": "top",
                 "container": "#dsFormView"
             });
@@ -512,10 +512,10 @@ window.DSPreview = (function($, DSPreview) {
         advanceOption.reset();
         detectArgs = {
             "fieldDelim": "",
-            "lineDelim" : "\n",
-            "hasHeader" : false,
-            "skipRows"  : 0,
-            "quote"     : "\""
+            "lineDelim": "\n",
+            "hasHeader": false,
+            "skipRows": 0,
+            "quote": "\""
         };
         resetUdfSection();
         toggleFormat();
@@ -569,10 +569,10 @@ window.DSPreview = (function($, DSPreview) {
 
         detectArgs = {
             "fieldDelim": options.fieldDelim,
-            "lineDelim" : options.lineDelim,
-            "hasHeader" : options.hasHeader,
-            "skipRows"  : options.skipRows,
-            "quote"     : options.quoteChar
+            "lineDelim": options.lineDelim,
+            "hasHeader": options.hasHeader,
+            "skipRows": options.skipRows,
+            "quote": options.quoteChar
         };
 
         loadArgs.set(options);
@@ -634,10 +634,10 @@ window.DSPreview = (function($, DSPreview) {
 
             var innerDeferred = jQuery.Deferred();
             Alert.show({
-                "title"    : DSFormTStr.CreateWarn,
-                "msg"      : DSFormTStr.CreateWarnMsg,
+                "title": DSFormTStr.CreateWarn,
+                "msg": DSFormTStr.CreateWarnMsg,
                 "onConfirm": innerDeferred.resolve,
-                "onCancel" : function() {
+                "onCancel": function() {
                     xcHelper.enableSubmit($form.find('.confirm'));
                     innerDeferred.reject();
                 }
@@ -654,21 +654,21 @@ window.DSPreview = (function($, DSPreview) {
         alertHelper()
         .then(function() {
             var pointArgs = {
-                "name"       : dsName,
-                "format"     : format,
-                "path"       : loadURL,
-                "pattern"    : pattern,
-                "fieldDelim" : fieldDelim,
-                "lineDelim"  : lineDelim,
-                "hasHeader"  : header,
-                "moduleName" : udfModule,
-                "funcName"   : udfFunc,
-                "isRecur"    : isRecur,
+                "name": dsName,
+                "format": format,
+                "path": loadURL,
+                "pattern": pattern,
+                "fieldDelim": fieldDelim,
+                "lineDelim": lineDelim,
+                "hasHeader": header,
+                "moduleName": udfModule,
+                "funcName": udfFunc,
+                "isRecur": isRecur,
                 "previewSize": previewSize,
-                "quoteChar"  : quote,
-                "skipRows"   : skipRows,
-                "isRegex"    : isRegex,
-                "headers"    : headers
+                "quoteChar": quote,
+                "skipRows": skipRows,
+                "isRegex": isRegex,
+                "headers": headers
             };
 
             var dsToReplace = $previewCard.data("dsid") || null;
@@ -703,27 +703,27 @@ window.DSPreview = (function($, DSPreview) {
                 "$ele": $dsName
             },
             {
-                "$ele"    : $dsName,
-                "error"   : ErrTStr.TooLong,
+                "$ele": $dsName,
+                "error": ErrTStr.TooLong,
                 "formMode": true,
-                "check"   : function() {
+                "check": function() {
                     return (dsName.length >=
                             XcalarApisConstantsT.XcalarApiMaxTableNameLen);
                 }
             },
             {
-                "$ele"    : $dsName,
-                "error"   : ErrTStr.DSStartsWithLetter,
+                "$ele": $dsName,
+                "error": ErrTStr.DSStartsWithLetter,
                 "formMode": true,
-                "check"   : function() {
+                "check": function() {
                     return !xcHelper.isStartWithLetter(dsName);
                 }
             },
             {
-                "$ele"    : $dsName,
+                "$ele": $dsName,
                 "formMode": true,
-                "error"   : ErrTStr.DSNameConfilct,
-                "check"   : function(name) {
+                "error": ErrTStr.DSNameConfilct,
+                "check": function(name) {
                     var dsToReplace = $previewCard.data("dsid") || null;
                     if (dsToReplace) {
                         if (name === xcHelper.parseDSName(dsToReplace).dsName) {
@@ -735,10 +735,10 @@ window.DSPreview = (function($, DSPreview) {
 
             },
             {
-                "$ele"    : $dsName,
+                "$ele": $dsName,
                 "formMode": true,
-                "error"   : ErrTStr.NoSpecialCharOrSpace,
-                "check"   : function() {
+                "error": ErrTStr.NoSpecialCharOrSpace,
+                "check": function() {
                     return (!/^\w+$/.test(dsName));
                 }
             }
@@ -751,7 +751,7 @@ window.DSPreview = (function($, DSPreview) {
         // validate format
         var format = loadArgs.getFormat();
         isValid = xcHelper.validate([{
-            "$ele" : $formatText,
+            "$ele": $formatText,
             "error": ErrTStr.NoEmptyList,
             "check": function() {
                 return (format == null);
@@ -773,11 +773,11 @@ window.DSPreview = (function($, DSPreview) {
 
             isValid = xcHelper.validate([
                 {
-                    "$ele" : $moduleInput,
+                    "$ele": $moduleInput,
                     "error": ErrTStr.NoEmptyList
                 },
                 {
-                    "$ele" : $funcInput,
+                    "$ele": $funcInput,
                     "error": ErrTStr.NoEmptyList
                 }
             ]);
@@ -797,27 +797,27 @@ window.DSPreview = (function($, DSPreview) {
 
         isValid = xcHelper.validate([
             {
-                "$ele"    : $fieldText,
-                "error"   : DSFormTStr.InvalidDelim,
+                "$ele": $fieldText,
+                "error": DSFormTStr.InvalidDelim,
                 "formMode": true,
-                "check"   : function() {
+                "check": function() {
                     return (typeof fieldDelim === "object");
                 }
             },
             {
-                "$ele"    : $lineText,
-                "error"   : DSFormTStr.InvalidDelim,
+                "$ele": $lineText,
+                "error": DSFormTStr.InvalidDelim,
                 "formMode": true,
-                "check"   : function() {
+                "check": function() {
                     return (typeof lineDelim === "object");
                 }
             },
 
             {
-                "$ele"    : $quote,
-                "error"   : DSFormTStr.InvalidQuote,
+                "$ele": $quote,
+                "error": DSFormTStr.InvalidQuote,
                 "formMode": true,
-                "check"   : function() {
+                "check": function() {
                     return (typeof quote === "object") ||
                            (xcHelper.delimiterTranslate($quote).length > 1);
                 }
@@ -832,10 +832,10 @@ window.DSPreview = (function($, DSPreview) {
         var skipRows = getSkipRows();
         isValid = xcHelper.validate([
             {
-                "$ele"    : $("#dsForm-skipRows"),
-                "error"   : ErrTStr.NoNegativeNumber,
+                "$ele": $("#dsForm-skipRows"),
+                "error": ErrTStr.NoNegativeNumber,
                 "formMode": true,
-                "check"   : function() {
+                "check": function() {
                     return (skipRows < 0);
                 }
             }
@@ -857,14 +857,14 @@ window.DSPreview = (function($, DSPreview) {
         }
 
         return {
-            "dsName"    : dsName,
-            "format"    : format,
-            "udfModule" : udfModule,
-            "udfFunc"   : udfFunc,
+            "dsName": dsName,
+            "format": format,
+            "udfModule": udfModule,
+            "udfFunc": udfFunc,
             "fieldDelim": fieldDelim,
-            "lineDelim" : lineDelim,
-            "quote"     : quote,
-            "skipRows"  : skipRows
+            "lineDelim": lineDelim,
+            "quote": quote,
+            "skipRows": skipRows
         };
     }
 
@@ -1074,24 +1074,24 @@ window.DSPreview = (function($, DSPreview) {
             tableName = null;
             var sql = {
                 "operation": SQLOps.DestroyPreviewDS,
-                "dsName"   : dsName
+                "dsName": dsName
             };
             var txId = Transaction.start({
                 "operation": SQLOps.DestroyPreviewDS,
-                "sql"      : sql
+                "sql": sql
             });
 
             XcalarDestroyDataset(dsName, txId)
             .then(function() {
                 Transaction.done(txId, {
                     "noCommit": true,
-                    "noSql"   : true
+                    "noSql": true
                 });
                 deferred.resolve();
             })
             .fail(function(error) {
                 Transaction.fail(txId, {
-                    "error"  : error,
+                    "error": error,
                     "noAlert": true
                 });
                 // fail but still resolve it because
@@ -1141,17 +1141,17 @@ window.DSPreview = (function($, DSPreview) {
                                     .removeClass("hidden");
         $previeWrap.find(".errorSection").addClass("hidden");
         var sql = {
-            "operation" : SQLOps.PreviewDS,
-            "dsPath"    : loadURL,
-            "dsName"    : dsName,
+            "operation": SQLOps.PreviewDS,
+            "dsPath": loadURL,
+            "dsName": dsName,
             "moduleName": udfModule,
-            "funcName"  : udfFunc,
-            "isRecur"   : isRecur
+            "funcName": udfFunc,
+            "isRecur": isRecur
         };
 
         var txId = Transaction.start({
             "operation": SQLOps.PreviewDS,
-            "sql"      : sql
+            "sql": sql
         });
 
         $("#preview-url").text(loadURL);
@@ -1193,14 +1193,14 @@ window.DSPreview = (function($, DSPreview) {
             // not cache to sql log, only show when fail
             Transaction.done(txId, {
                 "noCommit": true,
-                "noSql"   : true
+                "noSql": true
             });
 
             deferred.resolve();
         })
         .fail(function(error) {
             Transaction.fail(txId, {
-                "error"  : error,
+                "error": error,
                 "noAlert": true
             });
 
@@ -2088,9 +2088,9 @@ window.DSPreview = (function($, DSPreview) {
 
         DSPreview.__testOnly__.get = function() {
             return {
-                "loadArgs"   : loadArgs,
+                "loadArgs": loadArgs,
                 "highlighter": highlighter,
-                "detectArgs" : detectArgs
+                "detectArgs": detectArgs
             };
         };
 

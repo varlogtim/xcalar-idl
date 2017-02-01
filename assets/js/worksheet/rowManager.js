@@ -1,5 +1,4 @@
 window.RowManager = (function($, RowManager) {
-
     RowManager.getFirstPage = function(tableId) {
         var table = gTables[tableId];
 
@@ -49,7 +48,7 @@ window.RowManager = (function($, RowManager) {
         });
 
         return deferred.promise();
-    }
+    };
 
     function fetchRows(startIndex, numRowsToAdd, direction, info,
                         rowToPrependTo) {
@@ -280,7 +279,7 @@ window.RowManager = (function($, RowManager) {
     }
 
     // produces an array of all the td values that will go into the DATA column
-    function getDataColumnJson(tableId, rowPosition, numRowsToFetch, up) {
+    function getDataColumnJson(tableId, rowPosition, numRowsToFetch) {
         var jsons = [];
         var table = gTables[tableId];
 
@@ -387,17 +386,17 @@ window.RowManager = (function($, RowManager) {
                          ignoreScrollHeight, scrollPosition) {
         startIndex = startIndex || 0;
         var table = gTables[tableId];
-        var tableCols = table.tableCols;
+        // var tableCols = table.tableCols;
         var numCols = table.getNumCols();
         var $table = $('#xcTable-' + tableId);
         var tBodyHTML = "";
         var dataColNum = table.getColNumByBackName('DATA') - 1;
         var tdClass = "";
         var oldTableHeight;
-        
+
         for (var row = 0; row < numRowsToAdd; row++) {
             var rowNum = row + startIndex;
-            var idTitle = "";
+            // var idTitle = "";
 
             tBodyHTML += '<tr class="row' + rowNum + ' tempRow">';
 

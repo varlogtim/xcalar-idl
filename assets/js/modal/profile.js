@@ -8,32 +8,32 @@ window.Profile = (function($, Profile, d3) {
     // constants
     var aggKeys = ["min", "average", "max", "count", "sum", "sd"];
     var aggMap = {
-        "min"    : AggrOp.Min,
+        "min": AggrOp.Min,
         "average": AggrOp.Avg,
-        "max"    : AggrOp.Max,
-        "count"  : AggrOp.Count,
-        "sum"    : AggrOp.Sum,
-        "sd"     : "sd"
+        "max": AggrOp.Max,
+        "count": AggrOp.Count,
+        "sum": AggrOp.Sum,
+        "sd": "sd"
     };
     var statsKeyMap = {
-        "zeroQuartile" : "zeroQuartile",
+        "zeroQuartile": "zeroQuartile",
         "lowerQuartile": "lowerQuartile",
-        "median"       : "median",
+        "median": "median",
         "upperQuartile": "upperQuartile",
-        "fullQuartile" : "fullQuartile"
+        "fullQuartile": "fullQuartile"
     };
     var sortMap = {
-        "asc"   : "asc",
+        "asc": "asc",
         "origin": "origin",
-        "desc"  : "desc"
+        "desc": "desc"
     };
     var tooltipOptions = {
-        "trigger"  : "manual",
+        "trigger": "manual",
         "animation": false,
         "placement": "top",
         "container": "body",
-        "html"     : true,
-        "template" : '<div class="bartip tooltip" role="tooltip">' +
+        "html": true,
+        "template": '<div class="bartip tooltip" role="tooltip">' +
                         '<div class="tooltip-arrow"></div>' +
                         '<div class="tooltip-inner"></div>' +
                      '</div>'
@@ -70,23 +70,23 @@ window.Profile = (function($, Profile, d3) {
         var minWidth  = 750;
 
         modalHelper = new ModalHelper($modal, {
-            "minHeight"     : minHeight,
-            "minWidth"      : minWidth,
+            "minHeight": minHeight,
+            "minWidth": minWidth,
             "resizeCallback": resizeChart,
-            "noEnter"       : true
+            "noEnter": true
         });
 
         $modal.resizable({
-            "handles"    : "n, e, s, w, se",
-            "minHeight"  : minHeight,
-            "minWidth"   : minWidth,
+            "handles": "n, e, s, w, se",
+            "minHeight": minHeight,
+            "minWidth": minWidth,
             "containment": "document",
-            "resize"     : resizeChart
+            "resize": resizeChart
         });
 
         $modal.draggable({
-            "handle"     : ".modalHeader",
-            "cursor"     : "-webkit-grabbing",
+            "handle": ".modalHeader",
+            "cursor": "-webkit-grabbing",
             "containment": "window"
         });
 
@@ -174,11 +174,11 @@ window.Profile = (function($, Profile, d3) {
                 // when do $rangeInput.val()
                 var isValid = xcHelper.validate([
                     {
-                        "$ele" : $rangeInput,
+                        "$ele": $rangeInput,
                         "error": ErrTStr.OnlyPositiveNumber
                     },
                     {
-                        "$ele" : $rangeInput,
+                        "$ele": $rangeInput,
                         "error": ErrTStr.OnlyPositiveNumber,
                         "check": function() {
                             return (Number(val) <= 0);
@@ -311,7 +311,7 @@ window.Profile = (function($, Profile, d3) {
         if (statsCol == null) {
             statsCol = statsInfos[tableId][colName] = new ProfileInfo({
                 "colName": colName,
-                "type"   : progCol.getType()
+                "type": progCol.getType()
             });
         } else if (statsCol.getId() === $modal.data("id")) {
             // when same modal open twice
@@ -325,15 +325,15 @@ window.Profile = (function($, Profile, d3) {
         var sql = {
             "operation": SQLOps.Profile,
             "tableName": table.getName(),
-            "tableId"  : tableId,
-            "colNum"   : colNum,
-            "colName"  : colName,
-            "id"       : statsCol.getId()
+            "tableId": tableId,
+            "colNum": colNum,
+            "colName": colName,
+            "id": statsCol.getId()
         };
         var txId = Transaction.start({
-            "msg"      : StatusMessageTStr.Profile + " " + colName,
+            "msg": StatusMessageTStr.Profile + " " + colName,
             "operation": SQLOps.Profile,
-            "sql"      : sql
+            "sql": sql
         });
 
         showProfile();
@@ -466,7 +466,7 @@ window.Profile = (function($, Profile, d3) {
     // refresh profile
     function refreshProfile() {
         var instr = xcHelper.replaceMsg(ProfileTStr.Info, {
-            "col" : statsCol.frontColName,
+            "col": statsCol.frontColName,
             "type": statsCol.type
         });
 
@@ -894,9 +894,9 @@ window.Profile = (function($, Profile, d3) {
         })
         .then(function(maxVal, sumVal) {
             curStatsCol.addBucket(0, {
-                "max"    : maxVal,
-                "sum"    : sumVal,
-                "table"  : finalTable,
+                "max": maxVal,
+                "sum": sumVal,
+                "table": finalTable,
                 "colName": colName
             });
 
@@ -1007,7 +1007,7 @@ window.Profile = (function($, Profile, d3) {
 
         var nullData = {
             "rowNum": 0,
-            "type"  : "nullVal"
+            "type": "nullVal"
         };
         var colName = statsCol.groupByInfo.buckets[bucketNum].colName;
         nullData[colName] = "null";
@@ -1706,16 +1706,16 @@ window.Profile = (function($, Profile, d3) {
         }, 500);
 
         var sql = {
-            "operation" : SQLOps.ProfileSort,
-            "order"     : newOrder,
-            "tableId"   : curTableId,
-            "colNum"    : curColNum,
+            "operation": SQLOps.ProfileSort,
+            "order": newOrder,
+            "tableId": curTableId,
+            "colNum": curColNum,
             "bucketSize": bucketNum,
-            "id"        : statsCol.getId()
+            "id": statsCol.getId()
         };
         var txId = Transaction.start({
             "operation": SQLOps.ProfileSort,
-            "sql"      : sql
+            "sql": sql
         });
 
         runSort(newOrder, curStatsCol, txId)
@@ -1739,7 +1739,7 @@ window.Profile = (function($, Profile, d3) {
     }
 
     function runSort(newOrder, curStatsCol, txId) {
-        var deferred  = jQuery.Deferred();
+        var deferred = jQuery.Deferred();
         var tableInfo = curStatsCol.groupByInfo.buckets[bucketNum];
 
         if (newOrder === sortMap.asc) {
@@ -1862,15 +1862,15 @@ window.Profile = (function($, Profile, d3) {
         }, 500);
 
         var sql = {
-            "operation" : SQLOps.ProfileBucketing,
+            "operation": SQLOps.ProfileBucketing,
             "bucketSize": newBucketNum,
-            "tableId"   : curTableId,
-            "colNum"    : curColNum,
-            "id"        : statsCol.getId()
+            "tableId": curTableId,
+            "colNum": curColNum,
+            "id": statsCol.getId()
         };
         var txId = Transaction.start({
             "operation": SQLOps.ProfileBucketing,
-            "sql"      : sql
+            "sql": sql
         });
 
         runBucketing(newBucketNum, curStatsCol, txId)
@@ -1951,10 +1951,10 @@ window.Profile = (function($, Profile, d3) {
         })
         .then(function(maxVal, sumVal) {
             curStatsCol.addBucket(newBucketNum, {
-                "max"       : maxVal,
-                "sum"       : sumVal,
-                "table"     : finalTable,
-                "colName"   : mapCol,
+                "max": maxVal,
+                "sum": sumVal,
+                "table": finalTable,
+                "colName": mapCol,
                 "bucketSize": newBucketNum
             });
             curStatsCol.groupByInfo.isComplete = true;
@@ -2211,7 +2211,7 @@ window.Profile = (function($, Profile, d3) {
             }
 
             $filterOption.css({
-                "right" : right,
+                "right": right,
                 "bottom": bottom
             }).show();
         }
@@ -2298,10 +2298,11 @@ window.Profile = (function($, Profile, d3) {
 
         var str = "";
         var len = colVals.length;
+        var i;
 
         if (operator === FltOp.Filter) {
             if (len > 0) {
-                for (var i = 0; i < len - 1; i++) {
+                for (i = 0; i < len - 1; i++) {
                     str += "or(and(ge(" + colName + ", " + colVals[i] + "), " +
                                   "lt(" + colName + ", " +
                                     (colVals[i] + bucketSize) + ")), ";
@@ -2311,13 +2312,13 @@ window.Profile = (function($, Profile, d3) {
                            "lt(" + colName + ", " +
                             (colVals[i] + bucketSize) + ")";
 
-                for (var i = 0; i < len; i++) {
+                for (i = 0; i < len; i++) {
                     str += ")";
                 }
             }
         } else if (operator === FltOp.Exclude){
             if (len > 0) {
-                for (var i = 0; i < len - 1; i++) {
+                for (i = 0; i < len - 1; i++) {
                     str += "and(or(lt(" + colName + ", " + colVals[i] + "), " +
                                     "ge(" + colName + ", " +
                                     (colVals[i] + bucketSize) + ")), ";
@@ -2327,7 +2328,7 @@ window.Profile = (function($, Profile, d3) {
                           "ge(" + colName + ", " +
                             (colVals[i] + bucketSize) + ")";
 
-                for (var i = 0; i < len; i++) {
+                for (i = 0; i < len; i++) {
                     str += ")";
                 }
             }
@@ -2345,7 +2346,7 @@ window.Profile = (function($, Profile, d3) {
         }
 
         return {
-            "operator"    : operator,
+            "operator": operator,
             "filterString": str
         };
     }
@@ -2414,7 +2415,7 @@ window.Profile = (function($, Profile, d3) {
         }
 
         return {
-            "operator"    : operator,
+            "operator": operator,
             "filterString": str
         };
     }

@@ -83,11 +83,11 @@ window.WSManager = (function($, WSManager) {
 
     WSManager.getAllMeta = function() {
         return new WSMETA({
-            "wsInfos"      : worksheetGroup.entries(),
-            "wsOrder"      : wsOrder,
-            "hiddenWS"     : hiddenWS,
+            "wsInfos": worksheetGroup.entries(),
+            "wsOrder": wsOrder,
+            "hiddenWS": hiddenWS,
             "noSheetTables": noSheetTables,
-            "activeWS"     : activeWorksheet
+            "activeWS": activeWorksheet
         });
     };
 
@@ -158,9 +158,9 @@ window.WSManager = (function($, WSManager) {
 
         // after newWoksheet() called, activeWorksheet will change
         SQL.add("Create Worksheet", {
-            "operation"       : SQLOps.AddWS,
-            "worksheetName"   : WSManager.getWSName(wsId),
-            "worksheetId"     : wsId,
+            "operation": SQLOps.AddWS,
+            "worksheetName": WSManager.getWSName(wsId),
+            "worksheetId": wsId,
             "currentWorksheet": currentWorksheet
         });
 
@@ -177,13 +177,13 @@ window.WSManager = (function($, WSManager) {
         var ws = worksheetGroup.get(wsId);
         var wsIndex = WSManager.indexOfWS(wsId);
         var sqlOptions = {
-            "operation"     : SQLOps.DelWS,
-            "worksheetId"   : wsId,
+            "operation": SQLOps.DelWS,
+            "worksheetId": wsId,
             "worksheetIndex": wsIndex,
-            "worksheetName" : ws.getName(),
-            "tables"        : xcHelper.deepCopy(ws.tables),
+            "worksheetName": ws.getName(),
+            "tables": xcHelper.deepCopy(ws.tables),
             "archivedTables": xcHelper.deepCopy(ws.archivedTables),
-            "delType"       : delType
+            "delType": delType
         };
 
         if (delType === DelWSType.Empty) {
@@ -238,11 +238,11 @@ window.WSManager = (function($, WSManager) {
         .text(name);
 
         SQL.add("Rename Worksheet", {
-            "operation"     : SQLOps.RenameWS,
-            "worksheetId"   : worksheetId,
+            "operation": SQLOps.RenameWS,
+            "worksheetId": worksheetId,
             "worksheetIndex": WSManager.indexOfWS(worksheetId),
-            "oldName"       : oldName,
-            "newName"       : name
+            "oldName": oldName,
+            "newName": name
         });
 
         // for updating the bottom bar when rename worksheet
@@ -307,11 +307,11 @@ window.WSManager = (function($, WSManager) {
         }
 
         SQL.add("Hide Worksheet", {
-            "operation"     : SQLOps.HideWS,
-            "worksheetId"   : wsId,
-            "worksheetName" : ws.name,
+            "operation": SQLOps.HideWS,
+            "worksheetId": wsId,
+            "worksheetName": ws.name,
             "worksheetIndex": index,
-            "htmlExclude"   : ['worksheetIndex']
+            "htmlExclude": ['worksheetIndex']
         });
     };
 
@@ -376,11 +376,11 @@ window.WSManager = (function($, WSManager) {
             // focus on last that unhide
             WSManager.focusOnWorksheet(curWSId);
             SQL.add("Unhide Worksheet", {
-                "operation"      : SQLOps.UnHideWS,
-                "worksheetIds"   : wsIds,
-                "worksheetNames" : wsNames,
+                "operation": SQLOps.UnHideWS,
+                "worksheetIds": wsIds,
+                "worksheetNames": wsNames,
                 "worksheetOrders": hiddenWSOrder,
-                "htmlExclude"    : ["worksheetOrders"]
+                "htmlExclude": ["worksheetOrders"]
             });
             deferred.resolve();
         })
@@ -602,16 +602,16 @@ window.WSManager = (function($, WSManager) {
         WSManager.focusOnWorksheet(newWSId, false, tableId);
         xcHelper.centerFocusedTable($xcTableWrap, false);
         SQL.add("Move Table to worksheet", {
-            "operation"        : SQLOps.MoveTableToWS,
-            "tableName"        : gTables[tableId].tableName,
-            "tableId"          : tableId,
-            "oldWorksheetId"   : oldWSId,
+            "operation": SQLOps.MoveTableToWS,
+            "tableName": gTables[tableId].tableName,
+            "tableId": tableId,
+            "oldWorksheetId": oldWSId,
             "oldWorksheetIndex": WSManager.indexOfWS(oldWSId),
-            "oldWorksheetName" : worksheetGroup.get(oldWSId).name,
-            "oldTablePos"      : oldTablePos,
-            "newWorksheetId"   : newWSId,
+            "oldWorksheetName": worksheetGroup.get(oldWSId).name,
+            "oldTablePos": oldTablePos,
+            "newWorksheetId": newWSId,
             "newWorksheetIndex": WSManager.indexOfWS(newWSId),
-            "worksheetName"    : wsName
+            "worksheetName": wsName
         });
     };
 
@@ -668,12 +668,12 @@ window.WSManager = (function($, WSManager) {
 
         // this sql will be modified in findTableListHelper()
         var sql = {
-            "operation"        : SQLOps.MoveInactiveTableToWS,
-            "tableId"          : tableId,
-            "tableType"        : tableType,
-            "newWorksheetId"   : newWSId,
+            "operation": SQLOps.MoveInactiveTableToWS,
+            "tableId": tableId,
+            "tableType": tableType,
+            "newWorksheetId": newWSId,
             "newWorksheetIndex": WSManager.indexOfWS(newWSId),
-            "newWorksheetName" : newWS.name
+            "newWorksheetName": newWS.name
         };
 
         findTableListHelper()
@@ -1124,12 +1124,12 @@ window.WSManager = (function($, WSManager) {
         var initialIndex;
 
         $workSheetTabs.sortable({
-            "revert"     : 200,
-            "axis"       : "y",
-            "distance"   : 2,
-            "handle"     : ".draggableArea",
+            "revert": 200,
+            "axis": "y",
+            "distance": 2,
+            "handle": ".draggableArea",
             "containment": "#workspaceMenu",
-            "start"      : function(event, ui) {
+            "start": function(event, ui) {
                 var $tab = $(ui.item).addClass('dragging');
                 initialIndex = $tab.index();
                 var cursorStyle =
@@ -1183,9 +1183,9 @@ window.WSManager = (function($, WSManager) {
                 WSManager.switchWS(wsId);
             }
             xcHelper.dropdownOpen($wsMenu, $tabMenu, {
-                "offsetX" : -7,
+                "offsetX": -7,
                 "floating": true,
-                "toClose" : function() {
+                "toClose": function() {
                     return ($tabMenu.is(":visible") &&
                             $tabMenu.data("ws") === wsId) ||
                             $tab.hasClass("locked");
@@ -1362,8 +1362,8 @@ window.WSManager = (function($, WSManager) {
         var wsId = wsOrder.splice(oldWSIndex, 1)[0];
         wsOrder.splice(newWSIndex, 0, wsId);
         SQL.add("Reorder Worksheet", {
-            "operation"        : SQLOps.ReorderWS,
-            "worksheetName"    : worksheetGroup.get(wsId).name,
+            "operation": SQLOps.ReorderWS,
+            "worksheetName": worksheetGroup.get(wsId).name,
             "oldWorksheetIndex": oldWSIndex,
             "newWorksheetIndex": newWSIndex
         });
@@ -1427,7 +1427,7 @@ window.WSManager = (function($, WSManager) {
         }
 
         var worksheet = new WorksheetObj({
-            "id"  : worksheetId,
+            "id": worksheetId,
             "name": worsheetName
         });
 
@@ -1470,21 +1470,21 @@ window.WSManager = (function($, WSManager) {
         } else {
             // delete worksheet with tables
             Alert.show({
-                "title"  : WSTStr.DelWS,
-                "msg"    : WSTStr.DelWSMsg,
+                "title": WSTStr.DelWS,
+                "msg": WSTStr.DelWSMsg,
                 "buttons": [
                     {
-                        "name"     : TblTStr.DEL,
+                        "name": TblTStr.DEL,
                         "className": "deleteTable",
-                        "tooltip"  : CommonTxtTstr.NoUndone,
-                        "func"     : function() {
+                        "tooltip": CommonTxtTstr.NoUndone,
+                        "func": function() {
                             WSManager.delWS(wsId, DelWSType.Del);
                         }
                     },
                     {
-                        "name"     : TblTStr.ARCHIVE,
+                        "name": TblTStr.ARCHIVE,
                         "className": "archiveTable",
-                        "func"     : function() {
+                        "func": function() {
                             WSManager.delWS(wsId, DelWSType.Archive);
                         }
                     }
@@ -1541,8 +1541,8 @@ window.WSManager = (function($, WSManager) {
 
     function deleteTableFailHandler(errors) {
         var options = {
-            "remove"   : true,
-            "keepInWS" : false,
+            "remove": true,
+            "keepInWS": false,
             "noFocusWS": true
         };
         var tableName;

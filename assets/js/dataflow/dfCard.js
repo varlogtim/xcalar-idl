@@ -241,7 +241,7 @@ window.DFCard = (function($, DFCard) {
                     "$ele": $input
                 },
                 {
-                    "$ele" : $input,
+                    "$ele": $input,
                     "error": ErrTStr.NoSpecialCharOrSpace,
                     "check": function() {
                         return xcHelper.hasSpecialChar(paramName);
@@ -368,8 +368,8 @@ window.DFCard = (function($, DFCard) {
         $listSection.on('click', '.deleteDataflow', function() {
             var retName = $(this).siblings('.groupName').text();
             Alert.show({
-                'title'    : DFTStr.DelDF,
-                'msg'      : DFTStr.DelDFMsg,
+                'title': DFTStr.DelDF,
+                'msg': DFTStr.DelDFMsg,
                 'onConfirm': function() {
                     deleteDataflow(retName);
                 }
@@ -891,8 +891,8 @@ window.DFCard = (function($, DFCard) {
 
             /// XXX TODO: add sql
             Alert.show({
-                "title"  : DFTStr.RunDone,
-                "msg"    : msg,
+                "title": DFTStr.RunDone,
+                "msg": msg,
                 "isAlert": true
             });
             deferred.resolve();
@@ -905,8 +905,8 @@ window.DFCard = (function($, DFCard) {
                 error.status === StatusT.StatusCanceled &&
                 canceledRuns[retName]) {
                 Alert.show({
-                    "title"  : StatusMessageTStr.CancelSuccess,
-                    "msg"    : DFTStr.CancelSuccessMsg,
+                    "title": StatusMessageTStr.CancelSuccess,
+                    "msg": DFTStr.CancelSuccessMsg,
                     "isAlert": true
                 });
             } else {
@@ -1083,7 +1083,7 @@ window.DFCard = (function($, DFCard) {
 
         return {
             "activeSession": activeSession,
-            "newTableName" : newTableName
+            "newTableName": newTableName
         };
     }
 
@@ -1127,7 +1127,7 @@ window.DFCard = (function($, DFCard) {
         })
         .fail(function(error) {
             Transaction.fail(txId, {
-                "error"  : error,
+                "error": error,
                 "noAlert": true
             });
             deferred.reject(error);

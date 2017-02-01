@@ -4,10 +4,10 @@ window.XcSDK.Enums = (function() {
 
     res.JoinType = JoinOperatorT;
     res.SortType = {
-        "Asc"      : XcalarOrderingT.XcalarOrderingAscending,
-        "Desc"     : XcalarOrderingT.XcalarOrderingDescending,
+        "Asc": XcalarOrderingT.XcalarOrderingAscending,
+        "Desc": XcalarOrderingT.XcalarOrderingDescending,
         "Unordered": XcalarOrderingT.XcalarOrderingUnordered,
-        "Invalid"  : XcalarOrderingT.XcalarOrderingInvalid
+        "Invalid": XcalarOrderingT.XcalarOrderingInvalid
     };
     res.AggType = AggrOp;
 

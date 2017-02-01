@@ -637,7 +637,7 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
                 if (errorStruct.errorString || errorStruct.errorFile) {
                     loadError = xcHelper.replaceMsg(DSTStr.LoadErr, {
                         "error": errorStruct.errorString,
-                        "file" : errorStruct.errorFile
+                        "file": errorStruct.errorFile
                     });
                 }
             }

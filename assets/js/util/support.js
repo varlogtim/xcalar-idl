@@ -449,10 +449,10 @@ window.Support = (function(Support, $) {
         xcSessionStorage.removeItem("xcalar-fullUsername");
 
         Alert.show({
-            "title"     : WKBKTStr.Expire,
-            "msg"       : WKBKTStr.ExpireMsg,
+            "title": WKBKTStr.Expire,
+            "msg": WKBKTStr.ExpireMsg,
             "lockScreen": true,
-            "logout"    : true
+            "logout": true
         });
     }
 

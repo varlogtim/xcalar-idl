@@ -8,31 +8,31 @@ window.Scheduler = (function(Scheduler, $) {
 
     // constant
     var scheduleFreq = {
-        "minute"     : "minute",
-        "hourly"     : "hourly",
-        "daily"      : "daily",
-        "weekly"     : "weekly",
-        "biweekly"   : "biweekly",
-        "monthly"    : "monthly",
+        "minute": "minute",
+        "hourly": "hourly",
+        "daily": "daily",
+        "weekly": "weekly",
+        "biweekly": "biweekly",
+        "monthly": "monthly",
         "dayPerMonth": "dayPerMonth"
     };
 
     var radixMap = {
-        "First" : 1,
+        "First": 1,
         "Second": 2,
-        "Third" : 3,
+        "Third": 3,
         "Fourth": 4,
-        "Last"  : -1
+        "Last": -1
     };
 
     var dayMap = {
-        "Sunday"   : 0,
-        "Monday"   : 1,
-        "Tuesday"  : 2,
+        "Sunday": 0,
+        "Monday": 1,
+        "Tuesday": 2,
         "Wednesday": 3,
-        "Thursday" : 4,
-        "Friday"   : 5,
-        "Saturday" : 6
+        "Thursday": 4,
+        "Friday": 5,
+        "Saturday": 6
     };
 
     var currentDataFlowName;
@@ -66,10 +66,10 @@ window.Scheduler = (function(Scheduler, $) {
         // minDate attr disable the date before today
         $newDateInput.datepicker({
             "showOtherMonths": true,
-            "dateFormat"     : "m/d/yy",
-            "dayNamesMin"    : ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-            "minDate"        : 0,
-            "beforeShow"     : function() {
+            "dateFormat": "m/d/yy",
+            "dayNamesMin": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+            "minDate": 0,
+            "beforeShow": function() {
                 if ($newDateInput.val() === "") {
                     $newDateInput.datepicker("setDate", new Date());
                 }
@@ -80,10 +80,10 @@ window.Scheduler = (function(Scheduler, $) {
         });
         $modDateInput.datepicker({
             "showOtherMonths": true,
-            "dateFormat"     : "m/d/yy",
-            "dayNamesMin"    : ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-            "minDate"        : 0,
-            "beforeShow"     : function() {
+            "dateFormat": "m/d/yy",
+            "dayNamesMin": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+            "minDate": 0,
+            "beforeShow": function() {
                 if ($modDateInput.val() === "") {
                     $modDateInput.datepicker("setDate", new Date());
                 }
@@ -160,14 +160,13 @@ window.Scheduler = (function(Scheduler, $) {
         $("#modScheduleForm-delete").on("click", function() {
             $(this).blur();
             Alert.show({
-                'title'    : SchedTStr.DelSched,
-                'msg'      : SchedTStr.DelSchedMsg,
+                'title': SchedTStr.DelSched,
+                'msg': SchedTStr.DelSchedMsg,
                 'onConfirm': function() {
                     DF.removeScheduleFromDataflow(currentDataFlowName);
                     Scheduler.hideScheduleDetailView();
                     newScheduleIcon(currentDataFlowName);
-                },
-
+                }
             });
         });
 
@@ -292,16 +291,16 @@ window.Scheduler = (function(Scheduler, $) {
 
 
     function saveScheduleForm($form, dataflowName) {
-        var $scheduleDate  = $form.find(".timeSection .date");
-        var $scheduleTime  = $form.find(".timeSection .time");
+        var $scheduleDate = $form.find(".timeSection .date");
+        var $scheduleTime = $form.find(".timeSection .time");
         var $scheduleRecur = $form.find(".recurSection input");
         // validation
         var isValid;
 
         isValid = xcHelper.validate([
             {
-                "$ele" : $scheduleDate,
-                "text" : ErrTStr.NoEmpty,
+                "$ele": $scheduleDate,
+                "text": ErrTStr.NoEmpty,
                 "check": function() {
                     var $div = $scheduleDate.closest(".datePickerPart");
                     if ($div.hasClass("inActive")) {
@@ -322,8 +321,8 @@ window.Scheduler = (function(Scheduler, $) {
 
         isValid = xcHelper.validate([
             {
-                "$ele" : $scheduleRecur,
-                "text" : ErrTStr.PositiveInteger,
+                "$ele": $scheduleRecur,
+                "text": ErrTStr.PositiveInteger,
                 "check": function() {
                     var num = $scheduleRecur.val();
                     if (isNaN(num)) {
@@ -342,11 +341,11 @@ window.Scheduler = (function(Scheduler, $) {
             return false;
         }
 
-        var recur   = Number($scheduleRecur.val().trim());
-        var date    = $scheduleDate.val().trim();
-        var time    = $scheduleTime.val().trim();
+        var recur = Number($scheduleRecur.val().trim());
+        var date = $scheduleDate.val().trim();
+        var time = $scheduleTime.val().trim();
         var timeObj = $scheduleTime.data("date");
-        var repeat  = $form.find(".frequencySection .radioButton.active")
+        var repeat = $form.find(".frequencySection .radioButton.active")
                                     .data("option");
 
         var isDayPerMonth = (repeat === scheduleFreq.dayPerMonth);
@@ -365,11 +364,11 @@ window.Scheduler = (function(Scheduler, $) {
 
         var options = {
             "startTime": startTime,
-            "dateText" : date,
-            "timeText" : time,
-            "repeat"   : repeat,
-            "modified" : currentTime,
-            "recur"    : recur
+            "dateText": date,
+            "timeText": time,
+            "repeat": repeat,
+            "modified": currentTime,
+            "recur": recur
         };
 
         DF.addScheduleToDataflow(dataflowName, options);

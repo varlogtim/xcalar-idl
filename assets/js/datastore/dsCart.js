@@ -128,7 +128,7 @@ window.DSCart = (function($, DSCart) {
                     .find(".text").val($li.text());
             },
             "container": "#dataCartContainer",
-            "bounds"   : "#dataCartContainer"
+            "bounds": "#dataCartContainer"
         }).setupListeners();
 
         setupResizable();
@@ -193,12 +193,12 @@ window.DSCart = (function($, DSCart) {
 
         // add sql
         var sql = {
-            "operation"  : SQLOps.IndexDS,
-            "dsName"     : dsName,
-            "dsId"       : cartId,
-            "tableName"  : tableName,
-            "columns"    : [],
-            "worksheet"  : worksheet,
+            "operation": SQLOps.IndexDS,
+            "dsName": dsName,
+            "dsId": cartId,
+            "tableName": tableName,
+            "columns": [],
+            "worksheet": worksheet,
             "htmlExclude": ["worksheet"]
         };
 
@@ -232,10 +232,10 @@ window.DSCart = (function($, DSCart) {
         DSCart.removeCart(cartId);
         DSCart.refresh();
         var txId = Transaction.start({
-            "msg"      : StatusMessageTStr.CreatingTable + ': ' + tableName,
+            "msg": StatusMessageTStr.CreatingTable + ': ' + tableName,
             "operation": SQLOps.IndexDS,
-            "sql"      : sql,
-            "steps"    : 1
+            "sql": sql,
+            "steps": 1
         });
 
         XcalarIndexFromDataset(dsName, "recordNum", tableName, prefix, txId)
@@ -247,8 +247,8 @@ window.DSCart = (function($, DSCart) {
         .then(function() {
             // this will be saved later
             Transaction.done(txId, {
-                "msgTable"  : xcHelper.getTableId(tableName),
-                "title"     : TblTStr.Create,
+                "msgTable": xcHelper.getTableId(tableName),
+                "title": TblTStr.Create,
                 "msgOptions": {
                     "indexNotification": noFocus
                 }
@@ -259,9 +259,9 @@ window.DSCart = (function($, DSCart) {
         .fail(function(error) {
             Transaction.fail(txId, {
                 "failMsg": StatusMessageTStr.TableCreationFailed,
-                "error"  : error,
+                "error": error,
                 "noAlert": true,
-                "title"  : TblTStr.Create
+                "title": TblTStr.Create
             });
 
             if (typeof error !== "object" ||
@@ -278,7 +278,7 @@ window.DSCart = (function($, DSCart) {
     DSCart.addCart = function(dsId, tableName, isInBg) {
         tableName = tableName || DS.getDSObj(dsId).getName();
         var cart = new Cart({
-            "dsId"     : dsId,
+            "dsId": dsId,
             "tableName": tableName
         });
 
@@ -465,10 +465,10 @@ window.DSCart = (function($, DSCart) {
         var viewWidth;
 
         $rightSection.resizable({
-            "handles"    : "w",
+            "handles": "w",
             "containment": "#dsTableView",
-            "minWidth"   : minWidth,
-            "start"      : function() {
+            "minWidth": minWidth,
+            "start": function() {
                 // viewWidth can only be measured when is visible
                 // so measure it here
                 viewWidth = $dsTableView.outerWidth();
@@ -794,7 +794,7 @@ window.DSCart = (function($, DSCart) {
                 $column.parent().find(".header").tooltip("destroy");
                 var $header = $column.children(".header");
                 xcTooltip.transient($header, {
-                    "title"    : TooltipTStr.FocusColumn,
+                    "title": TooltipTStr.FocusColumn,
                     "container": "#datastore-in-view"
                 }, 1000);
             }
@@ -808,14 +808,14 @@ window.DSCart = (function($, DSCart) {
         // check specify worksheet part
         var isValid = xcHelper.validate([
             {
-                "$ele" : $listInput,
+                "$ele": $listInput,
                 "error": ErrTStr.NoSelect,
-                "side" : "left"
+                "side": "left"
             },
             {
-                "$ele" : $listInput,
+                "$ele": $listInput,
                 "error": ErrTStr.NoWS,
-                "side" : "left",
+                "side": "left",
                 "check": function() {
                     return (wsId !== "xc-new" &&
                            WSManager.getWSById(wsId) == null);
@@ -848,9 +848,9 @@ window.DSCart = (function($, DSCart) {
 
         isValid = xcHelper.validate([
             {
-                "$ele" : $prefix,
+                "$ele": $prefix,
                 "error": ErrTStr.PrefixStartsWithLetter,
-                "side" : "left",
+                "side": "left",
                 "onErr": onPrefixErr,
                 "check": function() {
                     return (prefix != null &&
@@ -858,18 +858,18 @@ window.DSCart = (function($, DSCart) {
                 }
             },
             {
-                "$ele" : $prefix,
+                "$ele": $prefix,
                 "error": ErrTStr.PrefixTooLong,
-                "side" : "left",
+                "side": "left",
                 "onErr": onPrefixErr,
                 "check": function() {
                     return (prefix != null && prefix.length >= gPrefixLimit);
                 }
             },
             {
-                "$ele" : $prefix,
+                "$ele": $prefix,
                 "error": ColTStr.RenameSpecialChar,
-                "side" : "left",
+                "side": "left",
                 "onErr": onPrefixErr,
                 "check": function() {
                     return xcHelper.hasInvalidCharInCol(prefix);

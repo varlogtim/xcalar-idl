@@ -98,10 +98,10 @@ window.MainMenu = (function($, MainMenu) {
 
     MainMenu.getState = function() {
         var state = {
-            isPoppedOut         : BottomMenu.isPoppedOut(),
-            isTopOpen           : isMenuOpen,
-            isBottomOpen        : BottomMenu.isMenuOpen(),
-            $activeTopSection   : $mainMenu.find('.commonSection.active'),
+            isPoppedOut: BottomMenu.isPoppedOut(),
+            isTopOpen: isMenuOpen,
+            isBottomOpen: BottomMenu.isMenuOpen(),
+            $activeTopSection: $mainMenu.find('.commonSection.active'),
             $activeBottomSection: $('#bottomMenu').find('.menuSection.active'),
             $activeWorkspaceMenu: $("#workspaceMenu")
                                    .find('.menuSection:not(.xc-hidden)')
@@ -145,10 +145,10 @@ window.MainMenu = (function($, MainMenu) {
         var minWidth = defaultWidth + 3;
         var isSmall = true;
         $mainMenu.resizable({
-            "handles" : "e",
+            "handles": "e",
             "minWidth": 295,
             "distance": 2,
-            "start"   : function() {
+            "start": function() {
                 // set boundaries so it can't resize past window
                 var panelRight = $menuPanel[0].getBoundingClientRect().right;
 
@@ -156,7 +156,6 @@ window.MainMenu = (function($, MainMenu) {
                              $menuPanel.width();
                 $menuPanel.css('max-width', panelRight - 10);
                 $mainMenu.addClass('resizing');
-               
             },
             "stop": function() {
                 $menuPanel.css('max-width', '').css('max-height', '');

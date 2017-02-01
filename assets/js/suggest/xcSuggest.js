@@ -72,12 +72,12 @@ window.xcSuggest = (function($, xcSuggest) {
 
     xcSuggest.submitJoinKeyData = function(dataPerClause) {
         var realSubmit = "locStor"; // Hardcoded flag, will change or remove
-        if (realSubmit == "xcTracker") {
+        if (realSubmit === "xcTracker") {
             xcTracker.track(XCTrackerCategory.SuggestJoinKey, dataPerClause);
-        } else if (realSubmit == "locStor") {
+        } else if (realSubmit === "locStor") {
             var d = new Date();
             var curTime = String(d.getTime());
-            localStorage.setItem("MLDataTrain" + curTime,
+            xcLocalStorage.setItem("MLDataTrain" + curTime,
                 JSON.stringify(dataPerClause));
         } else {
             console.log("DataSubSuccess: " + JSON.stringify(dataPerClause));
@@ -164,13 +164,13 @@ window.xcSuggest = (function($, xcSuggest) {
                 titleDist = getTitleDistance(srcColInfo.name, curColInfo.name);
 
                 featuresPerColumn.push({
-                    "maxDiff"         : maxDiff,
-                    "minDiff"         : minDiff,
-                    "avgDiff"         : avgDiff,
-                    "sig2Diff"        : sig2Diff,
-                    "match"           : match,
-                    "titleDist"       : titleDist,
-                    "type"            : type,
+                    "maxDiff": maxDiff,
+                    "minDiff": minDiff,
+                    "avgDiff": avgDiff,
+                    "sig2Diff": sig2Diff,
+                    "match": match,
+                    "titleDist": titleDist,
+                    "type": type,
                     "uniqueIdentifier": curColInfo.uniqueIdentifier
                 });
             } else {
@@ -213,7 +213,7 @@ window.xcSuggest = (function($, xcSuggest) {
 
         return {
             'colToSugg': colToSugg,
-            'maxScore' : (maxScore * 100) - 100
+            'maxScore': (maxScore * 100) - 100
         };
     }
 
@@ -242,7 +242,7 @@ window.xcSuggest = (function($, xcSuggest) {
 
         var returnObj = {
             "colToSugg": colToSugg,
-            "maxScore" : maxScore
+            "maxScore": maxScore
         };
         return returnObj;
     }
@@ -303,9 +303,9 @@ window.xcSuggest = (function($, xcSuggest) {
         }
 
         return {
-            "max" : max,
-            "min" : min,
-            "avg" : avg,
+            "max": max,
+            "min": min,
+            "avg": avg,
             "sig2": sig2,
             "vals": values
         };

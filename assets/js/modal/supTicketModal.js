@@ -11,20 +11,20 @@ window.SupTicketModal = (function($, SupTicketModal) {
         var minHeight = 400;
 
         modalHelper = new ModalHelper($modal, {
-            "minWidth" : minWidth,
+            "minWidth": minWidth,
             "minHeight": minHeight
         });
 
         $modal.resizable({
-            "handles"    : "n, e, s, w, se",
-            "minHeight"  : minHeight,
-            "minWidth"   : minWidth,
+            "handles": "n, e, s, w, se",
+            "minHeight": minHeight,
+            "minWidth": minWidth,
             "containment": "document"
         });
 
         $modal.draggable({
-            "handle"     : ".modalHeader",
-            "cursor"     : "-webkit-grabbing",
+            "handle": ".modalHeader",
+            "cursor": "-webkit-grabbing",
             "containment": "window"
         });
 
@@ -104,7 +104,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
         }
         var comment = $modal.find('.xc-textArea').val().trim();
         var ticketObj = {
-            "type"   : issueType,
+            "type": issueType,
             "comment": comment,
         };
 
@@ -186,9 +186,9 @@ window.SupTicketModal = (function($, SupTicketModal) {
             ticketObj.userIdUnique = userIdUnique;
             ticketObj.sessionName = WorkbookManager.getActiveWKBK();
             ticketObj.version = {
-                "backendVersion" : XVM.getBackendVersion(),
+                "backendVersion": XVM.getBackendVersion(),
                 "frontendVersion": gGitVersion,
-                "thriftVersion"  : XVM.getSHA(),
+                "thriftVersion": XVM.getSHA(),
             };
             return XFTSupportTools.fileTicket(JSON.stringify(ticketObj));
         }

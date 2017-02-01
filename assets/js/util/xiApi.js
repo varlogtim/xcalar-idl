@@ -673,9 +673,9 @@ window.XIApi = (function(XIApi, $) {
             // single join
             deferred.resolve({
                 "lTableName": lTableName,
-                "lColName"  : lColNames[0],
+                "lColName": lColNames[0],
                 "rTableName": rTableName,
-                "rColName"  : rColNames[0]
+                "rColName": rColNames[0]
             });
         } else {
             // multi join
@@ -707,9 +707,9 @@ window.XIApi = (function(XIApi, $) {
 
                 deferred.resolve({
                     "lTableName": lNewName,
-                    "lColName"  : lColName,
+                    "lColName": lColName,
                     "rTableName": rNewName,
-                    "rColName"  : rColName
+                    "rColName": rColName
                 });
             })
             .fail(deferred.reject);
@@ -862,8 +862,8 @@ window.XIApi = (function(XIApi, $) {
             .then(function() {
                 var mapOptions = {
                     "replaceColumn": true,
-                    "type"         : newTypes[index],
-                    "resize"       : resize
+                    "type": newTypes[index],
+                    "resize": resize
                 };
                 var curTableId = xcHelper.getTableId(curTableName);
                 var curTableCols = gTables[curTableId].tableCols;
@@ -981,7 +981,7 @@ window.XIApi = (function(XIApi, $) {
         // prefix
         var i = 0;
         var j = 0;
-        for (i = 0; i<rename.length; i++) {
+        for (i = 0; i < rename.length; i++) {
             if (rename[i].type === DfFieldTypeT.DfFatptr) {
                 if (!col.immediate && col.prefix === rename[i].orig) {
                     col.backName = col.backName.replace(rename[i].orig,
@@ -1009,6 +1009,8 @@ window.XIApi = (function(XIApi, $) {
         var colName;
         var dataCol = ColManager.newDATACol();
 
+        // XXX this function and the one with rTableId can
+        // be combined into one
         if (lTableId != null && gTables[lTableId] != null &&
             gTables[lTableId].tableCols != null)
         {
@@ -1163,12 +1165,12 @@ window.XIApi = (function(XIApi, $) {
 
                 finalCols[1 + i] = ColManager.newCol({
                     "backName": escapedName,
-                    "name"    : progCol.name || colName,
-                    "type"    : progCol.type || null,
-                    "width"   : progCol.width || gNewCellWidth,
+                    "name": progCol.name || colName,
+                    "type": progCol.type || null,
+                    "width": progCol.width || gNewCellWidth,
                     "isNewCol": false,
-                    "userStr" : '"' + colName + '" = pull(' + escapedName + ')',
-                    "func"    : {
+                    "userStr": '"' + colName + '" = pull(' + escapedName + ')',
+                    "func": {
                         "func": "pull",
                         "args": [escapedName]
                     }
@@ -1234,8 +1236,8 @@ window.XIApi = (function(XIApi, $) {
 
             var parsedName = xcHelper.parsePrefixColName(groupByCols[i]).name;
             var args = {
-                "colName"     : parsedName,
-                "mapString"   : mapStr,
+                "colName": parsedName,
+                "mapString": mapStr,
                 "srcTableName": currTableName,
                 "newTableName": newTableName
             };

@@ -18,20 +18,20 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
         var minHeight = 500;
 
         modalHelper = new ModalHelper($modal, {
-            "minWidth" : minWidth,
+            "minWidth": minWidth,
             "minHeight": minHeight
         });
 
         $modal.resizable({
-            "handles"    : "n, e, s, w, se",
-            "minHeight"  : minHeight,
-            "minWidth"   : minWidth,
+            "handles": "n, e, s, w, se",
+            "minHeight": minHeight,
+            "minWidth": minWidth,
             "containment": "document"
         });
 
         $modal.draggable({
-            "handle"     : ".modalHeader",
-            "cursor"     : "-webkit-grabbing",
+            "handle": ".modalHeader",
+            "cursor": "-webkit-grabbing",
             "containment": "window"
         });
 
@@ -45,10 +45,10 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
             var msg = SideBarTStr.DelTablesMsg;
             $modal.addClass('lowZindex');
             Alert.show({
-                "title"     : TblTStr.Del,
-                "msg"       : msg,
+                "title": TblTStr.Del,
+                "msg": msg,
                 "highZindex": true,
-                "onCancel"  : function() {
+                "onCancel": function() {
                     $modal.removeClass('lowZindex');
                     $('#modalBackground').hide();
                     // by default background won't hide because modalHelper
@@ -298,7 +298,7 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
                 orphanList.push(gTables[orphanTableId]);
             } else {
                 orphanList.push(new TableMeta({
-                    "tableId"  : orphanTableId,
+                    "tableId": orphanTableId,
                     "tableName": orphanTable,
                     "timeStamp": unknown
                 }));
@@ -511,7 +511,6 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
                             "#deleteTableModal-active");
         var errorMsg = "";
         var hasSuccess = false;
-        // var failedTablesStr = "";
         var failedTables = [];
         var failedMsgs = [];
         for (var i = 0; i < args.length; i++) {
@@ -545,10 +544,9 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
         } else {
             errorMsg = failedMsgs[0] + ". " + ErrTStr.NoTablesDeleted;
         }
-     
         var $firstGrid = $containers.find('.grid-unit.failed').eq(0);
         StatusBox.show(errorMsg, $firstGrid, false, {
-            "side"      : "left",
+            "side": "left",
             "highZindex": true
         });
     }

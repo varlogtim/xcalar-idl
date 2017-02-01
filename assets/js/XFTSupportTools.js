@@ -49,11 +49,11 @@ window.XFTSupportTools = (function(XFTSupportTools) {
         var deferred = jQuery.Deferred();
         clearInterval(monitorIntervalId);
         $.ajax({
-            "type"       : "POST",
-            "data"       : JSON.stringify({"userID": userIdUnique}),
+            "type": "POST",
+            "data": JSON.stringify({"userID": userIdUnique}),
             "contentType": "application/json",
-            "url"        : hostname + "/app/stopMonitorLogs",
-            success      : function(data) {
+            "url": hostname + "/app/stopMonitorLogs",
+            success: function(data) {
                 var ret = data;
                 if (ret.status === Status.Ok) {
                     console.log('Stop successfully');
@@ -150,12 +150,12 @@ window.XFTSupportTools = (function(XFTSupportTools) {
     function postRequest(action, str) {
         var deferred = jQuery.Deferred();
         $.ajax({
-            "type"       : "POST",
-            "data"       : JSON.stringify(str),
+            "type": "POST",
+            "data": JSON.stringify(str),
             "contentType": "application/json",
-            "url"        : hostname + "/app" + action,
-            "timeout"    : timeout,
-            success      : function(data) {
+            "url": hostname + "/app" + action,
+            "timeout": timeout,
+            success: function(data) {
                 var ret = data;
                 if (ret.logs != null) {
                     ret.logs = atob(ret.logs);
@@ -177,7 +177,7 @@ window.XFTSupportTools = (function(XFTSupportTools) {
                 clearInterval(monitorIntervalId);
                 deferred.reject({
                     "status": Status.Error,
-                    "error" : error
+                    "error": error
                 });
             }
         });

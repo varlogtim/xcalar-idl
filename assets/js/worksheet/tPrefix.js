@@ -27,9 +27,9 @@ window.TPrefix = (function(TPrefix, $) {
 
         SQL.add("Mark Prefix", {
             "operation": SQLOps.MarkPrefix,
-            "prefix"   : prefix,
-            "oldColor" : oldColor,
-            "newColor" : newColor,
+            "prefix": prefix,
+            "oldColor": oldColor,
+            "newColor": newColor,
         });
     };
 

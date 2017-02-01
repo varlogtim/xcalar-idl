@@ -102,10 +102,9 @@ window.MonitorConfig = (function(MonitorConfig, $) {
 
                 StatusBox.show(ErrTStr.ConfigParamNotFound, $nameInput, false, {
                     "offsetX": -5,
-                    "side"   : "top"
+                    "side": "top"
                 });
             }
-           
         });
 
         $configCard.on('blur', '.paramName', function() {
@@ -167,7 +166,7 @@ window.MonitorConfig = (function(MonitorConfig, $) {
 
             if (!paramObj) {
                 errorFound = {
-                    input : $nameInput,
+                    input: $nameInput,
                     reason: "invalidName"
                 };
                 return false;
@@ -177,7 +176,7 @@ window.MonitorConfig = (function(MonitorConfig, $) {
 
             if (!newVal.length) {
                 errorFound = {
-                    input : $newValInput,
+                    input: $newValInput,
                     reason: "empty"
                 };
                 return false;
@@ -230,7 +229,7 @@ window.MonitorConfig = (function(MonitorConfig, $) {
         var currVal = $errorRow.find('.curVal').val();
         errorMsg += '<br/>' + xcHelper.replaceMsg(
         MonitorTStr.ParamConfigFailMsg, {
-            name : paramName,
+            name: paramName,
             value: currVal
         });
         Alert.error(MonitorTStr.ParamConfigFailed, errorMsg, {

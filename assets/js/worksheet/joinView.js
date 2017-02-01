@@ -53,9 +53,9 @@ window.JoinView = (function($, JoinView) {
         $renameSection = $("#joinView .renameSection");
 
         var columnPicker = {
-            "state"        : "joinState",
+            "state": "joinState",
             "validColTypes": validTypes,
-            "colCallback"  : function($target) {
+            "colCallback": function($target) {
                 if ($lastInputFocused &&
                     !$lastInputFocused.closest('.joinTableList').length) {
                     xcHelper.fillInputFromCell($target, $lastInputFocused);
@@ -395,7 +395,7 @@ window.JoinView = (function($, JoinView) {
                                                 $inputToFill, suggTableId);
                     if (isFind === JoinKeySuggestion.KeyUnsure) {
                         showErrorTooltip($suggErrorArea, {
-                            "title"    : JoinTStr.UnlikelyJoinKey,
+                            "title": JoinTStr.UnlikelyJoinKey,
                             "placement": "right"
                         });
 
@@ -403,13 +403,13 @@ window.JoinView = (function($, JoinView) {
                         text = isLeftTableVal ? JoinTStr.NoMatchRight :
                                                 JoinTStr.NoMatchLeft;
                         showErrorTooltip($suggErrorArea, {
-                            "title"    : text,
+                            "title": text,
                             "placement": "right"
                         });
                     }
                 } else {
                     showErrorTooltip($suggErrorArea, {
-                        "title"    : JoinTStr.NoColToCheck,
+                        "title": JoinTStr.NoColToCheck,
                         "placement": "right"
                     });
                 }
@@ -422,7 +422,7 @@ window.JoinView = (function($, JoinView) {
                 }
                 // no table selected in dropdown
                 showErrorTooltip($suggErrorArea, {
-                    "title"    : title,
+                    "title": title,
                     "placement": "right"
                 });
             }
@@ -678,7 +678,7 @@ window.JoinView = (function($, JoinView) {
         if (colRes.reason === 'notFound') {
             var tableName = gTables[tableId].getName();
             errorText = xcHelper.replaceMsg(ErrWRepTStr.ColNotInTable, {
-                "name" : colRes.name,
+                "name": colRes.name,
                 "table": tableName
             });
             tooltipTime = 3000;
@@ -715,8 +715,8 @@ window.JoinView = (function($, JoinView) {
                     if (lProgCol.isKnownType() && rProgCol.isKnownType()) {
                         return {
                             success: false,
-                            types  : [lType, rType],
-                            row    : i
+                            types: [lType, rType],
+                            row: i
                         };
                     } else {
                         // if one of the columns has a problematic type but is
@@ -728,8 +728,8 @@ window.JoinView = (function($, JoinView) {
                     // they really must not match
                     return {
                         success: false,
-                        types  : [lType, rType],
-                        row    : i
+                        types: [lType, rType],
+                        row: i
                     };
                 }
             }
@@ -747,14 +747,14 @@ window.JoinView = (function($, JoinView) {
         var cols = getClauseCols();
         var rTableName = gTables[tableIds[1]].getName();
         var argList = {
-            "leftLimit" : 100,
+            "leftLimit": 100,
             "rightLimit": 100,
-            "joinType"  : $joinTypeSelect.find(".text").text(),
-            "lCol"      : cols[0],
-            "rCol"      : cols[1],
-            "rTable"    : new XcSDK.Table(rTableName),
-            "unlock"    : true,
-            "fromJoin"  : true
+            "joinType": $joinTypeSelect.find(".text").text(),
+            "lCol": cols[0],
+            "rCol": cols[1],
+            "rTable": new XcSDK.Table(rTableName),
+            "unlock": true,
+            "fromJoin": true
         };
 
         var $estimatorWrap = $joinView.find('.estimatorWrap');
@@ -837,7 +837,7 @@ window.JoinView = (function($, JoinView) {
                 goToFirstStep();
             }
             showErrorTooltip($errorInput, {
-                "title"    : errorTitle,
+                "title": errorTitle,
                 "placement": "right"
             });
             return false;
@@ -1030,7 +1030,7 @@ window.JoinView = (function($, JoinView) {
             }
             renameArray.push({
                 "orig": origName,
-                "new" : newName,
+                "new": newName,
                 "type": type
             });
         }
@@ -1467,20 +1467,20 @@ window.JoinView = (function($, JoinView) {
                                     .find('.checkbox').hasClass('checked');
 
             var lJoinInfo = {
-                "tableId"      : lTableId,
-                "colNums"      : lColNums,
+                "tableId": lTableId,
+                "colNums": lColNums,
                 "pulledColumns": lColsToKeep,
-                "rename"       : leftRenames
+                "rename": leftRenames
             };
             var rJoinInfo = {
-                "tableId"      : rTableId,
-                "colNums"      : rColNums,
+                "tableId": rTableId,
+                "colNums": rColNums,
                 "pulledColumns": rColsToKeep,
-                "rename"       : rightRenames
+                "rename": rightRenames
             };
 
             var options = {
-                "keepTables"  : keepTable,
+                "keepTables": keepTable,
                 "formOpenTime": formOpenTime
             };
 
@@ -1586,16 +1586,16 @@ window.JoinView = (function($, JoinView) {
                     name: JoinTStr.JOIN
                 }),
                 className: "",
-                func     : function() {
+                func: function() {
                     JoinView.show(null , null , true);
                 }
             });
         }
         if (showDeleteTableBtn) {
             btns.push({
-                name     : MonitorTStr.RELEASEMEM,
+                name: MonitorTStr.RELEASEMEM,
                 className: "larger",
-                func     : DeleteTableModal.show
+                func: DeleteTableModal.show
             });
         }
 
@@ -1757,7 +1757,7 @@ window.JoinView = (function($, JoinView) {
         }
 
         showErrorTooltip($invalidClause, {
-            "title"    : title,
+            "title": title,
             "container": id
         });
     }
@@ -1765,12 +1765,12 @@ window.JoinView = (function($, JoinView) {
 
     function showErrorTooltip($el, options, otherOptions) {
         var deafultOptions = {
-            "title"    : "",
+            "title": "",
             "placement": "top",
             "animation": true,
             "container": "body",
-            "trigger"  : "manual",
-            "template" : xcTooltip.Template.Error
+            "trigger": "manual",
+            "template": xcTooltip.Template.Error
         };
         otherOptions = otherOptions || {};
         var displayTime = otherOptions.time || 2000;
@@ -1795,9 +1795,9 @@ window.JoinView = (function($, JoinView) {
         var colNum = gTables[tableId].getColNumByBackName(backColName);
         var data = gTables[tableId].getColContents(colNum);
         var requiredInfo = {
-            'type'            : type,
-            'name'            : frontColName,
-            'data'            : data,
+            'type': type,
+            'name': frontColName,
+            'data': data,
             'uniqueIdentifier': backColName // Only IDs chosen result
         };
         return requiredInfo;
@@ -1818,7 +1818,7 @@ window.JoinView = (function($, JoinView) {
             }
         }
         var inputs = {
-            'srcColInfo'  : srcInfo,
+            'srcColInfo': srcInfo,
             'destColsInfo': destInfo
         };
         return inputs;

@@ -31,7 +31,7 @@ window.StatusMessage = (function($, StatusMessage) {
         $statusText.on("click", ".menuIcon", function() {
             xcHelper.dropdownOpen($(this), $statusMenu, {
                 "floating": true,
-                "toggle"  : true
+                "toggle": true
             });
         });
 
@@ -115,9 +115,9 @@ window.StatusMessage = (function($, StatusMessage) {
                 $secondSpan.addClass('success');
             }
             var messageToRemove = {
-                $span           : $successSpan,
-                msgId           : msgId,
-                msg             : $successSpan.text(),
+                $span: $successSpan,
+                msgId: msgId,
+                msg: $successSpan.text(),
                 desiredRotations: numRotations + 1
             };
             messagesToBeRemoved.push(messageToRemove);
@@ -348,14 +348,14 @@ window.StatusMessage = (function($, StatusMessage) {
         if (operation === SQLOps.IndexDS && !options.indexNotification) {
             return; // no notification when table made directly from datastore
         }
-        var popupNeeded     = false;
+        var popupNeeded = false;
         var popupWrapExists = false;
-        var popupNearTab    = false;
+        var popupNearTab = false;
 
         var pos = {
-            left  : 'auto',
-            right : 'auto',
-            top   : 'auto',
+            left: 'auto',
+            right: 'auto',
+            top: 'auto',
             bottom: 'auto'
         };
         var arrow = '';
@@ -488,10 +488,10 @@ window.StatusMessage = (function($, StatusMessage) {
 
                 $popupWrap = $('<div class="tableDonePopupWrap"></div>');
                 $popupWrap.css({
-                    "top"   : pos.top,
+                    "top": pos.top,
                     "bottom": pos.bottom,
-                    "left"  : pos.left,
-                    "right" : pos.right
+                    "left": pos.left,
+                    "right": pos.right
                 });
                 $('body').append($popupWrap);
                 $popupWrap.append($tableDonePopup);

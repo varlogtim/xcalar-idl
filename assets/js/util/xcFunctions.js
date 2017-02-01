@@ -1,9 +1,9 @@
 window.xcFunction = (function($, xcFunction) {
     var joinLookUp = {
-        "Inner Join"      : JoinOperatorT.InnerJoin,
-        "Left Outer Join" : JoinOperatorT.LeftOuterJoin,
+        "Inner Join": JoinOperatorT.InnerJoin,
+        "Left Outer Join": JoinOperatorT.LeftOuterJoin,
         "Right Outer Join": JoinOperatorT.RightOuterJoin,
-        "Full Outer Join" : JoinOperatorT.FullOuterJoin
+        "Full Outer Join": JoinOperatorT.FullOuterJoin
     };
 
     // filter table column, returns resulting table name
@@ -22,20 +22,20 @@ window.xcFunction = (function($, xcFunction) {
         }
 
         var sql = {
-            "operation"   : SQLOps.Filter,
-            "tableName"   : tableName,
-            "tableId"     : tableId,
-            "colName"     : frontColName,
-            "colNum"      : colNum,
-            "fltOptions"  : fltOptions,
+            "operation": SQLOps.Filter,
+            "tableName": tableName,
+            "tableId": tableId,
+            "colName": frontColName,
+            "colNum": colNum,
+            "fltOptions": fltOptions,
             "formOpenTime": formOpenTime,
-            "htmlExclude" : ["formOpenTime"]
+            "htmlExclude": ["formOpenTime"]
         };
         var txId = Transaction.start({
-            "msg"      : StatusMessageTStr.Filter + ': ' + frontColName,
+            "msg": StatusMessageTStr.Filter + ': ' + frontColName,
             "operation": SQLOps.Filter,
-            "sql"      : sql,
-            "steps"    : 1
+            "sql": sql,
+            "steps": 1
         });
 
         var finalTableName;
@@ -56,7 +56,7 @@ window.xcFunction = (function($, xcFunction) {
             sql.newTableName = finalTableName;
             Transaction.done(txId, {
                 "msgTable": xcHelper.getTableId(finalTableName),
-                "sql"     : sql
+                "sql": sql
             });
             deferred.resolve(finalTableName);
         })
@@ -65,7 +65,7 @@ window.xcFunction = (function($, xcFunction) {
 
             Transaction.fail(txId, {
                 "failMsg": StatusMessageTStr.FilterFailed,
-                "error"  : error
+                "error": error
             });
 
             deferred.reject(error);
@@ -91,12 +91,11 @@ window.xcFunction = (function($, xcFunction) {
             frontColName = aggStr;
             backColName = aggStr;
         }
-       
 
         var title = xcHelper.replaceMsg(AggTStr.AggTitle, {"op": aggrOp});
         var instr = xcHelper.replaceMsg(AggTStr.AggInstr, {
             "col": frontColName,
-            "op" : aggrOp
+            "op": aggrOp
         });
 
         var aggInfo = Aggregates.getAgg(tableId, backColName, aggrOp);
@@ -105,9 +104,9 @@ window.xcFunction = (function($, xcFunction) {
                 "val": aggInfo.value
             });
             Alert.show({
-                "title"  : title,
-                "instr"  : instr,
-                "msg"    : alertMsg,
+                "title": title,
+                "instr": instr,
+                "msg": alertMsg,
                 "isAlert": true
             });
 
@@ -117,23 +116,23 @@ window.xcFunction = (function($, xcFunction) {
         }
 
         var sql = {
-            "operation"  : SQLOps.Aggr,
-            "tableName"  : tableName,
-            "tableId"    : tableId,
-            "colName"    : frontColName,
-            "colNum"     : colNum,
-            "aggrOp"     : aggrOp,
-            "aggStr"     : aggStr,
-            "aggName"    : aggName,
+            "operation": SQLOps.Aggr,
+            "tableName": tableName,
+            "tableId": tableId,
+            "colName": frontColName,
+            "colNum": colNum,
+            "aggrOp": aggrOp,
+            "aggStr": aggStr,
+            "aggName": aggName,
             "htmlExclude": ["aggStr"]
         };
         var msg = StatusMessageTStr.Aggregate + " " + aggrOp + " " +
                   StatusMessageTStr.OnColumn + ": " + frontColName;
         var txId = Transaction.start({
-            "msg"      : msg,
+            "msg": msg,
             "operation": SQLOps.Aggr,
-            "sql"      : sql,
-            "steps"    : 1
+            "sql": sql,
+            "steps": 1
         });
 
         xcHelper.lockTable(tableId, txId);
@@ -153,12 +152,12 @@ window.xcFunction = (function($, xcFunction) {
                 origAggName = gAggVarPrefix + aggName;
             }
             var aggRes = {
-                "value"      : value,
-                "dagName"    : dstDagName,
-                "aggName"    : origAggName,
-                "tableId"    : tableId,
+                "value": value,
+                "dagName": dstDagName,
+                "aggName": origAggName,
+                "tableId": tableId,
                 "backColName": backColName,
-                "op"         : aggrOp
+                "op": aggrOp
             };
 
             if (toDelete) {
@@ -176,9 +175,9 @@ window.xcFunction = (function($, xcFunction) {
             });
 
             Alert.show({
-                "title"  : title,
-                "instr"  : instr,
-                "msg"    : alertMsg,
+                "title": title,
+                "instr": instr,
+                "msg": alertMsg,
                 "isAlert": true
             });
 
@@ -188,7 +187,7 @@ window.xcFunction = (function($, xcFunction) {
         .fail(function(error) {
             Transaction.fail(txId, {
                 "failMsg": StatusMessageTStr.AggregateFailed,
-                "error"  : error
+                "error": error
             });
 
             deferred.reject(error);
@@ -224,19 +223,19 @@ window.xcFunction = (function($, xcFunction) {
         var sql = {
             "operation": SQLOps.Sort,
             "tableName": tableName,
-            "tableId"  : tableId,
-            "key"      : frontColName,
-            "colNum"   : colNum,
-            "order"    : order,
+            "tableId": tableId,
+            "key": frontColName,
+            "colNum": colNum,
+            "order": order,
             "direction": direction,
-            "sorted"   : true
+            "sorted": true
         };
         var steps = typeToCast ? 2 : 1;
         var txId = Transaction.start({
-            "msg"      : StatusMessageTStr.Sort + " " + frontColName,
+            "msg": StatusMessageTStr.Sort + " " + frontColName,
             "operation": SQLOps.Sort,
-            "sql"      : sql,
-            "steps"    : steps
+            "sql": sql,
+            "steps": steps
         });
 
         // user timeout because it may fail soon if table is already sorted
@@ -270,7 +269,7 @@ window.xcFunction = (function($, xcFunction) {
             sql.newTableName = finalTableName;
             Transaction.done(txId, {
                 "msgTable": xcHelper.getTableId(finalTableName),
-                "sql"     : sql
+                "sql": sql
             });
             deferred.resolve(finalTableName);
         })
@@ -299,7 +298,7 @@ window.xcFunction = (function($, xcFunction) {
             } else {
                 Transaction.fail(txId, {
                     "failMsg": StatusMessageTStr.SortFailed,
-                    "error"  : error
+                    "error": error
                 });
             }
             deferred.reject(error);
@@ -324,7 +323,7 @@ window.xcFunction = (function($, xcFunction) {
             .then(function(mapTableName) {
                 var mapOptions = {
                     "replaceColumn": true,
-                    "resize"       : true
+                    "resize": true
                 };
                 var mapTablCols = xcHelper.mapColGenerate(colNum, mapColName,
                                         mapString, tableCols, mapOptions);
@@ -373,18 +372,18 @@ window.xcFunction = (function($, xcFunction) {
         var newTableId = xcHelper.getTableId(newTableName);
 
         var sql = {
-            "operation"   : SQLOps.Join,
-            "lTableName"  : lTableName,
-            "lColNums"    : lColNums,
-            "lJoinInfo"   : lJoinInfo,
-            "rTableName"  : rTableName,
-            "rColNums"    : rColNums,
-            "rJoinInfo"   : rJoinInfo,
+            "operation": SQLOps.Join,
+            "lTableName": lTableName,
+            "lColNums": lColNums,
+            "lJoinInfo": lJoinInfo,
+            "rTableName": rTableName,
+            "rColNums": rColNums,
+            "rJoinInfo": rJoinInfo,
             "newTableName": newTableName,
-            "joinStr"     : joinStr,
-            "worksheet"   : worksheet,
-            "options"     : options,
-            "htmlExclude" : ["lJoinInfo", "rJoinInfo", "worksheet",
+            "joinStr": joinStr,
+            "worksheet": worksheet,
+            "options": options,
+            "htmlExclude": ["lJoinInfo", "rJoinInfo", "worksheet",
                              "options"]
         };
 
@@ -401,10 +400,10 @@ window.xcFunction = (function($, xcFunction) {
         }
 
         var txId = Transaction.start({
-            "msg"      : StatusMessageTStr.Join,
+            "msg": StatusMessageTStr.Join,
             "operation": SQLOps.Join,
-            "sql"      : sql,
-            "steps"    : steps
+            "sql": sql,
+            "steps": steps
         });
 
         xcHelper.lockTable(lTableId, txId);
@@ -415,17 +414,17 @@ window.xcFunction = (function($, xcFunction) {
         var startScrollPosition = $('#mainFrame').scrollLeft();
 
         var lTableInfo = {
-            "tableName"    : lTableName,
-            "columns"      : lColNames,
+            "tableName": lTableName,
+            "columns": lColNames,
             "pulledColumns": lJoinInfo.pulledColumns,
-            "rename"       : lJoinInfo.rename
+            "rename": lJoinInfo.rename
         };
 
         var rTableInfo = {
-            "tableName"    : rTableName,
-            "columns"      : rColNames,
+            "tableName": rTableName,
+            "columns": rColNames,
             "pulledColumns": rJoinInfo.pulledColumns,
-            "rename"       : rJoinInfo.rename
+            "rename": rJoinInfo.rename
         };
 
         var finalJoinTableName;
@@ -448,7 +447,7 @@ window.xcFunction = (function($, xcFunction) {
         })
         .then(function() {
             Transaction.done(txId, {
-                "msgTable"      : newTableId,
+                "msgTable": newTableId,
                 "noNotification": focusOnTable
             });
             deferred.resolve(finalJoinTableName);
@@ -458,17 +457,17 @@ window.xcFunction = (function($, xcFunction) {
                 error.status === StatusT.StatusMaxJoinFieldsExceeded) {
                 Transaction.fail(txId, {
                     "failMsg": StatusMessageTStr.JoinFailed,
-                    "error"  : error
+                    "error": error
                 });
                 var origMsg = $("#alertContent .text").text();
                 $("#alertContent .text").text(origMsg + "\n" +
                                               ErrTStr.SuggestProject);
                 var tables = [{
                     "whichTable": "Right",
-                    "tableId"   : rTableId
+                    "tableId": rTableId
                 },{
                     "whichTable": "Left",
-                    "tableId"   : lTableId
+                    "tableId": lTableId
                 }];
                 $btnSection = $("#alertActions");
                 $confirmBtn = $btnSection.find(".confirm").eq(0);
@@ -502,7 +501,7 @@ window.xcFunction = (function($, xcFunction) {
             } else {
                 Transaction.fail(txId, {
                     "failMsg": StatusMessageTStr.JoinFailed,
-                    "error"  : error
+                    "error": error
                 });
             }
             deferred.reject(error);
@@ -553,22 +552,22 @@ window.xcFunction = (function($, xcFunction) {
         }
 
         var sql = {
-            "operation"  : SQLOps.GroupBy,
-            "operator"   : operator,
-            "tableName"  : tableName,
-            "tableId"    : tableId,
+            "operation": SQLOps.GroupBy,
+            "operator": operator,
+            "tableName": tableName,
+            "tableId": tableId,
             "groupByCols": groupByCols,
-            "aggCol"     : aggCol,
-            "newColName" : newColName,
-            "options"    : options,
+            "aggCol": aggCol,
+            "newColName": newColName,
+            "options": options,
             "htmlExclude": ["options"]
         };
 
         var txId = Transaction.start({
-            "msg"      : StatusMessageTStr.GroupBy + " " + operator,
+            "msg": StatusMessageTStr.GroupBy + " " + operator,
             "operation": SQLOps.GroupBy,
-            "steps"    : steps,
-            "sql"      : sql
+            "steps": steps,
+            "sql": sql
         });
 
         xcHelper.lockTable(tableId, txId);
@@ -610,8 +609,8 @@ window.xcFunction = (function($, xcFunction) {
             sql.newTableName = finalTableName;
 
             Transaction.done(txId, {
-                "msgTable"      : xcHelper.getTableId(finalTableName),
-                "sql"           : sql,
+                "msgTable": xcHelper.getTableId(finalTableName),
+                "sql": sql,
                 "noNotification": focusOnTable
             });
 
@@ -622,8 +621,8 @@ window.xcFunction = (function($, xcFunction) {
 
             Transaction.fail(txId, {
                 "failMsg": StatusMessageTStr.GroupByFailed,
-                "error"  : error,
-                "sql"    : sql
+                "error": error,
+                "sql": sql
             });
 
             deferred.reject(error);
@@ -672,13 +671,13 @@ window.xcFunction = (function($, xcFunction) {
 
             var lTableInfo = {
                 "tableName": lTName,
-                "columns"  : lCols
+                "columns": lCols
             };
 
             var rTableInfo = {
                 "tableName": rTName,
-                "columns"  : rCols,
-                "rename"   : rRenam
+                "columns": rCols,
+                "rename": rRenam
             };
 
             XIApi.join(txId, joinType, lTableInfo, rTableInfo, jonTable)
@@ -718,20 +717,20 @@ window.xcFunction = (function($, xcFunction) {
 
         var worksheet = WSManager.getWSFromTable(tableId);
         var sql = {
-            "operation"  : SQLOps.Map,
-            "tableName"  : tableName,
-            "tableId"    : tableId,
-            "colNum"     : colNum,
-            "fieldName"  : fieldName,
-            "mapString"  : mapString,
-            "mapOptions" : mapOptions,
+            "operation": SQLOps.Map,
+            "tableName": tableName,
+            "tableId": tableId,
+            "colNum": colNum,
+            "fieldName": fieldName,
+            "mapString": mapString,
+            "mapOptions": mapOptions,
             "htmlExclude": ["mapOptions"]
         };
         var txId = Transaction.start({
-            "msg"      : StatusMessageTStr.Map + " " + fieldName,
+            "msg": StatusMessageTStr.Map + " " + fieldName,
             "operation": SQLOps.Map,
-            "sql"      : sql,
-            "steps"    : 1
+            "sql": sql,
+            "steps": 1
         });
         var finalTableName;
         var finalTableId;
@@ -759,7 +758,7 @@ window.xcFunction = (function($, xcFunction) {
             sql.newTableName = finalTableName;
             Transaction.done(txId, {
                 "msgTable": finalTableId,
-                "sql"     : sql
+                "sql": sql
             });
 
             deferred.resolve(finalTableName);
@@ -769,7 +768,7 @@ window.xcFunction = (function($, xcFunction) {
 
             Transaction.fail(txId, {
                 "failMsg": StatusMessageTStr.MapFailed,
-                "error"  : error
+                "error": error
             });
 
             deferred.reject(error);
@@ -799,26 +798,24 @@ window.xcFunction = (function($, xcFunction) {
         // var location = hostname + ":/var/tmp/xcalar/" + exportName;
 
         var sql = {
-            "operation"   : SQLOps.ExportTable,
-            "tableName"   : tableName,
-            "exportName"  : exportName,
-            "targetName"  : targetName,
-            "numCols"     : numCols,
+            "operation": SQLOps.ExportTable,
+            "tableName": tableName,
+            "exportName": exportName,
+            "targetName": targetName,
+            "numCols": numCols,
             "frontColumns": frontColumns,
-            "backColumns" : backColumns,
-            "keepOrder"   : keepOrder || false,
-            "options"     : options,
-            "htmlExclude" : ['options']
+            "backColumns": backColumns,
+            "keepOrder": keepOrder || false,
+            "options": options,
+            "htmlExclude": ['options']
         };
         var txId = Transaction.start({
-            "msg"      : StatusMessageTStr.ExportTable + ": " + tableName,
+            "msg": StatusMessageTStr.ExportTable + ": " + tableName,
             "operation": SQLOps.ExportTable,
-            "sql"      : sql,
-            "steps"    : 1, // xx is it possible to be multiple steps?
+            "sql": sql,
+            "steps": 1, // xx is it possible to be multiple steps?
             // "exportName": options.handleName
         });
-
-        
 
         XcalarExport(tableName, exportName, targetName, numCols, backColumns,
                      frontColumns, keepOrder, options, txId)
@@ -830,22 +827,22 @@ window.xcFunction = (function($, xcFunction) {
                 ext = ".sql";
             }
             var instr = xcHelper.replaceMsg(ExportTStr.SuccessInstr, {
-                "table"   : tableName,
+                "table": tableName,
                 "location": targetName,
-                "file"    : exportName + ext
+                "file": exportName + ext
             });
             var msg = xcHelper.replaceMsg(ExportTStr.SuccessMsg, {
-                "file"    : exportName + ext,
+                "file": exportName + ext,
                 "location": targetName
             });
             if (!dontShowModal) {
                 Alert.show({
-                    "title"     : ExportTStr.Success,
-                    "msg"       : msg,
-                    "instr"     : instr,
-                    "isAlert"   : true,
+                    "title": ExportTStr.Success,
+                    "msg": msg,
+                    "instr": instr,
+                    "isAlert": true,
                     "isCheckBox": true,
-                    "onCancel"  : function() {
+                    "onCancel": function() {
                         $('#alertContent').removeClass('leftAlign');
                     }
                 });
@@ -874,7 +871,7 @@ window.xcFunction = (function($, xcFunction) {
 
             Transaction.fail(txId, {
                 "failMsg": StatusMessageTStr.ExportFailed,
-                "error"  : error,
+                "error": error,
                 "noAlert": noAlert
             });
 
@@ -896,14 +893,14 @@ window.xcFunction = (function($, xcFunction) {
         var oldTableName = table.tableName;
 
         var sql = {
-            "operation"   : SQLOps.RenameTable,
-            "tableId"     : tableId,
+            "operation": SQLOps.RenameTable,
+            "tableId": tableId,
             "oldTableName": oldTableName,
             "newTableName": newTableName
         };
         var txId = Transaction.start({
             "operation": SQLOps.RenameTable,
-            "sql"      : sql
+            "sql": sql
         });
 
         // not lock table is the operation is short
@@ -933,7 +930,7 @@ window.xcFunction = (function($, xcFunction) {
 
             Transaction.fail(txId, {
                 "noAlert": noAlert,
-                "error"  : error
+                "error": error
             });
             deferred.reject(error);
         })
@@ -963,9 +960,9 @@ window.xcFunction = (function($, xcFunction) {
         }
 
         var txId = Transaction.start({
-            "msg"      : StatusMessageTStr.Project,
+            "msg": StatusMessageTStr.Project,
             "operation": SQLOps.Project,
-            "steps"    : 1
+            "steps": 1
         });
 
         xcHelper.lockTable(tableId, txId);
@@ -1008,18 +1005,18 @@ window.xcFunction = (function($, xcFunction) {
         .then(function() {
             xcHelper.unlockTable(tableId);
             var sql = {
-                "operation"   : SQLOps.Project,
-                "tableName"   : tableName,
-                "tableId"     : tableId,
-                "colNames"    : colNames,
+                "operation": SQLOps.Project,
+                "tableName": tableName,
+                "tableId": tableId,
+                "colNames": colNames,
                 "newTableName": dstTableName
             };
 
             var finalTableId = xcHelper.getTableId(dstTableName);
 
             Transaction.done(txId, {
-                "msgTable"      : finalTableId,
-                "sql"           : sql,
+                "msgTable": finalTableId,
+                "sql": sql,
                 "noNotification": focusOnTable
             });
             deferred.resolve(dstTableName);
@@ -1028,7 +1025,7 @@ window.xcFunction = (function($, xcFunction) {
             xcHelper.unlockTable(tableId);
             Transaction.fail(txId, {
                 "failMsg": StatusMessageTStr.ProjectFailed,
-                "error"  : error
+                "error": error
             });
             deferred.reject();
         });

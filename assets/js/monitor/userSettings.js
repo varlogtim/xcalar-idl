@@ -141,17 +141,17 @@ window.UserSettings = (function($, UserSettings) {
     }
 
     // not used but may be in the future
-    function getUserConfigParams(params) {
-        var numParams = params.numParams;
-        params = params.parameter;
-        var paramsObj = {};
-        for (var i = 0; i < numParams; i++) {
-            if (params[i].paramName === "DsDefaultSampleSize") {
-                paramsObj[params[i].paramName] = parseInt(params[i].paramValue);
-            }
-        }
-        return paramsObj;
-    }
+    // function getUserConfigParams(params) {
+    //     var numParams = params.numParams;
+    //     params = params.parameter;
+    //     var paramsObj = {};
+    //     for (var i = 0; i < numParams; i++) {
+    //         if (params[i].paramName === "DsDefaultSampleSize") {
+    //             paramsObj[params[i].paramName] = parseInt(params[i].paramValue);
+    //         }
+    //     }
+    //     return paramsObj;
+    // }
 
     function saveLastPrefs() {
         cachedPrefs = xcHelper.deepCopy(userPrefs);
@@ -224,7 +224,7 @@ window.UserSettings = (function($, UserSettings) {
                 updateDsPreviewLimitInput();
             },
             "container": $("#monitorGenSettingsCard"),
-            "bounds"   : $("#monitor-settings")
+            "bounds": $("#monitor-settings")
         }).setupListeners();
 
         $dsSampleLimit.on('change', '.size', function() {
@@ -233,8 +233,8 @@ window.UserSettings = (function($, UserSettings) {
 
         monIntervalSlider = new RangeSlider($('#monitorIntervalSlider'),
         'monitorGraphInterval', {
-            minVal     : 1,
-            maxVal     : 60,
+            minVal: 1,
+            maxVal: 60,
             onChangeEnd: function(val) {
                 MonitorGraph.updateInterval(val * 1000);
             }
@@ -242,9 +242,9 @@ window.UserSettings = (function($, UserSettings) {
 
         commitIntervalSlider = new RangeSlider($('#commitIntervalSlider'),
         'commitInterval', {
-            minVal     : 10,
-            maxVal     : 600,
-            onChangeEnd: function(val) {
+            minVal: 10,
+            maxVal: 600,
+            onChangeEnd: function() {
                 Support.heartbeatCheck();
             }
         });

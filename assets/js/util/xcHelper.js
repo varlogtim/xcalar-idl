@@ -173,7 +173,7 @@ window.xcHelper = (function($, xcHelper) {
         }
         return {
             "orig": oldName,
-            "new" : newName,
+            "new": newName,
             "type": type
         };
     };
@@ -250,7 +250,7 @@ window.xcHelper = (function($, xcHelper) {
         }
 
         return {
-            "operator"    : operator,
+            "operator": operator,
             "filterString": str
         };
     };
@@ -287,7 +287,7 @@ window.xcHelper = (function($, xcHelper) {
         }
 
         return {
-            "user"  : user,
+            "user": user,
             "randId": randId,
             "dsName": dsName
         };
@@ -352,7 +352,7 @@ window.xcHelper = (function($, xcHelper) {
 
         return {
             "prefix": prefix,
-            "name"  : colName,
+            "name": colName,
         };
     };
 
@@ -455,7 +455,7 @@ window.xcHelper = (function($, xcHelper) {
         }
 
         return {
-            "op"  : op,
+            "op": op,
             "args": args
         };
     };
@@ -596,11 +596,11 @@ window.xcHelper = (function($, xcHelper) {
             var escapedName = colName;
 
             var newProgCol = ColManager.newCol({
-                "backName"     : escapedName,
-                "name"         : colName,
-                "width"        : cellWidth,
-                "userStr"      : '"' + colName + '" = map(' + mapStr + ')',
-                "isNewCol"     : false,
+                "backName": escapedName,
+                "name": colName,
+                "width": cellWidth,
+                "userStr": '"' + colName + '" = map(' + mapStr + ')',
+                "isNewCol": false,
                 "sizedToHeader": sizedToHeader
             });
 
@@ -718,7 +718,7 @@ window.xcHelper = (function($, xcHelper) {
         }
         if (noSeconds) {
             return d.toLocaleTimeString(navigator.language, {
-                hour  : '2-digit',
+                hour: '2-digit',
                 minute: '2-digit'
             });
         } else {
@@ -1174,7 +1174,7 @@ window.xcHelper = (function($, xcHelper) {
         var newTableName = $input.val().trim();
         var defaultOpts = {
             "preventImmediateHide": true,
-            "formMode"            : true
+            "formMode": true
         };
         options = $.extend(defaultOpts, options);
 
@@ -1934,7 +1934,7 @@ window.xcHelper = (function($, xcHelper) {
         var inQuotes = false;
         var singleQuote = false; // ' is true, " is false
         var ret = {
-            char : "",
+            char: "",
             index: -1 // returns -1 if no mismatch found
         };
         for (var i = 0; i < val.length; i++) {
@@ -2141,11 +2141,11 @@ window.xcHelper = (function($, xcHelper) {
         var ext = name.substring(index + 1, name.length).toUpperCase();
         var formatMap = {
             "JSON": "JSON",
-            "CSV" : "CSV",
-            "TSV" : "CSV",
+            "CSV": "CSV",
+            "TSV": "CSV",
             "XLSX": "Excel",
-            "XLS" : "Excel",
-            "TXT" : "TEXT"
+            "XLS": "Excel",
+            "TXT": "TEXT"
         };
 
         if (formatMap.hasOwnProperty(ext)) {
@@ -2240,8 +2240,8 @@ window.xcHelper = (function($, xcHelper) {
                     tempString = tempString.trim();
                     operationName = tempString.split(" ")[0];
                     subQuery = {
-                        "query"    : tempString,
-                        "name"     : operationName,
+                        "query": tempString,
+                        "name": operationName,
                         "srcTables": getSrcTableFromQuery(tempString,
                                                          operationName),
                         "dstTable": getDstTableFromQuery(tempString,
@@ -2261,10 +2261,10 @@ window.xcHelper = (function($, xcHelper) {
             tempString = tempString.trim();
             operationName = tempString.split(" ")[0];
             subQuery = {
-                "query"    : tempString,
-                "name"     : operationName,
+                "query": tempString,
+                "name": operationName,
                 "srcTables": getSrcTableFromQuery(tempString, operationName),
-                "dstTable" : getDstTableFromQuery(tempString, operationName)
+                "dstTable": getDstTableFromQuery(tempString, operationName)
             };
             if (isExport) {
                 subQuery.exportFileName = getExportFileNameFromQuery(tempString);
@@ -2436,9 +2436,9 @@ window.xcHelper = (function($, xcHelper) {
         if (!table) {
             return {
                 invalid: true,
-                reason : 'tableNotFound',
-                name   : frontColNames[0],
-                type   : 'tableNotFound'
+                reason: 'tableNotFound',
+                name: frontColNames[0],
+                type: 'tableNotFound'
             };
         }
 
@@ -2506,9 +2506,9 @@ window.xcHelper = (function($, xcHelper) {
                         if (frontColName === tableCol.getFrontColName(true)) {
                             return {
                                 invalid: true,
-                                reason : 'type',
-                                type   : tableCol.type,
-                                name   : frontColName
+                                reason: 'type',
+                                type: tableCol.type,
+                                name: frontColName
                             };
                         }
                     }
@@ -2519,9 +2519,9 @@ window.xcHelper = (function($, xcHelper) {
             if (!colFound) {
                 return {
                     invalid: true,
-                    reason : 'notFound',
-                    name   : frontColName,
-                    type   : 'notFound'
+                    reason: 'notFound',
+                    name: frontColName,
+                    type: 'notFound'
                 };
             }
         }
@@ -2552,7 +2552,7 @@ window.xcHelper = (function($, xcHelper) {
         }
 
         return {
-            validProgCols  : colsArray,
+            validProgCols: colsArray,
             invalidProgCols: invalidProgCols
         };
     }
@@ -2589,7 +2589,7 @@ window.xcHelper = (function($, xcHelper) {
         }
         return {
             moduleLis: moduleLi,
-            fnLis    : fnLi
+            fnLis: fnLi
         };
     };
 
@@ -2647,9 +2647,9 @@ window.xcHelper = (function($, xcHelper) {
         $('#mainFrame').addClass('scrollLocked');
         $('#dagScrollBarWrap').addClass('xc-hidden');
         moveTableTitles(null, {
-            "offset"       : menuOffset,
+            "offset": menuOffset,
             "menuAnimating": true,
-            "animSpeed"    : menuAnimTime
+            "animSpeed": menuAnimTime
         });
         setTimeout(function() {
             unhideOffScreenTables();

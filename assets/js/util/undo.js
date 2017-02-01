@@ -42,7 +42,7 @@ window.Undo = (function($, Undo) {
     undoFuncs[SQLOps.Sort] = function(options) {
         var worksheet = WSManager.getWSFromTable(options.tableId);
         var refreshOptions = {
-            isUndo       : true,
+            isUndo: true,
             replacingDest: TableType.Undone
         };
         return (TblManager.refreshTable([options.tableName], null,
@@ -54,7 +54,7 @@ window.Undo = (function($, Undo) {
         var deferred = jQuery.Deferred();
         var worksheet = WSManager.getWSFromTable(options.tableId);
         var refreshOptions = {
-            isUndo       : true,
+            isUndo: true,
             replacingDest: TableType.Undone
         };
         TblManager.refreshTable([options.tableName], null,
@@ -65,7 +65,7 @@ window.Undo = (function($, Undo) {
             // the most recent operation
             if (isMostRecent && options.formOpenTime) {
                 OperationsView.show(null, null, null, {
-                    "restore"    : true,
+                    "restore": true,
                     "restoreTime": options.formOpenTime
                 });
             }
@@ -80,11 +80,10 @@ window.Undo = (function($, Undo) {
     undoFuncs[SQLOps.Query] = undoFuncs[SQLOps.Filter];
 
     undoFuncs[SQLOps.Map] = function(options, isMostRecent) {
-        
         var deferred = jQuery.Deferred();
         var worksheet = WSManager.getWSFromTable(options.tableId);
         var refreshOptions = {
-            isUndo       : true,
+            isUndo: true,
             replacingDest: TableType.Undone
         };
         TblManager.refreshTable([options.tableName], null,
@@ -96,7 +95,7 @@ window.Undo = (function($, Undo) {
             if (isMostRecent &&
                 (options.mapOptions && options.mapOptions.formOpenTime)) {
                 OperationsView.show(null, null, null, {
-                    "restore"    : true,
+                    "restore": true,
                     "restoreTime": options.mapOptions.formOpenTime
                 });
             }
@@ -126,16 +125,16 @@ window.Undo = (function($, Undo) {
         var rTableWorksheet = WSManager.getWSFromTable(rJoinInfo.tableId);
 
         var leftTable = {
-            name     : options.lTableName,
-            id       : lJoinInfo.tableId,
-            position : lJoinInfo.tablePos,
+            name: options.lTableName,
+            id: lJoinInfo.tableId,
+            position: lJoinInfo.tablePos,
             worksheet: lTableWorksheet
         };
 
         var rightTable = {
-            name     : options.rTableName,
-            id       : rJoinInfo.tableId,
-            position : rJoinInfo.tablePos,
+            name: options.rTableName,
+            id: rJoinInfo.tableId,
+            position: rJoinInfo.tablePos,
             worksheet: rTableWorksheet
         };
 
@@ -172,8 +171,8 @@ window.Undo = (function($, Undo) {
         }
 
         var refreshOptions = {
-            "isUndo"       : true,
-            "position"     : firstTable.position,
+            "isUndo": true,
+            "position": firstTable.position,
             "replacingDest": TableType.Undone
         };
         TblManager.refreshTable([firstTable.name], null, [options.newTableName],
@@ -186,8 +185,8 @@ window.Undo = (function($, Undo) {
                 deferred.resolve();
             } else {
                 var secondRefreshOptions = {
-                    "isUndo"       : true,
-                    "position"     : secondTable.position,
+                    "isUndo": true,
+                    "position": secondTable.position,
                     "replacingDest": TableType.Undone
                 };
                 TblManager.refreshTable([secondTable.name], null, [],
@@ -215,7 +214,7 @@ window.Undo = (function($, Undo) {
         if (options.options && options.options.isJoin) {
             var worksheet = WSManager.getWSFromTable(tableId);
             var refreshOptions = {
-                isUndo       : true,
+                isUndo: true,
                 replacingDest: TableType.Undone
             };
             promise = TblManager.refreshTable([options.tableName], null,
@@ -228,7 +227,7 @@ window.Undo = (function($, Undo) {
             if (isMostRecent &&
                 (options.options && options.options.formOpenTime)) {
                 OperationsView.show(null, null, null, {
-                    "restore"    : true,
+                    "restore": true,
                     "restoreTime": options.options.formOpenTime
                 });
             }
@@ -243,7 +242,7 @@ window.Undo = (function($, Undo) {
     undoFuncs[SQLOps.SplitCol] = function(options) {
         var worksheet = WSManager.getWSFromTable(options.tableId);
         var refreshOptions = {
-            isUndo       : true,
+            isUndo: true,
             replacingDest: TableType.Undone
         };
         return TblManager.refreshTable([options.tableName], null,
@@ -254,7 +253,7 @@ window.Undo = (function($, Undo) {
     undoFuncs[SQLOps.ChangeType] = function(options) {
         var worksheet = WSManager.getWSFromTable(options.tableId);
         var refreshOptions = {
-            isUndo       : true,
+            isUndo: true,
             replacingDest: TableType.Undone
         };
         return TblManager.refreshTable([options.tableName], null,
@@ -265,7 +264,7 @@ window.Undo = (function($, Undo) {
     undoFuncs[SQLOps.Project] = function(options) {
         var worksheet = WSManager.getWSFromTable(options.tableId);
         var refreshOptions = {
-            isUndo       : true,
+            isUndo: true,
             replacingDest: TableType.Undone
         };
         return TblManager.refreshTable([options.tableName], null,
@@ -295,7 +294,7 @@ window.Undo = (function($, Undo) {
         for (var table in replace) {
             var oldTables = replace[table];
             var refreshOptions = {
-                "isUndo"       : true,
+                "isUndo": true,
                 "replacingDest": TableType.Undone
             };
             for (var i = 0; i < oldTables.length; i++) {
@@ -425,7 +424,7 @@ window.Undo = (function($, Undo) {
         focusTableHelper(options);
         ColManager.renameCol(options.colNum, options.tableId, options.colName, {
             "keepEditable": options.wasNew,
-            "prevWidth"   : options.prevWidth
+            "prevWidth": options.prevWidth
         });
         return PromiseHelper.resolve(null);
     };
@@ -487,7 +486,7 @@ window.Undo = (function($, Undo) {
         for (var i = 0, len = tableIds.length; i < len; i++) {
             var tableName = tableNames[i];
             var refreshOptions = {
-                "isUndo"  : true,
+                "isUndo": true,
                 "position": tablePos[i]
             };
             promises.push(TblManager.refreshTable.bind(this, [tableName], null,
@@ -555,8 +554,10 @@ window.Undo = (function($, Undo) {
             return PromiseHelper.resolve(null);
         } else if (tableType === TableType.Orphan) {
             tableIds.forEach(function(tId) {
-                TblManager.sendTableToOrphaned(tId, {"remove"  : true,
-                                                     "keepInWS": true});
+                TblManager.sendTableToOrphaned(tId, {
+                    "remove": true,
+                    "keepInWS": true
+                });
             });
             return TableList.refreshOrphanList();
         } else {
@@ -640,7 +641,7 @@ window.Undo = (function($, Undo) {
         WSManager.removeTable(tableId);
 
         TblManager.refreshTable([tableName], null, [], oldWS, null, {
-            "isUndo"  : true,
+            "isUndo": true,
             "position": tablePos
         })
         .then(function() {

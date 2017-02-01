@@ -7,9 +7,9 @@ function getTextWidth($el, val, options) {
     if (options.defaultHeaderStyle) {
         defaultStyle = { // styling we use for column header
             "fontFamily": "'Open Sans', 'Trebuchet MS', Arial, sans-serif",
-            "fontSize"  : "13px",
+            "fontSize": "13px",
             "fontWeight": "600",
-            "padding"   : 48
+            "padding": 48
         };
     } else {
         defaultStyle = {padding: 0};
@@ -33,10 +33,10 @@ function getTextWidth($el, val, options) {
     tempDiv = $('<div>' + text + '</div>');
     tempDiv.css({
         'font-family': defaultStyle.fontFamily || $el.css('font-family'),
-        'font-size'  : defaultStyle.fontSize || $el.css('font-size'),
+        'font-size': defaultStyle.fontSize || $el.css('font-size'),
         'font-weight': defaultStyle.fontWeight || $el.css('font-weight'),
-        'position'   : 'absolute',
-        'display'    : 'inline-block',
+        'position': 'absolute',
+        'display': 'inline-block',
         'white-space': 'pre'
     }).appendTo($('body'));
 
@@ -81,8 +81,8 @@ function autosizeCol($th, options) {
 
     var widestTdWidth = getWidestTdWidth($th, {
         "includeHeader": includeHeader,
-        "fitAll"       : fitAll,
-        "datastore"    : datastore
+        "fitAll": fitAll,
+        "datastore": datastore
     });
     var newWidth = Math.max(widestTdWidth, minWidth);
     // dblClick is autoSized to a fixed width
@@ -259,7 +259,7 @@ function addMenuBehaviors($mainMenu) {
         $subMenu = $('#' + subMenuId);
         $allMenus = $allMenus.add($subMenu);
         subListScroller = new MenuHelper($subMenu, {
-            "scrollerOnly" : true,
+            "scrollerOnly": true,
             "bottomPadding": 4
         });
 
@@ -465,7 +465,7 @@ function addMenuBehaviors($mainMenu) {
 
     if ($mainMenu.find('.scrollArea').length !== 0) {
         new MenuHelper($mainMenu, {
-            $subMenu    : $subMenu,
+            $subMenu: $subMenu,
             scrollerOnly: true
         });
     }
@@ -1090,10 +1090,10 @@ function reorderAfterTableDrop(tableId, srcIndex, desIndex, options) {
 
     SQL.add("Change Table Order", {
         "operation": "reorderTable",
-        "tableId"  : tableId,
+        "tableId": tableId,
         "tableName": gTables[tableId].tableName,
-        "srcIndex" : srcIndex,
-        "desIndex" : desIndex
+        "srcIndex": srcIndex,
+        "desIndex": desIndex
     });
 }
 

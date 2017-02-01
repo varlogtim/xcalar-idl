@@ -67,7 +67,8 @@ window.DSExport = (function($, DSExport) {
                 KVStore.commit();
             })
             .fail(function(error) {
-                // XX fail case being handled in submitForm
+                // fail case being handled in submitForm
+                xcConsole.error(error);
             })
             .always(function() {
                 xcHelper.enableSubmit($submitBtn);
@@ -148,9 +149,9 @@ window.DSExport = (function($, DSExport) {
                     exportTargets.push({name: type, targets: []});
                 }
                 target = {
-                    name     : targets[i].hdr.name,
+                    name: targets[i].hdr.name,
                     formatArg: formatArg,
-                    options  : options
+                    options: options
                 };
                 exportTargets[typeIndex].targets.push(target);
             }
@@ -226,7 +227,7 @@ window.DSExport = (function($, DSExport) {
                 }
                 StatusBox.forceHide();
             },
-            "bounds"       : "#datastorePanel > .mainContent",
+            "bounds": "#datastorePanel > .mainContent",
             "bottomPadding": 5
         }).setupListeners();
 
@@ -236,7 +237,7 @@ window.DSExport = (function($, DSExport) {
                 $udfFuncList.find('.udfFuncName').val(func);
                 StatusBox.forceHide();
             },
-            "bounds"       : "#datastorePanel > .mainContent",
+            "bounds": "#datastorePanel > .mainContent",
             "bottomPadding": 5
         }).setupListeners();
     }
@@ -312,8 +313,8 @@ window.DSExport = (function($, DSExport) {
 
             xcHelper.dropdownOpen($target, $gridMenu, {
                 "mouseCoors": {"x": event.pageX, "y": event.pageY + 10},
-                "classes"   : classes,
-                "floating"  : true
+                "classes": classes,
+                "floating": true
             });
             return false;
         };
@@ -374,7 +375,7 @@ window.DSExport = (function($, DSExport) {
         }
 
         Alert.show({
-            "title"      : DSExportTStr.DeleteExportTarget,
+            "title": DSExportTStr.DeleteExportTarget,
             "msgTemplate": xcHelper.replaceMsg(DSExportTStr.DeleteConfirmMsg,
                                 {'target': targetName}),
             "onConfirm": function() {
@@ -384,7 +385,6 @@ window.DSExport = (function($, DSExport) {
                         showExportTargetForm();
                     }
                     DSExport.refresh();
-                    
                 })
                 .fail(function(error) {
                     Alert.error(DSExportTStr.DeleteFail, error.error);
@@ -399,25 +399,25 @@ window.DSExport = (function($, DSExport) {
         var $formatSpecificInput = $form.find('.active .formatSpecificArg');
         var isValid = xcHelper.validate([
             {
-                "$ele" : $('#targetName'),
+                "$ele": $('#targetName'),
                 "error": ErrTStr.NoEmpty,
-                "side" : "top",
+                "side": "top",
                 "check": function() {
                     return (name === "");
                 }
             },
             {
-                "$ele" : $targetTypeInput,
+                "$ele": $targetTypeInput,
                 "error": ErrTStr.NoEmptyList,
-                "side" : "top",
+                "side": "top",
                 "check": function() {
                     return (targetType === "");
                 }
             },
             {
-                "$ele" : $formatSpecificInput,
+                "$ele": $formatSpecificInput,
                 "error": ErrTStr.NoEmpty,
-                "side" : "top",
+                "side": "top",
                 "check": function() {
                     if (targetType === "ODBC") {
                         return false;
@@ -427,9 +427,9 @@ window.DSExport = (function($, DSExport) {
                 }
             },
             {
-                "$ele" : $form.find('.udfModuleName'),
+                "$ele": $form.find('.udfModuleName'),
                 "error": ErrTStr.NoEmptyList,
-                "side" : "top",
+                "side": "top",
                 "check": function() {
                     if (targetType === "UDF") {
                         return (options.module === "");
@@ -439,9 +439,9 @@ window.DSExport = (function($, DSExport) {
                 }
             },
             {
-                "$ele" : $form.find('.udfFuncName'),
+                "$ele": $form.find('.udfFuncName'),
                 "error": ErrTStr.NoEmptyList,
-                "side" : "top",
+                "side": "top",
                 "check": function() {
                     if (targetType === "UDF") {
                         return (options.fn === "");
@@ -554,16 +554,16 @@ window.DSExport = (function($, DSExport) {
 
     function addGridIcon(targetType, name, formatSpecificArg, options) {
         var target = {
-            name     : name,
+            name: name,
             formatArg: formatSpecificArg,
-            options  : options
+            options: options
         };
- 
+
         var $grid = $(getGridHtml(target));
         if (targetType === "LocalFilesystem") {
             targetType = ExportTStr.LocalFS;
         }
-      
+
         var targetTypeId = targetType.replace(/\s/g, '');
         // $grid.append('<div class="waitingIcon"></div>');
         if ($('#gridTarget-' + targetTypeId).length === 0) {

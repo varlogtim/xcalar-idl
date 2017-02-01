@@ -6,10 +6,10 @@ window.DSForm = (function($, DSForm) {
     var $filePath;  // $("#filePath");
 
     DSForm.View = {
-        "Path"    : "DSForm",
+        "Path": "DSForm",
         "Uploader": "DSUploader",
-        "Browser" : "FileBrowser",
-        "Preview" : "DSPreview",
+        "Browser": "FileBrowser",
+        "Preview": "DSPreview",
     };
 
     DSForm.setup = function() {
@@ -140,7 +140,7 @@ window.DSForm = (function($, DSForm) {
                 setProtocol($li.text());
             },
             "container": "#dsFormView",
-            "bounds"   : "#dsFormView"
+            "bounds": "#dsFormView"
         }).setupListeners();
 
 
@@ -187,7 +187,7 @@ window.DSForm = (function($, DSForm) {
         }
 
         DSPreview.show({
-            "path"  : protocol + path,
+            "path": protocol + path,
             "format": xcHelper.getFormat(path),
         }, true);
     }

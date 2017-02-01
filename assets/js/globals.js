@@ -19,10 +19,10 @@ var gPrefixLimit = 20;
 var gMouseEvents = new MouseEvents();
 var gRescol = {
     "minCellHeight": 25,
-    "cellMinWidth" : 15,
-    "clicks"       : 0,
-    "delay"        : 500,
-    "timer"        : null
+    "cellMinWidth": 15,
+    "clicks": 0,
+    "delay": 500,
+    "timer": null
 };
 
 var gMinTableWidth = 30;
@@ -44,10 +44,10 @@ var gKVScope = {
     "WKBK": XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
     "META": XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
     "EPHM": XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
-    "LOG" : XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
-    "ERR" : XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
+    "LOG": XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
+    "ERR": XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
     "FLAG": XcalarApiKeyScopeT.XcalarApiKeyScopeSession,
-    "VER" : XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
+    "VER": XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
     "GLOB": XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal
 };
 var gTables = {}; // This is the main global array containing structures

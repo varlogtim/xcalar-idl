@@ -18,11 +18,11 @@ window.FnBar = (function(FnBar, $) {
         $functionArea = $("#functionArea");
 
         editor = CodeMirror.fromTextArea($('#fnBar')[0], {
-            "mode"             : "spreadsheetCustom",
-            "indentWithTabs"   : true,
-            "indentUnit"       : 4,
-            "matchBrackets"    : true,
-            "placeholder"      : WSTStr.SearchTableAndColumn,
+            "mode": "spreadsheetCustom",
+            "indentWithTabs": true,
+            "indentUnit": 4,
+            "matchBrackets": true,
+            "placeholder": WSTStr.SearchTableAndColumn,
             "autoCloseBrackets": true
         });
 
@@ -69,8 +69,8 @@ window.FnBar = (function(FnBar, $) {
                     var error = ErrTStr.BracketsMis + "<br/>" + funcStr;
                     StatusBox.show(error, $fnBar.prev().prev(), null, {
                         "offsetX": pos.left - 178,
-                        "side"   : "bottom",
-                        "html"   : true
+                        "side": "bottom",
+                        "html": true
                     });
                 }, 0); // gets closed immediately without timeout;
             }
@@ -159,8 +159,8 @@ window.FnBar = (function(FnBar, $) {
                 colNamesCache = {};
 
                 var args = {
-                    "value"         : trimmedVal,
-                    "searchBar"     : searchHelper,
+                    "value": trimmedVal,
+                    "searchBar": searchHelper,
                     "initialTableId": initialTableId
                 };
                 ColManager.execCol("search", null, null, null, args);
@@ -338,8 +338,8 @@ window.FnBar = (function(FnBar, $) {
         // set up codemirror autcomplete command
         CodeMirror.commands.autocomplete = function(cm) {
             CodeMirror.showHint(cm, CodeMirror.hint.fnBarHint, {
-                alignWithWord        : true,
-                completeSingle       : false,
+                alignWithWord: true,
+                completeSingle: false,
                 completeOnSingleClick: true
             });
         };
@@ -370,11 +370,11 @@ window.FnBar = (function(FnBar, $) {
                     for (var i = 0; i < suggestedMainOperators.length; i++) {
                         seen[suggestedMainOperators[i]] = true;
                         list.push({
-                            text       : suggestedMainOperators[i] + "()",
+                            text: suggestedMainOperators[i] + "()",
                             displayText: suggestedMainOperators[i],
-                            hint       : autcompleteSelect,
-                            render     : renderMainOpLi,
-                            className  : "operator mainOperator"
+                            hint: autcompleteSelect,
+                            render: renderMainOpLi,
+                            className: "operator mainOperator"
                         });
                     }
                 } else {
@@ -403,11 +403,11 @@ window.FnBar = (function(FnBar, $) {
                         suggestedMainOperators[i].indexOf(curWord) !== -1) {
                         seen[suggestedMainOperators[i]] = true;
                         list.push({
-                            text       : suggestedMainOperators[i] + "()",
+                            text: suggestedMainOperators[i] + "()",
                             displayText: suggestedMainOperators[i],
-                            hint       : autcompleteSelect,
-                            render     : renderMainOpLi,
-                            className  : "operator mainOperator"
+                            hint: autcompleteSelect,
+                            render: renderMainOpLi,
+                            className: "operator mainOperator"
                         });
                         break;
                     }
@@ -420,10 +420,10 @@ window.FnBar = (function(FnBar, $) {
                         !seen.hasOwnProperty(name)) {
                         seen[name] = true;
                         list.push({
-                            text       : colNamesCache[name],
+                            text: colNamesCache[name],
                             displayText: colNamesCache[name],
-                            render     : renderList,
-                            className  : "colName"
+                            render: renderList,
+                            className: "colName"
                         });
                     }
                 }
@@ -444,10 +444,10 @@ window.FnBar = (function(FnBar, $) {
                         if (agg.indexOf(curWord) !== -1 &&
                             !seen.hasOwnProperty(agg)) {
                             list.push({
-                                text       : agg,
+                                text: agg,
                                 displayText: agg,
-                                render     : renderList,
-                                className  : "colName"
+                                render: renderList,
+                                className: "colName"
                             });
                         }
                     }
@@ -468,7 +468,7 @@ window.FnBar = (function(FnBar, $) {
             return ({
                 list: list,
                 from: CodeMirror.Pos(0, start),
-                to  : CodeMirror.Pos(0, end)
+                to: CodeMirror.Pos(0, end)
             });
 
             function seachMapFunction(fnName, mapFunc) {
@@ -476,14 +476,14 @@ window.FnBar = (function(FnBar, $) {
                     !seen.hasOwnProperty(fnName)) {
                     seen[fnName] = true;
                     list.push({
-                        text       : mapFunc.fnName + "()",
+                        text: mapFunc.fnName + "()",
                         displayText: mapFunc.fnName,
-                        template   : mapFunc.template,
+                        template: mapFunc.template,
                         templateTwo: mapFunc.templateTwo,
-                        argDescs   : mapFunc.modArgDescs,
-                        hint       : autcompleteSelect,
-                        render     : renderOpLi,
-                        className  : "operator"
+                        argDescs: mapFunc.modArgDescs,
+                        hint: autcompleteSelect,
+                        render: renderOpLi,
+                        className: "operator"
                     });
                 }
             }
@@ -636,9 +636,9 @@ window.FnBar = (function(FnBar, $) {
                                         ((mainFrameWidth - matchWidth) / 2));
                 }
             },
-            "codeMirror"          : editor,
-            "$input"              : $fnBar,
-            "ignore"              : "=",
+            "codeMirror": editor,
+            "$input": $fnBar,
+            "ignore": "=",
             "arrowsPreventDefault": true
         });
 
@@ -784,8 +784,8 @@ window.FnBar = (function(FnBar, $) {
         setTimeout(function() {
             StatusBox.show(text, $fnBar.prev().prev(), null, {
                 "offsetX": 50,
-                "side"   : "bottom",
-                "html"   : true
+                "side": "bottom",
+                "html": true
             });
         }, 0); // gets closed immediately without timeout;
     }
@@ -797,7 +797,7 @@ window.FnBar = (function(FnBar, $) {
         setTimeout(function() {
             StatusBox.show(text, $fnBar.prev().prev(), null, {
                 "offsetX": 50,
-                "side"   : "bottom"
+                "side": "bottom"
             });
         }, 0);
     }
@@ -810,12 +810,12 @@ window.FnBar = (function(FnBar, $) {
         }
         isAlertOpen = true;
         Alert.show({
-            "title"         : alertTitle,
-            "msgTemplate"   : alertMsg,
-            "keepFnBar"     : true,
+            "title": alertTitle,
+            "msgTemplate": alertMsg,
+            "keepFnBar": true,
             "focusOnConfirm": true,
-            "buttons"       : btns,
-            "onCancel"      : function() {
+            "buttons": btns,
+            "onCancel": function() {
                 if ($colInput.length) {
                     $colInput.trigger(fakeEvent.mousedown);
                     $colInput.trigger(fakeEvent.mouseup);

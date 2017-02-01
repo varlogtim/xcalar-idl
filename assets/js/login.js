@@ -41,11 +41,11 @@ $(document).ready(function() {
         if (gLoginEnabled) {
             isSubmitDisabled = true;
             $.ajax({
-                "type"       : "POST",
-                "data"       : JSON.stringify(str),
+                "type": "POST",
+                "data": JSON.stringify(str),
                 "contentType": "application/json",
-                "url"        : hostname + "/app/login",
-                "success"    : function(data) {
+                "url": hostname + "/app/login",
+                "success": function(data) {
                     ret = data;
                     if (ret.status === Status.Ok) {
                         console.log('success');
@@ -193,23 +193,23 @@ function flashBlockDetect(callbackMethod){
         embed_length = $('embed').length;
         object_length = $('object').length;
 
-        if((embed_length > 0) || (object_length > 0)) {
+        if ((embed_length > 0) || (object_length > 0)) {
             // Mac / Chrome using FlashBlock + Mac / Safari using AdBlock
             $('object, embed').each(function() {
-                        if($(this).css('display') === 'none'){
-                                return_value = 2;
-                        }
+                if ($(this).css('display') === 'none'){
+                    return_value = 2;
+                }
             });
         } else {
-            // Mac / Firefox using FlashBlock 
-            if( $('div[bginactive]').length > 0 ){
-                        return_value = 2;
+            // Mac / Firefox using FlashBlock
+            if ($('div[bginactive]').length > 0) {
+                return_value = 2;
             }
         }
     } else if (navigator.userAgent.indexOf('MSIE') > -1) {
         try {
             new ActiveXObject('ShockwaveFlash.ShockwaveFlash');
-        } catch(e) {
+        } catch (e) {
             return_value = 2;
         }
     } else {
@@ -217,7 +217,7 @@ function flashBlockDetect(callbackMethod){
         return_value = 1;
     }
 
-    if(callbackMethod && typeof(callbackMethod) === "function") {
+    if (callbackMethod && typeof(callbackMethod) === "function") {
         callbackMethod(return_value);
     } else {
         return return_value;

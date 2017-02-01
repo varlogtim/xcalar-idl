@@ -147,8 +147,8 @@ window.TableList = (function($, TableList) {
             }
 
             Alert.show({
-                "title"    : title,
-                "msg"      : msg,
+                "title": title,
+                "msg": msg,
                 "onConfirm": function() {
                     deleteFromList($section, tableType);
                 }
@@ -165,8 +165,7 @@ window.TableList = (function($, TableList) {
         });
 
         searchHelper = new SearchBar($("#orphanedTableList-search"), {
-            "$list": $("#orphanedTableListSection")
-                              .find('.tableLists'),
+            "$list": $("#orphanedTableListSection").find('.tableLists'),
             "removeSelected": function() {
                 $("#orphanedTableListSection").find(".selected")
                                               .removeClass('selected');
@@ -193,8 +192,6 @@ window.TableList = (function($, TableList) {
     };
 
     TableList.initialize = function() {
-        var deferred = jQuery.Deferred();
-
         var activeTables = [];
         var archivedTables = [];
 
@@ -217,12 +214,9 @@ window.TableList = (function($, TableList) {
         TableList.addTables(activeTables, IsActive.Active);
         TableList.addTables(archivedTables, IsActive.Inactive);
 
-        generateOrphanList(gOrphanTables)
-        generateConstList()
-        .then(deferred.resolve)
-        .then(deferred.reject);
+        generateOrphanList(gOrphanTables);
 
-        return (deferred.promise());
+        return generateConstList();
     };
 
     TableList.clear = function() {
@@ -298,7 +292,7 @@ window.TableList = (function($, TableList) {
         var table = gTables[tableId];
         TableList.addTables([table], IsActive.Active, {
             noAnimate: true,
-            position : position
+            position: position
         });
 
         if (wasOpen) {
@@ -524,8 +518,8 @@ window.TableList = (function($, TableList) {
                         .closest('.tableInfo')
                         .addClass('hiddenWS')
                         .attr({
-                            'data-toggle'        : 'tooltip',
-                            'data-container'     : 'body',
+                            'data-toggle': 'tooltip',
+                            'data-container': 'body',
                             'data-original-title': WSTStr.WSHidden
                         })
                         .find('.addTableBtn')
@@ -656,7 +650,7 @@ window.TableList = (function($, TableList) {
 
     TableList.removeFromCanceledList = function(tableName) {
         delete canceledTables[tableName];
-    };    
+    };
 
     // affects the display of the activeTableListSection instruction msg
     // pendingCount will have a positive value during TblManager.refreshTables
@@ -1308,11 +1302,11 @@ window.TableList = (function($, TableList) {
             var wsToSent;
 
             Alert.show({
-                "title"  : SideBarTStr.SendToWS,
-                "instr"  : SideBarTStr.NoSheetTableInstr,
+                "title": SideBarTStr.SendToWS,
+                "instr": SideBarTStr.NoSheetTableInstr,
                 "optList": {
                     "label": SideBarTStr.WSTOSend,
-                    "list" : WSManager.getWSLists(true)
+                    "list": WSManager.getWSLists(true)
                 },
                 "onConfirm": function() {
                     $noSheetTables.removeClass("highlight");

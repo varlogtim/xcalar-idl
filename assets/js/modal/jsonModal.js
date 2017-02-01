@@ -31,15 +31,15 @@ window.JSONModal = (function($, JSONModal) {
         var minWidth  = 300;
 
         modalHelper = new ModalHelper($jsonModal, {
-            "minHeight" : minHeight,
-            "minWidth"  : minWidth,
+            "minHeight": minHeight,
+            "minWidth": minWidth,
             "noTabFocus": true,
-            "noEsc"     : true
+            "noEsc": true
         });
 
         $jsonModal.draggable({
-            handle     : '.jsonDragArea',
-            cursor     : '-webkit-grabbing',
+            handle: '.jsonDragArea',
+            cursor: '-webkit-grabbing',
             containment: "window"
         });
 
@@ -61,11 +61,11 @@ window.JSONModal = (function($, JSONModal) {
         var small = false;
 
         $jsonModal.resizable({
-            handles    : "n, e, s, w, se",
-            minHeight  : minHeight,
-            minWidth   : minWidth,
+            handles: "n, e, s, w, se",
+            minHeight: minHeight,
+            minWidth: minWidth,
             containment: "document",
-            start      : function() {
+            start: function() {
                 $jsonWraps = $jsonModal.find('.jsonWrap');
                 $tabSets = $jsonWraps.find('.tabs');
                 modalMinWidth = $jsonWraps.length * jsonAreaMinWidth;
@@ -84,9 +84,9 @@ window.JSONModal = (function($, JSONModal) {
         var initialIndex;
         $jsonArea.sortable({
             revert: 300,
-            axis  : "x",
+            axis: "x",
             handle: ".jsonDragHandle",
-            start : function(event, ui) {
+            start: function(event, ui) {
                 initialIndex = $(ui.item).index();
             },
             stop: function(event, ui) {
@@ -466,7 +466,8 @@ window.JSONModal = (function($, JSONModal) {
         $jsonWrap.find('.projectModeBar .numColsSelected')
                  .text('0/' + totalCols + ' ' + JsonModalTStr.FieldsSelected);
 
-        var totalCols = $jsonWrap.find('.multiSelectModeBar .numColsSelected')
+
+        totalCols = $jsonWrap.find('.multiSelectModeBar .numColsSelected')
                                  .data('totalcols');
         $jsonWrap.find('.multiSelectModeBar .numColsSelected')
                  .text('0/' + totalCols + ' ' + JsonModalTStr.FieldsPull);
@@ -599,8 +600,8 @@ window.JSONModal = (function($, JSONModal) {
             }
 
             var options = {
-                "direction"  : isDataCol ? ColDir.Left : ColDir.Right,
-                "fullName"   : nameInfo.name,
+                "direction": isDataCol ? ColDir.Left : ColDir.Right,
+                "fullName": nameInfo.name,
                 "escapedName": backColName
             };
 
@@ -1352,8 +1353,8 @@ window.JSONModal = (function($, JSONModal) {
 
             for (var i = 0; i < indices.length; i++) {
                 comparisonObjs[indices[i]] = {
-                    matches  : matchedJsons[i],
-                    partial  : partialMatchedJsons[i],
+                    matches: matchedJsons[i],
+                    partial: partialMatchedJsons[i],
                     unmatched: unmatchedJsons[i]
                 };
             }
@@ -1886,16 +1887,15 @@ window.JSONModal = (function($, JSONModal) {
         }
 
         return {
-            "name"       : name,
+            "name": name,
             "escapedName": escapedName
         };
     }
 
     function submitProject(index) {
-        var colNames = [];
         var $jsonWrap = $('.jsonWrap').eq(index);
         var colNames = getSelectedCols($jsonWrap);
-        
+
         if (colNames.length) {
             var tableId = $jsonWrap.data('tableid');
             xcFunction.project(colNames, tableId);
@@ -1995,7 +1995,7 @@ window.JSONModal = (function($, JSONModal) {
         var cols = table.getAllCols();
         var colName;
         var $immediatesGroup = $jsonWrap.find('.immediatesGroup');
-        var $prefixGroups = $jsonWrap.find('.prefixGroups');
+        // var $prefixGroups = $jsonWrap.find('.prefixGroups');
         var $group;
         var prefixSelected = false;
 
@@ -2003,8 +2003,7 @@ window.JSONModal = (function($, JSONModal) {
             if (cols[i].isDATACol() || cols[i].isEmptyCol()) {
                 continue;
             }
-   
-            
+
             if (cols[i].isImmediate()) {
                 colName = cols[i].getBackColName();
                 $group = $immediatesGroup;

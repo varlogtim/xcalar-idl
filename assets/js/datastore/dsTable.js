@@ -436,7 +436,7 @@ window.DSTable = (function($, DSTable) {
                 return;
             }
             TblAnim.startColResize($(this), event, {
-                target  : "datastore",
+                target: "datastore",
                 minWidth: 25
             });
         });
@@ -462,8 +462,8 @@ window.DSTable = (function($, DSTable) {
                 var type = $header.data("type");
                 items.push({
                     "colNum": colNum,
-                    "value" : val,
-                    "type"  : type
+                    "value": val,
+                    "type": type
                 });
                 highlightColumn($input);
             }
@@ -484,8 +484,8 @@ window.DSTable = (function($, DSTable) {
             highlightColumn($input);
             DSCart.addItem(dsId, {
                 "colNum": colNum,
-                "value" : $input.val(),
-                "type"  : $header.data("type")
+                "value": $input.val(),
+                "type": $header.data("type")
             });
         }
     }
@@ -505,8 +505,8 @@ window.DSTable = (function($, DSTable) {
     }
     // hightligt column
     function highlightColumn($input, active) {
-        var colNum  = xcHelper.parseColNum($input);
-        var $table  = $input.closest(".datasetTable");
+        var colNum = xcHelper.parseColNum($input);
+        var $table = $input.closest(".datasetTable");
         var $header = $input.closest(".header");
 
         if (active) {
@@ -532,20 +532,20 @@ window.DSTable = (function($, DSTable) {
     function rePointDS(dsId) {
         var dsObj = DS.getDSObj(dsId);
         DSPreview.show({
-            "path"       : dsObj.getPath(),
-            "format"     : dsObj.getFormat(),
+            "path": dsObj.getPath(),
+            "format": dsObj.getFormat(),
             "previewSize": dsObj.previewSize,
-            "pattern"    : dsObj.pattern,
-            "isRecur"    : dsObj.isRecur,
-            "isRegex"    : dsObj.isRegex,
-            "dsName"     : dsObj.getName(),
-            "skipRows"   : dsObj.skipRows,
-            "moduleName" : dsObj.moduleName,
-            "funcName"   : dsObj.funcName,
-            "hasHeader"  : dsObj.hasHeader,
-            "fieldDelim" : dsObj.fieldDelim,
-            "lineDelim"  : dsObj.lineDelim,
-            "quoteChar"  : dsObj.quoteChar
+            "pattern": dsObj.pattern,
+            "isRecur": dsObj.isRecur,
+            "isRegex": dsObj.isRegex,
+            "dsName": dsObj.getName(),
+            "skipRows": dsObj.skipRows,
+            "moduleName": dsObj.moduleName,
+            "funcName": dsObj.funcName,
+            "hasHeader": dsObj.hasHeader,
+            "fieldDelim": dsObj.fieldDelim,
+            "lineDelim": dsObj.lineDelim,
+            "quoteChar": dsObj.quoteChar
         }, false, dsId, true);
     }
 

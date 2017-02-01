@@ -55,13 +55,13 @@ window.MonitorLog = (function(MonitorLog, $) {
         var $input = $recentLogsGroup.find('.xc-input');
         var val = $input.val().trim();
         $input.blur();
-    	
+
         var isValid = xcHelper.validate([
             {
                 "$ele": $input // check if it's empty
             },
             {
-                "$ele" : $input,
+                "$ele": $input,
                 "error": "Please enter a value between 1 and 500",
                 "check": function() {
                     return (!(parseInt(val) > 0 && parseInt(val) < 501));
@@ -119,7 +119,7 @@ window.MonitorLog = (function(MonitorLog, $) {
 
 
         XFTSupportTools.removeSessionFiles(val)
-        .then(function(ret) {
+        .then(function() {
             xcHelper.showSuccess();
         })
         .fail(function(err) {

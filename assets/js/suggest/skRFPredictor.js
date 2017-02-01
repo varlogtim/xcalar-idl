@@ -72,7 +72,7 @@ window.skRFPredictor = (function(skRFPredictor) {
                     JSON.stringify(modelMeta.modelType));
             }
             return {
-                "model"    : model,
+                "model": model,
                 "modelMeta": modelMeta
             };
         },
@@ -155,10 +155,10 @@ window.skRFPredictor = (function(skRFPredictor) {
                 // Case where we are given raw modelstr
                 modelParsed = parsedString;
             }
-            modelParsed.children_left = modelParsed.children_left.map(function(entry, idx) {
+            modelParsed.children_left = modelParsed.children_left.map(function(entry) {
                 return parseInt(entry, 10);
             });
-            modelParsed.children_right = modelParsed.children_right.map(function(entry, idx) {
+            modelParsed.children_right = modelParsed.children_right.map(function(entry) {
                 return parseInt(entry, 10);
             });
             return modelParsed;
@@ -168,8 +168,8 @@ window.skRFPredictor = (function(skRFPredictor) {
             var self = this;
             // There may be gaps in nodes numbering
             function isValidNodeState(nodeState) {
-                if ((nodeState == skNodeState.Leaf) ||
-                    (nodeState == skNodeState.Node)) {
+                if ((nodeState === skNodeState.Leaf) ||
+                    (nodeState === skNodeState.Node)) {
                     return true;
                 }
                 return false;
@@ -201,10 +201,10 @@ window.skRFPredictor = (function(skRFPredictor) {
 
         isLeaf: function(nodeIdx) {
             var self = this;
-            if (self.children_left[nodeIdx] == skTreeStates.TREE_LEAF &&
-                self.children_right[nodeIdx] == skTreeStates.TREE_LEAF &&
-                self.feature[nodeIdx] == skTreeStates.TREE_UNDEFINED &&
-                self.threshold[nodeIdx] == skTreeStates.TREE_UNDEFINED) {
+            if (self.children_left[nodeIdx] === skTreeStates.TREE_LEAF &&
+                self.children_right[nodeIdx] === skTreeStates.TREE_LEAF &&
+                self.feature[nodeIdx] === skTreeStates.TREE_UNDEFINED &&
+                self.threshold[nodeIdx] === skTreeStates.TREE_UNDEFINED) {
                 return true;
             } else {
                 return false;
@@ -262,7 +262,7 @@ window.skRFPredictor = (function(skRFPredictor) {
             var self = this;
             var scores = self.predict_proba(X);
             var bestClass = scores.reduce(function(iMax, x, i, arr) {
-                if(x > arr[iMax]) {
+                if (x > arr[iMax]) {
                     return i;
                 } else {
                     return iMax;
@@ -286,7 +286,7 @@ window.skRFPredictor = (function(skRFPredictor) {
             self.modelString = null;
             modelParsed = modelInput;
         }
-        self.estimators_ = modelParsed.estimators_.map(function(tree, idx) {
+        self.estimators_ = modelParsed.estimators_.map(function(tree) {
             return new DTModel(tree);
         });
         return self;
@@ -320,7 +320,7 @@ window.skRFPredictor = (function(skRFPredictor) {
                 throw "EmptyForest";
             }
             // Allscores shape is [nTrees, nClasses]
-            var allScores = self.estimators_.map(function(dtModel, idx) {
+            var allScores = self.estimators_.map(function(dtModel) {
                 return dtModel.predict_proba(X);
             });
             var baseArray = [];
@@ -330,7 +330,9 @@ window.skRFPredictor = (function(skRFPredictor) {
             } else {
                 numClasses = allScores[0].length;
             }
-            while(numClasses--) baseArray[numClasses] = 0;
+            while (numClasses--) {
+                baseArray[numClasses] = 0;
+            }
             var sumScores = allScores.reduce(function(a,b) {
                 // Declaring array for speed
                 var tmpArr = new Array(a.length);
@@ -352,7 +354,7 @@ window.skRFPredictor = (function(skRFPredictor) {
             var scores = self.predict_proba(X);
             // console.log(scores);
             var bestClass = scores.reduce(function(iMax, x, i, arr) {
-                if(x > arr[iMax]) {
+                if (x > arr[iMax]) {
                     return i;
                 } else {
                     return iMax;

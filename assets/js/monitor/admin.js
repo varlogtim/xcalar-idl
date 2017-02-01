@@ -121,7 +121,7 @@ window.Admin = (function($, Admin) {
 
     function addMonitorMenuUserListListeners() {
         searchHelper = new SearchBar($("#adminUserSearch"), {
-            "$list"         : $userList.find('ul'),
+            "$list": $userList.find('ul'),
             "removeSelected": function() {
                 $userList.find(".selected").removeClass('selected');
             },
@@ -160,8 +160,8 @@ window.Admin = (function($, Admin) {
                 username: username
             });
             Alert.show({
-                "title"    : title,
-                "msg"      : msg,
+                "title": title,
+                "msg": msg,
                 "onConfirm": function() {
                     Admin.switchUser(username);
                 }
@@ -403,8 +403,8 @@ window.Admin = (function($, Admin) {
                 logs = "No logs available.";
             }
             Alert.show({
-                "title"  : MonitorTStr.ClusterStatus,
-                "msg"    : logs,
+                "title": MonitorTStr.ClusterStatus,
+                "msg": logs,
                 "isAlert": true
             });
         })
@@ -428,14 +428,12 @@ window.Admin = (function($, Admin) {
     // setup func called before startNode, stopNode, etc.
     function supportPrep(command) {
         var deferred = jQuery.Deferred();
-       
         if (!Admin.isAdmin()) {
             deferred.reject({logs: MonitorTStr.NotAuth});
             return deferred.promise();
         }
 
         var title;
-        var msg;
         switch (command) {
             case ('startNode'):
                 title = MonitorTStr.StartNodes;
@@ -455,8 +453,8 @@ window.Admin = (function($, Admin) {
         });
 
         Alert.show({
-            "title"    : title,
-            "msg"      : msg,
+            "title": title,
+            "msg": msg,
             "onConfirm": function() {
                 $("#initialLoadScreen").show();
                 KVStore.commit()

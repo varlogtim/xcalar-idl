@@ -92,11 +92,11 @@ window.TblManager = (function($, TblManager) {
 
             // append newly created table to the back, do not remove any tables
             addTableOptions = {
-                "afterStartup" : true,
-                "selectCol"    : options.selectCol,
-                "isUndo"       : options.isUndo,
-                "position"     : options.position,
-                "from"         : options.from,
+                "afterStartup": true,
+                "selectCol": options.selectCol,
+                "isUndo": options.isUndo,
+                "position": options.position,
+                "from": options.from,
                 "replacingDest": options.replacingDest
             };
 
@@ -253,10 +253,10 @@ window.TblManager = (function($, TblManager) {
 
         var tableId = xcHelper.getTableId(tableName);
         var table = new TableMeta({
-            "tableId"  : tableId,
+            "tableId": tableId,
             "tableName": tableName,
             "tableCols": tableCols,
-            "status"   : TableType.Orphan
+            "status": TableType.Orphan
         });
 
         gTables[tableId] = table;
@@ -284,11 +284,11 @@ window.TblManager = (function($, TblManager) {
         }
 
         // add sql
-        SQL.add('Hide Table', {
-            "operation"  : SQLOps.ArchiveTable,
-            "tableIds"   : tableIds,
-            "tableNames" : tableNames,
-            "tablePos"   : tablePos,
+        SQL.add("Hide Table", {
+            "operation": SQLOps.ArchiveTable,
+            "tableIds": tableIds,
+            "tableNames": tableNames,
+            "tablePos": tablePos,
             "htmlExclude": ["tablePos"]
         });
     };
@@ -496,12 +496,12 @@ window.TblManager = (function($, TblManager) {
         if (!noLog) {
             var sql = {
                 "operation": SQLOps.DeleteTable,
-                "tables"   : xcHelper.deepCopy(tables),
+                "tables": xcHelper.deepCopy(tables),
                 "tableType": tableType
             };
             txId = Transaction.start({
                 "operation": SQLOps.DeleteTable,
-                "sql"      : sql
+                "sql": sql
             });
         }
 
@@ -563,7 +563,7 @@ window.TblManager = (function($, TblManager) {
             } else {
                 if (!noLog) {
                     Transaction.fail(txId, {
-                        "error"  : res.errorMsg,
+                        "error": res.errorMsg,
                         "failMsg": StatusMessageTStr.DeleteTableFailed,
                         "noAlert": noAlert
                     });
@@ -806,7 +806,7 @@ window.TblManager = (function($, TblManager) {
         SQL.add("Minimize Table", {
             "operation": SQLOps.HideTable,
             "tableName": tableName,
-            "tableId"  : tableId
+            "tableId": tableId
         });
     };
 
@@ -825,7 +825,7 @@ window.TblManager = (function($, TblManager) {
         SQL.add("Maximize Table", {
             "operation": SQLOps.UnhideTable,
             "tableName": gTables[tableId].tableName,
-            "tableId"  : tableId
+            "tableId": tableId
         });
     };
 
@@ -894,13 +894,13 @@ window.TblManager = (function($, TblManager) {
         TableList.updateTableInfo(tableId);
 
         SQL.add("Sort Table Columns", {
-            "operation"    : SQLOps.SortTableCols,
-            "tableName"    : table.tableName,
-            "tableId"      : tableId,
-            "sortKey"      : sortKey,
-            "direction"    : direction,
+            "operation": SQLOps.SortTableCols,
+            "tableName": table.tableName,
+            "tableId": tableId,
+            "sortKey": sortKey,
+            "direction": direction,
             "originalOrder": oldOrder,
-            "htmlExclude"  : ['originalOrder']
+            "htmlExclude": ['originalOrder']
         });
     };
 
@@ -1016,30 +1016,30 @@ window.TblManager = (function($, TblManager) {
             oldColumnWidths.push(columns[i].width);
 
             newWidths.push(autosizeCol($th, {
-                "dblClick"      : true,
-                "minWidth"      : 17,
+                "dblClick": true,
+                "minWidth": 17,
                 "unlimitedWidth": false,
-                "includeHeader" : sizeToHeader,
-                "fitAll"        : fitAll,
-                "multipleCols"  : true
+                "includeHeader": sizeToHeader,
+                "fitAll": fitAll,
+                "multipleCols": true
             }));
         }
 
         matchHeaderSizes($table);
 
         SQL.add("Resize Columns", {
-            "operation"      : SQLOps.ResizeTableCols,
-            "tableName"      : table.tableName,
-            "tableId"        : tableId,
-            "resizeTo"       : resizeTo,
-            "columnNums"     : colNums,
+            "operation": SQLOps.ResizeTableCols,
+            "tableName": table.tableName,
+            "tableId": tableId,
+            "resizeTo": resizeTo,
+            "columnNums": colNums,
             "oldColumnWidths": oldColumnWidths,
             "newColumnWidths": newWidths,
-            "oldWidthStates" : oldWidthStates,
-            "newWidthStates" : newWidthStates,
-            "htmlExclude"    : ["columnNums", "oldWidthStates",
-                                "newWidthStates", "oldColumnWidths",
-                                "newColumnWidths"]
+            "oldWidthStates": oldWidthStates,
+            "newWidthStates": newWidthStates,
+            "htmlExclude": ["columnNums", "oldWidthStates",
+                            "newWidthStates", "oldColumnWidths",
+                            "newColumnWidths"]
         });
     };
 
@@ -1090,9 +1090,9 @@ window.TblManager = (function($, TblManager) {
 
         SQL.add("Bookmark Row", {
             "operation": SQLOps.BookmarkRow,
-            "tableId"  : tableId,
+            "tableId": tableId,
             "tableName": table.getName(),
-            "rowNum"   : rowNum
+            "rowNum": rowNum
         });
     };
 
@@ -1109,9 +1109,9 @@ window.TblManager = (function($, TblManager) {
 
         SQL.add("Remove Bookmark", {
             "operation": SQLOps.RemoveBookmark,
-            "tableId"  : tableId,
+            "tableId": tableId,
             "tableName": table.getName(),
-            "rowNum"   : rowNum
+            "rowNum": rowNum
         });
     };
 
@@ -1227,9 +1227,9 @@ window.TblManager = (function($, TblManager) {
         }
 
         return {
-            "hasSuccess"   : hasSuccess,
-            "fails"        : fails,
-            "errorMsg"     : errorMsg,
+            "hasSuccess": hasSuccess,
+            "fails": fails,
+            "errorMsg": errorMsg,
             "successTables": successTables
         };
     }
@@ -1281,7 +1281,8 @@ window.TblManager = (function($, TblManager) {
 
             if (firstRow.length === 0) {
                 deferred.resolve();
-            } else if ($(this).scrollTop() === 0 && !firstRow.hasClass('row0')) 
+            } else if ($(this).scrollTop() === 0 &&
+                        !firstRow.hasClass('row0'))
             {
                 // scrolling to top
                 if (!scrolling) {
@@ -1296,11 +1297,11 @@ window.TblManager = (function($, TblManager) {
                                                numRowsToAdd;
 
                         info = {
-                            "targetRow"       : rowNumber,
+                            "targetRow": rowNumber,
                             "lastRowToDisplay": lastRowToDisplay,
-                            "bulk"            : false,
-                            "tableId"         : tableId,
-                            "currentFirstRow" : topRowNum
+                            "bulk": false,
+                            "tableId": tableId,
+                            "currentFirstRow": topRowNum
                         };
 
                         RowManager.addRows(rowNumber, numRowsToAdd,
@@ -1324,11 +1325,11 @@ window.TblManager = (function($, TblManager) {
                                     table.resultSetMax -
                                     table.currentRowNumber);
                     info = {
-                        "targetRow"       : table.currentRowNumber + numRowsToAdd,
+                        "targetRow": table.currentRowNumber + numRowsToAdd,
                         "lastRowToDisplay": table.currentRowNumber + numRowsToAdd,
-                        "bulk"            : false,
-                        "tableId"         : tableId,
-                        "currentFirstRow" : topRowNum
+                        "bulk": false,
+                        "tableId": tableId,
+                        "currentFirstRow": topRowNum
                     };
 
                     RowManager.addRows(table.currentRowNumber, numRowsToAdd,
@@ -1413,7 +1414,7 @@ window.TblManager = (function($, TblManager) {
 
         if (options.isUndo && options.position != null) {
             WSManager.replaceTable(newTableId, null, null, {
-                position    : options.position,
+                position: options.position,
                 removeToDest: options.replacingDest
             });
         } else if (tablesToReplace[0] == null) {
@@ -1456,12 +1457,12 @@ window.TblManager = (function($, TblManager) {
                     } else {
                         if (options.replacingDest === TableType.Undone) {
                             TblManager.sendTableToUndone(tablesToRemove[i], {
-                                "keepInWS" : true,
+                                "keepInWS": true,
                                 "noFocusWS": noFocusWS
                             });
                         } else {
                             TblManager.sendTableToOrphaned(tablesToRemove[i], {
-                                "keepInWS" : true,
+                                "keepInWS": true,
                                 "noFocusWS": noFocusWS
                             });
                         }
@@ -1472,10 +1473,10 @@ window.TblManager = (function($, TblManager) {
 
         var parallelOptions = {
             afterStartup: afterStartup,
-            selectCol   : selectCol
+            selectCol: selectCol
         };
-        return (TblManager.parallelConstruct(newTableId, tablesToRemove,
-                                             parallelOptions));
+        return TblManager.parallelConstruct(newTableId, tablesToRemove,
+                                            parallelOptions);
     }
 
     function setActiveTableMeta(tableName, tableCols) {
@@ -1490,7 +1491,7 @@ window.TblManager = (function($, TblManager) {
             }
 
             table = new TableMeta({
-                "tableId"  : tableId,
+                "tableId": tableId,
                 "tableName": tableName,
                 "tableCols": tableCols
             });
@@ -1546,7 +1547,6 @@ window.TblManager = (function($, TblManager) {
     function startBuildTable(tableId, tablesToRemove, options) {
         var deferred = jQuery.Deferred();
         var table = gTables[tableId];
-        var tableName = table.getName();
         var $table;
         options = options || {};
 
@@ -1560,7 +1560,7 @@ window.TblManager = (function($, TblManager) {
                 }
             }
             table.currentRowNumber = jsonData.length;
-            if(table.resultSetCount === 0) {
+            if (table.resultSetCount === 0) {
                 options.isEmpty = true;
             }
 
@@ -1579,19 +1579,20 @@ window.TblManager = (function($, TblManager) {
                     topRowNum = 0;
                 } else {
                     xcHelper.parseRowNum($firstRow);
-                } 
+                }
                 var targetRow = table.currentRowNumber + numRowsStillNeeded;
                 var info = {
-                    "targetRow"       : targetRow,
+                    "targetRow": targetRow,
                     "lastRowToDisplay": targetRow,
-                    "bulk"            : false,
-                    "dontRemoveRows"  : true,
-                    "tableId"         : tableId,
-                    "currentFirstRow" : topRowNum
+                    "bulk": false,
+                    "dontRemoveRows": true,
+                    "tableId": tableId,
+                    "currentFirstRow": topRowNum
                 };
 
-                return RowManager.addRows(table.currentRowNumber, numRowsStillNeeded,
-                                RowDirection.Bottom, info)
+                return RowManager.addRows(table.currentRowNumber,
+                                            numRowsStillNeeded,
+                                            RowDirection.Bottom, info);
             }
         })
         .then(function() {
@@ -2331,14 +2332,14 @@ window.TblManager = (function($, TblManager) {
             }
 
             xcHelper.dropdownOpen($el, $('#cellMenu'), {
-                "colNum"    : colNum,
-                "rowNum"    : rowNum,
-                "classes"   : "tdMenu", // specify classes to update colmenu's class attr
+                "colNum": colNum,
+                "rowNum": rowNum,
+                "classes": "tdMenu", // specify classes to update colmenu's class attr
                 "mouseCoors": {"x": event.pageX, "y": event.pageY},
-                "shiftKey"  : event.shiftKey,
-                "isMutiCol" : isMultiColumn(),
+                "shiftKey": event.shiftKey,
+                "isMutiCol": isMultiColumn(),
                 "isUnSelect": isUnSelect,
-                "floating"  : true
+                "floating": true
             });
 
             function singleSelection() {
@@ -2400,13 +2401,13 @@ window.TblManager = (function($, TblManager) {
             }
 
             xcHelper.dropdownOpen($div, $("#cellMenu"), {
-                "colNum"    : colNum,
-                "rowNum"    : rowNum,
-                "classes"   : "tdMenu", // specify classes to update colmenu's class attr
+                "colNum": colNum,
+                "rowNum": rowNum,
+                "classes": "tdMenu", // specify classes to update colmenu's class attr
                 "mouseCoors": {"x": event.pageX, "y": event.pageY},
-                "isMutiCol" : isMultiColumn(),
-                "isDataTd"  : isDataTd,
-                "floating"  : true
+                "isMutiCol": isMultiColumn(),
+                "isDataTd": isDataTd,
+                "floating": true
             });
 
             return false;
@@ -2427,9 +2428,9 @@ window.TblManager = (function($, TblManager) {
 
             xcHelper.dropdownOpen($dotWrap, $menu, {
                 "mouseCoors": {"x": x + 1, "y": y},
-                "floating"  : true,
-                "prefix"    : prefix,
-                "color"     : color
+                "floating": true,
+                "prefix": prefix,
+                "color": color
             });
         }
     };
@@ -2677,7 +2678,7 @@ window.TblManager = (function($, TblManager) {
             }
             var $th = $('#xcTable-' + tableId).find('th.col' + dataColIndex);
             autosizeCol($th, {
-                "fitAll"  : true,
+                "fitAll": true,
                 "minWidth": minWidth,
                 "maxWidth": maxWidth
             });

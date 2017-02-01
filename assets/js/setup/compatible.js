@@ -72,10 +72,10 @@ window.Compatible = (function($, Compatible) {
         // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map
         if (!Array.prototype.map) {
             Object.defineProperty(Array.prototype, "map", {
-                enumerable  : false,
-                writable    : false,
+                enumerable: false,
+                writable: false,
                 configurable: false,
-                value       : function(callback, thisArg) {
+                value: function(callback, thisArg) {
                     var T, A, k;
 
                     if (this == null) {
@@ -161,10 +161,10 @@ window.Compatible = (function($, Compatible) {
 
         if (!Array.prototype.includes) {
             Object.defineProperty(Array.prototype, "includes", {
-                enumerable  : false,
-                writable    : false,
+                enumerable: false,
+                writable: false,
                 configurable: false,
-                value       : function(searchElement) {
+                value: function(searchElement) {
                     'use strict';
                     if (this == null) {
                         throw new TypeError('Array.prototype.includes called on null or undefined');
@@ -198,27 +198,27 @@ window.Compatible = (function($, Compatible) {
 
             if (!String.prototype.repeat) {
                 Object.defineProperty(String.prototype, "repeat", {
-                    enumerable  : false,
-                    writable    : false,
+                    enumerable: false,
+                    writable: false,
                     configurable: false,
-                    value       : function(count) {
+                    value: function(count) {
                         'use strict';
                         if (this == null) {
                             throw new TypeError('can\'t convert ' + this + ' to object');
                         }
                         var str = '' + this;
                         count = +count;
-                        if (count != count) {
+                        if (count !== count) {
                             count = 0;
                         }
                         if (count < 0) {
                             throw new RangeError('repeat count must be non-negative');
                         }
-                        if (count == Infinity) {
+                        if (count === Infinity) {
                             throw new RangeError('repeat count must be less than infinity');
                         }
                         count = Math.floor(count);
-                        if (str.length == 0 || count == 0) {
+                        if (str.length === 0 || count === 0) {
                             return '';
                         }
                         // Ensuring count is a 31-bit integer allows us to heavily optimize the
@@ -229,11 +229,11 @@ window.Compatible = (function($, Compatible) {
                         }
                         var rpt = '';
                         for (;;) {
-                            if ((count & 1) == 1) {
+                            if ((count & 1) === 1) {
                                 rpt += str;
                             }
                             count >>>= 1;
-                            if (count == 0) {
+                            if (count === 0) {
                                 break;
                             }
                             str += str;

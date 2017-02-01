@@ -32,6 +32,7 @@ window.UploadDataflowCard = (function($, UploadDataflowCard) {
                 deferred.resolve();
             })
             .fail(function(error) {
+                xcConsole.error(error);
                 StatusBox.show(ErrTStr.RetinaFailed, $card.find(".confirm"),
                                false, {"side": "left"});
                 deferred.reject();
@@ -68,7 +69,7 @@ window.UploadDataflowCard = (function($, UploadDataflowCard) {
         .then(function() {
             DF.addDataflow(retName, new Dataflow(retName), null, {
                 "isUpload": true,
-                "noClick" : true
+                "noClick": true
             });
 
             closeCard();

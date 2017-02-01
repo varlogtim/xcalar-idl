@@ -36,11 +36,11 @@ window.OperationsView = (function($, OperationsView) {
 
     // shows valid cast types
     var castMap = {
-        "string"     : ['boolean', 'integer', 'float'],
-        "integer"    : ['boolean', 'integer', 'float', 'string'],
-        "float"      : ['boolean', 'integer', 'float', 'string'],
-        "number"     : ['boolean', 'integer', 'float', 'string'],
-        "boolean"    : ['integer', 'float', 'string']
+        "string": ['boolean', 'integer', 'float'],
+        "integer": ['boolean', 'integer', 'float', 'string'],
+        "float": ['boolean', 'integer', 'float', 'string'],
+        "number": ['boolean', 'integer', 'float', 'string'],
+        "boolean": ['integer', 'float', 'string']
         // no valid cast options for: undefined, array, array values, objects,
         // or mixed
     };
@@ -568,22 +568,22 @@ window.OperationsView = (function($, OperationsView) {
 
         // should only have 1 initially...
         var functionsListScroller = new MenuHelper($('.filter .functionsList'), {
-            scrollerOnly : true,
-            bounds       : '#operationsView',
+            scrollerOnly: true,
+            bounds: '#operationsView',
             bottomPadding: 5
         });
 
         functionsListScrollers.push(functionsListScroller);
 
         gbFunctionsListScroller = new MenuHelper($('.groupby .functionsList'), {
-            scrollerOnly : true,
-            bounds       : '#operationsView',
+            scrollerOnly: true,
+            bounds: '#operationsView',
             bottomPadding: 5
         });
 
         aggFunctionsListScroller = new MenuHelper($('.aggregate .functionsList'), {
-            scrollerOnly : true,
-            bounds       : '#operationsView',
+            scrollerOnly: true,
+            bounds: '#operationsView',
             bottomPadding: 5
         });
 
@@ -675,7 +675,7 @@ window.OperationsView = (function($, OperationsView) {
         // used for css class
         var opNameNoSpace = operatorName.replace(/ /g, "");
         var columnPicker = {
-            "state"      : opNameNoSpace + "State",
+            "state": opNameNoSpace + "State",
             "colCallback": function($target) {
                 xcHelper.fillInputFromCell($target, $lastInputFocused,
                                             gColPrefix);
@@ -689,7 +689,7 @@ window.OperationsView = (function($, OperationsView) {
         if (operatorName === "map") {
             formHelper.addWaitingBG({
                 heightAdjust: 20,
-                transparent : true
+                transparent: true
             });
             disableInputs();
             XcalarListXdfs("*", "User*")
@@ -921,7 +921,7 @@ window.OperationsView = (function($, OperationsView) {
 
     var firstArgExceptions = {
         'conditional functions': ['not'],
-        'conditional'          : ['not']
+        'conditional': ['not']
     };
 
     function populateInitialCategoryField(operator) {
@@ -1604,8 +1604,8 @@ window.OperationsView = (function($, OperationsView) {
         }
         $activeOpSection.find('.hint.new').each(function() {
             var scroller = new MenuHelper($(this), {
-                scrollerOnly : true,
-                bounds       : '#operationsView',
+                scrollerOnly: true,
+                bounds: '#operationsView',
                 bottomPadding: 5
             });
             suggestLists[groupIndex].push(scroller);
@@ -2475,7 +2475,7 @@ window.OperationsView = (function($, OperationsView) {
                     var castType = $input.data('casttype');
                     if (castType !== progCol.getType()) {
                         colTypeInfos.push({
-                            "type"  : castType,
+                            "type": castType,
                             "argNum": i
                         });
                     }
@@ -2579,9 +2579,9 @@ window.OperationsView = (function($, OperationsView) {
                         types = parseType(typeid);
                         if (colTypes.length) {
                             allColTypes.push({
-                                "inputTypes"   : colTypes,
+                                "inputTypes": colTypes,
                                 "requiredTypes": types,
-                                "inputNum"     : inputNum
+                                "inputNum": inputNum
                             });
                         } else {
                             allColTypes.push({});
@@ -2970,9 +2970,9 @@ window.OperationsView = (function($, OperationsView) {
         }
 
         var options = {
-            "isIncSample" : isIncSample,
-            "isJoin"      : isJoin,
-            "icvMode"     : icvMode,
+            "isIncSample": isIncSample,
+            "isJoin": isJoin,
+            "icvMode": icvMode,
             "formOpenTime": formOpenTime,
             "dstTableName": dstTableName
         };
@@ -3106,7 +3106,7 @@ window.OperationsView = (function($, OperationsView) {
             case "map":
                 title = StatusMessageTStr.MapFailed;
                 if (options.hasWeirdQuotes) {
-                    newMsg += "\n" +  OpModalTStr.WeirdQuotes;
+                    newMsg += "\n" + OpModalTStr.WeirdQuotes;
                 }
                 break;
             case "group by":
@@ -3119,9 +3119,9 @@ window.OperationsView = (function($, OperationsView) {
 
         Alert.error(title, newMsg, {
             buttons: [{
-                name     : btnText,
+                name: btnText,
                 className: btnClass,
-                func     : function() {
+                func: function() {
                     OperationsView.show(null , null , null , {restore: true});
                 }
             }]
@@ -3354,7 +3354,7 @@ window.OperationsView = (function($, OperationsView) {
             .then(function(ret) {
                 if (ret.length) {
                     errorTitle = xcHelper.replaceMsg(ErrWRepTStr.AggConflict, {
-                        "name"     : val,
+                        "name": val,
                         "aggPrefix": gAggVarPrefix
                     });
                     showInvalidAggregateName($input, errorTitle);
@@ -3372,9 +3372,9 @@ window.OperationsView = (function($, OperationsView) {
         var $toolTipTarget = $input.parent();
 
         xcTooltip.transient($toolTipTarget, {
-            "title"    : errorTitle,
+            "title": errorTitle,
             "placement": "right",
-            "template" : xcTooltip.Template.Error
+            "template": xcTooltip.Template.Error
         }, 4000);
 
         $input.click(hideTooltip);
@@ -3416,7 +3416,7 @@ window.OperationsView = (function($, OperationsView) {
                 return null;
             } else {
                 return {
-                    "validType"  : types,
+                    "validType": types,
                     "currentType": argType
                 };
             }
@@ -3427,7 +3427,7 @@ window.OperationsView = (function($, OperationsView) {
 
         if (!isNumber) {
             return {
-                "validType"  : types,
+                "validType": types,
                 "currentType": argType
             };
         }
@@ -3442,7 +3442,7 @@ window.OperationsView = (function($, OperationsView) {
                 argType = ColumnType.float;
 
                 return {
-                    "validType"  : types,
+                    "validType": types,
                     "currentType": argType
                 };
             } else {
@@ -3955,8 +3955,8 @@ window.OperationsView = (function($, OperationsView) {
         var functionsListScroller = new MenuHelper(
             $('.functionsList[data-fnlistnum="' + newGroupIndex + '"]'),
             {
-                scrollerOnly : true,
-                bounds       : '#operationsView',
+                scrollerOnly: true,
+                bounds: '#operationsView',
                 bottomPadding: 5
             }
         );
