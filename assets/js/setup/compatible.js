@@ -12,7 +12,6 @@ window.Compatible = (function($, Compatible) {
         stringCheck();
         browserCheck();
         systemCheck();
-        featureCheck();
     };
 
     function stringCheck() {
@@ -285,15 +284,6 @@ window.Compatible = (function($, Compatible) {
     function systemCheck() {
         if (/MAC/i.test(navigator.platform)) {
             window.isSystemMac = true;
-        }
-    }
-
-    function featureCheck() {
-        window.hasFlash = false;
-        try {
-            window.hasFlash = Boolean(new ActiveXObject('ShockwaveFlash.ShockwaveFlash'));
-        } catch(exception) {
-            window.hasFlash = ('undefined' !== typeof navigator.mimeTypes['application/x-shockwave-flash']);
         }
     }
 

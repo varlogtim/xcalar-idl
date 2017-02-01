@@ -45,7 +45,7 @@ describe('TableList Test', function() {
             "name"    : "DATA",
             "backName": "DATA",
             "isNewCol": false,
-             "func"    : {
+            "func"    : {
                 "name": "raw"
             }
         });
