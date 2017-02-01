@@ -587,30 +587,23 @@ describe("Ephemeral Constructor Test", function() {
                 "version"    : "2.0",
                 "description": "test",
                 "author"     : "test user",
-                "category"   : "test",
-                "imageUrl"   : "test.jpg",
-                "website"    : "test.com",
-                "installed"  : true,
-                "repository" : {
-                    "url": "test.ext.com"
-                }
+                "image"      : "testImage",
+                "category"   : "test"
             });
 
-            expect(extItem).to.be.an("object");
-            expect(Object.keys(extItem).length).to.equal(11);
+            expect(extItem).to.be.an.instanceof(ExtItem);
+            expect(Object.keys(extItem).length).to.equal(6);
 
             expect(extItem.getName()).to.equal("testItem");
             expect(extItem.getCategory()).to.equal("test");
             expect(extItem.getAuthor()).to.equal("test user");
             expect(extItem.getDescription()).to.equal("test");
             expect(extItem.getVersion()).to.equal("2.0");
-            expect(extItem.getWebsite()).to.equal("test.com");
-            expect(extItem.getImage()).to.equal("test.jpg");
-            expect(extItem.getUrl()).to.equal("test.ext.com");
-            expect(extItem.isInstalled()).to.be.true;
+            expect(extItem.getImage()).to.equal("testImage");
+            expect(extItem.isInstalled()).to.be.false;
 
-            extItem.setImage("image.jpg");
-            expect(extItem.getImage()).to.equal("image.jpg");
+            extItem.setImage("testImage2");
+            expect(extItem.getImage()).to.equal("testImage2");
         });
 
         it("ExtCategory should be a constructor", function() {
@@ -636,8 +629,7 @@ describe("Ephemeral Constructor Test", function() {
             expect(list.length).to.equal(0);
 
             list = extCategory.getInstalledExtensionList();
-            expect(list.length).to.equal(1);
-            expect(list[0].getName()).to.equal("testItem");
+            expect(list.length).to.equal(0);
         });
 
         it("ExtCategorySet should be constructor", function() {

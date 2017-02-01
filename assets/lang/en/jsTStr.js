@@ -147,7 +147,6 @@ CommonTxtTstr = {
     'NoUndone': 'This action cannot be undone',
     'InvalidSize': 'Invalid size',
     'Uploading': 'Uploading',
-
     // with replace
     'SupportBundleMsg': 'Support upload bundle id <id> successfully generated' +
                         '! It is located on your Xcalar Server at <path>'
@@ -773,16 +772,15 @@ SideBarTStr = {
 };
 
 ExtTStr = {
-    "Website": "VISIT WEBSITE",
+    "Author": "Author",
     "Report": "REPORT ERROR",
     "Version": "Version",
-    "Lang": "Language",
     "extName": "Extension Name",
-    "categoryName": "Category Name",
     "Install": "INSTALL",
     "Installed": "INSTALLED",
     "More": "VIEW MORE",
-    "Less": "HIDE DETAIL"
+    "Less": "HIDE DETAIL",
+    "XcCategory": "Xcalar Extensions"
 };
 
 DaysTStr = {

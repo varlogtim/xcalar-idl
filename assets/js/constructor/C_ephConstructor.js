@@ -2390,14 +2390,12 @@ function ExtItem(options) {
     this.name = options.name;
     this.version = options.version;
     this.description = options.description;
-    this.main = options.main;
-    this.repository = options.repository;
     this.author = options.author;
-    this.devDependencies = options.devDependencies;
-    this.category = options.category;
-    this.imageUrl = options.imageUrl;
-    this.website = options.website;
-    this.installed = options.installed || false;
+    this.image = options.image;
+    // XXX quick hack, if we later want to have multiple category
+    // then keep the structure, otherwise, can refactor to remove
+    // category related code
+    this.category = options.category || ExtTStr.XcCategory;
 }
 
 ExtItem.prototype = {
@@ -2421,32 +2419,31 @@ ExtItem.prototype = {
         return this.version || "N/A";
     },
 
-    getWebsite: function() {
-        return this.website;
-    },
-
     getImage: function() {
-        if (this.imageUrl == null) {
+        if (this.image == null) {
             return "";
         }
 
-        return this.imageUrl;
-    },
-
-    getUrl: function() {
-        if (this.repository != null) {
-            return this.repository.url;
-        }
-
-        return null;
+        return this.image;
     },
 
     setImage: function(newImage) {
-        this.imageUrl = newImage;
+        this.image = newImage;
     },
 
     isInstalled: function() {
-        return this.installed;
+        var exist = false;
+        var name = this.name + ".ext.js";
+
+        $("#extension-ops-script script").each(function() {
+            var src = $(this).attr("src");
+            if (src.includes(name)) {
+                exist = true;
+                // end loop
+                return false;
+            }
+        });
+        return exist;
     }
 };
 
@@ -2536,11 +2533,6 @@ ExtCategorySet.prototype = {
 
     addExtension: function(extension) {
         var categoryName = extension.category;
-        // var isCustom = true;
-        // if (extension.repository && extension.repository.type === "market") {
-        //     isCustom = false;
-        // }
-
         var extCategory;
 
         if (this.has(categoryName)) {
