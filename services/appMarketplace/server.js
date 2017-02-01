@@ -142,7 +142,7 @@ app.post("/uploadMeta", function(req, res) {
             oldData = JSON.parse(oldData);
             for (var key in jsonMetaOutput) {
                 if (jsonMetaOutput[key].length === 0 && key in oldData) {
-                    sonMetaOutput[key] = oldData[key];
+                    jsonMetaOutput[key] = oldData[key];
                 }
             }
             fs.writeFile(filename, JSON.stringify(jsonMetaOutput), function(err) {
@@ -172,7 +172,7 @@ app.get("/list", function(req, res) {
     }
     _getAllFilesFromFolder(__dirname + "/extensions")
     .then(function(extensions) {
-        res.send(extensions);
+        res.jsonp(extensions);
     });
 });
 
@@ -199,18 +199,31 @@ app.get("/download", function(req, res) {
     }
     var appFolder = __dirname + "/extensions" + "/" + appName + "/" + version + "/";
     var fileName = appFolder + appName + "-" + version + ".zip"
+    console.log(fileName);
     if (!fs.existsSync(fileName)) {
         return res.send({"status": Status["Error"], "logs": "File not exists"});
     }
+
+    fs.readFile(fileName, function(err, data) {
+        if (err) {
+            console.log("Error");
+            res.send({status: Status.Error});
+        }
+        var a = new Buffer(data).toString('base64');
+	console.log(a.length);
+	res.send({status: Status.Ok,
+              data: a});
+    });
+/**
     res.writeHead(200, {
         "Content-Type"        : "application/octet-stream",
         "Content-Disposition" : "attachment; filename="+appName+"-"+version+".zip",
         "Content-Encoding"    : "zip"
     });
     console.log("Downloading from " + appFolder);
-    /* Read the source directory */
     fstream.Reader({ "path" : fileName, "type" : "File" })
         .pipe(res); // Write back to the response, or wherever else...
+*/
 });
 
 var _getAllFilesFromFolder = function(dir) {

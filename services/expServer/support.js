@@ -183,7 +183,7 @@ function sendCommandToSlaves(action, str, hosts) {
         };
         var req = https.request(options, function(res) {
             res.setEncoding('utf8');
-            res.on('data', (data) => {
+            res.on('data', function(data) {
                 process.stdout.write(data);
                 var ret = data;
                 var retMsg;
@@ -219,7 +219,7 @@ function sendCommandToSlaves(action, str, hosts) {
                 req.abort();
             });
         });
-        req.on('error', (error) => {
+        req.on('error', function(error) {
             console.error(error);
             retMsg = {
                 status: Status.Error,
@@ -479,7 +479,7 @@ function getXlrRoot() {
     var cfgLocation = "/etc/xcalar/default.cfg";
     var deferred = jQuery.Deferred();
     var defaultLoc = "/mnt/xcalar";
-    var cfg = fs.readFile(cfgLocation, 'utf8', (err, data) => {
+    var cfg = fs.readFile(cfgLocation, 'utf8', function(err, data) {
         try {
             if (err) throw err;
             var lines = data.split("\n");
@@ -504,7 +504,7 @@ function getLicense(res) {
     getXlrRoot()
     .then(function(location) {
         var licenseLocation = location + "/config/license.txt";
-        fs.readFile(licenseLocation, 'utf8', (err, data) => {
+        fs.readFile(licenseLocation, 'utf8', function(err, data) {
             try {
                 if (err) throw err;
                 var license = data;

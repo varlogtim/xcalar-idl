@@ -10,6 +10,7 @@ var https = require("https");
 require('shelljs/global');
 var ldap = require('ldapjs');
 var exec = require('child_process').exec;
+var unzip = require('unzip');
 require("jsdom").env("", function(err, window) {
     if (err) {
         console.error(err);
@@ -38,6 +39,15 @@ app.all('/*', function(req, res, next) {
 app.get('/*', function(req, res) {
     res.send('Please use post instead');
 });
+
+var verbose = true;
+var xcConsole = {
+    "log": function() {
+        if (verbose) {
+            console.log.apply(this, arguments);
+        }
+    }
+};
 
 // End of generic setup stuff
 
@@ -560,16 +570,176 @@ app.post("/completeInstallation", function(req, res) {
 // End of installer calls
 
 // Start of marketplace calls
-app.post("/listPackages", function(req, res) {
-    console.log("List Packages");
-    var credArray = req.body;
-    var hasError = false;
-    var errors = [];
-    var f = fs.readFile("marketplace.json", function(err, data) {
-        if (err) throw err;
-        res.send(data);
+/**
+options should include:
+host: hostName,
+port: portNumber,
+path: /action/here,
+method: "POST" || "GET",
+addition stuff like
+postData: // For Posts
+*/
+function sendRequest(options) {
+    var deferred = jQuery.Deferred();
+
+    if (!options || !options.host || !options.method) {
+        return jQuery.Deferred().reject("options not set");
+    }
+
+    var hostName = options.host;
+    var action = options.path;
+
+    if (options.method === "POST") {
+        if (!options.postData) {
+            options.postData = "{}";
+        }
+        options.headers = {
+            "Content-Type": "application/json",
+            "Content-Length": Buffer.byteLength(options.postData)
+        };
+    }
+
+    function afterSendHandler(res) {
+        res.setEncoding('utf8');
+        var totalData = "";
+        res.on('data', function(data) {
+            totalData += data;
+        });
+        res.on('end', function() {
+           xcConsole.log("ended");
+           deferred.resolve(totalData);
+        });
+    }
+
+    function afterErrorHandler(error) {
+        xcConsole.error(error);
+        retMsg = {
+            status: Status.Error,
+            error: error,
+            logs: error.message
+        };
+        deferred.reject(retMsg);
+    }
+
+    var req;
+    if (options.method === "GET") {
+        xcConsole.log("Received request for :" + hostName + action);
+        req = https.get(hostName + action, afterSendHandler);
+    } else if (options.method === "POST") {
+        req = https.request(options, afterSendHandler);
+    } else {
+        return jQuery.Deferred.reject("Only GET and POST for sendRequest");
+    }
+    req.on('error', afterErrorHandler);
+    req.end();
+
+    return deferred.promise();
+}
+
+app.post("/downloadPackage", function(req, res) {
+    function parseExtensionsHtml(html) {
+        var lines = html.split("\n");
+        var packages = {};
+        for (var i = 0; i < lines.length; i++) {
+            var line = lines[i].trim();
+            var installationDir = "/extensions/installed/";
+            if (line.indexOf("<!--") > -1 ||
+                line.indexOf(installationDir) < 0) {
+                continue;
+            }
+            var name = line.substring(line.indexOf(installationDir) +
+                                      installationDir.length,
+                                      line.indexOf(".ext.js"));
+            packages[name] = true;
+        }
+        return packages;
+    }
+
+    xcConsole.log("Download Package");
+    var pkg = req.body;
+    xcConsole.log(pkg);
+    var url = "/marketplace/download?name=" + pkg.name + "&version=" +
+              pkg.version;
+    var basePath = "/var/www/xcalar-gui/assets/extensions/installed/";
+
+    var options = {
+        host: "https://authentication.xcalar.net",
+        port: 3001,
+        path: url,
+        method: "GET",
+    };
+    sendRequest(options)
+    .then(function(ret) {
+        xcConsole.log(ret);
+        var deferred = jQuery.Deferred();
+        var retStruct;
+        try {
+            retStruct = JSON.parse(ret);
+            if (retStruct.status !== Status.Ok) {
+                return deferred.reject(retStruct);
+            }
+        } catch(e) {
+            return deferred.reject(ret);
+        }
+
+        xcConsole.log(retStruct.data.length);
+
+        var zipFile = new Buffer(retStruct.data, 'base64');
+        var zipPath = basePath + pkg.name + "-" + pkg.version + ".zip";
+        xcConsole.log(zipPath);
+        fs.writeFile(basePath+pkg.name+"-"+pkg.version+".zip", zipFile,
+        function(a) {
+            xcConsole.log("Writing");
+            try {
+                fs.createReadStream(zipPath)
+                  .pipe(unzip.Extract({path: basePath}));
+                deferred.resolve();
+            } catch (e) {
+                deferred.reject(e);
+            }
+        });
+        return deferred.promise();
+    })
+    .then(function() {
+        xcConsole.log("Appending to extensions.html");
+        var deferred = jQuery.Deferred();
+        xcConsole.log(basePath + "../extensions.html");
+        fs.readFile(basePath + "../extensions.html", 'utf8',
+                    function(err, data) {
+            xcConsole.log(err, data);
+            if (err) {
+                deferred.reject(err);
+            }
+            var packages = parseExtensionsHtml(data);
+            xcConsole.log(packages);
+            if (pkg.name in packages) {
+                xcConsole.log(pkg.name + " is already in extensions.html");
+                deferred.resolve(data);
+            } else {
+                var startIdx = data.indexOf("<!--NEW EXTENSION HERE");
+                var newString = data.substring(0, startIdx) +
+                    '    <script src="assets/extensions/installed/' + pkg.name +
+                    '.ext.js" type="text/javascript"></script>\n' +
+                    '    <!--NEW EXTENSION HERE-->\n' +
+                    data.substring(startIdx);
+                deferred.resolve(newString);
+            }
+        });
+        return deferred.promise();
+    })
+    .then(function(newString) {
+        fs.writeFile(basePath + "../extensions.html", newString,
+                     function() {
+            res.jsonp({status: Status.Ok});
+        });
+    })
+    .fail(function() {
+        xcConsole.log("Failed: "+arguments);
+        res.jsonp({status: Status.Error,
+                   logs: JSON.stringify(arguments)});
     });
 });
+
 // End of marketplace calls
 
 // Start of LDAP calls
