@@ -369,7 +369,7 @@ window.TestSuiteManager = (function(TestSuiteManager) {
                 switch (ret[i].status) {
                     case ('Failed'):
                         status = "fail";
-                        text = "Time: " + ret[i].duration + "s";
+                        text = "Time: " + ret[i].duration + "s" + ret[i].error;
                         break;
                     case ('Success'):
                         status = "pass";
