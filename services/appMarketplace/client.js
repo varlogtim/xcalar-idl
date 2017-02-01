@@ -17,8 +17,7 @@ var Status = {
     "Incomplete": 4
 };
 
-// var host = "https://authentication.xcalar.net/marketplace/"
-var host = "http://euler:3001/"
+var host = "https://authentication.xcalar.net/marketplace/"
 app.get("/", function(req, res) {
     res.sendFile(__dirname + "/index.html");
 });
