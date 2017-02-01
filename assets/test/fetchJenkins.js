@@ -40,7 +40,8 @@ window.JenkinsTestData = (function(JenkinsTestData) {
                             duration = (new Date() - startDate) / 1000;
                             usersStatus[j] = {
                                 "status": "Running",
-                                "duration": duration
+                                "duration": duration,
+                                "error": ""
                             };
                         }
                     }
@@ -53,16 +54,19 @@ window.JenkinsTestData = (function(JenkinsTestData) {
                             match(/(?:Fail:)(.+)(?:, Pass:)/)[1]);
                         success = parseInt(statusLine.
                             match(/(?:Pass:)(.+)(?:, Skip:)/)[1]);
+                        error = ""
                         if (failure === 0) {
                             status = "Success";
                         } else {
                             status = "Failed";
+                            error = statusLine.match(/(?:Error:)(.+)/)[1];
                         }
                         duration = parseFloat(statusLine.
                             match(/(?:Time: )(.+)(?:s)/)[1]);
                         usersStatus[userId] = {
                             "status": status,
-                            "duration": duration
+                            "duration": duration,
+                            "error": error
                         };
                     }
                 }
