@@ -123,7 +123,7 @@ describe('TableMenu', function() {
                 expect(called).to.be.false;
 
                 var isUnavailable = false;
-                if (!$tableMenu.find(".exportTable").hasClass("unavailable")) {
+                if ($tableMenu.find(".exportTable").hasClass("unavailable")) {
                     isUnavailable = true;
                     // temporarily remove unavailable class for testing
                     $tableMenu.find(".exportTable").removeClass("unavailable");
@@ -131,7 +131,7 @@ describe('TableMenu', function() {
 
                 $tableMenu.find('.exportTable').trigger(fakeEvent.mouseup);
                 expect(called).to.be.true;
-               
+
                 if (isUnavailable) {
                     $tableMenu.find(".exportTable").addClass("unavailable");
                 }
@@ -371,7 +371,7 @@ describe('TableMenu', function() {
 
                 WSManager.moveTable = cachedFunc;
             });
-            
+
             it('moveLeft', function() {
                 var cachedFunc = reorderAfterTableDrop;
                 var called = false;
@@ -1257,7 +1257,7 @@ describe('TableMenu', function() {
                 expect(tId).to.equal(tableId);
                 expect(colNum).to.equal(12);
                 expect(rowNum).to.equal(0);
-            
+
                 called = true;
             };
 
