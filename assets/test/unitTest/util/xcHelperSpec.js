@@ -1944,6 +1944,48 @@ describe('xcHelper Test', function() {
             });
         });
 
+        describe("hasMixedCells() test", function() {
+            before(function() {
+                // second cell has undefined val
+                var html = '<table id="xcTable-123">'+
+                                '<tr>' +
+                                    '<td><div>someVal</div></td>' +
+                                '</tr>' +
+                                '<tr>' +
+                                    '<td><div class="undefined">FNF</div></td>' +
+                                '</tr>' +
+                                '<tr>' +
+                                    '<td><div>otherVal</div></td>' +
+                                '</tr>' +
+                            +'<table>';
+                $("#container").append(html);
+
+            });
+            it("hasMixedCells() should work", function() {
+                var fn = xcHelper.__testOnly__.hasMixedCells;
+                var tableId = "123";
+                var $table = $("#xcTable-" + tableId);
+                expect($table.length).to.equal(1);
+                expect($table.find('td').length).to.equal(3);
+
+
+                $table.find("td").eq(1).append('<div class="highlightBox"></div>');
+                expect(fn(tableId)).to.be.false;
+
+                $table.find("td").eq(0).append('<div class="highlightBox"></div>');
+                expect(fn(tableId)).to.be.true;
+
+                $table.find("td").eq(1).find(".highlightBox").remove();
+                $table.find("td").eq(3).append('<div class="highlightBox"></div>');
+                expect(fn(tableId)).to.be.false;
+
+                $table.find(".highlightBox").remove();
+            });
+            after(function() {
+                $("#xcTable-123").remove();
+            });
+        });
+
         describe('toggle json options test', function() {
             var testDs;
             var tableName;

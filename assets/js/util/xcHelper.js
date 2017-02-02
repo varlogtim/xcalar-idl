@@ -3017,11 +3017,13 @@ window.xcHelper = (function($, xcHelper) {
         // allow fnfs but not array elements, multi-type, or anything but
         // valid types
         var validTypes = ["string", "float", "integer", "boolean"];
-        var shouldNotFilter = options.isMutiCol || isChildOfArray ||
-                            validTypes.indexOf(columnType) === -1;
-        var notAllowed = $div.find('.null, .blank').length;
         var isMultiCell = $("#xcTable-" + tableId).find(".highlightBox")
                                                   .length > 1;
+        var shouldNotFilter = options.isMutiCol || isChildOfArray ||
+                            validTypes.indexOf(columnType) === -1 ||
+                            hasMixedCells(tableId);
+        var notAllowed = $div.find('.null, .blank').length;
+        
 
         var $tdFilter  = $menu.find(".tdFilter");
         var $tdExclude = $menu.find(".tdExclude");
@@ -3059,6 +3061,20 @@ window.xcHelper = (function($, xcHelper) {
 
         toggleUnnestandJsonOptions($menu, $div, columnType, isMultiCell,
                                     notAllowed, options);
+    }
+
+    // XXX we won't need to do this check (disallow filtering mixed cell types)
+    // once GUI-7071 is fixed
+    function hasMixedCells(tableId) {
+        // this function assumes all the cells come from the same column
+        var $highlightBoxes = $("#xcTable-" + tableId).find(".highlightBox");
+        var $tds = $highlightBoxes.closest("td");
+        var $fnfCells = $tds.find(".undefined");
+        if ($fnfCells.length > 0 && $fnfCells.length < $tds.length) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     function toggleUnnestandJsonOptions($menu, $div, columnType,
@@ -3151,6 +3167,7 @@ window.xcHelper = (function($, xcHelper) {
         xcHelper.__testOnly__ = {};
         xcHelper.__testOnly__.toggleUnnestandJsonOptions =
                               toggleUnnestandJsonOptions;
+        xcHelper.__testOnly__.hasMixedCells = hasMixedCells;
     }
     /* End Of Unit Test Only */
 
