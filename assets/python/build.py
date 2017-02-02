@@ -9,7 +9,7 @@ def catFilesTogether():
     for f in os.listdir(jsRoot):
         if os.path.isdir(jsRoot+f):
             subFolder = jsRoot + f
-            if f == "thrift" or f == "unused":
+            if f == "thrift" or f == "unused" or f == "worker":
                 continue
             print "Squashing all js files in: "+subFolder
             outFile = open(jsRoot+"/"+f+".js", "w")
