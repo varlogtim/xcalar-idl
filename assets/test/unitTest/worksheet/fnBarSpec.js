@@ -123,6 +123,28 @@ describe('FnBar', function() {
 
                 editor.setValue("yelp");
                 expect($fnArea.find(".counter .position").text()).to.equal("1");
+                var maxMatches = parseInt($fnArea.find(".counter .total")
+                                                 .text().replace("of ", ""));
+
+                for (var i = 1; i < maxMatches; i++) {
+                    signalKeyDown(keyCode.Down);
+                    expect($fnArea.find(".counter .position").text())
+                    .to.equal(String(i+1));
+                }
+                signalKeyDown(keyCode.Down);
+                expect($fnArea.find(".counter .position").text()).to.equal("1");
+
+                signalKeyDown(keyCode.Up);
+                expect($fnArea.find(".counter .position").text())
+                .to.equal(String(maxMatches));
+
+                $fnArea.find(".downArrow").click();
+                expect($fnArea.find(".counter .position").text())
+                .to.equal("1");
+
+                $fnArea.find(".upArrow").click();
+                expect($fnArea.find(".counter .position").text())
+                .to.equal(String(maxMatches));
 
                 editor.setValue("average_stars");
                 expect($fnArea.find(".counter .position").text()).to.equal("1");

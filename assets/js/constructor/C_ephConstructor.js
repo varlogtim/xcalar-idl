@@ -82,7 +82,7 @@ function MouseEvents() {
         }
 
         $lastMDParents = $lastMouseDownTarget.parents();
-        
+
         lastTime = (new Date()).getTime();
 
         // store up to last 3 mousedowns
@@ -1073,10 +1073,16 @@ ModalHelper.prototype = {
             }
 
             // when close the modal
-            $modalBg.fadeOut(fadeOutTime, function() {
+            if (gMinModeOn) {
+                $modalBg.hide();
                 $modalBg.removeClass('light');
                 $mainFrame.removeClass('modalOpen');
-            });
+            } else {
+                $modalBg.fadeOut(fadeOutTime, function() {
+                    $modalBg.removeClass('light');
+                    $mainFrame.removeClass('modalOpen');
+                });
+            }
 
             if (tableId) {
                 $('.xcTableWrap').not('#xcTableWrap-' + tableId)
@@ -1091,12 +1097,17 @@ ModalHelper.prototype = {
 
             $mainFrame.addClass('modalOpen');
             var fadeInTime;
-            if (options.time == null) {
+            if (options.time === null) {
                 fadeInTime = 150;
             } else {
                 fadeInTime = options.time;
             }
-            $modalBg.addClass('light').fadeIn(fadeInTime);
+            if (gMinModeOn) {
+                $modalBg.addClass('light');
+                $modalBg.show();
+            } else {
+                $modalBg.addClass('light').fadeIn(fadeInTime);
+            }
         }
     },
 
@@ -1112,9 +1123,13 @@ ModalHelper.prototype = {
 
         $waitingBg.height(modalHeight - modalHeaderHeight)
                   .css('top', modalHeaderHeight);
-        setTimeout(function() {
-            $waitingBg.find('.waitingIcon').fadeIn();
-        }, 200);
+        if (gMinModeOn) {
+            $waitingBg.find(".waitingIcon").show();
+        } else {
+            setTimeout(function() {
+                $waitingBg.find('.waitingIcon').fadeIn();
+            }, 200);
+        }
     },
 
     removeWaitingBG: function() {
@@ -1222,6 +1237,8 @@ ModalHelper.prototype = {
         }
     }
 };
+
+/* End modalHelper */
 
 /* Export Helper */
 function ExportHelper($view) {
@@ -1618,7 +1635,7 @@ FormHelper.prototype = {
                 if ($header.hasClass('noColumnPicker')) {
                     return;
                 }
- 
+
                 callback($target);
             });
 
@@ -1891,7 +1908,7 @@ FormHelper.prototype = {
         }
     }
 };
-/* End of ModalHelper */
+/* End of FormHelper */
 
 function RangeSlider($rangeSliderWrap, prefName, options) {
     options = options || {};
@@ -2516,7 +2533,6 @@ ExtCategory.prototype = {
         return resList;
     }
 };
-
 function ExtCategorySet() {
     this.set = {};
     return this;

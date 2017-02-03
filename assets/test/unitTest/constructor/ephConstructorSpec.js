@@ -1,4 +1,13 @@
 describe("Ephemeral Constructor Test", function() {
+    function timeoutPromise(timeTmp) {
+        var time = timeTmp || 200;
+        var deferred = PromiseHelper.deferred();
+        setTimeout(function() {
+            deferred.resolve();
+        }, time);
+        return deferred;
+    }
+
     describe("XcMap Test", function() {
         it("Should be a map", function() {
             var map = new XcMap();
@@ -314,11 +323,117 @@ describe("Ephemeral Constructor Test", function() {
     });
 
     describe("Corrector Constructor Test", function() {
-        it("Corrector Shhould work", function() {
+        it("Corrector Should work", function() {
             var corrector = new Corrector(["test", "yelp", "hello"]);
             expect(corrector.correct("ylp")).to.equal("yelp");
             expect(corrector.suggest("ylp")).to.equal("yelp");
             expect(corrector.suggest("t")).to.equal("test");
+        });
+    });
+
+    describe("ModalHelper Constructor Test", function() {
+        var $fakeModal;
+        var modalHelper;
+        before(function() {
+            UnitTest.onMinMode();
+            var html =
+            '<div id="fakeModalInst" class="modalContainer">' +
+                '<header class="modalHeader">' +
+                    '<div class="headerBtn exitFullScreen">' +
+                        '<i class="icon xi-exit-fullscreen">::before</i>' +
+                    '</div>' +
+                    '<div class="headerBtn fullScreen">' +
+                        '<i class="icon xi-fullscreen">::before</i>' +
+                    '</div>' +
+                    '<div class="close">' +
+                        '<i class="icon xi-close">::before</i>' +
+                    '</div>' +
+                '</header>' +
+                '<section class="modalMain">' +
+                    '<input id="fakeInput" class="focusable" style="width:34px;">' +
+                    '<button id="fakeButton" class="btn focusable">hehe</button>' +
+                '</section>' +
+            '</div>';
+            $fakeModal = $(html);
+            $("#container").append($fakeModal);
+        });
+
+        it("ModalHelper should be constructor", function (){
+            modalHelper = new ModalHelper($fakeModal, {});
+            $fakeModal.modalHelper = modalHelper;
+
+            $fakeModal.on("click", ".close", function() {modalHelper.clear();});
+            expect(modalHelper.id).to.equal("fakeModalInst");
+        });
+        it("ModalHelper setup should work", function(done) {
+            modalHelper.setup();
+            timeoutPromise()
+            .then(function() {
+                expect($fakeModal.is(":visible")).to.be.true;
+                done();
+            });
+        });
+        it("ModalHelper clear should work", function() {
+            modalHelper.clear();
+            expect($fakeModal.is(":visible")).to.be.false;
+        });
+        it("ModalHelper toggleBG should work", function(done) {
+            var $modalBackground = $("#modalBackground");
+            modalHelper.setup();
+            expect($fakeModal.is(":visible")).to.be.true;
+            modalHelper.toggleBG("all", false);
+            timeoutPromise()
+            .then(function() {
+                expect($modalBackground.hasClass("light")).to.be.true;
+                modalHelper.toggleBG("all", true);
+                return timeoutPromise(500);
+            })
+            .then(function() {
+                expect($modalBackground.hasClass("light")).to.be.false;
+                modalHelper.toggleBG("all", false);
+                return timeoutPromise();
+            })
+            .then(function() {
+                expect($modalBackground.hasClass("light")).to.be.true;
+                done();
+            });
+        });
+        it("ModalHelper waitingBG should work", function() {
+            modalHelper.addWaitingBG();
+            expect($("#modalWaitingBG").length).above(0);
+            expect($("#modalWaitingBG .waitingIcon").is(":visible")).to.be.true;
+            modalHelper.removeWaitingBG();
+            expect($("#modalWaitingBG").length).to.equal(0);
+            expect($("#modalWaitingBG .waitingIcon").is(":visible")).to.be.false;
+        });
+        // TODO: unskip when below issue resolved
+        it("ModalHelper tabbing should work", function(done) {
+            expect($fakeModal.find(":focus").length).to.equal(0);
+            var tabEvent = jQuery.Event("keydown");
+            tabEvent.which = keyCode.Tab;
+            $fakeModal.trigger(tabEvent);
+            setTimeout(function() {
+                // TODO: uncomment & unskip when focus issue resolved.
+                // Problem: focus will not trigger when in different window
+                // expect($fakeModal.find(":focus").length).to.equal(1);
+                done();
+            },200);
+        });
+        it("ModalHelper esc should exit", function(done) {
+            var escEvent = jQuery.Event("keydown");
+            escEvent.which = keyCode.Escape;
+            $fakeModal.trigger(escEvent);
+            setTimeout(function() {
+                expect($fakeModal.is(":visible")).to.be.false;
+                done();
+            },200);
+        });
+        after(function() {
+            // Why is the following line not done in clear?
+            $("#mainFrame").removeClass('modalOpen');
+
+            $("#container").remove("#fakeModalInst");
+            UnitTest.offMinMode();
         });
     });
 
@@ -552,7 +667,7 @@ describe("Ephemeral Constructor Test", function() {
             var $colHead = $table.find('th.col2 .header');
             expect($colHead.attr('data-original-title').indexOf('Cannot') > -1).to.be.true;
             expect($colHead.attr('data-original-title').indexOf('objects') > -1).to.be.true;
-            
+
             // click on object column
             $table.find('th.col2 .header').trigger('click');
             expect(colPickerCallBackTriggered).to.be.false;
@@ -573,6 +688,197 @@ describe("Ephemeral Constructor Test", function() {
         after(function(done) {
             UnitTest.deleteAll(tableName, testDs)
             .always(function() {
+                done();
+            });
+        });
+    });
+
+
+    describe("Rangeslider Constructor Test", function() {
+        this.timeout(200000);
+        // TODO: ensure that .slider itself is being updated
+        var $rangeSliderWrap;
+        var rangeSlider;
+        var randPrefName;
+        var USSetPrefCached;
+        var curVal;
+        before(function() {
+            randPrefName = "RANDPREFNAME";
+            USSetPrefCached = UserSettings.setPref;
+            UserSettings.setPref = function(pref, val, isGeneral) {
+                if (pref===randPrefName) {
+                    curVal = val;
+                }
+            };
+            var html =
+            '<div id="testSlider" class="optionSelector rangeSliderWrap">' +
+                '<div class="rangeSlider" style="width:275px;">' +
+                    '<div class="leftArea">' +
+                        '::before' +
+                        '<div class="slider"></div>' +
+                    '</div>' +
+                    '<div class="rightArea">' +
+                        '::before' +
+                    '</div>' +
+                '</div>' +
+                '<input class="value" type="number" min="10" max="600">' +
+                '<span>seconds</span>' +
+            '</div>';
+            $rangeSliderWrap = $(html);
+            curVal = -1;
+        });
+        it("RangeSlider should be a constructor.", function() {
+            expect($rangeSliderWrap.find(".leftArea").hasClass("ui-resizable"))
+            .to.be.false;
+            var options = {
+                minVal : 0,
+                maxVal : 275,
+            };
+            rangeSlider = new RangeSlider($rangeSliderWrap, randPrefName,
+                                          options);
+            expect($rangeSliderWrap.find(".leftArea").hasClass("ui-resizable"))
+            .to.be.true;
+        });
+
+        it("Click in slider but not on slider tab should work", function() {
+            function mouseDownAt(someX) {
+                var e = jQuery.Event("mousedown");
+                e.which = 1;
+                e.pageX = someX;
+                return e;
+            }
+            // Mousedown should be handled like click
+            expect(curVal).to.equal(-1);
+            $rangeSliderWrap.find(".leftArea").trigger(mouseDownAt(100));
+            expect(curVal).to.equal(100);
+            expect(parseInt($rangeSliderWrap.find("input").val()))
+            .to.equal(100);
+
+            $rangeSliderWrap.find(".rightArea").trigger(mouseDownAt(200));
+            expect(curVal).to.equal(200);
+            expect(parseInt($rangeSliderWrap.find("input").val()))
+            .to.equal(200);
+
+            // Click on slider should do nothing.
+            $rangeSliderWrap.find(".rightArea .slider")
+            .trigger(mouseDownAt(150));
+            expect(curVal).to.equal(200);
+            expect(parseInt($rangeSliderWrap.find("input").val()))
+            .to.equal(200);
+        });
+
+        it("Change input also changes slider", function() {
+            var $input = $rangeSliderWrap.find("input");
+            var domEvent = new Event("input");
+
+            $input.val(125).change();
+            expect(curVal).to.equal(125);
+            $input.val(0).change();
+            expect(curVal).to.equal(0);
+            $input.val(275).change();
+            expect(curVal).to.equal(275);
+
+            $input.val(125);
+            $input[0].dispatchEvent(domEvent);
+            expect($rangeSliderWrap.find(".leftArea").width()).to.equal(125);
+            $input.val(0);
+            $input[0].dispatchEvent(domEvent);
+            expect($rangeSliderWrap.find(".leftArea").width()).to.equal(0);
+            $input.val(275);
+            $input[0].dispatchEvent(domEvent);
+            expect($rangeSliderWrap.find(".leftArea").width()).to.equal(275);
+        });
+
+        it("Max and min respected", function() {
+            var $input = $rangeSliderWrap.find("input");
+            var domEvent = new Event("input");
+
+            $input.val(-1).change();
+            $input[0].dispatchEvent(domEvent);
+            expect(curVal).to.equal(0);
+            expect($rangeSliderWrap.find(".leftArea").width()).to.equal(0);
+
+            $input.val(276).change();
+            $input[0].dispatchEvent(domEvent);
+            expect(curVal).to.equal(275);
+            expect($rangeSliderWrap.find(".leftArea").width()).to.equal(275);
+        });
+
+        after(function() {
+            UserSettings.setPref = USSetPrefCached;
+        });
+
+    });
+
+    describe("Menuhelper Constructor Test", function() {
+        // ONLY test here is piggyback onto colMenu to test scrolling features.
+        var $colMenu;
+        var $dragArea;
+        var tableName;
+        var testDs;
+
+        before(function(done) {
+            UnitTest.onMinMode();
+            var repStr = "";
+            for (i = 0; i < 100; i++) {
+                repStr += "<li>RandElt" + String(i) + "</li>";
+            }
+            $("#colMenu ul").append($(repStr));
+            var testDSObj = testDatasets.fakeYelp;
+            UnitTest.addAll(testDSObj, "unitTestFakeYelp")
+            .then(function(ds, tName, tPrefix) {
+                testDs = ds;
+                tableName = tName;
+                var prefix = tPrefix;
+                var tableId = xcHelper.getTableId(tableName);
+                var $table = $('#xcTable-' + tableId);
+                var table = gTables[tableId];
+                $colMenu = $("#colMenu");
+                var yelpColNum = table.getColNumByBackName(prefix +
+                                                      gPrefixSign +
+                                                      "yelping_since");
+                $dragArea = $table.find("th.col" + String(yelpColNum) +
+                                                " .dragArea");
+                done();
+            })
+            .fail(done);
+        });
+
+        it("Menu scrolling should work", function(done) {
+            var $dropDownBox = $dragArea.closest(".header").find(".dropdownBox");
+            $dragArea.contextmenu();
+            var oldY = $("#colMenu li").last().position().top;
+            var newY;
+            $("#colMenu .scrollArea.bottom").mouseenter();
+            timeoutPromise(400)
+            .then(function() {
+                $("#colMenu .scrollArea.bottom").mouseleave();
+                newY = $("#colMenu li").last().position().top;
+                expect(newY).to.be.below(oldY);
+                oldY = newY;
+                return timeoutPromise(100);
+            })
+            .then(function() {
+                newY = $("#colMenu li").last().position().top;
+                expect(oldY).to.equal(newY);
+
+                $("#colMenu .scrollArea.top").mouseenter();
+                return timeoutPromise(400);
+            })
+            .then(function() {
+                newY = $("#colMenu li").last().position().top;
+                expect(oldY).to.be.below(newY);
+                done();
+            });
+
+        });
+        after(function(done) {
+            $("#colMenu li").filter(
+                function(idx, elt) {return $(elt).text().startsWith("RandElt")})
+            .remove();
+            UnitTest.deleteAll(tableName, testDs)
+            .always(function(){
+                UnitTest.offMinMode();
                 done();
             });
         });

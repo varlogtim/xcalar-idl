@@ -229,7 +229,7 @@ describe("DSTable Test", function() {
                 done();
             })
             .fail(function() {
-                throw "Error Case!";
+                done("Error Case!");
             });
         });
 

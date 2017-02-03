@@ -347,7 +347,7 @@ describe('ColManager Test', function() {
                 done();
             })
             .fail(function(error) {
-                throw error;
+                done(error);
             });
         });
 
@@ -424,7 +424,7 @@ describe('ColManager Test', function() {
                 done();
             })
             .fail(function(error) {
-                throw error;
+                done(error);
             });
         });
 
@@ -480,7 +480,7 @@ describe('ColManager Test', function() {
             var colNum = table.getColNumByBackName(backCol);
             var progCol = table.getCol(colNum);
             expect(progCol).not.to.be.null;
-            
+
             var $td = $("#xcTable-" + tableId).find("td.col" + colNum).eq(0);
             var srcText = $td.find(".displayedData").text();
             // case 1
@@ -579,7 +579,7 @@ describe('ColManager Test', function() {
                 done();
             })
             .fail(function(error) {
-                throw error;
+                done(error);
             });
         });
 
@@ -604,7 +604,7 @@ describe('ColManager Test', function() {
                 done();
             })
             .fail(function(error) {
-                throw error;
+                done(error);
             });
         });
 
@@ -671,7 +671,7 @@ describe('ColManager Test', function() {
                 done();
             })
             .fail(function(error) {
-                throw error;
+                done(error);
             });
         });
 
@@ -684,7 +684,7 @@ describe('ColManager Test', function() {
                 done();
             })
             .fail(function(error) {
-                throw error;
+                done(error);
             });
         });
 
@@ -708,7 +708,7 @@ describe('ColManager Test', function() {
                 done();
             })
             .fail(function(error) {
-                throw error;
+                done(error);
             });
         });
 
@@ -721,7 +721,7 @@ describe('ColManager Test', function() {
                 done();
             })
             .fail(function(error) {
-                throw error;
+                done(error);
             });
         });
 
@@ -757,7 +757,7 @@ describe('ColManager Test', function() {
             var colName1 = xcHelper.getPrefixColName(prefix, 'average_stars');
             var colName2 = xcHelper.getPrefixColName(prefix, 'compliments');
             jsonData = ['{"' + colName1 + '":"testValue1"}', '{"' + colName2 + '":"testValue2"}'];
-            
+
             // adding 2 rows now, Rowdirection top so prepended
             $rows = ColManager.pullAllCols(0, jsonData, tableId,
                                             RowDirection.Top);
@@ -843,7 +843,7 @@ describe('ColManager Test', function() {
             .always(function() {
                 done();
             });
-            
+
         });
     });
 
