@@ -108,7 +108,8 @@ TooltipTStr = {
 };
 
 CommonTxtTstr = {
-    'ArrayVal': 'Array Value',
+    'ArrayVal': 'array value',
+    'NestedArrayVal': 'nested array value',
     'Back': 'Back',
     'BackToOrig': 'Back to original',
     'ClickToOpts': 'Click to see options',

@@ -106,16 +106,16 @@ var ColTextAlign = {
 };
 
 var ColumnType = {
-    "array": "array",
-    "boolean": "boolean",
-    "float": "float",
-    "integer": "integer",
-    "mixed": "mixed",
-    "number": "number",
-    "object": "object",
-    "string": "string",
+    "array"    : "array",
+    "boolean"  : "boolean",
+    "float"    : "float",
+    "integer"  : "integer",
+    "mixed"    : "mixed",
+    "number"   : "number",
+    "object"   : "object",
+    "string"   : "string",
     "undefined": "undefined",
-    "unknown": "unknown"
+    "unknown"  : "unknown"
 };
 
 var ColumnSortType = {

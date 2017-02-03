@@ -36,16 +36,13 @@ window.OperationsView = (function($, OperationsView) {
 
     // shows valid cast types
     var castMap = {
-        string       : ['boolean', 'integer', 'float'],
-        integer      : ['boolean', 'integer', 'float', 'string'],
-        float        : ['boolean', 'integer', 'float', 'string'],
-        number       : ['boolean', 'integer', 'float', 'string'],
-        boolean      : ['integer', 'float', 'string'],
-        undefined    : [],
-        array        : [],
-        'Array Value': [],
-        object       : [],
-        mixed        : []
+        "string"     : ['boolean', 'integer', 'float'],
+        "integer"    : ['boolean', 'integer', 'float', 'string'],
+        "float"      : ['boolean', 'integer', 'float', 'string'],
+        "number"     : ['boolean', 'integer', 'float', 'string'],
+        "boolean"    : ['integer', 'float', 'string']
+        // no valid cast options for: undefined, array, array values, objects,
+        // or mixed
     };
 
     // XXX can it be removed?
@@ -663,6 +660,7 @@ window.OperationsView = (function($, OperationsView) {
             colName = currentCol.getFrontColName(true);
             isNewCol = currentCol.isNewCol;
         }
+        
         $operationsView.find('.title').text(operatorName);
         $operationsView.find('.submit').text(operatorName.toUpperCase());
 
@@ -2575,7 +2573,9 @@ window.OperationsView = (function($, OperationsView) {
                         errorType = "invalidCol";
                         isPassing = false;
                     } else {
-                        colTypes = getAllColumnTypesFromArg(frontColName);
+                        var allowArrayVal = operatorName === "map";
+                        colTypes = getAllColumnTypesFromArg(frontColName,
+                            allowArrayVal);
                         types = parseType(typeid);
                         if (colTypes.length) {
                             allColTypes.push({
@@ -3207,7 +3207,10 @@ window.OperationsView = (function($, OperationsView) {
         return colType;
     }
 
-    function getAllColumnTypesFromArg(argValue) {
+    // if a nestedArray is found, we will return "nested array value" for the
+    // type instead of it's actual type, same for array values when 
+    // allowArrayVal is false
+    function getAllColumnTypesFromArg(argValue, allowArrayVal) {
         var values = argValue.split(",");
         var table = gTables[tableId];
         var types = [];
@@ -3231,11 +3234,13 @@ window.OperationsView = (function($, OperationsView) {
                 // so for integer, we mark it
                 colType = ColumnType.number;
             }
-
-            if (backName != null) {
+            if (progCol.isChildOfArray()) {
+                // this type is not yet supported and we will show an error
+                colType = CommonTxtTstr.NestedArrayVal;  
+            } else if (!allowArrayVal && backName != null) {
                 var bracketIndex = backName.indexOf("[");
                 if (bracketIndex > -1 &&
-                    backName[bracketIndex - 1] !== "\\") {
+                    !xcHelper.isCharEscaped(backName, bracketIndex)) {
                     colType = CommonTxtTstr.ArrayVal;
                 }
             }
@@ -4160,6 +4165,7 @@ window.OperationsView = (function($, OperationsView) {
     /* Unit Test Only */
     if (window.unitTestMode) {
         OperationsView.__testOnly__ = {};
+        // functions
         OperationsView.__testOnly__.hasFuncFormat = hasFuncFormat;
         OperationsView.__testOnly__.hasUnescapedParens = hasUnescapedParens;
         OperationsView.__testOnly__.getExistingTypes = getExistingTypes;
@@ -4173,8 +4179,12 @@ window.OperationsView = (function($, OperationsView) {
         OperationsView.__testOnly__.submitForm = submitForm;
         OperationsView.__testOnly__.getMatchingAggNames = getMatchingAggNames;
         OperationsView.__testOnly__.getMatchingColNames = getMatchingColNames;
+        OperationsView.__testOnly__.getAllColumnTypesFromArg = getAllColumnTypesFromArg;
+
+        // metadata
         OperationsView.__testOnly__.aggNames = aggNames;
         OperationsView.__testOnly__.colNames = colNamesCache;
+       
     }
     /* End Of Unit Test Only */
 

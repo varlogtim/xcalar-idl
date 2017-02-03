@@ -1,7 +1,8 @@
-describe('OperationsView', function() {
+describe('OperationsView Test', function() {
     var testDs;
     var tableName;
     var prefix;
+    var tableId;
 
     before(function(done) {
         UnitTest.onMinMode();
@@ -11,6 +12,7 @@ describe('OperationsView', function() {
         .always(function(ds, tName, tPrefix) {
             testDs = ds;
             tableName = tName;
+            tableId = xcHelper.getTableId(tableName);
             prefix = tPrefix;
             done();
         });
@@ -184,8 +186,105 @@ describe('OperationsView', function() {
         });
     });
 
+    describe('function getAllColumnTypesFromArg', function() {
+        var cachedTable;
+        before(function(done) {
+            cachedTable = gTables[tableId];
+            var progCol1 = new ProgCol({
+                "name"    : "testCol",
+                "backName": "testCol",
+                "isNewCol": false,
+                "func"    : {"name": "pull"},
+                "type"    : "integer"
+            });
+
+            var progCol2 = new ProgCol({
+                "name"    : "testCol2[0]",
+                "backName": "testCol2[0]",
+                "isNewCol": false,
+                "func"    : {"name": "pull"},
+                "type"    : "string",
+            });
+
+            var progCol3 = new ProgCol({
+                "name"    : "testCol3[0].abc",
+                "backName": "testCol3[0].abc",
+                "isNewCol": false,
+                "func"    : {"name": "pull"},
+                "type"    : "float",
+                "childOfArray": true
+            });
+
+            var progCol4 = new ProgCol({
+                "name"    : "testCol4",
+                "backName": "testCol4",
+                "isNewCol": false,
+                "func"    : {"name": "pull"},
+                "type"    : "integer",
+                "immediate": true,
+                "knownType": true
+            });
+
+            var table = new TableMeta({
+                "tableName": tableName,
+                "tableId"  : tableId,
+                "tableCols": [progCol1, progCol2, progCol3, progCol4],
+                "isLocked" : false
+            });
+            gTables[tableId] = table;
+            OperationsView.show(tableId, [1], "map")
+            .always(function() {
+                done();
+            });
+        });
+
+        it('getAllColumnTypesFromArg() should work', function() {
+            var fn = OperationsView.__testOnly__.getAllColumnTypesFromArg;
+
+            var res = fn("nonExistantCol");
+            expect(res.length).to.equal(0);
+
+            var res = fn("testCol");
+            expect(res.length).to.equal(1);
+            expect(res[0]).to.equal(ColumnType.number);
+            
+            var res = fn("testCol2[0]", false);
+            expect(res.length).to.equal(1);
+            expect(res[0]).to.equal(CommonTxtTstr.ArrayVal);
+
+            var res = fn("testCol2[0], testCol");
+            expect(res.length).to.equal(2);
+            expect(res[0]).to.equal(CommonTxtTstr.ArrayVal);
+            expect(res[1]).to.equal(ColumnType.number);
+
+            var res = fn("testCol2[0]", true);
+            expect(res.length).to.equal(1);
+            expect(res[0]).to.equal("string");
+
+            var res = fn("testCol3[0].abc", false);
+            expect(res.length).to.equal(1);
+            expect(res[0]).to.equal(CommonTxtTstr.NestedArrayVal);
+
+            var res = fn("testCol3[0].abc", true);
+            expect(res.length).to.equal(1);
+            expect(res[0]).to.equal(CommonTxtTstr.NestedArrayVal);
+
+            var res = fn("testCol4");
+            expect(res.length).to.equal(1);
+            expect(res[0]).to.equal(ColumnType.integer);
+        });
+
+        after(function(done){
+            gTables[tableId] = cachedTable;
+            OperationsView.close();
+            // allow time for operations view to close
+            setTimeout(function() {
+                done();
+            }, 500);
+        });
+    });
+
     describe('group by', function() {
-        var tableId;
         var $operationsModal;
         var $operationsView;
         var $functionInput;
@@ -205,7 +304,6 @@ describe('OperationsView', function() {
             parseType = OperationsView.__testOnly__.parseType;
             $operationsModal = $('#operationsView');
             $operationsView = $('#operationsView');
-            tableId = xcHelper.getTableId(tableName);
 
             OperationsView.show(tableId, [1], 'group by')
             .then(function() {
@@ -527,7 +625,6 @@ describe('OperationsView', function() {
 
     // using map in operations view
     describe('column pickers test', function() {
-        var tableId;
         var $operationsView;
         var $categoryMenu;
         var $functionsMenu;
@@ -535,7 +632,6 @@ describe('OperationsView', function() {
 
         before(function(done) {
             $operationsView = $('#operationsView');
-            tableId = xcHelper.getTableId(tableName);
 
             OperationsView.show(tableId, [1], 'map')
             .then(function() {
@@ -660,7 +756,6 @@ describe('OperationsView', function() {
 
     // using filter in operations view
     describe('functions input test', function() {
-        var tableId;
         var $operationsView;
         var $functionsInput;
         var $functionsList;
@@ -668,7 +763,6 @@ describe('OperationsView', function() {
 
         before(function(done) {
             $operationsView = $('#operationsView');
-            tableId = xcHelper.getTableId(tableName);
 
             OperationsView.show(tableId, [1], 'filter')
             .then(function() {
@@ -798,7 +892,6 @@ describe('OperationsView', function() {
     });
 
     describe('filter', function() {
-        var tableId;
         var $operationsView;
         var $functionsInput;
         var $argSection;
@@ -807,7 +900,6 @@ describe('OperationsView', function() {
         before(function(done) {
             $operationsView = $('#operationsView');
             $filterForm = $operationsView.find('.filter');
-            tableId = xcHelper.getTableId(tableName);
 
             OperationsView.show(tableId, [1], 'filter')
             .then(function() {
@@ -909,7 +1001,6 @@ describe('OperationsView', function() {
 
     // using map in operations view
     describe('map', function() {
-        var tableId;
         var $operationsView;
         var $filterInput;
         var $categoryMenu;
@@ -919,7 +1010,6 @@ describe('OperationsView', function() {
         before(function(done) {
             $operationsView = $('#operationsView');
             $strPreview = $operationsView.find('.strPreview');
-            tableId = xcHelper.getTableId(tableName);
 
             OperationsView.show(tableId, [1], 'map')
             .then(function() {
@@ -1297,8 +1387,6 @@ describe('OperationsView', function() {
         before(function(done) {
             $operationsView = $('#operationsView');
             $strPreview = $operationsView.find('.strPreview');
-            tableId = xcHelper.getTableId(tableName);
-
 
             OperationsView.show(tableId, [1], 'aggregate')
             .then(function() {
