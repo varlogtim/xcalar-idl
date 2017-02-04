@@ -1837,6 +1837,23 @@ describe('xcHelper Test', function() {
         delete gTables["xcTest"];
     });
 
+    it("xcHelper.getPromiseWhenError should work", function() {
+        // case 1
+        var args = [{"error": "test1"}, "test"];
+        var res = xcHelper.getPromiseWhenError(args);
+        expect(res.error).to.equal("test1");
+
+        // case 2
+        args = ["test", {"error": "test2"}];
+        res = xcHelper.getPromiseWhenError(args);
+        expect(res.error).to.equal("test2");
+
+        // case 3
+        args = ["test", "test"];
+        res = xcHelper.getPromiseWhenError(args);
+        expect(res).to.be.null;
+    });
+
     describe("xcHelper.getMemUsage", function() {
         it("Should work in normal case", function(done) {
             xcHelper.getMemUsage()

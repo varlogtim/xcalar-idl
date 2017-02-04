@@ -2734,6 +2734,17 @@ window.xcHelper = (function($, xcHelper) {
         xcTooltip.remove($menuLi);
     };
 
+    xcHelper.getPromiseWhenError = function(args) {
+        for (var i = 0; i < args.length; i++) {
+            if (args[i] && args[i].error) {
+                return args[i];
+            }
+        }
+        // when cannot find any error
+        console.error("cannot find error in", args);
+        return null;
+    };
+
     /*
     options: {
         mouseCoors: {x: float, y: float},

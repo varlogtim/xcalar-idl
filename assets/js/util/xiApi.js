@@ -309,20 +309,8 @@ window.XIApi = (function(XIApi, $) {
         // If yes, should do a map to concat all columns
         multiJoinCheck(lColNames, lTableName, rColNames, rTableName, txId)
         .then(function(res) {
-            var deferred1;
-            var deferred2;
-
-            if (checkJoinKey) {
-                // when it's self join or globally enabled
-                deferred1 = handleJoinKey(res.lColName, res.lTableName, txId, true);
-                deferred2 = handleJoinKey(res.rColName, res.rTableName, txId, false);
-            } else {
-                deferred1 = checkTableIndex(res.lColName, res.lTableName, txId);
-                deferred2 = checkTableIndex(res.rColName, res.rTableName, txId);
-            }
-
             // Step 2: index the left table and right table
-            return PromiseHelper.when(deferred1, deferred2);
+            return joinIndexCheck(res, checkJoinKey, txId);
         })
         .then(function(lInexedTable, rIndexedTable) {
             if (typeof lInexedTable === "object") {
@@ -712,8 +700,39 @@ window.XIApi = (function(XIApi, $) {
                     "rColName": rColName
                 });
             })
-            .fail(deferred.reject);
+            .fail(function() {
+                var error = xcHelper.getPromiseWhenError(arguments);
+                deferred.reject(error);
+            });
         }
+
+        return deferred.promise();
+    }
+
+    function joinIndexCheck(joinInfo, checkJoinKey, txId) {
+        var deferred = jQuery.Deferred();
+        var deferred1;
+        var deferred2;
+        var lColName = joinInfo.lColName;
+        var rColName = joinInfo.rColName;
+        var lTableName = joinInfo.lTableName;
+        var rTableName = joinInfo.rTableName;
+
+        if (checkJoinKey) {
+            // when it's self join or globally enabled
+            deferred1 = handleJoinKey(lColName, lTableName, txId, true);
+            deferred2 = handleJoinKey(rColName, rTableName, txId, false);
+        } else {
+            deferred1 = checkTableIndex(lColName, lTableName, txId);
+            deferred2 = checkTableIndex(rColName, rTableName, txId);
+        }
+
+        PromiseHelper.when(deferred1, deferred2)
+        .then(deferred.resolve)
+        .fail(function() {
+            var error = xcHelper.getPromiseWhenError(arguments);
+            deferred.reject(error);
+        });
 
         return deferred.promise();
     }
