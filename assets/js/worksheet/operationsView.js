@@ -3,8 +3,7 @@ window.OperationsView = (function($, OperationsView) {
     var $categoryInput;   // $('#categoryList').find('.autocomplete')
     var $categoryList; // for map $operationsView.find('.categoryMenu');
     var $functionsList; // for map $operationsView.find('.functionsMenu');
-    var $genFunctionsMenu;   // $('.genFunctionsMenu')
-    var $genFunctionsMenus;   // $('.genFunctionsMenu')
+    var $genFunctionsMenu;   // $('.genFunctionsMenu'
     var $functionsUl;     // $genFunctionsMenu.find('ul')
     var $autocompleteInputs; // $operationsView.find('.autocomplete');
     var $activeOpSection = $(); // $operationsView.find('.map or .filter or
@@ -12,7 +11,7 @@ window.OperationsView = (function($, OperationsView) {
     var currentCol;
     var colNum = "";
     var colName = "";
-    var colNamesCache = [];
+    var colNamesCache = {};
     var isNewCol;
     var operatorName = ""; // group by, map, filter, aggregate, etc..
     var funcName = "";
@@ -55,7 +54,6 @@ window.OperationsView = (function($, OperationsView) {
         $operationsView = $('#operationsView');
         $categoryInput = $('#categoryList').find('.autocomplete');
         $genFunctionsMenu = $operationsView.find('.genFunctionsMenu');
-        $genFunctionsMenus = $operationsView.find('.genFunctionsMenu');
         $functionsUl = $genFunctionsMenu.find('ul');
 
         $categoryList = $operationsView.find('.categoryMenu');
@@ -199,8 +197,6 @@ window.OperationsView = (function($, OperationsView) {
         // .functionsInput
         $operationsView.on({
             'mousedown': function(event) {
-                gMouseEvents.setMouseDownTarget($(this));
-                event.stopPropagation();
                 var $list = $(this).siblings('.list');
                 if (!$list.is(':visible')) {
                     hideDropdowns();
@@ -246,7 +242,6 @@ window.OperationsView = (function($, OperationsView) {
                     if (prevValue === value && event.which === keyCode.Tab) {
                         return;
                     }
-
 
                     enterFunctionsInput($input.data('fninputnum'));
                     // prevent modal tabbing
@@ -301,24 +296,23 @@ window.OperationsView = (function($, OperationsView) {
         $operationsView.on('click', '.functionsList .dropdown', function() {
             var $list = $(this).siblings('.list');
             hideDropdowns();
-            if (!$list.is(':visible')) {
-                $operationsView.find('li.highlighted')
-                                .removeClass('highlighted');
-                // show all list options when use icon to trigger
-                $list.show().find('li').sort(sortHTML)
-                                       .prependTo($list.children('ul'))
-                                       .show();
-                $list.siblings('input').focus();
+            
+            $operationsView.find('li.highlighted')
+                            .removeClass('highlighted');
+            // show all list options when use icon to trigger
+            $list.show().find('li').sort(sortHTML)
+                                   .prependTo($list.children('ul'))
+                                   .show();
+            $list.siblings('input').focus();
 
-                if (operatorName === "filter") {
-                    var fnInputNum = parseInt($list.siblings('input')
-                                                   .data('fninputnum'));
-                    functionsListScrollers[fnInputNum].showOrHideScrollers();
-                } else if (operatorName === "group by") {
-                    gbFunctionsListScroller.showOrHideScrollers();
-                } else {
-                    aggFunctionsListScroller.showOrHideScrollers();
-                }
+            if (operatorName === "filter") {
+                var fnInputNum = parseInt($list.siblings('input')
+                                               .data('fninputnum'));
+                functionsListScrollers[fnInputNum].showOrHideScrollers();
+            } else if (operatorName === "group by") {
+                gbFunctionsListScroller.showOrHideScrollers();
+            } else {
+                aggFunctionsListScroller.showOrHideScrollers();
             }
         });
 
@@ -382,8 +376,9 @@ window.OperationsView = (function($, OperationsView) {
             'keypress': function(event) {
                 if (event.which === keyCode.Enter) {
                     var $input = $(this);
-                    var $hintli = $input.siblings('.hint').find('li');
-                    if ($hintli.hasClass('highlighted')) {
+                    var $hintli = $input.siblings('.hint')
+                                        .find('li.highlighted');
+                    if ($hintli.length) {
                         $hintli.click();
                         return;
                     }
@@ -393,9 +388,6 @@ window.OperationsView = (function($, OperationsView) {
             },
             'focus': function() {
                 hideDropdowns();
-            },
-            'blur': function() {
-                restoreInputSize($(this));
             },
             'input': function() {
                 // Suggest column name
@@ -424,22 +416,6 @@ window.OperationsView = (function($, OperationsView) {
                 }, 200);
 
                 updateStrPreview();
-                if ($input.siblings('.argIconWrap:visible').length) {
-                    checkInputSize($input);
-                }
-            },
-            'mousedown': function() {
-                $genFunctionsMenus.hide();
-                var $activeInput = $(this);
-                // close other input's open lists when active input is clicked
-                $('.openList').each(function() {
-                    if (!$(this).siblings('.arg').is($activeInput)) {
-                        $(this).hide();
-                    }
-                });
-                if ($activeInput.siblings('.argIconWrap:visible').length) {
-                    checkInputSize($activeInput);
-                }
             }
         }, '.arg');
 
@@ -450,10 +426,11 @@ window.OperationsView = (function($, OperationsView) {
         });
 
         $operationsView.on('mousedown', '.argIconWrap', function(event) {
-            event.preventDefault(); // prevents input from blurring
-            event.stopPropagation();
+            if ($(this).siblings(".arg").is(":focus")) {
+                event.preventDefault(); // prevents input from blurring
+                event.stopPropagation();
+            }
         });
-
 
         $operationsView.on('dblclick', 'input', function() {
             this.setSelectionRange(0, this.value.length);
@@ -486,8 +463,7 @@ window.OperationsView = (function($, OperationsView) {
                 val = gColPrefix + val;
             }
 
-            $li.removeClass("openli")
-                .closest(".hint").removeClass("openList").hide()
+            $li.closest(".hint").removeClass("openList").hide()
                 .siblings(".arg").val(val)
                 .closest(".dropDownList").removeClass("open");
             checkIfStringReplaceNeeded();
@@ -535,9 +511,9 @@ window.OperationsView = (function($, OperationsView) {
             if ($checkbox.hasClass('checked')) {
                 $checkbox.removeClass('checked');
                 $emptyOptsWrap.siblings('.inputWrap')
-                                  .removeClass('semiHidden');
+                               .removeClass('semiHidden');
                 $emptyOptsWrap.siblings('.cast')
-                                          .removeClass('semiHidden');
+                              .removeClass('semiHidden');
             } else {
                 $checkbox.addClass('checked');
                 if ($emptyOptsWrap.siblings('.inputWrap').length === 1) {
@@ -707,11 +683,6 @@ window.OperationsView = (function($, OperationsView) {
             deferred.resolve();
         }
         return (deferred.promise());
-    };
-
-    OperationsView.turnOffClickHandlers = function() {
-        $(document).off('click.OpSection');
-        $(document).off('mousedown.mapCategoryListener');
     };
 
     OperationsView.close = function() {
@@ -1052,8 +1023,7 @@ window.OperationsView = (function($, OperationsView) {
             colNameMatches = getMatchingColNames(curVal);
             allMatches = aggNameMatches.concat(colNameMatches);
             for (var i = 0; i < allMatches.length; i++) {
-                listLis += '<li class="openli">' + allMatches[i] +
-                              '</li>';
+                listLis += '<li>' + allMatches[i] + '</li>';
                 count++;
                 if (count > listMax) {
                     break;
@@ -1568,15 +1538,6 @@ window.OperationsView = (function($, OperationsView) {
             $operationsView.find('.strPreview')
                            .html('<b>Command Preview:</b> <br>' + strPreview);
         }
-
-        $activeOpSection.find('.arg').parent().each(function(i) {
-            // xx this would be a styling bug if more than 100 arguments
-            $(this).css('z-index', 100 - i);
-        });
-        $activeOpSection.find('.cast').each(function(i) {
-            // xx this would be a styling bug if more than 100 arguments
-            $(this).css('z-index', 100 - i);
-        });
 
         formHelper.refreshTabbing();
 
@@ -2237,7 +2198,7 @@ window.OperationsView = (function($, OperationsView) {
     function submitForm() {
         var deferred = jQuery.Deferred();
         var isPassing = true;
-        formHelper.disableSubmit(); // disabling it early because there are
+       // disabling it early because there are
         // async calls to follow that shouldn't be triggered multiple times
 
         if (!gTables[tableId]) {
@@ -2261,7 +2222,6 @@ window.OperationsView = (function($, OperationsView) {
         });
 
         if (!isPassing) {
-            formHelper.enableSubmit();
             return deferred.reject().promise();
         }
 
@@ -2293,9 +2253,10 @@ window.OperationsView = (function($, OperationsView) {
         });
 
         if (!isPassing) {
-            formHelper.enableSubmit();
             return deferred.reject().promise();
         }
+
+        formHelper.disableSubmit(); 
 
         // new column name duplication & validity check
         newColNameCheck(args)
@@ -2305,13 +2266,12 @@ window.OperationsView = (function($, OperationsView) {
                 args = multipleArgSets;
                 hasMultipleSets = true;
             }
-            submitFinalForm(args, hasMultipleSets)
-            .then(deferred.resolve)
-            .fail(deferred.reject);
+            return submitFinalForm(args, hasMultipleSets)
         })
-        .fail(function() {
+        .then(deferred.resolve)
+        .fail(deferred.reject)
+        .always(function() {
             formHelper.enableSubmit();
-            deferred.reject();
         });
 
         return deferred.promise();
@@ -2382,7 +2342,6 @@ window.OperationsView = (function($, OperationsView) {
 
             closeOpSection();
         } else {
-            formHelper.enableSubmit();
             deferred.reject();
         }
 
@@ -2395,6 +2354,7 @@ window.OperationsView = (function($, OperationsView) {
         var $nameInput;
         switch (operatorName) {
             case ('map'):
+                var isPassing;
                 $nameInput = $activeOpSection.find('.arg:visible').last();
                 if (isNewCol && colName !== "" &&
                     ($nameInput.val().trim() === colName)) {
@@ -2413,7 +2373,7 @@ window.OperationsView = (function($, OperationsView) {
                 // check new col name
                 var numArgs = $activeOpSection.find('.arg:visible').length;
                 $nameInput = $activeOpSection.find('.arg:visible').eq(numArgs - 1);
-                isPassing = !ColManager.checkColName($nameInput, tableId);
+                var isPassing = !ColManager.checkColName($nameInput, tableId);
 
                 // check new table name if join option is not checked
                 if (isPassing && !$activeOpSection.find('.keepTable .checkbox')
@@ -2432,7 +2392,6 @@ window.OperationsView = (function($, OperationsView) {
                     checkAggregateNameValidity()
                     .then(function(isPassing) {
                         if (!isPassing) {
-                            formHelper.enableSubmit();
                             deferred.reject();
                         } else {
                             deferred.resolve();
@@ -2440,7 +2399,6 @@ window.OperationsView = (function($, OperationsView) {
                     })
                     .fail(function(error) {
                         console.error(error);
-                        formHelper.enableSubmit();
                         deferred.reject();
                     });
                 } else {
@@ -3756,22 +3714,6 @@ window.OperationsView = (function($, OperationsView) {
         return (false);
     }
 
-    function checkInputSize($input) {
-        var currentWidth = $input.outerWidth();
-        var textWidth = $input[0].scrollWidth;
-        var newWidth;
-        if (currentWidth < textWidth) {
-            newWidth = textWidth + 80;
-            newWidth = Math.min(newWidth, 550);
-            $input.parent().width(newWidth)
-                           .addClass('modifiedWidth');
-        }
-    }
-
-    function restoreInputSize($input) {
-        $input.parent().width('100%').removeClass('modifiedWidth');
-    }
-
     function parseColPrefixes(str) {
         for (var i = 0; i < str.length; i++) {
             if (str[i] === gColPrefix) {
@@ -3824,7 +3766,8 @@ window.OperationsView = (function($, OperationsView) {
         formHelper.clear();
         StatusBox.forceHide();// hides any error boxes;
         $('.tooltip').hide();
-        OperationsView.turnOffClickHandlers();
+        $(document).off('click.OpSection');
+        $(document).off('mousedown.mapCategoryListener');
     }
 
     function resetForm() {
@@ -4180,6 +4123,11 @@ window.OperationsView = (function($, OperationsView) {
         OperationsView.__testOnly__.getMatchingAggNames = getMatchingAggNames;
         OperationsView.__testOnly__.getMatchingColNames = getMatchingColNames;
         OperationsView.__testOnly__.getAllColumnTypesFromArg = getAllColumnTypesFromArg;
+        OperationsView.__testOnly__.argSuggest = argSuggest;
+        OperationsView.__testOnly__.updateColNamesCache = updateColNamesCache;
+        OperationsView.__testOnly__.filter = filter;
+        OperationsView.__testOnly__.submissionFailHandler = submissionFailHandler;
+        OperationsView.__testOnly__.groupBy = groupBy;
 
         // metadata
         OperationsView.__testOnly__.aggNames = aggNames;

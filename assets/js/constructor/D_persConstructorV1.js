@@ -304,7 +304,7 @@ var TableMetaV1 = (function() {
     function TableMetaV1(options) {
         var self = this;
         options = options || {};
-
+        
         if (!options.tableName || !options.tableId) {
             throw "error table meta!";
         }

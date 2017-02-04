@@ -3,11 +3,13 @@ describe('OperationsView Test', function() {
     var tableName;
     var prefix;
     var tableId;
+    var $operationsView;
 
     before(function(done) {
         UnitTest.onMinMode();
+        $operationsView = $('#operationsView');
+
         var testDSObj = testDatasets.fakeYelp;
-        UnitTest.onMinMode();
         UnitTest.addAll(testDSObj, "unitTestFakeYelp")
         .always(function(ds, tName, tPrefix) {
             testDs = ds;
@@ -18,175 +20,182 @@ describe('OperationsView Test', function() {
         });
     });
 
-    describe('function hasFuncFormat', function() {
-        var func;
-        before(function() {
-            func = OperationsView.__testOnly__.hasFuncFormat;
+    describe('functions without opening operations view', function() {
+
+        describe('function hasFuncFormat', function() {
+            var func;
+            before(function() {
+                func = OperationsView.__testOnly__.hasFuncFormat;
+            });
+
+            it ('hasFuncFormat(arg) should return correctly', function() {
+                expect(func('add(x,1)')).to.equal(true);
+                expect(func('a(()x,(1))')).to.equal(true);
+                expect(func('a("((("x,1)')).to.equal(true);
+                expect(func('a(""x,1)')).to.equal(true);
+                expect(func('a(x,1)')).to.equal(true);
+                expect(func('a("\\"",1)')).to.equal(true);
+
+                expect(func('add(x,1')).to.equal(false);
+                expect(func('add(x,1\"')).to.equal(false);
+                expect(func('a("\"",1)')).to.equal(false);
+                expect(func('add(x,1")')).to.equal(false);
+                expect(func('(xwf,1)')).to.equal(false);
+                expect(func('add(xwf,1)x')).to.equal(false);
+                expect(func('(xwf,1)x')).to.equal(false);
+                expect(func('a(x,1))')).to.equal(false);
+                expect(func('a((x,1)')).to.equal(false);
+                expect(func('a(()x,1))')).to.equal(false);
+                expect(func('a(()x,1))')).to.equal(false);
+                expect(func('a(()"("x,1))')).to.equal(false);
+                expect(func('a(()x,1))')).to.equal(false);
+            });
         });
 
-        it ('hasFuncFormat(arg) should return correctly', function() {
-            expect(func('add(x,1)')).to.equal(true);
-            expect(func('a(()x,(1))')).to.equal(true);
-            expect(func('a("((("x,1)')).to.equal(true);
-            expect(func('a(""x,1)')).to.equal(true);
-            expect(func('a(x,1)')).to.equal(true);
-            expect(func('a("\\"",1)')).to.equal(true);
+        describe('function hasUnescapedParens', function() {
+            var func;
+            before(function() {
+                func = OperationsView.__testOnly__.hasUnescapedParens;
+            });
 
-            expect(func('add(x,1')).to.equal(false);
-            expect(func('add(x,1\"')).to.equal(false);
-            expect(func('a("\"",1)')).to.equal(false);
-            expect(func('add(x,1")')).to.equal(false);
-            expect(func('(xwf,1)')).to.equal(false);
-            expect(func('add(xwf,1)x')).to.equal(false);
-            expect(func('(xwf,1)x')).to.equal(false);
-            expect(func('a(x,1))')).to.equal(false);
-            expect(func('a((x,1)')).to.equal(false);
-            expect(func('a(()x,1))')).to.equal(false);
-            expect(func('a(()x,1))')).to.equal(false);
-            expect(func('a(()"("x,1))')).to.equal(false);
-            expect(func('a(()x,1))')).to.equal(false);
-        });
-    });
+            it ('hasUnescapedParens(arg) should return correctly', function() {
+                expect(func('(')).to.equal(true);
+                expect(func(')')).to.equal(true);
+                expect(func('"")')).to.equal(true);
+                expect(func('"\\"")')).to.equal(true);
+                expect(func(')(')).to.equal(true);
 
-    describe('function hasUnescapedParens', function() {
-        var func;
-        before(function() {
-            func = OperationsView.__testOnly__.hasUnescapedParens;
+                expect(func('")"')).to.equal(false);
+                expect(func('")\\)"')).to.equal(false);
+                expect(func('\\)')).to.equal(false);
+                expect(func('"\\")')).to.equal(false);
+            });
         });
 
-        it ('hasUnescapedParens(arg) should return correctly', function() {
-            expect(func('(')).to.equal(true);
-            expect(func(')')).to.equal(true);
-            expect(func('"")')).to.equal(true);
-            expect(func('"\\"")')).to.equal(true);
-            expect(func(')(')).to.equal(true);
+        describe('function formulateMapFilterString', function() {
+            var func;
+            before(function() {
+                func = OperationsView.__testOnly__.formulateMapFilterString;
+            });
 
-            expect(func('")"')).to.equal(false);
-            expect(func('")\\)"')).to.equal(false);
-            expect(func('\\)')).to.equal(false);
-            expect(func('"\\")')).to.equal(false);
-        });
-    });
+            it ('formulateMapFilterString() should return correctly', function() {
+                var args = ['1', 2];
+                var colTypeInfos = [{
+                    argNum: 0,
+                    type  : "integer"
+                }];
+                expect(func('add', args, colTypeInfos)).to.equal("add(int(1, 10), 2)");
 
-    describe('function formulateMapFilterString', function() {
-        var func;
-        before(function() {
-            func = OperationsView.__testOnly__.formulateMapFilterString;
-        });
-
-        it ('formulateMapFilterString() should return correctly', function() {
-            var args = ['1', 2];
-            var colTypeInfos = [{
-                argNum: 0,
-                type  : "integer"
-            }];
-            expect(func('add', args, colTypeInfos)).to.equal("add(int(1, 10), 2)");
-
-            args = [['1', 2], ['3', 4]];
-            colTypeInfos = [
-            [{
-                argNum: 0,
-                type  : 'integer'
-            }],
-            [{
-                argNum: 0,
-                type  : 'integer'
-            }]];
-            expect(func('add', args, colTypeInfos, true)).to.equal(
-                "and(add(int(1, 10), 2), add(int(3, 10), 4))");
-        });
-    });
-
-    describe('function isNumberInQuotes', function() {
-        var func;
-        before(function() {
-            func = OperationsView.__testOnly__.isNumberInQuotes;
+                args = [['1', 2], ['3', 4]];
+                colTypeInfos = [
+                [{
+                    argNum: 0,
+                    type  : 'integer'
+                }],
+                [{
+                    argNum: 0,
+                    type  : 'integer'
+                }]];
+                expect(func('add', args, colTypeInfos, true)).to.equal(
+                    "and(add(int(1, 10), 2), add(int(3, 10), 4))");
+            });
         });
 
-        it('isNumberInQuotes() should return correctly', function() {
-            expect(func('"3"')).to.be.true;
-            expect(func("'3'")).to.be.true;
-            expect(func("'3.342'")).to.be.true;
+        describe('function isNumberInQuotes', function() {
+            var func;
+            before(function() {
+                func = OperationsView.__testOnly__.isNumberInQuotes;
+            });
 
-            expect(func("'3")).to.be.false;
-            expect(func("3'")).to.be.false;
-            expect(func('"3')).to.be.false;
-            expect(func(3)).to.be.false;
-            expect(func("3")).to.be.false;
-            expect(func("''3")).to.be.false;
-            expect(func("'3''")).to.be.false;
-            expect(func("'3t'")).to.be.false;
-            expect(func("'3.342t'")).to.be.false;
+            it('isNumberInQuotes() should return correctly', function() {
+                expect(func('"3"')).to.be.true;
+                expect(func("'3'")).to.be.true;
+                expect(func("'3.342'")).to.be.true;
+
+                expect(func("'3")).to.be.false;
+                expect(func("3'")).to.be.false;
+                expect(func('"3')).to.be.false;
+                expect(func(3)).to.be.false;
+                expect(func("3")).to.be.false;
+                expect(func("''3")).to.be.false;
+                expect(func("'3''")).to.be.false;
+                expect(func("'3t'")).to.be.false;
+                expect(func("'3.342t'")).to.be.false;
+            });
         });
-    });
 
-    describe('function getMatchingAggNames', function() {
-        it('getMatchingAggNames() should work', function() {
-            var fn = OperationsView.__testOnly__.getMatchingAggNames;
-            var aggNames = OperationsView.__testOnly__.aggNames;
-            var oldAggNames = aggNames;
-            aggNames.length = 0; // empty the array;
-            aggNames.push("^ayz");
-            aggNames.push("^abc");
-            aggNames.push("^abcd");
-
-            expect(fn("^ay")).to.deep.equal(["^ayz"]);
-            expect(fn("^Ay")).to.deep.equal(["^ayz"]);
-            expect(fn("^ayz")).to.deep.equal([]); // exact matches will be empty
-            expect(fn("ayz")).to.deep.equal(['^ayz']); // exact matches will be empty
-            expect(fn("^aYz")).to.deep.equal(["^ayz"]);
-            expect(fn("ay")).to.deep.equal(["^ayz"]);
-            expect(fn("ayf")).to.deep.equal([]);
-            expect(fn("")).to.deep.equal([]);
-
-            expect(fn("a")).to.deep.equal(["^abc", "^abcd", "^ayz"]);
-            expect(fn("ab")).to.deep.equal(["^abc", "^abcd"]);
-            expect(fn("bc")).to.deep.equal(["^abc", "^abcd"]);
-
-            aggNames.length = 0;
-            for (var i = 0; i < oldAggNames.length; i++) {
-                aggNames.push(oldAggNames[i]);
-            }
-        });
-    });
-
-    describe('function getMatchingColNames', function() {
-        it('getMatchingColNames() should work', function() {
-            var fn = OperationsView.__testOnly__.getMatchingColNames;
-            var colNames = OperationsView.__testOnly__.colNames;
-            var oldColNames = xcHelper.deepCopy(colNames);
-            emptyColName();
-            colNames["ayz"] = "ayz";
-            colNames["abc"] = "abc";
-            colNames["abcd"] = "Abcd";
-
-            expect(fn("ay")).to.deep.equal(["ayz"]);
-            expect(fn("$ay")).to.deep.equal(["ayz"]);
-            expect(fn("ayz")).to.deep.equal(["ayz"]); // not considered match without $
-            expect(fn("$ayz")).to.deep.equal([]); // exact match will be empty
-            expect(fn("Ayz")).to.deep.equal(["ayz"]);
-
-            expect(fn("abcd")).to.deep.equal(["Abcd"]);
-            expect(fn("$Abcd")).to.deep.equal([]); // exact match will be empty
-
-            expect(fn("a")).to.deep.equal(["ayz", "abc", "Abcd"]);
-            expect(fn("ab")).to.deep.equal(["abc", "Abcd"]);
-
-            emptyColName();
-
-            for (var oldName in oldColNames) {
-                colNames[oldName] = oldColNames[oldName];
-            }
-
-            function emptyColName() {
-                for (var i in colNames) {
-                    delete colNames[i];// empty the object;
+        describe('function getMatchingAggNames', function() {
+            it('getMatchingAggNames() should work', function() {
+                var fn = OperationsView.__testOnly__.getMatchingAggNames;
+                var aggNames = OperationsView.__testOnly__.aggNames;
+                var oldAggNames = [];
+                for (var i = 0; i < aggNames.length; i++) {
+                    oldAggNames.push(aggNames[i]);
                 }
-            }
-        });
-    });
 
-    describe('function getAllColumnTypesFromArg', function() {
+                aggNames.length = 0; // empty the array;
+                aggNames.push("^ayz");
+                aggNames.push("^abc");
+                aggNames.push("^abcd");
+
+                expect(fn("^ay")).to.deep.equal(["^ayz"]);
+                expect(fn("^Ay")).to.deep.equal(["^ayz"]);
+                expect(fn("^ayz")).to.deep.equal([]); // exact matches will be empty
+                expect(fn("ayz")).to.deep.equal(['^ayz']); // exact matches will be empty
+                expect(fn("^aYz")).to.deep.equal(["^ayz"]);
+                expect(fn("ay")).to.deep.equal(["^ayz"]);
+                expect(fn("ayf")).to.deep.equal([]);
+                expect(fn("")).to.deep.equal([]);
+
+                expect(fn("a")).to.deep.equal(["^abc", "^abcd", "^ayz"]);
+                expect(fn("ab")).to.deep.equal(["^abc", "^abcd"]);
+                expect(fn("bc")).to.deep.equal(["^abc", "^abcd"]);
+
+                aggNames.length = 0;
+                for (var i = 0; i < oldAggNames.length; i++) {
+                    aggNames.push(oldAggNames[i]);
+                }
+            });
+        });
+
+        describe('function getMatchingColNames', function() {
+            it('getMatchingColNames() should work', function() {
+                var fn = OperationsView.__testOnly__.getMatchingColNames;
+                var colNames = OperationsView.__testOnly__.colNames;
+                var oldColNames = xcHelper.deepCopy(colNames);
+                emptyColName();
+                colNames["ayz"] = "ayz";
+                colNames["abc"] = "abc";
+                colNames["abcd"] = "Abcd";
+
+                expect(fn("ay")).to.deep.equal(["ayz"]);
+                expect(fn("$ay")).to.deep.equal(["ayz"]);
+                expect(fn("ayz")).to.deep.equal(["ayz"]); // not considered match without $
+                expect(fn("$ayz")).to.deep.equal([]); // exact match will be empty
+                expect(fn("Ayz")).to.deep.equal(["ayz"]);
+
+                expect(fn("abcd")).to.deep.equal(["Abcd"]);
+                expect(fn("$Abcd")).to.deep.equal([]); // exact match will be empty
+
+                expect(fn("a")).to.deep.equal(["ayz", "abc", "Abcd"]);
+                expect(fn("ab")).to.deep.equal(["abc", "Abcd"]);
+
+                emptyColName();
+
+                for (var oldName in oldColNames) {
+                    colNames[oldName] = oldColNames[oldName];
+                }
+
+                function emptyColName() {
+                    for (var i in colNames) {
+                        delete colNames[i];// empty the object;
+                    }
+                }
+            });
+        });
+    })
+
+    describe('function getAllColumnTypesFromArg (map)', function() {
         var cachedTable;
         before(function(done) {
             cachedTable = gTables[tableId];
@@ -286,7 +295,6 @@ describe('OperationsView Test', function() {
 
     describe('group by', function() {
         var $operationsModal;
-        var $operationsView;
         var $functionInput;
         var $functionsMenu;
         var operatorsMap;
@@ -303,7 +311,6 @@ describe('OperationsView Test', function() {
             argumentFormatHelper = OperationsView.__testOnly__.argumentFormatHelper;
             parseType = OperationsView.__testOnly__.parseType;
             $operationsModal = $('#operationsView');
-            $operationsView = $('#operationsView');
 
             OperationsView.show(tableId, [1], 'group by')
             .then(function() {
@@ -330,6 +337,52 @@ describe('OperationsView Test', function() {
             });
         });
 
+        describe('table list', function() {
+            var cachedColNameMap = xcHelper.getColNameMap;
+            var cachedCenterTable = xcHelper.centerFocusedTable;
+            before(function() {
+                gTables['fakeTable'] = {};
+              
+            });
+            it("selecting table should work", function() {
+                var colNameCacheCalled = false;
+                var centerCalled = false;
+                xcHelper.getColNameMap = function(id) {
+                    
+                    expect(id).to.equal("fakeTable");
+                    colNameCacheCalled = true;
+                    return {};
+                }
+                xcHelper.centerFocusedTable = function(id) {
+                    expect(id).to.equal("fakeTable");
+                    centerCalled = true;
+                };
+
+                var $listWrap = $(".groupby").find(".tableList");
+                // list gets repopulated everytime we open it so it's ok to
+                // replace contents
+                $listWrap.find('ul').html('<li data-id="' + tableId + '">' + tableName + '</li>' +
+                                        '<li data-id="fakeTable">fakeTable</li>');
+                $listWrap.find('li').eq(0).trigger(fakeEvent.mouseup);
+                expect(colNameCacheCalled).to.be.false;
+                expect(centerCalled).to.be.false;
+
+                $listWrap.find('li').eq(1).trigger(fakeEvent.mouseup);
+                expect(colNameCacheCalled).to.be.true;
+                expect(centerCalled).to.be.true;
+
+            });
+
+            after(function() {
+                xcHelper.getColNameMap = cachedColNameMap; 
+                xcHelper.centerFocusedTable = cachedCenterTable;
+
+                // resets tableId
+                $(".groupby").find(".tableList").find('li').eq(0).trigger(fakeEvent.mouseup);
+                delete gTables['fakeTable'];
+            });
+        });
+
         describe('function input', function() {
             it('list should match operatorsMap', function() {
                 // dropdown requires mousedown and click
@@ -345,10 +398,34 @@ describe('OperationsView Test', function() {
                     return ($(this).text() === "avg");
                 }).trigger(fakeEvent.mouseup);
                 expect($functionInput.val()).to.equal('avg');
+                var description = $operationsView.find('.groupby .descriptionText').text();
+                expect(description.indexOf('average') > - 1);
+            });
+
+            // this should trigger an update of the arg inputs
+            it('clicking outside of function menu when list item is highlighted', function() {
+                $functionInput.siblings('.dropdown').mousedown();
+                $functionInput.siblings('.dropdown').click();
+
+                $functionsMenu.find("li").filter(function() {
+                    return $(this).text() === "count";
+                }).addClass("highlighted");
+                $functionInput.val("count");
+                $(document).mousedown(); // required change of lastMouseDownTarget
+                $(document).click();
+                expect($functionInput.val()).to.equal("count");
+                var description = $operationsView.find('.groupby .descriptionText').text();
+                expect(description.indexOf('Counts') === 0);
             });
         });
 
         describe('argument section', function() {
+            before(function() {
+                $functionsMenu.find('li').filter(function() {
+                    return ($(this).text() === "avg");
+                }).trigger(fakeEvent.mouseup);
+            });
+
             it('should have 3 visible text inputs', function() {
                 expect($operationsView.find('.arg[type=text]:visible')).to.have.lengthOf(3);
                 $argInputs = $operationsView.find('.arg[type=text]:visible');
@@ -382,12 +459,152 @@ describe('OperationsView Test', function() {
                 expect($operationsView.find('.newTableName:visible')).to.have.lengthOf(1);
             });
 
+            it("keydown down direction on arg field should highlight list", function() {
+                var $arg = $operationsView.find(".arg").eq(0);
+                var $list = $operationsView.find(".arg").eq(0).siblings(".list").find("ul");
+                $list.html("<li>col1</li><li>col2</li>");
+                $list.show();
+                $list.parent().show().addClass("openList");
+
+                var e = {type: "keydown", which: 40};
+                $arg.trigger(e);
+                expect($list.find("li").eq(0).hasClass("highlighted")).to.be.true;
+                expect($list.find("li").eq(1).hasClass("highlighted")).to.be.false;
+                expect($arg.val()).to.equal("$col1");
+                $arg.val("");
+                $list.empty();
+                $list.parent().hide().removeClass("openList");
+            });
+
+            // purposely fail the submitform check to prevent submitting
+            it("keypress enter on arg field should submitForm", function() {
+                var $arg = $operationsView.find(".arg").eq(0);
+                var $list = $operationsView.find(".arg").eq(0).siblings(".list").find("ul");
+                $list.html('<li class="highlighted">col1</li><li>col2</li>');
+                $list.show();
+                $list.parent().show().addClass("openList");
+
+                expect($arg.val()).to.equal("");
+                $arg.trigger(fakeEvent.enter);
+                expect($arg.val()).to.equal("$col1");
+                expect($("#statusBox").is(":visible")).to.be.false;
+
+                $list.find(".highlighted").removeClass("highlighted");
+                StatusBox.forceHide();
+                $arg.trigger(fakeEvent.enter);
+                expect($("#statusBox").is(":visible")).to.be.true;
+                StatusBox.forceHide();
+            });
+
+            it('argIconWrap click should focus on sibling input', function() {
+                var $arg = $operationsView.find(".arg").eq(0);
+                var $argIcon = $arg.siblings(".argIconWrap");
+
+                $arg.blur();
+                expect($(document.activeElement).is($arg)).to.be.false;
+                $argIcon.click();
+                expect($(document.activeElement).is($arg)).to.be.true;
+            });
+
+            it('empty option checkboxes should work', function() {
+                var $checkboxWrap = $operationsView.find(".checkboxWrap").eq(0);
+                var $checkbox = $checkboxWrap.find(".checkbox");
+                var $row = $checkboxWrap.closest('.row');
+                var $input = $row.find(".arg");
+                $input.val("test");
+
+                expect($checkbox.hasClass("checked")).to.be.false;
+                expect($input.val()).to.equal("test");
+
+                $checkbox.click();
+
+                expect($checkbox.hasClass("checked")).to.be.true;
+                expect($row.find(".inputWrap").hasClass("semiHidden")).to.be.true;
+                expect($input.val()).to.equal("");
+                expect($row.find(".cast").hasClass("semiHidden")).to.be.true;
+                
+                $checkbox.click();
+
+                expect($checkbox.hasClass("checked")).to.be.false;
+                expect($row.find(".inputWrap").hasClass("semiHidden")).to.be.false;
+                expect($row.find(".cast").hasClass("semiHidden")).to.be.false;
+            });
+
+            it("argSuggest() should work", function() {
+                var fn = OperationsView.__testOnly__.argSuggest;
+                var $arg = $operationsView.find(".arg").eq(0);
+                var $ul = $arg.siblings(".list");
+                var time = Date.now();
+                var colName = time + "1234";
+                $arg.val(colName);
+                $ul.find("li").remove();
+
+                var colMapCache = xcHelper.getColNameMap;
+                xcHelper.getColNameMap = function() {
+                    var cache = {};
+                    cache[colName] = colName;
+                    return cache;
+                };
+
+                OperationsView.__testOnly__.updateColNamesCache();
+
+                expect($ul.is(":visible")).to.be.false;
+                expect($ul.hasClass("openList")).to.be.false;
+                expect($ul.find("li").length).to.equal(0);
+
+                fn($arg);
+
+                expect($ul.is(":visible")).to.be.true;
+                expect($ul.hasClass("openList")).to.be.true;
+                expect($ul.find("li").length).to.equal(1);
+                expect($ul.find("li").text()).to.equal(colName);
+
+                xcHelper.getColNameMap = colMapCache;
+                OperationsView.__testOnly__.updateColNamesCache();
+            });
+        });
+
+        // XXX basic test, need to expand on this
+        describe('groupby() function', function() {
+            var cachedGB;
+            before(function() {
+                cachedGB = xcFunction.groupBy;
+            });
+
+            it('group by should work', function(done) {
+                var gbCalled = false;
+                xcFunction.groupBy = function(operator, tId, groupByCols, aggCol,
+                                   newColName, options) {
+                    expect(operator).to.equal("count");
+                    expect(tId).to.equal(tableId);
+                    expect(groupByCols.length).to.equal(1);
+                    expect(groupByCols[0]).to.equal("a");
+                    expect(aggCol).to.equal("b");
+                    expect(newColName).to.equal("c");
+                    expect(options.icvMode).to.be.false;
+                    expect(options.isIncSample).to.be.false;
+                    expect(options.isJoin).to.be.false;
+   
+                    gbCalled = true;
+                    return PromiseHelper.resolve();
+                };
+
+                OperationsView.__testOnly__.groupBy("count", ["a", "b", "c"], [])
+                .then(function() {
+                    expect(gbCalled).to.be.true;
+                    done();
+                });
+            });
+
+            after(function() {
+                xcFunction.groupBy = cachedGB;
+            });
         });
 
         describe('test type checking', function() {
             this.timeout(60000);
             // this will take a long time because we
-            // test out a variety of arguments against each other and each test
+            // test out all combination of argument pairs and each test
             // loops through all the columns in a table each time to check if the
             // column name exists in the table
             it.skip('should detect if arg types are valid or invalid', function() {
@@ -624,14 +841,12 @@ describe('OperationsView Test', function() {
     });
 
     // using map in operations view
-    describe('column pickers test', function() {
-        var $operationsView;
+    describe('column pickers test (map)', function() {
         var $categoryMenu;
         var $functionsMenu;
         var $argInputs;
 
         before(function(done) {
-            $operationsView = $('#operationsView');
 
             OperationsView.show(tableId, [1], 'map')
             .then(function() {
@@ -755,15 +970,12 @@ describe('OperationsView Test', function() {
     });
 
     // using filter in operations view
-    describe('functions input test', function() {
-        var $operationsView;
+    describe('functions input test (filter)', function() {
         var $functionsInput;
         var $functionsList;
         var $argSection;
 
         before(function(done) {
-            $operationsView = $('#operationsView');
-
             OperationsView.show(tableId, [1], 'filter')
             .then(function() {
                 $functionsInput = $operationsView.find('.filter .functionsInput');
@@ -801,6 +1013,38 @@ describe('OperationsView Test', function() {
             $functionsInput.siblings('.iconWrapper').click();
             expect($functionsList.find('li:visible').length).to.equal(numLis);
         });
+
+        it('functions list li highlighting should work', function() {
+            $functionsInput.siblings('.iconWrapper').click();
+            expect($functionsList.is(":visible")).to.be.true;  
+            expect($functionsList.find("li.highlighted").length).to.equal(0);
+            expect($functionsList.hasClass("hovering")).to.be.false;
+
+            $functionsList.find("li").eq(0).trigger('mouseenter');
+            expect($functionsList.find("li.highlighted").length).to.equal(1);
+            expect($functionsList.find("li").eq(0).hasClass("highlighted")).to.be.true;
+            expect($functionsList.hasClass("hovering")).to.be.true;
+
+            $functionsList.find("li").eq(0).trigger('mouseleave');
+            expect($functionsList.find("li.highlighted").length).to.equal(0);
+            expect($functionsList.hasClass("hovering")).to.be.false;
+
+            $functionsList.addClass("disableMouseEnter");
+            $functionsList.find("li").eq(0).trigger("mouseenter");
+            expect($functionsList.hasClass("disableMouseEnter")).to.be.false;
+            expect($functionsList.find("li.highlighted").length).to.equal(0);
+            expect($functionsList.hasClass("hovering")).to.be.false;
+
+            $functionsList.addClass("disableMouseEnter");
+            $functionsList.find("li").eq(0).addClass("highlighted");
+            $functionsList.find("li").eq(0).trigger("mouseleave");
+            expect($functionsList.find("li.highlighted").length).to.equal(1);
+            expect($functionsList.find("li").eq(0).hasClass("highlighted")).to.be.true;
+
+            $functionsList.removeClass("disableMouseEnter");
+            $functionsList.find("li").removeClass("highlighted");
+        });
+
 
         it('keydown enter and tab should update argument section', function() {
             $functionsInput.val('').trigger(fakeEvent.enterKeydown);
@@ -883,6 +1127,106 @@ describe('OperationsView Test', function() {
             expect($functionsInput.val()).to.equal("between");
         });
 
+        after(function() {
+            OperationsView.close();
+        });
+    });
+
+    describe('functions input test (groupby)', function() {
+        var $functionsInput;
+        var $functionsList;
+        var $argSection;
+
+        before(function(done) {
+            OperationsView.show(tableId, [1], "group by")
+            .then(function() {
+                $functionsInput = $operationsView.find('.groupby .functionsInput');
+                $functionsList = $functionsInput.siblings('.list');
+                $argSection = $operationsView.find('.groupby .argsSection').eq(0);
+                done();
+            });
+        });
+
+        it('clicking on functions input should work', function() {
+            expect($functionsInput.length).to.equal(1);
+            expect($functionsInput.is(":visible")).to.true;
+            expect($functionsList.length).to.equal(1);
+            expect($functionsList.is(":visible")).to.be.false;
+
+            $functionsInput.click();
+            expect($functionsList.is(":visible")).to.be.true;
+            var numLis = $functionsList.find('li:visible').length;
+            expect(numLis).to.be.gt(7);
+            expect(numLis).to.be.lt(12);
+
+            $functionsInput.click();
+            expect($functionsList.is(":visible")).to.be.true;
+            expect($functionsList.find('li:visible').length).to.equal(numLis);
+        });
+
+        it('clicking on functions input iconWrapper produce full list', function() {
+            var numLis = $functionsList.find('li').length;
+            $functionsInput.siblings('.iconWrapper').click();
+            expect($functionsList.is(":visible")).to.be.true;
+            expect($functionsList.find('li:visible').length).to.equal(numLis);
+
+            $functionsInput.val('is').trigger(fakeEvent.input);
+            expect($functionsList.find("li:visible").length).to.be.lt(numLis);
+
+            $functionsInput.siblings('.iconWrapper').click();
+            expect($functionsList.find('li:visible').length).to.equal(numLis);
+        });
+
+        after(function() {
+            OperationsView.close();
+        });
+    });
+
+    describe('functions input test (aggregate)', function() {
+        var $functionsInput;
+        var $functionsList;
+        var $argSection;
+
+        before(function(done) {
+            OperationsView.show(tableId, [1], "aggregate")
+            .then(function() {
+                $functionsInput = $operationsView.find('.aggregate .functionsInput');
+                $functionsList = $functionsInput.siblings('.list');
+                $argSection = $operationsView.find('.aggregate .argsSection').eq(0);
+                done();
+            });
+        });
+
+        it('clicking on functions input should work', function() {
+            expect($functionsInput.length).to.equal(1);
+            expect($functionsInput.is(":visible")).to.true;
+            expect($functionsList.length).to.equal(1);
+            expect($functionsList.is(":visible")).to.be.false;
+
+            $functionsInput.click();
+            expect($functionsList.is(":visible")).to.be.true;
+            var numLis = $functionsList.find('li:visible').length;
+            expect(numLis).to.be.gt(7);
+            expect(numLis).to.be.lt(12);
+
+            $functionsInput.click();
+            expect($functionsList.is(":visible")).to.be.true;
+            expect($functionsList.find('li:visible').length).to.equal(numLis);
+        });
+
+        it('clicking on functions input iconWrapper produce full list', function() {
+            var numLis = $functionsList.find('li').length;
+            $functionsInput.siblings('.iconWrapper').click();
+            expect($functionsList.is(":visible")).to.be.true;
+            expect($functionsList.find('li:visible').length).to.equal(numLis);
+
+            $functionsInput.val('is').trigger(fakeEvent.input);
+            expect($functionsList.find("li:visible").length).to.be.lt(numLis);
+
+            $functionsInput.siblings('.iconWrapper').click();
+            expect($functionsList.find('li:visible').length).to.equal(numLis);
+        });
+
         after(function(done) {
             OperationsView.close();
             setTimeout(function() { // allow time for op menu to close
@@ -892,13 +1236,11 @@ describe('OperationsView Test', function() {
     });
 
     describe('filter', function() {
-        var $operationsView;
         var $functionsInput;
         var $argSection;
         var $filterForm;
 
         before(function(done) {
-            $operationsView = $('#operationsView');
             $filterForm = $operationsView.find('.filter');
 
             OperationsView.show(tableId, [1], 'filter')
@@ -907,6 +1249,61 @@ describe('OperationsView Test', function() {
                 $functionsList = $functionsInput.siblings('.list');
                 $argSection = $filterForm.find('.argsSection').eq(0);
                 done();
+            });
+        });
+
+        describe('filter()', function() {
+            var cachedFilter;
+            var fn;
+            before(function(){
+                cachedFilter = xcFunction.filter;
+
+                fn = OperationsView.__testOnly__.filter;
+                $filterForm.find('.functionsInput').val("eq");
+            });
+
+            it('filter() should work', function(done) {
+                var filterCalled = false;
+                xcFunction.filter = function(colNum, tId, opts) {
+                    expect(colNum).to.equal(1);
+                    expect(tId).to.equal(tableId);
+                    expect(opts.filterString).to.equal("eq()");
+                    filterCalled = true;
+                    return PromiseHelper.resolve();
+                };
+
+                $filterForm.find('.functionsInput').val("eq");
+
+                fn("eq", [], [], false)
+                .then(function() {
+                    expect(filterCalled).to.be.true;
+                    done();
+                });
+            });
+
+            it('filter() should work', function(done) {
+                $filterForm.find('.functionsInput').val("gt");
+
+                var filterCalled = false;
+                xcFunction.filter = function(colNum, tId, opts) {
+                    expect(colNum).to.equal(1);
+                    expect(tId).to.equal(tableId);
+                    expect(opts.filterString).to.equal("gt(int(arg1, 10), string(arg2))");
+                    filterCalled = true;
+                    return PromiseHelper.resolve();
+                };
+
+                var typeInfo = [{type:"string", argNum: 1}, {type:"integer", argNum:0}];
+                fn("gt", ["arg1", "arg2"], typeInfo, false)
+                .then(function() {
+                    expect(filterCalled).to.be.true;
+                    done();
+                })
+            });
+
+            after(function(){
+                xcFunction.filter = cachedFilter;
+                $filterForm.find('.functionsInput').val("");
             });
         });
 
@@ -989,7 +1386,29 @@ describe('OperationsView Test', function() {
                 expect($thirdGroup.find('.functionsList').data('fnlistnum')).to.equal(1);
             });
         });
-        
+
+        // XXX just a quick test
+        describe('submission fail handler', function() {
+            var fn;
+            before(function() {
+                fn = OperationsView.__testOnly__.submissionFailHandler;
+            })
+            it('submission fail hanlder should work', function() {
+                
+                fn(Date.now(), StatusTStr[StatusT.StatusCanceled]);
+                expect($("#alertModal").is(":visible")).to.be.false;
+
+                $(document).trigger('mousedown'); // no alert modal if mousedown
+
+                fn(Date.now() - 1000, "someError");
+                expect($("#alertModal").is(":visible")).to.be.false;
+
+                $("#alertContent").find(".text").text("1234");
+
+                fn(Date.now(), "someError");
+                UnitTest.hasAlertWithText("1234.\nWould you like to modify the filter?");
+            });
+        });
 
         after(function(done) {
             OperationsView.close();
@@ -1001,14 +1420,12 @@ describe('OperationsView Test', function() {
 
     // using map in operations view
     describe('map', function() {
-        var $operationsView;
         var $filterInput;
         var $categoryMenu;
         var $functionsMenu;
         var $strPreview;
 
         before(function(done) {
-            $operationsView = $('#operationsView');
             $strPreview = $operationsView.find('.strPreview');
 
             OperationsView.show(tableId, [1], 'map')
@@ -1385,7 +1802,6 @@ describe('OperationsView Test', function() {
         var $aggForm;
         var $functionsInput;
         before(function(done) {
-            $operationsView = $('#operationsView');
             $strPreview = $operationsView.find('.strPreview');
 
             OperationsView.show(tableId, [1], 'aggregate')
@@ -1641,6 +2057,7 @@ describe('OperationsView Test', function() {
     });
 
     after(function(done) {
+        StatusBox.forceHide();
         UnitTest.deleteAll(tableName, testDs)
         .always(function() {
             UnitTest.offMinMode();
