@@ -191,5 +191,34 @@ window.XcSDK.Table.prototype = {
     deleteAllCols: function() {
         this.tableCols = [];
         return this;
+    },
+
+    getImmediatesMeta: function() {
+        return this.__getColMeta(true);
+    },
+
+    getPrefixMeta: function() {
+        return this.__getColMeta(false);
+    },
+
+    __getColMeta: function(isImmediate) {
+        var tableName = this.tableName;
+        var tableId = xcHelper.getTableId(tableName);
+        if (tableId != null && gTables[tableId] != null
+            && gTables[tableId].backTableMeta != null) {
+            var res = [];
+            gTables[tableId].backTableMeta.valueAttrs.forEach(function(attr) {
+                var isTypeImmediate = (attr.type !== DfFieldTypeT.DfFatptr);
+                var shouldAddMeta = (isImmediate && isTypeImmediate)
+                                    || (!isImmediate && !isTypeImmediate);
+                if (shouldAddMeta) {
+                    res.push(attr);
+                }
+            });
+
+            return res;
+        }
+
+        return null;
     }
 };

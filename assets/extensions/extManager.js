@@ -367,7 +367,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             } else {
                 Alert.error(StatusMessageTStr.ExtFailed, error.toLocaleString());
             }
-            deferred.reject4(error);
+            deferred.reject(error);
         }
 
         return deferred.promise();

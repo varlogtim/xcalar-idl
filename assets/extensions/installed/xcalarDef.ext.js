@@ -128,20 +128,20 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
                 return XcSDK.Promise.reject("Lag and Lead cannot all be zeros");
             }
 
-            var srcId = xcHelper.getTableId(ext.getTriggerTable().getName());
-            // XXX GUI-6899
-            var fieldAttrs = gTables[srcId].backTableMeta.valueAttrs
-            var numFields = fieldAttrs.length;
-            var srcColNames = [];
             var avoidCollision = false;
-
-            for (var i = 0; i < numFields; i++) {
-                if (fieldAttrs[i].name.includes("_lag_") ||
-                    fieldAttrs[i].name.includes("_lead_")) {
-                    avoidCollision = true;
+            var fieldAttrs = ext.getTriggerTable().getImmediatesMeta();
+            if (fieldAttrs != null) {
+                var numFields = fieldAttrs.length;
+                for (var i = 0; i < numFields; i++) {
+                    var immediateName = fieldAttrs[i].name;
+                    if (immediateName.includes("_lag_") ||
+                        immediateName.includes("_lead_"))
+                    {
+                        avoidCollision = true;
+                        break;
+                    }
                 }
             }
-
             // set some useful attribute
             self.setAttribute("avoidCollision", avoidCollision);
 
