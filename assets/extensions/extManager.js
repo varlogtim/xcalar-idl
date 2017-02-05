@@ -1,7 +1,6 @@
 window.ExtensionManager = (function(ExtensionManager, $) {
     var extMap = {};
     var extFileNames = [];
-    var numChecksLeft = 0;
     var triggerCol;
 
     // for the opsView
@@ -55,7 +54,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         var data;
         jQuery.ajax({
             type: "GET",
-            url : "assets/extensions/installed/" + extName + ".py"
+            url: "assets/extensions/installed/" + extName + ".py"
         })
         .then(function(response, status, xhr) {
             // Success case
@@ -254,13 +253,13 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         // in case args is changed by ext writer
         var copyArgs = xcHelper.deepCopy(args);
         var sql = {
-            "operation"  : SQLOps.Ext,
-            "tableName"  : tableName,
-            "tableId"    : tableId,
-            "module"     : module,
-            "func"       : func,
-            "args"       : copyArgs,
-            "options"    : options,
+            "operation": SQLOps.Ext,
+            "tableName": tableName,
+            "tableId": tableId,
+            "module": module,
+            "func": func,
+            "args": copyArgs,
+            "options": options,
             "htmlExclude": ["args", "options"]
         };
 
@@ -292,9 +291,9 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                     "extension": func
                 });
                 txId = Transaction.start({
-                    "msg"         : msg,
-                    "operation"   : SQLOps.Ext,
-                    "steps"       : -1,
+                    "msg": msg,
+                    "operation": SQLOps.Ext,
+                    "steps": -1,
                     "functionName": func
                 });
 
@@ -330,9 +329,10 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                 }
 
                 Transaction.done(txId, {
-                    "msgTable"      : xcHelper.getTableId(finalTableName),
-                    "sql"           : sql,
-                    "noNotification": options.noNotification
+                    "msgTable": xcHelper.getTableId(finalTableName),
+                    "sql": sql,
+                    "noNotification": options.noNotification,
+                    "noSql": options.noSql
                 });
                 deferred.resolve(runBeforeStartRet);
             })
@@ -346,8 +346,8 @@ window.ExtensionManager = (function(ExtensionManager, $) {
 
                     Transaction.fail(txId, {
                         "failMsg": StatusMessageTStr.ExtFailed,
-                        "error"  : error,
-                        "sql"    : sql
+                        "error": error,
+                        "sql": sql
                     });
                 } else {
                     Alert.error(StatusMessageTStr.ExtFailed, error);
@@ -361,13 +361,13 @@ window.ExtensionManager = (function(ExtensionManager, $) {
 
                 Transaction.fail(txId, {
                     "failMsg": StatusMessageTStr.ExtFailed,
-                    "error"  : error.toLocaleString(),
-                    "sql"    : sql
+                    "error": error.toLocaleString(),
+                    "sql": sql
                 });
             } else {
                 Alert.error(StatusMessageTStr.ExtFailed, error.toLocaleString());
             }
-            deferred.reject(error);
+            deferred.reject4(error);
         }
 
         return deferred.promise();
@@ -454,7 +454,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         $extArgs.on("keypress", ".argument", function(event) {
             if (event.which === keyCode.Enter) {
                 submitArgs();
-            } 
+            }
         });
 
         $extArgs.on("focus", ".argument.type-column", function() {
@@ -498,8 +498,8 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             });
         };
         var columnPicker = {
-            "state"       : "extState",
-            "colCallback" : colCallback,
+            "state": "extState",
+            "colCallback": colCallback,
             "headCallback": headCallback
         };
 
@@ -643,7 +643,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                     $li.closest(".dropDownList").find("input").val($li.text());
                 },
                 "container": "#extension-ops .argSection",
-                "bounds"   : "#extension-ops .argSection"
+                "bounds": "#extension-ops .argSection"
             }).setupListeners();
         });
 
@@ -958,7 +958,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
 
         return ({
             "valid": true,
-            "arg"  : tableArg
+            "arg": tableArg
         });
     }
 
@@ -972,7 +972,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             arg = $input.hasClass("checked");
             return {
                 "valid": true,
-                "arg"  : arg
+                "arg": arg
             };
         }
 
@@ -986,13 +986,13 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             if (argType === "string") {
                 return ({
                     "valid": true,
-                    "arg"  : arg
+                    "arg": arg
                 });
             } else {
                 if (arg.length === 0) {
                     return ({
                         "valid": true,
-                        "arg"  : undefined
+                        "arg": undefined
                     });
                 }
             }
@@ -1049,7 +1049,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                     var table = gTables[tableId];
                     if (table.hasCol(arg, "")) {
                         error = xcHelper.replaceMsg(ErrWRepTStr.ColConflict, {
-                            "name" : arg,
+                            "name": arg,
                             "table": table.getName()
                         });
 
@@ -1062,7 +1062,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
 
         return {
             "valid": true,
-            "arg"  : arg
+            "arg": arg
         };
     }
 
@@ -1124,7 +1124,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                     cols.push(new XcSDK.Column(backColName, colType));
                 } else {
                     error = xcHelper.replaceMsg(ErrWRepTStr.InvalidColOnTable, {
-                        "col"  : colName,
+                        "col": colName,
                         "table": table.getName()
                     });
                     StatusBox.show(error, $input);

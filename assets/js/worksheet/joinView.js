@@ -766,7 +766,8 @@ window.JoinView = (function($, JoinView) {
         $estimatorWrap.find('.value').empty();
 
         var extOptions = {
-            noNotification: true
+            noNotification: true,
+            noSql: true
         };
 
         joinEstimatorType = $joinTypeSelect.find(".text").text();
