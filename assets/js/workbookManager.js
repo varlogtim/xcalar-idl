@@ -912,40 +912,31 @@ window.WorkbookManager = (function($, WorkbookManager) {
     // helper for WorkbookManager.copyWKBK
     function copyHelper(srcId, newId) {
         var deferred = jQuery.Deferred();
+        var oldWkbkScopeKeys = getWkbkScopeKeys(srcId, currentVersion);
+        var newWkbkScopeKeys = getWkbkScopeKeys(newId, currentVersion);
 
-        copyAction("gInfo", gKVScope.META)
+        copyAction("gStorageKey", gKVScope.META)
         .then(function() {
-            // If success, then put this key into the new workbook
-            // If fail, then ignore and proceed with the rest of the copying
-            return copyAction("gEphInfo", gKVScope.EPHM, true);
+            return copyAction("gLogKey", gKVScope.LOG);
         })
         .then(function() {
-            return copyAction("gLog", gKVScope.LOG);
-        })
-        .then(function() {
-            return copyAction("gErr", gKVScope.ERR);
+            return copyAction("gErrKey", gKVScope.ERR);
         })
         .then(deferred.resolve)
         .fail(deferred.reject);
 
-        function copyAction(key, scope, ignoreFail) {
+        function copyAction(key, scope) {
             // copy all info to new key
             var innerDeferred = jQuery.Deferred();
-            var oldKey = generateKey(srcId, key);
-            var newKey = generateKey(newId, key);
+            var oldKey = oldWkbkScopeKeys[key];
+            var newKey = newWkbkScopeKeys[key];
 
             KVStore.get(oldKey, scope)
             .then(function(value) {
                 return KVStore.put(newKey, value, true, scope);
             })
             .then(innerDeferred.resolve)
-            .fail(function(error) {
-                if (ignoreFail) {
-                    innerDeferred.resolve();
-                } else {
-                    innerDeferred.reject(error);
-                }
-            });
+            .fail(innerDeferred.reject);
 
             return innerDeferred.promise();
         }
@@ -957,21 +948,20 @@ window.WorkbookManager = (function($, WorkbookManager) {
     function delWKBKHelper(wkbkId) {
         var deferred = jQuery.Deferred();
 
-        var storageKey = generateKey(wkbkId, "gInfo");
-        var ephStorageKey = generateKey(wkbkId, "gEphInfo");
-        var logKey = generateKey(wkbkId, "gLog");
+        var wkbkScopeKeys = getWkbkScopeKeys(wkbkId, currentVersion);
+
+        var storageKey = wkbkScopeKeys.gStorageKey;
+        var logKey = wkbkScopeKeys.gLogKey;
+        var errorKey = wkbkScopeKeys.gErrKey;
 
         var def1 = XcalarKeyDelete(storageKey, gKVScope.META);
-        var def3 = XcalarKeyDelete(ephStorageKey, gKVScope.EPHM);
-        var def2 = XcalarKeyDelete(logKey, gKVScope.LOG);
+        var def3 = XcalarKeyDelete(logKey, gKVScope.LOG);
+        var def2 = XcalarKeyDelete(errorKey, gKVScope.ERR);
 
-        jQuery.when(def1, def2, def3)
-        .then(function() {
-            console.log("Delete workbook", wkbkId);
-            deferred.resolve();
-        })
+        PromiseHelper.when(def1, def2, def3)
+        .then(deferred.resolve)
         .fail(function(error) {
-            console.error("Delete workbook fails!", error);
+            xcConsole.error("Delete workbook fails!", error);
             deferred.reject(error);
         });
 
