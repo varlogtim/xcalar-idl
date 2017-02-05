@@ -132,9 +132,8 @@ window.XVM = (function(XVM) {
             } else if (version < kvVersion) {
                 needUpgrade = true;
             }
-
             if (needUpgrade) {
-                return WorkbookManager.triggerUpgrade(version);
+                return Upgrader.exec(version);
             }
         })
         .then(deferred.resolve)

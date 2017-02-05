@@ -3,12 +3,37 @@ window.Upgrader = (function(Upgrader, $) {
     var userCache;
     var wkbksCache;
 
-    Upgrader.exec = function(currentKeys, upgradeKeys) {
+    Upgrader.exec = function(version) {
         var deferred = jQuery.Deferred();
         initialize();
+        WorkbookManager.getWKBKsAsync()
+        .then(function(oldWorkbooks, sessionInfo, isWrongNode) {
+            if (isWrongNode) {
+                // wrong node don't do upgrade
+                return;
+            } else {
+                var currentKeys = WorkbookManager.getKeysForUpgrade(sessionInfo,
+                                                                    version);
+                var upgradeKeys = WorkbookManager.getKeysForUpgrade(sessionInfo,
+                                                                currentVersion);
+                return execUpgrade(currentKeys, upgradeKeys);
+            }
+        })
+        .then(deferred.resolve)
+        .fail(deferred.fail);
 
+        return deferred.promise();
+    };
+
+    function initialize() {
+        globalCache = {};
+        userCache = {};
+        wkbksCache = {};
+    }
+
+    function execUpgrade(currentKeys, upgradeKeys) {
+        var deferred = jQuery.Deferred();
         console.log("upgrade workbook", currentKeys, upgradeKeys);
-
         // step 1. read and upgrade old data
         readAndUpgrade(currentKeys)
         .then(function() {
@@ -31,12 +56,6 @@ window.Upgrader = (function(Upgrader, $) {
         });
 
         return deferred.promise();
-    };
-
-    function initialize() {
-        globalCache = {};
-        userCache = {};
-        wkbksCache = {};
     }
 
     /* Start of read and upgrade part */
