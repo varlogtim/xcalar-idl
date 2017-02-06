@@ -210,7 +210,7 @@ window.DagFunction = (function($, DagFunction) {
             tableType = TableType.Archived;
         }
 
-        WSManager.moveInactiveTable(tableId, wsId, tableType);
+        return WSManager.moveInactiveTable(tableId, wsId, tableType);
     };
 
     DagFunction.focusTable = function(tableId) {
@@ -444,7 +444,7 @@ window.DagFunction = (function($, DagFunction) {
                 treeNodesToRerun.push(treeNodeArray[i]);
             }
         }
-        
+
         if (treeNodesToRerun.length === 0) {
             console.info("Nothing to rerun");
             return;

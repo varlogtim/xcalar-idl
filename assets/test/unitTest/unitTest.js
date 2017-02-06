@@ -252,7 +252,7 @@ window.UnitTest = (function(UnitTest, $) {
         .then(deferred.resolve);
 
         return deferred.promise();
-    }
+    };
 
     UnitTest.onMinMode = function() {
         minModeCache = gMinModeOn;
@@ -279,7 +279,7 @@ window.UnitTest = (function(UnitTest, $) {
         if (options.inputVal != null) {
             $alertModal.find('input').val(options.inputVal);
         }
-        if (options.confirm)  {
+        if (options.confirm) {
             $alertModal.find(".confirm").click();
         } else {
             $alertModal.find(".cancel").click();
@@ -298,7 +298,7 @@ window.UnitTest = (function(UnitTest, $) {
         if (options.inputVal != null) {
             $alertModal.find('input').val(options.inputVal);
         }
-        if (options.confirm)  {
+        if (options.confirm) {
             $alertModal.find(".confirm").click();
         } else {
             $alertModal.find(".cancel").click();
@@ -307,6 +307,15 @@ window.UnitTest = (function(UnitTest, $) {
         if (!options.nextAlert) {
             assert.isFalse($alertModal.is(":visible"));
         }
+    };
+
+    UnitTest.timeoutPromise = function(amtTime) {
+        var waitTime = amtTime || 1000;
+        var deferred = PromiseHelper.deferred();
+        setTimeout(function() {
+            deferred.resolve();
+        }, waitTime);
+        return deferred;
     };
 
     return (UnitTest);
