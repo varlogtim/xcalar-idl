@@ -1167,7 +1167,6 @@ describe('TableMenu', function() {
                 var cachedFunc = ColManager.roundToFixed;
                 var called = false;
                 ColManager.roundToFixed = function(colNums, tId, decimals) {
-                    console.log(arguments);
                     expect(colNums[0]).to.equal(11);
                     expect(colNums[1]).to.equal(12);
                     expect(tId).to.equal(tableId);
@@ -1189,12 +1188,13 @@ describe('TableMenu', function() {
     describe('cell menu actions', function() {
         it('tdFilter', function() {
             $table.find('td.col12').eq(0).trigger(fakeEvent.mousedown);
+            var cellText = $table.find('td.col12').eq(0).text();
             var cachedFunc = xcFunction.filter;
             var called = false;
             xcFunction.filter = function(colNum, tId, options) {
                 expect(colNum).to.equal(12);
                 expect(tId).to.equal(tableId);
-                expect(options.filterString).to.equal('eq(' + prefix + gPrefixSign + 'yelping_since, "2008-03")' );
+                expect(options.filterString).to.equal('eq(' + prefix + gPrefixSign + 'yelping_since, "' + cellText + '")' );
                 expect(options.operator).to.equal("Filter");
                 called = true;
             };
@@ -1210,12 +1210,13 @@ describe('TableMenu', function() {
 
         it('tdExclude', function() {
             $table.find('td.col12').eq(0).trigger(fakeEvent.mousedown);
+            var cellText = $table.find('td.col12').eq(0).text();
             var cachedFunc = xcFunction.filter;
             var called = false;
             xcFunction.filter = function(colNum, tId, options) {
                 expect(colNum).to.equal(12);
                 expect(tId).to.equal(tableId);
-                expect(options.filterString).to.equal('not(eq(' + prefix + gPrefixSign + 'yelping_since, "2008-03"))');
+                expect(options.filterString).to.equal('not(eq(' + prefix + gPrefixSign + 'yelping_since, "' + cellText + '"))');
                 expect(options.operator).to.equal("Exclude");
                 called = true;
             };
