@@ -16,16 +16,6 @@ window.QueryManager = (function(QueryManager, $) {
         addEventHandlers();
     };
 
-    QueryManager.test = function() {
-        var ds1 = "cheng." + xcHelper.randName("yelpUser");
-        var ds2 = "cheng." + xcHelper.randName("yelpReviews");
-        var query = 'load --url "nfs:///var/tmp/yelp/user" ' +
-                    '--format json --size 0B --name "' + ds1 + '";' +
-                    'load --url "nfs:///var/tmp/yelp/reviews" ' +
-                    '--format json --size 0B --name "' + ds2 + '";';
-        QueryManager.addQuery(0, "test", {query: query});
-    };
-
     // if numSteps is unknown, should take in -1
     // query is only passed in if this is an actual xcalarQuery (not xcFunction)
     QueryManager.addQuery = function(id, name, options) {
@@ -56,17 +46,22 @@ window.QueryManager = (function(QueryManager, $) {
 
         queryLists[id] = mainQuery;
         var $query = $(getQueryHTML(mainQuery));
-        $queryList.find(".hint").addClass("xc-hidden")
-                .end()
-                .append($query);
-        focusOnQuery($query);
-        updateStatusDetail({
-            "start": time,
-            "op": name,
-        }, id, QueryStatus.Run, true);
+        $queryList.find(".hint").addClass("xc-hidden");
+        $queryList.append($query);
 
+        focusOnQuery($query);
+
+        updateStatusDetail({
+            "start": getQueryTime(time),
+            "op": name,
+            "startTime": CommonTxtTstr.NA,
+            "elapsed": CommonTxtTstr.NA,
+        }, id, QueryStatus.Run, true);
+    
         if (type === "xcQuery") {
             runXcQuery(id, mainQuery, subQueries);
+        } else {
+            updateQueryTextDisplay("");
         }
     };
 
@@ -140,7 +135,7 @@ window.QueryManager = (function(QueryManager, $) {
         }
 
         mainQuery.setElapsedTime();
-        clearInterval(queryCheckLists[id]);
+        clearIntervalHelper(id);
         updateQueryBar(id, 100);
         updateStatusDetail({
             "start": getQueryTime(mainQuery.getTime()),
@@ -169,7 +164,7 @@ window.QueryManager = (function(QueryManager, $) {
                     if (mainQuery.currStep === i) {
                         incrementStep(mainQuery);
                         subQuery = mainQuery.subQueries[mainQuery.currStep];
-                        clearInterval(queryCheckLists[id]);
+                        clearIntervalHelper(id);
                         if (mainQuery.currStep === mainQuery.numSteps) {
                             // query is done
                         } else {
@@ -208,8 +203,7 @@ window.QueryManager = (function(QueryManager, $) {
                 return;
             }
         }
-        clearInterval(queryCheckLists[id]);
-        delete queryCheckLists[id];
+        clearIntervalHelper(id);
         // we may not want to immediately delete canceled queries because
         // we may be waiting for the operation to return and clean up some
         // intermediate tables
@@ -219,7 +213,7 @@ window.QueryManager = (function(QueryManager, $) {
         delete queryLists[id];
         var $query = $queryList.find('.query[data-id="' + id + '"]');
         if ($query.hasClass('active')) {
-            updateQueryTextDisplay("");
+            updateQueryTextDisplay("", true);
             updateStatusDetail({
                 "start": CommonTxtTstr.NA,
                 "elapsed": CommonTxtTstr.NA,
@@ -281,10 +275,7 @@ window.QueryManager = (function(QueryManager, $) {
                 console.info('query cancel submitted', ret);
                 deferred.resolve();
             })
-            .fail(function(error) {
-                // errors being handled inside XcalarCancelOp
-                deferred.reject(error);
-            });
+            .fail(deferred.reject); // errors being handled inside XcalarCancelOp
 
         } else { // xcFunction
             XcalarCancelOp(mainQuery.subQueries[currStep].dstTable,
@@ -293,10 +284,7 @@ window.QueryManager = (function(QueryManager, $) {
                 console.info('cancel submitted', ret);
                 deferred.resolve();
             })
-            .fail(function(error) {
-                // errors being handled inside XcalarCancelOp
-                deferred.reject(error);
-            });
+            .fail(deferred.reject); // errors being handled inside XcalarCancelOp
         }
         return deferred.promise();
     };
@@ -321,7 +309,7 @@ window.QueryManager = (function(QueryManager, $) {
         if (!queryLists[id]) {
             return;
         }
-        clearInterval(queryCheckLists[id]);
+        clearIntervalHelper(id);
 
         var mainQuery = queryLists[id];
         mainQuery.state = QueryStatus.Cancel;
@@ -373,8 +361,8 @@ window.QueryManager = (function(QueryManager, $) {
     QueryManager.check = function(forceStop, doNotAnimate) {
         if (forceStop || !$("#monitor-queries").hasClass("active") ||
             !$('#monitorTab').hasClass('active')) {
-            for (var timer in queryCheckLists) {
-                clearInterval(queryCheckLists[timer]);
+            for (var id in queryCheckLists) {
+                clearIntervalHelper(id);
             }
         } else {
             // check queries
@@ -491,10 +479,10 @@ window.QueryManager = (function(QueryManager, $) {
     // used for xcalarQuery
     function mainQueryCheck(id, doNotAnimate) {
         var mainQuery = queryLists[id];
-        clearInterval(queryCheckLists[id]);
-        check();
+        clearIntervalHelper(id);
         queryCheckLists[id] = setInterval(check, checkInterval);
-
+        check();
+        
         function check() {
             mainQuery.check()
             .then(function(res) {
@@ -503,7 +491,7 @@ window.QueryManager = (function(QueryManager, $) {
                 }
                 var state = res.queryState;
                 if (state === QueryStateT.qrFinished) {
-                    clearInterval(queryCheckLists[id]);
+                    clearIntervalHelper(id);
                     //xx unable to match up with sql id number
                     QueryManager.queryDone(id);
                     return;
@@ -512,10 +500,10 @@ window.QueryManager = (function(QueryManager, $) {
                 var step = res.numCompletedWorkItem;
                 mainQuery.currStep = step;
                 if (state === QueryStateT.qrError) {
-                    clearInterval(queryCheckLists[id]);
+                    clearIntervalHelper(id);
                     updateQueryBar(id, res, true, false, doNotAnimate);
                 } if (state === QueryStateT.qrCancelled) {
-                    clearInterval(queryCheckLists[id]);
+                    clearIntervalHelper(id);
                     updateQueryBar(id, res, false, true, doNotAnimate);
                 } else {
                     subQueryCheckHelper(mainQuery.subQueries[step], id, step);
@@ -524,7 +512,7 @@ window.QueryManager = (function(QueryManager, $) {
             .fail(function(error) {
                 console.error("Check failed", error);
                 updateQueryBar(id, null, error, false, doNotAnimate);
-                clearInterval(queryCheckLists[id]);
+                clearIntervalHelper(id);
             });
         }
     }
@@ -566,13 +554,12 @@ window.QueryManager = (function(QueryManager, $) {
 
         var mainQuery = queryLists[id];
         var firstQueryPos = getFirstQueryPos(mainQuery);
-        clearInterval(queryCheckLists[id]);
-        check();
+        clearIntervalHelper(id);
         queryCheckLists[id] = setInterval(check, checkInterval);
+        check();
 
         function check() {
             var queryName = mainQuery.subQueries[mainQuery.currStep].queryName;
-
             XcalarQueryState(queryName)
             .then(function(res) {
                 var numCompleted = res.numCompletedWorkItem;
@@ -582,7 +569,7 @@ window.QueryManager = (function(QueryManager, $) {
                 var state = res.queryState;
                 if (state === QueryStateT.qrFinished) {
                     mainQuery.currStep++;
-                    clearInterval(queryCheckLists[id]);
+                    clearIntervalHelper(id);
                     if (mainQuery.subQueries[mainQuery.currStep]) {
                         if (mainQuery.subQueries[mainQuery.currStep].queryName) {
                             outerQueryCheck(id, doNotAnimate);
@@ -594,7 +581,7 @@ window.QueryManager = (function(QueryManager, $) {
                     return;
                 } else if (state === QueryStateT.qrError ||
                            state === QueryStateT.qrCancelled) {
-                    clearInterval(queryCheckLists[id]);
+                    clearIntervalHelper(id);
                     updateQueryBar(id, res, true, false, doNotAnimate);
                 } else {
                     subQueryCheckHelper(mainQuery.subQueries[currStep], id,
@@ -606,7 +593,7 @@ window.QueryManager = (function(QueryManager, $) {
             .fail(function(error) {
                 console.error("Check failed", error, queryName);
                 updateQueryBar(id, null, error, false, doNotAnimate);
-                clearInterval(queryCheckLists[id]);
+                clearIntervalHelper(id);
             });
         }
     }
@@ -629,7 +616,6 @@ window.QueryManager = (function(QueryManager, $) {
         if ($target.hasClass("active")) {
             return;
         }
-
 
         var queryId = parseInt($target.data("id"));
         $target.siblings(".active").removeClass("active");
@@ -715,7 +701,7 @@ window.QueryManager = (function(QueryManager, $) {
         }
     }
 
-    function updateQueryTextDisplay(query) {
+    function updateQueryTextDisplay(query, blank) {
         var queryString = "";
         if (query && query.trim().indexOf('export') !== 0) {
             // export has semicolons between colnames and breaks most rules
@@ -731,9 +717,12 @@ window.QueryManager = (function(QueryManager, $) {
         } else {
             queryString = '<div class="queryRow">' + query + '</div>';
         }
-        $queryDetail.find(".operationSection .content").html(queryString);
+        if (query || blank) {
+            $queryDetail.find(".operationSection .content").html(queryString);
+        }
     }
 
+    // updates the status text in the main card
     function updateStatusDetail(info, id, status, reset) {
         if (id != null) {
             // do not update detail if not focused on this query bar
@@ -846,12 +835,11 @@ window.QueryManager = (function(QueryManager, $) {
             }
             return;
         }
-        clearInterval(queryCheckLists[id]);
-        checkFunc();
         // only stop animation the first time, do not persist it
         doNotAnimate = false;
-
+        clearIntervalHelper(id);
         queryCheckLists[id] = setInterval(checkFunc, checkInterval);
+        checkFunc();
 
         function checkFunc() {
             subQueryCheckHelper(subQuery, id, subQuery.index, doNotAnimate);
@@ -895,7 +883,7 @@ window.QueryManager = (function(QueryManager, $) {
         .fail(function(error) {
             console.error("Check failed", error);
             updateQueryBar(id, null, error);
-            clearInterval(queryCheckLists[id]);
+            clearIntervalHelper(id);
         });
     }
 
@@ -957,8 +945,7 @@ window.QueryManager = (function(QueryManager, $) {
                 $query.removeClass("processing").addClass(newClass);
                 if (newClass === "done") {
                     $query.find('.querySteps').text('completed');
-                    clearInterval(queryCheckLists[id]);
-                    delete queryCheckLists[id];
+                    clearIntervalHelper(id);
                 }
             }
         }
@@ -1027,7 +1014,9 @@ window.QueryManager = (function(QueryManager, $) {
             // in progress and if total number of steps is NOT known
             displayedStep = Math.min(mainQuery.currStep + 1,
                                      mainQuery.subQueries.length);
-            stepText = 'step ' + displayedStep;
+            if (displayedStep > 0) {
+                stepText = 'step ' + displayedStep;
+            }
         }
         if (stepText) {
             $query.find('.querySteps').text(stepText);
@@ -1478,10 +1467,17 @@ window.QueryManager = (function(QueryManager, $) {
         XcalarDestroyDataset(dsName, null);
     }
 
+    function clearIntervalHelper(id) {
+        clearInterval(queryCheckLists[id]);
+        delete queryCheckLists[id];
+    }
+
      /* Unit Test Only */
     if (window.unitTestMode) {
         QueryManager.__testOnly__ = {};
         QueryManager.__testOnly__.getElapsedTimeStr = getElapsedTimeStr;
+        QueryManager.__testOnly__.queryLists = queryLists;
+        QueryManager.__testOnly__.queryCheckLists = queryCheckLists;
     }
     /* End Of Unit Test Only */
 
