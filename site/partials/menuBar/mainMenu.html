@@ -10,10 +10,18 @@
     <% } else { %>
     <div id="workspaceMenu" class="commonSection" data-tab="workspaceTab">
     <% } %>
+      <% if (dicts.tutor.name == "workbookDemo") { %>
       <section class="menuSection worksheets">
+      <% } else { %>
+      <section class="menuSection worksheets xc-hidden">
+      <% } %>
         include "../worksheet/worksheetTabs.html"
       </section>
+      <% if (dicts.tutor.name == "workbookDemo") { %>
       <section class="menuSection tables xc-hidden">
+      <% } else { %>
+      <section class="menuSection tables">
+      <% } %>
         include "../worksheet/tableList.html"
       </section>
       include "../worksheet/operationsView.html"
