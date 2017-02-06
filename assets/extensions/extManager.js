@@ -223,6 +223,8 @@ window.ExtensionManager = (function(ExtensionManager, $) {
     /*
     options: {
         noNotification: boolean, to hide success message pop up
+        noSql: boolean, if set true, not add to sql log,
+        closeTab: boolean, if true, close view when pass before run check
     }
      */
     ExtensionManager.trigger = function(tableId, module, func, args, options) {
@@ -287,6 +289,13 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             ext.initialize(tableName, worksheet, args);
             ext.runBeforeStart(extButton)
             .then(function() {
+                if (options.closeTab) {
+                    // close tab, do this because if new table created,
+                    // they don't have the event listener
+                    // XXXX should change event listener to pop up
+                    $("#extensionTab").click();
+                }
+
                 var msg = xcHelper.replaceMsg(StatusMessageTStr.Ext, {
                     "extension": func
                 });
@@ -597,11 +606,9 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             return;
         }
 
-        ExtensionManager.trigger(tableId, modName, fnName, args);
-        // close tab, do this because if new table created, they don't have the
-        // event listener
-        // XXXX should change event listener to pop up
-        $("#extensionTab").click();
+        ExtensionManager.trigger(tableId, modName, fnName, args, {
+            "closeTab": true
+        });
     }
 
     function updateArgs(modName, fnName, fnText) {
