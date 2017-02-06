@@ -48,7 +48,7 @@ describe("WorkbookManager Test", function() {
 
         it("delWKBKHelper should work", function(done) {
             var wkbkId = "testId";
-            var storageKey = generateKey(wkbkId, "gInfo");
+            var storageKey = generateKey(wkbkId, "gInfo", currentVersion);
 
             fakeMap[storageKey] = "testVal";
 
@@ -85,12 +85,12 @@ describe("WorkbookManager Test", function() {
         it("copyHelper should work", function(done) {
             var oldId = "oldId";
             var newId = "newId";
-            var keys = ["gInfo", "gEphInfo", "gLog", "gErr"];
+            var keys = ["gInfo", "gLog", "gErr"];
 
 
             fakeMap = {};
             keys.forEach(function(key) {
-                var oldKey = generateKey(oldId, key);
+                var oldKey = generateKey(oldId, key, currentVersion);
                 fakeMap[oldKey] = "testVal";
             });
 
@@ -100,7 +100,7 @@ describe("WorkbookManager Test", function() {
                 .to.equal(keys.length * 2);
 
                 keys.forEach(function(key) {
-                    var newKey = generateKey(newId, key);
+                    var newKey = generateKey(newId, key, currentVersion);
                     expect(fakeMap).to.ownProperty(newKey);
                 });
 
