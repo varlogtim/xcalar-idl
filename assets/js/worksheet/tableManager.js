@@ -672,7 +672,7 @@ window.TblManager = (function($, TblManager) {
         var indexed = (progCol.getBackColName() === table.getKeyName());
         var sortIcon = '<i class="sortIcon"></i>'; // placeholder
 
-        if (progCol.hasHidden()) {
+        if (progCol.hasMinimized()) {
             width = 15;
             columnClass += " userHidden";
         }
@@ -1012,7 +1012,7 @@ window.TblManager = (function($, TblManager) {
             oldWidthStates.push(columns[i].sizedToHeader);
             columns[i].sizedToHeader = sizeToHeader;
             newWidthStates.push(columns[i].sizedToHeader);
-            columns[i].isHidden = false;
+            columns[i].maximize();
             oldColumnWidths.push(columns[i].width);
 
             newWidths.push(autosizeCol($th, {
@@ -2493,13 +2493,13 @@ window.TblManager = (function($, TblManager) {
             if (progCol.isDATACol()) {
                 var width;
                 var thClass = "";
-                if (progCol.hasHidden()) {
+                if (progCol.hasMinimized()) {
                     width = gHiddenColumnWidth;
                     thClass = " userHidden";
                 } else {
                     width = progCol.getWidth();
                 }
-                if (!progCol.hasHidden() && width === 'auto') {
+                if (!progCol.hasMinimized() && width === 'auto') {
                     width = 400;
                 }
                 newTableHtml += generateDataHeadHTML(colNum, thClass, width);
@@ -2670,7 +2670,7 @@ window.TblManager = (function($, TblManager) {
             } else if (winWidth > 1100) {
                 maxWidth = 500;
             }
-            if (dataCol.isHidden) {
+            if (dataCol.hasMinimized()) {
                 dataCol.width = minWidth;
                 return;
             } else {

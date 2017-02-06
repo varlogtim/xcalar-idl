@@ -40,7 +40,7 @@ window.ColManager = (function($, ColManager) {
                 "args": []
             },
             "isNewCol": false,
-            "isHidden": UserSettings.getPref('hideDataCol')
+            "isMinimized": UserSettings.getPref('hideDataCol')
         });
     };
 
@@ -114,8 +114,8 @@ window.ColManager = (function($, ColManager) {
             xcHelper.removeSelectionRange();
 
              // add SQL
-            SQL.add("Delete Column", {
-                "operation": SQLOps.DeleteCol,
+            SQL.add("Hide Column", {
+                "operation": SQLOps.HideCol,
                 "tableName": table.getName(),
                 "tableId": tableId,
                 "colNames": colNames,
@@ -890,7 +890,7 @@ window.ColManager = (function($, ColManager) {
         return isInvalid;
     };
 
-    ColManager.hideCols = function(colNums, tableId) {
+    ColManager.minimizeCols = function(colNums, tableId) {
         // for multiple columns
         var deferred = jQuery.Deferred();
         var $table = $("#xcTable-" + tableId);
@@ -909,7 +909,7 @@ window.ColManager = (function($, ColManager) {
             var columnName = progCol.getFrontColName();
 
             widthDiff += (originalColWidth - gHiddenColumnWidth);
-            progCol.hide();
+            progCol.minimize();
             colNames.push(columnName);
             // change tooltip to show name
             xcTooltip.changeText($th.find(".dropdownBox"), columnName);
@@ -941,8 +941,8 @@ window.ColManager = (function($, ColManager) {
         PromiseHelper.when.apply(window, promises)
         .done(function() {
             matchHeaderSizes($table);
-            SQL.add("Hide Columns", {
-                "operation": SQLOps.HideCols,
+            SQL.add("Minimize Columns", {
+                "operation": SQLOps.MinimizeCols,
                 "tableName": table.getName(),
                 "tableId": tableId,
                 "colNames": colNames,
@@ -955,7 +955,7 @@ window.ColManager = (function($, ColManager) {
         return deferred.promise();
     };
 
-    ColManager.unhideCols = function(colNums, tableId, noAnim) {
+    ColManager.maximizeCols = function(colNums, tableId, noAnim) {
         var deferred = jQuery.Deferred();
         var $table = $("#xcTable-" + tableId);
         var tableWidth = $table.width();
@@ -969,7 +969,7 @@ window.ColManager = (function($, ColManager) {
             var originalColWidth = progCol.getWidth();
 
             widthDiff += (originalColWidth - gHiddenColumnWidth);
-            progCol.unhide();
+            progCol.maximize();
             colNames.push(progCol.getFrontColName());
 
             var $th = $table.find(".th.col" + colNum);
@@ -1004,8 +1004,8 @@ window.ColManager = (function($, ColManager) {
         PromiseHelper.when.apply(window, promises)
         .done(function() {
             matchHeaderSizes($table);
-            SQL.add("Unhide Columns", {
-                "operation": SQLOps.UnHideCols,
+            SQL.add("Maximize Columns", {
+                "operation": SQLOps.MaximizeCols,
                 "tableName": table.getName(),
                 "tableId": tableId,
                 "colNames": colNames,
@@ -1517,7 +1517,7 @@ window.ColManager = (function($, ColManager) {
         adjustedColType = xcHelper.capitalize(adjustedColType);
         xcTooltip.changeText($header.find(".iconHelper"), adjustedColType);
 
-        if (progCol.hasHidden()) {
+        if (progCol.hasMinimized()) {
             $table.find("td.col" + colNum).addClass("userHidden");
         }
         if (progCol.isChildOfArray()) {
@@ -1595,7 +1595,7 @@ window.ColManager = (function($, ColManager) {
 
         var width = progCol.getWidth();
         var isNewCol = progCol.isEmptyCol();
-        var isHidden = progCol.hasHidden();
+        var isMinimized = progCol.hasMinimized();
         var columnClass = "";
 
         if (options.direction !== ColDir.Left) {
@@ -1630,7 +1630,7 @@ window.ColManager = (function($, ColManager) {
             moveFirstColumn();
         } else {
             $th.width(10);
-            if (!isHidden) {
+            if (!isMinimized) {
                 columnClass += " animating";
                 $th.animate({width: width}, 300, function() {
                     TblManager.updateHeaderAndListInfo(tableId);

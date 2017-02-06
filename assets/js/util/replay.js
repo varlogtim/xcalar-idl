@@ -408,9 +408,9 @@ window.Replay = (function($, Replay) {
         argsMap[SQLOps.UnhideTable] = ["tableId"];
         argsMap[SQLOps.DeleteTable] = ["tables", "tableType"];
         argsMap[SQLOps.RevertTable] = [];
-        argsMap[SQLOps.DeleteCol] = ["colNums", "tableId"];
-        argsMap[SQLOps.HideCols] = ["colNums", "tableId"];
-        argsMap[SQLOps.UnHideCols] = ["colNums", "tableId"];
+        argsMap[SQLOps.HideCol] = ["colNums", "tableId"];
+        argsMap[SQLOps.MinimizeCols] = ["colNums", "tableId"];
+        argsMap[SQLOps.MaximizeCols] = ["colNums", "tableId"];
         argsMap[SQLOps.TextAlign] = ["colNums", "tableId", "alignment"];
         argsMap[SQLOps.ReorderTable] = ["tableId", "srcIndex", "desIndex"];
         argsMap[SQLOps.ReorderCol] = ["tableId", "oldColNum", "newColNum"];
@@ -721,21 +721,21 @@ window.Replay = (function($, Replay) {
         return delayAction();
     };
 
-    replayFuncs[SQLOps.DeleteCol] = function(options) {
+    replayFuncs[SQLOps.HideCol] = function(options) {
         var args = getArgs(options);
         ColManager.delCol.apply(window, args);
 
         return PromiseHelper.resolve(null);
     };
 
-    replayFuncs[SQLOps.HideCols] = function(options) {
+    replayFuncs[SQLOps.MinimizeCols] = function(options) {
         var args = getArgs(options);
-        return ColManager.hideCols.apply(window, args);
+        return ColManager.minimizeCols.apply(window, args);
     };
 
-    replayFuncs[SQLOps.UnHideCols] = function(options) {
+    replayFuncs[SQLOps.MaximizeCols] = function(options) {
         var args = getArgs(options);
-        return ColManager.unhideCols.apply(window, args);
+        return ColManager.maximizeCols.apply(window, args);
     };
 
     replayFuncs[SQLOps.TextAlign] = function(options) {

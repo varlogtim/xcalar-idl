@@ -803,7 +803,7 @@ var ProgCol = (function(_super) {
         },
 
         getDisplayWidth: function() {
-            if (this.isHidden) {
+            if (this.isMinimized) {
                 return gHiddenColumnWidth;
             } else {
                 return this.width;
@@ -842,16 +842,16 @@ var ProgCol = (function(_super) {
             this.decimal = decimal;
         },
 
-        hide: function() {
-            this.isHidden = true;
+        minimize: function() {
+            this.isMinimized = true;
         },
 
-        unhide: function() {
-            this.isHidden = false;
+        maximize: function() {
+            this.isMinimized = false;
         },
 
-        hasHidden: function() {
-            return this.isHidden;
+        hasMinimized: function() {
+            return this.isMinimized;
         },
 
         getTextAlign: function() {

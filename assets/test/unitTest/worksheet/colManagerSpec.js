@@ -561,21 +561,21 @@ describe('ColManager Test', function() {
             $target.remove();
         });
 
-        it("Should hide and unhide column", function(done) {
+        it("Should hide and maximize column", function(done) {
             var colNum = 1;
             var $th = $("#xcTable-" + tableId).find(".th.col" + colNum);
             var progCol = gTables[tableId].getCol(colNum);
 
-            ColManager.hideCols([colNum], tableId)
+            ColManager.minimizeCols([colNum], tableId)
             .then(function() {
                 expect($th.outerWidth()).to.equal(gHiddenColumnWidth);
-                expect(progCol.hasHidden()).to.be.true;
+                expect(progCol.hasMinimized()).to.be.true;
 
-                return ColManager.unhideCols([colNum], tableId);
+                return ColManager.maximizeCols([colNum], tableId);
             })
             .then(function() {
                 expect($th.outerWidth()).to.equal(progCol.getWidth());
-                expect(progCol.hasHidden()).to.be.false;
+                expect(progCol.hasMinimized()).to.be.false;
                 done();
             })
             .fail(function(error) {
@@ -583,23 +583,23 @@ describe('ColManager Test', function() {
             });
         });
 
-        it("Should hide and unhide column with animation", function(done) {
+        it("Should minimize and maximize column with animation", function(done) {
             var innerCahceMinMode = gMinModeOn;
             gMinModeOn = false;
             var colNum = 1;
             var $th = $("#xcTable-" + tableId).find(".th.col" + colNum);
             var progCol = gTables[tableId].getCol(colNum);
 
-            ColManager.hideCols([colNum], tableId)
+            ColManager.minimizeCols([colNum], tableId)
             .then(function() {
                 expect($th.outerWidth()).to.equal(gHiddenColumnWidth);
-                expect(progCol.hasHidden()).to.be.true;
+                expect(progCol.hasMinimized()).to.be.true;
 
-                return ColManager.unhideCols([colNum], tableId);
+                return ColManager.maximizeCols([colNum], tableId);
             })
             .then(function() {
                 expect($th.outerWidth()).to.equal(progCol.getWidth());
-                expect(progCol.hasHidden()).to.be.false;
+                expect(progCol.hasMinimized()).to.be.false;
                 gMinModeOn = innerCahceMinMode;
                 done();
             })

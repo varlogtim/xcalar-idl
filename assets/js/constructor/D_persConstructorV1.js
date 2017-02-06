@@ -392,7 +392,7 @@ var ProgColV1 = (function() {
         knownType: (boolean) if the type is known or just a guess
         childOfArray: (boolean) if is child of array
         isNewCol: (boolean) if is new column
-        isHidden: (boolean) columns is hidden or not
+        isMinimized: (boolean) columns is hidden or not
         width: (number) column width
         format: (string) enums in ColFormat
         decimal: (integer) num of decimals
@@ -408,7 +408,7 @@ var ProgColV1 = (function() {
             "format": null,
             "immediate": false,
             "knownType": false,
-            "isHidden": false,
+            "isMinimized": false,
             "isNewCol": true,
             "name": "",
             "sizedToHeader": true,

@@ -118,7 +118,7 @@ describe("TableManager Test", function() {
             gTables[tableId] = table;
 
             var progCol = ColManager.newPullCol("test", "test", "string");
-            progCol.hide();
+            progCol.minimize();
             table.addCol(1, progCol);
             // case 1 hidden column
             var th = TblManager.getColHeadHTML(1, tableId);

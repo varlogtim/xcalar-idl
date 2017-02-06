@@ -335,7 +335,7 @@ describe("Persistent Constructor Test", function() {
             .and.to.be.false;
             expect(progCol).to.have.property("isNewCol")
             .and.to.be.false;
-            expect(progCol).to.have.property("isHidden")
+            expect(progCol).to.have.property("isMinimized")
             .and.to.be.false;
             expect(progCol).to.have.property("width")
             .and.to.equal(100);
@@ -518,11 +518,11 @@ describe("Persistent Constructor Test", function() {
             expect(progCol.getDisplayWidth()).to.equal(100);
 
             // case 2
-            progCol.isHidden = true;
+            progCol.isMinimized = true;
             expect(progCol.getDisplayWidth()).to.equal(15);
         });
 
-        it("Should hide and unhide column", function() {
+        it("Should minimize and maximize column", function() {
             var progCol = new ProgCol({
                 "name"    : "test",
                 "backName": "prefix::backTest",
@@ -534,12 +534,12 @@ describe("Persistent Constructor Test", function() {
                     "name": "pull"
                 }
             });
-            expect(progCol.hasHidden()).to.be.false;
+            expect(progCol.hasMinimized()).to.be.false;
 
-            progCol.hide();
-            expect(progCol.hasHidden()).to.be.true;
-            progCol.unhide();
-            expect(progCol.hasHidden()).to.be.false;
+            progCol.minimize();
+            expect(progCol.hasMinimized()).to.be.true;
+            progCol.maximize();
+            expect(progCol.hasMinimized()).to.be.false;
         });
 
         it("Should get and set text align", function() {

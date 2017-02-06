@@ -103,7 +103,7 @@ describe('TblAnim', function() {
             TblAnim.__testOnly__.endColResize();
 
             expect(gMouseStatus).to.be.null;
-            expect(progCol.isHidden).to.be.false;
+            expect(progCol.isMinimized).to.be.false;
             expect(progCol.width).to.equal(startWidth + 10);
             // based on onColResize width
             expect($th.outerWidth()).to.equal(startWidth + 10);

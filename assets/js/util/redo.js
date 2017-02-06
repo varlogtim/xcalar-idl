@@ -145,14 +145,14 @@ window.Redo = (function($, Redo) {
 
     /* USER STYLING/FORMATING OPERATIONS */
 
-    redoFuncs[SQLOps.HideCols] = function(options) {
+    redoFuncs[SQLOps.MinimizeCols] = function(options) {
         focusTableHelper(options);
-        return ColManager.hideCols(options.colNums, options.tableId);
+        return ColManager.minimizeCols(options.colNums, options.tableId);
     };
 
-    redoFuncs[SQLOps.UnHideCols] = function(options) {
+    redoFuncs[SQLOps.MaximizeCols] = function(options) {
         focusTableHelper(options);
-        return ColManager.unhideCols(options.colNums, options.tableId);
+        return ColManager.maximizeCols(options.colNums, options.tableId);
     };
 
     redoFuncs[SQLOps.AddNewCol] = function(options) {
@@ -162,7 +162,7 @@ window.Redo = (function($, Redo) {
         return PromiseHelper.resolve(null);
     };
 
-    redoFuncs[SQLOps.DeleteCol] = function(options) {
+    redoFuncs[SQLOps.HideCol] = function(options) {
         focusTableHelper(options);
         return (ColManager.delCol(options.colNums, options.tableId));
     };

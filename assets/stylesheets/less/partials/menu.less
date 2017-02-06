@@ -374,6 +374,10 @@
         margin-right: 0px !important;
     }
     // END FASJ ICONS
+    
+    .newColumn {
+        display: none;
+    }
 
     .changeDataType, .multiChangeDataType {
         li.flexContainer {
@@ -429,7 +433,7 @@
         display: none;
     }
 
-    .unhide {
+    .maximize {
         display: none;
     }
 
@@ -480,6 +484,15 @@
         }
     }
 
+    &.type-newColumn {
+        .hideColumn {
+            display: none;
+        }
+        .newColumn {
+            display: list-item;
+        }
+    }
+
     &.type-multiColumn:not(.subMenu) {
         li {
             display: none !important;
@@ -488,7 +501,7 @@
 
     &.type-multiColumn {
         .multiColumn {
-            &.deleteColumns, &.hideColumns, &.textAlignColumns, &.multiChangeDataType,
+            &.hideColumns, &.minimizeColumns, &.textAlignColumns, &.multiChangeDataType,
             &.resizeColumns, &.extensions, &.multiGroupby {
                 display: list-item !important;
                 li {
@@ -498,8 +511,6 @@
             &.divider {
                 display: block;
             }
-
-
         }
 
         .multiTextAlign {
@@ -512,10 +523,10 @@
         }
 
         &.type-hidden {
-            .unhideColumns {
+            .maximizeColumns {
                 display: list-item !important;
             }
-            .hideColumns {
+            .minimizeColumns {
                 display: none !important;
             }
         }
@@ -531,6 +542,15 @@
         &.type-undefined, &.type-newColumn {
             .multiGroupby {
                 display: none !important;
+            }
+        }
+
+        &.type-newColumn {
+            .newColumn {
+                display: none;
+            }
+            .hideColumn {
+                display: block;
             }
         }
 
@@ -651,8 +671,8 @@
     }
 
     &.type-data {
-        .sort, .aggregate, .groupby, .filter, .joinList, .deleteColumn,
-        .deleteDuplicates, .duplicate, .rename, .map, .operations,
+        .sort, .aggregate, .groupby, .filter, .joinList, .hideColumn,
+        .rename, .map, .operations,
         .changeDataType, .profile, .divider, .format, .roundToFixed ,
         .extensions {
             display: none;
@@ -660,10 +680,10 @@
     }
 
     &.type-hidden {
-        .hide {
+        .minimize {
             display: none;
         }
-        .unhide {
+        .maximize {
             display: list-item;
         }
     }

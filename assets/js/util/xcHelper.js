@@ -3001,7 +3001,9 @@ window.xcHelper = (function($, xcHelper) {
         var $lis = $subMenu.find(".typeList");
         $lis.removeClass("unavailable");
         xcTooltip.remove($lis);
-        if (!options.multipleColNums && progCol.isKnownType()) {
+        if (options.multipleColNums) {
+            // $li.
+        } else if (progCol.isKnownType()) {
             var type = progCol.getType();
             var $li;
 

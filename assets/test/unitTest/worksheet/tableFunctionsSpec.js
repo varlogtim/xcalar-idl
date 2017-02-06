@@ -190,7 +190,7 @@ describe('TableFunctions', function() {
             var mouseEvent = $.Event("mouseenter");
             mouseEvent.which = 1;
             mouseEvent.keyTriggered = true;
-            $colMenu.find("li:visible.deleteColumn").trigger(mouseEvent);
+            $colMenu.find("li:visible.hideColumn").trigger(mouseEvent);
             triggerArrow($colMenu, "Enter"); // Race condition again
             setTimeout(function() {
                 avIdx = table.getColNumByBackName(prefix +

@@ -321,7 +321,7 @@ window.TblMenu = (function(TblMenu, $) {
             ColManager.addNewCol(colNum, tableId, direction);
         });
 
-        $colMenu.on('mouseup', '.deleteColumn', function(event) {
+        $colMenu.on('mouseup', '.hideColumn', function(event) {
             if (event.which !== 1) {
                 return;
             }
@@ -518,22 +518,22 @@ window.TblMenu = (function(TblMenu, $) {
             }
         });
 
-        $colMenu.on('mouseup', '.hide', function(event) {
+        $colMenu.on('mouseup', '.minimize', function(event) {
             if (event.which !== 1) {
                 return;
             }
             var colNum = $colMenu.data('colNum');
             var tableId = $colMenu.data('tableId');
-            ColManager.hideCols([colNum], tableId);
+            ColManager.minimizeCols([colNum], tableId);
         });
 
-        $colMenu.on('mouseup', '.unhide', function(event) {
+        $colMenu.on('mouseup', '.maximize', function(event) {
             if (event.which !== 1) {
                 return;
             }
             var colNum = $colMenu.data('colNum');
             var tableId = $colMenu.data('tableId');
-            ColManager.unhideCols([colNum], tableId);
+            ColManager.maximizeCols([colNum], tableId);
         });
 
         $subMenu.on('mouseup', 'li.textAlign', function(event) {
@@ -812,7 +812,7 @@ window.TblMenu = (function(TblMenu, $) {
         });
 
         // multiple columns
-        $colMenu.on('mouseup', '.deleteColumns', function(event) {
+        $colMenu.on('mouseup', '.hideColumns', function(event) {
             if (event.which !== 1) {
                 return;
             }
@@ -821,24 +821,24 @@ window.TblMenu = (function(TblMenu, $) {
             ColManager.delCol(columns, tableId);
         });
 
-        $colMenu.on('mouseup', '.hideColumns', function(event) {
+        $colMenu.on('mouseup', '.minimizeColumns', function(event) {
             if (event.which !== 1) {
                 return;
             }
 
             var columns = $colMenu.data('columns');
             var tableId = $colMenu.data('tableId');
-            ColManager.hideCols(columns, tableId);
+            ColManager.minimizeCols(columns, tableId);
         });
 
-        $colMenu.on('mouseup', '.unhideColumns', function(event) {
+        $colMenu.on('mouseup', '.maximizeColumns', function(event) {
             if (event.which !== 1) {
                 return;
             }
 
             var columns = $colMenu.data('columns');
             var tableId = $colMenu.data('tableId');
-            ColManager.unhideCols(columns, tableId);
+            ColManager.maximizeCols(columns, tableId);
         });
 
         $colMenu.on('mouseup', '.exitOp', function(event) {

@@ -647,7 +647,7 @@ window.SQL = (function($, SQL) {
     function getUndoType(sql) {
         var operation = sql.getOperation();
         if (operation == null) {
-            console.error("Invalid sql!");
+            console.error("Invalid sql!", sql);
             return UndoType.Invalid;
         }
 
@@ -950,7 +950,7 @@ window.SQL = (function($, SQL) {
 
         switch (operation) {
             // front end opeartion
-            case (SQLOps.DeleteCol):
+            case (SQLOps.HideCol):
             case (SQLOps.ReorderCol):
             case (SQLOps.ReorderTable):
             case (SQLOps.AddNewCol):
@@ -960,8 +960,8 @@ window.SQL = (function($, SQL) {
             case (SQLOps.ActiveTables):
             case (SQLOps.RenameCol):
             case (SQLOps.TextAlign):
-            case (SQLOps.HideCols):
-            case (SQLOps.UnHideCols):
+            case (SQLOps.MinimizeCols):
+            case (SQLOps.MaximizeCols):
             case (SQLOps.SortTableCols):
             case (SQLOps.ResizeTableCols):
             case (SQLOps.DragResizeTableCol):

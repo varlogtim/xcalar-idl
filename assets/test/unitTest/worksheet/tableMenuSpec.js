@@ -1,4 +1,4 @@
-describe('TableMenu', function() {
+describe('TableMenu Test', function() {
     var testDs;
     var tableName;
     var prefix;
@@ -529,7 +529,7 @@ describe('TableMenu', function() {
             $table.find('th.col12 .dropdownBox').click();
         });
         describe('main menu', function() {
-            it('deleteColumn', function() {
+            it('hideColumn', function() {
                 var cachedFunc = ColManager.delCol;
                 var called = false;
                 ColManager.delCol = function(colNums, tId) {
@@ -538,49 +538,49 @@ describe('TableMenu', function() {
                     called = true;
                 };
 
-                $colMenu.find('.deleteColumn').trigger(rightMouseup);
+                $colMenu.find('.hideColumn').trigger(rightMouseup);
                 expect(called).to.be.false;
 
-                $colMenu.find('.deleteColumn').trigger(fakeEvent.mouseup);
+                $colMenu.find('.hideColumn').trigger(fakeEvent.mouseup);
                 expect(called).to.be.true;
 
                 ColManager.delCol = cachedFunc;
             });
 
-            it('hide', function() {
-                var cachedFunc = ColManager.hideCols;
+            it('minimize', function() {
+                var cachedFunc = ColManager.minimizeCols;
                 var called = false;
-                ColManager.hideCols = function(colNums, tId) {
+                ColManager.minimizeCols = function(colNums, tId) {
                     expect(colNums[0]).to.equal(12);
                     expect(tId).to.equal(tableId);
                     called = true;
                 };
 
-                $colMenu.find('.hide').trigger(rightMouseup);
+                $colMenu.find('.minimize').trigger(rightMouseup);
                 expect(called).to.be.false;
 
-                $colMenu.find('.hide').trigger(fakeEvent.mouseup);
+                $colMenu.find('.minimize').trigger(fakeEvent.mouseup);
                 expect(called).to.be.true;
 
-                ColManager.hideCols = cachedFunc;
+                ColManager.minimizeCols = cachedFunc;
             });
 
-            it('unhide', function() {
-                var cachedFunc = ColManager.unhideCols;
+            it('maximize', function() {
+                var cachedFunc = ColManager.maximizeCols;
                 var called = false;
-                ColManager.unhideCols = function(colNums, tId) {
+                ColManager.maximizeCols = function(colNums, tId) {
                     expect(colNums[0]).to.equal(12);
                     expect(tId).to.equal(tableId);
                     called = true;
                 };
 
-                $colMenu.find('.unhide').trigger(rightMouseup);
+                $colMenu.find('.maximize').trigger(rightMouseup);
                 expect(called).to.be.false;
 
-                $colMenu.find('.unhide').trigger(fakeEvent.mouseup);
+                $colMenu.find('.maximize').trigger(fakeEvent.mouseup);
                 expect(called).to.be.true;
 
-                ColManager.unhideCols = cachedFunc;
+                ColManager.maximizeCols = cachedFunc;
             });
 
             it('joinList', function() {
@@ -1116,51 +1116,51 @@ describe('TableMenu', function() {
                     called = true;
                 };
 
-                $colMenu.find('.deleteColumns').trigger(rightMouseup);
-                expect(called).to.be.false;
-
-                $colMenu.find('.deleteColumns').trigger(fakeEvent.mouseup);
-                expect(called).to.be.true;
-
-                ColManager.delCol = cachedFunc;
-            });
-
-            it('hideColumns', function() {
-                var cachedFunc = ColManager.hideCols;
-                var called = false;
-                ColManager.hideCols = function(colNums, tId) {
-                    expect(colNums[0]).to.equal(11);
-                    expect(colNums[1]).to.equal(12);
-                    expect(tId).to.equal(tableId);
-                    called = true;
-                };
-
                 $colMenu.find('.hideColumns').trigger(rightMouseup);
                 expect(called).to.be.false;
 
                 $colMenu.find('.hideColumns').trigger(fakeEvent.mouseup);
                 expect(called).to.be.true;
 
-                ColManager.hideCols = cachedFunc;
+                ColManager.delCol = cachedFunc;
             });
 
-            it('unhideColumns', function() {
-                var cachedFunc = ColManager.unhideCols;
+            it('minimizeColumns', function() {
+                var cachedFunc = ColManager.minimizeCols;
                 var called = false;
-                ColManager.unhideCols = function(colNums, tId) {
+                ColManager.minimizeCols = function(colNums, tId) {
                     expect(colNums[0]).to.equal(11);
                     expect(colNums[1]).to.equal(12);
                     expect(tId).to.equal(tableId);
                     called = true;
                 };
 
-                $colMenu.find('.unhideColumns').trigger(rightMouseup);
+                $colMenu.find('.minimizeColumns').trigger(rightMouseup);
                 expect(called).to.be.false;
 
-                $colMenu.find('.unhideColumns').trigger(fakeEvent.mouseup);
+                $colMenu.find('.minimizeColumns').trigger(fakeEvent.mouseup);
                 expect(called).to.be.true;
 
-                ColManager.unhideCols = cachedFunc;
+                ColManager.minimizeCols = cachedFunc;
+            });
+
+            it('maximizeColumns', function() {
+                var cachedFunc = ColManager.maximizeCols;
+                var called = false;
+                ColManager.maximizeCols = function(colNums, tId) {
+                    expect(colNums[0]).to.equal(11);
+                    expect(colNums[1]).to.equal(12);
+                    expect(tId).to.equal(tableId);
+                    called = true;
+                };
+
+                $colMenu.find('.maximizeColumns').trigger(rightMouseup);
+                expect(called).to.be.false;
+
+                $colMenu.find('.maximizeColumns').trigger(fakeEvent.mouseup);
+                expect(called).to.be.true;
+
+                ColManager.maximizeCols = cachedFunc;
             });
 
             it('changeRound.default', function() {

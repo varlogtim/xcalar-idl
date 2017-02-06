@@ -322,14 +322,14 @@ window.Undo = (function($, Undo) {
 
     /* USER STYLING/FORMATING OPERATIONS */
 
-    undoFuncs[SQLOps.HideCols] = function(options) {
+    undoFuncs[SQLOps.MinimizeCols] = function(options) {
         focusTableHelper(options);
-        return ColManager.unhideCols(options.colNums, options.tableId);
+        return ColManager.maximizeCols(options.colNums, options.tableId);
     };
 
-    undoFuncs[SQLOps.UnHideCols] = function(options) {
+    undoFuncs[SQLOps.MaximizeCols] = function(options) {
         focusTableHelper(options);
-        return ColManager.hideCols(options.colNums, options.tableId);
+        return ColManager.minimizeCols(options.colNums, options.tableId);
     };
 
     undoFuncs[SQLOps.AddNewCol] = function(options) {
@@ -341,7 +341,7 @@ window.Undo = (function($, Undo) {
         return ColManager.delCol([colNum], options.tableId);
     };
 
-    undoFuncs[SQLOps.DeleteCol] = function(options) {
+    undoFuncs[SQLOps.HideCol] = function(options) {
         undoDeleteHelper(options, -1);
         return PromiseHelper.resolve(null);
     };

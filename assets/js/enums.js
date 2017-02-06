@@ -266,9 +266,9 @@ var SQLOps = {
     Query: "xcalarQuery",
     // XI operation
     AddNewCol: "addNewCol",
-    DeleteCol: "deleteCol",
-    HideCols: "hideCols",
-    UnHideCols: "unHideCols",
+    HideCol: "hideCol",
+    MinimizeCols: "minimizeCols",
+    MaximizeCols: "maximizeCols",
     TextAlign: "textAlign",
     ReorderCol: "reorderCol",
     ReorderTable: "reorderTable",

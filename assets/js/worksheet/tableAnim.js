@@ -63,7 +63,7 @@ window.TblAnim = (function($, TblAnim) {
                 // This is a hidden column! we need to unhide it
                 $table.find("th.col" + colNum + ",td.col" + colNum)
                       .removeClass("userHidden");
-                gTables[rescol.tableId].tableCols[colNum - 1].isHidden = false;
+                gTables[rescol.tableId].tableCols[colNum - 1].isMinimized = false;
             }
 
             hideOffScreenTables({
@@ -131,7 +131,7 @@ window.TblAnim = (function($, TblAnim) {
                 rescol.table
                       .find('th.col' + rescol.index + ',td.col' + rescol.index)
                       .addClass("userHidden");
-                progCol.isHidden = true;
+                progCol.isMinimized = true;
             } else {
                 progCol.width = rescol.$th.outerWidth();
             }
@@ -206,8 +206,8 @@ window.TblAnim = (function($, TblAnim) {
                 var index = xcHelper.parseColNum($th);
                 $th.addClass('userHidden');
                 $table.find('td.col' + index).addClass('userHidden');
-                gTables[tableId].tableCols[index - 1].isHidden = true;
-                ColManager.unhideCols([index], tableId, true);
+                gTables[tableId].tableCols[index - 1].isMinimized = true;
+                ColManager.maximizeCols([index], tableId, true);
                 return;
             }
 
@@ -321,11 +321,11 @@ window.TblAnim = (function($, TblAnim) {
             // This is a hidden column! we need to unhide it
 
             $allCells.removeClass("userHidden");
-            progCol.isHidden = false;
+            progCol.isMinimized = false;
         }
         if (toWidth <= 15) {
             $allCells.addClass("userHidden");
-            progCol.isHidden = true;
+            progCol.isMinimized = true;
         } else {
             progCol.width = toWidth;
         }
@@ -600,7 +600,7 @@ window.TblAnim = (function($, TblAnim) {
 
         dragInfo.inFocus = $editableHead.is(':focus');
         dragInfo.selected = el.hasClass('selectedCell');
-        dragInfo.isHidden = el.hasClass('userHidden');
+        dragInfo.isMinimized = el.hasClass('userHidden');
         dragInfo.colWidth = el.width();
         dragInfo.windowWidth = $(window).width();
         dragInfo.mainFrameLeft = $mainFrame[0].getBoundingClientRect().left;
@@ -808,7 +808,7 @@ window.TblAnim = (function($, TblAnim) {
         if (dragInfo.selected) {
             $fauxTable.addClass('selectedCol');
         }
-        if (dragInfo.isHidden) {
+        if (dragInfo.isMinimized) {
             $fauxTable.addClass('userHidden');
         }
 
@@ -840,7 +840,7 @@ window.TblAnim = (function($, TblAnim) {
 
     function createDropTargets(dropTargetIndex, swappedColIndex) {
         var dragMargin = 30;
-        if (dragInfo.isHidden) {
+        if (dragInfo.isMinimized) {
             dragMargin = 10;
         }
         var colLeft;

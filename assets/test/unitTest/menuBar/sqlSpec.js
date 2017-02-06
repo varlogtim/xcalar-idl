@@ -253,7 +253,7 @@ describe("SQL Test", function() {
             };
 
             Support.stopHeartbeatCheck();
-            SQL.add("test", {"operation": SQLOps.HideCols}, "testCli", true);
+            SQL.add("test", {"operation": SQLOps.MinimizeCols}, "testCli", true);
         });
 
         it("SQL.isUndo should work", function() {
