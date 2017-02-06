@@ -135,6 +135,8 @@ describe("TableManager Test", function() {
             th = TblManager.getColHeadHTML(2, tableId);
             $th = $(th);
             expect($th.find(".header").hasClass("editable")).to.be.true;
+
+            delete gTables[tableId];
         });
     });
 
@@ -232,6 +234,7 @@ describe("TableManager Test", function() {
             .fail(function(error) {
                 expect(error).to.exist;
                 UnitTest.hasAlertWithTitle(StatusMessageTStr.DeleteTableFailed);
+                delete gTables[tableId];
                 done();
             });
         });
@@ -244,6 +247,7 @@ describe("TableManager Test", function() {
             TblManager.deleteTables(tableId, TableType.Active)
             .then(function() {
                 UnitTest.hasAlertWithTitle(StatusMessageTStr.PartialDeleteTableFail);
+                delete gTables[tableId];
                 done();
             })
             .fail(function() {

@@ -1834,7 +1834,7 @@ describe('xcHelper Test', function() {
         expect(colNameMap["test"]).to.equal("Test");
         expect(colNameMap["test2"]).to.equal("test2");
 
-        delete gTables["xcTest"];
+        delete gTables["xc-Test"];
     });
 
     it("xcHelper.getPromiseWhenError should work", function() {
