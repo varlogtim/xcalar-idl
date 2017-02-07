@@ -427,6 +427,11 @@ window.QueryManager = (function(QueryManager, $) {
                 name = queries[i].name;
                 cli = queries[i].queryStr;
             }
+            if (!name) {
+                continue; // info is not stored in sql due to an overwritten
+                          // undo so we skip
+            }
+
             fullName = name;
             query = new XcQuery({
                 "name": name,
@@ -442,7 +447,8 @@ window.QueryManager = (function(QueryManager, $) {
                 "state": queries[i].state,
                 "type": "restored"
             });
-            queryLists[i - numQueries] = query;
+            queryLists[i - numQueries] = query; // using negative keys for
+            // restored queries
             html += getQueryHTML(query, true);
         }
 
@@ -1243,10 +1249,14 @@ window.QueryManager = (function(QueryManager, $) {
         var queryObjs = [];
         var abbrQueryObj;
         var queryObj;
+        var queryMap = {}; // we store queries into a map first to overwrite any
+        // queries with duplicate sqlNums due to sql.undo/redo operations
+        // then sort in an array
         for (var id in queryLists) {
             queryObj = queryLists[id];
             if (queryObj.state === QueryStatus.Done ||
                 queryObj.state === QueryStatus.Cancel) {
+
                 abbrQueryObj = {
                     "sqlNum": queryObj.sqlNum,
                     "time": queryObj.time,
@@ -1259,8 +1269,11 @@ window.QueryManager = (function(QueryManager, $) {
                     abbrQueryObj.name = queryObj.name;
                     abbrQueryObj.queryStr = queryObj.getQuery();
                 }
-                queryObjs.push(abbrQueryObj);
+                queryMap[queryObj.sqlNum] = abbrQueryObj;
             }
+        }
+        for (var i in queryMap) {
+            queryObjs.push(queryMap[i]);
         }
         queryObjs.sort(querySqlSorter);
         return queryObjs;
