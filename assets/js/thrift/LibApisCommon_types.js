@@ -7817,6 +7817,7 @@ XcalarApiGetLicenseOutputT = function(args) {
   this.productFamily = null;
   this.productVersion = null;
   this.expiration = null;
+  this.nodeCount = null;
   if (args) {
     if (args.loaded !== undefined) {
       this.loaded = args.loaded;
@@ -7838,6 +7839,9 @@ XcalarApiGetLicenseOutputT = function(args) {
     }
     if (args.expiration !== undefined) {
       this.expiration = args.expiration;
+    }
+    if (args.nodeCount !== undefined) {
+      this.nodeCount = args.nodeCount;
     }
   }
 };
@@ -7904,6 +7908,13 @@ XcalarApiGetLicenseOutputT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 8:
+      if (ftype == Thrift.Type.I64) {
+        this.nodeCount = input.readI64().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -7948,6 +7959,11 @@ XcalarApiGetLicenseOutputT.prototype.write = function(output) {
   if (this.expiration !== null && this.expiration !== undefined) {
     output.writeFieldBegin('expiration', Thrift.Type.STRING, 7);
     output.writeString(this.expiration);
+    output.writeFieldEnd();
+  }
+  if (this.nodeCount !== null && this.nodeCount !== undefined) {
+    output.writeFieldBegin('nodeCount', Thrift.Type.I64, 8);
+    output.writeI64(this.nodeCount);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -11767,6 +11783,7 @@ XcalarApiInputT = function(args) {
   this.appRunInput = null;
   this.appReapInput = null;
   this.demoFileInput = null;
+  this.updateLicenseInput = null;
   if (args) {
     if (args.loadInput !== undefined) {
       this.loadInput = args.loadInput;
@@ -11983,6 +12000,9 @@ XcalarApiInputT = function(args) {
     }
     if (args.demoFileInput !== undefined) {
       this.demoFileInput = args.demoFileInput;
+    }
+    if (args.updateLicenseInput !== undefined) {
+      this.updateLicenseInput = args.updateLicenseInput;
     }
   }
 };
@@ -12568,6 +12588,13 @@ XcalarApiInputT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 73:
+      if (ftype == Thrift.Type.STRING) {
+        this.updateLicenseInput = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -12937,6 +12964,11 @@ XcalarApiInputT.prototype.write = function(output) {
   if (this.demoFileInput !== null && this.demoFileInput !== undefined) {
     output.writeFieldBegin('demoFileInput', Thrift.Type.STRUCT, 72);
     this.demoFileInput.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.updateLicenseInput !== null && this.updateLicenseInput !== undefined) {
+    output.writeFieldBegin('updateLicenseInput', Thrift.Type.STRING, 73);
+    output.writeString(this.updateLicenseInput);
     output.writeFieldEnd();
   }
   output.writeFieldStop();

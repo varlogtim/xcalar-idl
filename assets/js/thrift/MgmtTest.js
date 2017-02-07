@@ -202,6 +202,8 @@ PromiseHelper = (function(PromiseHelper, $) {
     var system = require('system');
     var fs = require('fs');
     var qaTestDir = system.env.QATEST_DIR;
+    var envLicenseDir = system.env.XCE_LICENSEDIR;
+    var envLicenseFile = system.env.XCE_LIC_FILE;
 
     console.log("Qa test dir: " + qaTestDir);
     startNodesState = TestCaseEnabled;
@@ -394,21 +396,22 @@ PromiseHelper = (function(PromiseHelper, $) {
     }
 
     function testGetLicense(test) {
-	xcalarGetLicense(thriftHandle)
-	.then(function(result) {
-	    var getLicenseOutput = result;
-	    console.log(JSON.stringify(result));
-	    test.assert(result.loaded === true);
-	    test.assert(result.expired === false);
-	    test.assert(result.platform === "Linux x86-64");
-	    test.assert(result.product === "Xce");
-	    test.assert(result.productFamily === "XcalarX");
-	    test.assert(result.productVersion === "1.2.3.4");
-	    test.pass();
-	})
-	.fail(function(status) {
-	    test.fail(StatusTStr[status]);
-	});
+        xcalarGetLicense(thriftHandle)
+        .then(function(result) {
+            var getLicenseOutput = result;
+            console.log(JSON.stringify(result));
+            test.assert(result.loaded === true);
+            test.assert(result.expired === false);
+            test.assert(result.platform === "Linux x86-64");
+            test.assert(result.product === "Xce");
+            test.assert(result.productFamily === "XcalarX");
+            test.assert(result.productVersion === "1.2.3.4");
+            test.assert(result.nodeCount === 2971215073); 
+            test.pass();
+        })
+        .fail(function(status) {
+            test.fail(StatusTStr[status]);
+        });
     }
 
     function testGetConfigParams(test) {
@@ -2691,6 +2694,25 @@ PromiseHelper = (function(PromiseHelper, $) {
         });
     }
 
+    function testApiUpdateLicense(test, licenseKey) {
+        xcalarUpdateLicense(thriftHandle,
+                            licenseKey)
+        .done(function(status) {
+            printResult(status);
+            test.pass();
+        })
+        .fail(function(reason) {
+            test.fail(reason);
+        });
+    }
+
+    function testUpdateLicense(test) {
+        var licenseFilePath = envLicenseDir + "/" + envLicenseFile + ".source";
+        var licenseKey = fs.read(licenseFilePath);
+
+        testApiUpdateLicense(test, licenseKey);
+    }
+
     function testApiKeyAddOrReplace(test, keyName, keyValue) {
         xcalarKeyAddOrReplace(thriftHandle,
                               XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
@@ -3818,6 +3840,8 @@ PromiseHelper = (function(PromiseHelper, $) {
 
     // Witness to bug 2020
     addTestCase(testApiMapStringToString, "cast string to string", defaultTimeout, TestCaseEnabled, "2020");
+
+    addTestCase(testUpdateLicense, "license update", defaultTimeout, TestCaseEnabled, "");
 
     addTestCase(testApiKeyAdd, "key add", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testApiKeyReplace, "key replace", defaultTimeout, TestCaseEnabled, "");

@@ -2616,6 +2616,45 @@ xcalarKeyAddOrReplace = runEntity.xcalarKeyAddOrReplace = function(thriftHandle,
     return (deferred.promise());
 };
 
+xcalarUpdateLicenseWorkItem = runEntity.xcalarUpdateLicenseWorkItem = function(licenseKey) {
+    var workItem = new WorkItem();
+
+    workItem.input = new XcalarApiInputT();
+    workItem.input.updateLicenseInput = licenseKey;
+    workItem.api = XcalarApisT.XcalarApiUpdateLicense;
+
+    return(workItem);
+};
+
+xcalarUpdateLicense = runEntity.xcalarUpdateLicense = function(thriftHandle, licenseKey) {
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarUpdateLicense(licenseKey=" + licenseKey + ")");
+    }
+
+    var workItem = xcalarUpdateLicenseWorkItem(licenseKey);
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+
+        var status = result.output.hdr.status;
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            deferred.reject(status);
+        }
+        console.log(status);
+        deferred.resolve(status);
+    })
+    .fail(function(error) {
+        console.log("xcalarUpdateLicense() caught exception:", error);
+        deferred.reject(error);
+    });
+
+    return(deferred.promise());
+};
+
 xcalarKeyAppendWorkItem = runEntity.xcalarKeyAppendWorkItem = function(scope, key, suffix) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
@@ -3934,6 +3973,7 @@ xcalarDemoFileAppend = runEntity.xcalarDemoFileAppend = function(thriftHandle, f
                                          "fileContents = " + fileContents +
                                          ")");
     }
+
     var inputObj = {"func": "demoAppend",
                     "fileName": fileName,
                     "data": btoa(fileContents)};
@@ -3985,9 +4025,6 @@ xcalarDemoFileDelete = runEntity.xcalarDemoFileDelete = function(thriftHandle, f
             deferred.reject(status);
         }
 
-        if (!demoFileOutput.outputJson) {
-            demoFileOutput.outputJson = '{"error":532}';
-        }
         // demoFileOutput has a outputJson field which is a json formatted string
         // with a field called 'error' if something went wrong
         deferred.resolve(JSON.parse(demoFileOutput.outputJson));
