@@ -342,7 +342,7 @@ module.exports = {
         "DetailQuery": "Detail of Query",
         "ElaspedTime": "Elapsed Time",
         "GeneralSettings": "General Settings",
-        "GenSub": "Generate Support Bundle",
+        "GenSub": "Generate Support Ticket",
         "graphInterval": "MONITOR GRAPH INTERVAL",
         "commitInterval": "AUTOSAVE INTERVAL",
         "GTotal": "Global Total",

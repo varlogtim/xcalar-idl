@@ -176,69 +176,6 @@
     }
 }
 
-#monitor-genSubCard {
-    &.done {
-        .done {
-            display: block;
-
-            &.cardInstruction {
-                .flex-display;
-            }
-
-            &.title {
-                display: inline-block;
-            }
-        }
-
-        .close {
-            display: inline-block;
-        }
-
-        .wait, .fail {
-            display: none;
-        }
-    }
-
-    &.fail {
-        .fail {
-            display: block;
-
-            &.title {
-                display: inline-block;
-            }
-        }
-
-        .close {
-            display: inline-block;
-        }
-
-
-        .wait, .done {
-            display: none;
-        }
-    }
-
-    .done, .close, .fail {
-        display: none;
-    }
-
-
-    .cardMain {
-        padding: 20px 50px;
-        .size(@height: 80px);
-        .font(@size: 14px, @color: @color-font-navy);
-
-        .infoSection.done {
-            .text-selection;
-        }
-    }
-
-    .animatedEllipsisWrapper {
-        .size(@width: 100px, @height: 20px);
-        .vertical-align;
-    }
-}
-
 #monitor-graphCard {
     min-height: ~"calc(100% - 5px)"; // take up full height
     

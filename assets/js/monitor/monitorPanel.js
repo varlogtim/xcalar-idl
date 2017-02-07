@@ -33,10 +33,6 @@ window.MonitorPanel = (function($, MonitorPanel) {
             DeleteTableModal.show();
         });
 
-        $("#monitor-genSubCard").on("click", ".close", function() {
-            $("#monitor-genSubCard").addClass("xc-hidden");
-        });
-
         $('.statsHeadingBar').click(function() {
             if ($(this).hasClass('open')) {
                 $(this).removeClass('open')
