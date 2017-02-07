@@ -47,7 +47,10 @@ StatusMessageTStr = {
     'Ext': 'Performing Extension <extension>',
     'ExtFailed': 'Performing Extension Failed',
     'StoredProc': 'Performing Stored Procedure',
-    'StoredProcFailed': 'Stored Procedure execution failed'
+    'StoredProcFailed': 'Stored Procedure execution failed',
+    // Must keep in sync with htmlTStr
+    'ActionSuccess': 'Your action was successful!',
+    'ActionFailed': 'Your action failed!',
 };
 
 TooltipTStr = {

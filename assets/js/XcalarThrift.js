@@ -429,6 +429,26 @@ function XcalarGetLicense() {
     return (deferred.promise());
 }
 
+function XcalarUpdateLicense(newLicense) {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return PromiseHelper.resolve(null);
+    }
+
+    var deferred = jQuery.Deferred();
+    if (insertError(arguments.callee, deferred)) {
+        return (deferred.promise());
+    }
+
+    xcalarUpdateLicense(tHandle, newLicense)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarUpdateLicense", error);
+        deferred.reject(thriftError);
+    });
+
+    return (deferred.promise());
+}
+
 // Call this exactly with the url and isRecur that you
 function XcalarPreview(url, isRecur, isRegex, numBytesRequested, offset) {
     if ([null, undefined].indexOf(tHandle) !== -1) {

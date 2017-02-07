@@ -62,7 +62,7 @@ window.DSExport = (function($, DSExport) {
 
             submitForm(targetType, name, formatSpecificArg, options)
             .then(function() {
-                xcHelper.showSuccess();
+                xcHelper.showSuccess("Target Added!");
                 resetForm();
                 KVStore.commit();
             })
@@ -111,7 +111,7 @@ window.DSExport = (function($, DSExport) {
             activeName = $activeIcon.data('name');
             activeType = $activeIcon.closest('.targetSection').data('type');
         }
-        
+
         XcalarListExportTargets("*", "*")
         .then(function(targs) {
             var targets = targs.targets;
@@ -120,7 +120,7 @@ window.DSExport = (function($, DSExport) {
             // var formartArg;
             var target;
             exportTargets = [];
-    
+
             for (var i = 0; i < numTargs; i++) {
                 var type = targets[i].hdr.type;
                 var typeTStr = ExTargetTypeTStr[type];
@@ -262,7 +262,6 @@ window.DSExport = (function($, DSExport) {
 
         $('#targetName-edit').val(name);
         $('#targetTypeList-edit').find('.text').val(type);
- 
 
         // $form.find('.placeholderRow').addClass('xc-hidden');
         $form.find('.formatSpecificRow').removeClass('active');
@@ -302,7 +301,7 @@ window.DSExport = (function($, DSExport) {
             var $grid = $target.closest(".grid-unit");
             var classes = "";
             clearSelectedGrid();
-            
+
             if ($grid.length) {
                 $grid.addClass("selected");
                 $(document).on('mouseup', docTempMouseup);

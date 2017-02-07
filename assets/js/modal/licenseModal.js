@@ -44,8 +44,15 @@ window.LicenseModal = (function($, LicenseModal) {
     }
 
     function submitForm() {
+        XcalarUpdateLicense($modal.find(".newLicenseKey").val())
+        .then(function() {
+            xcHelper.showSuccess("License Successfully Updated. New license " +
+                                "will take effect after next cluster restart.");
+        })
+        .fail(function(error) {
+            xcHelper.showFail("Update License " + error.error);
+        });
         closeModal();
-        xcHelper.showSuccess();
     }
 
     function closeModal() {

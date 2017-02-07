@@ -807,7 +807,7 @@ window.TblMenu = (function(TblMenu, $) {
             }
 
             copyToClipboard(valArray);
-            xcHelper.showSuccess();
+            xcHelper.showSuccess("Copied to Clipboard!");
             $highlightBoxs.remove();
         });
 

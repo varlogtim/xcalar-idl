@@ -77,7 +77,7 @@ window.MonitorLog = (function(MonitorLog, $) {
 
         XFTSupportTools.getRecentLogs(val)
         .then(function(ret) {
-            xcHelper.showSuccess();
+            xcHelper.showSuccess("Logs retrieved!");
             appendLog(ret.logs);
         })
         .fail(function(err) {
@@ -104,7 +104,7 @@ window.MonitorLog = (function(MonitorLog, $) {
         var $input = $inputGroup.find('.xc-input');
         var val = $input.val().trim();
         $input.blur();
-    
+
         var isValid = xcHelper.validate([
             {
                 "$ele": $input // check if it's empty
@@ -117,10 +117,9 @@ window.MonitorLog = (function(MonitorLog, $) {
 
         $inputGroup.addClass('xc-disabled');
 
-
         XFTSupportTools.removeSessionFiles(val)
         .then(function() {
-            xcHelper.showSuccess();
+            xcHelper.showSuccess("Session Files Removed!");
         })
         .fail(function(err) {
             var msg;
@@ -142,7 +141,7 @@ window.MonitorLog = (function(MonitorLog, $) {
     function startMonitorLog() {
         var $streamBtns = $logCard.find('.streamBtns');
         $streamBtns.addClass('xc-disabled');
-    	
+
         XFTSupportTools.monitorLogs(function(err) {
             $streamBtns.removeClass('xc-disabled streaming');
             var msg;

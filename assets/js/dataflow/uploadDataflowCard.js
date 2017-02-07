@@ -28,7 +28,7 @@ window.UploadDataflowCard = (function($, UploadDataflowCard) {
                                $card.find(".checkbox").hasClass("checked"),
                                entireString)
             .then(function() {
-                xcHelper.showSuccess();
+                xcHelper.showSuccess("Upload Successful!");
                 deferred.resolve();
             })
             .fail(function(error) {

@@ -76,7 +76,7 @@ window.SQL = (function($, SQL) {
             $hiddenInput.val(value).select();
             document.execCommand("copy");
             $hiddenInput.remove();
-            xcHelper.showSuccess();
+            xcHelper.showSuccess("Copied Successfully!");
         });
 
         $undo.click(function() {

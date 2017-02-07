@@ -456,7 +456,7 @@ window.DFCard = (function($, DFCard) {
         var deferred = jQuery.Deferred();
         DF.removeDataflow(retName)
         .then(function() {
-            xcHelper.showSuccess();
+            xcHelper.showSuccess("Remove batched DF successful!");
             deferred.resolve();
         })
         .fail(function(error) {

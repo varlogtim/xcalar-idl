@@ -189,11 +189,11 @@ window.MonitorConfig = (function(MonitorConfig, $) {
             showFormError(errorFound);
             return;
         }
-    
+
         if (promises.length) {
             PromiseHelper.when.apply(window, promises)
             .then(function() {
-                xcHelper.showSuccess();
+                xcHelper.showSuccess("Parameters saved!");
 
             })
             .fail(function() {

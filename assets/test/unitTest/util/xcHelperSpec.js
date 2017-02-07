@@ -640,8 +640,21 @@ describe('xcHelper Test', function() {
     });
 
     it('xcHelper.showSuccess should work', function(done) {
+        xcHelper.showSuccess("Hello");
+        assert.isTrue($('#successMessageWrap').is(":visible"));
+        expect($('#successMessageWrap .textBox.success').text()).to
+                                                                .equal("Hello");
+        setTimeout(function() {
+            assert.isFalse($('#successMessageWrap').is(":visible"));
+            done();
+        }, 3000);
+    });
+
+    it('xcHelper.showSuccess should reset text', function(done) {
         xcHelper.showSuccess();
         assert.isTrue($('#successMessageWrap').is(":visible"));
+        expect($('#successMessageWrap .textBox.success').text()).to.not
+                                                                .equal("Hello");
         setTimeout(function() {
             assert.isFalse($('#successMessageWrap').is(":visible"));
             done();
@@ -649,8 +662,20 @@ describe('xcHelper Test', function() {
     });
 
     it('xcHelper.showFail should work', function(done) {
+        xcHelper.showFail("World");
+        assert.isTrue($('#successMessageWrap').is(":visible"));
+        expect($('#successMessageWrap .textBox.success').text()).to.equal("World");
+        setTimeout(function() {
+            assert.isFalse($('#successMessageWrap').is(":visible"));
+            done();
+        }, 3000);
+    });
+
+    it('xcHelper.showFail should reset text', function(done) {
         xcHelper.showFail();
         assert.isTrue($('#successMessageWrap').is(":visible"));
+        expect($('#successMessageWrap .textBox.success').text()).to.not
+                                                                .equal("World");
         setTimeout(function() {
             assert.isFalse($('#successMessageWrap').is(":visible"));
             done();

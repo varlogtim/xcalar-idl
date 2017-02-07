@@ -97,7 +97,7 @@ def main(inStr):
 
         ext.appSet(appName, hostType, duty, execStr)
         .done(function() {
-            xcHelper.showSuccess()
+            xcHelper.showSuccess("Upload App Successful!");
             deferred.resolve();
         })
         .fail(function() {

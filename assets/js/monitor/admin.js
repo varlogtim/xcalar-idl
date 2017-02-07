@@ -109,7 +109,7 @@ window.Admin = (function($, Admin) {
 
     Admin.showSupport = function() {
         Alert.forceClose();
-        
+
         MainMenu.openPanel('monitorPanel');
         $('#setupButton').click();
         MainMenu.open(true);
@@ -305,7 +305,7 @@ window.Admin = (function($, Admin) {
 
     function setupAdminStatusBar() {
         var $adminBar = $('#adminStatusBar');
-       
+
         if (posingAsUser) {
             $adminBar.find('.username').text(Support.getUser());
             var width = $adminBar.outerWidth() + 1;
@@ -360,14 +360,13 @@ window.Admin = (function($, Admin) {
         .then(function(ret) {
             console.log('success stop', ret);
             if ($('#container').hasClass('supportOnly')) {
-                xcHelper.showSuccess();
+                xcHelper.showSuccess("Cluster stopped!");
             } else {
                 var alertError = {"error": ThriftTStr.CCNBE};
                 Alert.error(ThriftTStr.CCNBEErr, alertError, {
                     "lockScreen": true
                 });
             }
-            
         })
         .fail(function(err) {
             nodeCmdFailHandler('stopNode', err);

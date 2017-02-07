@@ -823,15 +823,15 @@ window.xcHelper = (function($, xcHelper) {
 
     var successTimers = {};
 
-    xcHelper.showSuccess = function() {
-        showSuccessBoxMessage(true);
+    xcHelper.showSuccess = function(msg) {
+        showSuccessBoxMessage(true, msg);
     };
 
-    xcHelper.showFail = function() {
-        showSuccessBoxMessage(false);
+    xcHelper.showFail = function(msg) {
+        showSuccessBoxMessage(false, msg);
     };
 
-    function showSuccessBoxMessage(isSuccess) {
+    function showSuccessBoxMessage(isSuccess, msg) {
         var $successMessage = $('#successMessageWrap');
         xcHelper.hideSuccessBox();
         if (!isSuccess) {
@@ -839,6 +839,9 @@ window.xcHelper = (function($, xcHelper) {
         }
 
         $successMessage.show();
+        if (msg) {
+            $successMessage.find(".textBox").text(msg);
+        }
         if (!gMinModeOn) {
             var $checkMark = $successMessage.find('.checkMark');
             var $text = $successMessage.find('.successMessage');
@@ -861,6 +864,10 @@ window.xcHelper = (function($, xcHelper) {
             }, 2000);
 
             successTimers.step4 = setTimeout(function() {
+                $successMessage.find(".textBox.success")
+                .text(StatusMessageTStr.ActionSuccess);
+                $successMessage.find(".textBox.failed")
+                .text(StatusMessageTStr.ActionFailed);
                 xcHelper.hideSuccessBox();
             }, 2600);
         } else {
@@ -869,6 +876,10 @@ window.xcHelper = (function($, xcHelper) {
                                               .show();
             successTimers.step4 = setTimeout(function() {
                 xcHelper.hideSuccessBox();
+                $successMessage.find(".textBox.success")
+                .text(StatusMessageTStr.ActionSuccess);
+                $successMessage.find(".textBox.failed")
+                .text(StatusMessageTStr.ActionFailed);
             }, 1800);
         }
     }
@@ -1050,7 +1061,7 @@ window.xcHelper = (function($, xcHelper) {
                     $hiddenInput.val(sql).select();
                     document.execCommand("copy");
                     $hiddenInput.remove();
-                    xcHelper.showSuccess();
+                    xcHelper.showSuccess("Copied!");
                 });
                 break;
             case "support":
