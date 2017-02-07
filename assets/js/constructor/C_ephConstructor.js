@@ -2773,6 +2773,7 @@ var XcSubQuery = (function() {
         if (options.exportFileName) {
             this.exportFileName = options.exportFileName;
         }
+        return this;
     }
 
     XcSubQuery.prototype = {
@@ -2834,3 +2835,42 @@ var XcSubQuery = (function() {
     return XcSubQuery;
 }());
 /* end of sub query */
+
+/* ScollTableChecker */
+var ScollTableChecker = (function() {
+    /* Attr:
+        startTime: (date) log the the current time
+        scrollPos: (numbner) log the current mainFrame position
+    */
+    function ScollTableChecker() {
+        this.startTime = (new Date()).getTime();
+        this.scrollPos = $("#mainFrame").scrollLeft();
+        return this;
+    }
+
+    ScollTableChecker.prototype = {
+        checkScroll: function() {
+            var self = this;
+            var startTime = self.startTime;
+            var startScrollPos = self.scrollPos;
+
+            var timeAllowed = 1000;
+            var endTime = (new Date()).getTime();
+            var elapsedTime = endTime - startTime;
+            var timeSinceLastClick = endTime -
+                                    gMouseEvents.getLastMouseDownTime();
+            // we'll focus on table if its been less than timeAllowed OR
+            // if the user hasn't clicked or scrolled
+            var samePos = ($("#mainFrame").scrollLeft() === startScrollPos);
+            if (elapsedTime < timeAllowed ||
+                (timeSinceLastClick >= elapsedTime && samePos)) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+    };
+
+    return ScollTableChecker;
+}());
+/* End of ScollTableChecker */

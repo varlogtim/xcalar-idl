@@ -93,7 +93,8 @@ TooltipTStr = {
     "PointDemo": "Add File / Create Dataset Ref",
     "NotInDemoMode": "Feature not available in cloud preview",
     // Sync with htmlTStr
-    "IcvRestriction": 'Erroneous rows(ER) table only available for Map and Group By',
+    "IcvGenerating": "Erroneous rows(ER) table is generating",
+    "IcvRestriction": "Erroneous rows(ER) table only available for Map and Group By",
     "OnlyInOpMode": "Feature only available in Operational mode",
     "ColumnAlreadyInt": "Column is already an integer",
     "ColumnAlreadyFloat": "Column is already a float",

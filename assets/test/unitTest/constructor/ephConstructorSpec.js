@@ -41,7 +41,7 @@ describe("Ephemeral Constructor Test", function() {
         it("Should put workbook", function() {
             wkbk = new WKBK({
                 "name": "test",
-                "id"  : "testId"
+                "id": "testId"
             });
 
             wkbkSet.put("testId", wkbk);
@@ -194,9 +194,9 @@ describe("Ephemeral Constructor Test", function() {
 
         it("Should set options", function() {
             advanceOption.set({
-                "pattern"    : "testPattern",
-                "isRecur"    : true,
-                "isRegex"    : true,
+                "pattern": "testPattern",
+                "isRecur": true,
+                "isRegex": true,
                 "previewSize": 123
             });
 
@@ -219,9 +219,9 @@ describe("Ephemeral Constructor Test", function() {
             advanceOption.reset();
 
             advanceOption.set({
-                "pattern"    : "testPattern",
-                "isRecur"    : true,
-                "isRegex"    : true,
+                "pattern": "testPattern",
+                "isRecur": true,
+                "isRegex": true,
                 "previewSize": 123
             });
 
@@ -266,7 +266,7 @@ describe("Ephemeral Constructor Test", function() {
             expect(Object.keys(controller).length).to.equal(0);
 
             controller.set({
-                "path"  : "testPath",
+                "path": "testPath",
                 "format": "testFormat"
             });
 
@@ -466,12 +466,12 @@ describe("Ephemeral Constructor Test", function() {
         });
 
         it("Should have staic getTableCols method", function() {
-            var progCol =  new ProgCol({
-                "name"    : "test",
+            var progCol = new ProgCol({
+                "name": "test",
                 "backName": "test",
                 "isNewCol": false,
-                "type"    : "string",
-                "func"    : {
+                "type": "string",
+                "func": {
                     "name": "pull"
                 }
             });
@@ -479,9 +479,9 @@ describe("Ephemeral Constructor Test", function() {
             var tableId = "unitTest-exportHelper";
             var table = new TableMeta({
                 "tableName": "test#" + tableId,
-                "tableId"  : tableId,
+                "tableId": tableId,
                 "tableCols": [progCol],
-                "isLocked" : false
+                "isLocked": false
             });
 
             gTables[tableId] = table;
@@ -645,9 +645,9 @@ describe("Ephemeral Constructor Test", function() {
         it('formHelper columnPicker should work', function() {
             var colPickerCallBackTriggered = false;
             var columnPicker = {
-                "state"        : "testState",
+                "state": "testState",
                 "validColTypes": ["float"],
-                "colCallback"  : function() {
+                "colCallback": function() {
                     colPickerCallBackTriggered = true;
                 }
             };
@@ -698,15 +698,14 @@ describe("Ephemeral Constructor Test", function() {
         this.timeout(200000);
         // TODO: ensure that .slider itself is being updated
         var $rangeSliderWrap;
-        var rangeSlider;
         var randPrefName;
         var USSetPrefCached;
         var curVal;
         before(function() {
             randPrefName = "RANDPREFNAME";
             USSetPrefCached = UserSettings.setPref;
-            UserSettings.setPref = function(pref, val, isGeneral) {
-                if (pref===randPrefName) {
+            UserSettings.setPref = function(pref, val) {
+                if (pref === randPrefName) {
                     curVal = val;
                 }
             };
@@ -731,10 +730,10 @@ describe("Ephemeral Constructor Test", function() {
             expect($rangeSliderWrap.find(".leftArea").hasClass("ui-resizable"))
             .to.be.false;
             var options = {
-                minVal : 0,
-                maxVal : 275,
+                minVal: 0,
+                maxVal: 275,
             };
-            rangeSlider = new RangeSlider($rangeSliderWrap, randPrefName,
+            new RangeSlider($rangeSliderWrap, randPrefName,
                                           options);
             expect($rangeSliderWrap.find(".leftArea").hasClass("ui-resizable"))
             .to.be.true;
@@ -812,7 +811,6 @@ describe("Ephemeral Constructor Test", function() {
 
     describe("Menuhelper Constructor Test", function() {
         // ONLY test here is piggyback onto colMenu to test scrolling features.
-        var $colMenu;
         var $dragArea;
         var tableName;
         var testDs;
@@ -845,7 +843,6 @@ describe("Ephemeral Constructor Test", function() {
         });
 
         it("Menu scrolling should work", function(done) {
-            var $dropDownBox = $dragArea.closest(".header").find(".dropdownBox");
             $dragArea.contextmenu();
             var oldY = $("#colMenu li").last().position().top;
             var newY;
@@ -873,9 +870,9 @@ describe("Ephemeral Constructor Test", function() {
 
         });
         after(function(done) {
-            $("#colMenu li").filter(
-                function(idx, elt) {return $(elt).text().startsWith("RandElt")})
-            .remove();
+            $("#colMenu li").filter(function(idx, elt) {
+                return $(elt).text().startsWith("RandElt");
+            }).remove();
             UnitTest.deleteAll(tableName, testDs)
             .always(function(){
                 UnitTest.offMinMode();
@@ -889,12 +886,12 @@ describe("Ephemeral Constructor Test", function() {
 
         it("ExtItem should be a constructor", function() {
             extItem = new ExtItem({
-                "name"       : "testItem",
-                "version"    : "2.0",
+                "name": "testItem",
+                "version": "2.0",
                 "description": "test",
-                "author"     : "test user",
-                "image"      : "testImage",
-                "category"   : "test"
+                "author": "test user",
+                "image": "testImage",
+                "category": "test"
             });
 
             expect(extItem).to.be.an.instanceof(ExtItem);
@@ -949,9 +946,9 @@ describe("Ephemeral Constructor Test", function() {
             expect(extSet.get("test").getName()).to.equal("test");
 
             var item2 = new ExtItem({
-                "name"      : "marketTestItem",
-                "installed" : false,
-                "category"  : "marketTest",
+                "name": "marketTestItem",
+                "installed": false,
+                "category": "marketTest",
                 "repository": {
                     "type": "market"
                 }
@@ -1008,13 +1005,13 @@ describe("Ephemeral Constructor Test", function() {
     describe("XcSubQuery Constructor Test", function() {
         it("Should have 10 attributes", function() {
             var xcSubQuery = new XcSubQuery({
-                "name"          : "test",
-                "time"          : 123,
-                "query"         : "testQuery",
-                "dstTable"      : "testDstTable",
-                "id"            : 1,
-                "index"         : 2,
-                "queryName"     : "testQueryName",
+                "name": "test",
+                "time": 123,
+                "query": "testQuery",
+                "dstTable": "testDstTable",
+                "id": 1,
+                "index": 2,
+                "queryName": "testQueryName",
                 "exportFileName": "testExport"
             });
 
@@ -1036,6 +1033,22 @@ describe("Ephemeral Constructor Test", function() {
             .and.to.equal("testQueryName");
             expect(xcSubQuery).to.have.property("exportFileName")
             .and.to.equal("testExport");
+        });
+    });
+
+    describe("ScollTableChecker should work", function() {
+        it("Shuold have 2 attrs", function() {
+            var scrollChecker = new ScollTableChecker();
+            expect(scrollChecker).to.be.an.instanceof(ScollTableChecker);
+            expect(scrollChecker.startTime).to.be.a("number");
+            expect(scrollChecker.scrollPos)
+            .to.equal($("#mainFrame").scrollLeft());
+        });
+
+        it("Should check to scroll", function() {
+            var scrollChecker = new ScollTableChecker();
+            // immediate check should return true
+            expect(scrollChecker.checkScroll()).to.be.true;
         });
     });
 });

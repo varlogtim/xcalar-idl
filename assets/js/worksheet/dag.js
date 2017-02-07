@@ -423,7 +423,6 @@ window.DagPanel = (function($, DagPanel) {
             // to check if aggregate table, in which case we disallow
             // many options
             var type = $dagTable.siblings('.actionType').data('type');
-
             if (type === "aggregate") {
                 $menu.find('.addTable, .revertTable, .focusTable, ' +
                             '.archiveTable').addClass('hidden');
@@ -453,26 +452,22 @@ window.DagPanel = (function($, DagPanel) {
 
             var operator = $(this).closest('.dagTable').prev().data('type');
             var $genIcvLi = $menu.find('.generateIcv');
-            // var $genNonIcvLi = $menu.find('.generateNonIcv');
-
             if ($dagTable.find(".dagTableIcon").hasClass("icv")) {
-                xcHelper.disableMenuItem($genIcvLi,
-                                         {"title": TooltipTStr.AlreadyIcv});
-                // $genIcvLi.addClass('unavailable');
-                // xcTooltip.changeText($genIcvLi, TooltipTStr.AlreadyIcv);
-                // xcTooltip.enable($genIcvLi);
+                xcHelper.disableMenuItem($genIcvLi, {
+                    "title": TooltipTStr.AlreadyIcv
+                });
             } else {
-                if (!$dagTable.hasClass("icv") &&
+                if ($dagTable.hasClass("generatingIcv")) {
+                    xcHelper.disableMenuItem($genIcvLi, {
+                        "title": TooltipTStr.IcvGenerating
+                    });
+                } else if (!$dagTable.hasClass("icv") &&
                     (operator === 'map' || operator === 'groupBy')) {
-                    // $genIcvLi.removeClass('unavailable');
-                    // xcTooltip.disable($genIcvLi);
                     xcHelper.enableMenuItem($genIcvLi);
                 } else {
-                    // $genIcvLi.addClass('unavailable');
-                    // xcTooltip.changeText($genIcvLi, TooltipTStr.IcvRestriction);
-                    // xcTooltip.enable($genIcvLi);
-                    xcHelper.disableMenuItem($genIcvLi,
-                                         {"title": TooltipTStr.IcvRestriction});
+                    xcHelper.disableMenuItem($genIcvLi, {
+                        "title": TooltipTStr.IcvRestriction
+                    });
                 }
             }
 
@@ -936,23 +931,23 @@ window.DagPanel = (function($, DagPanel) {
         });
     }
 
-    function generateIcvTable(dagTableName, mapTableName, $tableIcon) {
-        var origTableId = xcHelper.getTableId(mapTableName);
-        if (origTableId in gTables) {
+    // return hasFoundIcvTable or not
+    function isIcvTableExists(origTableId) {
+        if (gTables.hasOwnProperty(origTableId)) {
             var icvTableName = gTables[origTableId].icv;
             if (icvTableName) {
                 var icvTableId = xcHelper.getTableId(icvTableName);
-                if (gTables[icvTableId]) {
+                if (gTables.hasOwnProperty(icvTableId)) {
                     // Find out whether it's already active. If so, focus on it
                     // Else add it to worksheet
                     if (TableList.checkTableInList(icvTableId)) {
                         // Table is in active list. Simply focus
                         DagFunction.focusTable(icvTableId);
-                        return;
+                        return true;
                     } else {
                         // Going to revert to it
                         DagFunction.addTable(icvTableId);
-                        return;
+                        return true;
                     }
                 } else {
                     // The table has been deleted. We are cleaning up lazily
@@ -961,21 +956,23 @@ window.DagPanel = (function($, DagPanel) {
                 }
             }
         }
+        return false;
+    }
 
-        var $errMsgTarget = $tableIcon;
+    function getDagInfoForIcvTable(dagTableName, mapTableName) {
         var dagTree = DagFunction.get(xcHelper.getTableId(dagTableName));
         if (!dagTree) {
             // Error handling!
             // This should never ever happen. If this does though, we can always
             // re-get the DAG graph and then get the following
             console.error("Unrecoverable error. Cannot generate.");
-            return;
+            return null;
         }
 
         var treeNodes = dagTree.orderedPrintArray;
         var xcalarInput;
         var op = -1;
-        for (var i = 0; i<treeNodes.length; i++) {
+        for (var i = 0; i < treeNodes.length; i++) {
             var treeNode = treeNodes[i];
             if (treeNode.value.api !== XcalarApisT.XcalarApiMap &&
                 treeNode.value.api !== XcalarApisT.XcalarApiGroupBy) {
@@ -990,14 +987,33 @@ window.DagPanel = (function($, DagPanel) {
             }
         }
 
-        // Check whether this table already exists. If it does, then just add
-        // or focus on that table
-
         if (!xcalarInput) {
             Alert.error(AlertTStr.Error, ErrTStr.IcvAlt);
             console.error("Failed. Check GetDag");
+            return null;
+        }
+
+        return {
+            "xcalarInput": xcalarInput,
+            "op": op
+        };
+    }
+
+    function generateIcvTable(dagTableName, mapTableName, $tableIcon) {
+        var origTableId = xcHelper.getTableId(mapTableName);
+        // Check whether this table already exists. If it does, then just add
+        // or focus on that table
+        if (isIcvTableExists(origTableId)) {
             return;
         }
+
+        var icvDagInfo = getDagInfoForIcvTable(dagTableName, mapTableName);
+        if (icvDagInfo == null) {
+            // error case, should already handled
+            return;
+        }
+        var xcalarInput = icvDagInfo.xcalarInput;
+        var op = icvDagInfo.op;
 
         var origTableName = xcalarInput.dstTable.tableName;
         var tableRoot = xcHelper.getTableName(origTableName);
@@ -1005,15 +1021,16 @@ window.DagPanel = (function($, DagPanel) {
         var newTableName = tableRoot + "_er" + newTableId;
 
         xcalarInput.dstTable.tableName = newTableName;
-        // Turn on icv
-        xcalarInput.icvMode = true;
+        xcalarInput.icvMode = true;  // Turn on icv
         var origColName = xcalarInput.newFieldName;
-        xcalarInput.newFieldName = xcalarInput.newFieldName+"_er";
+        xcalarInput.newFieldName = origColName + "_er";
         // We want to skip all the checks, including all the indexes and stuff
+        var $errMsgTarget = $tableIcon;
         var options;
         var sql;
         var txId;
         var idx;
+        var scrollChecker = new ScollTableChecker();
 
         switch (op) {
             case (XcalarApisT.XcalarApiMap):
@@ -1034,9 +1051,11 @@ window.DagPanel = (function($, DagPanel) {
                 });
 
                 idx = -1;
+                $tableIcon.addClass("generatingIcv");
+
                 XcalarMapWithInput(txId, xcalarInput)
                 .then(function() {
-                    return (postOperation(txId));
+                    return postOperation(txId);
                 })
                 .then(function() {
                     if (gTables[origTableId]) {
@@ -1054,7 +1073,6 @@ window.DagPanel = (function($, DagPanel) {
                         "msgTable": newTableId,
                         "sql": sql
                     });
-
                 })
                 .fail(function(error) {
                     Transaction.fail(txId, {
@@ -1063,6 +1081,9 @@ window.DagPanel = (function($, DagPanel) {
                         "sql": sql
                     });
                     StatusBox.show(ErrTStr.IcvFailed, $errMsgTarget);
+                })
+                .always(function() {
+                    $tableIcon.removeClass("generatingIcv");
                 });
                 break;
             case (XcalarApisT.XcalarApiGroupBy):
@@ -1083,6 +1104,8 @@ window.DagPanel = (function($, DagPanel) {
                 });
 
                 idx = -1;
+                $tableIcon.addClass("generatingIcv");
+
                 XcalarGroupByWithInput(txId, xcalarInput)
                 .then(function() {
                     return postOperation(txId);
@@ -1109,6 +1132,9 @@ window.DagPanel = (function($, DagPanel) {
                         "sql": sql
                     });
                     StatusBox.show(ErrTStr.IcvFailed, $errMsgTarget);
+                })
+                .always(function() {
+                    $tableIcon.removeClass("generatingIcv");
                 });
                 break;
             default:
@@ -1142,6 +1168,8 @@ window.DagPanel = (function($, DagPanel) {
             } else {
                 options = {};
             }
+
+            options.focusWorkspace = scrollChecker.checkScroll();
             var worksheet = WSManager.getWSFromTable(origTableId);
             if (!worksheet) {
                 worksheet = WSManager.getActiveWS();
