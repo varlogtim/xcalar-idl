@@ -361,6 +361,29 @@ describe("DSUploader Test", function() {
 			expect($grid.find(".fileName").text()).to.equal(name + " (Error)");
 			expect($grid.find(".fileSize").text()).to.equal("1B/5B (20%)");
 		});
+
+		it("submitting more than 2 files should show error", function() {
+			expect(Object.keys(uploads).length).to.equal(0);
+			uploads['test1'] = {};
+			expect(Object.keys(uploads).length).to.equal(1);
+
+			var submit = DSUploader.__testOnly__.submitFiles;
+			var item = {webkitGetAsEntry: function() {
+				return {isDirectory: true};
+			}};
+			var e = {dataTransfer: {items: [item]}};
+			submit([{name: "unitTest2", size: 1 * GB}], e);// name exists
+			UnitTest.hasAlertWithText(DSTStr.InvalidFolderDesc);
+
+			uploads['test2'] = {};
+			expect(Object.keys(uploads).length).to.equal(2);
+
+			submit([{name: "unitTest2", size: 1 * GB}], e);// name exists
+			UnitTest.hasAlertWithText(DSTStr.UploadLimitMsg);
+
+			delete uploads['test1'];
+			delete uploads['test2'];
+		});
 	});
 
 	describe("sorting files", function() {

@@ -643,6 +643,8 @@ DSTStr = {
     'UploadCompleted': 'Upload Completed',
     'UploadCompletedDesc': 'Upload completed. Could not cancel.',
     'UploadFailed': 'Upload Failed',
+    'UploadLimit': 'Upload Limit Reached',
+    'UploadLimitMsg': 'Cannot upload more than 2 files at a time.',
 
     // With replace
     'DelDSConfirm': 'Are you sure you want to delete dataset reference <ds> ?',

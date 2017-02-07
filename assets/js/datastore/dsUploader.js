@@ -10,6 +10,7 @@ window.DSUploader = (function($, DSUploader) {
     var defaultSortKey = "type";
     var sortKey = defaultSortKey;
     var cachedEvent;
+    var numMaxUploads = 2; // number of simultaneous uploads
 
     DSUploader.initialize = function() {
         dsUploaderEnabled = (XVM.getLicenseMode() === XcalarMode.Demo);
@@ -220,11 +221,13 @@ window.DSUploader = (function($, DSUploader) {
     function submitFiles(files, event) {
         cachedEvent = event;
         if (files.length > 1) {
-            showAlert('multipleFiles');
+            showAlert("multipleFiles");
+        } else if (Object.keys(uploads).length >= numMaxUploads) {
+            showAlert("multipleUploadLimit");
         } else if (checkInvalidFileSize(files[0])) {
-            showAlert('invalidSize');
+            showAlert("invalidSize");
         } else if (checkFileNameDuplicate(files[0].name)) {
-            showAlert('duplicateName', {name: files[0].name, file: files[0]});
+            showAlert("duplicateName", {name: files[0].name, file: files[0]});
         } else {
             var name = files[0].name;
             loadFile(files[0], name, event);
@@ -290,6 +293,9 @@ window.DSUploader = (function($, DSUploader) {
                     title: DSTStr.InvalidUpload,
                     msg: DSTStr.OneFileUpload
                 });
+                break;
+            case ('multipleUploadLimit'):
+                Alert.error(DSTStr.UploadLimit, DSTStr.UploadLimitMsg);
                 break;
             default:
                 break;
@@ -682,8 +688,6 @@ window.DSUploader = (function($, DSUploader) {
         }
         $innerContainer.html(html);
     }
-
-    DSUploader.submitFiles = submitFiles;
 
     /* Unit Test Only */
     if (window.unitTestMode) {
