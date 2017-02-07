@@ -1067,8 +1067,9 @@ window.xcHelper = (function($, xcHelper) {
             case "support":
                 // generate bundle button
                 html = '<button type="button" class="btn genSub" ' +
-                        'data-toggle="tooltip" title="' + TooltipTStr.GenBundle + '">' +
-                            CommonTxtTstr.GenBundle +
+                        'data-toggle="tooltip" title="' +
+                        TooltipTStr.GenTicket + '">' +
+                            CommonTxtTstr.GenTicket +
                         '</button>';
                 $btn = $(html);
 
