@@ -10,7 +10,6 @@ var https = require("https");
 require('shelljs/global');
 var ldap = require('ldapjs');
 var exec = require('child_process').exec;
-var unzip = require('unzip');
 require("jsdom").env("", function(err, window) {
     if (err) {
         console.error(err);
@@ -690,13 +689,14 @@ app.post("/downloadPackage", function(req, res) {
         fs.writeFile(basePath+pkg.name+"-"+pkg.version+".zip", zipFile,
         function(a) {
             xcConsole.log("Writing");
-            try {
-                fs.createReadStream(zipPath)
-                  .pipe(unzip.Extract({path: basePath}));
-                deferred.resolve();
-            } catch (e) {
-                deferred.reject(e);
-            }
+            var out = exec("tar -zxf " + zipPath + " -C " + basePath);
+            out.on('close', function(code) {
+                if (code) {
+                    deferred.reject(code);
+                } else {
+                    deferred.resolve();
+                }
+            });
         });
         return deferred.promise();
     })
