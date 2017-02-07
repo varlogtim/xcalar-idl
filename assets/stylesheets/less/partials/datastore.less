@@ -121,18 +121,6 @@
         .size(100%, 100%);
     }
 
-    .cardInstruction {
-        padding: 5px 20px;
-        white-space: normal;
-
-        .icon {
-            &:before {
-                display: block;
-                .position(relative, @top: 9px);
-            }
-        }
-    }
-
     .cardTopMain {
         .size(@height: 116px);
         padding: 15px;
@@ -745,7 +733,7 @@ table.datasetTable {
         height: ~"calc(100% - 90px)";
     }
     .browse {
-        margin-top: -5px;
+        margin-top: 4px;
         margin-left: 5px;
     }
 
@@ -2388,12 +2376,6 @@ table.datasetTable {
     }
 
     .cardInstruction {
-        height: auto;
-        .icon {
-            .size(@width: 25px, @height: 25px);
-            margin-top: auto;
-            margin-bottom: auto;
-        }
         .gridInfoText {
             display: none;
         }
@@ -2556,7 +2538,7 @@ table.datasetTable {
             display: none;
         }
         .gridInfoText {
-            .flex-display;
+            display: block;
         }
         .formButton {
             .btn {

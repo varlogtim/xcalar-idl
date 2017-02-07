@@ -64,14 +64,20 @@
     .size(@width: 100%, @height: @height-card-instr);
     background-color: @color-white;
     overflow: hidden;
-    padding: 15px 20px 15px 20px;
+    padding: 5px 20px;
     .flex-display;
     .flex-direction(row);
     border-bottom: 1px  solid @color-border-pinkish-grey2;
+    white-space: normal;
 
     .icon {
         .flex(0 0 36px);
         .font(@size: 24px, @color: @color-bg-select-blue);
+
+        &:before {
+            display: block;
+            .position(relative, @top: 10px);
+        }
     }
 
     .text {
@@ -81,6 +87,13 @@
         overflow: auto;
         white-space: normal;
         word-break: break-word;
+
+        span {
+            display: inline-block;
+            vertical-align: middle;
+            vertical-align: -webkit-baseline-middle;
+            vertical-align: -moz-middle-with-baseline;
+        }
     }
 
     b {
