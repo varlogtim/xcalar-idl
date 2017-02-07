@@ -87,6 +87,7 @@ app.post("/uploadContent", function(req, res) {
                     return res.send({"status": Status.Error, "logs": error});
                 },
                 success: function(result) {
+                    console.log("Finish uploading the first file");
                     if (filePath2.length != 0 && savedAsName2.length != 0) {
                         fs.readFile(filePath2, "utf8", function(err, data) {
                           if (err) {
@@ -107,6 +108,7 @@ app.post("/uploadContent", function(req, res) {
                                   return res.send({"status": Status.Error, "logs": error});
                               },
                               success: function(result) {
+                                  console.log("Finish uploading the second file");
                                   if (filePath3.length != 0 && savedAsName3.length != 0) {
                                       fs.readFile(filePath3, "utf8", function(err, data) {
                                           if (err) {
@@ -127,7 +129,8 @@ app.post("/uploadContent", function(req, res) {
                                                   return res.send({"status": Status.Error, "logs": error});
                                               },
                                               success: function(result) {
-                                                  console.log("Start zipping");
+                                                  console.log("Start uploading the third file");
+                                                  console.log("Start gzipping");
                                                   var dataToSent = {
                                                       "appName": name,
                                                       "filePath1": savedAsName1,
@@ -136,21 +139,22 @@ app.post("/uploadContent", function(req, res) {
                                                       "version": version
                                                   }
                                                   jQuery.ajax({
-                                                    method     : "POST",
-                                                    url        : host+"zip",
-                                                    data       : dataToSent,
-                                                    success: function(result) {
-                                                      return res.send({"status": Status.Ok, "logs": result});
-                                                    },
-                                                    error: function(error) {
-                                                      return res.send({"status": Status.Error, "logs": error});
-                                                    }
+                                                      method     : "POST",
+                                                      url        : host+"gzip",
+                                                      data       : dataToSent,
+                                                      success: function(result) {
+                                                          console.log("Finish gzipping");
+                                                          return res.send({"status": Status.Ok, "logs": result});
+                                                      },
+                                                      error: function(error) {
+                                                          return res.send({"status": Status.Error, "logs": error});
+                                                      }
                                                   });
                                               }
                                           });
                                       });
                                   } else {
-                                      console.log("Start zipping");
+                                      console.log("Start gzipping");
                                       var dataToSent = {
                                           "appName": name,
                                           "filePath1": savedAsName1,
@@ -160,9 +164,10 @@ app.post("/uploadContent", function(req, res) {
                                       }
                                       jQuery.ajax({
                                           method     : "POST",
-                                          url        : host+"zip",
+                                          url        : host+"gzip",
                                           data       : dataToSent,
                                           success: function(result) {
+                                              console.log("Finish gzipping");
                                               return res.send({"status": Status.Ok, "logs": result});
                                           },
                                           error: function(error) {
@@ -174,7 +179,7 @@ app.post("/uploadContent", function(req, res) {
                           });
                         });
                     } else {
-                        console.log("Start zipping");
+                        console.log("Start gzipping");
                         var dataToSent = {
                             "appName": name,
                             "filePath1": savedAsName1,
@@ -184,9 +189,10 @@ app.post("/uploadContent", function(req, res) {
                         }
                         jQuery.ajax({
                             method     : "POST",
-                            url        : host+"zip",
+                            url        : host+"gzip",
                             data       : dataToSent,
                             success: function(result) {
+                                console.log("Finish gzipping");
                                 return res.send({"status": Status.Ok, "logs": result});
                             },
                             error: function(error) {

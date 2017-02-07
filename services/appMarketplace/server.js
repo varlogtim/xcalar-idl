@@ -1,11 +1,9 @@
 var express = require("express");
 var fs = require("fs");
 var url = require("url");
-var EasyZip = require("easy-zip").EasyZip;
 var bodyParser = require("body-parser");
-var fstream = require("fstream");
 var pathHandler = require("path");
-
+var exec = require('child_process').exec;
 var app = express();
 
 var Status = {
@@ -44,41 +42,69 @@ app.all("/*", function(req, res, next) {
 
 var __createIfNotExists = function(projectName, version) {
     dir = __dirname + "/extensions"
-    if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir);
-    }
-    dir = dir + "/" + projectName
-    if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir);
-    }
-    dir = dir + "/" + version
-    if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir);
-    }
+    var deferred = jQuery.Deferred();
+    var promise = __create(dir)
+    promise
+    .then(function() {
+        dir = dir + "/" + projectName
+        return __create(dir)
+    })
+    .then(function() {
+        dir = dir + "/" + version
+        return __create(dir)
+    })
+    .then(function() {
+        deferred.resolve();
+    })
+    .fail(function() {
+        deferred.reject();
+    });
+    return deferred.promise();
+}
+
+var __create = function(dir) {
+    var deferred = jQuery.Deferred();
+    fs.access(dir, function(err) {
+        if (err) {
+            fs.mkdirSync(dir);
+            deferred.resolve();
+        } else {
+            deferred.resolve();
+        }
+    });
+    return deferred.promise();
 }
 
 app.post("/uploadContent", function(req, res) {
-    console.log(req.body);
+    // console.log(req.body);
     var appName = req.body.appName;
     var savedAsName = req.body.savedAsName;
     var version = req.body.version;
     var content = req.body.content;
-    __createIfNotExists(appName, version);
-    var filename = __dirname + "/extensions" + "/" + appName + "/" + version + "/" + savedAsName
-    fs.writeFile(filename, content, function(err) {
-        if(err) {
-            return res.send({"status": Status.Error, "logs": err});
-        }
-        console.log("App was saved!");
+    console.log("Start creating");
+    __createIfNotExists(appName, version)
+    .then(function() {
+        console.log("Finish creating");
+        // TODO: create a method to construct filePath
+        var filename = __dirname + "/extensions" + "/" + appName + "/" + version + "/" + savedAsName;
+        fs.writeFile(filename, content, function(err) {
+            if(err) {
+                return res.send({"status": Status.Error, "logs": err});
+            } else {
+                return res.send("Success");
+            }
+        });
+    })
+    .fail(function(err) {
+        return res.send({"status": Status.Error, "logs": err});
     });
-    res.send("Success");
 });
 
-app.post("/zip", function(req, res) {
+app.post("/gzip", function(req, res) {
     var appName = req.body.appName;
     var version = req.body.version;
     var dir = __dirname + "/extensions" + "/" + appName + "/" + version;
-    var fileName = dir + "/" + appName + "-" + version + ".zip";
+    var fileName = dir + "/" + appName + "-" + version + ".tar.gz";
     var filePath1 = req.body.filePath1;
     var filePath2 = req.body.filePath2;
     var filePath3 = req.body.filePath3;
@@ -96,14 +122,9 @@ app.post("/zip", function(req, res) {
         files.push(dir + "/" + filePath3);
         filenames.push(filePath3);
     }
-    var zip = new EasyZip();
-    zipFiles = []
-    for (i = 0; i < files.length; i++) {
-        zipFiles.push({source : files[i],target:filenames[i]});
-    }
-    console.log(zipFiles);
-    zip.batchAdd(zipFiles, function(){
-        zip.writeToFile(fileName);
+    __gzip(dir, fileName)
+    .then(function() {
+        console.log("Upload successfully");
         for (var i = 0; i < files.length; i++) {
             filename = files[i];
             fs.unlink(filename, function(err) {
@@ -113,67 +134,115 @@ app.post("/zip", function(req, res) {
             });
         }
         return res.send("Success");
+    })
+    .fail(function(err) {
+        return res.send({"status": Status.Error, "logs": err});
     });
 });
+
+var __gzip = function(dir, fileName) {
+    var deferred = jQuery.Deferred();
+    var execString = "tar -czf " + fileName + " -C " + dir + " . --exclude \"*.tar.gz\" --warning=no-file-changed"
+    var out = exec(execString);
+
+    out.on('close', function(code) {
+        // code(1) means files were changed while being archived
+        if (code == 0 || code == 1) {
+            console.log("Succeeded to upload");
+            deferred.resolve(Status.Done);
+        } else {
+            console.log("Failed to upload");
+            console.log("Error code is " + code);
+            deferred.reject();
+        }
+    });
+    return deferred.promise();
+}
 
 
 app.post("/uploadMeta", function(req, res) {
     var appName = req.body.appName;
     var version = req.body.version;
-    var imageUrl = req.body.imageUrl;
     var description = req.body.description;
     var author = req.body.author;
     var image = req.body.image;
-    __createIfNotExists(appName, version);
-    var filename = __dirname + "/extensions" + "/" + appName + "/" + version + "/" + appName + ".txt"
-    var jsonMetaOutput = {
-        "name": appName,
-        "version": version,
-        "description": description,
-        "author": author,
-        "imageUrl": imageUrl,
-        "image": image
-    };
-    if (fs.existsSync(filename)) {
-        fs.readFile(filename, "utf8", function(err, oldData) {
-            if (err) {
-                return res.send({"status": Status.Error, "logs": err});
-            }
-            oldData = JSON.parse(oldData);
-            for (var key in jsonMetaOutput) {
-                if (jsonMetaOutput[key].length === 0 && key in oldData) {
-                    jsonMetaOutput[key] = oldData[key];
-                }
-            }
+    __createIfNotExists(appName, version)
+    .then(function() {
+        var filename = __dirname + "/extensions" + "/" + appName + "/" + version + "/" + appName + ".txt"
+        var jsonMetaOutput = {
+            "name": appName,
+            "version": version,
+            "description": description,
+            "author": author,
+            "image": image
+        };
+        var promise = __uploadMeta(filename, jsonMetaOutput)
+        return promise
+    })
+    .then(function() {
+        return res.send("Success");
+    })
+    .fail(function(err) {
+        return res.send({"status": Status.Error, "logs": err});
+    });
+});
+
+var __uploadMeta = function(filename, jsonMetaOutput) {
+    var deferred = jQuery.Deferred();
+    fs.access(filename, function(err) {
+        if (err) {
             fs.writeFile(filename, JSON.stringify(jsonMetaOutput), function(err) {
-                if (err) {
-                    return res.send({"status": Status.Error, "logs": err});
+                if(err) {
+                    deferred.reject();
                 }
                 console.log("Metadata file was saved!");
+                deferred.resolve();
             });
-        });
-    } else {
-        fs.writeFile(filename, JSON.stringify(jsonMetaOutput), function(err) {
-            if(err) {
-                return res.send({"status": Status.Error, "logs": err});
-            }
-            console.log("Metadata file was saved!");
-        });
-    }
-    res.send("Success");
-});
+        } else {
+            fs.readFile(filename, "utf8", function(err, oldData) {
+                if (err) {
+                    return deferred.reject();
+                }
+                try {
+                    oldData = JSON.parse(oldData);
+                }
+                catch (e) {
+                    return deferred.reject();
+                }
+                for (var key in jsonMetaOutput) {
+                    if (jsonMetaOutput[key].length === 0 && key in oldData) {
+                        jsonMetaOutput[key] = oldData[key];
+                    }
+                }
+                fs.writeFile(filename, JSON.stringify(jsonMetaOutput), function(err) {
+                    if (err) {
+                        return deferred.reject();
+                    }
+                    console.log("Metadata file was updated!");
+                    deferred.resolve();
+                });
+            });
+        }
+    });
+    return deferred.promise();
+}
 
 /*
 Example: http://localhost:3001/list
 */
 app.get("/list", function(req, res) {
-    if (!fs.existsSync(__dirname + "/extensions")) {
-        fs.mkdirSync(__dirname + "/extensions");
-    }
-    _getAllFilesFromFolder(__dirname + "/extensions")
-    .then(function(extensions) {
-        res.jsonp(extensions);
-    });
+    fs.access(__dirname + "/extensions", function(err) {
+        if (err) {
+            fs.mkdirSync(__dirname + "/extensions");
+        }
+        _getAllFilesFromFolder(__dirname + "/extensions")
+        .then(function(extensions) {
+            res.jsonp(extensions);
+        })
+        .fail(function(err) {
+            return res.send({"status": Status.Error, "logs": err});
+        });
+    })
 });
 
 var __validate = function(name, version) {
@@ -198,32 +267,21 @@ app.get("/download", function(req, res) {
         return res.send({"status": Status["Error"], "logs": "Please specify name, version and type"});
     }
     var appFolder = __dirname + "/extensions" + "/" + appName + "/" + version + "/";
-    var fileName = appFolder + appName + "-" + version + ".zip"
-    console.log(fileName);
-    if (!fs.existsSync(fileName)) {
-        return res.send({"status": Status["Error"], "logs": "File not exists"});
-    }
-
-    fs.readFile(fileName, function(err, data) {
+    var fileName = appFolder + appName + "-" + version + ".tar.gz"
+    // console.log(fileName);
+    fs.access(fileName, function (err) {
         if (err) {
-            console.log("Error");
-            res.send({status: Status.Error});
+            return res.send({"status": Status.Error, "logs": "File not exists"});
         }
-        var a = new Buffer(data).toString('base64');
-	console.log(a.length);
-	res.send({status: Status.Ok,
-              data: a});
+        fs.readFile(fileName, function(err, data) {
+            if (err) {
+                return res.send({"status": Status.Error, "logs": err});
+            } else {
+                var a = new Buffer(data).toString('base64');
+                return res.send({"status": Status.Ok, "data": a});
+            }
+        });
     });
-/**
-    res.writeHead(200, {
-        "Content-Type"        : "application/octet-stream",
-        "Content-Disposition" : "attachment; filename="+appName+"-"+version+".zip",
-        "Content-Encoding"    : "zip"
-    });
-    console.log("Downloading from " + appFolder);
-    fstream.Reader({ "path" : fileName, "type" : "File" })
-        .pipe(res); // Write back to the response, or wherever else...
-*/
 });
 
 var _getAllFilesFromFolder = function(dir) {

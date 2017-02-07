@@ -5,9 +5,7 @@
     "express": "4.13.3",
     "body-parser": "*",
     "jquery": "^1.5.1",
-    "jsdom": "^1.2.1",
-    "fstream": "*",
-    "easy-zip": "*"
+    "jsdom": "^1.2.1"
   },
   "devDependencies": {
     "should": "~7.1.0",

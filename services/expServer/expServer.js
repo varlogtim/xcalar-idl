@@ -268,8 +268,8 @@ app.post("/runInstaller", function(req, res) {
         // Exit code. When we fail, we return non 0
         if (code) {
             console.log("Oh noes!");
-	    console.log("execString: " + execString);
-	    console.log("stderr: " + errorLog);
+            console.log("execString: " + execString);
+            console.log("stderr: " + errorLog);
             curStep.status = Status.Error;
         } else {
             curStep.status = Status.Done;
