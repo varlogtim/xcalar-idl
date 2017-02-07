@@ -534,8 +534,12 @@ window.FileBrowser = (function($, FileBrowser) {
         $pathLists.empty();
         appendPath(path);
 
+        console.error(error);
+        var msg = xcHelper.replaceMsg(ErrWRepTStr.NoPathInLoad, {
+            "path": path
+        });
         var html = '<div class="error">' +
-                        '<div>' + error.error + '</div>' +
+                        '<div>' + msg + '</div>' +
                         '<div>' + DSTStr.DSSourceHint + '</div>' +
                     '</div>';
         $innerContainer.html(html);

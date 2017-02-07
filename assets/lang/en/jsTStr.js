@@ -269,6 +269,7 @@ ErrWRepTStr = {
     'TableConflict': 'Table "<name>" already exists, ' +
                         'please choose another name.',
     'NoPath': '<path> was not found. Redirected to the root directory.',
+    'NoPathInLoad': 'Path <path> was not found.',
     'NoUDF': 'UDF \" <udf> \" does not exist.',
     'InvalidOpsType': 'Invalid type for the field,' +
                       ' wanted: <type1>, but provided: <type2>.',
@@ -626,7 +627,7 @@ DSTStr = {
     'NoColumns': 'No Columns Selected',
     'NoRecrodsHint': 'Please check the validation of path, pattern, dataset size, UDF and try again.',
     'CancalPoint': 'Cancel Point to dataset',
-    'DSSourceHint': 'Please try another path or use another protocol',
+    'DSSourceHint': 'Please try another path or use another protocol.',
     'FileOversize': 'Too many files in the folder, cannot read, please load with the url directly',
     'InvalidHDFS': 'Invalid HDFS path, valid format is: "hostname/pathToFile"',
     'Excel': "EXCEL",
