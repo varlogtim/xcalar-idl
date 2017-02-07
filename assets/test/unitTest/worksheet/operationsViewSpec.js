@@ -496,6 +496,40 @@ describe('OperationsView Test', function() {
                 StatusBox.forceHide();
             });
 
+            it("keypress enter on any input field except functionsInput should submit form", function(done) {
+                var submitCount = 0;
+                var promises = [];
+                $operationsView.find("input:not(.functionsInput)").each(function(i) {
+                    promises.push(promise.bind(null, $(this), i));
+                });
+
+                PromiseHelper.chain(promises)
+                .then(function() {
+                    expect(submitCount).to.be.gt(4);
+                    done();
+                });
+
+                // need timeouts to open and close statusboxes
+                function promise($input, timeout) {
+                    var deferred = jQuery.Deferred();
+                    setTimeout(function() {
+                        StatusBox.forceHide();
+                        expect($("#statusBox").is(":visible")).to.be.false;
+
+                        $input.trigger(fakeEvent.enter);
+
+                        expect($("#statusBox .message").text()).to.equal("Please fill out this field or keep it empty by checking the checkbox.");
+                        expect($("#statusBox").is(":visible")).to.be.true;
+                        
+                        StatusBox.forceHide();
+                        submitCount++;
+                        deferred.resolve();
+
+                    }, timeout * 2);
+                    return deferred.promise();
+                }
+            });
+
             it('argIconWrap click should focus on sibling input', function() {
                 var $arg = $operationsView.find(".arg").eq(0);
                 var $argIcon = $arg.siblings(".argIconWrap");

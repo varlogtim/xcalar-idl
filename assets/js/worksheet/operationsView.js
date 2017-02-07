@@ -360,6 +360,25 @@ window.OperationsView = (function($, OperationsView) {
             }
         }, '.list li');
 
+        // all inputs except functions input will either submit the form or
+        // select a highlighted list element
+        $operationsView.on("keypress", "input", function(event) {
+            var $input = $(this);
+            if (event.which !== keyCode.Enter ||
+                $input.hasClass("functionsInput")) {
+                // ignore function inputs
+                return;
+            }
+
+            var $hintli = $input.siblings('.hint').find('li.highlighted');
+            if ($hintli.length && $hintli.is(":visible")) {
+                $hintli.click();
+                return;
+            }
+            $(this).blur();
+            submitForm();
+        });
+
         var argumentTimer;
 
         // .arg (argument input)
@@ -371,19 +390,6 @@ window.OperationsView = (function($, OperationsView) {
                     event.which === keyCode.Down)) {
                     var isArgInput = true;
                     listHighlight($input, event.which, event, isArgInput);
-                }
-            },
-            'keypress': function(event) {
-                if (event.which === keyCode.Enter) {
-                    var $input = $(this);
-                    var $hintli = $input.siblings('.hint')
-                                        .find('li.highlighted');
-                    if ($hintli.length) {
-                        $hintli.click();
-                        return;
-                    }
-                    $(this).blur();
-                    submitForm();
                 }
             },
             'focus': function() {
