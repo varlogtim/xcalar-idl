@@ -5,6 +5,8 @@ window.StatusBox = (function($, StatusBox){
     var $targetInput;
     var open = false;
 
+    setupListeners();
+
     // options:
     //      type: string, "error", "info"
     //      offsetX: int,
@@ -135,6 +137,14 @@ window.StatusBox = (function($, StatusBox){
             open = false;
         }
     };
+
+    function setupListeners() {
+        $("#statusBox").mousedown(function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            StatusBox.forceHide();
+        });
+    }
 
     function hideStatusBox(event) {
         if (event.data && event.data.target) {
