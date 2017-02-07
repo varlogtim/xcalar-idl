@@ -201,8 +201,7 @@ window.DagFunction = (function($, DagFunction) {
         var wsId = WSManager.getActiveWS();
         var tableType;
 
-        if (WSManager.getWSFromTable(tableId) == null || !gTables[tableId])
-        {
+        if (WSManager.getWSFromTable(tableId) == null || !gTables[tableId]) {
             tableType = TableType.Orphan;
         } else if (gTables[tableId].status === TableType.Orphan) {
             tableType = TableType.Orphan;

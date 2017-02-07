@@ -944,6 +944,10 @@ window.DagPanel = (function($, DagPanel) {
                         // Table is in active list. Simply focus
                         DagFunction.focusTable(icvTableId);
                         return true;
+                    } else if (gTables[icvTableId].beUndone()) {
+                        // Going to revert to it
+                        gTables[origTableId].icv = "";
+                        return false;
                     } else {
                         // Going to revert to it
                         DagFunction.addTable(icvTableId);
