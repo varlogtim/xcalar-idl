@@ -872,6 +872,8 @@ window.StartManager = (function(StartManager, $) {
             StatusBox.forceHide();
         });
 
+        setupMouseWheel();
+
         if (!window.isBrowserChrome) {
             //  prevent cursor from showing in IE and firefox
             $(document).on('focus', 'input[readonly]', function(){
@@ -1023,6 +1025,133 @@ window.StartManager = (function(StartManager, $) {
                 }
             }
         }
+    }
+
+    function isRetinaDevice() {
+        return window.devicePixelRatio > 1;
+    }
+
+    function reImplementMouseWheel(e) {
+        var deltaX = e.originalEvent.wheelDeltaX * -1;
+        var deltaY = e.originalEvent.wheelDeltaY;
+        if (isNaN(deltaX)) {
+            deltaX = e.deltaX;
+        }
+        if (isNaN(deltaY)) {
+            deltaY = e.deltaY;
+        }
+        var x = Math.abs(deltaX);
+        var y = Math.abs(deltaY);
+
+        // iterate over the target and all its parents in turn
+        var $target = $(e.target);
+        var $pathToRoot = $target.add($target.parents());
+
+        $($pathToRoot.get().reverse()).each(function() {
+            var $el = $(this);
+            var delta;
+
+            if ($el.css("overflow") !== "hidden") {
+                // do horizontal scrolling
+                if (deltaX > 0) {
+                    var scrollWidth = $el.prop("scrollWidth");
+                    var scrollLeftMax = scrollWidth - $el.outerWidth();
+                    if ($el.scrollLeft() < scrollLeftMax) {
+                        // we can scroll right
+                        delta = scrollLeftMax - $el.scrollLeft();
+                        if (x < delta) {
+                            delta = x;
+                        }
+                        x -= delta;
+                        $el.scrollLeft($el.scrollLeft() + delta);
+                    }
+                } else {
+                    if ($el.scrollLeft() > 0) {
+                        // we can scroll left
+                        delta = $el.scrollLeft();
+                        if (x < delta) {
+                            delta = x;
+                        }
+                        x -= delta;
+                        $el.scrollLeft($el.scrollLeft() - delta);
+                    }
+                }
+
+                // do vertical scrolling
+                if (deltaY < 0) {
+                    var scrollHeight = $el.prop("scrollHeight");
+                    var scrollTopMax = scrollHeight - $el.outerHeight();
+                    if ($el.scrollTop() < scrollTopMax) {
+                        // we can scroll down
+                        delta = scrollTopMax - $el.scrollTop();
+                        if (y < delta) {
+                            delta = y;
+                        }
+                        y -= delta;
+                        $el.scrollTop($el.scrollTop() + delta);
+                    }
+                } else {
+                    if ($el.scrollTop() > 0) {
+                        // we can scroll up
+                        delta = $el.scrollTop();
+                        if (y < delta) {
+                            delta = y;
+                        }
+                        y -= delta;
+                        $el.scrollTop($el.scrollTop() - delta);
+                    }
+                }
+            }
+        });
+    }
+
+    // Note: This including two cases in mac
+    // Case 1: if it's Chrome in retina dispaly or fireforx
+    // reimplement the wheel scroll to resolve the jitter issue
+    // and the same time, it can prevent both back/forwad swipe
+    // Case 2: for other cases, only prevent back swipe
+    // (not found a good soution to also prevent forward)
+    function setupMouseWheel() {
+        $(window).on("mousewheel", function(event) {
+            // This code is only valid for Mac
+            if (!window.isSystemMac) {
+                return;
+            }
+
+            var isBrowserToHandle = window.isBrowserChrome
+                                || window.isBrowserFirefox
+                                || window.isBrowserSafari;
+            if (!isBrowserToHandle) {
+                return;
+            }
+
+            if (window.isBrowserChrome && isRetinaDevice()
+                || window.isBrowserFirefox)
+            {
+                reImplementMouseWheel(event);
+                // prevent back/forward swipe
+                event.preventDefault();
+                return;
+            }
+
+            var $parents = $(event.target).parents();
+            // If none of the parents can be scrolled left
+            // when we try to scroll left
+            var prevent_left = event.deltaX < 0 && $parents.filter(function() {
+                return $(this).scrollLeft() > 0;
+            }).length === 0;
+
+            // If none of the parents can be scrolled up
+            // when we try to scroll up
+            var prevent_up = event.deltaY > 0 && !$parents.filter(function() {
+                return $(this).scrollTop() > 0;
+            }).length === 0;
+            // Prevent swipe scroll,
+            // which would trigger the Back/Next page event
+            if (prevent_left || prevent_up) {
+                event.preventDefault();
+            }
+        });
     }
 
     return StartManager;
