@@ -90,19 +90,18 @@ window.JenkinsTestData = (function(JenkinsTestData) {
                     var startTime = null;
                     var endTime = null;
                     var durationInSec = null;
-                    var failure = 0;
-                    var success = 0;
+                    var totalUsers = 0;
+                    var successUsers = 0;
                     for (var i = 0, len = lines.length; i < len; i++) {
-                        if (lines[i].startsWith("==> Finished:") && lines[i].includes("status:close")!=true) {
-                            users = lines[i].split("&");
-                            failure = 0;
-                            success = 0;
-                            for (var j = 0, len2 = users.length; j < len2 - 1;
-                                 j++) {
-                                failure += parseInt(users[j].
-                                          match(/(?:Fail:)(.+)(?:, Pass:)/)[1]);
-                                success += parseInt(users[j].
-                                          match(/(?:Pass:)(.+)(?:, Skip:)/)[1]);
+                        if (lines[i].startsWith("/action?name=start")) {
+                            items = lines[i].split("&");
+                            totalUsers = parseInt(items[items.length-1].split("=")[1]);
+                        }
+                        if (lines[i].startsWith("User finishes: ")) {
+                            var failedTest = parseInt(lines[i].
+                                match(/(?:Fail:)(.+)(?:, Pass:)/)[1]);
+                            if (failedTest == 0) {
+                                successUsers += 1;
                             }
                         }
                         if (lines[i].startsWith("Test ended: ")) {
@@ -118,12 +117,13 @@ window.JenkinsTestData = (function(JenkinsTestData) {
                         durationInSec = (endDate - startDate) / 1000;
                     }
                     results[buildNum] = {
-                                  "build":     json.builds[buildNum].number,
-                                  "failed":    failure,
-                                  "succeeded": success,
-                                  "start":     startTime,
-                                  "end":       endTime,
-                                  "duration":  durationInSec};
+                        "build":     json.builds[buildNum].number,
+                        "successUsers": successUsers,
+                        "totalUsers": totalUsers,
+                        "start":     startTime,
+                        "end":       endTime,
+                        "duration":  durationInSec
+                    };
                     numOutstanding--;
                     if (numOutstanding === 0) {
                         deferred.resolve(results);
