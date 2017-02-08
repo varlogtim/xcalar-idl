@@ -1038,7 +1038,7 @@ window.DagPanel = (function($, DagPanel) {
 
         switch (op) {
             case (XcalarApisT.XcalarApiMap):
-                options = {"replaceColumn": true};
+                options = {"replaceColumn": true, "createNewTable": true};
                 sql = {
                     "operation": SQLOps.Map,
                     "tableName": origTableName,

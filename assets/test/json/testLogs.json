@@ -25,8 +25,8 @@
             "parentId":".",
             "isFolder":false,
             "uneditable":false,
-            "fullName":"undoTestUser.schedule1555",
-            "id":"undoTestUser.schedule1555"
+            "fullName":"undoTestUser.12345.schedule1555",
+            "id":"undoTestUser.12345.schedule1555"
         }
     },
     "cli":"load --url \"nfs:///var/tmp/qa/indexJoin/schedule\" --format json --size 0B  --name \"undoTestUser.schedule1555\";",
@@ -334,8 +334,8 @@
             "parentId":".",
             "isFolder":false,
             "uneditable":false,
-            "fullName":"undoTestUser.testyelp",
-            "id":"undoTestUser.testyelp"
+            "fullName":"undoTestUser.12345.testyelp",
+            "id":"undoTestUser.12345.testyelp"
         }
     },
     "cli":"load --url \"nfs:///netstore/datasets/unittest/test_yelp.json\" --format json --size 0B  --name \"undoTestUser.testyelp\";",
@@ -521,8 +521,8 @@
             "parentId":".",
             "isFolder":false,
             "uneditable":false,
-            "fullName":"undoTestUser.testyelp",
-            "id":"undoTestUser.testyelp"
+            "fullName":"undoTestUser.12345.testyelp",
+            "id":"undoTestUser.12345.testyelp"
         }
     },
     "cli":"load --url \"nfs:///netstore/datasets/unittest/test_yelp.json\" --format json --size 0B  --name \"undoTestUser.testyelp\";",

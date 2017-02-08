@@ -86,17 +86,24 @@ window.Undo = (function($, Undo) {
             isUndo: true,
             replacingDest: TableType.Undone
         };
-        TblManager.refreshTable([options.tableName], null,
+        var mapOptions = options.mapOptions || {};
+        var promise;
+        if (mapOptions.createNewTable) {
+            var tableId = xcHelper.getTableId(options.newTableName);
+            promise = TblManager.sendTableToUndone(tableId, {'remove': true});
+        } else {
+            promise = TblManager.refreshTable([options.tableName], null,
                                 [options.newTableName],
-                                worksheet, null, refreshOptions)
-        .then(function() {
+                                worksheet, null, refreshOptions);
+        }
+
+        promise.then(function() {
             // show map form if map was triggered from the form and was the
             // most recent operation
-            if (isMostRecent &&
-                (options.mapOptions && options.mapOptions.formOpenTime)) {
+            if (isMostRecent && mapOptions.formOpenTime) {
                 OperationsView.show(null, null, null, {
                     "restore": true,
-                    "restoreTime": options.mapOptions.formOpenTime
+                    "restoreTime": mapOptions.formOpenTime
                 });
             }
             deferred.resolve();

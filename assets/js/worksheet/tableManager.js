@@ -409,6 +409,8 @@ window.TblManager = (function($, TblManager) {
         return deferred.promise();
     };
 
+    // options:
+    //      remove: boolean, if true will remove table display from ws immediately
     TblManager.sendTableToUndone = function(tableId, options) {
         var deferred = jQuery.Deferred();
         options = options || {};

@@ -463,8 +463,31 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
     // currently is that their array length provides the number of steps to undo
     // and they serve as a reference for the operations we're undoing/redoing
 
-    var tableOps = ["index ds", "Sort", "Filter", "Map", "split column",
-                    "change data type", "GroupBy", "Join", "RenameTable"];
+    var tableOps = ["index ds",
+                    "Sort",
+                    "Filter",
+                    "Map",
+                    "Map", // icv map
+                    "split column",
+                    "change data type",
+                    "GroupBy",
+                    "Join",
+                    "RenameTable"];
+
+    // the following icv map needs to be tested and integrated into testLogs.json
+    // currently, we lack an overall function that does this kind of map
+    // 
+    //{"title":"Map",
+    // "options":{"operation":"map",
+    // "tableName":"schedule15551#yz3",
+    // "tableId":"yz3",
+    // "newTableName":"schedule15551_er#yz4",
+    // "colNum":6,
+    // "fieldName":"teacher_id_add1_er",
+    // "mapString":"add(teacher_id, 100)",
+    // "mapOptions":{"replaceColumn":true,"createNewTable":true}},
+    // "cli":"map --eval \"add(teacher_id, 100)\" --srctable \"schedule15551#yz1\" --fieldName \"teacher_id_add1_er\" --dsttable \"schedule15551_er#yz4\" --icv;",
+    // "timestamp":1486512471289},
 
     var frontEndOps = ["Add New Column", 
                         "Rename Column", 

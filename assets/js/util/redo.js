@@ -58,9 +58,12 @@ window.Redo = (function($, Redo) {
 
     redoFuncs[SQLOps.Map] = function(options) {
         var worksheet = WSManager.getWSFromTable(options.tableId);
+        var oldTables = [];
+        if (!options.mapOptions || !options.mapOptions.createNewTable) {
+            oldTables = [options.tableName];
+        }
         return (TblManager.refreshTable([options.newTableName], null,
-                                            [options.tableName],
-                                            worksheet));
+                                            oldTables, worksheet));
     };
 
     redoFuncs[SQLOps.Join] = function(options) {
