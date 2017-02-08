@@ -838,13 +838,16 @@ module.exports = {
         "meta": {
             // leave it empty, it will be overwritten by render.js
         },
-        "datastoreDemo1": {
+        "datastoreTut1": {
             "tab": "Viewing Data Stores"
         },
-        "datastoreDemo2": {
+        "datastoreTut1Demo": {
             "tab": "Viewing Data Stores"
         },
-        "workbookDemo": {
+        "datastoreTut2": {
+            "tab": "Viewing Data Stores"
+        },
+        "workbookTut": {
             "tab": "Viewing Worksheet"
         }
     },

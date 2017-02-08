@@ -2,7 +2,7 @@
   <header class="cardHeader">
     <div class="title"><%= dicts.ds.Point %></div>
   </header>
-  <%  if (dicts.tutor.name == "datastoreDemo1") { %>
+  <%  if (dicts.tutor.name == "datastoreTut1" || dicts.tutor.name == "datastoreTut1Demo") { %>
     include "../demo/dsDemo2-previewTable.html"
   <% } else { %>
   <div id="dsPreviewWrap" class="cardMain">
@@ -48,13 +48,21 @@
     </div>
     <form id="importDataForm" target="_blank">
       <!-- refresh -->
-      <button id="dsForm-refresh" type="button" class="fixed btn iconBtn" <%= (dicts.tutor.name == 'datastoreDemo1') ? 'data-introstep="w2-refresh"' : '' %> >
+      <% if (dicts.tutor.name == 'datastoreTut1' || dicts.tutor.name == 'datastoreTut1Demo') { %>
+      <button id="dsForm-refresh" type="button" class="fixed btn iconBtn" data-introstep="w2-refresh">
+      <% } else { %>
+      <button id="dsForm-refresh" type="button" class="fixed btn iconBtn">
+      <% } %>
         <i class="icon xi-refresh fa-17"></i>
         <%= dicts.dsForm.Refresh %>
       </button>
 
       <!-- auto detect -->
-      <button id="dsForm-detect" type="button" class="fixed btn iconBtn" <%= (dicts.tutor.name == 'datastoreDemo1') ? 'data-introstep="w2-redetect"' : '' %> >
+      <% if (dicts.tutor.name == 'datastoreTut1' || dicts.tutor.name == 'datastoreTut1Demo') { %>
+      <button id="dsForm-detect" type="button" class="fixed btn iconBtn" data-introstep="w2-redetect">
+      <% } else { %>
+      <button id="dsForm-detect" type="button" class="fixed btn iconBtn">
+      <% } %>
         <i class="icon xi-magic-wand fa-17"></i>
         <%= dicts.dsForm.REDETECT %>
       </button>
@@ -64,7 +72,7 @@
         <div class="row">
           <label for="dsForm-dsName"><%= dicts.dsForm.DSName %>:</label>
           <div class="inputWrap">
-            <% if (dicts.tutor.name == "datastoreDemo1") { %>
+            <% if (dicts.tutor.name == "datastoreTut1" || dicts.tutor.name == "datastoreTut1Demo") { %>
              <input id="dsForm-dsName" type="text" autocomplete="off" spellcheck="false" class="textOverflowOneLine" title="<%= dicts.dsForm.fileNameTitle %>" required data-introstep="w2-dsName">
             <% } else { %>
              <input id="dsForm-dsName" type="text" autocomplete="off" spellcheck="false" title="<%= dicts.dsForm.fileNameTitle %>" required>
@@ -125,7 +133,11 @@
           <!-- row -->
           <div class="row">
             <label><%= dicts.dsForm.Format %>:</label>
-            <div id="fileFormat" class="dropDownList rowContent" <%= (dicts.tutor.name == 'datastoreDemo1') ? 'data-introstep="w2-dsFormat"' : '' %>>
+            <% if (dicts.tutor.name == "datastoreTut1" || dicts.tutor.name == "datastoreTut1Demo") { %>
+            <div id="fileFormat" class="dropDownList rowContent" data-introstep="w2-dsFormat">
+            <% } else { %>
+             <div id="fileFormat" class="dropDownList rowContent">
+            <% } %>
               <input class="text" type="text" spellcheck="false" disabled>
               <div class="iconWrapper">
                 <i class="icon xi-arrow-down"></i>
@@ -160,7 +172,7 @@
           <!-- row -->
           <div class="row">
             <label for="lineText"><%= dicts.dsForm.LineDelim %>:</label>
-            <div id="lineDelim" class="dropDownList" <%= (dicts.tutor.name == 'datastoreDemo1') ? 'data-introstep="w2-dsOptions"' : '' %>>
+            <div id="lineDelim" class="dropDownList" <%= (dicts.tutor.name == 'datastoreTut1' || dicts.tutor.name == 'datastoreTut1Demo') ? 'data-introstep="w2-dsOptions"' : '' %>>
               <input id="lineText" class="text inputable" type="text" spellcheck="false" autocomplete="off">
               <div class="iconWrapper">
                 <i class="icon xi-arrow-down"></i>
@@ -222,7 +234,7 @@
       <!-- buttons -->
       <div class="buttonSection">
         <button title="<%= dicts.dsForm.CreateTableHint %>" data-toggle="tooltip" data-container="body" type="button" class="btn confirm createTable"><%= dicts.dsForm.CREATETABLE %></button>
-        <button title="<%= dicts.dsForm.CreateRefHint %>" data-toggle="tooltip" data-container="body" type="button" class="btn confirm" <%= (dicts.tutor.name == 'datastoreDemo1') ? 'data-introstep="w2-dsConfirm"' : '' %> ><%= dicts.dsForm.CREATEREF %></button>
+        <button title="<%= dicts.dsForm.CreateRefHint %>" data-toggle="tooltip" data-container="body" type="button" class="btn confirm" <%= (dicts.tutor.name == 'datastoreTut1' || dicts.tutor.name == 'datastoreTut1Demo') ? 'data-introstep="w2-dsConfirm"' : '' %> ><%= dicts.dsForm.CREATEREF %></button>
         <button type="button" class="btn btn-cancel cancel"><%= dicts.common.BACK %></button>
       </div>
     </form>

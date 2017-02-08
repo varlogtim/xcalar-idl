@@ -1,5 +1,5 @@
 <!-- Home / workbook button -->
-<% if (dicts.tutor.name == "workbookDemo") { %>
+<% if (dicts.tutor.name == "workbookTut") { %>
 <div id="homeBtn" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.menuBar.wb %>" data-introstep="w1-workbookBut">
   <div class="logo xc-logo">
     <div class="innerShadow"></div>
@@ -19,7 +19,7 @@
 <!-- Top Menu Bar -->
 <div id="menuBar" class="clearfix no-selection">
   <!-- maiu menu-->
-  <div id="topMenuBarTabs" class="clearfix" <%= (dicts.tutor.name == 'workbookDemo') ? 'data-introstep="w1-topMenu"' : '' %> >
+  <div id="topMenuBarTabs" class="clearfix" <%= (dicts.tutor.name == 'workbookTut') ? 'data-introstep="w1-topMenu"' : '' %> >
     <!-- workspance tab -->
     <% if (!dicts.isTutor) { %>
     <div id="workspaceTab" class="topMenuBarTab active">
@@ -27,7 +27,7 @@
         <i class="icon xi-menu-worksheet fa-25"></i>
       </div>
     </div>
-    <% } else if (dicts.tutor.name == "workbookDemo") { %>
+    <% } else if (dicts.tutor.name == "workbookTut") { %>
     <div id="workspaceTab" class="topMenuBarTab active mainMenuOpen" data-introstep="w1-workspaceBut">
       <div class="mainTab">
         <i class="icon xi-menu-worksheet fa-25"></i>
@@ -57,7 +57,7 @@
       </div>
       
     </div>
-    <% } else if (dicts.tutor.name == "workbookDemo") { %>
+    <% } else if (dicts.tutor.name == "workbookTut") { %>
     <div id="dataStoresTab" class="topMenuBarTab mainMenuOpen" data-introstep="w1-datastoresBut">
       <div class="mainTab">
         <i class="icon xi-menu-datastore fa-25"></i>
@@ -88,7 +88,7 @@
     <% } %>
 
     <!-- monitor tab -->
-    <% if (dicts.tutor.name == "workbookDemo") { %>
+    <% if (dicts.tutor.name == "workbookTut") { %>
     <div id="monitorTab" class="topMenuBarTab mainMenuOpen" data-introstep="w1-monitorBut">
       <div class="mainTab">
         <i class="icon xi-menu-monitoring fa-20"></i>
@@ -138,7 +138,7 @@
     <% } %>
 
     <!-- dataflow Tab -->
-    <div id="dataflowTab" class="topMenuBarTab mainMenuOpen firstTouch" <%= (dicts.tutor.name == 'workbookDemo') ? 'data-introstep="w1-df"' : '' %> >
+    <div id="dataflowTab" class="topMenuBarTab mainMenuOpen firstTouch" <%= (dicts.tutor.name == 'workbookTut') ? 'data-introstep="w1-df"' : '' %> >
       <div class="mainTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.dataflow.dfgs %>">
         <i class="icon xi-dataflowgroup fa-20"></i>
       </div>
@@ -148,7 +148,7 @@
   <!-- end main menu -->
 
   <!-- start bottom menu -->
-  <% if (dicts.tutor.name == "workbookDemo") { %>
+  <% if (dicts.tutor.name == "workbookTut") { %>
   <div id="bottomMenuBarTabs" class="bottomButtonsArea no-selection clearfix" data-introstep="w1-bottomMenu">
     <!-- extension tab -->
     <div id="extensionTab" class="sliderBtn bottomMenuBarTab" data-introstep="w1-extensions">

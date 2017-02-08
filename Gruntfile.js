@@ -11,9 +11,10 @@ prettifyOptions = {
 destMap = {
     "index.html": "index.html",
     "unitTest.html": "unitTest.html",
-    "datastoreDemo1.html": "assets/htmlFiles/walk/datastoreDemo1.html",
-    "datastoreDemo2.html": "assets/htmlFiles/walk/datastoreDemo2.html",
-    "workbookDemo.html": "assets/htmlFiles/walk/workbookDemo.html",
+    "datastoreTut1.html": "assets/htmlFiles/walk/datastoreTut1.html",
+    "datastoreTut1DemoMode.html": "assets/htmlFiles/walk/datastoreTut1DemoMode.html",
+    "datastoreTut2.html": "assets/htmlFiles/walk/datastoreTut2.html",
+    "workbookTut.html": "assets/htmlFiles/walk/workbookTut.html",
     "login.html": "assets/htmlFiles/login.html",
     "dologout.html": "assets/htmlFiles/dologout.html",
     "tableau.html": "assets/htmlFiles/tableau.html",
@@ -23,7 +24,7 @@ destMap = {
     "undoredoTest.html": "undoredoTest.html"
 };
 
-var noPrettify = ["datastoreDemo1.html", "datastoreDemo2.html", "workbookDemo.html"];
+var noPrettify = ["datastoreTut1.html", "datastoreTut1DemoMode.html", "datastoreTut2.html", "workbookTut.html"];
 
 htmlMinOptions = {};
 

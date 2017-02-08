@@ -1,5 +1,5 @@
 <!-- Datastore Cart -->
-<% if (dicts.tutor.name == "datastoreDemo2") { %>
+<% if (dicts.tutor.name == "datastoreTut2") { %>
 <div id="dataCartContainer">
 <% } else { %>
 <div id="dataCartContainer" class="noCart">
@@ -7,7 +7,7 @@
   <div class="titleSection">
     <header class="title textOverflowOneLine">
       <span><%= dicts.dsCart.Title %></span>
-      <% if (dicts.tutor.name == "datastoreDemo2") { %>
+      <% if (dicts.tutor.name == "datastoreTut2") { %>
        <span class="numWrap">(<span class="dataCartNum tutor">2</span>)</span>
       <% } else { %>
       <span class="numWrap">(<span class="dataCartNum"></span>)</span>
@@ -16,10 +16,10 @@
   </div>
   <div class="buttonSection">
     <!-- worksheet list -->
-    <div class="dropDownWrap" <%= (dicts.tutor.name == 'datastoreDemo2') ? 'data-introstep="w3-selectWorksheet"' : '' %> >
+    <div class="dropDownWrap" <%= (dicts.tutor.name == 'datastoreTut2') ? 'data-introstep="w3-selectWorksheet"' : '' %> >
       <div class="title"><%= dicts.dsCart.SendTo %>:</div>
       <div id="dataCartWSList" class="dropDownList">
-        <% if (dicts.tutor.name == "datastoreDemo2") { %>
+        <% if (dicts.tutor.name == "datastoreTut2") { %>
         <input class="text" type="text" value="Sheet 1" spellcheck="false" placeholder="<%= dicts.dsCart.SelectWS %>" disabled>
         <% } else { %>
         <input class="text" type="text" value="" spellcheck="false" placeholder="<%= dicts.dsCart.SelectWS %>" disabled>
@@ -34,7 +34,7 @@
       </div>
     </div>
     <!-- buttons -->
-    <% if (dicts.tutor.name !== "datastoreDemo2") { %>
+    <% if (dicts.tutor.name !== "datastoreTut2") { %>
     <button id="dataCart-submit" class="btn btn-large iconBtn">
       <i class="icon xi-back-to-worksheet"></i><%= dicts.dsCart.SENDTOWS %>
     </button>
@@ -43,7 +43,7 @@
       <i class="icon xi-back-to-worksheet"></i><%= dicts.dsCart.SENDTOWS %>
     </button>
     <% }%>
-    <% if (dicts.tutor.name !== "datastoreDemo2") { %>
+    <% if (dicts.tutor.name !== "datastoreTut2") { %>
     <button id="dataCart-clear" class="btn btn-large iconBtn btn-clear">
       <i class="icon xi-trash"></i><%= dicts.dsCart.CLEARALL %>
     </button>
@@ -55,14 +55,14 @@
     <!-- end buttons -->
   </div>
   <!-- mainSection -->
-  <% if (dicts.tutor.name == "datastoreDemo2") { %>
+  <% if (dicts.tutor.name == "datastoreTut2") { %>
   <div id="dataCartWrap" class="mainSection">
   <% } else { %>
   <div id="dataCartWrap" class="mainSection noCart">
   <% }%>
     <div class="hint"><%= dicts.dsCart.NoCartInstr %></div>
     <div id="dataCart">
-      <% if (dicts.tutor.name == "datastoreDemo2") { %>
+      <% if (dicts.tutor.name == "datastoreTut2") { %>
       <div class="selectedTable" data-dsid="John Smith.yelpUsers">
         <div class="cartTitleArea tableTitle" data-introstep="w3-newTableName">
           <div class="subTitle">Table Name</div>

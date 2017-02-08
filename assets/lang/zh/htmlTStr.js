@@ -541,10 +541,13 @@ module.exports = {
         "weekly": "每周"
     },
     "tutor": {
-        "datastoreDemo1": {
+        "datastoreTut1": {
             "tab": "查看数据存储"
         },
-        "datastoreDemo2": {
+        "datastoreTut1Demo": {
+            "tab": "查看数据存储"
+        },
+        "datastoreTut2": {
             "tab": "查看数据存储"
         },
         "meta": {},
@@ -552,7 +555,7 @@ module.exports = {
         "wkbk": "演练",
         "wkbkDate": "2016年3月31日",
         "wkbkSaveDate": "2016年3月31日上午十二时00分00秒",
-        "workbookDemo": {
+        "workbookTut": {
             "tab": "查看工作表"
         }
     },

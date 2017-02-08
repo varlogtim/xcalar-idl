@@ -65,7 +65,7 @@ window.TutorialsSetup = (function($, TutorialsSetup) {
             //     }
             // };
 
-            introHelper('workbookDemo', WalkThroughTStr.w1, options);
+            introHelper('workbookTut', WalkThroughTStr.w1, options);
         });
 
         $('#datastoreWT1').click(function() {
@@ -89,7 +89,11 @@ window.TutorialsSetup = (function($, TutorialsSetup) {
                 }
             };
 
-            introHelper('datastoreDemo1', WalkThroughTStr.w2, options);
+            if (XVM.getLicenseMode() === XcalarMode.Demo) {
+                introHelper('datastoreTut1Demo', WalkThroughTStr.w4, options);
+            } else {
+                introHelper('datastoreTut1', WalkThroughTStr.w2, options);
+            }
         });
 
         $('#datastoreWT2').click(function() {
@@ -101,21 +105,36 @@ window.TutorialsSetup = (function($, TutorialsSetup) {
                 onSkipToEnd: "",
                 onSkipToStart: ""
             };
-            introHelper('datastoreDemo2', WalkThroughTStr.w3, options);
+            introHelper('datastoreTut2', WalkThroughTStr.w3, options);
         });
 
         function dsDemo1ToggleForm(showPreview) {
-            if (showPreview) {
-                $('#demoScreen').find('#dsForm-preview')
-                                .removeClass('xc-hidden');
-                $('#demoScreen').find('#dsForm-path')
-                                .addClass('xc-hidden');
+            if (XVM.getLicenseMode() === XcalarMode.Demo) {
+                if (showPreview) {
+                    $('#demoScreen').find('#dsForm-preview')
+                                    .removeClass('xc-hidden');
+                    $('#demoScreen').find('#dsUploader')
+                                    .addClass('xc-hidden');
+                } else {
+                    $('#demoScreen').find('#dsForm-preview')
+                                    .addClass('xc-hidden');
+                    $('#demoScreen').find('#dsUploader')
+                                    .removeClass('xc-hidden');
+                }
             } else {
-                $('#demoScreen').find('#dsForm-preview')
-                                .addClass('xc-hidden');
-                $('#demoScreen').find('#dsForm-path')
-                                .removeClass('xc-hidden');
+                if (showPreview) {
+                    $('#demoScreen').find('#dsForm-preview')
+                                    .removeClass('xc-hidden');
+                    $('#demoScreen').find('#dsForm-path')
+                                    .addClass('xc-hidden');
+                } else {
+                    $('#demoScreen').find('#dsForm-preview')
+                                    .addClass('xc-hidden');
+                    $('#demoScreen').find('#dsForm-path')
+                                    .removeClass('xc-hidden');
+                }
             }
+            
         }
     };
 

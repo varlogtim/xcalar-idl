@@ -4,9 +4,10 @@ _ = require('underscore');
 dicts = require('../assets/lang/' + lang + '/htmlTStr.js');
 
 var tutorMap = {
-    "datastoreDemo1.html": "datastoreDemo1",
-    "datastoreDemo2.html": "datastoreDemo2",
-    "workbookDemo.html": "workbookDemo"
+    "datastoreTut1.html"        : "datastoreTut1",
+    "datastoreTut1DemoMode.html": "datastoreTut1Demo",
+    "datastoreTut2.html"        : "datastoreTut2",
+    "workbookTut.html"          : "workbookTut"
 };
 
 function render(srcDir, destMap) {

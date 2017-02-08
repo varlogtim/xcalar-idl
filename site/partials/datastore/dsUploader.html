@@ -1,4 +1,8 @@
+<% if (dicts.tutor.name == "datastoreTut1") { %>
+<div id="dsUploader" class="cardContainer fileBrowser xc-hidden">
+<% } else { %>
 <div id="dsUploader" class="cardContainer fileBrowser">
+<% } %>
   <header class="cardHeader">
     <div class="title"><%= dicts.dsUploader.AddFile %></div>
   </header>
@@ -7,7 +11,11 @@
     <div class="text">
       <span><%= dicts.dsUploader.AddFileDesc %></span>
     </div>
+    <% if (dicts.tutor.name == "datastoreTut1Demo") { %>
+    <button id="dsUploadBrowse" class="btn browse" type="button" data-introstep="w2-browseDS"><%= dicts.common.BROWSE %></button>
+    <% } else { %>
     <button id="dsUploadBrowse" class="btn browse" type="button"><%= dicts.common.BROWSE %></button>
+    <% } %>
   </div>
   <div class="cardMain">
     <div id="dsUploaderMain" class="xc-grid leftMain listView fileBrowserMain fileDroppable">
@@ -35,9 +43,17 @@
         </div>
       </section>
       <!-- Main Content -->
+      <% if (dicts.tutor.name == "datastoreTut1Demo") { %>
       <section id="dsUploaderContainer" class="mainSection fileBrowserContainer">
+      <% } else { %>
+      <section id="dsUploaderContainer" class="mainSection fileBrowserContainer">
+      <% } %>
         <div id="innerdsUploader" class="clearfix innerFileBrowserContainer">
+        <% if (dicts.tutor.name == "datastoreTut1Demo") { %>
+          <div data-name="FraudTransFile2.csv" class="ds grid-unit" data-introstep="w2-next"><i class="gridIcon icon xi_data"></i><div class="label fileName">yelpUsers.json</div><div class="fileDate">1:50 PM 1-24-2017</div><div class="fileSize">26MB</div><i class="icon xi-cancel cancel"></i><i class="icon xi-trash delete"></i></div>
         </div>
+        <div class="dropArea" style="width:100%;height:calc(100% - 50px);margin-top:10px;" data-introstep="w2-dsDrop"></div>
+        <% } %>
       </section>
       <input id="dsUploadSubmit" spellcheck="false" type="file" style="display: none;">
       <div id="dsUploaderDropArea">

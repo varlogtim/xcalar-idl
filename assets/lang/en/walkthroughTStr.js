@@ -67,5 +67,23 @@ var WalkThroughTStr = {
         'w3-folder': 'This is a folder. The number on it specifies the number of datasets inside the folder. You can change the name of the folder by double-clicking on the existing name.',
         'w3-deleteFolder': 'Right-click on a folder or dataset to delete it.',
         'w3-changeView': 'You can change the way the datasets and folders are displayed below by clicking on list or grid view.'
-    }
+    },
+    'w4': {
+        // Datastore Demo Part 1
+        // Following struct defines order which the steps get played.
+        // If step's name is not here, it will not get played!
+        '_order': ['w2-newDs', 'w2-browseDs', 'w2-dsDrop', 'w2-next',
+                   'w2-dsName',  'w2-dsFormat', 'w2-dsOptions', 'w2-refresh',
+                   'w2-redetect', 'w2-dsConfirm'],
+        'w2-newDs': 'Click this button to point to a new dataset then follow the steps on the right panel.',
+        'w2-browseDs': 'The browse button will enable you to browse through your files to select a dataset to upload.',
+        'w2-dsDrop': 'You can also drag and drop a file to upload here.',
+        'w2-next': 'After you have uploaded a dataset, select it to continue',
+        'w2-dsName': 'A default name for your dataset reference will be generated after you select the dataset. You may choose your own name if desired. The dataset name maybe 1 to 255 characters in length. The characters A-Z, a-z, 0-9 and ‘_’ are allowed.',
+        'w2-dsFormat': 'You can click on the dropdown button to choose the format of your dataset.',
+        'w2-dsOptions': 'Depending on the format of the dataset, there may be additional options for you to select.',
+        'w2-refresh': 'If you have chosen a UDF or changed a delimiter and you would like to see how your dataset looks like now, click this button to refresh your tabular preview.',
+        'w2-redetect': 'If you want Xcalar to redetect the format for your file and fill in the form, click on this button.',
+        'w2-dsConfirm': 'After you are satisfied with your selections, click on refresh preview to make sure that the selection is valid and then click on finalize.'
+    },
 };

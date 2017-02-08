@@ -1,4 +1,8 @@
+<% if (dicts.tutor.name == "datastoreTut1Demo") { %>
+<div id="dsForm-path" class="cardContainer xc-hidden">
+<% } else { %>
 <div id="dsForm-path" class="cardContainer">
+<% } %>
   <header class="cardHeader">
     <div class="title"><%= dicts.ds.Point %></div>
   </header>
@@ -35,12 +39,12 @@
     </div>
     <div class="content path">
       <label for="filePath"><%= dicts.dsForm.filePath %>:</label>
-      <% if (dicts.tutor.name == "datastoreDemo1") { %>
+      <% if (dicts.tutor.name == "datastoreTut1") { %>
       <input id="filePath" type="text" spellcheck="false" data-introstep="w2-dsPath">
       <% } else { %>
       <input id="filePath" type="text" spellcheck="false">
       <% } %>
-      <% if (dicts.tutor.name == "datastoreDemo1") { %>
+      <% if (dicts.tutor.name == "datastoreTut1") { %>
       <button class="btn browse" type="button" data-introstep="w2-browseDs"><%= dicts.common.BROWSE %></button>
       <% } else { %>
       <button class="btn browse" type="button"><%= dicts.common.BROWSE %></button>
@@ -48,10 +52,12 @@
     </div>
   </div>
   <div class="cardBottom">
-    <button class="btn confirm" <%= (dicts.tutor.name == 'datastoreDemo1') ? 'data-introstep="w2-next"' : '' %> ><%= dicts.common.NEXT %></button>
+    <button class="btn confirm" <%= (dicts.tutor.name == 'datastoreTut1') ? 'data-introstep="w2-next"' : '' %> ><%= dicts.common.NEXT %></button>
     <button class="btn btn-cancel cancel"><%= dicts.common.CLEAR %></button>
   </div>
 </div>
+<% if (dicts.tutor.name != 'datastoreTut1' || dicts.tutorname != 'datastoreTut2') { %>
 include "dsUploader.html"
+<% } %>
 include "fileBrowser/fileBrowser.html"
 include "dsPreview.html"
