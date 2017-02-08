@@ -358,6 +358,12 @@
                 width: 120px;
             }
 
+            .icv.dagTableIcon {
+                // XXX TEMP FIX until we get distinguishs between icv and
+                // errored tables
+                background-color: @color-error-border !important;
+            }
+
             &.noDropdown {
                 pointer-events: none;
                 .tableTitle {
@@ -377,12 +383,12 @@
                     } 
                 }
                 .dagTableIcon, .dataStoreIcon {
-                    background-color: @color-bg-gold;
+                    background-color: @color-bg-gold !important;
                 }
             }
             &.Cleaned, &.Dropped, &.Ready {
                 &:hover {
-                    .dagTableIcon, .dataStoreIcon {
+                    .dagTableIcon:not(.icv), .dataStoreIcon {
                         background-color: @color-bg-fern-green !important;
                     } 
                 }
