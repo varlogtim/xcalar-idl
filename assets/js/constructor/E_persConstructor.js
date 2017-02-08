@@ -420,19 +420,42 @@ var TableMeta = (function(_super) {
             return this.ordering;
         },
 
+        __getColMeta: function(isImmediate, meta) {
+            var res = [];
+            if (this.backTableMeta != null &&
+                this.backTableMeta.hasOwnProperty("valueAttrs"))
+            {
+                this.backTableMeta.valueAttrs.forEach(function(attr) {
+                    var isTypeImmediate = (attr.type !== DfFieldTypeT.DfFatptr);
+                    var shouldAddMeta = (isImmediate && isTypeImmediate)
+                                        || (!isImmediate && !isTypeImmediate);
+                    if (shouldAddMeta) {
+                        if (meta == null) {
+                            res.push(attr);
+                        } else {
+                            res.push(attr[meta]);
+                        }
+                    }
+                });
+            }
+
+            return res;
+        },
+
+        getImmediates: function() {
+            return this.__getColMeta(true);
+        },
+
+        getFatPtr: function() {
+            return this.__getColMeta(false);
+        },
+
         getImmediateNames: function() {
-            if (!this.backTableMeta ||
-                !("valueAttrs" in this.backTableMeta)) {
-                return []; // Cannot test, just let it go.
-            }
-            var allVals = this.backTableMeta.valueAttrs;
-            var finalArray = [];
-            for (var i = 0; i < allVals.length; i++) {
-                if (allVals[i].type !== DfFieldTypeT.DfFatptr) {
-                    finalArray.push(allVals[i].name);
-                }
-            }
-            return finalArray;
+            return this.__getColMeta(true, "name");
+        },
+
+        getFatPtrNames: function() {
+            return this.__getColMeta(false, "name");
         },
 
         showIndexStyle: function() {

@@ -1254,7 +1254,60 @@ describe("Persistent Constructor Test", function() {
             expect(table.getCol(1).getFrontColName()).to.equal("a");
         });
 
-        it("table should get immediates info", function() {
+        it("table should get immediates", function() {
+            var table = new TableMeta({
+                "tableName": "test#a1",
+                "tableId"  : "a1",
+                "isLocked" : false
+            });
+
+            var res = table.getImmediates();
+            expect(res).to.be.an("array").and.to.have.length(0);
+
+            table.backTableMeta = {
+                "valueAttrs": [{
+                    "name": "test",
+                    "type": DfFieldTypeT.DfString
+                },
+                {
+                    "name": "test2",
+                    "type": DfFieldTypeT.DfFatptr
+                }]
+            };
+
+            res = table.getImmediates();
+            expect(res).to.be.an("array").and.to.have.length(1);
+            expect(res[0].name).to.equal("test");
+        });
+
+        it("table should get fatPtrs", function() {
+            var table = new TableMeta({
+                "tableName": "test#a1",
+                "tableId"  : "a1",
+                "isLocked" : false
+            });
+
+            var res = table.getFatPtr();
+            expect(res).to.be.an("array").and.to.have.length(0);
+
+            table.backTableMeta = {
+                "valueAttrs": [{
+                    "name": "test",
+                    "type": DfFieldTypeT.DfString
+                },
+                {
+                    "name": "test2",
+                    "type": DfFieldTypeT.DfFatptr
+                }]
+            };
+
+            res = table.getFatPtr();
+            expect(res).to.be.an("array").and.to.have.length(1);
+            expect(res[0].name).to.equal("test2");
+        });
+
+
+        it("table should get immediates names", function() {
             var table = new TableMeta({
                 "tableName": "test#a1",
                 "tableId"  : "a1",
@@ -1265,13 +1318,45 @@ describe("Persistent Constructor Test", function() {
             expect(res).to.be.an("array").and.to.have.length(0);
 
             table.backTableMeta = {
-                "valueAttrs": [{"name": "test", "type": DfFieldTypeT.DfString},
-                            {"name": "test2", "type": DfFieldTypeT.DfFatptr}]
+                "valueAttrs": [{
+                    "name": "test",
+                    "type": DfFieldTypeT.DfString
+                },
+                {
+                    "name": "test2",
+                    "type": DfFieldTypeT.DfFatptr
+                }]
             };
 
             res = table.getImmediateNames();
             expect(res).to.be.an("array").and.to.have.length(1);
             expect(res[0]).to.equal("test");
+        });
+
+        it("table should get fatPtr names", function() {
+            var table = new TableMeta({
+                "tableName": "test#a1",
+                "tableId"  : "a1",
+                "isLocked" : false
+            });
+
+            var res = table.getFatPtrNames();
+            expect(res).to.be.an("array").and.to.have.length(0);
+
+            table.backTableMeta = {
+                "valueAttrs": [{
+                    "name": "test",
+                    "type": DfFieldTypeT.DfString
+                },
+                {
+                    "name": "test2",
+                    "type": DfFieldTypeT.DfFatptr
+                }]
+            };
+
+            res = table.getFatPtrNames();
+            expect(res).to.be.an("array").and.to.have.length(1);
+            expect(res[0]).to.equal("test2");
         });
 
         it("table should show indexed style", function() {

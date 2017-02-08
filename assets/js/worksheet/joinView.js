@@ -599,32 +599,13 @@ window.JoinView = (function($, JoinView) {
     }
 
     function checkFirstView() {
-        var lCols = [];
-        var rCols = [];
-        var $invalidClause = null;
-
-        // check validation
-        $clauseContainer.find(".joinClause").each(function() {
-            var $joinClause = $(this);
-            var lClause = $joinClause.find(".leftClause").val().trim();
-            var rClause = $joinClause.find(".rightClause").val().trim();
-
-            if (lClause !== "" && rClause !== "") {
-                lCols.push(lClause);
-                rCols.push(rClause);
-                return true;
-            } else if (!(lClause === "" && rClause === "")){
-                $invalidClause = $joinClause;
-                return false;   // stop loop
-            }
-        });
-
-        if ($invalidClause != null || lCols.length === 0) {
-
-            invalidMultiClauseTooltip($invalidClause);
+        var colsInClause = getColsInClause();
+        if (colsInClause == null) {
             return false;
         }
 
+        var lCols = colsInClause.lCols;
+        var rCols = colsInClause.rCols;
         var tableIds = getTableIds();
         var leftColRes = xcHelper.convertFrontColNamesToBack(lCols, tableIds[0],
                                                     validTypes);
@@ -657,6 +638,43 @@ window.JoinView = (function($, JoinView) {
         }
 
         return (true);
+    }
+
+    function getColsInClause(toGoBack) {
+        var lCols = [];
+        var rCols = [];
+        var $invalidClause = null;
+
+        // check validation
+        $clauseContainer.find(".joinClause").each(function() {
+            var $joinClause = $(this);
+            var lClause = $joinClause.find(".leftClause").val().trim();
+            var rClause = $joinClause.find(".rightClause").val().trim();
+
+            if (lClause !== "" && rClause !== "") {
+                lCols.push(lClause);
+                rCols.push(rClause);
+                return true;
+            } else if (!(lClause === "" && rClause === "")){
+                $invalidClause = $joinClause;
+                return false;   // stop loop
+            }
+        });
+
+        var error = ($invalidClause != null || lCols.length === 0);
+        if (error) {
+            if (toGoBack) {
+                // go back
+                toggleNextView();
+            }
+            invalidMultiClauseTooltip($invalidClause);
+            return null;
+        }
+
+        return {
+            "lCols": lCols,
+            "rCols": rCols
+        };
     }
 
     function columnErrorHandler(side, colRes, tableId) {
@@ -998,9 +1016,8 @@ window.JoinView = (function($, JoinView) {
         var deferred = jQuery.Deferred();
 
         formHelper.disableSubmit();
-        var joinType = $joinTypeSelect.find(".text").text();
-        var newTableName = $joinTableName.val().trim();
-        joinSubmitHelper(joinType, newTableName)
+
+        joinSubmitHelper()
         .then(deferred.resolve)
         .fail(deferred.reject)
         .always(function() {
@@ -1014,29 +1031,34 @@ window.JoinView = (function($, JoinView) {
     function executeChecks($renames, $origNames, $newNames, origArray,
                            renameArray, isFatptr) {
         // Check that none are empty
-        for (i = 0; i < $newNames.length; i++) {
-            if ($($newNames[i]).val().trim().length === 0) {
-                StatusBox.show(ErrTStr.NoEmpty, $renames.eq(i), true);
+        var isValid = true;
+        $newNames.each(function(index) {
+            if ($(this).val().trim().length === 0) {
+                StatusBox.show(ErrTStr.NoEmpty, $renames.eq(index), true);
+                // stop loop
+                isValid = false;
                 return false;
             }
+        });
+
+        if (!isValid) {
+            return false;
         }
 
-        for (i = 0; i < $origNames.length; i++) {
-            var origName = $($origNames[i]).val();
-            var newName = $($newNames[i]).val();
-            if (isFatptr) {
-                type = DfFieldTypeT.DfFatptr;
-            } else {
-                type = DfFieldTypeT.DfUnknown;
-            }
+        $origNames.each(function(index) {
+            var origName = $(this).val();
+            var newName = $newNames.eq(index).val();
+            var type = isFatptr
+                       ? DfFieldTypeT.DfFatptr
+                       : DfFieldTypeT.DfUnknown;
             renameArray.push({
                 "orig": origName,
                 "new": newName,
                 "type": type
             });
-        }
+        });
 
-        for (i = 0; i < $origNames.length; i++) {
+        for (var i = 0; i < $origNames.length; i++) {
             var index = origArray.indexOf(renameArray[i].orig);
             origArray[index] = renameArray[i].new;
         }
@@ -1044,35 +1066,44 @@ window.JoinView = (function($, JoinView) {
         return true;
     }
 
-    function joinSubmitHelper(joinType, newTableName) {
+    function proceedWithJoin(lJoinInfo, rJoinInfo, joinKeyDataToSubmit) {
         var deferred = jQuery.Deferred();
-        var lCols = [];
-        var rCols = [];
-        var $invalidClause = null;
 
-        // check validation
-        $clauseContainer.find(".joinClause").each(function() {
-            var $joinClause = $(this);
-            var lClause = $joinClause.find(".leftClause").val().trim();
-            var rClause = $joinClause.find(".rightClause").val().trim();
+        var joinType = $joinTypeSelect.find(".text").text();
+        var newTableName = $joinTableName.val().trim();
+        var keepTable = $joinView.find(".keepTablesCBWrap")
+                        .find(".checkbox").hasClass("checked");
 
-            if (lClause !== "" && rClause !== "") {
-                lCols.push(lClause);
-                rCols.push(rClause);
-                return true;
-            } else if (!(lClause === "" && rClause === "")){
-                $invalidClause = $joinClause;
-                return false;   // stop loop
-            }
+        var options = {
+            "keepTables": keepTable,
+            "formOpenTime": formOpenTime
+        };
+
+        JoinView.close();
+
+        var origFormOpenTime = formOpenTime;
+
+        xcFunction.join(joinType, lJoinInfo, rJoinInfo, newTableName, options)
+        .then(function(finalTableName) {
+            submitJoinKeyData(joinKeyDataToSubmit);
+            deferred.resolve(finalTableName);
+        })
+        .fail(function(error) {
+            submissionFailHandler(origFormOpenTime, error);
+            deferred.reject();
         });
 
-        if ($invalidClause != null || lCols.length === 0) {
-            toggleNextView(); // go back
-            invalidMultiClauseTooltip($invalidClause);
+        return deferred.promise();
+    }
 
-            deferred.reject();
-            return deferred.promise();
+    function joinSubmitHelper() {
+        var colsInClause = getColsInClause(true);
+        if (colsInClause == null) {
+            return PromiseHelper.reject();
         }
+
+        var lCols = colsInClause.lCols;
+        var rCols = colsInClause.rCols;
 
         var tableIds = getTableIds();
         var lTableId = tableIds[0];
@@ -1081,47 +1112,29 @@ window.JoinView = (function($, JoinView) {
         var rTable = gTables[rTableId];
 
         // Must collect joinKey data here in case old tables not kept
-        var joinKeyDataToSubmit;
-        try {
-            joinKeyDataToSubmit = prepJoinKeyDataSubmit(lCols, rCols,
+        var joinKeyDataToSubmit = prepJoinKeyDataSubmit(lCols, rCols,
                                                         lTableId, rTableId);
-        } catch (err) {
-            console.error("Failed to prep join key data with err:", err);
-            joinKeyDataToSubmit = null;
-        }
-
-        var lColNums = [];
-        var rColNums = [];
-        var $colLis;
-        var lColsToKeep = [];
-        var rColsToKeep = [];
-
         // set up "joining on" columns
-        for (var i = 0; i < lCols.length; i++) {
-            var col = lTable.getColByFrontName(lCols[i]);
-            lColNums[i] = lTable.getColNumByBackName(col.backName);
-        }
-
-        for (var i = 0; i < rCols.length; i++) {
-            var col = rTable.getColByFrontName(rCols[i]);
-            rColNums[i] = rTable.getColNumByBackName(col.backName);
-        }
-
+        var lColNums = getColNumFromName(lCols, lTable);
+        var rColNums = getColNumFromName(rCols, rTable);
         // set up "keeping" columns
-        $colLis = $joinView.find('.leftCols li.checked');
-        $colLis.each(function(i) {
-            var name = $(this).text();
-            var col = lTable.getColByFrontName(name);
-            lColsToKeep[i] = col.backName;
-        });
+        var $lColLis = $joinView.find(".leftCols li.checked");
+        var $rColLis = $joinView.find(".rightCols li.checked");
+        var lColsToKeep = getColNameFromList($lColLis, lTable);
+        var rColsToKeep = getColNameFromList($rColLis, rTable);
 
-
-        $colLis = $joinView.find('.rightCols li.checked');
-        $colLis.each(function(i) {
-            var name = $(this).text();
-            var col = rTable.getColByFrontName(name);
-            rColsToKeep[i] = col.backName;
-        });
+        var lJoinInfo = {
+            "tableId": lTableId,
+            "colNums": lColNums,
+            "pulledColumns": lColsToKeep,
+            "rename": null
+        };
+        var rJoinInfo = {
+            "tableId": rTableId,
+            "colNums": rColNums,
+            "pulledColumns": rColsToKeep,
+            "rename": null
+        };
 
         // 1) We check whether the column name resolution is already there
         // 2) If it is, then we check whether the resolution is satisfactory.
@@ -1132,275 +1145,51 @@ window.JoinView = (function($, JoinView) {
         // that one column from prefix. Currently just going to remove all
         if ($renameSection.is(":visible")) {
             // Already in rename mode. Verify that the renames are correct
-            var $leftRenames = $("#leftTableRenames .rename");
-            var $leftOrigNames = $leftRenames.find(".origName");
-            var $leftNewNames = $leftRenames.find(".newName");
-            var lImmediates = xcHelper.deepCopy(lImmediatesCache);
-            var leftRenameArray = [];
-
-            var $rightRenames = $("#rightTableRenames .rename");
-            var $rightOrigNames = $rightRenames.find(".origName");
-            var $rightNewNames = $rightRenames.find(".newName");
-            var rImmediates = xcHelper.deepCopy(rImmediatesCache);
-            var rightRenameArray = [];
-
-            // For fatPtrs
-            var $leftFatRenames = $("#lFatPtrRenames .rename");
-            var $leftFatOrigNames = $leftFatRenames.find(".origName");
-            var $leftFatNewNames = $leftFatRenames.find(".newName");
-            var lFatPtr = xcHelper.deepCopy(lFatPtrCache);
-            var leftFatRenameArray = [];
-
-            var $rightFatRenames = $("#rFatPtrRenames .rename");
-            var $rightFatOrigNames = $rightFatRenames.find(".origName");
-            var $rightFatNewNames = $rightFatRenames.find(".newName");
-            var rFatPtr = xcHelper.deepCopy(rFatPtrCache);
-            var rightFatRenameArray = [];
-
-            var i = -1;
-
-            if (!executeChecks($leftFatRenames, $leftFatOrigNames,
-                               $leftFatNewNames, lFatPtr, leftFatRenameArray,
-                               true) ||
-                !executeChecks($rightFatRenames, $rightFatOrigNames,
-                               $rightFatNewNames, rFatPtr,
-                               rightFatRenameArray, true) ||
-                !executeChecks($leftRenames, $leftOrigNames, $leftNewNames,
-                               lImmediates, leftRenameArray, false) ||
-                !executeChecks($rightRenames, $rightOrigNames, $rightNewNames,
-                               rImmediates, rightRenameArray, false)) {
-
-                deferred.reject();
-                return deferred.promise();
+            var renameInfo = getAndCheckRenameMap(lColsToKeep, rColsToKeep);
+            if (renameInfo == null) {
+                return PromiseHelper.reject();
             }
-
-            // Cross check between left and right fat ptrs on whether they
-            // still clash
-            for (i = 0; i < $leftFatRenames.length; i++) {
-                if (rFatPtr.indexOf($leftFatRenames.eq(i).find(".newName")
-                                                    .val()) > -1) {
-                    StatusBox.show(ErrTStr.PrefixConflict,$leftFatRenames.eq(i),
-                                   true);
-                    deferred.reject();
-                    return deferred.promise();
-                }
-                var firstIdx = lFatPtr.indexOf($leftFatRenames.eq(i)
-                                                       .find(".newName").val());
-                if (lFatPtr.indexOf($leftFatRenames.eq(i).find(".newName")
-                                                   .val(), firstIdx + 1) > -1) {
-                    StatusBox.show(ErrTStr.PrefixConflict,$leftFatRenames.eq(i),
-                                   true);
-                    deferred.reject();
-                    return deferred.promise();
-                }
-            }
-
-            for (i = 0; i < $rightFatRenames.length; i++) {
-                if (lFatPtr.indexOf($rightFatRenames.eq(i).find(".newName")
-                                                     .val()) > -1) {
-                    StatusBox.show(ErrTStr.ColumnConflict,
-                                   $rightFatRenames.eq(i),
-                                   true);
-                    deferred.reject();
-                    return deferred.promise();
-                }
-                var firstIdx = rFatPtr.indexOf($rightFatRenames.eq(i)
-                                                       .find(".newName").val());
-                if (rFatPtr.indexOf($rightFatRenames.eq(i).find(".newName")
-                                                   .val(), firstIdx + 1) > -1) {
-                    StatusBox.show(ErrTStr.ColumnConflict,
-                                   $rightFatRenames.eq(i),
-                                   true);
-                    deferred.reject();
-                    return deferred.promise();
-                }
-            }
-
-            // Cross check between left and right immediates on whether they
-            // still clash
-            for (i = 0; i < $leftRenames.length; i++) {
-                if (rImmediates.indexOf($leftRenames.eq(i).find(".newName")
-                                                    .val()) > -1) {
-                    StatusBox.show(ErrTStr.ColumnConflict, $leftRenames.eq(i),
-                                   true);
-                    deferred.reject();
-                    return deferred.promise();
-                }
-                var firstIdx = lImmediates.indexOf($leftRenames.eq(i)
-                                                       .find(".newName").val());
-                if (lImmediates.indexOf($leftRenames.eq(i).find(".newName")
-                                                   .val(), firstIdx + 1) > -1) {
-                    StatusBox.show(ErrTStr.ColumnConflict, $leftRenames.eq(i),
-                                   true);
-                    deferred.reject();
-                    return deferred.promise();
-                }
-            }
-
-            for (i = 0; i < $rightRenames.length; i++) {
-                if (lImmediates.indexOf($rightRenames.eq(i).find(".newName")
-                                                     .val()) > -1) {
-                    StatusBox.show(ErrTStr.ColumnConflict, $rightRenames.eq(i),
-                                   true);
-                    deferred.reject();
-                    return deferred.promise();
-                }
-                var firstIdx = rImmediates.indexOf($rightRenames.eq(i)
-                                                       .find(".newName").val());
-                if (rImmediates.indexOf($rightRenames.eq(i).find(".newName")
-                                                   .val(), firstIdx + 1) > -1) {
-                    StatusBox.show(ErrTStr.ColumnConflict, $rightRenames.eq(i),
-                                   true);
-                    deferred.reject();
-                    return deferred.promise();
-                }
-            }
-
-            // Dedup left and right rename arrays since checks are all passed
-            leftRenameArray = leftRenameArray.filter(removeNoChanges);
-            rightRenameArray = rightRenameArray.filter(removeNoChanges);
-            leftFatRenameArray = leftFatRenameArray.filter(removeNoChanges);
-            rightFatRenameArray = rightFatRenameArray.filter(removeNoChanges);
-
-            // Remove user's renames from autoRename array and auto rename the
-            // rest
-            var suff = Math.floor(Math.random() * 1000);
-            autoResolveCollisions(allClashingImmediatesCache, suff,
-                                  DfFieldTypeT.DfUnknown, lColsToKeep,
-                                  rColsToKeep, leftRenameArray,
-                                  rightRenameArray);
-            autoResolveCollisions(allClashingFatPtrsCache, suff,
-                                  DfFieldTypeT.DfFatptr,
-                                  getPrefixes(lColsToKeep),
-                                  getPrefixes(rColsToKeep), leftFatRenameArray,
-                                  rightFatRenameArray);
-
-            leftRenameArray = leftRenameArray.concat(leftFatRenameArray);
-            rightRenameArray = rightRenameArray.concat(rightFatRenameArray);
-            return proceedWithJoin(leftRenameArray, rightRenameArray);
-        }
-
-        var lTableMeta = gTables[lTableId].backTableMeta;
-        var rTableMeta = gTables[rTableId].backTableMeta;
-
-        function getFatPtr(valueAttr) {
-            if (valueAttr.type === DfFieldTypeT.DfFatptr) {
-                return true;
-            } else {
-                return false;
-            }
-        }
-
-        function getImmediates(valueAttr) {
-            if (valueAttr.type === DfFieldTypeT.DfFatptr) {
-                return false;
-            } else {
-                return true;
-            }
-        }
-
-        function getUserChosenFatPtrCollision() {
-            // Get all prefixes in lColsToKeep
-            var i = 0;
-            var leftPrefixes = getPrefixes(lColsToKeep);
-            var rightPrefixes = getPrefixes(rColsToKeep);
-            var clashingUserChosenPrefixes = [];
-            for (i = 0; i < leftPrefixes.length; i++) {
-                if (rightPrefixes.indexOf(leftPrefixes[i]) > -1) {
-                    clashingUserChosenPrefixes.push(leftPrefixes[i]);
-                }
-            }
-            return clashingUserChosenPrefixes;
-        }
-
-        function userChosenColCollision(colName) {
-            if (lColsToKeep.indexOf(colName) > -1 &&
-                rColsToKeep.indexOf(colName) > -1) {
-                return true;
-            } else {
-                return false;
-            }
-        }
-
-        function getPrefixes(array) {
-            // Given an array of column names, extract all unique prefixes
-            var prefixes = [];
-            var i = 0;
-            for (i = 0; i < array.length; i++) {
-                colNameParts = array[i].split("::");
-                if (colNameParts.length < 2) {
-                    continue;
-                }
-                if (prefixes.indexOf(colNameParts[0]) === -1) {
-                    prefixes.push(colNameParts[0]);
-                }
-            }
-            return prefixes;
-        }
-
-        function keepOnlyNames(valueAttr) {
-            return (valueAttr.name);
+            lJoinInfo.rename = renameInfo.lRename;
+            rJoinInfo.rename = renameInfo.rRename;
+            return proceedWithJoin(lJoinInfo, rJoinInfo, joinKeyDataToSubmit);
         }
 
         // Split valueAttrs into fatPtrs and immediates
-        var lFatPtr = lTableMeta.valueAttrs.filter(getFatPtr);
-        var rFatPtr = rTableMeta.valueAttrs.filter(getFatPtr);
-        var lImmediate = lTableMeta.valueAttrs.filter(getImmediates);
-        var rImmediate = rTableMeta.valueAttrs.filter(getImmediates);
+        var lFatPtr = lTable.getFatPtrNames();
+        var rFatPtr = rTable.getFatPtrNames();
+
+        var lImmediate = lTable.getImmediateNames();
+        var rImmediate = rTable.getImmediateNames();
 
         // Today we are only handing immediate collisions. Later we will
         // handle fatptr collisions and prefix renaming for those
 
         // Only keep column names since we are not doing anything with types
-        lFatPtr = lFatPtr.map(keepOnlyNames);
-        rFatPtr = rFatPtr.map(keepOnlyNames);
-        lImmediate = lImmediate.map(keepOnlyNames);
-        rImmediate = rImmediate.map(keepOnlyNames);
-
-
         lFatPtrCache = lFatPtr;
         rFatPtrCache = rFatPtr;
         lImmediatesCache = lImmediate;
         rImmediatesCache = rImmediate;
-
-        var lImmediatesToRename = [];
-        var rImmediatesToRename = [];
-        var lFatPtrToRename = [];
-        var rFatPtrToRename = [];
-
-        for (var i = 0; i < lImmediate.length; i++) {
-            if (rImmediate.indexOf(lImmediate[i]) > -1) {
-                lImmediatesToRename.push(lImmediate[i]);
-                rImmediatesToRename.push(lImmediate[i]);
-            }
-        }
-
-        for (i = 0; i < lFatPtr.length; i++) {
-            if (rFatPtr.indexOf(lFatPtr[i]) > -1) {
-                lFatPtrToRename.push(lFatPtr[i]);
-                rFatPtrToRename.push(lFatPtr[i]);
-            }
-        }
 
         // All fat ptrs are kept and will be renamed if they clash even if they
         // are not selected
 
         // If none of the columns collide are part of the user's selection
         // then we resolve it underneath the covers and let the user go
-        allClashingFatPtrsCache = lFatPtrToRename;
-        lFatPtrToRename = getUserChosenFatPtrCollision();
-        rFatPtrToRename = xcHelper.deepCopy(lFatPtrToRename);
+        allClashingFatPtrsCache = getNameCollision(lFatPtr, rFatPtr);
+        var lFatPtrToRename = getUserChosenFatPtrCollision(lColsToKeep,
+                                                            rColsToKeep);
+        var rFatPtrToRename = xcHelper.deepCopy(lFatPtrToRename);
 
-        allClashingImmediatesCache = xcHelper.deepCopy(lImmediatesToRename);
-        lImmediatesToRename =
-                  allClashingImmediatesCache.filter(userChosenColCollision);
-        rImmediatesToRename = xcHelper.deepCopy(lImmediatesToRename);
+        allClashingImmediatesCache = getNameCollision(lImmediate, rImmediate);
+        var lImmediatesToRename = allClashingImmediatesCache
+                                  .filter(userChosenColCollision);
+        var rImmediatesToRename = xcHelper.deepCopy(lImmediatesToRename);
 
         // Now that we have all the columns that we want to rename, we
         // display the columns and ask the user to rename them
         // XXX Remove when backend fixes their stuff
         if (!gTurnOnPrefix) {
-            return proceedWithJoin();
+            return proceedWithJoin(lJoinInfo, rJoinInfo, joinKeyDataToSubmit);
         }
 
         if (lImmediatesToRename.length > 0 || lFatPtrToRename.length > 0) {
@@ -1413,16 +1202,25 @@ window.JoinView = (function($, JoinView) {
             var leftAutoRenames = [];
             var rightAutoRenames = [];
             var suff = Math.floor(Math.random() * 1000);
-            autoResolveCollisions(allClashingImmediatesCache, suff,
-                                  DfFieldTypeT.DfUnknown, lColsToKeep,
-                                  rColsToKeep, leftAutoRenames,
+            autoResolveCollisions(allClashingImmediatesCache,
+                                  suff,
+                                  DfFieldTypeT.DfUnknown,
+                                  lColsToKeep,
+                                  rColsToKeep,
+                                  leftAutoRenames,
                                   rightAutoRenames);
-            autoResolveCollisions(allClashingFatPtrsCache, suff,
+
+            autoResolveCollisions(allClashingFatPtrsCache,
+                                  suff,
                                   DfFieldTypeT.DfFatptr,
                                   getPrefixes(lColsToKeep),
-                                  getPrefixes(rColsToKeep), leftAutoRenames,
+                                  getPrefixes(rColsToKeep),
+                                  leftAutoRenames,
                                   rightAutoRenames);
-            return proceedWithJoin(leftAutoRenames, rightAutoRenames);
+
+            lJoinInfo.rename = leftAutoRenames;
+            rJoinInfo.rename = rightAutoRenames;
+            return proceedWithJoin(lJoinInfo, rJoinInfo, joinKeyDataToSubmit);
         }
 
         if (lImmediatesToRename.length > 0) {
@@ -1432,8 +1230,7 @@ window.JoinView = (function($, JoinView) {
 
         if (rImmediatesToRename.length > 0) {
             $("#rightTableRenames").show();
-            addRenameRows($("#rightRenamePlaceholder"),
-                          rImmediatesToRename);
+            addRenameRows($("#rightRenamePlaceholder"), rImmediatesToRename);
         }
 
         if (lImmediatesToRename.length || rImmediatesToRename.length) {
@@ -1453,93 +1250,231 @@ window.JoinView = (function($, JoinView) {
         }
 
         // scroll to rename section
-        $joinView.find('.mainContent').scrollTop(0);
+        $joinView.find(".mainContent").scrollTop(0);
         var renameTop = $renameSection.position().top -
-                        $joinView.find('header .title').height();
-        $joinView.find('.mainContent').scrollTop(renameTop);
+                        $joinView.find("header .title").height();
+        $joinView.find(".mainContent").scrollTop(renameTop);
 
         formHelper.refreshTabbing();
-        deferred.reject();
-        return deferred.promise();
+        return PromiseHelper.reject();
 
-        function proceedWithJoin(leftRenames, rightRenames) {
-            var innerDeferred = jQuery.Deferred();
-            var keepTable = $joinView.find('.keepTablesCBWrap')
-                                    .find('.checkbox').hasClass('checked');
+        function userChosenColCollision(colName) {
+            if (lColsToKeep.indexOf(colName) > -1 &&
+                rColsToKeep.indexOf(colName) > -1) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
 
-            var lJoinInfo = {
-                "tableId": lTableId,
-                "colNums": lColNums,
-                "pulledColumns": lColsToKeep,
-                "rename": leftRenames
-            };
-            var rJoinInfo = {
-                "tableId": rTableId,
-                "colNums": rColNums,
-                "pulledColumns": rColsToKeep,
-                "rename": rightRenames
-            };
+    function getNameCollision(namesToCheck, namesToCompare) {
+        var collisionNames = namesToCheck.filter(function(name) {
+            return namesToCompare.includes(name);
+        });
+        return collisionNames;
+    }
 
-            var options = {
-                "keepTables": keepTable,
-                "formOpenTime": formOpenTime
-            };
+    function getUserChosenFatPtrCollision(lColsToKeep, rColsToKeep) {
+        // Get all prefixes in lColsToKeep
+        var leftPrefixes = getPrefixes(lColsToKeep);
+        var rightPrefixes = getPrefixes(rColsToKeep);
+        return getNameCollision(leftPrefixes, rightPrefixes);
+    }
 
-            JoinView.close();
+    function getAndCheckRenameMap(lColsToKeep, rColsToKeep) {
+        var $leftRenames = $("#leftTableRenames .rename");
+        var $leftOrigNames = $leftRenames.find(".origName");
+        var $leftNewNames = $leftRenames.find(".newName");
+        var lImmediates = xcHelper.deepCopy(lImmediatesCache);
+        var leftRenameArray = [];
 
-            var origFormOpenTime = formOpenTime;
+        var $rightRenames = $("#rightTableRenames .rename");
+        var $rightOrigNames = $rightRenames.find(".origName");
+        var $rightNewNames = $rightRenames.find(".newName");
+        var rImmediates = xcHelper.deepCopy(rImmediatesCache);
+        var rightRenameArray = [];
 
-            xcFunction.join(joinType, lJoinInfo, rJoinInfo,
-                            newTableName, options)
-            .then(function(finalTableName) {
-                // Submit data for data collection
-                try {
-                    if (joinKeyDataToSubmit) {
-                        submitJoinKeyData(joinKeyDataToSubmit);
-                    }
-                } catch (err) {
-                    console.log("Submit Join Key Data failed with error: " + err);
-                }
-                innerDeferred.resolve(finalTableName);
-            })
-            .fail(function(error) {
-                submissionFailHandler(origFormOpenTime, error);
-                innerDeferred.reject();
-            });
+        // For fatPtrs
+        var $leftFatRenames = $("#lFatPtrRenames .rename");
+        var $leftFatOrigNames = $leftFatRenames.find(".origName");
+        var $leftFatNewNames = $leftFatRenames.find(".newName");
+        var lFatPtr = xcHelper.deepCopy(lFatPtrCache);
+        var leftFatRenameArray = [];
 
-            return innerDeferred.promise();
+        var $rightFatRenames = $("#rFatPtrRenames .rename");
+        var $rightFatOrigNames = $rightFatRenames.find(".origName");
+        var $rightFatNewNames = $rightFatRenames.find(".newName");
+        var rFatPtr = xcHelper.deepCopy(rFatPtrCache);
+        var rightFatRenameArray = [];
+
+        if (!executeChecks($leftFatRenames, $leftFatOrigNames,
+                           $leftFatNewNames, lFatPtr, leftFatRenameArray,
+                           true) ||
+            !executeChecks($rightFatRenames, $rightFatOrigNames,
+                           $rightFatNewNames, rFatPtr,
+                           rightFatRenameArray, true) ||
+            !executeChecks($leftRenames, $leftOrigNames, $leftNewNames,
+                           lImmediates, leftRenameArray, false) ||
+            !executeChecks($rightRenames, $rightOrigNames, $rightNewNames,
+                           rImmediates, rightRenameArray, false)) {
+
+            return null;
         }
 
-        function removeNoChanges(elem) {
-            return (elem.orig !== elem.new);
+        // Cross check between left and right fat ptrs on whether they
+        // still clash
+        if (!crossRenameCheck($leftFatRenames, lFatPtr, rFatPtr) ||
+            !crossRenameCheck($rightFatRenames, rFatPtr, lFatPtr))
+        {
+            return null;
         }
+
+        // Cross check between left and right immediates on whether they
+        // still clash
+        if (!crossRenameCheck($leftRenames, lImmediates, rImmediates, true) ||
+            !crossRenameCheck($rightRenames, rImmediates, lImmediates, true))
+        {
+            return null;
+        }
+
+        // Dedup left and right rename arrays since checks are all passed
+        leftRenameArray = leftRenameArray.filter(removeNoChanges);
+        rightRenameArray = rightRenameArray.filter(removeNoChanges);
+        leftFatRenameArray = leftFatRenameArray.filter(removeNoChanges);
+        rightFatRenameArray = rightFatRenameArray.filter(removeNoChanges);
+
+        // Remove user's renames from autoRename array and auto rename the rest
+        var suff = Math.floor(Math.random() * 1000);
+        autoResolveCollisions(allClashingImmediatesCache,
+                              suff,
+                              DfFieldTypeT.DfUnknown,
+                              lColsToKeep,
+                              rColsToKeep,
+                              leftRenameArray,
+                              rightRenameArray);
+
+        autoResolveCollisions(allClashingFatPtrsCache,
+                              suff,
+                              DfFieldTypeT.DfFatptr,
+                              getPrefixes(lColsToKeep),
+                              getPrefixes(rColsToKeep),
+                              leftFatRenameArray,
+                              rightFatRenameArray);
+
+        leftRenameArray = leftRenameArray.concat(leftFatRenameArray);
+        rightRenameArray = rightRenameArray.concat(rightFatRenameArray);
+
+        return {
+            "lRename": leftRenameArray,
+            "rRename": rightRenameArray
+        };
+    }
+
+    function crossRenameCheck($renames, renameList, pairRenameList, immediate) {
+        var $invalidEle = null;
+
+        for (var i = 0, len = $renames.length; i < len; i++) {
+            var $rename = $renames.eq(i);
+            var newName = $rename.find(".newName").val();
+            if (pairRenameList.includes(newName)) {
+                $invalidEle = $rename;
+                break;
+            }
+            var firstIdx = renameList.indexOf(newName);
+            if (renameList.includes(newName, firstIdx + 1)) {
+                $invalidEle = $rename;
+                break;
+            }
+        }
+
+        if ($invalidEle != null) {
+            var error = immediate
+                        ? ErrTStr.ColumnConflict
+                        : ErrTStr.PrefixConflict;
+            StatusBox.show(error, $invalidEle, true);
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    function removeNoChanges(elem) {
+        return (elem.orig !== elem.new);
+    }
+
+    function getPrefixes(array) {
+        // Given an array of column names, extract all unique prefixes
+        var prefixes = [];
+        for (var i = 0; i < array.length; i++) {
+            var colNameParts = array[i].split("::");
+            if (colNameParts.length < 2) {
+                continue;
+            }
+            if (!prefixes.includes(colNameParts[0])) {
+                prefixes.push(colNameParts[0]);
+            }
+        }
+        return prefixes;
+    }
+
+    function getColNumFromName(cols, table) {
+        var colNums = cols.map(function(colName) {
+            var progCol = table.getColByFrontName(colName);
+            return table.getColNumByBackName(progCol.getBackColName());
+        });
+        return colNums;
+    }
+
+    function getColNameFromList($colLis, table) {
+        var colsToKeep = [];
+        $colLis.each(function(i) {
+            var name = $(this).text();
+            var progCol = table.getColByFrontName(name);
+            colsToKeep[i] = progCol.getBackColName();
+        });
+        return colsToKeep;
     }
 
     function prepJoinKeyDataSubmit(lCols, rCols, lTableId, rTableId) {
         var dataPerClause = [];
         // Iterate over each clause, treating every pair of left|right clause
         // as a completely independent data point.
-        for (i = 0; i < lCols.length; i++) {
-            var curSrcBackName = lCols[i];
-            var curDestBackName = rCols[i];
-            var joinKeyInputs = getJoinKeyInputs(lTableId,
-                                                curSrcBackName,
-                                                rTableId);
-            var dataToSubmit = xcSuggest.processJoinKeySubmitData(joinKeyInputs,
-                                                        curDestBackName);
-            if (!dataToSubmit.isValid) {
-                console.log("Tried to submit invalid mlInputData: " +
-                    JSON.stringify(dataToSubmit));
-                return null;
-            } else {
-                dataPerClause.push(dataToSubmit);
+        try {
+            for (var i = 0; i < lCols.length; i++) {
+                var curSrcBackName = lCols[i];
+                var curDestBackName = rCols[i];
+                var joinKeyInputs = getJoinKeyInputs(lTableId,
+                                                    curSrcBackName,
+                                                    rTableId);
+                var dataToSubmit = xcSuggest.processJoinKeySubmitData(
+                                                            joinKeyInputs,
+                                                            curDestBackName);
+                if (!dataToSubmit.isValid) {
+                    console.log("Tried to submit invalid mlInputData:",
+                                JSON.stringify(dataToSubmit));
+                    return null;
+                } else {
+                    dataPerClause.push(dataToSubmit);
+                }
             }
+        } catch (err) {
+            console.error("Failed to prep join key data with err:", err);
+            return null;
         }
+
         return dataPerClause;
     }
 
     function submitJoinKeyData(joinKeyDataToSubmit) {
-        xcSuggest.submitJoinKeyData(joinKeyDataToSubmit);
+        // Submit data for data collection
+        try {
+            if (joinKeyDataToSubmit) {
+                xcSuggest.submitJoinKeyData(joinKeyDataToSubmit);
+            }
+        } catch (err) {
+            console.log("Submit Join Key Data failed with error: " + err);
+        }
     }
 
     //show alert to go back to op view
