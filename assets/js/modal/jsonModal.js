@@ -11,10 +11,16 @@ window.JSONModal = (function($, JSONModal) {
     var jsonData = [];
     var modalHelper;
     var searchHelper;
-    var lastModeIsProject = false; // saves project mode state when closing modal
     var isSaveModeOff = false;
     var refCounts = {}; // to track clicked json tds
     var $lastKeySelected;
+    var $cachedTd;
+    var modes = {
+        single: 'single',
+        multiple: 'multiple',
+        project: 'project'
+    };
+    var lastMode = modes.single; 
 
     // constant
     var jsonAreaMinWidth = 340;
@@ -114,6 +120,12 @@ window.JSONModal = (function($, JSONModal) {
         xcHelper.removeSelectionRange();
         var isModalOpen = $jsonModal.is(':visible');
         isDataCol = $jsonTd.hasClass('jsonElement');
+        if (isDataCol) {
+            $jsonModal.removeClass('singleView');
+        } else {
+            $jsonModal.addClass('singleView');
+            $cachedTd = $jsonTd;
+        }
 
         if (!isModalOpen) {
             $(".tooltip").hide();
@@ -218,8 +230,13 @@ window.JSONModal = (function($, JSONModal) {
             var $jsonWrap = $(this).closest('.jsonWrap');
             var rowNum = $jsonWrap.data('rownum');
             var tableId = $jsonWrap.data('tableid');
-            var colNum = $("#xcTable-" + tableId).find('th.dataCol').index();
             var rowExists = $('#xcTable-' + tableId).find('.row' + rowNum).length === 1;
+            var colNum;
+            if (isDataCol) {
+                colNum = $("#xcTable-" + tableId).find('th.dataCol').index();
+            } else {
+                colNum = xcHelper.parseColNum($cachedTd);
+            }
            
             if (!rowExists) {
                 // the table is scrolled past the selected row, so we just
@@ -227,7 +244,7 @@ window.JSONModal = (function($, JSONModal) {
                 rowNum = RowScroller.getFirstVisibleRowNum() - 1;
             }
 
-            closeJSONModal();
+            closeJSONModal(modes.single);
             //set timeout to allow modal to close before unnesting many cols
             setTimeout(function() {
                 ColManager.unnest(tableId, colNum, rowNum);
@@ -594,7 +611,7 @@ window.JSONModal = (function($, JSONModal) {
             var checkedColNum = table.getColNumByBackName(backColName);
             if (checkedColNum >= 0) {
                 // if the column already exists
-                closeJSONModal();
+                closeJSONModal(modes.single);
                 xcHelper.centerFocusedColumn(tableId, checkedColNum, animation);
                 return;
             }
@@ -607,7 +624,7 @@ window.JSONModal = (function($, JSONModal) {
 
             ColManager.pullCol(colNum, tableId, options)
             .always(function(newColNum) {
-                closeJSONModal();
+                closeJSONModal(modes.single);
                 xcHelper.centerFocusedColumn(tableId, newColNum, animation);
             });
         }
@@ -700,10 +717,16 @@ window.JSONModal = (function($, JSONModal) {
         xcTooltip.refresh($icon);
 
         var $jsonWrap = $icon.closest('.jsonWrap');
-        var $groups = $jsonWrap.find('.prefixedType .prefixGroup');
-        $groups.sort(sortGroups).appendTo($jsonWrap.find('.prefixedType'));
+        var $groups;
+        if (isDataCol) {
+            $groups = $jsonWrap.find('.prefixedType .prefixGroup');
+            $groups.sort(sortGroups).appendTo($jsonWrap.find('.prefixedType'));
 
-        $groups = $groups.add($jsonWrap.find('.immediatesGroup'));
+            $groups = $groups.add($jsonWrap.find('.immediatesGroup'));
+        } else {
+            $groups = $jsonModal.find('.prettyJson');
+        }
+       
         $groups.each(function() {
             var $group = $(this);
             $group.find('.mainKey').sort(sortList).prependTo(
@@ -845,7 +868,10 @@ window.JSONModal = (function($, JSONModal) {
     }
 
     function clearSearch(focus) {
-        $jsonText.find('.highlightedText').contents().unwrap();
+        if ($jsonText) {
+            $jsonText.find('.highlightedText').contents().unwrap();
+        }
+        
         if (focus) {
             $searchInput.focus();
         }
@@ -879,7 +905,7 @@ window.JSONModal = (function($, JSONModal) {
         }
     }
 
-    function closeJSONModal() {
+    function closeJSONModal(mode) {
         modalHelper.clear({"close": function() {
             // json modal use its own closer
             $('.modalHighlighted').removeClass('modalHighlighted');
@@ -899,14 +925,7 @@ window.JSONModal = (function($, JSONModal) {
         }});
 
         if (!isSaveModeOff) {
-            lastModeIsProject = true;
-
-            $jsonArea.find('.jsonWrap').each(function() {
-                if (!$(this).hasClass('projectMode')) {
-                    lastModeIsProject = false;
-                    return false;
-                }
-            });
+           saveLastMode(mode);
         }
         isSaveModeOff = false;
 
@@ -922,6 +941,34 @@ window.JSONModal = (function($, JSONModal) {
         comparisonObjs = {};
         $jsonText = null;
         $lastKeySelected = null;
+        $cachedTd = null;
+    }
+
+    // if mode isn't provided, will default to single "select mode" if a single
+    // jsonWrap without project or multiSelect mode is found
+    function saveLastMode(mode) {
+        if (mode) {
+            lastMode = mode;
+            return lastMode;
+        }
+
+        var hasProjectMode = false;
+        $jsonArea.find('.jsonWrap').each(function() {
+            var $wrap = $(this);
+            if ($wrap.hasClass("projectMode")) {
+                lastMode = modes.project;
+                hasProjectMode = true;
+            } else if ($wrap.hasClass("multiSelectMode")) {
+                if (!hasProjectMode) {
+                    lastMode = modes.multiple;
+                }
+            } else {
+                lastMode = modes.single;
+                return false;
+            }
+        });
+
+        return lastMode;
     }
 
     function refreshJsonModal($jsonTd, isModalOpen, type) {
@@ -934,7 +981,9 @@ window.JSONModal = (function($, JSONModal) {
             (type !== ColumnType.array && type !== ColumnType.object &&
              type !== ColumnType.mixed)) {
             jsonObj = text;
+            $jsonModal.addClass('truncatedText');
         } else {
+            $jsonModal.removeClass('truncatedText');
             try {
                 jsonObj = JSON.parse(text);
             } catch (error) {
@@ -949,6 +998,12 @@ window.JSONModal = (function($, JSONModal) {
                     type = ColumnType.object;
                 }
             }
+        }
+
+        if (type === ColumnType.array) {
+            $jsonModal.addClass('isArray');
+        } else {
+            $jsonModal.removeClass('isArray');
         }
 
         jsonData.push(jsonObj);
@@ -987,6 +1042,8 @@ window.JSONModal = (function($, JSONModal) {
             }, 250);
         }
 
+        var $jsonWrap = $jsonArea.find('.jsonWrap').last();
+
         if (isModalOpen) {
             var $compareIcons = $jsonArea.find('.compareIcon')
                                       .removeClass('single');
@@ -997,19 +1054,21 @@ window.JSONModal = (function($, JSONModal) {
                 $compareIcon.attr('data-original-title', title);
             });
             if (allProjectMode) {
-                $jsonArea.find('.jsonWrap').last().addClass('projectMode');
+                $jsonWrap.addClass('projectMode');
                 autoSelectFieldsToProject($jsonArea.find('.jsonWrap').last());
             }
-        } else if (lastModeIsProject) {
-            $jsonArea.find('.jsonWrap').last().addClass('projectMode');
+        } else if (lastMode === modes.project && isDataCol) {
+            $jsonWrap.addClass('projectMode');
             autoSelectFieldsToProject($jsonArea.find('.jsonWrap').last());
+        } else if (lastMode === modes.multiple) {
+            $jsonWrap.addClass('multiSelectMode');
+            xcTooltip.changeText($jsonWrap.find('.submitProject'), JsonModalTStr.SubmitPull);
         }
     }
 
     function fillJsonArea(jsonObj, $jsonTd, type) {
         var rowNum = xcHelper.parseRowNum($jsonTd.closest('tr')) + 1;
         var tableId = xcHelper.parseTableId($jsonTd.closest('table'));
-        var tableName = gTables[tableId].tableName;
         var prettyJson = "";
         var isArray = (type === ColumnType.array);
 
@@ -1059,16 +1118,22 @@ window.JSONModal = (function($, JSONModal) {
             } else {
                 prettyJson += "}";
             }
-            
+        }
+
+        var location;
+        if (isDataCol) {
+            location = gTables[tableId].tableName;
+        } else {
+            var colNum = xcHelper.parseColNum($jsonTd);
+            location = gTables[tableId].getCol(colNum).getBackColName();
         }
         
-        $jsonArea.append(getJsonWrapHtml(prettyJson, tableName, rowNum));
+        $jsonArea.append(getJsonWrapHtml(prettyJson, location, rowNum));
         if (isDataCol) {
             setPrefixTabs(groups);
         }
 
         addDataToJsonWrap($jsonTd, isArray);
-        
     }
 
     function getJsonHtmlForDataCol(groups) {
@@ -1415,24 +1480,26 @@ window.JSONModal = (function($, JSONModal) {
             } else {
                 refCounts[id]++;
             }
-            
-            var numFields = $jsonWrap.find('.primary').find('.mainKey').length;
-            $jsonWrap.find('.projectModeBar .numColsSelected')
-                     .data('totalcols', numFields)
-                     .text('0/' + numFields + ' ' +
-                           JsonModalTStr.FieldsSelected);
-
-            $jsonWrap.find('.multiSelectModeBar .numColsSelected')
-                     .data('totalcols', numFields)
-                     .text('0/' + numFields + ' ' + JsonModalTStr.FieldsPull);
         }
+
+        var numFields = $jsonWrap.find('.primary').find('.mainKey').length;
+        $jsonWrap.find('.projectModeBar .numColsSelected')
+                 .data('totalcols', numFields)
+                 .text('0/' + numFields + ' ' +
+                       JsonModalTStr.FieldsSelected);
+
+        $jsonWrap.find('.multiSelectModeBar .numColsSelected')
+                 .data('totalcols', numFields)
+                 .text('0/' + numFields + ' ' + JsonModalTStr.FieldsPull);
+       
     }
 
-    function getJsonWrapHtml(prettyJson, tableName, rowNum) {
-        var html = '<div class="jsonWrap">';
-        if (isDataCol) {
-            html +=
-            '<div class="optionsBar bar">' +
+    // location  is either a tablename if datacol, or column name
+    function getJsonWrapHtml(prettyJson, location, rowNum) {
+        var locationText = isDataCol ? "Table" : "Column";
+
+        var html = '<div class="jsonWrap">'+
+             '<div class="optionsBar bar">' +
                 '<div class="dragHandle jsonDragHandle">' +
                     '<i class="icon xi-drag-handle"></i>' +
                 '</div>' +
@@ -1465,7 +1532,7 @@ window.JSONModal = (function($, JSONModal) {
                     'title="' + TooltipTStr.ComingSoon + '">' +
                     '<i class="icon"></i>' +
                 '</div>' +
-                '<div class="btn btn-small btn-secondary pullAll" ' +
+                '<div class="btn btn-small pullAll" ' +
                     'data-toggle="tooltip" data-container="body" ' +
                     'title="' + JsonModalTStr.PullAll + '">' +
                     '<i class="icon xi-pull-all-field"></i>' +
@@ -1480,17 +1547,18 @@ window.JSONModal = (function($, JSONModal) {
                     'data-original-title="' + JsonModalTStr.SelectAll + '">' +
                     '<i class="icon xi-select-all"></i>' +
                 '</div>' +
-                '<div class="btn btn-small btn-secondary submitProject disabled" ' +
+                '<div class="btn btn-small submitProject disabled" ' +
                     'data-toggle="tooltip" data-container="body" ' +
                     'data-original-title="' + JsonModalTStr.SubmitProjection + '">' +
                     '<i class="icon xi-back-to-worksheet"></i>' +
+                    '<i class="icon xi-pull-all-field"></i>' +
                 '</div>' +
                 '<div class="flexArea">' +
                     '<div class="infoArea">' +
                         '<div class="tableName" data-toggle="tooltip" ' +
                             'data-container="body" data-placement="top"' +
-                            'title="' + tableName + '">Table:' +
-                            '<span class="text">' + tableName + '</span>' +
+                            'title="' + location + '">' + locationText + ':' +
+                            '<span class="text">' + location + '</span>' +
                         '</div>' +
                         '<div class="rowNum">Row:' +
                             '<span class="text">' +
@@ -1504,46 +1572,37 @@ window.JSONModal = (function($, JSONModal) {
                     '<i class="icon xi-down"></i>' +
                 '</div>' +
             '</div>' +
-            '<div class="tabBar bar">' +
-                // '<div class="tabWrap">' +
-                    '<div class="tabs">' +
-                        '<div class="tab seeAll active" ' +
-                        'data-toggle="tooltip" ' +
-                        'data-container="body" ' +
-                        'title="' + JsonModalTStr.ViewAllTip + '">' +
-                            '<span class="text">' + JsonModalTStr.ViewAll +
-                            '</span>' +
-                        '</div>' +
-                        // '<div class="tab original" data-toggle="tooltip" ' +
-                        // 'data-container="body" ' +
-                        // 'title="' + JsonModalTStr.OriginalTip + '">' +
-                        //     '<span class="icon"></span>' +
-                        //     '<span class="text">' + JsonModalTStr.Original +
-                        //     '</span>' +
-                        // '</div>' +
-                        // '<div class="tab xcOriginated" data-toggle="tooltip" ' +
-                        // 'data-container="body" ' +
-                        // 'title="' + JsonModalTStr.XcOriginatedTip + '">' +
-                        //     '<span class="icon"></span>' +
-                        //     '<span class="text">' + JsonModalTStr.XcOriginated +
-                        //     '</span>' +
-                        // '</div>' +
-                    '</div>' +
-                // '</div>' +
-            '</div>' +
-            '<div class="projectModeBar bar">' +
-                '<div class="text numColsSelected">' +
-                '</div>' +
-            '</div>' +
             '<div class="multiSelectModeBar bar">' +
                 '<div class="text numColsSelected">' +
                 '</div>' +
+            '</div>';
+        if (isDataCol) {
+            html +=
+            '<div class="projectModeBar bar">' +
+                '<div class="text numColsSelected">' +
+            '</div>' +
+            '<div class="tabBar bar">' +
+                '<div class="tabs">' +
+                    '<div class="tab seeAll active" ' +
+                    'data-toggle="tooltip" ' +
+                    'data-container="body" ' +
+                    'title="' + JsonModalTStr.ViewAllTip + '">' +
+                        '<span class="text">' + JsonModalTStr.ViewAll +
+                        '</span>' +
+                    '</div>' +
+                '</div>' +
+            '</div>' +
             '</div>' +
             '<div class="prettyJson primary">' +
                 prettyJson +
             '</div>' +
-            '<div class="prettyJson secondary"></div>' +
-            '<ul class="jsonModalMenu menu">' +
+            '<div class="prettyJson secondary"></div>';
+        } else {
+            html += '<div class="prettyJson primary">' +
+                prettyJson +
+            '</div>';
+        }
+        html += '<ul class="jsonModalMenu menu">' +
                 '<li class="selectionOpt" data-action="selectMode">' +
                     '<i class="check icon xi-tick fa-10"></i>' +
                     '<span class="text">' + JsonModalTStr.SelectionMode +
@@ -1561,11 +1620,6 @@ window.JSONModal = (function($, JSONModal) {
                 '</li>' +
             '</ul>' +
             '</div>';
-        } else {
-            html += '<div class="prettyJson singleView primary">' +
-                prettyJson +
-            '</div></div>';
-        }
 
         return (html);
     }
@@ -1899,7 +1953,7 @@ window.JSONModal = (function($, JSONModal) {
         if (colNames.length) {
             var tableId = $jsonWrap.data('tableid');
             xcFunction.project(colNames, tableId);
-            closeJSONModal();
+            closeJSONModal(modes.project);
         } else {
             // shouldn't have been able to submit anyways
             console.warn('no columns selected');
@@ -1919,7 +1973,7 @@ window.JSONModal = (function($, JSONModal) {
         }
         var colNames = getSelectedCols($jsonWrap);
 
-        closeJSONModal();
+        closeJSONModal(modes.multiple);
         //set timeout to allow modal to close before unnesting many cols
         setTimeout(function() {
             ColManager.unnest(tableId, colNum, rowNum, colNames);
@@ -2029,6 +2083,7 @@ window.JSONModal = (function($, JSONModal) {
         JSONModal.__testOnly__.compareIconSelect = compareIconSelect;
         JSONModal.__testOnly__.duplicateView = duplicateView;
         JSONModal.__testOnly__.selectTab = selectTab;
+        JSONModal.__testOnly__.saveLastMode = saveLastMode;
     }
     /* End Of Unit Test Only */
 

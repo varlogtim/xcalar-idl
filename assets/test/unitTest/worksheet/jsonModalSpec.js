@@ -205,14 +205,15 @@ describe('JsonModal Test', function() {
             var colNum = gTables[tableId].getColNumByBackName(prefix + gPrefixSign + 'compliments');
             expect(colNum).to.be.gt(0);
             JSONModal.show($table.find('.row0 .col' + colNum), {type: "object"});
-            setTimeout(function() {
-                expect($jsonModal.find('.bar').length).to.equal(0);
+            UnitTest.timeoutPromise(500)
+            .then(function() {
+                expect($jsonModal.find('.bar:visible').length).to.equal(1);
                 var jsonObj = JSON.parse("{" + $jsonModal.find('.jObject').text().replace(/[\s\n]/g, "") + "}");
                 expect(Object.keys(jsonObj).length).to.equal(2);
                 expect(jsonObj.note).to.equal(1);
                 expect(jsonObj.cool).to.equal(1);
                 done();
-            }, 500);
+            });
         });
 
         // will pull out compliments.cool
@@ -246,14 +247,16 @@ describe('JsonModal Test', function() {
             var $td = $table.find('td').filter(function() {
                 return $(this).text() === '2008-03';
             }).eq(0);
+
             JSONModal.show($td, {type: "string"});
-            setTimeout(function() {
-                expect($jsonModal.find('.jsonWrap').text()).to.equal('"2008-03"');
+            UnitTest.timeoutPromise(500)
+            .then(function() {
+                expect($jsonModal.find('.jsonWrap .prettyJson').text()).to.equal('"2008-03"');
                 JSONModal.__testOnly__.closeJSONModal();
                 setTimeout(function() {
                     done();
                 }, 300);
-            }, 500);
+            });
         });
     });
 
@@ -507,6 +510,33 @@ describe('JsonModal Test', function() {
             expect($jsonWrap.find('.submitProject').is(":visible")).to.be.false;
             expect($jsonWrap.find('.multiSelectModeBar .numColsSelected').text()).to.equal("0/12 fields selected to pull");
             expect($jsonWrap.find('.multiSelectModeBar .numColsSelected').is(":visible")).to.be.false;
+        });
+    });
+
+    describe('saveLastMode() function test', function() {
+        it('save last mode should work', function() {
+            fn = JSONModal.__testOnly__.saveLastMode;
+            var $wrap = $jsonModal.find(".jsonWrap");
+            expect($wrap.length).to.equal(1);
+            var $secondWrap = $wrap.clone();
+            $wrap.after($secondWrap);
+
+            $wrap.addClass("projectMode"); // 1 project, 1 single
+            expect(fn()).to.equal("single");
+
+            $secondWrap.addClass("projectMode"); // 2 projects
+            expect(fn()).to.equal("project");
+
+            $secondWrap.removeClass("projectMode").addClass("multiSelectMode"); // 1 project, 1 multi
+            expect(fn()).to.equal("project");
+
+            $wrap.removeClass("projectMode").addClass("multiSelectMode"); // 2 multi
+            expect(fn()).to.equal("multiple");
+
+            $wrap.removeClass("multiSelectMode"); // 1 single, 1 multi
+            expect(fn()).to.equal("single");
+
+            $secondWrap.remove();
         });
     });
 

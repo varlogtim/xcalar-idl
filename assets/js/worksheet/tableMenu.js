@@ -771,6 +771,11 @@ window.TblMenu = (function(TblMenu, $) {
             var $table  = $("#xcTable-" + tableId);
             var $td     = $table.find(".row" + rowNum + " .col" + colNum);
             var colType = gTables[tableId].tableCols[colNum - 1].getType();
+            var isTruncated = $cellMenu.data('istruncatedtext');
+            if (isTruncated) {
+                // if showing modal due to truncated text, treat it as a string
+                colType = ColumnType.string;
+            }
 
             JSONModal.show($td, {type: colType});
         });

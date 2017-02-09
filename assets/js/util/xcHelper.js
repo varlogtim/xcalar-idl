@@ -3109,12 +3109,15 @@ window.xcHelper = (function($, xcHelper) {
         }
         var $unnestLi = $menu.find('.tdUnnest');
         var $jsonModalLi = $menu.find('.tdJsonModal');
-        $unnestLi.addClass('hidden');
-        $jsonModalLi.addClass('hidden');
+        $unnestLi.addClass('hidden'); // pull all
+        $jsonModalLi.addClass('hidden'); // examine
+        var isMixedObj = false;
+        var isTruncated = false;
 
         if ((columnType === "object" || columnType === "array") &&
             !notAllowed) {
-            if ($div.text().trim() !== "" && !isMultiCell) {
+            if ($div.text().trim() !== "" && !isMultiCell &&
+                    !$div.find('.undefined').length) {
                 // when  only one cell is selected
                 $jsonModalLi.removeClass("hidden");
 
@@ -3125,6 +3128,7 @@ window.xcHelper = (function($, xcHelper) {
             }
         } else {
             if ($div.parent().hasClass('truncated')) {
+                isTruncated = true;
                 $jsonModalLi.removeClass("hidden");
             }
 
@@ -3141,12 +3145,18 @@ window.xcHelper = (function($, xcHelper) {
                     } catch (err) {
                         mixedVal = null;
                     }
-                    if (mixedVal && typeof mixedVal === "object") {
+                    if (mixedVal && typeof mixedVal === ColumnType.object) {
                         $jsonModalLi.removeClass("hidden");
                         $unnestLi.removeClass("hidden");
+                        isMixedObj = true;
                     }
                 }
             }
+        }
+        if (isTruncated && !isMixedObj) {
+            $menu.data('istruncatedtext', true);
+        } else {
+            $menu.data('istruncatedtext', false);
         }
     }
 

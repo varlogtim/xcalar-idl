@@ -304,8 +304,14 @@
             height: ~"calc(100% - 30px)" !important;
             box-shadow: -1px 0px 0px @color-bg-pinkish-grey2;
             .prettyJson {
-                height: ~"calc(100% - 48px)";
+                height: ~"calc(100% - 19px)";
             }
+            &.multiSelectMode, &.projectMode {
+                .prettyJson {
+                    height: ~"calc(100% - 48px)";
+                }
+            }
+            
         }
         &.active {
             .optionsBar {
@@ -470,6 +476,12 @@
                 .flexArea {
                     width: ~"calc(100% - 160px)";
                 }
+                .xi-pull-all-fields {
+                    display: inline-block;
+                }
+                .xi-back-to-worksheet {
+                    display: none;
+                }
             }
 
 
@@ -557,6 +569,12 @@
                 .clearAll, .submitProject {
                     display: inline-block;
                 }
+                .xi-pull-all-fields {
+                    display: none;
+                }
+                .xi-back-to-worksheet {
+                    display: inline-block;
+                }
                 .flexArea {
                     width: ~"calc(100% - 130px)";
                     // > div {
@@ -587,7 +605,6 @@
                 display: block;
             }
         }
-
 
         &.tabFiltered {
             .prefixGroupTitle {
@@ -849,10 +866,57 @@
         .font(@size: 15px, @family: @font-code, @color: @color-json-default);
         .text-selection;
 
-        &.singleView {
-            height: 100%;
-        }
         &.secondary {
+            display: none;
+        }
+    }
+
+    // json modal for table cell
+    &.singleView {
+        .optionsBar {
+            .dragHandle, .compareIcon, .vertLine, .remove, .split {
+                display: none !important;
+            }
+            .flexArea {
+                // larger size because fewer buttons to take up space
+                width: ~"calc(100% - 112px)";
+            }
+        }
+
+        .prettyJson {
+            height: 100%;
+            background-color: @color-white !important;
+        }
+        .jsonModalMenu {
+            .projectionOpt {
+                display: none;
+            }
+        }
+        .multiSelectMode {
+            .optionsBar {
+                .flexArea {
+                    width: ~"calc(100% - 136px)";
+                }
+            }
+            .jsonCheckbox {
+                display: block;
+            }
+        }
+        // can't sort on arrays
+        &.isArray {
+            .optionsBar {
+                .sort, .dropdownBox {
+                    display: none;
+                }
+                .flexArea {
+                    width: ~"calc(100% - 60px)";
+                }
+            }
+        }
+    }
+
+    &.truncatedText {
+        .optionsBar {
             display: none;
         }
     }
