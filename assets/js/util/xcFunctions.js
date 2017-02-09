@@ -495,7 +495,6 @@ window.xcFunction = (function($, xcFunction) {
                         $(".projectionOpt").click();
                     });
                 });
-
             } else {
                 Transaction.fail(txId, {
                     "failMsg": StatusMessageTStr.JoinFailed,

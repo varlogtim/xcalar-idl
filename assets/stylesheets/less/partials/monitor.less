@@ -178,6 +178,9 @@
 
 #monitor-graphCard {
     min-height: ~"calc(100% - 5px)"; // take up full height
+    position: relative; // for children divs that are absolute
+
+    @topSection-zindex: 5;
     
     .cardTopMain {
         padding-top: 16px;
@@ -194,7 +197,7 @@
 
         .topSection {
             position: relative;
-            z-index: 5;
+            z-index: @topSection-zindex;
             border-top: 1px solid @color-white;
             
 
@@ -739,6 +742,19 @@
 
     text {
         display: none;
+    }
+
+    .statsErrorContainer {
+        .position(absolute, @height-card-header, 0);
+        height: ~"calc(100% - @{height-card-header})";
+        width: 100%;
+        .flex-display;
+        .align-items(center);
+        .justify-content(center);
+        text-align: center;
+        z-index: @topSection-zindex;
+        background-color: rgba(255,255,255,0.8);
+        color: @color-table-red;
     }
 }
 

@@ -344,7 +344,6 @@ window.XIApi = (function(XIApi, $) {
                                                  pulledRColNames,
                                                  lRename,
                                                  rRename);
-
             deferred.resolve(newTableName, joinedCols);
         })
         .fail(deferred.reject);

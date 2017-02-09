@@ -143,17 +143,16 @@ window.MonitorGraph = (function($, MonitorGraph) {
             updateGraph(allStats, numNodes);
             MonitorPanel.updateDonuts(allStats, numNodes);
             failCount = 0;
+            toggleErrorScreen();
         })
         .fail(function(error) {
             console.error("get status fails", error);
             failCount++;
-            // if it fails 2 times in a row, we show a connection error
+            // if it fails 2 times in a row, we show error screen
             if (failCount === 2) {
-                thriftLog("get status fails", {
-                    "status": StatusT.StatusConnRefused
-                });
                 console.error("showing connection refused because monitor" +
                             "failed to get stats twice in a row");
+                toggleErrorScreen(true, error);
             }
         });
 
@@ -449,6 +448,25 @@ window.MonitorGraph = (function($, MonitorGraph) {
            .call(yAxis);
 
         $('.gridSvg').css('right', gridRight + 'px');
+    }
+
+    function toggleErrorScreen(show, error) {
+        var $errorScreen = $("#monitor-graphCard").find(".statsErrorContainer");
+        if (show) {
+            $errorScreen.removeClass("xc-hidden");
+            var msg;
+            // if no error, or error.error doesn't exist, or error.error is 
+            // udf execute failed, change msg to custom message
+            if (!error || (!error.error ||
+                error.status === StatusT.StatusUdfExecuteFailed)) {
+                msg = MonitorTStr.StatsFailed;
+            } else {
+                msg = error.error;
+            }
+            $errorScreen.text(msg);
+        } else { // hide the error screen
+            $errorScreen.empty().addClass("xc-hidden");
+        }
     }
 
     return (MonitorGraph);

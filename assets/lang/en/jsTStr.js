@@ -530,6 +530,7 @@ MonitorTStr = {
     'RELEASEMEM': 'RELEASE MEMORY',
     'ReleaseMem': 'Release Memory',
     'ClusterStatus': 'Cluster Status',
+    'StatsFailed': 'Error: Failed to get system statistics.',
     // with replace
     'ParamConfigFailMsg': 'Could not set parameter <b><name></b> to ' +
                           '<b><value></b>.',
