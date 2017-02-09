@@ -497,7 +497,6 @@ function XcalarPreview(url, isRecur, isRegex, numBytesRequested, offset) {
     });
 
     return (deferred.promise());
-
 }
 
 function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
@@ -569,11 +568,11 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
             formatType = DfFormatTypeT.DfFormatCsv;
             break;
         case ("Excel"):
-            formatType = DfFormatTypeT.DfFormatCsv;
+            formatType = DfFormatTypeT.DfFormatJson;
             fieldDelim = "\t";
             recordDelim = "\n";
             moduleName = "default";
-            funcName = "openExcel";
+            funcName = hasHeader ? "openExcelWithHeader" : "openExcel";
             break;
         default:
             formatType = DfFormatTypeT.DfFormatUnknown;

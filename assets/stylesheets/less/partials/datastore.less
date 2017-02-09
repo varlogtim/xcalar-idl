@@ -1765,6 +1765,12 @@ table.datasetTable {
     @row-width: 170px;
     .position(relative);
 
+    &.udf {
+        .bottomSection, .divider {
+            display: none;
+        }
+    }
+
     .btn.fixed {
         .size(@width: 175px);
         .position(absolute, @right: 20px);

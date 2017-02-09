@@ -41,6 +41,7 @@ window.DSPreview = (function($, DSPreview) {
     var maxBytesRequest = 500000;
     var excelModule = "default";
     var excelFunc = "openExcel";
+    var excelFuncWithHeader = "openExcelWithHeader";
     var colGrabTemplate = '<div class="colGrab" data-sizedtoheader="false"></div>';
 
     var formatMap = {
@@ -480,9 +481,11 @@ window.DSPreview = (function($, DSPreview) {
         var $udfArgs = $("#udfArgs");
 
         if (usUDF) {
+            $form.addClass("udf");
             $checkbox.addClass("checked");
             $udfArgs.addClass("active");
         } else {
+            $form.removeClass("udf");
             $checkbox.removeClass("checked");
             $udfArgs.removeClass("active");
         }
@@ -501,6 +504,17 @@ window.DSPreview = (function($, DSPreview) {
 
     function isUseUDF() {
         return $("#udfCheckbox").find(".checkbox").hasClass("checked");
+    }
+
+    function isUseUDFWithFunc() {
+        if (isUseUDF()) {
+            var $funcInput = $udfFuncList.find("input");
+            if ($funcInput.val() !== "") {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     function resetForm() {
@@ -788,6 +802,8 @@ window.DSPreview = (function($, DSPreview) {
 
             udfModule = $moduleInput.val();
             udfFunc = $funcInput.val();
+            // streaming UDF can only be json
+            format = formatMap.JSON;
         }
 
         // validate delimiter
@@ -1042,8 +1058,9 @@ window.DSPreview = (function($, DSPreview) {
                 // excel not use udf section
                 $udfArgs.addClass("xc-hidden");
                 $form.addClass("format-excel");
+                $skipRows.addClass("xc-hidden");
+                $quoteRow.addClass("xc-hidden");
                 break;
-
             // json and random
             case "JSON":
                 // json and random
@@ -1302,15 +1319,11 @@ window.DSPreview = (function($, DSPreview) {
         return deferred.promise();
     }
 
+    // load with UDF always return JSON format
     function loadDataWithUDF(txId, loadURL, dsName, udfModule, udfFunc, isRecur, previewSize) {
         var deferred = jQuery.Deferred();
-        var isLoadFormatJSON = false;
-        var format = "raw";
+        var format = formatMap.JSON;
 
-        if (loadArgs.getFormat() === "JSON") {
-            isLoadFormatJSON = true;
-            format = "JSON";
-        }
         var tempDSName = getPreviewTableName(dsName);
         tableName = tempDSName;
 
@@ -1328,12 +1341,7 @@ window.DSPreview = (function($, DSPreview) {
 
             try {
                 var rows = parseRows(result);
-                var buffer;
-                if (isLoadFormatJSON) {
-                    buffer = JSON.stringify(rows);
-                } else {
-                    buffer = parseRawString(rows);
-                }
+                var buffer = JSON.stringify(rows);
                 deferred.resolve(buffer);
             } catch (err) {
                 console.error(err.stack);
@@ -1358,25 +1366,13 @@ window.DSPreview = (function($, DSPreview) {
             return rows;
         }
 
-        function parseRawString(rows) {
-            var buffer = [];
-            for (var i = 0, len = rows.length; i < len; i++) {
-                var row = rows[i];
-                for (var key in row) {
-                    buffer.push(row[key]);
-                }
-            }
-
-            return buffer.join("\n");
-        }
-
         return deferred.promise();
     }
 
     function autoPreview() {
         $("#dsForm-skipRows").val(0);
-        smartDetect("Detection Complete!");
-        xcHelper.showSuccess();
+        smartDetect();
+        xcHelper.showSuccess("Detection Complete!");
     }
 
     function refreshPreview() {
@@ -1390,9 +1386,7 @@ window.DSPreview = (function($, DSPreview) {
 
         if (res.format === formatMap.EXCEL) {
             udfModule = excelModule;
-            udfFunc = excelFunc;
-            applyFieldDelim("\t");
-            applyLineDelim("\n");
+            udfFunc = loadArgs.useHeader() ? excelFuncWithHeader : excelFunc;
         } else {
             udfModule = res.udfModule;
             udfFunc = res.udfFunc;
@@ -1417,7 +1411,10 @@ window.DSPreview = (function($, DSPreview) {
         $highlightBtns.addClass("hidden");
 
         var format = loadArgs.getFormat();
-        if (format === formatMap.JSON) {
+        if (isUseUDFWithFunc() ||
+            format === formatMap.JSON ||
+            format === formatMap.EXCEL)
+        {
             getJSONTable(rawData);
             return;
         }
@@ -1974,6 +1971,11 @@ window.DSPreview = (function($, DSPreview) {
         applyLineDelim("\n");
         applyQuote("\"");
 
+        // step 0: check if should check UDF or not
+        if (!isUseUDFWithFunc()) {
+            toggleUDF(false);
+        }
+
         // step 1: detect format
         var lineDelim = loadArgs.getLineDelim();
         var format = loadArgs.getFormat();
@@ -1989,13 +1991,8 @@ window.DSPreview = (function($, DSPreview) {
         toggleFormat(formatText, null);
 
         // step 2: detect delimiter
-        if (detectArgs.format === formatMap.EXCEL ||
-            detectArgs.format === formatMap.CSV) {
-            if (detectArgs.format === formatMap.EXCEL) {
-                detectArgs.fieldDelim = "\t";
-            } else {
-                detectArgs.fieldDelim = xcSuggest.detectDelim(rawData);
-            }
+        if (detectArgs.format === formatMap.CSV) {
+            detectArgs.fieldDelim = xcSuggest.detectDelim(rawData);
 
             if (detectArgs.fieldDelim !== "") {
                 applyFieldDelim(detectArgs.fieldDelim);
@@ -2076,6 +2073,7 @@ window.DSPreview = (function($, DSPreview) {
         DSPreview.__testOnly__.toggleFormat = toggleFormat;
         DSPreview.__testOnly__.toggleUDF = toggleUDF;
         DSPreview.__testOnly__.isUseUDF = isUseUDF;
+        DSPreview.__testOnly__.isUseUDFWithFunc = isUseUDFWithFunc;
         DSPreview.__testOnly__.selectUDFModule = selectUDFModule;
         DSPreview.__testOnly__.selectUDFFunc = selectUDFFunc;
 

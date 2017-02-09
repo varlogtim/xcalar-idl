@@ -627,8 +627,8 @@ describe("DSPreview Test", function() {
             assert.isTrue($headerCheckBox.is(":visible"), "has header checkbox");
             assert.isFalse($fieldText.is(":visible"), "no field delimiter");
             assert.isFalse($lineText.is(":visible"), "no line delimiter");
-            assert.isTrue($quoteInput.is(":visible"), "has quote char");
-            assert.isTrue($skipInput.is(":visible"), "has skip rows");
+            assert.isFalse($quoteInput.is(":visible"), "has quote char");
+            assert.isFalse($skipInput.is(":visible"), "has skip rows");
         });
 
         after(function() {
@@ -638,9 +638,12 @@ describe("DSPreview Test", function() {
     });
 
     describe("UDF Func Test", function() {
+        var isUseUDFWithFunc;
+
         before(function() {
             $("#dsForm-preview").removeClass("xc-hidden")
                                 .siblings().addClass("xc-hidden");
+            isUseUDFWithFunc = DSPreview.__testOnly__.isUseUDFWithFunc;
         });
 
         it("Should toggle UDF", function() {
@@ -652,12 +655,14 @@ describe("DSPreview Test", function() {
             expect($udfArgs.hasClass("active")).to.be.true;
             expect($checkbox.hasClass("checked")).to.be.true;
             expect(isUseUDF()).to.be.true;
+            expect(isUseUDFWithFunc()).to.be.false;
 
             // test 2
             DSPreview.__testOnly__.toggleUDF(false);
             expect($udfArgs.hasClass("active")).to.be.false;
             expect($checkbox.hasClass("checked")).to.be.false;
             expect(isUseUDF()).to.be.false;
+            expect(isUseUDFWithFunc()).to.be.false;
         });
 
         it("Should have default UDF", function() {
@@ -674,20 +679,24 @@ describe("DSPreview Test", function() {
             DSPreview.__testOnly__.selectUDFModule(null);
             expect($udfModuleList.find("input").val()).to.be.empty;
             expect($udfFuncList.find("input").val()).to.be.empty;
+            expect(isUseUDFWithFunc()).to.be.false;
 
             DSPreview.__testOnly__.selectUDFModule("default");
             expect($udfModuleList.find("input").val()).to.equal("default");
             expect($udfFuncList.find("input").val()).to.be.empty;
+            expect(isUseUDFWithFunc()).to.be.false;
         });
 
         it("Should select a UDF func", function() {
             DSPreview.__testOnly__.selectUDFFunc(null);
             expect($udfModuleList.find("input").val()).to.equal("default");
             expect($udfFuncList.find("input").val()).to.be.empty;
+            expect(isUseUDFWithFunc()).to.be.false;
 
             DSPreview.__testOnly__.selectUDFFunc("openExcel");
             expect($udfModuleList.find("input").val()).to.equal("default");
             expect($udfFuncList.find("input").val()).to.equal("openExcel");
+            expect(isUseUDFWithFunc()).to.be.true;
         });
 
         it("Should validate UDF module", function() {
