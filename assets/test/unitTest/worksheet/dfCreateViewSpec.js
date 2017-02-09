@@ -265,6 +265,5 @@ describe('DFCreateView', function() {
                 });
             }, 100);
         }, 400);
-        
     });
 });

@@ -52,6 +52,27 @@ describe('DFCard Test', function() {
         expect($dfWrap.find('.dagTable.Created').length).to.equal(3);
     });
 
+    it('Dataflow refresh test', function() {
+        var allNames = [];
+        $("#dfgMenu .groupName").each(function(idx, obj) {
+            allNames.push($(obj).text());
+        });
+
+        // Now hit refresh
+        $(".dfgList .refreshBtn").click();
+        var newNames = [];
+        $("#dfgMenu .groupName").each(function(idx, obj) {
+            newNames.push($(obj).text());
+        });
+
+        // Everything in newNames must be in oldNames
+        expect(newNames.length).to.equal(allNames.length);
+        for (var i = 0; i<allNames.length; i++) {
+            expect(newNames).to.include(allNames[i]);
+        }
+
+    });
+
     describe('Status Progress check', function() {
         // using fake xcalarquerystate
         it('XcalarQueryState should be called when starting status check', function(done) {
@@ -76,7 +97,7 @@ describe('DFCard Test', function() {
                 expect(count).to.equal(1);
                 expect(passed).to.be.true;
                 setTimeout(function() {
-                    // xcalarquerystate should be called continuously until 
+                    // xcalarquerystate should be called continuously until
                     // endstatuscheck is called
                     expect(count).to.equal(2);
 
@@ -124,7 +145,7 @@ describe('DFCard Test', function() {
         DFCard.__testOnly__.deleteDataflow(testDfName)
         .always(function() {
             Alert.forceClose();
-            done(); 
+            done();
         });
     });
 });
