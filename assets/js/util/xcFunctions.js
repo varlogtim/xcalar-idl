@@ -451,56 +451,10 @@ window.xcFunction = (function($, xcFunction) {
             deferred.resolve(finalJoinTableName);
         })
         .fail(function(error) {
-            if (typeof error === "object" &&
-                error.status === StatusT.StatusMaxJoinFieldsExceeded) {
-                Transaction.fail(txId, {
-                    "failMsg": StatusMessageTStr.JoinFailed,
-                    "error": error
-                });
-                var origMsg = $("#alertContent .text").text();
-                $("#alertContent .text").text(origMsg + "\n" +
-                                              ErrTStr.SuggestProject);
-                var tables = [{
-                    "whichTable": "Right",
-                    "tableId": rTableId
-                },{
-                    "whichTable": "Left",
-                    "tableId": lTableId
-                }];
-                $btnSection = $("#alertActions");
-                $confirmBtn = $btnSection.find(".confirm").eq(0);
-                tables.forEach(function(obj) {
-                    var className = "funcBtn projectCols"+obj.whichTable;
-
-                    var $btn = $confirmBtn.clone();
-
-                    $btnSection.append($btn);
-
-                    $btn.show()
-                        .text("Project "+obj.whichTable+" Table")
-                        .addClass(className);
-                    $btn.click(function (event) {
-                        event.stopPropagation();
-                        $("#alertActions .cancel").click();
-                        var ws = WSManager.getWSFromTable(obj.tableId);
-                        WSManager.focusOnWorksheet(ws, false, obj.tableId);
-                        var rowNum =
-                                 RowScroller.getFirstVisibleRowNum(obj.tableId);
-                        var $td  =  $("#xcTable-" + obj.tableId)
-                                                    .find(".row" + (rowNum - 1))
-                                                    .find('.jsonElement');
-
-                        JSONModal.show($td, {saveModeOff: true});
-                        $("#jsonModal .dropdownBox").click();
-                        $(".projectionOpt").click();
-                    });
-                });
-            } else {
-                Transaction.fail(txId, {
-                    "failMsg": StatusMessageTStr.JoinFailed,
-                    "error": error
-                });
-            }
+            Transaction.fail(txId, {
+                "failMsg": StatusMessageTStr.JoinFailed,
+                "error": error
+            });
             deferred.reject(error);
         })
         .always(function() {

@@ -1,4 +1,4 @@
-describe('JoinView', function() {
+describe('JoinView Test', function() {
     var testDs;
     var tableName;
     var prefix;
@@ -23,9 +23,7 @@ describe('JoinView', function() {
                 }
             });
 
-
             JoinView.show(tableId, 1);
-
             done();
         });
     });
@@ -466,6 +464,57 @@ describe('JoinView', function() {
         });
     });
 
+    describe('submission fail handler', function() {
+        var fn;
+        before(function() {
+            fn = JoinView.__testOnly__.submissionFailHandler;
+
+        });
+
+        it('submissionFailHandler should work', function() {
+            fn(tableId, tableId, Date.now(), {status: StatusT.StatusCanceled});
+            expect($("#alertModal").is(":visible")).to.be.false;
+        });
+
+        it("submissionFailHandler should be able to show jsonModal", function() {
+            var jsonModalCache = JSONModal.show;
+            var jsonModalOpened = false;
+            JSONModal.show = function($td) {
+                expect($td.hasClass("col13")).to.be.true;
+                jsonModalOpened = true;
+            };
+
+            Alert.show({title: "Join Fail", msg: "something went wrong"});
+            fn(tableId, tableId, Date.now(), {status: StatusT.StatusMaxJoinFieldsExceeded});
+            UnitTest.hasAlertWithText("something went wrong\nPlease project " +
+                                "to reduce the number of columns and retry.",
+                                {confirm: true});
+            expect(jsonModalOpened).to.be.true;
+
+            JSONModal.show = jsonModalCache;
+        });
+
+        it("submissionFailHandler should be able to show delete table modal", function() {
+            var deleteModalCache = DeleteTableModal.show;
+            var deleteModalOpened = false;
+            DeleteTableModal.show = function() {
+                deleteModalOpened = true;
+            };
+
+            Alert.show({title: "Join Fail", msg: "some error"});
+            fn(tableId, tableId, Date.now(), {status: 1});
+            UnitTest.hasAlertWithText("some error");
+            expect(deleteModalOpened).to.be.false;
+
+            Alert.show({title: "Join Fail", msg: "out of resources"});
+            fn(tableId, tableId, Date.now(), {status: 1});
+            UnitTest.hasAlertWithText("out of resources.", {confirm: true});
+            expect(deleteModalOpened).to.be.true;
+
+            DeleteTableModal.show = deleteModalCache;
+        });
+    });
+
     // xx to add some other tests, including failed joins
     describe('submit test', function() {
         it('valid submit should work', function(done) {
@@ -502,9 +551,7 @@ describe('JoinView', function() {
                     expect('failed').to.equal('succeeded');
                     done();
                 });
-
             });
-
         });
     });
 

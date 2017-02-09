@@ -280,7 +280,7 @@ window.UnitTest = (function(UnitTest, $) {
             $alertModal.find('input').val(options.inputVal);
         }
         if (options.confirm) {
-            $alertModal.find(".confirm").click();
+            $alertModal.find(".confirm").eq(0).click();
         } else {
             $alertModal.find(".cancel").click();
         }
@@ -299,7 +299,7 @@ window.UnitTest = (function(UnitTest, $) {
             $alertModal.find('input').val(options.inputVal);
         }
         if (options.confirm) {
-            $alertModal.find(".confirm").click();
+            $alertModal.find(".confirm").eq(0).click();
         } else {
             $alertModal.find(".cancel").click();
         }

@@ -825,6 +825,7 @@ window.WSManager = (function($, WSManager) {
     };
 
     // Refresh Worksheet space to focus on one worksheet
+    // tableId is optional and if provided, will focus on table
     WSManager.focusOnWorksheet = function(wsId, notfocusTable, tableId) {
         // update activeWorksheet first
         if (wsId == null) {

@@ -1089,7 +1089,8 @@ window.JoinView = (function($, JoinView) {
             deferred.resolve(finalTableName);
         })
         .fail(function(error) {
-            submissionFailHandler(origFormOpenTime, error);
+            submissionFailHandler(lJoinInfo.tableId, rJoinInfo.tableId,
+                                  origFormOpenTime, error);
             deferred.reject();
         });
 
@@ -1478,7 +1479,8 @@ window.JoinView = (function($, JoinView) {
     }
 
     //show alert to go back to op view
-    function submissionFailHandler(origFormOpenTime, error) {
+    function submissionFailHandler(lTableId, rTableId, origFormOpenTime,
+                                   error) {
         if (error) {
             if (error === StatusTStr[StatusT.StatusCanceled] ||
                 error.status === StatusT.StatusCanceled) {
@@ -1486,60 +1488,98 @@ window.JoinView = (function($, JoinView) {
                 return;
             }
         }
-        var showModifyBtn;
-        var showDeleteTableBtn;
-        if (formOpenTime !== origFormOpenTime) {
-            // if they're not equal, the form has been opened before
-            // and we can't show the modify join button
-            showModifyBtn = false;
-        } else {
-            showModifyBtn = true;
-        }
 
-        var origMsg = $("#alertContent .text").text().trim();
-        if (origMsg.length && origMsg[origMsg.length - 1] !== ".") {
-            origMsg += ".";
-        }
-        if (origMsg.toLowerCase().indexOf('out of') > -1) {
-            showDeleteTableBtn = true;
-        } else {
-            showDeleteTableBtn = false;
-        }
-        if (!showDeleteTableBtn && !showModifyBtn) {
-            return;
-        }
         var btns = [];
-        var newMsg = origMsg;
+        var newMsg = $("#alertContent .text").text().trim();
+        if (typeof error === "object" &&
+            error.status === StatusT.StatusMaxJoinFieldsExceeded) {
+            // show project buttons
 
-        if (showModifyBtn) {
-            if (origMsg.length) {
-                newMsg += "\n";
-            }
-            newMsg += JoinTStr.ModifyDesc;
+            newMsg += "\n" + ErrTStr.SuggestProject;
 
             btns.push({
-                name: xcHelper.replaceMsg(OpModalTStr.ModifyBtn, {
-                    name: JoinTStr.JOIN
-                }),
-                className: "",
+                name: "Project Left Table",
+                className: "larger",
                 func: function() {
-                    JoinView.show(null , null , true);
+                    projectSelect(lTableId);
                 }
             });
-        }
-        if (showDeleteTableBtn) {
+
             btns.push({
-                name: MonitorTStr.RELEASEMEM,
+                name: "Project Right Table",
                 className: "larger",
-                func: DeleteTableModal.show
+                func: function() {
+                    projectSelect(rTableId);
+                }
             });
+        } else {
+            // show modify and/or delete tables modal button
+            var showDeleteTableBtn;
+            var showModifyBtn = formOpenTime === origFormOpenTime;
+            // if they're not equal, the form has been opened before
+            // and we can't show the modify join button
+            var showDeleteTableBtn = 
+                                    newMsg.toLowerCase().indexOf('out of') > -1;
+
+            if (!showDeleteTableBtn && !showModifyBtn) {
+                return;
+            }
+
+            if (newMsg.length && newMsg[newMsg.length - 1] !== ".") {
+                newMsg += ".";
+            }
+
+            if (showModifyBtn) {
+                if (newMsg.length) {
+                    newMsg += "\n";
+                }
+                newMsg += JoinTStr.ModifyDesc;
+
+                btns.push({
+                    name: xcHelper.replaceMsg(OpModalTStr.ModifyBtn, {
+                        name: JoinTStr.JOIN
+                    }),
+                    className: "",
+                    func: function() {
+                        focusOnTable(rTableId);
+                        JoinView.show(null , null , true);
+                        StatusMessage.removePopups();
+                    }
+                });
+            }
+            if (showDeleteTableBtn) {
+                btns.push({
+                    name: MonitorTStr.RELEASEMEM,
+                    className: "larger",
+                    func: DeleteTableModal.show
+                });
+            }
         }
 
-        var title = StatusMessageTStr.JoinFailedAlt;
-
-        Alert.error(title, newMsg, {
+        Alert.error(StatusMessageTStr.JoinFailedAlt, newMsg, {
             buttons: btns
         });
+
+        function projectSelect(tableId) {
+            focusOnTable(tableId);
+            var rowNum = RowScroller.getFirstVisibleRowNum(tableId);
+            var $td = $("#xcTable-" + tableId)
+                        .find(".row" + (rowNum - 1))
+                        .find('.jsonElement');
+            StatusMessage.removePopups();
+            JSONModal.show($td, {saveModeOff: true});
+            $("#jsonModal .projectionOpt").trigger(fakeEvent.mouseup);
+        }
+        
+        function focusOnTable(tableId) {
+            if (!$("#workspaceTab").hasClass("active")) {
+                $('#workspaceTab').click();
+            }
+            var ws = WSManager.getWSFromTable(tableId);
+            WSManager.focusOnWorksheet(ws, false, tableId);
+            xcHelper.centerFocusedTable(tableId, false,
+                                        {onlyIfOffScreen: true});
+        }  
     }
 
     function autoResolveCollisions(clashes, suff, type,
@@ -1840,6 +1880,8 @@ window.JoinView = (function($, JoinView) {
         JoinView.__testOnly__.checkFirstView = checkFirstView;
         JoinView.__testOnly__.validTableNameChecker = validTableNameChecker;
         JoinView.__testOnly__.submitJoin = submitJoin;
+        JoinView.__testOnly__.submissionFailHandler = submissionFailHandler;
+
     }
     /* End Of Unit Test Only */
 

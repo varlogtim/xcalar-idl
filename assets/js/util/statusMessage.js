@@ -225,6 +225,10 @@ window.StatusMessage = (function($, StatusMessage) {
         }
     };
 
+    StatusMessage.removePopups = function() {
+        $(".tableDonePopup").trigger(fakeEvent.mousedown);
+    };
+
     function rotateMessages() {
         inRotation = true;
         rotatePosition = 0;
