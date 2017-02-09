@@ -1579,7 +1579,7 @@ window.JSONModal = (function($, JSONModal) {
         if (isDataCol) {
             html +=
             '<div class="projectModeBar bar">' +
-                '<div class="text numColsSelected">' +
+                '<div class="text numColsSelected"></div>' +
             '</div>' +
             '<div class="tabBar bar">' +
                 '<div class="tabs">' +
@@ -1591,7 +1591,6 @@ window.JSONModal = (function($, JSONModal) {
                         '</span>' +
                     '</div>' +
                 '</div>' +
-            '</div>' +
             '</div>' +
             '<div class="prettyJson primary">' +
                 prettyJson +

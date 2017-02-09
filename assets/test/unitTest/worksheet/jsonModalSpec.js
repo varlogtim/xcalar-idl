@@ -41,6 +41,7 @@ describe('JsonModal Test', function() {
 
         it ('second row should be correct', function() {
             expect($jsonModal.find('.tab').length).to.equal(2);
+            expect($jsonModal.find('.tab:visible').length).to.equal(2);
             expect($jsonModal.find('.tab').eq(1).text()).to.equal(prefix);
             expect($jsonModal.find('.tab.active').eq(0).length).to.equal(1);
             expect($jsonModal.find('.tab.active').eq(1).length).to.equal(0);
