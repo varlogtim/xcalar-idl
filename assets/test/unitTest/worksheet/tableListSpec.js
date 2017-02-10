@@ -686,6 +686,51 @@ describe('TableList Test', function() {
         });
     });
 
+    describe("sorting", function() {
+        var cachedGetWSList = WSManager.getWSList;
+        var cachedGetWSById = WSManager.getWSById;
+        var cachedgetHiddenWSList = WSManager.getHiddenWSList;
+
+        before(function() {
+
+        });
+        it("sort should work", function() {
+
+            WSManager.getWSList = function() {
+                return ["a"];
+            };
+            WSManager.getWSById = function() {
+                return {tables: ["ZZ1", "ZZ2", "ZZ3"]};
+            };
+            WSManager.getHiddenWSList = function() {
+                return [];
+            };
+            
+            var $activeListSection = $(".tableListSection").eq(0);
+
+            $activeListSection.find(".sortName").click();
+
+            expect($activeListSection.hasClass("sortedByName")).to.be.true;
+            expect($activeListSection.hasClass("sortedByDate")).to.be.false;
+            expect($activeListSection.find(".tableInfo").length).to.equal(3);
+            expect($activeListSection.find(".tableName").eq(0).text()).to.equal("unitTest#ZZ1");
+            expect($activeListSection.find(".tableName").eq(2).text()).to.equal("unitTest#ZZ3");
+
+            $activeListSection.find(".sortDate").click();
+
+            expect($activeListSection.hasClass("sortedByDate")).to.be.true;
+            expect($activeListSection.hasClass("sortedByName")).to.be.false;
+            expect($activeListSection.find(".tableInfo").length).to.equal(3);
+            expect($activeListSection.find(".tableName").eq(0).text()).to.equal("unitTest#ZZ3");
+            expect($activeListSection.find(".tableName").eq(2).text()).to.equal("unitTest#ZZ1");
+        });
+
+        after(function() {
+            WSManager.getWSList = cachedGetWSList;
+            WSManager.getWSById = cachedGetWSById;
+            WSManager.getHiddenWSList = cachedgetHiddenWSList;
+        });
+    });
 
     after(function() {
         gTables = gTableCache;

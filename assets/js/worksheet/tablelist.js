@@ -42,8 +42,11 @@ window.TableList = (function($, TableList) {
         // focus on table
         $("#activeTableListSection").on("click", ".tableListBox .tableName",
           function() {
-            xcHelper.centerFocusedTable(xcHelper.getTableId($(this).text()),
-                                        true);
+            if ($(this).closest('.hiddenWS').length) {
+                return;
+            }
+            var tableId = $(this).closest('.tableInfo').data("id");
+            xcHelper.centerFocusedTable(tableId, true);
             // stop propogation
             return false;
         });
@@ -165,6 +168,68 @@ window.TableList = (function($, TableList) {
             focusedListNum = null;
         });
 
+        $tableListSections.on("click", ".sortOption", function() {
+            var sortByName = $(this).hasClass("sortName");
+            var $section = $(this).closest(".tableListSection");
+            if (sortByName) {
+                if ($section.hasClass("sortedByName")) {
+                    return;
+                } else {
+                    $section.addClass("sortedByName").removeClass("sortedByDate");
+                }
+            } else { // sort by date
+                if ($section.hasClass("sortedByDate")) {
+                    return;
+                } else {
+                    $section.addClass("sortedByDate").removeClass("sortedByName");
+                }
+            }
+            
+            var isActive = false;
+            if ($section.is("#activeTableListSection")) {
+                isActive = true;
+            }
+
+            $section.find(".tableLists").empty();
+
+            var tables = getAllTables(isActive);
+            generateTableLists(tables, isActive, {noAnimate: true, sortByName: sortByName, bulkAdd: true});
+        });
+
+        // XXX make this public in case we need to reuse elsewhere
+        function getAllTables(isActive) {
+            var wsheets = WSManager.getWSList();
+            var tables = [];
+            var wsTables;
+            for (var i = 0; i < wsheets.length; i++) {
+                var ws = WSManager.getWSById(wsheets[i]);
+                if (isActive) {
+                    wsTables = ws.tables;
+                } else {
+                    wsTables = ws.archivedTables;
+                }
+                for (var j = 0; j < wsTables.length; j++) {
+                    tables.push(gTables[wsTables[j]]);
+                }
+            }
+            var wsheets = WSManager.getHiddenWSList();
+            var wsTables;
+            for (var i = 0; i < wsheets.length; i++) {
+                var ws = WSManager.getWSById(wsheets[i]);
+                if (isActive) {
+                    wsTables = ws.tempHiddenTables;
+                } else {
+                    wsTables = ws.archivedTables;
+                }
+                for (var j = 0; j < wsTables.length; j++) {
+                    tables.push(gTables[wsTables[j]]);
+                }
+            }
+
+
+            return tables;
+        }
+
         $("#activeTablesList").on("click", ".column", function() {
             var $col = $(this);
             if ($(this).closest(".tableInfo").hasClass("hiddenWS")) {
@@ -220,8 +285,8 @@ window.TableList = (function($, TableList) {
             }
         }
 
-        TableList.addTables(activeTables, IsActive.Active);
-        TableList.addTables(archivedTables, IsActive.Inactive);
+        TableList.addTables(activeTables, IsActive.Active, {bulkAdd: true});
+        TableList.addTables(archivedTables, IsActive.Inactive, {bulkAdd: true});
 
         generateOrphanList(gOrphanTables);
 
@@ -818,26 +883,34 @@ window.TableList = (function($, TableList) {
         return res;
     }
 
+
     // for active and archived tables only
     function generateTableLists(tables, active, options) {
         options = options || {};
-        var sortedTables = sortTableByTime(tables); // from oldest to newest
+
+        var $listSection = (active === true) ? $("#activeTableListSection") :
+                                               $("#archivedTableListSection");
+        var $tableList = (active === true) ? $("#activeTablesList") :
+                                             $("#inactiveTablesList");
+
+        if ($listSection.hasClass('sortedByName')) {
+            options.sortByName = true;
+        }
+
+        var sortedTables = sortTables(tables, !options.sortByName);
         var dates = getTwoWeeksDate();
         var p = dates.length - 1;    // the length should be 8
         var days = [DaysTStr.Sunday, DaysTStr.Monday, DaysTStr.Tuesday,
                     DaysTStr.Wednesday, DaysTStr.Thursday, DaysTStr.Friday,
                     DaysTStr.Saturday];
 
-        var $tableList = (active === true) ? $("#activeTablesList") :
-                                             $("#inactiveTablesList");
-        var $listSection = (active === true) ? $("#activeTableListSection") :
-                                               $("#archivedTableListSection");
-
         if (sortedTables.length === 0) {
             $listSection.addClass('empty');
         } else {
             $listSection.removeClass('empty');
         }
+
+        var totalHtml = "";
         for (var i = 0; i < sortedTables.length; i++) {
             var table     = sortedTables[i][0];
             var timeStamp = sortedTables[i][1];
@@ -849,50 +922,20 @@ window.TableList = (function($, TableList) {
 
             var dateIndex = p + 1;
 
-            // when no such date exists
-            if ($tableList.find("> li.date" + p).length === 0) {
-                var date = "";
-                var d;
-
-                switch (dateIndex) {
-                    case 0:
-                        d = dates[dateIndex];
-                        date = DaysTStr.Today + " " + xcHelper.getDate("/", d);
-                        break;
-                    case 1:
-                        d = dates[dateIndex];
-                        date = DaysTStr.Yesterday + " " +
-                                xcHelper.getDate("/", d);
-                        break;
-                    // Other days in the week
-                    case 2:
-                    case 3:
-                    case 4:
-                    case 5:
-                    case 6:
-                        d = dates[dateIndex];
-                        date = days[d.getDay()] + " " +
-                               xcHelper.getDate("/", d);
-                        break;
-                    case 7:
-                        date = DaysTStr.LastWeek;
-                        break;
-                    case 8:
-                        date = DaysTStr.Older;
-                        break;
-                    default:
-                        break;
-                }
-
-                var timeLineHTML =
+            if (!options.sortByName) {
+                // when no such date exists
+                if ($tableList.find("> li.date" + p).length === 0) {
+                    var date = formatDate(dates, dateIndex);
+                    var timeLineHTML =
                     '<li class="clearfix timeLine date' + p + '">' +
                         '<div class="timeStamp">' + date + '</div>' +
                         '<ul class="tableList"></ul>' +
                     '</li>';
-                $tableList.prepend(timeLineHTML);
+                    $tableList.prepend(timeLineHTML);
+                }
+                var $dateDivider = $tableList.find(".date" + p + " .tableList");
             }
-
-            var $dateDivider = $tableList.find(".date" + p + " .tableList");
+ 
             var numCols;
             if (table.tableCols) {
                 numCols = table.tableCols.length;
@@ -958,42 +1001,72 @@ window.TableList = (function($, TableList) {
                     '</div>' +
                     generateColumnList(table.tableCols, numCols) +
                 '</li>';
+            totalHtml += html;
 
+            if (!options.sortByName) {
+                if (gMinModeOn || options.noAnimate) {
+                    if (options.hasOwnProperty('position') &&
+                        options.position > 0) {
+                        $dateDivider.children().eq(options.position - 1)
+                                               .after(html);
+                    } else {
+                        $dateDivider.prepend(html);
+                    }
 
-            if (gMinModeOn || options.noAnimate) {
-                if (options.hasOwnProperty('position') &&
-                    options.position > 0) {
-                    $dateDivider.children().eq(options.position - 1)
-                                           .after(html);
                 } else {
-                    $dateDivider.prepend(html);
+                    var $li = $(html).hide();
+
+                    $li.addClass("transition");
+
+                    if (options.hasOwnProperty('position') &&
+                        options.position > 0) {
+                        $dateDivider.children().eq(options.position - 1)
+                                               .after($li);
+                    } else {
+                        $li.prependTo($dateDivider);
+                    }
+
+                    $li.slideDown(150, function() {
+                        $li.removeClass("transition");
+                    });
                 }
-
-            } else {
-                var $li = $(html).hide();
-
-                $li.addClass("transition");
-
-                if (options.hasOwnProperty('position') &&
-                    options.position > 0) {
-                    $dateDivider.children().eq(options.position - 1)
-                                           .after($li);
-                } else {
-                    $li.prependTo($dateDivider);
-                }
-
-                $li.slideDown(150, function() {
-                    $li.removeClass("transition");
-                });
             }
         }
+        if (options.sortByName) {
+            if (options.bulkAdd) {
+                $tableList.html(totalHtml);
+            } else {
+                // find where to append table to keep in name order
+                var tableName = tables[0].getName();
+                var $tableNames = $tableList.find(".tableName");
+                if ($tableNames.length === 0) {
+                    $tableList.append(totalHtml);
+                } else {
+                    var prependIndex;
+                    $tableNames.each(function(i) {
+                        if (xcHelper.sortVals($(this).text(), tableName) > -1) {
+                            prependIndex = i;
+                            return false;
+                        }
+                    });
 
+                    if (prependIndex == null) {
+                        $tableList.append(totalHtml);
+                    } else {
+                        $tableList.find('.tableInfo').eq(prependIndex)
+                                  .before(totalHtml);
+                    }
+                }
+                
+            }
+        }
         // set hiddenWS class to tables belonging to hidden worksheets
         var hiddenWS = WSManager.getHiddenWSList();
         TableList.tablesToHiddenWS(hiddenWS);
     }
 
     function generateOrphanList(tables) {
+        tables.sort(xcHelper.sortVals);
         var numTables = tables.length;
         var html = "";
         for (var i = 0; i < tables.length; i++) {
@@ -1170,6 +1243,42 @@ window.TableList = (function($, TableList) {
         html += '</ul>';
 
         return html;
+    }
+
+    function formatDate(dates, dateIndex) {
+        var date = "";
+        var d;
+
+        switch (dateIndex) {
+            case 0:
+                d = dates[dateIndex];
+                date = DaysTStr.Today + " " + xcHelper.getDate("/", d);
+                break;
+            case 1:
+                d = dates[dateIndex];
+                date = DaysTStr.Yesterday + " " +
+                        xcHelper.getDate("/", d);
+                break;
+            // Other days in the week
+            case 2:
+            case 3:
+            case 4:
+            case 5:
+            case 6:
+                d = dates[dateIndex];
+                date = days[d.getDay()] + " " +
+                       xcHelper.getDate("/", d);
+                break;
+            case 7:
+                date = DaysTStr.LastWeek;
+                break;
+            case 8:
+                date = DaysTStr.Older;
+                break;
+            default:
+                break;
+        }
+        return date;
     }
 
     function sortConst(a, b) {
@@ -1351,17 +1460,26 @@ window.TableList = (function($, TableList) {
         filterTableList($section, null);
     }
 
-    function sortTableByTime(tables) {
+    // default by name
+    function sortTables(tables, byTime) {
         var sortedTables = [];
 
         tables.forEach(function(table) {
             sortedTables.push([table, table.getTimeStamp()]);
         });
 
-        // sort by time, from the oldest to newset
-        sortedTables.sort(function(a, b) {
-            return (a[1] - b[1]);
-        });
+        var sortFn;
+        if (byTime) {
+            // sort by time, from the oldest to newset
+            sortFn = function(a, b) {
+                return (a[1] - b[1]);
+            };
+        } else {
+            sortFn = function(a, b) {
+                return xcHelper.sortVals(a[0].getName(), b[0].getName());
+            };
+        }
+        sortedTables.sort(sortFn);
 
         return sortedTables;
     }

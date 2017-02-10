@@ -1004,14 +1004,34 @@ ul.CodeMirror-hints {
                     display: none;
                 }
             }
+            .sortSection {
+                display: none;
+            }
         }
+        &.sortedByDate {
+            .sortName {
+                opacity: @opacity-unhover;
+                cursor: pointer;
+            }
+        }
+        &.sortedByName {
+            .sortDate {
+                opacity: @opacity-unhover;
+                cursor: pointer;
+            }
+            
+            .tableLists {
+                padding-top: 16px;
+            }
+        }
+
         .listInstructions {
             display: none;
             color: @color-white;
             padding: 24px;
             margin: 0 auto;
             max-width: 500px;
-            opacity: 0.8;
+            opacity: @opacity-unhover;
             font-weight: 500;
         }
     }
@@ -1067,6 +1087,38 @@ ul.CodeMirror-hints {
             margin: 0 4px;
             .vertical-align;
         }
+    }
+
+    .sortSection {
+        color: @color-white;
+        text-align: right;
+        text-transform: uppercase;
+        font-size: 10px;
+        height: 16px;
+        margin-right: 18px;
+        margin-top: 4px;
+
+        > span {
+            opacity: @opacity-unhover;
+        }
+
+        .sortOption {
+            opacity: @opacity-hint;
+        }
+
+        .divider {
+            height: 100%;
+            width: 1px;
+            margin: 0 3px;
+            background-color: @color-white;
+            display: inline-block;
+            .position(relative, 3px, 0px);
+            vertical-align: bottom;
+        }
+    }
+
+    #activeTablesList, #inactiveTablesList {
+        .size(@height: ~"calc(100% - 91px)");
     }
 
     .tableLists {
@@ -1354,7 +1406,8 @@ ul.CodeMirror-hints {
         height: ~"calc(100% - 111px)";
         position: relative; // search filter is using .position().top relative to this
         .tableListBox {
-            margin-left: 12%;
+            margin-left: 15px;
+            width: ~"calc(100% - 30px)";
 
             .tableName {
                 max-width: ~"calc(100% - 30px)";

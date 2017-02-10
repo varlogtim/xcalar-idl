@@ -16,7 +16,7 @@
   <!-- Sections -->
   <section id="tableListSections">
     <!-- active list -->
-    <div id="activeTableListSection" class="tableListSection">
+    <div id="activeTableListSection" class="tableListSection sortedByDate">
       <div class="buttonSection">
         <div class="submit archive xc-hidden" title="<%= dicts.ws.archive %>" data-toggle="tooltip" data-placement="top" data-container="body">
           <i class="icon xi-archive"></i>
@@ -24,13 +24,19 @@
         <i class="icon xi-select-none select clearAll" data-toggle="tooltip" data-placement="top" data-container="body" title="<%= dicts.common.DeSelectAll %>"></i>
         <i class="icon xi-select-all select selectAll" data-toggle="tooltip" data-placement="top" data-container="body" title="<%= dicts.common.SelectAll %>"></i>
       </div>
+      <div class="sortSection">
+        <span class="label"><%= dicts.common.SortBy %>:&nbsp;</span>
+        <span class="sortDate sortOption"><%= dicts.common.LastUpdated %></span>
+        <span class="divider"></span>
+        <span class="sortName sortOption"><%= dicts.common.Name %></span>
+      </div>
       <ul id="activeTablesList" class="tableLists"></ul>
       <div class="listInstructions">
         <%= dicts.ws.ActiveTableInstr %>
       </div>
     </div>
     <!-- archived list -->
-    <div id="archivedTableListSection" class="tableListSection">
+    <div id="archivedTableListSection" class="tableListSection sortedByDate">
       <div class="buttonSection">
         <div id="submitTablesBtn" class="submit active xc-hidden" title="<%= dicts.ws.active %>" data-toggle="tooltip" data-placement="top" data-container="body">
            <i class="icon xi-back-to-worksheet fa-17"></i>
@@ -40,6 +46,12 @@
         </div>
         <i class="icon xi-select-none select clearAll" data-toggle="tooltip" data-placement="top" data-container="body" title="<%= dicts.common.DeSelectAll %>"></i>
         <i class="icon xi-select-all select selectAll" data-toggle="tooltip" data-placement="top" data-container="body" title="<%= dicts.common.SelectAll %>"></i>
+      </div>
+      <div class="sortSection">
+        <span class="label"><%= dicts.common.SortBy %>:&nbsp;</span>
+        <span class="sortDate sortOption"><%= dicts.common.LastUpdated %></span>
+        <span class="divider"></span>
+        <span class="sortName sortOption"><%= dicts.common.Name %></span>
       </div>
       <ul id="inactiveTablesList" class="tableLists"></ul>
       <div class="listInstructions">
