@@ -166,12 +166,12 @@ window.XIApi = (function(XIApi, $) {
         return deferred.promise();
     };
 
-    XIApi.index = function(txId, colToIndex, tableName) {
+    XIApi.index = function(txId, colToIndex, tableName, newTableName) {
         if (txId == null || colToIndex == null || tableName == null) {
             return PromiseHelper.reject("Invalid args in index");
         }
 
-        return checkTableIndex(colToIndex, tableName, txId, true);
+        return checkTableIndex(colToIndex, tableName, newTableName, txId, true);
     };
 
     XIApi.sort = function(txId, order, colName, tableName, newTableName) {
@@ -352,8 +352,8 @@ window.XIApi = (function(XIApi, $) {
     };
 
     XIApi.groupBy = function(txId, operator, groupByCols, aggColName,
-                            isIncSample, tableName,
-                            newColName, newTableName, icvMode)
+                             isIncSample, tableName, newColName, newTableName,
+                             indexedTableName, icvMode)
     {
         if (txId == null || operator == null || groupByCols == null ||
             aggColName == null || isIncSample == null || tableName == null ||
@@ -387,7 +387,6 @@ window.XIApi = (function(XIApi, $) {
             if (newTableName == null) {
                 newTableName = getNewTableName(tableName, "-GB");
             }
-
             return XcalarGroupBy(operator, newColName, aggColName,
                                 indexedTable, newTableName,
                                 isIncSample, icvMode, txId);
@@ -419,7 +418,8 @@ window.XIApi = (function(XIApi, $) {
                 .fail(innerDeferred.reject);
             } else {
                 // single groupBy, check index
-                checkTableIndex(groupByCols[0], tableName, txId)
+                checkTableIndex(groupByCols[0], tableName, indexedTableName,
+                                txId)
                 .then(function(resTable) {
                     innerDeferred.resolve(resTable, groupByCols[0]);
                 })
@@ -722,8 +722,8 @@ window.XIApi = (function(XIApi, $) {
             deferred1 = handleJoinKey(lColName, lTableName, txId, true);
             deferred2 = handleJoinKey(rColName, rTableName, txId, false);
         } else {
-            deferred1 = checkTableIndex(lColName, lTableName, txId);
-            deferred2 = checkTableIndex(rColName, rTableName, txId);
+            deferred1 = checkTableIndex(lColName, lTableName, undefined, txId);
+            deferred2 = checkTableIndex(rColName, rTableName, undefined, txId);
         }
 
         PromiseHelper.when(deferred1, deferred2)
@@ -750,10 +750,11 @@ window.XIApi = (function(XIApi, $) {
                         if (tableKey != null && parentKey !== tableKey) {
                             // if current is sorted, the parent should also
                             // index on the tableKey to remove "KNF"
-                            var indexTable = getNewTableName(tableName, ".indexParent", true);
+                            var indexTable = getNewTableName(tableName,
+                                                          ".indexParent", true);
                             XcalarIndexFromTable(unsorted, tableKey, indexTable,
-                                         XcalarOrderingT.XcalarOrderingUnordered,
-                                         txId)
+                                        XcalarOrderingT.XcalarOrderingUnordered,
+                                        txId)
                             .then(function() {
                                 if (tableKey === colToIndex) {
                                     // when the parent has right index
@@ -859,7 +860,7 @@ window.XIApi = (function(XIApi, $) {
             if (newTableName == null) {
                 newTableName = tableName;
             }
-            return checkTableIndex(colToIndex, newTableName, txId);
+            return checkTableIndex(colToIndex, newTableName, undefined, txId);
         })
         .then(deferred.resolve)
         .fail(deferred.reject);
@@ -899,7 +900,8 @@ window.XIApi = (function(XIApi, $) {
     }
 
     // check if table has correct index
-    function checkTableIndex(colName, tableName, txId, isApiCall) {
+    function checkTableIndex(colName, tableName, newTableName, txId,
+                             isApiCall) {
         var deferred = jQuery.Deferred();
         var tableId = xcHelper.getTableId(tableName);
         var tableCols = null;
@@ -921,7 +923,9 @@ window.XIApi = (function(XIApi, $) {
                 console.log(tableName, "not indexed correctly!");
                 // XXX In the future,we can check if there are other tables that
                 // are indexed on this key. But for now, we reindex a new table
-                var newTableName = getNewTableName(tableName, ".index");
+                if (!newTableName) {
+                    newTableName = getNewTableName(tableName, ".index");
+                }
                 XcalarIndexFromTable(unsortedTable, colName, newTableName,
                                      XcalarOrderingT.XcalarOrderingUnordered,
                                      txId)

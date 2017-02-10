@@ -190,10 +190,14 @@ window.XcSDK.Extension.prototype = (function() {
             var deferred = jQuery.Deferred();
             var self = this;
             var txId = self.txId;
+            var indexTableName;
+            if (newTableName.startsWith(".temp")) {
+                indexTableName = self.createTempTableName();
+            }
 
             XIApi.groupBy(txId, operator, groupByCols, aggColName,
                             isIncSample, tableName,
-                            newColName, newTableName, false)
+                            newColName, newTableName, indexTableName, false)
             .then(function(dstTable, dstCols) {
                 self._addMeta(tableName, dstTable, dstCols);
                 deferred.resolve(dstTable, dstCols);

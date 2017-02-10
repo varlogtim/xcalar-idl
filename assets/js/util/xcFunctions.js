@@ -527,7 +527,8 @@ window.xcFunction = (function($, xcFunction) {
         var scrollChecker = new ScollTableChecker();
 
         XIApi.groupBy(txId, operator, groupByCols, aggCol,
-                      isIncSample, tableName, newColName, dstTableName, icvMode)
+                      isIncSample, tableName, newColName, dstTableName,
+                      undefined, icvMode)
         .then(function(nTableName, nTableCols) {
             if (isJoin) {
                 var dataColNum = gTables[tableId].getColNumByBackName("DATA");
