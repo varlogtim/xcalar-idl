@@ -122,6 +122,17 @@ window.RowManager = (function($, RowManager) {
 
     function tableCleanup(info) {
         info.$table.find('.tempRow').remove();
+        var $xcTbodyWrap = $('#xcTbodyWrap-' + info.tableId);
+        var scrollTop = $xcTbodyWrap.scrollTop();
+        if (scrollTop < 2) {
+            // leave some space for scrolling up
+            $xcTbodyWrap.scrollTop(2); 
+        } else if ($xcTbodyWrap[0].scrollHeight - scrollTop -
+                       $xcTbodyWrap.outerHeight() <= 1) {
+            // leave some space for scrolling down
+            $xcTbodyWrap.scrollTop(scrollTop - 2);
+        }
+
         info.$table.removeClass('scrolling');
         TblManager.removeWaitingCursor(info.tableId);
         gIsTableScrolling = false;
@@ -370,7 +381,7 @@ window.RowManager = (function($, RowManager) {
                 XcalarMakeResultSetFromTable(table.getName())
                 .then(function(result) {
                     table.resultSetId = result.resultSetId;
-                    return setAbsolute(table, rowPosition, retry);
+                    return setAbsolute(table, rowPosition, true);
                 })
                 .then(deferred.resolve)
                 .fail(deferred.reject);
