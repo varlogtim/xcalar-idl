@@ -39,6 +39,15 @@ window.TableList = (function($, TableList) {
             }
         });
 
+        // focus on table
+        $("#activeTableListSection").on("click", ".tableListBox .tableName",
+          function() {
+            xcHelper.centerFocusedTable(xcHelper.getTableId($(this).text()),
+                                        true);
+            // stop propogation
+            return false;
+        });
+
         // select a table list
         $tableListSections.on("click", ".addTableBtn", function(event) {
             var $btn = $(this);
