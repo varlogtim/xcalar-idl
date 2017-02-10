@@ -433,8 +433,7 @@ window.JoinView = (function($, JoinView) {
 
         $renameSection.on("click", ".renameIcon", function() {
             var $colToRename = $(this).closest(".rename");
-            var origName = $colToRename.find(".origName").val();
-            $colToRename.find(".newName").val(origName);
+            smartRename($colToRename);
         });
     };
 
@@ -1514,12 +1513,11 @@ window.JoinView = (function($, JoinView) {
             });
         } else {
             // show modify and/or delete tables modal button
-            var showDeleteTableBtn;
             var showModifyBtn = formOpenTime === origFormOpenTime;
             // if they're not equal, the form has been opened before
             // and we can't show the modify join button
-            var showDeleteTableBtn = 
-                                    newMsg.toLowerCase().indexOf('out of') > -1;
+            var showDeleteTableBtn = newMsg.toLowerCase()
+                                           .indexOf('out of') > -1;
 
             if (!showDeleteTableBtn && !showModifyBtn) {
                 return;
@@ -1577,9 +1575,10 @@ window.JoinView = (function($, JoinView) {
             }
             var ws = WSManager.getWSFromTable(tableId);
             WSManager.focusOnWorksheet(ws, false, tableId);
-            xcHelper.centerFocusedTable(tableId, false,
-                                        {onlyIfOffScreen: true});
-        }  
+            xcHelper.centerFocusedTable(tableId, false, {
+                onlyIfOffScreen: true
+            });
+        }
     }
 
     function autoResolveCollisions(clashes, suff, type,
@@ -1869,6 +1868,46 @@ window.JoinView = (function($, JoinView) {
         }
         previewText += ";";
         $joinView.find('.joinPreview').html(previewText);
+    }
+
+    function smartRename($colToRename) {
+        var origName = $colToRename.find(".origName").val();
+        var $tableRenames = $colToRename.closest(".tableRenames");
+        var $siblTableRenamse;
+
+        switch ($tableRenames.attr("id")) {
+            case "lFatPtrRenames":
+                $siblTableRenamse = $("#rFatPtrRenames");
+                break;
+            case "rFatPtrRenames":
+                $siblTableRenamse = $("#lFatPtrRenames");
+                break;
+            case "leftTableRenames":
+                $siblTableRenamse = $("#rightTableRenames");
+                break;
+            case "rightTableRenames":
+                $siblTableRenamse = $("#leftTableRenames");
+                break;
+            default:
+                console.error("error case");
+                $colToRename.find(".newName").val(origName);
+                return;
+        }
+
+        var nameMap = {};
+        var maxTry = 0;
+        var $inputs = $colToRename.siblings(".rename")
+                      .add($siblTableRenamse.find(".rename"));
+
+        $inputs.each(function() {
+            var newName = $(this).find(".newName").val().trim();
+            if (newName) {
+                maxTry++;
+                nameMap[newName] = true;
+            }
+        });
+        var newName = xcHelper.autoName(origName, nameMap, maxTry);
+        $colToRename.find(".newName").val(newName);
     }
 
     /* Unit Test Only */

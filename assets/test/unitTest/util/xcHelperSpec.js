@@ -299,16 +299,16 @@ describe('xcHelper Test', function() {
         // case 3
         var progCol = ColManager.newCol({
             "backName": "test",
-            "name"    : "test",
+            "name": "test",
             "isNewCol": false,
-            "userStr" : '"test" = pull(test)',
-            "func"    : {
+            "userStr": '"test" = pull(test)',
+            "func": {
                 "name": "pull",
                 "args": ["test"]
             }
         });
         gTables["xc-Test"] = new TableMeta({
-            "tableId"  : "xc-Test",
+            "tableId": "xc-Test",
             "tableName": "test",
             "tableCols": [progCol]
         });
@@ -348,28 +348,28 @@ describe('xcHelper Test', function() {
     it('xcHelper.getTableKeyFromMeta should work', function() {
         var tableMeta = {
             "keyAttr": {
-                "name"           : "test",
+                "name": "test",
                 "valueArrayIndex": 0
             },
             "valueAttrs": [{
                 "name": "user",
                 "type": DfFieldTypeT.DfFatptr
             }]
-        }
+        };
 
         var res = xcHelper.getTableKeyFromMeta(tableMeta);
         expect(res).to.equal("user::test");
         // case 2
         tableMeta = {
             "keyAttr": {
-                "name"           : "test",
+                "name": "test",
                 "valueArrayIndex": 0
             },
             "valueAttrs": [{
                 "name": "user",
                 "type": DfFieldTypeT.DfString
             }]
-        }
+        };
 
         res = xcHelper.getTableKeyFromMeta(tableMeta);
         expect(res).to.equal("test");
@@ -392,10 +392,10 @@ describe('xcHelper Test', function() {
     it("xcHelper.mapColGenerate should work", function() {
         var progCol = ColManager.newCol({
             "backName": "test",
-            "name"    : "test",
+            "name": "test",
             "isNewCol": false,
-            "userStr" : '"test" = pull(test)',
-            "func"    : {
+            "userStr": '"test" = pull(test)',
+            "func": {
                 "name": "pull",
                 "args": ["test"]
             }
@@ -428,28 +428,24 @@ describe('xcHelper Test', function() {
         // case 1
         var testCases = [{
             "colName": "a",
-            "prefix" : "b",
-            "width"  : 56
-        },
-        {
+            "prefix": "b",
+            "width": 56
+        }, {
             "colName": "a",
-            "prefix" : "bc",
-            "width"  : 63
-        },
-        {
+            "prefix": "bc",
+            "width": 63
+        }, {
             "colName": "bc",
-            "prefix" : "a",
-            "width"  : 63
-        },
-        {
+            "prefix": "a",
+            "width": 63
+        }, {
             "colName": "a",
-            "width"  : 130
-        },
-        {
+            "width": 130
+        }, {
             "colName": "a",
-            "prefix" : "",
-            "width"  : 130
-        }]
+            "prefix": "",
+            "width": 130
+        }];
 
         testCases.forEach(function(testCase) {
             var colName = testCase.colName;
@@ -547,7 +543,7 @@ describe('xcHelper Test', function() {
             var testContent = $a.attr("href");
 
             deferrd.resolve(testName, testContent);
-        };
+        }
         $(document).on("click", "a", clickEvent);
         xcHelper.downloadAsFile(fileName, fileContent);
 
@@ -576,7 +572,7 @@ describe('xcHelper Test', function() {
             var testContent = $a.attr("href");
 
             deferrd.resolve(testName, testContent);
-        };
+        }
         $(document).on("click", "a", clickEvent);
         xcHelper.downloadAsFile(fileName, fileContent, true);
 
@@ -792,7 +788,7 @@ describe('xcHelper Test', function() {
 
         // case 2
         res = xcHelper.validate({
-            "$ele" : $e,
+            "$ele": $e,
             "check": function() { return false; }
         });
         expect(res).to.be.true;
@@ -800,10 +796,10 @@ describe('xcHelper Test', function() {
 
         // case 3
         res = xcHelper.validate([{
-            "$ele" : $e,
+            "$ele": $e,
             "check": function() { return false; }
         },{
-            "$ele" : $e,
+            "$ele": $e,
             "check": function() { return true; },
             "quite": true
         }]);
@@ -813,8 +809,8 @@ describe('xcHelper Test', function() {
         // case 4
         var test = null;
         res = xcHelper.validate({
-            "$ele"    : $e,
-            "check"   : function() { return true; },
+            "$ele": $e,
+            "check": function() { return true; },
             "callback": function() { test = "test"; }
         });
         expect(res).to.be.false;
@@ -827,9 +823,9 @@ describe('xcHelper Test', function() {
         // case 5
         test = null;
         res = xcHelper.validate({
-            "$ele"   : $e,
+            "$ele": $e,
             "isAlert": true,
-            "error"  : "test error"
+            "error": "test error"
         });
         expect(res).to.be.false;
         assert.isTrue($("#alertModal").is(":visible"));
@@ -841,7 +837,7 @@ describe('xcHelper Test', function() {
         // case 6
         test = null;
         res = xcHelper.validate({
-            "$ele" : $e,
+            "$ele": $e,
             "check": function() { return true; },
             "onErr": function() { test = "test"; }
         });
@@ -867,34 +863,29 @@ describe('xcHelper Test', function() {
         };
 
         var testCases = [{
-            "val"  : "testTable",
+            "val": "testTable",
             "valid": true
-        },
-        {
-            "val"  : "",
+        }, {
+            "val": "",
             "valid": false,
             "error": ErrTStr.NoEmpty
-        },
-        {
-            "val"  : "ab:c",
+        }, {
+            "val": "ab:c",
             "valid": false,
             "error": ErrTStr.InvalidTableName
-        },
-        {
-            "val"  : "ab#c",
+        }, {
+            "val": "ab#c",
             "valid": false,
             "error": ErrTStr.InvalidTableName
-        },
-        {
-            "val"  : new Array(300).join("a"),
+        }, {
+            "val": new Array(300).join("a"),
             "valid": false,
             "error": ErrTStr.TooLong
-        },
-        {
-            "val"    : "testDupName",
-            "valid"  : false,
-            "error"  : ErrTStr.TableConflict,
-            "options":  {
+        }, {
+            "val": "testDupName",
+            "valid": false,
+            "error": ErrTStr.TableConflict,
+            "options": {
                 onErr: function() { onErrTrigger = true; }
             }
         }];
@@ -993,7 +984,7 @@ describe('xcHelper Test', function() {
 
     it('xcHelper.lockTable and  xcHelper.unlockTable should work', function() {
         gTables["xcTest"] = new TableMeta({
-            "tableId"  : "xcTest",
+            "tableId": "xcTest",
             "tableName": "test"
         });
 
@@ -1025,7 +1016,7 @@ describe('xcHelper Test', function() {
         expect($input.val()).to.be.equal("");
 
         // case 2
-        var $input = $('<input type="number">');
+        $input = $('<input type="number">');
         xcHelper.insertText($input, 5);
         expect($input.val()).to.be.equal("");
 
@@ -1197,7 +1188,7 @@ describe('xcHelper Test', function() {
                 "str": "ab}c",
                 "res": false
             },
-        ]
+        ];
 
         testCases.forEach(function(test) {
             var res = xcHelper.hasInvalidCharInCol(test.str);
@@ -1447,6 +1438,21 @@ describe('xcHelper Test', function() {
         expect(convertHtml(terribleString)).to.equal("&#60;&#38;boo&#62;");
     });
 
+    it("xcHelper.autoName should work", function() {
+        // case 1
+        var res = xcHelper.autoName("test", {});
+        expect(res).to.equal("test");
+
+        // case 2
+        res = xcHelper.autoName("test", {"test": true});
+        expect(res).to.equal("test1");
+
+        // case 3
+        res = xcHelper.autoName("test", {"test": true}, 0);
+        // should be test + 5digits
+        expect(res.length).to.equal(9);
+    });
+
     it('xcHelper.sortVals should work', function() {
         var func = xcHelper.sortVals;
         var asc = ColumnSortOrder.ascending;
@@ -1515,7 +1521,7 @@ describe('xcHelper Test', function() {
                         '--fileName C.csv  --fieldDelim   --recordDelim b ' +
                         '--quoteDelim';
 
-        var parsedQuery = xcHelper.parseQuery(sixthPart);
+        parsedQuery = xcHelper.parseQuery(sixthPart);
         expect(parsedQuery).to.be.an("array");
         expect(parsedQuery).to.have.lengthOf(1);
 
@@ -1530,10 +1536,10 @@ describe('xcHelper Test', function() {
         // undefined type
         var progCol1 = ColManager.newCol({
             "backName": "test",
-            "name"    : "undfCol",
+            "name": "undfCol",
             "isNewCol": false,
-            "userStr" : '"test" = pull(test)',
-            "func"    : {
+            "userStr": '"test" = pull(test)',
+            "func": {
                 "name": "pull",
                 "args": ["test"]
             }
@@ -1541,10 +1547,10 @@ describe('xcHelper Test', function() {
         // string type
         var progCol2 = ColManager.newCol({
             "backName": "test2",
-            "name"    : "stringCol",
+            "name": "stringCol",
             "isNewCol": false,
-            "userStr" : '"test2" = pull(test2)',
-            "func"    : {
+            "userStr": '"test2" = pull(test2)',
+            "func": {
                 "name": "pull",
                 "args": ["test2"]
             },
@@ -1553,10 +1559,10 @@ describe('xcHelper Test', function() {
         // number type
         var progCol3 = ColManager.newCol({
             "backName": "test3",
-            "name"    : "numCol",
+            "name": "numCol",
             "isNewCol": false,
-            "userStr" : '"test3" = pull(test3)',
-            "func"    : {
+            "userStr": '"test3" = pull(test3)',
+            "func": {
                 "name": "pull",
                 "args": ["test3"]
             },
@@ -1564,7 +1570,7 @@ describe('xcHelper Test', function() {
         });
 
         gTables["xc-Test"] = new TableMeta({
-            "tableId"  : "xc-Test",
+            "tableId": "xc-Test",
             "tableName": "test",
             "tableCols": [progCol1, progCol2, progCol3]
         });
@@ -1666,7 +1672,7 @@ describe('xcHelper Test', function() {
                 var $moduleLi = $moduleLis.filter(function() {
                     return $(this).text() === module;
                 });
-                expect($moduleLi.length).to.equal(1); 
+                expect($moduleLi.length).to.equal(1);
             });
             done();
         });
@@ -1805,8 +1811,8 @@ describe('xcHelper Test', function() {
         // case 1
         var res = xcHelper.parsePrefixColName("test");
         expect(res).to.be.an('object');
-        expect(res).to.have.property('prefix').to.equal("");;
-        expect(res).to.have.property('name').to.equal("test");;
+        expect(res).to.have.property('prefix').to.equal("");
+        expect(res).to.have.property('name').to.equal("test");
 
         // case 2
         res = xcHelper.parsePrefixColName("prefix::test");
@@ -1830,26 +1836,26 @@ describe('xcHelper Test', function() {
     it('xcHelper.getColNameMap', function() {
         var progCol1 = ColManager.newCol({
             "backName": "Test",
-            "name"    : "undfCol",
+            "name": "undfCol",
             "isNewCol": false
         });
    
         var progCol2 = ColManager.newCol({
             "backName": "test2",
-            "name"    : "stringCol",
+            "name": "stringCol",
             "isNewCol": false
         });
 
         var progCol3 = ColManager.newCol({
             "backName": "",
-            "name"    : "",
+            "name": "",
             "isNewCol": false
         });
 
-         var progCol4 = ColManager.newDATACol();
+        var progCol4 = ColManager.newDATACol();
 
         gTables["xc-Test"] = new TableMeta({
-            "tableId"  : "xc-Test",
+            "tableId": "xc-Test",
             "tableName": "test",
             "tableCols": [progCol1, progCol2, progCol3, progCol4]
         });
@@ -1917,7 +1923,7 @@ describe('xcHelper Test', function() {
             var oldFunc = XcalarAppExecute;
             XcalarAppExecute = function() {
                 return PromiseHelper.resolve({
-                    "outStr": "[\"invalid thing to parse\"]" 
+                    "outStr": "[\"invalid thing to parse\"]"
                 });
             };
 
@@ -1992,28 +1998,28 @@ describe('xcHelper Test', function() {
 
             before(function() {
                 var progCol1 = new ProgCol({
-                    "name"    : "testCol",
+                    "name": "testCol",
                     "backName": "testCol",
                     "isNewCol": false,
-                    "type"    : "mixed",
-                    "func"    : {
+                    "type": "mixed",
+                    "func": {
                         "name": "pull"
                     }
                 });
 
                 var progCol2 = new ProgCol({
-                    "name"    : "DATA",
+                    "name": "DATA",
                     "backName": "DATA",
                     "isNewCol": false,
-                    "func"    : {
+                    "func": {
                         "name": "raw"
                     }
                 });
                 var table = new TableMeta({
                     "tableName": "unitTest#ZZ1",
-                    "tableId"  : tableId,
+                    "tableId": tableId,
                     "tableCols": [progCol1, progCol2],
-                    "isLocked" : false
+                    "isLocked": false
                 });
 
                 gTables[tableId] = table;
@@ -2074,17 +2080,15 @@ describe('xcHelper Test', function() {
         describe('toggle json options test', function() {
             var testDs;
             var tableName;
-            var prefix;
             var tableId;
 
             before(function(done) {
                 UnitTest.onMinMode();
                 var testDSObj = testDatasets.fakeYelp;
                 UnitTest.addAll(testDSObj, "unitTestFakeYelp")
-                .always(function(ds, tName, tPrefix) {
+                .always(function(ds, tName) {
                     testDs = ds;
                     tableName = tName;
-                    prefix = tPrefix;
                     tableId = xcHelper.getTableId(tableName);
                     done();
                 });

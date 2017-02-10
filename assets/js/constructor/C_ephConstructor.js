@@ -1445,19 +1445,7 @@ ExportHelper.prototype = {
 
         var parsedResult = xcHelper.parsePrefixColName(origName);
         var newName = parsedResult.prefix + "-" + parsedResult.name;
-        var validName = newName;
-        var tryCnt = 0;
-        var maxTry = 20;
-
-        while (nameMap.hasOwnProperty(validName) && tryCnt <= maxTry) {
-            tryCnt++;
-            validName = newName + tryCnt;
-        }
-
-        if (tryCnt > maxTry) {
-            validName = xcHelper.randName(newName);
-        }
-
+        var validName = xcHelper.autoName(newName, nameMap);
         $colToRename.find(".newName").val(validName);
     }
 };

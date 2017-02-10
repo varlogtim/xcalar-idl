@@ -2173,6 +2173,24 @@ window.xcHelper = (function($, xcHelper) {
         });
     };
 
+    xcHelper.autoName = function(origName, checkMap, maxTry) {
+        var validName = origName;
+        var tryCnt = 0;
+        if (maxTry == null) {
+            maxTry = 20;
+        }
+
+        while (checkMap.hasOwnProperty(validName) && tryCnt <= maxTry) {
+            tryCnt++;
+            validName = origName + tryCnt;
+        }
+
+        if (tryCnt > maxTry) {
+            validName = xcHelper.randName(origName);
+        }
+        return validName;
+    };
+
     /**
      * sortVals
      * @param  {string} a     [first value]
@@ -3042,17 +3060,12 @@ window.xcHelper = (function($, xcHelper) {
 
         var filterTypes = ["string", "float", "integer", "boolean", "mixed"];
         var shouldNotFilter = options.isMultiCol || isChildOfArray ||
-                            filterTypes.indexOf(columnType) === -1 || 
+                            filterTypes.indexOf(columnType) === -1 ||
                             isInvalidMixed(tableId, columnType, options);
         var notAllowed = $div.find('.null, .blank').length;
 
         var isMultiCell = $("#xcTable-" + tableId).find(".highlightBox")
                                                   .length > 1;
-
-        var notAllowed = $div.find('.null, .blank').length;
-        
-
-
         var $tdFilter  = $menu.find(".tdFilter");
         var $tdExclude = $menu.find(".tdExclude");
 
