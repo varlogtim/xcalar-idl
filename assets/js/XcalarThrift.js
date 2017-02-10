@@ -354,10 +354,9 @@ function getUnsortedTableName(tableName, otherTableName) {
             if (!t2hasReadyState) {
                 newId = Authentication.getHashId().split("#")[1];
                 unsortedName2 = otherTableName.split("#")[0] + "#" + newId;
-                // var tableId = xcHelper.getTableId(otherTableName);
                 key = indexInput2.keyName;
 
-                promise2 = XcalarIndexFromTable(oldTableName, key,
+                promise2 = XcalarIndexFromTable(otherTableName, key,
                                                 unsortedName2, order, null,
                                                 true);
             } else {
