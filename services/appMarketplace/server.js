@@ -261,8 +261,8 @@ Example: http://localhost:3001/download?name=testApp&version=1.0.0
 app.get("/download", function(req, res) {
     var url_parts = url.parse(req.url, true);
     var query = url_parts.query;
-    var appName = query.name
-    var version = query.version
+    var appName = query.name;
+    var version = query.version;
     if (!__validate(appName, version)) {
         return res.send({"status": Status["Error"], "logs": "Please specify name, version and type"});
     }

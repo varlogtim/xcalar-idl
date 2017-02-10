@@ -10,6 +10,8 @@ var https = require("https");
 require('shelljs/global');
 var ldap = require('ldapjs');
 var exec = require('child_process').exec;
+var AWS = require('aws-sdk');
+var s3 = new AWS.S3();
 require("jsdom").env("", function(err, window) {
     if (err) {
         console.error(err);
@@ -636,6 +638,24 @@ function sendRequest(options) {
 }
 
 app.post("/downloadPackage", function(req, res) {
+
+    var download = function(appName, version) {
+        var deferred = jQuery.Deferred();
+        var params = {
+            Bucket: 'marketplace.xcalar.com', /* required */
+            Key: 'extensions/'+appName+"/"+version+"/"+appName+'-'+version+'.tar.gz'
+        };
+        s3.getObject(params, function(err, data) {
+            if (err) {
+                deferred.reject(err);
+            }
+            else {
+                deferred.resolve(data.Body.toString('base64'));
+            }
+        });
+        return deferred.promise();
+    }
+
     function parseExtensionsHtml(html) {
         var lines = html.split("\n");
         var packages = {};
@@ -661,13 +681,7 @@ app.post("/downloadPackage", function(req, res) {
               pkg.version;
     var basePath = "/var/www/xcalar-gui/assets/extensions/installed/";
 
-    var options = {
-        host: "https://authentication.xcalar.net",
-        port: 3001,
-        path: url,
-        method: "GET",
-    };
-    sendRequest(options)
+    download(pkg.name, pkg.version)
     .then(function(ret) {
         xcConsole.log(ret);
         var deferred = jQuery.Deferred();
@@ -684,9 +698,9 @@ app.post("/downloadPackage", function(req, res) {
         xcConsole.log(retStruct.data.length);
 
         var zipFile = new Buffer(retStruct.data, 'base64');
-        var zipPath = basePath + pkg.name + "-" + pkg.version + ".zip";
+        var zipPath = basePath + pkg.name + "-" + pkg.version + ".tar.gz";
         xcConsole.log(zipPath);
-        fs.writeFile(basePath+pkg.name+"-"+pkg.version+".zip", zipFile,
+        fs.writeFile(basePath+pkg.name+"-"+pkg.version+".tar.gz", zipFile,
         function(a) {
             xcConsole.log("Writing");
             var out = exec("tar -zxf " + zipPath + " -C " + basePath);
@@ -767,6 +781,82 @@ app.post('/login', function(req, res) {
     var hasError = false;
     var errors = [];
     login.loginAuthentication(credArray, res);
+});
+
+app.post("/listPackage", function(req, res){
+    var fetchAllApps = function() {
+        var deferredOnFetch = jQuery.Deferred();
+
+        var processItem = function(res, fileName) {
+            var deferredOnProcessItem = jQuery.Deferred();
+            var get = function(file) {
+                var deferredOnGetFile = jQuery.Deferred();
+                var params = {
+                    Bucket: 'marketplace.xcalar.com', /* required */
+                    Key: file
+                };
+                s3.getObject(params, function(err, data) {
+                    if (err) {
+                        deferredOnGetFile.reject(err);
+                    }
+                    else {
+                        deferredOnGetFile.resolve(data.Body.toString('utf8'));
+                    }
+                });
+                return deferredOnGetFile.promise();
+            }
+            if (fileName.endsWith(".txt")) {
+                get(fileName)
+                .then(function(data) {
+                    res.push(JSON.parse(data));
+                    deferredOnProcessItem.resolve();
+                })
+                .fail(function(err) {
+                    deferredOnProcessItem.reject(err);
+                });
+            } else {
+                deferredOnProcessItem.resolve();
+            }
+            return deferredOnProcessItem.promise();
+        }
+
+        var params = {
+            Bucket: 'marketplace.xcalar.com', /* required */
+            Prefix: 'extensions/'
+        };
+        var processItemsDeferred = [];
+        s3.listObjects(params, function(err, data) {
+            if (err) {
+                console.log(err, err.stack); // an error occurred
+                deferredOnFetch.reject(err);
+            }
+            else {
+                var res = [];
+                var items = data.Contents;
+                var pending = items.length;
+                items.forEach(function(item) {
+                    fileName = item.Key;
+                    processItemsDeferred.push(processItem(res, fileName));
+                });
+                jQuery.when.apply(jQuery, processItemsDeferred)
+                .then(function() {
+                    deferredOnFetch.resolve(res);
+                })
+                .fail(function(err) {
+                    deferredOnFetch.reject(err);
+                });
+            }
+        });
+        return deferredOnFetch.promise();
+    };
+
+    fetchAllApps()
+    .then(function(data) {
+        return res.send(data);
+    })
+    .fail(function(err) {
+        return res.send({"status": Status.Error, "logs": error});
+    });
 });
 
 var httpServer = http.createServer(app);

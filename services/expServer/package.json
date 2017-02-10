@@ -19,7 +19,8 @@
     "jquery": "^1.5.1",
     "jsdom": "^1.2.1",
     "crypto": "^0.0.3",
-    "ssl-root-cas": "^1.2.3"
+    "ssl-root-cas": "^1.2.3",
+    "aws-sdk": "*"
   },
   "license": "UNLICENSED",
   "devDependencies": {}
