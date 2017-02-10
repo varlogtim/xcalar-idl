@@ -250,6 +250,7 @@ ErrTStr = {
     'SourceTableNotExists': 'Source table does not exist.',
     'TableNotExists': 'Table does not exist.',
     'SelectOption': 'Please select an option.',
+    'NotDisplayRows': 'Could Not Display Rows',
 
     // With replace
     'WorkbookExists': 'A workbook named <workbookName> already exists. Please' +

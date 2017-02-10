@@ -387,6 +387,7 @@ window.RowManager = (function($, RowManager) {
                 .fail(deferred.reject);
             } else {
                 deferred.reject(error);
+                Alert.error(ErrTStr.NotDisplayRows, error);
             }
         });
 

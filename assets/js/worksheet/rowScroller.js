@@ -160,7 +160,7 @@ window.RowScroller = (function($, RowScroller) {
             $('#rowScroller-' + tableId).addClass('scrolling');
 
             RowManager.addRows(backRow, numRowsToAdd, RowDirection.Bottom, info)
-            .then(function() {
+            .always(function() {
                 TblManager.removeWaitingCursor(tableId);
                 $('#rowScroller-' + tableId).removeClass('scrolling');
                 var rowToScrollTo = Math.min(targetRow, table.resultSetMax);
