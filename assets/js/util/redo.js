@@ -115,7 +115,7 @@ window.Redo = (function($, Redo) {
         // XXX As extension can do anything, it may need fix
         // as we add more extensions and some break the current code
 
-        // Tested: Window, hPartition, genRowNum
+        // Tested: Window, hPartition, genRowNum, union
         var replace = options.replace || {};
         var newTables = options.newTables || [];
 
@@ -126,7 +126,8 @@ window.Redo = (function($, Redo) {
             var tablesToReplace = replace[table];
             promises.push(TblManager.refreshTable.bind(window,
                                                     [table], null,
-                                                    tablesToReplace));
+                                                    tablesToReplace,
+                                                    options.worksheet));
         }
 
         // next append new tables

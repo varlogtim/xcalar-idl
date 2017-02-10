@@ -262,6 +262,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             "func": func,
             "args": copyArgs,
             "options": options,
+            "worksheet": worksheet,
             "htmlExclude": ["args", "options"]
         };
 

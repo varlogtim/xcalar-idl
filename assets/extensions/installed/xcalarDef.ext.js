@@ -23,6 +23,16 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
         }]
     },
     {
+        "buttonText"   : "Union Tables",
+        "fnName"       : "union",
+        "arrayOfFields": [
+        {
+            "type"      : "table",
+            "name"      : "Table To Union",
+            "fieldClass": "table2"
+        }]
+    },
+    {
         "buttonText"   : "Windowing",
         "fnName"       : "windowChain",
         "arrayOfFields": [{
@@ -76,6 +86,8 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
                 return hPartitionExt();
             case ("windowChain"):
                 return windowExt();
+            case ("union"):
+                return unionExt();
             default:
                 return null;
         }
@@ -102,6 +114,122 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
             })
             .then(deferred.resolve)
             .fail(deferred.reject);
+
+            return deferred.promise();
+        };
+
+        return ext;
+    }
+
+    function unionExt() {
+        var ext = new XcSDK.Extension();
+
+        ext.start = function() {
+            var self = this;
+            var deferred = XcSDK.Promise.deferred();
+            var args = self.getArgs();
+
+            var tTable = ext.getTriggerTable();
+            var bTable = args.table2;
+
+            var tTablePrefix = tTable.getPrefixMeta();
+            var bTablePrefix = bTable.getPrefixMeta();
+
+            // here are the conditions that we can handle --
+            // Immediates need not match. but if they do not match, then your
+            // columns will not line up.
+            // If only one or no prefix in the table, prefixes need not line up
+            // However, if more than one, prefixes must be identical. Otherwise
+            // columns will not line up
+
+            // Prefix fixing
+            var bPrefixRename = [];
+            if (tTablePrefix.length == 1 && bTablePrefix.length == 1) {
+                if (tTablePrefix[0].name !== bTablePrefix[0].name) {
+                    // Take the left table's prefix
+                    bPrefixRename = [xcHelper.getJoinRenameMap(
+                                                           bTablePrefix[0].name,
+                                                           tTablePrefix[0].name,
+                                                        DfFieldTypeT.DfFatptr)];
+
+                }
+            }
+
+            // Get row num for left table
+            var unionNum = Math.floor(Math.random() * 1000);
+            var rowNumColName = "__num" + unionNum;
+            var tAfterRowNumTableName = self.createTableName(undefined,
+                                        "_union_" + unionNum, tTable.tableName);
+            var bAfterRowNumTableName = self.createTableName(undefined,
+                                        "_union_" + unionNum, bTable.tableName);
+            var bAfterAddTableName = self.createTableName(undefined,
+                                          "_add_" + unionNum, bTable.tableName);
+            var tTableNumRows = -1;
+            var finalTableName = self.createTableName(undefined, "_union",
+                                                      tTable.tableName);
+            // Step 0. Get top table's number of rows
+            ext.getNumRows(tTable.tableName)
+            .then(function(numRows) {
+                tTableNumRows = numRows;
+                // Step 1. Gen row num for both of them
+                var p1 = ext.genRowNum(tTable.tableName, rowNumColName,
+                                       tAfterRowNumTableName);
+                var p2 = ext.genRowNum(bTable.tableName, "__temp" + unionNum,
+                                       bAfterRowNumTableName);
+                return XcSDK.Promise.when(p1, p2);
+            })
+            .then(function() {
+                // Step 2. Add table1's length to table 2's row num
+                return ext.map("int(add(__temp" + unionNum + ", " +
+                               tTableNumRows + "))", bAfterRowNumTableName,
+                               rowNumColName, bAfterAddTableName);
+            })
+            .then(function() {
+                // Step 3. Outer join both tables on rowNumColName
+
+                var tTableCols = tTable.getColNamesAsArray();
+                var bTableCols = bTable.getColNamesAsArray();
+                var leftOverBTableCols = [];
+                for (var i = 0; i < bTableCols.length; i++) {
+                    var tempColName = bTableCols[i];
+                    if (bPrefixRename.length > 0) {
+                        tempColName = bTableCols[i].replace(
+                                              bTablePrefix[0].name + "::",
+                                              tTablePrefix[0].name + "::");
+                    }
+                    if (tTableCols.indexOf(tempColName) === -1) {
+                        leftOverBTableCols.push(bTableCols[i]);
+                    }
+                }
+                var lTableInfo = {
+                    tableName: tAfterRowNumTableName,
+                    columns: [rowNumColName],
+                    pulledColumns: tTableCols,
+                    rename: []
+                };
+                var rTableInfo = {
+                    tableName: bAfterAddTableName,
+                    columns: [rowNumColName],
+                    pulledColumns: leftOverBTableCols,
+                    rename: bPrefixRename
+                };
+
+                return ext.join(XcSDK.Enums.JoinType.FullOuterJoin, lTableInfo,
+                                rTableInfo, finalTableName);
+            })
+            .then(function() {
+                var tablesToReplace = [tTable.tableName];
+                if (tTable.tableName !== bTable.tableName) {
+                    tablesToReplace.push(bTable.tableName);
+                }
+                var table = ext.getTable(finalTableName);
+                if (table != null) {
+                    return table.addToWorksheet(tablesToReplace);
+                }
+            })
+            .then(deferred.resolve)
+            .fail(deferred.reject);
+
 
             return deferred.promise();
         };
@@ -373,7 +501,7 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
         var deferred = XcSDK.Promise.deferred();
         var newColName = "orig_order_" + ext.getAttribute("randNumber");
 
-        ext.getRowNum(srcTable, newColName)
+        ext.genRowNum(srcTable, newColName)
         .then(function(newTableName) {
             return (ext.index(newColName, newTableName));
         })

@@ -235,12 +235,12 @@ window.XcSDK.Extension.prototype = (function() {
             return XIApi.query(txId, queryName, queryStr);
         },
 
-        "getRowNum": function(tableName, newColName, newTableName) {
+        "genRowNum": function(tableName, newColName, newTableName) {
             var deferred = jQuery.Deferred();
             var self = this;
             var txId = self.txId;
 
-            XIApi.getRowNum(txId, tableName, newColName, newTableName)
+            XIApi.genRowNum(txId, tableName, newColName, newTableName)
             .then(function(dstTable) {
                 self._addMeta(tableName, dstTable);
                 deferred.resolve(dstTable);

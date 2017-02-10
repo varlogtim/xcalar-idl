@@ -283,7 +283,7 @@ window.Undo = (function($, Undo) {
         // XXX As extension can do anything, it may need fix
         // as we add more extensions and some break the current code
 
-        // Tested: Window, hPartition, genRowNum
+        // Tested: Window, hPartition, genRowNum, union
 
         // var tableId = options.tableId;
         var newTables = options.newTables || [];

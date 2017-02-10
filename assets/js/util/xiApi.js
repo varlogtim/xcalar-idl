@@ -463,7 +463,7 @@ window.XIApi = (function(XIApi, $) {
         return XcalarQueryWithCheck(queryName, queryStr, txId);
     };
 
-    XIApi.getRowNum = function(txId, tableName, newColName, newTableName) {
+    XIApi.genRowNum = function(txId, tableName, newColName, newTableName) {
         if (txId == null || tableName == null || newColName == null) {
             return PromiseHelper.reject("Invalid args in get row num");
         }
@@ -486,6 +486,11 @@ window.XIApi = (function(XIApi, $) {
     XIApi.getNumRows = function(tableName) {
         if (tableName === null) {
             return PromiseHelper.reject("Invalid args in getNumRows");
+        }
+        var tableId = xcHelper.getTableId(tableName);
+        if (tableId && gTables[tableId] &&
+            gTables[tableId].resultSetCount > -1) {
+            return PromiseHelper.resolve(gTables[tableId].resultSetCount);
         }
         return XcalarGetTableCount(tableName);
     };

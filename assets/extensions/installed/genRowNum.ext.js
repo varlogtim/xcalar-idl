@@ -63,7 +63,7 @@ window.UExtGenRowNum = (function(UExtGenRowNum) {
             var srcTableName = self.getTriggerTable().getName();
 
             // check extensionApi_Operations.js to see the api signature.
-            ext.getRowNum(srcTableName, newColName)
+            ext.genRowNum(srcTableName, newColName)
             .then(function(tableAfterMap) {
                 var table = ext.getTable(tableAfterMap);
                 var newCol = new XcSDK.Column(newColName, "integer");
