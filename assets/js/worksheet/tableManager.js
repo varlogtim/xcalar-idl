@@ -1359,7 +1359,7 @@ window.TblManager = (function($, TblManager) {
             }
 
             deferred
-            .then(function() {
+            .always(function() {
                 if ($table.find('.jsonElement.modalHighlighted').length) {
                     JSONModal.rehighlightTds($table);
                 }
@@ -1372,9 +1372,6 @@ window.TblManager = (function($, TblManager) {
                         RowScroller.updateViewRange(tableId);
                     }
                 }, 200);
-            })
-            .fail(function(error) {
-                console.error("Scroll Fails!", error);
             });
         });
 
