@@ -57,8 +57,8 @@ describe("DSPreview Test", function() {
             var testCases = [{
                 // test1: when not th, has delimiter
                 "delimiter": ",",
-                "isTh"     : false,
-                "data"     : ["h", ",", "i"],
+                "isTh": false,
+                "data": ["h", ",", "i"],
                 "expectRes": '<td class="cell">' +
                                 '<div class="innerCell">' +
                                     'h' +
@@ -72,8 +72,8 @@ describe("DSPreview Test", function() {
             },{
                 // test2: when not th, no delimiter
                 "delimiter": "",
-                "isTh"     : false,
-                "data"     : ["h", ",", "i"],
+                "isTh": false,
+                "data": ["h", ",", "i"],
                 "expectRes": '<td class="cell">' +
                                 '<div class="innerCell">' +
                                     '<span class="td">h</span>' +
@@ -86,8 +86,8 @@ describe("DSPreview Test", function() {
             },{
                 // test3: when not th, other delimiter
                 "delimiter": "\t",
-                "isTh"     : false,
-                "data"     : ["h", ",", "i"],
+                "isTh": false,
+                "data": ["h", ",", "i"],
                 "expectRes": '<td class="cell">' +
                                 '<div class="innerCell">' +
                                     'h,i' +
@@ -96,8 +96,8 @@ describe("DSPreview Test", function() {
             },{
                 // test4: when is th, has delimiter
                 "delimiter": ",",
-                "isTh"     : true,
-                "data"     : ["h", ",", "i"],
+                "isTh": true,
+                "data": ["h", ",", "i"],
                 "expectRes": '<th>' +
                                 '<div class="header">' +
                                     '<div class="colGrab"' +
@@ -115,8 +115,8 @@ describe("DSPreview Test", function() {
             },{
                 // test5: when not th, delimiter ",", data has backslash
                 "delimiter": "\t",
-                "isTh"     : false,
-                "data"     : ["h", "\\", ",", "i"],
+                "isTh": false,
+                "data": ["h", "\\", ",", "i"],
                 "expectRes": '<td class="cell">' +
                                 '<div class="innerCell">' +
                                     'h\\,i' +
@@ -136,7 +136,7 @@ describe("DSPreview Test", function() {
 
             var testCases = [{
                 // test1: when no header
-                "datas"    : [["t", "e", "s", "t"]],
+                "datas": [["t", "e", "s", "t"]],
                 "delimiter": "",
                 "hasHeader": false,
                 "expectRes": '<tbody>' +
@@ -156,7 +156,7 @@ describe("DSPreview Test", function() {
                             '</tbody>'
             },{
                 // test2: when has header
-                "datas"    : [["t", "e", "s", "t"], ["h", "i"]],
+                "datas": [["t", "e", "s", "t"], ["h", "i"]],
                 "delimiter": "",
                 "hasHeader": true,
                 "expectRes": '<tbody>' +
@@ -188,8 +188,8 @@ describe("DSPreview Test", function() {
 
             var testCases = [{
                 // test1: when no header
-                "datas"    : [["h", "i"]],
-                "tdLen"    : 2,
+                "datas": [["h", "i"]],
+                "tdLen": 2,
                 "delimiter": "",
                 "hasHeader": false,
                 "expectRes": '<thead>' +
@@ -206,8 +206,8 @@ describe("DSPreview Test", function() {
                               '</thead>'
             },{
                 // test2: when has header
-                "datas"    : [["h", "i"]],
-                "tdLen"    : 2,
+                "datas": [["h", "i"]],
+                "tdLen": 2,
                 "delimiter": "",
                 "hasHeader": true,
                 "expectRes": '<thead>' +
@@ -343,6 +343,24 @@ describe("DSPreview Test", function() {
                     "3\t4";
             fieldDelim = "\t";
             expect(detectHeader(data, linDelim, fieldDelim)).to.be.true;
+        });
+
+        it("Should detect excel header", function() {
+            var detectExcelHeader = DSPreview.__testOnly__.detectExcelHeader;
+
+            // has header case
+            var obj = [{"col0": "test"}, {"col0": 1}, {"col0": 2}];
+            var data = JSON.stringify(obj);
+            expect(detectExcelHeader(data)).to.be.true;
+
+            // no header case
+            obj = [{"col0": 0}, {"col0": 1}, {"col0": 2}];
+            data = JSON.stringify(obj);
+            expect(detectExcelHeader(data)).to.be.false;
+
+            // error case
+            data = "invalid json data";
+            expect(detectExcelHeader(data)).to.be.false;
         });
     });
 
@@ -815,15 +833,15 @@ describe("DSPreview Test", function() {
 
         it("Should restore form", function() {
             DSPreview.__testOnly__.restoreForm({
-                "dsName"    : "test",
+                "dsName": "test",
                 "moduleName": "default",
-                "funcName"  : "openExcel",
-                "format"    : "raw",
-                "hasHeader" : true,
+                "funcName": "openExcel",
+                "format": "raw",
+                "hasHeader": true,
                 "fieldDelim": "",
-                "lineDelim" : "\n",
-                "quoteChar" : "\"",
-                "skipRows"  : 1
+                "lineDelim": "\n",
+                "quoteChar": "\"",
+                "skipRows": 1
             });
 
             expect($("#dsForm-dsName").val()).to.equal("test");

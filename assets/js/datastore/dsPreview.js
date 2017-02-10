@@ -41,7 +41,6 @@ window.DSPreview = (function($, DSPreview) {
     var maxBytesRequest = 500000;
     var excelModule = "default";
     var excelFunc = "openExcel";
-    var excelFuncWithHeader = "openExcelWithHeader";
     var colGrabTemplate = '<div class="colGrab" data-sizedtoheader="false"></div>';
 
     var formatMap = {
@@ -1386,7 +1385,7 @@ window.DSPreview = (function($, DSPreview) {
 
         if (res.format === formatMap.EXCEL) {
             udfModule = excelModule;
-            udfFunc = loadArgs.useHeader() ? excelFuncWithHeader : excelFunc;
+            udfFunc = excelFunc;
         } else {
             udfModule = res.udfModule;
             udfFunc = res.udfFunc;
@@ -1411,11 +1410,17 @@ window.DSPreview = (function($, DSPreview) {
         $highlightBtns.addClass("hidden");
 
         var format = loadArgs.getFormat();
-        if (isUseUDFWithFunc() ||
-            format === formatMap.JSON ||
-            format === formatMap.EXCEL)
+        if (isUseUDFWithFunc() || format === formatMap.JSON)
         {
             getJSONTable(rawData);
+            return;
+        }
+
+        if (format === formatMap.EXCEL) {
+            getJSONTable(rawData);
+            if (loadArgs.useHeader()) {
+                toggleHeader(true, true);
+            }
             return;
         }
 
@@ -1678,7 +1683,7 @@ window.DSPreview = (function($, DSPreview) {
         return json;
     }
 
-    function getJSONTableHTML(json) {
+    function getJSONHeaders(json) {
         var rowLen = json.length;
         var keys = {};
         for (var i = 0; i < rowLen; i++) {
@@ -1688,6 +1693,12 @@ window.DSPreview = (function($, DSPreview) {
         }
 
         var headers = Object.keys(keys);
+        return headers;
+    }
+
+    function getJSONTableHTML(json) {
+        var headers = getJSONHeaders(json);
+        var rowLen = json.length;
         var colLen = headers.length;
         var html = '<thead><tr>' +
                     '<th class="rowNumHead">' +
@@ -2001,6 +2012,8 @@ window.DSPreview = (function($, DSPreview) {
             // step 3: detect header
             detectArgs.hasHeader = detectHeader(rawData, lineDelim,
                                                 detectArgs.fieldDelim);
+        } else if (detectArgs.format === formatMap.EXCEL) {
+            detectArgs.hasHeader = detectExcelHeader(rawData);
         } else {
             detectArgs.hasHeader = false;
         }
@@ -2048,6 +2061,29 @@ window.DSPreview = (function($, DSPreview) {
         return xcSuggest.detectHeader(parsedRows);
     }
 
+    function detectExcelHeader(data) {
+        var rows = null;
+        try {
+            rows = JSON.parse(data);
+        } catch (error) {
+            console.error(error);
+            return false;
+        }
+        var headers = getJSONHeaders(rows);
+        var rowLen = rows.length;
+        var colLen = headers.length;
+        var parsedRows = [];
+
+        for (var i = 0; i < rowLen; i++) {
+            parsedRows[i] = [];
+            for (var j = 0; j < colLen; j++) {
+                parsedRows[i][j] = rows[i][headers[j]];
+            }
+        }
+
+        return xcSuggest.detectHeader(parsedRows);
+    }
+
     /* Unit Test Only */
     if (window.unitTestMode) {
         DSPreview.__testOnly__ = {};
@@ -2060,6 +2096,7 @@ window.DSPreview = (function($, DSPreview) {
         DSPreview.__testOnly__.toggleHeader = toggleHeader;
         DSPreview.__testOnly__.detectFormat = detectFormat;
         DSPreview.__testOnly__.detectHeader = detectHeader;
+        DSPreview.__testOnly__.detectExcelHeader = detectExcelHeader;
         DSPreview.__testOnly__.applyHighlight = applyHighlight;
         DSPreview.__testOnly__.clearPreviewTable = clearPreviewTable;
 
