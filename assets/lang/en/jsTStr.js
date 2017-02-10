@@ -318,6 +318,29 @@ TipsTStr = {
     'PullColumn': 'Click key to add the column to your table'
 };
 
+SuccessTStr = {
+    "Copy": "Copied Successfully!",
+    "CopyToClipboard": "Copied to Clipboard!",
+    "DelUDF": "UDF Successfully Deleted!",
+    "Detect": "Detection Complete!",
+    "DownloadTicket": "Ticket Downloaded!",
+    "Saved": "Saved!",
+    "SaveDF": "Dataflow Saved!",
+    "SaveParam":  "Parameters Saved!",
+    "SaveSettings": "Settings Saved!",
+    "Sched": "Schedule Added!",
+    "StopCluster": "Cluster Stopped!",
+    "SubmitTicket": "Ticket Submitted!",
+    "Target": "Target Added!",
+    "RetrieveLogs": "Logs Retrieved!",
+    "RmDF": "Remove Batched DF Successful!",
+    "RmSession": "Session Files Removed!",
+    "UpdateLicense": "License Successfully Updated. New license will take effect after next cluster restart.",
+    "Upload": "Upload Successful!",
+    "UploadApp": "App Successfully Uploaded!",
+    "UploadUDF": "UDF Successfully Uploaded!"
+};
+
 ThriftTStr = {
     'CCNBEErr': 'Connection error',
     'CCNBE': 'Connection could not be established.',

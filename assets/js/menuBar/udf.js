@@ -512,7 +512,7 @@ window.UDF = (function($, UDF) {
 
             refreshUDF(true);
 
-            xcHelper.showSuccess("UDF Successfully Deleted!");
+            xcHelper.showSuccess(SuccessTStr.DelUDF);
         })
         .fail(function(error) {
             Alert.error(UDFTStr.DelFail, error);
@@ -561,7 +561,7 @@ window.UDF = (function($, UDF) {
                 .then(function() {
                     UDF.storePython(moduleName, entireString);
                     KVStore.commit();
-                    xcHelper.showSuccess("UDF Successfully Uploaded!");
+                    xcHelper.showSuccess(SuccessTStr.UploadUDF);
 
                     refreshUDF(true);
 
@@ -592,7 +592,7 @@ window.UDF = (function($, UDF) {
             } else {
                 XcalarAppSet(moduleName, "Python", "Import", entireString)
                 .then(function() {
-                    xcHelper.showSuccess("App Successfully Uploaded");
+                    xcHelper.showSuccess(SuccessTStr.UploadApp);
                     deferred.resolve();
                 })
                 .fail(function(error) {

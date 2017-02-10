@@ -62,7 +62,7 @@ window.DSExport = (function($, DSExport) {
 
             submitForm(targetType, name, formatSpecificArg, options)
             .then(function() {
-                xcHelper.showSuccess("Target Added!");
+                xcHelper.showSuccess(SuccessTStr.Target);
                 resetForm();
                 KVStore.commit();
             })

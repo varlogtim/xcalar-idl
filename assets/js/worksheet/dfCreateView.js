@@ -376,7 +376,7 @@ window.DFCreateView = (function($, DFCreateView) {
         saveFinished = false;
         saveDataFlow(dfName, columns, gTables[tableId].tableName)
         .then(function() {
-            xcHelper.showSuccess("Dataflow Saved!");
+            xcHelper.showSuccess(SuccessTStr.SaveDF);
             // refresh dataflow lists in modal and scheduler panel
             deferred.resolve();
         })

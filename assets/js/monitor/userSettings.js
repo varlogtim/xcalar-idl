@@ -72,7 +72,7 @@ window.UserSettings = (function($, UserSettings) {
                 hasDSChange = false;
                 saveLastPrefs();
                 if (showSuccess) {
-                    xcHelper.showSuccess("Settings Saved!");
+                    xcHelper.showSuccess(SuccessTStr.SaveSettings);
                 }
                 deferred.resolve();
             })
@@ -83,7 +83,7 @@ window.UserSettings = (function($, UserSettings) {
         } else {
             // when no need to commit
             if (showSuccess) {
-                xcHelper.showSuccess("Settings Saved!");
+                xcHelper.showSuccess(SuccessTStr.SaveSettings);
             }
             deferred.resolve();
         }

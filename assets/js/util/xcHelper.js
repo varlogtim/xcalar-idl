@@ -1061,7 +1061,7 @@ window.xcHelper = (function($, xcHelper) {
                     $hiddenInput.val(sql).select();
                     document.execCommand("copy");
                     $hiddenInput.remove();
-                    xcHelper.showSuccess("Copied!");
+                    xcHelper.showSuccess(SuccessTStr.Copy);
                 });
                 break;
             case "support":

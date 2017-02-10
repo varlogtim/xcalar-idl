@@ -1568,7 +1568,7 @@ window.JoinView = (function($, JoinView) {
             JSONModal.show($td, {saveModeOff: true});
             $("#jsonModal .projectionOpt").trigger(fakeEvent.mouseup);
         }
-        
+
         function focusOnTable(tableId) {
             if (!$("#workspaceTab").hasClass("active")) {
                 $('#workspaceTab').click();

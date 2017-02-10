@@ -1839,7 +1839,7 @@ describe('xcHelper Test', function() {
             "name": "undfCol",
             "isNewCol": false
         });
-   
+
         var progCol2 = ColManager.newCol({
             "backName": "test2",
             "name": "stringCol",

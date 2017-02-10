@@ -632,7 +632,7 @@ window.StartManager = (function(StartManager, $) {
 
             KVStore.commit()
             .then(function() {
-                xcHelper.showSuccess("Saved!");
+                xcHelper.showSuccess(SuccessTStr.Saved);
             })
             .fail(function(error) {
                 Alert.error(AlertTStr.Error, error);

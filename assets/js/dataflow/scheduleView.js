@@ -372,7 +372,7 @@ window.Scheduler = (function(Scheduler, $) {
         };
 
         DF.addScheduleToDataflow(dataflowName, options);
-        xcHelper.showSuccess("Schedule added!");
+        xcHelper.showSuccess(SuccessTStr.Sched);
 
         existScheduleIcon(dataflowName);
         return true;

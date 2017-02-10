@@ -77,7 +77,7 @@ window.MonitorLog = (function(MonitorLog, $) {
 
         XFTSupportTools.getRecentLogs(val)
         .then(function(ret) {
-            xcHelper.showSuccess("Logs retrieved!");
+            xcHelper.showSuccess(SuccessTStr.RetrieveLogs);
             appendLog(ret.logs);
         })
         .fail(function(err) {
@@ -119,7 +119,7 @@ window.MonitorLog = (function(MonitorLog, $) {
 
         XFTSupportTools.removeSessionFiles(val)
         .then(function() {
-            xcHelper.showSuccess("Session Files Removed!");
+            xcHelper.showSuccess(SuccessTStr.RmSession);
         })
         .fail(function(err) {
             var msg;

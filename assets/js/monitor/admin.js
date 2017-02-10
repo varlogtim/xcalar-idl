@@ -360,7 +360,7 @@ window.Admin = (function($, Admin) {
         .then(function(ret) {
             console.log('success stop', ret);
             if ($('#container').hasClass('supportOnly')) {
-                xcHelper.showSuccess("Cluster stopped!");
+                xcHelper.showSuccess(SuccessTStr.StopCluster);
             } else {
                 var alertError = {"error": ThriftTStr.CCNBE};
                 Alert.error(ThriftTStr.CCNBEErr, alertError, {

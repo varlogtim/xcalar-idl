@@ -113,7 +113,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
             $modal.addClass('downloadSuccess');
             $modal.removeClass('downloadMode');
             // closeModal();
-            xcHelper.showSuccess("Ticket Downloaded!");
+            xcHelper.showSuccess(SuccessTStr.DownloadTicket);
         } else {
             modalHelper.disableSubmit();
             modalHelper.addWaitingBG();
@@ -123,7 +123,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
 
             submitTicket(ticketObj)
             .then(function() {
-                xcHelper.showSuccess("Ticket Submitted!");
+                xcHelper.showSuccess(SuccessTStr.SubmitTicket);
                 closeModal();
             })
             .fail(function() {

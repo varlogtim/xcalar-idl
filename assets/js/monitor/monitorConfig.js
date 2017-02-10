@@ -193,7 +193,7 @@ window.MonitorConfig = (function(MonitorConfig, $) {
         if (promises.length) {
             PromiseHelper.when.apply(window, promises)
             .then(function() {
-                xcHelper.showSuccess("Parameters saved!");
+                xcHelper.showSuccess(SuccessTStr.SaveParam);
 
             })
             .fail(function() {

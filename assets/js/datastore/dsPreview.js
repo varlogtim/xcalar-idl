@@ -1371,7 +1371,7 @@ window.DSPreview = (function($, DSPreview) {
     function autoPreview() {
         $("#dsForm-skipRows").val(0);
         smartDetect();
-        xcHelper.showSuccess("Detection Complete!");
+        xcHelper.showSuccess(SuccessTStr.Detect);
     }
 
     function refreshPreview() {
