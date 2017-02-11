@@ -85,13 +85,13 @@ describe("Dataset Form Test", function() {
         it("Should allow browse valid path", function() {
             var paths = [{
                 "protocol": "nfs:///",
-                "path"    : ""
+                "path": ""
             },{
                 "protocol": "hdfs://",
-                "path"    : "host/"
+                "path": "host/"
             },{
                 "protocol": "file:///",
-                "path"    : ""
+                "path": ""
             }];
             paths.forEach(function(pathObj) {
                 var isValid = isValidPathToBrowse(pathObj.protocol, pathObj.path);
@@ -103,10 +103,10 @@ describe("Dataset Form Test", function() {
         it("Should not allow browse of invalid path", function() {
             var paths = [{
                 "protocol": "hdfs://",
-                "path"    : "hostNoSlash"
+                "path": "hostNoSlash"
             },{
                 "protocol": "hdfs://",
-                "path"    : ""
+                "path": ""
             }];
             paths.forEach(function(pathObj) {
                 var isValid = isValidPathToBrowse(pathObj.protocol, pathObj.path);

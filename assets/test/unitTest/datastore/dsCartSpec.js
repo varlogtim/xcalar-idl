@@ -31,8 +31,8 @@ describe("DSCart Test", function() {
             previousCart = DSCart.getCarts();
 
             fakeDSObj = DS.__testOnly__.createDS({
-                "id"      : "testDS" + Math.floor(Math.random() * 1000 + 1),
-                "name"    : "testDS",
+                "id": "testDS" + Math.floor(Math.random() * 1000 + 1),
+                "name": "testDS",
                 "isFolder": false
             });
         });
@@ -145,50 +145,50 @@ describe("DSCart Test", function() {
 
             var testCases = [{
                 "input": $tableName,
-                "val"  : "",
+                "val": "",
                 "valid": false,
                 "error": ErrTStr.NoEmpty
             },{
                 "input": $tableName,
-                "val"  : "1abc",
+                "val": "1abc",
                 "valid": false,
                 "error": ErrTStr.InvalidTableName
             },{
                 "input": $tableName,
-                "val"  : "ab*c",
+                "val": "ab*c",
                 "valid": false,
                 "error": ErrTStr.InvalidTableName
             },{
                 "input": $tableName,
-                "val"  : new Array(256).join("a"),
+                "val": new Array(256).join("a"),
                 "valid": false,
                 "error": ErrTStr.TooLong
             },{
                 "input": $tableName,
-                "val"  : "abc",
+                "val": "abc",
                 "valid": true
             },{
-                "input" : $prefix,
-                "val"   : "9abc",
-                "valid" : false,
+                "input": $prefix,
+                "val": "9abc",
+                "valid": false,
                 "prefix": true,
-                "error" : ErrTStr.PrefixStartsWithLetter
+                "error": ErrTStr.PrefixStartsWithLetter
             },{
-                "input" : $prefix,
-                "val"   : new Array(22).join("a"),
-                "valid" : false,
+                "input": $prefix,
+                "val": new Array(22).join("a"),
+                "valid": false,
                 "prefix": true,
-                "error" : ErrTStr.PrefixTooLong
+                "error": ErrTStr.PrefixTooLong
             },{
-                "input" : $prefix,
-                "val"   : "a:b",
-                "valid" : false,
+                "input": $prefix,
+                "val": "a:b",
+                "valid": false,
                 "prefix": true,
-                "error" : ColTStr.RenameSpecialChar
+                "error": ColTStr.RenameSpecialChar
             },{
-                "input" : $prefix,
-                "val"   : "ab",
-                "valid" : true,
+                "input": $prefix,
+                "val": "ab",
+                "valid": true,
                 "prefix": true
             }];
 

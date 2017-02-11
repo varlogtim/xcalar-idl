@@ -216,10 +216,10 @@ describe("DSObj Test", function() {
             var id = xcHelper.randName("folderId");
             var name = xcHelper.randName("folderName");
             DS.__testOnly__.createDS({
-                "id"        : id,
-                "name"      : name,
-                "parentId"  : DSObjTerm.homeDirI,
-                "isFolder"  : true,
+                "id": id,
+                "name": name,
+                "parentId": DSObjTerm.homeDirI,
+                "isFolder": true,
                 "uneditable": true
             });
             DS.goToDir(id);
@@ -428,7 +428,7 @@ describe("DSObj Test", function() {
             var e = jQuery.Event("dragstart", {"target": target});
             e.dataTransfer = {
                 "effectAllowed": "",
-                "setData"      : function() {}
+                "setData": function() {}
             };
             DS.onDragStart(e);
             expect(DS.__testOnly__.getDragDS().get(0)).to.equal(target);

@@ -28,24 +28,24 @@ describe("File Browser Test", function() {
                 "name": "test1.csv",
                 "attr": {
                     "isDirectory": false,
-                    "mtime"      : 1434159233,
-                    "size"       : 1
+                    "mtime": 1434159233,
+                    "size": 1
                 }
             },
             {
                 "name": "test2.json",
                 "attr": {
                     "isDirectory": false,
-                    "mtime"      : 1451005071,
-                    "size"       : 3
+                    "mtime": 1451005071,
+                    "size": 3
                 }
             },
             {
                 "name": "test3",
                 "attr": {
                     "isDirectory": true,
-                    "mtime"      : 1458167245,
-                    "size"       : 2
+                    "mtime": 1458167245,
+                    "size": 2
                 }
             }
             ];
@@ -918,7 +918,7 @@ describe("File Browser Test", function() {
             }
 
             var e = jQuery.Event("keydown", {
-                "which" : keyBoradCode,
+                "which": keyBoradCode,
                 "target": target
             });
             $(document).trigger(e);
