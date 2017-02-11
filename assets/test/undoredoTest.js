@@ -467,12 +467,11 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
                     "Sort",
                     "Filter",
                     "Map",
-                    "Map", // icv map
+                    // "Map", // icv map
                     "split column",
                     "change data type",
                     "GroupBy",
-                    "Join",
-                    "RenameTable"];
+                    "Join"];
 
     // the following icv map needs to be tested and integrated into testLogs.json
     // currently, we lack an overall function that does this kind of map

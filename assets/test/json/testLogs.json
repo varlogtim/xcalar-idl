@@ -482,18 +482,6 @@
         },
         "cli": "index --key \"testyelp::review_count\" --srctable \"testyelp#0S7\" --dsttable \"testyelp.index#0S11\" --prefix ;join --leftTable \"testyelp-GB#0S8\" --rightTable \"testyelp.index#0S11\" --joinType innerJoin  --joinTable \"joined#0S10\" --collisionCheck;",
         "timestamp": 1478561432058
-    },
-
-    {
-        "title": "RenameTable",
-        "options": {
-            "operation": "renameTable",
-            "tableId": "0S10",
-            "oldTableName": "joined#0S10",
-            "newTableName": "newrename#0S10"
-        },
-        "cli": "rename node  joined#0S10  newrename#0S10;",
-        "timestamp": 1478561444979
     }
 ],
 
