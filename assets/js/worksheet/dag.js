@@ -29,8 +29,18 @@ window.DagPanel = (function($, DagPanel) {
     };
 
     DagPanel.setScrollBarId = function(winHeight) {
+        // #moveCursor from TblAnim.startColDrag may be covering the screen
+        // so temporarily remove it before we check if a dataflow is visible
+        var $moveCursor = $("#moveCursor");
+        if ($moveCursor.length) {
+            $moveCursor.hide();
+        }
+
         // 34 or 47 depends on if scrollbar is showing
         var el = document.elementFromPoint(400, winHeight - 47);
+        if ($moveCursor.length) {
+            $moveCursor.show();
+        }
         var $dagImageWrap = $(el).closest('.dagImageWrap');
         if ($dagImageWrap.length) {
             var dagImageWrapHeight = $dagImageWrap.height();
@@ -304,6 +314,7 @@ window.DagPanel = (function($, DagPanel) {
                 RowScroller.updateViewRange(gActiveTableId);
                 // Refocus on table
                 Dag.focusDagForActiveTable(undefined, true);
+
                 if (window.isBrowserMicrosoft) {
                     // hack because rows become invisible in IE/EDGE
                     $('.xcTable').each(function() {
