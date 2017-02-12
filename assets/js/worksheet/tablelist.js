@@ -4,6 +4,9 @@ window.TableList = (function($, TableList) {
     var pendingCount = 0; // number of pending refreshTable calls
     var canceledTables = {}; // stores tables that are canceled and should not
                             // appear in the orphaned list
+    var days = [DaysTStr.Sunday, DaysTStr.Monday, DaysTStr.Tuesday,
+            DaysTStr.Wednesday, DaysTStr.Thursday, DaysTStr.Friday,
+            DaysTStr.Saturday];
 
     TableList.setup = function() {
         // setup table list section listeners
@@ -900,9 +903,7 @@ window.TableList = (function($, TableList) {
         var sortedTables = sortTables(tables, !options.sortByName);
         var dates = getTwoWeeksDate();
         var p = dates.length - 1;    // the length should be 8
-        var days = [DaysTStr.Sunday, DaysTStr.Monday, DaysTStr.Tuesday,
-                    DaysTStr.Wednesday, DaysTStr.Thursday, DaysTStr.Friday,
-                    DaysTStr.Saturday];
+
 
         if (sortedTables.length === 0) {
             $listSection.addClass('empty');
