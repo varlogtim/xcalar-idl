@@ -90,6 +90,7 @@ window.StartManager = (function(StartManager, $) {
         XVM.setup();
 
         xcTooltip.setup();
+        CSHelp.setup();
         MainMenu.setup();
         setupWorkspaceBar();
         StatusMessage.setup();
