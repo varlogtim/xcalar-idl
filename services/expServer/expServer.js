@@ -770,7 +770,12 @@ app.post('/login', function(req, res) {
 });
 
 var httpServer = http.createServer(app);
-require('ssl-root-cas').addFile('/etc/apache2/ssl/ca.pem').inject();
+try {
+    require('ssl-root-cas').addFile('/etc/apache2/ssl/ca.pem').inject();
+} catch (e) {
+    console.log("You do not have /etc/apache2/ssl/ca.pem! " +
+                "https will not be enabled!");
+}
 var port = 12124;
 httpServer.listen(port, function() {
     var hostname = process.env.DEPLOY_HOST;
