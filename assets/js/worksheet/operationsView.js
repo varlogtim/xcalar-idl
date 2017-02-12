@@ -85,6 +85,9 @@ window.OperationsView = (function($, OperationsView) {
 
         $operationsView.on('click', '.closeGroup', function() {
             removeFilterGroup($(this).closest('.group'));
+            if ($operationsView.find(".filter .group").length < 2) {
+                $operationsView.find(".andOrToggle").hide();
+            }
         });
 
         $operationsView.on('click', '.minGroup', function() {
@@ -296,7 +299,7 @@ window.OperationsView = (function($, OperationsView) {
         $operationsView.on('click', '.functionsList .dropdown', function() {
             var $list = $(this).siblings('.list');
             hideDropdowns();
-            
+
             $operationsView.find('li.highlighted')
                             .removeClass('highlighted');
             // show all list options when use icon to trigger
@@ -445,6 +448,16 @@ window.OperationsView = (function($, OperationsView) {
         // add filter arguments button
         $operationsView.find('.addFilterArg').click(function() {
             addFilterGroup();
+            $operationsView.find(".andOrToggle").show();
+        });
+
+        // toggle filter and/or
+        $operationsView.find(".switch").click(function() {
+            var $slider = $(this);
+            if (!$slider.hasClass("unavailable")) {
+                $slider.toggleClass("on");
+            }
+            updateStrPreview();
         });
 
         // static button
@@ -642,7 +655,7 @@ window.OperationsView = (function($, OperationsView) {
             colName = currentCol.getFrontColName(true);
             isNewCol = currentCol.isNewCol;
         }
-        
+
         $operationsView.find('.title').text(operatorName);
         $operationsView.find('.submit').text(operatorName.toUpperCase());
 
@@ -1926,7 +1939,11 @@ window.OperationsView = (function($, OperationsView) {
                     newText += ", ";
                 }
                 if (groupNum < numGroups - 1) {
-                    newText += "and(";
+                    if ($operationsView.find(".switch").hasClass("on")) {
+                        newText += "and(";
+                    } else {
+                        newText += "or(";
+                    }
                 }
                 newText += funcName + "(";
                 $inputs = $(this).find('.arg:visible');
@@ -2262,7 +2279,7 @@ window.OperationsView = (function($, OperationsView) {
             return deferred.reject().promise();
         }
 
-        formHelper.disableSubmit(); 
+        formHelper.disableSubmit();
 
         // new column name duplication & validity check
         newColNameCheck(args)
@@ -2326,7 +2343,16 @@ window.OperationsView = (function($, OperationsView) {
                     promise = aggregate(func, args, colTypeInfos);
                     break;
                 case ('filter'):
-                    promise = filter(func, args, colTypeInfos, hasMultipleSets);
+                    var andOr;
+                    if (hasMultipleSets) {
+                        if ($operationsView.find(".switch").hasClass("on")) {
+                            andOr = "and";
+                        } else {
+                            andOr = "or";
+                        }
+                    }
+                    promise = filter(func, args, colTypeInfos, hasMultipleSets,
+                                     andOr);
                     break;
                 case ('group by'):
                     promise = groupBy(func, args, colTypeInfos);
@@ -2851,7 +2877,7 @@ window.OperationsView = (function($, OperationsView) {
         return deferred.promise();
     }
 
-    function filter(operator, args, colTypeInfos, hasMultipleSets) {
+    function filter(operator, args, colTypeInfos, hasMultipleSets, andOr) {
         var deferred = jQuery.Deferred();
         var filterColNum;
         // var colName;
@@ -2873,7 +2899,7 @@ window.OperationsView = (function($, OperationsView) {
 
         var filterString = formulateMapFilterString(operator, args,
                                                     colTypeInfos,
-                                                    hasMultipleSets);
+                                                    hasMultipleSets, andOr);
 
         var startTime = Date.now();
 
@@ -3095,7 +3121,7 @@ window.OperationsView = (function($, OperationsView) {
     // hasMultipleSets: boolean, true if there are multiple groups of arguments
     // such as gt(a, 2) && lt(a, 5)
     function formulateMapFilterString(operator, args, colTypeInfos,
-                                      hasMultipleSets) {
+                                      hasMultipleSets, andOr) {
         var str = "";
         var argNum;
         var argGroups = [];
@@ -3131,7 +3157,10 @@ window.OperationsView = (function($, OperationsView) {
                 str += ", ";
             }
             if (i < argGroups.length - 1) {
-                str += "and(";
+                if (!andOr) {
+                    andOr = "and";
+                }
+                str += andOr + "(";
             }
             str += funcName + "(";
 

@@ -106,8 +106,27 @@
         </div>
         <div class="descriptionText"></div>
         <div class="argsSection inactive"></div>
-      </div> 
+      </div>
       <!-- end filter group -->
+      <div class="andOrToggle">
+        <div class="instr">
+          <%= dicts.opsView.andOrFilter %>
+          <div class="hint csHelp" data-topic="filterAndOr" title=<%= dicts.TooltipTStr.CSHelp %> data-toggle="tooltip" data-container="body">
+            <i class="icon xi-help fa-12"></i>
+          </div>
+        </div>
+        <div class="switchWrap">
+          <div class="switchLabel">
+            <%= dicts.opsView.or %>
+          </div>
+          <div class="xc-switch switch alwaysBlue on">
+            <div class="slider"></div>
+          </div>
+          <div class="switchLabel">
+            <%= dicts.opsView.and %>
+          </div>
+        </div>
+      </div>
       <div class="addArgWrap">
         <button class="btn btn-small addArg addFilterArg">
           <i class="icon xi-plus"></i>
@@ -200,7 +219,7 @@
         <div class="argsSection inactive">
         </div>
         <div class="row clearfix newTableNameRow inactive">
-          <div class="description">New table name:</div>
+          <div class="description"><%= dicts.opsView.newTableName %>:</div>
           <input class="focusable newTableName" type="textbox" spellcheck="false" >
         </div>
         <div class="gbCheckboxes inactive clearfix">

@@ -5,616 +5,655 @@
 //
 
 .opView {
-	height: 100%;
-	background-color: @color-bg-white-five;
-	font-weight: 600;
+    height: 100%;
+    background-color: @color-bg-white-five;
+    font-weight: 600;
 
-	@title-height: 40px;
-	@listHeight: 26px;
-	@headingHeight: 30px;
-	@standardFontSize: 12px;
-	@commonMargin: 10px; // margin left used on text and input padding
+    @title-height: 40px;
+    @listHeight: 26px;
+    @headingHeight: 30px;
+    @standardFontSize: 12px;
+    @commonMargin: 10px; // margin left used on text and input padding
 
-	.input-box (100%, @listHeight);
+    .input-box (100%, @listHeight);
 
-	> header {
-		background-color: @color-bg-marine;
-		height: @title-height;
-		line-height: @title-height;
-		text-transform: uppercase;
-		font-size: 20px;
-		color: @color-white;
-		margin-top: -10px;
+    > header {
+        background-color: @color-bg-marine;
+        height: @title-height;
+        line-height: @title-height;
+        text-transform: uppercase;
+        font-size: 20px;
+        color: @color-white;
+        margin-top: -10px;
 
-		.title {
-			margin-left: 15px;
-			display: inline-block;
-			width: ~"calc(100% - 100px)";
-		}
-		.close {
-			line-height: @title-height;
-			margin-right: 10px;
-			float: right;
-		    font-size: 15px;
-		    cursor: pointer;
-		    opacity: @opacity-unhover;
-		    &:hover {
-		    	opacity: @opacity-hover;
-		    }
-		}
-	}
+        .title {
+            margin-left: 15px;
+            display: inline-block;
+            width: ~"calc(100% - 100px)";
+        }
+        .close {
+            line-height: @title-height;
+            margin-right: 10px;
+            float: right;
+            font-size: 15px;
+            cursor: pointer;
+            opacity: @opacity-unhover;
+            &:hover {
+                opacity: @opacity-hover;
+            }
+        }
+    }
 
-	.semiHidden {
-		height: 0px !important;
-		overflow: hidden !important;
-	}
+    .semiHidden {
+        height: 0px !important;
+        overflow: hidden !important;
+    }
 
-	.mainContent {
-		font-size: @standardFontSize;
-		overflow: auto;
-		background-color: @color-bg-white-five;
-		height: ~"calc(100% - 20px)";
-	}
+    .mainContent {
+        font-size: @standardFontSize;
+        overflow: auto;
+        background-color: @color-bg-white-five;
+        height: ~"calc(100% - 20px)";
+    }
 
-	p {
-		padding: 15px;
-		padding: 0px 15px 10px 15px;
-		font-size: 11px;
-	}
+    p {
+        padding: 15px;
+        padding: 0px 15px 10px 15px;
+        font-size: 11px;
+    }
 
-	input {
-		font-size: @standardFontSize;
-		background-color: @color-white;
-	}
+    input {
+        font-size: @standardFontSize;
+        background-color: @color-white;
+    }
 
-	.dropDownList {
+    .dropDownList {
         .styleDropDownList(100%, @listHeight);
         .text {
-	    	background-color: @color-white;
-	    	font-size: @standardFontSize;
-	    }
-	    li {
-	    	font-size: @standardFontSize;
-	    	padding-left: @commonMargin;
-	    }
+            background-color: @color-white;
+            font-size: @standardFontSize;
+        }
+        li {
+            font-size: @standardFontSize;
+            padding-left: @commonMargin;
+        }
     }
 
     .checkboxWrap {
-    	.noSelection;
+        .noSelection;
     }
 
     .checkbox {
-		.size(17px, 17px);
-		padding: 2px;
-		float: right;
-		position: relative;
-	}
+        .size(17px, 17px);
+        padding: 2px;
+        float: right;
+        position: relative;
+    }
 
     .columnsWrap {
-    	ul {
-    		float: left;
-    		width: 50%;
-    		background-color: @color-white;
-    		&:first-child {
-    			border-right: 1px solid @color-border-pinkish-grey2;
-    		}
-    		&.rightCols {
-    			width: ~"calc(50% - 1px)"; // -1px for border
-    		}
-    	}
-    	li {
-    		.size(100%, @listHeight);
-    		line-height: @listHeight;
-    		padding-left: @commonMargin;
-    		border-bottom: 1px solid @color-border-pinkish-grey2;
-    		cursor: pointer;
+        ul {
+            float: left;
+            width: 50%;
+            background-color: @color-white;
+            &:first-child {
+                border-right: 1px solid @color-border-pinkish-grey2;
+            }
+            &.rightCols {
+                width: ~"calc(50% - 1px)"; // -1px for border
+            }
+        }
+        li {
+            .size(100%, @listHeight);
+            line-height: @listHeight;
+            padding-left: @commonMargin;
+            border-bottom: 1px solid @color-border-pinkish-grey2;
+            cursor: pointer;
 
-    		&:first-child {
-    			border-top: 1px solid @color-border-pinkish-grey2;
-    		}
+            &:first-child {
+                border-top: 1px solid @color-border-pinkish-grey2;
+            }
 
-    		.text {
-    			display: inline-block;
-    			width: ~"calc(100% - 22px)";
-    			.textOverflowOneLine;
-    		}
-    	}
+            .text {
+                display: inline-block;
+                width: ~"calc(100% - 22px)";
+                .textOverflowOneLine;
+            }
+        }
 
-    	.checkbox {
-			float: right;
-			position: relative;
-			margin-top: 5px;
-			margin-right: 4px;
-		}
-	}
+        .checkbox {
+            float: right;
+            position: relative;
+            margin-top: 5px;
+            margin-right: 4px;
+        }
+    }
 
-	.instructions {
-		border-bottom: 1px solid @color-border-pinkish-grey2;
-		background-color: @color-white;
-		padding-top: 15px;
-		padding-bottom: 15px;
-	}
+    .instructions {
+        border-bottom: 1px solid @color-border-pinkish-grey2;
+        background-color: @color-white;
+        padding-top: 15px;
+        padding-bottom: 15px;
+    }
 
-	.opSection {
-		&.filter {
-			.argsSection {
-				margin-bottom: 20px;
-			}
-		}
+    .opSection {
+        &.filter {
+            .argsSection {
+                margin-bottom: 20px;
+            }
+        }
 
-		// xx need to generalize
-		.icvContainer, .gbCheckboxes, .keepTablesCBWrap {
-			width: 100%;
-			height: 30px;
-		}
-		// xx need to generalize
-		.icvMode, .gbCheckboxes > div, .keepTableCheckbox {
-			float: right;
-			padding-right: 10px;
-			&.inactive {
-				visibility: hidden;
-			}
-			.text {
-				display: inline;
-				margin-right: 5px;
-				font-weight: 600;
-				line-height: 23px;
-				font-size: 11px;
-			}
-			.checkbox {
-				margin-top: 6px;
-				.icon {
-					color: @color-font-softBlue;
-					cursor: pointer;
-				}
-			}
-		}
-	}
+        // xx need to generalize
+        .icvContainer, .gbCheckboxes, .keepTablesCBWrap {
+            width: 100%;
+            height: 30px;
+        }
+        // xx need to generalize
+        .icvMode, .gbCheckboxes > div, .keepTableCheckbox {
+            float: right;
+            padding-right: 10px;
+            &.inactive {
+                visibility: hidden;
+            }
+            .text {
+                display: inline;
+                margin-right: 5px;
+                font-weight: 600;
+                line-height: 23px;
+                font-size: 11px;
+            }
+            .checkbox {
+                margin-top: 6px;
+                .icon {
+                    color: @color-font-softBlue;
+                    cursor: pointer;
+                }
+            }
+        }
+    }
 
-	.subHeading {
-		margin-top: 6px;
-		> div, > span {
-			float: left;
-			width: 50%;
-			height: @headingHeight;
-			line-height: @headingHeight + 4;
-			padding-left: @commonMargin;
-			font-weight: 700;
-		}
-		> .focusTable {
-			padding-left: 6px;
-		}
-		.altFnTitle {
-			display: none;
-		}
-	}
+    .subHeading {
+        margin-top: 6px;
+        > div, > span {
+            float: left;
+            width: 50%;
+            height: @headingHeight;
+            line-height: @headingHeight + 4;
+            padding-left: @commonMargin;
+            font-weight: 700;
+        }
+        > .focusTable {
+            padding-left: 6px;
+        }
+        .altFnTitle {
+            display: none;
+        }
+    }
 
-	.subSubHeading {
-		margin-top: 6px;
-		> div, > span {
-			float: left;
-			width: 50%;
-			height: @headingHeight - 10px;
-			line-height: @headingHeight - 6;
-			padding-bottom: 4px;
-			padding-left: 9px;
-			font-weight: 700;
-		}
-	}
+    .subSubHeading {
+        margin-top: 6px;
+        > div, > span {
+            float: left;
+            width: 50%;
+            height: @headingHeight - 10px;
+            line-height: @headingHeight - 6;
+            padding-bottom: 4px;
+            padding-left: 9px;
+            font-weight: 700;
+        }
+    }
 
-	.catFuncMenus {
-		border: 1px solid @color-border-pinkish-grey2;
-		border-width: 1px 0px 1px 0px;
+    .catFuncMenus {
+        border: 1px solid @color-border-pinkish-grey2;
+        border-width: 1px 0px 1px 0px;
 
-		ul {
-			float: left;
-			width: 50%;
-			list-style-type: none;
-			height: @listHeight * 5 - 1px;
-			overflow: auto;
-			padding-bottom: 6px;
-			position: relative; // easier to find li scroll position
+        ul {
+            float: left;
+            width: 50%;
+            list-style-type: none;
+            height: @listHeight * 5 - 1px;
+            overflow: auto;
+            padding-bottom: 6px;
+            position: relative; // easier to find li scroll position
 
-			&:first-child {
-				border-right: 1px solid @color-border-pinkish-grey2;
-			}
+            &:first-child {
+                border-right: 1px solid @color-border-pinkish-grey2;
+            }
 
-			li {
-				height: @listHeight;
-				line-height: @listHeight;
-				background-color: @color-white;
-				border-bottom: 1px solid @color-border-pinkish-grey2;
-				cursor: pointer;
-				padding-left: @commonMargin;
-				.textOverflowOneLine;
+            li {
+                height: @listHeight;
+                line-height: @listHeight;
+                background-color: @color-white;
+                border-bottom: 1px solid @color-border-pinkish-grey2;
+                cursor: pointer;
+                padding-left: @commonMargin;
+                .textOverflowOneLine;
 
-				&.filteredOut {
-					display: none;
-				}
+                &.filteredOut {
+                    display: none;
+                }
 
-				&:hover {
-					background-color: fade(@color-bg-light-blue-grey, 40%);
-				}
-				&.active {
-					background-color: @color-bg-light-blue-grey;
-				}
-			}
-		}
-	}
+                &:hover {
+                    background-color: fade(@color-bg-light-blue-grey, 40%);
+                }
+                &.active {
+                    background-color: @color-bg-light-blue-grey;
+                }
+            }
+        }
+    }
 
-	.descriptionText, .strPreview {
-		padding: 10px 4px 4px @commonMargin;
-	}
+    .descriptionText, .strPreview {
+        padding: 10px 4px 4px @commonMargin;
+    }
 
-	.strPreview {
-		overflow: hidden;
-    	text-overflow: ellipsis;
-    	margin-bottom: -10px;
-    	padding-top: 20px;
-    	.auto-selection;
-
-
-		.aggCols, .groupByCols, .descArgs {
-			color: @color-font-select-blue;
-		}
-		.char {
-			.transition(2s all ease-in);
-			&.visible {
-				background-color: @color-bg-gold;
-			}
-			&.space {
-				display: inline-block;
-				width: 3px;
-			}
-		}
-	} 
-
-	.group {
-		border-top: 1px solid @color-border-pinkish-grey2;
-		padding-top: 10px;
-
-		&:nth-child(2) { // first .group 
-			border-width: 0px;
-			padding-top: 0px;
-			.closeGroup {
-				display: none;
-			}
-			.minGroup {
-				margin-top: 0px;
-			}
-		}
-
-		.closeGroup, .minGroup {
-			float: right;
-			color: @color-font-warm-grey-two;
-			font-size: 12px;
-			margin-top: -5px;
-			margin-right: 5px;
-			cursor: pointer;
-			opacity: @opacity-unhover;
-			&:hover {
-				opacity: @opacity-hover;
-			}
-		}
-
-		.minGroup {
-			margin-right: 10px;
-		}
-
-		// start minimized group styling
-		&.minimized {
-			.clearfix;
-			padding-top: 4px;
-			padding-bottom: 10px;
-
-			.subHeading, .descriptionText, .description, .argIconWrap, .minGroup  {
-				display: none;
-			}
-			+ .addArgWrap {
-				margin-top: 20px;
-			}
+    .strPreview {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-bottom: -10px;
+        padding-top: 20px;
+        .auto-selection;
 
 
-			.catFuncHeadings {
-				display: block;
-				margin-top: 0px;
-				padding-top: 6px;
-				position: relative;
-				.filterFnTitle {
-					display: none;
-				}
+        .aggCols, .groupByCols, .descArgs {
+            color: @color-font-select-blue;
+        }
+        .char {
+            .transition(2s all ease-in);
+            &.visible {
+                background-color: @color-bg-gold;
+            }
+            &.space {
+                display: inline-block;
+                width: 3px;
+            }
+        }
+    }
 
-				.icon {
-					position: absolute;
-					right: 0px;
-					top: 10px;
-				}
-			}
+    .group {
+        border-top: 1px solid @color-border-pinkish-grey2;
+        padding-top: 10px;
 
-			.functionsList {
-				// width: 25% !important;
-				background-color: transparent !important; 
-				float: left !important;
-				display: inline-block;
-				width: auto;
-				max-width: ~"calc(100% - 30px)";
-				cursor: pointer;
+        &:nth-child(2) { // first .group
+            border-width: 0px;
+            padding-top: 0px;
+            .closeGroup {
+                display: none;
+            }
+            .minGroup {
+                margin-top: 0px;
+            }
+        }
 
-				.functionsInput {
-					width: 100% !important;
-					padding-right: 6px !important;
-					background-color: transparent !important;
-					border: none !important;
-					outline: none;
-					font-size: @standardFontSize !important;
-					font-weight: 700;
-					pointer-events: none;
-				}
-				.iconWrapper {
-					display: none;
-				}
-				.list {
-					top: 26px;
-				}
-			}
-			.argsSection {
-				float: left;
-				width: 100%;
-				margin-bottom: 0px;
-			}
+        .closeGroup, .minGroup {
+            float: right;
+            color: @color-font-warm-grey-two;
+            font-size: 12px;
+            margin-top: -5px;
+            margin-right: 5px;
+            cursor: pointer;
+            opacity: @opacity-unhover;
+            &:hover {
+                opacity: @opacity-hover;
+            }
+        }
 
-			.row {
-				float: left;
-				margin-top: 0px;
-				.arg {
-					width: 100%;
-					border-left: 1px solid @color-border-pinkish-grey2;
-					padding: 2px;
-					text-align: center;
-					text-overflow: ellipsis;
-				}
-				&:first-child {
-					.arg {
-						border-left-width: 0px;
-					}
-				}
-				.emptyOptions {
-					display: none;
-				}
-			}
+        .minGroup {
+            margin-right: 10px;
+        }
 
-			&.fnInputEmpty {
-				.altFnTitle {
-					display: block;
-				}
-				.argsSection {
-					display: none;
-				}
-				.functionsList {
-					visibility: hidden;
-					height: 0px !important;
-					overflow: hidden !important;
-					position: relative;
-					top: -28px; // so error messages will be positioned properly
-				}
-				input {
-					// display: none; // we want to show so we can place error messages
-					// next to the input
-					visibility: hidden;
-				}
-			}
+        // start minimized group styling
+        &.minimized {
+            .clearfix;
+            padding-top: 4px;
+            padding-bottom: 10px;
 
-			&[data-numargs="0"] {
-				.argsSection {
-					display: none;
-				}
-			}
+            .subHeading, .descriptionText, .description, .argIconWrap, .minGroup  {
+                display: none;
+            }
+            + .addArgWrap {
+                margin-top: 20px;
+            }
 
-			&[data-numargs="1"] {
-				.row {
-					width: 100%
-				}
-			}
-			&[data-numargs="2"] {
-				.row {
-					width: 50%
-				}
-			}
-			&[data-numargs="3"] {
-				.row {
-					width: 33.3%
-				}
-			}
-			&[data-numargs="4"] {
-				.row {
-					width: 25%
-				}
-			}
-		}
-		// end minimized group styling
-	}
 
-	.argsSection {
-		position: relative;
-		z-index: 0; // prevents lists above from being hidden
+            .catFuncHeadings {
+                display: block;
+                margin-top: 0px;
+                padding-top: 6px;
+                position: relative;
+                .filterFnTitle {
+                    display: none;
+                }
 
-		&.inactive {
-			visibility: hidden;
-			overflow: hidden;
-			height: 40px;
-			.row {
-				display: none;
-			}
-		}
+                .icon {
+                    position: absolute;
+                    right: 0px;
+                    top: 10px;
+                }
+            }
 
-		.row {
-			margin-top: 6px;
-		}
-		.description {
-			padding: 6px;
-			padding-left: @commonMargin;
-			padding-bottom: 4px;
-			line-height: 14px;
-			font-weight: 700;
-		}
-		.cast {
-			width: 100%;
-			height: 0px;
-			overflow: hidden;
-			float: left;
-			position: relative;
-			.transition(all 0.3s);
-			// padding-top: 6px;
-			margin-top: 0px;
+            .functionsList {
+                // width: 25% !important;
+                background-color: transparent !important; 
+                float: left !important;
+                display: inline-block;
+                width: auto;
+                max-width: ~"calc(100% - 30px)";
+                cursor: pointer;
 
-			&.hidden {
-				display: none;
-			}
+                .functionsInput {
+                    width: 100% !important;
+                    padding-right: 6px !important;
+                    background-color: transparent !important;
+                    border: none !important;
+                    outline: none;
+                    font-size: @standardFontSize !important;
+                    font-weight: 700;
+                    pointer-events: none;
+                }
+                .iconWrapper {
+                    display: none;
+                }
+                .list {
+                    top: 26px;
+                }
+            }
+            .argsSection {
+                float: left;
+                width: 100%;
+                margin-bottom: 0px;
+            }
 
-			.label {
-				font-weight: 700;
-				margin-left: @commonMargin;
-				float: left;
-				display: inline-block;
-				width: 40px;
-				height: 36px;
-				line-height: 26px;
-			}
+            .row {
+                float: left;
+                margin-top: 0px;
+                .arg {
+                    width: 100%;
+                    border-left: 1px solid @color-border-pinkish-grey2;
+                    padding: 2px;
+                    text-align: center;
+                    text-overflow: ellipsis;
+                }
+                &:first-child {
+                    .arg {
+                        border-left-width: 0px;
+                    }
+                }
+                .emptyOptions {
+                    display: none;
+                }
+            }
 
-	        .dropDownList {
-	            // width: 123px;
-	            
-	            width: ~"calc(100% - 50px)" !important;
-	            
-	            &.hidden {
-	                display: none;
-	            }
-	            .iconWrapper {
-	            	float: left;
-	            }
+            &.fnInputEmpty {
+                .altFnTitle {
+                    display: block;
+                }
+                .argsSection {
+                    display: none;
+                }
+                .functionsList {
+                    visibility: hidden;
+                    height: 0px !important;
+                    overflow: hidden !important;
+                    position: relative;
+                    top: -28px; // so error messages will be positioned properly
+                }
+                input {
+                    // display: none; // we want to show so we can place error messages
+                    // next to the input
+                    visibility: hidden;
+                }
+            }
 
-	            ul {
-	                position: absolute;
-	                left: 1px !important;
-	                top: 26px !important;
-	                width: ~"calc(100% - 27px)" !important;
-	            }
+            &[data-numargs="0"] {
+                .argsSection {
+                    display: none;
+                }
+            }
 
-	            li.default {
-	                color: @color-text-lightGray;
-	            }
-	        }
+            &[data-numargs="1"] {
+                .row {
+                    width: 100%
+                }
+            }
+            &[data-numargs="2"] {
+                .row {
+                    width: 50%
+                }
+            }
+            &[data-numargs="3"] {
+                .row {
+                    width: 33.3%
+                }
+            }
+            &[data-numargs="4"] {
+                .row {
+                    width: 25%
+                }
+            }
+        }
+        // end minimized group styling
+    }
 
-	        &.showing {
-	            height: 36px;
-	            margin-top: 6px;
-	            div.text {
-	                padding-left: 12px;
-	            }
-	        }
-	        &.overflowVisible {
-	            overflow: visible;
-	        }
+    .argsSection {
+        position: relative;
+        z-index: 0; // prevents lists above from being hidden
 
-		}
-		.inputWrap {
-			float: left;
-			width: 100%;
+        &.inactive {
+            visibility: hidden;
+            overflow: hidden;
+            height: 40px;
+            .row {
+                display: none;
+            }
+        }
 
-			.dropDownList {
-				.list.hint {
-				    text-align: left;
-				    padding-left: 0px;
-				    text-transform: none;
-				    z-index: 101; // to get in front of cast dropdown
-				}
-			}
-		}
-		.dropDownList {
-			width: 100% !important; // ignore js input width increasing 
-			background-color: transparent;
-		
-			.arg {
-				height: @listHeight;
-				width: ~"calc(100% - 26px)";
-				padding-left: @commonMargin;
-				font-size: @standardFontSize;
-				float: left;
-				// border: 1px solid @color-border-pinkish-grey2;
-				border-width: 1px 0px 1px 0px;
-			}
-			.argIconWrap {
-				float: left;
-				.size(@listHeight, @listHeight);
-				line-height: @listHeight;
+        .row {
+            margin-top: 6px;
+        }
+        .description {
+            padding: 6px;
+            padding-left: @commonMargin;
+            padding-bottom: 4px;
+            line-height: 14px;
+            font-weight: 700;
+        }
+        .cast {
+            width: 100%;
+            height: 0px;
+            overflow: hidden;
+            float: left;
+            position: relative;
+            .transition(all 0.3s);
+            // padding-top: 6px;
+            margin-top: 0px;
 
-				.icon {
-					font-size: 12px;
-					line-height: @listHeight + 2px;
-				}
-			}
+            &.hidden {
+                display: none;
+            }
+
+            .label {
+                font-weight: 700;
+                margin-left: @commonMargin;
+                float: left;
+                display: inline-block;
+                width: 40px;
+                height: 36px;
+                line-height: 26px;
+            }
+
+            .dropDownList {
+                // width: 123px;
+
+                width: ~"calc(100% - 50px)" !important;
+
+                &.hidden {
+                    display: none;
+                }
+                .iconWrapper {
+                    float: left;
+                }
+
+                ul {
+                    position: absolute;
+                    left: 1px !important;
+                    top: 26px !important;
+                    width: ~"calc(100% - 27px)" !important;
+                }
+
+                li.default {
+                    color: @color-text-lightGray;
+                }
+            }
+
+            &.showing {
+                height: 36px;
+                margin-top: 6px;
+                div.text {
+                    padding-left: 12px;
+                }
+            }
+            &.overflowVisible {
+                overflow: visible;
+            }
+
+        }
+        .inputWrap {
+            float: left;
+            width: 100%;
+
+            .dropDownList {
+                .list.hint {
+                    text-align: left;
+                    padding-left: 0px;
+                    text-transform: none;
+                    z-index: 101; // to get in front of cast dropdown
+                }
+            }
+        }
+        .dropDownList {
+            width: 100% !important; // ignore js input width increasing
+            background-color: transparent;
+
+            .arg {
+                height: @listHeight;
+                width: ~"calc(100% - 26px)";
+                padding-left: @commonMargin;
+                font-size: @standardFontSize;
+                float: left;
+                // border: 1px solid @color-border-pinkish-grey2;
+                border-width: 1px 0px 1px 0px;
+            }
+            .argIconWrap {
+                float: left;
+                .size(@listHeight, @listHeight);
+                line-height: @listHeight;
+
+                .icon {
+                    font-size: 12px;
+                    line-height: @listHeight + 2px;
+                }
+            }
 
             &.colNameSection {
-            	.arg {
-            		width: 100%;
-            	}
-            	.argIconWrap {
-            		display: none;
-            	}
+                .arg {
+                    width: 100%;
+                }
+                .argIconWrap {
+                    display: none;
+                }
             }
-		}
+        }
 
-		.emptyOptions {
-			.checkboxWrap {
-				width: 50%;
-			}
-		}
+        .emptyOptions {
+            .checkboxWrap {
+                width: 50%;
+            }
+        }
 
-		.checkboxWrap {
-		 	float: left;
-			.size(@height: @listHeight);
-			display: inline-block;
-	    	line-height: @listHeight;
-	    	cursor: pointer;
-	    	.noSelection;
-	    	
-	    	.checkbox {
-	    		margin-left: @commonMargin;
-	    		margin-right: 6px;
-	    		margin-top: 5px;
-	    		float: left;
-	    	}
-	    }
-	}
+        .checkboxWrap {
+             float: left;
+            .size(@height: @listHeight);
+            display: inline-block;
+            line-height: @listHeight;
+            cursor: pointer;
+            .noSelection;
 
-	.addArgWrap {
-		padding-left: @commonMargin;
-		.btn {
-			.size(@listHeight, @listHeight);
-    		padding: 0px;
-    		line-height: @listHeight;
-			.icon {
-				line-height: @listHeight;
-				font-size: 14px;
-			}
-		}
-		.text {
-			font-size: @standardFontSize;
-			margin-left: @commonMargin;
-		} 
-	}
+            .checkbox {
+                margin-left: @commonMargin;
+                margin-right: 6px;
+                margin-top: 5px;
+                float: left;
+            }
+        }
+    }
 
-	.btnWrap {
-		width: 100%;
-		overflow: hidden;
-	}
+    .andOrToggle {
+    	display: none;
+    	padding-top: 5px;
+    	padding-bottom: 5px;
+    	margin-bottom: 20px;
+        width: 100%;
+        background: @color-bg-white-three;
+        .instr {
+        	font-weight: 700;
+        	text-align: center;
+        }
+        .hint {
+        	cursor: pointer;
+        	position: relative;
+        	top: 1px;
+        	padding-left: 3px;
+        	.icon {
+        		color: @color-font-select-blue;
+        	}
+        	display: inline-block;
+        }
+        .switchWrap {
+        	.switchLabel {
+        		padding-top: 2px;
+        	}
+        	.xc-switch {
+        		margin-left: 10px;
+        		margin-right: 10px;
+        		position: relative;
+        		top: 1px;
+        	}
+            margin: auto;
+            width: 90px;
+            >div {
+                display: inline-block;
+            }
+        }
+    }
 
-	.submit {
-		display: block;
-		margin: 30px auto 50px;
-		// using left: 50%; translate -50% doesn't work well in IE
-	}
-	.bottomSection.flexWrap {
+    .addArgWrap {
+        padding-left: @commonMargin;
+        .btn {
+            .size(@listHeight, @listHeight);
+            padding: 0px;
+            line-height: @listHeight;
+            .icon {
+                line-height: @listHeight;
+                font-size: 14px;
+            }
+        }
+        .text {
+            font-size: @standardFontSize;
+            margin-left: @commonMargin;
+        }
+    }
+
+    .btnWrap {
+        width: 100%;
+        overflow: hidden;
+    }
+
+    .submit {
+        display: block;
+        margin: 30px auto 50px;
+        // using left: 50%; translate -50% doesn't work well in IE
+    }
+    .bottomSection.flexWrap {
         margin: 25px 10px 35px;
         .flex-display;
         .flex-wrap(wrap);
@@ -631,11 +670,11 @@
 }
 
 #operationsView {
-	@title-height: 40px;
-	@listHeight: 26px;
-	@standardFontSize: 12px;
-	@commonMargin: 10px;
-	.dropDownList {
+    @title-height: 40px;
+    @listHeight: 26px;
+    @standardFontSize: 12px;
+    @commonMargin: 10px;
+    .dropDownList {
         .styleDropDownList(100%, @listHeight);
 
         .textNoCap {
@@ -663,15 +702,15 @@
             text-transform: capitalize;
 
             &.genFunctionMenu {
-            	.size (@width: ~"calc(100% - @{listHeight})");
+                .size (@width: ~"calc(100% - @{listHeight})");
             }
 
             &.hint {
-            	.size (@width: ~"calc(100% - @{listHeight})");
-            	position: absolute;
-            	top: @listHeight !important;
-            	left: 0px !important; 
-            	text-transform: none;
+                .size (@width: ~"calc(100% - @{listHeight})");
+                position: absolute;
+                top: @listHeight !important;
+                left: 0px !important; 
+                text-transform: none;
             }
             li {
                 // display: none;
@@ -692,7 +731,7 @@
         }
 
         &.functionsList {
-        	float: none;
+            float: none;
             input {
                 position: relative;
                 z-index:10;
@@ -707,125 +746,125 @@
             }
         }
         &.checkboxSection .argIconWrap {
-		    display: none;
-		}
+            display: none;
+        }
     }
 
     .tableListSection {
-    	.tableList {
-    		z-index: 12;
-    	}
-		.iconWrap {
-			float: right;
-			width: @listHeight;
-			line-height: @listHeight + 10px;
-			cursor: pointer;
-		}
-		.xi-show {
-			font-size: 14px;
-			color: @color-font-darkGray;
-		}
-		.selected {
-	    	color: @color-font-select-blue;
-	    }
-	}
+        .tableList {
+            z-index: 12;
+        }
+        .iconWrap {
+            float: right;
+            width: @listHeight;
+            line-height: @listHeight + 10px;
+            cursor: pointer;
+        }
+        .xi-show {
+            font-size: 14px;
+            color: @color-font-darkGray;
+        }
+        .selected {
+            color: @color-font-select-blue;
+        }
+    }
 
-	.tempDisabled {
-		opacity: @opacity-disabled !important;
-	}
+    .tempDisabled {
+        opacity: @opacity-disabled !important;
+    }
 
     .groupby {
-    	.groupbyFnTitle {
-    		width: 100%;
-    	}
-    	.argsSection {
-    		.colNameRow:nth-child(3), .colNameRow:nth-child(4) {
-    			.description {
-    				display: none;
-    			}
-    			.checkboxSection {
-    				display: inline-block;
-				    width: auto !important;
-				    float: right;
-    				
-    				.arg {
-    					width: 26px;
-    					float: right;
-    				}
-    			}
-    		}
-    	}
-    	.newTableNameRow {
-    		margin-top: 6px;
+        .groupbyFnTitle {
+            width: 100%;
+        }
+        .argsSection {
+            .colNameRow:nth-child(3), .colNameRow:nth-child(4) {
+                .description {
+                    display: none;
+                }
+                .checkboxSection {
+                    display: inline-block;
+                    width: auto !important;
+                    float: right;
 
-    		.description {
-    			padding: 6px;
-			    padding-left: 10px;
-			    padding-bottom: 4px;
-			    line-height: 14px;
-			    font-weight: 700;
-    		}
-     		    
-    		&.inactive {
-    			display: none;
-    		}
-    	}
-    	.gbCheckboxes {
-    		margin-top: 6px;
-    		height: auto;
-    		.checkboxSection {
-    			height: @listHeight;
-    		}
-    		&.inactive {
-	    		display: none;
-	    	}
-    	}
+                    .arg {
+                        width: 26px;
+                        float: right;
+                    }
+                }
+            }
+        }
+        .newTableNameRow {
+            margin-top: 6px;
+
+            .description {
+                padding: 6px;
+                padding-left: 10px;
+                padding-bottom: 4px;
+                line-height: 14px;
+                font-weight: 700;
+            }
+
+            &.inactive {
+                display: none;
+            }
+        }
+        .gbCheckboxes {
+            margin-top: 6px;
+            height: auto;
+            .checkboxSection {
+                height: @listHeight;
+            }
+            &.inactive {
+                display: none;
+            }
+        }
 
     }
 
     .groupby, .map {
-    	.addArgWrap {
-    		padding-left: 0px;
-    		margin-top: 15px;
-    	}
-    	.addArg {
-    		width: 260px;
-    		height:  36px;
-    		display: block;
-    		margin: 0 auto;
-    		.text {
-    			font-size: 14px;
-    		}
-    	}
-    	.extra {
-    		position: relative;
-    		margin-top: 10px;
-    		.xi-cancel {
-    			position: absolute;
-    			left: 4px;
-    			top: 7px;
-    			color: @color-font-warm-grey-two;
-    			font-size: 14px;
-    			opacity: @opacity-unhover;
-    			cursor: pointer;
-    			z-index: 100; // place in front of dropdown list which has index 99
+        .addArgWrap {
+            padding-left: 0px;
+            margin-top: 15px;
+        }
+        .addArg {
+            width: 260px;
+            height:  36px;
+            display: block;
+            margin: 0 auto;
+            .text {
+                font-size: 14px;
+            }
+        }
+        .extra {
+            position: relative;
+            margin-top: 10px;
+            .xi-cancel {
+                position: absolute;
+                left: 4px;
+                top: 7px;
+                color: @color-font-warm-grey-two;
+                font-size: 14px;
+                opacity: @opacity-unhover;
+                cursor: pointer;
+                z-index: 100; // place in front of dropdown list which has index 99
 
-    			&:hover {
-    				opacity: @opacity-hover;
-    			}
+                &:hover {
+                    opacity: @opacity-hover;
+                }
 
-    		}
+            }
 
-    		input {
-				padding-left: 22px;
-			}
-    	}
+            input {
+                padding-left: 22px;
+            }
+        }
     }
 
     .map {
-    	.filterMapFuncArea {
-    		position: relative;
-    		.clear {
+        .filterMapFuncArea {
+            position: relative;
+            .clear {
                 display: none;
                 .size(@width: 20px, @height: 30px);
                 .position(absolute, @top: 14px, @right: 11px);
@@ -839,112 +878,112 @@
                     }
                 }
             }
-    	}
-    	#mapFilter {
-    		width: ~"calc(100% - 20px)";
-    		margin-left: 10px;
-    		margin-top: 14px;
+        }
+        #mapFilter {
+            width: ~"calc(100% - 20px)";
+            margin-left: 10px;
+            margin-top: 14px;
 
             &:focus {
                 ~ .clear {
                     display: block;
                 }
             }
-    	}
-    	.catFuncHeadings {
-    		margin-top: 4px;
-    	}
+        }
+        .catFuncHeadings {
+            margin-top: 4px;
+        }
     }
 }
 
 #joinView {
-	@listHeight: 26px;
-	@standardFontSize: 12px;
-	@commonMargin: 10px;
+    @listHeight: 26px;
+    @standardFontSize: 12px;
+    @commonMargin: 10px;
 
-	&.nextStep {
-		.firstStep {
-			display: none;
-		}
-		.secondStep {
-			display: block;
-		}
-	}
+    &.nextStep {
+        .firstStep {
+            display: none;
+        }
+        .secondStep {
+            display: block;
+        }
+    }
 
-	.secondStep {
-		display: none;
-	}
+    .secondStep {
+        display: none;
+    }
 
-	.opSection {
-		padding-bottom: 20px;
-	}
+    .opSection {
+        padding-bottom: 20px;
+    }
 
-	input {
-		padding-left: @commonMargin;
-	}
-	button {
-		display: block;
-		margin: 0 auto;
-		text-transform: uppercase;
-	}
+    input {
+        padding-left: @commonMargin;
+    }
+    button {
+        display: block;
+        margin: 0 auto;
+        text-transform: uppercase;
+    }
 
-	.dropDownList {
-	    .selected {
-	    	color: @color-font-select-blue;
-	    }
+    .dropDownList {
+        .selected {
+            color: @color-font-select-blue;
+        }
     }
 
     .joinContainer {
-    	margin-top: 8px;
+        margin-top: 8px;
     }
 
 
-	#joinType {
+    #joinType {
 
-	    .text, .list li {
-	        .font(@weight: 600);
-	    }
-	    .list {
-	        .position(@top: 26px);
-	        overflow: hidden;
-	    }
-	    &.open {
+        .text, .list li {
+            .font(@weight: 600);
+        }
+        .list {
+            .position(@top: 26px);
+            overflow: hidden;
+        }
+        &.open {
 
-	    }
-	}
+        }
+    }
 
-	.tableListSection {
-		float: left;
-		width: 50%;
+    .tableListSection {
+        float: left;
+        width: 50%;
 
-		.subHeading .text {
-			width: ~"calc(100% - @{listHeight})";
-		}
+        .subHeading .text {
+            width: ~"calc(100% - @{listHeight})";
+        }
 
-		.tooltipWrap {
-			width: @listHeight;
-		}
+        .tooltipWrap {
+            width: @listHeight;
+        }
 
-		.iconWrap {
-			float: right;
-			width: @listHeight;
-			padding-left: 6px;
-			line-height: @listHeight + 10px;
-			cursor: pointer;
+        .iconWrap {
+            float: right;
+            width: @listHeight;
+            padding-left: 6px;
+            line-height: @listHeight + 10px;
+            cursor: pointer;
 
-			&.inactive {
-				opacity: @opacity-disabled;
-				pointer-events: none;
-			}
-		}
-		.xi-show {
-			font-size: 14px;
-			color: @color-font-darkGray;
-		}
-	}
+            &.inactive {
+                opacity: @opacity-disabled;
+                pointer-events: none;
+            }
+        }
+        .xi-show {
+            font-size: 14px;
+            color: @color-font-darkGray;
+        }
+    }
 
-	// start .clauseContainer
-	.clauseContainer {
+    // start .clauseContainer
+    .clauseContainer {
         .position(relative);
         .flex(0 0 auto);
         overflow: hidden;
@@ -984,16 +1023,16 @@
                         border-bottom: 1px solid @color-border-pinkish-grey2;
 
                         &.rightClause {
-                        	.size(@width: ~"calc(50% - 1px)");
+                            .size(@width: ~"calc(50% - 1px)");
                         }
 
                         &:first-child {
-                        	border-right: 1px solid @color-border-pinkish-grey2;
+                            border-right: 1px solid @color-border-pinkish-grey2;
 
                         }
 
                         &:focus {
-                        	border-color: @color-border-pinkish-grey2;
+                            border-color: @color-border-pinkish-grey2;
                         }
 
                         &.inActive {
@@ -1009,36 +1048,36 @@
                         z-index: 1;
 
                         .iconWrapper {
-                        	.size(14px, 14px);
-                        	border-radius: 100%;
-                        	background-color: @color-white;
-                        	.center-align;
-                        	top: 13px;
-                        	margin-left: 1px;
+                            .size(14px, 14px);
+                            border-radius: 100%;
+                            background-color: @color-white;
+                            .center-align;
+                            top: 13px;
+                            margin-left: 1px;
                         }
 
                         .icon {
-                        	color: @color-font-select-blue;
+                            color: @color-font-select-blue;
                         }
 
                         &:hover .icon {
-                        	.transform(rotate(45deg));
-                        	&::before {
-                    		 	content: "\e9b2"; // plus circle
-                    		}
+                            .transform(rotate(45deg));
+                            &::before {
+                                 content: "\e9b2"; // plus circle
+                            }
                         }
                     }
 
                     &:first-child {
-                    	.middleIcon	{
-                    		pointer-events: none;
-                    		&:hover .icon {
-                    			.transform(rotate(0deg));
-                    			&::before {
-                    				content: "\e9b0"; // equal circle
-                    			}
-                    		}
-                    	}
+                        .middleIcon    {
+                            pointer-events: none;
+                            &:hover .icon {
+                                .transform(rotate(0deg));
+                                &::before {
+                                    content: "\e9b0"; // equal circle
+                                }
+                            }
+                        }
                     }
                 }
                 .addClause {
@@ -1046,14 +1085,14 @@
                     margin-top: 15px;
 
                     .btn {
-                    	width: 260px;
-                    	position: relative;
+                        width: 260px;
+                        position: relative;
                     }
 
                     .icon {
-                    	position: absolute;
-                    	top: 10px;
-                    	left: 22px;
+                        position: absolute;
+                        top: 10px;
+                        left: 22px;
                     }
 
                     &:hover {
@@ -1069,117 +1108,117 @@
     // end .clauseContainer
 
     .smartSuggestSection {
-    	background-color: @color-bg-white-two;
-    	padding-top: 15px;
-    	padding-bottom: 15px;
+        background-color: @color-bg-white-two;
+        padding-top: 15px;
+        padding-bottom: 15px;
     }
 
     .suggError {
-    	visibility: hidden;
-	    float: left;
-	    color: transparent;
-	    width: 1px;
-	    margin-top: -30px;
-	    margin-left: 223px;
+        visibility: hidden;
+        float: left;
+        color: transparent;
+        width: 1px;
+        margin-top: -30px;
+        margin-left: 223px;
     }
 
     .joinPreviewArea {
-    	.keyword {
-    		font-weight: 700;
-    	}
-    	.highlighted {
-    		color: @color-font-select-blue;
-    	}
+        .keyword {
+            font-weight: 700;
+        }
+        .highlighted {
+            color: @color-font-select-blue;
+        }
     }
 
     .next {
-    	margin-top: 20px;
-    	margin-bottom: 35px;
+        margin-top: 20px;
+        margin-bottom: 35px;
     }
 
     /* SECOND STEP */
- 	#joinTableNameInput {
-		.size(100%, @listHeight);
-	}
+     #joinTableNameInput {
+        .size(100%, @listHeight);
+    }
 
 
     .colsToKeepSection {
-    	margin-top: 2px;
+        margin-top: 2px;
 
-    	.leftColHeading {
-    		.checkbox {
-    			margin-right: 5px;
-    		}
-    	}
+        .leftColHeading {
+            .checkbox {
+                margin-right: 5px;
+            }
+        }
 
-    	.leftColHeading, .leftColHeading + div {
-    		.checkbox {
-				float: right;
-				position: relative;
-				margin-top: 10px;
-				margin-right: 4px;
-			}
-    	}
+        .leftColHeading, .leftColHeading + div {
+            .checkbox {
+                float: right;
+                position: relative;
+                margin-top: 10px;
+                margin-right: 4px;
+            }
+        }
     }
 
     .keepTablesCBWrap {
-    	cursor: default;
-    	margin-top: 10px;
+        cursor: default;
+        margin-top: 10px;
 
-    	.keepTableCheckbox {
-    		padding-right: 4px;
-    	}
+        .keepTableCheckbox {
+            padding-right: 4px;
+        }
 
-    	.text {
-    		display: inline-block;
-    	}
-    	.checkbox {
-    		margin-left: 8px;
-    		margin-top: 5px;
-    	}
+        .text {
+            display: inline-block;
+        }
+        .checkbox {
+            margin-left: 8px;
+            margin-top: 5px;
+        }
 
-    	.hint {
-    		margin-top: 6px;
-    		margin-right: 6px;
-    		float: right;
-    	}
+        .hint {
+            margin-top: 6px;
+            margin-right: 6px;
+            float: right;
+        }
     }
 
     #joinActions {
-    	margin-top: 10px;
-    	button {
-    		margin-left: 9px;
-    		margin-right: 9px;
-    		margin-top: 10px;
-    	}
+        margin-top: 10px;
+        button {
+            margin-left: 9px;
+            margin-right: 9px;
+            margin-top: 10px;
+        }
     }
 
     .estimatorWrap {
-    	.estimateCheckbox {
-    		padding-top: 10px;
-    		width: auto;
-    	}
-    	.xi-ckbox-selected {
-    		color: @color-background-colIcon-gray;
-    	}
-    	.title {
-    		width: auto;
-    	}
-    	.stats {
-    		margin-left: 30px;
-    		> div {
-    			height: 20px;
-    		}
-    		.value {
-    			display: inline-block;
-    		}
-    	}
+        .estimateCheckbox {
+            padding-top: 10px;
+            width: auto;
+        }
+        .xi-ckbox-selected {
+            color: @color-background-colIcon-gray;
+        }
+        .title {
+            width: auto;
+        }
+        .stats {
+            margin-left: 30px;
+            > div {
+                height: 20px;
+            }
+            .value {
+                display: inline-block;
+            }
+        }
     }
 
     .renameSection {
-    	.light {
-    		opacity: 0.7;
-    	}
+        .light {
+            opacity: 0.7;
+        }
         .tableRenames {
             display: none;
         }
@@ -1244,166 +1283,166 @@
 
 
 #exportView, #dfCreateView {
-	@listHeight: 26px;
-	@standardFontSize: 12px;
-	@commonMargin: 10px;
+    @listHeight: 26px;
+    @standardFontSize: 12px;
+    @commonMargin: 10px;
 
-	input {
-		.size(100%, @listHeight);
-		padding-left: @commonMargin;
-	}
-	.dropDownList {
-		input {
-			.size(@width: ~"calc(100% - 26px)");
-		}
-	}
-	button {
-		text-transform: uppercase;
-	}
+    input {
+        .size(100%, @listHeight);
+        padding-left: @commonMargin;
+    }
+    .dropDownList {
+        input {
+            .size(@width: ~"calc(100% - 26px)");
+        }
+    }
+    button {
+        text-transform: uppercase;
+    }
 
-	.tableListSection {
-		.iconWrap {
-			float: right;
-			width: @listHeight;
-			line-height: @listHeight + 10px;
-			cursor: pointer;
-		}
-		.xi-show {
-			font-size: 14px;
-			color: @color-font-darkGray;
-		}
-		.selected {
-	    	color: @color-font-select-blue;
-	    }
-	}
+    .tableListSection {
+        .iconWrap {
+            float: right;
+            width: @listHeight;
+            line-height: @listHeight + 10px;
+            cursor: pointer;
+        }
+        .xi-show {
+            font-size: 14px;
+            color: @color-font-darkGray;
+        }
+        .selected {
+            color: @color-font-select-blue;
+        }
+    }
 
-	#exportColumns {
-		// need to remove JS for this input
-		// 
-		// visibility: hidden;
-		// height: 0px;
-		display: none;
-	}
+    #exportColumns {
+        // need to remove JS for this input
+        // 
+        // visibility: hidden;
+        // height: 0px;
+        display: none;
+    }
 
-	.columnsWrap {
-		ul {
-			.flex-display;
-			.flex-wrap(wrap);
-			width: 100%;
-			border-top: 1px solid @color-border-pinkish-grey2;
-			background-color: transparent;
-			&:first-child {
-				border-right-width: 0px;
-			}
-		}
-		li {
-			float: left;
-			border-right: 1px solid @color-border-pinkish-grey2;
-			background-color: @color-white;
-			padding-right: 22px;
-			position: relative;
-			.flex(1 1 100px);
-			width: 100px;
-			&:first-child {
-				border-top: none;
-			}
+    .columnsWrap {
+        ul {
+            .flex-display;
+            .flex-wrap(wrap);
+            width: 100%;
+            border-top: 1px solid @color-border-pinkish-grey2;
+            background-color: transparent;
+            &:first-child {
+                border-right-width: 0px;
+            }
+        }
+        li {
+            float: left;
+            border-right: 1px solid @color-border-pinkish-grey2;
+            background-color: @color-white;
+            padding-right: 22px;
+            position: relative;
+            .flex(1 1 100px);
+            width: 100px;
+            &:first-child {
+                border-top: none;
+            }
 
-			.text {
-				width: 100%;
-			}
+            .text {
+                width: 100%;
+            }
 
-			.checkbox {
-				position: absolute;
-			}
-		}
-		.flexSpace {
-			border-right: 1px solid transparent;
-			.flex(1 1 100px);
-			width: 100px;
-			height: 0px;
-			padding-left: 10px;
-			padding-right: 22px;
-			overflow: hidden;
-			visibility: hidden;
-		}
-	}
+            .checkbox {
+                position: absolute;
+            }
+        }
+        .flexSpace {
+            border-right: 1px solid transparent;
+            .flex(1 1 100px);
+            width: 100px;
+            height: 0px;
+            padding-left: 10px;
+            padding-right: 22px;
+            overflow: hidden;
+            visibility: hidden;
+        }
+    }
 
-	.selectAllWrap {
-		margin-bottom: 8px;
-		float: right;
-		display: inline-block;
-	}
+    .selectAllWrap {
+        margin-bottom: 8px;
+        float: right;
+        display: inline-block;
+    }
 
-	.keepOrderedCBWrap, .selectAllWrap {
-		.clearfix;
-		.text {
-			float: right;
-			cursor: pointer;
-		}
-		.checkbox {
-			top: 2px;
-			margin-left: 5px;
-			margin-right: 5px;
-		}
-	}
+    .keepOrderedCBWrap, .selectAllWrap {
+        .clearfix;
+        .text {
+            float: right;
+            cursor: pointer;
+        }
+        .checkbox {
+            top: 2px;
+            margin-left: 5px;
+            margin-right: 5px;
+        }
+    }
 
-	.exportRowOrderSection {
-		margin-top: 15px;
-	}
+    .exportRowOrderSection {
+        margin-top: 15px;
+    }
 
-	.exportColumnsSection {
-		&.empty {
-			.noColsHint {
-				display: block;
-			}
-			.selectAllWrap {
-				display: none;
-			}
-		}
-		.noColsHint {
-	        display: none;
-	        text-align: center;
-	        margin: 10px 0;
-	        color: @color-font-gray36;
-	        background: @color-bg-white-two;
-	        padding-top: 10px;
-	        padding-bottom: 10px;
-		}
-	}
-	
-	.subHeading .label {
+    .exportColumnsSection {
+        &.empty {
+            .noColsHint {
+                display: block;
+            }
+            .selectAllWrap {
+                display: none;
+            }
+        }
+        .noColsHint {
+            display: none;
+            text-align: center;
+            margin: 10px 0;
+            color: @color-font-gray36;
+            background: @color-bg-white-two;
+            padding-top: 10px;
+            padding-bottom: 10px;
+        }
+    }
+    
+    .subHeading .label {
         .size(@width: 100%);
     }
 
-	.advancedSection {
+    .advancedSection {
         margin-top: 20px;
         .formRow {
             .clearfix;
         }
 
         .advancedIcon {
-        	cursor: pointer;
-        	font-size: 16px;
-        	position: relative;
-        	top: 2px;
-        	left: 1px;
-        	margin-right: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            position: relative;
+            top: 2px;
+            left: 1px;
+            margin-right: 5px;
             color: @color-font-darkGray;
         }
 
         .advancedTitle {
-        	> div {
-        		width: 100%;
-        	}
-        	.text {
-        		font-weight: 700;
-        		cursor: pointer;
-        	}
+            > div {
+                width: 100%;
+            }
+            .text {
+                font-weight: 700;
+                cursor: pointer;
+            }
         }
 
         &.collapsed {
             .xi-minus-circle-outline {
-            	display: none;
+                display: none;
             }
             .formRow {
                 display: none;
@@ -1414,7 +1453,7 @@
         }
         &.expanded {
             .xi-plus-circle-outline {
-            	display: none;
+                display: none;
             }
             .formRow {
                 display: block;
@@ -1425,81 +1464,81 @@
         }
 
         .label {
-        	font-weight: 700;
+            font-weight: 700;
         }
 
         .typeRow {
-        	.radioButtonGroup {
+            .radioButtonGroup {
 
-        	}
+            }
         }
 
         .buttonRow {
-        	.clearfix;
-        	margin-top: 10px;
+            .clearfix;
+            margin-top: 10px;
 
-        	.subHeading {
-        		display: inline-block;
-        		float: left;
-        		width: 80px;
-        		margin-top: 0px;
-        		> div {
-        			height: auto;
-        			line-height: @listHeight;
-        			width: 100%;
-        		}
-        	}
+            .subHeading {
+                display: inline-block;
+                float: left;
+                width: 80px;
+                margin-top: 0px;
+                > div {
+                    height: auto;
+                    line-height: @listHeight;
+                    width: 100%;
+                }
+            }
 
-        	.radioButtonGroup {
-        		width: ~"calc(100% - 80px)";
-        		float: left;
-        		display: inline-block;
-        		
-        		.clearfix;
-        		.radioButton {
-        			display: inline-block;
-        			float: left;
-        			width: 110px;
-        			height: @listHeight;
-        			line-height: @listHeight;
-        			&:first-child {
-        				width: 90px;
-        			}
-        			
-        		}
-        		.label {
-        			padding-left: 0px;
-        			width: ~"calc(100% - 17px)";
-        			font-size: 12px;
-        		}
-        	}
+            .radioButtonGroup {
+                width: ~"calc(100% - 80px)";
+                float: left;
+                display: inline-block;
+                
+                .clearfix;
+                .radioButton {
+                    display: inline-block;
+                    float: left;
+                    width: 110px;
+                    height: @listHeight;
+                    line-height: @listHeight;
+                    &:first-child {
+                        width: 90px;
+                    }
+                    
+                }
+                .label {
+                    padding-left: 0px;
+                    width: ~"calc(100% - 17px)";
+                    font-size: 12px;
+                }
+            }
 
-        	&.overwrite {
-        		.radioButtonGroup {
-        			.flex-display;
-        			.flex-direction(column);
-        			.radioButton {
-        				display: block;
-        				width: 150px;
-        			}
-        		}
-        	}
+            &.overwrite {
+                .radioButtonGroup {
+                    .flex-display;
+                    .flex-direction(column);
+                    .radioButton {
+                        display: block;
+                        width: 150px;
+                    }
+                }
+            }
         }
 
         .restore {
-        	font-weight: 700;
-        	margin-top: 10px;
-        	display: inline-block;
-        	cursor: pointer;
+            font-weight: 700;
+            margin-top: 10px;
+            display: inline-block;
+            cursor: pointer;
 
-        	.icon {
+            .icon {
                 color: @color-font-darkGray;
-        		margin-left: @commonMargin;
-        		font-size: 16px;
-        		position: relative;
-        		top: 2px;
-        		font-weight: normal;
-        	}
+                margin-left: @commonMargin;
+                font-size: 16px;
+                position: relative;
+                top: 2px;
+                font-weight: normal;
+            }
         }
 
         .csvRow {
@@ -1544,16 +1583,16 @@
                             .font(@line-height: 20px);
 
                             input {
-						        .size(@width: 100%, @height: 20px);
-						        padding: 0 4px;
-						        padding-right: 22px;
-						        opacity: @opacity-unhover;
+                                .size(@width: 100%, @height: 20px);
+                                padding: 0 4px;
+                                padding-right: 22px;
+                                opacity: @opacity-unhover;
 
-						        &:focus {
-						            outline: none;
-						            opacity: @opacity-hover;
-						        }
-						    }
+                                &:focus {
+                                    outline: none;
+                                    opacity: @opacity-hover;
+                                }
+                            }
 
                             .inputAction {
                                 .size(@width: 20px, @height: 20px);
@@ -1575,23 +1614,23 @@
 
     }
     .bottomSection {
-    	padding-bottom: 20px;
+        padding-bottom: 20px;
     }
 }
 
 #mainMenu.expanded {
-	#exportView, #dfCreateView	{
-		.columnsWrap {
-			li {
-				.flex(1 1 200px);
-				width: 200px;
-			}
-			.flexSpace {
-				.flex(1 1 200px);
-				width: 200px;
-			}
-		}
-	}
+    #exportView, #dfCreateView    {
+        .columnsWrap {
+            li {
+                .flex(1 1 200px);
+                width: 200px;
+            }
+            .flexSpace {
+                .flex(1 1 200px);
+                width: 200px;
+            }
+        }
+    }
 }
 
 #smartCastView {

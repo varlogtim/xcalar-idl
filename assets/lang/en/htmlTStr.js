@@ -239,6 +239,7 @@ module.exports = {
         "DropTables": "Drop Tables",
         "DropConsts": "Drop Aggregates",
         "OnlyInOpMode": "Feature only available in Operational mode",
+        "CSHelp": "Click to open up Xcalar Help for more information",
         "ChooseUdfModule": 'Please choose a module first' // used in jststr
     },
 
@@ -732,6 +733,7 @@ module.exports = {
         "ArgList": "Argument List",
         "EmptyHint": "Select to allow empty field",
         "map": "Map",
+        "newTableName": "New table name",
         "category": "Category",
         "function": "Function",
         "erroneousRows": "Include only erroneous rows",
@@ -744,7 +746,11 @@ module.exports = {
         "joinBack": "Join table back to original",
         "includeSample": "Keep all columns",
         "aggFunc": "Aggregate Function",
-        "mapFilter": "Search map functions"
+        "mapFilter": "Search map functions",
+        "andOrFilter": "Clauses combined by",
+        "or": "or",
+        "and": "and",
+
     },
 
     "dfgParam": {

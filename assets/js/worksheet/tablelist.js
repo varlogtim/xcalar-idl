@@ -904,7 +904,6 @@ window.TableList = (function($, TableList) {
         var dates = getTwoWeeksDate();
         var p = dates.length - 1;    // the length should be 8
 
-
         if (sortedTables.length === 0) {
             $listSection.addClass('empty');
         } else {
@@ -936,7 +935,7 @@ window.TableList = (function($, TableList) {
                 }
                 var $dateDivider = $tableList.find(".date" + p + " .tableList");
             }
- 
+
             var numCols;
             if (table.tableCols) {
                 numCols = table.tableCols.length;
@@ -1217,7 +1216,7 @@ window.TableList = (function($, TableList) {
         .fail(function() {
             deferred.reject();
         });
-        
+
         return (deferred.promise());
     }
 
