@@ -536,6 +536,21 @@ window.TblMenu = (function(TblMenu, $) {
             ColManager.maximizeCols([colNum], tableId);
         });
 
+        $colMenu.on('mouseup', '.corrAgg', function(event) {
+            if (event.which !== 1) {
+                return;
+            }
+
+            if ($(this).hasClass('multiColumn')) {
+                colNums = $colMenu.data('columns');
+            } else {
+                colNums = [$colMenu.data('colNum')];
+            }
+
+            var tableId = $colMenu.data('tableId');
+            AggModal.corrAgg(tableId, colNums, colNums);
+        });
+
         $subMenu.on('mouseup', 'li.textAlign', function(event) {
             if (event.which !== 1) {
                 return;

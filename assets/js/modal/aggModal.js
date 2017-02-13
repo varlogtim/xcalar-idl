@@ -14,7 +14,9 @@ window.AggModal = (function($, AggModal) {
     var aggOpMap  = {};
 
     var cachedTableId = "";
-    var cachedColNum;
+    var cachedVertColNums;
+    var cachedHorColNums;
+    var cachedProfileColNum;
 
     AggModal.setup = function() {
         $aggModal = $("#aggModal");
@@ -63,9 +65,10 @@ window.AggModal = (function($, AggModal) {
         $aggModal.on("click", ".tab", function() {
             var mode = $(this).attr("id");
             if (mode === "aggTab") {
-                AggModal.quickAgg(cachedTableId);
+                AggModal.quickAgg(cachedTableId, cachedHorColNums);
             } else {
-                AggModal.corrAgg(cachedTableId, cachedColNum);
+                AggModal.corrAgg(cachedTableId, cachedVertColNums,
+                                 cachedHorColNums, cachedProfileColNum);
             }
         });
 
@@ -89,11 +92,8 @@ window.AggModal = (function($, AggModal) {
 
         $backToProfile.on("click", function() {
             $(this).hide();
-            var tableId = $aggModal.data('tableid');
-            var colNum = $aggModal.data('colnum');
-            $aggModal.removeData('tableid');
-            $aggModal.removeData('colnum');
-
+            var tableId = cachedTableId;
+            var colNum = cachedProfileColNum;
             var tmp = gMinModeOn;
             gMinModeOn = true;
             closeAggModal();
@@ -110,13 +110,14 @@ window.AggModal = (function($, AggModal) {
         }
     };
 
-    // Need this broken down for replay
-    AggModal.quickAgg = function(tableId) {
+    // use horColNums to match the horColumns in corr
+    AggModal.quickAgg = function(tableId, horColNums) {
         var deferred = jQuery.Deferred();
         var table = gTables[tableId];
         var tableName = table.getName();
 
         cachedTableId = tableId;
+        cachedHorColNums = horColNums;
         showAggModal(tableName, "aggTab");
 
         aggColsInitialize(tableId);
@@ -125,7 +126,8 @@ window.AggModal = (function($, AggModal) {
         var sql = {
             "operation": SQLOps.QuickAgg,
             "tableId": tableId,
-            "tableName": tableName
+            "tableName": tableName,
+            "horColNums": horColNums
         };
         var txId = Transaction.start({
             "operation": SQLOps.QuickAgg,
@@ -133,7 +135,7 @@ window.AggModal = (function($, AggModal) {
         });
 
         $quickAgg.attr("data-state", "pending");
-        calcAgg(tableName, tableId, txId)
+        calcAgg(tableId, txId)
         .then(function() {
             $quickAgg.attr("data-state", "finished");
             Transaction.done(txId);
@@ -152,22 +154,21 @@ window.AggModal = (function($, AggModal) {
         return (deferred.promise());
     };
 
-
-    AggModal.corrAgg = function(tableId, colNum) {
+    AggModal.corrAgg = function(tableId, vertColNums, horColNums, profileColNum) {
         var deferred = jQuery.Deferred();
         var table = gTables[tableId];
         var tableName = table.getName();
-
         // If this is triggered from a column profile then we want to track
-        // this to be able to go back to the profile. Else colNum is empty
-        if (colNum != null) {
-            $aggModal.data('tableid', tableId);
-            $aggModal.data('colnum', colNum);
-            $aggModal.addClass('profileMode');
-            cachedColNum = colNum;
+        // this to be able to go back to the profile.
+        // Else profileColNum is empty
+        if (profileColNum != null) {
+            $aggModal.addClass("profileMode");
+            cachedProfileColNum = profileColNum;
         }
 
         cachedTableId = tableId;
+        cachedVertColNums = vertColNums;
+        cachedHorColNums = horColNums;
         showAggModal(tableName, "corrTab");
 
         aggColsInitialize(tableId);
@@ -176,7 +177,9 @@ window.AggModal = (function($, AggModal) {
         var sql = {
             "operation": SQLOps.Corr,
             "tableId": tableId,
-            "tableName": tableName
+            "tableName": tableName,
+            "vertColNums": vertColNums,
+            "horColNums": horColNums
         };
         var txId = Transaction.start({
             "operation": SQLOps.Corr,
@@ -184,7 +187,7 @@ window.AggModal = (function($, AggModal) {
         });
 
         $corr.attr("data-state", "pending");
-        calcCorr(tableName, tableId, txId)
+        calcCorr(tableId, txId)
         .then(function() {
             $corr.attr("data-state", "finished");
             Transaction.done(txId);
@@ -244,6 +247,7 @@ window.AggModal = (function($, AggModal) {
                                         .hasClass("childOfArray");
                 aggCols.push({
                     "col": progCol,
+                    "colNum": colNum,
                     "isChildOfArray": isChildOfArray
                 });
             }
@@ -258,6 +262,12 @@ window.AggModal = (function($, AggModal) {
 
         for (var col = 0; col < colLen; col++) {
             var aggCol = aggCols[col];
+            if (cachedHorColNums != null &&
+                !cachedHorColNums.includes(aggCol.colNum))
+            {
+                continue;
+            }
+
             var progCol = aggCol.col;
             var isChildOfArray = aggCol.isChildOfArray;
 
@@ -265,7 +275,8 @@ window.AggModal = (function($, AggModal) {
             wholeTable += '<div class="aggCol">';
 
             for (var row = 0; row < funLen; row++) {
-                wholeTable += '<div class="aggTableField">';
+                wholeTable += '<div class="aggTableField cell" ' +
+                               'data-col=' + col + ' data-row=' + row + '>';
 
                 if (progCol.isNumberCol()) {
                     // XXX now agg on child of array is not supported
@@ -308,12 +319,24 @@ window.AggModal = (function($, AggModal) {
             var progCol = aggCol.col;
             var isChildOfArray = aggCol.isChildOfArray;
 
+            if (cachedVertColNums != null &&
+                !cachedVertColNums.includes(aggCol.colNum))
+            {
+                continue;
+            }
+
             colLabels.push(progCol.getFrontColName(true));
             wholeTable += '<div class="aggCol">';
 
             for (var row = 0; row < colLen; row++) {
                 var aggRow = aggCols[colLen - row - 1];
-                var cell = '<div class="aggTableField aggTableFlex" ' +
+
+                if (cachedHorColNums != null &&
+                    !cachedHorColNums.includes(aggRow.colNum))
+                {
+                    continue;
+                }
+                var cell = '<div class="aggTableField aggTableFlex cell" ' +
                             'data-col=' + col + ' data-row=' + row + '>';
 
                 if (isChildOfArray || aggRow.isChildOfArray) {
@@ -332,9 +355,14 @@ window.AggModal = (function($, AggModal) {
             wholeTable += "</div>";
         }
 
-        var vertLabels = [];
+        var rowLabels = [];
         for (var i = colLen - 1; i >= 0; i--) {
-            vertLabels.push(aggCols[i].col.getFrontColName(true));
+            if (cachedHorColNums != null &&
+                !cachedHorColNums.includes(aggCols[i].colNum))
+            {
+                continue;
+            }
+            rowLabels.push(aggCols[i].col.getFrontColName(true));
         }
 
         if (wholeTable === "") {
@@ -344,7 +372,7 @@ window.AggModal = (function($, AggModal) {
         }
 
         $corr.find(".headerContainer").html(getColLabelHTML(colLabels));
-        $corr.find(".labelContainer").html(getRowLabelHTML(vertLabels));
+        $corr.find(".labelContainer").html(getRowLabelHTML(rowLabels));
         $corr.find(".aggContainer").html(wholeTable);
     }
 
@@ -383,15 +411,14 @@ window.AggModal = (function($, AggModal) {
         return html;
     }
 
-    function calcCorr(tableName, tableId, txId) {
+    function calcCorr(tableId, txId) {
         var deferred = jQuery.Deferred();
         var promises = [];
 
-        var colLen  = aggCols.length;
+        var colLen = aggCols.length;
         var dupCols = [];
-        var total = colLen * colLen;
+        var total = $corr.find(".cell").length;
         var cellCount = 0;
-  
         updateRunProgress(cellCount, total);
         // First we need to determine if this is a dataset-table
         // or just a regular table
@@ -411,8 +438,6 @@ window.AggModal = (function($, AggModal) {
             var progCol = aggCol.col;
             // the diagonal is always 1
             cellCount += applyCorrResult(col, col, 1, []);
-            cellCount += 1;
-            updateRunProgress(cellCount, total);
 
             if (dupCols[col]) {
                 // for duplicated columns, no need to trigger thrift call
@@ -434,20 +459,35 @@ window.AggModal = (function($, AggModal) {
             if (!aggCol.isChildOfArray) {
                 for (var row = 0; row < col; row++) {
                     var aggRow = aggCols[row];
-                    var vertCol = aggRow.col;
+                    var isValid = true;
+
+                    if (cachedHorColNums != null) {
+                        isValid = isValid &&
+                                  (cachedHorColNums.includes(aggRow.colNum) ||
+                                  cachedHorColNums.includes(aggCol.colNum));
+                    }
+
+                    if (cachedVertColNums != null) {
+                        isValid = isValid &&
+                                  (cachedVertColNums.includes(aggRow.colNum) ||
+                                  cachedVertColNums.includes(aggCol.colNum));
+                    }
+
+                    if (!isValid) {
+                        continue;
+                    }
+
                     if (aggRow.isChildOfArray) {
                         continue;
                     }
                     var sub = corrString.replace(/[$]arg1/g,
                                                  progCol.getBackColName());
                     sub = sub.replace(/[$]arg2/g,
-                                        vertCol.getBackColName());
+                                        aggRow.col.getBackColName());
                     // Run correlation function
-                    var promise = runCorr(tableId, tableName,
-                                          sub, row, col, dups, txId)
-                    .then(function(numDupCells) {
-                        cellCount += 2;
-                        cellCount += numDupCells;
+                    var promise = runCorr(tableId, sub, row, col, dups, txId);
+                    promise.then(function(numDone) {
+                        cellCount += numDone;
                         updateRunProgress(cellCount, total);
                     });
                     promises.push(promise);
@@ -472,24 +512,28 @@ window.AggModal = (function($, AggModal) {
     }
 
     function updateRunProgress(curr, total) {
-        $aggModal.find('.progressValue').text(curr + "/" + total);
+        $aggModal.find(".progressValue").text(curr + "/" + total);
     }
 
-    function calcAgg(tableName, tableId, txId) {
+    function calcAgg(tableId, txId) {
         var promises = [];
 
         var colLen = aggCols.length;
         var funLen = aggFunctions.length;
-        var total = colLen * funLen;
+        var total = $quickAgg.find(".cell").length;
         var cellCount = 0;
-
         updateRunProgress(cellCount, total);
-
         // First we need to determine if this is a dataset-table
         // or just a regular table
         var dupCols = [];
         for (var col = 0; col < colLen; col++) {
             var aggCol = aggCols[col];
+            if (cachedHorColNums != null &&
+                !cachedHorColNums.includes(aggCol.colNum))
+            {
+                continue;
+            }
+
             var progCol = aggCol.col;
 
             if (progCol.isNumberCol()) {
@@ -507,20 +551,18 @@ window.AggModal = (function($, AggModal) {
                 // XXX now agg on child of array is not supported
                 if (!aggCol.isChildOfArray) {
                     for (var row = 0; row < funLen; row++) {
-                        var promise = runAgg(tableId, tableName,
-                                            progCol.getBackColName(),
+                        var promise = runAgg(tableId, progCol.getBackColName(),
                                             aggFunctions[row], row, col,
                                             dups, txId);
-                        promises.push(promise);
                         promise.then(function(numDone) {
                             cellCount += numDone;
                             updateRunProgress(cellCount, total);
                         });
+                        promises.push(promise);
                     }
                 }
             }
         }
-        
 
         return PromiseHelper.when.apply(window, promises);
     }
@@ -538,8 +580,7 @@ window.AggModal = (function($, AggModal) {
         return (dups);
     }
 
-    function runAgg(tableId, tableName, fieldName, opString, row, col, dups, txId) {
-        var deferred = jQuery.Deferred();
+    function runAgg(tableId, fieldName, opString, row, col, dups, txId) {
         var tableAgg;
         var colAgg;
 
@@ -550,11 +591,13 @@ window.AggModal = (function($, AggModal) {
                 var aggRes = colAgg[aggOpMap[opString]];
                 if (aggRes != null) {
                     applyAggResult(aggRes);
-                    deferred.resolve(dups.length + 1);
-                    return (deferred.promise());
+                    return PromiseHelper.resolve(dups.length + 1);
                 }
             }
         }
+
+        var deferred = jQuery.Deferred();
+        var tableName = gTables[tableId].getName();
 
         XIApi.aggregate(txId, opString, fieldName, tableName)
         .then(function(value) {
@@ -587,21 +630,17 @@ window.AggModal = (function($, AggModal) {
                         'data-container="body">' +
                         (jQuery.isNumeric(value) ? value.toFixed(3) : value) +
                         '</span>';
-            $quickAgg.find(".aggCol:not(.labels)").eq(col)
-                .find(".aggTableField:not(.colLabel)").eq(row).html(html);
+            updateAggCell(row, col, html);
 
             dups.forEach(function(colNum) {
-                $quickAgg.find(".aggCol:not(.labels)").eq(colNum)
-                    .find(".aggTableField:not(.colLabel)").eq(row).html(html);
+                updateAggCell(row, colNum, html);
             });
         }
 
         return (deferred.promise());
     }
 
-    function runCorr(tableId, tableName, evalStr, row, col, colDups, txId) {
-        var deferred = jQuery.Deferred();
-
+    function runCorr(tableId, evalStr, row, col, colDups, txId) {
         if (corrCache.hasOwnProperty(tableId)) {
             var corrRes = corrCache[tableId][evalStr];
 
@@ -613,10 +652,12 @@ window.AggModal = (function($, AggModal) {
                 }
                 var numDupCells = applyCorrResult(row, col, corrRes, colDups,
                                                   error);
-                deferred.resolve(numDupCells);
-                return (deferred.promise());
+                return PromiseHelper.resolve(numDupCells);
             }
         }
+
+        var deferred = jQuery.Deferred();
+        var tableName = gTables[tableId].getName();
 
         XIApi.aggregateWithEvalStr(txId, evalStr, tableName)
         .then(function(value) {
@@ -651,7 +692,7 @@ window.AggModal = (function($, AggModal) {
         var isNumeric = jQuery.isNumeric(value);
         var bg;
         var $cells;
-        var numDupCells = 0;
+        var cellCount = 0;
 
         var title = (error == null) ? value : error;
         // error case force to have tooltip
@@ -664,8 +705,7 @@ window.AggModal = (function($, AggModal) {
                         (isNumeric ? value.toFixed(3) : value) +
                     '</span>';
         $cells = getCorrCell(row, col);
-        $cells[0].html(html);
-        $cells[1].html(html);
+        cellCount += updataCorrCell($cells, html);
 
         if (isNumeric) {
             value = parseFloat(value);
@@ -701,12 +741,7 @@ window.AggModal = (function($, AggModal) {
 
             if (newCol > newRow) {
                 $cells = getCorrCell(newRow, newCol);
-                if (!$cells[0].text()) {
-                    numDupCells += 2;
-                }
-    
-                $cells[0].html(html);
-                $cells[1].html(html);
+                cellCount += updataCorrCell($cells, html);
 
                 if (isNumeric) {
                     $cells[0].css("background-color", bg);
@@ -721,12 +756,7 @@ window.AggModal = (function($, AggModal) {
             for (var i = 0, len = allRows.length; i < len; i++) {
                 newRow = allRows[i];
                 $cells = getCorrCell(newRow, colNum);
-                if (!$cells[0].text()) {
-                    numDupCells += 2;
-                }
-
-                $cells[0].html(html);
-                $cells[1].html(html);
+                cellCount += updataCorrCell($cells, html);
 
                 if (isNumeric) {
                     $cells[0].css("background-color", bg);
@@ -735,7 +765,23 @@ window.AggModal = (function($, AggModal) {
             }
         });
 
-        return (numDupCells);
+        return cellCount;
+    }
+
+    function updataCorrCell($cells, html) {
+        var cellCount = 0;
+        if ($cells[0].length) {
+            $cells[0].html(html);
+            cellCount++;
+        }
+
+        // if diagonal, $cells[2] === true
+        if ($cells[1].length && !$cells[2]) {
+            $cells[1].html(html);
+            cellCount++;
+        }
+
+        return cellCount;
     }
 
     function getCorrCell(row, col) {
@@ -744,12 +790,21 @@ window.AggModal = (function($, AggModal) {
 
         var diagColNum = col;
         var digaRowNum = aggCols.length - 1 - row;
-        var $cell = $corr.find('.aggTableFlex[data-col=' + colNum + ']' +
+        var $cell = $corr.find('.cell[data-col=' + colNum + ']' +
                                 '[data-row=' + rowNum + ']');
         // the diagonal one
-        var $cell2 = $corr.find('.aggTableFlex[data-col=' + diagColNum + ']' +
+        var $cell2 = $corr.find('.cell[data-col=' + diagColNum + ']' +
                                 '[data-row=' + digaRowNum + ']');
-        return [$cell, $cell2];
+        var isSameCell = (row === col);
+        return [$cell, $cell2, isSameCell];
+    }
+
+    function updateAggCell(row, col, html) {
+        var $cell = $quickAgg.find('.cell[data-col=' + col + ']' +
+                                   '[data-row=' + row + ']');
+        if ($cell.length) {
+            $cell.html(html);
+        }
     }
 
     function highlightLabel(row, col) {
@@ -766,7 +821,10 @@ window.AggModal = (function($, AggModal) {
         modalHelper.clear();
         $aggModal.removeClass('profileMode');
         $aggModal.width(920).height(670);
-        cachedColNum = null;
+        cachedTableId = null;
+        cachedVertColNums = null;
+        cachedHorColNums = null;
+        cachedProfileColNum = null;
     }
 
 

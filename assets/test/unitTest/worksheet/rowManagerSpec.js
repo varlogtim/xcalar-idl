@@ -315,7 +315,6 @@ describe('RowManager Test', function() {
                     console.error('should not get page 5 times');
                     expect(true).to.be.false;
                 }
-        
             };
             var info = {
                 bulk: true,

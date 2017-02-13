@@ -87,7 +87,7 @@ describe("Agg Modal Test", function() {
         it("getCorrCell should work", function() {
             var res = AggModal.__testOnly__.getCorrCell(0, 1);
             expect(res).to.be.an("array");
-            expect(res.length).to.equal(2);
+            expect(res.length).to.equal(3);
 
             var $cell = res[0];
             var $cell2 = res[1];
@@ -96,6 +96,18 @@ describe("Agg Modal Test", function() {
 
             expect($cell2.data("col")).to.equal(1);
             expect($cell2.data("row")).to.equal(1);
+            expect(res[2]).to.equal(false);
+
+            // case 2
+            res = AggModal.__testOnly__.getCorrCell(0, 0);
+            $cell = res[0];
+            $cell2 = res[1];
+            expect($cell.data("col")).to.equal(0);
+            expect($cell.data("row")).to.equal(1);
+
+            expect($cell2.data("col")).to.equal(0);
+            expect($cell2.data("row")).to.equal(1);
+            expect(res[2]).to.equal(true);
         });
 
         it("highlightLabel should work", function() {
@@ -157,7 +169,7 @@ describe("Agg Modal Test", function() {
         });
 
         it("AggModal.corrAgg should fail when has error", function(done) {
-            AggModal.corrAgg(tableId, 0)
+            AggModal.corrAgg(tableId, null, null, 0)
             .then(function() {
                 // will still resolve the case
                 expect($corr.find(".dash").length).to.be.at.least(1);

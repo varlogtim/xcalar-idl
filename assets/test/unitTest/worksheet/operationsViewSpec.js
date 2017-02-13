@@ -255,7 +255,7 @@ describe('OperationsView Test', function() {
             res = fn("testCol");
             expect(res.length).to.equal(1);
             expect(res[0]).to.equal(ColumnType.number);
-            
+
             res = fn("testCol2[0]", false);
             expect(res.length).to.equal(1);
             expect(res[0]).to.equal(CommonTxtTstr.ArrayVal);
