@@ -30,6 +30,19 @@ XcMap.prototype = {
     }
 };
 
+function Mutex(key, scope) {
+    if (!key || !(typeof(key) == "string")) {
+        console.log("No/Illegal mutex key, generating a random one.");
+        key = xcHelper.randName("mutex", 5);
+    }
+    this.key = key;
+    if (!scope) {
+        scope = XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal;
+    }
+    this.scope = scope;
+    return this;
+}
+
 // workbookManager.js
 function WKBKSet() {
     this.set = {};
