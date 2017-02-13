@@ -45,8 +45,7 @@ describe("xcFunctions Test", function() {
         it("new table should have correct columns", function(done) {
             // check initial state
             var table = gTables[tableId3];
-            var progCols = table.getAllCols();
-            
+
             expect(table.hasCol("time")).to.be.false;
             expect(table.hasCol("immediate2", null, true)).to.be.false;
             expect(table.hasCol("immediate1", null, true)).to.be.true;
@@ -76,7 +75,7 @@ describe("xcFunctions Test", function() {
         after(function(done) {
             XcalarDeleteTable(tableName)
             .then(function() {
-                return XcalarDeleteTable(tableName2)
+                return XcalarDeleteTable(tableName2);
             })
             .then(function() {
                 return XcalarDeleteTable(tableName3);

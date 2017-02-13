@@ -4,7 +4,7 @@ describe("Persistent Constructor Test", function() {
 
         it("Should have 9 attributs", function() {
             var table = new TableMeta({
-                "tableId"  : "test",
+                "tableId": "test",
                 "tableName": "testTable"
             });
 
@@ -25,14 +25,14 @@ describe("Persistent Constructor Test", function() {
             });
 
             metaInfos = new METAConstructor({
-                "TILookup"   : {"test": table},
-                "worksheets" : {"wsOrder": [1]},
-                "aggregates" : {"testAgg": agg},
-                "datacarts"  : {"testId": cart},
-                "statsCols"  : {"testTable": {"testCol": profile}},
-                "sqlcursor"  : -2,
+                "TILookup": {"test": table},
+                "worksheets": {"wsOrder": [1]},
+                "aggregates": {"testAgg": agg},
+                "datacarts": {"testId": cart},
+                "statsCols": {"testTable": {"testCol": profile}},
+                "sqlcursor": -2,
                 "tablePrefix": {"testPrefix": "test"},
-                "query"      : [query]
+                "query": [query]
             });
 
             expect(metaInfos).to.be.an.instanceof(METAConstructor);
@@ -141,7 +141,7 @@ describe("Persistent Constructor Test", function() {
             });
 
             userInfos = new UserInfoConstructor({
-                "gDSObj"        : "testDS",
+                "gDSObj": "testDS",
                 "userpreference": userPref
             });
 
@@ -210,8 +210,8 @@ describe("Persistent Constructor Test", function() {
     describe("XcLog Constructor Test", function() {
         it("Should have 5 attributes", function() {
             var log = new XcLog({
-                "title"  : "test1",
-                "cli"    : "cliTest",
+                "title": "test1",
+                "cli": "cliTest",
                 "options": {
                     "operation": "foo"
                 }
@@ -229,17 +229,17 @@ describe("Persistent Constructor Test", function() {
 
         it("Should know if is error log", function() {
             var log1 = new XcLog({
-                "title"  : "test1",
-                "cli"    : "cliTest",
+                "title": "test1",
+                "cli": "cliTest",
                 "options": {
                     "operation": "foo"
                 }
             });
 
             var log2 = new XcLog({
-                "title"  : "test2",
-                "cli"    : "cliTest2",
-                "error"  : "testError",
+                "title": "test2",
+                "cli": "cliTest2",
+                "error": "testError",
                 "options": {
                     "operation": "bar"
                 }
@@ -251,8 +251,8 @@ describe("Persistent Constructor Test", function() {
 
         it("Should get operation", function() {
             var log = new XcLog({
-                "title"  : "test1",
-                "cli"    : "cliTest",
+                "title": "test1",
+                "cli": "cliTest",
                 "options": {
                     "operation": "foo"
                 }
@@ -262,8 +262,8 @@ describe("Persistent Constructor Test", function() {
 
         it("Shoult get title", function() {
             var log = new XcLog({
-                "title"  : "test1",
-                "cli"    : "cliTest",
+                "title": "test1",
+                "cli": "cliTest",
                 "options": {
                     "operation": "foo"
                 }
@@ -273,8 +273,8 @@ describe("Persistent Constructor Test", function() {
 
         it("Should get options", function() {
             var log = new XcLog({
-                "title"  : "test1",
-                "cli"    : "cliTest",
+                "title": "test1",
+                "cli": "cliTest",
                 "options": {
                     "operation": "foo"
                 }
@@ -304,13 +304,13 @@ describe("Persistent Constructor Test", function() {
     describe("ProgCol constructor test", function() {
         it("Should have 17 attributes", function() {
             var progCol = new ProgCol({
-                "name"    : "test",
+                "name": "test",
                 "backName": "prefix::backTest",
-                "type"    : ColumnType.float,
+                "type": ColumnType.float,
                 "isNewCol": false,
-                "width"   : 100,
-                "decimal" : 10,
-                "func"    : {
+                "width": 100,
+                "decimal": 10,
+                "func": {
                     "name": "pull"
                 }
             });
@@ -376,21 +376,21 @@ describe("Persistent Constructor Test", function() {
 
         it("Should know if is number col", function() {
             var progCol1 = new ProgCol({
-                "name"    : "test",
+                "name": "test",
                 "backName": "prefix::backTest",
-                "type"    : ColumnType.float
+                "type": ColumnType.float
             });
 
             var progCol2 = new ProgCol({
-                "name"    : "test",
+                "name": "test",
                 "backName": "prefix::backTest",
-                "type"    : ColumnType.integer
+                "type": ColumnType.integer
             });
 
             var progCol3 = new ProgCol({
-                "name"    : "test",
+                "name": "test",
                 "backName": "prefix::backTest",
-                "type"    : ColumnType.string
+                "type": ColumnType.string
             });
 
             expect(progCol1.isNumberCol()).to.be.true;
@@ -400,16 +400,16 @@ describe("Persistent Constructor Test", function() {
 
         it("Should know if is empty col", function() {
             var progCol1 = new ProgCol({
-                "name"    : "test",
+                "name": "test",
                 "backName": "prefix::backTest",
-                "type"    : ColumnType.float,
+                "type": ColumnType.float,
                 "isNewCol": false
             });
 
             var progCol2 = new ProgCol({
-                "name"    : "",
+                "name": "",
                 "backName": "prefix::backTest",
-                "type"    : ColumnType.float,
+                "type": ColumnType.float,
                 "isNewCol": true
             });
 
@@ -419,13 +419,13 @@ describe("Persistent Constructor Test", function() {
 
         it("Should set and get front col name", function() {
             var progCol = new ProgCol({
-                "name"    : "test",
+                "name": "test",
                 "backName": "prefix::backTest",
-                "type"    : "float",
+                "type": "float",
                 "isNewCol": false,
-                "width"   : 100,
-                "decimal" : 10,
-                "func"    : {
+                "width": 100,
+                "decimal": 10,
+                "func": {
                     "name": "pull"
                 }
             });
@@ -439,11 +439,11 @@ describe("Persistent Constructor Test", function() {
 
         it("Should get and update type", function() {
             var progCol = new ProgCol({
-                "name"    : "test",
+                "name": "test",
                 "backName": "prefix::backTest",
-                "type"    : ColumnType.integer,
+                "type": ColumnType.integer,
                 "isNewCol": false,
-                "func"    : {
+                "func": {
                     "name": "pull"
                 }
             });
@@ -454,7 +454,7 @@ describe("Persistent Constructor Test", function() {
 
             // case 2
             progCol = new ProgCol({
-                "name"    : "",
+                "name": "",
                 "backName": "",
                 "isNewCol": true
             });
@@ -466,11 +466,11 @@ describe("Persistent Constructor Test", function() {
 
             // case 3
             progCol = new ProgCol({
-                "name"    : "test",
+                "name": "test",
                 "backName": "prefix::backTest",
-                "type"    : ColumnType.integer,
+                "type": ColumnType.integer,
                 "isNewCol": false,
-                "func"    : {
+                "func": {
                     "name": "pull"
                 }
             });
@@ -486,12 +486,12 @@ describe("Persistent Constructor Test", function() {
 
         it("Should get and set width", function() {
             var progCol = new ProgCol({
-                "name"    : "test",
+                "name": "test",
                 "backName": "prefix::backTest",
-                "type"    : ColumnType.float,
+                "type": ColumnType.float,
                 "isNewCol": false,
-                "width"   : 100,
-                "func"    : {
+                "width": 100,
+                "func": {
                     "name": "pull"
                 }
             });
@@ -504,13 +504,13 @@ describe("Persistent Constructor Test", function() {
         it("Should get display width", function() {
             // case 1
             var progCol = new ProgCol({
-                "name"    : "test",
+                "name": "test",
                 "backName": "prefix::backTest",
-                "type"    : ColumnType.float,
+                "type": ColumnType.float,
                 "isNewCol": false,
-                "width"   : 100,
-                "decimal" : 10,
-                "func"    : {
+                "width": 100,
+                "decimal": 10,
+                "func": {
                     "name": "pull"
                 }
             });
@@ -524,13 +524,13 @@ describe("Persistent Constructor Test", function() {
 
         it("Should minimize and maximize column", function() {
             var progCol = new ProgCol({
-                "name"    : "test",
+                "name": "test",
                 "backName": "prefix::backTest",
-                "type"    : ColumnType.float,
+                "type": ColumnType.float,
                 "isNewCol": false,
-                "width"   : 100,
-                "decimal" : 10,
-                "func"    : {
+                "width": 100,
+                "decimal": 10,
+                "func": {
                     "name": "pull"
                 }
             });
@@ -544,13 +544,13 @@ describe("Persistent Constructor Test", function() {
 
         it("Should get and set text align", function() {
             var progCol = new ProgCol({
-                "name"    : "test",
+                "name": "test",
                 "backName": "prefix::backTest",
-                "type"    : ColumnType.float,
+                "type": ColumnType.float,
                 "isNewCol": false,
-                "width"   : 100,
-                "decimal" : 10,
-                "func"    : {
+                "width": 100,
+                "decimal": 10,
+                "func": {
                     "name": "pull"
                 }
             });
@@ -566,13 +566,13 @@ describe("Persistent Constructor Test", function() {
 
         it("Should getPrefix", function() {
             var progCol = new ProgCol({
-                "name"    : "test",
+                "name": "test",
                 "backName": "prefix::backTest",
-                "type"    : ColumnType.float,
+                "type": ColumnType.float,
                 "isNewCol": false,
-                "width"   : 100,
-                "decimal" : 10,
-                "func"    : {
+                "width": 100,
+                "decimal": 10,
+                "func": {
                     "name": "pull"
                 }
             });
@@ -582,13 +582,13 @@ describe("Persistent Constructor Test", function() {
 
         it("Should get and set back col name", function() {
             var progCol = new ProgCol({
-                "name"    : "test",
+                "name": "test",
                 "backName": "prefix::backTest",
-                "type"    : ColumnType.float,
+                "type": ColumnType.float,
                 "isNewCol": false,
-                "width"   : 100,
-                "decimal" : 10,
-                "func"    : {
+                "width": 100,
+                "decimal": 10,
+                "func": {
                     "name": "pull"
                 }
             });
@@ -609,13 +609,13 @@ describe("Persistent Constructor Test", function() {
 
         it("Should set immediates type", function() {
             var progCol = new ProgCol({
-                "name"    : "test",
+                "name": "test",
                 "backName": "backTest",
-                "type"    : ColumnType.float,
+                "type": ColumnType.float,
                 "isNewCol": false,
-                "width"   : 100,
-                "decimal" : 10,
-                "func"    : {
+                "width": 100,
+                "decimal": 10,
+                "func": {
                     "name": "pull"
                 }
             });
@@ -625,37 +625,37 @@ describe("Persistent Constructor Test", function() {
             progCol.setImmediateType();
 
             var testCases = [{
-                "typeId" : DfFieldTypeT.DfString,
+                "typeId": DfFieldTypeT.DfString,
                 "boolean": true,
-                "type"   : "string",
+                "type": "string",
             },{
-                "typeId" : DfFieldTypeT.DfUnknown,
+                "typeId": DfFieldTypeT.DfUnknown,
                 "boolean": true,
-                "type"   : "unknown"
+                "type": "unknown"
             },{
-                "typeId" : DfFieldTypeT.DfInt32,
+                "typeId": DfFieldTypeT.DfInt32,
                 "boolean": true,
-                "type"   : "integer"
+                "type": "integer"
             },{
-                "typeId" : DfFieldTypeT.DfFloat64,
+                "typeId": DfFieldTypeT.DfFloat64,
                 "boolean": true,
-                "type"   : "float"
+                "type": "float"
             },{
-                "typeId" : DfFieldTypeT.DfBoolean,
+                "typeId": DfFieldTypeT.DfBoolean,
                 "boolean": true,
-                "type"   : "boolean"
+                "type": "boolean"
             },{
-                "typeId" : DfFieldTypeT.DfMixed,
+                "typeId": DfFieldTypeT.DfMixed,
                 "boolean": true,
-                "type"   : "mixed"
+                "type": "mixed"
             },{
-                "typeId" : DfFieldTypeT.DfFatptr,
+                "typeId": DfFieldTypeT.DfFatptr,
                 "boolean": false,
-                "type"   : ""
+                "type": ""
             },{
-                "typeId" : DfFieldTypeT.DfScalarPtr,
+                "typeId": DfFieldTypeT.DfScalarPtr,
                 "boolean": true,
-                "type"   : ""
+                "type": ""
             }];
 
             testCases.forEach(function(testCase) {
@@ -673,13 +673,13 @@ describe("Persistent Constructor Test", function() {
 
         it("Should get and set format", function() {
             var progCol = new ProgCol({
-                "name"    : "test",
+                "name": "test",
                 "backName": "backTest",
-                "type"    : ColumnType.float,
+                "type": ColumnType.float,
                 "isNewCol": false,
-                "width"   : 100,
-                "decimal" : 10,
-                "func"    : {
+                "width": 100,
+                "decimal": 10,
+                "func": {
                     "name": "pull"
                 }
             });
@@ -697,12 +697,12 @@ describe("Persistent Constructor Test", function() {
 
         it("Should get and set decimal", function() {
             var progCol = new ProgCol({
-                "name"    : "test",
+                "name": "test",
                 "backName": "backTest",
-                "type"    : ColumnType.float,
+                "type": ColumnType.float,
                 "isNewCol": false,
-                "width"   : 100,
-                "func"    : {
+                "width": 100,
+                "func": {
                     "name": "pull"
                 }
             });
@@ -714,11 +714,11 @@ describe("Persistent Constructor Test", function() {
 
         it("Should set to be child of array", function() {
             var progCol = new ProgCol({
-                "name"    : "test",
+                "name": "test",
                 "backName": "backTest",
-                "type"    : ColumnType.float,
+                "type": ColumnType.float,
                 "isNewCol": false,
-                "func"    : {
+                "func": {
                     "name": "pull"
                 }
             });
@@ -730,11 +730,11 @@ describe("Persistent Constructor Test", function() {
 
         it("Should stringify func", function() {
             var progCol = new ProgCol({
-                "name"    : "test",
+                "name": "test",
                 "backName": "backTest",
-                "type"    : ColumnType.float,
+                "type": ColumnType.float,
                 "isNewCol": false,
-                "func"    : {
+                "func": {
                     "name": "pull"
                 }
             });
@@ -744,11 +744,11 @@ describe("Persistent Constructor Test", function() {
 
             // case 2
             progCol2 = new ProgCol({
-                "name"    : "test",
+                "name": "test",
                 "backName": "backTest",
-                "type"    : ColumnType.float,
+                "type": ColumnType.float,
                 "isNewCol": false,
-                "func"    : {
+                "func": {
                     "name": "map",
                     "args": [{
                         "args": ["a::b"],
@@ -763,9 +763,9 @@ describe("Persistent Constructor Test", function() {
 
         it("Should parse func", function() {
             var progCol = new ProgCol({
-                "name"    : "test",
+                "name": "test",
                 "backName": "backTest",
-                "type"    : ColumnType.float,
+                "type": ColumnType.float,
                 "isNewCol": false
             });
 
@@ -784,8 +784,8 @@ describe("Persistent Constructor Test", function() {
         it("Should have 18 attributes", function() {
             var table = new TableMeta({
                 "tableName": "test#a1",
-                "tableId"  : "a1",
-                "isLocked" : false
+                "tableId": "a1",
+                "isLocked": false
             });
 
             expect(table).to.be.an.instanceof(TableMeta);
@@ -839,8 +839,8 @@ describe("Persistent Constructor Test", function() {
         it("Should get id", function() {
             var table = new TableMeta({
                 "tableName": "test#a1",
-                "tableId"  : "a1",
-                "isLocked" : false
+                "tableId": "a1",
+                "isLocked": false
             });
 
             expect(table.getId()).to.equal("a1");
@@ -849,8 +849,8 @@ describe("Persistent Constructor Test", function() {
         it("Should get name", function() {
             var table = new TableMeta({
                 "tableName": "test#a1",
-                "tableId"  : "a1",
-                "isLocked" : false
+                "tableId": "a1",
+                "isLocked": false
             });
 
             expect(table.getName()).to.equal("test#a1");
@@ -859,8 +859,8 @@ describe("Persistent Constructor Test", function() {
         it("Table should update timestamp", function(done) {
             var table = new TableMeta({
                 "tableName": "test#a1",
-                "tableId"  : "a1",
-                "isLocked" : false
+                "tableId": "a1",
+                "isLocked": false
             });
 
             var time = table.getTimeStamp();
@@ -876,8 +876,8 @@ describe("Persistent Constructor Test", function() {
         it("Table should get keyName", function() {
             var table = new TableMeta({
                 "tableName": "test#a1",
-                "tableId"  : "a1",
-                "isLocked" : false
+                "tableId": "a1",
+                "isLocked": false
             });
             var initialVal = "";
             var testVal = "testKey";
@@ -892,8 +892,8 @@ describe("Persistent Constructor Test", function() {
         it("Table should get ordering", function() {
             var table = new TableMeta({
                 "tableName": "test#a1",
-                "tableId"  : "a1",
-                "isLocked" : false
+                "tableId": "a1",
+                "isLocked": false
             });
             expect(table.getOrdering()).to.be.null;
 
@@ -906,8 +906,8 @@ describe("Persistent Constructor Test", function() {
         it("Table should lock and unlock", function() {
             var table = new TableMeta({
                 "tableName": "test#a1",
-                "tableId"  : "a1",
-                "isLocked" : false
+                "tableId": "a1",
+                "isLocked": false
             });
 
             expect(table.hasLock()).to.be.false;
@@ -920,8 +920,8 @@ describe("Persistent Constructor Test", function() {
         it("Table should change status", function() {
             var table = new TableMeta({
                 "tableName": "test#a1",
-                "tableId"  : "a1",
-                "isLocked" : false
+                "tableId": "a1",
+                "isLocked": false
             });
             expect(table.getType()).to.equal(TableType.Active);
 
@@ -944,10 +944,10 @@ describe("Persistent Constructor Test", function() {
 
         it("Table should get col info", function() {
             var progCol =  new ProgCol({
-                "name"    : "testCol",
+                "name": "testCol",
                 "backName": "prefix::backTestCol",
                 "isNewCol": false,
-                "func"    : {
+                "func": {
                     "name": "pull"
                 }
             });
@@ -955,9 +955,9 @@ describe("Persistent Constructor Test", function() {
             var dataCol = ColManager.newDATACol();
             var table = new TableMeta({
                 "tableName": "test#a1",
-                "tableId"  : "a1",
+                "tableId": "a1",
                 "tableCols": [progCol, dataCol],
-                "isLocked" : false
+                "isLocked": false
             });
 
             expect(table.getNumCols()).to.equal(2);
@@ -984,19 +984,19 @@ describe("Persistent Constructor Test", function() {
 
         it("Should check if has column", function() {
             var progCol1 = new ProgCol({
-                "name"    : "testCol",
+                "name": "testCol",
                 "backName": "prefix::backTestCol",
                 "isNewCol": false,
-                "func"    : {
+                "func": {
                     "name": "pull"
                 }
             });
 
             var progCol2 = new ProgCol({
-                "name"    : "testCol2",
+                "name": "testCol2",
                 "backName": "backTestCol2",
                 "isNewCol": false,
-                "func"    : {
+                "func": {
                     "name": "pull"
                 }
             });
@@ -1005,9 +1005,9 @@ describe("Persistent Constructor Test", function() {
 
             var table = new TableMeta({
                 "tableName": "test#a1",
-                "tableId"  : "a1",
+                "tableId": "a1",
                 "tableCols": [dataCol, progCol1, progCol2],
-                "isLocked" : false
+                "isLocked": false
             });
 
             // test without backMeta
@@ -1045,16 +1045,16 @@ describe("Persistent Constructor Test", function() {
             var dataCol = ColManager.newDATACol();
             var table = new TableMeta({
                 "tableName": "test#a1",
-                "tableId"  : "a1",
+                "tableId": "a1",
                 "tableCols": [dataCol],
-                "isLocked" : false
+                "isLocked": false
             });
 
-            var progCol =  new ProgCol({
-                "name"    : "testCol",
+            var progCol = new ProgCol({
+                "name": "testCol",
                 "backName": "backTestCol",
                 "isNewCol": false,
-                "func"    : {
+                "func": {
                     "name": "pull"
                 }
             });
@@ -1086,9 +1086,9 @@ describe("Persistent Constructor Test", function() {
             var dataCol = ColManager.newDATACol();
             var table = new TableMeta({
                 "tableName": "test#a1",
-                "tableId"  : "a1",
+                "tableId": "a1",
                 "tableCols": [dataCol],
-                "isLocked" : false
+                "isLocked": false
             });
 
             table.backTableMeta = {
@@ -1098,11 +1098,11 @@ describe("Persistent Constructor Test", function() {
                 }]
             };
 
-            var progCol =  new ProgCol({
-                "name"    : "testImmeidate",
+            var progCol = new ProgCol({
+                "name": "testImmeidate",
                 "backName": "testImmeidate",
                 "isNewCol": false,
-                "func"    : {
+                "func": {
                     "name": "pull"
                 }
             });
@@ -1114,29 +1114,29 @@ describe("Persistent Constructor Test", function() {
         });
 
         it("Should sort columns by name", function() {
-            var progCol1 =  new ProgCol({
-                "name"    : "b",
+            var progCol1 = new ProgCol({
+                "name": "b",
                 "backName": "b",
                 "isNewCol": false,
-                "func"    : {
+                "func": {
                     "name": "pull"
                 }
             });
 
-            var progCol2 =  new ProgCol({
-                "name"    : "a",
+            var progCol2 = new ProgCol({
+                "name": "a",
                 "backName": "a",
                 "isNewCol": false,
-                "func"    : {
+                "func": {
                     "name": "pull"
                 }
             });
 
             var table = new TableMeta({
                 "tableName": "test#a1",
-                "tableId"  : "a1",
+                "tableId": "a1",
                 "tableCols": [progCol1, progCol2],
-                "isLocked" : false
+                "isLocked": false
             });
 
             // case 1
@@ -1149,31 +1149,31 @@ describe("Persistent Constructor Test", function() {
         });
 
         it("Should sort columns by type", function() {
-            var progCol1 =  new ProgCol({
-                "name"    : "a",
+            var progCol1 = new ProgCol({
+                "name": "a",
                 "backName": "a",
-                "type"    : ColumnType.string,
+                "type": ColumnType.string,
                 "isNewCol": false,
-                "func"    : {
+                "func": {
                     "name": "pull"
                 }
             });
 
-            var progCol2 =  new ProgCol({
-                "name"    : "b",
+            var progCol2 = new ProgCol({
+                "name": "b",
                 "backName": "b",
-                "type"    : ColumnType.array,
+                "type": ColumnType.array,
                 "isNewCol": false,
-                "func"    : {
+                "func": {
                     "name": "pull"
                 }
             });
 
             var table = new TableMeta({
                 "tableName": "test#a1",
-                "tableId"  : "a1",
+                "tableId": "a1",
                 "tableCols": [progCol1, progCol2],
-                "isLocked" : false
+                "isLocked": false
             });
 
             // case 1
@@ -1186,31 +1186,31 @@ describe("Persistent Constructor Test", function() {
         });
 
         it("Should sort columns by prefix", function() {
-            var progCol1 =  new ProgCol({
-                "name"    : "a",
+            var progCol1 = new ProgCol({
+                "name": "a",
                 "backName": "prefix2::a",
-                "type"    : ColumnType.string,
+                "type": ColumnType.string,
                 "isNewCol": false,
-                "func"    : {
+                "func": {
                     "name": "pull"
                 }
             });
 
-            var progCol2 =  new ProgCol({
-                "name"    : "b",
+            var progCol2 = new ProgCol({
+                "name": "b",
                 "backName": "prefix1::b",
-                "type"    : ColumnType.array,
+                "type": ColumnType.array,
                 "isNewCol": false,
-                "func"    : {
+                "func": {
                     "name": "pull"
                 }
             });
 
             var table = new TableMeta({
                 "tableName": "test#a1",
-                "tableId"  : "a1",
+                "tableId": "a1",
                 "tableCols": [progCol1, progCol2],
-                "isLocked" : false
+                "isLocked": false
             });
 
             // case 1
@@ -1223,31 +1223,31 @@ describe("Persistent Constructor Test", function() {
         });
 
         it("Should sort by name when have same prefix", function() {
-            var progCol1 =  new ProgCol({
-                "name"    : "b",
+            var progCol1 = new ProgCol({
+                "name": "b",
                 "backName": "prefix::b",
-                "type"    : ColumnType.string,
+                "type": ColumnType.string,
                 "isNewCol": false,
-                "func"    : {
+                "func": {
                     "name": "pull"
                 }
             });
 
-            var progCol2 =  new ProgCol({
-                "name"    : "a",
+            var progCol2 = new ProgCol({
+                "name": "a",
                 "backName": "prefix::a",
-                "type"    : ColumnType.array,
+                "type": ColumnType.array,
                 "isNewCol": false,
-                "func"    : {
+                "func": {
                     "name": "pull"
                 }
             });
 
             var table = new TableMeta({
                 "tableName": "test#a1",
-                "tableId"  : "a1",
+                "tableId": "a1",
                 "tableCols": [progCol1, progCol2],
-                "isLocked" : false
+                "isLocked": false
             });
 
             table.sortCols(ColumnSortType.prefix, ColumnSortOrder.ascending);
@@ -1257,8 +1257,8 @@ describe("Persistent Constructor Test", function() {
         it("table should get immediates", function() {
             var table = new TableMeta({
                 "tableName": "test#a1",
-                "tableId"  : "a1",
-                "isLocked" : false
+                "tableId": "a1",
+                "isLocked": false
             });
 
             var res = table.getImmediates();
@@ -1283,8 +1283,8 @@ describe("Persistent Constructor Test", function() {
         it("table should get fatPtrs", function() {
             var table = new TableMeta({
                 "tableName": "test#a1",
-                "tableId"  : "a1",
-                "isLocked" : false
+                "tableId": "a1",
+                "isLocked": false
             });
 
             var res = table.getFatPtr();
@@ -1310,8 +1310,8 @@ describe("Persistent Constructor Test", function() {
         it("table should get immediates names", function() {
             var table = new TableMeta({
                 "tableName": "test#a1",
-                "tableId"  : "a1",
-                "isLocked" : false
+                "tableId": "a1",
+                "isLocked": false
             });
 
             var res = table.getImmediateNames();
@@ -1336,8 +1336,8 @@ describe("Persistent Constructor Test", function() {
         it("table should get fatPtr names", function() {
             var table = new TableMeta({
                 "tableName": "test#a1",
-                "tableId"  : "a1",
-                "isLocked" : false
+                "tableId": "a1",
+                "isLocked": false
             });
 
             var res = table.getFatPtrNames();
@@ -1362,7 +1362,7 @@ describe("Persistent Constructor Test", function() {
         it("table should show indexed style", function() {
             var table = new TableMeta({
                 "tableName": "test#a1",
-                "tableId"  : "a1"
+                "tableId": "a1"
             });
 
             expect(table.showIndexStyle()).to.be.false;
@@ -1376,7 +1376,7 @@ describe("Persistent Constructor Test", function() {
         it("table should add and remove book mark", function() {
             var table = new TableMeta({
                 "tableName": "test#a1",
-                "tableId"  : "a1"
+                "tableId": "a1"
             });
 
             expect(table.bookmarks).to.be.an("array")
@@ -1419,7 +1419,7 @@ describe("Persistent Constructor Test", function() {
             var oldFunc = XcalarGetTableMeta;
             var table = new TableMeta({
                 "tableName": "test#a1",
-                "tableId"  : "a1"
+                "tableId": "a1"
             });
 
             XcalarGetTableMeta = function() {
@@ -1442,10 +1442,10 @@ describe("Persistent Constructor Test", function() {
         it("Should get meta test2", function(done) {
             var oldFunc = XcalarGetTableMeta;
             var progCol = new ProgCol({
-                "name"    : "testCol",
+                "name": "testCol",
                 "backName": "prefix::backTestCol",
                 "isNewCol": false,
-                "func"    : {
+                "func": {
                     "name": "pull"
                 }
             });
@@ -1453,25 +1453,25 @@ describe("Persistent Constructor Test", function() {
             var dataCol = ColManager.newDATACol();
             var table = new TableMeta({
                 "tableName": "test#a1",
-                "tableId"  : "a1",
+                "tableId": "a1",
                 "tableCols": [progCol, dataCol]
             });
 
             XcalarGetTableMeta = function() {
                 return PromiseHelper.resolve({
                     "keyAttr": {
-                        "name"           : "recordNum",
-                        "type"           : 5,
+                        "name": "recordNum",
+                        "type": 5,
                         "valueArrayIndex": -1
                     },
-                    "ordering"  : 1,
+                    "ordering": 1,
                     "valueAttrs": [{
-                        "name"           : "test",
-                        "type"           : DfFieldTypeT.DfFatptr,
+                        "name": "test",
+                        "type": DfFieldTypeT.DfFatptr,
                         "valueArrayIndex": 0
                     },{
-                        "name"           : "prefix::backTestCol",
-                        "type"           : DfFieldTypeT.DfBoolean,
+                        "name": "prefix::backTestCol",
+                        "type": DfFieldTypeT.DfBoolean,
                         "valueArrayIndex": 1
                     }]
                 });
@@ -1500,13 +1500,13 @@ describe("Persistent Constructor Test", function() {
             XcalarMakeResultSetFromTable = function() {
                 return PromiseHelper.resolve({
                     "resultSetId": 1,
-                    "numEntries" : 10
+                    "numEntries": 10
                 });
             };
 
             var table = new TableMeta({
                 "tableName": "test#a1",
-                "tableId"  : "a1"
+                "tableId": "a1"
             });
 
             table.updateResultset()
@@ -1533,7 +1533,7 @@ describe("Persistent Constructor Test", function() {
                 test1 = true;
                 return PromiseHelper.resolve({
                     "resultSetId": 1,
-                    "numEntries" : 10
+                    "numEntries": 10
                 });
             };
 
@@ -1544,7 +1544,7 @@ describe("Persistent Constructor Test", function() {
 
             var table = new TableMeta({
                 "tableName": "test#a1",
-                "tableId"  : "a1"
+                "tableId": "a1"
             });
 
             table.getMetaAndResultSet()
@@ -1565,7 +1565,7 @@ describe("Persistent Constructor Test", function() {
         it("table should free result set test1", function(done) {
             var table = new TableMeta({
                 "tableName": "test#a1",
-                "tableId"  : "a1"
+                "tableId": "a1"
             });
             table.freeResultset()
             .then(function() {
@@ -1585,7 +1585,7 @@ describe("Persistent Constructor Test", function() {
 
             var table = new TableMeta({
                 "tableName": "test#a1",
-                "tableId"  : "a1"
+                "tableId": "a1"
             });
 
             table.resultSetId = 1;
@@ -1606,21 +1606,21 @@ describe("Persistent Constructor Test", function() {
             var tableId = "unitTest-exportHelper";
             var colCont0 = "record0";
 
-            var progCol =  new ProgCol({
-                "name"    : "test",
+            var progCol = new ProgCol({
+                "name": "test",
                 "backName": "test",
                 "isNewCol": false,
-                "type"    : "string",
-                "func"    : {
+                "type": "string",
+                "func": {
                     "name": "pull"
                 }
             });
 
             var table = new TableMeta({
                 "tableName": "test#" + tableId,
-                "tableId"  : tableId,
+                "tableId": tableId,
                 "tableCols": [progCol],
-                "isLocked" : false
+                "isLocked": false
             });
             var fakeHtml =
                 '<div id="xcTable-' + tableId + '">' +
@@ -1648,12 +1648,12 @@ describe("Persistent Constructor Test", function() {
     describe("Agg Constructor Test", function() {
         it("Should have 8 attributes", function() {
             var agg = new Agg({
-                "aggName"    : "^fg",
+                "aggName": "^fg",
                 "backColName": "schedule::teacher_id",
-                "dagName"    : "fg",
-                "op"         : "avg",
-                "tableId"    : "gM321",
-                "value"      : 2.1
+                "dagName": "fg",
+                "op": "avg",
+                "tableId": "gM321",
+                "value": 2.1
             });
 
             expect(agg).to.be.an.instanceof(Agg);
@@ -1708,13 +1708,13 @@ describe("Persistent Constructor Test", function() {
         it("GenSettings heirarchy should work", function() {
             var testSettings = {
                 "adminSettings": {},
-                "xcSettings"   : {
+                "xcSettings": {
                     "monitorGraphInterval": 9
                 }
             };
             var userConfigParams = {
                 "DsDefaultSampleSize": 2000,
-                "commitInterval"     : 600
+                "commitInterval": 600
             };
             // modified base settings should be
             // {monitorGraphInterval: 9, hideDataCol: false}
@@ -1784,9 +1784,9 @@ describe("Persistent Constructor Test", function() {
     describe("DSObj Constructor Test", function() {
         it("Should have 10 attributes for ds", function() {
             var dsObj = new DSObj({
-                "id"      : "testId",
-                "name"    : "testName",
-                "user"    : "testUser",
+                "id": "testId",
+                "name": "testName",
+                "user": "testUser",
                 "fullName": "testFullName",
                 "parentId": DSObjTerm.homeParentId,
                 "isFolder": true
@@ -1800,15 +1800,15 @@ describe("Persistent Constructor Test", function() {
 
         it("Should have 25 attributes for ds", function() {
             var dsObj = new DSObj({
-                "id"        : "testId",
-                "name"      : "testName",
-                "user"      : "testUser",
-                "fullName"  : "testFullName",
-                "parentId"  : DSObjTerm.homeParentId,
+                "id": "testId",
+                "name": "testName",
+                "user": "testUser",
+                "fullName": "testFullName",
+                "parentId": DSObjTerm.homeParentId,
                 "uneditable": false,
-                "path"      : "nfs:///netstore/datasets/gdelt/",
-                "format"    : "CSV",
-                "pattern"   : "abc.csv",
+                "path": "nfs:///netstore/datasets/gdelt/",
+                "format": "CSV",
+                "pattern": "abc.csv",
                 "numEntries": 1000
             });
 
@@ -1820,8 +1820,8 @@ describe("Persistent Constructor Test", function() {
 
         it("Should get id", function() {
             var dsObj = new DSObj({
-                "id"      : "testId",
-                "name"    : "testName",
+                "id": "testId",
+                "name": "testName",
                 "parentId": DSObjTerm.homeParentId
             });
 
@@ -1830,8 +1830,8 @@ describe("Persistent Constructor Test", function() {
 
         it("Should get parent id", function() {
             var dsObj = new DSObj({
-                "id"      : "testId",
-                "name"    : "testName",
+                "id": "testId",
+                "name": "testName",
                 "parentId": DSObjTerm.homeParentId
             });
 
@@ -1840,8 +1840,8 @@ describe("Persistent Constructor Test", function() {
 
         it("Should get name", function() {
             var dsObj = new DSObj({
-                "id"      : "testId",
-                "name"    : "testName",
+                "id": "testId",
+                "name": "testName",
                 "parentId": DSObjTerm.homeParentId
             });
 
@@ -1850,8 +1850,8 @@ describe("Persistent Constructor Test", function() {
 
         it("Should get full name", function() {
             var dsObj = new DSObj({
-                "id"      : "testId",
-                "name"    : "testName",
+                "id": "testId",
+                "name": "testName",
                 "parentId": DSObjTerm.homeParentId,
                 "fullName": "testFullName"
             });
@@ -1861,9 +1861,9 @@ describe("Persistent Constructor Test", function() {
 
         it("Should get user", function() {
             var dsObj = new DSObj({
-                "id"      : "testId",
-                "name"    : "testName",
-                "user"    : "testUser",
+                "id": "testId",
+                "name": "testName",
+                "user": "testUser",
                 "parentId": DSObjTerm.homeParentId
             });
 
@@ -1872,9 +1872,9 @@ describe("Persistent Constructor Test", function() {
 
         it("Should get format", function() {
             var dsObj = new DSObj({
-                "id"      : "testId",
-                "name"    : "testName",
-                "format"  : "CSV",
+                "id": "testId",
+                "name": "testName",
+                "format": "CSV",
                 "parentId": DSObjTerm.homeParentId
             });
 
@@ -1883,10 +1883,10 @@ describe("Persistent Constructor Test", function() {
 
         it("Should get path", function() {
             var dsObj = new DSObj({
-                "id"      : "testId",
-                "name"    : "testName",
+                "id": "testId",
+                "name": "testName",
                 "parentId": DSObjTerm.homeParentId,
-                "path"    : "nfs:///netstore/datasets/gdelt/"
+                "path": "nfs:///netstore/datasets/gdelt/"
             });
 
             expect(dsObj.getPath())
@@ -1895,11 +1895,11 @@ describe("Persistent Constructor Test", function() {
 
         it("Should get path with pattern", function() {
             var dsObj = new DSObj({
-                "id"      : "testId",
-                "name"    : "testName",
+                "id": "testId",
+                "name": "testName",
                 "parentId": DSObjTerm.homeParentId,
-                "path"    : "nfs:///netstore/datasets/gdelt/",
-                "pattern" : "abc.csv"
+                "path": "nfs:///netstore/datasets/gdelt/",
+                "pattern": "abc.csv"
             });
 
             expect(dsObj.getPathWithPattern())
@@ -1908,9 +1908,9 @@ describe("Persistent Constructor Test", function() {
 
         it("Should get num entries", function() {
             var dsObj = new DSObj({
-                "id"        : "testId",
-                "name"      : "testName",
-                "parentId"  : DSObjTerm.homeParentId,
+                "id": "testId",
+                "name": "testName",
+                "parentId": DSObjTerm.homeParentId,
                 "numEntries": 1000
             });
             expect(dsObj.getNumEntries()).to.equal(1000);
@@ -1918,15 +1918,15 @@ describe("Persistent Constructor Test", function() {
 
         it("Should know if is folder or not", function() {
             var dsObj1 = new DSObj({
-                "id"      : "testId",
-                "name"    : "testName",
+                "id": "testId",
+                "name": "testName",
                 "parentId": DSObjTerm.homeParentId,
                 "isFolder": true,
             });
 
             var dsObj2 = new DSObj({
-                "id"      : "testId",
-                "name"    : "testName",
+                "id": "testId",
+                "name": "testName",
                 "parentId": DSObjTerm.homeParentId,
                 "isFolder": false,
             });
@@ -1937,8 +1937,8 @@ describe("Persistent Constructor Test", function() {
 
         it("Should know if dsObj is folder with ds", function() {
             var dsObj1 = new DSObj({
-                "id"      : "testId",
-                "name"    : "testName",
+                "id": "testId",
+                "name": "testName",
                 "parentId": DSObjTerm.homeParentId,
                 "isFolder": true,
             });
@@ -1946,15 +1946,15 @@ describe("Persistent Constructor Test", function() {
             dsObj1.eles.push("test");
 
             var dsObj2 = new DSObj({
-                "id"      : "testId",
-                "name"    : "testName",
+                "id": "testId",
+                "name": "testName",
                 "parentId": DSObjTerm.homeParentId,
                 "isFolder": true,
             });
 
             var dsObj3 = new DSObj({
-                "id"      : "testId",
-                "name"    : "testName",
+                "id": "testId",
+                "name": "testName",
                 "parentId": DSObjTerm.homeParentId,
                 "isFolder": false,
             });
@@ -1966,16 +1966,16 @@ describe("Persistent Constructor Test", function() {
 
         it("Should know if is editable", function() {
             var dsObj1 = new DSObj({
-                "id"        : "testId",
-                "name"      : "testName",
-                "parentId"  : DSObjTerm.homeParentId,
+                "id": "testId",
+                "name": "testName",
+                "parentId": DSObjTerm.homeParentId,
                 "uneditable": false,
             });
 
             var dsObj2 = new DSObj({
-                "id"        : "testId",
-                "name"      : "testName",
-                "parentId"  : DSObjTerm.homeParentId,
+                "id": "testId",
+                "name": "testName",
+                "parentId": DSObjTerm.homeParentId,
                 "uneditable": true
             });
 
@@ -1985,16 +1985,16 @@ describe("Persistent Constructor Test", function() {
 
         it("Should get point args", function() {
             var dsObj = new DSObj({
-                "id"        : "testId",
-                "name"      : "testName",
-                "user"      : "testUser",
-                "fullName"  : "testFullName",
-                "parentId"  : DSObjTerm.homeParentId,
+                "id": "testId",
+                "name": "testName",
+                "user": "testUser",
+                "fullName": "testFullName",
+                "parentId": DSObjTerm.homeParentId,
                 "uneditable": false,
-                "path"      : "nfs:///netstore/datasets/gdelt/",
-                "format"    : "CSV",
+                "path": "nfs:///netstore/datasets/gdelt/",
+                "format": "CSV",
                 "numEntries": 1000,
-                "isRegex"   : true
+                "isRegex": true
             });
 
             var res = dsObj.getPointArgs();
@@ -2006,16 +2006,16 @@ describe("Persistent Constructor Test", function() {
 
             // case 2
             dsObj = new DSObj({
-                "id"        : "testId",
-                "name"      : "testName",
-                "user"      : "testUser",
-                "fullName"  : "testFullName",
-                "parentId"  : DSObjTerm.homeParentId,
+                "id": "testId",
+                "name": "testName",
+                "user": "testUser",
+                "fullName": "testFullName",
+                "parentId": DSObjTerm.homeParentId,
                 "uneditable": false,
-                "path"      : "nfs:///netstore/datasets/gdelt/",
-                "format"    : "CSV",
+                "path": "nfs:///netstore/datasets/gdelt/",
+                "format": "CSV",
                 "numEntries": 1000,
-                "isRegEx"   : true // typo on purpose to return false
+                "isRegEx": true // typo on purpose to return false
             });
 
             res = dsObj.getPointArgs();
@@ -2028,11 +2028,11 @@ describe("Persistent Constructor Test", function() {
 
         it("Should get and set size", function() {
             var dsObj = new DSObj({
-                "id"      : "testId",
-                "name"    : "testName",
+                "id": "testId",
+                "name": "testName",
                 "fullName": "testFullName",
                 "parentId": DSObjTerm.homeParentId,
-                "size"    : "123B"
+                "size": "123B"
             });
 
             expect(dsObj.getSize()).to.equal("123B");
@@ -2042,8 +2042,8 @@ describe("Persistent Constructor Test", function() {
 
         it("Should get memory taken size", function(done) {
             var dsObj = new DSObj({
-                "id"      : "testId",
-                "name"    : "testName",
+                "id": "testId",
+                "name": "testName",
                 "fullName": "testFullName",
                 "parentId": DSObjTerm.homeParentId
             });
@@ -2077,15 +2077,15 @@ describe("Persistent Constructor Test", function() {
             // case 2
             dsObj = new DSObj({
                 "parentId": DSObjTerm.homeParentId,
-                "error"   : "test2"
+                "error": "test2"
             });
             expect(dsObj.getError()).to.equal("test2");
         });
 
         it("Should set preview size", function() {
             var dsObj = new DSObj({
-                "id"      : "testId",
-                "name"    : "testName",
+                "id": "testId",
+                "name": "testName",
                 "fullName": "testFullName",
                 "parentId": DSObjTerm.homeParentId,
                 "isFolder": false
@@ -2100,8 +2100,8 @@ describe("Persistent Constructor Test", function() {
 
         it("Should makeResultSet", function(done) {
             var dsObj = new DSObj({
-                "id"      : "testId",
-                "name"    : "testName",
+                "id": "testId",
+                "name": "testName",
                 "fullName": "testFullName",
                 "parentId": DSObjTerm.homeParentId,
                 "isFolder": false
@@ -2111,7 +2111,7 @@ describe("Persistent Constructor Test", function() {
             XcalarMakeResultSetFromDataset = function() {
                 return PromiseHelper.resolve({
                     "resultSetId": 1,
-                    "numEntries" : 123
+                    "numEntries": 123
                 });
             };
 
@@ -2133,8 +2133,8 @@ describe("Persistent Constructor Test", function() {
         it("Should preserve order", function() {
             // XXX temp fix to preserve CSV header order
             var dsObj = new DSObj({
-                "id"      : "testId",
-                "name"    : "testName",
+                "id": "testId",
+                "name": "testName",
                 "fullName": "testFullName",
                 "parentId": DSObjTerm.homeParentId,
                 "isFolder": false
@@ -2150,12 +2150,12 @@ describe("Persistent Constructor Test", function() {
 
             // when has headers
             dsObj = new DSObj({
-                "id"      : "testId",
-                "name"    : "testName",
+                "id": "testId",
+                "name": "testName",
                 "fullName": "testFullName",
                 "parentId": DSObjTerm.homeParentId,
                 "isFolder": false,
-                "headers" : ["a", "b", "c"]
+                "headers": ["a", "b", "c"]
             });
 
             res = dsObj._preserveHeaderOrder(["c", "b", "e"]);
@@ -2171,11 +2171,11 @@ describe("Persistent Constructor Test", function() {
             before(function() {
                 oldFetch = XcalarFetchData;
                 dsObj = new DSObj({
-                    "id"         : "testId",
-                    "name"       : "testName",
-                    "fullName"   : "testFullName",
-                    "parentId"   : DSObjTerm.homeParentId,
-                    "isFolder"   : false,
+                    "id": "testId",
+                    "name": "testName",
+                    "fullName": "testFullName",
+                    "parentId": DSObjTerm.homeParentId,
+                    "isFolder": false,
                     "resultSetId": 1
                 });
             });
@@ -2237,7 +2237,7 @@ describe("Persistent Constructor Test", function() {
                 XcalarMakeResultSetFromDataset = function() {
                     return PromiseHelper.resolve({
                         "resultSetId": null,
-                        "numEntries" : 1000
+                        "numEntries": 1000
                     });
                 };
 
@@ -2283,11 +2283,11 @@ describe("Persistent Constructor Test", function() {
             };
 
             var dsObj = new DSObj({
-                "id"         : "testId",
-                "name"       : "testName",
-                "fullName"   : "testFullName",
-                "parentId"   : DSObjTerm.homeParentId,
-                "isFolder"   : false,
+                "id": "testId",
+                "name": "testName",
+                "fullName": "testFullName",
+                "parentId": DSObjTerm.homeParentId,
+                "isFolder": false,
                 "resultSetId": 1
             });
 
@@ -2309,7 +2309,7 @@ describe("Persistent Constructor Test", function() {
         it("Should hvae 4 attributes", function() {
             var cartItem = new CartItem({
                 "colNum": 1,
-                "value" : "test"
+                "value": "test"
             });
 
             expect(cartItem).to.be.an.instanceof(CartItem);
@@ -2325,11 +2325,11 @@ describe("Persistent Constructor Test", function() {
     describe("Cart Constructor Test", function() {
         it("Should have 4 attributes", function() {
             var cart = new Cart({
-                "dsId"     : "test",
+                "dsId": "test",
                 "tableName": "testTable",
-                "items"    : [{
+                "items": [{
                     "colNum": 1,
-                    "value" : "test"
+                    "value": "test"
                 }]
             });
 
@@ -2347,7 +2347,7 @@ describe("Persistent Constructor Test", function() {
 
         it("Cart should have correct function to call", function() {
             var cart = new Cart({
-                "dsId"     : "test",
+                "dsId": "test",
                 "tableName": "testTable"
             });
 
@@ -2383,7 +2383,7 @@ describe("Persistent Constructor Test", function() {
             };
 
             var cart = new Cart({
-                "dsId"     : "test",
+                "dsId": "test",
                 "tableName": "testTable",
             });
             var res = cart.getDSName();
@@ -2396,11 +2396,11 @@ describe("Persistent Constructor Test", function() {
     describe("WSMETA Constructor Test", function() {
         it("Should have 6 attributes", function() {
             var meta = new WSMETA({
-                "wsInfos"      : {},
-                "wsOrder"      : [],
-                "hiddenWS"     : [],
+                "wsInfos": {},
+                "wsOrder": [],
+                "hiddenWS": [],
                 "noSheetTables": [],
-                "activeWS"     : "test"
+                "activeWS": "test"
             });
 
             expect(meta).to.be.an.instanceof(WSMETA);
@@ -2420,7 +2420,7 @@ describe("Persistent Constructor Test", function() {
     describe("WorksheetObj Constructor Test", function() {
         it("Should have 10 attributes ", function() {
             var worksheet = new WorksheetObj({
-                "id"  : "testId",
+                "id": "testId",
                 "name": "testName",
                 "date": "testDate"
             });
@@ -2449,7 +2449,7 @@ describe("Persistent Constructor Test", function() {
 
         it("Should have basic getter", function() {
             var worksheet = new WorksheetObj({
-                "id"  : "testId2",
+                "id": "testId2",
                 "name": "testName2",
                 "date": "testDate"
             });
@@ -2463,7 +2463,7 @@ describe("Persistent Constructor Test", function() {
 
         it("Should add table to worksheet", function() {
             var worksheet = new WorksheetObj({
-                "id"  : "testId",
+                "id": "testId",
                 "name": "testName",
             });
 
@@ -2502,12 +2502,12 @@ describe("Persistent Constructor Test", function() {
 
         it("Should have 9 attributes", function() {
             var wkbk = new WKBK({
-                "name"         : "test",
-                "id"           : "testId",
-                "srcUser"      : "testUser",
-                "curUser"      : "testUser",
-                "created"      : 1234,
-                "modified"     : 2234,
+                "name": "test",
+                "id": "testId",
+                "srcUser": "testUser",
+                "curUser": "testUser",
+                "created": 1234,
+                "modified": 2234,
                 "numWorksheets": 12
             });
 
@@ -2534,13 +2534,13 @@ describe("Persistent Constructor Test", function() {
 
         it("WKBK Basic function should work", function() {
             var wkbk = new WKBK({
-                "name"         : "test",
-                "id"           : "testId",
-                "noMeta"       : false,
-                "srcUser"      : "testUser",
-                "curUser"      : "testUser",
-                "created"      : 1234,
-                "modified"     : 2234,
+                "name": "test",
+                "id": "testId",
+                "noMeta": false,
+                "srcUser": "testUser",
+                "curUser": "testUser",
+                "created": 1234,
+                "modified": 2234,
                 "numWorksheets": 12
             });
 
@@ -2559,11 +2559,11 @@ describe("Persistent Constructor Test", function() {
             expect(wkbk.getModifyTime()).not.to.equal(2234);
         });
     });
-    
+
     describe("RetinaNode Constructor Test", function() {
         it("Should have 4 arrtibues", function() {
             var retinaNode = new RetinaNode({
-                "paramType" : "testType",
+                "paramType": "testType",
                 "paramValue": "testVal",
                 "paramQuery": ["testQuery"]
             });
@@ -2592,12 +2592,12 @@ describe("Persistent Constructor Test", function() {
             var modifiedTime = currentTime;
             var options = {
                 "startTime": startTime,
-                "dateText" : "11/08/2016",
-                "timeText" : "09 : 25 AM",
-                "repeat"   : "hourly",
-                "modified" : modifiedTime,
-                "recur"    : 10,
-                "created"  : createTime
+                "dateText": "11/08/2016",
+                "timeText": "09 : 25 AM",
+                "repeat": "hourly",
+                "modified": modifiedTime,
+                "recur": 10,
+                "created": createTime
             };
             sched = new SchedObj(options);
         });
@@ -2626,12 +2626,12 @@ describe("Persistent Constructor Test", function() {
             var modifiedTime2 = new Date().getTime();
             var options2 = {
                 "startTime": startTime2,
-                "dateText" : "12/09/2016",
-                "timeText" : "10 : 35 AM",
-                "repeat"   : "weekly",
-                "modified" : modifiedTime2,
-                "recur"    : 7,
-                "created"  : createTime2
+                "dateText": "12/09/2016",
+                "timeText": "10 : 35 AM",
+                "repeat": "weekly",
+                "modified": modifiedTime2,
+                "recur": 7,
+                "created": createTime2
             };
 
             sched.update(options2);
@@ -2659,13 +2659,13 @@ describe("Persistent Constructor Test", function() {
             var modifiedTime = new Date().getTime();
             var options = {
                 "startTime": startTime,
-                "dateText" : "11/08/2016",
-                "timeText" : "09 : 25 AM",
-                "repeat"   : "hourly",
-                "freq"     : 5,
-                "modified" : modifiedTime,
-                "recur"    : 10,
-                "created"  : createTime
+                "dateText": "11/08/2016",
+                "timeText": "09 : 25 AM",
+                "repeat": "hourly",
+                "freq": 5,
+                "modified": modifiedTime,
+                "recur": 10,
+                "created": createTime
             };
             sched = new SchedObj(options);
         });
@@ -2719,7 +2719,7 @@ describe("Persistent Constructor Test", function() {
 
         before(function() {
             retinaNode = new RetinaNode({
-                "paramType" : "testType",
+                "paramType": "testType",
                 "paramValue": "testVal",
                 "paramQuery": ["testQuery"]
             });
@@ -2776,13 +2776,13 @@ describe("Persistent Constructor Test", function() {
 
             dfg.updateParameters([{
                 "name": "a",
-                "val" : "c"
+                "val": "c"
             }]);
             expect(dfg.getParameter("a")).to.equal("c");
 
             expect(dfg.checkParamInUse("a")).to.be.false;
             dfg.addParameterizedNode(123, {
-                "paramType" : "test",
+                "paramType": "test",
                 "paramValue": "test",
                 "paramQuery": ["load <a>"]
             });
@@ -2796,12 +2796,12 @@ describe("Persistent Constructor Test", function() {
     describe("ProfileAggInfo Constructor Test", function() {
         it("Should have 7 attributes", function() {
             var aggInfo = new ProfileAggInfo({
-                "max"    : 1,
-                "min"    : 1,
-                "count"  : 1,
-                "sum"    : 1,
+                "max": 1,
+                "min": 1,
+                "count": 1,
+                "sum": 1,
                 "average": 1,
-                "sd"     : 0
+                "sd": 0
             });
 
             expect(aggInfo).to.be.an.instanceof(ProfileAggInfo);
@@ -2820,12 +2820,12 @@ describe("Persistent Constructor Test", function() {
     describe("ProfileStatsInfo Constructor Test", function() {
         it("Should have 7 attributes", function() {
             var statsInfo = new ProfileStatsInfo({
-                "unsorted"     : false,
-                "zeroQuartile" : 2,
+                "unsorted": false,
+                "zeroQuartile": 2,
                 "lowerQuartile": 2,
-                "median"       : 3,
+                "median": 3,
                 "upperQuartile": 2,
-                "fullQuartile" : 4
+                "fullQuartile": 4
             });
 
             expect(statsInfo).to.be.an.instanceof(ProfileStatsInfo);
@@ -2850,10 +2850,10 @@ describe("Persistent Constructor Test", function() {
         it("Should have 8 attributes", function() {
             var bucketInfo = new ProfileBucketInfo({
                 "bucketSize": 0,
-                "table"     : "testTable",
-                "colName"   : "testCol",
-                "max"       : 1,
-                "sum"       : 1
+                "table": "testTable",
+                "colName": "testCol",
+                "max": 1,
+                "sum": 1
             });
 
             expect(bucketInfo).to.be.an.instanceof(ProfileBucketInfo);
@@ -2876,10 +2876,10 @@ describe("Persistent Constructor Test", function() {
         it("Should have 5 attributes", function() {
             var bucketInfo = new ProfileBucketInfo({
                 "bucketSize": 0,
-                "table"     : "testTable",
-                "colName"   : "testCol",
-                "max"       : 1,
-                "sum"       : 1
+                "table": "testTable",
+                "colName": "testCol",
+                "max": 1,
+                "sum": 1
             });
 
             var groupbyInfo = new ProfileGroupbyInfo({
@@ -2907,10 +2907,10 @@ describe("Persistent Constructor Test", function() {
     describe("ProfileInfo Constructor Test", function() {
         it("Should have 8 attributes", function() {
             var profileInfo = new ProfileInfo({
-                "id"          : "testModal",
-                "colName"     : "testCol",
+                "id": "testModal",
+                "colName": "testCol",
                 "frontColName": "testFrontCol",
-                "type"        : "integer"
+                "type": "integer"
             });
 
             expect(profileInfo).to.be.an.instanceof(ProfileInfo);
@@ -2935,22 +2935,22 @@ describe("Persistent Constructor Test", function() {
 
         it("Should get id", function() {
             var profileInfo = new ProfileInfo({
-                "id"     : "testModal",
+                "id": "testModal",
                 "colName": "testCol",
-                "type"   : "integer"
+                "type": "integer"
             });
             expect(profileInfo.getId()).to.equal("testModal");
         });
 
         it("Should add bucket", function() {
             var profileInfo = new ProfileInfo({
-                "id"     : "testModal",
+                "id": "testModal",
                 "colName": "testCol",
-                "type"   : "integer"
+                "type": "integer"
             });
             profileInfo.addBucket(0, {
                 "bucketSize": 0,
-                "table"     : "testTable"
+                "table": "testTable"
             });
             expect(profileInfo.groupByInfo.buckets).to.have.property(0);
         });
@@ -2960,11 +2960,11 @@ describe("Persistent Constructor Test", function() {
     describe("XcQuery Constructor Test", function() {
         it("Should have 16 attributes", function() {
             var xcQuery = new XcQuery({
-                "name"    : "test",
+                "name": "test",
                 "fullName": "full test",
-                "time"    : 123,
-                "type"    : "xcFunction",
-                "id"      : 1,
+                "time": 123,
+                "type": "xcFunction",
+                "id": 1,
                 "numSteps": 2
             });
 
@@ -3006,10 +3006,10 @@ describe("Persistent Constructor Test", function() {
 
         it("XcQuery OOP function should work", function() {
             var xcQuery = new XcQuery({
-                "name"    : "test2",
+                "name": "test2",
                 "fullName": "full test2",
-                "time"    : 456,
-                "state"   : QueryStateT.qrProcessing
+                "time": 456,
+                "state": QueryStateT.qrProcessing
             });
 
             expect(xcQuery.getName()).to.equal("test2");

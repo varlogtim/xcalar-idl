@@ -30,19 +30,19 @@ describe("Delete Table Modal Test", function() {
 
             var testCases = [{
                 "type": TableType.Orphan,
-                "id"  : "deleteTableModal-orphan"
+                "id": "deleteTableModal-orphan"
             }, {
                 "type": TableType.Archived,
-                "id"  : "deleteTableModal-archived"
+                "id": "deleteTableModal-archived"
             }, {
                 "type": TableType.Active,
-                "id"  : "deleteTableModal-active"
+                "id": "deleteTableModal-active"
             }, {
                 "type": "error type",
-                "id"  : "deleteTableModal-active"
+                "id": "deleteTableModal-active"
             }, {
                 "type": null,
-                "id"  : "deleteTableModal-active"
+                "id": "deleteTableModal-active"
             }];
 
             testCases.forEach(function(test) {
@@ -56,7 +56,7 @@ describe("Delete Table Modal Test", function() {
             var tableName = "test#tt1";
             var table = new TableMeta({
                 "tableName": tableName,
-                "tableId"  : "tt1"
+                "tableId": "tt1"
             });
 
             var res = DeleteTableModal.__testOnly__.getTableListHTML([table]);
@@ -215,7 +215,7 @@ describe("Delete Table Modal Test", function() {
             TblManager.deleteTables = function() {
                 return PromiseHelper.reject({"fails": [{
                     "tables": "unitTest1#tt1",
-                    "error" : "test"
+                    "error": "test"
                 }]});
             };
 

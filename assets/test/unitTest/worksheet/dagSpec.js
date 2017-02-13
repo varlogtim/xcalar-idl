@@ -12,7 +12,6 @@ describe('Dag', function() {
 
     var aggName;
 
-
     function timeOutPromise(amtTime) {
         var waitTime = amtTime || 1000;
         var deferred = PromiseHelper.deferred();
@@ -52,44 +51,44 @@ describe('Dag', function() {
         var $groupDagWrap;
 
         smallTable = {
-            "prefix"       : undefined,
-            "tableName"    : undefined,
-            "tableId"      : undefined,
-            "ancestorIds"  : [],
+            "prefix": undefined,
+            "tableName": undefined,
+            "tableId": undefined,
+            "ancestorIds": [],
             "ancestorNames": [],
-            "$dagWrap"     : undefined,
+            "$dagWrap": undefined,
         };
         aggTable = {
-            "prefix"       : undefined,
-            "tableName"    : undefined,
-            "tableId"      : undefined,
-            "ancestorIds"  : [],
+            "prefix": undefined,
+            "tableName": undefined,
+            "tableId": undefined,
+            "ancestorIds": [],
             "ancestorNames": [],
-            "$dagWrap"     : undefined,
+            "$dagWrap": undefined,
         };
         largeTable = {
-            "prefix"       : undefined,
-            "tableName"    : undefined,
-            "tableId"      : undefined,
-            "ancestorIds"  : [],
+            "prefix": undefined,
+            "tableName": undefined,
+            "tableId": undefined,
+            "ancestorIds": [],
             "ancestorNames": [],
-            "$dagWrap"     : undefined,
+            "$dagWrap": undefined,
         };
         groupTable = {
-            "prefix"       : undefined,
-            "tableName"    : undefined,
-            "tableId"      : undefined,
-            "ancestorIds"  : [],
+            "prefix": undefined,
+            "tableName": undefined,
+            "tableId": undefined,
+            "ancestorIds": [],
             "ancestorNames": [],
-            "$dagWrap"     : undefined,
+            "$dagWrap": undefined,
         };
         joinTable = {
-            "prefix"       : undefined,
-            "tableName"    : undefined,
-            "tableId"      : undefined,
-            "ancestorIds"  : [],
+            "prefix": undefined,
+            "tableName": undefined,
+            "tableId": undefined,
+            "ancestorIds": [],
             "ancestorNames": [],
-            "$dagWrap"     : undefined,
+            "$dagWrap": undefined,
         };
 
         topLevelTables = [smallTable, aggTable, largeTable, groupTable];
@@ -161,9 +160,9 @@ describe('Dag', function() {
             return xcFunction.aggregate(colNum, tableId, aggrOp, aggStr, aggName);
 
         })
-        .then(function(ret) {
-            var mapStr = "add("+gTables[tableId]
-                .getCol(1).backName+",^"+aggName+")";
+        .then(function() {
+            var mapStr = "add(" + gTables[tableId].getCol(1).backName +
+                         ",^" + aggName + ")";
             return xcFunction.map(1, tableId, "agg_result", mapStr);
         })
         .then(function(ret) {
@@ -223,7 +222,7 @@ describe('Dag', function() {
                                                                         dWrap) {
                 var dTableName = $(dWrap).find(".dagTable[data-index='0']")
                                          .data("tablename");
-                return(dTableName === largeTableNames[largeTableNames.length - 1]);
+                return (dTableName === largeTableNames[largeTableNames.length - 1]);
             });
         })
         .then(function() {
@@ -247,7 +246,7 @@ describe('Dag', function() {
                                                                     dWrap) {
                 var dTableName = $(dWrap).find(".dagTable[data-index='0']")
                                          .data("tablename");
-                return(dTableName === groupTableName);
+                return (dTableName === groupTableName);
             });
             $("#alertModal").find(".close").click();
 
@@ -571,13 +570,6 @@ describe('Dag', function() {
             });
 
             describe('middle table', function() {
-                var midId;
-                var midName;
-                var midIcon;
-
-                before(function() {
-                    midId = smallTable.ancestorIds[0];
-                });
                 // test right-most table
                 it('menu should open', function() {
                     smallTable.$dagWrap.find('.dagImage').last()
@@ -596,7 +588,7 @@ describe('Dag', function() {
                 it('addTable li should work', function() {
                     var cachedFn = DagFunction.addTable;
                     var cachedFnTriggered = false;
-                     DagFunction.addTable = function(tId) {
+                    DagFunction.addTable = function(tId) {
                         expect(tId).to.equal(smallTable.ancestorIds[0]);
                         cachedFnTriggered = true;
                     };
@@ -606,7 +598,7 @@ describe('Dag', function() {
                     DagFunction.addTable = cachedFn;
                 });
 
-                 it('revertTable li should work', function() {
+                it('revertTable li should work', function() {
                     var cachedFn = DagFunction.revertTable;
                     var cachedFnTriggered = false;
                     DagFunction.revertTable = function(tId, tName, oldTName) {
@@ -624,7 +616,7 @@ describe('Dag', function() {
 
             after(function() {
                 // close menu
-               $(document).mousedown().click();
+                $(document).mousedown().click();
             });
         });
     });
@@ -730,7 +722,7 @@ describe('Dag', function() {
 
             after(function() {
                 // close menu
-               $(document).mousedown().click();
+                $(document).mousedown().click();
             });
         });
     });
@@ -742,7 +734,7 @@ describe('Dag', function() {
         before(function() {
             $smallDagWrap = smallTable.$dagWrap;
             $largeDagWrap = largeTable.$dagWrap;
-        })
+        });
 
         describe("Panel button actions should work", function() {
             it("SaveImageAction should work", function(done) {
@@ -858,12 +850,9 @@ describe('Dag', function() {
         before(function() {
             $smallDagWrap = smallTable.$dagWrap;
             $largeDagWrap = largeTable.$dagWrap;
-        })
+        });
 
         it("Action mouseovers should work", function(done) {
-
-            var deferred = PromiseHelper.deferred();
-
             var createActionWrap = $smallDagWrap.find(".actionType.dropdownBox").eq(0);
             var reduceActionWrap = $smallDagWrap.find(".actionType.dropdownBox").eq(1);
             var mapActionWrap = $largeDagWrap.find(".actionType.dropdownBox").last();
@@ -934,8 +923,6 @@ describe('Dag', function() {
         var $largeDagTable;
         var largeTableId;
         var $largeDagIcon;
-
-        var icvTable;
 
         var $icvDagWrap;
         var $icvDagTable;
@@ -1194,12 +1181,12 @@ describe('Dag', function() {
                     return PromiseHelper.resolve();
                 }
                 var tStatus = gTables[tableId].status;
-                if (tStatus == TableType.Active) {
+                if (tStatus === TableType.Active) {
                     var lastTable = gTables[tableId];
                     var tType = lastTable.status;
                     return UnitTest.deleteTable(tableName, tType);
-                } else if (tStatus == TableType.Orphaned ||
-                                      TableType.Archived)
+                } else if (tStatus === TableType.Orphaned ||
+                                       TableType.Archived)
                 {
                     var deferred = PromiseHelper.deferred();
                     TblManager.deleteTables([tableName], tStatus)

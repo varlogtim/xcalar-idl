@@ -98,9 +98,8 @@ describe("Workbook Test", function() {
             $input.val();
             Workbook.forceShow();
             expect($("#container").hasClass("noWorkbook")).to.be.true;
-            var $newWorkbookBox = $workbookPanel.find(".newWorkbookBox");
             expect($input.val()).not.to.equal("");
-            $("#container").removeClass("noWorkbook")
+            $("#container").removeClass("noWorkbook");
         });
 
         it("Should create new workbook", function(done) {

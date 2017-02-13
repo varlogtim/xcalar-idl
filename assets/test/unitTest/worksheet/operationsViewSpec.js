@@ -82,7 +82,7 @@ describe('OperationsView Test', function() {
                 var args = ['1', 2];
                 var colTypeInfos = [{
                     argNum: 0,
-                    type  : "integer"
+                    type: "integer"
                 }];
                 expect(func('add', args, colTypeInfos)).to.equal("add(int(1, 10), 2)");
 
@@ -90,11 +90,11 @@ describe('OperationsView Test', function() {
                 colTypeInfos = [
                 [{
                     argNum: 0,
-                    type  : 'integer'
+                    type: 'integer'
                 }],
                 [{
                     argNum: 0,
-                    type  : 'integer'
+                    type: 'integer'
                 }]];
                 expect(func('add', args, colTypeInfos, true)).to.equal(
                     "and(add(int(1, 10), 2), add(int(3, 10), 4))");
@@ -193,52 +193,52 @@ describe('OperationsView Test', function() {
                 }
             });
         });
-    })
+    });
 
     describe('function getAllColumnTypesFromArg (map)', function() {
         var cachedTable;
         before(function(done) {
             cachedTable = gTables[tableId];
             var progCol1 = new ProgCol({
-                "name"    : "testCol",
+                "name": "testCol",
                 "backName": "testCol",
                 "isNewCol": false,
-                "func"    : {"name": "pull"},
-                "type"    : "integer"
+                "func": {"name": "pull"},
+                "type": "integer"
             });
 
             var progCol2 = new ProgCol({
-                "name"    : "testCol2[0]",
+                "name": "testCol2[0]",
                 "backName": "testCol2[0]",
                 "isNewCol": false,
-                "func"    : {"name": "pull"},
-                "type"    : "string",
+                "func": {"name": "pull"},
+                "type": "string",
             });
 
             var progCol3 = new ProgCol({
-                "name"    : "testCol3[0].abc",
+                "name": "testCol3[0].abc",
                 "backName": "testCol3[0].abc",
                 "isNewCol": false,
-                "func"    : {"name": "pull"},
-                "type"    : "float",
+                "func": {"name": "pull"},
+                "type": "float",
                 "childOfArray": true
             });
 
             var progCol4 = new ProgCol({
-                "name"    : "testCol4",
+                "name": "testCol4",
                 "backName": "testCol4",
                 "isNewCol": false,
-                "func"    : {"name": "pull"},
-                "type"    : "integer",
+                "func": {"name": "pull"},
+                "type": "integer",
                 "immediate": true,
                 "knownType": true
             });
 
             var table = new TableMeta({
                 "tableName": tableName,
-                "tableId"  : tableId,
+                "tableId": tableId,
                 "tableCols": [progCol1, progCol2, progCol3, progCol4],
-                "isLocked" : false
+                "isLocked": false
             });
             gTables[tableId] = table;
             OperationsView.show(tableId, [1], "map")
@@ -249,36 +249,35 @@ describe('OperationsView Test', function() {
 
         it('getAllColumnTypesFromArg() should work', function() {
             var fn = OperationsView.__testOnly__.getAllColumnTypesFromArg;
-
             var res = fn("nonExistantCol");
             expect(res.length).to.equal(0);
 
-            var res = fn("testCol");
+            res = fn("testCol");
             expect(res.length).to.equal(1);
             expect(res[0]).to.equal(ColumnType.number);
             
-            var res = fn("testCol2[0]", false);
+            res = fn("testCol2[0]", false);
             expect(res.length).to.equal(1);
             expect(res[0]).to.equal(CommonTxtTstr.ArrayVal);
 
-            var res = fn("testCol2[0], testCol");
+            res = fn("testCol2[0], testCol");
             expect(res.length).to.equal(2);
             expect(res[0]).to.equal(CommonTxtTstr.ArrayVal);
             expect(res[1]).to.equal(ColumnType.number);
 
-            var res = fn("testCol2[0]", true);
+            res = fn("testCol2[0]", true);
             expect(res.length).to.equal(1);
             expect(res[0]).to.equal("string");
 
-            var res = fn("testCol3[0].abc", false);
+            res = fn("testCol3[0].abc", false);
             expect(res.length).to.equal(1);
             expect(res[0]).to.equal(CommonTxtTstr.NestedArrayVal);
 
-            var res = fn("testCol3[0].abc", true);
+            res = fn("testCol3[0].abc", true);
             expect(res.length).to.equal(1);
             expect(res[0]).to.equal(CommonTxtTstr.NestedArrayVal);
 
-            var res = fn("testCol4");
+            res = fn("testCol4");
             expect(res.length).to.equal(1);
             expect(res[0]).to.equal(ColumnType.integer);
         });
@@ -342,17 +341,15 @@ describe('OperationsView Test', function() {
             var cachedCenterTable = xcHelper.centerFocusedTable;
             before(function() {
                 gTables['fakeTable'] = {};
-              
             });
             it("selecting table should work", function() {
                 var colNameCacheCalled = false;
                 var centerCalled = false;
                 xcHelper.getColNameMap = function(id) {
-                    
                     expect(id).to.equal("fakeTable");
                     colNameCacheCalled = true;
                     return {};
-                }
+                };
                 xcHelper.centerFocusedTable = function(id) {
                     expect(id).to.equal("fakeTable");
                     centerCalled = true;
@@ -374,9 +371,8 @@ describe('OperationsView Test', function() {
             });
 
             after(function() {
-                xcHelper.getColNameMap = cachedColNameMap; 
+                xcHelper.getColNameMap = cachedColNameMap;
                 xcHelper.centerFocusedTable = cachedCenterTable;
-
                 // resets tableId
                 $(".groupby").find(".tableList").find('li').eq(0).trigger(fakeEvent.mouseup);
                 delete gTables['fakeTable'];
@@ -1050,7 +1046,7 @@ describe('OperationsView Test', function() {
 
         it('functions list li highlighting should work', function() {
             $functionsInput.siblings('.iconWrapper').click();
-            expect($functionsList.is(":visible")).to.be.true;  
+            expect($functionsList.is(":visible")).to.be.true;
             expect($functionsList.find("li.highlighted").length).to.equal(0);
             expect($functionsList.hasClass("hovering")).to.be.false;
 
@@ -1169,14 +1165,12 @@ describe('OperationsView Test', function() {
     describe('functions input test (groupby)', function() {
         var $functionsInput;
         var $functionsList;
-        var $argSection;
 
         before(function(done) {
             OperationsView.show(tableId, [1], "group by")
             .then(function() {
                 $functionsInput = $operationsView.find('.groupby .functionsInput');
                 $functionsList = $functionsInput.siblings('.list');
-                $argSection = $operationsView.find('.groupby .argsSection').eq(0);
                 done();
             });
         });
@@ -1219,14 +1213,12 @@ describe('OperationsView Test', function() {
     describe('functions input test (aggregate)', function() {
         var $functionsInput;
         var $functionsList;
-        var $argSection;
 
         before(function(done) {
             OperationsView.show(tableId, [1], "aggregate")
             .then(function() {
                 $functionsInput = $operationsView.find('.aggregate .functionsInput');
                 $functionsList = $functionsInput.siblings('.list');
-                $argSection = $operationsView.find('.aggregate .argsSection').eq(0);
                 done();
             });
         });
@@ -1327,12 +1319,18 @@ describe('OperationsView Test', function() {
                     return PromiseHelper.resolve();
                 };
 
-                var typeInfo = [{type:"string", argNum: 1}, {type:"integer", argNum:0}];
+                var typeInfo = [{
+                    type: "string",
+                    argNum: 1
+                }, {
+                    type: "integer",
+                    argNum: 0
+                }];
                 fn("gt", ["arg1", "arg2"], typeInfo, false)
                 .then(function() {
                     expect(filterCalled).to.be.true;
                     done();
-                })
+                });
             });
 
             after(function(){
@@ -1426,9 +1424,9 @@ describe('OperationsView Test', function() {
             var fn;
             before(function() {
                 fn = OperationsView.__testOnly__.submissionFailHandler;
-            })
+            });
+
             it('submission fail hanlder should work', function() {
-                
                 fn(Date.now(), StatusTStr[StatusT.StatusCanceled]);
                 expect($("#alertModal").is(":visible")).to.be.false;
 
@@ -1630,17 +1628,17 @@ describe('OperationsView Test', function() {
                 var prefixCol = xcHelper.getPrefixColName(prefix, "yelping_since");
                 var options = {
                     category: "string",
-                    func    : "concat",
-                    args    : [{
+                    func: "concat",
+                    args: [{
                         num: 0,
                         str: gColPrefix + prefixCol
                     }, {
                         num: 1,
                         str: "zz"
                     }],
-                    expectedMapStr   : 'concat(' + prefixCol + ', "zz")',
+                    expectedMapStr: 'concat(' + prefixCol + ', "zz")',
                     expectedCliMapStr: 'concat(' + prefixCol + ', "zz")',
-                    transform        : function(colVal) {
+                    transform: function(colVal) {
                         return (colVal + this.args[1].str);
                     }
                 };
@@ -1655,17 +1653,17 @@ describe('OperationsView Test', function() {
                 var prefixCol = xcHelper.getPrefixColName(prefix, "yelping_since");
                 var options = {
                     category: "string",
-                    func    : "concat",
-                    args    : [{
+                    func: "concat",
+                    args: [{
                         num: 0,
                         str: gColPrefix + prefixCol
                     },{
                         num: 1,
                         str: ""
                     }],
-                    expectedMapStr   : 'concat(' + prefixCol + ', "")',
+                    expectedMapStr: 'concat(' + prefixCol + ', "")',
                     expectedCliMapStr: 'concat(' + prefixCol + 'yelping_since, "")',
-                    transform        : null
+                    transform: null
                 };
 
                 runMap(options)
@@ -1677,17 +1675,17 @@ describe('OperationsView Test', function() {
             it ('arithmetic-add with string should not work', function(done) {
                 var options = {
                     category: "arithmetic",
-                    func    : "add",
-                    args    : [{
+                    func: "add",
+                    args: [{
                         num: 0,
                         str: '"2"'
                     }, {
                         num: 1,
                         str: '"3"'
                     }],
-                    expectedMapStr   : 'add("2", "3")',
+                    expectedMapStr: 'add("2", "3")',
                     expectedCliMapStr: 'add("2", "3")',
-                    transform        : null
+                    transform: null
                 };
 
                 runMap(options)
@@ -1702,8 +1700,8 @@ describe('OperationsView Test', function() {
                 var mapStr = 'default:splitWithDelim(' + prefixCol + ', 1, "-")';
                 var options = {
                     category: "user-defined",
-                    func    : "default:splitWithDelim",
-                    args    : [{
+                    func: "default:splitWithDelim",
+                    args: [{
                         num: 0,
                         str: gColPrefix + prefixCol
                     }, {
@@ -1713,9 +1711,9 @@ describe('OperationsView Test', function() {
                         num: 2,
                         str: "\"-\""
                     }],
-                    expectedMapStr   : mapStr,
+                    expectedMapStr: mapStr,
                     expectedCliMapStr: mapStr,
-                    transform        : function(colVal) {
+                    transform: function(colVal) {
                         var delim = "-";
                         var index = this.args[1].str;
                         return colVal.split(delim).splice(index).join(delim);
@@ -1732,17 +1730,17 @@ describe('OperationsView Test', function() {
                 var prefixCol = xcHelper.getPrefixColName(prefix, "yelping_since");
                 var options = {
                     category: "arithmetic",
-                    func    : "add",
-                    args    : [{
+                    func: "add",
+                    args: [{
                         num: 0,
                         str: 'int(' + prefixCol + ', 10)'
                     }, {
                         num: 1,
                         str: 5
                     }],
-                    expectedMapStr   : 'add(int(' + prefixCol + ', 10), 5)',
+                    expectedMapStr: 'add(int(' + prefixCol + ', 10), 5)',
                     expectedCliMapStr: 'add(int(' + prefixCol + ', 10), 5)',
-                    transform        : function(colVal) {
+                    transform: function(colVal) {
                         return parseInt(colVal) + this.args[1].str + "";
                     }
                 };
@@ -1752,7 +1750,7 @@ describe('OperationsView Test', function() {
                     done();
                 });
             });
-           
+
             function runMap(options) {
                 var deferred = jQuery.Deferred();
                 var category = options.category;

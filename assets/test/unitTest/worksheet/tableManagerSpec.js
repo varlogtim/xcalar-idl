@@ -62,9 +62,9 @@ describe("TableManager Test", function() {
             var tableName = xcHelper.randName("test_table#ab");
             var tableId = xcHelper.getTableId(tableName);
             var table = new TableMeta({
-                "tableId"  : tableId,
+                "tableId": tableId,
                 "tableName": tableName,
-                "status"   : TableType.Active
+                "status": TableType.Active
             });
 
             gTables[tableId] = table;
@@ -86,9 +86,9 @@ describe("TableManager Test", function() {
             var tableName = xcHelper.randName("test_table#ab");
             var tableId = xcHelper.getTableId(tableName);
             var table = new TableMeta({
-                "tableId"  : tableId,
+                "tableId": tableId,
                 "tableName": tableName,
-                "status"   : TableType.Active
+                "status": TableType.Active
             });
             table.lock();
 
@@ -109,9 +109,9 @@ describe("TableManager Test", function() {
             var tableName = xcHelper.randName("test_table#ab");
             var tableId = xcHelper.getTableId(tableName);
             var table = new TableMeta({
-                "tableId"  : tableId,
+                "tableId": tableId,
                 "tableName": tableName,
-                "status"   : TableType.Active,
+                "status": TableType.Active,
                 "tableCols": [ColManager.newDATACol]
             });
 
@@ -159,9 +159,9 @@ describe("TableManager Test", function() {
             tableId = xcHelper.getTableId(tableName);
 
             table = new TableMeta({
-                "tableId"  : tableId,
+                "tableId": tableId,
                 "tableName": tableName,
-                "status"   : TableType.Active
+                "status": TableType.Active
             });
 
             gTables[tableId] = table;
@@ -798,7 +798,7 @@ describe("TableManager Test", function() {
                 assert.isFalse($menu.is(":visible"));
 
                 var e = jQuery.Event("mousedown", {
-                    "which"   : 1,
+                    "which": 1,
                     "shiftKey": true
                 });
                 $td.trigger(e);

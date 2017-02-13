@@ -50,12 +50,12 @@ describe('QueryManager Test', function() {
         before(function() {
             cachedGetOpStats = XcalarGetOpStats;
             cachedQueryState = XcalarQueryState;
-        })
+        });
 
         it('addQuery should initialize query display', function() {
             $queryList.find(".hint").removeClass("xc-hidden");
             var queryListLen = $queryList.find(".xc-query").length;
-           
+
             expect(queryLists[1]).to.be.undefined;
             expect($queryList.find(".hint.xc-hidden").length).to.equal(0);
             $queryDetail.find(".operationSection .content").text("");
@@ -143,7 +143,7 @@ describe('QueryManager Test', function() {
             var queryCancelCache = XcalarQueryCancel;
             var cancelOpCache = XcalarCancelOp;
             Transaction.cancel = function() {
-                transactionCanceled = true;  
+                transactionCanceled = true;
             };
             Transaction.isCancelable = function() {
                 return true;
@@ -157,7 +157,7 @@ describe('QueryManager Test', function() {
             };
             XcalarCancelOp = function() {
                 cancelOpCalled = true;
-                return PromiseHelper.resolve();  
+                return PromiseHelper.resolve();
             };
 
             QueryManager.cancelQuery(2); // should fail, wrong id
@@ -173,7 +173,7 @@ describe('QueryManager Test', function() {
             expect(cancelOpCalled).to.be.false;
 
             queryObj.state = QueryStatus.Run;
-          
+
             QueryManager.cancelQuery(1); // should pass
             expect(transactionCanceled).to.be.true;
             expect(queryCancelCalled).to.be.true;
@@ -181,7 +181,7 @@ describe('QueryManager Test', function() {
 
             queryObj.currStep = 0;
 
-            QueryManager.cancelQuery(1)
+            QueryManager.cancelQuery(1);
             expect(cancelOpCalled).to.be.true;
 
             Transaction.cancel = transactionCancelCache;

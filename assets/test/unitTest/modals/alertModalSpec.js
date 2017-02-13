@@ -24,9 +24,9 @@ describe('AlertModal', function() {
         var msg = "test message";
 
         Alert.show({
-            "title"  : title,
-            "instr"  : instr,
-            "msg"    : msg,
+            "title": title,
+            "instr": instr,
+            "msg": msg,
             "isAlert": true
         });
 
@@ -47,8 +47,8 @@ describe('AlertModal', function() {
         var msg = "test message2";
 
         Alert.show({
-            "title"     : title,
-            "msg"       : msg,
+            "title": title,
+            "msg": msg,
             "isCheckBox": true
         });
 
@@ -97,10 +97,10 @@ describe('AlertModal', function() {
                      '<li>Test 2</li>';
 
         Alert.show({
-            "title"  : title,
+            "title": title,
             "optList": {
                 "label": testLabel,
-                "list" : testLi
+                "list": testLi
             }
         });
 
@@ -123,15 +123,15 @@ describe('AlertModal', function() {
         var msg = "buttons";
 
         Alert.show({
-            "title"  : title,
-            "msg"    : msg,
+            "title": title,
+            "msg": msg,
             "buttons": [
                 {
-                    "name"     : "button1",
+                    "name": "button1",
                     "className": "button1"
                 },
                 {
-                    "name"     : "button2",
+                    "name": "button2",
                     "className": "button2"
                 }
             ]
@@ -152,10 +152,10 @@ describe('AlertModal', function() {
         var msg = "lock screen";
 
         Alert.show({
-            "title"     : title,
-            "msg"       : msg,
+            "title": title,
+            "msg": msg,
             "lockScreen": true,
-            "logout"    : true
+            "logout": true
         });
 
         assert.isTrue($alertModal.is(":visible"));

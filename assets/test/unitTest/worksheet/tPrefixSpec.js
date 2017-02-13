@@ -40,28 +40,28 @@ describe('TPrefix Test', function() {
             TPrefix.restore({"test-mark2": "blue"});
 
             var progCol1 = new ProgCol({
-                "name"    : "testCol",
+                "name": "testCol",
                 "backName": "test-mark2::backTestCol",
                 "isNewCol": false,
-                "func"    : {
+                "func": {
                     "name": "pull"
                 }
             });
 
             var progCol2 = new ProgCol({
-                "name"    : "testCol",
+                "name": "testCol",
                 "backName": "backTestCol2",
                 "isNewCol": false,
-                "func"    : {
+                "func": {
                     "name": "pull"
                 }
             });
 
             var table = new TableMeta({
                 "tableName": "test#unit-test-tPrefix",
-                "tableId"  : "unit-test-tPrefix",
+                "tableId": "unit-test-tPrefix",
                 "tableCols": [progCol1, progCol2],
-                "isLocked" : false
+                "isLocked": false
             });
 
             gTables["unit-test-tPrefix"] = table;

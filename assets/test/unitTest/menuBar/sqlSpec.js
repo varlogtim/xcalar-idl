@@ -5,10 +5,10 @@ describe("SQL Test", function() {
 
             var testCases = [{
                 "operation": SQLOps.DestroyDS,
-                "expect"   : true
+                "expect": true
             },{
                 "operation": "Invalid operation",
-                "expect"   : null
+                "expect": null
             }];
 
             testCases.forEach(function(test) {
@@ -28,13 +28,13 @@ describe("SQL Test", function() {
             var UndoType = SQL.__testOnly__.UndoType;
             var testCases = [{
                 "operation": null,
-                "expect"   : UndoType.Invalid
+                "expect": UndoType.Invalid
             },{
                 "operation": SQLOps.DSPoint,
-                "expect"   : UndoType.Invalid
+                "expect": UndoType.Invalid
             },{
                 "operation": SQLOps.PreviewDS,
-                "expect"   : UndoType.Skip
+                "expect": UndoType.Skip
             }];
 
             testCases.forEach(function(test) {
@@ -54,14 +54,14 @@ describe("SQL Test", function() {
 
             var testCases = [{
                 "operation": SQLOps.DestroyDS,
-                "cli"      : "test",
-                "expect"   : '<span class="cliWrap" data-cli=1>test</span>'
+                "cli": "test",
+                "expect": '<span class="cliWrap" data-cli=1>test</span>'
             }];
 
             testCases.forEach(function(test) {
                 var args = {
-                    "error"  : test.error,
-                    "cli"    : test.cli,
+                    "error": test.error,
+                    "cli": test.cli,
                     "options": {
                         "operation": test.operation
                     }
@@ -77,16 +77,16 @@ describe("SQL Test", function() {
 
             var testCases = [{
                 "operation": SQLOps.PreviewDS, // cannot undoable
-                "isValid"  : false
+                "isValid": false
             }];
 
             testCases.forEach(function(test) {
                 var args = {
-                    "title"  : test.title,
-                    "error"  : test.error,
+                    "title": test.title,
+                    "error": test.error,
                     "options": {
                         "operation": test.operation,
-                        "key"      : test.key
+                        "key": test.key
                     }
                 };
                 var sql = new XcLog(args);

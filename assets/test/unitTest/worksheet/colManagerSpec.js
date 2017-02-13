@@ -9,9 +9,9 @@ describe('ColManager Test', function() {
     describe('Basic API Test', function() {
         it('ColManager.newCol() should work', function() {
             var progCol = ColManager.newCol({
-                "name"    : "test",
-                "type"    : "string",
-                "width"   : gNewCellWidth,
+                "name": "test",
+                "type": "string",
+                "width": gNewCellWidth,
                 "isNewCol": false
             });
 
@@ -43,28 +43,28 @@ describe('ColManager Test', function() {
 
             before(function() {
                 var progCol1 = new ProgCol({
-                    "name"    : "testCol",
+                    "name": "testCol",
                     "backName": "testCol",
                     "isNewCol": false,
-                    "type"    : "mixed",
-                    "func"    : {
+                    "type": "mixed",
+                    "func": {
                         "name": "pull"
                     }
                 });
 
                 var progCol2 = new ProgCol({
-                    "name"    : "DATA",
+                    "name": "DATA",
                     "backName": "DATA",
                     "isNewCol": false,
-                    "func"    : {
+                    "func": {
                         "name": "raw"
                     }
                 });
                 var table = new TableMeta({
                     "tableName": "unitTest#ZZ1",
-                    "tableId"  : tableId,
+                    "tableId": tableId,
                     "tableCols": [progCol1, progCol2],
-                    "isLocked" : false
+                    "isLocked": false
                 });
 
                 gTables[tableId] = table;
@@ -344,16 +344,16 @@ describe('ColManager Test', function() {
             tdValue = {"a": {"b": null}};
             nested = ["a", "b"];
             expect(fn(tdValue, nested)).to.deep.equal({
-                tdValue       : null,
-                knf           : false,
+                tdValue: null,
+                knf: false,
                 isChildOfArray: false
             });
 
             tdValue = {"a": [{"b": null}]};
             nested = ["a", "0", "b"];
             expect(fn(tdValue, nested)).to.deep.equal({
-                tdValue       : null,
-                knf           : false,
+                tdValue: null,
+                knf: false,
                 isChildOfArray: true
             });
 
@@ -361,24 +361,24 @@ describe('ColManager Test', function() {
             tdValue = {"a": {}};
             nested = ["a", "b"];
             expect(fn(tdValue, nested)).to.deep.equal({
-                tdValue       : null,
-                knf           : true,
+                tdValue: null,
+                knf: true,
                 isChildOfArray: false
             });
 
             tdValue = {"a": [{}]};
             nested = ["a", "0", "b"];
             expect(fn(tdValue, nested)).to.deep.equal({
-                tdValue       : null,
-                knf           : true,
+                tdValue: null,
+                knf: true,
                 isChildOfArray: true
             });
 
             tdValue = {"a": [{"b": "no"}]};
             nested = ["a", "x", "b"];
             expect(fn(tdValue, nested)).to.deep.equal({
-                tdValue       : null,
-                knf           : true,
+                tdValue: null,
+                knf: true,
                 isChildOfArray: false
             });
 
@@ -386,16 +386,16 @@ describe('ColManager Test', function() {
             tdValue = {"a": {"b": "yes"}};
             nested = ["a", "b"];
             expect(fn(tdValue, nested)).to.deep.equal({
-                tdValue       : "yes",
-                knf           : false,
+                tdValue: "yes",
+                knf: false,
                 isChildOfArray: false
             });
 
             tdValue = {"a": [{"b": "yes"}]};
             nested = ["a", "0", "b"];
             expect(fn(tdValue, nested)).to.deep.equal({
-                tdValue       : "yes",
-                knf           : false,
+                tdValue: "yes",
+                knf: false,
                 isChildOfArray: true
             });
 
@@ -479,8 +479,8 @@ describe('ColManager Test', function() {
             var colLen = getColLen(tableId);
             var colName = xcHelper.getPrefixColName(prefix, "average_stars");
             var options = {
-                "direction"  : ColDir.Left,
-                "fullName"   : colName,
+                "direction": ColDir.Left,
+                "fullName": colName,
                 "escapedName": colName
             };
 
@@ -592,28 +592,28 @@ describe('ColManager Test', function() {
             var firstColName = table.getCol(1).getFrontColName();
             var testCases = [{
                 // error case with invalid char
-                "val"    : "test^test",
+                "val": "test^test",
                 "inValid": true
             },{
                 // error case with reserved name
-                "val"    : "DATA",
+                "val": "DATA",
                 "inValid": true
             },{
                 // error case with reserved name
-                "val"    : "0test",
+                "val": "0test",
                 "inValid": true
             },{
                 // error case with duplicate name
-                "val"    : firstColName,
+                "val": firstColName,
                 "inValid": true
             },{
                 // no error with case with duplicate name
-                "val"    : firstColName,
+                "val": firstColName,
                 "inValid": false,
-                "colNum" : 1
+                "colNum": 1
             },{
                 // no error with valid name
-                "val"    : "test123",
+                "val": "test123",
                 "inValid": false
             }];
 

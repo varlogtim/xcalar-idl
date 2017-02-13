@@ -16,12 +16,12 @@ describe("Aggregates", function() {
             var testCol = "testCol";
             var aggOp = "sum";
             var aggRes = {
-                "value"      : 5,
-                "dagName"    : "aggy",
-                "aggName"    : "^aggy",
-                "tableId"    : testId,
+                "value": 5,
+                "dagName": "aggy",
+                "aggName": "^aggy",
+                "tableId": testId,
                 "backColName": testCol,
-                "op"         : aggOp
+                "op": aggOp
             };
             var isTemp = false;
             Aggregates.addAgg(aggRes, isTemp);
@@ -37,12 +37,12 @@ describe("Aggregates", function() {
             var testCol = "testCol2";
             var aggOp = "sum";
             var aggRes = {
-                "value"      : 6,
-                "dagName"    : "aggy2",
-                "aggName"    : "^aggy2",
-                "tableId"    : testId,
+                "value": 6,
+                "dagName": "aggy2",
+                "aggName": "^aggy2",
+                "tableId": testId,
                 "backColName": testCol,
-                "op"         : aggOp
+                "op": aggOp
             };
             var isTemp = true;
             Aggregates.addAgg(aggRes, isTemp);
@@ -64,12 +64,12 @@ describe("Aggregates", function() {
             var testCol = "testCol3";
             var aggOp = "sum";
             var aggRes = {
-                "value"      : 6,
-                "dagName"    : "aggy3",
-                "aggName"    : "aggy3",
-                "tableId"    : testId,
+                "value": 6,
+                "dagName": "aggy3",
+                "aggName": "aggy3",
+                "tableId": testId,
                 "backColName": testCol,
-                "op"         : aggOp
+                "op": aggOp
             };
             var isTemp = false;
             Aggregates.addAgg(aggRes, isTemp);

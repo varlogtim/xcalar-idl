@@ -110,7 +110,7 @@ describe('TableFunctions', function() {
         });
 
         it("Left, right, backspc and esc should close menu", function(){
-             expect($colMenu.is(":visible")).to.be.true;
+            expect($colMenu.is(":visible")).to.be.true;
             triggerArrow($colMenu, "Right");
             expect($colMenu.is(":visible")).to.be.false;
             $yelpSinceDragArea.contextmenu();
@@ -242,7 +242,7 @@ describe('TableFunctions', function() {
             $textInput.val("abc"); // Cursor should be at after 'c'
             expect($textInput[0].selectionStart).to.equal(3);
             // focus event will not fire when the input is offscreen
-            $textInput.focus()
+            $textInput.focus();
             triggerArrow($textInput, "Up", true);
             ensureVisible();
             triggerArrow($textInput, "Down", true);

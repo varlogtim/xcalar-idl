@@ -20,8 +20,6 @@ describe('RowManager Test', function() {
             tableId = xcHelper.getTableId(tableName);
             $table = $('#xcTable-' + tableId);
 
-
-
             ExtensionManager.trigger(tableId, "UExtGenRowNum", "genRowNum",
                 {newColName: "rowNum"})
             .then(function(tName) {
@@ -42,11 +40,11 @@ describe('RowManager Test', function() {
     describe('RowManager.addRows', function() {
         it('scrolling down 20 rows should work', function(done) {
             var info = {
-                "targetRow"       : 80,
+                "targetRow": 80,
                 "lastRowToDisplay": 80,
-                "bulk"            : false,
-                "tableId"         : tableId,
-                "currentFirstRow" : 0
+                "bulk": false,
+                "tableId": tableId,
+                "currentFirstRow": 0
             };
             RowManager.addRows(60, 20, RowDirection.Bottom, info)
             .then(function(info) {
@@ -66,11 +64,11 @@ describe('RowManager Test', function() {
 
         it('scrolling up 20 rows should work', function(done) {
             var info = {
-                "targetRow"       : 0,
+                "targetRow": 0,
                 "lastRowToDisplay": 60,
-                "bulk"            : false,
-                "tableId"         : tableId,
-                "currentFirstRow" : 20
+                "bulk": false,
+                "tableId": tableId,
+                "currentFirstRow": 20
             };
             RowManager.addRows(0, 20, RowDirection.Top, info)
             .then(function(info) {
@@ -93,13 +91,13 @@ describe('RowManager Test', function() {
         it('scrolling down 5 rows with the 1st one missing should work', function(done) {
             var returnZero = true;
             var cachedFn = XcalarGetNextPage;
-            XcalarGetNextPage = function(resultSetId, numRowsToFetch) {
+            XcalarGetNextPage = function() {
                 if (returnZero) {
                     returnZero = false;
                     return PromiseHelper.resolve({
-                                kvPair: [],
-                                numKvPairs: 0
-                            });
+                        kvPair: [],
+                        numKvPairs: 0
+                    });
                 } else {
                     return PromiseHelper.resolve({
                         kvPair: [
@@ -114,13 +112,13 @@ describe('RowManager Test', function() {
                 }
             };
             var info = {
-                "targetRow"       : 65,
+                "targetRow": 65,
                 "lastRowToDisplay": 65,
-                "bulk"            : false,
-                "tableId"         : tableId,
-                "currentFirstRow" : 0
+                "bulk": false,
+                "tableId": tableId,
+                "currentFirstRow": 0
             };
-            
+
             RowManager.addRows(60, 5, RowDirection.Bottom, info)
             .then(function(info) {
                 expect($table.find('tbody tr').first().hasClass('row5')).to.be.true;
@@ -138,20 +136,22 @@ describe('RowManager Test', function() {
                 expect(contents[numRows - 5]).to.equal("62");
                 expect(contents[numRows - 6]).to.equal("60");
                 expect(contents[numRows - 7]).to.equal("59");
-  
+
                 XcalarGetNextPage = cachedFn;
                 done();
+            })
+            .fail(function() {
+                throw "error case";
             });
         });
 
         it('skipping to first row should work', function(done) {
-            [0, 60, 2, Object]
             var info = {
                 "lastRowToDisplay": 60,
-                "targetRow"       : 1,
-                "bulk"            : true,
-                "tableId"         : tableId,
-                "currentFirstRow" : 0
+                "targetRow": 1,
+                "bulk": true,
+                "tableId": tableId,
+                "currentFirstRow": 0
             };
             RowManager.addRows(0, 60, RowDirection.Bottom, info)
             .then(function(info) {
@@ -173,21 +173,20 @@ describe('RowManager Test', function() {
         it('scrolling down 5 rows when first fetch returns 3 and second returns 2', function(done) {
             var returnThree = true;
             var cachedFn = XcalarGetNextPage;
-            XcalarGetNextPage = function(resultSetId, numRowsToFetch) {
+            XcalarGetNextPage = function() {
                 if (returnThree) {
                     returnThree = false;
                     return PromiseHelper.resolve({
-                                kvPair: [
-                                {key: 0,value: '{"rowNum":61}'},
-                                {key: 0,value: '{"rowNum":62}'},
-                                {key: 0,value: '{"rowNum":63}'},
-                                ],
-                                numKvPairs: 3
-                            });
+                        kvPair: [
+                        {key: 0,value: '{"rowNum":61}'},
+                        {key: 0,value: '{"rowNum":62}'},
+                        {key: 0,value: '{"rowNum":63}'},
+                        ],
+                        numKvPairs: 3
+                    });
                 } else {
                     return PromiseHelper.resolve({
                         kvPair: [
-                        
                         {key: 0,value: '{"rowNum":64}'},
                         {key: 0,value: '{"rowNum":65}'},
                         ],
@@ -196,11 +195,11 @@ describe('RowManager Test', function() {
                 }
             };
             var info = {
-                "targetRow"       : 65,
+                "targetRow": 65,
                 "lastRowToDisplay": 65,
-                "bulk"            : false,
-                "tableId"         : tableId,
-                "currentFirstRow" : 0
+                "bulk": false,
+                "tableId": tableId,
+                "currentFirstRow": 0
             };
 
             RowManager.addRows(60, 5, RowDirection.Bottom, info)
@@ -213,16 +212,18 @@ describe('RowManager Test', function() {
                 var numRows = contents.length;
                 expect(numRows).to.equal(60);
 
-                var contents = gTables[tableId].getColContents(1);
+                contents = gTables[tableId].getColContents(1);
                 var colNum;
                 for (var i = 0; i < 60; i++) {
                     colNum = "" + (i + 6);
                     expect(contents[i]).to.equal(colNum);
                     expect(xcHelper.parseRowNum($table.find('tbody tr').eq(i))).to.equal(i + 5);
                 }
-  
                 XcalarGetNextPage = cachedFn;
                 done();
+            })
+            .fail(function() {
+                throw "error case";
             });
         });
 
@@ -230,16 +231,16 @@ describe('RowManager Test', function() {
         it('scrolling up 4 rows when first fetch returns 2 and second returns 2', function(done) {
             var returnTwo = true;
             var cachedFn = XcalarGetNextPage;
-            XcalarGetNextPage = function(resultSetId, numRowsToFetch) {
+            XcalarGetNextPage = function() {
                 if (returnTwo) {
                     returnTwo = false;
                     return PromiseHelper.resolve({
-                                kvPair: [
-                                {key: 0,value: '{"rowNum":2}'},
-                                {key: 0,value: '{"rowNum":3}'},
-                                ],
-                                numKvPairs: 2
-                            });
+                        kvPair: [
+                        {key: 0,value: '{"rowNum":2}'},
+                        {key: 0,value: '{"rowNum":3}'},
+                        ],
+                        numKvPairs: 2
+                    });
                 } else {
                     return PromiseHelper.resolve({
                         kvPair: [
@@ -251,11 +252,11 @@ describe('RowManager Test', function() {
                 }
             };
             var info = {
-                "targetRow"       : 1,
+                "targetRow": 1,
                 "lastRowToDisplay": 56,
-                "bulk"            : false,
-                "tableId"         : tableId,
-                "currentFirstRow" : 5
+                "bulk": false,
+                "tableId": tableId,
+                "currentFirstRow": 5
             };
 
             RowManager.addRows(1, 4, RowDirection.Top, info)
@@ -268,23 +269,25 @@ describe('RowManager Test', function() {
                 var numRows = contents.length;
                 expect(numRows).to.equal(60);
 
-                var contents = gTables[tableId].getColContents(1);
+                contents = gTables[tableId].getColContents(1);
                 var colNum;
                 for (var i = 0; i < 60; i++) {
                     colNum = "" + (i + 2);
                     expect(contents[i]).to.equal(colNum);
                     expect(xcHelper.parseRowNum($table.find('tbody tr').eq(i))).to.equal(i + 1);
                 }
-  
                 XcalarGetNextPage = cachedFn;
                 done();
+            })
+            .fail(function() {
+                throw "error case";
             });
         });
 
         it('skipping to end of table with last 2 rows missing', function(done) {
             var count = 0;
             var cachedFn = XcalarGetNextPage;
-            XcalarGetNextPage = function(resultSetId, numRowsToFetch) {
+            XcalarGetNextPage = function() {
                 count++;
                 if (count === 1) {
                     var pairs = [];
@@ -316,10 +319,10 @@ describe('RowManager Test', function() {
             };
             var info = {
                 bulk: true,
-                currentFirstRow:940,
-                lastRowToDisplay:1000,
+                currentFirstRow: 940,
+                lastRowToDisplay: 1000,
                 tableId: tableId,
-                targetRow:1000
+                targetRow: 1000
             };
 
             RowManager.addRows(940, 60, RowDirection.Bottom, info)
@@ -333,21 +336,21 @@ describe('RowManager Test', function() {
                 var contents = gTables[tableId].getColContents(1);
                 var numRows = contents.length;
                 expect(numRows).to.equal(60);
-               
 
-                var contents = gTables[tableId].getColContents(1);
-                
+                contents = gTables[tableId].getColContents(1);
                 expect(contents[0]).to.equal("939");
                 expect(contents[1]).to.equal("940");
                 expect(contents[2]).to.equal("941");
                 expect(contents[numRows - 1]).to.equal("998");
                 expect(contents[numRows - 2]).to.equal("997");
-                expect(contents[numRows - 11]).to.equal("988");  
-  
+                expect(contents[numRows - 11]).to.equal("988");
+
                 XcalarGetNextPage = cachedFn;
                 done();
+            })
+            .fail(function() {
+                throw "error case";
             });
-
         });
     });
 

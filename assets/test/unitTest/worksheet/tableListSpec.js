@@ -1,16 +1,11 @@
 describe('TableList Test', function() {
-    var testDs;
-    var tableName;
-    var prefix;
-    var tableId;
     var gTableCache = {};
     var gOrphanCache = [];
     var getConstCache;
-    
 
     before(function(done) {
         UnitTest.onMinMode();
-        
+
         if (!$("#workspaceTab").hasClass("active")) {
             $("#workspaceTab .mainTab").click();
         }
@@ -24,28 +19,28 @@ describe('TableList Test', function() {
 
         // create some fake tables and fake columns
         var progCol1 = new ProgCol({
-            "name"    : "testCol",
+            "name": "testCol",
             "backName": "testCol",
             "isNewCol": false,
-            "func"    : {
+            "func": {
                 "name": "pull"
             }
         });
 
         var progCol2 = new ProgCol({
-            "name"    : "testCol2",
+            "name": "testCol2",
             "backName": "testCol2",
             "isNewCol": false,
-            "func"    : {
+            "func": {
                 "name": "pull"
             }
         });
 
         var progCol3 = new ProgCol({
-            "name"    : "DATA",
+            "name": "DATA",
             "backName": "DATA",
             "isNewCol": false,
-            "func"    : {
+            "func": {
                 "name": "raw"
             }
         });
@@ -63,41 +58,41 @@ describe('TableList Test', function() {
 
         var table = new TableMeta({
             "tableName": "unitTest#ZZ1",
-            "tableId"  : "ZZ1",
+            "tableId": "ZZ1",
             "tableCols": [progCol1, progCol2, progCol3],
-            "isLocked" : false
+            "isLocked": false
         });
 
         var table2 = new TableMeta({
             "tableName": "unitTest#ZZ2",
-            "tableId"  : "ZZ2",
+            "tableId": "ZZ2",
             "tableCols": [progCol1, progCol2, progCol3],
-            "isLocked" : false
+            "isLocked": false
         });
 
         var table3 = new TableMeta({
             "tableName": "unitTest#ZZ3",
-            "tableId"  : "ZZ3",
+            "tableId": "ZZ3",
             "tableCols": [progCol1, progCol2, progCol3],
-            "isLocked" : false
+            "isLocked": false
         });
 
         // archived table
         var table4 = new TableMeta({
             "tableName": "unitTest#ZZ4",
-            "tableId"  : "ZZ4",
+            "tableId": "ZZ4",
             "tableCols": [progCol1, progCol2, progCol3],
-            "isLocked" : false,
+            "isLocked": false,
             "status": TableType.Archived
         });
 
         // orphaned table
         var table5 = new TableMeta({
             "tableName": "unitTestOrphan#ZZ5",
-            "tableId"  : "ZZ5",
+            "tableId": "ZZ5",
             "tableCols": [progCol1, progCol2, progCol3],
-            "isLocked" : false,
-            "status"   : TableType.Orphan
+            "isLocked": false,
+            "status": TableType.Orphan
         });
 
         gTables["ZZ1"] = table;
@@ -215,13 +210,12 @@ describe('TableList Test', function() {
             // this may fail because even though the animation is 200ms,
             // 1200ms might still not be enough if it's slow. We can't detect
             // for slideup finishing
-            // 
+            //
             // allow time for animation
             setTimeout(function() {
                 expect($tableListBox.siblings(".columnList").is(":visible")).to.be.false;
                 done();
             }, 1200);
-           
         });
     });
 
@@ -261,7 +255,7 @@ describe('TableList Test', function() {
             expect($("#activeTablesList").find(".addTableBtn").eq(2).hasClass("selected")).to.be.true;
             expect($("#activeTableListSection").find(".submit").is(":visible")).to.be.true;
 
-            var click = fakeEvent.click;
+            click = fakeEvent.click;
             click.shiftKey = true;
             $("#activeTablesList").find(".addTableBtn").eq(2).trigger(click);
             expect($("#activeTablesList").find(".addTableBtn.selected").length).to.equal(0);
@@ -299,7 +293,7 @@ describe('TableList Test', function() {
             TableList.refreshOrphanList = function(prettyprint) {
                 refreshCalled = true;
                 expect(prettyprint).to.be.true;
-            }
+            };
 
             $("#orphanedTableListSection .refresh").click();
             expect(refreshCalled).to.be.true;
@@ -313,7 +307,7 @@ describe('TableList Test', function() {
             TableList.refreshConstantList = function(prettyprint) {
                 refreshCalled = true;
                 expect(prettyprint).to.be.true;
-            }
+            };
 
             $("#constantsListSection .refresh").click();
             expect(refreshCalled).to.be.true;
@@ -333,10 +327,11 @@ describe('TableList Test', function() {
             var $tabs = $(".tableListSectionTab");
             var $sections = $("#tableListSections .tableListSection");
             $tabs.eq(2).click();
-            expect($sections.eq(2).is(":visible")).to.be.true; 
+            expect($sections.eq(2).is(":visible")).to.be.true;
 
             $("#orphanedTableListSection").find(".tableName").eq(0).mouseenter();
             expect(tooltipCalled).to.be.true;
+            xcTooltip.auto = cachedFn;
         });
 
         it("mouseenter on .constName should work", function() {
@@ -349,10 +344,11 @@ describe('TableList Test', function() {
             var $tabs = $(".tableListSectionTab");
             var $sections = $("#tableListSections .tableListSection");
             $tabs.eq(3).click();
-            expect($sections.eq(3).is(":visible")).to.be.true; 
+            expect($sections.eq(3).is(":visible")).to.be.true;
 
             $("#constantsListSection").find(".constName").eq(0).mouseenter();
             expect(tooltipCalled).to.be.true;
+            xcTooltip.auto = cachedFn;
         });
     });
 
@@ -366,7 +362,7 @@ describe('TableList Test', function() {
         it("submit in active list should work", function() {
             var cachedFn = TblManager.archiveTables;
             var archiveCalled = false;
-            TblManager.archiveTables  = function(tableIds) {
+            TblManager.archiveTables = function(tableIds) {
                 expect(tableIds[0]).to.equal("ZZ3");
                 expect(tableIds[1]).to.equal("ZZ2");
                 archiveCalled = true;
@@ -416,7 +412,7 @@ describe('TableList Test', function() {
             var cachedTableFn = TableList.activeTables;
             var activeCalled = false;
 
-            TableList.activeTables = function(tableType, nsTables, wsToSend) {
+            TableList.activeTables = function() {
                 activeCalled = true;
             };
 
@@ -489,12 +485,12 @@ describe('TableList Test', function() {
             TableList.tableBulkAction = tableBulkCache;
         });
 
-         it("submit delete constants should work", function() {
+        it("submit delete constants should work", function() {
             var deleteAggsCache = Aggregates.deleteAggs;
             var tableBulkCache = TableList.tableBulkAction;
             var bulkCalled = false;
             var deleteAggsCalled = false;
-            TableList.tableBulkAction = function(action, tableType, wsId) {
+            TableList.tableBulkAction = function() {
                 bulkCalled = true;
                 return PromiseHelper.resolve();
             };
@@ -502,7 +498,7 @@ describe('TableList Test', function() {
                 expect(constNames.length).to.equal(0);
                 deleteAggsCalled = true;
                 return PromiseHelper.resolve();
-            }
+            };
 
             $("#constantsListSection").find(".submit.delete").click();
 
@@ -544,9 +540,9 @@ describe('TableList Test', function() {
             TableList.clear();
             expect($("#tableListSections").find(".tableLists").html()).to.equal("");
             $("#tableListSections").find(".tableLists").each(function(i){
-                $(this).html(cachedHtml[i]); 
+                $(this).html(cachedHtml[i]);
             });
-        }); 
+        });
     });
 
     describe('TableList.updatePendingState', function() {
