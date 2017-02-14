@@ -2461,7 +2461,7 @@ function getNamePattern(userUrl, isRecur, isRegex) {
     for (var i = star; i >= 0; i--) {
         if (userUrl[i] === "/") {
             return [userUrl.substring(0, i + 1),
-                    regexPrefix + userUrl.substring(i + 1, userUrl.length)];
+                regexPrefix + userUrl.substring(i + 1, userUrl.length)];
         }
     }
 
@@ -2759,74 +2759,132 @@ function XcalarExportRetina(retName, txId) {
     return (deferred.promise());
 }
 
-function XcalarDeleteSched(schedName, txId) {
+function XcalarDeleteSched(scheduleKey) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
 
+    var deleteInput = {
+        "scheduleKey": scheduleKey
+    };
+
     var deferred = jQuery.Deferred();
-    if (Transaction.checkAndSetCanceled(txId)) {
-        return (deferred.reject().promise());
-    }
-    // var workItem = xcalarDeleteSchedTaskWorkItem(schedName);
-    var def1 = xcalarDeleteSchedTask(tHandle, schedName);
-    var def2 = jQuery.Deferred().resolve().promise();
-    // var def2 = XcalarGetQuery(workItem);
-    jQuery.when(def1, def2)
-    .then(function(ret1, ret2) {
-        // Transaction.log(txId, ret2);
-        deferred.resolve(ret1);
+    XcalarAppExecute("ScheduleDelete", true, JSON.stringify(deleteInput))
+    .then(function(result) {
+        var innerParsed;
+        try {
+            // App results are formatted this way
+            var outerParsed = JSON.parse(result.outStr);
+            innerParsed = JSON.parse(outerParsed[0]);
+        } catch (err) {
+            deferred.reject("Failed to parse extension output.");
+        }
+        var defRes;
+        if (innerParsed === "0") {
+            // Success
+            defRes = true;
+        } else if (innerParsed === "-1") {
+            // Couldn't get lock
+            defRes = false;
+        } else if (innerParsed === "-2") {
+            // Lost lock in the middle of operation, after editing cron
+            // but before editing kv due to force unlock
+            // best effort made to undo in cron, during this undo period
+            // inconsistencies possible
+            defRes = false;
+        } else {
+            defRes = false;
+        }
+        deferred.resolve(defRes);
     })
-    .fail(function(error1, error2) {
-        var thriftError = thriftLog("XcalarDeleteSchedule", error1, error2);
+    .fail(function(error1) {
+        var thriftError = thriftLog("XcalarDeleteSchedule", error1);
         deferred.reject(thriftError);
     });
     return (deferred.promise());
 }
 
-// SchedInSec means number of seconds after schedule call is issued to run first
-// iteration of schedule
-// period means time in seconds between two runs
-// recurCount means number of times to run this schedule
-// type has only one possible parameter StQuery. This field is for future use
-// arg is of type executeRetinaInputT, which has fields: retinaName, numParameters,
-// and array of parameters
-// struct XcalarApiExecuteRetinaInputT {
-//  1: string retinaName
-//  2: i64 numParameters
-//  3: list<XcalarApiParameterT> parameters
-// }
-function XcalarCreateSched(schedName, schedInSec, period, recurCount, type, arg,
-                           txId)
+function XcalarCreateSched(scheduleKey, retName, substitutions, options, timingInfo)
 {
+    // Substitutions is the exact same format as the params argument to
+    // xcalarExecuteRetina.  If that changes, this implementation will change
+    // well to follow.
+    // options is the same as the output of getAdvancedExportOption in dfCard
+    // Additionally, options can also include "usePremadeCronString" : true
+    // In which case there MUST also be a "premadeCronString" present in options
+    // which MUST be of the form of a valid cron string:
+    // e.g. "* * * * *". "1-2, */4 * 4,7 *", etc.
+    // As of right now, activeSession and newTableName do nothing
+    // Example:
+    // var options = {
+    //     "activeSession": false,
+    //     "newTableName": "",
+    //     "usePremadeCronString": true,
+    //     "premadeCronString": "* * 3 * *"
+    // }
+    // timingInfo format is identical to a similar struct in scheduleView.js:
+    //   var timingInfo = {
+    //        "startTime": startTime, // In milliseconds
+    //        "dateText": date, // String
+    //        "timeText": time, // String
+    //        "repeat": repeat, // element in scheduleFreq in Scheduler
+    //        "modified": currentTime, // In milliseconds
+    //    };
+
+    var appInObj = {
+        "scheduleKey": scheduleKey,
+        "retName": retName,
+        "substitutions": substitutions,
+        "options": options,
+        "timingInfo": timingInfo
+    };
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
 
     var deferred = jQuery.Deferred();
-    if (Transaction.checkAndSetCanceled(txId)) {
-        return (deferred.reject().promise());
-    }
-    // var workItem = xcalarScheduleTaskWorkItem(schedName, schedInSec, period,
-    //                                           recurCount, type, arg);
-    var def1 = xcalarScheduleTask(tHandle, schedName, schedInSec, period,
-                                  recurCount, type, arg);
-    var def2 = jQuery.Deferred().resolve().promise();
-    // var def2 = xcalarGetQuery(workItem);
-    jQuery.when(def1, def2)
-    .then(function(ret1, ret2) {
-        // Transaction.log(txId, ret2);
-        deferred.resolve(ret1);
+    XcalarAppExecute("ScheduleCreate", true, JSON.stringify(appInObj))
+    .then(function(result) {
+        var innerParsed;
+        try {
+            // App results are formatted this way
+            var outerParsed = JSON.parse(result.outStr);
+            innerParsed = JSON.parse(outerParsed[0]);
+        } catch (err) {
+            deferred.reject("Failed to parse extension output.");
+        }
+        var defRes;
+        if (innerParsed === "0") {
+            // Success
+            defRes = true;
+        } else if (innerParsed === "-1") {
+            // Couldn't get lock
+            defRes = false;
+        } else if (innerParsed === "-2") {
+            // Lost lock in the middle of operation, after editing cron
+            // but before editing kv due to force unlock
+            // best effort made to undo in cron, during this undo period
+            // inconsistencies possible
+            defRes = false;
+        } else if (innerParsed === "-3") {
+            // Schedule with that ID already exists
+            defRes = false;
+        } else {
+            defRes = false;
+        }
+        deferred.resolve(defRes);
     })
-    .fail(function(error1, error2) {
-        var thriftError = thriftLog("XcalarCreateSchedule", error1, error2);
+    .fail(function(error1) {
+        var thriftError = thriftLog("XcalarCreateSchedule", error1);
         deferred.reject(thriftError);
     });
     return (deferred.promise());
 }
 
-// namePattern is just thge star based naming pattern that we use
-function XcalarListSchedules(namePattern) {
+function XcalarListSchedules(scheduleKey) {
+    // scheduleKey can be an *exact* schedule key,
+    // or emptystring, in which case all schedules are listed
+    // No support for patterns yet
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
@@ -2836,12 +2894,36 @@ function XcalarListSchedules(namePattern) {
         return (deferred.promise());
     }
 
-    xcalarListSchedTask(tHandle, namePattern)
-    .then(deferred.resolve)
-    .fail(function(error) {
-        // TODO Handle 286 aka table or dataset not found aka no schedules
-        var thriftError = thriftLog("XcalarListSchedule", error);
-        SQL.errorLog("List Schedule", null, null, thriftError);
+    var listInput = {
+        "scheduleKey": scheduleKey
+    };
+
+    XcalarAppExecute("ScheduleList", true, JSON.stringify(listInput))
+    // XcalarAppExecute("listschedule", true, JSON.stringify(listInput))
+    .then(function(result) {
+        var innerParsed;
+        try {
+            // App results are formatted this way
+            var outerParsed = JSON.parse(result.outStr);
+            innerParsed = JSON.parse(outerParsed[0]);
+        } catch (err) {
+            deferred.reject("Failed to parse extension output.");
+        }
+        // InnerParsed is an array of objects that have fields "scheduleMain"
+        // and "scheduleResults".  "scheduleMain" is an object of the form
+        // of the input obj to XcalarCreateSched.  "scheduleResults" is
+        // an object of the form
+        // resultObj = {
+        //     "startTime" : milliseconds
+        //     "parameters": parameters
+        //     "status" : StatusT
+        //     "endTime" : milliseconds
+        //     "exportLoc" : "Default"
+        // }
+        deferred.resolve(innerParsed);
+    })
+    .fail(function(error1) {
+        var thriftError = thriftLog("XcalarListSchedule", error1);
         deferred.reject(thriftError);
     });
     return (deferred.promise());
