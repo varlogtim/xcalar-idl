@@ -428,9 +428,7 @@ window.Workbook = (function($, Workbook) {
 
     function createNewWorkbook() {
         var workbookName = $newWorkbookInput.val();
-        var error = xcHelper.replaceMsg(WKBKTStr.Conflict, {
-            "name": workbookName
-        });
+
 
         var isValid = xcHelper.validate([
             {
@@ -440,7 +438,17 @@ window.Workbook = (function($, Workbook) {
             {
                 "$ele": $newWorkbookInput,
                 "formMode": true,
-                "error": error,
+                "error": ErrTStr.InvalidWBName,
+                "check": function() {
+                    return !xcHelper.isValidTableName($newWorkbookInput.val());
+                }
+            },
+            {
+                "$ele": $newWorkbookInput,
+                "formMode": true,
+                "error": xcHelper.replaceMsg(WKBKTStr.Conflict, {
+                    "name": workbookName
+                }),
                 "check": function() {
                     var workbooks = WorkbookManager.getWorkbooks();
                     for (var wkbkId in workbooks) {
