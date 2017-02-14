@@ -51,7 +51,7 @@ var gKVScope = {
     "GLOB": XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal
 };
 var gTables = {}; // This is the main global array containing structures
-                    // Stores TableMeta structs
+                  // Stores TableMeta structs
 var gOrphanTables = [];
 var gActiveTableId = "";
 var gLastClickTarget = $(window); // track which element was last clicked

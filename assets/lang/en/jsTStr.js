@@ -696,7 +696,10 @@ DSFormTStr = {
     'NoData': 'No data',
     'CreateWarn': 'Too Many Columns To Create',
     'CreateWarnMsg': 'Create table with too many columns from dataset ' +
-                'reference might be slow, are you sure you want to continue?'
+                'reference might be slow, are you sure you want to continue?',
+    'NoQuoteWarn': 'No Quote Character',
+    'NoQuoteWarnMsg': 'You have not selected a quoting character for your ' +
+                      'dataset. Are you sure you want to continue?'
 };
 
 

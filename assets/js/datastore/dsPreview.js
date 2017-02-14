@@ -640,7 +640,26 @@ window.DSPreview = (function($, DSPreview) {
             colLen = $previewTable.find("th:not(.rowNumHead)").length;
         }
 
-        function alertHelper() {
+        function noQuoteAlertHelper() {
+            if (quote.length === 1) {
+                return PromiseHelper.resolve();
+            }
+
+            var innerDeferred = jQuery.Deferred();
+            Alert.show({
+                "title": DSFormTStr.NoQuoteWarn,
+                "msg": DSFormTStr.NoQuoteWarnMsg,
+                "onConfirm": innerDeferred.resolve,
+                "onCancel": function() {
+                    xcHelper.enableSubmit($form.find('.confirm'));
+                    innerDeferred.reject();
+                }
+            });
+
+            return innerDeferred.promise();
+        }
+
+        function tooManyColAlertHelper() {
             if (colLen < gMaxColToPull) {
                 return PromiseHelper.resolve();
             }
@@ -663,8 +682,8 @@ window.DSPreview = (function($, DSPreview) {
         // enableSubmit is done during the next showing of the form
         // If the form isn't shown, there's no way it can be submitted
         // anyway
-
-        alertHelper()
+        noQuoteAlertHelper()
+        .then(tooManyColAlertHelper)
         .then(function() {
             var pointArgs = {
                 "name": dsName,
@@ -860,7 +879,7 @@ window.DSPreview = (function($, DSPreview) {
             return null;
         }
 
-        // speical case: special json:
+        // special case: special json:
         if (format === formatMap.JSON && detectArgs.isSpecialJSON === true) {
             // if user specified udf, then use the udf.
             // otherwise, treat it as special json
@@ -1003,7 +1022,7 @@ window.DSPreview = (function($, DSPreview) {
             return;
         }
 
-        if (quote.length !== 1) {
+        if (quote.length > 1) {
             return;
         }
 
