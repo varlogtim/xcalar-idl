@@ -457,7 +457,9 @@ window.OperationsView = (function($, OperationsView) {
             if (!$slider.hasClass("unavailable")) {
                 $slider.toggleClass("on");
             }
-            updateStrPreview();
+            var noHighlight = false;
+            var andOrSwitch = true;
+            updateStrPreview(false, andOrSwitch);
         });
 
         // static button
@@ -1911,11 +1913,12 @@ window.OperationsView = (function($, OperationsView) {
         updateStrPreview(noHighlight);
     }
 
-    function updateStrPreview(noHighlight) {
+    function updateStrPreview(noHighlight, andOrSwitch) {
         var $description = $operationsView.find(".strPreview");
         var $inputs = $activeOpSection.find('.arg:visible');
         var tempText;
         var newText = "";
+        var andOrIndices = [];
 
         if (operatorName === "map" || operatorName === "filter") {
             var oldText = $description.find('.descArgs').text();
@@ -1939,6 +1942,9 @@ window.OperationsView = (function($, OperationsView) {
                     newText += ", ";
                 }
                 if (groupNum < numGroups - 1) {
+                    if (andOrSwitch) {
+                        andOrIndices.push(newText.length);
+                    }
                     if ($operationsView.find(".switch").hasClass("on")) {
                         newText += "and(";
                     } else {
@@ -2010,7 +2016,12 @@ window.OperationsView = (function($, OperationsView) {
             } else {
                 var $spanWrap = $description.find(".descArgs");
                 var $spans = $spanWrap.find('span.char');
-                modifyDescText(oldText, newText, $spanWrap, $spans);
+                if (andOrSwitch) {
+                    modifyAndOrDescText(newText, andOrIndices, $spanWrap);
+                } else {
+                    modifyDescText(oldText, newText, $spanWrap, $spans);
+                }
+                
             }
         } else if (operatorName === "group by") {
             var aggColOldText = $description.find(".aggCols").text();
@@ -2071,6 +2082,37 @@ window.OperationsView = (function($, OperationsView) {
         }
 
         return (tempText);
+    }
+
+    function modifyAndOrDescText(newText, andOrIndices, $spanWrap) {
+        var descText = "";
+        var spanClass;
+        var andOrLen = 2;
+        if ($operationsView.find(".switch").hasClass("on")) {
+            andOrLen = 3;
+        }
+        for (var i = 0; i < newText.length; i++) {
+            if (andOrIndices.indexOf(i) > -1) {
+                for (var j = 0; j < andOrLen; j++) {
+                    descText += '<span class="char visible">' + newText[i] +
+                       '</span>';
+                    i++;
+                }
+                i--; // inner for loop increments i 1 too many times
+            } else {
+                if (newText[i] === " ") {
+                    spanClass = "space";
+                } else {
+                    spanClass = "";
+                }
+                descText += '<span class="char ' + spanClass + '">' +
+                            newText[i] + '</span>';
+            }
+        }
+        $spanWrap.html(descText);
+        setTimeout(function() {
+            $spanWrap.find('.visible').removeClass('visible');
+        });
     }
 
     function modifyDescText(oldText, newText, $spanWrap, $spans) {
@@ -2138,7 +2180,7 @@ window.OperationsView = (function($, OperationsView) {
 
             // delay hiding the diff or else it won't have transition
             setTimeout(function() {
-                $spanWrap.find('.char').removeClass('visible');
+                $spanWrap.find('.visible').removeClass('visible');
             });
 
         } else {
