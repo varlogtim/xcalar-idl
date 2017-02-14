@@ -781,6 +781,16 @@ describe("DSPreview Test", function() {
             expect($statusBox.find(".message").text()).to.equal(ErrTStr.NoSpecialCharOrSpace);
             StatusBox.forceHide();
 
+            // test5
+            $dsName.val("test_test");
+            expect(validateForm()).to.be.true;
+            assert.isFalse($statusBox.is(":visible"));
+
+            // test6
+            $dsName.val("test-test");
+            expect(validateForm()).to.be.true;
+            assert.isFalse($statusBox.is(":visible"));
+
             $dsName.val("test");
         });
 

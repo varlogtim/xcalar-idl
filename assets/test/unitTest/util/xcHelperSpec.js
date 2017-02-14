@@ -1831,6 +1831,9 @@ describe('xcHelper Test', function() {
         // case 3
         res = xcHelper.normalizePrefix("a:b");
         expect(res).to.equal("a_b");
+        // case 4
+        res = xcHelper.normalizePrefix("a-b");
+        expect(res).to.equal("a-b");
     });
 
     it('xcHelper.getColNameMap', function() {

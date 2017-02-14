@@ -752,7 +752,7 @@ window.DSPreview = (function($, DSPreview) {
                 "formMode": true,
                 "error": ErrTStr.NoSpecialCharOrSpace,
                 "check": function() {
-                    return (!/^\w+$/.test(dsName));
+                    return /[^a-zA-Z0-9_-]/g.test(dsName);
                 }
             }
         ]);
@@ -894,10 +894,10 @@ window.DSPreview = (function($, DSPreview) {
         var name = paths[splitLen - 1];
 
         // strip the suffix dot part and only keep a-zA-Z0-9.
-        name = name.split(".")[0].replace(/[^a-zA-Z0-9]/g, "");
+        name = name.split(".")[0].replace(/[^a-zA-Z0-9_-]/g, "");
         if (!xcHelper.isStartWithLetter(name) && splitLen > 1) {
             // when starts with number
-            var prefix = paths[splitLen - 2].replace(/[^a-zA-Z0-9]/g, "");
+            var prefix = paths[splitLen - 2].replace(/[^a-zA-Z0-9_-]/g, "");
             if (xcHelper.isStartWithLetter(prefix)) {
                 name = prefix + name;
             }

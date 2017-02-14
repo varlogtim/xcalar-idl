@@ -365,7 +365,7 @@ window.xcHelper = (function($, xcHelper) {
         }
 
         // Strip all random characters from dsName
-        prefix = prefix.split(/\W/).join("_");
+        prefix = prefix.split(/[^a-zA-Z0-9_-]/).join("_");
 
         return prefix;
     };
