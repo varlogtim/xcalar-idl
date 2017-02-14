@@ -75,6 +75,18 @@ describe('xcHelper Test', function() {
         expect(res).to.equal('test&lt;&gt;');
     });
 
+    it('xcHelper.parseListDSOutput should work', function() {
+        var datasets = [{
+            "name": ".XcalarLRQ.test0"
+        }, {
+            "name": ".XcalarDS.test1"
+        }];
+
+        var res = xcHelper.parseListDSOutput(datasets);
+        expect(res.length).to.equal(1);
+        expect(res[0].name).to.equal("test1");
+    });
+
     it('xcHelper.parseColType should work', function() {
         // case 1
         var res = xcHelper.parseColType(1);

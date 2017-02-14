@@ -1998,6 +1998,18 @@ table.datasetTable {
                     opacity: 1;
                 }
 
+                &.unlistable {
+                    &.noAction {
+                        &, &:hover {
+                            opacity: 0.5;
+
+                            .delete {
+                                display: none;
+                            }
+                        }
+                    }
+                }
+
                 &.active, &.entering {
                     background-color: @color-bg-light-navy;
                 }
@@ -2290,6 +2302,13 @@ table.datasetTable {
 
     &.uneditable {
         .moveUp, .rename, &.folderOpts .delete {
+            opacity: @opacity-disabled;
+            pointer-events: none;
+        }
+    }
+
+    &.unlistable.noAction {
+        .preview, .delete {
             opacity: @opacity-disabled;
             pointer-events: none;
         }

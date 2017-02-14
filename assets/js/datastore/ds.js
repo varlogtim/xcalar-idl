@@ -108,7 +108,7 @@ window.DS = (function ($, DS) {
         return ds;
     };
 
-    DS.addCurrentUserDS = function(fullDSName, format, path) {
+    DS.addCurrentUserDS = function(fullDSName, format, path, unlistable) {
         var parsedRes = xcHelper.parseDSName(fullDSName);
         var user = parsedRes.user;
         var dsName = parsedRes.dsName;
@@ -121,12 +121,13 @@ window.DS = (function ($, DS) {
             "uneditable": false,
             "isFolder": false,
             "format": format,
-            "path": path
+            "path": path,
+            "unlistable": unlistable
         });
     };
 
     // refresh a new dataset and add it to grid view
-    DS.addOtherUserDS = function(fullDSName, format, path) {
+    DS.addOtherUserDS = function(fullDSName, format, path, unlistable) {
         var parsedRes = xcHelper.parseDSName(fullDSName);
         var user = parsedRes.user;
         var dsName = parsedRes.dsName;
@@ -165,7 +166,8 @@ window.DS = (function ($, DS) {
             "isFolder": false,
             "format": format,
             "path": path,
-            "parentId": userFolderObj.getId()
+            "parentId": userFolderObj.getId(),
+            "unlistable": unlistable
         });
     };
 
@@ -450,6 +452,8 @@ window.DS = (function ($, DS) {
         options.uneditable = options.uneditable || false;
 
         var parent = DS.getDSObj(options.parentId);
+        var unlistable = options.unlistable || false;
+        delete options.unlistable; // unlistable is not part of ds attr
 
         if (options.isFolder) {
             var i = 1;
@@ -475,6 +479,13 @@ window.DS = (function ($, DS) {
         dsObj.addToParent();
         var $ds = options.uneditable ? $(getUneditableDSHTML(dsObj)) :
                                        $(getDSHTML(dsObj));
+
+        if (unlistable && !options.isFolder) {
+            $ds.addClass("unlistable noAction");
+            xcTooltip.add($ds, {
+                "title": DSTStr.Unlistable
+            });
+        }
 
         var dsObjToReplace = DS.getDSObj(dsToReplace);
         var $gridToReplace = null;
@@ -851,6 +862,8 @@ window.DS = (function ($, DS) {
         var numDatasets = datasets.numDatasets;
         var searchHash = {};
         var userPrefix = xcHelper.getUserPrefix();
+        var unlistableDS = {};
+
         for (var i = 0; i < numDatasets; i++) {
             var dsName = datasets.datasets[i].name;
 
@@ -885,9 +898,11 @@ window.DS = (function ($, DS) {
                 continue;
             }
 
-            if (datasets.datasets[i].isListable) {
-                searchHash[dsName] = datasets.datasets[i];
+            if (!datasets.datasets[i].isListable) {
+                unlistableDS[dsName] = true;
             }
+
+            searchHash[dsName] = datasets.datasets[i];
         }
 
         var cache;
@@ -928,7 +943,8 @@ window.DS = (function ($, DS) {
 
                     obj = $.extend(obj, {
                         "format": format,
-                        "path": ds.url
+                        "path": ds.url,
+                        "unlistable": !ds.isListable
                     });
 
                     createDS(obj);
@@ -954,10 +970,10 @@ window.DS = (function ($, DS) {
                     // XXX this case appears when same use switch workbook
                     // and lose the folder meta
                     // should change when we support user scope session
-                    DS.addCurrentUserDS(ds.name, format, ds.url);
+                    DS.addCurrentUserDS(ds.name, format, ds.url, !ds.isListable);
                 } else {
                     // only when other user's ds is listable, show it
-                    DS.addOtherUserDS(ds.name, format, ds.url);
+                    DS.addOtherUserDS(ds.name, format, ds.url, !ds.isListable);
                 }
             }
         }
@@ -965,6 +981,35 @@ window.DS = (function ($, DS) {
         // UI update
         refreshDS();
         DataStore.update();
+        checkUnlistableDS(unlistableDS);
+    }
+
+    function checkUnlistableDS(unlistableDS) {
+        if ($.isEmptyObject(unlistableDS)) {
+            return;
+        }
+
+        XcalarGetDSNode()
+        .then(function(ret) {
+            var numNodes = ret.numNodes;
+            var nodeInfo = ret.nodeInfo;
+            for (var i = 0; i < numNodes; i++) {
+                var fullDSName = nodeInfo[i].name;
+                if (unlistableDS.hasOwnProperty(fullDSName)) {
+                    var $grid = DS.getGrid(fullDSName);
+                    if ($grid != null) {
+                        // this ds is unlistable but has table
+                        // associate with it
+                        $grid.removeClass("noAction");
+                        $grid.find(".gridIcon").removeClass("xi_data")
+                        .addClass("xi-data-warning-1");
+                    }
+                }
+            }
+        })
+        .fail(function(error) {
+            console.error("check unlistable ds fails!", error);
+        });
     }
 
     function createTableHelper($grid, dsObj) {
@@ -1169,6 +1214,14 @@ window.DS = (function ($, DS) {
                 } else {
                     classes += " dsOpts";
                 }
+
+                if ($grid.hasClass("unlistable")) {
+                    classes += " unlistable";
+
+                    if ($grid.hasClass("noAction")) {
+                        classes += " noAction";
+                    }
+                }
             } else {
                 classes += " bgOpts";
                 $gridMenu.removeData("dsid");
@@ -1360,7 +1413,10 @@ window.DS = (function ($, DS) {
 
     function focusDSHelper($grid) {
         // when is deleting the ds, do nothing
-        if ($grid != null && !$grid.hasClass("deleting")) {
+        if ($grid != null &&
+            !$grid.hasClass("deleting") &&
+            !($grid.hasClass("unlistable") && $grid.hasClass("noAction")))
+        {
             DS.focusOn($grid);
         }
     }

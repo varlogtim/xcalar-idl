@@ -67,6 +67,22 @@ window.xcHelper = (function($, xcHelper) {
         return colNum;
     };
 
+    xcHelper.parseListDSOutput = function(datasets) {
+        var prefixIndex = gDSPrefix.length;
+        datasets = datasets.filter(function(d) {
+            if (d.name.indexOf(".XcalarLRQ.") === 0) {
+                return false;
+            }
+            return true;
+        });
+
+        var len = datasets.length;
+        for (var i = 0; i < len; i++) {
+            datasets[i].name = datasets[i].name.substring(prefixIndex);
+        }
+        return datasets;
+    }
+
     xcHelper.parseJsonValue = function(value, fnf) {
         if (fnf) {
             value = '<span class="undefined" data-toggle="tooltip" ' +

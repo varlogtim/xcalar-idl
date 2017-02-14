@@ -1378,21 +1378,9 @@ function XcalarGetDatasets() {
 
     xcalarListDatasets(tHandle)
     .then(function(listDatasetsOutput) {
-        var prefixIndex = gDSPrefix.length;
-        listDatasetsOutput.datasets = listDatasetsOutput.datasets.filter(function(d) {
-            if (d.name.indexOf(".XcalarLRQ.") === 0) {
-                return (false);
-            }
-            return (true);
-        });
-
-        var datasets = listDatasetsOutput.datasets;
+        var datasets = xcHelper.parseListDSOutput(listDatasetsOutput.datasets);
+        listDatasetsOutput.datasets = datasets;
         listDatasetsOutput.numDatasets = datasets.length;
-        var len = listDatasetsOutput.numDatasets;
-
-        for (var i = 0; i < len; i++) {
-            datasets[i].name = datasets[i].name.substring(prefixIndex);
-        }
         deferred.resolve(listDatasetsOutput);
     })
     .fail(function(error) {
@@ -1459,6 +1447,38 @@ function XcalarGetTables(tableName) {
     .fail(function(error) {
         var thriftError = thriftLog("XcalarGetTables", error);
         SQL.errorLog("Get Tables", null, null, thriftError);
+        deferred.reject(thriftError);
+    });
+
+    return (deferred.promise());
+}
+
+function XcalarGetDSNode(datasetName) {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return PromiseHelper.resolve(null);
+    }
+    var deferred = jQuery.Deferred();
+    if (insertError(arguments.callee, deferred)) {
+        return (deferred.promise());
+    }
+
+    var patternMatch;
+    if (datasetName == null) {
+        patternMatch = "*";
+    } else {
+        patternMatch = datasetName;
+    }
+
+    xcalarListTables(tHandle, patternMatch, SourceTypeT.SrcDataset)
+    .then(function(ret) {
+        var nodeInfo = xcHelper.parseListDSOutput(ret.nodeInfo);
+        ret.nodeInfo = nodeInfo;
+        ret.numNodes = nodeInfo.length;
+        deferred.resolve(ret);
+    })
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarGetDSNode", error);
+        SQL.errorLog("Get DS Nodes", null, null, thriftError);
         deferred.reject(thriftError);
     });
 

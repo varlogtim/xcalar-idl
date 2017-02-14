@@ -100,6 +100,10 @@ describe("DSObj Test", function() {
             expect(newFolder.version).to.equal(currentVersion);
             expect(newFolder.eles.length)
             .to.equal(oldFolder.eles.length);
+
+            // case 2
+            newFolder = DS.upgrade(null);
+            expect(newFolder).to.be.null;
         });
     });
 
