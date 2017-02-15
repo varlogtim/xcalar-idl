@@ -188,12 +188,12 @@ window.WSManager = (function($, WSManager) {
 
         if (delType === DelWSType.Empty) {
             // this may be redundant, but it's safe to check again
-            if (isEmptyWorksheet(ws)) {
+            if (!wsHasActiveTables(ws)) {
+                archiveTableHelper(wsId);
                 rmWorksheet(wsId);
 
-                // for empty worksheet, no need for this two attr
+                // for empty worksheet, no need for this attr
                 delete sqlOptions.tables;
-                delete sqlOptions.archivedTables;
                 SQL.add("Delete Worksheet", sqlOptions);
             } else {
                 console.error("Not an empty worksheet!");
@@ -1466,7 +1466,7 @@ window.WSManager = (function($, WSManager) {
 
     function delWSCheck(wsId) {
         var worksheet = worksheetGroup.get(wsId);
-        if (isEmptyWorksheet(worksheet)) {
+        if (!wsHasActiveTables(worksheet)) {
             WSManager.delWS(wsId, DelWSType.Empty);
         } else {
             // delete worksheet with tables
@@ -1494,41 +1494,34 @@ window.WSManager = (function($, WSManager) {
         }
     }
 
-    function isEmptyWorksheet(worksheet) {
-        return (worksheet.tables.length === 0 &&
-                worksheet.archivedTables.length === 0 &&
-                worksheet.tempHiddenTables.length === 0);
+    function wsHasActiveTables(worksheet) {
+        return (worksheet.tables.length > 0 || worksheet.tempHiddenTables > 0);
     }
 
     // Helper function to delete tables in a worksheet
     function deleteTableHelper(wsId) {
         var deferred = jQuery.Deferred();
-        var $tableLists = $("#inactiveTablesList");
+        
+        var ws = worksheetGroup.get(wsId);
+        ws.archivedTables.forEach(function(tableId) {
+            noSheetTables.push(tableId);
+        });
 
-        // click all inactive table in this worksheet
-        $tableLists.find(".addTableBtn.selected").click();
-        $tableLists.find(".worksheet-" + wsId)
-                    .closest(".tableInfo")
-                    .find(".addTableBtn").click();
+        $("#inactiveTablesList").find(".worksheetInfo.worksheet-" + wsId)
+                    .removeClass(".worksheet-" + wsId)
+                    .addClass("inactive").text(SideBarTStr.NoSheet);
 
-        // for active table, use this to delete
         var activeTables = worksheetGroup.get(wsId).tables;
-
-        var delActiveTables = TblManager.deleteTables(activeTables,
-                                                      TableType.Active);
-        var delArchivedTables = TableList.tableBulkAction("delete",
-                                                          TableType.Archived);
-
         var errors;
-        PromiseHelper.when(delActiveTables, delArchivedTables)
-        .then(function(res1, res2) {
-            if (res1 || res2) {
+
+        TblManager.deleteTables(activeTables, TableType.Active)
+        .then(function(res) {
+            if (res) {
                 errors = arguments;
             }
             deferred.resolve();
         })
-        .fail(function(error1, error2) {
-            var error = error1 || error2;
+        .fail(function(error) {
             errors = arguments;
             deferred.reject(error);
         })

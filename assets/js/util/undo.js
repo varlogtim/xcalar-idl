@@ -717,6 +717,17 @@ window.Undo = (function($, Undo) {
 
         if (delType === DelWSType.Empty) {
             makeWorksheetHelper();
+            WSManager.addNoSheetTables(archivedTables, wsId);
+
+            var $lists = $("#archivedTableListSection .tableInfo");
+            archivedTables.forEach(function(tableId) {
+                // reArchive the table
+                $lists.filter(function() {
+                    return $(this).data("id") === tableId;
+                }).remove();
+                TblManager.archiveTable(tableId);
+            });
+
             return PromiseHelper.resolve(null);
         } else if (delType === DelWSType.Del) {
             makeWorksheetHelper();
