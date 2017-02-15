@@ -2131,6 +2131,9 @@ window.TblManager = (function($, TblManager) {
             }
 
             options.classes += " textAlign" + progCol.textAlign;
+            if (progCol.format) {
+                options.classes += " format-" + progCol.format;
+            }
 
             if ($('th.selectedCell').length > 1) {
                 options.classes += " type-multiColumn";

@@ -1431,6 +1431,8 @@ window.ColManager = (function($, ColManager) {
                 tdClass += " textAlignRight";
             } else if (progCol.textAlign === "Wrap") {
                 tdClass += " textAlignWrap";
+            } else if (progCol.textAlign === "Center") {
+                tdClass += " textAlignCenter";
             }
         }
 

@@ -17,12 +17,17 @@
         text-align: center;
     }
 
-    .textAlign, .sort {
+    .textAlign, .sort, .changeFormat {
         .xi-tick {
             float: right;
             margin-rigth: 2px;
             line-height: 16px;
             display: none;
+        }
+    }
+    .changeFormat.formatDefault {
+        .xi-tick {
+            display: block;
         }
     }
 
@@ -44,6 +49,21 @@
     }
     &.sortedDesc .revSort .xi-tick {
         display: block;
+    }
+
+    &.format-percent {
+        .changeFormat {
+            &.formatDefault {
+                .xi-tick {
+                    display: none;
+                }
+            }
+            &.formatPercent {
+                .xi-tick {
+                    display: block;
+                }
+            }
+        }
     }
 }
 
