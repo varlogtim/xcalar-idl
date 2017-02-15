@@ -22,16 +22,16 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
             }
         }]
     },
-    {
-        "buttonText"   : "Union Tables",
-        "fnName"       : "union",
-        "arrayOfFields": [
-        {
-            "type"      : "table",
-            "name"      : "Table To Union",
-            "fieldClass": "table2"
-        }]
-    },
+    // {
+    //     "buttonText"   : "Union Tables",
+    //     "fnName"       : "union",
+    //     "arrayOfFields": [
+    //     {
+    //         "type"      : "table",
+    //         "name"      : "Table To Union",
+    //         "fieldClass": "table2"
+    //     }]
+    // },
     {
         "buttonText"   : "Windowing",
         "fnName"       : "windowChain",
