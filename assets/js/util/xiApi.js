@@ -352,12 +352,12 @@ window.XIApi = (function(XIApi, $) {
     };
 
     XIApi.groupBy = function(txId, operator, groupByCols, aggColName,
-                             isIncSample, tableName, newColName, newTableName,
+                             isIncSample, sampleCols, tableName, newColName, newTableName,
                              indexedTableName, icvMode)
     {
         if (txId == null || operator == null || groupByCols == null ||
-            aggColName == null || isIncSample == null || tableName == null ||
-            newColName == null || aggColName.length < 1)
+            aggColName == null || isIncSample == null || sampleCols == null || 
+            tableName == null || newColName == null || aggColName.length < 1)
         {
             return PromiseHelper.reject("Invalid args in groupby");
         }
@@ -375,7 +375,8 @@ window.XIApi = (function(XIApi, $) {
         var indexedColName;
         var isMultiGroupby = (groupByCols.length > 1);
         var finalCols = getFinalGroupByCols(tableName, groupByCols,
-                                                 newColName, isIncSample);
+                                                 newColName, isIncSample,
+                                                 sampleCols);
 
         getGroupbyIndexedTable()
         .then(function(resTable, resCol) {
@@ -1130,7 +1131,8 @@ window.XIApi = (function(XIApi, $) {
         return (newTableCols);
     }
 
-    function getFinalGroupByCols(tableName, groupByCols, newColName, isIncSample) {
+    function getFinalGroupByCols(tableName, groupByCols, newColName,
+                                 isIncSample, sampleCols) {
         var dataCol = ColManager.newDATACol();
         var tableId = xcHelper.getTableId(tableName);
 
@@ -1153,27 +1155,32 @@ window.XIApi = (function(XIApi, $) {
         var finalCols;
 
         if (isIncSample) {
-            var newColIndex = 1;
-            // getIndexOfFirstGroupByCol
-            for (var i = 0; i < tableCols.length; i++) {
-                // Skip DATA and new column
-                if (tableCols[i].isDATACol() || tableCols[i].isEmptyCol()) {
-                    continue;
-                }
-
-                var backCol = tableCols[i].getBackColName();
-                for (var j = 0; j < numGroupByCols; j++) {
-                    if (backCol === groupByCols[j])
-                    {
-                        newColIndex = i + 1;
-                        break;
+            var newCols = [];
+            var newProgColPosFound = false;
+            for (var i = 0; i < sampleCols.length; i++) {
+                var colNum = sampleCols[i];
+                var backCol = tableCols[colNum].getBackColName();
+                if (!newProgColPosFound) {
+                    for (var j = 0; j < numGroupByCols; j++) {
+                        if (backCol === groupByCols[j]) {
+                            newCols.push(newProgCol);
+                            newProgColPosFound = true;
+                            break;
+                        }
                     }
                 }
+                
+                newCols.push(tableCols[colNum]);
+            }
+
+            if (!newProgColPosFound) {
+                newCols.unshift(newProgCol);
             }
             // Note that if include sample,
             // a.b should not be escaped to a\.b
-            finalCols = xcHelper.deepCopy(tableCols);
-            finalCols.splice(newColIndex - 1, 0, newProgCol);
+            var dataColNum = gTables[tableId].getColNumByBackName("DATA") - 1;
+            newCols.push(tableCols[dataColNum]);
+            finalCols = xcHelper.deepCopy(newCols);
         } else {
             finalCols = [newProgCol];
             // Pull out each individual groupByCols

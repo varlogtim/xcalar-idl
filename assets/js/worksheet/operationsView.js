@@ -1,11 +1,9 @@
 window.OperationsView = (function($, OperationsView) {
     var $operationsView; // $('#operationsView');
-    var $categoryInput;   // $('#categoryList').find('.autocomplete')
     var $categoryList; // for map $operationsView.find('.categoryMenu');
     var $functionsList; // for map $operationsView.find('.functionsMenu');
     var $genFunctionsMenu;   // $('.genFunctionsMenu'
     var $functionsUl;     // $genFunctionsMenu.find('ul')
-    var $autocompleteInputs; // $operationsView.find('.autocomplete');
     var $activeOpSection = $(); // $operationsView.find('.map or .filter or
                                 //  .groupby etc')
     var currentCol;
@@ -32,6 +30,7 @@ window.OperationsView = (function($, OperationsView) {
     var formHelper;
     var formOpenTime; // stores the last time the form was opened
     var listMax = 30; // max length for hint list
+    var focusedColListNum = null; // to track shift-clicking columns
 
     // shows valid cast types
     var castMap = {
@@ -52,13 +51,11 @@ window.OperationsView = (function($, OperationsView) {
 
     OperationsView.setup = function() {
         $operationsView = $('#operationsView');
-        $categoryInput = $('#categoryList').find('.autocomplete');
         $genFunctionsMenu = $operationsView.find('.genFunctionsMenu');
         $functionsUl = $genFunctionsMenu.find('ul');
 
         $categoryList = $operationsView.find('.categoryMenu');
         $functionsList = $operationsView.find('.functionsMenu');
-        $autocompleteInputs = $operationsView.find('.autocomplete');
 
         // GENERAL LISTENERS, not inputs
 
@@ -490,7 +487,6 @@ window.OperationsView = (function($, OperationsView) {
             checkIfStringReplaceNeeded();
         });
 
-
         addCastDropDownListener();
 
         $operationsView.on('click', '.checkboxSection', function() {
@@ -520,13 +516,23 @@ window.OperationsView = (function($, OperationsView) {
                 } else {
                     $newTableNameRow.removeClass('inactive');
                 }
+
+                var isIncSample = $activeOpSection.find('.incSample .checkbox')
+                                                  .hasClass('checked');
+                if (isIncSample) {
+                    $operationsView.find(".groupByColumnsSection")
+                                   .removeClass("xc-hidden");
+                } else {
+                    $operationsView.find(".groupByColumnsSection")
+                                   .addClass("xc-hidden");
+                }
             }
 
             checkIfStringReplaceNeeded();
         });
 
         // empty options checkboxes
-        $operationsView.on('click', '.checkboxWrap', function() {
+        $operationsView.on('click', '.emptyOptions .checkboxWrap', function() {
             var $checkbox = $(this).find('.checkbox');
             var $emptyOptsWrap = $(this).parent();
             if ($checkbox.hasClass('checked')) {
@@ -554,7 +560,6 @@ window.OperationsView = (function($, OperationsView) {
             }
             checkIfStringReplaceNeeded();
         });
-
 
         $operationsView.on('click', '.focusTable', function() {
             if (!gTables[tableId]) {
@@ -606,6 +611,13 @@ window.OperationsView = (function($, OperationsView) {
                         }
                         xcHelper.centerFocusedTable(tableId, true);
                         updateColNamesCache();
+                        if (operatorName === "group by") {
+                            var listHtml = getTableColList(tableId);
+                            $activeOpSection.find(".cols").html(listHtml);
+                            $activeOpSection.find(".selectAllCols")
+                                            .removeClass('checked');
+                            focusedColListNum = null
+                        }
                     } else {
                         return;
                     }
@@ -613,6 +625,91 @@ window.OperationsView = (function($, OperationsView) {
             });
             tableListScroller.setupListeners();
         });
+
+        // for group by advanced options
+        $operationsView.find('.advancedTitle').click(function() {
+            var $advancedSection = $(this).closest(".advancedSection");
+            if ($advancedSection.hasClass('collapsed')) {
+                $advancedSection.addClass('expanded').removeClass('collapsed');
+            } else {
+                $advancedSection.addClass('collapsed').removeClass('expanded');
+            }
+        });
+
+        $operationsView.find('.columnsWrap').on('click', 'li', function(event) {
+            var $li = $(this);
+            var colNum = $li.data('colnum');
+            var toHighlight = false;
+            if (!$li.hasClass('checked')) {
+                toHighlight = true;
+            }
+
+            if (event.shiftKey && focusedColListNum != null) {
+                var start = Math.min(focusedColListNum, colNum);
+                var end = Math.max(focusedColListNum, colNum);
+
+                for (var i = start; i <= end; i++) {
+                    if (toHighlight) {
+                        selectCol(i);
+                    } else {
+                        deselectCol(i);
+                    }
+                }
+            } else {
+                if (toHighlight) {
+                    selectCol(colNum);
+                } else {
+                    deselectCol(colNum);
+                }
+            }
+
+            focusedColListNum = colNum;
+        });
+
+        function selectCol(colNum) {
+            var $colList = $activeOpSection.find(".cols");
+            $colList.find('li[data-colnum="' + colNum + '"]')
+                    .addClass('checked')
+                    .find('.checkbox').addClass('checked');
+            checkToggleSelectAllBox();
+        }
+
+        function deselectCol(colNum) {
+            var $colList = $activeOpSection.find(".cols");
+            $colList.find('li[data-colnum="' + colNum + '"]')
+                    .removeClass('checked')
+                    .find('.checkbox').removeClass('checked');
+            checkToggleSelectAllBox();
+        }
+
+        $operationsView.find('.selectAllCols').on('click', function() {
+            var $checkbox = $(this);
+            var $cols = $activeOpSection.find(".cols");
+
+            if ($checkbox.hasClass('checked')) {
+                $checkbox.removeClass('checked');
+                $cols.find('li').removeClass('checked')
+                     .find('.checkbox').removeClass('checked');
+            } else {
+                $checkbox.addClass('checked');
+                $cols.find('li').addClass('checked')
+                      .find('.checkbox').addClass('checked');
+            }
+            focusedColListNum = null;
+        });
+
+        // if all lis are checked, select all checkbox will be checked as well
+        function checkToggleSelectAllBox() {
+            var totalCols = $activeOpSection.find('.cols li').length;
+            var selectedCols = $activeOpSection.find('.cols li.checked').length;
+            if (selectedCols === 0) {
+                $activeOpSection.find('.selectAllWrap').find('.checkbox')
+                                                  .removeClass('checked');
+            } else if (selectedCols === totalCols) {
+                $activeOpSection.find('.selectAllWrap').find('.checkbox')
+                                                  .addClass('checked');
+            }
+        }
 
         XcalarListXdfs("*", "*")
         .then(function(listXdfsObj) {
@@ -795,7 +892,6 @@ window.OperationsView = (function($, OperationsView) {
             populateInitialCategoryField(operatorName);
             fillInputPlaceholder(0);
 
-            $categoryInput.focus();
             if (operatorName === "map") {
                 $('#mapFilter').focus();
             } else if (operatorName === "group by") {
@@ -1184,8 +1280,16 @@ window.OperationsView = (function($, OperationsView) {
     function enterFunctionsInput(index) {
         index = index || 0;
         if (!isOperationValid(index)) {
-            showErrorMessage(0, index);
-            clearInput(0, index);
+            var $fnInput = $activeOpSection.find(".group").eq(index)
+                                            .find(".functionsInput");
+            var inputNum = $activeOpSection.find(".group").eq(index)
+                            .find("input").index($fnInput);
+            if (inputNum < 1) {
+                inputNum = 0;
+            }
+
+            showErrorMessage(inputNum, index);
+            clearFunctionsInput(index);
             return;
         }
 
@@ -1218,23 +1322,6 @@ window.OperationsView = (function($, OperationsView) {
         $nextInput[0].selectionStart = $nextInput[0].selectionEnd = val.length;
     }
 
-    function clearInput(inputNum, groupNum) {
-        if (inputNum === 0) {
-            var $group = $activeOpSection.find('.group').eq(groupNum);
-            $group.find('.functionsInput').data('category', 'null');
-            $group.find('.argsSection').last()
-                       .addClass('inactive');
-            $group.find('.gbCheckboxes').addClass('inactive');
-            $group.find('.icvMode').addClass('inactive');
-            $group.find('.descriptionText').empty();
-            checkIfStringReplaceNeeded(true);
-        }
-        if (inputNum < 2) {
-            $autocompleteInputs.eq(inputNum).data('value', "");
-        }
-        hideDropdowns();
-    }
-
     function clearFunctionsInput(groupNum, keep) {
         var $argsGroup =  $activeOpSection.find('.group').eq(groupNum);
         if (!keep) {
@@ -1246,8 +1333,10 @@ window.OperationsView = (function($, OperationsView) {
         $argsGroup.find('.argsSection').last().addClass('inactive');
         $argsGroup.find('.gbCheckboxes').addClass('inactive');
         $argsGroup.find('.icvMode').addClass('inactive');
+        $argsGroup.find(".advancedSection").addClass("inactive");
         $argsGroup.find('.descriptionText').empty();
         $argsGroup.find('.functionsInput').data('value', "");
+        $activeOpSection.find('.newTableNameRow').addClass('inactive');
         hideDropdowns();
         checkIfStringReplaceNeeded(true);
     }
@@ -1361,6 +1450,8 @@ window.OperationsView = (function($, OperationsView) {
             $target = $functionsList.parent();
             text = ErrTStr.NoEmpty;
         } else {
+            inputNum = inputNum || 0;
+            groupNum = groupNum || 0;
             $target = $activeOpSection.find('.group').eq(groupNum)
                                       .find('input').eq(inputNum);
             if ($target.val().trim() === "") {
@@ -1495,6 +1586,7 @@ window.OperationsView = (function($, OperationsView) {
         $argsSection.removeClass('inactive');
         $argsSection.empty();
 
+        $argsGroup.find(".advancedSection").removeClass("inactive");
         $argsGroup.find('.icvMode').removeClass('inactive');
         $argsGroup.find('.gbCheckboxes').removeClass('inactive');
         $argsGroup.find('.newTableNameRow').removeClass('inactive');
@@ -2028,6 +2120,7 @@ window.OperationsView = (function($, OperationsView) {
             var $inputs = $activeOpSection.find('.arg:visible');
             if ($activeOpSection.find('.argsSection').last()
                                                      .hasClass('inactive')) {
+                $operationsView.find('.strPreview').empty();
                 return;
             }
             var aggColNewText = $activeOpSection.find('.argsSection').last()
@@ -2405,7 +2498,6 @@ window.OperationsView = (function($, OperationsView) {
                 default:
                     showErrorMessage(0);
                     isPassing = false;
-                    // deferred.reject();
                     promise = PromiseHelper.reject();
                     break;
             }
@@ -2993,6 +3085,13 @@ window.OperationsView = (function($, OperationsView) {
                                     .hasClass('checked');
         var icvMode = $activeOpSection.find(".icvMode .checkbox")
                                     .hasClass("checked");
+        var colsToKeep = [];
+
+        if (isIncSample) {
+            $activeOpSection.find('.cols li.checked').each(function() {
+                colsToKeep.push($(this).data("colnum"));
+            });
+        }
 
         var dstTableName;
         if (isJoin) {
@@ -3006,7 +3105,8 @@ window.OperationsView = (function($, OperationsView) {
             "isJoin": isJoin,
             "icvMode": icvMode,
             "formOpenTime": formOpenTime,
-            "dstTableName": dstTableName
+            "dstTableName": dstTableName,
+            "columnsToKeep": colsToKeep
         };
         if (options.isIncSample && options.isJoin) {
             console.warn('shouldnt be able to select incSample and join');
@@ -3041,7 +3141,6 @@ window.OperationsView = (function($, OperationsView) {
         }
 
         if (!isGroupbyColNameValid) {
-            statusBoxShowHelper(ErrTStr.InvalidColName, $groupByInput);
             return (false);
         } else {
             var indexedColNames;
@@ -3057,12 +3156,7 @@ window.OperationsView = (function($, OperationsView) {
                 }
             }
 
-            if (!areIndexedColNamesValid) {
-                statusBoxShowHelper(ErrTStr.InvalidColName, $input);
-                return (false);
-            } else {
-                return (true);
-            }
+            return areIndexedColNamesValid;
         }
     }
 
@@ -3876,6 +3970,8 @@ window.OperationsView = (function($, OperationsView) {
         $operationsView.find('.checkbox').removeClass('checked');
         $operationsView.find('.icvMode').addClass('inactive');
         $operationsView.find('.gbCheckboxes').addClass('inactive');
+        $operationsView.find(".advancedSection").addClass("inactive");
+        $operationsView.find(".groupByColumnsSection").addClass("xc-hidden");
 
         $operationsView.find('.arg').val("");
 
@@ -3884,9 +3980,17 @@ window.OperationsView = (function($, OperationsView) {
 
         // for filter, unminimize first argument box
         $operationsView.find('.group').removeClass('minimized fnInputEmpty');
+        $operationsView.find(".advancedSection").addClass('collapsed')
+                                                .removeClass('expanded');
 
         fillTableList();
-
+        if (operatorName === "group by") {
+            var listHtml = getTableColList(tableId);
+            $activeOpSection.find(".cols").html(listHtml);
+            $activeOpSection.find(".selectAllCols")
+                            .removeClass('checked');
+            focusedColListNum = null
+        }
         // clear string preview
         $operationsView.find('.strPreview').empty();
 
@@ -4182,6 +4286,35 @@ window.OperationsView = (function($, OperationsView) {
         return (html);
     }
 
+    function getTableColList(tableId) {
+        var html = "";
+        var numBlanks = 10; // to take up flexbox space
+        var allCols = gTables[tableId].tableCols;
+        for (var i = 0; i < allCols.length; i++) {
+            var progCol = allCols[i];
+            if (progCol.isEmptyCol() || progCol.isDATACol()) {
+                continue;
+            }
+
+            html += '<li data-colnum="' + i + '">' +
+                        '<span class="text tooltipOverflow" ' +
+                        'data-toggle="tooltip" data-container="body" ' +
+                        'data-original-title="' +
+                            progCol.getFrontColName(true) + '">' +
+                            progCol.getFrontColName(true) +
+                        '</span>' +
+                        '<div class="checkbox">' +
+                            '<i class="icon xi-ckbox-empty fa-13"></i>' +
+                            '<i class="icon xi-ckbox-selected fa-13"></i>' +
+                        '</div>' +
+                    '</li>';
+        }
+        for (var i = 0; i < numBlanks; i++) {
+            html += '<div class="flexSpace"></div>';
+        }
+        return (html);
+    }
+
     /* Unit Test Only */
     if (window.unitTestMode) {
         OperationsView.__testOnly__ = {};
@@ -4205,6 +4338,7 @@ window.OperationsView = (function($, OperationsView) {
         OperationsView.__testOnly__.filter = filter;
         OperationsView.__testOnly__.submissionFailHandler = submissionFailHandler;
         OperationsView.__testOnly__.groupBy = groupBy;
+        OperationsView.__testOnly__.groupByCheck = groupByCheck;
 
         // metadata
         OperationsView.__testOnly__.aggNames = aggNames;

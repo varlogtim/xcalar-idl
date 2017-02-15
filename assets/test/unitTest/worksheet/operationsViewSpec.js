@@ -340,7 +340,7 @@ describe('OperationsView Test', function() {
             var cachedColNameMap = xcHelper.getColNameMap;
             var cachedCenterTable = xcHelper.centerFocusedTable;
             before(function() {
-                gTables['fakeTable'] = {};
+                gTables['fakeTable'] = {tableCols:[]};
             });
             it("selecting table should work", function() {
                 var colNameCacheCalled = false;
@@ -431,8 +431,13 @@ describe('OperationsView Test', function() {
                 expect($operationsView.find('.newTableName:visible')).to.have.lengthOf(1);
             });
 
-            it('should have 3 visible checkboxes for inc sample', function() {
-                expect($operationsView.find('.checkbox:visible')).to.have.lengthOf(3);
+            it('advancedSection should be visible', function() {
+                expect($operationsView.find('.advancedSection:visible')).to.have.lengthOf(1);
+            });
+
+            it('should have 13 checkboxes for inc sample', function() {
+                $operationsView.find('.advancedTitle').click();
+                expect($operationsView.find('.advancedSection .checkbox:visible')).to.have.lengthOf(3);
             });
 
             it('new table name should not be visible if join selected', function() {
@@ -594,6 +599,40 @@ describe('OperationsView Test', function() {
             });
         });
 
+        describe('column select section', function() {
+            it('clicking on column should work', function() {
+                $operationsView.find('.mainContent').scrollTop(1000);
+                var $incSampleBox = $operationsView.find('.groupby .incSample .checkbox');
+
+                expect($operationsView.find(".columnsWrap").is(":visible")).to.be.false;
+                $incSampleBox.click();
+                expect($operationsView.find(".columnsWrap").is(":visible")).to.be.true;
+                
+                var $cols = $operationsView.find(".cols li");
+                expect($cols.length).to.equal(12);
+                expect($cols.find(".checkbox.checked").length).to.equal(0);
+
+                $cols.eq(0).click();
+                expect($cols.find(".checkbox.checked").length).to.equal(1);
+
+                $cols.eq(0).click();
+                expect($cols.find(".checkbox.checked").length).to.equal(0);
+            });
+
+            it("clicking select all should work", function() {
+                var $cols = $operationsView.find(".cols li");
+                expect($cols.find(".checkbox.checked").length).to.equal(0);
+                $operationsView.find(".selectAllCols").click();
+                expect($cols.find(".checkbox.checked").length).to.equal(12);
+                $operationsView.find(".selectAllCols").click();
+                expect($cols.find(".checkbox.checked").length).to.equal(0);
+            });
+
+            after(function() {
+                $operationsView.find('.groupby .incSample .checkbox').click();
+            });
+        });
+
         // XXX basic test, need to expand on this
         describe('groupby() function', function() {
             var cachedGB;
@@ -628,6 +667,15 @@ describe('OperationsView Test', function() {
 
             after(function() {
                 xcFunction.groupBy = cachedGB;
+            });
+        });
+
+        describe('groupbyCheck()', function() {
+            it("groupByCheck should work", function() {
+                var fn = OperationsView.__testOnly__.groupByCheck;
+                expect(fn([prefix + '::average_stars', prefix + '::average_stars', 'c'])).to.be.true;
+                expect(fn([prefix + '::average_stars', 'fakeName', 'c'])).to.be.false;
+                expect(fn(['fakename', prefix + '::average_stars', 'c'])).to.be.false;
             });
         });
 

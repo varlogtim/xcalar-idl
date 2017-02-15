@@ -184,7 +184,7 @@ window.XcSDK.Extension.prototype = (function() {
         },
 
         "groupBy": function(operator, groupByCols, aggColName,
-                            isIncSample, tableName,
+                            isIncSample, sampleCols, tableName,
                             newColName, newTableName)
         {
             var deferred = jQuery.Deferred();
@@ -196,7 +196,7 @@ window.XcSDK.Extension.prototype = (function() {
             }
 
             XIApi.groupBy(txId, operator, groupByCols, aggColName,
-                            isIncSample, tableName,
+                            isIncSample, sampleCols, tableName,
                             newColName, newTableName, indexTableName, false)
             .then(function(dstTable, dstCols) {
                 self._addMeta(tableName, dstTable, dstCols);

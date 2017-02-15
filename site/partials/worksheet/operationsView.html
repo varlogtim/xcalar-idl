@@ -222,32 +222,59 @@
           <div class="description"><%= dicts.opsView.newTableName %>:</div>
           <input class="focusable newTableName" type="textbox" spellcheck="false" >
         </div>
-        <div class="gbCheckboxes inactive clearfix">
-          <div class="keepTable checkboxSection clearfix">
-            <div class="text"><%= dicts.opsView.joinBack %></div>
-            <div class="checkbox">
-              <i class="icon xi-ckbox-empty fa-11"></i>
-              <i class="icon xi-ckbox-selected fa-11"></i>
+        <div class="advancedSection collapsed">
+          <div class="advancedTitle minimized subHeading clearfix">
+            <div>
+              <i class="icon xi-plus-circle-outline advancedIcon minimized" data-container="body" data-toggle="tooltip" title="<%= dicts.TooltipTStr.ToggleAdvanced %>"></i>
+              <i class="icon xi-minus-circle-outline advancedIcon minimized" data-container="body" data-toggle="tooltip" title="<%= dicts.TooltipTStr.ToggleAdvanced %>"></i>
+              <span class="text"><%= dicts.common.AdvancedOpts %></span>
             </div>
           </div>
-          <div class="incSample checkboxSection clearfix">
-            <div class="text"><%= dicts.opsView.includeSample %>
-              <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-original-title="Picks a sample record for each row and populates the values that are not involved in the groupBy operation with data from this record"></i></div>
-            <div class="checkbox">
-              <i class="icon xi-ckbox-empty fa-11"></i>
-              <i class="icon xi-ckbox-selected fa-11"></i>
-           </div>
-          </div>
-        </div>
-        <div class="icvContainer">
-          <div class="icvMode checkboxSection inactive">
-            <div class="text"><%= dicts.opsView.erroneousRows %></div>
-            <div class="checkbox">
-              <i class="icon xi-ckbox-empty fa-11"></i>
-              <i class="icon xi-ckbox-selected fa-11"></i>
+          <div class="optionsSection">
+            <div class="icvContainer">
+              <div class="icvMode checkboxSection">
+                <div class="text"><%= dicts.opsView.erroneousRows %></div>
+                <div class="checkbox">
+                  <i class="icon xi-ckbox-empty fa-11"></i>
+                  <i class="icon xi-ckbox-selected fa-11"></i>
+                </div>
+              </div>
+            </div>
+            <div class="gbCheckboxes clearfix">
+              <div class="keepTable checkboxSection clearfix">
+                <div class="text"><%= dicts.opsView.joinBack %></div>
+                <div class="checkbox">
+                  <i class="icon xi-ckbox-empty fa-11"></i>
+                  <i class="icon xi-ckbox-selected fa-11"></i>
+                </div>
+              </div>
+              <div class="incSample checkboxSection clearfix">
+                <div class="text"><%= dicts.opsView.includeSample %>
+                  <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-original-title="<%= dicts.opsView.incSampleTip %>"></i></div>
+                <div class="checkbox">
+                  <i class="icon xi-ckbox-empty fa-11"></i>
+                  <i class="icon xi-ckbox-selected fa-11"></i>
+               </div>
+              </div>
+            </div>
+            <div class="groupByColumnsSection xc-hidden">
+              <div class="subHeading clearfix">
+                <div class="label"><%= dicts.opsView.colsToKeep %>:</div>
+              </div>
+              <div class="checkboxWrap selectAllWrap">
+                <div class="checkbox selectAllCols">
+                  <i class="icon xi-ckbox-empty fa-13"></i>
+                  <i class="icon xi-ckbox-selected fa-13"></i>
+                </div>
+                <div class="text"><%= dicts.common.SelectAll %></div>
+              </div>
+              <div class="columnsWrap clearfix">
+                <ul class="cols"></ul>
+              </div>
             </div>
           </div>
         </div>
+        
       </div> 
       <!-- END GROUPBYGROUP GROUP -->
     </div>

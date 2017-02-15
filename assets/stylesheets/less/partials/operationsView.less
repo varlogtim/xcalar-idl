@@ -171,6 +171,56 @@
         }
     }
 
+    .advancedSection {
+        margin-top: 10px;
+        
+        &.inactive {
+            display: none;
+        }
+        &.collapsed {
+            .xi-minus-circle-outline {
+                display: none;
+            }
+            .optionsSection {
+                display: none;
+            }
+            .restore {
+                display: none;
+            }
+        }
+        &.expanded {
+            .xi-plus-circle-outline {
+                display: none;
+            }
+            .optionsSection {
+                display: block;
+            }
+            .restore {
+                display: inline-block;
+            }
+        }
+
+        .advancedIcon {
+            cursor: pointer;
+            font-size: 16px;
+            position: relative;
+            top: 2px;
+            left: 1px;
+            margin-right: 5px;
+            color: @color-font-darkGray;
+        }
+
+        .advancedTitle {
+            > div {
+                width: 100%;
+            }
+            .text {
+                font-weight: 700;
+                cursor: pointer;
+            }
+        }
+    }
+
     .subHeading {
         margin-top: 6px;
         > div, > span {
@@ -806,8 +856,13 @@
                 display: none;
             }
         }
+        .icvContainer {
+            height: 26px;
+            .checkboxSection {
+                height: auto;
+            }
+        }
         .gbCheckboxes {
-            margin-top: 6px;
             height: auto;
             .checkboxSection {
                 height: @listHeight;
@@ -817,6 +872,65 @@
             }
         }
 
+        .columnsWrap {
+            ul {
+                .flex-display;
+                .flex-wrap(wrap);
+                width: 100%;
+                border-top: 1px solid @color-border-pinkish-grey2;
+                background-color: transparent;
+                &:first-child {
+                    border-right-width: 0px;
+                }
+            }
+            li {
+                float: left;
+                border-right: 1px solid @color-border-pinkish-grey2;
+                background-color: @color-white;
+                padding-right: 22px;
+                position: relative;
+                .flex(1 1 100px);
+                width: 100px;
+                &:first-child {
+                    border-top: none;
+                }
+
+                .text {
+                    width: 100%;
+                }
+
+                .checkbox {
+                    position: absolute;
+                }
+            }
+            .flexSpace {
+                border-right: 1px solid transparent;
+                .flex(1 1 100px);
+                width: 100px;
+                height: 0px;
+                padding-left: 10px;
+                padding-right: 22px;
+                overflow: hidden;
+                visibility: hidden;
+            }
+        }
+
+        .selectAllWrap {
+            margin-bottom: 8px;
+            float: right;
+            display: inline-block;
+
+            .clearfix;
+            .text {
+                float: right;
+                cursor: pointer;
+            }
+            .checkbox {
+                top: 2px;
+                margin-left: 5px;
+                margin-right: 5px;
+            }
+        }
     }
 
     .groupby, .map {
@@ -1413,50 +1527,16 @@
 
     .advancedSection {
         margin-top: 20px;
-        .formRow {
-            .clearfix;
-        }
 
-        .advancedIcon {
-            cursor: pointer;
-            font-size: 16px;
-            position: relative;
-            top: 2px;
-            left: 1px;
-            margin-right: 5px;
-            color: @color-font-darkGray;
-        }
-
-        .advancedTitle {
-            > div {
-                width: 100%;
-            }
-            .text {
-                font-weight: 700;
-                cursor: pointer;
-            }
-        }
 
         &.collapsed {
-            .xi-minus-circle-outline {
-                display: none;
-            }
             .formRow {
-                display: none;
-            }
-            .restore {
                 display: none;
             }
         }
         &.expanded {
-            .xi-plus-circle-outline {
-                display: none;
-            }
             .formRow {
                 display: block;
-            }
-            .restore {
-                display: inline-block;
             }
         }
 
@@ -1525,7 +1605,6 @@
         .restore {
             font-weight: 700;
             margin-top: 10px;
-            display: inline-block;
             cursor: pointer;
 
             .icon {
@@ -1616,7 +1695,7 @@
 }
 
 #mainMenu.expanded {
-    #exportView, #dfCreateView    {
+    #exportView, #dfCreateView, #operationsView {
         .columnsWrap {
             li {
                 .flex(1 1 200px);

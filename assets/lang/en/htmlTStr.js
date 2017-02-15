@@ -747,12 +747,14 @@ module.exports = {
         "AddAnotherColumn": "ADD ANOTHER COLUMN",
         "funcToGroup": "Function to apply to group",
         "joinBack": "Join table back to original",
-        "includeSample": "Keep all columns",
+        "includeSample": "Keep some columns",
         "aggFunc": "Aggregate Function",
         "mapFilter": "Search map functions",
         "andOrFilter": "Clauses combined by",
         "or": "or",
         "and": "and",
+        "colsToKeep": "Columns to keep",
+        "incSampleTip": "Picks a sample record for each row and populates the values that are not involved in the group by operation with data from this record"
 
     },
 

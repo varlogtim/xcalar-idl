@@ -480,6 +480,7 @@ window.xcFunction = (function($, xcFunction) {
 
         var deferred = jQuery.Deferred();
         var isIncSample = options.isIncSample || false;
+        var sampleCols = options.columnsToKeep || [];
         var isJoin = options.isJoin || false;
         var icvMode = options.icvMode || false;
 
@@ -527,7 +528,7 @@ window.xcFunction = (function($, xcFunction) {
         var scrollChecker = new ScollTableChecker();
 
         XIApi.groupBy(txId, operator, groupByCols, aggCol,
-                      isIncSample, tableName, newColName, dstTableName,
+                      isIncSample, sampleCols, tableName, newColName, dstTableName,
                       undefined, icvMode)
         .then(function(nTableName, nTableCols) {
             if (isJoin) {
