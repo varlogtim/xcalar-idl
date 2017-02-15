@@ -1449,7 +1449,7 @@ window.ColManager = (function($, ColManager) {
         var format = progCol.getFormat();
 
         if (!knf && tdValue != null && (decimal > -1 ||
-            format !== ColFormat.Default))
+            format !== ColFormat.Default && typeof parsedVal !== "string"))
         {
             formatVal = formatColumnCell(parsedVal, format, decimal);
         }
@@ -1467,8 +1467,9 @@ window.ColManager = (function($, ColManager) {
         }
 
         // For formated number, need seprate display of formatVal
-        // and original val
-        if (!knf && tdValue != null && progCol.isNumberCol()) {
+        // and original val, also applys to numbers in mixed columns
+        if (!knf && tdValue != null && (progCol.isNumberCol() ||
+            progCol.getType() === ColumnType.mixed)) {
             truncated = true;
         }
 
@@ -2012,9 +2013,18 @@ window.ColManager = (function($, ColManager) {
         var progCol = gTables[tableId].getCol(colNum);
         var format = progCol.getFormat();
         var decimal = progCol.getDecimal();
+        var isMixed = progCol.getType() === ColumnType.mixed;
 
         $table.find("td.col" + colNum).each(function() {
             var $td = $(this);
+            if (isMixed) {
+                // do not format cell if not a number
+                var cellType = ColManager.getCellType($td, tableId);
+                if (cellType !== ColumnType.integer && cellType !==
+                    ColumnType.float) {
+                    return;
+                }
+            }
             var oldVal = $td.find(".originalData").text();
             if (oldVal != null) {
                 // not knf
