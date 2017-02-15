@@ -1769,43 +1769,36 @@ window.ColManager = (function($, ColManager) {
 
         if (colNames.length) {
             for (var i = 0; i < colNames.length; i++) {
-                var colName = colNames[i];
-                var escapedColName = colName;
-
-                if (!table.hasColWithBackName(escapedColName)) {
-                    parsedCols.push({
-                        "colName": colName,
-                        "escapedColName": escapedColName
-                    });
-                }
+                addParsedColName(colNames[i]);
             }
         } else {
             for (var tdKey in jsonTd) {
-                var colName = tdKey;
-                // var escapedColName = xcHelper.escapeColName(tdKey);
-                var escapedColName = tdKey;
-
-                if (isNotDATACol) {
-                    var openSymbol = isArray ? "[" : ".";
-                    var closingSymbol = isArray ? "]" : "";
-                    var unnestColName = progCol.getBackColName();
-
-                    // colName = unnestColName.replace(/\\./g, ".") +
-                    //           openSymbol + tdKey + closingSymbol;
-                    colName = unnestColName + openSymbol +
-                                colName + closingSymbol;
-                    escapedColName = unnestColName + openSymbol +
-                                    escapedColName + closingSymbol;
-                }
-
-                if (!table.hasColWithBackName(escapedColName)) {
-                    parsedCols.push({
-                        "colName": colName,
-                        "escapedColName": escapedColName
-                    });
-                }
+                addParsedColName(tdKey);
             }
         }
+
+        function addParsedColName(colName) {
+            var escapedColName = colName;
+
+            if (isNotDATACol) {
+                var openSymbol = isArray ? "[" : ".";
+                var closingSymbol = isArray ? "]" : "";
+                var unnestColName = progCol.getBackColName();
+
+                colName = unnestColName + openSymbol +
+                            colName + closingSymbol;
+                escapedColName = unnestColName + openSymbol +
+                                escapedColName + closingSymbol;
+            }
+
+            if (!table.hasColWithBackName(escapedColName)) {
+                parsedCols.push({
+                    "colName": colName,
+                    "escapedColName": escapedColName
+                });
+            }
+        }
+
         return parsedCols;
     }
 

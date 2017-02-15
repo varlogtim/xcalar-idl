@@ -229,14 +229,9 @@ window.JSONModal = (function($, JSONModal) {
         $jsonArea.on("click", ".pullAll", function() {
             var $jsonWrap = $(this).closest('.jsonWrap');
             var rowNum = $jsonWrap.data('rownum');
+            var colNum = $jsonWrap.data('colnum');
             var tableId = $jsonWrap.data('tableid');
             var rowExists = $('#xcTable-' + tableId).find('.row' + rowNum).length === 1;
-            var colNum;
-            if (isDataCol) {
-                colNum = $("#xcTable-" + tableId).find('th.dataCol').index();
-            } else {
-                colNum = xcHelper.parseColNum($cachedTd);
-            }
            
             if (!rowExists) {
                 // the table is scrolled past the selected row, so we just
@@ -1060,7 +1055,8 @@ window.JSONModal = (function($, JSONModal) {
         } else if (lastMode === modes.project && isDataCol) {
             $jsonWrap.addClass('projectMode');
             autoSelectFieldsToProject($jsonArea.find('.jsonWrap').last());
-        } else if (lastMode === modes.multiple) {
+        } else if (lastMode === modes.multiple &&
+            (isDataCol || type === ColumnType.object)) {
             $jsonWrap.addClass('multiSelectMode');
             xcTooltip.changeText($jsonWrap.find('.submitProject'), JsonModalTStr.SubmitPull);
         }
@@ -1962,7 +1958,7 @@ window.JSONModal = (function($, JSONModal) {
     function submitPullSome($jsonWrap) {
         var rowNum = $jsonWrap.data('rownum');
         var tableId = $jsonWrap.data('tableid');
-        var colNum = $("#xcTable-" + tableId).find('th.dataCol').index();
+        var colNum = $jsonWrap.data('colnum');
         var rowExists = $('#xcTable-' + tableId).find('.row' + rowNum).length === 1;
        
         if (!rowExists) {
