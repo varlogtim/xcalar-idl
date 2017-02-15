@@ -14,7 +14,7 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
 
         $panel.on("click", ".item .install", function() {
             var ext = getExtensionFromEle($(this).closest(".item"));
-            installExtension(ext);
+            installExtension(ext, $(this));
         });
 
         $extLists.on("click", ".listInfo", function() {
@@ -74,14 +74,6 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
             isFirstTouch = false;
             fetchData();
         }
-    };
-
-    ExtensionPanel.install = function(ext) {
-        if (ext == null || !(ext instanceof ExtItem)) {
-            return;
-        }
-
-        installExtension(ext);
     };
 
     ExtensionPanel.imageError = function(ele) {
@@ -157,9 +149,24 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
         generateExtView(categoryList, searchKey);
     }
 
-    function installExtension(ext) {
-        // XXX placeholder
-        console.log("install", ext.getName());
+    function installExtension(ext, $submitBtn) {
+        var host = hostname + "/app";
+        xcHelper.disableSubmit($submitBtn);
+        $.ajax({
+            "type": "POST",
+            "jsonp": "callback",
+            "dataType": "jsonp",
+            "url": host + "/downloadPackage",
+            "data": {name: ext.getName(), version: ext.getVersion()},
+            "success": function(data) {
+                console.log("installed", ext.getName());
+                xcHelper.enableSubmit($submitBtn);
+            },
+            "error": function(error) {
+                xcHelper.enableSubmit($submitBtn);
+                Alert.error("App Installation Failed", error);
+            }
+        });
     }
 
     function getExtensionFromEle($ext) {
