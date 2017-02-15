@@ -1765,7 +1765,16 @@ window.ColManager = (function($, ColManager) {
         var parsedCols = [];
         var isArray = (progCol.getType() === ColumnType.array);
         var isNotDATACol = !progCol.isDATACol();
+        var openSymbol;
+        var closingSymbol;
+        var unnestColName;
         colNames = colNames || [];
+
+        if (isNotDATACol) {
+            openSymbol = isArray ? "[" : ".";
+            closingSymbol = isArray ? "]" : "";
+            unnestColName = progCol.getBackColName();
+        }
 
         if (colNames.length) {
             for (var i = 0; i < colNames.length; i++) {
@@ -1781,12 +1790,7 @@ window.ColManager = (function($, ColManager) {
             var escapedColName = colName;
 
             if (isNotDATACol) {
-                var openSymbol = isArray ? "[" : ".";
-                var closingSymbol = isArray ? "]" : "";
-                var unnestColName = progCol.getBackColName();
-
-                colName = unnestColName + openSymbol +
-                            colName + closingSymbol;
+                colName = unnestColName + openSymbol + colName + closingSymbol;
                 escapedColName = unnestColName + openSymbol +
                                 escapedColName + closingSymbol;
             }
