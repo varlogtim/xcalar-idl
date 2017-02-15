@@ -31,6 +31,7 @@ module.exports = {
         "Details": "Details",
         "DS": "Dataset",
         "DontShow": "Don't show again",
+        "Exit": "Exit",
         "File": "File",
         "Func": "Function",
         "Header": "Header",
@@ -342,6 +343,8 @@ module.exports = {
         "ConfigParamName": "Config Parameter Name", // in jststr
         "CPU": "CPU",
         "CurVal": "Current Value", // in jststr
+        "DeleteSelected": "Delete selected queries",
+        "DeleteOptions": "Delete Options",
         "DetailQuery": "Detail of Query",
         "ElaspedTime": "Elapsed Time",
         "GeneralSettings": "General Settings",

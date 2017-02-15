@@ -241,6 +241,101 @@ describe('QueryManager Test', function() {
         });
     });
 
+    describe("Bulk action", function() {
+        before(function() {
+            function getQueryLi(id) {
+                var html = '<div class="xc-query query no-selection active done" data-id="' + id + '">' +
+                    '<div class="queryInfo">' +
+                        '<div class="rightPart">' +
+                            '<i class="icon xi-trash xc-action deleteIcon"></i>' +
+                            '<div class="checkbox">' +
+                                '<i class="icon xi-ckbox-empty fa-13"></i><i class="icon xi-ckbox-selected fa-13"></i>' +
+                            '</div>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>';
+                return html;
+            }
+            var $li1 = getQueryLi(1);
+            var $li2 = getQueryLi(2);
+            $("#monitor-queryList").empty();
+            $("#monitor-queryList").append($li1).append($li2);
+        });
+
+        it("toggling bulk option menu should work", function() {
+            expect($("#monitorMenu-query").find(".bulkOptions").is(":visible")).to.be.false;
+            expect($("#monitorMenu-query").find(".checkbox:visible").length).to.equal(0);
+
+            $("#monitorMenu-query").find(".bulkOptionsSection .deleteIcon").click();
+            expect($("#monitorMenu-query").find(".bulkOptions").is(":visible")).to.be.true;
+            expect($("#monitorMenu-query").find(".checkbox:visible").length).to.be.gt(1);
+
+            $("#monitorMenu-query").find(".bulkOptionsSection .exitOptions").click();
+            expect($("#monitorMenu-query").find(".bulkOptions").is(":visible")).to.be.false;
+            expect($("#monitorMenu-query").find(".checkbox:visible").length).to.equal(0);
+
+            $("#monitorMenu-query").find(".bulkOptions").click();
+            expect($("#monitorMenu-query").find(".bulkOptions").is(":visible")).to.be.false;
+        });
+
+        it("selecting checkboxes should work", function() {
+            $("#monitorMenu-query").find(".bulkOptionsSection .deleteIcon").click();
+            expect($("#monitorMenu-query").find(".bulkOptions").is(":visible")).to.be.true;
+            expect($("#monitorMenu-query").find(".checkbox:visible").length).to.be.gt(1);
+            expect($("#monitorMenu-query").find(".checkbox.checked").length).to.equal(0);
+
+            $("#monitorMenu-query").find(".checkbox").eq(0).click();
+            expect($("#monitorMenu-query").find(".checkbox.checked").length).to.equal(1);
+
+            $("#monitorMenu-query").find(".checkbox").eq(0).click();
+            expect($("#monitorMenu-query").find(".checkbox.checked").length).to.equal(0);
+        });
+
+        it("select and clear all should work", function() {
+            expect($("#monitorMenu-query").find(".checkbox.checked").length).to.equal(0);
+            $("#monitorMenu-query").find("li.selectAll").click();
+
+            var numChecked = $("#monitorMenu-query").find(".checkbox.checked").length;
+            expect(numChecked).to.be.gt(1);
+            expect($("#monitorMenu-query").find(".checkbox").length).to.equal(numChecked);
+
+            $("#monitorMenu-query").find("li.clearAll").click();
+            expect($("#monitorMenu-query").find(".checkbox.checked").length).to.equal(0);
+        });
+
+        it("bulk delete should work", function() {
+            var cachedFn = QueryManager.removeQuery;
+            var count = 0;
+            var called = false;
+            QueryManager.removeQuery = function(id) {
+                if (count === 0) {
+                    expect(id).to.equal(1);
+                } else {
+                    expect(id).to.equal(2);
+                }
+                count++;
+                called = true;
+            };
+
+            $("#monitorMenu-query").find("li.selectAll").click();
+            var numChecked = $("#monitorMenu-query").find(".checkbox.checked").length;
+            expect(numChecked).to.be.gt(1);
+
+            expect($("#monitorMenu-query .query").length).to.be.gt(1);
+            $("#monitorMenu-query").find("li.deleteAll").click();
+            expect(called).to.be.true;
+            expect($("#monitorMenu-query").find(".bulkOptions").is(":visible")).to.be.false;
+            expect(count).to.equal(2);
+
+            QueryManager.removeQuery = cachedFn;
+        });
+
+        after(function() {
+            $("#monitor-queryList").find(".query").last().remove();
+            $("#monitor-queryList").find(".query").last().remove();
+        });
+    });
+
     after(function() {
         for (var i in queryLists) {
             delete queryLists[i];

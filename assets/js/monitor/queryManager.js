@@ -1076,8 +1076,31 @@ window.QueryManager = (function(QueryManager, $) {
     }
 
     function addEventHandlers() {
-        $("#monitorMenu-query").on("click", ".filterSection .xc-action", function() {
+        var $querySideBar = $("#monitorMenu-query");
+
+        $querySideBar.on("click", ".filterSection .xc-action", function() {
             filterQuery($(this));
+        });
+
+        $querySideBar.find(".bulkOptionsSection").click(function(event) {
+            if (!$(event.target).closest('.bulkOptions').length) {
+                if ($querySideBar.hasClass("bulkOptionsOpen")) {
+                    $querySideBar.removeClass("bulkOptionsOpen");
+                    $queryList.find(".checkbox").removeClass("checked");
+                } else {
+                    $querySideBar.addClass("bulkOptionsOpen");
+                    $(".tooltip").hide();
+                }
+            }
+        });
+
+        $queryList.on("click", ".checkbox", function() {
+            var $checkbox = $(this);
+            if ($checkbox.hasClass("checked")) {
+                $checkbox.removeClass("checked");
+            } else {
+                $checkbox.addClass("checked");
+            }
         });
 
         $queryList.on("click", ".query", function(event) {
@@ -1094,7 +1117,7 @@ window.QueryManager = (function(QueryManager, $) {
                 } else {
                     QueryManager.cancelQuery(id);
                 }
-            } else {
+            } else if (!$clickTarget.closest(".checkbox").length) {
                 focusOnQuery($(this));
             }
         });
@@ -1110,6 +1133,8 @@ window.QueryManager = (function(QueryManager, $) {
         $("#monitor-inspect").on('click', function() {
             focusOnOutput();
         });
+
+        bulkOptions();
 
         function focusOnOutput() {
             var queryId = parseInt($queryList.find('.query.active').data('id'));
@@ -1242,6 +1267,33 @@ window.QueryManager = (function(QueryManager, $) {
             $queryDetail.find('.outputSection').find('.text')
                                                .text(CommonTxtTstr.NA);
         }
+
+        function bulkOptions() {
+            $querySideBar.find(".bulkOptions").on("click", "li", function() {
+                var action = $(this).data('action');
+
+                switch (action) {
+                    case ("deleteAll"):
+                        $queryList.find(".checkbox.checked").each(function() {
+                            var id = $(this).closest(".query").data("id");
+                            QueryManager.removeQuery(id, true);
+                        });
+                        $querySideBar.removeClass("bulkOptionsOpen");
+                    break;
+                    case ("clearAll"):
+                        $queryList.find(".checkbox.checked")
+                                  .removeClass("checked");
+                    break;
+                    case ("selectAll"):
+                        $queryList.find(".checkbox").filter(function() {
+                            return !$(this).closest(".processing").length;
+                        }).addClass("checked");
+                    break;
+                    default:
+                    break;
+                }
+            });
+        }
     }
 
     // put minimal query properties into an array and order by query start time
@@ -1349,6 +1401,10 @@ window.QueryManager = (function(QueryManager, $) {
                         cancelClass + '" ' +
                         'data-container="body" data-toggle="tooltip" ' +
                         'title="' + TooltipTStr.CancelQuery + '"></i>' +
+                        '<div class="checkbox">' +
+                          '<i class="icon xi-ckbox-empty fa-13"></i>' +
+                          '<i class="icon xi-ckbox-selected fa-13"></i>' +
+                        '</div>' +
                     '</div>' +
                 '</div>' +
                 '<div class="queryInfo">' +
