@@ -345,6 +345,8 @@ window.DSUploader = (function($, DSUploader) {
             var html = getOneFileHtml(fileObj, creating);
             var $grid = $(html);
             $innerContainer.append($grid);
+            var height = $innerContainer.height();
+            $innerContainer.parent().scrollTop(height);
 
             XcalarDemoFileCreate(name)
             .then(function() {
