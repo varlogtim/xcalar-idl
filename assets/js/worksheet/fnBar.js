@@ -80,10 +80,12 @@ window.FnBar = (function(FnBar, $) {
             $fnBar.addClass("inFocus");
             $fnBar.find('.CodeMirror-placeholder').show();
 
+            // show autocomplete menu if fnbar is blank except for =, so 
+            // we suggest map or pull
             // delay or codemirror will autoclose hint menu
             setTimeout(function() {
                 var val = editor.getValue().trim();
-                if (val.indexOf('=') === 0) {
+                if (val === "=") {
                     editor.execCommand("autocomplete");
                 }
             }, 0);
@@ -302,6 +304,7 @@ window.FnBar = (function(FnBar, $) {
         $lastColInput = null;
         editor.setValue("");
         $fnBar.removeClass("active inFocus disabled");
+        $functionArea.addClass("searching");
         colNamesCache = {};
     };
 
@@ -325,7 +328,8 @@ window.FnBar = (function(FnBar, $) {
 
     function setupAutocomplete() {
         var keysToIgnore = [keyCode.Left, keyCode.Right, keyCode.Down,
-                            keyCode.Up, keyCode.Tab, keyCode.Enter];
+                            keyCode.Up, keyCode.Tab, keyCode.Enter,
+                            keyCode.Escape];
 
         // trigger autcomplete menu on keyup, except when keysToIgnore
         editor.on("keyup", function(cm, e) {
@@ -381,21 +385,6 @@ window.FnBar = (function(FnBar, $) {
                     return;
                 }
             }
-            // to find words in the editor
-            // var re = new RegExp(word.source, "g");
-            // var line = cur.line;
-            // var m;
-            // while (m = re.exec(fnBarText)) {
-            //     if (line == cur.line && m[0] === curWord) {
-            //         // ignore current word that is being compared
-            //         continue;
-            //     }
-            //     if ((curWord && m[0].lastIndexOf(curWord, 0) === 0) &&
-            //         !Object.prototype.hasOwnProperty.call(seen, m[0])) {
-            //         seen[m[0]] = true;
-            //         list.push(m[0]);
-            //     }
-            // }
 
             if (onlyMainOperators) {
                 for (var i = 0; i < suggestedMainOperators.length; i++) {

@@ -1,4 +1,4 @@
-describe('FnBar', function() {
+describe('FnBar Test', function() {
     var testDs;
     var tableName;
     var prefix;
