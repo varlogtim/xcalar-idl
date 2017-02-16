@@ -1366,11 +1366,10 @@ window.XIApi = (function(XIApi, $) {
     }
 
     function isValidPrefix(prefix) {
-        var regex = "^[a-zA-Z0-9]{1,255}$";
-        var regexp = new RegExp(regex);
-        var isValid = (prefix != null) && (prefix !== "") &&
-                      (regexp.test(prefix));
-        return isValid;
+        if (!prefix || prefix === "") {
+            return false;
+        }
+        return xcHelper.checkNamePattern("prefix", "check", prefix);
     }
 
     function getNewTableName(tableName, affix, rand) {

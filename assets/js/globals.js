@@ -15,7 +15,7 @@ var gMinRowsPerScreen = 60;
 var gFirstRowPositionTop = 60;
 var gNewCellWidth = 125;
 var gMouseStatus = null;
-var gPrefixLimit = 20;
+var gPrefixLimit = 31;
 var gMouseEvents = new MouseEvents();
 var gRescol = {
     "minCellHeight": 25,

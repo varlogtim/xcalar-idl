@@ -615,7 +615,6 @@ window.DFParamModal = (function($, DFParamModal){
         var $editableDivs = $paramPart.find('input.editableParamDiv');
         var $paramInputs = $dfgParamModal.find('input.editableParamDiv');
         var isValid = true;
-        var regex = /^[a-zA-Z0-9_]*$/; // allow alphanumeric and underscores
         var params;
         // check for valid brackets or invalid characters
         $paramInputs.each(function() {
@@ -626,7 +625,8 @@ window.DFParamModal = (function($, DFParamModal){
             }
             params = getParamsInInput($(this));
             for (var i = 0; i < params.length; i++) {
-                isValid = regex.test(params[i]);
+                isValid = !xcHelper.checkNamePattern("param", "check",
+                                                     params[i]);
                 if (!isValid) {
                     StatusBox.show(ErrTStr.NoSpecialCharInParam, $(this));
                     var paramIndex = $(this).val().indexOf(params[i]);

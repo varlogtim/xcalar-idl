@@ -771,7 +771,8 @@ window.DSPreview = (function($, DSPreview) {
                 "formMode": true,
                 "error": ErrTStr.NoSpecialCharOrSpace,
                 "check": function() {
-                    return /[^a-zA-Z0-9_-]/g.test(dsName);
+                    return !xcHelper.checkNamePattern("dataset", "check",
+                                                      dsName);
                 }
             }
         ]);
@@ -913,10 +914,13 @@ window.DSPreview = (function($, DSPreview) {
         var name = paths[splitLen - 1];
 
         // strip the suffix dot part and only keep a-zA-Z0-9.
-        name = name.split(".")[0].replace(/[^a-zA-Z0-9_-]/g, "");
+        name = xcHelper.checkNamePattern("dataset", "fix", name.split(".")[0],
+                                         "");
+
         if (!xcHelper.isStartWithLetter(name) && splitLen > 1) {
             // when starts with number
-            var prefix = paths[splitLen - 2].replace(/[^a-zA-Z0-9_-]/g, "");
+            var prefix = xcHelper.checkNamePattern("dataset", "fix",
+                                                   paths[splitLen - 2], "");
             if (xcHelper.isStartWithLetter(prefix)) {
                 name = prefix + name;
             }

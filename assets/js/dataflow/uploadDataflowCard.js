@@ -49,8 +49,8 @@ window.UploadDataflowCard = (function($, UploadDataflowCard) {
 
     function submitForm() {
         var retName = $dfName.val().trim();
-        var regex = new RegExp("^[a-zA-Z0-9_-]*$");
-        if (!regex.test(retName)) {
+        var valid = xcHelper.checkNamePattern("dataflow", "check", retName);
+        if (!valid) {
             StatusBox.show(ErrTStr.DFNameIllegal, $dfName);
             return;
         }

@@ -244,7 +244,8 @@ window.DFCard = (function($, DFCard) {
                     "$ele": $input,
                     "error": ErrTStr.NoSpecialCharOrSpace,
                     "check": function() {
-                        return xcHelper.hasSpecialChar(paramName);
+                        return !xcHelper.checkNamePattern("param", "check",
+                            paramName);
                     }
                 }
             ]);

@@ -2,8 +2,8 @@
 window.XVM = (function(XVM) {
     var majorVersion = "1";
     var minorVersion = "0";
-    var revisionVersion = "3";
-    var thriftInterfaceVersion = "17";
+    var revisionVersion = "4";
+    var thriftInterfaceVersion = "18";
     var fullVersion = majorVersion + "." + minorVersion + "." +
                         revisionVersion + "." +
                         thriftInterfaceVersion;
@@ -14,8 +14,6 @@ window.XVM = (function(XVM) {
     var licenseMode = "";
     var expirationDate = null;
 
-    // interactive or operational
-    //var licenseMode = XcalarMode.Oper;
 
     XVM.setup = function() {
         kvVersion = currentVersion;
@@ -40,7 +38,7 @@ window.XVM = (function(XVM) {
 
     XVM.getLicenseMode = function() {
         // If you want to test file uploader, uncomment line below
-        // return (XcalarMode.Demo);
+        // return (XcalarMode.Oper);
         return (licenseMode);
     };
 

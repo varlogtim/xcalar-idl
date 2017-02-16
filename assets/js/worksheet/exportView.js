@@ -319,7 +319,8 @@ window.ExportView = (function($, ExportView) {
                 "$ele": $exportName,
                 "error": ErrTStr.NoSpecialChar,
                 "check": function() {
-                    return xcHelper.hasSpecialChar(exportName, null, true);
+                    return !xcHelper.checkNamePattern("export", "check",
+                                                      exportName);
                 }
             },
             {

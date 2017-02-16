@@ -426,7 +426,7 @@ module.exports = {
         "Datasets": "Dataset Refs",
         "DATASET": "DATASET",
         "DSIn": "DATASTORE/IN",
-        "DATACART": "DATA CART",
+        "DATACART": "CREATE NEW TABLE",
         "IN": "IN",
         "OUT": "OUT",
         "in": "in",
@@ -518,12 +518,12 @@ module.exports = {
     },
 
     "dsCart": {
-        "Title": "Data Cart",
+        "Title": "Create New Table",
         "SelectWS": "Select Worksheet",
         "SendTo": "Send To",
         "SENDTOWS": "SEND TO WORKSHEET",
-        "CLEARALL":  "EMPTY DATA CART",
-        "NoCartInstr": "To add a column to the data cart, select a dataset reference on the left and click on the column names that you are interested in inside the center panel."
+        "CLEARALL":  "REMOVE ALL COLUMNS",
+        "NoCartInstr": "To pull a column by default inside the new table, select a dataset reference on the left and click on the column names that you are interested in inside the center panel."
     },
 
     "dsPreview": {

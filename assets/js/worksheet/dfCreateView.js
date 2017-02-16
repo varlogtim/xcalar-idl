@@ -296,8 +296,8 @@ window.DFCreateView = (function($, DFCreateView) {
                 "$ele": $newNameInput,
                 "error": ErrTStr.DFNameIllegal,
                 "check": function() {
-                    var regex = new RegExp("^[a-zA-Z0-9_-]*$");
-                    return !regex.test(dfName);
+                    return !xcHelper.checkNamePattern("dataflow", "check",
+                                                      dfName);
                 }
             }
         ]);

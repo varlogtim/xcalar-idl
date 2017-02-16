@@ -863,7 +863,7 @@ window.DSCart = (function($, DSCart) {
                 "side": "left",
                 "onErr": onPrefixErr,
                 "check": function() {
-                    return (prefix != null && prefix.length >= gPrefixLimit);
+                    return (prefix != null && prefix.length > gPrefixLimit);
                 }
             },
             {
@@ -872,7 +872,8 @@ window.DSCart = (function($, DSCart) {
                 "side": "left",
                 "onErr": onPrefixErr,
                 "check": function() {
-                    return xcHelper.hasInvalidCharInCol(prefix);
+                    return !xcHelper.checkNamePattern("prefix", "check",
+                                                      prefix);
                 }
             }
         ]);

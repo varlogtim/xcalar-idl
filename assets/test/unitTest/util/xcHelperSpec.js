@@ -1083,22 +1083,39 @@ describe('xcHelper Test', function() {
         expect(res).to.equal("abc-2");
     });
 
-    it('xcHelper.hasSpecialChar should work', function() {
+    it('xcHelper.checkNamePattern should work', function() {
         // case 1
-        var res = xcHelper.hasSpecialChar("abc$ 1");
-        expect(res).to.be.true;
+        var res = xcHelper.checkNamePattern("dataset", "fix", "a(F-_&$38", "0");
+        expect(res).to.equal("a0F-_0038");
         // case 2
-        res = xcHelper.hasSpecialChar("abc1");
-        expect(res).to.be.false;
+        res = xcHelper.checkNamePattern("folder", "fix", "a(F-_ &$38)", "0");
+        expect(res).to.equal("a(F00 0038)");
         // case 3
-        res = xcHelper.hasSpecialChar("abc 1", true);
-        expect(res).to.be.false;
+        res = xcHelper.checkNamePattern("param", "fix", "a(F-_ &$38)", "");
+        expect(res).to.equal("aF38");
         // case 4
-        res = xcHelper.hasSpecialChar("abc-1");
-        expect(res).to.be.true;
-        // case 5
-        res = xcHelper.hasSpecialChar("abc-1", null, true);
+        res = xcHelper.checkNamePattern("prefix", "check", "a(F-_ &$38)");
         expect(res).to.be.false;
+        // case 5
+        res = xcHelper.checkNamePattern("prefix", "check", "");
+        expect(res).to.be.false;
+        // case 6
+        res = xcHelper.checkNamePattern("prefix", "check",
+                                        "a012345678901234567890123456789a");
+        expect(res).to.be.false;
+        // case 7
+        res = xcHelper.checkNamePattern("prefix", "check",
+                                        "a01234568901234567890123456789a");
+        expect(res).to.be.true;
+        // case 8
+        function regexEqual(x, y) {
+            return (x instanceof RegExp) && (y instanceof RegExp) &&
+                   (x.source === y.source) && (x.global === y.global) &&
+                   (x.ignoreCase === y.ignoreCase) &&
+                   (x.multiline === y.multiline);
+        }
+        res = xcHelper.checkNamePattern("doesNotExit", "get");
+        expect(regexEqual(res, /^[a-zA-Z0-9_-]+$/)).to.be.true;
     });
 
     it('xcHelper.isValidTableName should work', function() {
