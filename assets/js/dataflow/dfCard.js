@@ -287,7 +287,9 @@ window.DFCard = (function($, DFCard) {
 
     function addListeners() {
         $dfMenu.on('click', '.refreshBtn', function() {
-            xcHelper.showRefreshIcon($(".dfgList"));
+            var $section = $("#dfgMenu .dfgList");
+            $section.addClass("disabled");
+            xcHelper.showRefreshIcon($section);
 
             KVStore.getEmataInfo()
             .then(function(eMeta) {
@@ -303,6 +305,9 @@ window.DFCard = (function($, DFCard) {
                         DF.initialize();
                     });
                 }
+            })
+            .always(function() {
+                $section.removeClass("disabled");
             });
         });
 

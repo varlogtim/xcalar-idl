@@ -418,7 +418,13 @@
 
     @listHeight: 35px;
 
-    .dfgList, .schedulesMenu {
+    .dfgList {
+        &.disabled {
+            .downloadDataflow, .deleteDataflow, .addScheduleToDataflow {
+                pointer-events: none;
+            }
+        }
+
         .listSection {
             height: ~"calc(100% - 75px)";
             overflow-x: hidden;

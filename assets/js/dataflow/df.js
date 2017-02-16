@@ -132,7 +132,15 @@ window.DF = (function($, DF) {
             return saveHelper();
         })
         .then(deferred.resolve)
-        .fail(deferred.reject);
+        .fail(function(error) {
+            if (error.status === StatusT.StatusRetinaNotFound) {
+                // df alreday removed, refresh the btn
+                $("#dfgMenu").find(".refreshBtn").click();
+                deferred.resolve();
+            } else {
+                deferred.reject(error);
+            }
+        });
 
         return deferred.promise();
 
