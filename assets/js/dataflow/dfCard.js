@@ -97,10 +97,20 @@ window.DFCard = (function($, DFCard) {
             $dfCard.find('.leftSection .title').text("");
         } else {
             // must find it again because we refreshed the list
+            var activeFound = false;
             if (activeGroupName) {
-                $dfMenu.find('.listBox').filter(function() {
-                    return ($(this).find('.groupName').text() === activeGroupName);
-                }).closest('.listBox').trigger('click');
+                var $df = $dfMenu.find('.listBox').filter(function() {
+                    return ($(this).find('.groupName').text() ===
+                            activeGroupName);
+                }).closest('.listBox');
+
+                if ($df.length) {
+                    activeFound = true;
+                    $df.trigger('click');
+                }
+            }
+            if (!activeFound) {
+                DFCard.focusFirstDF();
             }
         }
     };
@@ -627,6 +637,7 @@ window.DFCard = (function($, DFCard) {
         }
 
         var ignoreNoExist = true;
+
         getAndUpdateRetinaStatuses(dataflowName, ignoreNoExist)
         .then(function() {
             xcHelper.showRefreshIcon($wrap);
@@ -951,12 +962,12 @@ window.DFCard = (function($, DFCard) {
         } else {
             checkTime = retinaCheckInterval;
         }
+
         setTimeout(function() {
             if (!retinasInProgress[retName]) {
                 // retina is finished, no more checking
                 return;
             }
-
             getAndUpdateRetinaStatuses(retName)
             .always(function() {
                 statusCheckInterval(retName);

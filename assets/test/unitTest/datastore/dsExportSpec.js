@@ -1,4 +1,4 @@
-describe("DSExport", function() {
+describe("DSExport Test", function() {
     var $nameInput;
     var $submitBtn;
     var $targetTypeList;

@@ -380,14 +380,23 @@ window.DSExport = (function($, DSExport) {
             "onConfirm": function() {
                 XcalarRemoveExportTarget(targetName, targetType)
                 .then(function() {
+                    resolveDelete();
+                })
+                .fail(function(error) {
+                    if (error && error.status ===
+                        StatusT.StatusTargetDoesntExist) {
+                        resolveDelete();
+                    } else {
+                        Alert.error(DSExportTStr.DeleteFail, error.error);
+                    }
+                });
+
+                function resolveDelete() {
                     if ($activeIcon.hasClass('active')) {
                         showExportTargetForm();
                     }
                     DSExport.refresh();
-                })
-                .fail(function(error) {
-                    Alert.error(DSExportTStr.DeleteFail, error.error);
-                });
+                }
             }
         });
     }
@@ -519,8 +528,14 @@ window.DSExport = (function($, DSExport) {
         if (activeName && activeType) {
             var $section = $gridView.find('.targetSection[data-type="' +
                                             activeType + '"]');
-            $section.find('.target[data-name="' + activeName + '"]')
-                    .addClass('active');
+            var $activeGrid = $section.find('.target[data-name="' + activeName +
+                                            '"]');
+            if (!$activeGrid.length) {
+                showExportTargetForm();
+            } else {
+                $activeGrid.addClass('active');
+            }
+            
         }
 
         updateNumGrids();

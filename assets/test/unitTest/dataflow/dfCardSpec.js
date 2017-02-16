@@ -70,50 +70,9 @@ describe('DFCard Test', function() {
         for (var i = 0; i<allNames.length; i++) {
             expect(newNames).to.include(allNames[i]);
         }
-
     });
 
     describe('Status Progress check', function() {
-        // using fake xcalarquerystate
-        it('XcalarQueryState should be called when starting status check', function(done) {
-            var cachedFn = XcalarQueryState;
-            var passed = false;
-            var count = 0;
-            XcalarQueryState = function(retName) {
-                count++;
-                passed = true;
-                return PromiseHelper.reject();
-            };
-
-            expect(passed).to.be.false;
-            expect(DFCard.__testOnly__.retinasInProgress[testDfName]).to.be.undefined;
-            DFCard.__testOnly__.startStatusCheck(testDfName);
-            expect(DFCard.__testOnly__.retinasInProgress[testDfName]).to.be.true;
-            expect(passed).to.be.false;
-            expect(count).to.equal(0);
-
-            // wait for xcalarquerystate to be called
-            setTimeout(function() {
-                expect(count).to.equal(1);
-                expect(passed).to.be.true;
-                setTimeout(function() {
-                    // xcalarquerystate should be called continuously until
-                    // endstatuscheck is called
-                    expect(count).to.equal(2);
-
-                    expect(DFCard.__testOnly__.retinasInProgress[testDfName]).to.be.true;
-                    DFCard.__testOnly__.endStatusCheck(testDfName, true);
-                    // ending makes 1 last call to xcalarquerystate
-                    expect(count).to.equal(3);
-                    expect(DFCard.__testOnly__.retinasInProgress[testDfName]).to.be.undefined;
-                    setTimeout(function() {
-                        expect(count).to.equal(3);
-                        XcalarQueryState = cachedFn;
-                        done();
-                    }, 2500);
-                }, 2500);
-            }, 2500);
-        });
 
         // using real xcalarquerystate
         it('dag table statuses should update when executing retina', function(done) {
@@ -132,12 +91,59 @@ describe('DFCard Test', function() {
                     // wait for last xcalarquerystate call to return
                     setTimeout(function() {
                         expect(DFCard.__testOnly__.retinasInProgress[testDfName]).to.be.undefined;
+                        $dfWrap = $('#dfgViz .dagWrap[data-dataflowname="' + testDfName + '"]');
                         expect($dfWrap.find('.dagTable.Created').length).to.equal(0);
                         expect($dfWrap.find('.dagTable.Ready').length).to.equal(3);
+                        done();
                     }, 4000);
-                    done();
                 });
             });
+        });
+
+        // using fake xcalarquerystate
+        it('XcalarQueryState should be called when starting status check', function(done) {
+            var cachedFn = XcalarQueryState;
+            var passed = false;
+            var count = 0;
+            XcalarQueryState = function(retName) {
+                count++;
+                passed = true;
+                return PromiseHelper.reject();
+            };
+
+            expect(passed).to.be.false;
+            expect(DFCard.__testOnly__.retinasInProgress[testDfName]).to.be.undefined;
+            console.warn(Date.now());
+            DFCard.__testOnly__.startStatusCheck(testDfName);
+            expect(DFCard.__testOnly__.retinasInProgress[testDfName]).to.be.true;
+            expect(passed).to.be.false;
+            expect(count).to.equal(0);
+
+            // wait for xcalarquerystate to be called
+            setTimeout(function() {
+                console.warn(Date.now());
+                if (count !== 1) {
+                     DFCard.__testOnly__.endStatusCheck(testDfName, true);
+                }
+                expect(count).to.equal(1);
+                expect(passed).to.be.true;
+                setTimeout(function() {
+                    // xcalarquerystate should be called continuously until
+                    // endstatuscheck is called
+                    expect(count).to.equal(2);
+
+                    expect(DFCard.__testOnly__.retinasInProgress[testDfName]).to.be.true;
+                    DFCard.__testOnly__.endStatusCheck(testDfName, true);
+                    // ending makes 1 last call to xcalarquerystate
+                    expect(count).to.equal(3);
+                    expect(DFCard.__testOnly__.retinasInProgress[testDfName]).to.be.undefined;
+                    setTimeout(function() {
+                        expect(count).to.equal(3);
+                        XcalarQueryState = cachedFn;
+                        done();
+                    }, 2500);
+                }, 2500);
+            }, 1500);
         });
     });
 

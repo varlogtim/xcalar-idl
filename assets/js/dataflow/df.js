@@ -127,16 +127,13 @@ window.DF = (function($, DF) {
         var deferred = jQuery.Deferred();
         XcalarDeleteRetina(dataflowName)
         .then(function() {
-            delete dataflows[dataflowName];
-            DFCard.deleteDF(dataflowName);
-            return saveHelper();
+            return resolveDelete();
         })
         .then(deferred.resolve)
         .fail(function(error) {
-            if (error.status === StatusT.StatusRetinaNotFound) {
-                // df alreday removed, refresh the btn
-                $("#dfgMenu").find(".refreshBtn").click();
-                deferred.resolve();
+            if (error && error.status === StatusT.StatusRetinaNotFound) {
+                resolveDelete()
+                .then(deferred.resolve);
             } else {
                 deferred.reject(error);
             }
@@ -144,8 +141,12 @@ window.DF = (function($, DF) {
 
         return deferred.promise();
 
-        function saveHelper() {
+        function resolveDelete() {
             var innerDeferred = jQuery.Deferred();
+
+            delete dataflows[dataflowName];
+            DFCard.deleteDF(dataflowName);
+
             KVStore.commit()
             .always(innerDeferred.resolve);
 
