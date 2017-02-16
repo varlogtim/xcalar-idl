@@ -12,15 +12,16 @@
     "url": "git@git:/gitrepos/xcalar-gui.git"
   },
   "dependencies": {
-    "express": "^4.13.4",
-    "shelljs": "^0.6.0",
+    "atob": "^2.0.3",
+    "aws-sdk": "*",
     "body-parser": "^1.15.0",
-    "ldapjs": "^1.0.0",
+    "crypto": "^0.0.3",
+    "express": "^4.13.4",
     "jquery": "^1.5.1",
     "jsdom": "^1.2.1",
-    "crypto": "^0.0.3",
-    "ssl-root-cas": "^1.2.3",
-    "aws-sdk": "*"
+    "ldapjs": "^1.0.0",
+    "shelljs": "^0.6.0",
+    "ssl-root-cas": "^1.2.3"
   },
   "license": "UNLICENSED",
   "devDependencies": {}

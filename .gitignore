@@ -9,6 +9,7 @@
 *.DS_Store
 /prod/*
 /node_modules/*
+/services/**/node_modules/*
 index.html
 unitTest.html
 install.html
@@ -22,3 +23,4 @@ dashboard.html
 /services/expServer/*.tar.gz
 /assets/help/user/Content/SearchInsight.htm
 /assets/help/admin/Content/SearchInsight.htm
+/services/test/report/*

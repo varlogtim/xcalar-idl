@@ -135,17 +135,21 @@ module.exports = function(grunt) {
         }
       },
     },
-    concurrent: {
-            options: {
-                logConcurrentOutput: true
-            },
-            set1: ['customWatch:withReload', 'customWatch:normal'],
-            set2: ['customWatch:withReloadCssOnly', 'customWatch:normal'],
-            set3: [ 'customWatch:normal', 'customWatch:less'],
-            set4: ['customWatch:withReload', 'customWatch:normal', 'customWatch:less'],
-            set5: ['customWatch:withReloadCssOnly', 'customWatch:normal','customWatch:less'],
-        },
 
+    concurrent: {
+      options: {
+        logConcurrentOutput: true
+      },
+      set1: ['customWatch:withReload', 'customWatch:normal'],
+      set2: ['customWatch:withReloadCssOnly', 'customWatch:normal'],
+      set3: [ 'customWatch:normal', 'customWatch:less'],
+      set4: ['customWatch:withReload', 'customWatch:normal', 'customWatch:less'],
+      set5: ['customWatch:withReloadCssOnly', 'customWatch:normal','customWatch:less'],
+    },
+
+    exec: {
+      expServer: 'node_modules/istanbul/lib/cli.js cover node_modules/mocha/bin/_mocha services/test/expServerSpec/**/*.spec.js services/expServer/*.js --dir services/test/report'
+    }
   });
 
   grunt.loadNpmTasks('grunt-script-link-tags');
@@ -157,6 +161,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-prettify');
   grunt.loadNpmTasks('grunt-concurrent');
   grunt.loadNpmTasks('grunt-contrib-less');
+  grunt.loadNpmTasks('grunt-exec');
 
   grunt.registerTask('html', ['includes']);
   grunt.registerTask('template', function() {
@@ -176,4 +181,5 @@ module.exports = function(grunt) {
 
   // used for dev
   grunt.registerTask("dev", ['html', 'template', 'clean', 'tags', 'htmlmin', 'prettify']);
+  grunt.registerTask("test", ['exec:expServer']);
 };
