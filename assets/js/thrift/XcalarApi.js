@@ -2624,7 +2624,7 @@ xcalarUpdateLicenseWorkItem = runEntity.xcalarUpdateLicenseWorkItem = function(l
     workItem.api = XcalarApisT.XcalarApiUpdateLicense;
 
     return(workItem);
-};
+}
 
 xcalarUpdateLicense = runEntity.xcalarUpdateLicense = function(thriftHandle, licenseKey) {
     var deferred = jQuery.Deferred();
@@ -2636,7 +2636,6 @@ xcalarUpdateLicense = runEntity.xcalarUpdateLicense = function(thriftHandle, lic
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
-
         var status = result.output.hdr.status;
         if (result.jobStatus != StatusT.StatusOk) {
             status = result.jobStatus;
@@ -2644,7 +2643,6 @@ xcalarUpdateLicense = runEntity.xcalarUpdateLicense = function(thriftHandle, lic
         if (status != StatusT.StatusOk) {
             deferred.reject(status);
         }
-        console.log(status);
         deferred.resolve(status);
     })
     .fail(function(error) {
@@ -2653,7 +2651,7 @@ xcalarUpdateLicense = runEntity.xcalarUpdateLicense = function(thriftHandle, lic
     });
 
     return(deferred.promise());
-};
+}
 
 xcalarKeyAppendWorkItem = runEntity.xcalarKeyAppendWorkItem = function(scope, key, suffix) {
     var workItem = new WorkItem();

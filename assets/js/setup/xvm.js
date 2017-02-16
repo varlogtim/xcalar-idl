@@ -104,7 +104,7 @@ window.XVM = (function(XVM) {
             }
         })
         .fail(function(ret) {
-            if (ret && ret.status === StatusT.StatusSessionActiveElsewhere) {
+            if (ret && ret.status === StatusT.StatusSessionUsrActiveElsewhere) {
                 deferred.reject(ret);
             } else {
                 deferred.reject({error: ThriftTStr.CCNBE});

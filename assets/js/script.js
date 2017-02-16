@@ -198,7 +198,7 @@ window.StartManager = (function(StartManager, $) {
                     }],
                     "hideButtons": ['copySql']
                 });
-            } else if (error.status === StatusT.StatusSessionActiveElsewhere) {
+            } else if (error.status === StatusT.StatusSessionUsrActiveElsewhere) {
                 title = ThriftTStr.SessionElsewhere;
                 Alert.error(title, error.error + '\n' +
                             ThriftTStr.LogInDifferent,
