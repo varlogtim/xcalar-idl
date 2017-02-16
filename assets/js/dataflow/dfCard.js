@@ -366,12 +366,9 @@ window.DFCard = (function($, DFCard) {
             Scheduler.setDataFlowName(dataflowName);
             if (DF.hasSchedule(dataflowName)) {
                 Scheduler.showScheduleDetailView();
-                Scheduler.hideNewScheduleFormView();
             } else {
                 Scheduler.hideScheduleDetailView();
-                Scheduler.hideNewScheduleFormView();
             }
-            $createScheduleView.show();
             $scheduleDetailView.show();
         });
 
@@ -388,6 +385,7 @@ window.DFCard = (function($, DFCard) {
                 'msg': DFTStr.DelDFMsg,
                 'onConfirm': function() {
                     deleteDataflow(retName);
+                    Scheduler.hideScheduleDetailView();
                 }
             });
         });
@@ -396,14 +394,7 @@ window.DFCard = (function($, DFCard) {
             // doesn't have schedule, show schedule
             var groupName = $(this).siblings('.groupName').text();
             Scheduler.setDataFlowName(groupName);
-            if (DF.hasSchedule(groupName)) {
-                Scheduler.showScheduleDetailView();
-                Scheduler.hideNewScheduleFormView();
-            } else {
-                Scheduler.hideScheduleDetailView();
-                Scheduler.showNewScheduleFormView();
-            }
-            $createScheduleView.show();
+            Scheduler.showScheduleDetailView();
             $scheduleDetailView.show();
         });
 

@@ -1,9 +1,7 @@
 window.Scheduler = (function(Scheduler, $) {
     var $dfgView;          // $("#dataflowView");
-    var $newScheduleForm;  // $("#newScheduleForm");
     var $modScheduleForm;  // $('#modifyScheduleForm');
     var $scheduleDetail;   // $("#scheduleDetail");
-    var $newTimePicker;    // $("#newScheduler-timePicker");
     var $modTimePicker;    // $("#modScheduler-timePicker");
 
     // constant
@@ -40,44 +38,19 @@ window.Scheduler = (function(Scheduler, $) {
     Scheduler.setup = function() {
         $dfgView = $("#dataflowView");
         $scheduleDetail = $("#scheduleDetail");
-        $newScheduleForm = $("#newScheduleForm");
         $modScheduleForm = $('#modifyScheduleForm');
-        $newTimePicker = $("#newScheduler-timePicker");
         $modTimePicker = $("#modScheduler-timePicker");
-
-        $newScheduleForm.find('.close').on('click', function() {
-            $newScheduleForm.addClass('xc-hidden');
-        });
 
         $scheduleDetail.find('.close').on('click', function() {
             $scheduleDetail.addClass('xc-hidden');
         });
 
-        var $newTimeSection = $newScheduleForm.find(".timeSection");
-        var $newDateInput = $newTimeSection.find(".date");
-        var $newTimeInput = $newTimeSection.find(".time");
         var $modTimeSection = $modScheduleForm.find(".timeSection");
         var $modDateInput = $modTimeSection.find(".date");
         var $modTimeInput = $modTimeSection.find(".time");
-        var $dateInputs = $newDateInput.add($modDateInput);
-        var $timePickers = $newTimePicker.add($modTimePicker);
+        var $timePickers = $modTimePicker;
+        var $dateInputs = $modDateInput;
 
-
-        // minDate attr disable the date before today
-        $newDateInput.datepicker({
-            "showOtherMonths": true,
-            "dateFormat": "m/d/yy",
-            "dayNamesMin": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-            "minDate": 0,
-            "beforeShow": function() {
-                if ($newDateInput.val() === "") {
-                    $newDateInput.datepicker("setDate", new Date());
-                }
-                var $el = $("#ui-datepicker-div");
-                $el.addClass("schedulerDatePicker")
-                    .appendTo($newTimeSection.find(".datePickerPart"));
-            }
-        });
         $modDateInput.datepicker({
             "showOtherMonths": true,
             "dateFormat": "m/d/yy",
@@ -94,14 +67,15 @@ window.Scheduler = (function(Scheduler, $) {
         });
 
 
-        $dateInputs.on("keydown", function() {
-            // no input event
-            return false;
-        });
-
-        $newTimeInput.on({
+        $modDateInput.on({
             "focus": function() {
-                toggleTimePicker($newScheduleForm, true);
+                // toggleTimePicker($modScheduleForm, true);
+                $(this).parent().parent().children(".icon-wrap")
+                .addClass("active");
+            },
+            "focusout": function() {
+                $(this).parent().parent().children(".icon-wrap")
+                .removeClass("active");
             },
             "keydown": function() {
                 // no input event
@@ -112,6 +86,12 @@ window.Scheduler = (function(Scheduler, $) {
         $modTimeInput.on({
             "focus": function() {
                 toggleTimePicker($modScheduleForm, true);
+                $("#modifyScheduleForm").find(".timePickerPart")
+                .find(".icon-wrap").addClass("active");
+            },
+            "focusout": function() {
+                $("#modifyScheduleForm").find(".timePickerPart")
+                .find(".icon-wrap").removeClass("active");
             },
             "keydown": function() {
                 // no input event
@@ -119,7 +99,7 @@ window.Scheduler = (function(Scheduler, $) {
             }
         });
 
-        $timePickers.on("click", ".btn", function() {
+        $modTimePicker.on("click", ".btn", function() {
             var $btn = $(this);
             var isIncrease = $btn.hasClass("increase");
             var type;
@@ -131,11 +111,10 @@ window.Scheduler = (function(Scheduler, $) {
             } else {
                 type = "ampm";
             }
-
             changeTime(type, isIncrease, $form);
         });
 
-        $timePickers.on("input", "input", function() {
+        $modTimePicker.on("input", "input", function() {
             var $input = $(this);
             var type;
             var $form = $input.closest('.scheduleForm');
@@ -153,7 +132,7 @@ window.Scheduler = (function(Scheduler, $) {
         // frequent section event
         var $freqSection = $dfgView.find(".frequencySection");
         xcHelper.optionButtonEvent($freqSection, function() {
-            var $datepickerPart = $newTimeSection.find(".datePickerPart");
+            var $datepickerPart = $modTimeSection.find(".datePickerPart");
             $datepickerPart.removeClass("inActive");
         });
 
@@ -170,14 +149,6 @@ window.Scheduler = (function(Scheduler, $) {
             });
         });
 
-        $("#newScheduleForm-save").click(function() {
-            $(this).blur();
-            if (saveScheduleForm($newScheduleForm, currentDataFlowName)) {
-                Scheduler.hideNewScheduleFormView();
-                Scheduler.showScheduleDetailView();
-            }
-        });
-
         $("#modScheduleForm-save").click(function() {
             $(this).blur();
             if (saveScheduleForm($modScheduleForm, currentDataFlowName)) {
@@ -185,16 +156,28 @@ window.Scheduler = (function(Scheduler, $) {
             }
         });
 
-        $("#newScheduleForm-cancel").click(function() {
-            $(this).blur();
-            // resetScheduleForm($newScheduleForm);
-            resetCreateNewScheduleForm();
-            Scheduler.hideScheduleDetailView();
-        });
         $("#modScheduleForm-cancel").click(function() {
             $(this).blur();
             var schedule = DF.getSchedule(currentDataFlowName);
             resetModifiedScheduleForm(schedule);
+        });
+
+        $("#scheduleDetail .simpleModeTab").click(function() {
+            $(this).addClass("active");
+            $("#scheduleDetail .advancedModeTab").removeClass("active");
+            $("#scheduleDetail .advancedMode").addClass("xc-hidden");
+            $("#scheduleDetail .simpleMode").removeClass("xc-hidden");
+            $("#middle-left-border").addClass("active");
+            $("#middle-right-border").removeClass("active");
+        });
+
+        $("#scheduleDetail .advancedModeTab").click(function() {
+            $(this).addClass("active");
+            $("#scheduleDetail .simpleModeTab").removeClass("active");
+            $("#scheduleDetail .advancedMode").removeClass("xc-hidden");
+            $("#scheduleDetail .simpleMode").addClass("xc-hidden");
+            $("#middle-left-border").removeClass("active");
+            $("#middle-right-border").addClass("active");
         });
 
         schedDetailTabs();
@@ -204,9 +187,20 @@ window.Scheduler = (function(Scheduler, $) {
         currentDataFlowName = groupName;
     };
 
-    Scheduler.showNewScheduleFormView = function () {
-        resetCreateNewScheduleForm();
-        $newScheduleForm.removeClass("xc-hidden");
+    function lockCard() {
+        $scheduleDetail.find(".cardLocked").show();
+    }
+
+    function unlockCard() {
+        $scheduleDetail.find(".cardLocked").hide();
+    }
+
+    Scheduler.showScheduleDetailView = function () {
+        var schedule = DF.getSchedule(currentDataFlowName);
+        fillInScheduleDetail(schedule);
+        resetModifiedScheduleForm(schedule);
+        $scheduleDetail.removeClass("xc-hidden");
+        $modScheduleForm.removeClass("xc-hidden");
         if (XVM.getLicenseMode() === XcalarMode.Mod) {
             lockCard();
         } else {
@@ -214,32 +208,9 @@ window.Scheduler = (function(Scheduler, $) {
         }
     };
 
-    Scheduler.showScheduleDetailView = function () {
-        var schedule = DF.getSchedule(currentDataFlowName);
-        if (!schedule) {
-            return;
-        }
-        fillInScheduleDetail(schedule);
-        resetModifiedScheduleForm(schedule);
-        $scheduleDetail.removeClass("xc-hidden");
-        $modScheduleForm.removeClass("xc-hidden");
-    };
-
     Scheduler.hideScheduleDetailView = function () {
         $scheduleDetail.addClass("xc-hidden");
     };
-
-    Scheduler.hideNewScheduleFormView = function () {
-        $newScheduleForm.addClass("xc-hidden");
-    };
-
-    function lockCard() {
-        $newScheduleForm.find(".cardLocked").show();
-    }
-
-    function unlockCard() {
-        $newScheduleForm.find(".cardLocked").hide();
-    }
 
     function newScheduleIcon (dataflowName) {
         $span = $("span").filter(function() { return ($(this).text() === dataflowName);});
@@ -255,36 +226,32 @@ window.Scheduler = (function(Scheduler, $) {
         $addScheduleIcon.removeClass('xi-menu-add-scheduler');
     }
 
-    function resetCreateNewScheduleForm () {
-        var $timeSection = $newScheduleForm.find(".timeSection");
-        var $freqSection = $newScheduleForm.find(".frequencySection");
-        var $checkBox = $newScheduleForm.find(".radioButton").eq(0);
-        var $recurInput = $newScheduleForm.find(".recurSection input");
-
-        $timeSection.find(".datePickerPart").removeClass("inActive")
-                    .find(".date").val("");
-        $timeSection.find(".time").val("").removeData("date");
-        $newTimePicker.hide().removeData("date");
-        $freqSection.find(".radioButton.active").removeClass("active");
-        $checkBox.click();
-        $recurInput.val("");
-    }
-
     function resetModifiedScheduleForm (schedule) {
         var $timeSection = $modScheduleForm.find(".timeSection");
         var $freqSection = $modScheduleForm.find(".frequencySection");
-        var $checkBox = $freqSection.find('.radioButton[data-option="' +
-                                            schedule.repeat + '"]');
-        var $recurInput = $modScheduleForm.find(".recurSection input");
-
-        $timeSection.find(".datePickerPart").removeClass("inActive")
+        if (schedule) {
+            var $checkBox = $freqSection.find('.radioButton[data-option="' +
+                                schedule.repeat + '"]');
+            $timeSection.find(".datePickerPart").removeClass("inActive")
                     .find(".date").val(schedule.dateText);
-        var date = new Date(schedule.startTime);
-        $timeSection.find(".time").val(schedule.timeText)
-                    .data("date", date);
-        $freqSection.find(".radioButton.active").removeClass("active");
-        $checkBox.click();
-        $recurInput.val(schedule.recur);
+            var date = new Date(schedule.startTime);
+            $timeSection.find(".time").val(schedule.timeText)
+                        .data("date", date);
+            $freqSection.find(".radioButton.active").removeClass("active");
+            $checkBox.click();
+            $("#scheduleDetail").find(".cardHeader").find(".title").text(SchedTStr.detail);
+            $("#modScheduleForm-cancel").text(SchedTStr.revert);
+        } else {
+            var $checkBox = $modScheduleForm.find(".radioButton").eq(0);
+            $timeSection.find(".datePickerPart").removeClass("inActive")
+                .find(".date").val("");
+            $timeSection.find(".time").val("").removeData("date");
+            $modTimePicker.hide().removeData("date");
+            $freqSection.find(".radioButton.active").removeClass("active");
+            $checkBox.click();
+            $("#scheduleDetail").find(".cardHeader").find(".title").text("Create New Schedule");
+            $("#modScheduleForm-cancel").text(AlertTStr.CANCEL);
+        }
     }
 
 // Control the Tabs at the column of schedule Detail
@@ -293,7 +260,6 @@ window.Scheduler = (function(Scheduler, $) {
     function saveScheduleForm($form, dataflowName) {
         var $scheduleDate = $form.find(".timeSection .date");
         var $scheduleTime = $form.find(".timeSection .time");
-        var $scheduleRecur = $form.find(".recurSection input");
         // validation
         var isValid;
 
@@ -319,29 +285,10 @@ window.Scheduler = (function(Scheduler, $) {
             return false;
         }
 
-        isValid = xcHelper.validate([
-            {
-                "$ele": $scheduleRecur,
-                "text": ErrTStr.PositiveInteger,
-                "check": function() {
-                    var num = $scheduleRecur.val();
-                    if (isNaN(num)) {
-                        return true;
-                    } else {
-                        if (Number.isInteger(Number(num)) && Number(num) > 0) {
-                            return false;
-                        }
-                        return true;
-                    }
-                }
-            },
-        ]);
-
         if (!isValid) {
             return false;
         }
 
-        var recur = Number($scheduleRecur.val().trim());
         var date = $scheduleDate.val().trim();
         var time = $scheduleTime.val().trim();
         var timeObj = $scheduleTime.data("date");
@@ -367,8 +314,7 @@ window.Scheduler = (function(Scheduler, $) {
             "dateText": date,
             "timeText": time,
             "repeat": repeat,
-            "modified": currentTime,
-            "recur": recur
+            "modified": currentTime
         };
 
         DF.addScheduleToDataflow(dataflowName, options);
@@ -386,28 +332,29 @@ window.Scheduler = (function(Scheduler, $) {
 
         // Update the schedule detail card
         // Created
-        text = getTime(schedule.created) || "N/A";
+        text = schedule && getTime(schedule.created) ?
+            getTime(schedule.created) : "N/A";
         $scheduleInfos.find(".created .text").text(text);
         // Last modified
-        text = getTime(schedule.modified) || "N/A";
+        text = schedule && getTime(schedule.modified) ?
+            getTime(schedule.modified) : "N/A";
         $scheduleInfos.find(".modified .text").text(text);
         // Frequency
-        text = schedule.repeat || "N/A";
+        text = schedule && schedule.repeat ? schedule.repeat : "N/A";
         $scheduleInfos.find(".frequency .text").text(text);
-        // Repeat Time
-        text = schedule.recur || "N/A";
-        $scheduleInfos.find(".recur .text").text(text);
         // Last run
-        text = getTime(schedule.lastRun) || "N/A";
+        text = schedule && getTime(schedule.lastRun) ?
+            getTime(schedule.lastRun) : "N/A";
         $scheduleInfos.find(".lastRunInfo .text").text(text);
         // Next run
-        text = getTime(schedule.startTime) || "N/A";
+        text = schedule && getTime(schedule.startTime) ?
+            getTime(schedule.startTime) : "N/A";
         $scheduleInfos.find(".nextRunInfo .text").text(text);
     }
 
     function schedDetailTabs() {
         var $scheduleInfos = $('#scheduleInfos');
-        var $tabs = $scheduleInfos.find('.tab');
+        var $tabs = $('.tabArea').find('.tab');
         $tabs.click(function() {
             var $tab = $(this);
             if ($tab.hasClass('active')) {
@@ -420,11 +367,12 @@ window.Scheduler = (function(Scheduler, $) {
             $scheduleInfos.find('.scheduleInfoSection').eq(index)
                                                 .removeClass('xc-hidden');
             if (index === 0) {
-                $modScheduleForm.removeClass('xc-hidden');
-                $scheduleInfos.height("160px");
+                $("#scheduleDetail").find(".border").removeClass('xc-hidden');
+                $("#scheduleDetail").find(".lowerArea").removeClass('xc-hidden');
+                $("#scheduleDetail").find(".simpleModeTab").addClass("active");
             } else {
-                $scheduleInfos.height($scheduleDetail.height());
-                $modScheduleForm.addClass('xc-hidden');
+                $("#scheduleDetail").find(".border").addClass('xc-hidden');
+                $("#scheduleDetail").find(".lowerArea").addClass('xc-hidden');
             }
         });
     }

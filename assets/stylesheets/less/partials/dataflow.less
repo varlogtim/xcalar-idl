@@ -638,11 +638,10 @@
             &:before {
                 content: '';
                 display: inline-block;
-                width: ~"calc(50% - 335px)";
             }
         }
 
-        @label-width: 130px;
+        @label-width: 180px;
 
         .label {
             .size(@width: @label-width);
@@ -666,6 +665,31 @@
 
         .timeWrapper {
             width: ~"calc(100% - @{label-width})";
+            .input-wrap {
+                width: 180px;
+                height: 30px;
+                background-color: @color-bg-white-three;
+                display: inline-block;
+                float: left;
+            }
+            .icon-wrap {
+                width: 30px;
+                height: 30px;
+                background-color: @color-bg-white-three;
+                display: inline-block;
+                border: solid 1px @color-table-hoverBg-gray;
+                border-left: none;
+                .icon {
+                    color: @color-bg-white-two;
+                    margin-top: 5px;
+                    font-size: 18px;
+                }
+                &.active {
+                    background-color: @color-white;
+                    border: solid 1px  @color-border-softBlue;
+                    border-left: none;
+                }
+            }
         }
 
         .timeSection {
@@ -751,15 +775,18 @@
         }
 
         .frequencySection {
-
             // for radio part
             .radioButtonGroup {
-                .size(@width: ~"calc(100% - @{label-width})", @height: auto);
+                .size(@width: ~"calc(100% - @{label-width})");
                 display: block;
+                overflow: hidden;
                 .radioButton {
                     display: inline-block;
                     height: 30px;
                     float: left;
+                    width: 20%;
+                    min-width: 145px;
+                    max-width: 150px;
                     &:last-child {
                         .label {
                             margin-right: 0px;
@@ -820,203 +847,16 @@
             top: 28px !important;
             left: 0 !important;
             z-index: 3 !important;
-        }
-    }
-
-
-    #scheduleInfos {
-
-        .flex-display;
-        padding-top: 0px;
-        border-bottom: 1px solid @color-border-pinkish-grey2;
-
-        .tabArea {
-            @tabSize: 40px;
-            width: @tabSize;
-            min-height: 160px;
-            background-color: @color-bg-white-three;
-            border-right: 1px solid @color-border-pinkish-grey2;
-            .tab {
-                width: 100%;
-                height: @tabSize;
-                border-bottom: 1px solid @color-border-pinkish-grey2;
-                text-align: center;
-                float: left;
-
-                .icon {
-                    cursor: pointer;
-                }
-
-                .iconWrap {
-                    // background-color: @color-bg-pinkish-grey;
-                    background-color: @color-bg-select-blue;
-                    border-radius: 2px;
-                    opacity: 0.3;
-                }
-
-                &.active {
-                    background-color: @color-white;
-                    border-right-width: 0px;
-                    width: @tabSize + 1px;
-                    border-bottom-width: 0px;
-
-                    .iconWrap {
-                        background-color: @color-bg-select-blue;
-                        opacity: 1.0;
-                    }
-                    + .tab {
-                         border-top: 1px solid @color-border-pinkish-grey2;
-                    }
-                    .xi-info-rectangle {
-                        color: @color-bg-select-blue;
-                        background-color: @color-white;
-                        opacity: 1.0;
-                    }
-                }
-
-                &.hover {
-                    .iconWrap {
-                        background-color: @color-bg-select-blue;
-                        opacity: 0.8;
-                    }
-                }
-
-                &.default {
-                    .iconWrap {
-                        // background-color: @color-white;
-                        background-color: @color-bg-select-blue;
-                    }
-                }
-
-                &:not(.default) {
-                    .icon {
-                        font-size: 14px;
-                    }
-                }
-
-                &:last-child {
-                    position: relative;
-                    top: 1px;
-                }
-
-                &.xc-disabled {
-                    opacity: 1 !important;
-                    border-bottom-width: 0px;
-                }
-            }
-
-            .iconWrap {
-                .size(20px, 20px);
-                margin-top: 10px;
-                margin-left: 10px;
-            }
-
-            .xi-info-rectangle {
-                // color: @color-bg-pinkish-grey;
-                background-color: @color-bg-pinkish-grey;
-                color: @color-bg-select-blue;
-            }
-
-            // .icon {
-            //     line-height: @tabSize;
-            // }
+            width: 100%
         }
 
-        .mainArea {
-            padding: 20px 16px 0px 40px;
-            .flex(1 0 200px);
-
-            h2 {
-                display: block;
-                height: 25px;
-                // .font(@size: 19px, @line-height: 25px, @weight: bold, @color: @color-text-blue);
-                margin-bottom: 12px;
-                .textOverflowOneLine;
-                width: ~"calc(100% - 70px)";
-            }
-
-            .xi-trash {
-                font-size: 18px;
-            }
-
-            .defaultSection {
-                position: relative;
-                #modScheduleForm-delete {
-                    position: absolute;
-                    right: 24px;
-                    top: -41px;
-                }
-            }
-
-            .infoSection {
-                margin-top: 10px;
-
-                .group {
-                    max-width: 600px;
-                    margin-right: 24px;
-                    margin-bottom: 20px;
-                    border: 0 solid @color-border-white-two;
-                    border-width: 0 0 0px 1px;
-                    .flex-display;
-                    flex-wrap: wrap;
-                    float: left;
-                }
-
-                .column {
-                    max-width: 340px;
-                    float: left;
-                    flex: 2 1 340px;
-                    border-bottom: 1px solid @color-border-white-two;
-
-                    &:last-child {
-                        flex: 1 1 230px;
-                    }
-                    .row {
-                        .size(@width: 100%, @height: 40px);
-                        .font(@size: 14px, @line-height: 40px, @weight: 600, @color: @color-font-greyish-brown);
-                        float: left;
-                        border: 0 solid @color-border-white-two;
-                        border-width: 1px 1px 0 0;
-                        background-color: @color-bg-white-seven;
-                        overflow: hidden;
-                    }
-
-                    .name, .text {
-                        padding: 0 8px;
-                    }
-                    .name {
-                        display: inline-block;
-                        width: 116px;
-                        border-right: 1px solid @color-border-white-two;
-                        background-color: @color-white;
-                    }
-
-                    .text {
-                        text-transform: capitalize;
-                        color: @color-font-select-blue;
-
-                    }
-
-                    &.runInfo {
-                        border: 0 solid @color-border-white-two;
-                        border-width: 0 0 1px 1px;
-                        overflow: hidden;
-                        margin-bottom: 20px;
-                    }
-                }
-            }
+        .ui-datepicker-calendar {
+            width: 100%;
         }
-    }
 
-    #modifyScheduleForm {
-        padding-top: 0px;
-        &.inActive {
-            pointer-events: none;
-            opacity: @opacity-disabled;
-        }
-        .nameSection {
-            pointer-events: none;
-            opacity: @opacity-unhover;
+        #modScheduler-timePicker, #newScheduler-timePicker {
+            width: 100%;
+            padding-left: 12px;
         }
     }
 
@@ -1049,8 +889,378 @@
             }
         }
     }
+
+    .upperArea, .lowerArea {
+        padding: 20px 40px 0px 40px;
+        overflow: hidden;
+    }
 }
 
 #scheduleInfos {
-     overflow: auto;
+    height: 415px;
+}
+
+#scheduleDetail {
+    overflow: hidden;
+    .cardMain {
+        margin-top: 0px;
+        padding-top: 0px;
+        height: 400px;
+        min-width: 650px;
+    }
+
+    #scheduleInfos {
+        display: inline-block;
+        float: left;
+        width: ~"calc(100% - 40px)";
+        height: 100%;
+        padding-top: 0px;
+        .upperArea {
+            .heading {
+                color: @color-bg-select-blue;
+            }
+        }
+        .lowerArea {
+            padding-top: 0px;
+            height: 230px;
+            #modifyScheduleForm {
+                padding-top: 34px;
+                height: 100%;
+                .advancedMode {
+                    height: 100%;
+                    .icon {
+                        color: @color-bg-select-blue;
+                        display: inline-block;
+                        float: left;
+                    }
+                    .text {
+                        padding-left: 10px;
+                        overflow: hidden;
+                    }
+                    .scheduleSection {
+                        // margin-top: 20px;
+                        display: flex;
+                        align-items: center;
+                        height: ~"calc(100% - 60px)";
+                        .leftArea, .rightArea {
+                            width: 50%;
+                            min-width: 260px;
+                            display: inline-block;
+                            float: left;
+                            display: flex;
+                        }
+                        .input-wrap {
+                            width: ~"calc(100% - 80px)";
+                            display: inline-block;
+                            float: left;
+                            display: flex;
+                        }
+                        .scheduleLabel {
+                            width: 80px;
+                            display: inline-block;
+                            float: left;
+                            margin-bottom: 10px;
+                            line-height: 36px;
+                        }
+                        #cronScheduler {
+                            height: 36px;
+                            width: ~"calc(100% - 170px)";
+                            min-width: 90px;
+                            margin-bottom: 10px;
+                            margin-right:10px;
+                            margin-top: 0px;
+                            flex: 1 0 90px;
+                        }
+                        #modScheduleForm-simulate {
+                            width: ~"calc(100% - 90px)";
+                            padding-right: 0px;
+                            max-width: 150px;
+                            margin-left: 0px;
+                            padding-left: 0px;
+                            flex: 1 0 90px;
+                        }
+                        .column {
+                            float: right;
+                            margin-left: 30px;
+                            border-bottom: 1px solid @color-border-white-two;
+                            border-left: 1px solid @color-border-white-two;
+                            min-width: 230px;
+                            &:last-child {
+                                flex: 1 1 230px;
+                            }
+                            .row {
+                                .size(@width: 100%, @height: 40px);
+                                .font(@size: 14px, @line-height: 40px, @weight: 600, @color: @color-font-greyish-brown);
+                                float: left;
+                                border: 0 solid @color-border-white-two;
+                                border-width: 1px 1px 0 0;
+                                background-color: @color-bg-white-seven;
+                                overflow: hidden;
+                            }
+
+                            .name, .text {
+                                padding: 0 8px;
+                            }
+                            .name {
+                                display: inline-block;
+                                width: 80px;
+                                border-right: 1px solid @color-border-white-two;
+                                background-color: @color-white;
+                            }
+
+                            .text {
+                                width: 165px;
+                                text-transform: capitalize;
+                                color: @color-font-select-blue;
+
+                            }
+
+                            &.runInfo {
+                                border: 0 solid @color-border-white-two;
+                                border-width: 0 0 1px 1px;
+                                overflow: hidden;
+                                margin-bottom: 20px;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        .border {
+            #left-border, #right-border {
+                background-color: @color-border-white-two;
+                width: 40px;
+                height: 1px;
+                float: left;
+                display: inline-block;
+            }
+            #middle-left-border, #middle-right-border{
+                background-color: @color-border-white-two;
+                width: ~"calc(50% - 40px)";
+                min-width: 255px;
+                height: 1px;
+                float: left;
+                display: inline-block;
+                &.active {
+                    background-color: @color-white;
+                }
+            }
+        }
+
+        h2 {
+            display: block;
+            height: 25px;
+            // .font(@size: 19px, @line-height: 25px, @weight: bold, @color: @color-text-blue);
+            margin-bottom: 12px;
+            .textOverflowOneLine;
+            width: ~"calc(100% - 70px)";
+        }
+
+        .xi-trash {
+            font-size: 18px;
+        }
+
+        .defaultSection {
+            position: relative;
+        }
+
+        .infoSection {
+            margin-top: 10px;
+            width: 100%;
+
+            .group {
+                width: 100%;
+                min-width: 541px;
+                margin-right: 24px;
+                margin-bottom: 20px;
+                border: 0 solid @color-border-white-two;
+                border-width: 0 0 0px 1px;
+                .flex-display;
+                flex-wrap: wrap;
+                float: left;
+            }
+
+            .column {
+                width: 33%;
+                float: left;
+                border-bottom: 1px solid @color-border-white-two;
+                min-width: 270px;
+                max-width: 540px;
+                &:last-child {
+                    flex: 1 1 230px;
+                }
+                .row {
+                    .size(@width: 100%, @height: 40px);
+                    .font(@size: 14px, @line-height: 40px, @weight: 600, @color: @color-font-greyish-brown);
+                    float: left;
+                    border: 0 solid @color-border-white-two;
+                    border-width: 1px 1px 0 0;
+                    background-color: @color-bg-white-seven;
+                    overflow: hidden;
+                }
+
+                .name, .text {
+                    padding: 0 8px;
+                }
+                .name {
+                    display: inline-block;
+                    width: 109px;
+                    border-right: 1px solid @color-border-white-two;
+                    background-color: @color-white;
+                }
+
+                .text {
+                    text-transform: capitalize;
+                    color: @color-font-select-blue;
+
+                }
+
+                &.runInfo {
+                    border: 0 solid @color-border-white-two;
+                    border-width: 0 0 1px 1px;
+                    overflow: hidden;
+                    margin-bottom: 20px;
+                }
+            }
+        }
+
+        .tabs {
+            width: 100%;
+            min-width: 430px;
+            font-weight: 800;
+            .tab {
+                width: 50%;
+                height: 40px;
+                float: left;
+                border: 1px solid @color-border-white-two;
+                display:inline-block;
+                text-align: center;
+                font-size: 16px;
+                padding-top: 10px;
+                background-color: @color-bg-white-three;
+                color: @color-border-pinkish-grey;
+                border-bottom: none;
+                &.active {
+                    background-color: @color-white;
+                    color: @color-black;
+                    border-bottom: none;
+                }
+            }
+        }
+    }
+    .tabArea {
+        @tabSize: 40px;
+        width: @tabSize;
+        height: 100%;
+        background-color: @color-bg-white-three;
+        border-right: 1px solid @color-border-pinkish-grey2;
+        display: inline-block;
+        float: left;
+        .tab {
+            width: 100%;
+            height: @tabSize;
+            border-bottom: 1px solid @color-border-pinkish-grey2;
+            text-align: center;
+            float: left;
+
+            .icon {
+                cursor: pointer;
+            }
+
+            .iconWrap {
+                // background-color: @color-bg-pinkish-grey;
+                background-color: @color-bg-select-blue;
+                border-radius: 2px;
+                opacity: 0.3;
+            }
+
+            &.active {
+                background-color: @color-white;
+                border-right-width: 0px;
+                width: @tabSize + 1px;
+                border-bottom-width: 0px;
+
+                .iconWrap {
+                    background-color: @color-bg-select-blue;
+                    opacity: 1.0;
+                }
+                + .tab {
+                     border-top: 1px solid @color-border-pinkish-grey2;
+                }
+                .xi-info-rectangle {
+                    color: @color-bg-select-blue;
+                    background-color: @color-white;
+                    opacity: 1.0;
+                }
+            }
+
+            &.hover {
+                .iconWrap {
+                    background-color: @color-bg-select-blue;
+                    opacity: 0.8;
+                }
+            }
+
+            &.default {
+                .iconWrap {
+                    // background-color: @color-white;
+                    background-color: @color-bg-select-blue;
+                }
+            }
+
+            &:not(.default) {
+                .icon {
+                    font-size: 14px;
+                }
+            }
+
+            &:last-child {
+                position: relative;
+                top: 1px;
+            }
+
+            &.xc-disabled {
+                opacity: 1 !important;
+                border-bottom-width: 0px;
+            }
+        }
+
+        .iconWrap {
+            .size(20px, 20px);
+            margin-top: 10px;
+            margin-left: 10px;
+        }
+
+        .xi-info-rectangle {
+            // color: @color-bg-pinkish-grey;
+            background-color: @color-bg-pinkish-grey;
+            color: @color-bg-select-blue;
+        }
+    }
+
+    .cardBottom {
+        padding: 0px;
+        height: 80px;
+        min-width: 630px;
+        #modScheduleForm-delete {
+            .trash {
+                width: 24px;
+                display: inline-block;
+                float: left;
+                margin-left: 15px;
+                margin-top: 2px;
+            }
+            .trash-info {
+                display: inline-block;
+                float: left;
+                margin-left: 10px;
+            }
+        }
+        .buttonArea {
+            margin-right: 40px;
+            .btn {
+                margin-top: 10px;
+            }
+        }
+    }
 }

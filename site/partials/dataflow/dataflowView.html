@@ -57,7 +57,6 @@
         <span><%= dicts.sched.schedInstr %></span>
       </div>
     </section>
-    <!-- <section class="content"> -->
     <section class="cardMain">
       <div class="formWrap">
         <!-- time section -->
@@ -65,10 +64,20 @@
           <div class="label"><%= dicts.sched.startTime %>:</div>
           <div class="timeWrapper">
             <div class="datePickerPart">
-              <input class="date" type="text" spellcheck="false">
+              <div class="input-wrap">
+                <input class="date" type="text" spellcheck="false">
+              </div>
+              <div class="icon-wrap">
+                <i class="xi-schedules icon"></i>
+              </div>
             </div>
             <div class="timePickerPart">
-              <input class="time timePickerBox" type="text" spellcheck="false">
+              <div class="input-wrap">
+                <input class="time timePickerBox" type="text" spellcheck="false">
+              </div>
+              <div class="icon-wrap">
+                <i class="xi-clock icon"></i>
+              </div>
               <!-- Timepicker -->
               <div id="newScheduler-timePicker" class="timePicker">
                 <div class="textSection">
@@ -161,11 +170,6 @@
           </div>
         </div>
         <!-- End of frequency section -->
-        <div class="recurSection">
-          <div class="label"><%= dicts.sched.numRun %>:</div>
-          <!-- <input type="number" spellcheck="false" placeholder="<%= dicts.sched.numRunHint %>"> -->
-          <input type="number" spellcheck="false">
-        </div>
       </div>
     </section>
     <section class="cardBottom">
@@ -178,7 +182,9 @@
       <div class="title">Schedule Detail</div>
       <div class="close"><i class="icon xi-close fa-15"></i></div>
     </header>
-    <div id="scheduleInfos" class="cardTopMain">
+    <!-- <div id="scheduleInfos" class="cardTopMain"> -->
+    <div class="mainArea cardMain">
+    <div class="cardLocked"></div>
       <div class="tabArea">
         <div class="tab default active">
           <div class="iconWrap">
@@ -192,57 +198,44 @@
         </div>
         <!-- using last tab as placeholder -->
         <div class="tab xc-disabled">
-
         </div>
-   <!--      <div class="tab xc-disabled">
-          <div class="iconWrap">
-            <i class="icon xi-status-rectangle"></i>
-          </div>
-        </div> -->
       </div>
-      <div class="mainArea no-selection">
-        <h2 class="heading textOverflow"></h2>
-        <div class="defaultSection scheduleInfoSection">
-          <button id="modScheduleForm-delete" class="btn btn-small">
-            <i class="icon xi-trash"></i>
-          </button>
-          <div class="infoSection clearfix">
-            <div class="group">
-              <div class="column"><!-- created -->
-                <div class="scheduleInfo created row">
-                  <span class="name"><%= dicts.sched.created %></span>
-                  <span class="text"></span>
+      <div id="scheduleInfos">
+        <div class="upperArea">
+          <h2 class="heading textOverflow">Schedule Name</h2>
+          <div class="defaultSection scheduleInfoSection">
+            <div class="infoSection clearfix">
+              <div class="group">
+                <div class="column">
+                  <div class="scheduleInfo created row">
+                    <span class="name"><%= dicts.sched.created %></span>
+                    <span class="text"></span>
+                  </div>
                 </div>
-                <!-- modified -->
-                <div class="scheduleInfo modified row">
-                  <span class="name"><%= dicts.sched.modified %></span>
-                  <span class="text"></span>
+                <div class="column">
+                  <div class="scheduleInfo modified row">
+                    <span class="name"><%= dicts.sched.modified %></span>
+                    <span class="text"></span>
+                  </div>
                 </div>
-              </div>
-              <div class="column">
-                <div class="scheduleInfo frequency row">
-                  <span class="name"><%= dicts.sched.freq %></span>
-                  <span class="text"></span>
-                </div>
-                <div class="scheduleInfo recur row">
-                  <span class="name"><%= dicts.sched.recur %></span>
-                  <span class="text"></span>
+                <div class="column">
+                  <div class="scheduleInfo nextRunInfo row">
+                    <span class="name"><%= dicts.sched.nextRun %></span>
+                    <span class="text">N/A</span>
+                  </div>
                 </div>
               </div>
             </div>
-            <div class="column runInfo">
-              <div class="lastRunInfo row">
-                <span class="name"><%= dicts.sched.lastRun %></span>
-                <span class="text">N/A</span>
-              </div>
-              <div class="nextRunInfo row">
-                <span class="name"><%= dicts.sched.nextRun %></span>
-                <span class="text">N/A</span>
-              </div>
+            <div class="tabs">
+                <div class="tab simpleModeTab active">
+                  <span class="text">Simple Mode</span>
+                </div>
+                <div class="tab advancedModeTab">
+                  <span class="text">Advanced Mode</span>
+                </div>
             </div>
           </div>
-        </div>
-        <div id="scheduleTable" class="scheduleInfoSection xc-hidden">
+          <div id="scheduleTable" class="scheduleInfoSection xc-hidden">
             <section class="titleSection">
               <div class="titleWrapper clearfix">
                 <div class="title time"><%= dicts.sched.runtime %></div>
@@ -257,172 +250,225 @@
                 <div class="content statusContent"><%= dicts.sched.noRun %></div>
                 <div class="content outputLocationContent"><%= dicts.sched.noRun %></div>
             </section>
+          </div>
+        </div>
+        <div class="border">
+          <div id="left-border"></div>
+          <div id="middle-left-border" class="active"></div>
+          <div id="middle-right-border"></div>
+          <div id="right-border"></div>
+        </div>
+        <div class="lowerArea">
+          <div id="modifyScheduleForm" class="scheduleForm xc-hidden">
+            <div class="formWrap simpleMode">
+              <div class="timeSection">
+                <div class="label"><%= dicts.sched.startTime %>:</div>
+                <div class="timeWrapper">
+                  <div class="datePickerPart">
+                    <div class="input-wrap">
+                      <input class="date" type="text" spellcheck="false">
+                    </div>
+                    <div class="icon-wrap">
+                      <i class="xi-schedules icon"></i>
+                    </div>
+                  </div>
+                  <div class="timePickerPart">
+                    <div class="input-wrap">
+                      <input class="time timePickerBox" type="text" spellcheck="false">
+                    </div>
+                    <div class="icon-wrap">
+                      <i class="xi-clock icon"></i>
+                    </div>
+                    <!-- Timepicker -->
+                    <div id="modScheduler-timePicker" class="timePicker">
+                      <div class="textSection">
+                        <span class="text"><%= dicts.sched.hour %></span>
+                        <span class="text"><%= dicts.sched.min %></span>
+                      </div>
+                      <div class="buttonSection">
+                        <button class="btn increase hour">
+                          <div class="bar"></div>
+                          <div class="bar vertical"></div>
+                        </button>
+                        <button class="btn increase minute">
+                          <div class="bar"></div>
+                          <div class="bar vertical"></div>
+                        </button>
+                        <button class="btn increase ampm">
+                          <div class="bar"></div>
+                          <div class="bar vertical"></div>
+                        </button>
+                      </div>
+                      <div class="inputSection">
+                        <input class="hour" type="number" spellcheck="false">
+                        <input class="minute" type="number" spellcheck="false">
+                        <span class="ampm">PM</span>
+                      </div>
+                      <div class="buttonSection">
+                        <button class="btn decrease hour">
+                          <div class="bar"></div>
+                        </button>
+                        <button class="btn decrease minute">
+                          <div class="bar"></div>
+                        </button>
+                        <button class="btn decrease ampm">
+                          <div class="bar"></div>
+                        </button>
+                      </div>
+                    </div>
+                    <!-- End Timepicker -->
+                  </div>
+                </div>
+              </div>
+              <!-- frequency section -->
+              <div class="frequencySection">
+                <!-- part1 -->
+                <div class="freq1">
+                  <div class="label"><%= dicts.sched.freq %>:</div>
+                  <div class="radioButtonGroup center">
+                    <div class="radioButton active" data-option="minute">
+                      <div class="radio">
+                        <i class="icon xi-radio-selected"></i>
+                        <i class="icon xi-radio-empty"></i>
+                      </div>
+                      <div class="label"><%= dicts.sched.perMin %></div>
+                    </div>
+                    <div class="radioButton" data-option="hourly">
+                      <div class="radio">
+                        <i class="icon xi-radio-selected"></i>
+                        <i class="icon xi-radio-empty"></i>
+                      </div>
+                      <div class="label"><%= dicts.sched.hourly %></div>
+                    </div>
+                    <div class="radioButton" data-option="daily">
+                      <div class="radio">
+                        <i class="icon xi-radio-selected"></i>
+                        <i class="icon xi-radio-empty"></i>
+                      </div>
+                      <div class="label"><%= dicts.sched.daily %></div>
+                    </div>
+                    <div class="radioButton" data-option="weekly">
+                      <div class="radio">
+                        <i class="icon xi-radio-selected"></i>
+                        <i class="icon xi-radio-empty"></i>
+                      </div>
+                      <div class="label"><%= dicts.sched.weekly %></div>
+                    </div>
+                    <div class="radioButton" data-option="biweekly">
+                      <div class="radio">
+                        <i class="icon xi-radio-selected"></i>
+                        <i class="icon xi-radio-empty"></i>
+                      </div>
+                      <div class="label"><%= dicts.sched.biweekly %></div>
+                    </div>
+                    <!-- <div class="radioButton" data-option="monthly">
+                      <div class="radio">
+                        <span class="dot"></span>
+                      </div>
+                      <div class="label">Monthly</div>
+                    </div> -->
+                  </div>
+                </div>
+                <!-- part2 -->
+                <!--
+                <div class="freq2 inActive">
+                  <div class="radioWrap" data-option="dayPerMonth">
+                    <div class="radio">
+                      <span class="dot"></span>
+                    </div>
+                    <div class="label">The</div>
+                  </div>
+                  <div class="dropDownList radix">
+                    <input class="text" value="First" disabled spellcheck="false">
+                    <div class="iconWrapper">
+                      <i class="icon xi-arrow-down"></i>
+                    </div>
+                    <ul class="list">
+                      <li>First</li>
+                      <li>Second</li>
+                      <li>Third</li>
+                      <li>Fourth</li>
+                      <li>Last</li>
+                    </ul>
+                  </div>
+                  <div class="dropDownList day">
+                    <input class="text" value="Sunday" disabled spellcheck="false">
+                    <div class="iconWrapper">
+                      <i class="icon xi-arrow-down"></i>
+                    </div>
+                    <ul class="list">
+                      <li>Sunday</li>
+                      <li>Monday</li>
+                      <li>Tuesday</li>
+                      <li>Wednesday</li>
+                      <li>Thursday</li>
+                      <li>Friday</li>
+                      <li>Saturday</li>
+                    </ul>
+                  </div>
+                  <div class="textSection">
+                    <span class="text">of every month</span>
+                  </div>
+                </div> -->
+              </div>
+               <!-- End of frequency section
+              <div class="recurSection">
+                <div class="label"><%= dicts.sched.numRun %>:</div>
+                <input type="number" spellcheck="false" placeholder="<%= dicts.sched.numRunHint %>">
+                <input type="number" spellcheck="false">
+              </div> -->
+            </div>
 
+            <div class="formWrap advancedMode xc-hidden">
+              <div class="instruction">
+                <i class="icon xi-info-circle"></i>
+                <div class="text">
+                  <span>
+                    This field allows the donec viverra eleifend lacus, vitae ullamcorper metus. Lorem ipsum dolor sit
+                    amet, consectetur adipiscing edit. Proin vestibulum varius dolor vitae dignissim.
+                  </span>
+                </div>
+              </div>
+              <div class="scheduleSection">
+                <div class="leftArea">
+                  <div class="scheduleLabel">Schedule:</div>
+                  <div class="input-wrap">
+                    <input id="cronScheduler" spellcheck="false">
+                    <button id="modScheduleForm-simulate" type="button" class="btn confirm">SIMULATE</button>
+                  </div>
+                </div>
+                <div class="rightArea">
+                  <div class="column">
+                    <div class="scheduleInfo modified row">
+                      <span class="name">Last Run</span>
+                      <span class="text"></span>
+                    </div>
+                    <div class="nextRunInfo row">
+                      <span class="name">Next Run</span>
+                      <span class="text"></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-    <div id="modifyScheduleForm" class="cardMain scheduleForm xc-hidden">
-      <!-- <section class="content"> -->
-      <section class="cardMain">
-        <div class="formWrap">
-          <!-- <div class="nameSection">
-            <div class="label"><%= dicts.sched.schedName %>:</div>
-            <input class="name textOverflow" type="text" placeholder="please input schedule name" spellcheck="false" >
-          </div> -->
-          <!-- time section -->
-          <div class="timeSection">
-            <div class="label"><%= dicts.sched.startTime %>:</div>
-            <div class="timeWrapper">
-              <div class="datePickerPart">
-                <input class="date" type="text" spellcheck="false">
-              </div>
-              <div class="timePickerPart">
-                <input class="time timePickerBox" type="text" spellcheck="false">
-                <!-- Timepicker -->
-                <div id="modScheduler-timePicker" class="timePicker">
-                  <div class="textSection">
-                    <span class="text"><%= dicts.sched.hour %></span>
-                    <span class="text"><%= dicts.sched.min %></span>
-                  </div>
-                  <div class="buttonSection">
-                    <button class="btn increase hour">
-                      <div class="bar"></div>
-                      <div class="bar vertical"></div>
-                    </button>
-                    <button class="btn increase minute">
-                      <div class="bar"></div>
-                      <div class="bar vertical"></div>
-                    </button>
-                    <button class="btn increase ampm">
-                      <div class="bar"></div>
-                      <div class="bar vertical"></div>
-                    </button>
-                  </div>
-                  <div class="inputSection">
-                    <input class="hour" type="number" spellcheck="false">
-                    <input class="minute" type="number" spellcheck="false">
-                    <span class="ampm">PM</span>
-                  </div>
-                  <div class="buttonSection">
-                    <button class="btn decrease hour">
-                      <div class="bar"></div>
-                    </button>
-                    <button class="btn decrease minute">
-                      <div class="bar"></div>
-                    </button>
-                    <button class="btn decrease ampm">
-                      <div class="bar"></div>
-                    </button>
-                  </div>
-                </div>
-                <!-- End Timepicker -->
-              </div>
-            </div>
-          </div>
-          <!-- frequency section -->
-          <div class="frequencySection">
-            <!-- part1 -->
-            <div class="freq1">
-              <div class="label"><%= dicts.sched.freq %>:</div>
-              <div class="radioButtonGroup center">
-                <div class="radioButton active" data-option="minute">
-                  <div class="radio">
-                    <i class="icon xi-radio-selected"></i>
-                    <i class="icon xi-radio-empty"></i>
-                  </div>
-                  <div class="label"><%= dicts.sched.perMin %></div>
-                </div>
-                <div class="radioButton" data-option="hourly">
-                  <div class="radio">
-                    <i class="icon xi-radio-selected"></i>
-                    <i class="icon xi-radio-empty"></i>
-                  </div>
-                  <div class="label"><%= dicts.sched.hourly %></div>
-                </div>
-                <div class="radioButton" data-option="daily">
-                  <div class="radio">
-                    <i class="icon xi-radio-selected"></i>
-                    <i class="icon xi-radio-empty"></i>
-                  </div>
-                  <div class="label"><%= dicts.sched.daily %></div>
-                </div>
-                <div class="radioButton" data-option="weekly">
-                  <div class="radio">
-                    <i class="icon xi-radio-selected"></i>
-                    <i class="icon xi-radio-empty"></i>
-                  </div>
-                  <div class="label"><%= dicts.sched.weekly %></div>
-                </div>
-                <div class="radioButton" data-option="biweekly">
-                  <div class="radio">
-                    <i class="icon xi-radio-selected"></i>
-                    <i class="icon xi-radio-empty"></i>
-                  </div>
-                  <div class="label"><%= dicts.sched.biweekly %></div>
-                </div>
-                <!-- <div class="radioButton" data-option="monthly">
-                  <div class="radio">
-                    <span class="dot"></span>
-                  </div>
-                  <div class="label">Monthly</div>
-                </div> -->
-              </div>
-            </div>
-            <!-- part2 -->
-            <!--
-            <div class="freq2 inActive">
-              <div class="radioWrap" data-option="dayPerMonth">
-                <div class="radio">
-                  <span class="dot"></span>
-                </div>
-                <div class="label">The</div>
-              </div>
-              <div class="dropDownList radix">
-                <input class="text" value="First" disabled spellcheck="false">
-                <div class="iconWrapper">
-                  <i class="icon xi-arrow-down"></i>
-                </div>
-                <ul class="list">
-                  <li>First</li>
-                  <li>Second</li>
-                  <li>Third</li>
-                  <li>Fourth</li>
-                  <li>Last</li>
-                </ul>
-              </div>
-              <div class="dropDownList day">
-                <input class="text" value="Sunday" disabled spellcheck="false">
-                <div class="iconWrapper">
-                  <i class="icon xi-arrow-down"></i>
-                </div>
-                <ul class="list">
-                  <li>Sunday</li>
-                  <li>Monday</li>
-                  <li>Tuesday</li>
-                  <li>Wednesday</li>
-                  <li>Thursday</li>
-                  <li>Friday</li>
-                  <li>Saturday</li>
-                </ul>
-              </div>
-              <div class="textSection">
-                <span class="text">of every month</span>
-              </div>
-            </div> -->
-          </div>
-          <!-- End of frequency section -->
-          <div class="recurSection">
-            <div class="label"><%= dicts.sched.numRun %>:</div>
-            <!-- <input type="number" spellcheck="false" placeholder="<%= dicts.sched.numRunHint %>"> -->
-            <input type="number" spellcheck="false">
-          </div>
-        </div>
-      </section>
-      <!-- <section class="buttonArea"> -->
-      <section class="cardBottom">
+    <div class="cardBottom">
+      <div class="tabArea"></div>
+      <div class="buttonArea">
         <button id="modScheduleForm-save" type="button" class="btn confirm"><%= dicts.common.SAVE %></button>
         <button id="modScheduleForm-cancel" type="button" class="btn btn-cancel cancel"><%= dicts.common.REVERT %></button>
-      </section>
+        <button id="modScheduleForm-delete" type="button" class="btn confirm">
+          <div class="trash">
+            <i class="icon xi-trash"></i>
+          </div>
+          <div class="trash-info">
+            <%= dicts.common.DELETE %>
+          </div>
+        </button>
+      </div>
     </div>
   </div>
 

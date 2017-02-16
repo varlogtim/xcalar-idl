@@ -593,6 +593,8 @@ SchedTStr = {
     'DelSched': "Permanently Delete Schedule",
     'DelSchedMsg': "Are you sure you want to permanently delete " +
                  "this schedule? This action cannot be undone.",
+    "detail": "Schedule Detail",
+    "revert": "REVERT"
 };
 
 DFGTStr = {
