@@ -579,36 +579,6 @@ window.WorkbookManager = (function($, WorkbookManager) {
         return deferred.promise();
     };
 
-    // XXX this is buggy now because it clear wkbkInfo but the session info is kept!
-    WorkbookManager.emptyAll = function() {
-        var deferred = jQuery.Deferred();
-        var promises = [];
-
-        // delete all workbooks
-        var workbooks = wkbkSet.getAll();
-        for (var wkbkId in workbooks) {
-            promises.push(delWKBKHelper.bind(this, wkbkId));
-        }
-
-        // delete all active workbook key
-        promises.push(KVStore.delete.bind(this, activeWKBKKey, gKVScope.WKBK));
-
-        PromiseHelper.chain(promises)
-        .then(function() {
-            return KVStore.delete(wkbkKey, gKVScope.WKBK);
-        })
-        .then(function() {
-            console.log("empty all workbook related info");
-            deferred.resolve();
-        })
-        .fail(function(error) {
-            console.error("empty all workbook related fails", error);
-            deferred.reject(error);
-        });
-
-        return deferred.promise();
-    };
-
     function initializeVariable() {
         var username = Support.getUser();
         // key that stores all workbook infos for the user
@@ -981,7 +951,6 @@ window.WorkbookManager = (function($, WorkbookManager) {
         return deferred.promise();
     }
 
-    // helper for WorkbookManager.emptyAll
     function delWKBKHelper(wkbkId) {
         var deferred = jQuery.Deferred();
 

@@ -1,7 +1,7 @@
 // setup should happen before load test files
 // --badil: will stop when first test fails
 mocha.setup({
-    "ui"  : "bdd",
+    "ui": "bdd",
     "bail": true,
     // must include Setup Test and optionally include other test
     // e.g. /Mocha Setup Test|Workbook Test/
@@ -15,32 +15,32 @@ assert = chai.assert;
 
 var testDatasets = {
     "sp500": {
-        "path"      : "nfs:///netstore/datasets/sp500.csv",
-        "url"       : "netstore/datasets/sp500.csv",
-        "format"    : "CSV",
+        "path": "nfs:///netstore/datasets/sp500.csv",
+        "url": "netstore/datasets/sp500.csv",
+        "format": "CSV",
         "fieldDelim": "\t",
-        "lineDelim" : "\n",
-        "hasHeader" : false,
+        "lineDelim": "\n",
+        "hasHeader": false,
         "moduleName": "",
-        "funcName"  : "",
+        "funcName": "",
         "pointCheck": "#previewTable td:contains(20041101)"
     },
 
     "schedule": {
-        "path"      : "nfs:///netstore/datasets/indexJoin/schedule/",
-        "url"       : "netstore/datasets/indexJoin/schedule/",
-        "format"    : "JSON",
+        "path": "nfs:///netstore/datasets/indexJoin/schedule/",
+        "url": "netstore/datasets/indexJoin/schedule/",
+        "format": "JSON",
         "moduleName": "",
-        "funcName"  : "",
+        "funcName": "",
         "pointCheck": "#previewTable td:contains(1)"
     },
 
     "fakeYelp": {
-        "path"      : "nfs:///netstore/datasets/unittest/test_yelp.json",
-        "url"       : "netstore/datasets/unittest/test_yelp.json",
-        "format"    : "JSON",
+        "path": "nfs:///netstore/datasets/unittest/test_yelp.json",
+        "url": "netstore/datasets/unittest/test_yelp.json",
+        "format": "JSON",
         "moduleName": "",
-        "funcName"  : "",
+        "funcName": "",
         "pointCheck": "#previewTable th:eq(1):contains(yelping_since)"
     }
 };

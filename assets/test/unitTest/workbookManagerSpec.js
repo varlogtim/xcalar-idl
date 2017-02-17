@@ -1,35 +1,44 @@
 describe("WorkbookManager Test", function() {
+    var oldKVGet, oldKVPut, oldKVDelete;
+    var oldXcalarPut, oldXcalarDelete;
+    var fakeMap = {};
+
+    before(function() {
+        oldKVGet = KVStore.get;
+        oldKVPut = KVStore.put;
+        oldKVDelete = KVStore.delete;
+        oldXcalarPut = XcalarKeyPut;
+        oldXcalarDelete = XcalarKeyDelete;
+
+        XcalarKeyPut = function(key, value) {
+            fakeMap[key] = value;
+            return PromiseHelper.resolve();
+        };
+
+        XcalarKeyDelete = function(key) {
+            delete fakeMap[key];
+            return PromiseHelper.resolve();
+        };
+
+        KVStore.get = function(key) {
+            return PromiseHelper.resolve(fakeMap[key]);
+        };
+
+        KVStore.put = XcalarKeyPut;
+
+        KVStore.delete = XcalarKeyDelete;
+
+        generateKey = WorkbookManager.__testOnly__.generateKey;
+    });
+
+    beforeEach(function() {
+        fakeMap = {};
+    });
+
     describe("Basic Function Test", function() {
-        var oldKVGet, oldKVPut, oldKVDelete;
-        var oldXcalarPut, oldXcalarDelete;
-        var fakeMap = {};
         var generateKey;
 
         before(function() {
-            oldKVGet = KVStore.get;
-            oldKVPut = KVStore.put;
-            oldKVDelete = KVStore.delete;
-            oldXcalarPut = XcalarKeyPut;
-            oldXcalarDelete = XcalarKeyDelete;
-
-            XcalarKeyPut = function(key, value) {
-                fakeMap[key] = value;
-                return PromiseHelper.resolve();
-            };
-
-            XcalarKeyDelete = function(key) {
-                delete fakeMap[key];
-                return PromiseHelper.resolve();
-            };
-
-            KVStore.get = function(key) {
-                return PromiseHelper.resolve(fakeMap[key]);
-            };
-
-            KVStore.put = XcalarKeyPut;
-
-            KVStore.delete = XcalarKeyDelete;
-
             generateKey = WorkbookManager.__testOnly__.generateKey;
         });
 
@@ -64,7 +73,7 @@ describe("WorkbookManager Test", function() {
         });
 
         it("delWKBKHelper should fail when error", function(done) {
-            var oldFunc = KVStore.delete;
+            var oldFunc = XcalarKeyDelete;
             XcalarKeyDelete = function() {
                 return PromiseHelper.reject("testError");
             };
@@ -78,7 +87,7 @@ describe("WorkbookManager Test", function() {
                 done();
             })
             .always(function() {
-                KVStore.delete = oldFunc;
+                XcalarKeyDelete = oldFunc;
             });
         });
 
@@ -154,14 +163,6 @@ describe("WorkbookManager Test", function() {
                 throw "error case";
             });
         });
-
-        after(function() {
-            KVStore.get = oldKVGet;
-            KVStore.put = oldKVPut;
-            KVStore.delete = oldKVDelete;
-            XcalarKeyPut = oldXcalarPut;
-            XcalarKeyDelete = oldXcalarDelete;
-        });
     });
 
     describe("Basic Public Api Test", function() {
@@ -205,6 +206,37 @@ describe("WorkbookManager Test", function() {
             WorkbookManager.updateWorksheet(100);
             expect(workbook.numWorksheets).to.equal(100);
             workbook.numWorksheets = oldNum;
+        });
+    });
+
+    describe("Upgrade API Test", function() {
+        it("WorkbookManager.upgrade should work", function() {
+            // case 1
+            var res = WorkbookManager.upgrade(null);
+            expect(res).to.be.null;
+
+            // case 2
+            var wkbks = WorkbookManager.getWorkbooks();
+            res = WorkbookManager.upgrade(wkbks);
+            expect(res).to.be.an("object");
+            expect(Object.keys(res).length).
+            to.equal(Object.keys(wkbks).length);
+        });
+
+        it("WorkbookManager.getKeysForUpgrade should work", function() {
+            var version = currentVersion;
+            var sessionInfo = {
+                "numSessions": 1,
+                "sessions": [{
+                    "name": "test"
+                }]
+            };
+
+            var res = WorkbookManager.getKeysForUpgrade(sessionInfo, version);
+            expect(res).to.be.an("object");
+            expect(res).to.have.property("global");
+            expect(res).to.have.property("user");
+            expect(res).to.have.property("wkbk");
         });
     });
 
@@ -299,23 +331,15 @@ describe("WorkbookManager Test", function() {
         });
 
         it("Should copy workbook", function(done) {
-            var test = null;
             var oldNewWorkbook = WorkbookManager.newWKBK;
-            var oldPut = KVStore.put;
 
             WorkbookManager.newWKBK = function() {
                 return PromiseHelper.resolve("testId");
             };
 
-            KVStore.put = function() {
-                test = "test";
-                return PromiseHelper.resolve();
-            };
-
             WorkbookManager.copyWKBK()
             .then(function(id) {
                 expect(id).to.equal("testId");
-                expect(test).to.equal("test");
                 done();
             })
             .fail(function() {
@@ -323,7 +347,6 @@ describe("WorkbookManager Test", function() {
             })
             .always(function() {
                 WorkbookManager.newWKBK = oldNewWorkbook;
-                KVStore.put = oldPut;
             });
         });
 
@@ -400,7 +423,7 @@ describe("WorkbookManager Test", function() {
             });
         });
 
-        it("Should inactive workbook", function(done) {
+        it("Should inactive all workbook", function(done) {
             WorkbookManager.inActiveAllWKBK()
             .then(function() {
                 activeWkbkId = WorkbookManager.getActiveWKBK();
@@ -454,11 +477,47 @@ describe("WorkbookManager Test", function() {
             });
         });
 
+        it("Should deactive workbook", function(done) {
+            WorkbookManager.deactivate(oldActiveWkbkId)
+            .then(function() {
+                expect(WorkbookManager.getActiveWKBK()).to.be.null;
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                Support.heartbeatCheck();
+            });
+        });
+
+        it("Should switch back of workbook", function(done) {
+            WorkbookManager.switchWKBK(oldActiveWkbkId)
+            .then(function() {
+                activeWkbkId = WorkbookManager.getActiveWKBK();
+                expect(activeWkbkId).to.equal(oldActiveWkbkId);
+                assert.isTrue($("#initialLoadScreen").is(":visible"));
+                $("#initialLoadScreen").hide();
+                done();
+            })
+            .fail(function() {
+                throw "error case";
+            });
+        });
+
         after(function() {
             removeUnloadPrompt = oldRemoveUnload;
             xcHelper.reload = oldReload;
             XcalarSwitchToWorkbook = oldSwitch;
             XcalarDeactivateWorkbook = oldDeactive;
         });
+    });
+
+    after(function() {
+        KVStore.get = oldKVGet;
+        KVStore.put = oldKVPut;
+        KVStore.delete = oldKVDelete;
+        XcalarKeyPut = oldXcalarPut;
+        XcalarKeyDelete = oldXcalarDelete;
     });
 });

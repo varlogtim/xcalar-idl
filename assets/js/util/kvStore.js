@@ -335,41 +335,5 @@ window.KVStore = (function($, KVStore) {
         return newMeta;
     };
 
-    KVStore.emptyAll = function(localEmpty) {
-        var deferred = jQuery.Deferred();
-
-        // hide modal
-        $("#modalBackground").hide();
-        $(".modalContainer:visible").hide();
-
-        gTables = {};
-        WSManager.clear();
-        Aggregates.clear();
-        DataStore.clear();
-        UserSettings.clear();
-        BottomMenu.clear();
-        DagPanel.clear();
-        // clear all table
-        $("#mainFrame").find('.xcTableWrap').remove();
-
-        if (localEmpty) {
-            deferred.resolve();
-        } else {
-            // Note from Cheng: beacuse session do not delete in backend,
-            // when can not delete KVStore, otherwise we lose UI infos
-            // but session is still there
-            deferred.resolve();
-
-            // WorkbookManager.emptyAll()
-            // .then(function() {
-            //     return (Authentication.clear());
-            // })
-            // .then(deferred.resolve)
-            // .fail(deferred.reject);
-        }
-
-        return (deferred.promise());
-    };
-
     return (KVStore);
 }(jQuery, {}));
