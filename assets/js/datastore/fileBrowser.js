@@ -490,7 +490,7 @@ window.FileBrowser = (function($, FileBrowser) {
         // performance when there's 1000+ files, is the remove slow?
         $container.removeClass("manyFiles");
         $fileBrowser.removeClass("unsortable");
-        $("#fileBrowserSearch input").val("").removeClass("error");
+        clearSearch();
 
         $visibleFiles = $();
         curFiles = [];
@@ -613,6 +613,7 @@ window.FileBrowser = (function($, FileBrowser) {
         .then(function(listFilesOutput) {
             if (curBrowserId === fileBrowserId) {
                 cleanContainer();
+                clearSearch();
                 allFiles = listFilesOutput.files;
                 sortFilesBy(sortKey, sortRegEx);
                 deferred.resolve();
@@ -745,6 +746,11 @@ window.FileBrowser = (function($, FileBrowser) {
             $input.addClass("error");
             handleSearchError();
         }
+    }
+
+    function clearSearch() {
+        $("#fileBrowserSearch input").removeClass("error").val("");
+        sortRegEx = undefined;
     }
 
     function handleSearchError() {
