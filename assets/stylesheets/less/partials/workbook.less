@@ -1,555 +1,555 @@
 #workbookPanel {
-	z-index: @z-index-menuBar;
-	.position(absolute, @top: 0px);
-	.size(100%, 100%);
-	background-color: @color-bg-body-gray;
-	box-shadow: 0px 0px 8px 2px rgba(0,0,0,0.3);
-	top: 50px;
-	.transition (0.4s top ease-out);
-
-	#dialogWrap {
-		position: absolute;
-		width: 100%;
-		bottom: 100px;
-		opacity: 0;
-		pointer-events: none;
-
-		&.closeAttempt {
-			opacity: 1;
-			.transition(opacity 0.6s);
-		}
-		&.doneCloseAttempt {
-			opacity: 0;
-			.transition(opacity 0.6s);
-		}
-	}
-
-	> .topBar {
-		padding-left: 95px;
-		position: fixed;
-		top: 0px;
-	}
-
-	> .mainContent {
-		overflow: auto;
-		min-width: 1222px;
-		padding-left: 0px;
-		padding-right: 0px;
-		padding-top: 0px;
-		margin-left: 0px !important; // override menuopen styling
-		width: 100% !important;
-
-	}
-
-	#workbookTopBar {
-		.title {
-			opacity: 1;
-			.transition(0.6s opacity);
-		}
-	}
-
-	&.hidden{
-		top: -100%;
-		#workbookTopBar {
-			.title {
-				opacity: 0;
-				.transition(0.4s opacity);
-			}
-		}
-	}
-
-	&.closeAttempt {
-		top: -5%;
-	}
-
-	.flexSection {
-		.flex-display;
-		.flex-flow(row wrap);
-		.justify-content(flex-start);
-		padding: 5px;
-	}
-
-	.topSection {
-		box-shadow: 0px 0px 7px 1px rgba(0, 0, 0, 0.4);
-		padding-bottom: 5px;
-		margin-bottom: 10px;
-		padding-top: 10px;
-		padding-left: 10px;
-	}
-
-	.bottomSection {
-		padding-left: 10px;
-	}
-
-	.inActive {
-		opacity: 0.5 !important;
-		pointer-events: none;
-	}
-
-	.box {
-		.flex-display;
-
-		p, div {
-			font-size: 13px;
-		}
-
-		.vertBar {
-			width: 70px;
-		}
-
-		.content {
-			margin: 5px 10px 10px;
-			.flex-display;
-			.justify-content(center);
-		}
-
-		.heading, .subHeading {
-			color: @color-font-select-blue;
-			font-weight: 500;
-		}
-
-		.heading {
-			font-size: 32px;
-		}
-		.subHeading {
-			font-size: 22px;
-			b {
-				font-weight: 600;
-			}
-		}
-	}
-	.box-large {
-		.size(350px, 250px);
-		.flex(1 0 350px);
-		margin-right: 10px;
-		margin-bottom: 10px;
-		box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.2);
-		background-color: @color-white;
-
-		.leftBar {
-			background-color: @color-bg-wkbk-blue;
-		}
-
-		.content {
-			.flex(1 0 300px);
-		}
-
-		.innerContent {
-			width: 80%;
-			min-width: 300px;
-		}
-	}
-
-	.box-small {
-		.size(@height: 190px);
-		.flex(1 0 300px);
-		overflow: hidden; 
-
-		.innerBox {
-			width: 100%;
-			margin-right: 10px;
-			margin-bottom: 10px;
-			box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.2);
-			.flex-display;
-			background-color: @color-white;
-			.transition(0.7s transform);
-		}
-
-		&.new, &.removing {
-			.innerBox {
-				.transform(translateX(-110%));
-			}
-		}
-
-		// hide tabs when new box is sliding out
-		&.animating {
-			.rightBar {
-				.tab {
-					.transform(translateX(110%));
-				}
-			}
-		}
-
-		// keep tabs showing when box is sliding away to be removed
-		&.removing {
-			.rightBar {
-				.tab {
-					.transform(translateX(0%));
-				}
-			}
-		}
-
-		&.dummyBox {
-			visibility: hidden;
-			height: 0px;
-			margin-bottom: 0px;
-		}
-
-		.content {
-			.flex(1 0 200px);
-		}
-
-		.innerContent {
-			width: 200px;
-			
-		}
-
-		.input-box(@w:100%, @h:30px);
-
-		.subHeading {
-			margin-bottom: 5px;
-		}
-	}
-
-	.welcomeBox {
-		.heading {
-			.textOverflowOneLine;
-		}
-		.username {
-			font-weight: 600;
-		}
-		.description {
-			padding-left: 15px;
-		}
-	}
-
-	.newsBox, .tutBox {
-		.content {
-			margin: 5px 0px 10px;
-			position: relative;
-		}
-		.section {
-			margin-bottom: 10px;
-			height: 50%;
-		}
-		hr {
-			position: absolute;
-			width: ~"calc(100% - 2px)";
-			left: 0px;
-			top: 50%;
-			border: 1px solid @color-border-white-five;
-			margin: 0px;
-		}
-		li {
-			list-style-type: disc;
-		}
-	}
-
-	.newsBox {
-		.innerContent {
-			min-width: auto;
-		}
-		.description {
-			margin-top: 8px;
-			li {
-				margin-bottom: 0px;
-			}
-		}
-
-		section:last-child {
-			.description {
-				margin-top: 4px;
-			}
-		}
-
-		a {
-			color: @color-font-darkGray;
-			text-decoration: none;
-			&:hover {
-				color: @color-font-select-blue;
-				text-decoration: underline;
-			}
-		}
-
-		li > span {
-			cursor: pointer;
-			&:hover {
-				color: @color-font-select-blue;
-				text-decoration: underline;
-			}
-		}
-
-	}
-
-	.tutBox {
-	  	.helpText {
-	  		color: @color-font-select-blue;
-	  		margin-top: 2px;
-	  		margin-left: 5px;
-	  		a {
-	  			color: @color-font-select-blue;
-	  			text-decoration: none;
-	  			&:hover {
-	  				text-decoration: underline;
-	  			}
-	  		}
-	  	}
-
-	  	.tutBlock {
-	  		.size(~"calc(100% - 5px)", 45px);
-	  		line-height: 45px;
-	  		border: 1px solid @color-border-white-five;
-	  		margin-top: 6px;
-	  		margin-left: 5px;
-	  		.noSelection;
-	  		cursor: pointer;
-
-	  		a {
-	  			color: @color-font-darkGray !important;
-	  			// over ride default link color
-	  		}
-
-	  		&:hover {
-	  			border: 1px solid @color-bg-white-nine;
-	  			.tutBtn {
-	  				background-color: @color-bg-white-nine;
-	  			}
-	  		}
-	  	}
-	  	.tutBtn {
-	  		float: left;
-	  		.size(45px, 100%);
-	  		background-color: @color-bg-white-five;
-	  		text-align: center;
-	  		.icon {
-	  			color: @color-black;
-	  			font-size: 24px;
-	  			line-height: 45px;
-	  		}
-	  	}
-	  	.tutText {
-	  		float: left;
-	  		.size(~"calc(100% - 45px)", 100%);
-	  		padding-left: 10px;
-	  		padding-right: 10px;
-	  	}
-	}
-
-	.newWorkbookBox {
-		.leftBar {
-			background-color: @color-bg-newWB-orange;
-		}
-		input {
-			margin-top: 10px;
-			margin-bottom: 15px;
-		}
-		.btn {
-			width: 100%;
-		}
-	}
-
-	.workbookBox {
-		@tabHeight: 45px;
-		.noSelection;
-		cursor: default;
-
-
-		&.active {
-			.innerBox {
-				background-color: @color-bg-select-blue;
-				color: @color-white;
-				.subHeading input, .info {
-					color: @color-white;
-				}
-				input {
-					background-color: transparent;
-					border-color: transparent;
-				}
-			}
-			.delete {
-				pointer-events: none;
-				display: none !important;
-			}
-			.deactivate {
-				display: block;
-			}
-		}
-
-		&.noMeta {
-			.subHeading {
-				input {
-					color: @color-font-greyish-brown;
-					opacity: 0.5;
-				}
-			}
-			.info {
-				color: @color-font-greyish-brown;
-				opacity: 0.5;
-			}
-		}
-
-		&.loading {
-			.loadSection {
-				display: block;
-			}
-
-			.content, .rightBar {
-				display: none;
-			}
-		}
-
-		.content {
-			.flex(1 0 225px);
-			.innerContent {
-				width: 225px;
-			}
-		}
-
-		.loadSection {
-			position: relative;
-			opacity: 0.5;
-			display: none;
-			.size(100%, 100%);
-
-			&.safari {
-				// safari has issue when use height 100% T_T
-				height:  180px;
-			}
-
-			.animatedEllipsisWrapper {
-				.size(@width: 140px, @height: 20px);
-				.center-align;
-
-				.animatedEllipsis {
-					> div {
-						.font(@weight: bold);
-						margin-left: 1px;
-					}
-				}
-			}
-		}
-
-		.subHeading {
-			.input-box(@w:100%, @h:30px);
-			input {
-				color: @color-font-select-blue;
-				font-size: 22px;
-				font-weight: 500;
-				background-color: @color-white;
-				border-color: @color-white;
-				margin-top: -10px;
-				margin-left: -5px;
-				padding-left: 5px;
-				pointer-events: none;
-				.textOverflowOneLine;
-
-				&.active {
-					border-color: @color-border-white-five;
-					background-color: @color-bg-white-three;
-					color: @color-font-select-blue !important;
-					pointer-events: initial;
-
-					&:focus {
-						border-color: @color-border-softBlue;
-						background-color: @color-white;
-					}
-				}
-			}
-
-		}
-
-		.topInfo {
-			border-bottom: 1px solid @color-border-pinkish-grey2;
-			padding-bottom: 10px;
-			margin-bottom: 10px;
-		}
-
-		.row {
-			margin-top: 5px;
-		}
-
-		.label {
-			width: 95px;
-			display: inline-block;
-			float: left;
-		}
-		.info {
-			width: ~"calc(100% - 95px)";
-			display: inline-block;
-			float: left;
-			color: @color-font-wkbkInfo-blue;
-			.textOverflowOneLine;
-		}
-
-		.deactivate {
-			display: none;
-		}
-
-		.rightBar {
-			background-color: @color-bg-white-three;
-			overflow: hidden;
-			width: @tabHeight;
-			.tab {
-				background-color: @color-bg-select-blue;
-				.size(100%, 25%);
-				border-top: 1px solid @color-bg-dusk-blue;
-				border-left: 1px solid @color-bg-dusk-blue;
-				display: block;
-
-				.transform(translateX(100%));
-				.transition(0.2s transform);
-				// temp fix for Safari
-				-webkit-transition: -webkit-transform 0.2s;
-
-				&:hover {
-					.icon {
-						opacity: @opacity-hover;
-					}
-				}
-
-				&:nth-child(1) {
-					.transition-delay(0.20s);
-					border-top-width: 0px;
-				}
-				&:nth-child(2) {
-					.transition-delay(0.15s);
-				}
-
-				&:nth-child(3) {
-					.transition-delay(0.10s);
-				}
-				&:nth-child(4) {
-					.transition-delay(0.05s);
-				}
-				&:nth-child(5) {
-					.transition-delay(0.05s);
-				}
-			}
-
-			.icon {
-				line-height: @tabHeight;
-				opacity: @opacity-unhover;
-
-				&.xi-edit, &.xi-duplicate, &.xi-trash {
-					font-size: 16px;
-				}
-				&.xi-duplicate {
-					font-size: 18px;
-				}
-			}
-		}
-
-		&:hover {
-			.tab {
-				.transform(translateY(0%));
-				&:nth-child(1) {
-					.transition-delay(0.05s);
-				}
-				&:nth-child(2) {
-					.transition-delay(0.10s);
-				}
-				&:nth-child(3) {
-					.transition-delay(0.15s);
-				}
-				&:nth-child(4) {
-					.transition-delay(0.20s);
-				}
-				&:nth-child(5) {
-					.transition-delay(0.20s);
-				}
-			}
-		}
-
-
-	}
+    z-index: @z-index-menuBar;
+    .position(absolute, @top: 0px);
+    .size(100%, 100%);
+    background-color: @color-bg-body-gray;
+    box-shadow: 0px 0px 8px 2px rgba(0,0,0,0.3);
+    top: 50px;
+    .transition (0.4s top ease-out);
+
+    #dialogWrap {
+        position: absolute;
+        width: 100%;
+        bottom: 100px;
+        opacity: 0;
+        pointer-events: none;
+
+        &.closeAttempt {
+            opacity: 1;
+            .transition(opacity 0.6s);
+        }
+        &.doneCloseAttempt {
+            opacity: 0;
+            .transition(opacity 0.6s);
+        }
+    }
+
+    > .topBar {
+        padding-left: 95px;
+        position: fixed;
+        top: 0px;
+    }
+
+    > .mainContent {
+        overflow: auto;
+        min-width: 1222px;
+        padding-left: 0px;
+        padding-right: 0px;
+        padding-top: 0px;
+        margin-left: 0px !important; // override menuopen styling
+        width: 100% !important;
+
+    }
+
+    #workbookTopBar {
+        .title {
+            opacity: 1;
+            .transition(0.6s opacity);
+        }
+    }
+
+    &.hidden{
+        top: -100%;
+        #workbookTopBar {
+            .title {
+                opacity: 0;
+                .transition(0.4s opacity);
+            }
+        }
+    }
+
+    &.closeAttempt {
+        top: -5%;
+    }
+
+    .flexSection {
+        .flex-display;
+        .flex-flow(row wrap);
+        .justify-content(flex-start);
+        padding: 5px;
+    }
+
+    .topSection {
+        box-shadow: 0px 0px 7px 1px rgba(0, 0, 0, 0.4);
+        padding-bottom: 5px;
+        margin-bottom: 10px;
+        padding-top: 10px;
+        padding-left: 10px;
+    }
+
+    .bottomSection {
+        padding-left: 10px;
+    }
+
+    .inActive {
+        opacity: 0.5 !important;
+        pointer-events: none;
+    }
+
+    .box {
+        .flex-display;
+
+        p, div {
+            font-size: 13px;
+        }
+
+        .vertBar {
+            width: 70px;
+        }
+
+        .content {
+            margin: 5px 10px 10px;
+            .flex-display;
+            .justify-content(center);
+        }
+
+        .heading, .subHeading {
+            color: @color-font-select-blue;
+            font-weight: 500;
+        }
+
+        .heading {
+            font-size: 32px;
+        }
+        .subHeading {
+            font-size: 22px;
+            b {
+                font-weight: 600;
+            }
+        }
+    }
+    .box-large {
+        .size(350px, 250px);
+        .flex(1 0 350px);
+        margin-right: 10px;
+        margin-bottom: 10px;
+        box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.2);
+        background-color: @color-white;
+
+        .leftBar {
+            background-color: @color-bg-wkbk-blue;
+        }
+
+        .content {
+            .flex(1 0 300px);
+        }
+
+        .innerContent {
+            width: 80%;
+            min-width: 300px;
+        }
+    }
+
+    .box-small {
+        .size(@height: 190px);
+        .flex(1 0 300px);
+        overflow: hidden; 
+
+        .innerBox {
+            width: 100%;
+            margin-right: 10px;
+            margin-bottom: 10px;
+            box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.2);
+            .flex-display;
+            background-color: @color-white;
+            .transition(0.7s transform);
+        }
+
+        &.new, &.removing {
+            .innerBox {
+                .transform(translateX(-110%));
+            }
+        }
+
+        // hide tabs when new box is sliding out
+        &.animating {
+            .rightBar {
+                .tab {
+                    .transform(translateX(110%));
+                }
+            }
+        }
+
+        // keep tabs showing when box is sliding away to be removed
+        &.removing {
+            .rightBar {
+                .tab {
+                    .transform(translateX(0%));
+                }
+            }
+        }
+
+        &.dummyBox {
+            visibility: hidden;
+            height: 0px;
+            margin-bottom: 0px;
+        }
+
+        .content {
+            .flex(1 0 200px);
+        }
+
+        .innerContent {
+            width: 200px;
+            
+        }
+
+        .input-box(@w:100%, @h:30px);
+
+        .subHeading {
+            margin-bottom: 5px;
+        }
+    }
+
+    .welcomeBox {
+        .heading {
+            .textOverflowOneLine;
+        }
+        .username {
+            font-weight: 600;
+        }
+        .description {
+            padding-left: 15px;
+        }
+    }
+
+    .newsBox, .tutBox {
+        .content {
+            margin: 5px 0px 10px;
+            position: relative;
+        }
+        .section {
+            margin-bottom: 10px;
+            height: 50%;
+        }
+        hr {
+            position: absolute;
+            width: ~"calc(100% - 2px)";
+            left: 0px;
+            top: 50%;
+            border: 1px solid @color-border-white-five;
+            margin: 0px;
+        }
+        li {
+            list-style-type: disc;
+        }
+    }
+
+    .newsBox {
+        .innerContent {
+            min-width: auto;
+        }
+        .description {
+            margin-top: 8px;
+            li {
+                margin-bottom: 0px;
+            }
+        }
+
+        section:last-child {
+            .description {
+                margin-top: 4px;
+            }
+        }
+
+        a {
+            color: @color-font-darkGray;
+            text-decoration: none;
+            &:hover {
+                color: @color-font-select-blue;
+                text-decoration: underline;
+            }
+        }
+
+        li > span {
+            cursor: pointer;
+            &:hover {
+                color: @color-font-select-blue;
+                text-decoration: underline;
+            }
+        }
+
+    }
+
+    .tutBox {
+        .helpText {
+            color: @color-font-select-blue;
+            margin-top: 2px;
+            margin-left: 5px;
+            a {
+                color: @color-font-select-blue;
+                text-decoration: none;
+                &:hover {
+                    text-decoration: underline;
+                }
+            }
+        }
+
+        .tutBlock {
+            .size(~"calc(100% - 5px)", 45px);
+            line-height: 45px;
+            border: 1px solid @color-border-white-five;
+            margin-top: 6px;
+            margin-left: 5px;
+            .noSelection;
+            cursor: pointer;
+
+            a {
+                color: @color-font-darkGray !important;
+                // over ride default link color
+            }
+
+            &:hover {
+                border: 1px solid @color-bg-white-nine;
+                .tutBtn {
+                    background-color: @color-bg-white-nine;
+                }
+            }
+        }
+        .tutBtn {
+            float: left;
+            .size(45px, 100%);
+            background-color: @color-bg-white-five;
+            text-align: center;
+            .icon {
+                color: @color-black;
+                font-size: 24px;
+                line-height: 45px;
+            }
+        }
+        .tutText {
+            float: left;
+            .size(~"calc(100% - 45px)", 100%);
+            padding-left: 10px;
+            padding-right: 10px;
+        }
+    }
+
+    .newWorkbookBox {
+        .leftBar {
+            background-color: @color-bg-newWB-orange;
+        }
+        input {
+            margin-top: 10px;
+            margin-bottom: 15px;
+        }
+        .btn {
+            width: 100%;
+        }
+    }
+
+    .workbookBox {
+        @tabHeight: 45px;
+        .noSelection;
+        cursor: default;
+
+
+        &.active {
+            .innerBox {
+                background-color: @color-bg-select-blue;
+                color: @color-white;
+                .subHeading input, .info {
+                    color: @color-white;
+                }
+                input {
+                    background-color: transparent;
+                    border-color: transparent;
+                }
+            }
+            .delete {
+                pointer-events: none;
+                display: none !important;
+            }
+            .deactivate {
+                display: block;
+            }
+        }
+
+        &.noMeta {
+            .subHeading {
+                input {
+                    color: @color-font-greyish-brown;
+                    opacity: 0.5;
+                }
+            }
+            .info {
+                color: @color-font-greyish-brown;
+                opacity: 0.5;
+            }
+        }
+
+        &.loading {
+            .loadSection {
+                display: block;
+            }
+
+            .content, .rightBar {
+                display: none;
+            }
+        }
+
+        .content {
+            .flex(1 0 225px);
+            .innerContent {
+                width: 225px;
+            }
+        }
+
+        .loadSection {
+            position: relative;
+            opacity: 0.5;
+            display: none;
+            .size(100%, 100%);
+
+            &.safari {
+                // safari has issue when use height 100% T_T
+                height:  180px;
+            }
+
+            .animatedEllipsisWrapper {
+                .size(@width: 140px, @height: 20px);
+                .center-align;
+
+                .animatedEllipsis {
+                    > div {
+                        .font(@weight: bold);
+                        margin-left: 1px;
+                    }
+                }
+            }
+        }
+
+        .subHeading {
+            .input-box(@w:100%, @h:30px);
+            input {
+                color: @color-font-select-blue;
+                font-size: 22px;
+                font-weight: 500;
+                background-color: @color-white;
+                border-color: @color-white;
+                margin-top: -10px;
+                margin-left: -5px;
+                padding-left: 5px;
+                pointer-events: none;
+                .textOverflowOneLine;
+
+                &.active {
+                    border-color: @color-border-white-five;
+                    background-color: @color-bg-white-three;
+                    color: @color-font-select-blue !important;
+                    pointer-events: initial;
+
+                    &:focus {
+                        border-color: @color-border-softBlue;
+                        background-color: @color-white;
+                    }
+                }
+            }
+
+        }
+
+        .topInfo {
+            border-bottom: 1px solid @color-border-pinkish-grey2;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+        }
+
+        .row {
+            margin-top: 5px;
+        }
+
+        .label {
+            width: 95px;
+            display: inline-block;
+            float: left;
+        }
+        .info {
+            width: ~"calc(100% - 95px)";
+            display: inline-block;
+            float: left;
+            color: @color-font-wkbkInfo-blue;
+            .textOverflowOneLine;
+        }
+
+        .deactivate {
+            display: none;
+        }
+
+        .rightBar {
+            background-color: @color-bg-white-three;
+            overflow: hidden;
+            width: @tabHeight;
+            .tab {
+                background-color: @color-bg-select-blue;
+                .size(100%, 25%);
+                border-top: 1px solid @color-bg-dusk-blue;
+                border-left: 1px solid @color-bg-dusk-blue;
+                display: block;
+
+                .transform(translateX(100%));
+                .transition(0.2s transform);
+                // temp fix for Safari
+                -webkit-transition: -webkit-transform 0.2s;
+
+                &:hover {
+                    .icon {
+                        opacity: @opacity-hover;
+                    }
+                }
+
+                &:nth-child(1) {
+                    .transition-delay(0.20s);
+                    border-top-width: 0px;
+                }
+                &:nth-child(2) {
+                    .transition-delay(0.15s);
+                }
+
+                &:nth-child(3) {
+                    .transition-delay(0.10s);
+                }
+                &:nth-child(4) {
+                    .transition-delay(0.05s);
+                }
+                &:nth-child(5) {
+                    .transition-delay(0.05s);
+                }
+            }
+
+            .icon {
+                line-height: @tabHeight;
+                opacity: @opacity-unhover;
+
+                &.xi-edit, &.xi-duplicate, &.xi-trash {
+                    font-size: 16px;
+                }
+                &.xi-duplicate {
+                    font-size: 18px;
+                }
+            }
+        }
+
+        &:hover {
+            .tab {
+                .transform(translateY(0%));
+                &:nth-child(1) {
+                    .transition-delay(0.05s);
+                }
+                &:nth-child(2) {
+                    .transition-delay(0.10s);
+                }
+                &:nth-child(3) {
+                    .transition-delay(0.15s);
+                }
+                &:nth-child(4) {
+                    .transition-delay(0.20s);
+                }
+                &:nth-child(5) {
+                    .transition-delay(0.20s);
+                }
+            }
+        }
+
+
+    }
 }

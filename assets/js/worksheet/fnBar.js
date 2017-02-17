@@ -79,8 +79,7 @@ window.FnBar = (function(FnBar, $) {
         editor.on("mousedown", function() {
             $fnBar.addClass("inFocus");
             $fnBar.find('.CodeMirror-placeholder').show();
-
-            // show autocomplete menu if fnbar is blank except for =, so 
+            // show autocomplete menu if fnbar is blank except for =, so
             // we suggest map or pull
             // delay or codemirror will autoclose hint menu
             setTimeout(function() {

@@ -20,7 +20,7 @@ window.JSONModal = (function($, JSONModal) {
         multiple: 'multiple',
         project: 'project'
     };
-    var lastMode = modes.single; 
+    var lastMode = modes.single;
 
     // constant
     var jsonAreaMinWidth = 340;
@@ -920,7 +920,7 @@ window.JSONModal = (function($, JSONModal) {
         }});
 
         if (!isSaveModeOff) {
-           saveLastMode(mode);
+            saveLastMode(mode);
         }
         isSaveModeOff = false;
 

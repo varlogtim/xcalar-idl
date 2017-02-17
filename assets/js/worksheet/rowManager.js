@@ -126,7 +126,7 @@ window.RowManager = (function($, RowManager) {
         var scrollTop = $xcTbodyWrap.scrollTop();
         if (scrollTop < 2) {
             // leave some space for scrolling up
-            $xcTbodyWrap.scrollTop(2); 
+            $xcTbodyWrap.scrollTop(2);
         } else if ($xcTbodyWrap[0].scrollHeight - scrollTop -
                        $xcTbodyWrap.outerHeight() <= 1) {
             // leave some space for scrolling down

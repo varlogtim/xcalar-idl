@@ -460,7 +460,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
         if (show) {
             $errorScreen.removeClass("xc-hidden");
             var msg;
-            // if no error, or error.error doesn't exist, or error.error is 
+            // if no error, or error.error doesn't exist, or error.error is
             // udf execute failed, change msg to custom message
             if (!error || (!error.error ||
                 error.status === StatusT.StatusUdfExecuteFailed)) {

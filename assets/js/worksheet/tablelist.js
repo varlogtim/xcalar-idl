@@ -44,7 +44,7 @@ window.TableList = (function($, TableList) {
 
         // focus on table
         $("#activeTableListSection").on("click", ".tableListBox .tableName",
-          function() {
+        function() {
             if ($(this).closest('.hiddenWS').length) {
                 return;
             }

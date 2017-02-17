@@ -356,7 +356,7 @@ window.XIApi = (function(XIApi, $) {
                              indexedTableName, icvMode)
     {
         if (txId == null || operator == null || groupByCols == null ||
-            aggColName == null || isIncSample == null || sampleCols == null || 
+            aggColName == null || isIncSample == null || sampleCols == null ||
             tableName == null || newColName == null || aggColName.length < 1)
         {
             return PromiseHelper.reject("Invalid args in groupby");

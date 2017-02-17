@@ -1279,18 +1279,18 @@ window.QueryManager = (function(QueryManager, $) {
                             QueryManager.removeQuery(id, true);
                         });
                         $querySideBar.removeClass("bulkOptionsOpen");
-                    break;
+                        break;
                     case ("clearAll"):
                         $queryList.find(".checkbox.checked")
                                   .removeClass("checked");
-                    break;
+                        break;
                     case ("selectAll"):
                         $queryList.find(".checkbox").filter(function() {
                             return !$(this).closest(".processing").length;
                         }).addClass("checked");
-                    break;
+                        break;
                     default:
-                    break;
+                        break;
                 }
             });
         }

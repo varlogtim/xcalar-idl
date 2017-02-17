@@ -196,7 +196,7 @@ window.OperationsView = (function($, OperationsView) {
 
         // .functionsInput
         $operationsView.on({
-            'mousedown': function(event) {
+            'mousedown': function() {
                 var $list = $(this).siblings('.list');
                 if (!$list.is(':visible')) {
                     hideDropdowns();
@@ -456,7 +456,7 @@ window.OperationsView = (function($, OperationsView) {
             }
             var noHighlight = false;
             var andOrSwitch = true;
-            updateStrPreview(false, andOrSwitch);
+            updateStrPreview(noHighlight, andOrSwitch);
         });
 
         // static button
@@ -616,7 +616,7 @@ window.OperationsView = (function($, OperationsView) {
                             $activeOpSection.find(".cols").html(listHtml);
                             $activeOpSection.find(".selectAllCols")
                                             .removeClass('checked');
-                            focusedColListNum = null
+                            focusedColListNum = null;
                         }
                     } else {
                         return;
@@ -2424,7 +2424,7 @@ window.OperationsView = (function($, OperationsView) {
                 args = multipleArgSets;
                 hasMultipleSets = true;
             }
-            return submitFinalForm(args, hasMultipleSets)
+            return submitFinalForm(args, hasMultipleSets);
         })
         .then(deferred.resolve)
         .fail(deferred.reject)
@@ -3337,7 +3337,7 @@ window.OperationsView = (function($, OperationsView) {
     }
 
     // if a nestedArray is found, we will return "nested array value" for the
-    // type instead of it's actual type, same for array values when 
+    // type instead of it's actual type, same for array values when
     // allowArrayVal is false
     function getAllColumnTypesFromArg(argValue, allowArrayVal) {
         var values = argValue.split(",");
@@ -3365,7 +3365,7 @@ window.OperationsView = (function($, OperationsView) {
             }
             if (progCol.isChildOfArray()) {
                 // this type is not yet supported and we will show an error
-                colType = CommonTxtTstr.NestedArrayVal;  
+                colType = CommonTxtTstr.NestedArrayVal;
             } else if (!allowArrayVal && backName != null) {
                 var bracketIndex = backName.indexOf("[");
                 if (bracketIndex > -1 &&
@@ -3994,7 +3994,7 @@ window.OperationsView = (function($, OperationsView) {
             $activeOpSection.find(".cols").html(listHtml);
             $activeOpSection.find(".selectAllCols")
                             .removeClass('checked');
-            focusedColListNum = null
+            focusedColListNum = null;
         }
         // clear string preview
         $operationsView.find('.strPreview').empty();

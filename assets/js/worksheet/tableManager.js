@@ -2338,8 +2338,8 @@ window.TblManager = (function($, TblManager) {
                 "rowNum": rowNum,
                 "classes": "tdMenu", // specify classes to update colmenu's class attr
                 "mouseCoors": {"x": event.pageX, "y": event.pageY},
-                "shiftKey"  : event.shiftKey,
-                "isMultiCol" : isMultiColumn(),
+                "shiftKey": event.shiftKey,
+                "isMultiCol": isMultiColumn(),
                 "isUnSelect": isUnSelect,
                 "floating": true
             });
@@ -2407,9 +2407,9 @@ window.TblManager = (function($, TblManager) {
                 "rowNum": rowNum,
                 "classes": "tdMenu", // specify classes to update colmenu's class attr
                 "mouseCoors": {"x": event.pageX, "y": event.pageY},
-                "isMultiCol" : isMultiColumn(),
-                "isDataTd"  : isDataTd,
-                "floating"  : true
+                "isMultiCol": isMultiColumn(),
+                "isDataTd": isDataTd,
+                "floating": true
             });
 
             return false;
