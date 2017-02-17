@@ -95,6 +95,7 @@ TooltipTStr = {
     // Sync with htmlTStr
     "IcvGenerating": "Erroneous rows(ER) table is generating",
     "IcvRestriction": "Erroneous rows(ER) table only available for Map and Group By",
+    "IcvSourceDropped": "Cannot create erroneous rows(ER) table if descendant table has been dropped",
     "OnlyInOpMode": "Feature only available in Operational mode",
     "ColumnAlreadyInt": "Column is already an integer",
     "ColumnAlreadyFloat": "Column is already a float",

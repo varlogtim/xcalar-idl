@@ -469,12 +469,19 @@ window.DagPanel = (function($, DagPanel) {
                 });
             } else {
                 if ($dagTable.hasClass("generatingIcv")) {
+
                     xcHelper.disableMenuItem($genIcvLi, {
                         "title": TooltipTStr.IcvGenerating
                     });
                 } else if (!$dagTable.hasClass("icv") &&
                     (operator === 'map' || operator === 'groupBy')) {
-                    xcHelper.enableMenuItem($genIcvLi);
+                    if (isParentDropped($dagTable)) {
+                        xcHelper.disableMenuItem($genIcvLi, {
+                            "title": TooltipTStr.IcvSourceDropped
+                        });
+                    } else {
+                        xcHelper.enableMenuItem($genIcvLi);
+                    }
                 } else {
                     xcHelper.disableMenuItem($genIcvLi, {
                         "title": TooltipTStr.IcvRestriction
@@ -584,6 +591,18 @@ window.DagPanel = (function($, DagPanel) {
         .fail(deferred.reject);
 
         return deferred;
+    }
+
+    // for map & groupby tables, does not handle joined tables
+    function isParentDropped($dagTable) {
+        var index = $dagTable.data('index');
+        var $dagWrap = $dagTable.closest('.dagWrap');
+        var nodes = $dagWrap.data('allDagInfo').nodes;
+        var parentIdx = nodes[index].parents[0];
+        var $parentTable = $dagWrap.find('.dagTable[data-index="' + parentIdx +
+                                         '"]');
+        var droppedClass = DgDagStateTStr[DgDagStateT.DgDagStateDropped];
+        return $parentTable.hasClass(droppedClass);
     }
 
     function setupDataFlowBtn() {
