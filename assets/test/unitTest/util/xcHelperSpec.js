@@ -1083,6 +1083,37 @@ describe('xcHelper Test', function() {
         expect(res).to.equal("abc-2");
     });
 
+    it('xcHelper.createNextColumnName should work', function() {
+        var allNames = ["test_2_cd1", "test_cd1", "test_asdf_awet_cd1",
+                        "_2djt4_cd2", "_awwet_215_cd1"];
+        // case 1
+        var res = xcHelper.createNextColumnName(allNames, "hello", "cd1");
+        expect(res).to.equal("hello_cd1");
+        // case 2
+        res = xcHelper.createNextColumnName(allNames, "test", "cd1");
+        expect(res).to.equal("test_3_cd1");
+        // case 3
+        res = xcHelper.createNextColumnName(allNames, "test_a", "cd1");
+        expect(res).to.equal("test_a_cd1");
+        // case 4
+        res = xcHelper.createNextColumnName(allNames, "_a", "cd1");
+        expect(res).to.equal("_a_cd1");
+        // case 5
+        res = xcHelper.createNextColumnName(allNames, "_a_1_cd1", "cd1");
+        expect(res).to.equal("_a_cd1");
+        // case 6
+        allNames.push("_a_cd1");
+        res = xcHelper.createNextColumnName(allNames, "_a_1_cd1", "cd1");
+        expect(res).to.equal("_a_2_cd1");
+        // case 7
+        res = xcHelper.createNextColumnName(allNames, "test_483_cd1", "cd1");
+        expect(res).to.equal("test_484_cd1");
+        // case 8
+        res = xcHelper.createNextColumnName(allNames, "test_a_cd1", "cd1");
+        expect(res).to.equal("test_a_1_cd1");
+
+    });
+
     it('xcHelper.checkNamePattern should work', function() {
         // case 1
         var res = xcHelper.checkNamePattern("dataset", "fix", "a(F-_&$38", "0");
@@ -1215,7 +1246,7 @@ describe('xcHelper Test', function() {
             },
             {
                 "str": "ab}c",
-                "res": false
+                "res": true
             },
         ];
 

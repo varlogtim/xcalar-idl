@@ -1660,6 +1660,61 @@ window.xcHelper = (function($, xcHelper) {
         }
     };
 
+    // Create a column name that is not in allNames and not in str
+    xcHelper.createNextColumnName = function(allNames, str, tableId) {
+        var delimiter = "_";
+        var parts = str.split(delimiter);
+        var candidate;
+        allNames.push(str);
+        if (parts.length === 1) {
+            candidate = parts[0];
+        } else {
+            // Check out whether the suffix is another tableId
+            var lastPart = parts[parts.length - 1];
+            if (/^[a-zA-Z]{2}[0-9]+$/.test(lastPart)) {
+                if (parts.length > 2 &&
+                    jQuery.isNumeric(parseFloat(parts[parts.length - 2]))) {
+                        parts.splice(parts.length - 2, 2);
+                } else {
+                    parts.splice(parts.length - 1, 1);
+                }
+                candidate = parts.join(delimiter);
+            } else {
+                candidate = str;
+            }
+        }
+        var newName = candidate + delimiter + tableId;
+        if (allNames.indexOf(newName) === -1) {
+            return newName;
+        } else {
+            // filter allnames by the ones that end with delimiter + tableId
+            // figure out what is the largest number
+            // add 1 to it
+            // if there is no largest number, then it's set to 1
+            var collisions = allNames.filter(function(val) {
+                return (val.startsWith(candidate + delimiter) &&
+                        val.endsWith(tableId));
+            });
+            var largestNumber = 0;
+            for (var i = 0; i < collisions.length; i++) {
+                var firstPart = collisions[i].substring(0,
+                                          collisions[i].lastIndexOf(delimiter));
+                var numberIndex = firstPart.lastIndexOf(delimiter);
+                if (numberIndex === -1) {
+                    continue;
+                }
+                var numberPart = firstPart.substring(numberIndex + 1);
+                if (jQuery.isNumeric(parseFloat(numberPart))) {
+                    if (parseFloat(numberPart) > largestNumber) {
+                        largestNumber = parseFloat(numberPart);
+                    }
+                }
+            }
+            return candidate + delimiter + (largestNumber + 1) + delimiter +
+                   tableId;
+        }
+    };
+
     /**
     name = value of string OPTIONAL
     category = which pattern to follow
@@ -1730,7 +1785,7 @@ window.xcHelper = (function($, xcHelper) {
     };
 
     xcHelper.hasInvalidCharInCol = function(str) {
-        return /^ | $|[\^,\(\)\[\]'"\.\\]|:/.test(str);
+        return /^ | $|[\^,\(\)\[\]{}'"\.\\]|:/.test(str);
     };
 
     xcHelper.escapeHTMLSepcialChar = function(str) {
