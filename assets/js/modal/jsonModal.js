@@ -971,6 +971,7 @@ window.JSONModal = (function($, JSONModal) {
         var jsonObj;
         var allProjectMode = false; // used to see if new json column will
         // come out in project mode
+        var allMultiMode = false;
 
         if (type &&
             (type !== ColumnType.array && type !== ColumnType.object &&
@@ -1015,10 +1016,17 @@ window.JSONModal = (function($, JSONModal) {
                 toggleModal($jsonTd, false, 200);
             }
         } else {
-            if ($jsonArea.find('.jsonWrap.projectMode').length > 1 &&
+            if ($jsonArea.find('.jsonWrap.projectMode').length &&
                 ($jsonArea.find('.jsonWrap').length ===
                 $jsonArea.find('.jsonWrap.projectMode').length)) {
                 allProjectMode = true;
+            }
+            if (!allProjectMode) {
+                if ($jsonArea.find('.jsonWrap.multiSelectMode').length &&
+                    ($jsonArea.find('.jsonWrap').length ===
+                    $jsonArea.find('.jsonWrap.multiSelectMode').length)) {
+                    allMultiMode = true;
+                }
             }
         }
 
@@ -1051,6 +1059,10 @@ window.JSONModal = (function($, JSONModal) {
             if (allProjectMode) {
                 $jsonWrap.addClass('projectMode');
                 autoSelectFieldsToProject($jsonArea.find('.jsonWrap').last());
+            } else if (allMultiMode) {
+                $jsonWrap.addClass('multiSelectMode');
+                xcTooltip.changeText($jsonWrap.find('.submitProject'),
+                                    JsonModalTStr.SubmitPull);
             }
         } else if (lastMode === modes.project && isDataCol) {
             $jsonWrap.addClass('projectMode');
@@ -1058,7 +1070,8 @@ window.JSONModal = (function($, JSONModal) {
         } else if (lastMode === modes.multiple &&
             (isDataCol || type === ColumnType.object)) {
             $jsonWrap.addClass('multiSelectMode');
-            xcTooltip.changeText($jsonWrap.find('.submitProject'), JsonModalTStr.SubmitPull);
+            xcTooltip.changeText($jsonWrap.find('.submitProject'),
+                                 JsonModalTStr.SubmitPull);
         }
     }
 

@@ -55,6 +55,16 @@ describe('JsonModal Test', function() {
         });
     });
 
+    describe('mousedown on jsonDrag element', function() {
+        it('mousedown on jsonDrag should work', function() {
+            expect($("#moveCursor").length).to.equal(0);
+            $jsonModal.find('.jsonDragHandle').trigger(fakeEvent.mousedown);
+            expect($("#moveCursor").length).to.equal(1);
+            $(document).trigger(fakeEvent.mouseup);
+            expect($("#moveCursor").length).to.equal(0);
+        });
+    });
+
     describe('opening modal from td', function() {
         before(function(done) {
             JSONModal.__testOnly__.closeJSONModal();
@@ -432,6 +442,23 @@ describe('JsonModal Test', function() {
         });
     });
 
+    describe("dropdownBox", function() {
+        it(".dropdownBox should work", function() {
+            var $menu = $jsonModal.find(".menu");
+            var $dropdownBox = $jsonModal.find(".dropdownBox");
+            expect($menu.length).to.equal(1);
+            expect($menu.is(":visible")).to.be.false;
+            expect($dropdownBox.length).to.equal(1);
+            expect($dropdownBox.is(":visible")).to.be.true;
+
+            $dropdownBox.click();
+            expect($menu.is(":visible")).to.be.true;
+
+            $dropdownBox.click();
+            expect($menu.is(":visible")).to.be.false;
+        });
+    });
+
     // xx need to add actual projection testing
     describe('project mode', function() {
         it('toggle project mode should work', function() {
@@ -464,6 +491,32 @@ describe('JsonModal Test', function() {
             expect($jsonWrap.find('.projectModeBar .numColsSelected').text()).to.equal("0/12 fields selected to project");
             expect($jsonWrap.find('.projectModeBar .numColsSelected').is(":visible")).to.be.false;
         });
+
+        it(".submitProject click should work", function() {
+            var $jsonWrap = $jsonModal.find('.jsonWrap');
+            var cachedFn = xcFunction.project;
+            projectCalled = false;
+            xcFunction.project = function(colNames, tId) {
+                colNames.sort();
+                expect(colNames.length).to.equal(12);
+                expect(colNames[0]).to.equal(prefix + "::" + "average_stars");
+                expect(tId).to.equal(tableId);
+                projectCalled = true;
+            };
+
+            $jsonWrap.find('.jsonModalMenu .projectionOpt').trigger(fakeEvent.mouseup);
+            $jsonWrap.find(".submitProject").click();
+            expect(projectCalled).to.be.true;
+            xcFunction.project = cachedFn;
+        });
+
+        after(function(done) {
+            JSONModal.show($table.find('.jsonElement').eq(0));
+            setTimeout(function() {
+                $jsonModal.find('.jsonWrap').removeClass('projectMode');
+                done();
+            }, 100);
+        });
     });
 
     describe('multiSelectMode', function() {
@@ -482,7 +535,6 @@ describe('JsonModal Test', function() {
             expect($jsonWrap.hasClass('multiSelectMode')).to.be.true;
             expect($jsonWrap.find('.submitProject').is(":visible")).to.be.true;
             expect($jsonWrap.find('.multiSelectModeBar .numColsSelected').text()).to.equal("0/12 fields selected to pull");
-
         });
 
         it('selecting a field should work', function() {
@@ -501,6 +553,16 @@ describe('JsonModal Test', function() {
             expect($jsonWrap.find('.multiSelectModeBar .numColsSelected').text()).to.equal("0/12 fields selected to pull");
         });
 
+        it('clicking on json key element should select key', function() {
+            var $checkbox = $jsonWrap.find(".jsonCheckbox:visible").eq(0);
+
+            $checkbox.click();
+            expect($checkbox.siblings(".jKey").hasClass("keySelected")).to.be.true;
+
+            $checkbox.click();
+            expect($checkbox.siblings(".jKey").hasClass("keySelected")).to.be.false;
+        });
+
         it('back to select mode', function() {
             $jsonWrap.find('.jKey').eq(0).click();
             expect($jsonWrap.find('.multiSelectModeBar .numColsSelected').text()).to.equal("1/12 fields selected to pull");
@@ -511,6 +573,48 @@ describe('JsonModal Test', function() {
             expect($jsonWrap.find('.submitProject').is(":visible")).to.be.false;
             expect($jsonWrap.find('.multiSelectModeBar .numColsSelected').text()).to.equal("0/12 fields selected to pull");
             expect($jsonWrap.find('.multiSelectModeBar .numColsSelected').is(":visible")).to.be.false;
+        });
+
+        it("selectSome should work", function(done) {
+            var cachedFn = ColManager.unnest;
+            var called = false;
+            ColManager.unnest = function(tId, colNum, rowNum, colNames) {
+                expect(tId).to.equal(tableId);
+                expect(colNum).to.equal(15);
+                expect(rowNum).to.equal(0);
+                expect(colNames.length).to.equal(2);
+                colNames.sort();
+                expect(colNames[0]).to.equal(prefix + "::" + "average_stars");
+                expect(colNames[1]).to.equal(prefix + "::" + "yelping_since");
+                called = true;
+            };
+
+            $jsonWrap.find('.jsonModalMenu .multiSelectionOpt').trigger(fakeEvent.mouseup);
+
+            $jsonWrap.find(".jKey").filter(function() {
+                return $(this).text() === "average_stars";
+            }).click();
+
+            $jsonWrap.find(".jKey").filter(function() {
+                return $(this).text() === "yelping_since";
+            }).click();
+
+            $jsonModal.find(".submitProject").click();
+            
+            UnitTest.timeoutPromise(1)
+            .then(function() {
+                expect(called).to.be.true;
+                ColManager.unnest = cachedFn;
+                done();
+            });
+        });
+
+        after(function(done) {
+            JSONModal.show($table.find('.jsonElement').eq(0));
+            setTimeout(function() {
+                $jsonModal.find('.jsonWrap').removeClass('multiSelectMode');
+                done();
+            }, 100);
         });
     });
 
@@ -541,7 +645,6 @@ describe('JsonModal Test', function() {
         });
     });
 
-    // xx need to test with immediates
     describe('tabs should work', function() {
         var selectTab;
         before(function() {
@@ -570,6 +673,63 @@ describe('JsonModal Test', function() {
             expect($jsonModal.find('.prefix').is(":visible")).to.be.true;
             expect($jsonModal.find('.mainKey').length).to.equal(12);
             expect($jsonModal.find('.mainKey:visible').length).to.equal(12);
+
+            // test mousedown
+            $jsonModal.find('.tab').eq(1).trigger(fakeEvent.mousedown);
+            expect($jsonModal.find('.tab.seeAll').hasClass('active')).to.be.false;
+            expect($jsonModal.find('.tab').eq(1).hasClass('active')).to.be.true;
+
+            $jsonModal.find('.tab').eq(0).trigger(fakeEvent.mousedown);
+            expect($jsonModal.find('.tab.seeAll').hasClass('active')).to.be.true;
+            expect($jsonModal.find('.tab').eq(1).hasClass('active')).to.be.false;
+        });
+    });
+
+    describe("search", function() {
+        it('toggling search should work', function() {
+            expect($("#jsonSearch").hasClass('closed')).to.be.true;
+
+            $("#jsonSearch").find(".searchIcon").click();
+            expect($("#jsonSearch").hasClass('closed')).to.be.false;
+            $("#jsonSearch").find("input").val("unitTest");
+            expect($("#jsonSearch").find("input").val()).to.equal("unitTest");
+
+            $("#jsonSearch").find(".searchIcon").click();
+            expect($("#jsonSearch").hasClass('closed')).to.be.true;
+            expect($("#jsonSearch").find("input").val()).to.equal("");
+        });
+
+        it("search should work", function() {
+            $("#jsonSearch").find(".searchIcon").click();
+            $("#jsonSearch").find("input").val("yelping").trigger(fakeEvent.input);
+            
+            expect($jsonModal.find(".highlightedText").length).to.equal(1);
+            expect($jsonModal.find(".highlightedText").text()).to.equal("yelping");
+            expect($("#jsonSearch").find('.position').text()).to.equal("1");
+            expect($("#jsonSearch").find('.total').text()).to.equal("of 1");
+
+            $("#jsonSearch").find(".closeBox").click();
+            expect($("#jsonSearch").find("input").val()).to.equal("");
+            expect($jsonModal.find(".highlightedText").length).to.equal(0);
+        });
+
+        it("duplicate with search should work", function() {
+            $("#jsonSearch").find("input").val("yelping").trigger(fakeEvent.input);
+            expect($jsonModal.find(".highlightedText").length).to.equal(1);
+
+            $jsonModal.find(".split").click();
+            expect($jsonModal.find(".highlightedText").length).to.equal(2);
+            expect($("#jsonSearch").find('.position').text()).to.equal("1");
+            expect($("#jsonSearch").find('.total').text()).to.equal("of 2");
+
+            $jsonModal.find(".remove").last().click();
+
+            expect($jsonModal.find(".highlightedText").length).to.equal(1);
+            expect($jsonModal.find(".highlightedText").text()).to.equal("yelping");
+            expect($("#jsonSearch").find('.position').text()).to.equal("1");
+            expect($("#jsonSearch").find('.total').text()).to.equal("of 1");
+
+            $("#jsonSearch").find(".searchIcon").click();
         });
     });
 
@@ -579,11 +739,15 @@ describe('JsonModal Test', function() {
             expect(numRows).to.be.gt(30);
             expect($table.find('.jsonElement').length).to.equal(numRows);
             expect($table.find('.modalHighlighted').length).to.equal(numRows);
-            $table.find('.jsonElement:gt(20)').removeClass('modalHighlighted');
-            expect($table.find('.modalHighlighted').length).to.equal(21);
+            $table.find('.jsonElement:lt(20)').removeClass('modalHighlighted');
+            expect($table.find('.modalHighlighted').length).to.equal(numRows - 20);
+            expect($table.find('.jsonModalHighlightBox').length).to.equal(1);
+            $table.find('.jsonModalHighlightBox').remove();
+            expect($table.find('.jsonModalHighlightBox').length).to.equal(0);
 
             JSONModal.rehighlightTds($table);
-            expect($table.find('.modalHighlighted').length).to.be.gt(30);
+            expect($table.find('.modalHighlighted').length).to.equal(numRows);
+            expect($table.find('.jsonModalHighlightBox').length).to.equal(1);
         });
     });
 
@@ -596,6 +760,7 @@ describe('JsonModal Test', function() {
             }
             ColManager.delCol(colNums, tableId, {noAnimate: true})
             .then(function() {
+                $jsonModal.find(".jsonWrap").data("colnum", 1);
                 done();
             });
         });
