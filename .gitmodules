@@ -1,6 +1,0 @@
-[submodule "3rd/silverstripe/sapphire"]
-	path = 3rd/silverstripe/sapphire
-	url = git://github.com/silverstripe/sapphire.git
-[submodule "3rd/silverstripe/cms"]
-	path = 3rd/silverstripe/cms
-	url = git://github.com/silverstripe/silverstripe-cms.git
