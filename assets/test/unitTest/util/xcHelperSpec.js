@@ -1855,7 +1855,7 @@ describe('xcHelper Test', function() {
         var res = xcHelper.normalizePrefix("abc");
         expect(res).to.equal("abc");
         // case 2
-        res = xcHelper.normalizePrefix(new Array(25).join("a"));
+        res = xcHelper.normalizePrefix(new Array(32).join("a"));
         expect(res.length).to.equal(gPrefixLimit);
         // case 3
         res = xcHelper.normalizePrefix("a:b");

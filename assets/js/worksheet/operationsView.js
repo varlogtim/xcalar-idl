@@ -3701,12 +3701,17 @@ window.OperationsView = (function($, OperationsView) {
                 value = JSON.parse(value);
             }
         }
+
         value = parseAggPrefixes(value);
         value = parseColPrefixes(value);
         if (shouldBeString) {
             // add quote if the field support string
             value = "\"" + value + "\"";
             // stringify puts in too many slashes
+        } else if (shouldBeNumber) {
+            if (value.indexOf(".") === 0) {
+                value = "0" + value;
+            }
         } else {
             if (typeof value === ColumnType.string) {
                 value = value.trim();
