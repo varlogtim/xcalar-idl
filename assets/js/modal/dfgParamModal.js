@@ -625,8 +625,8 @@ window.DFParamModal = (function($, DFParamModal){
             }
             params = getParamsInInput($(this));
             for (var i = 0; i < params.length; i++) {
-                isValid = !xcHelper.checkNamePattern("param", "check",
-                                                     params[i]);
+                isValid = xcHelper.checkNamePattern("param", "check",
+                                                    params[i]);
                 if (!isValid) {
                     StatusBox.show(ErrTStr.NoSpecialCharInParam, $(this));
                     var paramIndex = $(this).val().indexOf(params[i]);
