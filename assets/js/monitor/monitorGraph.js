@@ -24,24 +24,29 @@ window.MonitorGraph = (function($, MonitorGraph) {
     MonitorGraph.setup = function() {
         var $monitorPanel = $('#monitorPanel');
         $monitorPanel.find('.graphSwitch').click(function() {
+            var $switch = $(this);
             var index = $(this).parent().index();
 
             if (index > 1) {
                 return;
             }
 
-            if ($(this).hasClass('on')) {
-                $(this).removeClass('on');
+            if ($switch.hasClass('on')) {
+                $switch.removeClass('on');
                 $monitorPanel.find('.line' + index).hide();
                 $monitorPanel.find('.area' + index).hide();
+                $monitorPanel.find(".yAxis").eq(index).hide();
             } else {
-                $(this).addClass('on');
+                $switch.addClass('on');
                 var $area = $monitorPanel.find('.area' + index);
                 var $line = $monitorPanel.find('.line' + index);
 
                 $area.show();
                 $line.show();
-                $('.mainSvg').children().append($line, $area);
+                $monitorPanel.find(".yAxis").eq(index).show();
+
+                // bring this line and area in front of the others
+                $monitorPanel.find('.mainSvg').children().append($line, $area);
             }
         });
 
