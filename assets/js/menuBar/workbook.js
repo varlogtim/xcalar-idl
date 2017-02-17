@@ -322,6 +322,21 @@ window.Workbook = (function($, Workbook) {
             $(".tooltip").remove();
         });
 
+        // deactivate button
+        $workbookSection.on("click", ".deactivate", function() {
+            clearActives();
+            var $workbookBox = $(this).closest(".workbookBox");
+            Alert.show({
+                "title": WKBKTStr.Deactivate,
+                "msg": WKBKTStr.DeactivateMsg,
+                "onConfirm": function() {
+                    deactiveWorkbookHelper($workbookBox);
+                }
+            });
+
+            $(".tooltip").remove();
+        });
+
         $workbookSection.on('mouseenter', '.tooltipOverflow', function() {
             var $input = $(this).find('input');
             if ($input.is(':focus')) {
@@ -575,6 +590,21 @@ window.Workbook = (function($, Workbook) {
         });
     }
 
+    function deactiveWorkbookHelper($workbookBox) {
+        var workbookId = $workbookBox.attr("data-workbook-id");
+
+        WorkbookManager.deactivate(workbookId)
+        .then(function() {
+            $workbookBox.removeClass("active");
+            updateWorkbookInfo($workbookBox, workbookId);
+            $workbookBox.find(".isActive").text(WKBKTStr.Inactive);
+            $("#container").addClass("noWorkbook");
+        })
+        .fail(function(error) {
+            StatusBox.show(error.error, $workbookBox);
+        });
+    }
+
     function createWorkbookCard(workbook, extraClasses) {
         var workbookId = workbook.getId() || "";
         var workbookName = workbook.getName() || "";
@@ -719,6 +749,12 @@ window.Workbook = (function($, Workbook) {
                         ' data-placement="auto right"' +
                         ' title="' + WKBKTStr.Delete + '">' +
                             '<i class="icon xi-trash"></i>' +
+                        '</div>' +
+                        '<div class="tab btn btn-small deactivate"' +
+                        ' data-toggle="tooltip" data-container="body"' +
+                        ' data-placement="auto right"' +
+                        ' title="' + WKBKTStr.Deactivate + '">' +
+                            '<i class="icon xi-stop-circle"></i>' +
                         '</div>' +
                     '</div>' +
                 '</div>' +

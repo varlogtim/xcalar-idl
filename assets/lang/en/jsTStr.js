@@ -524,7 +524,10 @@ WKBKTStr = {
     'SwitchErr': 'Switch Workbook Error',
     'SwitchErrMsg': 'Error occurred while switching workbooks. Proceeding with the switch may cause problems to the workbook. Do you still want to continue?',
     'Delete': 'Delete Workbook',
-    'DeleteMsg': 'Are you sure you want to delete the workbook?'
+    'DeleteMsg': 'Are you sure you want to delete the workbook?',
+    'Deactivate': 'Deactivate Workbook',
+    'DeactivateMsg': 'Are you sure you want to deactivate the workbook?',
+    'DeactivateErr': 'Error occurred when deactivating workbook'
 };
 
 MonitorTStr = {

@@ -74,7 +74,8 @@ window.Support = (function(Support, $) {
 
     Support.commitCheck = function() {
         var deferred = jQuery.Deferred();
-        if (KVStore.commitKey == null) {
+        if (KVStore.commitKey == null ||
+            WorkbookManager.getActiveWKBK() == null) {
             // when workbook is not set up yet or no workbook yet
             deferred.resolve();
         } else {

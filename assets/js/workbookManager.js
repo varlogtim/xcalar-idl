@@ -262,10 +262,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
         // to switch workbook, should release all ref count first
         $("#initialLoadScreen").show();
 
-        TblManager.freeAllResultSetsSync(true)
-        .then(function() {
-            return KVStore.commit();
-        })
+        commitActiveWkbk()
         .then(function() {
             return switchWorkBookHelper(toWkbkName, fromWkbkName);
         })
@@ -283,7 +280,9 @@ window.WorkbookManager = (function($, WorkbookManager) {
             console.error("Switch Workbook Fails", error);
             $("#initialLoadScreen").hide();
             // restart if fails
-            Support.heartbeatCheck();
+            if (activeWKBKId != null) {
+                Support.heartbeatCheck();
+            }
             deferred.reject(error);
         });
 
@@ -369,6 +368,41 @@ window.WorkbookManager = (function($, WorkbookManager) {
         return deferred.promise();
     };
 
+    WorkbookManager.deactivate = function(workbookId) {
+        xcAssert(workbookId === activeWKBKId, WKBKTStr.DeactivateErr);
+        var wkbk = wkbkSet.get(workbookId);
+        if (wkbk == null) {
+            return PromiseHelper.reject(WKBKTStr.DeactivateErr);
+        }
+
+        // should stop check since seesion is released
+        Support.stopHeartbeatCheck();
+
+        $("#initialLoadScreen").show();
+        var deferred = jQuery.Deferred();
+
+        commitActiveWkbk()
+        .then(function() {
+            return XcalarDeactivateWorkbook(wkbk.getName());
+        })
+        .then(function() {
+            // pass in true to always resolve the promise
+            return removeActiveWKBKKey(true);
+        })
+        .then(deferred.resolve)
+        .fail(function(error) {
+            if (activeWKBKId != null) {
+                Support.heartbeatCheck();
+            }
+            deferred.reject(error);
+        })
+        .always(function() {
+            $("#initialLoadScreen").hide();
+        });
+
+        return deferred.promise();
+    };
+
     WorkbookManager.inActiveAllWKBK = function() {
         var deferred = jQuery.Deferred();
         var promises = [];
@@ -389,11 +423,10 @@ window.WorkbookManager = (function($, WorkbookManager) {
             return PromiseHelper.chain(promises);
         })
         .then(function() {
-            return XcalarKeyDelete(activeWKBKKey, gKVScope.WKBK);
+            return removeActiveWKBKKey();
         })
         .then(function() {
             removeUnloadPrompt();
-            activeWKBKId = null;
             xcHelper.reload();
             deferred.resolve();
         })
@@ -537,7 +570,11 @@ window.WorkbookManager = (function($, WorkbookManager) {
         })
         .then(deferred.resolve)
         .fail(deferred.reject)
-        .always(Support.heartbeatCheck);
+        .always(function() {
+            if (activeWKBKId != null) {
+                Support.heartbeatCheck();
+            }
+        });
 
         return deferred.promise();
     };
@@ -964,6 +1001,37 @@ window.WorkbookManager = (function($, WorkbookManager) {
             xcConsole.error("Delete workbook fails!", error);
             deferred.reject(error);
         });
+
+        return deferred.promise();
+    }
+
+    function removeActiveWKBKKey(alwaysResolve) {
+        var deferred = jQuery.Deferred();
+        XcalarKeyDelete(activeWKBKKey, gKVScope.WKBK)
+        .then(function() {
+            activeWKBKId = null;
+            deferred.resolve();
+        })
+        .fail(function(error) {
+            if (alwaysResolve) {
+                deferred.resolve();
+            } else {
+                deferred.reject(error);
+            }
+        });
+
+        return deferred.promise();
+    }
+
+    function commitActiveWkbk() {
+        var deferred = jQuery.Deferred();
+
+        TblManager.freeAllResultSetsSync(true)
+        .then(function() {
+            return KVStore.commit();
+        })
+        .then(deferred.resolve)
+        .fail(deferred.reject);
 
         return deferred.promise();
     }
