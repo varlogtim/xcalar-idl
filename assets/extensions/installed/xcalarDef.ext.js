@@ -628,7 +628,7 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
         var aggOp = XcSDK.Enums.AggType.Count;
 
         ext.groupBy(aggOp, keyColName, keyColName,
-                    isIncSample, srcTable,
+                    isIncSample, null, srcTable,
                     groupByCol, groupbyTable)
         .then(function(tableAfterGroupby) {
             // Step 2. Sort on desc on groupby table by groupByCol
