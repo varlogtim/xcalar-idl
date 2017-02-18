@@ -137,7 +137,6 @@ body {
                 }
 
                 > .mainContent {
-                    .size(@width: ~"calc(100% - @{width-bottomMenu})");
                     margin-left: @menuWidth + 10px;
                     background-color: @color-bg-body-gray; 
                 } 
@@ -302,9 +301,9 @@ body {
         display: block;
     }
     & > .mainContent {
-        .size(@width: 100%, @height: ~"calc(100% - @{height-topBar})");
+        .size(@height: ~"calc(100% - @{height-topBar})");
         padding: @padding-mainContent @padding-mainContent 0 @padding-mainContent;
-        .transition(all 0.2s);
+        .transition(margin-left 0.2s);
     }
 }
 
@@ -313,8 +312,6 @@ body {
     &.bottomMenuOpen:not(.bottomMenuOut), &.mainMenuOpen {
         @menuWidth: @width-bottomMenu - @width-sideMenuMinimized;
         .mainPanel > .mainContent {
-            
-            .size(@width: ~"calc(100% - @{menuWidth})");
             margin-left: @menuWidth;
         }
 
