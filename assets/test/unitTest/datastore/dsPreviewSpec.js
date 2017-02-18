@@ -748,6 +748,7 @@ describe("DSPreview Test", function() {
         });
 
         it("Should validate name", function() {
+            loadArgs.setFormat("CSV");
             var $dsName = $("#dsForm-dsName");
             $dsName.val("");
 
@@ -783,12 +784,12 @@ describe("DSPreview Test", function() {
 
             // test5
             $dsName.val("test_test");
-            expect(validateForm()).to.be.true;
+            expect(validateForm()).not.to.be.null;
             assert.isFalse($statusBox.is(":visible"));
 
             // test6
             $dsName.val("test-test");
-            expect(validateForm()).to.be.true;
+            expect(validateForm()).not.to.be.null;
             assert.isFalse($statusBox.is(":visible"));
 
             $dsName.val("test");

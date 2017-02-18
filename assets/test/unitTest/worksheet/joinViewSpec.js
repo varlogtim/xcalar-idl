@@ -439,14 +439,11 @@ describe('JoinView Test', function() {
                 expect($joinForm.find('.stats').is(":visible")).to.be.true;
                 var expectedText = "Min:14,878Med:14,878Max:14,878";
                 expect($joinForm.find('.stats').text().replace(/ /g, "").replace(/\n/g, "")).to.equal(expectedText);
+                done();
             })
             .fail(function() {
-                expect('failed').to.equal('succeeded');
-            })
-            .always(function() {
-                done();
+                done('failed');
             });
-
         });
     });
 

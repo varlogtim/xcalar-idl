@@ -834,14 +834,19 @@ describe('ColManager Test', function() {
             expect($rows.eq(0).find('td').length).to.equal(17);
             expect($rows.eq(1).find('td').length).to.equal(17);
             expect($rows.find('td').eq(0).text()).to.equal("1");
-            expect($rows.find('td').eq(1).text()).to.equal("testValue1");
-            expect($rows.find('td').eq(2).text()).to.equal("FNF");
-            expect($rows.eq(0).find('td').last().text()).to.equal('{"' + colName1 + '":"testValue1"}');
-
+            expect($rows.find('td').eq(1).find(".displayedData").text())
+            .to.equal("testValue1");
+            expect($rows.find('td').eq(2).find(".displayedData").text())
+            .to.equal("FNF");
+            expect($rows.eq(0).find('td').last().find(".displayedData").text())
+            .to.equal('{"' + colName1 + '":"testValue1"}');
             expect($rows.eq(1).find('td').eq(0).text()).to.equal("2");
-            expect($rows.eq(1).find('td').eq(1).text()).to.equal("FNF");
-            expect($rows.eq(1).find('td').eq(2).text()).to.equal("testValue2");
-            expect($rows.eq(1).find('td').last().text()).to.equal('{"' + colName2 + '":"testValue2"}');
+            expect($rows.eq(1).find('td').eq(1).find(".displayedData").text())
+            .to.equal("FNF");
+            expect($rows.eq(1).find('td').eq(2).find(".displayedData").text())
+            .to.equal("testValue2");
+            expect($rows.eq(1).find('td').last().find(".displayedData").text())
+            .to.equal('{"' + colName2 + '":"testValue2"}');
 
             expect($table.find('tbody tr:lt(3)').is($rows)).to.be.true;
 

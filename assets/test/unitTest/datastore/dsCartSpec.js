@@ -175,7 +175,7 @@ describe("DSCart Test", function() {
                 "error": ErrTStr.PrefixStartsWithLetter
             },{
                 "input": $prefix,
-                "val": new Array(22).join("a"),
+                "val": new Array(33).join("a"),
                 "valid": false,
                 "prefix": true,
                 "error": ErrTStr.PrefixTooLong

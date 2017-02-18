@@ -683,13 +683,16 @@ describe('TableList Test', function() {
     });
 
     describe("sorting", function() {
-        var cachedGetWSList = WSManager.getWSList;
-        var cachedGetWSById = WSManager.getWSById;
-        var cachedgetHiddenWSList = WSManager.getHiddenWSList;
+        var cachedGetWSList;
+        var cachedGetWSById;
+        var cachedgetHiddenWSList;
 
         before(function() {
-
+            cachedGetWSList = WSManager.getWSList;
+            cachedGetWSById = WSManager.getWSById;
+            cachedgetHiddenWSList = WSManager.getHiddenWSList;
         });
+
         it("sort should work", function() {
 
             WSManager.getWSList = function() {
