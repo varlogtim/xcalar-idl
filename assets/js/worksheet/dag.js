@@ -1593,6 +1593,7 @@ window.Dag = (function($, Dag) {
         });
     };
 
+    // nameProvided: boolean, if true, tableId arg is actually a tablename
     Dag.makeInactive = function(tableId, nameProvided) {
         var tableName;
         var $dags;

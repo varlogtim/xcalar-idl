@@ -1,4 +1,4 @@
-describe("Aggregates", function() {
+describe("Aggregates Test", function() {
     describe("general functionality", function() {
         var isTheAgg;
 
@@ -174,8 +174,6 @@ describe("Aggregates", function() {
             }, 500);
         });
 
-        // todo - create a dataflow that has an aggregate in it and delete it
-        // todo - cause a fail by trying to delete nonexistant aggs
         it("aggregates deleteAggs should work", function(done) {
             var aggs = Aggregates.getAggs();
             expect(aggs).to.not.be.empty;
@@ -202,6 +200,100 @@ describe("Aggregates", function() {
             })
             .fail(function() {
                 expect("failed").to.equal("succeeded");
+                done();
+            });
+        });
+
+        it("deleting nonexistant agg should fail", function(done) {
+            Aggregates.deleteAggs("nonexistant")
+            .then(function() {
+                expect("success").to.equal("failed");
+            })
+            .fail(function() {
+                UnitTest.hasAlertWithText("Error: Could not find dag node. " +
+                                            "No aggregates were deleted.");
+            })
+            .always(function() {
+                done();
+            });
+        });
+
+        // 1 out of 3 tables fails
+        it("partial bulk delete should work", function(done) {
+            var cachedDelete = XIApi.deleteTable;
+            var cachedDagFn = Dag.makeInactive;
+            var deleteCount = 0;
+            var makeInactiveCount = 0;
+            var dagMakeInactiveCalled = false;
+            XIApi.deleteTable = function() {
+                deleteCount++;
+                if (deleteCount === 1) {
+                    return PromiseHelper.reject({error: "Error: Could not find dag node",
+                        status: 291});
+                } else if (deleteCount === 2) {
+                    return PromiseHelper.resolve({statuses: [{nodeInfo: {name: "fakeAgg"}}]})
+                } else {
+                    // 3rd arg
+                    return PromiseHelper.resolve({statuses: [{nodeInfo: {name: "otherFakeAgg"}}]})
+                }
+            };
+
+            Dag.makeInactive = function(name, isNameProvided) {
+                if (makeInactiveCount === 0) {
+                    expect(name).to.equal("fakeAgg");
+                } else if (makeInactiveCount === 1) {
+                    expect(name).to.equal("otherFakeAgg");
+                }
+                expect(isNameProvided).to.be.true;
+                dagMakeInactiveCalled = true;
+                makeInactiveCount++;
+            };
+
+            Aggregates.deleteAggs(["nonexistant", "fakeAgg", "otherFakeAgg"])
+            .then(function() {
+                expect("success").to.equal("failed");
+                done('failed');
+            })
+            .fail(function(ret) {
+                expect(arguments.length).to.equal(1);
+                expect(ret[0]).to.equal("fakeAgg");
+                expect(ret[1]).to.equal("otherFakeAgg");
+                expect(dagMakeInactiveCalled).to.be.true;
+                UnitTest.hasAlertWithText("Error: Could not find dag node. " +
+                                    "Aggregate nonexistant was not deleted.");
+                XIApi.deleteTable = cachedDelete;
+                Dag.makeInactive = cachedDagFn;
+                done();
+            });
+        });
+
+        // 2 out of 2 tables fails
+        it("partial bulk delete", function(done) {
+            var cachedDelete = XIApi.deleteTable;
+            var cachedDagFn = Dag.makeInactive;
+            var dagMakeInactiveCalled = false;
+            XIApi.deleteTable = function() {
+                return PromiseHelper.reject({error: "Error: Could not find dag node",
+                    status: 291});
+            };
+
+            Dag.makeInactive = function(name, isNameProvided) {
+                dagMakeInactiveCalled = true;
+            };
+
+            Aggregates.deleteAggs(["fakeAgg", "nonexistant"])
+            .then(function() {
+                expect("success").to.equal("failed");
+                done('failed');
+            })
+            .fail(function(ret) {
+                expect(arguments.length).to.equal(1);
+                expect(ret.length).to.equal(0);
+                expect(dagMakeInactiveCalled).to.be.false;
+                UnitTest.hasAlertWithText("Error: Could not find dag node. " +
+                                            "No aggregates were deleted.");
+                XIApi.deleteTable = cachedDelete;
+                Dag.makeInactive = cachedDagFn;
                 done();
             });
         });
