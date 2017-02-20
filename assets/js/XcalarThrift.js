@@ -180,6 +180,9 @@ window.Function.prototype.log = function() {
         if (ret && typeof ret.promise === "function") {
             ret.then(function(result) {
                 console.log(result);
+            })
+            .always(function(result) {
+                console.error(result);
             });
         } else {
             console.log(ret);
