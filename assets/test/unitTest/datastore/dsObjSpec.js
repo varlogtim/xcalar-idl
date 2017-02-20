@@ -38,6 +38,10 @@ describe("DSObj Test", function() {
             expect(DS.getDSObj(".")).to.equal(DS.getHomeDir());
         });
 
+        it("Should get error dsobj", function() {
+            expect(DS.getErrorDSObj()).to.be.null;
+        });
+
         it("DS.getGrid should work", function() {
             // edge case
             var res = DS.getGrid();

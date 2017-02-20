@@ -28,22 +28,28 @@ window.DSTable = (function($, DSTable) {
         advanceOption.setMode();
     };
 
+    DSTable.showError = function(dsId, error) {
+        var dsObj = DS.getDSObj(dsId);
+        if (dsObj == null) {
+            // error case
+            return;
+        }
+        showTableView(dsId);
+        updateTableInfo(dsObj, true); // isLoading = true, no async call
+        // hide carts
+        DSCart.switchToCart(null);
+        setupViewAfterError(error);
+    };
+
     DSTable.show = function(dsId, isLoading) {
         var dsObj = DS.getDSObj(dsId);
         if (dsObj == null) {
             return PromiseHelper.reject("No DS");
         }
 
-        // only show buttons(select all, clear all, etc)
-        // when table can be disablyed
-        var $dsColsBtn = $("#dsColsBtn");
         var notLastDSError = "not last ds";
 
-        $("#dsTableView").removeClass("xc-hidden");
-        $("#dataCartBtn").removeClass("xc-hidden");
-        $dsTableContainer.data("id", dsId);
-        DSForm.hide();
-
+        showTableView(dsId);
         // update date part of the table info first to make UI smooth
         updateTableInfo(dsObj, isLoading);
 
@@ -82,7 +88,7 @@ window.DSTable = (function($, DSTable) {
                 return PromiseHelper.reject(DSTStr.PointErr);
             }
             clearTimeout(timer);
-            setupViewAfterLoading();
+            setupViewAfterLoading(dsObj);
             getSampleTable(dsObj, jsonKeys, jsons);
 
             deferred.resolve();
@@ -112,49 +118,53 @@ window.DSTable = (function($, DSTable) {
                 errorMsg = ErrTStr.Unknown;
             }
 
-            errorMsg = StatusMessageTStr.LoadFailed + ". " + errorMsg;
-            // backend might return this: "<string>"
-            errorMsg = xcHelper.escapeHTMLSepcialChar(errorMsg);
             setupViewAfterError(errorMsg);
-
-            var $errorSection = $dsTableContainer.find(".errorSection");
-            $errorSection.find(".error").html(errorMsg);
-
             deferred.reject(error);
         });
 
         return deferred.promise();
-
-        function setupViewBeforeLoading() {
-            $dsTableContainer.removeClass("error");
-            $dsTableContainer.addClass("loading");
-            $dsColsBtn.addClass("xc-hidden");
-            $tableWrap.html("");
-        }
-
-        function setupViewAfterLoading() {
-            // update info here
-            updateTableInfo(dsObj);
-
-            $dsTableContainer.removeClass("error");
-            $dsTableContainer.removeClass("loading");
-            $dsColsBtn.removeClass("xc-hidden");
-        }
-
-        function setupViewAfterError(error) {
-            $tableWrap.html("");
-            $dsColsBtn.addClass("xc-hidden");
-            $dsTableContainer.removeClass("loading");
-            $dsTableContainer.addClass("error");
-
-            var $errorSection = $dsTableContainer.find(".errorSection");
-            $errorSection.find(".error").html(error);
-            // XXX this part is confusing as we cannot tell
-            // if the error is because of size limit or other reason
-            // so hide it for now
-            $errorSection.find(".limit, .or").addClass("xc-hidden");
-        }
     };
+
+    function showTableView(dsId) {
+        $("#dsTableView").removeClass("xc-hidden");
+        $("#dataCartBtn").removeClass("xc-hidden");
+        $dsTableContainer.data("id", dsId);
+        DSForm.hide();
+    }
+
+    function setupViewBeforeLoading() {
+        $dsTableContainer.removeClass("error");
+        $dsTableContainer.addClass("loading");
+        $("#dsColsBtn").addClass("xc-hidden");
+        $tableWrap.html("");
+    }
+
+    function setupViewAfterLoading(dsObj) {
+        // update info here
+        updateTableInfo(dsObj);
+
+        $dsTableContainer.removeClass("error");
+        $dsTableContainer.removeClass("loading");
+        $("#dsColsBtn").removeClass("xc-hidden");
+    }
+
+    function setupViewAfterError(error) {
+        error = StatusMessageTStr.LoadFailed + ". " + error;
+        // backend might return this: "<string>"
+        error = xcHelper.escapeHTMLSepcialChar(error);
+
+        $tableWrap.html("");
+        $("#dsColsBtn").addClass("xc-hidden");
+        $dsTableContainer.removeClass("loading");
+        $dsTableContainer.addClass("error");
+
+        var $errorSection = $dsTableContainer.find(".errorSection");
+        $errorSection.find(".error").html(error);
+        // XXX this part is confusing as we cannot tell
+        // if the error is because of size limit or other reason
+        // so hide it for now
+        $errorSection.find(".limit, .or").addClass("xc-hidden");
+    }
 
     DSTable.hide = function() {
         $("#dsTableView").addClass("xc-hidden");
@@ -373,8 +383,7 @@ window.DSTable = (function($, DSTable) {
         var $dsTableView = $("#dsTableView");
         // reload ds with new preview size
         $dsTableView.on("click", ".errorSection .retry", function() {
-            var $grid = $("#dsListSection .grid-unit.active");
-            var dsId = $grid.data("dsid");
+            var dsId = $dsTableContainer.data("id");
             if (dsId == null) {
                 console.error("cannot find ds");
                 return;
@@ -530,7 +539,7 @@ window.DSTable = (function($, DSTable) {
     }
 
     function rePointDS(dsId) {
-        var dsObj = DS.getDSObj(dsId);
+        var dsObj = DS.getErrorDSObj(dsId);
         DSPreview.show({
             "path": dsObj.getPath(),
             "format": dsObj.getFormat(),

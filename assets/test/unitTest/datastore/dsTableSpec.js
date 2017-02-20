@@ -142,6 +142,20 @@ describe("DSTable Test", function() {
             $errorSection = $dsTableContainer.find(".errorSection");
         });
 
+        beforeEach(function() {
+            $errorSection.find(".error").text("");
+        });
+
+        it("Should not show error directly if id is null", function() {
+            DSTable.showError(null, "test");
+            expect($errorSection.find(".error").text()).to.equal("");
+        });
+
+        it("Should show error directly", function() {
+            DSTable.showError(testDSId, "test");
+            expect($errorSection.find(".error").text()).to.contain("test");
+        });
+
         it("Should handle not last error", function(done) {
             var notLastDSError = "not last ds";
 

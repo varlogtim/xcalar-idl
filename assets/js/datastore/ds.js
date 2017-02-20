@@ -8,6 +8,7 @@ window.DS = (function ($, DS) {
     var folderIdCount;  // counter
     var dsLookUpTable;  // find DSObj by dsId
     var homeFolder;
+    var errorDSSet = {}; // UI cache only
 
     var $gridView;      // $("#dsListSection .gridItems")
     var $gridMenu;      // $("#gridViewMenu")
@@ -74,6 +75,10 @@ window.DS = (function ($, DS) {
             return null;
         }
         return dsLookUpTable[dsId] || null;
+    };
+
+    DS.getErrorDSObj = function(dsId) {
+        return errorDSSet[dsId] || null;
     };
 
     // Get grid element(folder/datasets) by dsId
@@ -245,11 +250,14 @@ window.DS = (function ($, DS) {
     };
 
     DS.reload = function(dsId, previewSize) {
-        var dsObj = DS.getDSObj(dsId);
+        var dsObj = DS.getErrorDSObj(dsId);
         if (dsObj == null) {
             return PromiseHelper.reject("no dsobj!");
         }
 
+        // recreate dsObj
+        dsObj = createDS(dsObj);
+        delete errorDSSet[dsId];
         var sql = {
             "operation": SQLOps.DSPoint,
             "dsName": dsObj.getName(),
@@ -531,7 +539,7 @@ window.DS = (function ($, DS) {
         return folder;
     }
 
-    function pointToHelper(dsObj, createTabe, sql, isRetry) {
+    function pointToHelper(dsObj, createTabe, sql) {
         var deferred = jQuery.Deferred();
         var dsName = dsObj.getName();
 
@@ -552,9 +560,6 @@ window.DS = (function ($, DS) {
 
         // focus on grid before load
         DS.focusOn($grid)
-        .then(function() {
-            return cleanupHelper();
-        })
         .then(function() {
             var args = dsObj.getPointArgs();
             args.push(txId);
@@ -592,19 +597,7 @@ window.DS = (function ($, DS) {
         .fail(function(error, loadError) {
             // show loadError if has, otherwise show error message
             var displayError = loadError || error;
-            dsObj.setError(displayError);
-
-            if (error === StatusTStr[StatusT.StatusCanceled] ||
-                error.status === StatusT.StatusCanceled) {
-                removeDS($grid);
-                DataStore.update();
-                if ($grid.hasClass("active")) {
-                    focusOnForm();
-                }
-            } else {
-                finishPoint();
-                DS.focusOn($grid);
-            }
+            handlePointError(displayError);
 
             Transaction.fail(txId, {
                 "failMsg": StatusMessageTStr.LoadFailed,
@@ -623,21 +616,21 @@ window.DS = (function ($, DS) {
             refreshDS();
         }
 
-        function cleanupHelper() {
-            if (!isRetry) {
-                return PromiseHelper.resolve();
+        function handlePointError(error) {
+            if (error === StatusTStr[StatusT.StatusCanceled] ||
+                error.status === StatusT.StatusCanceled) {
+                removeDS($grid);
+                if ($grid.hasClass("active")) {
+                    focusOnForm();
+                }
+            } else if ($grid.hasClass("active")) {
+                dsObj.setError(error);
+
+                var dsId = dsObj.getId();
+                cacheErrorDS(dsId, dsObj);
+                DSTable.showError(dsId, error);
+                removeDS($grid);
             }
-
-            var innerDeferred = jQuery.Deferred();
-
-            dsObj.release()
-            .then(function() {
-                return destroyDataset(dsObj.getFullName(), txId);
-            })
-            .then(innerDeferred.resolve)
-            .fail(innerDeferred.reject);
-
-            return innerDeferred.promise();
         }
     }
 
@@ -698,7 +691,6 @@ window.DS = (function ($, DS) {
             }
             // remove ds obj
             removeDS($grid);
-            DataStore.update();
             if (!noDeFocus) {
                 focusOnForm();
             }
@@ -715,7 +707,6 @@ window.DS = (function ($, DS) {
             var noAlert = false;
             if (forceRemove) {
                 removeDS($grid);
-                DataStore.update();
             } else if (failToShow) {
                 $grid.show();
                 noAlert = true;
@@ -730,6 +721,10 @@ window.DS = (function ($, DS) {
         });
 
         return deferred.promise();
+    }
+
+    function cacheErrorDS(dsId, dsObj) {
+        errorDSSet[dsId] = dsObj;
     }
 
     function destroyDataset(dsName, txId) {
@@ -774,6 +769,7 @@ window.DS = (function ($, DS) {
             // delete ds
             delete dsLookUpTable[dsId];
             $grid.remove();
+            DataStore.update();
 
             return true;
         }
