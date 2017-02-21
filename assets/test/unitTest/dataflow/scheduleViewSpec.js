@@ -24,11 +24,11 @@ function timeRelatedFunctionTest() {
 
         var options = {
             "startTime": futureTime, // The time to start the next run
-            "dateText" : futureDateText,
-            "timeText" : "11 : 13 PM",
-            "repeat"   : "hourly",
-            "freq"     : 5,
-            "recur"    : 10
+            "dateText": futureDateText,
+            "timeText": "11 : 13 PM",
+            "repeat": "hourly",
+            "freq": 5,
+            "recur": 10
         };
 
         // StartTime at the future, nothing has been changed
@@ -108,11 +108,11 @@ function timeRelatedFunctionTest() {
         // StartTime at the future, nothing has been changed
         var options = {
             "startTime": date.getTime(),
-            "dateText" : "11/08/2016",
-            "timeText" : "11 : 13 PM",
-            "repeat"   : "minute",
-            "freq"     : 5,
-            "recur"    : 10
+            "dateText": "11/08/2016",
+            "timeText": "11 : 13 PM",
+            "repeat": "minute",
+            "freq": 5,
+            "recur": 10
         };
         var schedule = new SchedObj(options);
         var period = Scheduler.__testOnly__.getRepeatPeriod(schedule);
@@ -522,8 +522,8 @@ function viewRelatedFunctionTest() {
                 "retina": {
                     "retinaDag": {
                         "numNodes": 1,
-                        "node"    : [{
-                            "name"     : "test",
+                        "node": [{
+                            "name": "test",
                             "dagNodeId": "104399",
                         }],
                     },
@@ -549,7 +549,7 @@ function viewRelatedFunctionTest() {
 
         DF.addDataflow("df1", new Dataflow("df1"), null, {
             "isUpload": true,
-            "noClick" : true
+            "noClick": true
         });
         Scheduler.setDataFlowName("df1");
 
@@ -562,12 +562,12 @@ function viewRelatedFunctionTest() {
         timeText = "11 : 13 PM";
         DF.addScheduleToDataflow("df1", {
             "startTime": date.getTime(), // The time to start the next run
-            "dateText" : dateText,
-            "timeText" : timeText,
-            "repeat"   : "hourly",
-            "recur"    : 10,
-            "modified" : date.getTime(),
-            "created"  : date.getTime()
+            "dateText": dateText,
+            "timeText": timeText,
+            "repeat": "hourly",
+            "recur": 10,
+            "modified": date.getTime(),
+            "created": date.getTime()
         });
     });
 
@@ -650,12 +650,12 @@ function viewRelatedFunctionTest() {
 
         var schedule = new SchedObj({
             "startTime": date2.getTime(), // The time to start the next run
-            "dateText" : dateText2,
-            "timeText" : timeText2,
-            "repeat"   : "hourly",
-            "recur"    : 4,
-            "modified" : date2.getTime(),
-            "created"  : date2.getTime()
+            "dateText": dateText2,
+            "timeText": timeText2,
+            "repeat": "hourly",
+            "recur": 4,
+            "modified": date2.getTime(),
+            "created": date2.getTime()
         });
         Scheduler.__testOnly__.resetModifiedScheduleForm(schedule);
 
@@ -705,12 +705,12 @@ function viewRelatedFunctionTest() {
         date2.setMinutes(30);
         var schedule = new SchedObj({
             "startTime": date2.getTime(), // The time to start the next run
-            "dateText" : "1/23/2017",
-            "timeText" : "08 : 30 PM",
-            "repeat"   : "monthly",
-            "recur"    : 7,
-            "modified" : date2.getTime(),
-            "created"  : date2.getTime()
+            "dateText": "1/23/2017",
+            "timeText": "08 : 30 PM",
+            "repeat": "monthly",
+            "recur": 7,
+            "modified": date2.getTime(),
+            "created": date2.getTime()
         });
         Scheduler.__testOnly__.fillInScheduleDetail(schedule);
         var $scheduleInfos = $("#scheduleInfos");

@@ -1,26 +1,22 @@
 describe('ExportView', function() {
     var testDs;
     var tableName;
-    var prefix;
     var $exportForm;
     var tableId;
     var tableName2;
-    var prefix2;
 
     before(function(done) {
         var testDSObj = testDatasets.fakeYelp;
         UnitTest.addAll(testDSObj, "unitTestFakeYelp")
-        .always(function(ds, tName, tPrefix) {
+        .always(function(ds, tName) {
             testDs = ds;
             tableName = tName;
-            prefix = tPrefix;
             $exportForm = $('#exportView');
             tableId = xcHelper.getTableId(tableName);
             // add a second table for table list testing
             UnitTest.addTable(testDs)
-            .always(function(tName, tPrefix) {
+            .always(function(tName) {
                 tableName2 = tName;
-                prefix2 = tPrefix;
                 ExportView.show(tableId)
                 .then(function() {
                     setTimeout(function() {

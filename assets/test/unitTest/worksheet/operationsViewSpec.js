@@ -152,9 +152,9 @@ describe('OperationsView Test', function() {
                 expect(fn("bc")).to.deep.equal(["^abc", "^abcd"]);
 
                 aggNames.length = 0;
-                for (var i = 0; i < oldAggNames.length; i++) {
-                    aggNames.push(oldAggNames[i]);
-                }
+                oldAggNames.forEach(function(aggName) {
+                    aggNames.push(aggName);
+                });
             });
         });
 
@@ -340,7 +340,7 @@ describe('OperationsView Test', function() {
             var cachedColNameMap = xcHelper.getColNameMap;
             var cachedCenterTable = xcHelper.centerFocusedTable;
             before(function() {
-                gTables['fakeTable'] = {tableCols:[]};
+                gTables['fakeTable'] = {tableCols: []};
             });
             it("selecting table should work", function() {
                 var colNameCacheCalled = false;
@@ -704,12 +704,11 @@ describe('OperationsView Test', function() {
                 }
                 expect(testArgs.length).to.be.above(7 * 7);
 
-                var groupByType;
                 var testedGBTypes = [];
-                for (var i = 0; i < aggsList.length; i++) {
-                    groupByType = aggsList[i].fnName;
+                aggsList.forEach(function(agg) {
+                    var groupByType = agg.fnName;
                     testGroupByInputsColTypes(groupByType, testArgs, testedGBTypes);
-                }
+                });
             });
 
             it('variety of different arguments should be formatted correctly', function(done) {
@@ -725,46 +724,43 @@ describe('OperationsView Test', function() {
                     testArgs2Unprefixed.push(colName);
                 });
 
-                var arg1Types = [];
-                var arg2Types = [];
-                for (var i = 0; i < testArgs1.length; i++) {
-                    arg1Type = typeof(testArgs1[i]);
+                var arg1Types = testArgs1.map(function(arg) {
+                    var arg1Type = typeof(arg);
                     if (arg1Type === "number") {
-                        if (testArgs1[i] % 1 === 0) {
+                        if (arg % 1 === 0) {
                             arg1Type = "integer";
                         } else {
                             arg1Type = "float";
                         }
                     }
-                    arg1Types.push(arg1Type);
-                }
-                for (var i = 0; i < testArgs2.length; i++) {
-                    var colName = testArgs2Unprefixed[i];
+                    return arg1Type;
+                });
+
+                var arg2Types = testArgs2.map(function(arg, index) {
+                    var colName = testArgs2Unprefixed[index];
                     var progCol = gTables[tableId].getColByFrontName(colName);
 
-                    if (testArgs2Unprefixed[i] === "DATA") {
-                        args2Type = "object";
+                    if (testArgs2Unprefixed[index] === "DATA") {
+                        return "object";
                     } else {
-                        arg2Type = progCol.getType();
+                        return progCol.getType();
                     }
-                    
-                    arg2Types.push(arg2Type);
-                }
+                });
 
-                var groupByType;
                 var testedGBTypes = [];
-                for (var i = 0; i < aggsList.length; i++) {
-                    groupByType = aggsList[i].fnName;
+                aggsList.forEach(function(agg) {
+                    var groupByType = agg.fnName;
                     testVariousInputsTypes(groupByType, testedGBTypes, testArgs1,
                                             testArgs2, arg1Types, arg2Types);
-                }
+                });
+
                 // switch args around;
                 testedGBTypes = [];
-                for (var i = 0; i < aggsList.length; i++) {
-                    groupByType = aggsList[i].fnName;
+                aggsList.forEach(function(agg) {
+                    var groupByType = agg.fnName;
                     testVariousInputsTypes(groupByType, testedGBTypes, testArgs2,
                                             testArgs1, arg2Types, arg1Types);
-                }
+                });
                 done();
             });
         });
@@ -822,7 +818,6 @@ describe('OperationsView Test', function() {
         // testArgs is an array of the 2 input vals such as [$class_id, $time]
         // testedGBTypes is an array of the groupbys we've already tested ["avg", "count"]
         function testGroupByInputsColTypes(groupByType, testArgs, testedGBTypes) {
-            var argInfos = [];
             var existingTypes;
             expect(testedGBTypes).to.not.include(groupByType);
             $functionInput.val(groupByType).trigger(fakeEvent.enter);
@@ -830,11 +825,11 @@ describe('OperationsView Test', function() {
             testedGBTypes.push(groupByType);
             var groupNum = 0;
 
-            for (var i = 0; i < testArgs.length; i++) {
-                setArgInputs(testArgs[i]);
+            var argInfos = testArgs.map(function(arg) {
+                setArgInputs(arg);
                 existingTypes = getExistingTypes();
-                argInfos.push(argumentFormatHelper(existingTypes, groupNum));
-            }
+                return argumentFormatHelper(existingTypes, groupNum);
+            });
 
             var count = 0;
             var hasValidTypes = false;

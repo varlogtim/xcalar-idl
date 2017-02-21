@@ -242,8 +242,8 @@ describe('FnBar Test', function() {
                 expect(hintTexts.indexOf("regex")).to.not.equal(-1);
                 expect(hintTexts.indexOf("replace")).to.not.equal(-1);
                 var hasReviewCount = false;
-                for (var i = 0; i < hintTexts.length; i++) {
-                    if (hintTexts[i].endsWith("review_count")) {
+                for (var c = 0; c < hintTexts.length; c++) {
+                    if (hintTexts[c].endsWith("review_count")) {
                         hasReviewCount = true;
                         break;
                     }
@@ -297,7 +297,7 @@ describe('FnBar Test', function() {
                 $table.find('th.col1 .dragArea').mousedown();
                 var cachedFunc = ColManager.execCol;
                 var passed = false;
-                ColManager.execCol = function(op, newFuncStr, tableId, colNum) {
+                ColManager.execCol = function() {
                     passed = true;
                     return PromiseHelper.resolve();
                 };

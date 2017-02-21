@@ -3,20 +3,15 @@ describe('RowManager Test', function() {
     var tableName;
     var tableId;
     var oldTableName;
-    var oldTableId;
-    var prefix;
     var $table;
-    var tableName2;
-    var prefix2;
 
     before(function(done) {
         UnitTest.onMinMode();
         var testDSObj = testDatasets.fakeYelp;
         UnitTest.addAll(testDSObj, "unitTestFakeYelp")
-        .then(function(ds, tName, tPrefix) {
+        .then(function(ds, tName) {
             testDs = ds;
             tableName = tName;
-            prefix = tPrefix;
             tableId = xcHelper.getTableId(tableName);
             $table = $('#xcTable-' + tableId);
 
@@ -25,7 +20,6 @@ describe('RowManager Test', function() {
             .then(function(tName) {
                 oldTableName = tableName;
                 tableName = tName;
-                oldTableId = tableId;
                 tableId = xcHelper.getTableId(tableName);
                 $table = $("#xcTable-" + tableId);
 

@@ -231,10 +231,14 @@ describe("Aggregates Test", function() {
                     return PromiseHelper.reject({error: "Error: Could not find dag node",
                         status: 291});
                 } else if (deleteCount === 2) {
-                    return PromiseHelper.resolve({statuses: [{nodeInfo: {name: "fakeAgg"}}]})
+                    return PromiseHelper.resolve({
+                        statuses: [{nodeInfo: {name: "fakeAgg"}}]
+                    });
                 } else {
                     // 3rd arg
-                    return PromiseHelper.resolve({statuses: [{nodeInfo: {name: "otherFakeAgg"}}]})
+                    return PromiseHelper.resolve({
+                        statuses: [{nodeInfo: {name: "otherFakeAgg"}}]
+                    });
                 }
             };
 
@@ -273,11 +277,13 @@ describe("Aggregates Test", function() {
             var cachedDagFn = Dag.makeInactive;
             var dagMakeInactiveCalled = false;
             XIApi.deleteTable = function() {
-                return PromiseHelper.reject({error: "Error: Could not find dag node",
-                    status: 291});
+                return PromiseHelper.reject({
+                    error: "Error: Could not find dag node",
+                    status: 291
+                });
             };
 
-            Dag.makeInactive = function(name, isNameProvided) {
+            Dag.makeInactive = function() {
                 dagMakeInactiveCalled = true;
             };
 

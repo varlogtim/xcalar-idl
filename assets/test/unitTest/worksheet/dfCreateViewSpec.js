@@ -1,7 +1,6 @@
 describe('DFCreateView', function() {
     var testDs;
     var tableName;
-    var prefix;
     var $dfView;
     var tableId;
     var $table;
@@ -10,10 +9,9 @@ describe('DFCreateView', function() {
     before(function(done) {
         var testDSObj = testDatasets.fakeYelp;
         UnitTest.addAll(testDSObj, "unitTestFakeYelp")
-        .always(function(ds, tName, tPrefix) {
+        .always(function(ds, tName) {
             testDs = ds;
             tableName = tName;
-            prefix = tPrefix;
             $dfView = $('#dfCreateView');
             tableId = xcHelper.getTableId(tableName);
             $table = $("#xcTable-" + tableId);

@@ -1,20 +1,17 @@
 describe('TblAnim', function() {
     var testDs;
     var tableName;
-    var prefix;
     var tableId;
     var $table;
     var tableName2;
-    var prefix2;
 
     before(function(done) {
         UnitTest.onMinMode();
         var testDSObj = testDatasets.fakeYelp;
         UnitTest.addAll(testDSObj, "unitTestFakeYelp")
-        .then(function(ds, tName, tPrefix) {
+        .then(function(ds, tName) {
             testDs = ds;
             tableName = tName;
-            prefix = tPrefix;
             tableId = xcHelper.getTableId(tableName);
             $table = $('#xcTable-' + tableId);
 
@@ -461,9 +458,8 @@ describe('TblAnim', function() {
             $tableWrap = $table.closest('.xcTableWrap');
 
             UnitTest.addTable(testDs)
-            .always(function(tName, tPrefix) {
+            .always(function(tName) {
                 tableName2 = tName;
-                prefix2 = tPrefix;
                 done();
             });
         });

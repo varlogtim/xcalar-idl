@@ -340,8 +340,8 @@ describe('QueryManager Test', function() {
         for (var i in queryLists) {
             delete queryLists[i];
         }
-        for (var i in queryListsCache) {
-            queryLists[i] = queryListsCache[i];
+        for (var key in queryListsCache) {
+            queryLists[key] = queryListsCache[key];
         }
     });
 });

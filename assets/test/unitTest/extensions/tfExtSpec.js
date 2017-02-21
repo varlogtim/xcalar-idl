@@ -1,31 +1,16 @@
 describe('UExtTF', function() {
     var imgRecTrainArgs = {
-        "dsName"   : "trainResults",
+        "dsName": "trainResults",
         "algorithm": "ImgRecCNN",
-        "maxSteps" : 12,
-        "dataLoc"  : "/netstore/users/disenberg/datasets/catsdogscars-preproc/train"
+        "maxSteps": 12,
+        "dataLoc": "/netstore/users/disenberg/datasets/catsdogscars-preproc/train"
     };
 
     var imgRecTestArgs = {
-        "dsName"   : "imgRecTestResults",
+        "dsName": "imgRecTestResults",
         "algorithm": "ImgRecCNN",
         "uniqueTag": undefined,
-        "dataLoc"  : "/netstore/users/disenberg/datasets/catsdogscars-preproc/test"
-    };
-
-    var logRegTrainArgs = {
-        "dsName"   : "logRegTrainResults",
-        "algorithm": "LogRegCSV",
-        "maxSteps" : 12,
-        "dataLoc"  : "/netstore/users/disenberg/datasets/breastCancer/train"
-    };
-
-    var logRegTestArgs = {
-        "dsName"   : "logRegTrainResults",
-        "algorithm": "LogRegCSV",
-        "uniqueTag": undefined,
-        // Following line isn't a bug.  Test dataset hasn't been created.
-        "dataLoc"  : "/netstore/users/disenberg/datasets/breastCancer/train"
+        "dataLoc": "/netstore/users/disenberg/datasets/catsdogscars-preproc/test"
     };
 
     describe('UnitTest Test', function() {
@@ -41,7 +26,6 @@ describe('UExtTF', function() {
 
     describe('Check Image Recognition Correct', function() {
         var tableOfInterest;
-        var dsOfInterest;
         var prevTag;
         var curTag;
 

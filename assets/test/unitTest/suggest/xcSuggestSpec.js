@@ -30,19 +30,18 @@ describe('xcSuggest', function() {
 
 
         it('contextCheck should work', function() {
-
             var contextCheck = xcSuggest.__testOnly__.contextCheck;
             function contextEq(context1, context2) {
-                var maxEq = (context1.max == context2.max);
-                var minEq = (context1.min == context2.min);
-                var avgEq = (context1.avg == context2.avg);
-                var sig2Eq = (context1.sig2 == context2.sig2);
-                var valLenEq = (context1.vals.length == context2.vals.length);
+                var maxEq = (context1.max === context2.max);
+                var minEq = (context1.min === context2.min);
+                var avgEq = (context1.avg === context2.avg);
+                var sig2Eq = (context1.sig2 === context2.sig2);
+                var valLenEq = (context1.vals.length === context2.vals.length);
                 var valsEq = valLenEq;
                 if (valsEq) {
-                    for (i = 0; i < context1.vals.length; i++) {
+                    for (var i = 0; i < context1.vals.length; i++) {
                         // Won't work for objects
-                        if (context1.vals[i] != context2.vals[i]) {
+                        if (context1.vals[i] !== context2.vals[i]) {
                             valsEq = false;
                             break;
                         }
@@ -57,8 +56,8 @@ describe('xcSuggest', function() {
                 "max": 0,
                 "min": 0,
                 "avg": 0,
-                "sig2":0,
-                "vals":[]
+                "sig2": 0,
+                "vals": []
             };
             // ContextCheck takes requiredInfo, uses RI.type and RI.data
             var emptyArrayIntRI = {
@@ -151,7 +150,7 @@ describe('xcSuggest', function() {
             expect(contextEq(zeroIntCX, nullContext)).to.be.false;
             expect(contextEq(singletonNonZeroIntCX, zeroIntCX)).to.be.false;
             expect(contextEq(singletonNonZeroIntCX, nonZeroIntCX)).to.be.false;
-            expect(contextEq(nonZeroAltIntCX, nonZeroIntCX)).to.be.false
+            expect(contextEq(nonZeroAltIntCX, nonZeroIntCX)).to.be.false;
             // Should skip null entries
             expect(contextEq(mixedNullIntCX, nonZeroIntCX)).to.be.true;
 
@@ -172,17 +171,17 @@ describe('xcSuggest', function() {
             var getScore = xcSuggest.__testOnly__.getScore;
 
             var nullContext = {
-                "max" : 0,
-                "min" : 0,
-                "avg" : 0,
+                "max": 0,
+                "min": 0,
+                "avg": 0,
                 "sig2": 0,
                 "vals": []
             };
 
             var fullContext = {
-                "max" : 10000,
-                "min" : 72,
-                "avg" : 5700.5,
+                "max": 10000,
+                "min": 72,
+                "avg": 5700.5,
                 "sig2": 42.3,
                 "vals": [10000, 72, 5700]
             };
@@ -190,114 +189,114 @@ describe('xcSuggest', function() {
             var nullTD = 0.0;
 
             var max1CX = {
-                "max" : 1,
-                "min" : 0,
-                "avg" : 0,
+                "max": 1,
+                "min": 0,
+                "avg": 0,
                 "sig2": 0,
                 "vals": []
             };
 
             var max2CX = {
-                "max" : 10,
-                "min" : 0,
-                "avg" : 0,
+                "max": 10,
+                "min": 0,
+                "avg": 0,
                 "sig2": 0,
                 "vals": []
             };
 
             var min1CX = {
-                "max" : 0,
-                "min" : -1,
-                "avg" : 0,
+                "max": 0,
+                "min": -1,
+                "avg": 0,
                 "sig2": 0,
                 "vals": []
             };
 
             var min2CX = {
-                "max" : 0,
-                "min" : -10,
-                "avg" : 0,
+                "max": 0,
+                "min": -10,
+                "avg": 0,
                 "sig2": 0,
                 "vals": []
             };
 
             var avg1CX = {
-                "max" : 0,
-                "min" : 0,
-                "avg" : 1,
+                "max": 0,
+                "min": 0,
+                "avg": 1,
                 "sig2": 0,
                 "vals": []
             };
 
             var avg2CX = {
-                "max" : 0,
-                "min" : 0,
-                "avg" : 10,
+                "max": 0,
+                "min": 0,
+                "avg": 10,
                 "sig2": 0,
                 "vals": []
             };
 
             var sig21CX = {
-                "max" : 0,
-                "min" : 0,
-                "avg" : 0,
+                "max": 0,
+                "min": 0,
+                "avg": 0,
                 "sig2": 1,
                 "vals": []
             };
 
             var sig22CX = {
-                "max" : 0,
-                "min" : 0,
-                "avg" : 0,
+                "max": 0,
+                "min": 0,
+                "avg": 0,
                 "sig2": 10,
                 "vals": []
             };
 
             var strCX = {
-                "max" : 5,
-                "min" : 5,
-                "avg" : 5,
+                "max": 5,
+                "min": 5,
+                "avg": 5,
                 "sig2": 0,
                 "vals": ["hello"]
             };
 
             var strMatchCX = {
-                "max" : 5,
-                "min" : 5,
-                "avg" : 5,
+                "max": 5,
+                "min": 5,
+                "avg": 5,
                 "sig2": 0,
                 "vals": ["byeby", "hello"]
             };
 
             var strNoMatchCX = {
-                "max" : 5,
-                "min" : 5,
-                "avg" : 5,
+                "max": 5,
+                "min": 5,
+                "avg": 5,
                 "sig2": 0,
                 "vals": ["nuupe", "match"]
             };
 
             var intCX = {
-                "max" : 100,
-                "min" : 100,
-                "avg" : 100,
+                "max": 100,
+                "min": 100,
+                "avg": 100,
                 "sig2": 0,
                 "vals": [100]
             };
 
             var intMatchCX = {
-                "max" : 100,
-                "min" : 100,
-                "avg" : 100,
+                "max": 100,
+                "min": 100,
+                "avg": 100,
                 "sig2": 0,
                 "vals": [100,100]
             };
 
             // Doesn't make much sense but necessary to test int match
             var intNoMatchCX = {
-                "max" : 100,
-                "min" : 100,
-                "avg" : 100,
+                "max": 100,
+                "min": 100,
+                "avg": 100,
                 "sig2": 0,
                 "vals": [20, 10]
             };
@@ -359,133 +358,133 @@ describe('xcSuggest', function() {
 
         it('suggestJoinKey should work', function() {
             var emptyColInfoNum = {
-                "type" : ColumnType.integer,
-                "name" : "",
-                "data" : [""]
+                "type": ColumnType.integer,
+                "name": "",
+                "data": [""]
             };
 
             var emptyColInfoTitleNum = {
-                "type" : ColumnType.integer,
-                "name" : "numcol1",
-                "data" : [""]
+                "type": ColumnType.integer,
+                "name": "numcol1",
+                "data": [""]
             };
 
             var singletonColInfoNum = {
-                "type" : ColumnType.integer,
-                "name" : "numcol2",
-                "data" : ["0"]
+                "type": ColumnType.integer,
+                "name": "numcol2",
+                "data": ["0"]
             };
 
             var colInfoNum = {
-                "type" : ColumnType.integer,
-                "name" : "numcol3",
-                "data" : ["0", "1"]
+                "type": ColumnType.integer,
+                "name": "numcol3",
+                "data": ["0", "1"]
             };
 
             var colHasEmptyInfoNum = {
-                "type" : ColumnType.integer,
-                "name" : "numcol4",
-                "data" : ["0", "", "1"]
+                "type": ColumnType.integer,
+                "name": "numcol4",
+                "data": ["0", "", "1"]
             };
 
             var colHasEmptyDisorderInfoNum = {
-                "type" : ColumnType.integer,
-                "name" : "numcol5",
-                "data" : ["1", "", "0"]
+                "type": ColumnType.integer,
+                "name": "numcol5",
+                "data": ["1", "", "0"]
             };
 
             var colHasNullDisorderInfoNum = {
-                "type" : ColumnType.integer,
-                "name" : "numcol6",
-                "data" : ["1", null, "0"]
+                "type": ColumnType.integer,
+                "name": "numcol6",
+                "data": ["1", null, "0"]
             };
 
             var emptyColInfoStr = {
-                "type" : ColumnType.string,
-                "name" : "",
-                "data" : [""]
+                "type": ColumnType.string,
+                "name": "",
+                "data": [""]
             };
 
             var emptyColInfoTitleStr = {
-                "type" : ColumnType.string,
-                "name" : "strcol1",
-                "data" : [""]
+                "type": ColumnType.string,
+                "name": "strcol1",
+                "data": [""]
             };
 
             var singletonColInfoStr = {
-                "type" : ColumnType.string,
-                "name" : "strcol2",
-                "data" : ["0"]
+                "type": ColumnType.string,
+                "name": "strcol2",
+                "data": ["0"]
             };
 
             var colInfoStr = {
-                "type" : ColumnType.string,
-                "name" : "strcol3",
-                "data" : ["0", "1"]
+                "type": ColumnType.string,
+                "name": "strcol3",
+                "data": ["0", "1"]
             };
 
             var colHasEmptyInfoStr = {
-                "type" : ColumnType.string,
-                "name" : "strcol4",
-                "data" : ["0", "", "1"]
+                "type": ColumnType.string,
+                "name": "strcol4",
+                "data": ["0", "", "1"]
             };
 
             var colHasEmptyDisorderInfoStr = {
-                "type" : ColumnType.string,
-                "name" : "strcol5",
-                "data" : ["1", "", "0"]
+                "type": ColumnType.string,
+                "name": "strcol5",
+                "data": ["1", "", "0"]
             };
 
             var colHasNullDisorderInfoStr = {
-                "type" : ColumnType.string,
-                "name" : "strcol6",
-                "data" : ["1", null, "0"]
+                "type": ColumnType.string,
+                "name": "strcol6",
+                "data": ["1", null, "0"]
             };
 
             var singletonColInfoChaStr = {
-                "type" : ColumnType.string,
-                "name" : "chastrcol2",
-                "data" : ["a"]
+                "type": ColumnType.string,
+                "name": "chastrcol2",
+                "data": ["a"]
             };
 
             var colInfoChaStr = {
-                "type" : ColumnType.string,
-                "name" : "chastrcol3",
-                "data" : ["a", "b"]
+                "type": ColumnType.string,
+                "name": "chastrcol3",
+                "data": ["a", "b"]
             };
 
             var colHasEmptyInfoChaStr = {
-                "type" : ColumnType.string,
-                "name" : "chastrcol4",
-                "data" : ["a", "", "b"]
+                "type": ColumnType.string,
+                "name": "chastrcol4",
+                "data": ["a", "", "b"]
             };
 
             var colHasEmptyDisorderInfoChaStr = {
-                "type" : ColumnType.string,
-                "name" : "chastrcol5",
-                "data" : ["b", "", "a"]
+                "type": ColumnType.string,
+                "name": "chastrcol5",
+                "data": ["b", "", "a"]
             };
 
             var colHasNullDisorderInfoChaStr = {
-                "type" : ColumnType.string,
-                "name" : "chastrcol6",
-                "data" : ["b", null, "a"]
+                "type": ColumnType.string,
+                "name": "chastrcol6",
+                "data": ["b", null, "a"]
             };
 
             // TODO: double check that is format that obj strings
             // come in as
             var colInfoObject = {
-                "type" : ColumnType.object,
-                "name" : "objcol1",
-                "data" : ["{hehe: hoho}"]
+                "type": ColumnType.object,
+                "name": "objcol1",
+                "data": ["{hehe: hoho}"]
             };
 
             function mkIn(srcCol, destCols) {
                 function infoDeepCpy(colInfo) {
                     var retObj = {
-                        "type" :colInfo.type,
-                        "name" :colInfo.name,
-                        "data" :colInfo.data
+                        "type": colInfo.type,
+                        "name": colInfo.name,
+                        "data": colInfo.data
                     };
                     return retObj;
                 }
@@ -638,7 +637,7 @@ describe('xcSuggest', function() {
                 colInfoStr,
                 colInfoChaStr,
                 colHasNullDisorderInfoChaStr
-                ])).colToSugg)
+            ])).colToSugg)
             .to.be.equal(0);
         });
     });
@@ -666,19 +665,19 @@ describe('xcSuggest', function() {
     describe("Preview Data Detection Test", function() {
         it("xcSuggest.detectFormat should work", function() {
             var tests = [{
-                "data"  : ["[{\"test\"}"],
+                "data": ["[{\"test\"}"],
                 "expect": DSFormat.JSON
             }, {
-                "data"  : ["[", "{\"test\"}"],
+                "data": ["[", "{\"test\"}"],
                 "expect": DSFormat.JSON
             }, {
-                "data"  : ["{\"test\": \"val\"}"],
+                "data": ["{\"test\": \"val\"}"],
                 "expect": DSFormat.SpecialJSON
             }, {
-                "data"  : ["", "{\"test\": \"val\"}"],
+                "data": ["", "{\"test\": \"val\"}"],
                 "expect": DSFormat.SpecialJSON
             }, {
-                "data"  : ["abc"],
+                "data": ["abc"],
                 "expect": DSFormat.CSV
             }];
 
@@ -690,28 +689,28 @@ describe('xcSuggest', function() {
 
         it("xcSuggest.detectDelim should work", function() {
             var tests = [{
-                "data"  : "a,b,c,d",
+                "data": "a,b,c,d",
                 "expect": ","
             }, {
-                "data"  : "a\tb\tc\te",
+                "data": "a\tb\tc\te",
                 "expect": "\t"
             }, {
-                "data"  : "a,b,c\td",
+                "data": "a,b,c\td",
                 "expect": ","
             }, {
-                "data"  : "a\tb\tc,d",
+                "data": "a\tb\tc,d",
                 "expect": "\t"
             }, {
-                "data"  : "a\tb|c,d",
+                "data": "a\tb|c,d",
                 "expect": ","
             }, {
-                "data"  : "a\tb|c,d",
+                "data": "a\tb|c,d",
                 "expect": ","
             }, {
-                "data"  : "a|b|c,d",
+                "data": "a|b|c,d",
                 "expect": "|"
             }, {
-                "data"  : "abcd",
+                "data": "abcd",
                 "expect": ""
             }];
 
@@ -723,25 +722,25 @@ describe('xcSuggest', function() {
 
         it("xcSuggest.detectHeader should work", function() {
             var tests = [{
-                "data"  : [],
+                "data": [],
                 "expect": false
             }, {
-                "data"  : [["Col0"], ["Col1"]],
+                "data": [["Col0"], ["Col1"]],
                 "expect": false
             }, {
-                "data"  : [["1", "2"], ["Col1", "Col2"]],
+                "data": [["1", "2"], ["Col1", "Col2"]],
                 "expect": false
             }, {
-                "data"  : [["", "Col1"], ["1", "2"]],
+                "data": [["", "Col1"], ["1", "2"]],
                 "expect": false
             }, {
-                "data"  : [["Col1", "Col2"], ["1", "2"]],
+                "data": [["Col1", "Col2"], ["1", "2"]],
                 "expect": true
             }, {
-                "data"  : [["Header1", "Header2"], ["a", "b"], ["a", "b"]],
+                "data": [["Header1", "Header2"], ["a", "b"], ["a", "b"]],
                 "expect": true
             }, {
-                "data"  : [["a", "b"], ["a", "b"], ["a", "b"]],
+                "data": [["a", "b"], ["a", "b"], ["a", "b"]],
                 "expect": false
             }];
 

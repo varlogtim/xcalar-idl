@@ -1,23 +1,17 @@
 describe('DFCard Test', function() {
     var testDs;
     var tableName;
-    var prefix;
-    var $dfView;
     var tableId;
-    var $table;
     var testDfName = "unitTestDF";
     var $dfWrap;
 
     before(function(done) {
         var testDSObj = testDatasets.fakeYelp;
         UnitTest.addAll(testDSObj, "unitTestFakeYelp")
-        .always(function(ds, tName, tPrefix) {
+        .always(function(ds, tName) {
             testDs = ds;
             tableName = tName;
-            prefix = tPrefix;
-            $dfView = $('#dfCreateView');
             tableId = xcHelper.getTableId(tableName);
-            $table = $("#xcTable-" + tableId);
 
             DFCreateView.show($("#dagWrap-" + tableId));
 
@@ -105,7 +99,7 @@ describe('DFCard Test', function() {
             var cachedFn = XcalarQueryState;
             var passed = false;
             var count = 0;
-            XcalarQueryState = function(retName) {
+            XcalarQueryState = function() {
                 count++;
                 passed = true;
                 return PromiseHelper.reject();
@@ -123,7 +117,7 @@ describe('DFCard Test', function() {
             setTimeout(function() {
                 console.warn(Date.now());
                 if (count !== 1) {
-                     DFCard.__testOnly__.endStatusCheck(testDfName, true);
+                    DFCard.__testOnly__.endStatusCheck(testDfName, true);
                 }
                 expect(count).to.equal(1);
                 expect(passed).to.be.true;

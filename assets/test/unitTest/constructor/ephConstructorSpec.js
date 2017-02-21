@@ -623,7 +623,6 @@ describe("Ephemeral Constructor Test", function() {
     describe("FormHelper Constructor Test", function() {
         var testDs;
         var tableName;
-        var prefix;
         var tableId;
         var $table;
         var formHelper;
@@ -631,10 +630,9 @@ describe("Ephemeral Constructor Test", function() {
         before(function(done) {
             var testDSObj = testDatasets.fakeYelp;
             UnitTest.addAll(testDSObj, "unitTestFakeYelp")
-            .always(function(ds, tName, tPrefix) {
+            .always(function(ds, tName) {
                 testDs = ds;
                 tableName = tName;
-                prefix = tPrefix;
                 tableId = xcHelper.getTableId(tableName);
                 $table = $("#xcTable-" + tableId);
 
