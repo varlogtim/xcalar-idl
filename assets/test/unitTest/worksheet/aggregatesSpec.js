@@ -208,13 +208,14 @@ describe("Aggregates Test", function() {
             Aggregates.deleteAggs("nonexistant")
             .then(function() {
                 expect("success").to.equal("failed");
+                done('fail');
             })
             .fail(function() {
                 UnitTest.hasAlertWithText("Error: Could not find dag node. " +
                                             "No aggregates were deleted.");
-            })
-            .always(function() {
-                done();
+                setTimeout(function() {
+                    done(); // some delay when closing alert
+                }, 1);
             });
         });
 
@@ -267,7 +268,9 @@ describe("Aggregates Test", function() {
                                     "Aggregate nonexistant was not deleted.");
                 XIApi.deleteTable = cachedDelete;
                 Dag.makeInactive = cachedDagFn;
-                done();
+                setTimeout(function() {
+                    done(); // some delay when closing alert
+                }, 1);
             });
         });
 
@@ -300,11 +303,14 @@ describe("Aggregates Test", function() {
                                             "No aggregates were deleted.");
                 XIApi.deleteTable = cachedDelete;
                 Dag.makeInactive = cachedDagFn;
-                done();
+                setTimeout(function() {
+                    done(); // some delay when closing alert
+                }, 1);
             });
         });
 
         after(function(done) {
+            Alert.forceClose();
             UnitTest.deleteAll(tableName, testDs)
             .always(function() {
                 done();

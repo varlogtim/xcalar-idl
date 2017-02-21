@@ -9,10 +9,10 @@
     </div>
     <div class="topButtons">
       <i id="maximizeDag" class="icon xi-fullscreen fa-18 btnDeselected"
-      data-container="body" data-toggle="tooltip" title="<%= dicts.common.Maximize %>">
+      data-container="body" data-toggle="tooltip" data-original-title="<%= dicts.common.Maximize %>">
       </i>
       <i id="closeDag" class="icon xi-close fa-15 btnDeselected"
-      data-container="body" data-toggle="tooltip" title="<%= dicts.common.Close %>">
+      data-container="body" data-toggle="tooltip" data-original-title="<%= dicts.common.Close %>">
       </i>
     </div>
     <div class="dagArea">
@@ -82,17 +82,17 @@
       <li class="deleteTable">
         <%= dicts.MenuTStr.DelTbl %>
       </li>
-      <li class="lockTable" data-toggle="tooltip" data-placement="bottom"
+      <li class="addNoDelete" data-toggle="tooltip" data-placement="bottom"
       data-container="body" data-original-title="<%= dicts.TooltipTStr.LockTable %>" data-delay="500">
         <%= dicts.MenuTStr.LockTbl %>
       </li>
-      <li class="unlockTable"
-          title="<%= dicts.TooltipTStr.AllowDelete %>">
+      <li class="removeNoDelete" data-toggle="tooltip" data-placement="bottom"
+      data-container="body" data-original-title="<%= dicts.TooltipTStr.AllowDelete %>">
         <%= dicts.MenuTStr.UnlockTbl %>
       </li>
       <li class="deleteTableDescendants unavailable" data-toggle="tooltip"
           data-placement="bottom" data-container="body"
-          title="<%= dicts.common.ComeSoon %> ">
+          data-original-title="<%= dicts.common.ComeSoon %> ">
         <%= dicts.MenuTStr.DelTblDesc %>
       </li>
       <li class="generateIcv unavailable" data-toggle="tooltip"
@@ -113,12 +113,10 @@
       <div class="rowCount">
           <div class="text"><%= dicts.queryGraph.numRows %>:</div>
           <div class="value"></div>
-         <!--  <div class="sample"></div> -->
       </div>
       <div class="heading">
           <div class="type"><%= dicts.queryGraph.type %></div>
           <div class="field"><%= dicts.queryGraph.field %></div>
-          <!-- <div class="sample"></div> -->
       </div>
       <ul></ul>
     </div>

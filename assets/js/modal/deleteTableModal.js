@@ -189,7 +189,6 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
         var orphanDef = deleteTableHelper(TableType.Orphan);
         var archivedDef = deleteTableHelper(TableType.Archived);
         var activeDef = deleteTableHelper(TableType.Active);
-        var failed = false;
 
         var timer = setTimeout(function() {
             // if delete takes too long, show the loading section
@@ -202,14 +201,10 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
         var errors;
         PromiseHelper.when(orphanDef, archivedDef, activeDef)
         .then(function(res1, res2, res3) {
-            if (res1 || res2 || res3) {
-                failed = true;
-                errors = arguments;
-            }
+            errors = arguments;
             xcHelper.showRefreshIcon($modal);
         })
         .fail(function(error1, error2, error3) {
-            failed = true;
             errors = arguments;
             var error = error1 || error2 || error3;
             console.error(error);
@@ -223,9 +218,8 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
                 reverseSort = !reverseSort;
             }
             populateTableLists();
-            if (failed) {
-                failHandler(errors);
-            }
+            failHandler(errors);
+
             modalHelper.enableSubmit();
             // should re-dected memory usage
             Support.memoryCheck();
@@ -512,16 +506,26 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
         var errorMsg = "";
         var hasSuccess = false;
         var failedTables = [];
-        var failedMsgs = [];
+        var failedMsg = "";
+        var error;
+        var failFound = false;
+        var noDelete = false;
         for (var i = 0; i < args.length; i++) {
             if (args[i] && args[i].fails) {
+                failFound = true;
                 if (args[i].hasSuccess) {
                     hasSuccess = true;
                 }
                 for (var j = 0; j < args[i].fails.length; j++) {
                     var tableName = args[i].fails[j].tables;
                     failedTables.push(tableName);
-                    failedMsgs.push(args[i].fails[j].error);
+                    error = args[i].fails[j].error;
+                    if (!failedMsg && error !== ErrTStr.CannotDropLocked) {
+                        failedMsg = error;
+                    } else if (error === ErrTStr.CannotDropLocked) {
+                        noDelete = true;
+                    }
+                    
                     var $gridUnit = $containers.find('.grid-unit')
                     .filter(function() {
                         $grid = $(this);
@@ -529,20 +533,32 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
                     });
                     $gridUnit.addClass('failed');
                 }
+            } else if (args[i] && args[i].length) {
+                hasSuccess = true;
             }
         }
+        if (!failFound) {
+            return;
+        }
+
+        if (!failedMsg && noDelete) {
+            // only show cannot dropped message if ther are no other
+            // fail messages
+            failedMsg = ErrTStr.CannotDropLocked;
+        }
+
         if (hasSuccess) {
             if (failedTables.length === 1) {
-                errorMsg = failedMsgs[0] + ". " +
+                errorMsg = failedMsg + ". " +
                 xcHelper.replaceMsg(ErrWRepTStr.TableNotDeleted, {
                     "name": failedTables[0]
                 });
             } else {
-                errorMsg = failedMsgs[0] + ". " +
+                errorMsg = failedMsg + ". " +
                            StatusMessageTStr.PartialDeleteTableFail + ".";
             }
         } else {
-            errorMsg = failedMsgs[0] + ". " + ErrTStr.NoTablesDeleted;
+            errorMsg = failedMsg + ". " + ErrTStr.NoTablesDeleted;
         }
         var $firstGrid = $containers.find('.grid-unit.failed').eq(0);
         StatusBox.show(errorMsg, $firstGrid, false, {
@@ -560,6 +576,7 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
         DeleteTableModal.__testOnly__.getTableListHTML = getTableListHTML;
         DeleteTableModal.__testOnly__.getTableSizeMap = getTableSizeMap;
         DeleteTableModal.__testOnly__.hasCheckedTables = hasCheckedTables;
+        DeleteTableModal.__testOnly__.failHandler = failHandler;
     }
     /* End Of Unit Test Only */
 

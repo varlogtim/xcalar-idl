@@ -237,6 +237,18 @@ var TableMeta = (function(_super) {
             return this.isLocked;
         },
 
+        addNoDelete: function() {
+            this.noDelete = true;
+        },
+
+        removeNoDelete: function() {
+            this.noDelete = false;
+        },
+
+        isNoDelete: function() {
+            return this.noDelete;
+        },
+
         getMeta: function() {
             var deferred = jQuery.Deferred();
             var self = this;

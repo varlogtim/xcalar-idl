@@ -145,6 +145,9 @@ describe("TableManager Test", function() {
         var tableName;
         var tableId;
         var table;
+        var tableName2;
+        var tableId2;
+        var table2;
 
         before(function() {
             oldFunc = XcalarDeleteTable;
@@ -165,6 +168,18 @@ describe("TableManager Test", function() {
             });
 
             gTables[tableId] = table;
+
+            tableName2 = xcHelper.randName("test_table#ab");
+            tableId2 = xcHelper.getTableId(tableName2);
+
+            table2 = new TableMeta({
+                "tableId": tableId2,
+                "tableName": tableName2,
+                "status": TableType.Active,
+                "noDelete": true
+            });
+
+            gTables[tableId2] = table2;
         });
 
         it("Should delete active table", function(done) {
@@ -252,6 +267,68 @@ describe("TableManager Test", function() {
             })
             .fail(function() {
                 throw "error case";
+            });
+        });
+
+        it("Should handle fail with locked table", function(done) {
+            var deleteCalled = false;
+            XcalarDeleteTable = function() {
+                deleteCalled = true;
+                return PromiseHelper.resolve(null);
+            };
+
+            TblManager.deleteTables([tableId2], TableType.Active)
+            .then(function() {
+                throw "error case";
+            })
+            .fail(function() {
+                expect(deleteCalled).to.be.false;
+                UnitTest.hasAlertWithText("Table " + tableName2 + " was locked.\n");
+                delete gTables[tableId2];
+                done();
+            });
+        });
+
+        it("Should handle partial fail with locked table", function(done) {
+            var deleteCalled = false;
+            XcalarDeleteTable = function() {
+                deleteCalled = true;
+                return PromiseHelper.resolve(null);
+            };
+
+            TblManager.deleteTables([tableId, tableId2], TableType.Active)
+            .then(function() {
+                expect(deleteCalled).to.be.true;
+                UnitTest.hasAlertWithText("Table " + tableName2 + " was locked.\n");
+                delete gTables[tableId];
+                delete gTables[tableId2];
+                done();
+            })
+            .fail(function() {
+                throw "error case"; 
+            });
+        });
+
+        it("Should handle full fail with locked table", function(done) {
+            var deleteCalled = false;
+            XcalarDeleteTable = function() {
+                deleteCalled = true;
+                return PromiseHelper.reject({error: "Error: failll",
+                        status: 291});
+            };
+
+            TblManager.deleteTables([tableId, tableId2], TableType.Active)
+            .then(function() {
+                throw "error case"
+            })
+            .fail(function() {
+                expect(deleteCalled).to.be.true;
+                UnitTest.hasAlertWithText("Table " + tableName2 + " was locked.\n" +
+                    "Error: failll." +
+                    " Table " + tableName + " was not deleted.");
+                delete gTables[tableId];
+                delete gTables[tableId2];
+                done();
             });
         });
 

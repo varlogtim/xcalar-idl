@@ -1371,10 +1371,13 @@ window.xcHelper = (function($, xcHelper) {
             });
         }
         var lockHTML = '<div class="lockIcon"></div>';
-        $('#dagPanel').find('.dagTable[data-id="' + tableId + '"]')
-                        .filter(function() {
-                            return !$(this).hasClass('trueLocked');
-                        }).addClass('locked trueLocked').append(lockHTML);
+        var $dagTables = $('#dagPanel').find('.dagTable[data-id="' + tableId +
+                                            '"]');
+        $dagTables.addClass("locked");
+        if (!gTables[tableId].isNoDelete()) {
+            // if noDelete, they would already have a lock
+            $dagTables.append(lockHTML);
+        }
 
         gTables[tableId].lock();
         WSManager.lockTable(tableId);
@@ -1401,9 +1404,13 @@ window.xcHelper = (function($, xcHelper) {
             var $tbody = $tableWrap.find('.xcTbodyWrap');
             $tbody.off('scroll.preventScrolling');
         }
-        $('#dagPanel').find('.dagTable[data-id="' + tableId + '"]')
-                      .removeClass('locked trueLocked')
-                      .find('.lockIcon').remove();
+        var $dagTables = $('#dagPanel').find('.dagTable[data-id="' + tableId +
+                                            '"]');
+        $dagTables.removeClass('locked');
+        if (!table.isNoDelete()) {
+            // if noDelete, they still need the lock
+            $dagTables.find('.lockIcon').remove();
+        }
         WSManager.unlockTable(tableId);
         SQL.unlockUndoRedo();
     };
@@ -3114,6 +3121,12 @@ window.xcHelper = (function($, xcHelper) {
                 if (XVM.getLicenseMode() === XcalarMode.Demo) {
                     xcHelper.disableMenuItem($("#tableMenu .exportTable"),
                                           {"title": TooltipTStr.NotInDemoMode});
+                }
+                if (gTables[tableId].isNoDelete()) {
+                    xcHelper.disableMenuItem($("#tableMenu .deleteTable"),
+                                    {"title": TooltipTStr.CannotDropLocked});
+                } else {
+                    xcHelper.enableMenuItem($("#tableMenu .deleteTable"));
                 }
                 $('.highlightBox').remove();
                 break;

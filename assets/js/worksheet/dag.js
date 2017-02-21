@@ -397,10 +397,18 @@ window.DagPanel = (function($, DagPanel) {
 
             var tableName = $.trim($dagTable.find('.tableTitle').text());
             var tableId = $dagTable.data('id');
+            var table = gTables[tableId];
             var tableLocked = false;
-            if (gTables[tableId] && gTables[tableId].hasLock()) {
-                tableLocked = true;
+            var tableNoDelete = false;
+            if (table) {
+                if (table.hasLock()) {
+                    tableLocked = true;
+                }
+                if (table.isNoDelete()) {
+                    tableNoDelete = true;
+                }
             }
+
             $menu.data('tablename', tableName);
             $menu.data('tableId', tableId);
             $menu.data('tableelement', $dagTable);
@@ -409,6 +417,8 @@ window.DagPanel = (function($, DagPanel) {
             var inColumnPickerMode = $('#container').hasClass('columnPicker');
 
             $menu.find('.deleteTable').removeClass('hidden');
+            $menu.find("li.unavailable").removeClass("unavailable");
+            $menu.find(".deleteTableDescendants").addClass("unavailable");
 
             // if active table, hide "addTable" and show "focusTable"
             $('#activeTablesList').find('.tableInfo').each(function() {
@@ -436,7 +446,7 @@ window.DagPanel = (function($, DagPanel) {
             var type = $dagTable.siblings('.actionType').data('type');
             if (type === "aggregate") {
                 $menu.find('.addTable, .revertTable, .focusTable, ' +
-                            '.archiveTable').addClass('hidden');
+                            '.archiveTable, .addNoDelete').addClass('hidden');
             } else if (activeFound) {
                 // already in WS, cannot add or revert to worksheet
                 $menu.find('.addTable, .revertTable').addClass('hidden');
@@ -451,14 +461,6 @@ window.DagPanel = (function($, DagPanel) {
                 $menu.find('.revertTable').addClass('unavailable');
             } else {
                 $menu.find('.revertTable').removeClass('unavailable');
-            }
-
-            if ($dagTable.hasClass('locked')) {
-                $menu.find('li').hide();
-                $menu.find('.unlockTable').show();
-            } else {
-                $menu.find('li').show();
-                $menu.find('.unlockTable').hide();
             }
 
             var operator = $(this).closest('.dagTable').prev().data('type');
@@ -487,6 +489,16 @@ window.DagPanel = (function($, DagPanel) {
                         "title": TooltipTStr.IcvRestriction
                     });
                 }
+            }
+
+            if (tableNoDelete) {
+                $menu.find('.removeNoDelete').show();
+                $menu.find('.addNoDelete').hide();
+                $menu.find("li.deleteTable").addClass("unavailable");
+            } else {
+                // $lis get unavailable class removed at the top of function
+                $menu.find('.removeNoDelete').hide();
+                $menu.find('.addNoDelete').show();
             }
 
             positionAndShowDagTableDropdown($dagTable, $menu, $(event.target));
@@ -535,7 +547,7 @@ window.DagPanel = (function($, DagPanel) {
         if (!formBusy) {
             var tableId = $dagWrap.data('id');
             DagFunction.focusTable(tableId);
-            if (!gTables[tableId].isLocked &&
+            if (!gTables[tableId].hasLock() &&
                 !$dagWrap.hasClass('fromRetina')) {
                 DFCreateView.show($dagWrap);
             }
@@ -901,22 +913,23 @@ window.DagPanel = (function($, DagPanel) {
             DagFunction.focusTable(tableId);
         });
 
-        $menu.find('.lockTable').mouseup(function(event) {
+        $menu.find('.addNoDelete').mouseup(function(event) {
             if (event.which !== 1) {
                 return;
             }
-            var $tableIcon = $menu.data('tableelement');
-            var lockHTML = '<div class="lockIcon"></div>';
-            $tableIcon.addClass('locked').append(lockHTML);
+            var tableId = $menu.data("tableId");
+            Dag.makeTableNoDelete(tableId);
+            TblManager.makeTableNoDelete(tableId);
         });
 
-        $menu.find('.unlockTable').mouseup(function(event) {
+        $menu.find('.removeNoDelete').mouseup(function(event) {
             if (event.which !== 1) {
                 return;
             }
-            var $tableIcon = $menu.data('tableelement');
-            $tableIcon.removeClass('locked')
-                      .find('.lockIcon').remove();
+
+            var tableId = $menu.data("tableId");
+            Dag.removeNoDelete(tableId);
+            TblManager.removeTableNoDelete(tableId);
         });
 
         $menu.find('.archiveTable').mouseup(function(event) {
@@ -933,6 +946,9 @@ window.DagPanel = (function($, DagPanel) {
 
         $menu.find('.deleteTable').mouseup(function(event) {
             if (event.which !== 1) {
+                return;
+            }
+            if ($(this).hasClass("unavailable")) {
                 return;
             }
             var tableId = $menu.data('tableId');
@@ -1223,7 +1239,8 @@ window.DagPanel = (function($, DagPanel) {
 
         // check if table visibile, else check if its in the inactivelist,
         // else check if its in the orphan list, else just delete the table
-        if ($table.length !== 0 && !$table.hasClass('locked')) {
+        if ($table.length !== 0 && (!$table.hasClass('locked') &&
+            !$table.hasClass("noDelete"))) {
             var msg = xcHelper.replaceMsg(TblTStr.DelMsg, {
                 "table": tableName
             });
@@ -1461,16 +1478,8 @@ window.Dag = (function($, Dag) {
 
             Dag.focusDagForActiveTable(tableId);
 
-            // add lock icon to tables that should be locked
-            var lockHTML = '<div class="lockIcon"></div>';
-            for (var tId in gTables ) {
-                if (gTables[tId].hasLock()) {
-                    $dagWrap.find('.dagTable[data-id="' + tId + '"]')
-                    .filter(function() {
-                        return !$(this).hasClass('trueLocked');
-                    }).addClass('locked trueLocked').append(lockHTML);
-                }
-            }
+            // add lock icon to tables that should be locked or not dropped
+            applyLockIfNeeded($dagWrap);
 
             if ($('#xcTableWrap-' + tableId).find('.tblTitleSelected').length) {
                 $('.dagWrap.selected').removeClass('selected')
@@ -2080,9 +2089,59 @@ window.Dag = (function($, Dag) {
         });
     };
 
+    Dag.makeTableNoDelete = function(tableId) {
+        var $dagTables = $("#dagPanel").find('.dagTable[data-id="' +
+                                        tableId + '"]');
+        $dagTables.addClass("noDelete");
+        if (!$dagTables.hasClass("locked")) {
+            var lockHTML = '<div class="lockIcon"></div>';
+            $dagTables.append(lockHTML);
+        }
+    };
+
+    Dag.removeNoDelete = function(tableId) {
+        var $dagTables = $("#dagPanel").find('.dagTable[data-id="' +
+                                        tableId + '"]');
+        $dagTables.removeClass('noDelete');
+        if (!$dagTables.hasClass("locked")) {
+            $dagTables.find('.lockIcon').remove();
+        }
+    };
+
     function hideSchema() {
         $('#dagSchema').hide();
         $(document).off('.hideDagSchema');
+    }
+
+    function applyLockIfNeeded($dagWrap) {
+        var $table;
+        var tId;
+        var table;
+        var isLocked;
+        var noDelete;
+        var needsIcon;
+        var lockHTML = '<div class="lockIcon"></div>';
+        $dagWrap.find(".dagTable").each(function() {
+            $table = $(this);
+            tId = $table.data('id');
+            table = gTables[tId];
+            if (!table) {
+                return;
+            }
+
+            isLocked = table.hasLock();
+            noDelete = table.isNoDelete();
+            needsIcon = isLocked || noDelete;
+            if (needsIcon) {
+                $table.append(lockHTML);
+                if (isLocked) {
+                    $table.addClass("locked");
+                }
+                if (noDelete) {
+                    $table.addClass("noDelete");
+                }
+            }
+        });
     }
 
     function checkNodeArrayForRetina(nodeArray) {

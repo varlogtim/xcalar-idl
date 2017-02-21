@@ -286,6 +286,7 @@ var TableMetaV1 = (function() {
         tableName: (string) table's name
         tableId: (string) table's id
         isLocked: (boolean) if table is locked
+        noDelete: (boolean) if table should not be deleted
         status: (string) enums of TableType
         timeStamp: (date) last change time
         tableCols: (array) ProgCols
@@ -313,6 +314,7 @@ var TableMetaV1 = (function() {
         self.tableName = options.tableName;
         self.tableId = options.tableId;
         self.isLocked = options.isLocked || false;
+        self.noDelete = options.noDelete || false;
         self.status = options.status || TableType.Active;
 
         self.timeStamp = options.timeStamp || xcHelper.getCurrentTimeStamp();

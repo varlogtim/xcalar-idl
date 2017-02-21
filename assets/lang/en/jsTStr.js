@@ -99,6 +99,7 @@ TooltipTStr = {
     "OnlyInOpMode": "Feature only available in Operational mode",
     "ColumnAlreadyInt": "Column is already an integer",
     "ColumnAlreadyFloat": "Column is already a float",
+    "CannotDropLocked": "Cannot drop locked table",
 
     // with replace
     'CollapsedTables': '<number> tables are collapsed',
@@ -254,6 +255,7 @@ ErrTStr = {
     'SelectOption': 'Please select an option.',
     'NotDisplayRows': 'Could Not Display Rows',
     'AppInstallFailed': 'App Installation Failed',
+    'CannotDropLocked': 'Cannot drop locked tables',
 
     // With replace
     'WorkbookExists': 'A workbook named <workbookName> already exists. Please' +

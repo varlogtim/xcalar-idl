@@ -475,9 +475,11 @@ window.TblManager = (function($, TblManager) {
         return deferred.promise();
     };
 
+    // XXX consider passing in table names instead of tableIds to simplify
+    //     orphan name vs active table id determination
     // noLog: boolean, if we are deleting undone tables, we do not log this
     //              transaction
-    // will pass if at least 1 table passes, even if others fail
+    // will resolve if at least 1 table passes, even if others fail
     // if no failures, will not return info, but if partial or full fail
     // then it will return array of failures
     TblManager.deleteTables = function(tables, tableType, noAlert, noLog) {
@@ -493,6 +495,10 @@ window.TblManager = (function($, TblManager) {
         tables = tables.filter(function(tableIdOrName) {
             return vefiryTableType(tableIdOrName, tableType);
         });
+
+        var splitTables = splitDroppableTables(tables, tableType);
+        tables = splitTables.deleteable;
+        var noDeleteTables = splitTables.noDelete;
 
         var txId;
         if (!noLog) {
@@ -533,18 +539,26 @@ window.TblManager = (function($, TblManager) {
 
         PromiseHelper.when.apply(window, defArray)
         .then(function() {
-            if (!noLog) {
-                Transaction.done(txId);
-            }
+            if (noDeleteTables.length) {
+                rejectHandler(tableNames);
+            } else {
+                if (!noLog) {
+                    Transaction.done(txId);
+                }
 
-            if (tableType === TableType.Undone) {
-                KVStore.commit();
+                if (tableType === TableType.Undone) {
+                    KVStore.commit();
+                }
+                deferred.resolve(tableNames);
             }
-            deferred.resolve();
         })
         .fail(function() {
-            var res = tableDeleteFailHandler(arguments, tableNames);
-            res.errors = arguments;
+            rejectHandler(arguments);
+        });
+
+        function rejectHandler(args) {
+            var res = tableDeleteFailHandler(args, tableNames, noDeleteTables);
+            res.errors = args;
             if (res.hasSuccess) {
                 if (!noLog) {
                     sql.tables = res.successTables;
@@ -572,9 +586,34 @@ window.TblManager = (function($, TblManager) {
                 }
                 deferred.reject(res);
             }
-        });
+        }
 
         return deferred.promise();
+    };
+
+    TblManager.makeTableNoDelete = function(tableId) {
+        var table = gTables[tableId];
+
+        if (!table) {
+            if (tableId != null || !gTables.hasOwnProperty(tableId)) {
+                table = new TableMeta({
+                    "tableId": tableId,
+                    "tableName": tableName,
+                    "tableCols": [ColManager.newDATACol()],
+                    "status": TableType.Orphan
+                });
+                gTables[tableId] = table;
+            } else {
+                // XXX no id, handle this by renaming?
+                return;
+            }
+        }
+        table.addNoDelete();
+    };
+
+    TblManager.removeTableNoDelete = function(tableId) {
+        var table = gTables[tableId];
+        table.removeNoDelete();
     };
 
     function vefiryTableType(tableIdOrName, expectTableType) {
@@ -1185,37 +1224,67 @@ window.TblManager = (function($, TblManager) {
     //    fails: [{tables: "tableName", error: "error"}]
     //    successTables: []
     // }
-    function tableDeleteFailHandler(results, tables) {
+    function tableDeleteFailHandler(results, tables, noDeleteTables) {
         var hasSuccess = false;
         var fails = [];
+        var numActualFails = 0; // as opposed to noDeleteTables
         var errorMsg = "";
         var tablesMsg = "";
+        var noDeleteMsg = "";
         var failedTablesStr = "";
         var successTables = [];
         for (var i = 0, len = results.length; i < len; i++) {
             if (results[i] != null && results[i].error != null) {
                 fails.push({tables: tables[i], error: results[i].error});
                 failedTablesStr += tables[i] + ", ";
+                numActualFails++;
             } else {
                 hasSuccess = true;
                 successTables.push(tables[i]);
             }
         }
 
-        var numFails = fails.length;
+        if (noDeleteTables.length) {
+            var list = "";
+            var tableName;
+            for (var i = 0; i < noDeleteTables.length; i++) {
+                if (gTables[noDeleteTables[i]]) {
+                    tableName = gTables[noDeleteTables[i]].getName();
+                } else {
+                    tableName = noDeleteTables[i];
+                }
+                noDeleteMsg += tableName + ", ";
+                fails.push({tables: tableName,
+                            error: ErrTStr.CannotDropLocked});
+            }
+            // remove last comma
+            noDeleteMsg = noDeleteMsg.substr(0, noDeleteMsg.length - 2);
+            if (noDeleteTables.length === 1) {
+                noDeleteMsg = "Table " + noDeleteMsg + " was locked.\n";
+            } else {
+                noDeleteMsg = "Tables " + noDeleteMsg + " were locked.\n";
+            }
+        }
+
+        var numFails = fails.length + noDeleteTables.length;
         if (numFails) {
+            // remove last comma
             failedTablesStr = failedTablesStr.substr(0,
                               failedTablesStr.length - 2);
-            if (numFails === 1) {
-                tablesMsg = xcHelper.replaceMsg(ErrWRepTStr.TableNotDeleted, {
+            if (numActualFails === 1) {
+                tablesMsg += xcHelper.replaceMsg(ErrWRepTStr.TableNotDeleted, {
                     "name": failedTablesStr
                 });
-            } else { // numFails > 1
-                tablesMsg = ErrTStr.TablesNotDeleted + " " + failedTablesStr;
+            } else if (numActualFails > 1) {
+                tablesMsg += ErrTStr.TablesNotDeleted + " " + failedTablesStr;
             }
-
-            if (hasSuccess) {
-                errorMsg = fails[0].error + ". " + tablesMsg;
+            
+            if (hasSuccess || noDeleteTables.length) {
+                if (!numActualFails) {
+                    errorMsg = noDeleteMsg;
+                } else {
+                    errorMsg = noDeleteMsg + fails[0].error + ". " + tablesMsg;
+                }
             } else {
                 errorMsg = fails[0].error + ". " + ErrTStr.NoTablesDeleted;
             }
@@ -2559,6 +2628,27 @@ window.TblManager = (function($, TblManager) {
                 StatusBox.show(error, $div, false);
             });
         }
+    }
+
+    // returns arrays of deletable and non-deletable tables
+    function splitDroppableTables(tables, tableType) {
+        var deleteables = [];
+        var nonDeletables = [];
+        var tId;
+       
+        tables.forEach(function(tIdOrName) {
+            if (tableType === TableType.Orphan) {
+                tId = xcHelper.getTableId(tIdOrName);
+            } else {
+                tId = tIdOrName;
+            }
+            if (gTables[tId] && gTables[tId].isNoDelete()) {
+                nonDeletables.push(tIdOrName);
+            } else {
+                deleteables.push(tIdOrName);
+            }
+        });
+        return {deleteable: deleteables, noDelete: nonDeletables};
     }
 
     function delTableHelper(tableId, tableType, txId) {

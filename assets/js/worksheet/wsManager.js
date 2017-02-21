@@ -636,6 +636,8 @@ window.WSManager = (function($, WSManager) {
             srcTables = ws.tables;
         } else if (ws.archivedTables.indexOf(tableId) !== -1) {
             srcTables = ws.archivedTables;
+        } else if (ws.undoneTables.indexOf(tableId) !== -1) {
+            srcTables = ws.undoneTables;
         } else {
             srcTables = ws.orphanedTables;
         }
@@ -1019,6 +1021,8 @@ window.WSManager = (function($, WSManager) {
       
     };
 
+    // will not drop undone tables if isNoDelete, instead will change table
+    // to orphaned
     WSManager.dropUndoneTables = function() {
         var deferred = jQuery.Deferred();
         var tables = [];
@@ -1026,7 +1030,12 @@ window.WSManager = (function($, WSManager) {
         for (var tableId in gTables) {
             table = gTables[tableId];
             if (table.getType() === TableType.Undone) {
-                tables.push(table.getId());
+                if (table.isNoDelete()) {
+                    WSManager.changeTableStatus(tableId, TableType.Orphan);
+                    table.beOrphaned();
+                } else {
+                    tables.push(table.getId());
+                }
             }
         }
         
@@ -1517,7 +1526,8 @@ window.WSManager = (function($, WSManager) {
         TblManager.deleteTables(activeTables, TableType.Active)
         .then(function(res) {
             if (res) {
-                errors = arguments;
+                // could be errors, could be successful tables
+                errors = arguments; 
             }
             deferred.resolve();
         })
@@ -1543,8 +1553,10 @@ window.WSManager = (function($, WSManager) {
         var tableId;
         var failedMsg;
         var tableList = "";
+        var failFound = false;
         for (var i = 0; i < errors.length; i++) {
             if (errors[i] && errors[i].fails) {
+                failFound = true;
                 for (var j = 0; j < errors[i].fails.length; j++) {
                     tableName = errors[i].fails[j].tables;
                     tableId = xcHelper.getTableId(tableName);
@@ -1555,6 +1567,9 @@ window.WSManager = (function($, WSManager) {
                     }
                 }
             }
+        }
+        if (!failFound) { // only successful tables were found
+            return;
         }
         if (!failedMsg) {
             failedMsg = TblTStr.DelFail;

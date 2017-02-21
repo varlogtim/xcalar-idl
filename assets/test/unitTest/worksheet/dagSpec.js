@@ -1,4 +1,4 @@
-describe('Dag', function() {
+describe('Dag Test', function() {
     var $dagPanel;
     var testDs;
 
@@ -551,21 +551,23 @@ describe('Dag', function() {
                 });
 
                 it('lockTable li should work', function() {
-                    $menu.find('.lockTable').trigger(fakeEvent.mouseup);
+                    $menu.find('.addNoDelete').trigger(fakeEvent.mouseup);
                     expect(smallTable.$dagWrap.find('.dagTable').last()
                         .find('.lockIcon').length)
                     .to.equal(1);
-                    expect(smallTable.$dagWrap.find('.dagTable.locked').length)
+                    expect(smallTable.$dagWrap.find('.dagTable.noDelete').length)
                     .to.equal(1);
+                    expect(gTables[smallTable.tableId].isNoDelete()).to.be.true;
                 });
 
                 it('unlockTable li should work', function() {
-                    $menu.find('.unlockTable').trigger(fakeEvent.mouseup);
+                    $menu.find('.removeNoDelete').trigger(fakeEvent.mouseup);
                     expect(smallTable.$dagWrap.find('.dagTable').last()
                         .find('.lockIcon').length)
                     .to.equal(0);
-                    expect(smallTable.$dagWrap.find('.dagTable.locked').length)
+                    expect(smallTable.$dagWrap.find('.dagTable.noDelete').length)
                     .to.equal(0);
+                    expect(gTables[smallTable.tableId].isNoDelete()).to.be.false;
                 });
             });
 

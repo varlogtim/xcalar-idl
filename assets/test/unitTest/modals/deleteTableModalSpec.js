@@ -252,6 +252,43 @@ describe("Delete Table Modal Test", function() {
         });
     });
 
+    describe('failHandler test error messages', function() {
+        var fn;
+        before(function() {
+            fn = DeleteTableModal.__testOnly__.failHandler;
+            StatusBox.forceHide();
+        });
+
+        it('1 regular fail, 1 locked fail', function() {
+            fn(["fakeTable"]);
+            expect($("#statusBox").is(":visible")).to.be.false;
+
+            fn([{"fails": [
+                {"tables": "unitTest1#tt1","error": "test"},
+                {"tables": "unitTest1#tt1","error": ErrTStr.CannotDropLocked}
+                ]}]);
+
+            UnitTest.hasStatusBoxWithError("test. No tables were deleted.");
+        });
+
+        it('1 success, 1 regular fail, 1 locked fail', function() {
+            fn([["fakeTable"], {"fails": [
+                {"tables": "unitTest1#tt1","error": "test"},
+                {"tables": "unitTest1#tt1","error": ErrTStr.CannotDropLocked}
+                ]}]);
+
+            UnitTest.hasStatusBoxWithError("test. Some tables could not be deleted.");
+        });
+
+        it('1 success, 1 locked fail', function() {
+            fn([["fakeTable"], {"fails": [
+                {"tables": "unitTest1#tt1","error": ErrTStr.CannotDropLocked}
+                ]}]);
+
+            UnitTest.hasStatusBoxWithError("Cannot drop locked tables. Table unitTest1#tt1 was not deleted.");
+        });
+    });
+
     after(function() {
         UnitTest.offMinMode();
         XcalarGetTables = oldGetTables;
