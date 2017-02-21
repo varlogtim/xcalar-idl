@@ -387,7 +387,8 @@ window.WorkbookManager = (function($, WorkbookManager) {
         })
         .then(function() {
             // pass in true to always resolve the promise
-            return removeActiveWKBKKey(true);
+            var promise = removeActiveWKBKKey();
+            return PromiseHelper.alwaysResolve(promise);
         })
         .then(deferred.resolve)
         .fail(function(error) {
@@ -974,28 +975,23 @@ window.WorkbookManager = (function($, WorkbookManager) {
         return deferred.promise();
     }
 
-    function removeActiveWKBKKey(alwaysResolve) {
+    function removeActiveWKBKKey() {
         var deferred = jQuery.Deferred();
         XcalarKeyDelete(activeWKBKKey, gKVScope.WKBK)
         .then(function() {
             activeWKBKId = null;
             deferred.resolve();
         })
-        .fail(function(error) {
-            if (alwaysResolve) {
-                deferred.resolve();
-            } else {
-                deferred.reject(error);
-            }
-        });
+        .fail(deferred.reject);
 
         return deferred.promise();
     }
 
     function commitActiveWkbk() {
         var deferred = jQuery.Deferred();
+        var promise = TblManager.freeAllResultSetsSync();
 
-        TblManager.freeAllResultSetsSync(true)
+        PromiseHelper.alwaysResolve(promise)
         .then(function() {
             return KVStore.commit();
         })

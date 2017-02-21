@@ -67,7 +67,8 @@ window.UnitTest = (function(UnitTest, $) {
         });
 
         $('#backXC').click(function() {
-            TblManager.freeAllResultSetsSync(true)
+            var promise = TblManager.freeAllResultSetsSync();
+            PromiseHelper.alwaysResolve(promise)
             .then(Support.releaseSession)
             .then(function() {
                 removeUnloadPrompt();

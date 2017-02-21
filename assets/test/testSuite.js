@@ -102,7 +102,8 @@ window.TestSuite = (function($, TestSuite) {
     // this is for unit test
     TestSuite.unitTest = function() {
         // free this session and then run unit test
-        TblManager.freeAllResultSetsSync(true)
+        var promise = TblManager.freeAllResultSetsSync();
+        PromiseHelper.alwaysResolve(promise)
         .then(Support.releaseSession)
         .then(function() {
             removeUnloadPrompt();

@@ -144,6 +144,13 @@ window.PromiseHelper = (function(PromiseHelper, $) {
         return PromiseHelper.chain(promiseGeneratorClosures);
     };
 
+    /* Always resolve when passed in promise is done */
+    PromiseHelper.alwaysResolve = function(def) {
+        var deferred = jQuery.Deferred();
+        def.always(deferred.resolve);
+        return deferred.promise();
+    };
+
     /* return a promise with resvoled value */
     PromiseHelper.resolve = function() {
         var deferred = jQuery.Deferred();

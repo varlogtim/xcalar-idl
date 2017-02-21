@@ -1149,7 +1149,7 @@ window.TblManager = (function($, TblManager) {
         DS.release();
     };
 
-    TblManager.freeAllResultSetsSync = function(alwaysResolve) {
+    TblManager.freeAllResultSetsSync = function() {
         var deferred = jQuery.Deferred();
         var promises = [];
 
@@ -1175,14 +1175,7 @@ window.TblManager = (function($, TblManager) {
             return PromiseHelper.chain(promises);
         })
         .then(deferred.resolve)
-        .fail(function(error) {
-            console.error(error);
-            if (alwaysResolve) {
-                deferred.resolve();
-            } else {
-                deferred.reject(error);
-            }
-        });
+        .fail(deferred.reject);
 
         return (deferred.promise());
     };
