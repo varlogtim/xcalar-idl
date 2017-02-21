@@ -212,20 +212,24 @@ app.post('/checkLicense', function(req, res) {
     var errors = [];
 
     var fileLocation = licenseLocation;
-    fs.writeFile(fileLocation, credArray.licenseKey);
-
-    var out = exec(scriptDir + '/01-* --license-file ' + fileLocation);
-
-    out.stdout.on('data', function(data) {
-        if (data.indexOf("SUCCESS") > -1) {
-            res.send({"status": Status.Ok});
-            console.log("Success: Checking License");
-        } else if (data.indexOf("FAILURE") > -1) {
+    fs.writeFile(fileLocation, credArray.licenseKey, function(err) {
+        if (err) {
+            console.log(err);
             res.send({"status": Status.Error});
-            console.log("Error: Checking License");
+            return;
         }
-    });
+        var out = exec(scriptDir + '/01-* --license-file ' + fileLocation);
 
+        out.stdout.on('data', function(data) {
+            if (data.indexOf("SUCCESS") > -1) {
+                res.send({"status": Status.Ok});
+                console.log("Success: Checking License");
+            } else if (data.indexOf("FAILURE") > -1) {
+                res.send({"status": Status.Error});
+                console.log("Error: Checking License");
+            }
+        });
+    });
 });
 
 app.post("/runInstaller", function(req, res) {
@@ -237,61 +241,110 @@ app.post("/runInstaller", function(req, res) {
     // Write files to /config and chmod
 
     var isPassword = true;
-
-    if ("password" in credArray.credentials) {
-        var password = credArray.credentials.password;
-        fs.writeFile(credentialLocation, password,
-                     {mode: parseInt('600', 8)});
-    } else {
-        isPassword = false;
-        var sshkey = credArray.credentials.sshKey;
-        fs.writeFile(credentialLocation, sshkey,
-                     {mode: parseInt('600', 8)});
-    }
-
     var hostArray = credArray.hostnames;
     var hasPrivHosts = false;
-    fs.writeFile(hostnameLocation, hostArray.join("\n"));
 
-    if(credArray.privHostNames.length > 0) {
-        fs.writeFile(privHostnameLocation, credArray.privHostNames.join("\n"));
-    } else {
-        fs.writeFile(privHostnameLocation, credArray.hostnames.join("\n"));
-    }
-    hasPrivHosts = true;
-
-    var execString = scriptDir + "/cluster-install.sh";
-    cliArguments = genExecString(hostnameLocation, hasPrivHosts,
-                                 credentialLocation,
-                                 isPassword, credArray.username,
-                                 credArray.port,
-                                 credArray.nfsOption);
-
-    execString += cliArguments;
-    initStepArray();
-
-    out = exec(execString);
-
-    out.stdout.on('data', stdOutCallback);
-    out.stderr.on('data', stdErrCallback);
-
-    out.on('close', function(code) {
-        // Exit code. When we fail, we return non 0
-        if (code) {
-            console.log("Oh noes!");
-            console.log("execString: " + execString);
-            console.log("stderr: " + errorLog);
-            curStep.status = Status.Error;
+    function initialStep() {
+        var deferred = jQuery.Deferred();
+        if ("password" in credArray.credentials) {
+            var password = credArray.credentials.password;
+            fs.writeFile(credentialLocation, password,
+                {mode: parseInt('600', 8)},function(err) {
+                    if (err) {
+                        deferred.reject(err);
+                        return;
+                    }
+                    deferred.resolve();
+                });
         } else {
-            curStep.status = Status.Done;
+            isPassword = false;
+            var sshkey = credArray.credentials.sshKey;
+            fs.writeFile(credentialLocation, sshkey,
+             {mode: parseInt('600', 8)}, function(err) {
+                if (err) {
+                    deferred.reject(err);
+                    return;
+                }
+                deferred.resolve();
+             });
         }
+        return deferred.promise();
+    }
 
+    initialStep()
+    .then(function() {
+        var deferred = jQuery.Deferred();
+        fs.writeFile(hostnameLocation, hostArray.join("\n"), function(err) {
+            if (err) {
+                deferred.reject(err);
+                return;
+            }
+            deferred.resolve();
+        });
+        return deferred.promise();
+    })
+    .then(function() {
+        var deferred = jQuery.Deferred();
+        if(credArray.privHostNames.length > 0) {
+            fs.writeFile(privHostnameLocation,
+                credArray.privHostNames.join("\n"),
+                function(err) {
+                    if (err) {
+                        deferred.reject(err);
+                        return;
+                    }
+                    hasPrivHosts = true;
+                    deferred.resolve();
+                });
+        } else {
+            fs.writeFile(privHostnameLocation,
+                credArray.hostnames.join("\n"),
+                function(err) {
+                    if (err) {
+                        deferred.reject(err);
+                        return;
+                    }
+                    hasPrivHosts = true;
+                    deferred.resolve();
+                });
+        }
+        return deferred.promise();
+    })
+    .then(function() {
+        var execString = scriptDir + "/cluster-install.sh";
+        cliArguments = genExecString(hostnameLocation, hasPrivHosts,
+                                     credentialLocation,
+                                     isPassword, credArray.username,
+                                     credArray.port,
+                                     credArray.nfsOption);
+
+        execString += cliArguments;
+        initStepArray();
+
+        out = exec(execString);
+
+        out.stdout.on('data', stdOutCallback);
+        out.stderr.on('data', stdErrCallback);
+
+        out.on('close', function(code) {
+            // Exit code. When we fail, we return non 0
+            if (code) {
+                console.log("Oh noes!");
+                console.log("execString: " + execString);
+                console.log("stderr: " + errorLog);
+                curStep.status = Status.Error;
+            } else {
+                curStep.status = Status.Done;
+            }
+        });
+    })
+    .fail(function(err) {
+        console.log(err);
+        curStep.status = Status.Error;
     });
-
     // Immediately ack after starting
     res.send({"status": Status.Ok});
     console.log("Immediately acking runInstaller");
-
 });
 
 app.post("/checkStatus", function(req, res) {
@@ -310,7 +363,6 @@ app.post("/cancelInstall", function(req, res) {
     var errors = [];
     res.send({"status": Status.Ok});
 });
-
 
 var file = "/var/log/Xcalar.log";
 
@@ -515,8 +567,15 @@ app.post("/writeConfig", function(req, res) {
     var credArray = req.body;
     var file = "/config/ldapConfig.json";
     try {
-        fs.writeFileSync(file, JSON.stringify(credArray, null, 4));
-        copyFiles(res);
+        fs.writeFile(file, JSON.stringify(credArray, null, 4), function(err) {
+            if (err) {
+                console.log(err);
+                res.send({"status": Status.Error,
+                          "reason": JSON.stringify(err)});
+                return;
+            }
+            copyFiles(res);
+        });
     } catch (err) {
         console.log(err);
         res.send({"status": Status.Error,
@@ -893,3 +952,5 @@ httpServer.listen(port, function() {
     }
     console.log("All ready");
 });
+
+
