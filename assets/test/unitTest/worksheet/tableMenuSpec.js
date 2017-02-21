@@ -1210,7 +1210,7 @@ describe('TableMenu Test', function() {
 
         it('tdFilter on mixed column', function() {
             $table.find('td.col6').eq(0).trigger(fakeEvent.mousedown);
-            var cellText = $table.find('td.col6').eq(0).text();
+            var cellText = $table.find('td.col6').eq(0).find(".displayedData").text();
             var cachedFunc = xcFunction.filter;
             var called = false;
             xcFunction.filter = function(colNum, tId, options) {
