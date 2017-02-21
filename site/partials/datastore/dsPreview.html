@@ -10,7 +10,10 @@
     <header class="titleSection">
       <div class="title"><%= dicts.dsPreview.Previewing %></div>
       <div class="info">
-        <div id="preview-url" class="url"></div>
+        <div class="url">
+          <div id="preview-url"><%= dicts.common.Path %>: <span class="text"></div>
+          <div id="preview-pattern" class="xc-hidden"><%= dicts.dsForm.Pattern %>: <span class="text"></div>
+        </div>
         <div id="dsForm-highlighter" class="buttonGroup loadHidden">
           <button class="rmHightLight btn btn-small" title="<%= dicts.dsPreview.RmHighlight %>" data-toggle="tooltip" data-placement="top" data-container="body">
             <i class="icon xi-undo-highlight fa-15"></i>

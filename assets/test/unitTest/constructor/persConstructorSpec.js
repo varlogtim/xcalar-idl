@@ -1987,6 +1987,7 @@ describe("Persistent Constructor Test", function() {
             var dsObj = new DSObj({
                 "id": "testId",
                 "name": "testName",
+                "pattern": "test",
                 "user": "testUser",
                 "fullName": "testFullName",
                 "parentId": DSObjTerm.homeParentId,
@@ -2002,12 +2003,13 @@ describe("Persistent Constructor Test", function() {
             expect(res[0]).to.equal("nfs:///netstore/datasets/gdelt/");
             expect(res[1]).to.equal("CSV");
             expect(res[2]).to.equal("testFullName");
-            expect(res[12]).to.equal(true);
+            expect(res[12]).to.equal("re:test");
 
             // case 2
             dsObj = new DSObj({
                 "id": "testId",
                 "name": "testName",
+                "pattern": "test",
                 "user": "testUser",
                 "fullName": "testFullName",
                 "parentId": DSObjTerm.homeParentId,
@@ -2015,7 +2017,7 @@ describe("Persistent Constructor Test", function() {
                 "path": "nfs:///netstore/datasets/gdelt/",
                 "format": "CSV",
                 "numEntries": 1000,
-                "isRegEx": true // typo on purpose to return false
+                "isRegEx": false
             });
 
             res = dsObj.getPointArgs();
@@ -2023,7 +2025,7 @@ describe("Persistent Constructor Test", function() {
             expect(res[0]).to.equal("nfs:///netstore/datasets/gdelt/");
             expect(res[1]).to.equal("CSV");
             expect(res[2]).to.equal("testFullName");
-            expect(res[12]).to.equal(false);
+            expect(res[12]).to.equal("test");
         });
 
         it("Should get and set size", function() {

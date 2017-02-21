@@ -1614,6 +1614,11 @@ table.datasetTable {
             .url {
                 .size(@width: ~"calc(100% - 200px)");
                 float: left;
+                .flex-display;
+
+                > div {
+                    .flex(0 1 auto);
+                }
             }
 
             .buttonGroup {

@@ -62,7 +62,7 @@ window.FilePreviewer = (function(FilePreviewer, $) {
         var wasHexMode = isInHexMode();
         var timer = inLoadMode();
 
-        XcalarPreview(url, false, false, numBytesToRequest, offset)
+        XcalarPreview(url, null, false, numBytesToRequest, offset)
         .then(function(res) {
             if (!isValidId(perviewerId)) {
                 return PromiseHelper.reject(outDateError);

@@ -160,6 +160,20 @@ describe('xcHelper Test', function() {
         expect(openCount).to.equal(closeCount);
     });
 
+    it("xcHelper.getFileNamePattern should work", function() {
+        // case 1
+        var res = xcHelper.getFileNamePattern(null);
+        expect(res).to.equal("");
+
+        // case 2
+        res = xcHelper.getFileNamePattern("test", false);
+        expect(res).to.equal("test");
+
+        // case 3
+        res = xcHelper.getFileNamePattern("test", true);
+        expect(res).to.equal("re:test");
+    });
+
     it('xcHelper.getJoinRenameMap should work', function() {
         var res = xcHelper.getJoinRenameMap("oldName", "newName");
         expect(res).to.be.an("object");

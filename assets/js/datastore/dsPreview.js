@@ -1149,10 +1149,6 @@ window.DSPreview = (function($, DSPreview) {
 
         var loadURL = loadArgs.getPath();
         var advanceArgs = advanceOption.getArgs();
-        var pattern = advanceArgs.pattern;
-        if (pattern != null) {
-            loadURL += pattern;
-        }
 
         var dsName = $("#dsForm-dsName").val();
         if (!dsName) {
@@ -1161,6 +1157,8 @@ window.DSPreview = (function($, DSPreview) {
 
         var isRecur = advanceArgs.isRecur;
         var isRegex = advanceArgs.isRegex;
+        var pattern = xcHelper.getFileNamePattern(advanceArgs.pattern, isRegex);
+
         var previewSize = advanceArgs.previewSize;
         var hasUDF = false;
 
@@ -1193,7 +1191,7 @@ window.DSPreview = (function($, DSPreview) {
             "sql": sql
         });
 
-        $("#preview-url").text(loadURL);
+        setURL(loadURL, pattern);
 
         var initialLoadArgStr;
         if (!noDetect) {
@@ -1202,10 +1200,10 @@ window.DSPreview = (function($, DSPreview) {
 
         var promise;
         if (hasUDF) {
-            promise = loadDataWithUDF(txId, loadURL, dsName,
+            promise = loadDataWithUDF(txId, loadURL, pattern, dsName,
                                     udfModule, udfFunc, isRecur, previewSize);
         } else {
-            promise = loadData(loadURL, isRecur, isRegex);
+            promise = loadData(loadURL, pattern, isRecur);
         }
 
         promise
@@ -1256,6 +1254,17 @@ window.DSPreview = (function($, DSPreview) {
         return dsName;
     }
 
+    function setURL(url, pattern) {
+        $("#preview-url").find(".text").text(url);
+        var $pattern = $("#preview-pattern");
+        if (!pattern) {
+            $pattern.addClass("xc-hidden");
+        } else {
+            $pattern.removeClass("xc-hidden")
+            .find(".text").text(pattern);
+        }
+    }
+
     function sampleData(datasetName, rowsToFetch) {
         var deferred = jQuery.Deferred();
         var resultSetId;
@@ -1299,9 +1308,9 @@ window.DSPreview = (function($, DSPreview) {
         $previeWrap.find(".loadHidden").addClass("hidden");
     }
 
-    function loadData(loadURL, isRecur, isRegex) {
+    function loadData(loadURL, pattern, isRecur) {
         var deferred = jQuery.Deferred();
-        bufferData(loadURL, isRecur, isRegex, numBytesRequest)
+        bufferData(loadURL, pattern, isRecur, numBytesRequest)
         .then(function(res) {
             deferred.resolve(res.buffer);
         })
@@ -1310,9 +1319,9 @@ window.DSPreview = (function($, DSPreview) {
         return deferred.promise();
     }
 
-    function bufferData(loadURL, isRecur, isRegex, numBytesRequest, isRetry) {
+    function bufferData(loadURL, pattern, isRecur, numBytesRequest, isRetry) {
         var deferred = jQuery.Deferred();
-        XcalarPreview(loadURL, isRecur, isRegex, numBytesRequest)
+        XcalarPreview(loadURL, pattern, isRecur, numBytesRequest)
         .then(function(res) {
             if (!isRetry && res.buffer != null) {
                 var d = res.buffer.split("\n");
@@ -1326,7 +1335,7 @@ window.DSPreview = (function($, DSPreview) {
                     var bytesNeed = maxBytesInLine * minRowsToShow;
                     bytesNeed = Math.min(bytesNeed, maxBytesRequest);
                     console.info("too small rows, request", bytesNeed);
-                    return bufferData(loadURL, isRecur, isRegex,
+                    return bufferData(loadURL, pattern, isRecur,
                                       bytesNeed, true);
                 }
             }
@@ -1342,7 +1351,8 @@ window.DSPreview = (function($, DSPreview) {
     }
 
     // load with UDF always return JSON format
-    function loadDataWithUDF(txId, loadURL, dsName, udfModule, udfFunc, isRecur, previewSize) {
+    function loadDataWithUDF(txId, loadURL, pattern, dsName,
+                            udfModule, udfFunc, isRecur, previewSize) {
         var deferred = jQuery.Deferred();
         var format = formatMap.JSON;
 
@@ -1351,7 +1361,7 @@ window.DSPreview = (function($, DSPreview) {
 
         XcalarLoad(loadURL, format, tempDSName, "", "\n",
                     false, udfModule, udfFunc, isRecur,
-                    previewSize, gDefaultQDelim, 0, false, txId)
+                    previewSize, gDefaultQDelim, 0, pattern, txId)
         .then(function() {
             return sampleData(tempDSName, rowsToFetch);
         })

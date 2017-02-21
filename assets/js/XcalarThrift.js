@@ -452,7 +452,7 @@ function XcalarUpdateLicense(newLicense) {
 }
 
 // Call this exactly with the url and isRecur that you
-function XcalarPreview(url, isRecur, isRegex, numBytesRequested, offset) {
+function XcalarPreview(url, fileNamePattern, isRecur, numBytesRequested, offset) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
@@ -465,11 +465,8 @@ function XcalarPreview(url, isRecur, isRegex, numBytesRequested, offset) {
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
-    var fileNameArray = getNamePattern(url, isRecur, isRegex);
-    var fileNamePattern = fileNameArray[1];
-    var urlPart = fileNameArray[0];
 
-    xcalarPreview(tHandle, urlPart, fileNamePattern, isRecur,
+    xcalarPreview(tHandle, url, fileNamePattern, isRecur,
                     numBytesRequested, offset)
     .then(function(ret) {
         // previewOutput has a jsonOutput field which is a json formatted string
@@ -503,7 +500,7 @@ function XcalarPreview(url, isRecur, isRegex, numBytesRequested, offset) {
 
 function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
                     hasHeader, moduleName, funcName, isRecur, maxSampleSize,
-                    quoteChar, skipRows, isRegex, txId) {
+                    quoteChar, skipRows, fileNamePattern, txId) {
     function checkForDatasetLoad(def, sqlString, dsName, txId) {
         // Using setInterval will have issues because of the deferred
         // GetDatasets call inside here. Do not use it.
@@ -589,9 +586,8 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
     loadArgs.csv.linesToSkip = skipRows;
     loadArgs.csv.quoteDelim = quoteChar;
     loadArgs.recursive = isRecur;
-    var fileNameArray = getNamePattern(url, isRecur, isRegex);
-    loadArgs.fileNamePattern = fileNameArray[1];
-    url = fileNameArray[0];
+    loadArgs.fileNamePattern = fileNamePattern;
+
     if (hasHeader) {
         loadArgs.csv.hasHeader = true;
     } else {
@@ -2445,34 +2441,6 @@ function XcalarGetDag(tableName) {
     return (deferred.promise());
 }
 
-function getNamePattern(userUrl, isRecur, isRegex) {
-    // XXX Test: folder loading ending with / and without
-    // XXX test: single file
-    // XXX test: folder with *, file with *
-    // Find location of first *
-    var star = userUrl.indexOf("*");
-    if (star === -1 && !isRecur && !isRegex) {
-        return [userUrl, ""];
-    }
-
-    if (star === -1) {
-        star = userUrl.length - 1;
-    }
-
-    var regexPrefix = isRegex ? "re:" : "";
-
-    for (var i = star; i >= 0; i--) {
-        if (userUrl[i] === "/") {
-            return [userUrl.substring(0, i + 1),
-                regexPrefix + userUrl.substring(i + 1, userUrl.length)];
-        }
-    }
-
-    // if code goes here, error case
-    console.error("error case!");
-    return [userUrl, ""];
-}
-
 function XcalarListFiles(url, isRecur) {
     if (tHandle == null) {
         return PromiseHelper.resolve(null);
@@ -2496,6 +2464,32 @@ function XcalarListFiles(url, isRecur) {
     });
 
     return (deferred.promise());
+
+    function getNamePattern(userUrl, isRecur) {
+        // XXX Test: folder loading ending with / and without
+        // XXX test: single file
+        // XXX test: folder with *, file with *
+        // Find location of first *
+        var star = userUrl.indexOf("*");
+        if (star === -1 && !isRecur) {
+            return [userUrl, ""];
+        }
+
+        if (star === -1) {
+            star = userUrl.length - 1;
+        }
+
+        for (var i = star; i >= 0; i--) {
+            if (userUrl[i] === "/") {
+                return [userUrl.substring(0, i + 1),
+                        userUrl.substring(i + 1, userUrl.length)];
+            }
+        }
+
+        // if code goes here, error case
+        console.error("error case!");
+        return [userUrl, ""];
+    }
 }
 
 // XXX TODO THIS NEEDS TO HAVE A SQL.ADD

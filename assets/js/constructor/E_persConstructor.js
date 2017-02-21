@@ -1345,14 +1345,15 @@ var DSObj = (function(_super) {
             // loadURL, format, fullName,
             // fieldDelim, lineDelim, hasHeader,
             // moduleName, funcName, isRecur, previewSize,
-            // quoteChar, skipRows, isRegex
+            // quoteChar, skipRows, pattern
             var self = this;
-            var path = self.getPathWithPattern();
+            var pattern = xcHelper.getFileNamePattern(self.pattern,
+                                                      self.isRegex);
 
-            return [path, self.format, self.fullName,
+            return [self.path, self.format, self.fullName,
                 self.fieldDelim, self.lineDelim, self.hasHeader,
                 self.moduleName, self.funcName, self.isRecur, self.previewSize,
-                self.quoteChar, self.skipRows, self.isRegex];
+                self.quoteChar, self.skipRows, pattern];
         },
 
         getNumEntries: function() {

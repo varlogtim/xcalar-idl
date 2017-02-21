@@ -183,6 +183,15 @@ window.xcHelper = (function($, xcHelper) {
         return Math.round(previewSize);
     };
 
+    xcHelper.getFileNamePattern = function(pattern, isRegex) {
+        if (pattern == null) {
+            return "";
+        }
+
+        var regexPrefix = isRegex ? "re:" : "";
+        return (regexPrefix + pattern);
+    };
+
     xcHelper.getJoinRenameMap = function(oldName, newName, type) {
         if (!type) {
             type = DfFieldTypeT.DfUnknown;
@@ -1673,8 +1682,9 @@ window.xcHelper = (function($, xcHelper) {
             var lastPart = parts[parts.length - 1];
             if (/^[a-zA-Z]{2}[0-9]+$/.test(lastPart)) {
                 if (parts.length > 2 &&
-                    jQuery.isNumeric(parseFloat(parts[parts.length - 2]))) {
-                        parts.splice(parts.length - 2, 2);
+                    jQuery.isNumeric(parseFloat(parts[parts.length - 2])))
+                {
+                    parts.splice(parts.length - 2, 2);
                 } else {
                     parts.splice(parts.length - 1, 1);
                 }
