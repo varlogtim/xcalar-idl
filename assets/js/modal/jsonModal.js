@@ -213,6 +213,17 @@ window.JSONModal = (function($, JSONModal) {
             }
         });
 
+        $jsonArea.on("click", ".prefixGroupTitle", function(event) {
+            if (!$(event.target).closest(".checkbox").length &&
+                $(this).closest(".jsonWrap").hasClass("projectMode")) {
+
+                var $checkbox = $(this).find('.prefixCheckbox');
+                if ($checkbox.length) {
+                    togglePrefixProject($checkbox);
+                }
+            }
+        });
+
         $jsonArea.on("click", ".compareIcon", function() {
             compareIconSelect($(this));
         });
