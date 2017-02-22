@@ -76,6 +76,8 @@
         </script>
         <script src="../../Resources/Scripts/MadCapAll.js">
         </script>
+        <script src="../../Skins/Default/Scripts/TopicToolBar.js">
+        </script>
     </head>
     <body>
         <div class="foundation-wrap">
@@ -90,11 +92,13 @@
                                             <ul class="sub-menu">
                                                 <li><a href="../A_GettingStarted/A_Requirements.htm">Requirements for Xcalar Design</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/B_BasicConcepts.htm">Basic  Xcalar Design concepts</a>
+                                                <li><a href="../A_GettingStarted/B_BasicConcepts.htm">Basic Xcalar concepts</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/C_EasySteps.htm">Easy steps (with default settings)</a>
+                                                <li><a href="../A_GettingStarted/B1_PreviewSteps.htm">Steps for Xcalar Cloud Preview</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/D_DetailedStepsForPointing.htm">Detailed steps (with custom settings)</a>
+                                                <li><a href="../A_GettingStarted/C_EasySteps.htm">Easy steps for Xcalar 1.0 (with default settings)</a>
+                                                </li>
+                                                <li><a href="../A_GettingStarted/D_DetailedStepsForPointing.htm">Detailed steps for Xcalar 1.0 (with custom settings)</a>
                                                 </li>
                                             </ul>
                                         </li>
@@ -294,7 +298,8 @@
                                     </div>
                                     <div class="bodyProxyNarrow">
                                         <h1>Exporting a table</h1>
-                                        <p>Exporting a table means saving a table from <span class="GeneralProductName3short">XDP</span> as a file to a location where other applications (or <span class="GeneralProductName3short">XDP</span>) can access and use as a data source. You can save an entire table with all the columns or only selected columns.</p>
+                                        <p>Exporting a table means saving a table from <span class="GeneralProductName3short">XDP</span> as a file to a location where other applications (or <span class="GeneralProductName3short">XDP</span>) can access and use as a data source. You can save an entire table with all the columns or only selected columns. </p>
+                                        <p>Exporting a table to a file is not available in <span class="GeneralProductTrialVersion">Xcalar Cloud Preview</span>, which only allows exporting a table created by a batch dataflow to a new table in your worksheet. For more information about exporting to a table from a batch dataflow, see <a href="F_UseBatchDataflow.htm#Result" class="MCXref xref">Result of running a batch dataflow</a>.</p>
                                         <div class="Note"><span class="label">NOTE:</span> Columns of the Array or Object type cannot be exported.</div>
                                         <p>You can export a table in one of two ways:</p>
                                         <ul>
@@ -302,7 +307,7 @@
                                             <li value="2">Automatically export a table resulting from running a batch dataflow</li>
                                         </ul>
                                         <h2>Where tables are exported</h2>
-                                        <p>By default, tables are exported to export files in a subdirectory in the /var/opt/xcalar/export directory, which is called the default export target. You can, however, create export targets for different export files. An export target specifies both the location of the export directory  and whether a UDF is used to process the tables before the tables are saved to the export files.</p>
+                                        <p>By default, tables are exported to export files in a subdirectory in the /mnt/xcalar/export directory, which is called the default export target. You can, however, create export targets for different export files. An export target specifies both the location of the export directory  and whether a UDF is used to process the tables before the tables are saved to the export files.</p>
                                         <p>When you export a table automatically by running a batch dataflow, the table can be exported to the default export target only. When you manually export a table, you can choose to use the default target or a user-defined target.</p>
                                         <h2>How export files are named</h2>
                                         <p>If you manually export a table, a default name of the export file is provided in the <span class="UIelement">EXPORT&#160;TABLES</span>&#160;panel. If you run a batch dataflow to export the resultant table, the default export file name is shown below the  exported table icon of the batch dataflow graph. (The exported table icon is the last table icon in the graph.)</p>
@@ -332,10 +337,10 @@
                                                 <p>Create a file system that will be used as the export location. For example, create the directory /var/my_exportdir. </p>
                                                 <div class="Note"><span class="label">IMPORTANT:</span>&#160;This directory must point to shared storage that can be accessible to all nodes of your cluster.</div>
                                             </li>
-                                            <li value="2">Click <img src="../Resources/Images/Insight_assets/xi-datastores.png" /> to expand the icons for Data Stores. Then click <img src="../Resources/Images/Insight_assets/xi-datastores-out.png" /> to display the <span class="UIelement">Export Target</span> panel and the <span class="UIelement">Create Export Target</span> window, The following screenshot shows the location of the Data Stores icons.</li>
-                                            <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/Insight_screenshots/datastores-icon-out.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1452" data-mc-height="581" src="../Resources/Images/Insight_screenshots/datastores-icon-out_thumb_0_150.png" tabindex="" /></a>
+                                            <li value="2">Click <img src="../Resources/Images/XD_assets/xi-datastores.png" /> to expand the icons for Data Stores. Then click <img src="../Resources/Images/XD_assets/xi-datastores-out.png" /> to display the <span class="UIelement">Export Target</span> panel and the <span class="UIelement">Create Export Target</span> window, The following screenshot shows the location of the Data Stores icons.</li>
+                                            <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/datastores-icon-out.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1452" data-mc-height="581" src="../Resources/Images/XD_screenshots/datastores-icon-out_thumb_0_150.png" tabindex="" /></a>
                                             </p>
-                                            <li value="3">In the <span class="UIelement">Create Export Target</span> window, the information about the default export target is displayed. To create a target, click <img src="../Resources/Images/Insight_assets/xi-create-export-target.png" /> in the <span class="UIelement">Export Targets</span> panel. The <span class="UIelement">Create Export Target</span> window now displays fields for you to define a new export target.</li>
+                                            <li value="3">In the <span class="UIelement">Create Export Target</span> window, the information about the default export target is displayed. To create a target, click <img src="../Resources/Images/XD_assets/xi-create-export-target.png" /> in the <span class="UIelement">Export Targets</span> panel. The <span class="UIelement">Create Export Target</span> window now displays fields for you to define a new export target.</li>
                                             <li value="4">
                                                 <p>In the <span class="UIelement">Create Export Target</span> window, specify the name of the target. You need to refer to the target name when you export a table in the future.</p>
                                                 <div class="MCDropDown MCDropDown_Open dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the naming conventions:</a></span>
@@ -396,7 +401,7 @@
                                         <p>You can select one of the three ways of overwriting existing export files:</p>
                                         <ul>
                                             <li value="1"><span class="UIelement">Do Not Overwrite</span>:&#160;By default, the table is exported to the file named in the export target, and if a table has been saved to the file, <span class="GeneralProductName">Xcalar Design</span> does not overwrite the file. It displays an error message that tells you to create a new export file name.</li>
-                                            <li value="2"><span class="UIelement">Overwrite Existing</span>:&#160;You can choose to overwrite the existing file. If the export file named in the export target already contains a table previously exported to the file, the contents of the export file is overwritten.<div class="Note"><span class="label">NOTE:</span>&#160;This option overwrites the contents of the entire directory to which a table was previously exported, regardless of how many export files are created as a result of exporting the current table. For example,  a directory named /var/opt/xcalar/export/airlines contains multiple export files, which are named airlines-001.csv and airlines-002.csv. If you use airlines as the export file name to export the current table as a single file, the /var/opt/xcalar/export/airlines directory will contain the export file named airlines.csv. The files named airlines-001.csv and airlines-002.csv no longer exist.</div></li>
+                                            <li value="2"><span class="UIelement">Overwrite Existing</span>:&#160;You can choose to overwrite the existing file. If the export file named in the export target already contains a table previously exported to the file, the contents of the export file is overwritten.<div class="Note"><span class="label">NOTE:</span>&#160;This option overwrites the contents of the entire directory to which a table was previously exported, regardless of how many export files are created as a result of exporting the current table. For example,  a directory named /mnt/xcalar/export/airlines contains multiple export files, which are named airlines-001.csv and airlines-002.csv. If you use airlines as the export file name to export the current table as a single file, the /mnt/xcalar/export/airlines directory will contain the export file named airlines.csv. The files named airlines-001.csv and airlines-002.csv no longer exist.</div></li>
                                             <li value="3">
                                                 <p><span class="UIelement">Append To Existing</span>:&#160;You can add the newly created export file to an export location that already contains export files. How the appending is done depends on whether the table is exported as a single file or multiple files as illustrated by the following example.</p>
                                                 <div class="Example"><span class="label">EXAMPLE:</span>&#160;If the export target already contains airlines-001.csv and airlines-002.csv, exporting a table as multiple files creates airlines-003.csv and airlines-004.csv in this directory. If the export target already contains airlines.csv, exporting a table as a single file appends the exported table's rows to airlines.csv. </div>
@@ -413,6 +418,8 @@
                                             </li>
                                         </ul>
                                     </div>
+                                    <p><a href="#Top" class="selected">Go to top</a>
+                                    </p>
                                 </div>
                             </div>
                         </div>

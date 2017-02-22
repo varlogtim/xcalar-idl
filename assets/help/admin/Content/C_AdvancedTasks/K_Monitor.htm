@@ -76,6 +76,8 @@
         </script>
         <script src="../../Resources/Scripts/MadCapAll.js">
         </script>
+        <script src="../../Skins/Default/Scripts/TopicToolBar.js">
+        </script>
     </head>
     <body>
         <div class="foundation-wrap">
@@ -90,11 +92,13 @@
                                             <ul class="sub-menu">
                                                 <li><a href="../A_GettingStarted/A_Requirements.htm">Requirements for Xcalar Design</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/B_BasicConcepts.htm">Basic  Xcalar Design concepts</a>
+                                                <li><a href="../A_GettingStarted/B_BasicConcepts.htm">Basic Xcalar concepts</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/C_EasySteps.htm">Easy steps (with default settings)</a>
+                                                <li><a href="../A_GettingStarted/B1_PreviewSteps.htm">Steps for Xcalar Cloud Preview</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/D_DetailedStepsForPointing.htm">Detailed steps (with custom settings)</a>
+                                                <li><a href="../A_GettingStarted/C_EasySteps.htm">Easy steps for Xcalar 1.0 (with default settings)</a>
+                                                </li>
+                                                <li><a href="../A_GettingStarted/D_DetailedStepsForPointing.htm">Detailed steps for Xcalar 1.0 (with custom settings)</a>
                                                 </li>
                                             </ul>
                                         </li>
@@ -298,14 +302,14 @@
                                     </div>
                                     <div class="bodyProxyNarrow">
                                         <h1>Using the Monitor</h1>
-                                        <p>The Monitor icon (<img src="../Resources/Images/Insight_assets/xi-monitor.png" />) in the <span class="GeneralProductName">Xcalar Design</span> menu enables you to monitor the status of <span class="GeneralProductName2short">XCE</span> and specify the environment in which you use <span class="GeneralProductName">Xcalar Design</span>. This section describes the tasks you can perform with the Monitor.</p>
-                                        <div class="Note" data-mc-conditions="General.Admin help"><span class="label">NOTE:</span>&#160;If you log in as administrator, a <span class="UIelement">Setup</span> icon (<img src="../Resources/Images/Insight_assets/xi-monitor-setup.png" />) is available in the Monitor. See <a href="L_UseSetup.htm" class="MCXref xref">Using Setup (XDP administrators only)</a> for information about how to set up the cluster through this icon.</div>
+                                        <p>The Monitor icon (<img src="../Resources/Images/XD_assets/xi-monitor.png" />) in the <span class="GeneralProductName">Xcalar Design</span> menu enables you to monitor the status of <span class="GeneralProductName2short">XCE</span> and specify the environment in which you use <span class="GeneralProductName">Xcalar Design</span>. This section describes the tasks you can perform with the Monitor.</p>
+                                        <div class="Note" data-mc-conditions="General.Admin help"><span class="label">NOTE:</span>&#160;If you log in as administrator, a <span class="UIelement">Setup</span> icon (<img src="../Resources/Images/XD_assets/xi-monitor-setup.png" />) is available in the Monitor. See <a href="L_UseSetup.htm" class="MCXref xref">Using Setup (XDP administrators only)</a> for information about how to set up the cluster through this icon.</div>
                                         <h2>Monitoring query status</h2>
                                         <p><span class="GeneralProductName">Xcalar Design</span> keeps a record of all operations since you logged in and displays information about them. The operations include the ones you have undone. Follow these steps to display query status:</p>
                                         <ol>
                                             <li value="1">
-                                                <p>Click <img src="../Resources/Images/Insight_assets/xi-monitor.png" /> to start the Monitor. By default, the <span class="UIelement">Queries</span> panel is displayed. The following screenshot illustrates the icons in the <span class="UIelement">Queries</span> panel that control how the list of queries are displayed.</p>
-                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/Insight_screenshots/monitor-queries-panel.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1201" data-mc-height="644" src="../Resources/Images/Insight_screenshots/monitor-queries-panel_thumb_0_150.png" tabindex="" /></a>
+                                                <p>Click <img src="../Resources/Images/XD_assets/xi-monitor.png" /> to start the Monitor. By default, the <span class="UIelement">Queries</span> panel is displayed. The following screenshot illustrates the icons in the <span class="UIelement">Queries</span> panel that control how the list of queries are displayed.</p>
+                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/monitor-queries-panel.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1201" data-mc-height="644" src="../Resources/Images/XD_screenshots/monitor-queries-panel_thumb_0_150.png" tabindex="" /></a>
                                                 </p>
                                                 <div class="Note"><span class="label">NOTE:</span>&#160;The icon for removing a query only affects the queries list in the <span class="UIelement">Queries</span> panel. It does not affect the output of the query.&#160;For example, a table created by a Filter function remains in the worksheet even after you remove the Filter function from the <span class="UIelement">Queries</span> panel.</div>
                                             </li>
@@ -317,17 +321,23 @@
                                         </ol>
                                         <h3>Canceling a query</h3>
                                         <p>If for any reason you want to terminate a query that is in progress, display the running queries in the <span class="UIelement">Queries</span> panel. Select the one you want to terminate and then click the Cancel icon either in the <span class="UIelement">Queries</span> panel or the <span class="UIelement">Detail of Query</span> window. The following screenshot shows an operation (pointing to a data source) in progress and the location of the icon for terminating the operation.</p>
-                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/Insight_screenshots/query-cancel.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1184" data-mc-height="735" src="../Resources/Images/Insight_screenshots/query-cancel_thumb_0_150.png" tabindex="" /></a>
+                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/query-cancel.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1184" data-mc-height="735" src="../Resources/Images/XD_screenshots/query-cancel_thumb_0_150.png" tabindex="" /></a>
+                                        </p>
+                                        <div class="Note"><span class="label">NOTE</span>:&#160;There is another method for canceling a query. You can cancel it when <span class="GeneralProductName">Xcalar Design</span> displays the icon on the worksheet indicating the query is in progress. If you mouse over the icon, it changes to a cancellation icon, which you can click  to stop the query. The following screenshots show the in-progress icon and the cancellation icon. </div>
+                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/query-in-progress.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1390" data-mc-height="699" src="../Resources/Images/XD_screenshots/query-in-progress_thumb_0_150.png" tabindex="" /></a> <![CDATA[ ]]></p>
+                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/query-cancel-in-worksheet.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1390" data-mc-height="701" src="../Resources/Images/XD_screenshots/query-cancel-in-worksheet_thumb_0_150.png" tabindex="" /></a>
                                         </p>
                                         <h2>Monitoring the system</h2>
                                         <p>The Monitor provides an icon for you to display <span class="GeneralProductName2short">XCE</span> statistics, generate files for <span class="GeneralCompanyNameShort">Xcalar</span> technical support, and release memory.&#160;The following screenshot shows the location of the <span class="UIelement">System</span> icon in the Monitor. The screenshot also illustrates how you can use the icons in the <span class="UIelement">System</span> panel to perform various tasks.</p>
-                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/Insight_screenshots/monitor-system-statistics.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1285" data-mc-height="737" src="../Resources/Images/Insight_screenshots/monitor-system-statistics_thumb_0_150.png" tabindex="" /></a>
+                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/monitor-system-statistics.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1123" data-mc-height="704" src="../Resources/Images/XD_screenshots/monitor-system-statistics_thumb_0_150.png" tabindex="" /></a>
                                         </p>
                                         <h2><a name="Setting"></a>Setting the environment for <span class="GeneralProductName">Xcalar Design</span></h2>
-                                        <p>The Monitor provides a <span class="UIelement">Settings</span> icon for you to customize the environment in which you run <span class="GeneralProductName">Xcalar Design</span>. The following screenshot illustrates how you use the icons in the General Settings window to make changes.</p>
-                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/Insight_screenshots/monitor-general-settings.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1007" data-mc-height="731" src="../Resources/Images/Insight_screenshots/monitor-general-settings_thumb_0_150.png" tabindex="" /></a>
+                                        <p>The Monitor provides a <span class="UIelement">Settings</span> icon for you to customize the environment in which you run <span class="GeneralProductName">Xcalar Design</span>. The following screenshot explains the fields in the <span class="UIelement">General Settings</span> window. For fields that accept a numeric value, you can type the value or drag the slider to make a change.</p>
+                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/monitor-general-settings.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="843" data-mc-height="684" src="../Resources/Images/XD_screenshots/monitor-general-settings_thumb_0_150.png" tabindex="" /></a>
                                         </p>
                                     </div>
+                                    <p><a href="#Top" class="selected">Go to top</a>
+                                    </p>
                                 </div>
                             </div>
                         </div>

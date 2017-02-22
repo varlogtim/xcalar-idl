@@ -77,6 +77,8 @@
         </script>
         <script src="../../Resources/Scripts/MadCapAll.js">
         </script>
+        <script src="../../Skins/Default/Scripts/TopicToolBar.js">
+        </script>
     </head>
     <body>
         <div class="foundation-wrap">
@@ -91,11 +93,13 @@
                                             <ul class="sub-menu">
                                                 <li><a href="../A_GettingStarted/A_Requirements.htm">Requirements for Xcalar Design</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/B_BasicConcepts.htm">Basic  Xcalar Design concepts</a>
+                                                <li><a href="../A_GettingStarted/B_BasicConcepts.htm">Basic Xcalar concepts</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/C_EasySteps.htm">Easy steps (with default settings)</a>
+                                                <li><a href="../A_GettingStarted/B1_PreviewSteps.htm">Steps for Xcalar Cloud Preview</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/D_DetailedStepsForPointing.htm">Detailed steps (with custom settings)</a>
+                                                <li><a href="../A_GettingStarted/C_EasySteps.htm">Easy steps for Xcalar 1.0 (with default settings)</a>
+                                                </li>
+                                                <li><a href="../A_GettingStarted/D_DetailedStepsForPointing.htm">Detailed steps for Xcalar 1.0 (with custom settings)</a>
                                                 </li>
                                             </ul>
                                         </li>
@@ -297,7 +301,149 @@
                                     </div>
                                     <div class="bodyProxyNarrow">
                                         <h1>SAS-equivalent functions</h1>
-                                        <p>This section lists the <span class="GeneralCompanyNameShort">Xcalar</span> functions that accomplish the same tasks as the SAS functions. If an equivalent <span class="GeneralCompanyNameShort">Xcalar</span> function is not available, this section suggests an alternate method. Also, if the <span class="GeneralCompanyNameShort">Xcalar</span> function works differently than the corresponding SAS function, a brief description of the <span class="GeneralCompanyNameShort">Xcalar</span> function is provided.</p>
+                                        <p>This section lists the <span class="GeneralCompanyNameShort">Xcalar</span> functions that accomplish the same tasks as some of the most commonly used SAS functions. If an equivalent <span class="GeneralCompanyNameShort">Xcalar</span> function is not available, this section suggests an alternate method. Also, if the <span class="GeneralCompanyNameShort">Xcalar</span> function works differently than the corresponding SAS function, a brief description of the <span class="GeneralCompanyNameShort">Xcalar</span> function is provided.</p>
+                                        <h2>SAS function category: Arithmetic</h2>
+                                        <table style="mc-table-style: url('../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;width: 100%;" class="TableStyle-SimpleTable" cellspacing="0">
+                                            <col class="TableStyle-SimpleTable-Column-Column1" />
+                                            <col class="TableStyle-SimpleTable-Column-Column2" />
+                                            <col class="TableStyle-SimpleTable-Column-Column1" />
+                                            <col class="TableStyle-SimpleTable-Column-Column2" />
+                                            <thead>
+                                                <tr class="TableStyle-SimpleTable-Head-Header1">
+                                                    <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">SAS function</th>
+                                                    <th class="TableStyle-SimpleTable-HeadE-Column2-Header1">SAS description</th>
+                                                    <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">Xcalar Map function</th>
+                                                    <th class="TableStyle-SimpleTable-HeadD-Column2-Header1"><span class="GeneralCompanyNameShort">Xcalar</span> syntax</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">ABS</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns the absolute value of a number.</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">abs</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">map(abs(operand))</td>
+                                                </tr>
+                                                <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">MOD</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Returns the remainder from division.</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">mod</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">map(mod(operand1, operand2))</td>
+                                                </tr>
+                                                <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                    <td class="TableStyle-SimpleTable-BodyB-Column1-Body1">SQRT</td>
+                                                    <td class="TableStyle-SimpleTable-BodyB-Column2-Body1">Returns a positive square root.</td>
+                                                    <td class="TableStyle-SimpleTable-BodyB-Column1-Body1">sqrt</td>
+                                                    <td class="TableStyle-SimpleTable-BodyA-Column2-Body1">map(sqrt(operand))</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                        <h2>SAS function category:&#160;Character</h2>
+                                        <table style="mc-table-style: url('../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;width: 100%;" class="TableStyle-SimpleTable" cellspacing="0">
+                                            <col class="TableStyle-SimpleTable-Column-Column1" />
+                                            <col class="TableStyle-SimpleTable-Column-Column2" />
+                                            <col class="TableStyle-SimpleTable-Column-Column1" />
+                                            <col class="TableStyle-SimpleTable-Column-Column2" />
+                                            <thead>
+                                                <tr class="TableStyle-SimpleTable-Head-Header1">
+                                                    <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">SAS function</th>
+                                                    <th class="TableStyle-SimpleTable-HeadE-Column2-Header1">SAS description</th>
+                                                    <th class="TableStyle-SimpleTable-HeadE-Column1-Header1"><span class="GeneralCompanyNameShort">Xcalar</span> Map function</th>
+                                                    <th class="TableStyle-SimpleTable-HeadD-Column2-Header1"><span class="GeneralCompanyNameShort">Xcalar</span> syntax</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">COMPBL</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Removes multiple blanks between words in a character string.</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">replace</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">map(replace(string, " ", ""))</td>
+                                                </tr>
+                                                <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">COMPRESS</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Removes specific characters from a character string.</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">replace</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">map(replace(string, char, ""))</td>
+                                                </tr>
+                                                <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">INDEX</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Searches the source for the character string specified by the excerpt.</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">find</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">
+                                                        <p>map(find(string to search, string to find, starting index, ending index))</p>
+                                                        <p>The search is case-sensitive.</p>
+                                                    </td>
+                                                </tr>
+                                                <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">LENGTH</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Returns the number of characters in a text string.</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">len</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">map(len(operand))</td>
+                                                </tr>
+                                                <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">SUBSTR</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns the specified number of characters starting at the specified position.</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">substring</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">map(substring(string, start_index, end_index))</td>
+                                                </tr>
+                                                <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                    <td class="TableStyle-SimpleTable-BodyB-Column1-Body2">TRIM</td>
+                                                    <td class="TableStyle-SimpleTable-BodyB-Column2-Body2">Removes trailing blanks from character expression and returns one blank if the expression is missing.</td>
+                                                    <td class="TableStyle-SimpleTable-BodyB-Column1-Body2">strip</td>
+                                                    <td class="TableStyle-SimpleTable-BodyA-Column2-Body2">
+                                                        <p>map(strip(operand))</p>
+                                                        <p>Strip leading and trailing white space from a string.</p>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                        <h2>SAS function category: Mathematical</h2>
+                                        <table style="mc-table-style: url('../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;width: 100%;" class="TableStyle-SimpleTable" cellspacing="0">
+                                            <col class="TableStyle-SimpleTable-Column-Column1" />
+                                            <col class="TableStyle-SimpleTable-Column-Column2" />
+                                            <col class="TableStyle-SimpleTable-Column-Column1" />
+                                            <col class="TableStyle-SimpleTable-Column-Column2" />
+                                            <thead>
+                                                <tr class="TableStyle-SimpleTable-Head-Header1">
+                                                    <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">SAS function</th>
+                                                    <th class="TableStyle-SimpleTable-HeadE-Column2-Header1">SAS description</th>
+                                                    <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">Xcalar Map function</th>
+                                                    <th class="TableStyle-SimpleTable-HeadD-Column2-Header1"><span class="GeneralCompanyNameShort">Xcalar</span> syntax</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">EXP</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns the value of the exponential function. It raises the constant e, which is approximately 2.71828, to the power that is supplied by the argument. </td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">power</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">
+                                                        <p>map(power(operand1, operand2))</p>
+                                                        <p>Use e as operand1.</p>
+                                                    </td>
+                                                </tr>
+                                                <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">LOG</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Returns the natural logarithm (base e).</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">log </td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">
+                                                        <p>map(log(operand))</p>
+                                                    </td>
+                                                </tr>
+                                                <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">LOG2</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns the base-2 logarithm of a number.</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">log2</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">
+                                                        <p>map(log2(operand))</p>
+                                                    </td>
+                                                </tr>
+                                                <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                    <td class="TableStyle-SimpleTable-BodyB-Column1-Body2">LOG10</td>
+                                                    <td class="TableStyle-SimpleTable-BodyB-Column2-Body2">Returns the base-10 logarithm of a number.</td>
+                                                    <td class="TableStyle-SimpleTable-BodyB-Column1-Body2">log10</td>
+                                                    <td class="TableStyle-SimpleTable-BodyA-Column2-Body2">map(log10(operand))</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
                                         <h2>SAS function category:&#160;Operators</h2>
                                         <table style="mc-table-style: url('../Resources/TableStyles/SimpleTable.css');width: 100%;margin-left: 0;margin-right: auto;" class="TableStyle-SimpleTable" cellspacing="0">
                                             <col class="TableStyle-SimpleTable-Column-Column1" />
@@ -350,7 +496,7 @@
                                                     <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">map(pow(operand1, operand2))</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">=&gt;</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">&gt;= or =&gt;</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Greater than or equal to</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">ge</td>
                                                     <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">map(ge(operand1, operand2))</td>
@@ -362,7 +508,7 @@
                                                     <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">map(gt(operand1, operand2))</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">=&lt;</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">&lt;= or =&lt;</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Less than or equal to</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">le</td>
                                                     <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">map(le(operand1, operand2))</td>
@@ -374,7 +520,7 @@
                                                     <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">map(lt(operand1, operand2))</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">^= or NE</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">~=</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Not equal to</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">neq</td>
                                                     <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">map(neq(operand1, operand2))</td>
@@ -387,7 +533,7 @@
                                                 </tr>
                                             </tbody>
                                         </table>
-                                        <h2>SAS function category: Arithmetic</h2>
+                                        <h2>SAS function category:&#160;Trigonometric and hyperbolic</h2>
                                         <table style="mc-table-style: url('../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;width: 100%;" class="TableStyle-SimpleTable" cellspacing="0">
                                             <col class="TableStyle-SimpleTable-Column-Column1" />
                                             <col class="TableStyle-SimpleTable-Column-Column2" />
@@ -403,22 +549,58 @@
                                             </thead>
                                             <tbody>
                                                 <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">ABS</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns the absolute value of a number</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">abs</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">map(abs(operand))</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">ARCOS</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns the arccosine of a number.</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">acos</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">map(acos(operand))</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">MOD</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Returns the remainder from division</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">mod</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">map(mod(operand1, operand2))</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">ARCSIN</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Returns the arcsine of a number.</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">asin</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">map(asin(operand))</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                    <td class="TableStyle-SimpleTable-BodyB-Column1-Body1">SQRT</td>
-                                                    <td class="TableStyle-SimpleTable-BodyB-Column2-Body1">Returns a positive square root</td>
-                                                    <td class="TableStyle-SimpleTable-BodyB-Column1-Body1">sqrt</td>
-                                                    <td class="TableStyle-SimpleTable-BodyA-Column2-Body1">map(sqrt(operand))</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">ATAN</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns the arctangent of a number.</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">atan</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">map(atan(operand))</td>
+                                                </tr>
+                                                <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">COS</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Returns the cosine of a number.</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">cos</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">map(cos(operand))</td>
+                                                </tr>
+                                                <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">COSH</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns the hyperbolic cosine of a number.</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">cosh</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">map(cosh(operand))</td>
+                                                </tr>
+                                                <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">SIN</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Returns the sine of the given angle.</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">sin</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">map(sin(operand))</td>
+                                                </tr>
+                                                <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">SINH</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns the hyperbolic sine of a number.</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">sinh</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">map(sinh(operand))</td>
+                                                </tr>
+                                                <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">TAN</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Returns the tangent of a number.</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">tan</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">map(tan(operand))</td>
+                                                </tr>
+                                                <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                    <td class="TableStyle-SimpleTable-BodyB-Column1-Body1">TANH</td>
+                                                    <td class="TableStyle-SimpleTable-BodyB-Column2-Body1">Returns the hyperbolic tangent of a number.</td>
+                                                    <td class="TableStyle-SimpleTable-BodyB-Column1-Body1">tanh</td>
+                                                    <td class="TableStyle-SimpleTable-BodyA-Column2-Body1">map(tanh(operand))</td>
                                                 </tr>
                                             </tbody>
                                         </table>
@@ -439,13 +621,13 @@
                                             <tbody>
                                                 <tr class="TableStyle-SimpleTable-Body-Body1">
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">CEIL</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns the smallest integer that is greater than or equal to the argument</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns the smallest integer that is greater than or equal to the argument.</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">ceil</td>
                                                     <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">map(ceil(operand))</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body2">
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">FLOOR</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Returns the largest integer that is less than or equal to the argument</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Returns the largest integer that is less than or equal to the argument.</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">floor</td>
                                                     <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">
                                                         <p>map(floor(operand))</p>
@@ -453,297 +635,21 @@
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body1">
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">INT</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns the integer value</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns the integer value.</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">int</td>
                                                     <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">map(int(operand))</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body2">
                                                     <td class="TableStyle-SimpleTable-BodyB-Column1-Body2">ROUND</td>
-                                                    <td class="TableStyle-SimpleTable-BodyB-Column2-Body2">Rounds to the nearest round-off unit</td>
+                                                    <td class="TableStyle-SimpleTable-BodyB-Column2-Body2">Rounds to the nearest round-off unit.</td>
                                                     <td class="TableStyle-SimpleTable-BodyB-Column1-Body2">round</td>
                                                     <td class="TableStyle-SimpleTable-BodyA-Column2-Body2">map(round(operand))</td>
                                                 </tr>
                                             </tbody>
                                         </table>
-                                        <h2>SAS function category: Logical</h2>
-                                        <table style="mc-table-style: url('../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;width: 100%;" class="TableStyle-SimpleTable" cellspacing="0">
-                                            <col class="TableStyle-SimpleTable-Column-Column1" />
-                                            <col class="TableStyle-SimpleTable-Column-Column2" />
-                                            <col class="TableStyle-SimpleTable-Column-Column1" />
-                                            <col class="TableStyle-SimpleTable-Column-Column2" />
-                                            <thead>
-                                                <tr class="TableStyle-SimpleTable-Head-Header1">
-                                                    <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">SAS function</th>
-                                                    <th class="TableStyle-SimpleTable-HeadE-Column2-Header1">SAS description</th>
-                                                    <th class="TableStyle-SimpleTable-HeadE-Column1-Header1"><span class="GeneralCompanyNameShort">Xcalar</span> Map function</th>
-                                                    <th class="TableStyle-SimpleTable-HeadD-Column2-Header1"><span class="GeneralCompanyNameShort">Xcalar</span> syntax</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">AND</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns TRUE if all of its arguments are TRUE</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">and</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">map(and(operand1,operand2))</td>
-                                                </tr>
-                                                <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">IF</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Specifies a logical test to perform</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">if</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">map(if(condition, return value, return value if false))</td>
-                                                </tr>
-                                                <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">NOT</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Reverses the logic of its argument</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">not</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">map(not(operand))</td>
-                                                </tr>
-                                                <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                    <td class="TableStyle-SimpleTable-BodyB-Column1-Body2">OR</td>
-                                                    <td class="TableStyle-SimpleTable-BodyB-Column2-Body2">Returns TRUE if any argument is TRUE</td>
-                                                    <td class="TableStyle-SimpleTable-BodyB-Column1-Body2">or</td>
-                                                    <td class="TableStyle-SimpleTable-BodyA-Column2-Body2">map(or(operand1,operand2))</td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                        <h2>SAS function category: Mathematical</h2>
-                                        <table style="mc-table-style: url('../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;width: 100%;" class="TableStyle-SimpleTable" cellspacing="0">
-                                            <col class="TableStyle-SimpleTable-Column-Column1" />
-                                            <col class="TableStyle-SimpleTable-Column-Column2" />
-                                            <col class="TableStyle-SimpleTable-Column-Column1" />
-                                            <col class="TableStyle-SimpleTable-Column-Column2" />
-                                            <thead>
-                                                <tr class="TableStyle-SimpleTable-Head-Header1">
-                                                    <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">SAS function</th>
-                                                    <th class="TableStyle-SimpleTable-HeadE-Column2-Header1">SAS description</th>
-                                                    <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">Xcalar Map function</th>
-                                                    <th class="TableStyle-SimpleTable-HeadD-Column2-Header1"><span class="GeneralCompanyNameShort">Xcalar</span> syntax</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">EXP</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns the value of the exponential function. It raises the constant e, which is approximately 2.71828, to the power that is supplied by the argument. en</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">power</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">
-                                                        <p>map(power(operand1, operand2)</p>
-                                                        <p>Use e as operand1.</p>
-                                                    </td>
-                                                </tr>
-                                                <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">LOG</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Returns the natural logarithm (base e).</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">log </td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">
-                                                        <p>map(log(operand))</p>
-                                                    </td>
-                                                </tr>
-                                                <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">LOG2</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns the base-2 logarithm of a number</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">log2</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">
-                                                        <p>map(log2(operand))</p>
-                                                    </td>
-                                                </tr>
-                                                <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                    <td class="TableStyle-SimpleTable-BodyB-Column1-Body2">LOG10</td>
-                                                    <td class="TableStyle-SimpleTable-BodyB-Column2-Body2">Returns the base-10 logarithm of a number</td>
-                                                    <td class="TableStyle-SimpleTable-BodyB-Column1-Body2">log10</td>
-                                                    <td class="TableStyle-SimpleTable-BodyA-Column2-Body2">map(log10(operand))</td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                        <h2>SAS function category:&#160;Statistical</h2>
-                                        <table style="mc-table-style: url('../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;width: 100%;" class="TableStyle-SimpleTable" cellspacing="0">
-                                            <col class="TableStyle-SimpleTable-Column-Column1" />
-                                            <col class="TableStyle-SimpleTable-Column-Column2" />
-                                            <col class="TableStyle-SimpleTable-Column-Column1" />
-                                            <col class="TableStyle-SimpleTable-Column-Column2" />
-                                            <thead>
-                                                <tr class="TableStyle-SimpleTable-Head-Header1">
-                                                    <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">SAS function</th>
-                                                    <th class="TableStyle-SimpleTable-HeadE-Column2-Header1">SAS description</th>
-                                                    <th class="TableStyle-SimpleTable-HeadE-Column1-Header1"><span class="GeneralCompanyNameShort">Xcalar</span> Aggregate function</th>
-                                                    <th class="TableStyle-SimpleTable-HeadD-Column2-Header1">Alternate method</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">MEAN</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns the average of its arguments</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">avg</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">
-                                                        <p>One of the following methods:</p>
-                                                        <ul>
-                                                            <li value="1">Profile</li>
-                                                            <li value="2">Group by with the avg function</li>
-                                                        </ul>
-                                                    </td>
-                                                </tr>
-                                                <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">MAX</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Returns the maximum value in a list of arguments</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">max, maxInteger</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">
-                                                        <p>One of the following methods:</p>
-                                                        <ul>
-                                                            <li value="1">Profile</li>
-                                                            <li value="2">Group by with the max or maxInteger function</li>
-                                                        </ul>
-                                                    </td>
-                                                </tr>
-                                                <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">MIN</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns the minimum value in a list of arguments</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">min, minInteger</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">
-                                                        <p>One of the following methods:</p>
-                                                        <ul>
-                                                            <li value="1">Profile</li>
-                                                            <li value="2">Group by with the min or minInteger</li>
-                                                        </ul>
-                                                    </td>
-                                                </tr>
-                                                <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                    <td class="TableStyle-SimpleTable-BodyB-Column1-Body2">STD</td>
-                                                    <td class="TableStyle-SimpleTable-BodyB-Column2-Body2">Returns the standard deviation</td>
-                                                    <td class="TableStyle-SimpleTable-BodyB-Column1-Body2">&#160;</td>
-                                                    <td class="TableStyle-SimpleTable-BodyA-Column2-Body2">Profile</td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                        <h2>SAS function category:&#160;Character</h2>
-                                        <table style="mc-table-style: url('../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;width: 100%;" class="TableStyle-SimpleTable" cellspacing="0">
-                                            <col class="TableStyle-SimpleTable-Column-Column1" />
-                                            <col class="TableStyle-SimpleTable-Column-Column2" />
-                                            <col class="TableStyle-SimpleTable-Column-Column1" />
-                                            <col class="TableStyle-SimpleTable-Column-Column2" />
-                                            <thead>
-                                                <tr class="TableStyle-SimpleTable-Head-Header1">
-                                                    <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">SAS function</th>
-                                                    <th class="TableStyle-SimpleTable-HeadE-Column2-Header1">SAS description</th>
-                                                    <th class="TableStyle-SimpleTable-HeadE-Column1-Header1"><span class="GeneralCompanyNameShort">Xcalar</span> Map function</th>
-                                                    <th class="TableStyle-SimpleTable-HeadD-Column2-Header1"><span class="GeneralCompanyNameShort">Xcalar</span> syntax</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">COMPBL</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Removes multiple blanks between words in a character string</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">replace</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">map(replace(string, " ", ""))</td>
-                                                </tr>
-                                                <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">COMPRESS</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Removes specific characters from a character string</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">replace</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">map(replace(string, char, ""))</td>
-                                                </tr>
-                                                <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">INDEX</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Searches the source for the character string specified by the excerpt</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">find</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">
-                                                        <p>map(find(string to search, string to find, starting index, ending index))</p>
-                                                        <p>The search is case-sensitive.</p>
-                                                    </td>
-                                                </tr>
-                                                <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">LENGTH</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Returns the number of characters in a text string</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">len</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">map(len(operand))</td>
-                                                </tr>
-                                                <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">SUBSTR</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns the specified number of characters starting at the specified position.</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">substring</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">map(substring(string, start_index, end_index))</td>
-                                                </tr>
-                                                <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                    <td class="TableStyle-SimpleTable-BodyB-Column1-Body2">TRIM</td>
-                                                    <td class="TableStyle-SimpleTable-BodyB-Column2-Body2">Removes trailing blanks from character expression and returns one blank if the expression is missing</td>
-                                                    <td class="TableStyle-SimpleTable-BodyB-Column1-Body2">strip</td>
-                                                    <td class="TableStyle-SimpleTable-BodyA-Column2-Body2">
-                                                        <p>map(strip(operand))</p>
-                                                        <p>Strip leading and trailing white space from a string.</p>
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                        <h2>SAS function category:&#160;Trigonometric and hyperbolic</h2>
-                                        <table style="mc-table-style: url('../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;width: 100%;" class="TableStyle-SimpleTable" cellspacing="0">
-                                            <col class="TableStyle-SimpleTable-Column-Column1" />
-                                            <col class="TableStyle-SimpleTable-Column-Column2" />
-                                            <col class="TableStyle-SimpleTable-Column-Column1" />
-                                            <col class="TableStyle-SimpleTable-Column-Column2" />
-                                            <thead>
-                                                <tr class="TableStyle-SimpleTable-Head-Header1">
-                                                    <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">SAS function</th>
-                                                    <th class="TableStyle-SimpleTable-HeadE-Column2-Header1">SAS description</th>
-                                                    <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">Xcalar Map function</th>
-                                                    <th class="TableStyle-SimpleTable-HeadD-Column2-Header1"><span class="GeneralCompanyNameShort">Xcalar</span> syntax</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">ARCCOS</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns the arccosine of a number</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">acos</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">map(acos(operand))</td>
-                                                </tr>
-                                                <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">ARCSIN</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Returns the arcsine of a number</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">asin</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">map(asin(operand))</td>
-                                                </tr>
-                                                <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">ATAN</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns the arctangent of a number</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">atan</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">map(atan(operand))</td>
-                                                </tr>
-                                                <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">COS</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Returns the cosine of a number</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">cos</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">map(cos(operand))</td>
-                                                </tr>
-                                                <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">COSH</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns the hyperbolic cosine of a number</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">cosh</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">map(cosh(operand))</td>
-                                                </tr>
-                                                <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">SIN</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Returns the sine of the given angle</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">sin</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">map(sin(operand))</td>
-                                                </tr>
-                                                <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">SINH</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns the hyperbolic sine of a number</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">sinh</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">map(sinh(operand))</td>
-                                                </tr>
-                                                <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">TAN</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Returns the tangent of a number</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">tan</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">map(tan(operand))</td>
-                                                </tr>
-                                                <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                    <td class="TableStyle-SimpleTable-BodyB-Column1-Body1">TANH</td>
-                                                    <td class="TableStyle-SimpleTable-BodyB-Column2-Body1">Returns the hyperbolic tangent of a number</td>
-                                                    <td class="TableStyle-SimpleTable-BodyB-Column1-Body1">tanh</td>
-                                                    <td class="TableStyle-SimpleTable-BodyA-Column2-Body1">map(tanh(operand))</td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
                                     </div>
+                                    <p><a href="#Top" class="selected">Go to top</a>
+                                    </p>
                                 </div>
                             </div>
                         </div>

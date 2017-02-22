@@ -76,6 +76,8 @@
         </script>
         <script src="../../Resources/Scripts/MadCapAll.js">
         </script>
+        <script src="../../Skins/Default/Scripts/TopicToolBar.js">
+        </script>
     </head>
     <body>
         <div class="foundation-wrap">
@@ -90,11 +92,13 @@
                                             <ul class="sub-menu">
                                                 <li><a href="../A_GettingStarted/A_Requirements.htm">Requirements for Xcalar Design</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/B_BasicConcepts.htm">Basic  Xcalar Design concepts</a>
+                                                <li><a href="../A_GettingStarted/B_BasicConcepts.htm">Basic Xcalar concepts</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/C_EasySteps.htm">Easy steps (with default settings)</a>
+                                                <li><a href="../A_GettingStarted/B1_PreviewSteps.htm">Steps for Xcalar Cloud Preview</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/D_DetailedStepsForPointing.htm">Detailed steps (with custom settings)</a>
+                                                <li><a href="../A_GettingStarted/C_EasySteps.htm">Easy steps for Xcalar 1.0 (with default settings)</a>
+                                                </li>
+                                                <li><a href="../A_GettingStarted/D_DetailedStepsForPointing.htm">Detailed steps for Xcalar 1.0 (with custom settings)</a>
                                                 </li>
                                             </ul>
                                         </li>
@@ -308,7 +312,7 @@
                                     </div>
                                     <div class="bodyProxyNarrow">
                                         <h1>Creating a table with erroneous rows only</h1>
-                                        <p>Erroneous table rows are rows in which a function fails to produce a valid value.  Creating a table with erroneous rows only can help you locate integrity constraint violations in your data source.</p>
+                                        <p>Erroneous table rows are rows in which a function fails to produce a valid value.  These rows might be of interest because you can gain insights from erroneous data (for example, by finding unexpected values in an analysis of data for fraud detection) or because you want to cleanse data before performing further data transformation. Creating a table that contains only erroneous rows can help you locate some integrity constraint violations in your data source.</p>
                                         <h2>Examples of  erroneous rows</h2>
                                         <p>The following list describes the scenarios where <span class="GeneralProductName">Xcalar Design</span> detects invalid values and creates a table with erroneous rows only:</p>
                                         <ul>
@@ -324,9 +328,7 @@
                                             <li value="2">Some variables are undefined during evaluation</li>
                                             <li value="3">Divide by zero error</li>
                                         </ul>
-                                        <h2>Creating a table with erroneous rows only</h2>
-                                        <p>Erroneous rows might be of interest because you can gain insights from erroneous data (for example, by finding unexpected values in an analysis of data for fraud detection) or because you want to cleanse data before performing further data transformation. </p>
-                                        <h3>Functions for creating a table with erroneous rows only</h3>
+                                        <h2>Functions for creating a table with erroneous rows only</h2>
                                         <p>The Map and Group By functions enable you to create a table with erroneous rows only. This means that when you use the Map or Group By function to create a table, you can specify that the table includes only rows in which the function cannot produce a valid value.</p>
                                         <p>This section assumes that you understand how to use the Map and Group By functions in <span class="GeneralProductName">Xcalar Design</span>. If not, familiarize yourself with these functions by reading the following topics:</p>
                                         <ul>
@@ -335,31 +337,31 @@
                                             <li value="2"><a href="J_GroupBy.htm" class="MCXref xref">Grouping data in a table</a> <![CDATA[ ]]></li>
                                         </ul>
                                         <h3>Example of a Map function for creating a table with erroneous values</h3>
-                                        <p>In the table created from a dataset with flight information, the column named ArrDelay contains the number of minutes for each flight's arrival delay. Suppose the initial data type for this column is String, you can use the <span class="UIelement">type-casting</span> function in the <span class="UIelement">MAP</span> panel to change its type to Integer. If you select the <span class="UIelement">Include only erroneous rows</span> in the <span class="UIelement">MAP</span> panel, the new table contains only the rows with integrity constraint violations in the resultant column.</p>
-                                        <p>The following screenshot illustrates the <span class="UIelement">MAP</span> panel for changing the data type of a column.</p>
-                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/Insight_screenshots/example-map-to-create-ICV.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1114" data-mc-height="600" src="../Resources/Images/Insight_screenshots/example-map-to-create-ICV_thumb_0_150.png" tabindex="" /></a>
+                                        <p>In the table created from a dataset with flight information, the column named ArrDelay contains the number of minutes for each flight's arrival delay. Suppose the initial data type for this column is String, you can use the <span class="UIelement">type-casting</span> function in the <span class="UIelement">MAP</span> panel to change its type to Integer. If you select <span class="UIelement">Include only erroneous rows</span> in the <span class="UIelement">MAP</span> panel, the resultant table contains only the rows where the function fails to produce a valid value.</p>
+                                        <p>The following screenshot illustrates the <span class="UIelement">MAP</span> panel for changing the data type of a column. In this example, row 20 is where the type casting function encounters an error. The other rows in this screenshot will not be present in the resultant table.</p>
+                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/example-map-create-erroneous-rows.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="893" data-mc-height="876" src="../Resources/Images/XD_screenshots/example-map-create-erroneous-rows_thumb_0_150.png" tabindex="" /></a>
                                         </p>
-                                        <p>The following screenshot illustrates the resultant table containing only erroneous rows in the ArrDelay column.</p>
-                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/Insight_screenshots/example-ICV-column.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1108" data-mc-height="613" src="../Resources/Images/Insight_screenshots/example-ICV-column_thumb_0_150.png" tabindex="" /></a>
+                                        <p>The following screenshot illustrates the resultant table with only erroneous values in the ArrTime column.</p>
+                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/example-erroneous-column.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="815" data-mc-height="555" src="../Resources/Images/XD_screenshots/example-erroneous-column_thumb_0_150.png" tabindex="" /></a>
                                         </p>
                                         <h3>Re-running a function in a dataflow to create a table with erroneous rows only</h3>
                                         <p>This section assumes that you are familiar with the dataflow graph in a worksheet. For information about dataflows, see <a href="../D_Reference/E_DataflowGraph.htm" class="MCXref xref">Dataflow graph</a>.</p>
-                                        <p>In a dataflow graph, you can create a&#160;table with erroneous rows only through a Map or Group by function previously executed. For example, in the following dataflow graph, you can click the icon for the airlines3 table to display a pop-up menu. In the menu, you can select <span class="UIelement">Erroneous Rows Table</span> to create a table with the same Map function shown in the dataflow. This method generates a table in the same way as selecting <span class="UIelement">Include only erroneous rows</span> in the <span class="UIelement">MAP</span> panel.</p>
-                                        <p>
-                                            <img src="../Resources/Images/Insight_screenshots/example-create-ICV-from-dfg.png" />
+                                        <p>In a dataflow graph, you can create a&#160;table with erroneous rows only through a Map or Group by function previously executed. For example, in the following dataflow graph, you can click the icon for the active table (last icon in the dataflow) to display a pop-up menu. In the menu, you can select <span class="UIelement">Create erroneous rows table</span> to create a table with the same Map function shown in the dataflow. This method has the same result as selecting <span class="UIelement">Include only erroneous rows</span> in the <span class="UIelement">MAP</span> panel.</p>
+                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/create-erroneous-rows-table-from-dfg.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="846" data-mc-height="540" src="../Resources/Images/XD_screenshots/create-erroneous-rows-table-from-dfg_thumb_0_150.png" tabindex="" /></a>
                                         </p>
                                         <p>The following list describes the results of creating a table with erroneous rows from the dataflow graph:</p>
                                         <ul>
-                                            <li value="1">A new table is created by the Map or Group By function. In this example, the new table contains only rows with errors in the Distance_integer column. </li>
+                                            <li value="1">A new table is created by the Map or Group By function. The new table contains only rows with errors. The string _er is appended to the table name. For example, if the table in which you execute the function is named airlines, the table with erroneous rows is named airlines_er.</li>
                                             <li value="2">The new table is an active table with its own dataflow graph. The table icon in the graph is red to indicate that the table contains erroneous rows only.</li>
                                             <li value="3">The dataflow graph from which the new table is created stays in the worksheet and remains unchanged.</li>
                                         </ul>
-                                        <div class="Note"><span class="label">NOTE:</span>&#160;From the dataflow graph, you can create a table with erroneous rows only from any table produced by a Map or Group By function. It can be a temporary or active table.</div>
-                                        <p>The following screenshot shows the dataflow graph after the table with erroneous rows only is created.</p>
-                                        <p>
-                                            <img src="../Resources/Images/Insight_screenshots/example-red-ICV-in-dfg.png" />
+                                        <div class="Note"><span class="label">NOTE:</span>&#160;In the dataflow graph, you can create an erroneous rows table from any table icon following a Map or Group By function. The table icon can be an icon for a temporary or active table. However, the table shown before the operation icon must be an existing table. If it is a dropped table, the function cannot be executed and an error message is displayed.</div>
+                                        <p>The following screenshot is an example of a dataflow graph with an erroneous rows table.</p>
+                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/red-erroneous-rows-table.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="826" data-mc-height="561" src="../Resources/Images/XD_screenshots/red-erroneous-rows-table_thumb_0_150.png" tabindex="" /></a>
                                         </p>
                                     </div>
+                                    <p><a href="#Top" class="selected">Go to top</a>
+                                    </p>
                                 </div>
                             </div>
                         </div>

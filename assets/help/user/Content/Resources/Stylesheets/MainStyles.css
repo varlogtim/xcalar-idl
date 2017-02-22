@@ -58,13 +58,6 @@ a.MCBreadcrumbsLink:hover
 	text-decoration: underline;
 }
 
-div.TopicContent
-{
-	padding-left: 15px;
-	padding-right: 15px;
-	padding-top: 25px;
-}
-
 h1
 {
 	margin-bottom: 8px;
@@ -169,32 +162,9 @@ img.WideButShortImage
 	mc-thumbnail-max-height: 40px;
 }
 
-p.hashtag	/*Tag keywords for building dictionary for use in in-page help*/
-{
-	margin-bottom: 8px;
-	margin-top: 8px;
-	font-weight: normal;
-	display: none;
-	color: #ff0000;
-}
-
 span.UIelement
 {
 	font-weight: 600;
-}
-
-p.InPageSummary
-{
-	margin-bottom: 8px;
-	margin-top: 8px;
-	font-weight: normal;
-	display: none;
-	color: #ff0000;
-}
-
-ul.InPageSummary
-{
-	display: none;
 }
 
 ul
@@ -204,7 +174,7 @@ ul
 
 ul ul
 {
-	list-style-image: url('../Images/Insight_assets/xi-arrow-right.png');
+	list-style-image: url('../Images/XD_assets/xi-arrow-right.png');
 	/*Second level unordered list uses the right arrow as the bullet. */
 }
 
@@ -225,27 +195,6 @@ p.CLIoutput
 	font-family: 'Courier New';
 	margin-bottom: 5px;
 	margin-top: 5px;
-}
-
-p.faqQuestion
-{
-	margin-bottom: 8px;
-	margin-top: 8px;
-	color: #454040;
-	font-size: 18px;
-	font-weight: bold;
-}
-
-p.faqAnswer
-{
-	margin-bottom: 8px;
-	margin-top: 8px;
-	font-weight: normal;
-	color: #454040;
-	font-size: 18px;
-	padding: 14px;
-	background-color: #b6daf5;
-	mc-auto-number-format: '{b}Answer: {/b}';
 }
 
 ul.navigation ul
@@ -269,15 +218,6 @@ p.sampleCode
 	font-family: 'Courier New';
 	margin-bottom: 0px;
 	margin-top: 0px;
-}
-
-div.sampleCode
-{
-	background-color: #cccccc;
-	font-family: 'Courier New';
-	padding-left: 5px;
-	padding-right: 5px;
-	border: solid 1px #000000;
 }
 
 div
@@ -336,18 +276,8 @@ img
 
 MadCap|dropDown
 {
-	mc-closed-image: url('../Images/Insight_assets/xi-plus-circle-outline.png');
-	mc-open-image: url('../Images/Insight_assets/xi-minus-circle-outline.png');
-}
-
-ul.navigation
-{
-	text-transform: uppercase;
-}
-
-ul.sub-menu
-{
-	text-transform: none;
+	mc-closed-image: url('../Images/XD_assets/xi-plus-circle-outline.png');
+	mc-open-image: url('../Images/XD_assets/xi-minus-circle-outline.png');
 }
 
 MadCap|xref:focus
@@ -402,11 +332,6 @@ pre
 		color: #378cb3;
 	}
 
-	p.Header
-	{
-		padding-left: 20px;
-	}
-
 	p
 	{
 		line-height: normal;
@@ -441,6 +366,7 @@ pre
 	h2
 	{
 		margin-top: 15px;
+		page-break-before: always;
 	}
 
 	h3
@@ -487,6 +413,11 @@ pre
 	{
 		border-bottom-style: none;
 	}
+
+	h4
+	{
+		mc-heading-level: 0;
+	}
 }
 
 div.bodyProxyNarrow
@@ -501,12 +432,6 @@ td ul
 	margin: 0px 0px 0px;
 }
 
-div.tblCell	/*For table cell that contains multiple elements such as paragraphs. This controls the top margin better.*/
-{
-	margin: 0;
-	margin-top: 0;
-}
-
 td p:first-child
 {
 	margin-top: 0;
@@ -519,11 +444,6 @@ p.comments	/*Questions or reminders for our eyes only*/
 	color: #ff0000;
 }
 
-p.Header
-{
-	
-}
-
 h1.contents
 {
 	margin-bottom: 8px;
@@ -534,5 +454,15 @@ h1.contents
 	font-weight: 400;
 	line-height: 49px;
 	mc-hyphenate: never;
+}
+
+ul.navigation	/*To be used by menu items in the top navigation bar in HTML5.*/
+{
+	text-transform: uppercase;
+}
+
+ul.sub-menu	/*Applied to sub menu items displayed when you hover over a top navigation menu item.*/
+{
+	text-transform: none;
 }
 

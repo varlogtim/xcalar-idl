@@ -76,6 +76,8 @@
         </script>
         <script src="../../Resources/Scripts/MadCapAll.js">
         </script>
+        <script src="../../Skins/Default/Scripts/TopicToolBar.js">
+        </script>
     </head>
     <body>
         <div class="foundation-wrap">
@@ -90,11 +92,13 @@
                                             <ul class="sub-menu">
                                                 <li><a href="../A_GettingStarted/A_Requirements.htm">Requirements for Xcalar Design</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/B_BasicConcepts.htm">Basic  Xcalar Design concepts</a>
+                                                <li><a href="../A_GettingStarted/B_BasicConcepts.htm">Basic Xcalar concepts</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/C_EasySteps.htm">Easy steps (with default settings)</a>
+                                                <li><a href="../A_GettingStarted/B1_PreviewSteps.htm">Steps for Xcalar Cloud Preview</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/D_DetailedStepsForPointing.htm">Detailed steps (with custom settings)</a>
+                                                <li><a href="../A_GettingStarted/C_EasySteps.htm">Easy steps for Xcalar 1.0 (with default settings)</a>
+                                                </li>
+                                                <li><a href="../A_GettingStarted/D_DetailedStepsForPointing.htm">Detailed steps for Xcalar 1.0 (with custom settings)</a>
                                                 </li>
                                             </ul>
                                         </li>
@@ -346,48 +350,49 @@
                                         <h2>Renaming columns to avoid column name duplication</h2>
                                         <p>The following partial screenshot of the <span class="UIelement">JOIN</span>&#160;panel illustrates how you rename columns to avoid column name duplication in the resultant table created by a self join operation.</p>
                                         <p>
-                                            <img src="../Resources/Images/Insight_screenshots/join-rename-columns.png" />
+                                            <img src="../Resources/Images/XD_screenshots/join-rename-columns.png" />
                                         </p>
                                         <p>Fields that exist originally in the data source can be distinguished through column name prefixes. In this example, you can change the prefix for the left table from airlines1 to Left_airlines1 and the prefix for the right table from airlines1 to Right_airlines1. The resultant table will have columns named Left_airlines1::Carrier and Right_airlines::Carrier, which no longer conflict with each other. </p>
                                         <div class="MCDropDown MCDropDown_Open dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the naming conventions:</a></span>
                                             <div class="MCDropDownBody dropDownBody">
                                                 <ul>
-                                                    <li value="1">Names are case-sensitive. </li>
-                                                    <li value="2">Length can be from 1 to 255 characters.</li>
+                                                    <li value="1">The name is case-sensitive. </li>
+                                                    <li value="2">Maximum length is 31 characters.</li>
                                                     <li value="3"> Characters can be A-Z, a-z, 0-9, hyphen (-), and underscore (_).</li>
+                                                    <li value="4">First character must be a letter.</li>
                                                 </ul>
                                             </div>
                                         </div>
-                                        <p>Because derived fields do not have prefixes, you can rename the column to avoid the name duplication. In this example, the column DayOfWeek_integer in the left table can be renamed to LDayOfWeek_integer. The column DayOfWeek_integer in the right table can be either renamed or remain unchanged.</p>
-                                        <div class="MCDropDown MCDropDown_Open dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the naming conventions for a table column:</a></span>
+                                        <p>Because derived fields do not have prefixes, you can rename the column to avoid the name duplication. In this example, the column DayOfWeek_integer in the left table can be renamed to LDayOfWeek_integer. The column DayOfWeek_integer in the right table can either be renamed or remain unchanged.</p>
+                                        <div class="MCDropDown MCDropDown_Open dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the naming conventions:</a></span>
                                             <div class="MCDropDownBody dropDownBody">
                                                 <ul>
                                                     <li value="1">
                                                         <p>The name can consist of any alphanumeric characters, space, and special characters except the following characters:</p>
-                                                        <ul style="list-style-type: circle;">
-                                                            <li value="1">single quote mark (')</li>
-                                                            <li value="2">double quote mark (")</li>
-                                                            <li value="3">parenthesis (( ))</li>
-                                                            <li value="4">square bracket ([ ])</li>
-                                                            <li value="5">left or right brace ({ })</li>
-                                                            <li value="6">backslash (\)</li>
-                                                            <li value="7">two consecutive colons (::)</li>
-                                                            <li value="8">two consecutive dashes (--)</li>
+                                                        <ul>
+                                                            <li value="1">caret (^)</li>
+                                                            <li value="2">single quote mark (')</li>
+                                                            <li value="3">double quote mark (")</li>
+                                                            <li value="4">left or right parenthesis (( ))</li>
+                                                            <li value="5">left or right square bracket ([ ])</li>
+                                                            <li value="6">left or right brace ({ })</li>
+                                                            <li value="7">backslash (\)</li>
+                                                            <li value="8">colons (:)</li>
                                                             <li value="9">comma (,)</li>
                                                             <li value="10">period (.)</li>
-                                                            <li value="11">asterisk (*)</li>
                                                         </ul>
                                                     </li>
-                                                    <li value="2">First character must be a letter.</li>
-                                                    <li value="3">The name must not end with a dash or a space.</li>
+                                                    <li value="2">The name cannot begin or end with a space.</li>
+                                                    <li value="3">Length can be from 1 to 255 characters.</li>
                                                     <li value="4">The name must not be <span class="UIelement">DATA</span>. Because column names are case sensitive, strings such as <span class="UIelement">data</span> and <span class="UIelement">Data</span> are acceptable.</li>
-                                                    <li value="5">The name must consist of 1 to 255 characters.</li>
                                                 </ul>
                                             </div>
                                         </div>
                                         <div class="Note"><span class="label">NOTE:</span>&#160;Remember that even if you do not rename a column, you must copy the original name to the <span class="UIelement">New Name</span> field. Do not leave the <span class="UIelement">New Name</span> field blank.</div>
                                         <p>After  renaming the columns, click <span class="UIelement">JOIN&#160;TABLES</span>. A new table is created as a result of joining the tables with the keys you selected.</p>
                                     </div>
+                                    <p><a href="#Top" class="selected">Go to top</a>
+                                    </p>
                                 </div>
                             </div>
                         </div>

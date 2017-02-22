@@ -76,6 +76,8 @@
         </script>
         <script src="../../Resources/Scripts/MadCapAll.js">
         </script>
+        <script src="../../Skins/Default/Scripts/TopicToolBar.js">
+        </script>
     </head>
     <body>
         <div class="foundation-wrap">
@@ -90,11 +92,13 @@
                                             <ul class="sub-menu">
                                                 <li><a href="../A_GettingStarted/A_Requirements.htm">Requirements for Xcalar Design</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/B_BasicConcepts.htm">Basic  Xcalar Design concepts</a>
+                                                <li><a href="../A_GettingStarted/B_BasicConcepts.htm">Basic Xcalar concepts</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/C_EasySteps.htm">Easy steps (with default settings)</a>
+                                                <li><a href="../A_GettingStarted/B1_PreviewSteps.htm">Steps for Xcalar Cloud Preview</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/D_DetailedStepsForPointing.htm">Detailed steps (with custom settings)</a>
+                                                <li><a href="../A_GettingStarted/C_EasySteps.htm">Easy steps for Xcalar 1.0 (with default settings)</a>
+                                                </li>
+                                                <li><a href="../A_GettingStarted/D_DetailedStepsForPointing.htm">Detailed steps for Xcalar 1.0 (with custom settings)</a>
                                                 </li>
                                             </ul>
                                         </li>
@@ -318,9 +322,9 @@
                                             </li>
                                             <li value="2">You change the data type for a column but the data in a cell cannot be changed.&#160;Suppose you change the data type of the EmployeeID column from string to integer. If the EmployeeID in row 2 is NA, it is changed to FNF because the string NA cannot be cast into an integer. </li>
                                             <li value="3">
-                                                <p>A table is empty. The following  examples show how an empty table is created:</p>
+                                                <p>A table is empty. The following  examples describe the scenarios where an empty table is created:</p>
                                                 <ul>
-                                                    <li value="1">No erroneous rows are found when you create a table (through a Map or Group By operation) that contains erroneous rows only.</li>
+                                                    <li value="1">No erroneous rows are found when you create a table through a Map or Group By operation and specify that the table contains only erroneous rows.</li>
                                                     <li value="2"> If you filter a nonexistent value, the resultant table is empty with FNF in its cells.</li>
                                                 </ul>
                                             </li>
@@ -332,7 +336,7 @@
                                         <p>If a table contains a column with FNF, sorting the table by this column results in a table that excludes the rows with FNF. For example, if row 1 contains FNF in the EmployeeID column, after you sort the table by EmployeeID, the resultant table does not include row 1 of the table before the sort.</p>
                                         <p>Do not sort a table by a column that contains FNF&#160;in all rows. Trying to do so results in an error message because the result of the sort would be an empty table.</p>
                                         <h2>Standardizing data in a column with FNF</h2>
-                                        <p>One of the purposes of cleansing and standardizing data is to ensure that all data in a column is of the same type. If a column contains FNF, you can map FNF&#160;to a value that is useful for future queries. Mapping FNF&#160;to another value also enables a sort to include all rows in the resultant table. The following example illustrates how you can standardize data in an integer column have FNF cells.</p>
+                                        <p>One of the purposes of cleansing and standardizing data is to ensure that all data in a column is of the same type. If a column contains FNF, you can map FNF&#160;to a value that is useful for future queries. Mapping FNF&#160;to another value also enables a sort to include all rows in the resultant table. The following example illustrates how you can standardize data in an integer column having FNF cells.</p>
                                         <p>To change all occurrences of FNF in this column  to an integer, follow these steps:</p>
                                         <ol>
                                             <li value="1">Start the Map function in the EmployeeID column to display the <span class="UIelement">MAP</span>&#160;panel.</li>
@@ -353,6 +357,8 @@
                                         <h2>Counting occurrences of FNF in a column</h2>
                                         <p>Use the <span class="UIelement">Profile</span> option in the column drop-down menu to count the occurrences of FNF. In the <span class="UIelement">Profile</span> modal window, FNF&#160;is shown as <span class="UIelement">null</span>. The bar graph for null is displayed in red. For more information about the <span class="UIelement">Profile</span> modal window, see <a href="E_CountOccurrencesOfValues.htm" class="MCXref xref">Counting occurrences of unique values in a column</a>.</p>
                                     </div>
+                                    <p><a href="#Top" class="selected">Go to top</a>
+                                    </p>
                                 </div>
                             </div>
                         </div>

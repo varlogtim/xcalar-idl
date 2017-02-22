@@ -76,6 +76,8 @@
         </script>
         <script src="../../Resources/Scripts/MadCapAll.js">
         </script>
+        <script src="../../Skins/Default/Scripts/TopicToolBar.js">
+        </script>
     </head>
     <body>
         <div class="foundation-wrap">
@@ -90,11 +92,13 @@
                                             <ul class="sub-menu">
                                                 <li><a href="../A_GettingStarted/A_Requirements.htm">Requirements for Xcalar Design</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/B_BasicConcepts.htm">Basic  Xcalar Design concepts</a>
+                                                <li><a href="../A_GettingStarted/B_BasicConcepts.htm">Basic Xcalar concepts</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/C_EasySteps.htm">Easy steps (with default settings)</a>
+                                                <li><a href="../A_GettingStarted/B1_PreviewSteps.htm">Steps for Xcalar Cloud Preview</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/D_DetailedStepsForPointing.htm">Detailed steps (with custom settings)</a>
+                                                <li><a href="../A_GettingStarted/C_EasySteps.htm">Easy steps for Xcalar 1.0 (with default settings)</a>
+                                                </li>
+                                                <li><a href="../A_GettingStarted/D_DetailedStepsForPointing.htm">Detailed steps for Xcalar 1.0 (with custom settings)</a>
                                                 </li>
                                             </ul>
                                         </li>
@@ -299,7 +303,7 @@
                                         <p>The dataflow graph provides an audit trail for your data. It helps you trace data lineage through all stages of your analytics pipeline. Over time, the data in your table might become increasingly complex due to the operations performed on the table. You can use the dataflow graph to determine how the data has been transformed since the table was created.  For example,  you can determine when a value in a column was filtered out or what operation was used to create a particular column.</p>
                                         <h2>Overview of the dataflow graph</h2>
                                         <p>The dataflow graph panel presents the dataflow graphs for all active tables in the same worksheet. The following screen shows an example of a dataflow graph.</p>
-                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/Insight_screenshots/overview-query-graph-viewer.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1558" data-mc-height="357" src="../Resources/Images/Insight_screenshots/overview-query-graph-viewer_thumb_0_150.png" tabindex="" /></a>
+                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/overview-query-graph-viewer.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1558" data-mc-height="357" src="../Resources/Images/XD_screenshots/overview-query-graph-viewer_thumb_0_150.png" tabindex="" /></a>
                                         </p>
                                         <h2>Example of a dataflow</h2>
                                         <p>In the following example, a series of operations take place on a table with a column named <span class="UIelement">DayOfWeek</span>, as explained in this list:</p>
@@ -308,30 +312,33 @@
                                             <li value="2">A Map function is executed to change the data type of the <span class="UIelement">DayOfWeek</span> column to Integer. </li>
                                             <li value="3">A Map function is executed to create a column that keeps values greater than 4 in the <span class="UIelement">DayOfWeek_integer</span> column.</li>
                                             <li value="4">The table is filtered to include only rows with the letter U in the Carrier column.</li>
-                                            <li value="5">A Map function is executed on the DayOfWeek_integer column to produce a table with rows containing integrity constraint violations. For more information about integrity constraint violations, see <a href="../B_CommonTasks/H_ErroneousRows.htm" class="MCXref xref">Creating a table with erroneous rows only</a>.</li>
+                                            <li value="5">A Map function is executed on the DayOfWeek_integer column to produce a table with rows containing errors. For more information about erroneous rows, see <a href="../B_CommonTasks/H_ErroneousRows.htm" class="MCXref xref">Creating a table with erroneous rows only</a>.</li>
                                         </ol>
                                         <p>In this example, a table is dropped. This table is removed from <span class="GeneralProductName">Xcalar Design</span> permanently. You cannot add it back to your worksheet or perform operations on it.</p>
-                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/Insight_screenshots/example-query-graph.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1231" data-mc-height="283" src="../Resources/Images/Insight_screenshots/example-query-graph_thumb_0_150.png" tabindex="" /></a>
+                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/example-query-graph.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1231" data-mc-height="276" src="../Resources/Images/XD_screenshots/example-query-graph_thumb_0_150.png" tabindex="" /></a>
                                         </p>
                                         <h2>Collapsing and expanding table icons in a dataflow graph</h2>
                                         <p><span class="GeneralProductName">Xcalar Design</span> automatically collapses multiple table icons in a dataflow graph for better readability. The following screenshot shows the icon that indicates some table icons are collapsed in the dataflow graph.&#160;You can hover over the icon to see the exact number of table icons collapsed. Click the icon to expand the table icons.</p>
                                         <p>
-                                            <img src="../Resources/Images/Insight_screenshots/collapse-tables-in-dataflow.png" />
+                                            <img src="../Resources/Images/XD_screenshots/collapse-tables-in-dataflow.png" />
                                         </p>
                                         <p>The following partial screenshot shows the icon that you can click to collapse a list of tables.</p>
-                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/Insight_screenshots/expanded-table-list-in-dataflow.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1311" data-mc-height="230" src="../Resources/Images/Insight_screenshots/expanded-table-list-in-dataflow_thumb_0_150.png" tabindex="" /></a>
+                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/expanded-table-list-in-dataflow.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1262" data-mc-height="230" src="../Resources/Images/XD_screenshots/expanded-table-list-in-dataflow_thumb_0_150.png" tabindex="" /></a>
                                         </p>
                                         <h2>Tasks you can perform by clicking the table icon</h2>
                                         <p>You can click a table icon in the dataflow graph to display a pop-up that lists the actions you can take. The possible actions depend on whether the selected table is in the worksheet or is a temporary table or active table.</p>
-                                        <p>The last table in the dataflow is the active table. All other tables in the dataflow are temporary tables. For more information about different table statuses, see <a href="../B_CommonTasks/N_ChangeTableStatus.htm" class="MCXref xref">Understanding and changing table statuses</a>.</p>
-                                        <p>The following partial screenshot shows the options available when you click a temporary table icon in a dataflow graph.</p>
+                                        <p>If a table is displayed as the last table in any dataflow graph, it is an active table. All other tables in the dataflow are temporary tables. For more information about different table statuses, see <a href="../B_CommonTasks/N_ChangeTableStatus.htm" class="MCXref xref">Understanding and changing table statuses</a>.</p>
+                                        <p>The following partial screenshot shows the options available when you click a table icon in a dataflow graph.</p>
                                         <p>
-                                            <img src="../Resources/Images/Insight_screenshots/dataflow-graph-table-dropdown.png" />
+                                            <img src="../Resources/Images/XD_screenshots/dataflow-graph-table-dropdown.png" />
                                         </p>
                                         <h3>Temporary tables</h3>
                                         <p>You can perform these tasks only on temporary tables:</p>
                                         <ul>
-                                            <li value="1">Adding a table to the worksheet:&#160;You can click a temporary table icon in the dataflow graph and add the table to the worksheet. After you add the table to the worksheet, the table becomes an active table and has its own dataflow graph.</li>
+                                            <li value="1">
+                                                <p>Adding a table to the worksheet:&#160;You can click a temporary table icon in the dataflow graph and add the table to the worksheet. After you add the table to the worksheet, the table becomes an active table and has its own dataflow graph.</p>
+                                                <div class="Note"><span class="label">NOTE</span>:&#160;After you add a temporary table back to a worksheet, the drop-down menu invoked from its icon no longer contains the <span class="UIelement">Add table to worksheet</span> option. Instead, the menu provides the <span class="UIelement">Find table in worksheet</span> option.</div>
+                                            </li>
                                             <li value="2">
                                                 <p>Reverting to the selected table:&#160;If you want to restore the table to a particular state, click a table icon in the dataflow graph and revert to it. This causes the operation icons and the table icons to the right of the selected table icon to disappear.</p>
                                                 <div class="Note"><span class="label">NOTE:</span>&#160;Tables removed from the dataflow graph due to a revert are not dropped. They are categorized as <span class="UIelement">Temporary</span> in the <span class="UIelement">Tables</span> list. Temporary tables can be added back to the worksheet.</div>
@@ -347,7 +354,11 @@
                                         <p>You can perform these tasks on temporary and active tables:</p>
                                         <ul>
                                             <li value="1">
-                                                <p>Dropping a table:&#160;You can  drop a table  if the table is no longer needed. The icon for the dropped table remains in the dataflow graph but is displayed in gray. If the table is a part of other dataflow graphs, its icons in those dataflow graphs become gray as well. You cannot perform any operations on a dropped table.</p>
+                                                <p>Dropping a table:&#160;You can  drop a table  if the table is no longer needed. The result of dropping a table depends on whether the table is temporary or active:</p>
+                                                <ul>
+                                                    <li value="1">If you drop a temporary table, its icon in the dataflow graph is changed to gray. If the table is a part of other dataflow graphs, its icons in those dataflow graphs become gray as well. You cannot perform any operations on a dropped table.</li>
+                                                    <li value="2">If you drop an active table, the table and its dataflow graph are permanently removed from <span class="GeneralProductName3short">XDP</span>. However, the temporary tables represented by icons in the dataflow graph are unaffected by your dropping the active table.&#160;These temporary tables continue to exist.</li>
+                                                </ul>
                                                 <div class="Note"><span class="label">IMPORTANT:</span>&#160;You cannot undo the action of dropping a table.</div>
                                                 <div class="Note"><span class="label">NOTE:</span>&#160;You cannot drop a table if an operation is taking place on that table.</div>
                                             </li>
@@ -360,9 +371,11 @@
                                             <li value="4">Create a table with erroneous rows only:&#160;You can use the same function to create a version of this table, except that the resultant table contains only erroneous rows. This option is available if the selected table is created by a Map or Group By function.&#160;For more information about tables with erroneous rows only, see <a href="../B_CommonTasks/H_ErroneousRows.htm" class="MCXref xref">Creating a table with erroneous rows only</a>.</li>
                                         </ul>
                                         <h2>Saving or displaying a dataflow graph as an image file</h2>
-                                        <p>If you want to save a dataflow graph as an image (for example, to include the image in a presentation or to share the image with others), click <img src="../Resources/Images/Insight_assets/xi-save-dataflow-as-image.png" />. The image is saved in the .png format.</p>
-                                        <p>Alternatively, you can click <img src="../Resources/Images/Insight_assets/xi-open-dataflow-in-new-tab.png" /> to display the dataflow graph as an .png image in a new tab of your browser.</p>
+                                        <p>If you want to save a dataflow graph as an image (for example, to include the image in a presentation or to share the image with others), click <img src="../Resources/Images/XD_assets/xi-save-dataflow-as-image.png" />. The image is saved in the .png format.</p>
+                                        <p>Alternatively, you can click <img src="../Resources/Images/XD_assets/xi-open-dataflow-in-new-tab.png" /> to display the dataflow graph as an .png image in a new tab of your browser.</p>
                                     </div>
+                                    <p><a href="#Top" class="selected">Go to top</a>
+                                    </p>
                                 </div>
                             </div>
                         </div>

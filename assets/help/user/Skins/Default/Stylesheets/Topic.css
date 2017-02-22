@@ -476,17 +476,6 @@ a.glossaryTerm
 	display: none;
 }
 
-div.MCBreadcrumbsBox_0
-{
-	border-bottom: none;
-	font-size: 14px;
-	border-bottom-width: 1px;
-	border-bottom-style: none;
-	border-bottom-color: black;
-	padding-bottom: 10px;
-	margin-bottom: 10px;
-}
-
 .xref
 {
 	color: #378cb3;
@@ -497,6 +486,17 @@ div.MCBreadcrumbsBox_0
 {
 	color: #378cb3;
 	text-decoration: underline;
+}
+
+div.MCBreadcrumbsBox_0
+{
+	border-bottom: none;
+	font-size: 14px;
+	border-bottom-width: 1px;
+	border-bottom-style: none;
+	border-bottom-color: black;
+	padding-bottom: 10px;
+	margin-bottom: 10px;
 }
 
 .dropDownHotspot

@@ -76,6 +76,8 @@
         </script>
         <script src="../../Resources/Scripts/MadCapAll.js">
         </script>
+        <script src="../../Skins/Default/Scripts/TopicToolBar.js">
+        </script>
     </head>
     <body>
         <div class="foundation-wrap">
@@ -90,11 +92,13 @@
                                             <ul class="sub-menu">
                                                 <li><a href="../A_GettingStarted/A_Requirements.htm">Requirements for Xcalar Design</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/B_BasicConcepts.htm">Basic  Xcalar Design concepts</a>
+                                                <li><a href="../A_GettingStarted/B_BasicConcepts.htm">Basic Xcalar concepts</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/C_EasySteps.htm">Easy steps (with default settings)</a>
+                                                <li><a href="../A_GettingStarted/B1_PreviewSteps.htm">Steps for Xcalar Cloud Preview</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/D_DetailedStepsForPointing.htm">Detailed steps (with custom settings)</a>
+                                                <li><a href="../A_GettingStarted/C_EasySteps.htm">Easy steps for Xcalar 1.0 (with default settings)</a>
+                                                </li>
+                                                <li><a href="../A_GettingStarted/D_DetailedStepsForPointing.htm">Detailed steps for Xcalar 1.0 (with custom settings)</a>
                                                 </li>
                                             </ul>
                                         </li>
@@ -299,7 +303,7 @@
                                     <div class="bodyProxyNarrow">
                                         <h1>Data Browser</h1>
                                         <p>Each table contains a default column named DATA. You can move your cursor to any row in this column and double click to display the <span class="UIelement">Data Browser</span>. </p>
-                                        <div class="Note"><span class="label">NOTE:</span>&#160;The DATA&#160;column can be hidden due to a setting in the <span class="UIelement">General Settings</span> window of the Monitor or the <span class="UIelement">Hide column</span> option in the column drop-down menu. For information about the Monitor, see <a href="../C_AdvancedTasks/K_Monitor.htm#Setting" class="MCXref xref">Setting the environment for Xcalar Design</a>. To view the DATA&#160;column, simply click the DATA column header to display the column drop-down menu and select <span class="UIelement">Unhide column</span>.</div>
+                                        <div class="Note"><span class="label">NOTE:</span>&#160;The DATA&#160;column can be hidden due to a setting in the <span class="UIelement">General Settings</span> window of the Monitor or the <span class="UIelement">Minimize column</span> option in the column drop-down menu. For information about the Monitor, see <a href="../C_AdvancedTasks/K_Monitor.htm#Setting" class="MCXref xref">Setting the environment for Xcalar Design</a>. To view the DATA&#160;column, simply click the DATA column header to display the column drop-down menu and select <span class="UIelement">Maximize column</span>.</div>
                                         <h2>Contents of the Data Browser</h2>
                                         <p>The browser displays two kinds of fields:</p>
                                         <ul>
@@ -308,34 +312,33 @@
                                         </ul>
                                         <div class="Note"><span class="label">NOTE:&#160;</span> A table resulting from a batch dataflow contains only derived fields. Its <span class="UIelement">Data Browser</span> does not contain any fields from a data source. For more information about tables created from batch dataflows, see <a href="../C_AdvancedTasks/F_UseBatchDataflow.htm" class="MCXref xref">Using batch dataflows</a>.</div>
                                         <p>For each field, the value is also displayed. For example, in the following screen, the <span class="UIelement">Data Browser</span> for row 1 is displayed.</p>
-                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/Insight_screenshots/data-browser.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="988" data-mc-height="812" src="../Resources/Images/Insight_screenshots/data-browser_thumb_0_150.png" tabindex="" /></a>
+                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/data-browser.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="932" data-mc-height="812" src="../Resources/Images/XD_screenshots/data-browser_thumb_0_150.png" tabindex="" /></a>
                                         </p>
                                         <h2>Tasks you can perform in selection mode</h2>
                                         <p>You can use the <span class="UIelement">Data Browser</span> in two modes:&#160;selection mode and projection mode. This section describes only the tasks performed in selection mode. For information about projection mode, see <a href="../C_AdvancedTasks/J_OptimizeMemory.htm#Removing" class="MCXref xref">Removing fields from the Data Browser</a>.</p>
                                         <p>The following screenshot shows how to determine the <span class="UIelement">Data Browser</span>'s mode.</p>
-                                        <p>
-                                            <img src="../Resources/Images/Insight_screenshots/data-browser-modes.png" />
+                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/data-browser-modes.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="712" data-mc-height="683" src="../Resources/Images/XD_screenshots/data-browser-modes_thumb_0_150.png" tabindex="" /></a>
                                         </p>
                                         <p>In selection mode, you can add columns to the active table as described in <a href="../B_CommonTasks/C_AddColumns.htm" class="MCXref xref">Adding columns from a dataset to a table</a>. In addition, you can click the icons in the upper left corner of the browser to accomplish the tasks described in this section.</p>
                                         <h3>Sorting fields</h3>
                                         <p>By default, the fields in the <span class="UIelement">Data Browser</span> are arranged in the same order as they are in the dataset. You can sort the fields in ascending or descending order. The following screenshot shows the location of the icon for sorting. </p>
-                                        <p>
-                                            <img src="../Resources/Images/Insight_screenshots/data-browser-sort.png" />
+                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/data-browser-sort.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="517" data-mc-height="648" src="../Resources/Images/XD_screenshots/data-browser-sort_thumb_0_150.png" tabindex="" /></a>
                                         </p>
                                         <h3>Duplicating the list of fields in the browser</h3>
                                         <p>Duplicating the list of fields is useful when you have a long list. Because each copy of the list has its own scroll bar, you can scroll each copy independently such that the fields that interest you appear side-by-side. The following screen shows the location of the icon for duplicating the field list.</p>
                                         <p>In each panel, you can choose to view all fields, only the derived fields, or only fields with a particular prefix.</p>
-                                        <p>
-                                            <img src="../Resources/Images/Insight_screenshots/data-browser-duplicate.png" />
+                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/data-browser-duplicate.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="666" data-mc-height="698" src="../Resources/Images/XD_screenshots/data-browser-duplicate_thumb_0_150.png" tabindex="" /></a>
                                         </p>
                                         <h3>Comparing rows</h3>
                                         <p>The <span class="UIelement">Data Browser</span> enables you to compare values in different rows from the same table or from different tables. Suppose the <span class="UIelement">Data Browser</span> for row 5 is displayed, you can double click another row in the <span class="UIelement">DATA</span>&#160;column (for example, row 10) to bring its data into the <span class="UIelement">Data Browser</span>. Now you can view the values from two rows side-by-side. </p>
                                         <div class="Note"><span class="label">NOTE:</span>&#160;You might need to move the <span class="UIelement">Data Browser</span> to make the <span class="UIelement">DATA</span> column visible. Also, use the scroll bar to locate the table that interests you. When the <span class="UIelement">Data Browser</span> is displayed, you can only select rows visible in your window. You cannot scroll vertically to show rows that are currently out of the <span class="GeneralProductName">Xcalar Design</span> window.</div>
                                         <p>To see how values differ, click the <span class="UIelement">Compare</span> icon for each list of fields that you want to compare. The values that are different between the rows are highlighted. The following screen shows the comparison between rows 1 and 18.</p>
                                         <div class="Note"><span class="label">NOTE:</span>&#160;You can compare data from more than two rows.</div>
-                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/Insight_screenshots/data-browser-compare-rows.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1203" data-mc-height="657" src="../Resources/Images/Insight_screenshots/data-browser-compare-rows_thumb_0_150.png" tabindex="" /></a>
+                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/data-browser-compare-rows.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1044" data-mc-height="717" src="../Resources/Images/XD_screenshots/data-browser-compare-rows_thumb_0_150.png" tabindex="" /></a>
                                         </p>
                                     </div>
+                                    <p><a href="#Top" class="selected">Go to top</a>
+                                    </p>
                                 </div>
                             </div>
                         </div>

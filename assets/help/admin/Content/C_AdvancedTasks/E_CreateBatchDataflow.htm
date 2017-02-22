@@ -76,6 +76,8 @@
         </script>
         <script src="../../Resources/Scripts/MadCapAll.js">
         </script>
+        <script src="../../Skins/Default/Scripts/TopicToolBar.js">
+        </script>
     </head>
     <body>
         <div class="foundation-wrap">
@@ -90,11 +92,13 @@
                                             <ul class="sub-menu">
                                                 <li><a href="../A_GettingStarted/A_Requirements.htm">Requirements for Xcalar Design</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/B_BasicConcepts.htm">Basic  Xcalar Design concepts</a>
+                                                <li><a href="../A_GettingStarted/B_BasicConcepts.htm">Basic Xcalar concepts</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/C_EasySteps.htm">Easy steps (with default settings)</a>
+                                                <li><a href="../A_GettingStarted/B1_PreviewSteps.htm">Steps for Xcalar Cloud Preview</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/D_DetailedStepsForPointing.htm">Detailed steps (with custom settings)</a>
+                                                <li><a href="../A_GettingStarted/C_EasySteps.htm">Easy steps for Xcalar 1.0 (with default settings)</a>
+                                                </li>
+                                                <li><a href="../A_GettingStarted/D_DetailedStepsForPointing.htm">Detailed steps for Xcalar 1.0 (with custom settings)</a>
                                                 </li>
                                             </ul>
                                         </li>
@@ -302,7 +306,7 @@
                                         <h2>Understanding dataflows</h2>
                                         <p>When you use <span class="GeneralProductName">Xcalar Design</span> to design an algorithm for data analysis, a dataflow is created automatically. It consists of a series of elementary functions executed and tables created when you use <span class="GeneralProductName">Xcalar Design</span> interactively for modeling. You can view the dataflows leading up to each active table so that you can visually trace the origin and movement of data over time. </p>
                                         <div class="Example"><span class="label">EXAMPLE:</span>&#160;You pull five columns from your data source to create a table and use the Smart Type Casting feature to change the data type. The dataflow shows that the table undergoes four Map operations to change the data type for four columns, and each operation results in a temporary table. If you sort the Distance_integer column after the data type change, the Sort operation is displayed after the last Map operation. The active table, named airlines4#rY246, is shown as the last table in the dataflow. The following screenshot illustrates the dataflow graph displayed in <span class="GeneralProductName">Xcalar Design</span> for airlines4#rY246.</div>
-                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/Insight_screenshots/dataflow-example.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1435" data-mc-height="244" src="../Resources/Images/Insight_screenshots/dataflow-example_thumb_0_150.png" tabindex="" /></a>
+                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/dataflow-example.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1435" data-mc-height="244" src="../Resources/Images/XD_screenshots/dataflow-example_thumb_0_150.png" tabindex="" /></a>
                                         </p>
                                         <div class="Note"><span class="label">NOTE:</span>&#160;The table icons in a dataflow graph are usually blue. A red table icon represents a table containing only erroneous rows. For more information about erroneous rows, see <a href="../B_CommonTasks/H_ErroneousRows.htm" class="MCXref xref">Creating a table with erroneous rows only</a>.</div>
                                         <h2>Understanding batch dataflows</h2>
@@ -313,19 +317,20 @@
                                             <li value="2">The set of operations are run against the entire data source.</li>
                                             <li value="3">Because the operations in a dataflow are automated, you can avoid human errors that might happen if you had to manually execute the operations.</li>
                                             <li value="4">
-                                                <p>The batch dataflow is permanent. A table in a batch dataflow can be dropped (for example, if you drop it to release memory), and <span class="GeneralProductName">Xcalar Design</span> can still run the batch dataflow and recreate that table. </p>
+                                                <p>The batch dataflow is permanent in the sense that the operations can be performed even after you drop a temporary table in the dataflow. Suppose you drop a temporary table to release memory, you can still create a batch dataflow from the dataflow where the table is dropped.</p>
+                                                <div class="Note"><span class="label">NOTE</span>:&#160; While you can see the icon for the dropped temporary table in the batch dataflow graph, the table is not put back to the workbook, and you cannot access it in <span class="GeneralProductName">Xcalar Design</span>.</div>
                                             </li>
                                             <li value="5">If you drop an active table, the dataflow associated with the table is also removed from <span class="GeneralProductName">Xcalar Design</span>. Table dropping cannot be undone, but if you have created a batch dataflow for this table, you can run the dataflow at any time to re-create the table.</li>
                                             <li value="6">You can export selected columns from the table or the entire table created by a batch dataflow to another application. Alternatively, you can export the result of the batch dataflow to a table, which automatically appears in your worksheet.</li>
                                         </ul>
                                         <h2>Displaying dataflows for all tables</h2>
-                                        <p>To display the dataflows for all tables in a worksheet, click <img src="../Resources/Images/Insight_assets/xi-dataflow-graph-icon.png" /> in the lower right corner of the <span class="GeneralProductName">Xcalar Design</span> window. For more information about each element in the dataflow graph, see <a href="../D_Reference/E_DataflowGraph.htm" class="MCXref xref">Dataflow graph</a>.</p>
+                                        <p>To display the dataflows for all tables in a worksheet, click <img src="../Resources/Images/XD_assets/xi-dataflow-graph-icon.png" /> in the lower right corner of the <span class="GeneralProductName">Xcalar Design</span> window. For more information about each element in the dataflow graph, see <a href="../D_Reference/E_DataflowGraph.htm" class="MCXref xref">Dataflow graph</a>.</p>
                                         <h2><a name="Creating"></a>Creating a batch dataflow</h2>
                                         <p>Follow these steps to create a batch dataflow:</p>
                                         <ol>
-                                            <li value="1">Click <img src="../Resources/Images/Insight_assets/xi-dataflow-graph-icon.png" /> to view the dataflows for all tables in the worksheet.</li>
+                                            <li value="1">Click <img src="../Resources/Images/XD_assets/xi-dataflow-graph-icon.png" /> to view the dataflows for all tables in the worksheet.</li>
                                             <li value="2">Locate the dataflow for the active table. This is the dataflow from which you create the batch dataflow.</li>
-                                            <li value="3">Click <img src="../Resources/Images/Insight_assets/xi-batch-dataflow.png" /> in the upper right corner of the dataflow graph to display the <span class="UIelement">DATAFLOW</span>&#160;panel.</li>
+                                            <li value="3">Click <img src="../Resources/Images/XD_assets/xi-batch-dataflow.png" /> in the upper right corner of the dataflow graph to display the <span class="UIelement">DATAFLOW</span>&#160;panel.</li>
                                             <li value="4">
                                                 <p>In the panel, type the name of the dataflow. </p>
                                                 <div class="MCDropDown MCDropDown_Open dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the naming conventions:</a></span>
@@ -343,39 +348,39 @@
                                                 <p>If the dataflow result contains columns that have duplicate names, you are prompted to rename the columns.</p>
                                                 <div class="Note"><span class="label">NOTE:</span>&#160;All columns created by a batch dataflow are derived columns. If a column before the Join operation has a prefix in the name, the prefix is removed when the batch dataflow creates the table. Therefore, if the left table in the Join operation contains a column named airlines1::Carrier and the right table contains a column named carrier::Carrier, the column names are considered duplicates.</div>
                                                 <p> The following partial screenshot of the <span class="UIelement">DATAFLOW</span>&#160;panel illustrates how to rename a duplicate column name when creating a batch dataflow. You can either type a new column name or accept the suggested new column name. The column name does not include a prefix.</p>
-                                                <div class="MCDropDown MCDropDown_Open dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the naming conventions for a table column:</a></span>
+                                                <div class="MCDropDown MCDropDown_Open dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the naming conventions:</a></span>
                                                     <div class="MCDropDownBody dropDownBody">
                                                         <ul>
                                                             <li value="1">
                                                                 <p>The name can consist of any alphanumeric characters, space, and special characters except the following characters:</p>
-                                                                <ul style="list-style-type: circle;">
-                                                                    <li value="1">single quote mark (')</li>
-                                                                    <li value="2">double quote mark (")</li>
-                                                                    <li value="3">parenthesis (( ))</li>
-                                                                    <li value="4">square bracket ([ ])</li>
-                                                                    <li value="5">left or right brace ({ })</li>
-                                                                    <li value="6">backslash (\)</li>
-                                                                    <li value="7">two consecutive colons (::)</li>
-                                                                    <li value="8">two consecutive dashes (--)</li>
+                                                                <ul>
+                                                                    <li value="1">caret (^)</li>
+                                                                    <li value="2">single quote mark (')</li>
+                                                                    <li value="3">double quote mark (")</li>
+                                                                    <li value="4">left or right parenthesis (( ))</li>
+                                                                    <li value="5">left or right square bracket ([ ])</li>
+                                                                    <li value="6">left or right brace ({ })</li>
+                                                                    <li value="7">backslash (\)</li>
+                                                                    <li value="8">colons (:)</li>
                                                                     <li value="9">comma (,)</li>
                                                                     <li value="10">period (.)</li>
-                                                                    <li value="11">asterisk (*)</li>
                                                                 </ul>
                                                             </li>
-                                                            <li value="2">First character must be a letter.</li>
-                                                            <li value="3">The name must not end with a dash or a space.</li>
+                                                            <li value="2">The name cannot begin or end with a space.</li>
+                                                            <li value="3">Length can be from 1 to 255 characters.</li>
                                                             <li value="4">The name must not be <span class="UIelement">DATA</span>. Because column names are case sensitive, strings such as <span class="UIelement">data</span> and <span class="UIelement">Data</span> are acceptable.</li>
-                                                            <li value="5">The name must consist of 1 to 255 characters.</li>
                                                         </ul>
                                                     </div>
                                                 </div>
                                                 <p>
-                                                    <img src="../Resources/Images/Insight_screenshots/dataflow-rename-columns.png" />
+                                                    <img src="../Resources/Images/XD_screenshots/dataflow-rename-columns.png" />
                                                 </p>
                                             </li>
                                             <li value="7">Click <span class="UIelement">CREATE</span>. The dataflow result, whether it is a file or table, contains only the selected columns.</li>
                                         </ol>
                                     </div>
+                                    <p><a href="#Top" class="selected">Go to top</a>
+                                    </p>
                                 </div>
                             </div>
                         </div>

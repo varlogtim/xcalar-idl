@@ -76,6 +76,8 @@
         </script>
         <script src="../../Resources/Scripts/MadCapAll.js">
         </script>
+        <script src="../../Skins/Default/Scripts/TopicToolBar.js">
+        </script>
     </head>
     <body>
         <div class="foundation-wrap">
@@ -90,11 +92,13 @@
                                             <ul class="sub-menu">
                                                 <li><a href="../A_GettingStarted/A_Requirements.htm">Requirements for Xcalar Design</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/B_BasicConcepts.htm">Basic  Xcalar Design concepts</a>
+                                                <li><a href="../A_GettingStarted/B_BasicConcepts.htm">Basic Xcalar concepts</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/C_EasySteps.htm">Easy steps (with default settings)</a>
+                                                <li><a href="../A_GettingStarted/B1_PreviewSteps.htm">Steps for Xcalar Cloud Preview</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/D_DetailedStepsForPointing.htm">Detailed steps (with custom settings)</a>
+                                                <li><a href="../A_GettingStarted/C_EasySteps.htm">Easy steps for Xcalar 1.0 (with default settings)</a>
+                                                </li>
+                                                <li><a href="../A_GettingStarted/D_DetailedStepsForPointing.htm">Detailed steps for Xcalar 1.0 (with custom settings)</a>
                                                 </li>
                                             </ul>
                                         </li>
@@ -312,10 +316,10 @@
                                         <h2>Displaying the Dataset Preview window</h2>
                                         <p>The <span class="UIelement">Dataset Preview</span> window is displayed automatically after you point to a new data source. Alternatively, follow these steps to display the <span class="UIelement">Dataset Preview</span> window:</p>
                                         <ol>
-                                            <li value="1">Click <img src="../Resources/Images/Insight_assets/xi-datastores.png" /> (<span class="UIelement">Data Stores</span> icon).</li>
+                                            <li value="1">Click <img src="../Resources/Images/XD_assets/xi-datastores.png" /> (<span class="UIelement">Data Stores</span> icon).</li>
                                             <li value="2">
                                                 <p>In the <span class="UIelement">Dataset Refs</span> panel, right click a dataset reference and then select <span class="UIelement">Preview</span> in the pop-up menu, as shown in the following screenshot:</p>
-                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/Insight_screenshots/dataset-ref-preview.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="430" data-mc-height="665" src="../Resources/Images/Insight_screenshots/dataset-ref-preview_thumb_0_150.png" tabindex="" /></a>
+                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/dataset-ref-preview.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="430" data-mc-height="665" src="../Resources/Images/XD_screenshots/dataset-ref-preview_thumb_0_150.png" tabindex="" /></a>
                                                 </p>
                                             </li>
                                         </ol>
@@ -327,7 +331,7 @@
                                                 <ul>
                                                     <li value="1">Click one or multiple column headings to select the columns that form the table. Clicking a selected column heading deselects the column. </li>
                                                     <li value="2">Click <span class="UIelement">Select All</span> if you want all columns to be in the table.</li>
-                                                    <li value="3">Create a table without any columns. You can select the columns after the table is created.</li>
+                                                    <li value="3">Create a table without any columns. You can select fields from the dataset and add them to the table after the table is created.</li>
                                                 </ul>
                                             </li>
                                             <li value="2">
@@ -335,30 +339,31 @@
                                             </li>
                                             <li value="3">
                                                 <p>(Optional)&#160;In the <span class="UIelement">Data Cart</span> panel, edit the table name. A default table name, based on the dataset reference name, is provided.</p>
-                                                <div class="MCDropDown MCDropDown_Open dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the naming conventions for a table:</a></span>
+                                                <div class="MCDropDown MCDropDown_Open dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the naming conventions:</a></span>
                                                     <div class="MCDropDownBody dropDownBody">
                                                         <ul>
-                                                            <li value="1">Names are case-sensitive. </li>
-                                                            <li value="2">Length can be from 1 to 255 characters.</li>
-                                                            <li value="3"> Characters can be A-Z, a-z, 0-9, hyphen (-), and underscore (_).</li>
-                                                            <li value="4">The name must not be a duplicate of an existing table name.</li>
-                                                            <li value="5">First character must be a letter.</li>
+                                                            <li value="1"> Characters can be A-Z, a-z, 0-9, hyphen (-), underscore (_), and space.</li>
+                                                            <li value="2">First character must be a letter.</li>
+                                                            <li value="3">The name is case-sensitive. </li>
+                                                            <li value="4">Length can be from 1 to 255 characters.</li>
+                                                            <li value="5">The name must not be a duplicate of an existing table name in the same workbook.</li>
                                                         </ul>
                                                     </div>
                                                 </div>
                                             </li>
                                             <li value="4">
-                                                <p>(Optional)&#160;Display the advanced options as shown in the following screenshot to enter the column prefix. If you do not specify a prefix, <span class="GeneralProductName">Xcalar Design</span> uses the table name as the prefix.</p>
+                                                <p>(Optional)&#160;Display the advanced options as shown in the following screenshot to enter the column prefix. If you do not specify a prefix, <span class="GeneralProductName">Xcalar Design</span> provides a default name that is based on the dataset name. (The dataset name is derived from the data source name.)</p>
                                                 <p>
-                                                    <img src="../Resources/Images/Insight_screenshots/data-cart-advanced-options.png" />
+                                                    <img src="../Resources/Images/XD_screenshots/data-cart-advanced-options.png" />
                                                 </p>
                                                 <p>A column prefix is used to distinguish columns with the same name in the same table. Typically, column name conflicts occur due to a Join operation. If the left and right tables have the same name for a column, the prefixes (if different) help you identify the origin of each column in the resultant table. (If the prefixes of the tables being joined happen to be the same, you are prompted to change the prefix before starting the Join operation.) You can change a prefix at table creation time or when preparing for a Join operation. You cannot change the prefix at other times.</p>
                                                 <div class="MCDropDown MCDropDown_Open dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the naming conventions:</a></span>
                                                     <div class="MCDropDownBody dropDownBody">
                                                         <ul>
-                                                            <li value="1">Names are case-sensitive. </li>
-                                                            <li value="2">Length can be from 1 to 255 characters.</li>
+                                                            <li value="1">The name is case-sensitive. </li>
+                                                            <li value="2">Maximum length is 31 characters.</li>
                                                             <li value="3"> Characters can be A-Z, a-z, 0-9, hyphen (-), and underscore (_).</li>
+                                                            <li value="4">First character must be a letter.</li>
                                                         </ul>
                                                     </div>
                                                 </div>
@@ -367,10 +372,12 @@
                                             <li value="6">Click <span class="UIelement">SEND&#160;TO&#160;WORKSHEET</span>. All columns shown in the data cart are sent to the same worksheet.</li>
                                         </ol>
                                         <p>The following sample screen shows the <span class="UIelement">Dataset Preview</span> window and the <span class="UIelement">Data Cart</span> panel.</p>
-                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/Insight_screenshots/create-table-from-dataset.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1169" data-mc-height="759" src="../Resources/Images/Insight_screenshots/create-table-from-dataset_thumb_0_150.png" tabindex="" /></a>
+                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/create-table-from-dataset.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1169" data-mc-height="759" src="../Resources/Images/XD_screenshots/create-table-from-dataset_thumb_0_150.png" tabindex="" /></a>
                                         </p>
                                         <p>For more information about the worksheet window after you create a table, see <a href="../D_Reference/C_WorksheetWindow.htm" class="MCXref xref">Worksheet window with tables</a>. You are now ready for transforming your data by using the various functions in <span class="GeneralProductName">Xcalar Design</span>.</p>
                                     </div>
+                                    <p><a href="#Top" class="selected">Go to top</a>
+                                    </p>
                                 </div>
                             </div>
                         </div>

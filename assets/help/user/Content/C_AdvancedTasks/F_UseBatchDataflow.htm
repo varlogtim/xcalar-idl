@@ -76,6 +76,8 @@
         </script>
         <script src="../../Resources/Scripts/MadCapAll.js">
         </script>
+        <script src="../../Skins/Default/Scripts/TopicToolBar.js">
+        </script>
     </head>
     <body>
         <div class="foundation-wrap">
@@ -90,11 +92,13 @@
                                             <ul class="sub-menu">
                                                 <li><a href="../A_GettingStarted/A_Requirements.htm">Requirements for Xcalar Design</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/B_BasicConcepts.htm">Basic  Xcalar Design concepts</a>
+                                                <li><a href="../A_GettingStarted/B_BasicConcepts.htm">Basic Xcalar concepts</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/C_EasySteps.htm">Easy steps (with default settings)</a>
+                                                <li><a href="../A_GettingStarted/B1_PreviewSteps.htm">Steps for Xcalar Cloud Preview</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/D_DetailedStepsForPointing.htm">Detailed steps (with custom settings)</a>
+                                                <li><a href="../A_GettingStarted/C_EasySteps.htm">Easy steps for Xcalar 1.0 (with default settings)</a>
+                                                </li>
+                                                <li><a href="../A_GettingStarted/D_DetailedStepsForPointing.htm">Detailed steps for Xcalar 1.0 (with custom settings)</a>
                                                 </li>
                                             </ul>
                                         </li>
@@ -298,14 +302,14 @@
                                         <h2>Displaying batch dataflows</h2>
                                         <p>Follow these steps to display batch dataflows:</p>
                                         <ol>
-                                            <li value="1">Click <img src="../Resources/Images/Insight_assets/xi-batch-dataflow-list-icon.png" /> to display a list of batch dataflows. All batch dataflows, including the ones created by other users, are displayed.</li>
+                                            <li value="1">Click <img src="../Resources/Images/XD_assets/xi-batch-dataflow-list-icon.png" /> to display a list of batch dataflows. All batch dataflows, including the ones created by other users, are displayed.</li>
                                             <li value="2">Click the name of the batch dataflow in the list to display the dataflow graph.</li>
                                         </ol>
-                                        <h2>Result of running a batch dataflow</h2>
+                                        <h2><a name="Result"></a>Result of running a batch dataflow</h2>
                                         <p>The icon shown at the end of a batch dataflow graph represents the final result created when you run the batch dataflow. The exact result  depends on your selection under <span class="UIelement">Advanced Export Options</span> in the graph before you run the batch dataflow:</p>
                                         <ul>
                                             <li value="1">
-                                                <p><span class="UIelement">Export to file system</span>:&#160;By default, the table is exported to a csv file, which is saved according to the specifications of the export target. For more information about the meaning of exporting a table, see <a href="G_ExportTable.htm" class="MCXref xref">Exporting a table</a>.</p>
+                                                <p><span class="UIelement">Export to file system</span> (not supported in <span class="GeneralProductTrialVersion">Xcalar Cloud Preview</span>):&#160;By default, the table is exported to a csv file, which is saved according to the specifications of the export target. For more information about the meaning of exporting a table, see <a href="G_ExportTable.htm" class="MCXref xref">Exporting a table</a>.</p>
                                                 <p>The name of the export file must not be a duplicate. For example, if running the batch dataflow for the first time creates a file named export-airlines1#L811.csv, make sure that you change the name of the export file when you run the batch dataflow subsequently. Otherwise, your attempt to run the batch dataflow results in the following error message:</p>
                                                 <p class="CLIoutput">Export file already exists.</p>
                                             </li>
@@ -332,20 +336,40 @@
                                             </li>
                                         </ol>
                                         <p>
-                                            <img src="../Resources/Images/Insight_screenshots/export-file-name-for-batch-dataflow_830x513.png" style="width: 830;height: 513;" />
+                                            <img src="../Resources/Images/XD_screenshots/export-file-name-for-batch-dataflow_830x513.png" style="width: 830;height: 513;" />
                                         </p>
                                         <h2>Running a batch dataflow</h2>
-                                        <p>In the batch dataflow graph, click <img src="../Resources/Images/Insight_assets/xi-run-batch-dataflow.png" /> to run the batch dataflow. When the batch dataflow is in progress, the <img src="../Resources/Images/Insight_assets/xi-run-batch-dataflow.png" /> icon turns into a spinner. You can click the spinner to terminate the execution of the batch dataflow.</p>
+                                        <p>Follow these steps to run a batch dataflow:</p>
+                                        <ol>
+                                            <li value="1">
+                                                <p>In the batch dataflow graph, click <span class="UIelement">Advanced Export Options</span> to specify the name of the file system or table to which the result of the batch dataflow is exported. (If none is specified, a default name is provided.)</p>
+                                                <div class="MCDropDown MCDropDown_Open dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the naming conventions:</a></span>
+                                                    <div class="MCDropDownBody dropDownBody">
+                                                        <ul>
+                                                            <li value="1"> Characters can be A-Z, a-z, 0-9, hyphen (-), underscore (_), and space.</li>
+                                                            <li value="2">First character must be a letter.</li>
+                                                            <li value="3">The name is case-sensitive. </li>
+                                                            <li value="4">Length can be from 1 to 255 characters.</li>
+                                                            <li value="5">The name must not be a duplicate of an existing table name in the same workbook.</li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                            <li value="2">
+                                                <p>Click <img src="../Resources/Images/XD_assets/xi-run-batch-dataflow.png" /> to run the batch dataflow. When the batch dataflow is in progress, the <img src="../Resources/Images/XD_assets/xi-run-batch-dataflow.png" /> icon turns into a spinner. You can click the spinner to terminate the execution of the batch dataflow. </p>
+                                                <p>The table icons in the batch dataflow change colors when the dataflow is being run. When <span class="GeneralProductName3short">XDP</span> is in the process of creating a table, the table icon turns yellow; after the table is created, the icon turns green.</p>
+                                            </li>
+                                        </ol>
                                         <p>The following screenshot shows an example of a batch dataflow.</p>
-                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/Insight_screenshots/batch-dataflow-graph-example.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1393" data-mc-height="365" src="../Resources/Images/Insight_screenshots/batch-dataflow-graph-example_thumb_0_150.png" tabindex="" /></a>
+                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/batch-dataflow-graph-example.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1393" data-mc-height="365" src="../Resources/Images/XD_screenshots/batch-dataflow-graph-example_thumb_0_150.png" tabindex="" /></a>
                                         </p>
                                         <p>You can also run a batch dataflow according to a pre-defined a schedule. For information about scheduling a batch dataflow, see <a href="#Creating" class="MCXref xref selected">Creating a schedule for a batch dataflow</a>.</p>
                                         <h2>Downloading and uploading a batch dataflow</h2>
                                         <p>You can download a batch dataflow to your computer as a .tar.gz file. The downloaded batch dataflow is called a dataflow file. After you create a dataflow file, you can upload it to any <span class="GeneralProductName2short">XCE</span> cluster. </p>
                                         <h3>Downloading</h3>
-                                        <p>To download a batch dataflow, click <img src="../Resources/Images/Insight_assets/xi-download-batch-dataflow.png" /> for the selected batch dataflow in the batch dataflow list. </p>
+                                        <p>To download a batch dataflow, click <img src="../Resources/Images/XD_assets/xi-download-batch-dataflow.png" /> for the selected batch dataflow in the batch dataflow list. </p>
                                         <p>The following screenshot shows the icons for downloading and uploading batch dataflows.</p>
-                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/Insight_screenshots/download-upload-dataflow.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1586" data-mc-height="673" src="../Resources/Images/Insight_screenshots/download-upload-dataflow_thumb_0_150.png" tabindex="" /></a>
+                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/download-upload-dataflow.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1586" data-mc-height="673" src="../Resources/Images/XD_screenshots/download-upload-dataflow_thumb_0_150.png" tabindex="" /></a>
                                         </p>
                                         <h3>Uploading</h3>
                                         <p>You can upload a batch dataflow that was downloaded from the same <span class="GeneralProductName2short">XCE</span> cluster or any other <span class="GeneralProductName2short">XCE</span> cluster. If the dataflow file has a UDF&#160;associated with it (for example, a UDF is used in one of the operations in the dataflow), the UDFs of the cluster are affected in one of the following ways:</p>
@@ -370,11 +394,12 @@
                                             <li value="3">Click <span class="UIelement">UPLOAD</span>.</li>
                                         </ol>
                                         <h2><a name="Creating"></a>Creating a schedule for a batch dataflow</h2>
-                                        <p>After you create a batch dataflow, you can run the dataflow at regular intervals. Follow these steps to create a schedule for a batch dataflow:</p>
+                                        <p>After you create a batch dataflow, you can run the dataflow at regular intervals. (This feature is not available in <span class="GeneralProductTrialVersion">Xcalar Cloud Preview</span>.)</p>
+                                        <p>Follow these steps to create a schedule for a batch dataflow:</p>
                                         <ol>
                                             <li value="1">
-                                                <p>In the dataflow list, click <img src="../Resources/Images/Insight_assets/xi-schedules.png" /> for the selected batch dataflow  as illustrated in the following screenshot.</p>
-                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/Insight_screenshots/batch-dataflow-schedule-icon.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1268" data-mc-height="673" src="../Resources/Images/Insight_screenshots/batch-dataflow-schedule-icon_thumb_0_150.png" tabindex="" /></a>
+                                                <p>In the dataflow list, click <img src="../Resources/Images/XD_assets/xi-schedules.png" /> for the selected batch dataflow  as illustrated in the following screenshot.</p>
+                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/batch-dataflow-schedule-icon.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1268" data-mc-height="673" src="../Resources/Images/XD_screenshots/batch-dataflow-schedule-icon_thumb_0_150.png" tabindex="" /></a>
                                                 </p>
                                             </li>
                                             <li value="2">
@@ -384,7 +409,7 @@
                                                     <li value="2">How often the batch dataflow is run.</li>
                                                     <li value="3">How many times the batch dataflow is run. There is no maximum number of times the dataflow can be run at the specified time.</li>
                                                 </ul>
-                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/Insight_screenshots/batch-dataflow-scheduling.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1418" data-mc-height="639" src="../Resources/Images/Insight_screenshots/batch-dataflow-scheduling_thumb_0_150.png" tabindex="" /></a>
+                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/batch-dataflow-scheduling.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1418" data-mc-height="639" src="../Resources/Images/XD_screenshots/batch-dataflow-scheduling_thumb_0_150.png" tabindex="" /></a>
                                                 </p>
                                             </li>
                                             <li value="3">Click <span class="UIelement">SAVE</span>.</li>
@@ -393,8 +418,8 @@
                                         <p>Follow these steps to modify a batch dataflow schedule:</p>
                                         <ol>
                                             <li value="1">
-                                                <p>In the dataflow list, click <img src="../Resources/Images/Insight_assets/xi-schedules.png" /> for the selected batch dataflow  as illustrated in the following screenshot. </p>
-                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/Insight_screenshots/batch-dataflow-schedule-change.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1162" data-mc-height="706" src="../Resources/Images/Insight_screenshots/batch-dataflow-schedule-change_thumb_0_150.png" tabindex="" /></a>
+                                                <p>In the dataflow list, click <img src="../Resources/Images/XD_assets/xi-schedules.png" /> for the selected batch dataflow  as illustrated in the following screenshot. </p>
+                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/batch-dataflow-schedule-change.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1162" data-mc-height="706" src="../Resources/Images/XD_screenshots/batch-dataflow-schedule-change_thumb_0_150.png" tabindex="" /></a>
                                                 </p>
                                             </li>
                                             <li value="2">Enter new scheduling information. If you want to abandon the changes, click <span class="UIelement">REVERT</span>.</li>
@@ -404,16 +429,18 @@
                                         <p>Follow these steps to delete a batch dataflow schedule:</p>
                                         <ol>
                                             <li value="1">
-                                                <p>In the dataflow list, click <img src="../Resources/Images/Insight_assets/xi-schedules.png" /> for the selected batch dataflow. </p>
+                                                <p>In the dataflow list, click <img src="../Resources/Images/XD_assets/xi-schedules.png" /> for the selected batch dataflow. </p>
                                             </li>
                                             <li value="2">
                                                 <p>Click the Delete icon as shown in the following screenshot.</p>
-                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/Insight_screenshots/batch-dataflow-schedule-delete.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1162" data-mc-height="706" src="../Resources/Images/Insight_screenshots/batch-dataflow-schedule-delete_thumb_0_150.png" tabindex="" /></a>
+                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/batch-dataflow-schedule-delete.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1162" data-mc-height="706" src="../Resources/Images/XD_screenshots/batch-dataflow-schedule-delete_thumb_0_150.png" tabindex="" /></a>
                                                 </p>
                                             </li>
                                             <li value="3">When the confirmation message is displayed, click <span class="state">CONFIRM</span>.</li>
                                         </ol>
                                     </div>
+                                    <p><a href="#Top" class="selected">Go to top</a>
+                                    </p>
                                 </div>
                             </div>
                         </div>

@@ -6,7 +6,7 @@
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta charset="utf-8" />
         <meta name="description" content="" />
-        <meta name="author" content="" /><title>Basic  Xcalar Design concepts</title>
+        <meta name="author" content="" /><title>Basic Xcalar concepts</title>
         <link href="../../Skins/Default/Stylesheets/Slideshow.css" rel="stylesheet" data-mc-generated="True" />
         <link href="../../Skins/Default/Stylesheets/TextEffects.css" rel="stylesheet" data-mc-generated="True" />
         <link href="../../Skins/Default/Stylesheets/Topic.css" rel="stylesheet" data-mc-generated="True" />
@@ -76,6 +76,8 @@
         </script>
         <script src="../../Resources/Scripts/MadCapAll.js">
         </script>
+        <script src="../../Skins/Default/Scripts/TopicToolBar.js">
+        </script>
     </head>
     <body>
         <div class="foundation-wrap">
@@ -90,11 +92,13 @@
                                             <ul class="sub-menu">
                                                 <li><a href="A_Requirements.htm">Requirements for Xcalar Design</a>
                                                 </li>
-                                                <li><a href="#" class="selected">Basic  Xcalar Design concepts</a>
+                                                <li><a href="#" class="selected">Basic Xcalar concepts</a>
                                                 </li>
-                                                <li><a href="C_EasySteps.htm">Easy steps (with default settings)</a>
+                                                <li><a href="B1_PreviewSteps.htm">Steps for Xcalar Cloud Preview</a>
                                                 </li>
-                                                <li><a href="D_DetailedStepsForPointing.htm">Detailed steps (with custom settings)</a>
+                                                <li><a href="C_EasySteps.htm">Easy steps for Xcalar 1.0 (with default settings)</a>
+                                                </li>
+                                                <li><a href="D_DetailedStepsForPointing.htm">Detailed steps for Xcalar 1.0 (with custom settings)</a>
                                                 </li>
                                             </ul>
                                         </li>
@@ -266,57 +270,59 @@
                                                 <ul class="sub-menu">
                                                     <li><a href="A_Requirements.htm">Requirements for Xcalar Design</a>
                                                     </li>
-                                                    <li><a href="#" class="selected">Basic  Xcalar Design concepts</a>
+                                                    <li><a href="#" class="selected">Basic Xcalar concepts</a>
                                                     </li>
-                                                    <li><a href="C_EasySteps.htm">Easy steps (with default settings)</a>
+                                                    <li><a href="B1_PreviewSteps.htm">Steps for Xcalar Cloud Preview</a>
                                                     </li>
-                                                    <li><a href="D_DetailedStepsForPointing.htm">Detailed steps (with custom settings)</a>
+                                                    <li><a href="C_EasySteps.htm">Easy steps for Xcalar 1.0 (with default settings)</a>
+                                                    </li>
+                                                    <li><a href="D_DetailedStepsForPointing.htm">Detailed steps for Xcalar 1.0 (with custom settings)</a>
                                                     </li>
                                                 </ul>
                                             </li>
                                         </ul>
                                     </div>
-                                    <div class="MCBreadcrumbsBox_0"><span class="MCBreadcrumbsPrefix">You are here: </span><a class="MCBreadcrumbsLink" href="GettingStarted.htm">Getting started</a><span class="MCBreadcrumbsDivider"> &gt; </span><span class="MCBreadcrumbs">Basic  Xcalar Design concepts</span>
+                                    <div class="MCBreadcrumbsBox_0"><span class="MCBreadcrumbsPrefix">You are here: </span><a class="MCBreadcrumbsLink" href="GettingStarted.htm">Getting started</a><span class="MCBreadcrumbsDivider"> &gt; </span><span class="MCBreadcrumbs">Basic Xcalar concepts</span>
                                     </div>
                                     <div class="bodyProxyNarrow">
-                                        <h1>Basic  <span class="GeneralProductName">Xcalar Design</span> concepts</h1>
+                                        <h1>Basic <span class="GeneralCompanyNameShort">Xcalar</span> concepts</h1>
                                         <p>This section explains basic concepts you must understand to use <span class="GeneralProductName">Xcalar Design</span> efficiently.</p>
                                         <h2>Understanding the purpose of <span class="GeneralProductName">Xcalar Design</span></h2>
                                         <p><span class="GeneralProductName">Xcalar Design</span> is an HTML5-based visual tool that enables you to interactively and intuitively design queries and algorithms, and manipulate your data to derive insights. The dataflows generated when you use  <span class="GeneralProductName">Xcalar Design</span> interactively can be saved. You can run the saved dataflows on demand or at scheduled intervals at a later time. </p>
-                                        <p>The data being queried can be arbitrary data in arbitrary formats. It can reside on data sources such as an NFS, HDFS, Amazon S3, or local ext4 file system. </p>
+                                        <p>The data being queried can be unstructured or organized in arbitrary formats. The data sources can reside on file systems such as NFS, HDFS, Amazon S3, or a local  file system. </p>
                                         <h2><a name="Understa"></a>Understanding workbooks and worksheets</h2>
                                         <p>You can create workbooks in <span class="GeneralProductName">Xcalar Design</span>, which can be regarded as files. Within a workbook, you can create as many worksheets as you want. Worksheets in the same workbook usually contain data related to the same project. The worksheet displayed on your screen is the active worksheet.</p>
-                                        <p>The relationship between a worksheet and a workbook is similar to the relationship between an Excel worksheet and workbook.</p>
+                                        <p>The relationship between a worksheet and a workbook is similar to the relationship between a Microsoft Excel worksheet and workbook.</p>
                                         <p>The following sample screen shows a <span class="UIelement">Worksheet</span> window for a workbook titled MyNewWorkbook.</p>
-                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/Insight_screenshots/workbook_worksheet_selection.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="739" data-mc-height="433" src="../Resources/Images/Insight_screenshots/workbook_worksheet_selection_thumb_0_150.png" tabindex="" /></a>
+                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/workbook_worksheet_selection.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1134" data-mc-height="578" src="../Resources/Images/XD_screenshots/workbook_worksheet_selection_thumb_0_150.png" tabindex="" /></a>
                                         </p>
                                         <h2>Understanding tables</h2>
-                                        <p>Tables are created from a dataset that points to a data source. You access the dataset through a dataset reference created in <span class="GeneralProductName">Xcalar Design</span>. You can manipulate and transform data within a table (for example, by sorting or filtering) or you can manipulate multiple tables to create a new table (for example, by joining).&#160;Use table operations to implement an algorithm that you design for deriving meanings from your data.  With Xcalar's True Data-In-Place architecture, data is pointed to at the source and analyzed without any  ETL (Extract, Transform, and Load). </p>
-                                        <p>Each table is created with a name unique in the worksheet. You can rename a table after the table is created.</p>
-                                        <p>When you create a table through the dataset reference, you can select the fields of interest to be included in the table.&#160;Fields from the data source can be added to an existing table any time.</p>
+                                        <p><span class="GeneralCompanyNameShort">Xcalar</span> creates a dataset when you use <span class="GeneralProductName">Xcalar Design</span> to point to a data source. You access the dataset through a dataset reference created in <span class="GeneralProductName">Xcalar Design</span>. You can pull fields of interest from the dataset to create tables in a <span class="GeneralProductName">Xcalar Design</span> worksheet. More fields from the dataset can be added to an active table at any time. </p>
+                                        <p>After you create one or more tables, you can manipulate and transform data within a table (for example, by sorting or filtering) or  manipulate multiple tables to create a new table (for example, by joining).&#160;Use data operations to implement an algorithm that you design for deriving meanings from your data.  With Xcalar's True Data in Place architecture, data is pointed to at the source and analyzed without any  ETL (Extract, Transform, and Load). </p>
+                                        <p>Each table is created with a name unique in the workbook.</p>
                                         <p>The following diagram illustrates the relationships among data sources, datasets, dataset references, and tables.</p>
                                         <p>
                                             <img src="../Resources/Images/dataset-concepts.png" />
                                         </p>
                                         <h2>Data formats supported</h2>
-                                        <p><span class="GeneralProductName">Xcalar Design</span> natively supports CSV, JSON, Excel, and raw text, and can support proprietary formats using UDFs.</p>
-                                        <div class="Note"><span class="label">NOTE:</span>&#160;The CSV format includes not only comma-separated values but also other delimiter-separated values. The default field delimiter is tab and the default record delimiter is newline (\n). You can select the delimiter for separating fields and for separating records. </div>
+                                        <p><span class="GeneralProductName">Xcalar Design</span> natively supports CSV, JSON, Excel, and raw text, and can support other formats using UDFs (user-defined functions).</p>
+                                        <div class="Note"><span class="label">NOTE:</span>&#160;The CSV format includes not only comma-separated values but also other values separated by alternate delimiters. The default field delimiter is tab and the default record delimiter is newline (\n). You can select the delimiter for separating fields and for separating records. </div>
                                         <h2>How <span class="GeneralProductName">Xcalar Design</span> saves your work</h2>
                                         <p><span class="GeneralProductName">Xcalar Design</span> saves the results of all data operations as they are being completed. For example, after you filter a column, the resultant table is saved automatically. You do not have to click <span class="UIelement">Save</span>.</p>
                                         <p>If your work is for manipulating the appearance of a table or a table column, the work is saved automatically when you sign out. However, before this automatic save, if you refresh your browser, your browser displays a message warning about unsaved changes. You must click <span class="UIelement">Save</span> to avoid losing the changes. The following screenshot shows the location of <span class="UIelement">Save</span>.</p>
-                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/Insight_screenshots/save-worksheet.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="739" data-mc-height="423" src="../Resources/Images/Insight_screenshots/save-worksheet_thumb_0_150.png" tabindex="" /></a>
+                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/save-worksheet.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="771" data-mc-height="530" src="../Resources/Images/XD_screenshots/save-worksheet_thumb_0_150.png" tabindex="" /></a>
                                         </p>
-                                        <div class="Example"><span class="label">EXAMPLE:</span>&#160;After you delete the first table column and resize the second column, you can sign out  without clicking <span class="UIelement">Save</span>.&#160;These changes are automatically saved. However, if you refresh the browser after making these changes instead of signing out, the browser warns that you have unsaved changes. If you proceed with the browser refresh, the table in the refreshed browser does not reflect the deletion of the first column and the new width of the second column.</div>
+                                        <div class="Example"><span class="label">EXAMPLE:</span>&#160;After you hide the first table column and resize the second column, you can sign out  without clicking <span class="UIelement">Save</span>.&#160;These changes are automatically saved. However, if you refresh the browser after making these changes instead of signing out, the browser warns that you have unsaved changes. If you proceed with the browser refresh, the table in the refreshed browser does not reflect the hiding of the first column and the new width of the second column.</div>
                                         <div class="Note"><span class="label">IMPORTANT:</span>&#160;If you use the same browser window to go to another website, you can use the browser's <span class="UIelement">Back</span> button to return to <span class="GeneralProductName">Xcalar Design</span>. This causes the browser to reload the <span class="GeneralProductName">Xcalar Design</span> page, and the result is similar to a browser refresh. This means that your changes are lost. Therefore, always click <span class="UIelement">Save</span> before you use the same browser window to navigate to another website.</div>
-                                        <h2>Understanding <span class="GeneralCompanyNameShort">Xcalar</span> product versions</h2>
-                                        <p><span class="GeneralProductName2short">XCE</span> and <span class="GeneralProductName">Xcalar Design</span> have separate version numbers. You can display both versions through <span class="GeneralProductName">Xcalar Design</span>.</p>
                                         <h2>Displaying <span class="GeneralProductName2">Xcalar Compute Engine</span> product versions and license expiration date</h2>
                                         <p>To display <span class="GeneralCompanyNameShort">Xcalar</span> product versions and the license expiration date, follow these steps:</p>
                                         <ol>
-                                            <li value="1">Click <img src="../Resources/Images/Insight_assets/xi-user.png" /> in the upper right corner of the <span class="GeneralProductName">Xcalar Design</span> window.</li>
+                                            <li value="1">Click <img src="../Resources/Images/XD_assets/xi-user.png" /> in the upper right corner of the <span class="GeneralProductName">Xcalar Design</span> window.</li>
                                             <li value="2">In the drop-down menu, click <span class="UIelement">About</span> to display a modal window that lists product versions,  license expiration date, and copyright information.</li>
                                         </ol>
                                     </div>
+                                    <p><a href="#Top" class="selected">Go to top</a>
+                                    </p>
                                 </div>
                             </div>
                         </div>

@@ -2,7 +2,7 @@ window.CSHelp = (function($, CSHelp) {
 
     // To be kept in sync with latest documentation
     var csLookup = {
-        filterAndOr: "B_CommonTasks/G_FilterValue.htm"
+        filterAndOr: "B_CommonTasks/G_FilterValue.htm#filterMultiple"
     };
 
     var helpBaseUrl = paths.helpUserContent;

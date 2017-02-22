@@ -76,6 +76,8 @@
         </script>
         <script src="../../Resources/Scripts/MadCapAll.js">
         </script>
+        <script src="../../Skins/Default/Scripts/TopicToolBar.js">
+        </script>
     </head>
     <body>
         <div class="foundation-wrap">
@@ -90,11 +92,13 @@
                                             <ul class="sub-menu">
                                                 <li><a href="../A_GettingStarted/A_Requirements.htm">Requirements for Xcalar Design</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/B_BasicConcepts.htm">Basic  Xcalar Design concepts</a>
+                                                <li><a href="../A_GettingStarted/B_BasicConcepts.htm">Basic Xcalar concepts</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/C_EasySteps.htm">Easy steps (with default settings)</a>
+                                                <li><a href="../A_GettingStarted/B1_PreviewSteps.htm">Steps for Xcalar Cloud Preview</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/D_DetailedStepsForPointing.htm">Detailed steps (with custom settings)</a>
+                                                <li><a href="../A_GettingStarted/C_EasySteps.htm">Easy steps for Xcalar 1.0 (with default settings)</a>
+                                                </li>
+                                                <li><a href="../A_GettingStarted/D_DetailedStepsForPointing.htm">Detailed steps for Xcalar 1.0 (with custom settings)</a>
                                                 </li>
                                             </ul>
                                         </li>
@@ -311,9 +315,9 @@
                                         <h2>Viewing the tables list</h2>
                                         <p>To display the tables list, follow these steps:</p>
                                         <ol>
-                                            <li value="1">Click <img src="../Resources/Images/Insight_assets/xi-worksheet.png" /> (Worksheet icon).</li>
+                                            <li value="1">Click <img src="../Resources/Images/XD_assets/xi-worksheet.png" /> (Worksheet icon).</li>
                                             <li value="2">
-                                                <p>In the <span class="UIelement">Worksheet</span> panel, click <img src="../Resources/Images/Insight_assets/xi-tables-list.png" /> to display the <span class="UIelement">Tables</span> panel to display the names of all tables on the worksheet. The tables are organized by their status.</p>
+                                                <p>In the <span class="UIelement">Worksheet</span> panel, click <img src="../Resources/Images/XD_assets/xi-tables-list.png" /> to display the <span class="UIelement">Tables</span> panel to display the names of all tables on the worksheet. The tables are organized by their status.</p>
                                             </li>
                                         </ol>
                                         <h2>Active table</h2>
@@ -324,20 +328,20 @@
                                         <h2>Temporary table</h2>
                                         <p><span class="GeneralProductName">Xcalar Design</span> creates temporary tables in several ways.</p>
                                         <p>A temporary table is a table that is no longer active after you perform an operation or undo  an operation. </p>
-                                        <div class="Example"><span class="label">Example</span>:&#160;Suppose you create from your dataset a table named <span class="UIelement">airlines#pe8</span>. It is the active table displayed in the worksheet, in which you  can perform various operations. If you change the data type of a column in it, a new active table  named <span class="UIelement">airlines#pe9</span> is created. The table named <span class="UIelement">airlines#pe8</span> is now categorized as a temporary table.</div>
+                                        <div class="Example"><span class="label">Example</span>:&#160;Suppose you create from your dataset a table named <span class="UIelement">airlines#pe8</span>. It is the active table displayed in the worksheet, in which you  can perform various operations. If you change the data type of one of its columns, a new active table  named <span class="UIelement">airlines#pe9</span> is created. The table named <span class="UIelement">airlines#pe8</span> is now categorized as a temporary table.</div>
                                         <p>A temporary table can be created when you undo an operation either through the <span class="UIelement">Undo</span> button or the <span class="UIelement">Revert To This Table</span> option in a dataflow graph. <span class="GeneralProductName">Xcalar Design</span> does not drop the table resulting from the operation; instead, it categorizes the table as a temporary table.</p>
                                         <div class="Example"><span class="label">Example</span>:&#160;Suppose you change a data type for a column in <span class="UIelement">airlines#pe8</span> and the resultant table is named <span class="UIelement">airlines#pe9</span>. If you undo the data type change, airlines#pe8 becomes the active table again, but <span class="UIelement">airlines#pe9</span> is not dropped. Instead, <span class="UIelement">airlines#pe9</span> is kept as a temporary table.</div>
                                         <p>A temporary table can be added back to the worksheet to become an active table again.</p>
-                                        <div class="Note"><span class="label">NOTE</span>: Remember to click <img src="../Resources/Images/Insight_assets/xi-refresh-temp-tables.png" /> in the <span class="UIelement">Tables</span> panel to refresh the temporary tables list after you run an operation or undo an operation. It ensures that the  most up-to-date list is displayed. </div>
+                                        <div class="Note"><span class="label">NOTE</span>: Remember to click <img src="../Resources/Images/XD_assets/xi-refresh-temp-tables.png" /> in the <span class="UIelement">Tables</span> panel to refresh the temporary tables list after you run an operation or undo an operation. It ensures that the  most up-to-date list is displayed. </div>
                                         <h2>Hiding a table</h2>
                                         <p>You can only hide an active table.&#160;You cannot hide a temporary table. Follow one of these steps to hide a table:</p>
                                         <ul>
                                             <li value="1">Right click the title bar for an active table to display a menu. Then select <span class="UIelement">Hide Table</span>.</li>
                                             <li value="2">Right click a table icon in the dataflow for the table. In the menu, select <span class="UIelement">Hide Table</span>.</li>
-                                            <li value="3">In the <span class="UIelement">Tables</span> panel, display the active tables.&#160;Select a table from the list and then click <img src="../Resources/Images/Insight_assets/xi-archive-table.png" />. The following screenshot illustrates how to hide tables in the <span class="UIelement">Tables</span> panel </li>
+                                            <li value="3">In the <span class="UIelement">Tables</span> panel, display the active tables.&#160;Select a table from the list and then click <img src="../Resources/Images/XD_assets/xi-archive-table.png" />. The following screenshot illustrates how to hide tables in the <span class="UIelement">Tables</span> panel: </li>
                                         </ul>
                                         <p>
-                                            <img src="../Resources/Images/Insight_screenshots/tables-list-for-archive.png" />
+                                            <img src="../Resources/Images/XD_screenshots/tables-list-for-archive.png" />
                                         </p>
                                         <h2><a name="Changing"></a>Changing a table to an active table</h2>
                                         <p>You can change a hidden or temporary table to an active table in one of two ways. </p>
@@ -347,25 +351,27 @@
                                             <li value="1">In the <span class="UIelement">Tables</span> panel, display either a list of hidden tables or temporary tables.</li>
                                             <li value="2">
                                                 <p>Select the table that you want to change to an active table.&#160;You can select multiple tables from one list.</p>
-                                                <div class="Example"><span class="label">TIP:</span> The temporary table list might be long. To quickly locate the temporary table, type the complete or partial table name in the <span class="UIelement">Filter Temporary Tables</span> field to limit display only tables with the matching name.</div>
+                                                <div class="Example"><span class="label">TIP:</span> The temporary table list might be long. To quickly locate the temporary table, type the complete or partial table name in the <span class="UIelement">Filter Temporary Tables</span> field to limit the list to only tables with a matching name.</div>
                                             </li>
-                                            <li value="3">Click <img src="../Resources/Images/Insight_assets/xi-tables-list-add-to-worksheet.png" />. </li>
+                                            <li value="3">Click <img src="../Resources/Images/XD_assets/xi-tables-list-add-to-worksheet.png" />. </li>
                                         </ol>
                                         <p>The following screenshot illustrates how to put a temporary table on the worksheet.</p>
                                         <p>
-                                            <img src="../Resources/Images/Insight_screenshots/tables-list-add-temp-tables-to-worksheet.png" />
+                                            <img src="../Resources/Images/XD_screenshots/tables-list-add-temp-tables-to-worksheet.png" />
                                         </p>
-                                        <h3>From the dataflow panel</h3>
+                                        <h3>From the dataflow graph</h3>
                                         <p>Follow these steps to change the status of a table to active:</p>
                                         <ol>
-                                            <li value="1">Display the dataflow panel for the worksheet.</li>
+                                            <li value="1">Display the dataflow graph for the worksheet.</li>
                                             <li value="2">
                                                 <p>Locate the table you want to add back to the worksheet. </p>
-                                                <div class="Note"><span class="label">NOTE:</span>&#160;The last table icon in a dataflow always represents an active table. Do not select this table icon from the dataflow.</div>
+                                                <div class="Note"><span class="label">NOTE:</span>&#160;You can only add a temporary table, not an active table, to a worksheet. Therefore, do not select the last table icon in a dataflow graph, which represents an active table. Also, it is possible for an active table in one dataflow graph to be shown in the middle of another. For example, if you have added a temporary table named airlines#pe8 to the worksheet, airlines#pe8 is now an active table even though its icon  remains in the middle of another dataflow, causing airlines#pe8 to look like a temporary table. </div>
                                             </li>
                                             <li value="3">Click the table icon to display a menu. Click <span class="UIelement">Add Table To Worksheet</span>.</li>
                                         </ol>
                                     </div>
+                                    <p><a href="#Top" class="selected">Go to top</a>
+                                    </p>
                                 </div>
                             </div>
                         </div>

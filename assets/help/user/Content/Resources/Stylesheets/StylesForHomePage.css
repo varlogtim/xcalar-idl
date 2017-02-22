@@ -728,9 +728,9 @@ div
 		text-align: center;
 	}
 
-	div.HomeWelcomePDFSection > div:nth-child(1)
+	div.HomeWelcomePDFSection > div:nth-child(1)	/*Make the width 100% so that when the browser window is narrow, the color box is maximized to take advantage of the full width of the screen.*/
 	{
-		width: 50%;
+		width: 100%;
 		margin-left: 0%;
 	}
 
@@ -808,19 +808,9 @@ ul.navigation ul
 	border-radius: 0px;
 }
 
-ul.navigation
-{
-	text-transform: uppercase;
-}
-
 ul.navigation > li.has-children:after	/*This is to mask out the pointer pointing to the top menu. */
 {
 	border-bottom-color: #378cb3;
-}
-
-ul.sub-menu
-{
-	text-transform: none;
 }
 
 div.body	/*Wrap all contents of home page in this div.*/

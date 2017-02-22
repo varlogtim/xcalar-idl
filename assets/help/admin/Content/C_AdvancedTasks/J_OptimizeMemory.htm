@@ -76,6 +76,8 @@
         </script>
         <script src="../../Resources/Scripts/MadCapAll.js">
         </script>
+        <script src="../../Skins/Default/Scripts/TopicToolBar.js">
+        </script>
     </head>
     <body>
         <div class="foundation-wrap">
@@ -90,11 +92,13 @@
                                             <ul class="sub-menu">
                                                 <li><a href="../A_GettingStarted/A_Requirements.htm">Requirements for Xcalar Design</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/B_BasicConcepts.htm">Basic  Xcalar Design concepts</a>
+                                                <li><a href="../A_GettingStarted/B_BasicConcepts.htm">Basic Xcalar concepts</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/C_EasySteps.htm">Easy steps (with default settings)</a>
+                                                <li><a href="../A_GettingStarted/B1_PreviewSteps.htm">Steps for Xcalar Cloud Preview</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/D_DetailedStepsForPointing.htm">Detailed steps (with custom settings)</a>
+                                                <li><a href="../A_GettingStarted/C_EasySteps.htm">Easy steps for Xcalar 1.0 (with default settings)</a>
+                                                </li>
+                                                <li><a href="../A_GettingStarted/D_DetailedStepsForPointing.htm">Detailed steps for Xcalar 1.0 (with custom settings)</a>
                                                 </li>
                                             </ul>
                                         </li>
@@ -298,7 +302,7 @@
                                     </div>
                                     <div class="bodyProxyNarrow">
                                         <h1>Optimizing memory usage</h1>
-                                        <p><span class="GeneralProductName">Xcalar Design</span> displays a low-memory notification to all logged-in users when <span class="GeneralProductName2short">XCE</span> reaches a pre-defined level of memory consumption. The <span class="GeneralCompanyNameShort">Xcalar</span> administrator might also notify users to free up memory before the automatic notification is sent. It is important for you to optimize memory usage  to ensure that <span class="GeneralProductName2short">XCE</span> can run at the highest performance level possible. See <a href="I_UnderstandMemoryUse.htm" class="MCXref xref">Understanding memory usage</a> for more information about the low-memory notification and what steps to take in response to the notification.</p>
+                                        <p><span class="GeneralProductName">Xcalar Design</span> displays a low-memory notification when <span class="GeneralProductName2short">XCE</span> reaches a pre-defined level of memory consumption. The <span class="GeneralCompanyNameShort">Xcalar</span> administrator might also notify users to free up memory before the automatic notification is sent. It is important for you to optimize memory usage  to ensure that <span class="GeneralProductName2short">XCE</span> can run at the highest performance level possible. See <a href="I_UnderstandMemoryUse.htm" class="MCXref xref">Understanding memory usage</a> for more information about the low-memory notification and what steps to take in response to the notification.</p>
                                         <h2>Best practices for conserving memory</h2>
                                         <p><span class="GeneralProductName">Xcalar Design</span> users can follow these best practices to conserve memory: </p>
                                         <ul>
@@ -321,9 +325,9 @@
                                         </ul>
                                         <h2>Effects of table columns on memory used</h2>
                                         <p>The number of columns in a table has no significant effect on memory consumption.&#160;For example, from the same dataset reference, you can create two tables:&#160;one with 2 columns and one with 15 columns. Both tables use the same amount of memory, which is 16 MB. The following screenshots show the columns in the tables and the amount of memory used by each table.</p>
-                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/Insight_screenshots/tables-diff-cols-same-memory.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1200" data-mc-height="625" src="../Resources/Images/Insight_screenshots/tables-diff-cols-same-memory_thumb_0_150.png" tabindex="" /></a>
+                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/tables-diff-cols-same-memory.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1200" data-mc-height="625" src="../Resources/Images/XD_screenshots/tables-diff-cols-same-memory_thumb_0_150.png" tabindex="" /></a>
                                         </p>
-                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/Insight_screenshots/tables-same-memory-used.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="598" data-mc-height="609" src="../Resources/Images/Insight_screenshots/tables-same-memory-used_thumb_0_150.png" tabindex="" /></a>
+                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/tables-same-memory-used.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="598" data-mc-height="609" src="../Resources/Images/XD_screenshots/tables-same-memory-used_thumb_0_150.png" tabindex="" /></a>
                                         </p>
                                         <p>Because the number of columns is not correlated with memory consumption,  you cannot free up memory by deleting table columns. </p>
                                         <h2>Effects of fields in the Data Browser on memory used</h2>
@@ -331,7 +335,7 @@
                                         <p>After you perform operations on a table, derived columns are created in the resultant table and these columns are also added in the resultant table's <span class="UIelement">Data Browse</span>. They as derived fields. Each derived field consumes additional memory.</p>
                                         <div class="Note"><span class="label">NOTE</span>:&#160;A table resulting from a batch dataflow does not have prefixed fields.&#160;The <span class="UIelement">Data Browser</span> for this table consists of only derived fields.</div>
                                         <div class="Example"><span class="label">Example</span>: A two-column table is created from a dataset with two fields:&#160;<span class="UIelement">Destination</span> and <span class="UIelement">Distance</span>. If no operations have created columns in this table, the table  uses 2.2 MB of memory. Suppose you change the <span class="UIelement">Distance</span> column's data type to integer. A new table is created with a derived column named <span class="UIelement">Distance_integer</span>. In the <span class="UIelement">Data Browser</span>&#160;for this table, the field <span class="UIelement">Distance</span> remains in the prefixed fields section, and a new field named <span class="UIelement">Distance_integer</span> is added in the derived fields section. If you use the <span class="UIelement">Drop Tables</span> modal window to check memory usage, you can see that the new table consumes 4.2 MB instead of 2.2 MB of memory because of the derived field added. The more columns your operations create, the more derived fields are added to the <span class="UIelement">Data Browser</span>. The derived fields increase the amount of memory consumed.</div>
-                                        <div class="Note"><span class="label">NOTE</span>:&#160;As in the case of other columns, deleting a derived column does not free up memory. For example, if you delete the <span class="UIelement">Distance_integer</span> column in the example above, the table continues to use 4.2 MB of memory. Memory used is not reduced because the derived field, <span class="UIelement">Distance_integer</span>, remains in the <span class="UIelement">Data Browser</span>.</div>
+                                        <div class="Note"><span class="label">NOTE</span>:&#160;As in the case of other columns, deleting a derived column does not free up memory. For example, if you hide the <span class="UIelement">Distance_integer</span> column in the example above, the table continues to use 4.2 MB of memory. Memory used is not reduced because the derived field, <span class="UIelement">Distance_integer</span>, remains in the <span class="UIelement">Data Browser</span>.</div>
                                         <h2><a name="Removing"></a>Removing fields from the Data Browser</h2>
                                         <p>Because the number of fields in the <span class="UIelement">Data Browser</span> has an impact on memory used, the logical step to conserve memory is to reduce the number of fields in the <span class="UIelement">Data Browser</span>. However, remember that in the context of memory consumption, the collection of fields from the source dataset (that is, the prefixed fields) is considered one unit. You cannot remove some fields and keep some fields in that collection. You can decide either to keep or to eliminate the collection in its entirety.</p>
                                         <p>The contents of the <span class="UIelement">Data Browser</span>&#160;are not directly editable. To change the contents, use the Projection Mode feature, which enables you to keep only columns of interest in a table and to remove unnecessary ones from the <span class="UIelement">Data Browser</span>. </p>
@@ -344,12 +348,12 @@
                                             <li value="1">Double click anywhere in the <span class="UIelement">DATA</span> column of the table to display the <span class="UIelement">Data Browser</span>.</li>
                                             <li value="2">
                                                 <p>Click the down arrow in the <span class="UIelement">Data Browser</span> to select <span class="UIelement">Projection&#160;Mode</span>. The following screenshot shows the location of the arrow.</p>
-                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/Insight_screenshots/data-browser-modes.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="726" data-mc-height="597" src="../Resources/Images/Insight_screenshots/data-browser-modes_thumb_0_150.png" tabindex="" /></a>
+                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/data-browser-modes.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="712" data-mc-height="683" src="../Resources/Images/XD_screenshots/data-browser-modes_thumb_0_150.png" tabindex="" /></a>
                                                 </p>
                                             </li>
                                             <li value="3">
-                                                <p>Click the check box preceding the field name if you want to keep the field  in the resultant table. For example, click <span class="UIelement">DayOfWeek_integer</span> if you want to keep it in the resultant table. You might have to use the scrollbar to view all field names. The following screenshot </p>
-                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/Insight_screenshots/data-browser-project-fields.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="778" data-mc-height="695" src="../Resources/Images/Insight_screenshots/data-browser-project-fields_thumb_0_150.png" tabindex="" /></a>
+                                                <p>Click the check box preceding the field name if you want to keep the field  in the resultant table. For example, click <span class="UIelement">DayOfWeek_integer</span> if you want to keep it in the resultant table. You might have to use the scrollbar to view all field names. The following screenshot is an example of selecting the fields to keep in the Data Browser. </p>
+                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/data-browser-project-fields.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="732" data-mc-height="664" src="../Resources/Images/XD_screenshots/data-browser-project-fields_thumb_0_150.png" tabindex="" /></a>
                                                 </p>
                                             </li>
                                             <li value="4">Click the <span class="UIelement">submit projection</span> button. A new table is created with only the columns you chose in the <span class="UIelement">Data Browser</span>. As in the case of other operations, you can use the <span class="UIelement">Undo</span> button to revert the table to the previous version before the projection.</li>
@@ -362,6 +366,8 @@
                                         <p>You cannot choose individual entries from the list of prefixed fields. The set of prefixed fields is eliminated or retained as one unit through projection. The prefixed fields consume a fixed amount of memory, which is about the same as that consumed by a derived field.</p>
                                         <p>Suppose you are only interested in <span class="UIelement">airlines1::Distance</span> and <span class="UIelement">airlines1::MonthDayYear</span>, you cannot project these fields and discard other prefixed fields such as <span class="UIelement">airlines1::Carrier</span> and <span class="UIelement">airlines1::FlightNum</span>. The <span class="UIelement">Data Browser</span> must keep the entire collection of prefixed fields. After the projection, the unselected derived fields no longer exist in the table or the <span class="UIelement">Data Browser</span>.  This frees up memory that otherwise would be needed to track 4 derived fields.</p>
                                     </div>
+                                    <p><a href="#Top" class="selected">Go to top</a>
+                                    </p>
                                 </div>
                             </div>
                         </div>
