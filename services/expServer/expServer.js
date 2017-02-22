@@ -23,6 +23,7 @@ require("jsdom").env("", function(err, window) {
 var tail = require('./tail');
 var support = require('./support');
 var login = require('./expLogin');
+var upload = require('./upload');
 var Status = require('./supportStatusFile').Status;
 
 var app = express();
@@ -650,7 +651,7 @@ app.post("/downloadPackage", function(req, res) {
                 deferred.reject(err);
             }
             else {
-                deferred.resolve(data.Body.toString('base64'));
+                deferred.resolve({status: Status.OK, data: data.Body.toString('base64')});
             }
         });
         return deferred.promise();
@@ -687,7 +688,8 @@ app.post("/downloadPackage", function(req, res) {
         var deferred = jQuery.Deferred();
         var retStruct;
         try {
-            retStruct = JSON.parse(ret);
+            // retStruct = JSON.parse(ret);
+            retStruct = ret;
             if (retStruct.status !== Status.Ok) {
                 return deferred.reject(retStruct);
             }
@@ -701,7 +703,10 @@ app.post("/downloadPackage", function(req, res) {
         var zipPath = basePath + pkg.name + "-" + pkg.version + ".tar.gz";
         xcConsole.log(zipPath);
         fs.writeFile(basePath+pkg.name+"-"+pkg.version+".tar.gz", zipFile,
-        function(a) {
+        function(error) {
+            if (error) {
+                deferred.reject(error);
+            }
             xcConsole.log("Writing");
             var out = exec("tar -zxf " + zipPath + " -C " + basePath);
             out.on('close', function(code) {
@@ -857,6 +862,18 @@ app.post("/listPackage", function(req, res){
     .fail(function(err) {
         return res.send({"status": Status.Error, "logs": error});
     });
+});
+
+/*
+Right /uploadContent is implemented in a really clumsy way.
+Will fix in the next version.
+*/
+app.post("/uploadContent", function(req, res) {
+    upload.uploadContent(req, res);
+});
+
+app.post("/uploadMeta", function(req, res) {
+    upload.uploadMeta(req, res);
 });
 
 var httpServer = http.createServer(app);

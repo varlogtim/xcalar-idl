@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>App Marketplace</title>
+    <style type="text/css">
+    .container {
+        width: 500px;
+        clear: both;
+    }
+    .container input {
+        width: 100%;
+        clear: both;
+    }
+    .container2 {
+        width: 900px;
+        clear: both;
+    }
+    .container2 input {
+        width: 25%;
+        clear: both;
+    }
+    </style>
+</head>
+
+<br/>
+<h1>Uploader</h1>
+<form id        =  "uploadContent"
+     action    =  "/app/uploadContent"
+     method    =  "post"
+>
+<div class="container">
+Project Name: <input type="text" name="name" /><br/>
+Version: <input type="text" name="version" /><br/>
+</div>
+First File Path: <input type="text" name="filePath1" /> --> Saved As Name --> <input type="text" name="savedAsName1" /><br/>
+Second File Path (Optional): <input type="text" name="filePath2" /> --> Saved As Name --> <input type="text" name="savedAsName2" /><br/>
+Third File Path (Optional): <input type="text" name="filePath3" /> --> Saved As Name --> <input type="text" name="savedAsName3" /><br/>
+<input type="submit" value="Upload Extension" name="submit">
+</form>
+
+<br/>
+<div class="container">
+<form id        =  "uploadMeta"
+     action    =  "/app/uploadMeta"
+     method    =  "post"
+>
+Project Name: <input type="text" name="name" />
+Version: <input type="text" name="version" />
+<br/>
+Description: <input type="text" name="description" />
+Main: <input type="text" name="main" />
+Author: <input type="text" name="author" />
+Category: <input type="text" name="category" />
+<br/>
+Website: <input type="text" name="website" />
+ImageFilePath: <input type="text" name="path" />
+<br/>
+<input type="submit" value="Upload Metadata" name="submit">
+</form>
+</div>
+
+
+</body>
+</html>

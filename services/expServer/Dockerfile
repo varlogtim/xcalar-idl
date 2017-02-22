@@ -1,7 +1,6 @@
-FROM node:argon
+FROM node:boron
 MAINTAINER Xcalar Inc. <support@xcalar.com>
 
-RUN useradd -m -s /bin/bash node
 RUN mkdir -p /app
 WORKDIR /app
 

@@ -40,7 +40,7 @@ run: build
 debug: build
 	@-docker stop $(NAME) 2>/dev/null
 	@-docker rm -f $(NAME) 2>/dev/null
-	docker run -it -p 12124:12124 -v /etc/xcalar:/etc/xcalar -v /var/log:/var/log --restart=always --name=$(NAME) $(NAME) /bin/bash -l
+	docker run -it -p 12124:12124 -e AWS_ACCESS_KEY_ID=AKIAIB3EAQQFJR5FDQBA -e AWS_SECRET_ACCESS_KEY=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 -v /var/tmp/uploads:/var/tmp/uploads -v /etc/xcalar:/etc/xcalar -v /var/log:/var/log --restart=always --name=$(NAME) $(NAME) /bin/bash -l
 
 clean:
 	-rm -vf $(NAME)-*.tar.gz

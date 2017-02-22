@@ -21,7 +21,8 @@ destMap = {
     "install.html": "install.html",
     "dashboard.html": "dashboard.html",
     "testSuite.html": "testSuite.html",
-    "undoredoTest.html": "undoredoTest.html"
+    "undoredoTest.html": "undoredoTest.html",
+    "extensionUploader.html": "assets/htmlFiles/extensionUploader.html"
 };
 
 var noPrettify = ["datastoreTut1.html", "datastoreTut1DemoMode.html", "datastoreTut2.html", "workbookTut.html"];
