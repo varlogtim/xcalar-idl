@@ -26,6 +26,8 @@ var login = require('./expLogin');
 var upload = require('./upload');
 var Status = require('./supportStatusFile').Status;
 
+var basePath = "/var/www/xcalar-gui/assets/extensions/installed/";
+
 var app = express();
 
 app.use(bodyParser.urlencoded({extended: false}));
@@ -680,7 +682,6 @@ app.post("/downloadPackage", function(req, res) {
     xcConsole.log(pkg);
     var url = "/marketplace/download?name=" + pkg.name + "&version=" +
               pkg.version;
-    var basePath = "/var/www/xcalar-gui/assets/extensions/installed/";
 
     download(pkg.name, pkg.version)
     .then(function(ret) {
@@ -720,42 +721,37 @@ app.post("/downloadPackage", function(req, res) {
         return deferred.promise();
     })
     .then(function() {
-        xcConsole.log("Appending to extensions.html");
-        var deferred = jQuery.Deferred();
-        xcConsole.log(basePath + "../extensions.html");
-        fs.readFile(basePath + "../extensions.html", 'utf8',
-                    function(err, data) {
-            xcConsole.log(err, data);
-            if (err) {
-                deferred.reject(err);
-            }
-            var packages = parseExtensionsHtml(data);
-            xcConsole.log(packages);
-            if (pkg.name in packages) {
-                xcConsole.log(pkg.name + " is already in extensions.html");
-                deferred.resolve(data);
-            } else {
-                var startIdx = data.indexOf("<!--NEW EXTENSION HERE");
-                var newString = data.substring(0, startIdx) +
-                    '    <script src="assets/extensions/installed/' + pkg.name +
-                    '.ext.js" type="text/javascript"></script>\n' +
-                    '    <!--NEW EXTENSION HERE-->\n' +
-                    data.substring(startIdx);
-                deferred.resolve(newString);
-            }
-        });
-        return deferred.promise();
-    })
-    .then(function(newString) {
-        fs.writeFile(basePath + "../extensions.html", newString,
-                     function() {
-            res.jsonp({status: Status.Ok});
-        });
+        res.jsonp({status: Status.Ok});
     })
     .fail(function() {
         xcConsole.log("Failed: "+arguments);
         res.jsonp({status: Status.Error,
                    logs: JSON.stringify(arguments)});
+    });
+});
+
+app.post("/getInstalledExtensions", function(req, res) {
+    console.log("Getting installed extensions");
+    fs.readdir(basePath, function(err, allNames) {
+        if (err) {
+            res.jsonp({status: Status.Error,
+                       log: JSON.stringify(err)});
+            return;
+        }
+        var htmlString = '<html>\n' +
+                            '<head>\n';
+        allNames.forEach(function(name) {
+            if (name.indexOf(".ext.js") === name.length - ".ext.js".length) {
+                htmlString += '    <script src="assets/extensions/installed/' +
+                              name + '" type="text/javascript"></script>\n';
+            }
+        });
+        htmlString += '  </head>\n' +
+                      '  <body>\n' +
+                      '  </body>\n' +
+                      '</html>';
+        res.jsonp({status: Status.Ok,
+                   data: htmlString});
     });
 });
 

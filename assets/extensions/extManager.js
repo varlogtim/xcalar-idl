@@ -139,6 +139,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
 
     ExtensionManager.setup = function() {
         var deferred = jQuery.Deferred();
+        var innerDeferred = jQuery.Deferred();
         $extOpsView = $("#extension-ops");
         $extTriggerTableDropdown = $("#extension-ops-mainTable");
 
@@ -154,9 +155,31 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             }
         });
 
-        $("#extension-ops-script").load("assets/extensions/extensions.html",
-        undefined, function(response, status, xhr) {
-            setupPart2(response, status, xhr)
+        var url = xcHelper.getAppUrl();
+        $.ajax({
+            "type": "POST",
+            "dataType": "JSON",
+            "url": url + "/getInstalledExtensions",
+            "success": function(data) {
+                if (data.status === Status.Ok) {
+                    innerDeferred.resolve(data.data);
+                } else {
+                    console.error("Failed to get extensions");
+                    console.error(data);
+                    deferred.resolve();
+                }
+            },
+            "error": function(error) {
+                console.error("Failed to get extensions");
+                console.error(error);
+                deferred.resolve();
+            }
+        });
+
+        innerDeferred
+        .then(function(htmlString) {
+            $("#extension-ops-script").html(htmlString);
+            setupPart2()
             .then(deferred.resolve)
             .fail(deferred.reject);
         });

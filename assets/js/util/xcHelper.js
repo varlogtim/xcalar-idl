@@ -755,6 +755,17 @@ window.xcHelper = (function($, xcHelper) {
         return new Date().getTime();
     };
 
+    xcHelper.getAppUrl = function() {
+        var url;
+        if (window.expHost != null) {
+            // this is for dev environment if you set it in config.js
+            url = window.expHost;
+        } else {
+            url = hostname + "/app";
+        }
+        return url;
+    };
+
     xcHelper.downloadAsFile = function(fileName, fileContents, raw) {
         // XXX FIXME fix it if you can find a way to download it as .py file
         var element = document.createElement('a');
