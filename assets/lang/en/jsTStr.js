@@ -456,6 +456,7 @@ ExportTStr = {
     'Success': 'Export Successful',
     'InvalidType': 'Invalid type selected',
     'DisableHeader': 'Not available when appending to existing',
+    'LocationNotFound': 'Export location not found',
 
     // With replace
     'SuccessMsg': 'File Name: <file>\n File Location: <location>',

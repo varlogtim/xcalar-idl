@@ -158,6 +158,7 @@ var fakeEvent = {
     "mouseleave": {"type": "mouseleave", "which": 1},
     "enter"     : {"type": "keypress", "which": 13},
     "enterKeydown": {"type": "keydown", "which": 13},
+    "enterKeyup": {"type": "keyup", "which": 13},
     "input": {"type": "input"}
 };
 

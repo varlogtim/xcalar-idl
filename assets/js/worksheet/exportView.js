@@ -240,7 +240,7 @@ window.ExportView = (function($, ExportView) {
         .fail(function(error) {
             Alert.error(ExportTStr.ListTargFail, error);
             console.error(error);
-            deferred.reject();
+            deferred.reject(error);
         });
 
         return deferred.promise();
@@ -299,6 +299,20 @@ window.ExportView = (function($, ExportView) {
 
         if (!isValid) {
             return PromiseHelper.reject({"error": "tableNotFound"});
+        }
+
+        isValid = xcHelper.validate([
+            {
+                "$ele": $exportPath,
+                "error": ExportTStr.LocationNotFound,
+                "check": function() {
+                    return $exportPath.val() === "";
+                }
+            }
+        ]);
+
+        if (!isValid) {
+            return PromiseHelper.reject({"error": "targetNotFound"});
         }
 
         var keepOrder = false;
@@ -376,7 +390,7 @@ window.ExportView = (function($, ExportView) {
                 errorText = xcHelper.replaceMsg(ErrWRepTStr.InvalidCol, {
                     "name": backColumnNames.name
                 });
-            } else if (colRes.reason = "tableNotFound") {
+            } else if (backColumnNames.reason === "tableNotFound") {
                 errorText = ErrTStr.SourceTableNotExists;
             } else if (backColumnNames.reason === 'type') {
                 errorText = xcHelper.replaceMsg(ErrWRepTStr.InvalidColType, {
@@ -384,7 +398,6 @@ window.ExportView = (function($, ExportView) {
                     "type": backColumnNames.type
                 });
             }
-
             xcHelper.validate([{
                 "$ele": $exportColumns,
                 "error": errorText,
@@ -417,6 +430,8 @@ window.ExportView = (function($, ExportView) {
             return (deferred.promise());
         }
 
+        formHelper.disableSubmit();
+
         checkDuplicateExportName(exportName, advancedOptions)
         .then(function(hasDuplicate) {
             if (hasDuplicate) {
@@ -427,6 +442,7 @@ window.ExportView = (function($, ExportView) {
                         return true;
                     }
                 }]);
+                formHelper.enableSubmit();
                 deferred.reject();
             } else {
                 var closeModal = true;
@@ -447,6 +463,8 @@ window.ExportView = (function($, ExportView) {
                 .fail(function(error) {
                     closeModal = false;
                     deferred.reject(error);
+                }).always(function() {
+                    formHelper.enableSubmit();
                 });
 
                 setTimeout(function() {
@@ -457,7 +475,7 @@ window.ExportView = (function($, ExportView) {
                 }, 200);
             }
         })
-        .fail(deferred.reject);
+        .fail(deferred.reject); //checkDuplicateExportName only resolves
 
         return deferred.promise();
     }
@@ -496,7 +514,7 @@ window.ExportView = (function($, ExportView) {
                 deferred.resolve(false);
             })
             .fail(function(error) {
-                console.log(error);
+                console.error(error);
                 deferred.resolve(false);
             });
         }
@@ -952,6 +970,7 @@ window.ExportView = (function($, ExportView) {
         ExportView.__testOnly__.submitForm = submitForm;
         ExportView.__testOnly__.checkDuplicateExportName = checkDuplicateExportName;
         ExportView.__testOnly__.checkSortedTable = checkSortedTable;
+        ExportView.__testOnly__.applyOtherDelim = applyOtherDelim;
         ExportView.__testOnly__.restoreAdvanced = restoreAdvanced;
         
     }
