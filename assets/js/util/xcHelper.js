@@ -1625,14 +1625,15 @@ window.xcHelper = (function($, xcHelper) {
     // animate: boolean indicating whether to animate the scrolling
     xcHelper.centerFocusedColumn = function(tableId, colNum, animate) {
         var $tableWrap = $('#xcTableWrap-' + tableId);
-        var windowWidth = $(window).width();
+        var mainFrameWidth = $('#mainFrame').width();
         var currentScrollPosition = $('#mainFrame').scrollLeft();
         var $th = $tableWrap.find('th.col' + colNum);
-        var columnOffset = $th.offset().left;
+        var columnOffset = $th.offset().left - MainMenu.getOffset();
         var colWidth = $th.width();
+        // var mainMenuOffset = MainMenu.getOffset();
 
         var leftPosition = currentScrollPosition + columnOffset;
-        var scrollPosition = leftPosition - ((windowWidth - colWidth) / 2);
+        var scrollPosition = leftPosition - ((mainFrameWidth - colWidth) / 2);
 
         focusTable(tableId);
         $th.find('.flex-mid').mousedown();
