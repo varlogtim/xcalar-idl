@@ -2962,7 +2962,7 @@ describe("Persistent Constructor Test", function() {
 
     // XX incomplete since the change where monitor query bars are working
     describe("XcQuery Constructor Test", function() {
-        it("Should have 16 attributes", function() {
+        it("Should have 17 attributes", function() {
             var xcQuery = new XcQuery({
                 "name": "test",
                 "fullName": "full test",
@@ -2973,7 +2973,7 @@ describe("Persistent Constructor Test", function() {
             });
 
             expect(xcQuery).to.be.an.instanceof(XcQuery);
-            expect(Object.keys(xcQuery).length).to.equal(16);
+            expect(Object.keys(xcQuery).length).to.equal(17);
             expect(xcQuery).to.have.property("version")
             .and.to.equal(currentVersion);
             expect(xcQuery).to.have.property("name")
@@ -3000,6 +3000,8 @@ describe("Persistent Constructor Test", function() {
             .and.to.equal("");
             expect(xcQuery).to.have.property("queryStr")
             .and.to.equal("");
+            expect(xcQuery).to.have.property("srcTables")
+            .and.to.be.null;
             expect(xcQuery).to.have.property("sqlNum")
             .and.to.be.null;
             expect(xcQuery).to.have.property("state")
