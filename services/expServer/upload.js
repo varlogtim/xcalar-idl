@@ -1,7 +1,5 @@
 var fs = require('fs');
 var exec = require('child_process').exec;
-var AWS = require('aws-sdk');
-var s3 = new AWS.S3();
 var Status = require('./supportStatusFile').Status;
 
 var validate = function(name, version) {
@@ -25,6 +23,12 @@ Right /uploadContent is implemented in a really clumsy way.
 Will fix in the next version.
 */
 function uploadContent(req, res) {
+    if (fs.existsSync("./awsWriteConfig.json")) {
+        var awsTmp = require('aws-sdk');
+        var s3Tmp = new awsTmp.S3();
+    } else {
+        return res.send({"status": Status.Error, "logs": "You're not permitted to upload"});
+    }
     var tmpPrefix = "/tmp/app" + getRandomInt(0, 1000) + "/";
     deleteFolderRecursive(tmpPrefix);
     console.log("Deleted local " + tmpPrefix);
@@ -41,7 +45,7 @@ function uploadContent(req, res) {
         if (!validate(name, version)) {
             return res.send({"status": Status.Error, "logs": "Validation fails: wrong input"});
         }
-        if (filePath1.length == 0 || savedAsName1.length == 0) {
+        if (filePath1 == null || filePath1.length == 0 || savedAsName1.length == 0) {
             return res.send({"status": "Error", "logs": "Please specify at least one file & save as"});
         }
         var execString = "cp " + filePath1 + " " + tmpPrefix + savedAsName1;
@@ -54,7 +58,7 @@ function uploadContent(req, res) {
                 return res.send({"status": Status.Error, "code": code});
             }
             console.log("Copying first file to local /tmp");
-            if (filePath2.length != 0 && savedAsName2.length != 0) {
+            if (filePath2 != null && filePath2.length != 0 && savedAsName2.length != 0) {
                 var execString = "cp " + filePath2 + " " + tmpPrefix + savedAsName2;
                 var out = exec(execString);
                 out.on('close', function(code) {
@@ -64,7 +68,7 @@ function uploadContent(req, res) {
                         return res.send({"status": Status.Error, "code": code});
                     }
                     console.log("Copying second file to local /tmp");
-                    if (filePath3.length != 0 && savedAsName3.length != 0) {
+                    if (filePath3 != null && filePath3.length != 0 && savedAsName3.length != 0) {
                         var execString = "cp " + filePath3 + " " + tmpPrefix + savedAsName3;
                         var out = exec(execString);
                         out.on('close', function(code) {
@@ -74,20 +78,20 @@ function uploadContent(req, res) {
                                 return res.send({"status": Status.Error, "code": code});
                             }
                             console.log("Copying third file to local /tmp");
-                            gzipAndUpload(name, version, tmpPrefix)
+                            gzipAndUpload(name, version, tmpPrefix, s3Tmp)
                             .then(function() {
                                 return res.send({"status": Status.Ok});
                             });
                         });
                     } else {
-                        gzipAndUpload(name, version, tmpPrefix)
+                        gzipAndUpload(name, version, tmpPrefix, s3Tmp)
                         .then(function() {
                             return res.send({"status": Status.Ok});
                         });
                     }
                 });
             } else {
-                gzipAndUpload(name, version, tmpPrefix)
+                gzipAndUpload(name, version, tmpPrefix, s3Tmp)
                 .then(function() {
                     return res.send({"status": Status.Ok});
                 });
@@ -97,14 +101,14 @@ function uploadContent(req, res) {
     });
 };
 
-var gzipAndUpload = function(name, version, tmpPrefix) {
+var gzipAndUpload = function(name, version, tmpPrefix, s3Tmp) {
     var tmpTarGz = tmpPrefix+"tmp.tar.gz";
     var deferred = jQuery.Deferred();
     gzip(tmpTarGz, tmpPrefix)
     .then(function() {
         console.log("Succeeded to tar");
         fs.readFile(tmpTarGz, function(err, data) {
-            upload('extensions/'+name+"/"+version+"/"+name+'-'+version+'.tar.gz', data)
+            upload('extensions/'+name+"/"+version+"/"+name+'-'+version+'.tar.gz', data, s3Tmp)
             .then(function() {
                 console.log("Uploaded .tar.gz");
                 deleteFolderRecursive(tmpPrefix);
@@ -163,6 +167,12 @@ var gzip = function(fileName, tmpPrefix) {
 }
 
 function uploadMeta(req, res) {
+    if (fs.existsSync("./awsWriteConfig.json")) {
+        var awsTmp = require('aws-sdk');
+        var s3Tmp = new awsTmp.S3();
+    } else {
+        return res.send({"status": Status.Error, "logs": "You're not permitted to upload"});
+    }
     var name = req.body.name;
     var version = req.body.version;
     var imageUrl = req.body.imageUrl;
@@ -196,28 +206,28 @@ function uploadMeta(req, res) {
             image = data.toString("base64");
             dataToSent["image"] = image
             var file = 'extensions/'+name+"/"+version+"/"+name+'.txt';
-            upload(file, JSON.stringify(dataToSent))
+            upload(file, JSON.stringify(dataToSent), s3Tmp)
             .then(function(data) {
                 return res.send(data);
             });
         });
     } else {
         var file = 'extensions/'+name+"/"+version+"/"+name+'.txt';
-        upload(file, JSON.stringify(dataToSent))
+        upload(file, JSON.stringify(dataToSent), s3Tmp)
         .then(function(data) {
             return res.send(data);
         });
     }
 };
 
-var upload = function(file, content) {
+var upload = function(file, content, s3Tmp) {
     var deferred = jQuery.Deferred();
     params = {
         Bucket: 'marketplace.xcalar.com',
         Key: file,
         Body: content
     }
-    s3.putObject(params, function(err, data) {
+    s3Tmp.putObject(params, function(err, data) {
         if (err) console.log(err, err.stack); // an error occurred
         else {
             deferred.resolve(data);

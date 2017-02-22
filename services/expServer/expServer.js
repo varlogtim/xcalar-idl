@@ -11,6 +11,11 @@ require('shelljs/global');
 var ldap = require('ldapjs');
 var exec = require('child_process').exec;
 var AWS = require('aws-sdk');
+if (fs.existsSync("./awsWriteConfig.json")) {
+    AWS.config.loadFromPath('./awsWriteConfig.json');
+} else {
+    AWS.config.loadFromPath('./awsReadConfig.json');
+}
 var s3 = new AWS.S3();
 require("jsdom").env("", function(err, window) {
     if (err) {

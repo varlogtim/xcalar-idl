@@ -40,6 +40,7 @@ build: $(DESTDIR) generateHtml
 	cd $(DESTDIR) && lessc prod/assets/stylesheets/less/installer.less > prod/assets/stylesheets/css/installer.css
 	@rm -rf $(DESTDIR)/prod/assets/stylesheets/less
 	@rm -rf $(DESTDIR)/prod/assets/dev
+	@rm -f $(DESTDIR)/prod/services/expServer/awsWriteConfig.json
 	@echo "=== Minifying ==="
 	@cd $(DESTDIR)/prod/assets/python && python getHashTags.py
 	cd $(DESTDIR) && ./prod/assets/bin/MINIFY.sh
