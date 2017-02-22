@@ -181,7 +181,7 @@ window.Function.prototype.log = function() {
             ret.then(function(result) {
                 console.log(result);
             })
-            .always(function(result) {
+            .fail(function(result) {
                 console.error(result);
             });
         } else {
