@@ -99,12 +99,12 @@ window.UserSettings = (function($, UserSettings) {
         if (!userPrefs) {
             return null;
         }
-        if (userPrefs[pref]) {
+        if (userPrefs.hasOwnProperty(pref)) {
             return userPrefs[pref];
-        } else if (!userPrefs[pref]) {
+        } else {
             for (var i in userPrefs) {
                 if (typeof userPrefs[i] === "object" &&
-                    userPrefs[i][pref]) {
+                    userPrefs[i].hasOwnProperty(pref)) {
                     return userPrefs[i][pref];
                 }
             }

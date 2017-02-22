@@ -100,11 +100,6 @@ window.JoinView = (function($, JoinView) {
             toggleNextView();
         });
 
-        $("#closeJoin, #cancelJoin").click(function() {
-            JoinView.close();
-            resetJoinView();
-        });
-
         var joinTypeList = new MenuHelper($joinTypeSelect, {
             "onSelect": function($li) {
                 var joinType = $li.text();
@@ -529,6 +524,7 @@ window.JoinView = (function($, JoinView) {
         xcTooltip.add($subHeading.find('.tooltipWrap'), {
             "title": tooltipTitle
         });
+        
         $joinView.find('.joinClause').each(function() {
             var $input = $(this).find('.arg').eq(index);
             if ($input.length) {
@@ -1603,7 +1599,6 @@ window.JoinView = (function($, JoinView) {
                 rightClashArray[idx] = undefined;
             }
         }
-
         // Now that we have undefed all columns that the user has selected,
         // for every idx where both left and right are there, we clear out the
         // right one and rename the left one
@@ -1920,6 +1915,9 @@ window.JoinView = (function($, JoinView) {
         JoinView.__testOnly__.validTableNameChecker = validTableNameChecker;
         JoinView.__testOnly__.submitJoin = submitJoin;
         JoinView.__testOnly__.submissionFailHandler = submissionFailHandler;
+        JoinView.__testOnly__.deactivateClauseSection = deactivateClauseSection;
+        JoinView.__testOnly__.autoResolveCollisions = autoResolveCollisions;
+        JoinView.__testOnly__.smartRename = smartRename;
 
     }
     /* End Of Unit Test Only */

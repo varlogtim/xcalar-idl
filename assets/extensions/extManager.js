@@ -256,6 +256,15 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             return;
         }
 
+        if (!extMap[module] || !extMap[module][func]) {
+            var msg = xcHelper.replaceMsg(ErrTStr.ExtNotFound, {
+                module: module,
+                fn: func
+            });
+            Alert.error(StatusMessageTStr.ExtFailed, msg);
+            return PromiseHelper.reject(msg);
+        }
+
         options = options || {};
 
         var deferred = jQuery.Deferred();

@@ -261,7 +261,8 @@ ErrTStr = {
     'WorkbookExists': 'A workbook named <workbookName> already exists. Please' +
                       ' choose another name.',
     'InvalidColumn': 'Invalid column name: <name>',
-    'LicenseExpire': 'Your license has expired on \"<date>\"'
+    'LicenseExpire': 'Your license has expired on \"<date>\"',
+    'ExtNotFound': 'Extension <module>::<fn> was not found.',
 };
 
 ErrWRepTStr = {

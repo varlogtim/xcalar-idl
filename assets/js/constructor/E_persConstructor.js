@@ -1026,7 +1026,7 @@ var UserPref = (function(_super) {
             this.datasetListView = $("#dataViewBtn").hasClass("listView");
             this.browserListView = $("#fileBrowserGridView")
                                     .hasClass("listView");
-            this.keepJoinTables = $("#joinModal").find(".keepTablesCBWrap")
+            this.keepJoinTables = $("#joinView").find(".keepTablesCBWrap")
                                                  .find(".checkbox")
                                                  .hasClass("checked");
             return this;
