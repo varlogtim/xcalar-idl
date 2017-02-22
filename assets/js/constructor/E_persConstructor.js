@@ -1997,7 +1997,7 @@ var XcQuery = (function(_super) {
                 }
                 return queries;
             } else {
-                return null;
+                return "";
             }
         },
 

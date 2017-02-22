@@ -40,9 +40,10 @@ window.Transaction = (function(Transaction, $) {
             var queryOptions = {
                 numSteps: numSubQueries,
                 cancelable: options.cancelable,
-                exportName: options.exportName
+                exportName: options.exportName,
+                srcTables: getSrcTables(options.sql)
             };
-
+            
             QueryManager.addQuery(curId, operation, queryOptions);
         }
 
@@ -304,6 +305,22 @@ window.Transaction = (function(Transaction, $) {
                 isDeleting = false;
             });
         }
+    }
+
+    function getSrcTables(sql) {
+        var tables = [];
+        if (sql.tableName) {
+            tables.push(sql.tableName);
+        } else if (sql.tableId && gTables[sql.tableId]) {
+            tables.push(gTables[sql.tableId].getName());
+        } else if (sql.lTableName) {
+            tables.push(sql.lTableName);
+            if (sql.rTableName && sql.rTableName !== sql.lTableName) {
+                tables.push(sql.rTableName);
+            }
+        }
+
+        return tables;
     }
 
     // tx is short for transaction

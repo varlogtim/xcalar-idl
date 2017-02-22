@@ -41,7 +41,8 @@ window.QueryManager = (function(QueryManager, $) {
             "type": type,
             "id": id,
             "numSteps": numSteps,
-            "cancelable": options.cancelable
+            "cancelable": options.cancelable,
+            "srcTables": options.srcTables
         });
 
         queryLists[id] = mainQuery;
@@ -240,6 +241,8 @@ window.QueryManager = (function(QueryManager, $) {
             return deferred.promise();
         }
 
+        var prevState = mainQuery.getState();
+
         var $query = $queryList.find('.query[data-id="' + id + '"]');
         $query.find('.cancelIcon').addClass('disabled');
 
@@ -249,7 +252,7 @@ window.QueryManager = (function(QueryManager, $) {
         }
 
         Transaction.cancel(id);
-        unlockSrcTables(mainQuery);
+        unlockSrcTables(mainQuery, prevState);
 
         // unfinished tables will be dropped when Transaction.fail is reached
         var onlyFinishedTables = true;
@@ -259,8 +262,12 @@ window.QueryManager = (function(QueryManager, $) {
         var currStep = mainQuery.currStep;
 
         if (!mainQuery.subQueries[currStep]) {
-            console.warn('step vs query mismatch');
-            deferred.reject('step vs query mismatch');
+            if (currStep === 0 && prevState === QueryStateT.qrNotStarted) {
+                deferred.resolve();
+            } else {
+                console.warn('step vs query mismatch');
+                deferred.reject('step vs query mismatch');
+            }
             return deferred.promise();
         }
 
@@ -1423,17 +1430,23 @@ window.QueryManager = (function(QueryManager, $) {
 
     // xx can some of the src tables be simultaneously used by another operation
     // and need to remain locked?
-    function unlockSrcTables(mainQuery) {
+    function unlockSrcTables(mainQuery, state) {
         var queryStr = mainQuery.getQuery();
-        var queries = xcHelper.parseQuery(queryStr);
         var srcTables = [];
-        for (var i = 0; i < queries.length; i++) {
-            if (queries[i].srcTables) {
-                for (var j = 0; j < queries[i].srcTables.length; j++) {
-                    srcTables.push(queries[i].srcTables[j]);
+
+        if (queryStr) {
+            var queries = xcHelper.parseQuery(queryStr);
+            for (var i = 0; i < queries.length; i++) {
+                if (queries[i].srcTables) {
+                    for (var j = 0; j < queries[i].srcTables.length; j++) {
+                        srcTables.push(queries[i].srcTables[j]);
+                    }
                 }
             }
+        } else if (state === QueryStateT.qrNotStarted && mainQuery.srcTables) {
+            srcTables = mainQuery.srcTables;
         }
+        
         var tableId;
         for (var i = 0; i < srcTables.length; i++) {
             tableId = xcHelper.getTableId(srcTables[i]);

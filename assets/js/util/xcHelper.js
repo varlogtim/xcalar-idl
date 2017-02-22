@@ -2894,7 +2894,8 @@ window.xcHelper = (function($, xcHelper) {
 
     xcHelper.getPromiseWhenError = function(args) {
         for (var i = 0; i < args.length; i++) {
-            if (args[i] && args[i].error) {
+            if (args[i] && (args[i].error ||
+                args[i] === StatusTStr[StatusT.StatusCanceled])) {
                 return args[i];
             }
         }

@@ -1160,6 +1160,7 @@ var XcQueryV1 = (function() {
         this.outputTableState = options.outputTableState || "";
         this.queryStr = options.queryStr || "";
         this.subQueries = [];
+        this.srcTables = options.srcTables; // array or null
 
         if (options.sqlNum != null) {
             this.sqlNum = options.sqlNum;

@@ -96,8 +96,6 @@ window.XIApi = (function(XIApi, $) {
         .then(function(tableMeta) {
             order = tableMeta.ordering;
             keyName = xcHelper.getTableKeyFromMeta(tableMeta);
-        })
-        .then(function() {
             deferred.resolve(order, keyName);
         })
         .fail(deferred.reject);
