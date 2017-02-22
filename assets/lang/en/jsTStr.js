@@ -253,6 +253,7 @@ ErrTStr = {
     'TableNotExists': 'Table does not exist.',
     'SelectOption': 'Please select an option.',
     'NotDisplayRows': 'Could Not Display Rows',
+    'AppInstallFailed': 'App Installation Failed',
 
     // With replace
     'WorkbookExists': 'A workbook named <workbookName> already exists. Please' +
@@ -326,6 +327,7 @@ SuccessTStr = {
     "DelUDF": "UDF Successfully Deleted!",
     "Detect": "Detection Complete!",
     "DownloadTicket": "Ticket Downloaded!",
+    "InstallApp": "App Successfully Installed!",
     "Saved": "Saved!",
     "SaveDF": "Dataflow Saved!",
     "SaveParam":  "Parameters Saved!",

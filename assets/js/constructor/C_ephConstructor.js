@@ -2392,7 +2392,7 @@ MenuHelper.prototype = {
 /* Extension Panel */
 function ExtItem(options) {
     options = options || {};
-    this.name = options.name;
+    this.appName = options.appName;
     this.version = options.version;
     this.description = options.description;
     this.author = options.author;
@@ -2405,7 +2405,7 @@ function ExtItem(options) {
 
 ExtItem.prototype = {
     getName: function() {
-        return this.name;
+        return this.appName;
     },
 
     getCategory: function() {
@@ -2438,7 +2438,7 @@ ExtItem.prototype = {
 
     isInstalled: function() {
         var exist = false;
-        var name = this.name + ".ext.js";
+        var name = this.getName() + ".ext.js";
 
         $("#extension-ops-script script").each(function() {
             var src = $(this).attr("src");
@@ -2474,7 +2474,7 @@ ExtCategory.prototype = {
     },
 
     addExtension: function(extension) {
-        var extName = extension.name;
+        var extName = extension.appName;
         if (extName == null || this.hasExtension(extName)) {
             console.error("Duplicated extension");
             return false;

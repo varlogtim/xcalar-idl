@@ -105,13 +105,11 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
         // XXX end fake data
 
         // XXX hard coded
-        var host = hostname + "/app";
-
+        var url = getAppUrl();
         $.ajax({
             "type": "POST",
-            "jsonp": "callback",
-            "dataType": "jsonp",
-            "url": host + "/listPackage",
+            "dataType": "JSON",
+            "url": url + "/listPackage",
             "success": function(data) {
                 $panel.removeClass("wait");
                 try {
@@ -150,23 +148,34 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
     }
 
     function installExtension(ext, $submitBtn) {
-        var host = hostname + "/app";
+        var url = getAppUrl();
         xcHelper.disableSubmit($submitBtn);
         $.ajax({
             "type": "POST",
-            "jsonp": "callback",
-            "dataType": "jsonp",
-            "url": host + "/downloadPackage",
+            "dataType": "JSON",
+            "url": url + "/downloadPackage",
             "data": {name: ext.getName(), version: ext.getVersion()},
             "success": function(data) {
-                console.log("installed", ext.getName());
+                console.log(data);
                 xcHelper.enableSubmit($submitBtn);
+                xcHelper.showSuccess(SuccessTStr.InstallApp);
             },
             "error": function(error) {
                 xcHelper.enableSubmit($submitBtn);
-                Alert.error("App Installation Failed", error);
+                Alert.error(ErrTStr.AppInstallFailed, JSON.stringify(error));
             }
         });
+    }
+
+    function getAppUrl() {
+        var url;
+        if (window.expHost != null) {
+            // this is for dev environment if you set it in config.js
+            url = window.expHost;
+        } else {
+            url = hostname + "/app";
+        }
+        return url;
     }
 
     function getExtensionFromEle($ext) {
