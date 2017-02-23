@@ -208,9 +208,8 @@ window.DSCart = (function($, DSCart) {
         }
 
         var items = cart.items;
-
         var prefix = cart.getPrefix();
-        if (prefix == null) {
+        if (!prefix) {
             prefix = xcHelper.normalizePrefix(srcName);
         }
 
@@ -281,6 +280,8 @@ window.DSCart = (function($, DSCart) {
             "dsId": dsId,
             "tableName": tableName
         });
+        var prefix = xcHelper.normalizePrefix(tableName);
+        cart.setPrefix(prefix);
 
         // new cart should be prepended, sync with UI
         innerCarts[dsId] = cart;
@@ -316,6 +317,7 @@ window.DSCart = (function($, DSCart) {
                     '<div class="input">' +
                         '<input class="prefixName textOverflow"' +
                         ' type="text"' +
+                        ' value="' + prefix + '"' +
                         ' placeholder="' + CommonTxtTstr.Optional + '"' +
                         ' spellcheck="false" >' +
                         '<i class="icon edit xi-edit fa-15 xc-action"></i>' +
@@ -339,6 +341,9 @@ window.DSCart = (function($, DSCart) {
             .then(function(newTableName) {
                 $tableNameEdit.val(newTableName);
                 cart.setTableName(newTableName);
+                var newPrefix = xcHelper.normalizePrefix(newTableName);
+                cart.setPrefix(newPrefix);
+                $cart.find(".prefixName").val(newPrefix);
             })
             .fail(function() {
                 // keep the current name
