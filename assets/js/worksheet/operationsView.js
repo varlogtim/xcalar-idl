@@ -3679,7 +3679,7 @@ window.OperationsView = (function($, OperationsView) {
             // handle edge case
             var parsedVal = parseFloat(value);
             if (!isNaN(parsedVal) &&
-                String(parsedVal) === value &&
+                parsedVal === Number(value) &&
                 shouldBeNumber)
             {
                 // the case that the field accepets both string and number and
@@ -3708,10 +3708,6 @@ window.OperationsView = (function($, OperationsView) {
             // add quote if the field support string
             value = "\"" + value + "\"";
             // stringify puts in too many slashes
-        } else if (shouldBeNumber) {
-            if (value.indexOf(".") === 0) {
-                value = "0" + value;
-            }
         } else {
             if (typeof value === ColumnType.string) {
                 value = value.trim();
