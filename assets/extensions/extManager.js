@@ -336,7 +336,8 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                     "msg": msg,
                     "operation": SQLOps.Ext,
                     "steps": -1,
-                    "functionName": func
+                    "functionName": func,
+                    "sql": sql
                 });
 
                 if (!extMap[module]._configParams.notTableDependent) {
