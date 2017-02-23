@@ -658,7 +658,7 @@ app.post("/downloadPackage", function(req, res) {
                 deferred.reject(err);
             }
             else {
-                deferred.resolve({status: Status.OK, data: data.Body.toString('base64')});
+                deferred.resolve({status: Status.Ok, data: data.Body.toString('base64')});
             }
         });
         return deferred.promise();
