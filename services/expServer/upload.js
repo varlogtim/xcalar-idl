@@ -1,16 +1,17 @@
 var fs = require('fs');
 var exec = require('child_process').exec;
 var Status = require('./supportStatusFile').Status;
+var guiDir = "/var/www/xcalar-gui";
 
 var validate = function(name, version) {
-    if (name == null || name.length == 0) {
+    if (name == null || name.length === 0) {
         return false;
     }
-    if (version == null || version.length == 0) {
+    if (version == null || version.length === 0) {
         return false;
     }
     return true;
-}
+};
 
 function getRandomInt(min, max) {
     min = Math.ceil(min);
@@ -23,7 +24,7 @@ Right /uploadContent is implemented in a really clumsy way.
 Will fix in the next version.
 */
 function uploadContent(req, res) {
-    if (fs.existsSync("./awsWriteConfig.json")) {
+    if (fs.existsSync(guiDir + "/services/expServer/awsWriteConfig.json")) {
         var awsTmp = require('aws-sdk');
         var s3Tmp = new awsTmp.S3();
     } else {

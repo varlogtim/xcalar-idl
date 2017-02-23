@@ -11,10 +11,11 @@ require('shelljs/global');
 var ldap = require('ldapjs');
 var exec = require('child_process').exec;
 var AWS = require('aws-sdk');
-if (fs.existsSync("./awsWriteConfig.json")) {
-    AWS.config.loadFromPath('./awsWriteConfig.json');
+var guiDir = "/var/www/xcalar-gui";
+if (fs.existsSync(guiDir + "/services/expServer/awsWriteConfig.json")) {
+    AWS.config.loadFromPath(guiDir + "/services/expServer/awsWriteConfig.json");
 } else {
-    AWS.config.loadFromPath('./awsReadConfig.json');
+    AWS.config.loadFromPath(guiDir + "/services/expServer/awsReadConfig.json");
 }
 var s3 = new AWS.S3();
 require("jsdom").env("", function(err, window) {
