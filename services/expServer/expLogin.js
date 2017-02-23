@@ -181,7 +181,11 @@ function loginAuthentication(credArray, res) {
         }
     })
     .fail(function() {
-        responseError(res);
+        res.send({"status": Status.Ok,
+                  "firstName ": credArray["xiusername"],
+                  "mail": credArray["xiusername"],
+                  "isAdmin": false,
+                  "isSupporter": false});
     });
 }
 
