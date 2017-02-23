@@ -43,12 +43,19 @@ form {
     }
 }
 #splashContainer {
-    .center-align;
-    top: 45%;
-    position: absolute;
+    .flex-display;
+    .flex-direction(column);
+    .justify-content(center);
+    .position(absolute, 0px);
+    .size(100%, 100%);
 }
 
-#outerSplashObject, #innerSplashObject {
+#animation_container {
+    margin: 0 auto;
+    .position(relative, @top: -5%);
+}
+
+#canvas {
     pointer-events: none;
 }
 

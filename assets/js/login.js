@@ -1,6 +1,5 @@
 Compatible.check();
-if (window.isBrowserSafari || window.isBrowserMicrosoft || !window.hasFlash ||
-    xcLocalStorage.getItem("noSplashLogin") === "true") {
+if (xcLocalStorage.getItem("noSplashLogin") === "true") {
     $("#loginContainer").show();
     $("#logo").show();
     $("#splashContainer").hide();
@@ -10,9 +9,9 @@ $(document).ready(function() {
     var hostname = "";
     var isSubmitDisabled = false;
     setupHostName();
+    init(); // 3rd party splash scren js
 
-    if (!window.hasFlash ||
-        xcLocalStorage.getItem("noSplashLogin") === "true") {
+    if (xcLocalStorage.getItem("noSplashLogin") === "true") {
         setTimeout(function() {
             $("#loginForm").fadeIn(1000);
             $("#logo").fadeIn(1000);
@@ -131,17 +130,18 @@ $(document).ready(function() {
     });
 
     function showSplashScreen() {
+        var animTime = 4200;
         $("#loginForm").show();
         $('#loadingBar .innerBar').removeClass('animated');
 
         setTimeout(function() {
             $("#splashContainer").fadeOut(1000);
-        }, 5800);
+        }, animTime);
        
         setTimeout(function() {
             $("#loginContainer").fadeIn(1000);
             $("#logo").fadeIn(1000);
-        }, 6600);
+        }, animTime + 800);
     }
 
     function focusOnFirstEmptyInput() {
