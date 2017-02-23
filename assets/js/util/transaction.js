@@ -309,6 +309,9 @@ window.Transaction = (function(Transaction, $) {
 
     function getSrcTables(sql) {
         var tables = [];
+        if (!sql) {
+            return tables;
+        }
         if (sql.tableName) {
             tables.push(sql.tableName);
         } else if (sql.tableId && gTables[sql.tableId]) {

@@ -179,6 +179,9 @@ function loginAuthentication(credArray, res) {
         } else {
             responseError(res);
         }
+    })
+    .fail(function() {
+        responseError(res);
     });
 }
 
@@ -223,11 +226,16 @@ function setUpLdapConfigs() {
         var promise = support.getXlrRoot();
         promise
         .always(function(xlrRoot) {
-            var path = xlrRoot + '/config/ldapConfig.json';
-            config = require(path);
-            trustedCerts = [fs.readFileSync(config.serverKeyFile)];
-            setup = true;
-            deferred.resolve();
+            try {
+                var path = xlrRoot + '/config/ldapConfig.json';
+                config = require(path);
+                trustedCerts = [fs.readFileSync(config.serverKeyFile)];
+                setup = true;
+                deferred.resolve();
+            } catch (error) {
+                console.log(error);
+                deferred.reject();
+            }
         });
     }
     return deferred.promise();
