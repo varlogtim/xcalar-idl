@@ -955,7 +955,7 @@ window.SQL = (function($, SQL) {
             case (SQLOps.ReorderTable):
             case (SQLOps.AddNewCol):
             case (SQLOps.PullCol):
-            case (SQLOps.PullAllCols):
+            case (SQLOps.PullMultipleCols):
             case (SQLOps.ArchiveTable):
             case (SQLOps.ActiveTables):
             case (SQLOps.RenameCol):

@@ -838,8 +838,8 @@
     "htmlExclude":["progCols"]},
     "timestamp":1460602857730},
 
-    {"title":"Pull All Columns",
-    "options":{"operation":"pullAllCols",
+    {"title":"Pull Columns",
+    "options":{"operation":"pullMultipleCols",
     "tableName":"testyelp#dU0",
     "tableId":"dU0",
     "colNum":6,

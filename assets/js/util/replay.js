@@ -417,7 +417,7 @@ window.Replay = (function($, Replay) {
         argsMap[SQLOps.RenameCol] = ["colNum", "tableId", "newName"];
         argsMap[SQLOps.AddNewCol] = ["colNum", "tableId", "direction"];
         argsMap[SQLOps.PullCol] = ["colNum", "tableId", "pullColOptions"];
-        argsMap[SQLOps.PullAllCols] = ["tableId", "colNum", "rowNum"];
+        argsMap[SQLOps.PullMultipleCols] = ["tableId", "colNum", "rowNum"];
         argsMap[SQLOps.SortTableCols] = ["tableId", "sortKey", "direction"];
         argsMap[SQLOps.ResizeTableCols] = ["tableId", "resizeTo", "columnNums"];
         argsMap[SQLOps.DragResizeTableCol] = ["tableId", "colNum", "fromWidth",
@@ -822,7 +822,7 @@ window.Replay = (function($, Replay) {
 
     };
 
-    replayFuncs[SQLOps.PullAllCols] = function(options) {
+    replayFuncs[SQLOps.PullMultipleCols] = function(options) {
         var args = getArgs(options);
         ColManager.unnest.apply(window, args);
         return PromiseHelper.resolve(null);

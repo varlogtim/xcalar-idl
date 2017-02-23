@@ -182,7 +182,7 @@ window.Redo = (function($, Redo) {
         }
     };
 
-    redoFuncs[SQLOps.PullAllCols] = function(options) {
+    redoFuncs[SQLOps.PullMultipleCols] = function(options) {
         focusTableHelper(options);
         ColManager.unnest(options.tableId, options.colNum, options.rowNum);
         return PromiseHelper.resolve(null);

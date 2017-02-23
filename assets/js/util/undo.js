@@ -386,7 +386,7 @@ window.Undo = (function($, Undo) {
         }
     };
 
-    undoFuncs[SQLOps.PullAllCols] = function(options) {
+    undoFuncs[SQLOps.PullMultipleCols] = function(options) {
         focusTableHelper(options);
         return (ColManager.delCol(options.colNums, options.tableId,
                                  {"noAnimate": true}));

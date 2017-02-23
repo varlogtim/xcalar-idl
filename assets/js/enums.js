@@ -275,7 +275,7 @@ var SQLOps = {
     ReorderTable: "reorderTable",
     RenameCol: "renameCol",
     PullCol: "pullCol",
-    PullAllCols: "pullAllCols",
+    PullMultipleCols: "pullMultipleCols",
     ArchiveTable: "hideTable",
     ActiveTables: 'activeTables',
     SortTableCols: "sortTableCols",

@@ -68,6 +68,7 @@ window.ColManager = (function($, ColManager) {
     //options
     // noAnimate: boolean, if true, no animation is applied
     ColManager.delCol = function(colNums, tableId, options) {
+        console.log(arguments);
         options = options || {};
         // deletes an array of columns
         var deferred = jQuery.Deferred();
@@ -79,6 +80,13 @@ window.ColManager = (function($, ColManager) {
         var tableWidth = $table.closest('.xcTableWrap').width();
         var progCols = [];
         var noAnimate = options.noAnimate || false;
+
+        // check if only 1 column and is an empty column so we call this 
+        // a "delete" instead of a "hide"
+        var opTitle = "Hide Column";
+        if (colNums.length === 1 && table.getCol(colNums[0]).isEmptyCol()) {
+            opTitle = "Delete Column";
+        }
 
         for (var i = 0, len = colNums.length; i < len; i++) {
             var colNum = colNums[i];
@@ -103,6 +111,7 @@ window.ColManager = (function($, ColManager) {
         jQuery.when.apply($, promises)
         .done(function() {
             var numCols = table.getNumCols();
+            // adjust column numbers
             for (var j = colNums[0]; j <= numCols; j++) {
                 var oldColNum = xcHelper.parseColNum($table.find('th').eq(j));
                 $table.find(".col" + oldColNum)
@@ -114,7 +123,7 @@ window.ColManager = (function($, ColManager) {
             xcHelper.removeSelectionRange();
 
              // add SQL
-            SQL.add("Hide Column", {
+            SQL.add(opTitle, {
                 "operation": SQLOps.HideCol,
                 "tableName": table.getName(),
                 "tableId": tableId,
@@ -1261,8 +1270,8 @@ window.ColManager = (function($, ColManager) {
         }
         pullRowsBulkHelper(tableId);
 
-        SQL.add("Pull All Columns", {
-            "operation": SQLOps.PullAllCols,
+        SQL.add("Pull Columns", {
+            "operation": SQLOps.PullMultipleCols,
             "tableName": table.getName(),
             "tableId": tableId,
             "colNum": colNum,
