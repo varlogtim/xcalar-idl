@@ -688,10 +688,10 @@ module.exports = {
         "RightTable": "Right Table",
         "LeftCols": "Left Columns",
         "RightCols": "Right Columns",
-        "LeftTableNames": "Left Table Renames",
-        "RightTableName": "Right Table Renames",
-        "LeftTablePrefix": "Left Table Prefixes",
-        "RightTablePrefix": "Right Table Prefixes",
+        "LeftTableNames": "Left Table",
+        "RightTableName": "Right Table",
+        "LeftTablePrefix": "Left Table",
+        "RightTablePrefix": "Right Table",
         "PrefixHeader": "Prefixes",
         "DerivedHeader": "Derived Fields",
         "NewName": "New Name",
@@ -707,7 +707,10 @@ module.exports = {
         "colKeepTitle": "Column Selector",
         "colKeepInstr": "Select the columns from each table that you want to include in your joined table. If there are collisions in column names, you will be asked to rename them. Select the check box next to the table name to include all columns from that table.",
         "Estimate": "Estimate join size",
-        'EstimateTooltip': 'Run an estimator to approximate the number of rows in the final table'
+        "EstimateTooltip": "Run an estimator to approximate the number of rows in the final table",
+        "CopyAll": "Copy All",
+        "CopyAppend": "Copy & Append",
+        "RenameInBulk": "Rename in bulk"
     },
 
     "jsonModal": {

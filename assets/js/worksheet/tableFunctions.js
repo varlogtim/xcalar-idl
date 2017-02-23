@@ -247,13 +247,16 @@ function unHighlightCell($td) {
 
 // adds default menu behaviors to menus passed in as arguments
 // behaviors include highlighting lis on hover, opening submenus on hover
-function addMenuBehaviors($mainMenu) {
+// options:
+//  keepOpen: if set true, main menu will not close when click the li
+function addMenuBehaviors($mainMenu, options) {
     var $subMenu;
     var $allMenus = $mainMenu;
     var subMenuId = $mainMenu.data('submenu');
     var hideTimeout;
     var showTimeout;
     var subListScroller;
+    options = options || {};
 
     if (subMenuId) {
         $subMenu = $('#' + subMenuId);
@@ -357,7 +360,7 @@ function addMenuBehaviors($mainMenu) {
         }
         event.stopPropagation();
 
-        if (!$li.hasClass('unavailable')) {
+        if (!$li.hasClass('unavailable') && !options.keepOpen) {
             // hide li if doesnt have a submenu or an input field
             closeMenu($allMenus);
             clearTimeout(showTimeout);

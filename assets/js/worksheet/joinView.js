@@ -52,6 +52,8 @@ window.JoinView = (function($, JoinView) {
         $clauseContainer = $mainJoin.find('.clauseContainer');
         $renameSection = $("#joinView .renameSection");
 
+        setupRenameMenu($renameSection);
+
         var columnPicker = {
             "state": "joinState",
             "validColTypes": validTypes,
@@ -1903,6 +1905,57 @@ window.JoinView = (function($, JoinView) {
         });
         var newName = xcHelper.autoName(origName, nameMap, maxTry);
         $colToRename.find(".newName").val(newName);
+    }
+
+    function setupRenameMenu($renameSection) {
+        $renameSection.find(".menu").each(function() {
+            addMenuBehaviors($(this), {"keepOpen": true});
+        });
+
+        $renameSection.on("click", ".option", function(event) {
+            var $target = $(event.target);
+            var $menu = $target.closest(".optionWrap").find(".menu");
+            $menu.find("input").val("");
+
+            xcHelper.dropdownOpen($target, $menu, {
+                "mouseCoors": {"x": 0, "y": -71},
+                "floating": true
+            });
+            return false;
+        });
+
+        $renameSection.on("click", ".copyAll", function() {
+            if (event.which !== 1) {
+                return;
+            }
+            var $section = $(this).closest(".tableRenames");
+            copyInRename($section);
+        });
+
+        $renameSection.on("click", ".copyAppend", function() {
+            if (event.which !== 1) {
+                return;
+            }
+            $(this).find("input").focus();
+        });
+
+        $renameSection.on("input", ".copyAppend input", function() {
+            var $input = $(this);
+            var $section = $input.closest(".tableRenames");
+            var suffix = $input.val();
+            copyInRename($section, suffix);
+        });
+    }
+
+    function copyInRename($section, suffix) {
+        $section.find(".rename").each(function() {
+            var $el = $(this);
+            var val = $el.find(".origName").val();
+            if (suffix != null) {
+                val += suffix;
+            }
+            $el.find(".newName").val(val);
+        });
     }
 
     /* Unit Test Only */

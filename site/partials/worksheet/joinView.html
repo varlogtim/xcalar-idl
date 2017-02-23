@@ -183,14 +183,16 @@
           <div id="lFatPtrRenames" class="tableRenames">
             <div class="subSubHeading clearfix">
               <div><%= dicts.joinView.LeftTablePrefix %></div>
-              <div><%= dicts.joinView.NewName %></div>
+              include "joinRenameOption.html"
+              <div class="newName"><%= dicts.joinView.NewName %></div>
             </div>
             <div id="lFatPtrPlaceholder"></div>
           </div>
           <div id="rFatPtrRenames" class="tableRenames">
             <div class="subSubHeading clearfix">
               <div><%= dicts.joinView.RightTablePrefix %></div>
-              <div><%= dicts.joinView.NewName %></div>
+              include "joinRenameOption.html"
+              <div class="newName"><%= dicts.joinView.NewName %></div>
             </div>
             <div id="rFatPtrPlaceholder"></div>
           </div>
@@ -202,14 +204,16 @@
           <div id="leftTableRenames" class="tableRenames">
             <div class="subSubHeading clearfix">
               <div><%= dicts.joinView.LeftTableNames %></div>
-              <div><%= dicts.joinView.NewName %></div>
+              include "joinRenameOption.html"
+              <div class="newName"><%= dicts.joinView.NewName %></div>
             </div>
             <div id="leftRenamePlaceholder"></div>
           </div>
           <div id="rightTableRenames" class="tableRenames">
             <div class="subSubHeading clearfix">
               <div><%= dicts.joinView.RightTableName %></div>
-              <div><%= dicts.joinView.NewName %></div>
+              include "joinRenameOption.html"
+              <div class="newName"><%= dicts.joinView.NewName %></div>
             </div>
             <div id="rightRenamePlaceholder"></div>
           </div>
