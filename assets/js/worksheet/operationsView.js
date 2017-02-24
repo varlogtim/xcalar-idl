@@ -1080,15 +1080,14 @@ window.OperationsView = (function($, OperationsView) {
     }
 
     function setupOperatorsMap(opArray) {
-        var arrayLen = opArray.length;
         operatorsMap = [];
-
-        for (var i = 0; i < arrayLen; i++) {
-            if (!operatorsMap[opArray[i].category]) {
-                operatorsMap[opArray[i].category] = [];
+        opArray.forEach(function(op) {
+            if (!operatorsMap[op.category]) {
+                operatorsMap[op.category] = [];
             }
-            operatorsMap[opArray[i].category].push(opArray[i]);
-        }
+            operatorsMap[op.category].push(op);
+        });
+
         // sort each set of operators by name
         for (var i = 0; i < operatorsMap.length; i++) {
             operatorsMap[i].sort(sortFn);
@@ -1485,10 +1484,12 @@ window.OperationsView = (function($, OperationsView) {
         var filterVal = $('#mapFilter').val().trim();
         var startsWith = "";
         var includes = "";
+        var i;
+
         for (var cat in opsMap) {
             var ops = opsMap[cat];
             if (parseInt(cat) === FunctionCategoryT.FunctionCategoryUdf) {
-                for (var i = 0; i < ops.length; i++) {
+                for (i = 0; i < ops.length; i++) {
                     li = '<li class="textNoCap" data-category="' + cat +
                     '" data-container="body" ' +
                     'data-placement="right" data-toggle="tooltip" title="' +
@@ -1502,7 +1503,7 @@ window.OperationsView = (function($, OperationsView) {
                     }
                 }
             } else {
-                for (var i = 0; i < ops.length; i++) {
+                for (i = 0; i < ops.length; i++) {
                     li = '<li class="textNoCap" data-category="' + cat +
                     '">' + ops[i].fnName + '</li>';
                     if (filterVal &&
@@ -1636,8 +1637,7 @@ window.OperationsView = (function($, OperationsView) {
             aggArgumentsSetup(numArgs, operObj, $rows, defaultValue);
             numArgs++;
         } else if (operatorName === "group by") {
-            strPreview = groupbyArgumentsSetup(numArgs, operObj, $rows,
-                                                defaultValue);
+            strPreview = groupbyArgumentsSetup(numArgs, operObj, $rows);
             numArgs += 2;
         }
 
@@ -1781,7 +1781,7 @@ window.OperationsView = (function($, OperationsView) {
         return (strPreview);
     }
 
-    function groupbyArgumentsSetup(numArgs, operObj, $rows, defaultValue) {
+    function groupbyArgumentsSetup(numArgs, operObj, $rows) {
         var description = 'Fields to group on';
         var $gbOnRow = $rows.eq(0);
         $gbOnRow.find('.arg').focus();
@@ -1801,14 +1801,12 @@ window.OperationsView = (function($, OperationsView) {
                         .end()
                         .find('.description').text(description);
 
-        var strPreview =      operObj.fnName + '(' +
+        var strPreview = operObj.fnName + '(' +
                         '<span class="aggCols">' +
                             $rows.eq(1).find(".arg").val() +
                         '</span>' +
                         '), GROUP BY ' +
-                        '<span class="groupByCols">' +
-                            // defaultValue +
-                        '</span>' +
+                        '<span class="groupByCols"></span>' +
                     '</p>';
 
         return (strPreview);
@@ -2098,12 +2096,7 @@ window.OperationsView = (function($, OperationsView) {
             if (tempText.trim() === "") {
                 $description.empty();
             } else if (noHighlight) {
-                newText = "";
-                for (var i = 0; i < tempText.length; i++) {
-                    newText += "<span class='char'>" +
-                                    tempText[i] +
-                                "</span>";
-                }
+                newText = wrapText(tempText);
                 $description.find(".descArgs").html(newText);
             } else {
                 var $spanWrap = $description.find(".descArgs");
@@ -2113,11 +2106,10 @@ window.OperationsView = (function($, OperationsView) {
                 } else {
                     modifyDescText(oldText, newText, $spanWrap, $spans);
                 }
-                
             }
         } else if (operatorName === "group by") {
             var aggColOldText = $description.find(".aggCols").text();
-            var $inputs = $activeOpSection.find('.arg:visible');
+            $inputs = $activeOpSection.find('.arg:visible');
             if ($activeOpSection.find('.argsSection').last()
                                                      .hasClass('inactive')) {
                 $operationsView.find('.strPreview').empty();
@@ -2144,24 +2136,12 @@ window.OperationsView = (function($, OperationsView) {
             gbColNewText = parseColPrefixes(gbColNewText);
 
             if (noHighlight) {
-                tempText = aggColNewText;
-                aggColNewText = "";
-                for (var i = 0; i < tempText.length; i++) {
-                    aggColNewText += "<span class='char'>" + tempText[i] +
-                                     "</span>";
-                }
+                aggColNewText = wrapText(aggColNewText);
                 $description.find(".aggCols").html(aggColNewText);
 
-                tempText = gbColNewText;
-                gbColNewText = "";
-                for (var i = 0; i < tempText.length; i++) {
-                    gbColNewText += "<span class='char'>" +
-                                        tempText[i] +
-                                    "</span>";
-                }
+                gbColNewText = wrapText(gbColNewText);
                 $description.find(".groupByCols").html(gbColNewText);
             } else {
-
                 var $aggColWrap = $description.find(".aggCols");
                 var $aggColSpans = $aggColWrap.find('span.char');
                 modifyDescText(aggColOldText, aggColNewText, $aggColWrap,
@@ -2175,6 +2155,16 @@ window.OperationsView = (function($, OperationsView) {
         }
 
         return (tempText);
+    }
+
+    function wrapText(text) {
+        var res = "";
+        for (var i = 0; i < text.length; i++) {
+            res += '<span class="char">' +
+                        text[i] +
+                    '</span>';
+        }
+        return res;
     }
 
     function modifyAndOrDescText(newText, andOrIndices, $spanWrap) {
@@ -2214,12 +2204,13 @@ window.OperationsView = (function($, OperationsView) {
             var type = diff.type;
             var position;
             var tempText;
+            var i;
 
             switch (type) {
                 case ('remove'):
                 // do nothing
                     position = diff.start;
-                    for (var i = 0; i < diff.removed; i++) {
+                    for (i = 0; i < diff.removed; i++) {
                         $spans.eq(position++).remove();
                     }
 
@@ -2227,7 +2218,7 @@ window.OperationsView = (function($, OperationsView) {
                 case ('add'):
                     tempText = newText;
                     newText = "";
-                    for (var i = diff.start; i < diff.start + diff.added; i++) {
+                    for (i = diff.start; i < diff.start + diff.added; i++) {
                         if (tempText[i] === " ") {
                             newText += "<span class='char visible space'>" +
                                     tempText[i] + "</span>";
@@ -2246,10 +2237,10 @@ window.OperationsView = (function($, OperationsView) {
                     tempText = newText;
                     position = diff.start;
                     newText = "";
-                    for (var i = 0; i < diff.removed; i++) {
+                    for (i = 0; i < diff.removed; i++) {
                         $spans.eq(position++).remove();
                     }
-                    for (var i = diff.start; i < diff.start + diff.added; i++) {
+                    for (i = diff.start; i < diff.start + diff.added; i++) {
                         if (tempText[i] === " ") {
                             newText += "<span class='char visible space'>" +
                                     tempText[i] + "</span>";
@@ -2516,11 +2507,11 @@ window.OperationsView = (function($, OperationsView) {
 
     function newColNameCheck(args) {
         var deferred = jQuery.Deferred();
-
         var $nameInput;
+        var isPassing;
+
         switch (operatorName) {
             case ('map'):
-                var isPassing;
                 $nameInput = $activeOpSection.find('.arg:visible').last();
                 if (isNewCol && colName !== "" &&
                     ($nameInput.val().trim() === colName)) {
@@ -2539,7 +2530,7 @@ window.OperationsView = (function($, OperationsView) {
                 // check new col name
                 var numArgs = $activeOpSection.find('.arg:visible').length;
                 $nameInput = $activeOpSection.find('.arg:visible').eq(numArgs - 1);
-                var isPassing = !ColManager.checkColName($nameInput, tableId);
+                isPassing = !ColManager.checkColName($nameInput, tableId);
 
                 // check new table name if join option is not checked
                 if (isPassing && !$activeOpSection.find('.keepTable .checkbox')
@@ -4312,7 +4303,7 @@ window.OperationsView = (function($, OperationsView) {
                         '</div>' +
                     '</li>';
         }
-        for (var i = 0; i < numBlanks; i++) {
+        for (var c = 0; c < numBlanks; c++) {
             html += '<div class="flexSpace"></div>';
         }
         return (html);

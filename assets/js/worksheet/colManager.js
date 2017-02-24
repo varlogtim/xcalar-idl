@@ -80,7 +80,7 @@ window.ColManager = (function($, ColManager) {
         var progCols = [];
         var noAnimate = options.noAnimate || false;
 
-        // check if only 1 column and is an empty column so we call this 
+        // check if only 1 column and is an empty column so we call this
         // a "delete" instead of a "hide"
         var opTitle = SQLTStr.HideCol;
         if (colNums.length === 1 && table.getCol(colNums[0]).isEmptyCol()) {

@@ -211,11 +211,7 @@ window.xcHelper = (function($, xcHelper) {
         }
 
         mapStr += 'string(' + args[len - 1] + ')';
-
-        for (var i = 0; i < len - 1; i++) {
-            mapStr += '))';
-        }
-
+        mapStr += "))".repeat(len - 1);
         return mapStr;
     };
 
@@ -228,18 +224,16 @@ window.xcHelper = (function($, xcHelper) {
 
         var str = "";
         var len = colVals.length;
+        var i;
 
         if (operator === FltOp.Filter) {
             if (len > 0) {
-                for (var i = 0; i < len - 1; i++) {
+                for (i = 0; i < len - 1; i++) {
                     str += "or(eq(" + colName + ", " + colVals[i] + "), ";
                 }
 
                 str += "eq(" + colName + ", " + colVals[len - 1];
-
-                for (var i = 0; i < len; i++) {
-                    str += ")";
-                }
+                str += ")".repeat(len);
             }
 
             if (isExist) {
@@ -251,15 +245,12 @@ window.xcHelper = (function($, xcHelper) {
             }
         } else if (operator === FltOp.Exclude){
             if (len > 0) {
-                for (var i = 0; i < len - 1; i++) {
+                for (i = 0; i < len - 1; i++) {
                     str += "and(not(eq(" + colName + ", " + colVals[i] + ")), ";
                 }
 
                 str += "not(eq(" + colName + ", " + colVals[len - 1] + ")";
-
-                for (var i = 0; i < len; i++) {
-                    str += ")";
-                }
+                str += ")".repeat(len);
             }
 
             if (isExist) {

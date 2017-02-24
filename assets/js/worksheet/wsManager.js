@@ -1527,7 +1527,7 @@ window.WSManager = (function($, WSManager) {
         .then(function(res) {
             if (res) {
                 // could be errors, could be successful tables
-                errors = arguments; 
+                errors = arguments;
             }
             deferred.resolve();
         })
