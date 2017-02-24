@@ -2394,6 +2394,7 @@ function ExtItem(options) {
     this.description = options.description;
     this.author = options.author;
     this.image = options.image;
+    this.main = options.main;
     // XXX quick hack, if we later want to have multiple category
     // then keep the structure, otherwise, can refactor to remove
     // category related code
@@ -2403,6 +2404,15 @@ function ExtItem(options) {
 ExtItem.prototype = {
     getName: function() {
         return this.appName;
+    },
+
+    getMainName: function() {
+        var name = this.getName();
+        if (this.main) {
+            return this.main + " (" + name + ")";
+        } else {
+            return name;
+        }
     },
 
     getCategory: function() {

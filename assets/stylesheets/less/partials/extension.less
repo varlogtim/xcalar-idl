@@ -1,8 +1,14 @@
 #extension-lists {
+    &.refreshing {
+        opacity: @opacity-disabled;
+        pointer-events: none;
+    }
+
     .listInfo {
         .text {
             margin-left: 10px;
             .textOverflowOneLine;
+            text-transform: capitalize;
         }
     }
 
@@ -19,6 +25,11 @@
 
         .delete {
             float: right;
+        }
+
+        // XXX temporary hidden
+        .switch, .delete {
+            display: none;
         }
     }
 }
@@ -108,6 +119,13 @@
 
         .category {
             display: none;
+        }
+    }
+
+    &.refreshing {
+        .items {
+            opacity: @opacity-disabled;
+            pointer-events: none;
         }
     }
 
@@ -322,6 +340,13 @@
         .extArgs {
             display: block;
             .size(@height: 60%);
+        }
+    }
+
+    &.loading {
+        .extLists {
+            opacity: @opacity-disabled;
+            pointer-events: none;
         }
     }
 

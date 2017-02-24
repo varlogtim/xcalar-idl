@@ -138,12 +138,18 @@ window.ExtensionManager = (function(ExtensionManager, $) {
     }
 
     ExtensionManager.setup = function() {
-        var deferred = jQuery.Deferred();
-        var innerDeferred = jQuery.Deferred();
         $extOpsView = $("#extension-ops");
         $extTriggerTableDropdown = $("#extension-ops-mainTable");
 
         setupView();
+        return ExtensionManager.install();
+    };
+
+    ExtensionManager.install = function() {
+        var deferred = jQuery.Deferred();
+        var innerDeferred = jQuery.Deferred();
+        var url = xcHelper.getAppUrl();
+
         // extensions.html should be autopopulated by the backend
         $("#extension-ops-script").empty(); // Clean up for idempotency
         // change to async call later
@@ -155,7 +161,6 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             }
         });
 
-        var url = xcHelper.getAppUrl();
         $.ajax({
             "type": "POST",
             "dataType": "JSON",
@@ -164,27 +169,31 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                 if (data.status === Status.Ok) {
                     innerDeferred.resolve(data.data);
                 } else {
-                    console.error("Failed to get extensions");
-                    console.error(data);
+                    console.error("Failed to get extensions", data);
                     deferred.resolve();
                 }
             },
             "error": function(error) {
-                console.error("Failed to get extensions");
-                console.error(error);
+                console.error("Failed to get extensions", error);
                 deferred.resolve();
             }
         });
 
+        $extOpsView.addClass("loading");
+        xcHelper.showRefreshIcon($extOpsView.find(".extLists"), true, deferred);
+
         innerDeferred
         .then(function(htmlString) {
             $("#extension-ops-script").html(htmlString);
-            setupPart2()
-            .then(deferred.resolve)
-            .fail(deferred.reject);
+            return setupPart2();
+        })
+        .then(deferred.resolve)
+        .fail(deferred.reject)
+        .always(function() {
+            $extOpsView.removeClass("loading");
         });
 
-        return (deferred.promise());
+        return deferred.promise();
     };
     // This registers an extension.
     // The extension must have already been added via addExtension

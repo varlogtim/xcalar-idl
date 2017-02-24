@@ -85,7 +85,6 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
 
     function fetchData() {
         $panel.addClass("wait");
-
         // XXX fake data
         // var d = [{
         //     "name": "aaa",
@@ -132,8 +131,8 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
 
     function initializeExtCategory(extensions) {
         extSet = new ExtCategorySet();
-
         extensions = extensions || [];
+
         for (var i = 0, len = extensions.length; i < len; i++) {
             extSet.addExtension(extensions[i]);
         }
@@ -157,6 +156,7 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
             "data": {name: ext.getName(), version: ext.getVersion()},
             "success": function(data) {
                 console.log(data);
+                refreshAfterInstall(ext);
                 xcHelper.enableSubmit($submitBtn);
                 xcHelper.showSuccess(SuccessTStr.InstallApp);
             },
@@ -167,8 +167,24 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
         });
     }
 
+    function refreshAfterInstall() {
+        $panel.addClass("refreshing");
+        $extLists.addClass("refreshing");
+
+        var promise = ExtensionManager.install();
+        xcHelper.showRefreshIcon($panel, true, promise);
+
+        promise
+        .always(function() {
+            $("#extension-search").val("");
+            refreshExtension();
+            $panel.removeClass("refreshing");
+            $extLists.removeClass("refreshing");
+        });
+    }
+
     function getExtensionFromEle($ext) {
-        var extName = $ext.find(".extensionName").text();
+        var extName = $ext.find(".extensionName").data("name");
         var category = $ext.closest(".category").find(".categoryName").text();
         var ext = extSet.getExtension(category, extName);
         return ext;
@@ -281,8 +297,9 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
                             image + '" ' + imgEvent + '>' +
                         '</div>' +
                         '<div class="instruction">' +
-                            '<div class="extensionName textOverflowOneLine">' +
-                                ext.getName() +
+                            '<div class="extensionName textOverflowOneLine"' +
+                            ' data-name="' + ext.getName() + '">' +
+                                ext.getMainName() +
                             '</div>' +
                             '<div class="author textOverflowOneLine">' +
                                 'By ' + ext.getAuthor() +
