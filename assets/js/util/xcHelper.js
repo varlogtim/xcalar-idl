@@ -1370,7 +1370,8 @@ window.xcHelper = (function($, xcHelper) {
             $tableWrap.find('.tableCover').height(tbodyHeight);
             $('#rowScroller-' + tableId).addClass('locked');
             // add lock class to dataflow
-            $('#dagWrap-' + tableId).addClass('locked');
+            $('#dagWrap-' + tableId).addClass('locked notSelected')
+                                    .removeClass('selected');
 
             moveTableTitles();
 

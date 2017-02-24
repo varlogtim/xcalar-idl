@@ -3983,6 +3983,7 @@ window.OperationsView = (function($, OperationsView) {
         $operationsView.find('.group').removeClass('minimized fnInputEmpty');
         $operationsView.find(".advancedSection").addClass('collapsed')
                                                 .removeClass('expanded');
+
         $operationsView.find(".andOrToggle").hide();
 
         fillTableList();

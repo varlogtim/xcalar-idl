@@ -798,7 +798,6 @@ ModalHelper.prototype = {
 
         }
         if ($exitFullScreenBtn.length) {
-            // debugger;
             $exitFullScreenBtn.click(function() {
                 // var winWidth = $(window).width();
                 // var winHeight = $(window).height();
@@ -1085,8 +1084,6 @@ ModalHelper.prototype = {
             }
 
             if (tableId) {
-                $('.xcTableWrap').not('#xcTableWrap-' + tableId)
-                          .removeClass('tableDarkened tableOpSectionDarkened');
                 $tableWrap.removeClass('modalOpen');
             }
         } else {

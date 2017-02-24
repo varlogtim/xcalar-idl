@@ -1946,7 +1946,8 @@ window.TblManager = (function($, TblManager) {
 
         $xcTableWrap.mousedown(function() {
             if (gActiveTableId === tableId ||
-                $xcTableWrap.hasClass('tableOpSection')) {
+                $xcTableWrap.hasClass('tableOpSection') ||
+                $xcTableWrap.hasClass("tableLocked")) {
                 return;
             } else {
                 gActiveTableId = tableId;

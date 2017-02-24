@@ -639,13 +639,9 @@ html.edge {
         }
     }
 
-    &.tableDarkened, &.tableLocked, &.jsonModalOpen {
-        &::before {
-            content: "";
-            .position(absolute);
-            .size(100%, 100%);
-            display: block;
-            z-index: 21;
+    &.tableLocked, &.jsonModalOpen {
+        &:before {
+            display: none;
         }
 
         .xcTheadWrap {
@@ -653,31 +649,6 @@ html.edge {
 
             .tableTitle, thead {
                 opacity: 0.7;
-            }
-        }
-
-        &.tableOpSectionDarkened {
-            .xcTheadWrap {
-                background-color: #777777;
-            }
-            .xcTable {
-                background-color: #777777;
-                &:after {
-                    background-color: #dadada;
-                }
-            }
-            th {
-                &:first-child {
-                    .header::before {
-                        background-color: #777777 !important;
-                    }
-                }
-
-                .header {
-                    &::before {
-                        background-color: #777777 !important;
-                    }
-                }
             }
         }
 
@@ -725,12 +696,8 @@ html.edge {
                 background: @color-background-colIcon-gray !important;
             }
         }
-    }
 
-    &.tableLocked, &.jsonModalOpen {
-        &:before {
-            display: none;
-        }
+
         .tableTitle, .header, td {
             pointer-events: none;
         }
@@ -820,6 +787,10 @@ html.edge {
     }
 
     &.tableLocked {
+        .tableTitle {
+            background: @color-bg-unselect-gray !important;
+        }
+        
         .editableHead {
             pointer-events: none;
         }
@@ -846,7 +817,6 @@ html.edge {
     }
 
     &.jsonModalOpen {
-
         td.modalHighlighted {
             pointer-events: all;
             border-color: @color-table-border-darkened !important;

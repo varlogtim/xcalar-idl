@@ -916,6 +916,10 @@ function focusTable(tableId, focusDag) {
             return;
         }
     }
+
+    if ($("#xcTableWrap-" + tableId).hasClass("tableLocked")) {
+        return;
+    }
     // var alreadyFocused = gActiveTableId === tableId;
     var wsNum = WSManager.getActiveWS();
     $('.xcTableWrap.worksheet-' + wsNum).find('.tableTitle')
