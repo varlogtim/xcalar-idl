@@ -3,6 +3,8 @@ window.Scheduler = (function(Scheduler, $) {
     var $modScheduleForm;  // $('#modifyScheduleForm');
     var $scheduleDetail;   // $("#scheduleDetail");
     var $modTimePicker;    // $("#modScheduler-timePicker");
+    var $simpleMode;
+    var $advancedMode;
 
     // constant
     var scheduleFreq = {
@@ -40,7 +42,8 @@ window.Scheduler = (function(Scheduler, $) {
         $scheduleDetail = $("#scheduleDetail");
         $modScheduleForm = $('#modifyScheduleForm');
         $modTimePicker = $("#modScheduler-timePicker");
-
+        $simpleMode = $modScheduleForm.find(".simpleMode");
+        $advancedMode = $modScheduleForm.find(".advancedMode");
         $scheduleDetail.find('.close').on('click', function() {
             $scheduleDetail.addClass('xc-hidden');
         });
@@ -48,8 +51,6 @@ window.Scheduler = (function(Scheduler, $) {
         var $modTimeSection = $modScheduleForm.find(".timeSection");
         var $modDateInput = $modTimeSection.find(".date");
         var $modTimeInput = $modTimeSection.find(".time");
-        var $timePickers = $modTimePicker;
-        var $dateInputs = $modDateInput;
 
         $modDateInput.datepicker({
             "showOtherMonths": true,
@@ -66,32 +67,49 @@ window.Scheduler = (function(Scheduler, $) {
             }
         });
 
-
+        $modDateInput.datepicker("option", "constrainInput", false);
         $modDateInput.on({
             "focus": function() {
                 // toggleTimePicker($modScheduleForm, true);
-                $(this).parent().parent().children(".icon-wrap")
+                $(this).closest(".datePickerPart").children(".icon-wrap")
                 .addClass("active");
             },
             "focusout": function() {
-                $(this).parent().parent().children(".icon-wrap")
-                .removeClass("active");
-            },
-            "keydown": function() {
-                // no input event
-                return false;
+                var date = $(this).val();
+                isValid = xcHelper.validate([
+                    {
+                        "$ele": $(this),
+                        "text": ErrTStr.NoEmpty,
+                        "check": function() {
+                            return !testDate(date);
+                        }
+                    }
+                ]);
+
+                if (isValid) {
+                    $(this).closest(".datePickerPart").children(".icon-wrap")
+                    .removeClass("active");
+                }
+
+                if (!$simpleMode.is(":visible")) {
+                    if (!isValid) {
+                        var schedule = DF.getSchedule(currentDataFlowName);
+                        resetModifiedScheduleForm(schedule);
+                        StatusBox.forceHide();
+                    }
+                }
             }
         });
 
         $modTimeInput.on({
             "focus": function() {
                 toggleTimePicker($modScheduleForm, true);
-                $("#modifyScheduleForm").find(".timePickerPart")
-                .find(".icon-wrap").addClass("active");
+                $("#modifyScheduleForm").find(".timePickerPart .icon-wrap")
+                .addClass("active");
             },
             "focusout": function() {
-                $("#modifyScheduleForm").find(".timePickerPart")
-                .find(".icon-wrap").removeClass("active");
+                $("#modifyScheduleForm").find(".timePickerPart .icon-wrap")
+                .removeClass("active");
             },
             "keydown": function() {
                 // no input event
@@ -169,6 +187,7 @@ window.Scheduler = (function(Scheduler, $) {
             $("#scheduleDetail .simpleMode").removeClass("xc-hidden");
             $("#middle-left-border").addClass("active");
             $("#middle-right-border").removeClass("active");
+            $("#scheduleDetail .icon-wrap").removeClass("active");
         });
 
         $("#scheduleDetail .advancedModeTab").click(function() {
@@ -213,15 +232,19 @@ window.Scheduler = (function(Scheduler, $) {
     };
 
     function newScheduleIcon (dataflowName) {
-        $span = $("span").filter(function() { return ($(this).text() === dataflowName);});
-        $addScheduleIcon = $span.siblings('.addScheduleToDataflow');
+        var $span = $("#dfgMenu .listSection span").filter(function() {
+            return ($(this).text() === dataflowName);
+        });
+        var $addScheduleIcon = $span.siblings('.addScheduleToDataflow');
         $addScheduleIcon.removeClass('xi-menu-scheduler');
         $addScheduleIcon.addClass('xi-menu-add-scheduler');
     }
 
     function existScheduleIcon (dataflowName) {
-        $span = $("span").filter(function() { return ($(this).text() === dataflowName);});
-        $addScheduleIcon = $span.siblings('.addScheduleToDataflow');
+        var $span = $("#dfgMenu .listSection span").filter(function() {
+            return ($(this).text() === dataflowName);
+        });
+        var $addScheduleIcon = $span.siblings('.addScheduleToDataflow');
         $addScheduleIcon.addClass('xi-menu-scheduler');
         $addScheduleIcon.removeClass('xi-menu-add-scheduler');
     }
@@ -239,7 +262,8 @@ window.Scheduler = (function(Scheduler, $) {
                         .data("date", date);
             $freqSection.find(".radioButton.active").removeClass("active");
             $checkBox.click();
-            $("#scheduleDetail").find(".cardHeader").find(".title").text(SchedTStr.detail);
+            $("#scheduleDetail").find(".cardHeader .title")
+            .text(SchedTStr.detail);
             $("#modScheduleForm-cancel").text(SchedTStr.revert);
         } else {
             var $checkBox = $modScheduleForm.find(".radioButton").eq(0);
@@ -249,7 +273,8 @@ window.Scheduler = (function(Scheduler, $) {
             $modTimePicker.hide().removeData("date");
             $freqSection.find(".radioButton.active").removeClass("active");
             $checkBox.click();
-            $("#scheduleDetail").find(".cardHeader").find(".title").text("Create New Schedule");
+            $("#scheduleDetail").find(".cardHeader .title")
+            .text("Create New Schedule");
             $("#modScheduleForm-cancel").text(AlertTStr.CANCEL);
         }
     }
@@ -325,29 +350,29 @@ window.Scheduler = (function(Scheduler, $) {
     }
 
 
-    function fillInScheduleDetail (schedule) {
+    function fillInScheduleDetail(schedule) {
 
         var $scheduleInfos = $("#scheduleInfos");
         var text;
 
         // Update the schedule detail card
         // Created
-        text = schedule && getTime(schedule.created) ?
+        text = (schedule && getTime(schedule.created)) ?
             getTime(schedule.created) : "N/A";
         $scheduleInfos.find(".created .text").text(text);
         // Last modified
-        text = schedule && getTime(schedule.modified) ?
+        text = (schedule && getTime(schedule.modified)) ?
             getTime(schedule.modified) : "N/A";
         $scheduleInfos.find(".modified .text").text(text);
         // Frequency
-        text = schedule && schedule.repeat ? schedule.repeat : "N/A";
+        text = (schedule && schedule.repeat) ? schedule.repeat : "N/A";
         $scheduleInfos.find(".frequency .text").text(text);
         // Last run
-        text = schedule && getTime(schedule.lastRun) ?
+        text = (schedule && getTime(schedule.lastRun)) ?
             getTime(schedule.lastRun) : "N/A";
         $scheduleInfos.find(".lastRunInfo .text").text(text);
         // Next run
-        text = schedule && getTime(schedule.startTime) ?
+        text = (schedule && getTime(schedule.startTime)) ?
             getTime(schedule.startTime) : "N/A";
         $scheduleInfos.find(".nextRunInfo .text").text(text);
     }
@@ -370,6 +395,11 @@ window.Scheduler = (function(Scheduler, $) {
                 $("#scheduleDetail").find(".border").removeClass('xc-hidden');
                 $("#scheduleDetail").find(".lowerArea").removeClass('xc-hidden');
                 $("#scheduleDetail").find(".simpleModeTab").addClass("active");
+                // tab
+                $("#modifyScheduleForm").find(".datePickerPart .icon-wrap")
+                .removeClass("active");
+                $("#modifyScheduleForm").find(".timePickerPart .icon-wrap")
+                .removeClass("active");
             } else {
                 $("#scheduleDetail").find(".border").addClass('xc-hidden');
                 $("#scheduleDetail").find(".lowerArea").addClass('xc-hidden');
@@ -390,15 +420,15 @@ window.Scheduler = (function(Scheduler, $) {
         return t;
     }
 
-    function toggleTimePicker($form, display) {
-        var $timePicker = $form.find('.timePicker');
+    function toggleTimePicker(display) {
+        var $timePicker = $modScheduleForm.find('.timePicker');
         if (!display) {
             $(document).off(".timePicker");
             $timePicker.fadeOut(200);
             return;
         }
 
-        var date = $form.find(".timeSection .time").data("date");
+        var date = $modScheduleForm.find(".timeSection .time").data("date");
         if (date == null) {
             // new date is one minute faster than current time
             // which is a valid time
@@ -407,11 +437,12 @@ window.Scheduler = (function(Scheduler, $) {
         }
 
         $timePicker.fadeIn(200);
-        showTimeHelper(date, false, false, $form);
+        showTimeHelper(date, false, false, $modScheduleForm);
 
-        $(document).on("mousedown.timePicker", function(event) {
+        // mouse down outside the timePicker, and the input is legal,
+        // hide time picker
+        $(document).on("mousedown", function(event) {
             var $el = $(event.target);
-
             if ($el.hasClass("timePickerBox") ||
                 $el.closest(".timePicker").length > 0)
             {
@@ -419,14 +450,30 @@ window.Scheduler = (function(Scheduler, $) {
             }
             var $hourInput = $('.timePicker:visible').find('input.hour');
             var $minInput = $('.timePicker:visible').find('input.minute');
-            if ($hourInput.val() > 12 || $hourInput.val() < 1) {
-                StatusBox.show(ErrTStr.SchedHourWrong, $hourInput, false,
-                               {"side": "left"});
-            } else if ($minInput.val() > 59 || $minInput.val() < 0) {
-                StatusBox.show(ErrTStr.SchedMinWrong, $minInput, false,
-                                {"side": "right"});
+            if ($hourInput.val() <= 12 && $hourInput.val() >= 1
+                && $minInput.val() <= 59 && $minInput.val() >= 0) {
+                toggleTimePicker(false);
+            }
+        });
+
+        // focus out from inside he timePicker
+        $("#modScheduler-timePicker .inputSection input")
+        .on("focusout", function(event) {
+            var $hourInput = $('.timePicker:visible').find('input.hour');
+            var $minInput = $('.timePicker:visible').find('input.minute');
+            if ($simpleMode.is(":visible")) {
+                if ($hourInput.val() > 12 || $hourInput.val() < 1) {
+                    StatusBox.show(ErrTStr.SchedHourWrong, $hourInput, false,
+                                   {"side": "left"});
+                } else if ($minInput.val() > 59 || $minInput.val() < 0) {
+                    StatusBox.show(ErrTStr.SchedMinWrong, $minInput, false,
+                                    {"side": "right"});
+                }
             } else {
-                toggleTimePicker($timePicker.closest('.scheduleForm'));
+                var schedule = DF.getSchedule(currentDataFlowName);
+                resetModifiedScheduleForm(schedule);
+                StatusBox.forceHide();
+                toggleTimePicker(false);
             }
         });
     }
@@ -508,6 +555,26 @@ window.Scheduler = (function(Scheduler, $) {
                 // error case
                 break;
         }
+    }
+
+    function testDate(str){
+        var template = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+        if (template === null) {
+            return false;
+        }
+        var inputDay = template[2];
+        var inputMonth = template[1];
+        var inputYear = template[3];
+        var date = new Date(str);
+        if (date === "Invalid Date") {
+            return false;
+        }
+        var day = date.getDate();
+        var month = date.getMonth();
+        var year = date.getFullYear();
+
+        return Number(inputDay) === day && (Number(inputMonth) - 1) === month
+            && Number(inputYear) === year;
     }
 
     function showTimeHelper(date, noHourRest, noMinReset, $form) {
