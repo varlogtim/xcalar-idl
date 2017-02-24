@@ -667,10 +667,10 @@ describe('JoinView Test', function() {
             // should fail because needs rename;
             submit()
             .then(function() {
-                expect('succeeded').to.equal('should fail');
-                done();
+                done("fail");
             })
             .fail(function() {
+                xcTooltip.hideAll();
                 expect($joinForm.find('.renameSection').is(":visible")).to.be.true;
 
                 $joinForm.find('.newName').eq(0).val("testYelp1");
@@ -688,8 +688,7 @@ describe('JoinView Test', function() {
                     });
                 })
                 .fail(function() {
-                    expect('failed').to.equal('succeeded');
-                    done();
+                    done("fail");
                 });
             });
         });

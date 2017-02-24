@@ -177,7 +177,7 @@ describe("Workbook Test", function() {
                 done();
             })
             .fail(function() {
-                throw "Error Case";
+                done("fail");
             });
         });
 

@@ -884,7 +884,7 @@ describe("Ephemeral Constructor Test", function() {
 
         it("ExtItem should be a constructor", function() {
             extItem = new ExtItem({
-                "name": "testItem",
+                "appName": "testItem",
                 "version": "2.0",
                 "description": "test",
                 "author": "test user",
@@ -944,7 +944,7 @@ describe("Ephemeral Constructor Test", function() {
             expect(extSet.get("test").getName()).to.equal("test");
 
             var item2 = new ExtItem({
-                "name": "marketTestItem",
+                "appName": "marketTestItem",
                 "installed": false,
                 "category": "marketTest",
                 "repository": {
