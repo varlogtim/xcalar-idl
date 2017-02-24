@@ -1760,7 +1760,7 @@ window.xcHelper = (function($, xcHelper) {
                 antiNamePattern = /[^a-zA-Z0-9]/;
                 break;
             case "prefix":
-                namePattern = /^[a-zA-Z0-9]{1,31}$/;
+                namePattern = /^[a-zA-Z0-9_-]{1,31}$/;
                 break;
             default:
                 namePattern = /^[a-zA-Z0-9_-]+$/;

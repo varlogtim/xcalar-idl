@@ -879,32 +879,80 @@ describe("Ephemeral Constructor Test", function() {
         });
     });
 
-    describe("Extension Constructor Test", function() {
+    describe("ExtItem Constructor Test", function() {
         var extItem;
 
-        it("ExtItem should be a constructor", function() {
+        beforeEach(function() {
             extItem = new ExtItem({
                 "appName": "testItem",
                 "version": "2.0",
                 "description": "test",
                 "author": "test user",
                 "image": "testImage",
-                "category": "test"
+                "category": "test",
+                "main": "main"
             });
+        });
 
+        it("should be a constructor", function() {
             expect(extItem).to.be.an.instanceof(ExtItem);
-            expect(Object.keys(extItem).length).to.equal(6);
+            expect(Object.keys(extItem).length).to.equal(7);
+        });
 
+        it("should get name", function() {
             expect(extItem.getName()).to.equal("testItem");
-            expect(extItem.getCategory()).to.equal("test");
-            expect(extItem.getAuthor()).to.equal("test user");
-            expect(extItem.getDescription()).to.equal("test");
-            expect(extItem.getVersion()).to.equal("2.0");
-            expect(extItem.getImage()).to.equal("testImage");
-            expect(extItem.isInstalled()).to.be.false;
+        });
 
+        it("should get main name", function() {
+            expect(extItem.getMainName()).to.equal("main (testItem)");
+            // empty main
+            extItem.main = "";
+            expect(extItem.getMainName()).to.equal("testItem");
+        });
+
+        it("should get category", function() {
+            expect(extItem.getCategory()).to.equal("test");
+        });
+
+        it("should get author", function() {
+            expect(extItem.getAuthor()).to.equal("test user");
+        });
+
+        it("should get description", function() {
+            expect(extItem.getDescription()).to.equal("test");
+        });
+
+        it("should get version", function() {
+            expect(extItem.getVersion()).to.equal("2.0");
+        });
+
+        it("should get image", function() {
+            expect(extItem.getImage()).to.equal("testImage");
+        });
+
+        it("should test image", function() {
             extItem.setImage("testImage2");
             expect(extItem.getImage()).to.equal("testImage2");
+        });
+
+        it("should know if it's installed", function() {
+            expect(extItem.isInstalled()).to.be.false;
+        });
+    });
+
+    describe("Extension Constructor Test", function() {
+        var extItem;
+
+        before(function() {
+            extItem = new ExtItem({
+                "appName": "testItem",
+                "version": "2.0",
+                "description": "test",
+                "author": "test user",
+                "image": "testImage",
+                "category": "test",
+                "main": "main"
+            });
         });
 
         it("ExtCategory should be a constructor", function() {
