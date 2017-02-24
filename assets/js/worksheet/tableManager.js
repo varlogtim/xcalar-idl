@@ -284,7 +284,7 @@ window.TblManager = (function($, TblManager) {
         }
 
         // add sql
-        SQL.add("Hide Table", {
+        SQL.add(SQLTStr.HideTable, {
             "operation": SQLOps.ArchiveTable,
             "tableIds": tableIds,
             "tableNames": tableNames,
@@ -844,7 +844,7 @@ window.TblManager = (function($, TblManager) {
         matchHeaderSizes($table);
         moveFirstColumn();
 
-        SQL.add("Minimize Table", {
+        SQL.add(SQLTStr.MinimizeTable, {
             "operation": SQLOps.HideTable,
             "tableName": tableName,
             "tableId": tableId
@@ -863,7 +863,7 @@ window.TblManager = (function($, TblManager) {
         matchHeaderSizes($table);
         moveFirstColumn();
 
-        SQL.add("Maximize Table", {
+        SQL.add(SQLTStr.MaximizeTable, {
             "operation": SQLOps.UnhideTable,
             "tableName": gTables[tableId].tableName,
             "tableId": tableId
@@ -934,7 +934,7 @@ window.TblManager = (function($, TblManager) {
 
         TableList.updateTableInfo(tableId);
 
-        SQL.add("Sort Table Columns", {
+        SQL.add(SQLTStr.SortTableCols, {
             "operation": SQLOps.SortTableCols,
             "tableName": table.tableName,
             "tableId": tableId,
@@ -1068,7 +1068,7 @@ window.TblManager = (function($, TblManager) {
 
         matchHeaderSizes($table);
 
-        SQL.add("Resize Columns", {
+        SQL.add(SQLTStr.ResizeCols, {
             "operation": SQLOps.ResizeTableCols,
             "tableName": table.tableName,
             "tableId": tableId,
@@ -1129,7 +1129,7 @@ window.TblManager = (function($, TblManager) {
         RowScroller.addBookmark(rowNum, tableId);
         table.addBookmark(rowNum);
 
-        SQL.add("Bookmark Row", {
+        SQL.add(SQLTStr.BookmarkRow, {
             "operation": SQLOps.BookmarkRow,
             "tableId": tableId,
             "tableName": table.getName(),
@@ -1148,7 +1148,7 @@ window.TblManager = (function($, TblManager) {
         RowScroller.removeBookmark(rowNum, tableId);
         table.removeBookmark(rowNum);
 
-        SQL.add("Remove Bookmark", {
+        SQL.add(SQLTStr.RemoveBookmark, {
             "operation": SQLOps.RemoveBookmark,
             "tableId": tableId,
             "tableName": table.getName(),

@@ -157,7 +157,7 @@ window.WSManager = (function($, WSManager) {
         }
 
         // after newWoksheet() called, activeWorksheet will change
-        SQL.add("Create Worksheet", {
+        SQL.add(SQLTStr.AddWS, {
             "operation": SQLOps.AddWS,
             "worksheetName": WSManager.getWSName(wsId),
             "worksheetId": wsId,
@@ -194,7 +194,7 @@ window.WSManager = (function($, WSManager) {
 
                 // for empty worksheet, no need for this attr
                 delete sqlOptions.tables;
-                SQL.add("Delete Worksheet", sqlOptions);
+                SQL.add(SQLTStr.DelWS, sqlOptions);
             } else {
                 console.error("Not an empty worksheet!");
                 return;
@@ -202,11 +202,11 @@ window.WSManager = (function($, WSManager) {
         } else if (delType === DelWSType.Del) {
             deleteTableHelper(wsId);
             rmWorksheet(wsId);
-            SQL.add("Delete Worksheet", sqlOptions);
+            SQL.add(SQLTStr.DelWS, sqlOptions);
         } else if (delType === DelWSType.Archive) {
             archiveTableHelper(wsId);
             rmWorksheet(wsId);
-            SQL.add("Delete Worksheet", sqlOptions);
+            SQL.add(SQLTStr.DelWS, sqlOptions);
         } else {
             console.error("Unexpected delete worksheet type");
             return;
@@ -237,7 +237,7 @@ window.WSManager = (function($, WSManager) {
         $("#tableListSections .worksheetInfo.worksheet-" + worksheetId)
         .text(name);
 
-        SQL.add("Rename Worksheet", {
+        SQL.add(SQLTStr.RenameWS, {
             "operation": SQLOps.RenameWS,
             "worksheetId": worksheetId,
             "worksheetIndex": WSManager.indexOfWS(worksheetId),
@@ -306,7 +306,7 @@ window.WSManager = (function($, WSManager) {
             });
         }
 
-        SQL.add("Hide Worksheet", {
+        SQL.add(SQLTStr.HideWS, {
             "operation": SQLOps.HideWS,
             "worksheetId": wsId,
             "worksheetName": ws.name,
@@ -375,7 +375,7 @@ window.WSManager = (function($, WSManager) {
         .then(function() {
             // focus on last that unhide
             WSManager.focusOnWorksheet(curWSId);
-            SQL.add("Unhide Worksheet", {
+            SQL.add(SQLTStr.UnHideWS, {
                 "operation": SQLOps.UnHideWS,
                 "worksheetIds": wsIds,
                 "worksheetNames": wsNames,
@@ -601,7 +601,7 @@ window.WSManager = (function($, WSManager) {
 
         WSManager.focusOnWorksheet(newWSId, false, tableId);
         xcHelper.centerFocusedTable($xcTableWrap, false);
-        SQL.add("Move Table to worksheet", {
+        SQL.add(SQLTStr.MoveTableToWS, {
             "operation": SQLOps.MoveTableToWS,
             "tableName": gTables[tableId].tableName,
             "tableId": tableId,
@@ -688,7 +688,7 @@ window.WSManager = (function($, WSManager) {
         })
         .then(function() {
             // this sql is modified in findTableListHelper()
-            SQL.add("Move Inactive Table To Worksheet", sql);
+            SQL.add(SQLTStr.MoveInactiveTableToWS, sql);
             deferred.resolve();
         })
         .fail(function(error) {
@@ -1371,7 +1371,7 @@ window.WSManager = (function($, WSManager) {
         // reorder wsOrder
         var wsId = wsOrder.splice(oldWSIndex, 1)[0];
         wsOrder.splice(newWSIndex, 0, wsId);
-        SQL.add("Reorder Worksheet", {
+        SQL.add(SQLTStr.ReorderWS, {
             "operation": SQLOps.ReorderWS,
             "worksheetName": worksheetGroup.get(wsId).name,
             "oldWorksheetIndex": oldWSIndex,

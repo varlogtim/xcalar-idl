@@ -55,7 +55,7 @@ window.ColManager = (function($, ColManager) {
             "direction": direction
         });
 
-        SQL.add("Add New Column", {
+        SQL.add(SQLTStr.AddNewCol, {
             "operation": SQLOps.AddNewCol,
             "tableName": gTables[tableId].getName(),
             "tableId": tableId,
@@ -68,7 +68,6 @@ window.ColManager = (function($, ColManager) {
     //options
     // noAnimate: boolean, if true, no animation is applied
     ColManager.delCol = function(colNums, tableId, options) {
-        console.log(arguments);
         options = options || {};
         // deletes an array of columns
         var deferred = jQuery.Deferred();
@@ -83,9 +82,9 @@ window.ColManager = (function($, ColManager) {
 
         // check if only 1 column and is an empty column so we call this 
         // a "delete" instead of a "hide"
-        var opTitle = "Hide Column";
+        var opTitle = SQLTStr.HideCol;
         if (colNums.length === 1 && table.getCol(colNums[0]).isEmptyCol()) {
-            opTitle = "Delete Column";
+            opTitle = SQLTStr.DelCol;
         }
 
         for (var i = 0, len = colNums.length; i < len; i++) {
@@ -174,7 +173,7 @@ window.ColManager = (function($, ColManager) {
         .then(function() {
             TblManager.updateHeaderAndListInfo(tableId);
             // add sql
-            SQL.add("Pull Column", sqlOptions);
+            SQL.add(SQLTStr.PullCol, sqlOptions);
             deferred.resolve(newColNum);
         })
         .fail(function(error) {
@@ -576,7 +575,7 @@ window.ColManager = (function($, ColManager) {
         // adjust tablelist column name
         TableList.updateColName(tableId, colNum, newName);
 
-        SQL.add("Rename Column", {
+        SQL.add(SQLTStr.RenameCol, {
             "operation": SQLOps.RenameCol,
             "tableName": table.tableName,
             "tableId": tableId,
@@ -620,7 +619,7 @@ window.ColManager = (function($, ColManager) {
             return;
         }
 
-        SQL.add("Change Format", {
+        SQL.add(SQLTStr.ChangeFormat, {
             "operation": SQLOps.ChangeFormat,
             "tableName": table.getName(),
             "tableId": tableId,
@@ -648,7 +647,7 @@ window.ColManager = (function($, ColManager) {
             updateFormatAndDecimal(tableId, colNums);
         });
 
-        SQL.add("Round To Fixed", {
+        SQL.add(SQLTStr.RoundToFixed, {
             "operation": SQLOps.RoundToFixed,
             "tableName": table.getName(),
             "tableId": tableId,
@@ -712,7 +711,7 @@ window.ColManager = (function($, ColManager) {
         }
 
         // add sql
-        SQL.add("Change Column Order", {
+        SQL.add(SQLTStr.ReorderCol, {
             "operation": SQLOps.ReorderCol,
             "tableName": table.tableName,
             "tableId": tableId,
@@ -779,7 +778,7 @@ window.ColManager = (function($, ColManager) {
                                         "origUsrStr", "wasNewCol", "func",
                                         "type", "backName"]
                     };
-                    SQL.add("Pull Column", sqlOptions);
+                    SQL.add(SQLTStr.PullCol, sqlOptions);
                 }
                 deferred.resolve("update");
                 break;
@@ -950,7 +949,7 @@ window.ColManager = (function($, ColManager) {
         PromiseHelper.when.apply(window, promises)
         .done(function() {
             matchHeaderSizes($table);
-            SQL.add("Minimize Columns", {
+            SQL.add(SQLTStr.MinimizeCols, {
                 "operation": SQLOps.MinimizeCols,
                 "tableName": table.getName(),
                 "tableId": tableId,
@@ -1013,7 +1012,7 @@ window.ColManager = (function($, ColManager) {
         PromiseHelper.when.apply(window, promises)
         .done(function() {
             matchHeaderSizes($table);
-            SQL.add("Maximize Columns", {
+            SQL.add(SQLTStr.MaximizeCols, {
                 "operation": SQLOps.MaximizeCols,
                 "tableName": table.getName(),
                 "tableId": tableId,
@@ -1058,7 +1057,7 @@ window.ColManager = (function($, ColManager) {
             progCol.setTextAlign(alignment);
         }
 
-        SQL.add("Text Align", {
+        SQL.add(SQLTStr.TextAlign, {
             "operation": SQLOps.TextAlign,
             "tableName": table.getName(),
             "tableId": tableId,
@@ -1270,7 +1269,7 @@ window.ColManager = (function($, ColManager) {
         }
         pullRowsBulkHelper(tableId);
 
-        SQL.add("Pull Columns", {
+        SQL.add(SQLTStr.PullCols, {
             "operation": SQLOps.PullMultipleCols,
             "tableName": table.getName(),
             "tableId": tableId,

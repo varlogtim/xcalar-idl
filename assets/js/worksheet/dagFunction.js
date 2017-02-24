@@ -182,7 +182,7 @@ window.DagFunction = (function($, DagFunction) {
             Dag.focusDagForActiveTable();
             xcHelper.centerFocusedTable($tableWrap, true);
 
-            SQL.add("Revert Table", {
+            SQL.add(SQLTStr.RevertTable, {
                 "operation": SQLOps.RevertTable,
                 "tableName": newTableName,
                 "oldTableName": oldTableName,
@@ -603,7 +603,6 @@ window.DagFunction = (function($, DagFunction) {
             console.error(alreadySeen);
             console.error(desc);
             console.error(endPoints);
-            // debugger;
             return;
         }
 

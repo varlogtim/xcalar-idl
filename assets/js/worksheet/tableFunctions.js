@@ -1095,7 +1095,7 @@ function reorderAfterTableDrop(tableId, srcIndex, desIndex, options) {
         TblManager.alignTableEls($tableWrap);
     }
 
-    SQL.add("Change Table Order", {
+    SQL.add(SQLTStr.ReorderTable, {
         "operation": "reorderTable",
         "tableId": tableId,
         "tableName": gTables[tableId].tableName,

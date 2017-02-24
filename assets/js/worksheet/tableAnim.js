@@ -160,7 +160,7 @@ window.TblAnim = (function($, TblAnim) {
         moveTableDropdownBoxes();
 
         if (!isDatastore && wasResized) {
-            SQL.add("Resize Column", {
+            SQL.add(SQLTStr.ResizeCol, {
                 "operation": SQLOps.DragResizeTableCol,
                 "tableName": gTables[rescol.tableId].tableName,
                 "tableId": rescol.tableId,
@@ -292,7 +292,7 @@ window.TblAnim = (function($, TblAnim) {
                     resizeTo = "sizeToContents";
                 }
 
-                SQL.add("Resize Columns", {
+                SQL.add(SQLTStr.ResizeCols, {
                     "operation": SQLOps.ResizeTableCols,
                     "tableName": table.tableName,
                     "tableId": tableId,
@@ -343,7 +343,7 @@ window.TblAnim = (function($, TblAnim) {
         var newWidthState = progCol.sizedToHeader;
         matchHeaderSizes($table);
 
-        SQL.add("Resize Column", {
+        SQL.add(SQLTStr.ResizeCol, {
             "operation": SQLOps.DragResizeTableCol,
             "tableName": gTables[tableId].tableName,
             "tableId": tableId,
@@ -480,7 +480,7 @@ window.TblAnim = (function($, TblAnim) {
         }, 0);
 
 
-        SQL.add("Resize Row", {
+        SQL.add(SQLTStr.ResizeRow, {
             "operation": SQLOps.DragResizeRow,
             "tableName": gTables[rowInfo.tableId].tableName,
             "tableId": rowInfo.tableId,
@@ -530,7 +530,7 @@ window.TblAnim = (function($, TblAnim) {
         }
         RowScroller.updateViewRange(tableId);
 
-        SQL.add("Resize Row", {
+        SQL.add(SQLTStr.ResizeRow, {
             "operation": SQLOps.DragResizeRow,
             "tableName": gTables[tableId].tableName,
             "tableId": tableId,

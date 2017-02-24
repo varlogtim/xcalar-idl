@@ -862,7 +862,7 @@ window.Replay = (function($, Replay) {
         TblManager.refreshTable([newTableName], null, [oldTableName],
                                 wsId, null, {isUndo: true})
         .then(function() {
-            SQL.add("Revert Table", {
+            SQL.add(SQLTStr.RevertTable, {
                 "operation": SQLOps.RevertTable,
                 "tableName": newTableName,
                 "oldTableName": oldTableName,
