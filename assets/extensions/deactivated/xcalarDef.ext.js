@@ -147,11 +147,9 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
             if (tTablePrefix.length == 1 && bTablePrefix.length == 1) {
                 if (tTablePrefix[0].name !== bTablePrefix[0].name) {
                     // Take the left table's prefix
-                    bPrefixRename = [xcHelper.getJoinRenameMap(
-                                                           bTablePrefix[0].name,
+                    bPrefixRename = [self.getJoinRenameMap(bTablePrefix[0].name,
                                                            tTablePrefix[0].name,
-                                                        DfFieldTypeT.DfFatptr)];
-
+                                                           true)];
                 }
             }
 
@@ -369,10 +367,9 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
                     var renameMapTmp = [];
                     for (j = 0; j < renameMap.length; j++) {
                         newColName = renameMap[j].orig + "_lag_" + (i + 1);
-                        renameMapTmp.push(
-                            xcHelper.getJoinRenameMap(renameMap[j].orig,
-                                                      newColName,
-                                                      renameMap[j].type));
+                        var joinMap = self.getJoinRenameMap(renameMap[j].orig,
+                                                            newColName);
+                        renameMapTmp.push(joinMap);
 
                         col = new XcSDK.Column(newColName,
                                                winCols[j].getType());
@@ -396,10 +393,9 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
                     var renameMapTmp = [];
                     for (j = 0; j < renameMap.length; j++) {
                         newColName = renameMap[j].orig + "_lead_" + (i + 1);
-                        renameMapTmp.push(
-                            xcHelper.getJoinRenameMap(renameMap[j].orig,
-                                                      newColName,
-                                                      renameMap[j].type));
+                        var joinMap = self.getJoinRenameMap(renameMap[j].orig,
+                                                            newColName);
+                        renameMapTmp.push(joinMap);
 
                         col = new XcSDK.Column(newColName,
                                                winCols[j].getType());
@@ -550,7 +546,7 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
             col = new XcSDK.Column(newColName, winCols[i].getType());
             winColFinal.cur.push(col);
 
-            renameMap.push(xcHelper.getJoinRenameMap(newColName, "", null));
+            renameMap.push(ext.getJoinRenameMap(newColName, ""));
         }
 
         XcSDK.Promise.chain(defChain)

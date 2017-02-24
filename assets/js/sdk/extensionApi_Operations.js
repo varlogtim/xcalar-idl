@@ -152,8 +152,7 @@ window.XcSDK.Extension.prototype = (function() {
             reaname: array of rename object
 
         rename map: object generate by
-        xcHelper.getJoinRenameMap(oldName, newName, type)
-        if it's fat ptr, pass in DfFieldTypeT.DfFatptr, othewise, pass in null
+        ext.getJoinRenameMap(oldName, newName, isPrefix)
 
             sample:
                 var lTableInfo = {
@@ -181,6 +180,13 @@ window.XcSDK.Extension.prototype = (function() {
             .fail(deferred.reject);
 
             return deferred.promise();
+        },
+
+        "getJoinRenameMap": function(oldName, newName, isPrefix) {
+            var type = isPrefix
+                       ? DfFieldTypeT.DfFatptr
+                       : DfFieldTypeT.DfUnknown;
+            return xcHelper.getJoinRenameMap(oldName, newName, type);
         },
 
         "groupBy": function(operator, groupByCols, aggColName,
