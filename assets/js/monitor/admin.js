@@ -49,10 +49,6 @@ window.Admin = (function($, Admin) {
 
     // will not add user if already exists in kvstore
     Admin.addNewUser = function() {
-        if (Admin.isAdmin()) {
-            // do not add admin to userList
-            return PromiseHelper.resolve();
-        }
         var username = Support.getUser();
 
         KVStore.get(userListKey, gKVScope.GLOB)
