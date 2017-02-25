@@ -45,22 +45,7 @@ if (window.XcSDK.Extension == null) {
 window.XcSDK.Extension.prototype = (function() {
     // inner helper function
     function deleteTempTable(txId, tableName) {
-        var deferred = jQuery.Deferred();
-
-        XIApi.deleteTable(txId, tableName)
-        .then(function() {
-            var tableId = xcHelper.getTableId(tableName);
-            if (tableId != null && gTables[tableId] != null) {
-                delete gTables[tableId];
-            }
-            deferred.resolve();
-        })
-        .fail(function(error) {
-            console.error("Drop Table Failed!", error);
-            deferred.reject(error);
-        });
-
-        return deferred.promise();
+        return XIApi.deleteTableAndMeta(txId, tableName);
     }
 
     var prototype = {

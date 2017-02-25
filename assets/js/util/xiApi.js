@@ -164,12 +164,12 @@ window.XIApi = (function(XIApi, $) {
         return deferred.promise();
     };
 
-    XIApi.index = function(txId, colToIndex, tableName, newTableName) {
+    XIApi.index = function(txId, colToIndex, tableName) {
         if (txId == null || colToIndex == null || tableName == null) {
             return PromiseHelper.reject("Invalid args in index");
         }
 
-        return checkTableIndex(colToIndex, tableName, newTableName, txId, true);
+        return checkTableIndex(colToIndex, tableName, txId, true);
     };
 
     XIApi.sort = function(txId, order, colName, tableName, newTableName) {
@@ -349,16 +349,32 @@ window.XIApi = (function(XIApi, $) {
         return deferred.promise();
     };
 
+    /*
+     * options:
+     *  isIncSample: true/false, include sample or not,
+     *               not specified is equal to false
+     *  sampleCols: array, sampleColumns to keep,
+     *              only used when isIncSample is true
+     *  icvMode: true/false, icv mode or not
+     *  newTableName: string, dst table name, optional
+     *  clean: true/false, if set true, will remove intermediate tables
+     */
     XIApi.groupBy = function(txId, operator, groupByCols, aggColName,
-                             isIncSample, sampleCols, tableName, newColName, newTableName,
-                             indexedTableName, icvMode)
+                             tableName, newColName, options)
     {
         if (txId == null || operator == null || groupByCols == null ||
-            aggColName == null || isIncSample == null ||
-            tableName == null || newColName == null || aggColName.length < 1)
+            aggColName == null || tableName == null ||
+            newColName == null || aggColName.length < 1)
         {
             return PromiseHelper.reject("Invalid args in groupby");
         }
+
+        options = options || {};
+        var isIncSample = options.isIncSample || false;
+        var sampleCols = options.sampleCols || [];
+        var icvMode = options.icvMode || false;
+        var newTableName = options.newTableName || null;
+        var clean = options.clean || false;
 
         if (!(groupByCols instanceof Array)) {
             groupByCols = [groupByCols];
@@ -370,16 +386,18 @@ window.XIApi = (function(XIApi, $) {
 
         var deferred = jQuery.Deferred();
 
+        var indexedTable;
         var indexedColName;
+        var finalTable;
         var isMultiGroupby = (groupByCols.length > 1);
         var finalCols = getFinalGroupByCols(tableName, groupByCols,
-                                                 newColName, isIncSample,
-                                                 sampleCols);
+                                            newColName, isIncSample,
+                                            sampleCols);
 
-        getGroupbyIndexedTable()
+        getGroupbyIndexedTable(txId, tableName, groupByCols, clean)
         .then(function(resTable, resCol) {
             // table name may have changed after sort!
-            var indexedTable = resTable;
+            indexedTable = resTable;
             indexedColName = resCol;
 
             // get name from src table
@@ -394,39 +412,25 @@ window.XIApi = (function(XIApi, $) {
             if (isMultiGroupby && !isIncSample) {
                 // multi group by should extract column from groupby table
                 return extractColFromMap(tableName, newTableName, groupByCols,
-                                         indexedColName, finalCols,
-                                         isIncSample, txId);
+                                         indexedColName, finalCols, isIncSample,
+                                         clean, txId);
             } else {
                 return PromiseHelper.resolve(newTableName);
             }
         })
-        .then(function(finalTableName) {
-            deferred.resolve(finalTableName, finalCols);
+        .then(function(resTable) {
+            finalTable = resTable;
+            if (clean) {
+                // remove intermediate table
+                return XIApi.deleteTableAndMeta(txId, indexedTable, true);
+            }
+        })
+        .then(function() {
+            deferred.resolve(finalTable, finalCols);
         })
         .fail(deferred.reject);
 
         return deferred.promise();
-
-        function getGroupbyIndexedTable() {
-            var innerDeferred = jQuery.Deferred();
-
-            if (isMultiGroupby) {
-                // multiGroupBy should first do a map and then index
-                checkMultiGroupByIndex(groupByCols, tableName, txId)
-                .then(innerDeferred.resolve)
-                .fail(innerDeferred.reject);
-            } else {
-                // single groupBy, check index
-                checkTableIndex(groupByCols[0], tableName, indexedTableName,
-                                txId)
-                .then(function(resTable) {
-                    innerDeferred.resolve(resTable, groupByCols[0]);
-                })
-                .fail(innerDeferred.reject);
-            }
-
-            return innerDeferred.promise();
-        }
     };
 
     /*
@@ -656,6 +660,25 @@ window.XIApi = (function(XIApi, $) {
         return deferred.promise();
     };
 
+    XIApi.deleteTableAndMeta = function(txId, tableName, toIgnoreError) {
+        var deferred = jQuery.Deferred();
+
+        XIApi.deleteTable(txId, tableName, toIgnoreError)
+        .then(function() {
+            var tableId = xcHelper.getTableId(tableName);
+            if (tableId != null && gTables[tableId] != null) {
+                delete gTables[tableId];
+            }
+            deferred.resolve();
+        })
+        .fail(function(error) {
+            console.error("Drop Table Failed!", error);
+            deferred.reject(error);
+        });
+
+        return deferred.promise();
+    };
+
     function multiJoinCheck(lColNames, lTableName, rColNames, rTableName, txId) {
         var deferred = jQuery.Deferred();
         var len = lColNames.length;
@@ -726,8 +749,8 @@ window.XIApi = (function(XIApi, $) {
             deferred1 = handleJoinKey(lColName, lTableName, txId, true);
             deferred2 = handleJoinKey(rColName, rTableName, txId, false);
         } else {
-            deferred1 = checkTableIndex(lColName, lTableName, undefined, txId);
-            deferred2 = checkTableIndex(rColName, rTableName, undefined, txId);
+            deferred1 = checkTableIndex(lColName, lTableName, txId);
+            deferred2 = checkTableIndex(rColName, rTableName, txId);
         }
 
         PromiseHelper.when(deferred1, deferred2)
@@ -864,7 +887,7 @@ window.XIApi = (function(XIApi, $) {
             if (newTableName == null) {
                 newTableName = tableName;
             }
-            return checkTableIndex(colToIndex, newTableName, undefined, txId);
+            return checkTableIndex(colToIndex, newTableName, txId);
         })
         .then(deferred.resolve)
         .fail(deferred.reject);
@@ -904,8 +927,7 @@ window.XIApi = (function(XIApi, $) {
     }
 
     // check if table has correct index
-    function checkTableIndex(colName, tableName, newTableName, txId,
-                             isApiCall) {
+    function checkTableIndex(colName, tableName, txId, isApiCall) {
         var deferred = jQuery.Deferred();
         var tableId = xcHelper.getTableId(tableName);
         var tableCols = null;
@@ -927,9 +949,7 @@ window.XIApi = (function(XIApi, $) {
                 console.log(tableName, "not indexed correctly!");
                 // XXX In the future,we can check if there are other tables that
                 // are indexed on this key. But for now, we reindex a new table
-                if (!newTableName) {
-                    newTableName = getNewTableName(tableName, ".index");
-                }
+                var newTableName = getNewTableName(tableName, ".index");
                 XcalarIndexFromTable(unsortedTable, colName, newTableName,
                                      XcalarOrderingT.XcalarOrderingUnordered,
                                      txId)
@@ -956,7 +976,7 @@ window.XIApi = (function(XIApi, $) {
         return deferred.promise();
     }
 
-    function checkMultiGroupByIndex(groupByCols, tableName, txId) {
+    function checkMultiGroupByIndex(groupByCols, tableName, clean, txId) {
         var deferred = jQuery.Deferred();
 
         // From Jerene:
@@ -990,6 +1010,12 @@ window.XIApi = (function(XIApi, $) {
                                         indexedTableName,
                                         XcalarOrderingT.XcalarOrderingUnordered,
                                         txId);
+        })
+        .then(function() {
+            if (clean) {
+                // remove intermeidate table
+                return XIApi.deleteTableAndMeta(txId, mapTableName, true);
+            }
         })
         .then(function() {
             // add indexed table meta
@@ -1129,6 +1155,22 @@ window.XIApi = (function(XIApi, $) {
         return (newTableCols);
     }
 
+    function getGroupbyIndexedTable(txId, tableName, groupByCols, clean) {
+        if (groupByCols.length > 1) {
+            // multiGroupBy should first do a map and then index
+            return checkMultiGroupByIndex(groupByCols, tableName, clean, txId);
+        } else {
+            // single groupBy, check index
+            var deferred = jQuery.Deferred();
+            checkTableIndex(groupByCols[0], tableName, txId)
+            .then(function(resTable) {
+                deferred.resolve(resTable, groupByCols[0]);
+            })
+            .fail(deferred.reject);
+            return deferred.promise();
+        }
+    }
+
     function getFinalGroupByCols(tableName, groupByCols, newColName,
                                  isIncSample, sampleCols) {
         var dataCol = ColManager.newDATACol();
@@ -1216,7 +1258,8 @@ window.XIApi = (function(XIApi, $) {
     }
 
     function extractColFromMap(srcTableName, groupbyTableName, groupByCols,
-                               indexedColName, finalTableCols, isIncSample, txId)
+                               indexedColName, finalTableCols, isIncSample,
+                               clean, txId)
     {
         var deferred = jQuery.Deferred();
 
@@ -1249,6 +1292,7 @@ window.XIApi = (function(XIApi, $) {
 
         var promises = [];
         var currTableName = groupbyTableName;
+        var tables = [groupbyTableName];
 
         for (var i = 0; i < numGroupByCols; i++) {
             var mapStr = mapStrStarter + (i + 1) + ", " + '".Xc."' + ")";
@@ -1276,11 +1320,24 @@ window.XIApi = (function(XIApi, $) {
 
             promises.push(extracColMapHelper.bind(this, args, tableCols,
                                                   isLastTable, txId));
+            tables.push(currTableName);
             currTableName = newTableName;
         }
 
         var lastTableName = currTableName;
         PromiseHelper.chain(promises)
+        .then(function() {
+            if (clean) {
+                var innerPromises = [];
+                tables.forEach(function(table) {
+                    if (table !== lastTableName) {
+                        var def = XIApi.deleteTableAndMeta(txId, table, true);
+                        innerPromises.push(def);
+                    }
+                });
+                return PromiseHelper.when.apply(this, innerPromises);
+            }
+        })
         .then(function() {
             deferred.resolve(lastTableName);
         })

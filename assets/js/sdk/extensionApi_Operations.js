@@ -189,21 +189,28 @@ window.XcSDK.Extension.prototype = (function() {
             return xcHelper.getJoinRenameMap(oldName, newName, type);
         },
 
+
+        /*
+         * options:
+         *  isIncSample: true/false, include sample or not,
+         *               not specified is equal to false
+         *  sampleCols: array, sampleColumns to keep,
+         *              only used when isIncSample is true
+         *  icvMode: true/false, icv mode or not
+         *  newTableName: string, dst table name, optional
+         *  clean: true/false, if set true, will remove intermediate tables
+         */
         "groupBy": function(operator, groupByCols, aggColName,
-                            isIncSample, sampleCols, tableName,
-                            newColName, newTableName)
+                            tableName, newColName, options)
         {
             var deferred = jQuery.Deferred();
             var self = this;
             var txId = self.txId;
-            var indexTableName;
-            if (newTableName.startsWith(".temp")) {
-                indexTableName = self.createTempTableName();
-            }
+
+            options.icvMode = false;
 
             XIApi.groupBy(txId, operator, groupByCols, aggColName,
-                            isIncSample, sampleCols, tableName,
-                            newColName, newTableName, indexTableName, false)
+                           tableName, newColName, options)
             .then(function(dstTable, dstCols) {
                 self._addMeta(tableName, dstTable, dstCols);
                 deferred.resolve(dstTable, dstCols);

@@ -480,9 +480,7 @@ window.xcFunction = (function($, xcFunction) {
 
         var deferred = jQuery.Deferred();
         var isIncSample = options.isIncSample || false;
-        var sampleCols = options.columnsToKeep || [];
         var isJoin = options.isJoin || false;
-        var icvMode = options.icvMode || false;
 
         var tableName = gTables[tableId].getName();
         var dstTableName = options.dstTableName || null;
@@ -526,10 +524,15 @@ window.xcFunction = (function($, xcFunction) {
 
         var focusOnTable = false;
         var scrollChecker = new ScollTableChecker();
+        var groupByOpts = {
+            "newTableName": dstTableName,
+            "isIncSample": isIncSample,
+            "sampleCols": options.columnsToKeep,
+            "icvMode": options.icvMode
+        };
 
         XIApi.groupBy(txId, operator, groupByCols, aggCol,
-                      isIncSample, sampleCols, tableName, newColName, dstTableName,
-                      undefined, icvMode)
+                      tableName, newColName, groupByOpts)
         .then(function(nTableName, nTableCols) {
             if (isJoin) {
                 var dataColNum = gTables[tableId].getColNumByBackName("DATA");

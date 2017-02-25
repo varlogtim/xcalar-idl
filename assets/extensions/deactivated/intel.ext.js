@@ -84,9 +84,11 @@ window.UExtIntel = (function(UExtIntel) {
         ext.map(mapStr, tableName, dateCol, mapTable)
         .then(function(tableAfterMap) {
             var operator = XcSDK.Enums.AggType.Max;
-            var newTable = ext.createTempTableName();
+            var options = {
+                "newTableName": ext.createTempTableName()
+            };
             return ext.groupBy(operator, "Record ID", dateCol,
-                            false, null, tableAfterMap, "Max_Date", newTable);
+                              tableAfterMap, "Max_Date", options);
         })
         .then(function(tableAfterGroupby) {
             var map = "default:convertFromUnixTS(Max_Date, \"%m/%d/%Y\")";
@@ -147,20 +149,23 @@ window.UExtIntel = (function(UExtIntel) {
 
         ext.map(mapStr, tableName, "Forecasted_float", mapTable)
         .then(function(tableAfterMap) {
-            var newTable = ext.createTempTableName();
-
             var operator = XcSDK.Enums.AggType.Sum;
             var groupByCols = ["ROW_ID", "Product Type"];
+            var optoins = {
+                "newTableName": ext.createTempTableName()
+            };
             return ext.groupBy(operator, groupByCols, "Forecasted_float",
-                                false, null, tableAfterMap, "SumByPdt", newTable);
+                               tableAfterMap, "SumByPdt", optoins);
         })
         .then(function(tableAfterGroupby) {
-            var newTable = ext.createTempTableName();
             lTable = tableAfterGroupby;
 
             var operator = XcSDK.Enums.AggType.Max;
+            var options = {
+                "newTableName": ext.createTempTableName()
+            };
             return ext.groupBy(operator, "ROW_ID", "SumByPdt",
-                            false, null, tableAfterGroupby, "MaxForRow", newTable);
+                               tableAfterGroupby, "MaxForRow", options);
         })
         .then(function(tableAfterGroupby) {
             var newTable = ext.createTempTableName();
@@ -178,10 +183,12 @@ window.UExtIntel = (function(UExtIntel) {
             return ext.join(joinType, lTableInfo, rTableInfo, newTable);
         })
         .then(function(tableAfterJoin) {
-            var newTable = ext.createTableName();
             var operator = XcSDK.Enums.AggType.Count;
+            var options = {
+                "newTableName": ext.createTableName()
+            };
             return ext.groupBy(operator, "ROW_ID", "ROW_ID",
-                                true, [], tableAfterJoin, "NumOccur", newTable);
+                               tableAfterJoin, "NumOccur", options);
         })
         .then(function(finalTable) {
             var table = ext.getTable(finalTable);

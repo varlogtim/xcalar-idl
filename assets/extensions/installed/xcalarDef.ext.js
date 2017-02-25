@@ -618,14 +618,14 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
         // Step 1. Do groupby count($partitionCol), GROUP BY ($partitionCol)
         // aka, index on partitionCol and then groupby count
         // this way we get the unique value of src table
-        var isIncSample = false;
         var groupByCol = ext.createColumnName();
-        var groupbyTable = ext.createTempTableName("GB.");
         var aggOp = XcSDK.Enums.AggType.Count;
+        var options = {
+            "newTableName": ext.createTempTableName("GB.")
+        };
 
         ext.groupBy(aggOp, keyColName, keyColName,
-                    isIncSample, null, srcTable,
-                    groupByCol, groupbyTable)
+                    srcTable, groupByCol, options)
         .then(function(tableAfterGroupby) {
             // Step 2. Sort on desc on groupby table by groupByCol
             // this way, the partitionCol that has most count comes first
