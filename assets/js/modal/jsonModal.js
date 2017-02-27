@@ -473,9 +473,6 @@ window.JSONModal = (function($, JSONModal) {
         $jsonWrap.find(".jInfo").each(function() {
             var $checkbox = $(this).children(".jsonCheckbox");
             $checkbox.addClass("checked");
-            // var $key = $checkbox.siblings(".jKey");
-          
-
             var $key = $checkbox.siblings('.jKey, .arrayEl');
             if (!$key.length) {
                 $key = $checkbox.siblings();

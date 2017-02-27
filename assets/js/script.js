@@ -164,9 +164,9 @@ window.StartManager = (function(StartManager, $) {
                 Workbook.forceShow();
                 var text = StatusMessageTStr.Viewing + " " + WKBKTStr.Location;
                 StatusMessage.updateLocation(true, text);
-                Admin.addNewUser();
 
                 if (firstTimeUser) {
+                    Admin.addNewUser();
                     // when it's new user first time login
                     Alert.show({
                         "title": DemoTStr.title,
