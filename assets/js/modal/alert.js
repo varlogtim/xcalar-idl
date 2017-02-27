@@ -312,7 +312,9 @@ window.Alert = (function($, Alert){
                 $btn.click(function (event) {
                     event.stopPropagation();
                     closeAlertModal();
-                    btnOption.func();
+                    if (btnOption.func instanceof Function) {
+                        btnOption.func();
+                    }
                 });
                 if (btnOption.tooltip) {
                     xcTooltip.add($btn, {title: btnOption.tooltip});
