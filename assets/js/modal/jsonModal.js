@@ -201,15 +201,20 @@ window.JSONModal = (function($, JSONModal) {
                 var $el = $(this);
                 selectJsonKey($el, event);
             }
-        }, ".jKey, .jArray>.jString, .jArray>.jNum");
+        }, ".jKey, .arrayEl");
 
         $jsonArea.on('click', '.jsonCheckbox', function(event) {
             var $checkbox = $(this);
             if ($checkbox.hasClass('prefixCheckbox')) {
                 togglePrefixProject($checkbox);
             } else {
-                var $key = $checkbox.siblings('.jKey');
-                selectJsonKey($key, event);
+                var $key = $checkbox.siblings('.jKey, .arrayEl');
+                if (!$key.length) {
+                    $key = $checkbox.siblings();
+                }
+                if ($key.length) {
+                    selectJsonKey($key, event);
+                }
             }
         });
 
@@ -465,11 +470,20 @@ window.JSONModal = (function($, JSONModal) {
 
     function selectAllFields($btn) {
         var $jsonWrap = $btn.closest('.jsonWrap');
-        $jsonWrap.find('.mainKey').each(function() {
-            var $el = $(this).children('.jKey');
-            $el.addClass('keySelected');
-            $el.siblings('.jsonCheckbox').addClass('checked');
+        $jsonWrap.find(".jInfo").each(function() {
+            var $checkbox = $(this).children(".jsonCheckbox");
+            $checkbox.addClass("checked");
+            // var $key = $checkbox.siblings(".jKey");
+          
+
+            var $key = $checkbox.siblings('.jKey, .arrayEl');
+            if (!$key.length) {
+                $key = $checkbox.siblings();
+            }
+
+            $key.addClass("keySelected");
         });
+
         $jsonWrap.find('.submitProject').removeClass('disabled');
         $jsonWrap.find('.clearAll').removeClass('disabled');
         updateNumPullColsSelected($jsonWrap);
@@ -484,22 +498,23 @@ window.JSONModal = (function($, JSONModal) {
         $jsonWrap.find('.clearAll').addClass('disabled');
         $jsonWrap.find('.selectAll').removeClass('disabled');
         $lastKeySelected = null;
-        var totalCols = $jsonWrap.find('.projectModeBar .numColsSelected')
-                                 .data('totalcols');
+        var numMainFields = $jsonWrap.find('.projectModeBar .numColsSelected')
+                                 .data('numMainFields');
         $jsonWrap.find('.projectModeBar .numColsSelected')
-                 .text('0/' + totalCols + ' ' + JsonModalTStr.FieldsSelected);
+                 .text('0/' + numMainFields + ' ' + JsonModalTStr.FieldsSelected);
 
-
-        totalCols = $jsonWrap.find('.multiSelectModeBar .numColsSelected')
-                                 .data('totalcols');
+        var numTotalFields = $jsonWrap.find('.multiSelectModeBar .numColsSelected')
+                                 .data('numTotalFields');
         $jsonWrap.find('.multiSelectModeBar .numColsSelected')
-                 .text('0/' + totalCols + ' ' + JsonModalTStr.FieldsPull);
+                 .text('0/' + numTotalFields + ' ' + JsonModalTStr.FieldsPull);
     }
 
     function togglePrefixProject($checkbox) {
         var $jsonWrap = $checkbox.closest('.jsonWrap');
         var $prefixedGroup = $checkbox.closest('.prefixedType');
-        var $allCheckboxes = $prefixedGroup.find('.jsonCheckbox');
+        var $allCheckboxes = $prefixedGroup.find('.jsonCheckbox').filter(function() {
+            return $(this).parent().hasClass('mainKey');
+        });
         if ($checkbox.hasClass('checked')) {
             $checkbox.removeClass('checked');
             $allCheckboxes.removeClass('checked');
@@ -525,25 +540,25 @@ window.JSONModal = (function($, JSONModal) {
 
     function updateNumProjColsSelected($jsonWrap) {
         var numSelected = $jsonWrap.find('.keySelected').length;
-        var totalCols = $jsonWrap.find('.projectModeBar .numColsSelected')
-                                 .data('totalcols');
+        var numMainFields = $jsonWrap.find('.projectModeBar .numColsSelected')
+                                 .data('numMainFields');
         $jsonWrap.find('.projectModeBar .numColsSelected')
-                 .text(numSelected + '/' + totalCols +
+                 .text(numSelected + '/' + numMainFields +
                                             ' ' + JsonModalTStr.FieldsSelected);
     }
 
     function updateNumPullColsSelected($jsonWrap) {
         var numSelected = $jsonWrap.find('.keySelected').length;
-        var totalCols = $jsonWrap.find('.multiSelectModeBar .numColsSelected')
-                                 .data('totalcols');
+        var numTotalFields = $jsonWrap.find('.multiSelectModeBar .numColsSelected')
+                                 .data('numTotalFields');
         $jsonWrap.find('.multiSelectModeBar .numColsSelected')
-                 .text(numSelected + '/' + totalCols +
+                 .text(numSelected + '/' + numTotalFields +
                                             ' ' + JsonModalTStr.FieldsPull);
         if (numSelected === 0) {
             $jsonWrap.find('.submitProject').addClass('disabled');
             $jsonWrap.find('.clearAll').addClass('disabled');
             $jsonWrap.find('.selectAll').removeClass('disabled');
-        } else if (numSelected === totalCols) {
+        } else if (numSelected === numTotalFields) {
             $jsonWrap.find('.selectAll').addClass('disabled');
         } else {
             $jsonWrap.find('.selectAll').removeClass('disabled');
@@ -556,17 +571,27 @@ window.JSONModal = (function($, JSONModal) {
         if ($jsonWrap.hasClass('projectMode') ||
             $jsonWrap.hasClass('multiSelectMode')) {
 
-            if (!$el.parent().hasClass('mainKey')) {
-                return;
-            }
-
             var toSelect = false;
             if (!$el.hasClass('keySelected')) {
                 toSelect = true;
             }
             
             if (event.shiftKey && $lastKeySelected) {
-                var $els = $jsonWrap.find('.mainKey').children('.jKey');
+                var $els = $jsonWrap.find('jKey, .arrayEl');
+                var $cboxes = $jsonWrap.find('.jsonCheckbox');
+                var $els = $();
+                $cboxes.each(function() {
+                    var $checkbox = $(this);
+                    var $key = $checkbox.siblings('.jKey, .arrayEl');
+                    if (!$key.length) {
+                        $key = $checkbox.siblings();
+                    }
+                    if ($key.length === 1) {
+                        // exclude prefix checkbox
+                        $els = $els.add($key);
+                    }
+                });
+
                 var lastIndex = $els.index($lastKeySelected);
                 var curIndex = $els.index($el);
                 var start = Math.min(lastIndex, curIndex);
@@ -637,12 +662,10 @@ window.JSONModal = (function($, JSONModal) {
     }
 
     function selectField($el, $jsonWrap) {
-        if ($el.parent('.jArray').length === 0) {
-            $el.addClass('keySelected');
-            $el.siblings('.jsonCheckbox').addClass('checked');
-            $jsonWrap.find('.submitProject').removeClass('disabled');
-            $jsonWrap.find('.clearAll').removeClass('disabled');
-        }
+        $el.addClass('keySelected');
+        $el.siblings('.jsonCheckbox').addClass('checked');
+        $jsonWrap.find('.submitProject').removeClass('disabled');
+        $jsonWrap.find('.clearAll').removeClass('disabled');
     }
 
     function deselectField($el, $jsonWrap) {
@@ -659,11 +682,11 @@ window.JSONModal = (function($, JSONModal) {
         $jsonClone.data('colnum', $jsonWrap.data('colnum'));
         $jsonClone.data('rownum', $jsonWrap.data('rownum'));
         $jsonClone.data('tableid', $jsonWrap.data('tableid'));
-        $jsonClone.find('.projectModeBar .numColsSelected').data('totalcols',
-            $jsonWrap.find('.projectModeBar .numColsSelected').data('totalcols'));
+        $jsonClone.find('.projectModeBar .numColsSelected').data('numMainFields',
+            $jsonWrap.find('.projectModeBar .numColsSelected').data('numMainFields'));
 
-        $jsonClone.find('.multiSelectModeBar .numColsSelected').data('totalcols',
-            $jsonWrap.find('.multiSelectModeBar .numColsSelected').data('totalcols'));
+        $jsonClone.find('.multiSelectModeBar .numColsSelected').data('numTotalFields',
+            $jsonWrap.find('.multiSelectModeBar .numColsSelected').data('numTotalFields'));
 
         var index = $jsonWrap.index();
         jsonData.splice(index + 1, 0, jsonData[index]);
@@ -1177,8 +1200,7 @@ window.JSONModal = (function($, JSONModal) {
                 "inarray": isArray
             });
             tempJson = '<div class="jObject">' +
-                        '<span class="jArray jInfo">' + tempJson +
-                        '</span>' +
+                        tempJson +
                      '</div>';
 
             if (groups[i].prefix === gPrefixSign) {
@@ -1215,7 +1237,7 @@ window.JSONModal = (function($, JSONModal) {
         var prettyJson = prettifyJson(jsonObj, null , true, {
             inarray: isArray
         });
-        prettyJson = '<div class="jObject">' + '<span class="jArray jInfo">' + prettyJson + "</span>" + "</div>";
+        prettyJson = '<div class="jObject">' + prettyJson + '</div>';
         return prettyJson;
     }
 
@@ -1469,10 +1491,7 @@ window.JSONModal = (function($, JSONModal) {
             }
             html = html.replace(/,([^,]*)$/, '$1');// remove last comma
 
-            html = '{<div class="jObject">' +
-                        '<span class="jArray jInfo">' + html +
-                        '</span>' +
-                    '</div>}';
+            html = '{<div class="jObject">' + html + '</div>}';
             $jsonArea.find('.jsonWrap').eq(obj)
                                        .addClass('comparison')
                                        .find('.prettyJson.secondary')
@@ -1502,15 +1521,15 @@ window.JSONModal = (function($, JSONModal) {
             }
         }
 
-        var numFields = $jsonWrap.find('.primary').find('.mainKey').length;
+        var numMainFields = $jsonWrap.find('.primary').find('.mainKey').length;
+        var numTotalFields = $jsonWrap.find('.primary').find('.jInfo').length;
         $jsonWrap.find('.projectModeBar .numColsSelected')
-                 .data('totalcols', numFields)
-                 .text('0/' + numFields + ' ' +
+                 .data('numMainFields', numMainFields)
+                 .text('0/' + numMainFields + ' ' +
                        JsonModalTStr.FieldsSelected);
-
         $jsonWrap.find('.multiSelectModeBar .numColsSelected')
-                 .data('totalcols', numFields)
-                 .text('0/' + numFields + ' ' + JsonModalTStr.FieldsPull);
+                 .data('numTotalFields', numTotalFields)
+                 .text('0/' + numTotalFields + ' ' + JsonModalTStr.FieldsPull);
        
     }
 
@@ -1713,7 +1732,6 @@ window.JSONModal = (function($, JSONModal) {
 
                 $tableWrap.find('.xcTbodyWrap').append($tableCover);
                 $tableWrap.each(function() {
-                    // var tableHeight = $(this).find('.xcTable').height();
                     var tbodyHeight = $(this).find('.xcTable tbody').height();
                     $(this).find('.tableCover.jsonCover')
                            .height(tbodyHeight + 1);
@@ -1759,7 +1777,7 @@ window.JSONModal = (function($, JSONModal) {
         }
     }
 
-    function prettifyJson(obj, indent, checkboxes, options) {
+    function prettifyJson(obj, indent, mainKey, options, isArrayEl) {
         if (typeof obj !== "object") {
             return (JSON.stringify(obj));
         }
@@ -1773,47 +1791,26 @@ window.JSONModal = (function($, JSONModal) {
             var value = obj[key];
             key = xcHelper.escapeHTMLSepcialChar(key);
             var dataKey = key.replace(/\"/g, "&quot;"); // replace " with &quot;
+            var arrayElClass = isArrayEl ? " arrayEl" : "";
             switch (typeof value) {
                 case ('string'):
                     value = xcHelper.escapeHTMLSepcialChar(value);
-                    value = '"<span class="jString text">' + value + '</span>"';
-
-                    if (options.inarray) {
-                        value =
-                            '<span class="jArray jInfo" ' +
-                                'data-key="' + dataKey + '">' +
-                                value +
-                            '</span>, ';
-                    }
-
+                    value = '"<span class="jString text ' + arrayElClass + 
+                            '">' + value + '</span>"';
                     break;
                 case ('number'):
-                    value = '<span class="jNum text">' + value + '</span>';
-
-                    if (options.inarray) {
-
-                        value =
-                            '<span class="jArray jInfo" ' +
-                                'data-key="' + dataKey + '">' +
-                                value +
-                            '</span>,';
-                    }
-
+                    value = '<span class="jNum text ' + arrayElClass + 
+                            '">' + value + '</span>';
                     break;
                 case ('boolean'):
-                    value = '<span class="jBool text">' + value + '</span>';
-
-                    if (options.inarray) {
-                        value += ',';
-                    }
-
+                    value = '<span class="jBool text ' + arrayElClass + 
+                            '">' + value + '</span>';
                     break;
                 case ('object'):
+                    // divs are used in css selectors so careful with changing
                     if (value == null) {
-                        value = '<span class="jNull text">' + value + '</span>';
-                        if (options.inarray) {
-                            value += ',';
-                        }
+                        value = '<span class="jNull text ' + arrayElClass + 
+                                '">' + value + '</span>';
                     } else if (value.constructor === Array) {
                         ++options.inarray;
                         var emptyArray = "";
@@ -1821,68 +1818,45 @@ window.JSONModal = (function($, JSONModal) {
                             emptyArray = " emptyArray";
                         }
                         value =
-                        '[<span class="jArray jInfo ' + emptyArray + '" ' +
-                            'data-key="' + dataKey + '">' +
-                            prettifyJson(value, indent, null, options) +
-                        '</span>],';
+                        '[<div class="jArray ' + emptyArray + '" ' +
+                            '>' +
+                            prettifyJson(value, indent + 1, null, options, true) +
+                        '</div>' + getIndent(indent) + ']';
                     } else {
                         var object = prettifyJson(value, indent + 1);
+                        var emptyObj = ""; 
                         if (object === "") {
-                            value = '{<span class="emptyObj">\n' +
-                                    object + getIndent(indent) + '</span>}';
-                        } else {
-                            value = '{\n' + object + getIndent(indent) + '}';
+                            emptyObj = " emptyObj";
                         }
-
-                        if (options.inarray) {
-                            value =
-                            '<span class="jArray jInfo" ' +
-                                'data-key="' + dataKey + '">' +
-                                value +
-                            '</span>,';
-                        }
+                        value = '{<div class="jObj' + emptyObj + '">' + object +
+                                '</div>' + getIndent(indent) + '}';
                     }
 
                     break;
                 default:
                     value = '<span class="jUndf text">' + value + '</span>';
-                    if (options.inarray) {
-                        value += ',';
-                    }
-
                     break;
             }
 
             if (options.inarray) {
-                result += value;
+                value += ",";
+                result += '<div class="jsonBlock jInfo arrayVal' +
+                            '" data-key="' + dataKey + '">' +
+                            getCheckbox(indent) +  getIndent(indent) + value +
+                        '</div>';
             } else {
-                var row = "";
                 var classNames = "";
-                // var isImmediate;
                 value = value.replace(/,$/, "");
                 
-                if (checkboxes) {
+                if (mainKey) {
                     classNames = " mainKey";
                 }
-                row += '<div class="jsonBlock jInfo' + classNames +
-                      '" data-key="' + dataKey + '">';
-                   
-                if (checkboxes) {
-                    row += '<div class="checkbox jsonCheckbox">' +
-                                '<i class="icon xi-ckbox-empty fa-11"></i>' +
-                                '<i class="icon xi-ckbox-selected fa-11"></i>' +
-                              '</div>';
-                }
-                row += getIndent(indent) +
+                result += '<div class="jsonBlock jInfo objVal' + classNames +
+                      '" data-key="' + dataKey + '">' +
+                        getCheckbox(indent) + getIndent(indent) +
                         '"<span class="jKey text">' + dataKey + '</span>": ' +
                         value + ',' +
                     '</div>';
-                // xx will implement this soon 9/28/16
-                // if (isImmediate) { // put immediate in front
-                //     result = row + result;
-                // } else {
-                result += row;
-                // }
             }
         }
 
@@ -1900,12 +1874,23 @@ window.JSONModal = (function($, JSONModal) {
     }
 
     function getIndent(num) {
-        var singleIndent = "&nbsp;&nbsp;&nbsp;&nbsp";
+        var singleIndent = "&nbsp;&nbsp;";
         var totalIndent = "";
         for (var i = 0; i < num; i++) {
             totalIndent += singleIndent;
         }
         return (totalIndent);
+    }
+
+    function getCheckbox(indent) {
+        var originalLeft = -19;
+        var left = originalLeft + (16.8 * indent);
+        var html = '<div class="checkbox jsonCheckbox" style="left: ' + left +
+                    'px;">' +
+            '<i class="icon xi-ckbox-empty fa-11"></i>' +
+            '<i class="icon xi-ckbox-selected fa-11"></i>' +
+        '</div>';
+        return html;
     }
 
     function createJsonSelectionExpression($el) {
@@ -1921,12 +1906,11 @@ window.JSONModal = (function($, JSONModal) {
             var needsBrackets = false;
             var needsDot = false;
 
-            if ($jInfo.parent().hasClass('jArray') &&
-                !$jInfo.hasClass('jsonBlock')) {
+            if ($jInfo.hasClass('arrayVal')) {
                 key = $jInfo.data('key');
                 needsBrackets = true;
 
-            } else if (!$jInfo.hasClass('jArray')) {
+            } else {
                 key = $jInfo.data('key');
                 needsDot = true;
             }
@@ -1990,7 +1974,7 @@ window.JSONModal = (function($, JSONModal) {
             // take the jsonData from the first visibile row
             rowNum = RowScroller.getFirstVisibleRowNum() - 1;
         }
-        var colNames = getSelectedCols($jsonWrap);
+        var colNames = getSelectedCols($jsonWrap, tableId, colNum);
 
         closeJSONModal(modes.multiple);
         //set timeout to allow modal to close before unnesting many cols
@@ -1999,17 +1983,16 @@ window.JSONModal = (function($, JSONModal) {
         }, 0);
     }
 
-    function getSelectedCols($jsonWrap) {
+    function getSelectedCols($jsonWrap, tableId, colNum) {
         var colNames = [];
+        var baseName = "";
+        if (!isDataCol) {
+            baseName = gTables[tableId].getCol(colNum).getBackColName();
+        }
         $jsonWrap.find('.keySelected').each(function() {
             var $el = $(this);
-            var colName = $el.text();
-            var $prefixType = $el.closest('.prefixedType');
-            if ($prefixType.length) {
-                var $prefixGroup = $el.closest('.prefixGroup');
-                var $prefix = $prefixGroup.find('.prefix');
-                colName = $prefix.text() + gPrefixSign + colName;
-            }
+            var nameInfo = createJsonSelectionExpression($el);
+            var colName = nameInfo.escapedName;
             colNames.push(colName);
         });
         return (colNames);
@@ -2068,7 +2051,6 @@ window.JSONModal = (function($, JSONModal) {
         var cols = table.getAllCols();
         var colName;
         var $immediatesGroup = $jsonWrap.find('.immediatesGroup');
-        // var $prefixGroups = $jsonWrap.find('.prefixGroups');
         var $group;
         var prefixSelected = false;
 
@@ -2084,7 +2066,6 @@ window.JSONModal = (function($, JSONModal) {
                                 .find('.mainKey[data-key="' + colName + '"]')
                                 .children('.jsonCheckbox');
                 if ($checkbox.length && !$checkbox.hasClass('checked')) {
-                    // togglePrefixProject($checkbox);
                     selectJsonKey($checkbox.siblings('.jKey'), {});
                 }
                 

@@ -1776,14 +1776,22 @@ window.ColManager = (function($, ColManager) {
         var parsedCols = [];
         var isArray = (progCol.getType() === ColumnType.array);
         var isNotDATACol = !progCol.isDATACol();
-        var openSymbol;
-        var closingSymbol;
+        var openSymbol = "";
+        var closingSymbol = "";
         var unnestColName;
         colNames = colNames || [];
 
         if (isNotDATACol) {
-            openSymbol = isArray ? "[" : ".";
-            closingSymbol = isArray ? "]" : "";
+            if (!isArray) {
+                openSymbol = ".";
+            } else {
+                if (!colNames.length) {
+                    openSymbol = "[";
+                    closingSymbol = "]";
+                }
+            }
+            // openSymbol = isArray ? "" : ".";
+            // closingSymbol = isArray ? "" : "";
             unnestColName = progCol.getBackColName();
         }
 

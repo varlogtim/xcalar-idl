@@ -435,32 +435,32 @@
                     }
                 }
 
-                .jArray  {
-                    > .jString, > .jNum, > .jBool, > .jNull , > .jUndf {
-                        cursor: default;
-                        &:hover {
-                            background-color: transparent;
-                            box-shadow: none;
-                        }
-                    }
-                }
-                .jKey {
-                    // pointer-events: none;
-                    // cursor: default;
-                    &:hover {
-                        background-color: transparent;
-                        box-shadow: none;
-                    }
-                }
+                // .jArray  {
+                //     > .jString, > .jNum, > .jBool, > .jNull , > .jUndf {
+                //         cursor: default;
+                //         &:hover {
+                //             background-color: transparent;
+                //             box-shadow: none;
+                //         }
+                //     }
+                // }
+                // .jKey {
+                //     // pointer-events: none;
+                //     // cursor: default;
+                //     &:hover {
+                //         background-color: transparent;
+                //         box-shadow: none;
+                //     }
+                // }
 
-                .jObject > .jArray > .jsonBlock > .jKey {
-                    cursor: pointer;
-                    pointer-events: auto;
-                    &:hover {
-                        background-color: #dff8ff;
-                        box-shadow: 0px 0px 1px @color-table-borderBlue;
-                    }
-                }
+                // .jObject > .jArray > .jsonBlock > .jKey {
+                //     cursor: pointer;
+                //     pointer-events: auto;
+                //     &:hover {
+                //         background-color: #dff8ff;
+                //         box-shadow: 0px 0px 1px @color-table-borderBlue;
+                //     }
+                // }
             }
 
             .optionsBar {
@@ -606,7 +606,7 @@
                 display: none;
             }
             .jObject {
-                padding-left: 25px;
+                padding-left: 18px;
             }
         }
     }
@@ -858,7 +858,7 @@
         overflow-y: auto;
         overflow-x: hidden;
         background-color: @color-white;
-        .font(@size: 15px, @family: @font-code, @color: @color-json-default);
+        .font(@size: 14px, @family: @font-code, @color: @color-json-default, @line-height: 16px);
         .text-selection;
 
         &.secondary {
@@ -900,11 +900,18 @@
         // can't sort on arrays
         &.isArray {
             .optionsBar {
-                .sort, .dropdownBox {
+                .sort {
                     display: none;
                 }
                 .flexArea {
-                    width: ~"calc(100% - 60px)";
+                    width: ~"calc(100% - 90px)";
+                }
+            }
+            .multiSelectMode {
+                .optionsBar {
+                    .flexArea {
+                        width: ~"calc(100% - 136px)";
+                    }
                 }
             }
         }
@@ -947,7 +954,7 @@
     .jObject {
         .position(relative);
         .size(@width: 100%, @height: auto);
-        padding-left: 25px;
+        padding-left: 18px;
         padding-right: 5px;
         overflow:visible;
     }
@@ -959,7 +966,7 @@
     }
 
     .jsonCheckbox {
-        .position(absolute, @top: 0px, @left: -18px);
+        .position(absolute, @top: -1px, @left: -18px);
         height: 16px;
         .size(20px, 20px);
         padding-top: 6px;
@@ -983,7 +990,8 @@
         }
     }
 
-    .jArray  {
+    // .jArray  {
+    .arrayVal {
         > .jString, > .jNum, > .jBool, > .jNull , > .jUndf {
             cursor: pointer;
             &:hover {
@@ -991,6 +999,10 @@
                 box-shadow: 0px 0px 1px @color-table-borderBlue;
             }
         }
+    }
+
+    .jArray, .jObj {
+        display: inline;
     }
 
     .jString {
@@ -1007,7 +1019,8 @@
         font-style: italic;
     }
 
-    .jArray > .jString {
+    // .jArray > .jString {
+    .arrayVal > .jString {
         color: @color-json-array;
         white-space: nowrap;
         word-break: break-all;
@@ -1037,7 +1050,7 @@
         margin-top: 20px; 
 
         .jObject {
-            padding-left: 35px;
+            padding-left: 31px;
         }
     }
 
@@ -1045,7 +1058,7 @@
         color: @color-prefix-gray;
         margin-bottom: 4px;
         margin-left: 11px;
-        margin-left: 23px;
+        margin-left: 15px;
     }
 
 
@@ -1075,7 +1088,8 @@
         }
     }
     .partial > .jsonBlock {
-        > .jKey + span, > .jKey ~ div > span {
+        > .jKey + span, > .jKey ~ div > span, > .jKey ~ div > div  > span,
+        > .jKey ~ .emptyArray, > .jKey ~ .emptyObj {
             border-radius: 1px;
             background-color: @color-json-partial;
             box-shadow: 0px 0px 0px 1px @color-json-partial-shadow;
@@ -1083,6 +1097,7 @@
         > .emptyObj, .emptyArray {
             font-size: 12px;
             letter-spacing: -1px;
+            padding-left: 4px;
         }
     }
 
@@ -1099,7 +1114,7 @@
         }
     }
 
-    .keySelected {
+    .keySelected:not(.jsonBlock) {
         background-color: @color-json-project-selected !important;
         box-shadow: none !important;
     }
