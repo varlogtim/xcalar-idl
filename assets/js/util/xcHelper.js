@@ -3242,25 +3242,10 @@ window.xcHelper = (function($, xcHelper) {
         toggleUnnestandJsonOptions($menu, $div, columnType, isMultiCell,
                                     notAllowed, options);
     }
-
-    // XXX we won't need to do this check (disallow filtering mixed cell types)
-    // once GUI-7071 is fixed
-    function hasMixedCells(tableId) {
-        // this function assumes all the cells come from the same column
-        var $highlightBoxes = $("#xcTable-" + tableId).find(".highlightBox");
-        var $tds = $highlightBoxes.closest("td");
-        var $fnfCells = $tds.find(".undefined");
-        if ($fnfCells.length > 0 && $fnfCells.length < $tds.length) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-
+    
     // used for deciding if cell can be filtered
     // returns true if cell is mixed and not an object or array
-    // assumes column is mixed and cells from only 1 column are highlighted
+    // assumes cells from only 1 column are highlighted
     function isInvalidMixed(tableId) {
         var filterTypes = ["string", "float", "integer", "boolean", "undefined"];
         var $highlightBoxes = $("#xcTable-" + tableId).find(".highlightBox");
@@ -3279,6 +3264,8 @@ window.xcHelper = (function($, xcHelper) {
                 typeFound = type;
             } else if (type !== typeFound) {
                 // cannot filter more than 1 type
+                // XXX we won't need to do this check
+                // (disallow filtering mixed cell types) once GUI-7071 is fixed
                 invalidFound = true;
                 return false;
             }

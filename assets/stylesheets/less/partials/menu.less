@@ -632,7 +632,7 @@
     &.type-object, &.type-newColumn,
     &.recordNum, &.childOfArray, &.type-array {
         .sort, .aggregate, .groupby, .filter, .joinList, .map, .operations,
-        .profile
+        .profile, .corrAgg
         {
             display: none;
         }
@@ -640,7 +640,7 @@
 
     // show map option
     &.type-mixed {
-        .sort, .aggregate, .groupby, .filter, .joinList, .profile {
+        .sort, .aggregate, .groupby, .filter, .joinList, .profile, .corrAgg {
             display: none;
         }
     }
@@ -653,7 +653,7 @@
 
     &.type-undefined, {
         .sort, .aggregate, .groupby, .joinList, .operations,
-        .profile
+        .profile, .corrAgg
         {
             display: none;
         }
@@ -694,7 +694,7 @@
     &.type-data {
         .sort, .aggregate, .groupby, .filter, .joinList, .hideColumn,
         .rename, .map, .operations,
-        .changeDataType, .profile, .divider, .format, .roundToFixed ,
+        .changeDataType, .profile, .corrAgg, .divider, .format, .roundToFixed,
         .extensions {
             display: none;
         }

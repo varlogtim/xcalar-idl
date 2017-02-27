@@ -1367,6 +1367,9 @@ window.ColManager = (function($, ColManager) {
         var data = $dataTd.find('.originalData').text();
         var parsed = false;
 
+        if ($td.find(".undefined").length) {
+            return ColumnType.undefined;
+        }
         try {
             data = JSON.parse(data);
             parsed = true;
