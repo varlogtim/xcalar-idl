@@ -106,9 +106,14 @@ window.StartManager = (function(StartManager, $) {
         Admin.initialize();
         xcSuggest.setup();
 
+        var firstTimeUser;
+
         XVM.checkVersionMatch()
         .then(XVM.checkKVVersion)
-        .then(setupSession)
+        .then(function(isFirstTimeUser) {
+            firstTimeUser = isFirstTimeUser;
+            return setupSession();
+        })
         .then(function() {
             DataStore.initialize();
             // Extensions need to be moved to after version check because
@@ -160,6 +165,29 @@ window.StartManager = (function(StartManager, $) {
                 var text = StatusMessageTStr.Viewing + " " + WKBKTStr.Location;
                 StatusMessage.updateLocation(true, text);
                 Admin.addNewUser();
+
+                if (firstTimeUser) {
+                    // when it's new user first time login
+                    Alert.show({
+                        "title": DemoTStr.title,
+                        "msg": NewUserTStr.msg,
+                        "buttons": [
+                            {
+                                "name": AlertTStr.CLOSE,
+                                "className": "cancel"
+                            },
+                            {
+                                "name": NewUserTStr.openGuide,
+                                "className": "confirm",
+                                "func": function() {
+                                    var url = "https://university.xcalar.com/confluence/display/XU/Self-Paced+Training";
+                                    window.open(url, "_blank");
+                                }
+                            }
+                        ],
+                        "noCancel": true
+                    });
+                }
             } else if (error === WKBKTStr.Hold) {
                 // when seesion is hold by others
                 Alert.show({

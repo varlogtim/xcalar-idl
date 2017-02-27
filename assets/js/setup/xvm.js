@@ -116,10 +116,12 @@ window.XVM = (function(XVM) {
     XVM.checkKVVersion = function() {
         var deferred = jQuery.Deferred();
         var needUpgrade = false;
+        var firstUser = false;
 
         KVStore.get(kvVersionKey, gKVScope.VER)
         .then(function(value) {
             if (value == null) {
+                firstUser = true;
                 // when it's a first time set up
                 return XVM.commitKVVersion();
             }
@@ -134,7 +136,9 @@ window.XVM = (function(XVM) {
                 return Upgrader.exec(version);
             }
         })
-        .then(deferred.resolve)
+        .then(function() {
+            deferred.resolve(firstUser);
+        })
         .fail(deferred.reject);
 
         return deferred.promise();

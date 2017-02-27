@@ -308,6 +308,11 @@ DemoTStr = {
     "minutes": "minutes"
 };
 
+NewUserTStr = {
+    "msg": "If this is your first time using Xcalar Design, click the \"Open Guide\" button for resources on how to get started",
+    "openGuide": "Open Guide"
+};
+
 TipsTStr = {
     'Scrollbar': 'Scroll Table Here',
     'DataType': 'Data Type',
