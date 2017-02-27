@@ -331,9 +331,9 @@ window.TestSuiteManager = (function(TestSuiteManager) {
             var html = "";
             for (var i = 0; i < ret.length; i++) {
                 var extraClass = "";
-                if (ret[i].succeeded === 0 && ret[i].failed === 0) {
+                if (i === 0 && ret[i].totalUsers - ret[i].successUsers > 0) {
                     extraClass = "";
-                } else if (ret[i].failed > 0) {
+                } else if (ret[i].totalUsers - ret[i].successUsers > 0) {
                     extraClass = "fail";
                 } else {
                     extraClass = "pass";
@@ -349,8 +349,8 @@ window.TestSuiteManager = (function(TestSuiteManager) {
                 html += '<div class="pastTime">' + val + '</div>';
                 html += '<div class="pastDuration">' + ret[i].duration +
                         '</div>';
-                html += '<div class="pastResults">' + ret[i].succeeded + "/" +
-                        ret[i].failed + '</div>';
+                html += '<div class="pastResults">' + ret[i].successUsers + "/" +
+                        ret[i].totalUsers + '</div>';
                 html += '</div>';
             }
             $("#pastRuns .results").html(html);
