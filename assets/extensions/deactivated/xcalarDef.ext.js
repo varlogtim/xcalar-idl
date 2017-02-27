@@ -211,9 +211,11 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
                     pulledColumns: leftOverBTableCols,
                     rename: bPrefixRename
                 };
-
-                return ext.join(XcSDK.Enums.JoinType.FullOuterJoin, lTableInfo,
-                                rTableInfo, finalTableName);
+                var joinOpts = {
+                    "newTableName": finalTableName
+                };
+                return ext.join(XcSDK.Enums.JoinType.FullOuterJoin,
+                                lTableInfo, rTableInfo, joinOpts);
             })
             .then(function() {
                 var tablesToReplace = [tTable.tableName];
@@ -362,6 +364,7 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
                 var newTableName, newColName, col;
                 var i, j;
                 var renameMapTmp, joinMap;
+                var lTableInfo, rTableInfo, joinOpts;
 
                 for (i = 0; i < lag; i++) {
                     renameMapTmp = [];
@@ -379,13 +382,22 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
                     newTableName = self.createTableName(null, "_window");
                     rTable = tableNames.lag[i];
                     rCol = rowNumColNames.lag[i];
+                    lTableInfo = {
+                        "tableName": lTable,
+                        "columns": lCol
+                    };
+                    rTableInfo = {
+                        "tableName": rTable,
+                        "columns": rCol,
+                        "rename": renameMapTmp
+                    };
+                    joinOpts = {
+                        "newTableName": newTableName
+                    };
+
                     defChain.push(self.join.bind(self, joinType,
-                                                 {"tableName": lTable,
-                                                  "columns": lCol},
-                                                 {"tableName": rTable,
-                                                  "columns": rCol,
-                                                  "rename": renameMapTmp},
-                                                 newTableName));
+                                                lTableInfo, rTableInfo,
+                                                joinOpts));
                     lTable = newTableName;
                 }
 
@@ -405,13 +417,22 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
                     newTableName = self.createTableName(null, "_window");
                     rTable = tableNames.lead[i];
                     rCol = rowNumColNames.lead[i];
+                    lTableInfo = {
+                        "tableName": lTable,
+                        "columns": lCol
+                    };
+                    rTableInfo = {
+                        "tableName": rTable,
+                        "columns": rCol,
+                        "rename": renameMapTmp
+                    };
+                    joinOpts = {
+                        "newTableName": newTableName
+                    };
+
                     defChain.push(self.join.bind(self, joinType,
-                                                 {"tableName": lTable,
-                                                  "columns": lCol},
-                                                 {"tableName": rTable,
-                                                  "columns": rCol,
-                                                  "rename": renameMapTmp},
-                                                 newTableName));
+                                                lTableInfo, rTableInfo,
+                                                joinOpts));
                     lTable = newTableName;
                 }
 

@@ -145,34 +145,38 @@ window.XcSDK.Extension.prototype = (function() {
         },
 
         /*
-        lTableInfo/rTableInfo: object with the following attrs:
-            columns: array of back colum names to join
-            pulledColumns: columns to pulled out (front col name)
-            tableName: table's name
-            reaname: array of rename object
+            lTableInfo/rTableInfo: object with the following attrs:
+                columns: array of back colum names to join
+                pulledColumns: columns to pulled out (front col name)
+                tableName: table's name
+                reaname: array of rename object
 
-        rename map: object generate by
-        ext.getJoinRenameMap(oldName, newName, isPrefix)
+            rename map: object generate by
+            xcHelper.getJoinRenameMap(oldName, newName, type)
+            if it's fat ptr, pass in DfFieldTypeT.DfFatptr, othewise, pass in null
 
-            sample:
-                var lTableInfo = {
-                    "tableName"    : "test#ab123",
-                    "columns"      : ["test::colA", "test::colB"],
-                    "pulledColumns": ["test::colA", "test::colB"],
-                    "rename"       : [{
-                        "new" : "test2",
-                        "orig" : "test",
-                        "type": DfFieldTypeT.DfFatptr
-                    }]
-                }
+                sample:
+                    var lTableInfo = {
+                        "tableName": "test#ab123",
+                        "columns": ["test::colA", "test::colB"],
+                        "pulledColumns": ["test::colA", "test::colB"],
+                        "rename": [{
+                            "new": "test2",
+                            "old": "test",
+                            "type": DfFieldTypeT.DfFatptr
+                        }]
+                    }
 
+            options:
+                newTableName: string, final table's name, optional
+                clean: boolean, remove intermediate table if set true
         */
-        "join": function(joinType, lTableInfo, rTableInfo, newTableName) {
+        "join": function(joinType, lTableInfo, rTableInfo, options) {
             var deferred = jQuery.Deferred();
             var self = this;
             var txId = self.txId;
 
-            XIApi.join(txId, joinType, lTableInfo, rTableInfo, newTableName)
+            XIApi.join(txId, joinType, lTableInfo, rTableInfo, options)
             .then(function(dstTable, dstCols) {
                 self._addMeta(null, dstTable, dstCols);
                 deferred.resolve(dstTable);

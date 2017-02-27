@@ -427,8 +427,11 @@ window.xcFunction = (function($, xcFunction) {
         };
 
         var finalJoinTableName;
+        var joinOpts = {
+            "newTableName": newTableName
+        };
 
-        XIApi.join(txId, joinType, lTableInfo, rTableInfo, newTableName)
+        XIApi.join(txId, joinType, lTableInfo, rTableInfo, joinOpts)
         .then(function(finalTableName, finalTableCols) {
             finalJoinTableName = finalTableName;
             var tablesToReplace = [];

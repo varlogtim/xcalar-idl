@@ -168,7 +168,6 @@ window.UExtIntel = (function(UExtIntel) {
                                tableAfterGroupby, "MaxForRow", options);
         })
         .then(function(tableAfterGroupby) {
-            var newTable = ext.createTempTableName();
             rTable = tableAfterGroupby;
 
             var joinType = XcSDK.Enums.JoinType.InnerJoin;
@@ -180,7 +179,10 @@ window.UExtIntel = (function(UExtIntel) {
                 "tableName": rTable,
                 "columns": ["ROW_ID", "MaxForRow"]
             };
-            return ext.join(joinType, lTableInfo, rTableInfo, newTable);
+            var options = {
+                "newTableName": ext.createTempTableName()
+            };
+            return ext.join(joinType, lTableInfo, rTableInfo, options);
         })
         .then(function(tableAfterJoin) {
             var operator = XcSDK.Enums.AggType.Count;
