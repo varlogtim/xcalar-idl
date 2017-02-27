@@ -155,6 +155,7 @@ window.DSExport = (function($, DSExport) {
                 };
                 exportTargets[typeIndex].targets.push(target);
             }
+            sortExportTargets();
             restoreGrids(activeName, activeType);
             deferred.resolve();
         })
@@ -240,6 +241,17 @@ window.DSExport = (function($, DSExport) {
             "bounds": "#datastorePanel > .mainContent",
             "bottomPadding": 5
         }).setupListeners();
+    }
+
+    function sortExportTargets() {
+        var targets;
+        for (var i = 0; i < exportTargets.length; i++) {
+            targets = exportTargets[i].targets;
+            targets.sort(sortTargets);
+        }
+        function sortTargets(a, b) {
+            return xcHelper.sortVals(a.name, b.name);
+        }
     }
 
     function selectGrid($grid) {

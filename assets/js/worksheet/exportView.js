@@ -525,6 +525,8 @@ window.ExportView = (function($, ExportView) {
     function restoreExportPaths(targs) {
         var targets = targs.targets;
         var numTargets = targs.numTargets;
+        targets.sort(sortTargets);
+
         var $exportList = $('#exportLists').find('ul');
         var lis = '<li class="hint">Choose a target</li>';
         for (var i = 0; i < numTargets; i++) {
@@ -539,6 +541,10 @@ window.ExportView = (function($, ExportView) {
         var type = $defaultLi.data('type');
         $exportPath.data('type', type);
         checkSortedTable();
+        
+        function sortTargets(a, b) {
+            return xcHelper.sortVals(a.hdr.name, b.hdr.name);
+        }
     }
 
     function addColumnSelectListeners() {
