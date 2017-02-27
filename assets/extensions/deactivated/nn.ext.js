@@ -16,45 +16,45 @@
 // the buttons belonging to the extension
 // undoActionFn is a function that will get invoked once the user tries to undo
 // an action that belongs to this extension
-window.UExtNN = (function(UExtNN, $) {
+window.UExtNN = (function(UExtNN) {
     UExtNN.buttons = [{
-        "buttonText"   : "Neural Network Training",
-        "fnName"       : "nnTrain",
+        "buttonText": "Neural Network Training",
+        "fnName": "nnTrain",
         "arrayOfFields": [{
-            "type"      : "number",
-            "name"      : "num datapoints",
+            "type": "number",
+            "name": "num datapoints",
             "fieldClass": "numDatapoints",
-            "typeCheck" : {
+            "typeCheck": {
                 "integer": true,
-                "min"    : 1
+                "min": 1
             }
         },
         {
-            "type"      : "number",
-            "name"      : "learning rate",
+            "type": "number",
+            "name": "learning rate",
             "fieldClass": "rate"
         },
         {
-            "type"      : "number",
-            "name"      : "max iter",
+            "type": "number",
+            "name": "max iter",
             "fieldClass": "maxIter",
-            "typeCheck" : {
+            "typeCheck": {
                 "integer": true,
-                "min"    : 1
+                "min": 1
             }
         }]
     },
     {
         "buttonText": "Neural Network Testing",
-         "fnName": "nnTest",
-         "arrayOfFields": [{
-            "type"      : "number",
-            "name"      : "data num tag",
+        "fnName": "nnTest",
+        "arrayOfFields": [{
+            "type": "number",
+            "name": "data num tag",
             "fieldClass": "dataNumTag"
         },
         {
-            "type"      : "number",
-            "name"      : "iteration tag",
+            "type": "number",
+            "name": "iteration tag",
             "fieldClass": "iterTag"
         }]
     }];
@@ -94,9 +94,6 @@ window.UExtNN = (function(UExtNN, $) {
             var dataNumTag = args.dataNumTag;
             var iterTag = args.iterTag;
 
-            var tableId = xcHelper.getTableId(input);
-            var table = gTables[tableId];
-            var workSheet = WSManager.getWSFromTable(tableId);
             var resultSet;
 
             var dataNumCol = "dataNum";
@@ -142,7 +139,7 @@ window.UExtNN = (function(UExtNN, $) {
 
             XcalarGetTables("*w_" + dataNumTag + "_" + iterTag + "*")
             .then(function(out) {
-                if (out.nodeInfo[0].name.charAt(0) == 'h') {
+                if (out.nodeInfo[0].name.charAt(0) === 'h') {
                     hw = out.nodeInfo[0].name;
                     ow = out.nodeInfo[1].name;
                 } else {
@@ -305,13 +302,7 @@ window.UExtNN = (function(UExtNN, $) {
             var rate = args.rate;
             var maxIter = args.maxIter;
 
-            var tableId = xcHelper.getTableId(tableName);
-            var table = gTables[tableId];
-            var workSheet = WSManager.getWSFromTable(tableId);
-            var resultSet;
-
             var dataNumCol = "dataNum";
-
             var inputRow = "inputRow";
             var inputCol = "inputCol";
             var inputData = "inputData";
@@ -427,7 +418,7 @@ window.UExtNN = (function(UExtNN, $) {
                 return (oneIter(iteration)
                         .then(function(done) {
                             if ((!maxIter || iteration < maxIter) &&
-                                done == false) {
+                                done === false) {
                                 return iterate(iteration + 1);
                             }
                         }));
@@ -623,7 +614,7 @@ window.UExtNN = (function(UExtNN, $) {
                         Authentication.getHashId();
                     var errorStr;
 
-                    if (totalError == "") {
+                    if (totalError === "") {
                         errorStr = 'map --eval "add(0,';
                     } else {
                         errorStr = 'map --eval "add(' + gAggVarPrefix +
@@ -692,7 +683,8 @@ window.UExtNN = (function(UExtNN, $) {
 
                     XcalarSetFree(resultSet.resultSetId);
                     innerDeferred.resolve(done);
-                })
+                });
+
                 return innerDeferred.promise();
             }
 
@@ -894,4 +886,4 @@ window.UExtNN = (function(UExtNN, $) {
         }
     };
     return (UExtNN);
-}({}, jQuery));
+}({}));

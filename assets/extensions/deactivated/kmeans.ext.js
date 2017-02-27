@@ -17,39 +17,39 @@
 // an action that belongs to this extension
 window.UExtKMeans = (function(UExtKMeans) {
     UExtKMeans.buttons = [{
-        "buttonText"   : "K-Means Clustering",
-        "fnName"       : "kMeans",
+        "buttonText": "K-Means Clustering",
+        "fnName": "kMeans",
         "arrayOfFields": [{
-            "type"      : "column",
-            "name"      : "KMeans Columns",
+            "type": "column",
+            "name": "KMeans Columns",
             "fieldClass": "cols",
-            "autofill"  : true,
-            "typeCheck" : {
-                "columnType" : "number",
+            "autofill": true,
+            "typeCheck": {
+                "columnType": "number",
                 "multiColumn": true
             }
         },
         {
-            "type"      : "number",
-            "name"      : "Number of clusters",
+            "type": "number",
+            "name": "Number of clusters",
             "fieldClass": "k",
-            "typeCheck" : {
+            "typeCheck": {
                 "integer": true,
-                "min"    : 1
+                "min": 1
             }
         },
         {
-            "type"      : "number",
-            "name"      : "Threshold",
+            "type": "number",
+            "name": "Threshold",
             "fieldClass": "threshold"
         },
         {
-            "type"      : "number",
-            "name"      : "Max Iterations",
+            "type": "number",
+            "name": "Max Iterations",
             "fieldClass": "maxIter",
-            "typeCheck" : {
+            "typeCheck": {
                 "integer": true,
-                "min"    : 1
+                "min": 1
             }
         }]
     }];

@@ -3,14 +3,14 @@ window.UExtTableauDemo = (function(UExtTableauDemo, $) {
     var viz;
 
     UExtTableauDemo.buttons = [{
-        "buttonText"   : "Visualize",
-        "fnName"       : "visualize",
+        "buttonText": "Visualize",
+        "fnName": "visualize",
         "arrayOfFields": [{
-            //"type"      : "column",
-            "type"      : "string",
-            "name"      : "Columns To Visualize",
+            //"type": "column",
+            "type": "string",
+            "name": "Columns To Visualize",
             "fieldClass": "col",
-            //"typeCheck" : ["number", "string", "boolean"]
+            //"typeCheck": ["number", "string", "boolean"]
         }]
     }];
 
@@ -29,10 +29,10 @@ window.UExtTableauDemo = (function(UExtTableauDemo, $) {
         ext.start = function() {
             var self = this;
             var deferred = XcSDK.Promise.deferred();
-            var table = self.getTriggerTable();
+            // var table = self.getTriggerTable();
             var waitTime = 5;
             // XXXX this is a hack, should change to the SDK way
-            var tableName = table.getName();
+            // var tableName = table.getName();
             var col = self.getArgs().col;
             var names = col.split(",");
             showModal(col, waitTime);

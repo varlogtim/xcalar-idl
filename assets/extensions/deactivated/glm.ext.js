@@ -1,21 +1,21 @@
 window.UExtGLM = (function(UExtGLM) {
     UExtGLM.buttons = [{
-        "buttonText"   : "Simple Linear Regression",
-        "fnName"       : "simpleLinearRegression",
+        "buttonText": "Simple Linear Regression",
+        "fnName": "simpleLinearRegression",
         "arrayOfFields": [{
-            "type"      : "column",
-            "name"      : "Independent Variable (x)",
+            "type": "column",
+            "name": "Independent Variable (x)",
             "fieldClass": "xCol",
-            "autofill"  : true,
-            "typeCheck" : {
+            "autofill": true,
+            "typeCheck": {
                 "columnType": ["number"]
             }
         },
         {
-            "type"      : "column",
-            "name"      : "Dependent Variable (y)",
+            "type": "column",
+            "name": "Dependent Variable (y)",
             "fieldClass": "yCol",
-            "typeCheck" : {
+            "typeCheck": {
                 "columnType": ["number"]
             }
         }]

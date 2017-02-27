@@ -30,8 +30,8 @@ window.UExtHello = (function(UExtHello) {
      *
      *  E.g. of an extension function object
      *  {
-     *      "buttonText"   : "Sum 3",
-     *      "fnName"       : "sum3",
+     *      "buttonText": "Sum 3",
+     *      "fnName": "sum3",
      *      "arrayOfFields": [argument1, argument2, ...]
      *  }
      *
@@ -122,11 +122,11 @@ window.UExtHello = (function(UExtHello) {
      *
      * E.g of an argument object:
      * {
-     *  "type"      : "column",
-     *  "name"      : "Example 1",
+     *  "type": "column",
+     *  "name": "Example 1",
      *  "allowEmpty": true,
      *  "fieldClass": "col1",
-     *  "typeCheck" : {
+     *  "typeCheck": {
      *      "columnType": ["number"],
      *      "tableField": "tableA"
      *  }
@@ -134,29 +134,29 @@ window.UExtHello = (function(UExtHello) {
      *
      */
     UExtHello.buttons = [{
-        "buttonText"   : "Sum 3",
-        "fnName"       : "sum3",
+        "buttonText": "Sum 3",
+        "fnName": "sum3",
         "arrayOfFields": [{
-            "type"      : "column",
-            "name"      : "Column 1",
+            "type": "column",
+            "name": "Column 1",
             "fieldClass": "col1",
-            "typeCheck" : {
+            "typeCheck": {
                 "columnType": ["number"]
             }
         },
         {
-            "type"      : "column",
-            "name"      : "Column 2",
+            "type": "column",
+            "name": "Column 2",
             "fieldClass": "col2",
-            "typeCheck" : {
+            "typeCheck": {
                 "columnType": ["number"]
             }
         },
         {
-            "type"      : "column",
-            "name"      : "Column 3",
+            "type": "column",
+            "name": "Column 3",
             "fieldClass": "col3",
-            "typeCheck" : {
+            "typeCheck": {
                 "columnType": ["number"]
             }
         }

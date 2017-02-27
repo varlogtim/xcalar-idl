@@ -22,37 +22,37 @@ window.UExtFuncTest = (function(UExtFuncTest) {
      *          and integer attr can strict the number is integer only
      */
     UExtFuncTest.buttons = [{
-        "buttonText"   : "Start Function Test",
-        "fnName"       : "startFuncTest",
+        "buttonText": "Start Function Test",
+        "fnName": "startFuncTest",
         "arrayOfFields": [{
-            "type"      : "boolean",
-            "name"      : "Parallel",
+            "type": "boolean",
+            "name": "Parallel",
             "fieldClass": "parallel"
         },
         {
-            "type"      : "boolean",
-            "name"      : "Run All Tests",
+            "type": "boolean",
+            "name": "Run All Tests",
             "fieldClass": "runAllTests"
         },
         {
-            "type"      : "boolean",
-            "name"      : "Run On All Nodes",
+            "type": "boolean",
+            "name": "Run On All Nodes",
             "fieldClass": "runOnAllNodes"
         },
         {
-            "type"      : "string",
-            "name"      : "Name Pattern",
+            "type": "string",
+            "name": "Name Pattern",
             "fieldClass": "namePattern"
         }]
     },
     {
-        "buttonText"   : "List Function Test",
-        "fnName"       : "listFuncTest",
+        "buttonText": "List Function Test",
+        "fnName": "listFuncTest",
         "arrayOfFields": [{
-            "type"      : "string",
-            "name"      : "Pattern List (comma seperated)",
+            "type": "string",
+            "name": "Pattern List (comma seperated)",
             "fieldClass": "namePattern",
-            "autofill"  : "*"
+            "autofill": "*"
         }]
     }];
 
@@ -60,7 +60,7 @@ window.UExtFuncTest = (function(UExtFuncTest) {
     UExtFuncTest.actionFn = function(functionName) {
         // it's a good convention to use switch/case to handle
         // different function in the extension and handle errors.
-        switch(functionName) {
+        switch (functionName) {
             case "startFuncTest":
                 return (startFuncTest());
             case "listFuncTest":
@@ -88,7 +88,7 @@ window.UExtFuncTest = (function(UExtFuncTest) {
         })
         .fail(function(error) {
             console.error("Start func test failed");
-            deferred.reject(thriftError);
+            deferred.reject(error);
         });
         return (deferred.promise());
     }

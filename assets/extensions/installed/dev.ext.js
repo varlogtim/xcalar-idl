@@ -21,66 +21,66 @@ window.UExtDev = (function(UExtDev) {
      *          and integer attr can strict the number is integer only
      */
     UExtDev.buttons = [{
-        "buttonText"   : "Estimate Join Size",
-        "fnName"       : "estimateJoin",
+        "buttonText": "Estimate Join Size",
+        "fnName": "estimateJoin",
         "arrayOfFields": [{
-            "type"      : "column",
-            "name"      : "Left Column",
+            "type": "column",
+            "name": "Left Column",
             "fieldClass": "lCol",
-            "autofill"  : true,
-            "typeCheck" : {
+            "autofill": true,
+            "typeCheck": {
                 "multiColumn": true
             }
         },
         {
-            "type"      : "table",
-            "name"      : "Right Table",
+            "type": "table",
+            "name": "Right Table",
             "fieldClass": "rTable"
         },
         {
-            "type"      : "column",
-            "name"      : "Right Column",
+            "type": "column",
+            "name": "Right Column",
             "fieldClass": "rCol",
-            "typeCheck" : {
+            "typeCheck": {
                 "multiColumn": true,
-                "tableField" : "rTable"
+                "tableField": "rTable"
             }
         },
         {
-            "type"      : "string",
-            "name"      : "Join Type",
+            "type": "string",
+            "name": "Join Type",
             "fieldClass": "joinType",
-            "autofill"  : "innerJoin",
-            "enums"     : ["leftouter", "rightOuter", "innerJoin", "fullOuter"],
-            "typeCheck" : {
+            "autofill": "innerJoin",
+            "enums": ["leftouter", "rightOuter", "innerJoin", "fullOuter"],
+            "typeCheck": {
                 "allowEmpty": true
             }
         },
         {
-            "type"      : "number",
-            "name"      : "Limit on left table",
+            "type": "number",
+            "name": "Limit on left table",
             "fieldClass": "leftLimit",
-            "typeCheck" : {
+            "typeCheck": {
                 "allowEmpty": true,
-                "integer"   : true,
-                "min"       : 1
+                "integer": true,
+                "min": 1
             }
         },
         {
-            "type"      : "number",
-            "name"      : "Limit on right table",
+            "type": "number",
+            "name": "Limit on right table",
             "fieldClass": "rightLimit",
-            "typeCheck" : {
+            "typeCheck": {
                 "allowEmpty": true,
-                "integer"   : true,
-                "min"       : 1
+                "integer": true,
+                "min": 1
             }
         },
         {
-            "type"      : "boolean",
-            "name"      : "Unlock Table",
+            "type": "boolean",
+            "name": "Unlock Table",
             "fieldClass": "unlock",
-            "autofill"  : false,
+            "autofill": false,
         }
         ]
     }];
@@ -155,8 +155,8 @@ window.UExtDev = (function(UExtDev) {
             var leftCount = -1;
             var rightCount = -1;
 
-            var origLeftNumRows = -1; // No groupby
-            var origRightNumRows = -1; // No groupby
+            // var origLeftNumRows = -1; // No groupby
+            // var origRightNumRows = -1; // No groupby
 
             var leftRowsPromise = ext.getNumRows(srcTableName);
             var rightRowsPromise = ext.getNumRows(rTableName);
@@ -215,8 +215,8 @@ window.UExtDev = (function(UExtDev) {
             XcSDK.Promise.when(leftPromise, rightPromise, leftRowsPromise,
                                rightRowsPromise)
             .then(function(leftArray, rightArray, leftRows, rightRows) {
-                var leftOrigRows = leftRows;
-                var rightOrigRows = rightRows;
+                // var leftOrigRows = leftRows;
+                // var rightOrigRows = rightRows;
                 var minLeftValue =
                         leftArray[leftArray.length - 1][leftGBColName];
                 var minRightValue =
@@ -298,14 +298,14 @@ window.UExtDev = (function(UExtDev) {
                 if (!args.fromJoin) {
                     Alert.show({
                         "title": "Estimated Join Size",
-                        "msg"  : "Max Rows: " + maxSum.toLocaleString() + "\n" +
-                                 "Expected Rows: " + expSum.toLocaleString() +
-                                 "\n" + "Min Rows: " + minSum.toLocaleString() +
-                                 "\n",
+                        "msg": "Max Rows: " + maxSum.toLocaleString() + "\n" +
+                                "Expected Rows: " + expSum.toLocaleString() +
+                                "\n" + "Min Rows: " + minSum.toLocaleString() +
+                                "\n",
                         "hideButtons": ["confirm"],
                         "buttons": [
                             {
-                                "name"     : AlertTStr.CLOSE,
+                                "name": AlertTStr.CLOSE,
                                 "className": "cancel"
                             }
                         ]

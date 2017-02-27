@@ -21,13 +21,13 @@ window.UExtGenRowNum = (function(UExtGenRowNum) {
      *          and integer attr can strict the number is integer only
      */
     UExtGenRowNum.buttons = [{
-        "buttonText"   : "Generate Row Num",
-        "fnName"       : "genRowNum",
+        "buttonText": "Generate Row Num",
+        "fnName": "genRowNum",
         "arrayOfFields": [{
-            "type"      : "string",
-            "name"      : "New Column Name",
+            "type": "string",
+            "name": "New Column Name",
             "fieldClass": "newColName",
-            "typeCheck" : {
+            "typeCheck": {
                 "newColumnName": true
             }
         }]

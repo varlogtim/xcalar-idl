@@ -3,14 +3,14 @@ window.UExtTableau = (function(UExtTableau, $) {
     var viz;
 
     UExtTableau.buttons = [{
-        "buttonText"   : "Visualize",
-        "fnName"       : "visualize",
+        "buttonText": "Visualize",
+        "fnName": "visualize",
         "arrayOfFields": [{
-            "type"      : "column",
-            "name"      : "Column To Visualize",
+            "type": "column",
+            "name": "Column To Visualize",
             "fieldClass": "col",
-            "autofill"  : true,
-            "typeCheck" : ["number", "string", "boolean"]
+            "autofill": true,
+            "typeCheck": ["number", "string", "boolean"]
         }]
     }];
 
@@ -21,7 +21,7 @@ window.UExtTableau = (function(UExtTableau, $) {
             default:
                 return null;
         }
-    }
+    };
 
     function visualizeInTableau() {
         var ext = new XcSDK.Extension();
@@ -38,11 +38,11 @@ window.UExtTableau = (function(UExtTableau, $) {
             var tempExportName = xcHelper.randName("tempGraph");
 
             var options = {
-                "format"    : DfFormatTypeT.DfFormatCsv,
-                "splitType" : ExSFFileSplitTypeT.ExSFFileSplitForceSingle,
+                "format": DfFormatTypeT.DfFormatCsv,
+                "splitType": ExSFFileSplitTypeT.ExSFFileSplitForceSingle,
                 "headerType": ExSFHeaderTypeT.ExSFHeaderEveryFile,
                 "createRule": ExExportCreateRuleT.ExExportCreateOnly,
-                "csvArgs"   : {
+                "csvArgs": {
                     "fieldDelim": "\t",
                     "recordDelim": "\n"
                 }
@@ -62,7 +62,7 @@ window.UExtTableau = (function(UExtTableau, $) {
             .fail(deferred.reject);
 
             return deferred.promise();
-        }
+        };
 
         return ext;
     }

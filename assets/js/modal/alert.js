@@ -171,7 +171,6 @@ window.Alert = (function($, Alert){
             deferred.resolve();
         } else {
             var fadeOutTime = gMinModeOn ? 0 : 300;
-
             $modal.hide();
             $modalBg.fadeOut(fadeOutTime, deferred.resolve);
         }
@@ -211,7 +210,6 @@ window.Alert = (function($, Alert){
         if (options.instr != null) {
             $alertInstr.find(".text").text(options.instr);
             $alertInstr.show();
-
             $modal.addClass('hasInstr');
         } else {
             $alertInstr.hide();
@@ -301,10 +299,7 @@ window.Alert = (function($, Alert){
                 }
 
                 var $btn = $confirmBtn.clone();
-                
                 $btnSection.prepend($btn);
-
-                
 
                 $btn.show()
                     .text(btnOption.name)

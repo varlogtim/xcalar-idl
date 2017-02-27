@@ -17,23 +17,23 @@
 // an action that belongs to this extension
 window.UExtIntel = (function(UExtIntel) {
     UExtIntel.buttons = [{
-        "buttonText"   : "Last Touch",
-        "fnName"       : "lastTouch",
+        "buttonText": "Last Touch",
+        "fnName": "lastTouch",
         "arrayOfFields": []
     },
     {
-        "buttonText"   : "Final PT",
-        "fnName"       : "genFinalPT",
+        "buttonText": "Final PT",
+        "fnName": "genFinalPT",
         "arrayOfFields": []
     },
     {
-        "buttonText"   : "Line Item PT",
-        "fnName"       : "genLineItemPT",
+        "buttonText": "Line Item PT",
+        "fnName": "genLineItemPT",
         "arrayOfFields": []
     },
     {
-        "buttonText"   : "No Of Days Since",
-        "fnName"       : "genNoOfDays",
+        "buttonText": "No Of Days Since",
+        "fnName": "genNoOfDays",
         "arrayOfFields": []
     }];
 
@@ -151,11 +151,11 @@ window.UExtIntel = (function(UExtIntel) {
         .then(function(tableAfterMap) {
             var operator = XcSDK.Enums.AggType.Sum;
             var groupByCols = ["ROW_ID", "Product Type"];
-            var optoins = {
+            var options = {
                 "newTableName": ext.createTempTableName()
             };
             return ext.groupBy(operator, groupByCols, "Forecasted_float",
-                               tableAfterMap, "SumByPdt", optoins);
+                               tableAfterMap, "SumByPdt", options);
         })
         .then(function(tableAfterGroupby) {
             lTable = tableAfterGroupby;
@@ -174,11 +174,11 @@ window.UExtIntel = (function(UExtIntel) {
             var joinType = XcSDK.Enums.JoinType.InnerJoin;
             var lTableInfo = {
                 "tableName": lTable,
-                "columns"  : ["ROW_ID", "SumByPdt"]
+                "columns": ["ROW_ID", "SumByPdt"]
             };
             var rTableInfo = {
                 "tableName": rTable,
-                "columns"  : ["ROW_ID", "MaxForRow"]
+                "columns": ["ROW_ID", "MaxForRow"]
             };
             return ext.join(joinType, lTableInfo, rTableInfo, newTable);
         })

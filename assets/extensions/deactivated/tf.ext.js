@@ -17,70 +17,70 @@
 // an action that belongs to this extension
 window.UExtTF = (function(UExtTF) {
     UExtTF.buttons = [{
-        "buttonText"   : "TF Train",
-        "fnName"       : "tfTrain",
+        "buttonText": "TF Train",
+        "fnName": "tfTrain",
         "arrayOfFields": [{
-            "type"      : "string",
-            "name"      : "Dataset Name",
+            "type": "string",
+            "name": "Dataset Name",
             "fieldClass": "dsName",
-            "autofill"  : "trainResults"
+            "autofill": "trainResults"
         },
         {
-            "type"      : "string",
-            "name"      : "Algorithm",
+            "type": "string",
+            "name": "Algorithm",
             "fieldClass": "algorithm",
-            "autofill"  : "LogRegCSV",
-            "enums"     : [
+            "autofill": "LogRegCSV",
+            "enums": [
                 "ImgRecCNN",
                 "LogRegCSV"
             ]
         },
         {
-            "type"      : "number",
-            "name"      : "Max Steps",
+            "type": "number",
+            "name": "Max Steps",
             "fieldClass": "maxSteps",
-            "autofill"  : 12
+            "autofill": 12
         },
         {
-            "type"      : "string",
-            "name"      : "Data Location",
+            "type": "string",
+            "name": "Data Location",
             "fieldClass": "dataLoc",
-            "autofill"  : "Ex: /home/USERNAME/catsdogscars-preproc/train/"
+            "autofill": "Ex: /home/USERNAME/catsdogscars-preproc/train/"
         }]
     },
     {
 
-        "buttonText"   : "TF Test",
-        "fnName"       : "tfTest",
+        "buttonText": "TF Test",
+        "fnName": "tfTest",
         "arrayOfFields": [{
-            "type"      : "string",
-            "name"      : "Dataset Name",
+            "type": "string",
+            "name": "Dataset Name",
             "fieldClass": "dsName",
-            "autofill"  : "testResults"
+            "autofill": "testResults"
         },
         {
-            "type"      : "string",
-            "name"      : "Algorithm",
+            "type": "string",
+            "name": "Algorithm",
             "fieldClass": "algorithm",
-            "autofill"  : "LogRegCSV",
-            "enums"     : [
+            "autofill": "LogRegCSV",
+            "enums": [
                 "ImgRecCNN",
                 "LogRegCSV"
             ]
         },
         {
-            "type"      : "string",
-            "name"      : "Unique Train Tag",
+            "type": "string",
+            "name": "Unique Train Tag",
             "fieldClass": "uniqueTag",
-            "autofill"  : function() {
+            "autofill": function() {
                 return loadLocalTag();
             }
         },
         {
-            "type"      : "string",
-            "name"      : "Data Location",
+            "type": "string",
+            "name": "Data Location",
             "fieldClass": "dataLoc",
-            "autofill"  : "Ex: /home/USERNAME/catsdogscars-preproc/test/"
+            "autofill": "Ex: /home/USERNAME/catsdogscars-preproc/test/"
         }]
     }];
 
@@ -112,7 +112,7 @@ window.UExtTF = (function(UExtTF) {
         var curUser = wb.curUser;
         var curTime = Date.now();
         var uniqueObj = {
-            "wbId"   : wbId,
+            "wbId": wbId,
             "curUser": curUser,
             "curTime": curTime
         };
@@ -136,13 +136,13 @@ window.UExtTF = (function(UExtTF) {
 
     function loadLocalStorage() {
         var resultObj = {
-            "uniqueTag" : xcLocalStorage.getItem("MRuniqueTag"),
+            "uniqueTag": xcLocalStorage.getItem("MRuniqueTag"),
             "exposedLoc": xcLocalStorage.getItem("MRexposedLoc"),
-            "logDir"    : xcLocalStorage.getItem("MRlogDir"),
-            "uniqueObj" : {
+            "logDir": xcLocalStorage.getItem("MRlogDir"),
+            "uniqueObj": {
                 "curTime": xcLocalStorage.getItem("MRcurTime"),
                 "curUser": xcLocalStorage.getItem("MRcurUser"),
-                "wbId"   : xcLocalStorage.getItem("MRwbId")
+                "wbId": xcLocalStorage.getItem("MRwbId")
             }
         };
         return resultObj;
@@ -172,14 +172,14 @@ window.UExtTF = (function(UExtTF) {
         var uniqueObj = getUniqueTagParams();
 
         var inStrObj = {
-            "func"        : func,
-            "algorithm"   : algorithm,
+            "func": func,
+            "algorithm": algorithm,
             "resultFormat": resultFormat,
-            "maxSteps"    : maxSteps,
+            "maxSteps": maxSteps,
             // In the streaming version, dataDir will be changed to
             // srcTable or similar
-            "dataDir"     : dataDir,
-            "uniqueObj"   : uniqueObj
+            "dataDir": dataDir,
+            "uniqueObj": uniqueObj
         };
         var inStr =  JSON.stringify(inStrObj);
 
@@ -215,7 +215,7 @@ window.UExtTF = (function(UExtTF) {
             // Exposed results are here
             var exposedLoc = innerParsed.exposedLoc;
             // Location of statefile for test is here
-            var logDir = innerParsed.logDir;
+            // var logDir = innerParsed.logDir;
 
             // console.log(JSON.stringify(result.outStr));
 
@@ -228,19 +228,19 @@ window.UExtTF = (function(UExtTF) {
 
             // This one call uses the latest API
             var dsArgs = {
-                "url"          : "file://" + exposedLoc + "/",
-                "isRecur"      : false,
+                "url": "file://" + exposedLoc + "/",
+                "isRecur": false,
                 "maxSampleSize": 200000,
-                "skipRows"     : false,
-                "isRegex"      : false
+                "skipRows": false,
+                "isRegex": false
             };
 
             var formatArgs = {
-                "format"     : "CSV",
-                "fieldDelim" : ",",
+                "format": "CSV",
+                "fieldDelim": ",",
                 "recordDelim": "\n",
-                "hasHeader"  : true,
-                "quoteChar"  : '"'
+                "hasHeader": true,
+                "quoteChar": '"'
             };
             return ext.load(dsArgs, formatArgs, dsName);
         })
@@ -261,7 +261,7 @@ window.UExtTF = (function(UExtTF) {
         .then(function() {
             deferred.resolve({
                 "uniqueTag": uniqueTag,
-                "dsName"   : dsNameLoaded,
+                "dsName": dsNameLoaded,
                 "tableName": tableName
             });
         })
@@ -295,11 +295,11 @@ window.UExtTF = (function(UExtTF) {
         var uniqueTag = args.uniqueTag;
 
         var inStrObj = {
-            "func"        : func,
-            "algorithm"   : algorithm,
+            "func": func,
+            "algorithm": algorithm,
             "resultFormat": resultFormat,
-            "dataDir"     : dataDir,
-            "uniqueTag"   : uniqueTag
+            "dataDir": dataDir,
+            "uniqueTag": uniqueTag
         };
         var inStr = JSON.stringify(inStrObj);
 
@@ -337,7 +337,7 @@ window.UExtTF = (function(UExtTF) {
             // Exposed results are here
             var exposedLoc = innerParsed.exposedLoc;
             // Location of statefile for test is here
-            var logDir = innerParsed.logDir;
+            // var logDir = innerParsed.logDir;
 
             // This denotes whether or not deployment is all nodes on 1 machine
             // or one node per machine.  Load must be called differently
@@ -359,19 +359,19 @@ window.UExtTF = (function(UExtTF) {
 
             // This one call uses the latest API
             var dsArgs = {
-                "url"          : prefix + exposedLoc,
-                "isRecur"      : true,
+                "url": prefix + exposedLoc,
+                "isRecur": true,
                 "maxSampleSize": 200000,
-                "skipRows"     : false,
-                "isRegex"      : false
+                "skipRows": false,
+                "isRegex": false
             };
 
             var formatArgs = {
-                "format"     : "CSV",
-                "fieldDelim" : ",",
+                "format": "CSV",
+                "fieldDelim": ",",
                 "recordDelim": "\n",
-                "hasHeader"  : true,
-                "quoteChar"  : '"'
+                "hasHeader": true,
+                "quoteChar": '"'
             };
             return ext.load(dsArgs, formatArgs, dsName);
         })
@@ -392,7 +392,7 @@ window.UExtTF = (function(UExtTF) {
         .then(function() {
             deferred.resolve({
                 "uniqueTag": uniqueTag,
-                "dsName"   : dsNameLoaded,
+                "dsName": dsNameLoaded,
                 "tableName": tableName
             });
         })

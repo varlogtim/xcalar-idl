@@ -1,81 +1,81 @@
 window.UExtXcalarDef = (function(UExtXcalarDef) {
     UExtXcalarDef.buttons = [{
-        "buttonText"   : "Horizontal Partition",
-        "fnName"       : "hPartition",
+        "buttonText": "Horizontal Partition",
+        "fnName": "hPartition",
         "arrayOfFields": [{
-            "type"      : "column",
-            "name"      : "Partition On",
+            "type": "column",
+            "name": "Partition On",
             "fieldClass": "partitionCol",
-            "autofill"  : true,
-            "typeCheck" : {
+            "autofill": true,
+            "typeCheck": {
                 "columnType": ["number", "string"]
             }
         },
         {
-            "type"      : "number",
-            "name"      : "No. of Partitions",
+            "type": "number",
+            "name": "No. of Partitions",
             "fieldClass": "partitionNums",
-            "typeCheck" : {
+            "typeCheck": {
                 "integer": true,
-                "min"    : 1,
-                "max"    : 10
+                "min": 1,
+                "max": 10
             }
         }]
     },
     // {
-    //     "buttonText"   : "Union Tables",
-    //     "fnName"       : "union",
+    //     "buttonText": "Union Tables",
+    //     "fnName": "union",
     //     "arrayOfFields": [
     //     {
-    //         "type"      : "table",
-    //         "name"      : "Table To Union",
+    //         "type": "table",
+    //         "name": "Table To Union",
     //         "fieldClass": "table2"
     //     }]
     // },
     {
-        "buttonText"   : "Windowing",
-        "fnName"       : "windowChain",
+        "buttonText": "Windowing",
+        "fnName": "windowChain",
         "arrayOfFields": [{
-            "type"      : "column",
-            "name"      : "Window On",
+            "type": "column",
+            "name": "Window On",
             "fieldClass": "winCols",
-            "autofill"  : true,
-            "typeCheck" : {
+            "autofill": true,
+            "typeCheck": {
                 "multiColumn": true,
                 "columnType": ["number", "string"]
             }
         },
         {
-            "type"      : "column",
-            "name"      : "Sort On",
+            "type": "column",
+            "name": "Sort On",
             "fieldClass": "sortCol",
-            "typeCheck" : {
+            "typeCheck": {
                 "columnType": ["string", "number"]
             }
         },
         {
-            "type"      : "string",
-            "name"      : "Sort Order",
-            "autofill"  : "ascending",
-            "enums"     : ["ascending", "descending"],
+            "type": "string",
+            "name": "Sort Order",
+            "autofill": "ascending",
+            "enums": ["ascending", "descending"],
             "fieldClass": "order"
         },
         {
-            "type"      : "number",
-            "name"      : "Lag",
+            "type": "number",
+            "name": "Lag",
             "fieldClass": "lag",
-            "typeCheck" : {
+            "typeCheck": {
                 "integer": true,
-                "min"    : 0
+                "min": 0
             }
         },
         {
-            "type"      : "number",
-            "name"      : "Lead",
+            "type": "number",
+            "name": "Lead",
             "fieldClass": "lead",
-            "typeCheck" : {
+            "typeCheck": {
                 "integer": true,
-                "min"    : 0
+                "min": 0
             }
         }]
     }];
@@ -144,7 +144,7 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
 
             // Prefix fixing
             var bPrefixRename = [];
-            if (tTablePrefix.length == 1 && bTablePrefix.length == 1) {
+            if (tTablePrefix.length === 1 && bTablePrefix.length === 1) {
                 if (tTablePrefix[0].name !== bTablePrefix[0].name) {
                     // Take the left table's prefix
                     bPrefixRename = [self.getJoinRenameMap(bTablePrefix[0].name,
@@ -274,21 +274,21 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
             self.setAttribute("randNumber", Math.floor(Math.random() * 100));
             // constant to mark it's a lag table, lead table, or current table
             self.setAttribute("winState", {
-                "lag" : "lag",
+                "lag": "lag",
                 "lead": "lead",
             });
 
             // cache tableNames for lag, lead and cur table
             self.setAttribute("tableNames", {
-                "lag" : [],
+                "lag": [],
                 "lead": [],
             });
 
             // cache winCols for lag and lead
             self.setAttribute("winColFinal", {
-                "lag" : [],
+                "lag": [],
                 "lead": [],
-                "cur" : [],
+                "cur": [],
             });
 
             // renameMap for appending _lag and _lead to orig colNames
@@ -296,7 +296,7 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
 
             // cache names of rowNum col in lag, lead and cur table
             self.setAttribute("rowNumColNames", {
-                "lag" : [],
+                "lag": [],
                 "lead": [],
             });
         };
@@ -310,7 +310,6 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
             var direction = args.order;
             var lag = args.lag;
             var lead = args.lead;
-            var srcTable = ext.getTriggerTable().getName();
             var rowNumTable;
             var rowNumCol;
 
@@ -362,13 +361,14 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
                 var rCol;
                 var newTableName, newColName, col;
                 var i, j;
+                var renameMapTmp, joinMap;
 
                 for (i = 0; i < lag; i++) {
-                    var renameMapTmp = [];
+                    renameMapTmp = [];
                     for (j = 0; j < renameMap.length; j++) {
                         newColName = renameMap[j].orig + "_lag_" + (i + 1);
-                        var joinMap = self.getJoinRenameMap(renameMap[j].orig,
-                                                            newColName);
+                        joinMap = self.getJoinRenameMap(renameMap[j].orig,
+                                                        newColName);
                         renameMapTmp.push(joinMap);
 
                         col = new XcSDK.Column(newColName,
@@ -381,20 +381,20 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
                     rCol = rowNumColNames.lag[i];
                     defChain.push(self.join.bind(self, joinType,
                                                  {"tableName": lTable,
-                                                  "columns" : lCol},
+                                                  "columns": lCol},
                                                  {"tableName": rTable,
                                                   "columns": rCol,
-                                                  "rename" : renameMapTmp},
+                                                  "rename": renameMapTmp},
                                                  newTableName));
                     lTable = newTableName;
                 }
 
                 for (i = 0; i < lead; i++) {
-                    var renameMapTmp = [];
+                    renameMapTmp = [];
                     for (j = 0; j < renameMap.length; j++) {
                         newColName = renameMap[j].orig + "_lead_" + (i + 1);
-                        var joinMap = self.getJoinRenameMap(renameMap[j].orig,
-                                                            newColName);
+                        joinMap = self.getJoinRenameMap(renameMap[j].orig,
+                                                        newColName);
                         renameMapTmp.push(joinMap);
 
                         col = new XcSDK.Column(newColName,
@@ -407,10 +407,10 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
                     rCol = rowNumColNames.lead[i];
                     defChain.push(self.join.bind(self, joinType,
                                                  {"tableName": lTable,
-                                                  "columns" :lCol},
+                                                  "columns": lCol},
                                                  {"tableName": rTable,
                                                   "columns": rCol,
-                                                  "rename" : renameMapTmp},
+                                                  "rename": renameMapTmp},
                                                  newTableName));
                     lTable = newTableName;
                 }
@@ -435,7 +435,7 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
                     var winColNames = [];
 
                     for (var i = 0; i < numWinCols; i++) {
-                        for (var k = lag-1; k >= 0; k--) {
+                        for (var k = lag - 1; k >= 0; k--) {
                             table.addCol(winColFinal.lag[i + k*numWinCols]);
                         }
 
@@ -452,8 +452,8 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
                         var colName = srcCols[i].getBackColName();
                         var colType = srcCols[i].getType();
                         if (winColNames.includes(colName) ||
-                            colName == "DATA" ||
-                            colName == sortCol.getName()) {
+                            colName === "DATA" ||
+                            colName === sortCol.getName()) {
                             continue;
                         }
 
@@ -511,7 +511,6 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
 
     function winProject(ext, srcTable) {
         var deferred = XcSDK.Promise.deferred();
-        var newColName = "orig_order_" + ext.getAttribute("randNumber");
 
         var winColFinal = ext.getAttribute("winColFinal");
         var renameMap = ext.getAttribute("renameMap");
@@ -524,7 +523,7 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
         // extract all fatptr cols as immediates by casting to same type
         for (var i = 0; i < winCols.length; i++) {
             prefix = winCols[i].getPrefix();
-            if (prefix != "") {
+            if (prefix !== "") {
                 mapStr = winCols[i].getTypeForCast() +
                     "(" + winCols[i].getName() + ")";
 
@@ -586,15 +585,15 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
             mapStr = "int(sub(" + rowNumCol + ", " + suffix + "))";
             tableNameSuffix = "_" + randNumber + "_lead_" + suffix;
             newColName = "lead_" + suffix + "_" + randNumber;
-        }  else {
+        } else {
             throw "Error Case!";
         }
 
         var newTableName = ext.createTableName(null, tableNameSuffix);
 
         ext.map(mapStr, srcTable, newColName, newTableName)
-        .then(function(tableAfterMap) {
-            return (ext.index(newColName, newTableName));
+        .then(function() {
+            return ext.index(newColName, newTableName);
         })
         .then(function(tableAfterIndex) {
             // cache tableName and colName for later user
