@@ -725,6 +725,8 @@ DSExportTStr = {
     'RestoreFail': 'Export Target Restoration Failed',
     'DeleteFail': 'Target Deletion Failed',
     'DeleteExportTarget': 'DELETE EXPORT TARGET',
+    'NoDelete': 'Cannot delete default export target',
+    'InvalidExportPath': 'Export path cannot contain quotes.',
 
     // with replace
     'DeleteConfirmMsg': 'Are you sure you want to delete <target>?'

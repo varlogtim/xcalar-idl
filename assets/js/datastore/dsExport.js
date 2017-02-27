@@ -273,12 +273,22 @@ window.DSExport = (function($, DSExport) {
         } else {
             $('#exportURL-edit').closest('.formatSpecificRow')
                            .addClass('active');
-            $('#exportURL-edit').val(formatArg);
+            $('#exportURL-edit').val(FileProtocol.nfs + formatArg);
         }
         if (type === "UDF") {
             $editForm.find('.udfSelectorRow').addClass('active');
             $editForm.find('.udfModuleName').val($grid.data('module'));
             $editForm.find('.udfFuncName').val($grid.data('fnname'));
+        }
+        var $deleteBtn = $("#exportTargetDelete");
+        if (name === "Default") {
+            $deleteBtn.addClass("unavailable");
+            xcTooltip.add($deleteBtn, {
+                title: DSExportTStr.NoDelete
+            });
+        } else {
+            $deleteBtn.removeClass("unavailable");
+            xcTooltip.remove($deleteBtn);
         }
     }
 
@@ -309,6 +319,16 @@ window.DSExport = (function($, DSExport) {
             } else {
                 classes += " bgOpts";
             }
+            var $deleteLi = $gridMenu.find('.targetOpt[data-action="delete"]');
+            if ($grid.data("name") === "Default") {
+                $deleteLi.addClass("unavailable");
+                xcTooltip.add($deleteLi, {
+                    title: DSExportTStr.NoDelete
+                });
+            } else {
+                $deleteLi.removeClass("unavailable");
+                xcTooltip.remove($deleteLi);
+            }
 
             xcHelper.dropdownOpen($target, $gridMenu, {
                 "mouseCoors": {"x": event.pageX, "y": event.pageY + 10},
@@ -324,6 +344,9 @@ window.DSExport = (function($, DSExport) {
             }
             var action = $(this).data('action');
             if (!action) {
+                return;
+            }
+            if ($(this).hasClass("unavailable")) {
                 return;
             }
             switch (action) {
@@ -364,6 +387,10 @@ window.DSExport = (function($, DSExport) {
         }
 
         var targetName = $activeIcon.data('name');
+
+        if (targetName === "Default") {
+            return;
+        }
         var targetTypeText = $activeIcon.closest('.targetSection').data('type');
 
         var targetType;
@@ -431,6 +458,18 @@ window.DSExport = (function($, DSExport) {
                         return false;
                     } else {
                         return (formatSpecificArg.trim() === "");
+                    }
+                }
+            },
+            {
+                "$ele": $formatSpecificInput,
+                "error": DSExportTStr.InvalidExportPath,
+                "side": "top",
+                "check": function() {
+                    if (targetType === "ODBC") {
+                        return false;
+                    } else {
+                        return (formatSpecificArg.indexOf('"') > -1);
                     }
                 }
             },

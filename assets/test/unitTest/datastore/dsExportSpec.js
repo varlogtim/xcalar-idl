@@ -456,7 +456,7 @@ describe("DSExport Test", function() {
                 expect($("#exportTargetCard").is(":visible")).to.be.false;
                 expect($("#targetName-edit").val()).to.equal(testTargetName);
                 expect($("#targetTypeList-edit input").val()).to.equal("UDF");
-                expect($("#exportURL-edit").val()).to.equal("url");
+                expect($("#exportURL-edit").val()).to.equal("nfs:///url");
                 expect($("#exportTargetEditCard .udfModuleName").val())
                 .to.equal("a");
                 expect($("#exportTargetEditCard .udfFuncName").val())
