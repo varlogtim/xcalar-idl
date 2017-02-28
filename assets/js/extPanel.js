@@ -292,34 +292,38 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
             var image = ext.getImage();
             html += '<div class="item">' +
                         '<section class="mainSection">' +
-                        '<div class="logoArea">' +
-                            '<img src="data:image/png;base64,' +
-                            image + '" ' + imgEvent + '>' +
-                        '</div>' +
-                        '<div class="instruction">' +
-                            '<div class="extensionName textOverflowOneLine"' +
-                            ' data-name="' + ext.getName() + '">' +
-                                ext.getMainName() +
+                        '<div class="leftPart">' +
+                            '<div class="logoArea">' +
+                                '<img src="data:image/png;base64,' +
+                                image + '" ' + imgEvent + '>' +
                             '</div>' +
-                            '<div class="author textOverflowOneLine">' +
-                                'By ' + ext.getAuthor() +
+                            '<div class="instruction">' +
+                                '<div class="extensionName textOverflowOneLine"' +
+                                ' data-name="' + ext.getName() + '">' +
+                                    ext.getMainName() +
+                                '</div>' +
+                                '<div class="author textOverflowOneLine">' +
+                                    'By ' + ext.getAuthor() +
+                                '</div>' +
+                                '<div class="detail textOverflow">' +
+                                    ext.getDescription() +
+                                '</div>' +
                             '</div>' +
-                            '<div class="detail textOverflow">' +
-                                ext.getDescription() +
+                        '</div>'+
+                        '<div class="rightPart">' +
+                            '<div class="buttonArea">' +
+                                '<button class="btn install ' + btnClass + '">' +
+                                    btnText +
+                                '</button>' +
+                                '<button class="btn btn-cancel more">' +
+                                    '<span class="moreText">' +
+                                        ExtTStr.More +
+                                    '</span>' +
+                                    '<span class="lessText">' +
+                                        ExtTStr.Less +
+                                    '</span>' +
+                                '</button>' +
                             '</div>' +
-                        '</div>' +
-                        '<div class="buttonArea">' +
-                            '<button class="btn install ' + btnClass + '">' +
-                                btnText +
-                            '</button>' +
-                            '<button class="btn btn-cancel more">' +
-                                '<span class="moreText">' +
-                                    ExtTStr.More +
-                                '</span>' +
-                                '<span class="lessText">' +
-                                    ExtTStr.Less +
-                                '</span>' +
-                            '</button>' +
                         '</div>' +
                         '</section>' +
                         '<section class="bottomSection clearfix">' +

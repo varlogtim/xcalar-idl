@@ -155,8 +155,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
             failCount++;
             // if it fails 2 times in a row, we show error screen
             if (failCount === 2) {
-                console.error("showing connection refused because monitor" +
-                            "failed to get stats twice in a row");
+                console.error("failed to get stats twice in a row");
                 toggleErrorScreen(true, error);
             }
         });
