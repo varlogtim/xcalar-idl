@@ -1652,8 +1652,6 @@ table.datasetTable {
         }
 
         #preview-parser {
-            // XXX temporary hide it
-            display: none !important;
             .size(@width: 100%);
             padding-right: 5px;
         }
@@ -1986,6 +1984,152 @@ table.datasetTable {
     }
 }
 /* End Of Import Data View Section */
+
+/* DS PARSER */
+#dsParser {
+    .size(@height: ~"calc(100% - 5px)");
+    .flex-display;
+    .flex-direction(column);
+
+    &.previewOnly {
+        .dataPreview {
+            pointer-events: none;
+        }
+    }
+
+    .cardTopMain {
+        @barHeight: 64px;
+        @topPadding: 14px;
+        padding: @topPadding 12px;
+        .size(@height: @barHeight);
+        .flex-display;
+        .flex(0 0 @barHeight);
+        .justify-content(space-between);
+
+        .topSection {
+            .flex(1 1 auto);
+            .flex-display;
+            .size(@width: ~"calc(100% - 200px)");
+
+            > span, > label {
+                float: left;
+                line-height: @barHeight - (2 * @topPadding);
+            }
+        }
+
+        .btn.confirm {
+            float: right;
+            .flex(0 0 150px);
+        }
+    }
+
+    .previewLabel {
+        .font(@color: @color-font-select-blue, @size: 16px, @weight: 700);
+        margin-left: 8px;
+        margin-right: 10px;
+    }
+
+    .filename {
+        margin-right: 10px;
+        .flex(0 1 auto);
+        .textOverflowOneLine;
+    }
+
+    .fileFormat {
+        float: none;
+        display: inline-block;
+        .flex(0 1 200px);
+        min-width: 100px;
+        margin-top: 3px;
+        input {
+            width: ~"calc(100% - 30px)";
+            float: left;
+        }
+    }
+    .divider {
+        display: inline-block;
+        width: 1px;
+        height: 26px;
+        background-color: @color-border-warmGray;
+        margin: 5px 20px 0px;
+    }
+
+    .cardMain {
+        padding-top: 0px;
+        background-color: @color-bg-white-seven;
+        .size(@height: 100%);
+        .flex(1 1 auto);
+        .flex-display;
+        .flex-direction(column);
+        position: relative; // for preview mode and history tool boxes
+
+        .dataPreview {
+            .size(@height: 100%);
+            padding: 10px;
+            white-space: pre;
+            overflow: auto;
+            .text-selection;
+        }
+    }
+
+    .parserBox {
+        .position(absolute, @right: 0px, @top: 20px);
+        .size(@width: 300px, @min-width: 300px);
+        border: 1px solid rgba(0, 0, 0, 0.2);
+
+        &.minimized {
+            .resize {
+                .xi-expand {
+                    display: block;
+                }
+                .xi-minimize {
+                    display: none;
+                }
+            }
+
+            .boxBody, .boxFooter {
+                display: none;
+            }
+        }
+
+        .boxHeader {
+            height: 30px;
+            color: @color-white;
+            background-color: @color-bg-marine;
+            padding: 0 10px;
+            .cursor-move();
+        }
+
+        .title {
+            float: left;
+            line-height: 30px;
+        }
+        .resize {
+            height: 100%;
+            padding: 0px 5px;
+            float: right;
+            cursor: pointer;
+            .icon {
+                margin-top: 8px;
+                font-size: 15px;
+            }
+            .xi-expand {
+                display: none;
+            }
+        }
+
+        .boxBody {
+            height: 250px;
+            padding: 15px;
+            background-color: @color-white;
+        }
+    }
+
+    #delimitersBox {
+        top: 310px;
+    }
+}
+/* End of ds parser*/
 
 #dsListSection {
     .pathSection {
@@ -2408,6 +2552,9 @@ table.datasetTable {
         &.listView {
             .grid-unit {
                 padding: 0 10px;
+                > .label {
+                    max-width: ~"calc(100% - 30px)";
+                }
             }
 
             .gridIcon .icon {

@@ -456,6 +456,15 @@ module.exports = {
         "delDSBtn": "Delete folder or dataset reference"
     },
 
+    "dsParser": {
+        "ParserTitle": "Data Source Parser",
+        "PreviewMode": "Preview Mode",
+        "SelectedKeys": "Selected Keys",
+        "SelectFormat": "Select format",
+        "Full": "Full",
+        "Partial": "Partial"
+    },
+
     "dsUploader": {
         "DropHere": "Drop Files Here",
         "AddFile": "Add File / Create Dataset Reference",
@@ -506,7 +515,9 @@ module.exports = {
         "CSV": "Separated Values(CSV, TSV...)",
         "JSON": "JSON",
         "EXCEL": "Excel",
-        "TEXT": "Text"
+        "TEXT": "Text",
+        "XML": "XML",
+        "PLAINTEXT": "PLAIN TEXT"
     },
 
     "dsTable": {

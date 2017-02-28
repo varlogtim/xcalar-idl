@@ -773,6 +773,47 @@
     }
 }
 
+
+.xc-viewMode {
+    &.loading {
+        .xc-errorView, .xc-contentView {
+            display: none !important;
+        }
+
+        .xc-loadView {
+            display: block !important;
+        }
+
+        .xc-confirm {
+            opacity: @opacity-disabled;
+            pointer-events: none;
+        }
+    }
+
+    &.error {
+        .xc-contentView, .xc-loadView {
+            display: none !important;
+        }
+
+        .xc-errorView {
+            display: block !important;
+            color: @color-table-red;
+            white-space: normal;
+        }
+
+        .xc-confirm {
+            opacity: @opacity-disabled;
+            pointer-events: none;
+        }
+    }
+
+    .xc-errorView, .xc-loadView {
+        display: none;
+        padding-left: 15px;
+        padding-top: 15px;
+    }
+}
+
 // style for close icon
 .closeIcon(@topOff: 0px, @rightOff: 0px) {
    .clear, .closeBox {

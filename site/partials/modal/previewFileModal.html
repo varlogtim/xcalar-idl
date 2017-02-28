@@ -1,5 +1,5 @@
 <!-- Preview File Modal -->
-<div id="previewFileModal" class="modalContainer">
+<div id="previewFileModal" class="modalContainer xc-viewMode">
   <header class="modalHeader">
     <span class="text preview"><%= dicts.previewFile.previewHeader %></span>
     <span class="text parse"><%= dicts.previewFile.parseHeader %></span>
@@ -27,12 +27,12 @@
   </section>
   <!-- Top Main Section -->
   <section class="modalTopMain">
-    <div class="contentSection radioButtonGroup">
+    <div class="contentSection radioButtonGroup xc-contentView">
       <div class="part"></div>
       <div class="part"></div>
       <div class="part"></div>
     </div>
-    <div class="loadSection animatedEllipsisWrapper">
+    <div class="loadSection animatedEllipsisWrapper xc-loadView">
       <div class="text"><%= dicts.common.PleaseWait %></div>
       <div class="animatedEllipsis">
         <div>.</div>
@@ -40,11 +40,11 @@
         <div>.</div>
       </div>
     </div>
-    <div class="errorSection"></div>
+    <div class="errorSection xc-errorView"></div>
   </section>
   <!-- Button Section -->
   <section class="modalBottom">
-    <button type="button" class="btn confirm">
+    <button type="button" class="btn confirm xc-confirm">
       <span class="preview"><%= dicts.previewFile.PREVIE %></span>
       <span class="parse"><%= dicts.previewFile.PARSE %></span>
     </button>

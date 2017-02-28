@@ -1288,8 +1288,9 @@ window.DSPreview = (function($, DSPreview) {
     function setPreviewFile(path, enable) {
         var $file = $("#preview-file");
         var $ele = $("#preview-changeFile").add($file);
+        $file.find(".text").text(path);
+
         if (enable) {
-            $file.find(".text").text(path);
             $ele.removeClass("xc-hidden");
         } else {
              // when it's a single file or udf

@@ -10,6 +10,7 @@ window.DSForm = (function($, DSForm) {
         "Uploader": "DSUploader",
         "Browser": "FileBrowser",
         "Preview": "DSPreview",
+        "Parser": "DSParser"
     };
 
     DSForm.setup = function() {
@@ -64,6 +65,9 @@ window.DSForm = (function($, DSForm) {
                 break;
             case DSForm.View.Preview:
                 $cardToSwitch = $("#dsForm-preview");
+                break;
+            case DSForm.View.Parser:
+                $cardToSwitch = $("#dsParser");
                 break;
             default:
                 console.error("invalid view");

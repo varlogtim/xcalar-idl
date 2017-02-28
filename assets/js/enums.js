@@ -140,7 +140,8 @@ var DSObjTerm = {
 var DSFormat = {
     "JSON": "JSON",
     "SpecialJSON": "SpecialJSON",
-    "CSV": "CSV"
+    "CSV": "CSV",
+    "XML": "XML"
 };
 
 var FileProtocol = {

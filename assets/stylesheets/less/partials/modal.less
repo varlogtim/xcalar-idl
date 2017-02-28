@@ -3010,36 +3010,6 @@ html.microsoft {
 #previewFileModal {
     .size(@width: 680px, @height: 400px);
 
-     &.loading {
-        .errorSection, .contentSection {
-            display: none !important;
-        }
-
-        .loadSection {
-            display: block !important;
-        }
-
-        .confirm {
-            opacity: @opacity-disabled;
-            pointer-events: none;
-        }
-    }
-
-    &.error {
-        .contentSection, .loadSection {
-            display: none !important;
-        }
-
-        .errorSection {
-            display: block !important;
-        }
-
-        .confirm {
-            opacity: @opacity-disabled;
-            pointer-events: none;
-        }
-    }
-
     &.parseMode {
         .modalBottom, .modalHeader {
             .preview {
@@ -3074,12 +3044,6 @@ html.microsoft {
 
         > div {
             .size(100%, 100%);
-        }
-
-        .loadSection, .errorSection {
-            display: none;
-            padding-left: 15px;
-            padding-top: 15px;
         }
 
         .contentSection {

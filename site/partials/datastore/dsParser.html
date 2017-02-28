@@ -1,0 +1,110 @@
+<div id="dsParser" class="cardContainer xc-hidden xc-viewMode">
+  <header class="cardHeader">
+    <div class="title"><%= dicts.dsParser.ParserTitle %></div>
+    <div class="close">
+      <i class="icon xi-close fa-15"></i>
+    </div>
+  </header>
+  <div class="cardTopMain">
+    <div class="topSection">
+      <label class="previewLabel"><%= dicts.dsPreview.Previewing %></label>
+      <span class="filename">file:///test.json</span>
+      <div class="dropDownList fileFormat">
+        <input class="text" type="text" spellcheck="false" disabled="" placeholder="<%= dicts.dsParser.SelectFormat %>">
+        <div class="iconWrapper">
+          <i class="icon xi-arrow-down"></i>
+        </div>
+        <!-- Format Menu -->
+        <div id="fileFormatMenu" class="list">
+          <ul>
+            <li name="json"><%= dicts.dsFormat.JSON %></li>
+            <li name="xml"><%= dicts.dsFormat.XML %></li>
+            <li name="text"><%= dicts.dsFormat.PLAINTEXT %></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <button class="btn confirm xc-confirm"><%= dicts.common.NEXT %></button>
+  </div>
+  <div class="cardMain">
+    <div class="errorSection xc-errorView"></div>
+    <div class="loadSection animatedEllipsisWrapper xc-loadView">
+      <div class="text"><%= dicts.common.PleaseWait %></div>
+      <div class="animatedEllipsis">
+        <div>.</div>
+        <div>.</div>
+        <div>.</div>
+      </div>
+    </div>
+    <div class="dataPreview xc-contentView">
+Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
+cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
+proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
+cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
+proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
+cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
+proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
+cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
+proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
+cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
+proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
+cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
+proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+
+    </div>
+    <div id="previewModeBox" class="parserBox">
+      <header id="aaa" class="boxHeader">
+        <div class="title"><%= dicts.dsParser.PreviewMode %></div>
+        <div class="resize">
+          <i class="icon xi-expand"></i>
+          <i class="icon xi-minimize"></i>
+        </div>
+      </header>
+      <div class="boxBody"></div>
+      <div class="boxFooter"></div>
+    </div>
+    <div id="delimitersBox" class="parserBox">
+       <header class="boxHeader">
+        <div class="title"><%= dicts.dsParser.SelectedKeys %></div>
+        <div class="resize">
+          <i class="icon xi-expand"></i>
+          <i class="icon xi-minimize"></i>
+        </div>
+      </header>
+      <div class="boxBody"></div>
+      <div class="boxFooter"></div>
+    </div>
+    <ul id="parserMenu" class="menu">
+      <li class="full" data-action="full">
+        <%= dicts.dsParser.Full %>
+      </li>
+      <li class="partial" data-action="partial">
+        <%= dicts.dsParser.Partial %>
+      </li>
+    </ul>
+  </div>
+</div>

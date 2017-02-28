@@ -90,22 +90,25 @@ window.PreviewFileModal = (function(PreviewFileModal, $) {
 
     function loadFiles(url, files, activeFilePath) {
         var htmls = ["", "", ""];
-        var fileNames = [];
+        var paths = [];
         var $section = $modal.find(".contentSection");
+        if (files.length === 1 && url.endsWith(files[0].name)) {
+            // when it's a single file
+            paths[0] = url;
+        } else {
+            files.forEach(function(file) {
+                // XXX temporary skip folder, later may enable it
+                if (!file.attr.isDirectory) {
+                    var path = url + file.name;
+                    paths.push(path);
+                }
+            });
 
-        files.forEach(function(file) {
-            // XXX temporary skip folder, later may enable it
-            if (!file.attr.isDirectory) {
-                fileNames.push(file.name);
-            }
-        });
+            paths.sort();
+        }
 
-        fileNames.sort();
-
-
-        for (var i = 0, len = fileNames.length; i < len; i++) {
-            var fileName = fileNames[i];
-            var path = url + fileName;
+        for (var i = 0, len = paths.length; i < len; i++) {
+            var path = paths[i];
             var classes = (path === activeFilePath) ? " active" : "";
 
             htmls[i % 3] +=
@@ -118,33 +121,37 @@ window.PreviewFileModal = (function(PreviewFileModal, $) {
                     ' data-toggle="tooltip"' +
                     ' data-container="body"' +
                     ' data-placement="top"' +
-                    ' title="' + path + '"' +
-                    '>' +
+                    ' title="' + path + '">' +
                         path +
                     '</div>' +
                 '</div>';
         }
+
         $section.find(".part").each(function(idx, ele) {
             $(ele).html(htmls[idx]);
         });
 
         var $activeRadio = $section.find(".radioButton.active");
-        $activeRadio.get(0).scrollIntoView();
+        if ($activeRadio.length) {
+            $activeRadio.get(0).scrollIntoView();
+        }
     }
 
     function handleError(error) {
         $modal.removeClass("loading").addClass("error");
+        if (typeof error === "object") {
+            error = JSON.stringify(error);
+        }
         $modal.find(".errorSection").text(error);
     }
 
     function submitForm() {
+        var path = $modal.find(".radioButton.active").text();
         if ($modal.hasClass("parseMode")) {
             // parse mode
-            // XXX placeholder
-            console.log("parseMode");
+            DSParser.show(path);
         } else {
             // preview mode
-            var path = $modal.find(".radioButton.active").text();
             DSPreview.changePreviewFile(path);
         }
 
@@ -153,6 +160,7 @@ window.PreviewFileModal = (function(PreviewFileModal, $) {
 
     function closeModal() {
         modalHelper.clear();
+        modalId = null;
     }
 
     return PreviewFileModal;
