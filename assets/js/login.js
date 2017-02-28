@@ -9,7 +9,6 @@ $(document).ready(function() {
     var hostname = "";
     var isSubmitDisabled = false;
     setupHostName();
-    init(); // 3rd party splash scren js
 
     if (xcLocalStorage.getItem("noSplashLogin") === "true") {
         setTimeout(function() {
@@ -131,6 +130,7 @@ $(document).ready(function() {
 
     function showSplashScreen() {
         var animTime = 4200;
+        init(); // 3rd party splash screen js
         $("#loginForm").show();
         $('#loadingBar .innerBar').removeClass('animated');
 
