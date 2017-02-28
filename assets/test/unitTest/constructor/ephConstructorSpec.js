@@ -296,12 +296,17 @@ describe("Ephemeral Constructor Test", function() {
             controller.setQuote("\'");
             expect(controller.getQuote()).to.be.equal("\'");
 
+            // set and get preview file
+            controller.setPreviewFile("testFile");
+            expect(controller.getPreviewFile()).to.equal("testFile");
+
             controller.reset();
-            expect(Object.keys(controller).length).to.equal(4);
+            expect(Object.keys(controller).length).to.equal(5);
             expect(controller.getFieldDelim()).to.equal("");
             expect(controller.getLineDelim()).to.equal("\n");
             expect(controller.useHeader()).to.be.false;
             expect(controller.getQuote()).to.equal("\"");
+            expect(controller.getPreviewFile()).to.be.null;
         });
     });
 

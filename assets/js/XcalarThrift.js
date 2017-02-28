@@ -2448,6 +2448,27 @@ function XcalarGetDag(tableName) {
     return (deferred.promise());
 }
 
+function XcalarListFilesWithPattern(url, isRecur, namePattern) {
+    if (tHandle == null) {
+        return PromiseHelper.resolve(null);
+    }
+
+    var deferred = jQuery.Deferred();
+    if (insertError(arguments.callee, deferred)) {
+        return deferred.promise();
+    }
+
+    xcalarListFiles(tHandle, url, isRecur, namePattern)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarListFiles", error);
+        SQL.errorLog("List Files", null, null, thriftError);
+        deferred.reject(thriftError);
+    });
+
+    return deferred.promise();
+}
+
 function XcalarListFiles(url, isRecur) {
     if (tHandle == null) {
         return PromiseHelper.resolve(null);

@@ -8,6 +8,7 @@ module.exports = {
         "BACK": "BACK",
         "BROWSE": "BROWSE",
         "CANCEL": "CANCEL",
+        "Change": "Change",
         "CLEAR": "CLEAR",
         "ClearAll": "Clear All",
         "ClickToOpts": "Click to see options",
@@ -486,7 +487,8 @@ module.exports = {
         "REDETECT": "REDETECT",
         "Minimize": "Toggle minimization of form",
         "EntireFileSize": "Entire file/folder",
-        "CustomizedSize": "Custom size"
+        "CustomizedSize": "Custom size",
+        "PARSER": "ADVANCED VISUAL PARSER"
     },
 
     "fileBrowser": {
@@ -715,6 +717,14 @@ module.exports = {
 
     "jsonModal": {
         "header": "Data Browser"
+    },
+
+    "previewFile": {
+      "previewHeader": "Select File to Preview",
+      "parseHeader": "Select File to Parse",
+      "ListOf": "List of",
+      "PREVIE": "PREVIEW",
+      "PARSE": "PARSE"
     },
 
     "smartCast": {

@@ -3007,6 +3007,119 @@ html.microsoft {
     }
 }
 
+#previewFileModal {
+    .size(@width: 680px, @height: 400px);
+
+     &.loading {
+        .errorSection, .contentSection {
+            display: none !important;
+        }
+
+        .loadSection {
+            display: block !important;
+        }
+
+        .confirm {
+            opacity: @opacity-disabled;
+            pointer-events: none;
+        }
+    }
+
+    &.error {
+        .contentSection, .loadSection {
+            display: none !important;
+        }
+
+        .errorSection {
+            display: block !important;
+        }
+
+        .confirm {
+            opacity: @opacity-disabled;
+            pointer-events: none;
+        }
+    }
+
+    &.parseMode {
+        .modalBottom, .modalHeader {
+            .preview {
+                display: none;
+            }
+
+            .parse {
+                display: inline;
+            }
+        }
+    }
+
+    .modalHeader {
+        .parse {
+            display: none;
+        }
+    }
+
+    .modalInstruction {
+        .size(@height: 36px);
+        padding-top: 6px;
+        padding-bottom: 6px;
+        line-height: 24px;
+
+        .icon {
+            margin: 0;
+        }
+    }
+
+    .modalTopMain {
+        .size(@height: ~"calc(100% - 136px)");
+
+        > div {
+            .size(100%, 100%);
+        }
+
+        .loadSection, .errorSection {
+            display: none;
+            padding-left: 15px;
+            padding-top: 15px;
+        }
+
+        .contentSection {
+            overflow-y: auto;
+            display: block;
+
+            .part {
+                .size(@width: 33%, @min-height: 100%);
+                float: left;
+                border-left: 1px solid @color-border-pinkish-grey2;
+
+                &:first-child {
+                    border-left: none;
+                }
+            }
+
+            .radioButton {
+                .size(@height: 30px);
+                padding: 5px 20px;
+
+                &:hover {
+                    background-color: @color-bg-white-nine;
+                }
+
+                .label {
+                    .textOverflowOneLine;
+                }
+            }
+        }
+    }
+
+    .modalBottom {
+        .size(@height: 64px);
+
+        .parse {
+            display: none;
+        }
+    }
+}
+
 .ui-draggable-dragging {
     .cursor-grabbing;
 

@@ -1594,42 +1594,68 @@ table.datasetTable {
 // Preview Table Section
 #dsPreviewWrap {
     .hidden {
-        display: none;
+        display: none !important;
     }
 
     .titleSection {
         .size(@height: 70px);
-        padding: 15px 25px;
+        padding: 10px 15px 0px 25px;
 
-        > div {
+        .info {
             .size(@height: 30px);
             .font(@line-height: 30px);
+
+            &:last-child {
+                margin-top: 2px;
+            }
         }
 
         .title {
+            .size(@width: 90px, @height: 30px);
             .font(@size: 16px, @weight: 700, @color: @color-font-select-blue);
+            margin-right: 10px;
+            float: left;
+
+            button {
+                .size(@width: 100%);
+            }
         }
 
-        .info {
-            .url {
-                .size(@width: ~"calc(100% - 200px)");
-                float: left;
-                .flex-display;
+        button {
+            .size(@height: 30px);
+            line-height: 30px;
+        }
 
-                > div {
-                    .flex(0 1 auto);
+        .url {
+            .size(@width: ~"calc(100% - 335px)");
+            float: left;
+            .flex-display;
+
+            > div {
+                .flex(0 1 auto);
+                margin-left: 2px;
+
+                &:first-child {
+                    margin-left: 0;
                 }
             }
+        }
 
-            .buttonGroup {
-                .size(@width: 200px);
+        .buttonGroup {
+            .size(@width: 235px);
+            float: right;
+
+            button {
                 float: right;
-
-                button {
-                    float: right;
-                    margin-left: 5px;
-                }
+                margin-left: 5px;
             }
+        }
+
+        #preview-parser {
+            // XXX temporary hide it
+            display: none !important;
+            .size(@width: 100%);
+            padding-right: 5px;
         }
     }
 

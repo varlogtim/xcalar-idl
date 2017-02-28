@@ -121,6 +121,15 @@ window.DSPreview = (function($, DSPreview) {
             $previewCard.toggleClass("minimize");
         });
 
+        // change preview file
+        $("#preview-changeFile").click(function() {
+            previewFileSelect();
+        });
+
+        $("#preview-parser").click(function() {
+            previewFileSelect(true);
+        });
+
         setupForm();
     };
 
@@ -170,6 +179,11 @@ window.DSPreview = (function($, DSPreview) {
             loadArgs.setFormat(null);
             return previewData(null, null);
         }
+    };
+
+    DSPreview.changePreviewFile = function(path) {
+        loadArgs.setPreviewFile(path);
+        refreshPreview();
     };
 
     DSPreview.update = function(listXdfsObj) {
@@ -1105,7 +1119,6 @@ window.DSPreview = (function($, DSPreview) {
         var deferred = jQuery.Deferred();
         applyHighlight(""); // remove highlighter
         $previewTable.removeClass("has-delimiter").empty();
-
         rawData = null;
 
         if (tableName != null) {
@@ -1172,6 +1185,13 @@ window.DSPreview = (function($, DSPreview) {
             return PromiseHelper.reject("Error Case!");
         }
 
+        var urlToPreview;
+        if (hasUDF) {
+            urlToPreview = loadURL;
+        } else {
+            urlToPreview = loadArgs.getPreviewFile() || loadURL;
+        }
+
         var $loadHiddenSection = $previeWrap.find(".loadHidden")
                                             .addClass("hidden");
         var $waitSection = $previeWrap.find(".waitSection")
@@ -1179,7 +1199,7 @@ window.DSPreview = (function($, DSPreview) {
         $previeWrap.find(".errorSection").addClass("hidden");
         var sql = {
             "operation": SQLOps.PreviewDS,
-            "dsPath": loadURL,
+            "dsPath": urlToPreview,
             "dsName": dsName,
             "moduleName": udfModule,
             "funcName": udfFunc,
@@ -1200,10 +1220,10 @@ window.DSPreview = (function($, DSPreview) {
 
         var promise;
         if (hasUDF) {
-            promise = loadDataWithUDF(txId, loadURL, pattern, dsName,
+            promise = loadDataWithUDF(txId, urlToPreview, pattern, dsName,
                                     udfModule, udfFunc, isRecur, previewSize);
         } else {
-            promise = loadData(loadURL, pattern, isRecur);
+            promise = loadData(urlToPreview, pattern, isRecur);
         }
 
         promise
@@ -1265,6 +1285,34 @@ window.DSPreview = (function($, DSPreview) {
         }
     }
 
+    function setPreviewFile(path, enable) {
+        var $file = $("#preview-file");
+        var $ele = $("#preview-changeFile").add($file);
+        if (enable) {
+            $file.find(".text").text(path);
+            $ele.removeClass("xc-hidden");
+        } else {
+             // when it's a single file or udf
+            $ele.addClass("xc-hidden");
+        }
+    }
+
+    function previewFileSelect(isParseMode) {
+        var loadURL = loadArgs.getPath();
+        var previewFile = $("#preview-file").find(".text").text();
+        var advanceArgs = advanceOption.getArgs();
+        var isRecur = advanceArgs.isRecur;
+        var isRegex = advanceArgs.isRegex;
+        var pattern = xcHelper.getFileNamePattern(advanceArgs.pattern, isRegex);
+
+        PreviewFileModal.show(loadURL, {
+            "previewFile": previewFile,
+            "isRecur": isRecur,
+            "pattern": pattern,
+            "isParseMode": isParseMode
+        });
+    }
+
     function sampleData(datasetName, rowsToFetch) {
         var deferred = jQuery.Deferred();
         var resultSetId;
@@ -1312,6 +1360,16 @@ window.DSPreview = (function($, DSPreview) {
         var deferred = jQuery.Deferred();
         bufferData(loadURL, pattern, isRecur, numBytesRequest)
         .then(function(res) {
+            var fullURL = loadArgs.getPath();
+            if (fullURL.includes(res.fullPath)) {
+                // when fullPath is part of the url,
+                // which means it's a single file
+                setPreviewFile(fullURL, false);
+            } else {
+                var path = fullURL.endsWith("/") ? fullURL : fullURL + "/";
+                path += res.fileName;
+                setPreviewFile(path, true);
+            }
             deferred.resolve(res.buffer);
         })
         .fail(deferred.reject);
@@ -1342,9 +1400,7 @@ window.DSPreview = (function($, DSPreview) {
 
             return PromiseHelper.resolve(res);
         })
-        .then(function(res) {
-            deferred.resolve(res);
-        })
+        .then(deferred.resolve)
         .fail(deferred.reject);
 
         return deferred.promise();
@@ -1374,6 +1430,7 @@ window.DSPreview = (function($, DSPreview) {
             try {
                 var rows = parseRows(result);
                 var buffer = JSON.stringify(rows);
+                setPreviewFile(loadURL, false);
                 deferred.resolve(buffer);
             } catch (err) {
                 console.error(err.stack);

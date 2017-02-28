@@ -363,6 +363,7 @@ window.StartManager = (function(StartManager, $) {
         LicenseModal.setup();
         SupTicketModal.setup();
         AboutModal.setup();
+        PreviewFileModal.setup();
     }
 
     function setupUserArea() {

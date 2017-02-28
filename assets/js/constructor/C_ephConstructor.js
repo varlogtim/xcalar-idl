@@ -312,6 +312,7 @@ DSFormController.prototype = {
         this.lineDelim = "\n";
         this.hasHeader = false;
         this.quote = "\"";
+        this.previewFile = null;
 
         delete this.path;
         delete this.format;
@@ -363,6 +364,14 @@ DSFormController.prototype = {
 
     getQuote: function() {
         return this.quote;
+    },
+
+    setPreviewFile: function(file) {
+        this.previewFile = file;
+    },
+
+    getPreviewFile: function() {
+        return this.previewFile;
     }
 };
 
