@@ -576,9 +576,10 @@ window.StatusMessage = (function($, StatusMessage) {
                 }
 
             } else if (options.newDataSet) {
-                // XXX this part need fix
                 $('#dataStoresTab').click();
-                $('#inButton').click();
+                if (!$("#inButton").hasClass("active")) {
+                    $('#inButton').click();
+                }
                 $('#' + options.dataSetId).click();
             }
 
