@@ -339,12 +339,17 @@
                 width: 180px;
             }
             &:hover:not(.noDropdown) {
-                .dagTableIcon {
-                    background-color: @color-bg-select-blue;
+                .typeTable .icon {
+                    color: @color-bg-btn-hover-blue;
                 }
-                &.dataStore, &.export {
-                    .dagTableIcon, .dataStoreIcon {
+                &.dataStore {
+                    .dataStoreIcon {
                         background-color: @color-bg-btn-hover-blue;
+                    }
+                }
+                &.export {
+                    .icon {
+                        color: @color-bg-btn-hover-blue;
                     }
                 }
             }
@@ -361,7 +366,10 @@
             .icv.dagTableIcon {
                 // XXX TEMP FIX until we get distinguishs between icv and
                 // errored tables
-                background-color: @color-error-border !important;
+                // background-color: @color-error-border !important;
+                ~ .icon {
+                    color: @color-error-border !important;
+                }
             }
 
             &.noDropdown {
@@ -372,39 +380,79 @@
                 }
             }
             &.Created {
-                .dagTableIcon {
-                    background-color:  @color-bg-select-blue;
+                .dataStoreIcon {
+                    background-color: @color-bg-select-blue;
+                }
+                &.typeTable .icon {
+                    color:  @color-bg-select-blue;
                 }
             }
             &.Processing {
                 &:hover {
-                    .dagTableIcon, .dataStoreIcon {
+                    .dataStoreIcon {
                         background-color: @color-bg-gold !important;
-                    } 
+                    }
+                    &.typeTable .icon {
+                        color: @color-bg-gold !important;
+                    }
+                    &[data-advancedOpts="default"] i.icon.xi-generate-sub {
+                        color: @color-white !important;
+                    }
                 }
-                .dagTableIcon, .dataStoreIcon {
+                .dataStoreIcon {
                     background-color: @color-bg-gold !important;
+                }
+                &.typeTable .icon {
+                    color: @color-bg-gold !important;
+                }
+                &[data-advancedOpts="default"] .dagTableIcon {
+                    background: @color-bg-gold;
                 }
             }
             &.Cleaned, &.Dropped, &.Ready {
                 &:hover {
-                    .dagTableIcon:not(.icv), .dataStoreIcon {
+                    .dataStoreIcon {
                         background-color: @color-bg-fern-green !important;
-                    } 
+                    }
+                    .dagTableIcon:not(.icv) ~ .icon {
+                        color: @color-bg-fern-green !important;
+                    }
+                    &[data-advancedOpts="default"] i.icon.xi-generate-sub {
+                        color: @color-white !important;
+                    }
                 }
-                .dagTableIcon, .dataStoreIcon {
+
+                .dataStoreIcon {
                     background-color: @color-bg-fern-green;
+                }
+                &.typeTable .icon {
+                    color: @color-bg-fern-green;
+                }
+                &[data-advancedOpts="default"] .dagTableIcon {
+                    background: @color-bg-fern-green;
                 }
             }
 
             &.Queued, &.Error {
                 &:hover {
-                    .dagTableIcon, .dataStoreIcon {
+                    .dataStoreIcon {
                         background-color: @color-error-border !important;
-                    } 
+                    }
+                    &.typeTable .icon {
+                        color: @color-error-border !important;
+                    }
+                    &[data-advancedOpts="default"] i.icon.xi-generate-sub {
+                        color: @color-white !important;
+                    }
                 }
-                .dagTableIcon, .dataStoreIcon {
+                .dataStoreIcon {
                     background-color: @color-error-border;
+                }
+                &.typeTable .icon {
+                    color: @color-error-border;
+                }
+                &[data-advancedOpts="default"] .dagTableIcon {
+                    background: @color-error-border;
                 }
             }
         }

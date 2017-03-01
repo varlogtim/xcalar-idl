@@ -232,11 +232,16 @@ html.firefox, html.microsoft {
 
     .tableArea {
         .dagTableIcon {
-            .size(24px, 18px);
-            .rounded(11px);
+            .size(18px, 18px);
+            .rounded(2px);
+            background: @color-white;
+            top: 0px;
+            left: 0px;
         }
         .icon {
-            .position(@top: 5px, @left: 8px);
+            .position(@top: 0px, @left: 0px);
+            color: @color-bg-select-blue;
+            font-size: 18px;
         }
     }
 
@@ -249,21 +254,30 @@ html.firefox, html.microsoft {
 }
 
 .dagTableIcon {
-    .size(@width: 36px, @height: 26px);
+    .size(@width: 24px, @height: 24px);
     position: relative !important;
-    background-color:  @color-bg-select-blue;
-    &.icv {
-        background-color: @color-error-border;
+    left: 6px;
+    top: 7px;
+    background-color: @color-white;
+
+    &.icv ~ .icon {
+        color: @color-error-border;
     }
-    .rounded(14px);
+    
 }
 
 .dagTable {
+    .icon {
+        color: @color-bg-select-blue;
+    }
     &:hover {
+        .icon {
+            color: @color-bg-btn-hover-blue;
+        }
         .dagTableIcon {
-            background-color: @color-bg-btn-hover-blue;
-            &.icv {
-                background-color: @color-bg-red-hover;
+
+            &.icv ~ .icon {
+                color: @color-bg-red-hover;
             }
         }
     }
@@ -492,15 +506,21 @@ html.firefox, html.microsoft {
                 background: white;
                 box-shadow: 0px 0px 8px 0px @color-dag-highlighted;
                 border: 2px solid @color-dag-highlighted;
-
             }
-            .icon {
+
+            &.typeTable {
+                .dagTableIcon {
+                    background: @color-bg-select-blue;
+                    box-shadow: 0px 0px 8px 3px @color-dag-highlighted;
+                }
+                
+                .icon {
+                    color: @color-white;
+                }
+            }
+
+            &.dataStore .icon {
                 color: @color-bg-select-blue;
-            }
-
-        }
-        &.dataStore.highlighted {
-            .icon {
             }
         }
 
@@ -524,9 +544,9 @@ html.firefox, html.microsoft {
             .dagTableIcon:after {
                 top: -6px;
                 left: -6px;
-                border-radius: 18px;
-                height: 32px;
-                width: 42px;
+                border-radius: 5px;
+                height: 30px;
+                width: 30px;
                 .paramMixin;
             }
             &.hasParam {
@@ -541,9 +561,10 @@ html.firefox, html.microsoft {
         }
 
         .icon {
-            .position(absolute, @top: 11px, @left: 10px);
-            font-size: 15px;
+            .position(absolute, @top: 5px, @left: 3px);
+            font-size: 28px;
             pointer-events: none; // to allow tooltip on tableElement
+            
         }
 
         .lockIcon {
@@ -552,13 +573,11 @@ html.firefox, html.microsoft {
             .image("../../images/dagIcons/lock-white.png", 50%, 50%);
         }
 
-        .dagTableIcon {
-            .position(absolute, @top: 6px);
-        }
-
         &.Cleaned, &.Dropped {
+            .icon {
+                color: @color-bg-white-five;
+            }
             .dagTableIcon {
-                background-color: @color-bg-white-five;
                 cursor: default;
             }
         }
@@ -576,6 +595,7 @@ html.firefox, html.microsoft {
             .icon {
                 .position(@top: 11px, @left: 7px);
                 font-size: 16px;
+                color: @color-white;
             }
             .dataStoreIcon {
                 .position(absolute, @top: 6px, @left: 2px);
@@ -606,8 +626,28 @@ html.firefox, html.microsoft {
             .exportFileName, .xi-generate-sub {
                 display: inline-block;
             }
-            .exportTableName, .xi_table {
+            .dagTableIcon {
+                width: 26px;
+                height: 26px;
+                background-color: @color-bg-select-blue;
+                .rounded(3px);
+                left: 5px;
+                top: 6px;
+            }
+            .xi-generate-sub {
+                font-size: 16px;
+                color: @color-white !important;
+                left: 10px;
+                top: 10px;
+            }
+            .exportTableName, .xi-table-2 {
                 display: none;
+            }
+            &.parameterizable {
+                .dagTableIcon::after {
+                    top: -5px;
+                    left: -5px;
+                }
             }
         }
 
@@ -615,7 +655,7 @@ html.firefox, html.microsoft {
             .exportFileName, .xi-generate-sub {
                 display: none;
             }
-            .exportTableName, .xi_table {
+            .exportTableName, .xi-table-2 {
                 display: inline-block;
             }
         }

@@ -2440,7 +2440,7 @@ window.Dag = (function($, Dag) {
             } else {
                 tableImage = tImage;
             }
-            x = left - 79;
+            x = left - 89;
         }
 
         ctx.drawImage(tableImage, iconLeft, iconTop);
@@ -3090,7 +3090,7 @@ window.Dag = (function($, Dag) {
             if (dagNode.api === XcalarApisT.XcalarApiExecuteRetina) {
                 dsText = "";
                 outerClassNames = " retina";
-                icon = '<i class="icon xi_table"></i>';
+                icon = '<i class="icon xi-table-2"></i>';
             } else {
                 dsText = "Dataset ";
                 icon = '<i class="icon xi_data"></i>';
@@ -3131,7 +3131,7 @@ window.Dag = (function($, Dag) {
             }
 
             if (dagNode.api === XcalarApisT.XcalarApiExport) {
-                html += '<div class="dagTable ' + state + '" ' +
+                html += '<div class="dagTable typeTable ' + state + '" ' +
                         'data-tablename="' + tableName + '" ' +
                         'data-index="' + index + '" ' +
                         'data-id="' + tableId + '">' +
@@ -3142,7 +3142,7 @@ window.Dag = (function($, Dag) {
                         'title="' + tooltipTxt + '"' +
                         '></div>' +
                         '<i class="icon xi-generate-sub"></i>'+
-                        '<i class="icon xi_table"></i>'+
+                        '<i class="icon xi-table-2"></i>'+
                         '<span class="tableTitle exportFileName" ' +
                             'data-toggle="tooltip" ' +
                             'data-placement="bottom" ' +
@@ -3158,7 +3158,7 @@ window.Dag = (function($, Dag) {
                             tableName +
                         '</span>';
             } else {
-                html += '<div class="dagTable ' + state + '" ' +
+                html += '<div class="dagTable typeTable ' + state + '" ' +
                             'data-tablename="' + tableName + '" ' +
                             'data-index="' + index + '" ' +
                             'data-id="' + tableId + '">' +
@@ -3168,7 +3168,7 @@ window.Dag = (function($, Dag) {
                             'data-container="body" ' +
                             'title="' + tooltipTxt + '"' +
                             '></div>' +
-                            '<i class="icon xi_table"></i>'+
+                            '<i class="icon xi-table-2"></i>'+
                             '<span class="tableTitle exportFileName" ' +
                                 'data-toggle="tooltip" ' +
                                 'data-placement="bottom" ' +
