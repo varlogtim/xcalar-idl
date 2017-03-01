@@ -59,7 +59,7 @@ window.DSParser = (function($, DSParser) {
     DSParser.show = function(url) {
         DSForm.switchView(DSForm.View.Parser);
         resetView(url);
-        previewContent(url);
+        previewContent(url, true);
     };
 
     function resetView(url) {
@@ -94,6 +94,12 @@ window.DSParser = (function($, DSParser) {
             }
 
             var $target = $(event.target);
+            if ($parserCard.hasClass("previewOnly")) {
+                $menu.find("li").addClass("unavailable");
+            } else {
+                $menu.find("li").removeClass("unavailable");
+            }
+
             xcHelper.dropdownOpen($target, $menu, {
                 "mouseCoors": {"x": event.pageX, "y": event.pageY + 10},
                 "floating": true
@@ -106,7 +112,7 @@ window.DSParser = (function($, DSParser) {
         });
     }
 
-    function previewContent(url) {
+    function previewContent(url, detect) {
         var numBytes = calculateNumBytes();
         $parserCard.removeClass("error").addClass("loading");
 
@@ -116,7 +122,9 @@ window.DSParser = (function($, DSParser) {
         .then(function(res) {
             if (currentId === cardId) {
                 $parserCard.removeClass("loading");
-                detectFormat(res.buffer);
+                if (detect) {
+                    detectFormat(res.buffer);
+                }
                 showContent(res.buffer);
             }
         })
@@ -141,18 +149,31 @@ window.DSParser = (function($, DSParser) {
     }
 
     function detectFormat(content) {
-        var firstTwoRows = content.split("\n").slice(0, 2);
-        var format = xcSuggest.detectFormat(firstTwoRows, {"checkXML": true});
+        content = content.trim();
         var $li;
 
-        if (format === DSFormat.XML) {
+        if (isXML(content)) {
             $li = $formatList.find('li[name="xml"]');
-        } else if (format === DSFormat.JSON) {
+        } else if (isJSON(content)) {
             $li = $formatList.find('li[name="json"]');
         } else {
             $li = $formatList.find('li[name="text"]');
         }
         $li.trigger(fakeEvent.mouseup);
+    }
+
+    function isXML(str) {
+        return str.startsWith("<") && str.endsWith(">");
+    }
+
+    function isJSON(str) {
+        if (str.startsWith("[") || str.startsWith("{")) {
+            if (/{(.|[\r\n])+:(.|[\r\n])+},?/.test(str)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     function showContent(content) {

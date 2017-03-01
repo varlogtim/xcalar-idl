@@ -195,6 +195,10 @@ window.PreviewFileModal = (function(PreviewFileModal, $) {
             // when it's a single file
             paths[0] = url;
         } else {
+            // when it's a folder
+            if (!url.endsWith("/")) {
+                url += "/";
+            }
             files.forEach(function(file) {
                 // XXX temporary skip folder, later may enable it
                 if (!file.attr.isDirectory) {

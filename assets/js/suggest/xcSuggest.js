@@ -559,12 +559,10 @@ window.xcSuggest = (function($, xcSuggest) {
 
 // rawRows is an array of string
 // that represents unparsed data for each row
-    xcSuggest.detectFormat = function(rawRows, options) {
+    xcSuggest.detectFormat = function(rawRows) {
         options = options || false;
 
-        if (options.checkXML && isXML(rawRows)) {
-            return DSFormat.XML;
-        } else if (isJSONArray(rawRows)) {
+        if (isJSONArray(rawRows)) {
             return DSFormat.JSON;
         } else if (isSpecialJSON(rawRows)) {
             return DSFormat.SpecialJSON;
@@ -572,11 +570,6 @@ window.xcSuggest = (function($, xcSuggest) {
             return DSFormat.CSV;
         }
     };
-
-    function isXML(rawRows) {
-        var str = rawRows[0].trim();
-        return str.startsWith('<?xml version="1.0"');
-    }
 
     function isJSONArray(rawRows) {
         var str = rawRows[0].trim();
