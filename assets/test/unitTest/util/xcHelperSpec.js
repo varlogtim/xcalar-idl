@@ -73,6 +73,9 @@ describe('xcHelper Test', function() {
         // case 7
         res = xcHelper.parseJsonValue("test<>");
         expect(res).to.equal('test&lt;&gt;');
+        // case 8
+        res = xcHelper.parseJsonValue('{"a":{"b":"ABC, Inc."}}');
+        expect(res).to.equal('{"a":{"b":"ABC, Inc."}}');
     });
 
     it('xcHelper.parseListDSOutput should work', function() {

@@ -100,11 +100,11 @@ window.xcHelper = (function($, xcHelper) {
                     if ($.isEmptyObject(value)) {
                         value = "";
                     } else {
-                        value = JSON.stringify(value).replace(/,/g, ", ");
+                        value = JSON.stringify(value);
                     }
                     break;
                 case (Array):
-                    value = JSON.stringify(value).replace(/,/g, ", ");
+                    value = JSON.stringify(value);
                     break;
                 default: // leave value as is;
             }
