@@ -93,6 +93,9 @@ window.DSParser = (function($, DSParser) {
                 return false;
             }
 
+            var range = getSelectionCharOffsetsWithin($dataPreview[0]);
+            console.log(range);
+
             var $target = $(event.target);
             if ($parserCard.hasClass("previewOnly")) {
                 $menu.find("li").addClass("unavailable");
@@ -100,6 +103,7 @@ window.DSParser = (function($, DSParser) {
                 $menu.find("li").removeClass("unavailable");
             }
 
+            $menu.data("range", range);
             xcHelper.dropdownOpen($target, $menu, {
                 "mouseCoors": {"x": event.pageX, "y": event.pageY + 10},
                 "floating": true
@@ -133,6 +137,36 @@ window.DSParser = (function($, DSParser) {
                 handleError(error);
             }
         });
+    }
+
+    function getSelectionCharOffsetsWithin(element) {
+        var start = 0;
+        var end = 0;
+        var sel;
+        var range;
+        var priorRange;
+
+        if (typeof window.getSelection != "undefined") {
+            range = window.getSelection().getRangeAt(0);
+            priorRange = range.cloneRange();
+            priorRange.selectNodeContents(element);
+            priorRange.setEnd(range.startContainer, range.startOffset);
+            start = priorRange.toString().length;
+            end = start + range.toString().length;
+        } else if (typeof document.selection != "undefined" &&
+                (sel = document.selection).type != "Control") {
+            range = sel.createRange();
+            priorRange = document.body.createTextRange();
+            priorRange.moveToElementText(element);
+            priorRange.setEndPoint("EndToStart", range);
+            start = priorRange.text.length;
+            end = start + range.text.length;
+        }
+
+        return {
+            "start ": start,
+            "end ": end
+        };
     }
 
     function calculateNumBytes() {

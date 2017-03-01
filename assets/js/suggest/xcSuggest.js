@@ -560,8 +560,6 @@ window.xcSuggest = (function($, xcSuggest) {
 // rawRows is an array of string
 // that represents unparsed data for each row
     xcSuggest.detectFormat = function(rawRows) {
-        options = options || false;
-
         if (isJSONArray(rawRows)) {
             return DSFormat.JSON;
         } else if (isSpecialJSON(rawRows)) {
