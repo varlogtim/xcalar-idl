@@ -77,7 +77,7 @@ app.get("/start/:vmname", function(req, res) {
                         try {
                             blockRes.send(redirect("https://" +
                                           req.params.vmname +
-                                          ".xcalar.com/", "Please wait, " +
+                                          ".xcalar.cloud/", "Please wait, " +
                                           "redirecting..."));
                         } catch (e) {
                             console.log(e);
@@ -96,7 +96,7 @@ app.get("/block/:vmname", function(req, res) {
     console.log("Blocking");
     if (vmStatus && vmStatus[req.params.vmname] && vmStatus[req.params.vmname].complete) {
         console.log("Already complete");
-        res.send(redirect("https://" + req.params.vmname + ".xcalar.com/",
+        res.send(redirect("https://" + req.params.vmname + ".xcalar.cloud/",
                           "Please wait, redirecting..."));
     } else {
         console.log("Not yet complete");

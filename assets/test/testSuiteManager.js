@@ -8,6 +8,7 @@
  * example:
  *  http://localhost:8888/test.html?auto=y&server=localhost%3A5909&users=1&mode=ten&host=localhost%3A8888&close=force
  */
+var gInternal = true;
 window.TestSuiteManager = (function(TestSuiteManager) {
     var windowRefs = [];
     var reports = [];
@@ -31,9 +32,11 @@ window.TestSuiteManager = (function(TestSuiteManager) {
         $(".closeAll").hide();
 
         parseParam();
-        populateParams();
-        populatePreviousRuns();
-        populateCurrentUsers();
+        if (gInternal) {
+            populateParams();
+            populatePreviousRuns();
+            populateCurrentUsers();
+        }
         startPoll();
     };
 
@@ -265,18 +268,19 @@ window.TestSuiteManager = (function(TestSuiteManager) {
 
         var url = "http://" + server +
                     "/action?name=setstatus&res=" + output;
-
-        $.ajax({
-            "type"    : "GET",
-            "dataType": "jsonp",  // this is to fix cross domain issue
-            "url"     : url,
-            "success" : function(data) {
-                console.log("send to sever success");
-            },
-            "error": function(error) {
-                console.log("send to sever error", error);
-            }
-        });
+        if (gInternal) {
+            $.ajax({
+                "type"    : "GET",
+                "dataType": "jsonp",  // this is to fix cross domain issue
+                "url"     : url,
+                "success" : function(data) {
+                    console.log("send to sever success");
+                },
+                "error": function(error) {
+                    console.log("send to sever error", error);
+                }
+            });
+        }
     }
 
     function printToServer(res) {
@@ -294,17 +298,19 @@ window.TestSuiteManager = (function(TestSuiteManager) {
         var url = "http://" + server +
                     "/action?name=print&res=" + output;
 
-        $.ajax({
-            "type"    : "GET",
-            "dataType": "jsonp",  // this is to fix cross domain issue
-            "url"     : url,
-            "success" : function(data) {
-                console.log("send to sever success");
-            },
-            "error": function(error) {
-                console.log("send to sever error", error);
-            }
-        });
+        if (gInternal) {
+            $.ajax({
+                "type"    : "GET",
+                "dataType": "jsonp",  // this is to fix cross domain issue
+                "url"     : url,
+                "success" : function(data) {
+                    console.log("send to sever success");
+                },
+                "error": function(error) {
+                    console.log("send to sever error", error);
+                }
+            });
+        }
     }
 
     function getSearchParameters() {
