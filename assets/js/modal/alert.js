@@ -102,8 +102,16 @@ window.Alert = (function($, Alert){
         var minHeight = $modal.css('min-height');
         $modal.width(minWidth);
         $modal.height(minHeight);
-
         modalHelper.setup(extraOptions);
+
+        if (window.isBrowserIE) { // all text will be on 1 line otherwise
+            setTimeout(function() {
+                $modal.width(parseInt(minWidth) + 1);
+                setTimeout(function() {
+                    $modal.width(minWidth);
+                });
+            });
+        }
     };
 
     Alert.error = function(title, error, options) {

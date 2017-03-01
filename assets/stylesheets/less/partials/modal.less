@@ -1549,10 +1549,12 @@ html.microsoft {
         padding: 5px 20px;
         overflow: auto;
         vertical-align: middle;
-        .flex(1 0 75px);
+        .flex(1 1 75px);
         .flex-display;
         .flex-direction(column);
         .align-items(center);
+        overflow: hidden; // for ie
+        overflow-y: auto; // for ie
 
         .text {
             text-align: center;
@@ -1561,6 +1563,7 @@ html.microsoft {
             .flex(1 0 auto);
             .flex-display;
             .align-items(center);
+            max-width: 100%;// for ie
         }
 
         &.leftAlign {
