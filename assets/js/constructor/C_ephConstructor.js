@@ -573,10 +573,14 @@ Corrector.prototype = {
  * removeSelected: function, callback for removing highlighted text
  * highlightSelected: function, callback for highlighted text
  * scrollMatchIntoView: function, callback for scrolling to a highlighted match
+ * removeHighlight: boolean, if true, will unwrap $list contents and remove
+ *                 highlighted class
  * arrowsPreventDefault: boolean, if true, preventDefault & stopPropagation will
                          be applied to the search arrows
  * codeMirror: codeMirror object
  * $input: jquery input, will search for 'input' in $searchArea by default
+ * $list: container (typically a ul) for search contents
+ * 
  */
 
 function SearchBar($searchArea, options) {
@@ -600,6 +604,10 @@ function SearchBar($searchArea, options) {
         this.$searchInput = $searchArea.find('input');
     }
 
+    if (this.$searchArea.parent().hasClass("slidingSearchWrap")) {
+        this.isSlider = true;
+    }
+
     return this;
 }
 
@@ -614,6 +622,7 @@ SearchBar.prototype = {
             $searchInput = searchBar.$searchInput;
         }
 
+        // keydown event for up, down, enter keys
         // secondaryEvent is the event passed in by codemirror
         function handleKeyDownEvent(event, secondaryEvent) {
             if (searchBar.numMatches === 0) {
@@ -739,7 +748,10 @@ SearchBar.prototype = {
         searchBar.matchIndex = position - 1;
         searchBar.$position.text(position);
         searchBar.$total.text("of " + searchBar.numMatches);
-
+        if (searchBar.isSlider) {
+            searchBar.$searchInput.css("padding-right",
+                                        searchBar.$counter.width() + 25);
+        }
     },
     clearSearch: function(callback, options) {
         var searchBar = this;
@@ -754,6 +766,12 @@ SearchBar.prototype = {
             } else {
                 searchBar.$searchInput.val("");
             }
+        }
+        if (searchBar.options.removeHighlight && searchBar.$list) {
+            searchBar.$list.find(".highlightedText").contents().unwrap();
+        }
+        if(searchBar.isSlider) {
+            searchBar.$searchInput.css("padding-right", 25);
         }
 
         if (typeof callback === "function") {

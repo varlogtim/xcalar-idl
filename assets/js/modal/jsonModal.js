@@ -863,9 +863,7 @@ window.JSONModal = (function($, JSONModal) {
         var text = $searchInput.val().toLowerCase();
 
         if (text === "") {
-            $counter.find('.position, .total').html('');
-            searchHelper.numMatches = 0;
-            $searchInput.css("padding-right", 25);
+            searchHelper.clearSearch();
             return;
         }
         var $targets = $jsonText.find('.text').filter(function() {
@@ -886,7 +884,6 @@ window.JSONModal = (function($, JSONModal) {
         });
         searchHelper.updateResults($jsonText.find('.highlightedText'));
         matchIndex = 0;
-        $searchInput.css("padding-right", $counter.width() + 25);
 
         if (searchHelper.numMatches !== 0) {
             scrollMatchIntoView(searchHelper.$matches.eq(0));
@@ -901,7 +898,7 @@ window.JSONModal = (function($, JSONModal) {
         if (focus) {
             $searchInput.focus();
         }
-        $searchInput.css("padding-right", 25).val("");
+        $searchInput.val("");
     }
 
     function scrollMatchIntoView($match) {
@@ -956,7 +953,6 @@ window.JSONModal = (function($, JSONModal) {
         isSaveModeOff = false;
 
         $(document).off(".jsonModal");
-        searchHelper.$matches = [];
         searchHelper.clearSearch(function() {
             clearSearch();
         });

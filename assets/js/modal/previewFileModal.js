@@ -2,9 +2,16 @@ window.PreviewFileModal = (function(PreviewFileModal, $) {
     var $modal;     // $("#previewFileModal")
     var modalHelper;
     var modalId;
+    var $searchArea;
+    var $searchInput;
+    var searchHelper;
+    var $counter;
 
     PreviewFileModal.setup = function() {
         $modal = $("#previewFileModal");
+        $searchArea = $modal.find(".searchbarArea"); 
+        $searchInput = $searchArea.find("input");
+        $counter = $searchArea.find(".counter");
 
         var minWidth = 680;
         var minHeight = 400;
@@ -40,6 +47,8 @@ window.PreviewFileModal = (function(PreviewFileModal, $) {
         });
 
         xcHelper.optionButtonEvent($modal.find(".radioButtonGroup"));
+
+        setupSearch();
     };
 
     PreviewFileModal.show = function(url, options) {
@@ -85,6 +94,96 @@ window.PreviewFileModal = (function(PreviewFileModal, $) {
                      .find("b").text(pattern);
         } else {
             $instruct.find(".pattern").addClass("xc-hidden");
+        }
+    }
+
+    function setupSearch() {
+        $modal.on("click", ".searchIcon", toggleSearch);
+        
+        searchHelper = new SearchBar($searchArea, {
+            "removeSelected": function() {
+                $modal.find('.selected').removeClass('selected');
+            },
+            "highlightSelected": function($match) {
+                $match.addClass("selected");
+            },
+            "scrollMatchIntoView": scrollMatchIntoView,
+            "$list": $modal.find(".contentSection"),
+            "removeHighlight": true
+        });
+
+        searchHelper.setup();
+
+        $searchInput.on("input", function() {
+            searchText();
+        });
+        $searchArea.find(".closeBox").click(function() {
+            if ($searchInput.val() === "") {
+                toggleSearch();
+            } else {
+                searchHelper.clearSearch(function() {
+                    $searchInput.focus();
+                });
+            }
+        });
+    }
+
+    function searchText() {
+        var $content = $modal.find(".contentSection");
+        var text = $searchInput.val().toLowerCase();
+        if (text === "") {
+            searchHelper.clearSearch();
+            return;
+        }
+
+        $content.find(".highlightedText").contents().unwrap();
+        var $targets = $content.find('.label').filter(function() {
+            return ($(this).text().toLowerCase().indexOf(text) !== -1);
+        });
+
+        text = xcHelper.escapeRegExp(text);
+        var regex = new RegExp(text, "gi");
+
+        $targets.each(function() {
+            var foundText = $(this).text();
+            foundText = foundText.replace(regex, function (match) {
+                return ('<span class="highlightedText">' + match +
+                        '</span>');
+            });
+            $(this).html(foundText);
+        });
+        searchHelper.updateResults($content.find('.highlightedText'));
+
+        if (searchHelper.numMatches !== 0) {
+            scrollMatchIntoView(searchHelper.$matches.eq(0));
+        }
+    }
+
+    function scrollMatchIntoView($match) {
+        var $container = $modal.find(".contentSection");
+        var containerHeight = $container.outerHeight();
+        var scrollTop = $container.scrollTop();
+        var containerTop = $container.offset().top;
+        var matchOffset = $match.offset().top - containerTop;
+
+        if (matchOffset > containerHeight - 15 || matchOffset < 0) {
+            $container.scrollTop(scrollTop + matchOffset -
+                                 (containerHeight / 2));
+        }
+    }
+
+    function toggleSearch() {
+        var $searchBar = $modal.find(".searchbarArea");
+        if ($searchBar.hasClass("closed")) {
+            $searchBar.removeClass("closed");
+            setTimeout(function() {
+                $searchBar.find("input").focus();
+            }, 310);
+
+        } else {
+            $searchBar.addClass("closed");
+            $searchInput.val("");
+            searchText();
         }
     }
 
@@ -161,6 +260,8 @@ window.PreviewFileModal = (function(PreviewFileModal, $) {
     function closeModal() {
         modalHelper.clear();
         modalId = null;
+        searchHelper.clearSearch();
+        $searchArea.addClass("closed");
     }
 
     return PreviewFileModal;
