@@ -973,7 +973,7 @@ ModalHelper.prototype = {
         $modal.find(".focusable").off(".xcModal")
                                   .removeClass("focusable");
         this.enableSubmit();
-        if (numModalsOpen) {
+        if (numModalsOpen < 2) {
             $("body").removeClass("no-selection");
         }
         if (options.close != null && options.close instanceof Function) {

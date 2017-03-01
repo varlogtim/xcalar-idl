@@ -849,7 +849,7 @@ module.exports = {
     },
 
     "about": {
-      "FrontVersion": "XI Version",
+      "FrontVersion": "XD Version",
       "BackVersion": "XCE Version",
       "ThriftSHA": "Thrift Version",
       "License": "License Key Expiration",
