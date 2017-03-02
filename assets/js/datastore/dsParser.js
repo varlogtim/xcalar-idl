@@ -96,8 +96,6 @@ window.DSParser = (function($, DSParser) {
             }
 
             var range = getSelectionCharOffsetsWithin($dataPreview[0]);
-            console.log(range);
-
             var $target = $(event.target);
             if ($parserCard.hasClass("previewOnly")) {
                 $menu.find("li").addClass("unavailable");
@@ -151,16 +149,19 @@ window.DSParser = (function($, DSParser) {
         var sel;
         var range;
         var priorRange;
+        var res;
 
         if (typeof window.getSelection !== "undefined") {
-            range = window.getSelection().getRangeAt(0);
+            sel = window.getSelection();
+            range = sel.getRangeAt(0);
             priorRange = range.cloneRange();
             priorRange.selectNodeContents(element);
             priorRange.setEnd(range.startContainer, range.startOffset);
             start = priorRange.toString().length;
             end = start + range.toString().length;
         } else if (typeof document.selection !== "undefined" &&
-                (sel = document.selection).type !== "Control") {
+                    document.selection.type !== "Control") {
+            sel = document.selection;
             range = sel.createRange();
             priorRange = document.body.createTextRange();
             priorRange.moveToElementText(element);
@@ -169,10 +170,93 @@ window.DSParser = (function($, DSParser) {
             end = start + range.text.length;
         }
 
+        // XXX need to be tested in IE
+        res = getRightSelection(start);
+        if (res != null) {
+            priorRange.setStart(range.startContainer, res.start);
+            priorRange.setEnd(range.startContainer, res.end);
+            sel.removeAllRanges();
+            sel.addRange(priorRange);
+            return res;
+        } else {
+            return {
+                "start": start,
+                "end": end
+            };
+        }
+    }
+
+    function getRightSelection(start) {
+        var format = getFormat();
+        if (format === "XML") {
+            return findXMLOpenTag(start);
+        } else if (format === "JSON") {
+            return findJSONOpenTag(start);
+        } else {
+            return null;
+        }
+    }
+
+    function findXMLOpenTag(start) {
+        var s = start;
+        var len = getBufferedCharLength();
+
+        while (s >= 0 && getCharAt(s) !== "<") {
+            s--;
+        }
+        // start from the open < and find the matched >
+        var e = s;
+        while (e < len - 1 && getCharAt(e) !== ">") {
+            e++;
+        }
+
         return {
-            "start ": start,
-            "end ": end
+            "start": s,
+            "end": e + 1
         };
+    }
+
+    function findJSONOpenTag(start) {
+        var s = start;
+        if (getCharAt(s) === "[") {
+            return {
+                "start": s,
+                "end": s + 1
+            };
+        }
+
+        var cnt = 0;
+        var ch;
+
+        while (s >= 0) {
+            ch = getCharAt(s);
+            if (ch === "{") {
+                if (cnt === 0) {
+                    break;
+                } else {
+                    cnt--;
+                }
+            } else if (ch === "}") {
+                cnt++;
+            }
+
+            s--;
+        }
+
+        return {
+            "start": s,
+            "end": s + 1
+        };
+    }
+
+    function getBufferedCharLength() {
+        // XXX later may change the implementation
+        return buffer.length;
+    }
+
+    function getCharAt(pos) {
+        // XXX later may change the implementation
+        return buffer[pos];
     }
 
     function calculateNumBytes() {
@@ -212,7 +296,7 @@ window.DSParser = (function($, DSParser) {
     }
 
     function getFormat() {
-        return $formatList.find("input").text();
+        return $formatList.find("input").val();
     }
 
     function isXML(str) {
