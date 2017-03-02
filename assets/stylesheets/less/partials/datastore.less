@@ -1991,6 +1991,15 @@ table.datasetTable {
     .flex-display;
     .flex-direction(column);
 
+    &.fetchingRows {
+        .cardTopMain, .cardMain {
+            cursor: progress;
+            .dataPreview, .topSection, button {
+                pointer-events: none;
+            }
+        }
+    }
+
     .cardTopMain {
         @barHeight: 64px;
         @topPadding: 14px;
@@ -2001,20 +2010,40 @@ table.datasetTable {
         .justify-content(space-between);
 
         .topSection {
-            .flex(1 1 auto);
             .flex-display;
-            .size(@width: ~"calc(100% - 200px)");
+            .flex(0 1 auto);
 
-            > span, > label {
+            &:first-child {
+                .flex(2 1 auto);
+            }
+
+            > span, > label, > div {
                 float: left;
                 line-height: @barHeight - (2 * @topPadding);
             }
         }
 
-        .btn.confirm {
-            float: right;
-            .flex(0 0 150px);
+
+        .rowInputArea {
+            margin: 0px;
+            line-height: @barHeight - (2 * @topPadding);
+            border-left: none;
+            .input-box(60px, 30px);
+            input {
+                position: static;
+                margin-top: 3px;
+            }
         }
+
+        .btn.confirm {
+            .flex(0 1 150px);
+        }
+    }
+
+    .labelSection {
+        .flex(0 1 auto);
+        margin-right: 10px;
+        .textOverflowOneLine;
     }
 
     .previewLabel {
@@ -2023,26 +2052,21 @@ table.datasetTable {
         margin-right: 10px;
     }
 
-    .filename {
-        margin-right: 10px;
-        .flex(0 1 auto);
-        .textOverflowOneLine;
-    }
-
     .fileFormat {
         float: none;
         display: inline-block;
-        .flex(0 1 200px);
-        min-width: 100px;
+        .flex(0 1 180px);
+        min-width: 130px;
         margin-top: 3px;
         input {
             width: ~"calc(100% - 30px)";
             float: left;
         }
     }
+
     .divider {
         display: inline-block;
-        width: 1px;
+        .flex(0 0 1px);
         height: 26px;
         background-color: @color-border-warmGray;
         margin: 5px 20px 0px;

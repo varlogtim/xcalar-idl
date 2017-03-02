@@ -8,6 +8,8 @@ window.DSParser = (function($, DSParser) {
     var offset;
     var buffer;
     var cardId;
+    var curUrl;
+    var totalSize = 0;
 
     DSParser.setup = function() {
         $parserCard = $("#dsParser");
@@ -55,12 +57,13 @@ window.DSParser = (function($, DSParser) {
         });
 
         setupMenu();
+        setupRowInput();
     };
 
     DSParser.show = function(url) {
         DSForm.switchView(DSForm.View.Parser);
         resetView(url);
-        previewContent(url, true);
+        previewContent(url, true, true);
     };
 
     function resetView(url) {
@@ -68,6 +71,8 @@ window.DSParser = (function($, DSParser) {
         offset = 0;
         buffer = null;
         cardId = xcHelper.randName("dsParser");
+        curUrl = url;
+        resetRowInput();
     }
 
     function toggleBoxResize($icon) {
@@ -116,8 +121,46 @@ window.DSParser = (function($, DSParser) {
         });
     }
 
-    function previewContent(url, detect) {
-        $parserCard.removeClass("error").addClass("loading");
+    function setupRowInput() {
+        var $input = $("#parserRowInput");
+        $input.keypress(function(event) {
+            if (event.which !== keyCode.Enter) {
+                return;
+            }
+            if ($parserCard.hasClass("loading") ||
+                $parserCard.hasClass("fetchingRows")) {
+                return;
+            }
+
+            var prevVal = $input.data("val");
+            var val = Number($input.val());
+            if (isNaN(val) || val % 1 !== 0) {
+                $input.val(prevVal);
+                return;
+            }
+
+            val = Math.min(totalSize - 100, val);
+            val = Math.max(0, val);
+
+            $input.data("val", val).val(val);
+            offset = val;
+            previewContent(curUrl, offset);
+        });
+
+        $input.blur(function() {
+            var val = $(this).data('val');
+            $(this).val(val);
+        });
+    }
+
+    function previewContent(url, detect, newContent) {
+        $parserCard.removeClass("error");
+        if (newContent) {
+            $parserCard.addClass("loading");
+        } else {
+            $parserCard.addClass("fetchingRows");
+        }
+        
 
         var currentId = cardId;
         var promise = (detect) ? detectFormat(url) : PromiseHelper.resolve();
@@ -132,8 +175,11 @@ window.DSParser = (function($, DSParser) {
         })
         .then(function(res) {
             if (currentId === cardId) {
-                $parserCard.removeClass("loading");
+                $parserCard.removeClass("loading fetchingRows");
                 showContent(res.buffer);
+                if (newContent) {
+                    updateTotalNumRows(res.totalDataSize);
+                }
             }
         })
         .fail(function(error) {
@@ -141,6 +187,17 @@ window.DSParser = (function($, DSParser) {
                 handleError(error);
             }
         });
+    }
+
+    function updateTotalNumRows(size) {
+        // XXX translate bytes to number of rows
+        totalSize = size;
+        var inputWidth = 50;
+        var numDigits = ("" + totalSize).length;
+        inputWidth = Math.max(inputWidth, 10 + (numDigits * 8));
+        
+        $("#parserRowInput").width(inputWidth);
+        $parserCard.find(".totalRows").text("of " + totalSize);
     }
 
     function getSelectionCharOffsetsWithin(element) {
@@ -265,7 +322,7 @@ window.DSParser = (function($, DSParser) {
     }
 
     function handleError(error) {
-        $parserCard.removeClass("loading").addClass("error");
+        $parserCard.removeClass("loading fetchingRows").addClass("error");
         if (typeof error === "object") {
             error = JSON.stringify(error);
         }
@@ -339,6 +396,14 @@ window.DSParser = (function($, DSParser) {
         DSForm.switchView(DSForm.View.Preview);
         offset = 0;
         cardId = null;
+        curUrl = null;
+        totalRows = null;
+       
+    }
+
+    function resetRowInput() {
+        $parserCard.find(".totalRows").text("");
+        $("#parserRowInput").val(0).data("val", 0);
     }
 
     /* Unit Test Only */

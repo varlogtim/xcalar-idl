@@ -7,8 +7,10 @@
   </header>
   <div class="cardTopMain">
     <div class="topSection">
-      <label class="previewLabel"><%= dicts.dsPreview.Previewing %></label>
-      <span class="filename">file:///test.json</span>
+      <div class="labelSection">
+        <label class="previewLabel"><%= dicts.dsPreview.Previewing %></label>
+        <span class="filename">file:///test.json</span>
+      </div>
       <div class="dropDownList fileFormat">
         <input class="text" type="text" spellcheck="false" disabled="" placeholder="<%= dicts.dsParser.SelectFormat %>">
         <div class="iconWrapper">
@@ -22,6 +24,15 @@
             <li name="text"><%= dicts.dsFormat.PLAINTEXT %></li>
           </ul>
         </div>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="topSection">
+      <div class="rowInputArea">
+        <label for="parserRowInput">Skip to character:</label>
+        <!-- only allow integer -->
+        <input id="parserRowInput" type="number" min="0" step="1" data-val="0" value="0" spellcheck="false">
+        <label class="totalRows" for="parserRowInput"></label>
       </div>
     </div>
     <div class="divider"></div>
