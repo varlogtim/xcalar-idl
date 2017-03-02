@@ -11,6 +11,11 @@ window.DSParser = (function($, DSParser) {
     var curUrl;
     var totalSize = 0;
     var keys;
+    var previewMeta;
+
+    // const
+    var previewApp = "ds_parser_preview";
+    var notSameCardError = "current card id changed";
 
     DSParser.setup = function() {
         $parserCard = $("#dsParser");
@@ -60,7 +65,15 @@ window.DSParser = (function($, DSParser) {
         setupMenu();
         setupRowInput();
         setupKeyBox();
+
+        // XXX this should be removed later
+        setApp();
     };
+
+    function setApp() {
+        var previewAppStr = "import sys, json, re, random\nfrom lxml import etree as ET\n\ndef findLongestLineLength(s):\n    maxLen = 0\n    curSum = 0\n    lineNo = 0\n    lineLengths = []\n    for line in s.split(\"\\n\"):\n        if lineNo % 100 == 0:\n            lineLengths.append(curSum)\n        lineLen = len(line)\n        curSum += lineLen + 1\n        if lineLen > maxLen:\n            maxLen = lineLen\n        lineNo += 1\n    return (lineNo, maxLen, lineLengths)\n\ndef prettyPrintJson(inp, tmpp):\n    structs = json.load(open(inp, \"rb\"))\n    prettyString = json.dumps(structs, indent=2)\n    fout = open(tmpp, \"wb\")\n    fout.write(prettyString)\n    fout.close()\n    return findLongestLineLength(prettyString)\n\ndef prettyPrintXml(inp, tmpp):\n    parser = ET.XMLParser(remove_blank_text=True)\n    root = ET.parse(inp, parser).getroot()\n    prettyString = ET.tostring(root, pretty_print=True)\n    fout = open(tmpp, \"wb\")\n    fout.write(prettyString)\n    fout.close()\n    return findLongestLineLength(prettyString)\n\ndef main(inBlob):\n    arguments = json.loads(inBlob)\n    outPath = \"/tmp/vp-\" + str(random.randint(0, 1000000)) + \".\" + arguments[\"format\"]\n    if (arguments[\"format\"] == \"xml\"):\n        (total, maxLen, lineLengths) = prettyPrintXml(arguments[\"path\"], outPath)\n    elif (arguments[\"format\"] == \"json\"):\n        (total, maxLen, lineLengths) = prettyPrintJson(arguments[\"path\"], outPath)\n    return json.dumps({\"maxLen\": maxLen, \"lineLengths\": lineLengths, \"tmpPath\": outPath, \"totalLines\": total})"
+        XcalarAppSet(previewApp, "Python", "Import", previewAppStr);
+    }
 
     DSParser.show = function(url) {
         DSForm.switchView(DSForm.View.Parser);
@@ -77,6 +90,7 @@ window.DSParser = (function($, DSParser) {
         buffer = null;
         totalRows = null;
         keys = [];
+        previewMeta = null;
         cardId = xcHelper.randName("dsParser");
         curUrl = url;
         resetRowInput();
@@ -207,10 +221,20 @@ window.DSParser = (function($, DSParser) {
         promise
         .then(function() {
             if (currentId === cardId) {
-                // XXX temporary use
-                var numBytes = calculateNumBytes();
-                return XcalarPreview(url, null, false, numBytes, offset);
+                return beautifier(url);
+            } else {
+                return PromiseHelper.reject(notSameCardError);
             }
+        })
+        .then(function(meta) {
+            if (currentId !== cardId) {
+                return PromiseHelper.reject(notSameCardError);
+            }
+
+            previewMeta = meta;
+            var numBytes = calculateNumBytes();
+            var path = parseNoProtocolPath(meta.tmpPath);
+            return XcalarPreview(path, null, false, numBytes, offset);
         })
         .then(function(res) {
             if (currentId === cardId) {
@@ -226,6 +250,50 @@ window.DSParser = (function($, DSParser) {
                 handleError(error);
             }
         });
+    }
+
+    function beautifier(url) {
+        var deferred = jQuery.Deferred();
+        var path = url.split(/^.*:\/\//)[1];
+        var options = {
+            "format": getFormat().toLowerCase(),
+            "path": path
+        };
+        var inputStr = JSON.stringify(options);
+        XcalarAppExecute(previewApp, false, inputStr)
+        .then(function(ret) {
+            var error = parseAppRes(ret.errStr);
+            if (error) {
+                deferred.reject(error);
+                return;
+            }
+
+            var metaStr = parseAppRes(ret.outStr);
+            try {
+                var meta = JSON.parse(metaStr);
+                deferred.resolve(meta);
+            } catch (error) {
+                deferred.reject(error);
+            }
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    function parseNoProtocolPath(path) {
+        var protocol = FileProtocol.file.slice(0, FileProtocol.file.length - 1);
+        return (protocol + path);
+    }
+
+    function parseAppRes(res) {
+        try {
+            var out = JSON.parse(res)[0][0];
+            return out;
+        } catch (error) {
+            console.error(error);
+            return null;
+        }
     }
 
     function updateTotalNumRows(size) {
@@ -375,7 +443,7 @@ window.DSParser = (function($, DSParser) {
         if (format === "JSON") {
             // XXX will handle JSON populate tag later
             return tag;
-        } else  {
+        } else {
             return tag;
         }
     }
