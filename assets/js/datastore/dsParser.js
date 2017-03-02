@@ -6,6 +6,7 @@ window.DSParser = (function($, DSParser) {
     var $formatList;
     var $dataPreview;
     var offset;
+    var buffer;
     var cardId;
 
     DSParser.setup = function() {
@@ -65,6 +66,7 @@ window.DSParser = (function($, DSParser) {
     function resetView(url) {
         $parserCard.find(".topSection .filename").text(url);
         offset = 0;
+        buffer = null;
         cardId = xcHelper.randName("dsParser");
     }
 
@@ -117,18 +119,22 @@ window.DSParser = (function($, DSParser) {
     }
 
     function previewContent(url, detect) {
-        var numBytes = calculateNumBytes();
         $parserCard.removeClass("error").addClass("loading");
 
         var currentId = cardId;
-        // XXX temporary use list
-        XcalarPreview(url, null, false, numBytes, offset)
+        var promise = (detect) ? detectFormat(url) : PromiseHelper.resolve();
+
+        promise
+        .then(function() {
+            if (currentId === cardId) {
+                // XXX temporary use
+                var numBytes = calculateNumBytes();
+                return XcalarPreview(url, null, false, numBytes, offset);
+            }
+        })
         .then(function(res) {
             if (currentId === cardId) {
                 $parserCard.removeClass("loading");
-                if (detect) {
-                    detectFormat(res.buffer);
-                }
                 showContent(res.buffer);
             }
         })
@@ -146,15 +152,15 @@ window.DSParser = (function($, DSParser) {
         var range;
         var priorRange;
 
-        if (typeof window.getSelection != "undefined") {
+        if (typeof window.getSelection !== "undefined") {
             range = window.getSelection().getRangeAt(0);
             priorRange = range.cloneRange();
             priorRange.selectNodeContents(element);
             priorRange.setEnd(range.startContainer, range.startOffset);
             start = priorRange.toString().length;
             end = start + range.toString().length;
-        } else if (typeof document.selection != "undefined" &&
-                (sel = document.selection).type != "Control") {
+        } else if (typeof document.selection !== "undefined" &&
+                (sel = document.selection).type !== "Control") {
             range = sel.createRange();
             priorRange = document.body.createTextRange();
             priorRange.moveToElementText(element);
@@ -182,22 +188,48 @@ window.DSParser = (function($, DSParser) {
         $parserCard.find(".errorSection").text(error);
     }
 
-    function detectFormat(content) {
-        content = content.trim();
-        var $li;
+    function detectFormat(url) {
+        var deferred = jQuery.Deferred();
+        var numBytes = 500;
+        XcalarPreview(url, null, false, numBytes, 0)
+        .then(function(res) {
+            var content = res.buffer.trim();
+            var $li;
 
-        if (isXML(content)) {
-            $li = $formatList.find('li[name="xml"]');
-        } else if (isJSON(content)) {
-            $li = $formatList.find('li[name="json"]');
-        } else {
-            $li = $formatList.find('li[name="text"]');
-        }
-        $li.trigger(fakeEvent.mouseup);
+            if (isXML(content)) {
+                $li = $formatList.find('li[name="xml"]');
+            } else if (isJSON(content)) {
+                $li = $formatList.find('li[name="json"]');
+            } else {
+                $li = $formatList.find('li[name="text"]');
+            }
+            $li.trigger(fakeEvent.mouseup);
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    function getFormat() {
+        return $formatList.find("input").text();
     }
 
     function isXML(str) {
-        return str.startsWith("<") && str.endsWith(">");
+        if (!str.startsWith("<")) {
+            return false;
+        }
+
+        var xmlMatch = str.match(/<|>/g);
+        var jsonMatch = str.match(/\{|\}/g);
+
+        if (jsonMatch == null) {
+            return true;
+        } else if (xmlMatch.length > jsonMatch.length) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     function isJSON(str) {
@@ -211,6 +243,7 @@ window.DSParser = (function($, DSParser) {
     }
 
     function showContent(content) {
+        buffer = content;
         $parserCard.find(".dataPreview").text(content);
     }
 
