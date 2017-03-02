@@ -10,6 +10,7 @@ window.DSParser = (function($, DSParser) {
     var cardId;
     var curUrl;
     var totalSize = 0;
+    var keys;
 
     DSParser.setup = function() {
         $parserCard = $("#dsParser");
@@ -58,6 +59,7 @@ window.DSParser = (function($, DSParser) {
 
         setupMenu();
         setupRowInput();
+        setupKeyBox();
     };
 
     DSParser.show = function(url) {
@@ -67,9 +69,14 @@ window.DSParser = (function($, DSParser) {
     };
 
     function resetView(url) {
+        $dataPreview.html("");
         $parserCard.find(".topSection .filename").text(url);
+        $formatList.find("input").val("");
+        $("#delimitersBox .boxBody ul").empty();
         offset = 0;
         buffer = null;
+        totalRows = null;
+        keys = [];
         cardId = xcHelper.randName("dsParser");
         curUrl = url;
         resetRowInput();
@@ -100,15 +107,19 @@ window.DSParser = (function($, DSParser) {
                 return false;
             }
 
-            var range = getSelectionCharOffsetsWithin($dataPreview[0]);
-            var $target = $(event.target);
+            var res = getSelectionCharOffsetsWithin($dataPreview[0]);
             if ($parserCard.hasClass("previewOnly")) {
                 $menu.find("li").addClass("unavailable");
+                $menu.removeData("tag");
+                $menu.removeData("end");
             } else {
                 $menu.find("li").removeClass("unavailable");
+                $menu.data("tag", res.tag);
+                $menu.data("end", res.end);
+
             }
 
-            $menu.data("range", range);
+            var $target = $(event.target);
             xcHelper.dropdownOpen($target, $menu, {
                 "mouseCoors": {"x": event.pageX, "y": event.pageY + 10},
                 "floating": true
@@ -118,6 +129,34 @@ window.DSParser = (function($, DSParser) {
         // prevent browser's default menu
         $dataPreview.contextmenu(function() {
             return false;
+        });
+
+        $menu.on("click", "li", function() {
+            var $li = $(this);
+            if ($li.hasClass("unavailable")) {
+                return;
+            }
+
+            var tag = $menu.data("tag");
+            var type = $li.data("action");
+            var keyOffset = offset + $menu.data("end");
+            populateKey(tag, type, keyOffset);
+        });
+    }
+
+    function setupKeyBox() {
+        var $box = $("#delimitersBox");
+        $box.on("mouseenter", ".tooltipOverflow", function() {
+            xcTooltip.auto(this);
+        });
+
+        $box.on("click", "li", function() {
+            focusKey($(this));
+        });
+
+        $box.on("click", ".remove", function() {
+            var $li = $(this).closest("li");
+            removeKey($li);
         });
     }
 
@@ -236,10 +275,7 @@ window.DSParser = (function($, DSParser) {
             sel.addRange(priorRange);
             return res;
         } else {
-            return {
-                "start": start,
-                "end": end
-            };
+            return null;
         }
     }
 
@@ -267,9 +303,11 @@ window.DSParser = (function($, DSParser) {
             e++;
         }
 
+        var end = e + 1;
         return {
             "start": s,
-            "end": e + 1
+            "end": end,
+            "tag": getSubStr(s, end)
         };
     }
 
@@ -300,10 +338,103 @@ window.DSParser = (function($, DSParser) {
             s--;
         }
 
+        var end = s + 1;
         return {
             "start": s,
-            "end": s + 1
+            "end": end,
+            "tag": getSubStr(s, end)
         };
+    }
+
+    function populateKey(tag, type, keyOffset) {
+        for (var i = 0, len = keys.length; i < len; i++) {
+            if (keys[i].offset === keyOffset && keys[i].type === type) {
+                // when key alreay exists
+                var $li = $("#delimitersBox").find("li").eq(i);
+                focusKey($li, true);
+                // XXX the delay not work, will debug later...
+                xcTooltip.transient($li, {
+                    "title": TooltipTStr.KeyExists
+                }, 1000);
+                return;
+            }
+        }
+
+        var key = {
+            "key": generateKey(tag),
+            "type": type,
+            "offset": keyOffset
+        };
+
+        keys.push(key);
+        addKeyItem(key);
+    }
+
+    function generateKey(tag) {
+        var format = getFormat();
+        if (format === "JSON") {
+            // XXX will handle JSON populate tag later
+            return tag;
+        } else  {
+            return tag;
+        }
+    }
+
+    function addKeyItem(key) {
+        var tag = xcHelper.escapeHTMLSepcialChar(key.key);
+        var li =
+                '<li class="key">' +
+                    '<div class="item">' +
+                        '<span class="tag tooltipOverflow' +
+                        ' textOverflowOneLine">' +
+                            tag +
+                        '</span>' +
+                        '<span class="type">' +
+                            key.type +
+                        '</span>' +
+                    '</div>' +
+                    '<i class="remove icon xi-trash xc-action fa-15"></i>' +
+                '</li>';
+        var $li = $(li);
+        // use this becuase tag may have <>, add
+        // to html directly will not work
+        xcTooltip.add($li.find(".tag"), {
+            "title": tag
+        });
+        $("#delimitersBox").find(".boxBody ul").append($li);
+        if (gMinModeOn) {
+            focusKey($li, true);
+        } else {
+            $li.hide().slideDown(100, function() {
+                focusKey($li, true);
+            });
+        }
+    }
+
+    function focusKey($li, scrollToView) {
+        $li.addClass("active")
+        .siblings().removeClass("active");
+
+        if (scrollToView) {
+            $li.get(0).scrollIntoView();
+        }
+    }
+
+    function removeKey($li) {
+        var $box = $("#delimitersBox");
+        var index = $li.index();
+
+        if (gMinModeOn) {
+            $li.remove();
+            keys.splice(index, 1);
+        } else {
+            $box.addClass("disabled");
+            $li.slideUp(100, function() {
+                $li.remove();
+                keys.splice(index, 1);
+                $box.removeClass("disabled");
+            });
+        }
     }
 
     function getBufferedCharLength() {
@@ -314,6 +445,10 @@ window.DSParser = (function($, DSParser) {
     function getCharAt(pos) {
         // XXX later may change the implementation
         return buffer[pos];
+    }
+
+    function getSubStr(start, end) {
+        return buffer.substring(start, end);
     }
 
     function calculateNumBytes() {
@@ -385,7 +520,7 @@ window.DSParser = (function($, DSParser) {
 
     function showContent(content) {
         buffer = content;
-        $parserCard.find(".dataPreview").text(content);
+        $dataPreview.text(content);
     }
 
     function submitForm() {
@@ -394,11 +529,7 @@ window.DSParser = (function($, DSParser) {
 
     function closeCard() {
         DSForm.switchView(DSForm.View.Preview);
-        offset = 0;
-        cardId = null;
-        curUrl = null;
-        totalRows = null;
-       
+        resetView();
     }
 
     function resetRowInput() {

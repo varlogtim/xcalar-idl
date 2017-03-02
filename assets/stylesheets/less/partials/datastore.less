@@ -2145,6 +2145,76 @@ table.datasetTable {
 
     #delimitersBox {
         top: 310px;
+
+        ul {
+            padding: 5px 10px;
+            .size(@height: 100%);
+            overflow-y: auto;
+        }
+
+        li {
+            .size(@width: 100%, @height: 24px);
+            opacity: 0.8;
+            margin-bottom: 12px;
+
+            &:last-child {
+                margin-bottom: 0;
+            }
+
+            &:hover {
+                opacity: 1;
+            }
+
+            &.active {
+                > div {
+                    border-color: @color-border-select-blue;
+                    color: @color-font-select-blue;
+                }
+            }
+
+            &.disabled {
+                .icon {
+                    pointer-events: none;
+                }
+            }
+
+            > div {
+                float: left;
+                .size(@width: ~"calc(100% - 25px)", @height: 100%);
+                .font(@weight: 500, @line-height: 22px);
+                border: 1px solid @color-font-warm-grey-two;
+                padding: 0 10px;
+            }
+
+            span {
+                display: inline-block;
+                &.tag {
+                    .size(@width: ~"calc(100% - 40px)");
+                    float: left;
+                    padding-right: 5px;
+                }
+
+                &.type {
+                    .size(@width: 40px);
+                    text-transform: capitalize;
+                    float: right;
+                    padding-left: 2px;
+                    text-align: right;
+                }
+            }
+
+            .icon {
+                float: right;
+                .size(@width: 15px, @height: 100%);
+                color: @color-font-greyish-brown;
+
+                &:before {
+                    display: block;
+                    .vertical-align;
+                }
+            }
+
+        }
     }
 }
 /* End of ds parser*/
