@@ -39,6 +39,7 @@ window.XVM = (function(XVM) {
     XVM.getLicenseMode = function() {
         // If you want to test file uploader, uncomment line below
         // return (XcalarMode.Oper);
+        // return (XcalarMode.Demo);
         return (licenseMode);
     };
 

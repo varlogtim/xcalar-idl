@@ -1994,7 +1994,7 @@ table.datasetTable {
     &.fetchingRows {
         .cardTopMain, .cardMain {
             cursor: progress;
-            .dataPreview, .topSection, button {
+            .previewContent, .topSection, button {
                 pointer-events: none;
             }
         }
@@ -2099,13 +2099,29 @@ table.datasetTable {
             .size(@height: 100%);
             .font(@family: monospace);
             padding: 10px;
-            white-space: pre;
             overflow: auto;
+        }
+        .innerDataPreview {
+            overflow: hidden;
+        }
+        .previewContent {
+            white-space: pre;
             .text-selection;
+            font-family: @font-code;
+            line-height: 18px;
+        }
+
+        .page {
+            background: transparent !important;
         }
     }
 
+    .sizer {
+        background-color: @color-white;
+    }
+
     .parserBox {
+        // display: none;
         .position(absolute, @right: 0px, @top: 20px);
         .size(@width: 300px, @min-width: 300px);
         border: 1px solid rgba(0, 0, 0, 0.2);

@@ -5,13 +5,20 @@ window.DSParser = (function($, DSParser) {
     var $parserCard;
     var $formatList;
     var $dataPreview;
+    var $previewContent;
     var offset;
     var buffer;
+    var buffers = [];
     var cardId;
     var curUrl;
     var totalSize = 0;
     var keys;
-    var previewMeta;
+    var previewMeta; // will have lineLengths, maxLen, tmpPath, totalLines
+    var rowHeight = 18;
+    var linesPerPage = 100;
+    var pageHeight = rowHeight * linesPerPage;
+    var containerPadding = 10;
+    var isMouseDown = false;
 
     // const
     var previewApp = "ds_parser_preview";
@@ -24,6 +31,7 @@ window.DSParser = (function($, DSParser) {
         $parserCard = $("#dsParser");
         $formatList = $parserCard.find(".fileFormat");
         $dataPreview = $parserCard.find('.dataPreview');
+        $previewContent = $parserCard.find('.previewContent');
 
         new MenuHelper($formatList, {
             "onSelect": function($li) {
@@ -67,11 +75,18 @@ window.DSParser = (function($, DSParser) {
 
         setupMenu();
         setupRowInput();
+        setupInfScroll();
         setupKeyBox();
 
         // XXX this should be removed later
         setApp();
+        
     };
+
+    // XXX for testing, remove soon
+    DSParser.getMeta = function() {
+        return previewMeta;
+    }
 
     function setApp() {
         var previewAppStr = "import sys, json, re, random\nfrom lxml import etree as ET\n\ndef findLongestLineLength(s):\n    maxLen = 0\n    curSum = 0\n    lineNo = 0\n    lineLengths = []\n    for line in s.split(\"\\n\"):\n        if lineNo % 100 == 0:\n            lineLengths.append(curSum)\n        lineLen = len(line)\n        curSum += lineLen + 1\n        if lineLen > maxLen:\n            maxLen = lineLen\n        lineNo += 1\n    return (lineNo, maxLen, lineLengths)\n\ndef prettyPrintJson(inp, tmpp):\n    structs = json.load(open(inp, \"rb\"))\n    prettyString = json.dumps(structs, indent=2)\n    fout = open(tmpp, \"wb\")\n    fout.write(prettyString)\n    fout.close()\n    return findLongestLineLength(prettyString)\n\ndef prettyPrintXml(inp, tmpp):\n    parser = ET.XMLParser(remove_blank_text=True)\n    root = ET.parse(inp, parser).getroot()\n    prettyString = ET.tostring(root, pretty_print=True)\n    fout = open(tmpp, \"wb\")\n    fout.write(prettyString)\n    fout.close()\n    return findLongestLineLength(prettyString)\n\ndef main(inBlob):\n    arguments = json.loads(inBlob)\n    outPath = \"/tmp/vp-\" + str(random.randint(0, 1000000)) + \".\" + arguments[\"format\"]\n    if (arguments[\"format\"] == \"xml\"):\n        (total, maxLen, lineLengths) = prettyPrintXml(arguments[\"path\"], outPath)\n    elif (arguments[\"format\"] == \"json\"):\n        (total, maxLen, lineLengths) = prettyPrintJson(arguments[\"path\"], outPath)\n    return json.dumps({\"maxLen\": maxLen, \"lineLengths\": lineLengths, \"tmpPath\": outPath, \"totalLines\": total})"
@@ -84,11 +99,12 @@ window.DSParser = (function($, DSParser) {
     DSParser.show = function(url) {
         DSForm.switchView(DSForm.View.Parser);
         resetView(url);
-        previewContent(url, true);
+        previewContent(url, true, 0, 1);
+        resetScrolling();
     };
 
     function resetView(url) {
-        $dataPreview.html("");
+        $previewContent.html("");
         $parserCard.find(".topSection .filename").text(url);
         $formatList.find("input").val("");
         $("#delimitersBox .boxBody ul").empty();
@@ -100,6 +116,21 @@ window.DSParser = (function($, DSParser) {
         cardId = xcHelper.randName("dsParser");
         curUrl = url;
         resetRowInput();
+        $dataPreview.find(".sizer").height(0);
+        $previewContent.parent().height("auto");
+        $dataPreview.scrollTop(0);
+    }
+
+    function resetScrolling() {
+        $dataPreview.on("mousedown.dsparser", function() {
+            isMouseDown = true;
+        });
+        $(document).on("mouseup.dsparser", function() {
+            if (mousedown) {
+                checkIfScrolled();
+                isMouseDown = false;
+            }
+        });
     }
 
     function toggleBoxResize($icon) {
@@ -115,41 +146,51 @@ window.DSParser = (function($, DSParser) {
         var $menu = $("#parserMenu");
         addMenuBehaviors($menu);
 
-        $dataPreview.mouseup(function(event) {
+        $previewContent.mouseup(function(event) {
+
+            // timeout because deselecting may not take effect until after
+            // mouse up
+            setTimeout(function() {
+                if (!hasSelection()) { // no selection made
+                    return;
+                }
+
+                var res = getSelectionCharOffsetsWithin($previewContent[0]);
+                res.end += previewMeta.lineLengths[previewMeta.startPage];
+                var $target = $(event.target);
+                if ($parserCard.hasClass("previewOnly")) {
+                    $menu.find("li").addClass("unavailable");
+                    $menu.removeData("tag");
+                    $menu.removeData("end");
+                } else {
+                    $menu.find("li").removeClass("unavailable");
+                    $menu.data("tag", res.tag);
+                    $menu.data("end", res.end);
+                }
+
+                xcHelper.dropdownOpen($target, $menu, {
+                    "mouseCoors": {"x": event.pageX, "y": event.pageY + 10},
+                    "floating": true
+                });
+            });
+        });
+
+        // prevent browser's default menu if text selected
+        $previewContent.contextmenu(function() {
+            if (hasSelection()) {
+                return false;
+            }
+        });
+
+        function hasSelection() {
             var selection;
             if (window.getSelection) {
                 selection = window.getSelection();
             } else if (document.selection) {
                 selection = document.selection.createRange();
             }
-
-            if (!selection.toString().length) { // no selection made
-                return false;
-            }
-
-            var res = getSelectionCharOffsetsWithin($dataPreview[0]);
-            if ($parserCard.hasClass("previewOnly")) {
-                $menu.find("li").addClass("unavailable");
-                $menu.removeData("tag");
-                $menu.removeData("end");
-            } else {
-                $menu.find("li").removeClass("unavailable");
-                $menu.data("tag", res.tag);
-                $menu.data("end", res.end);
-
-            }
-
-            var $target = $(event.target);
-            xcHelper.dropdownOpen($target, $menu, {
-                "mouseCoors": {"x": event.pageX, "y": event.pageY + 10},
-                "floating": true
-            });
-        });
-
-        // prevent browser's default menu
-        $dataPreview.contextmenu(function() {
-            return false;
-        });
+            return (selection.toString().length > 0);
+        }
 
         $menu.on("click", "li", function() {
             var $li = $(this);
@@ -198,12 +239,13 @@ window.DSParser = (function($, DSParser) {
                 return;
             }
 
-            val = Math.min(totalSize - 100, val);
+            val = Math.min(previewMeta.totalLines, val);
             val = Math.max(0, val);
-
+            var page = Math.floor(val / linesPerPage);
+            val = page * linesPerPage;
             $input.data("val", val).val(val);
-            offset = val;
-            previewContent(curUrl);
+            
+            previewContent(curUrl, false, page, 1);
         });
 
         $input.blur(function() {
@@ -212,7 +254,76 @@ window.DSParser = (function($, DSParser) {
         });
     }
 
-    function previewContent(url, newContent) {
+    function setupInfScroll() {
+        var prevScrollPos = 0;
+        var scrollTop = 0;
+        var $container = $previewContent.parent();
+
+        var scrollTimer;
+        $dataPreview.scroll(function() {
+            getScrollLineNum();
+            if (isMouseDown) {
+                return;
+            }
+            if ($parserCard.hasClass("fetchingRows")) {
+                return;
+            }
+            scrollTop = $dataPreview.scrollTop();
+            if (scrollTop !== prevScrollPos) {
+                if (scrollTop > prevScrollPos) {
+                    checkIfNeedFetch();
+                } else if (scrollTop < prevScrollPos) {
+                    checkIfNeedFetch(true);
+                }
+                prevScrollPos = scrollTop;
+            } else {
+                // could be scrolling horizontally
+                return;
+            }
+        });
+    } 
+
+    function checkIfNeedFetch(up) {
+        if (!previewMeta) {
+            return; // scroll may be triggered when refreshing with new data
+        }
+        var scrollTop = Math.max(0, $dataPreview.scrollTop() - containerPadding);
+        
+        if (up) {
+            var startPage = Math.floor(scrollTop / pageHeight);
+            if (startPage < previewMeta.startPage) {
+                fetchRows(previewMeta.lineLengths[startPage], up);
+            }
+        } else {
+            var scrollBottom = scrollTop + $dataPreview[0].offsetHeight;
+            var endPage = Math.floor(scrollBottom / pageHeight);
+            if (endPage > previewMeta.endPage) {
+                fetchRows(previewMeta.lineLengths[endPage]);
+            }
+        }
+    }
+
+    function checkIfScrolled() {
+        if (!previewMeta) {
+            return; // scroll may be triggered when refreshing with new data
+        }
+        var scrollTop = Math.max(0, $dataPreview.scrollTop() - containerPadding);
+        var topPage = Math.floor(scrollTop / pageHeight);
+        var botPage = Math.floor((scrollTop + $dataPreview[0].offsetHeight) / pageHeight);
+        console.log(topPage, botPage);
+        var visiblePages = [];     
+    }
+
+    function getScrollHeight() {
+        var numRows = previewMeta.totalLines;
+        var scrollHeight = Math.max(rowHeight * numRows,
+                                    $previewContent.height());
+                                    // $previewContent.height() - 10);
+
+        return (scrollHeight);
+    }
+
+    function previewContent(url, newContent, pageNum, numPages) {
         $parserCard.removeClass("error");
         if (newContent) {
             $parserCard.addClass("loading");
@@ -226,7 +337,12 @@ window.DSParser = (function($, DSParser) {
         promise
         .then(function() {
             if (currentId === cardId) {
-                return beautifier(url);
+                if (newContent) {
+                    return beautifier(url);
+                } else {
+                    return PromiseHelper.resolve();
+                }
+                
             } else {
                 return PromiseHelper.reject(notSameCardError);
             }
@@ -236,18 +352,30 @@ window.DSParser = (function($, DSParser) {
                 return PromiseHelper.reject(notSameCardError);
             }
 
-            previewMeta = meta;
-            var numBytes = calculateNumBytes();
-            var path = parseNoProtocolPath(meta.tmpPath);
-            return XcalarPreview(path, null, false, numBytes, offset);
+            var numBytes;
+            if (newContent) {
+                setPreviewMeta(meta);
+                updateTotalNumRows();
+                numBytes = calculateNumBytes(previewMeta.startPage, 1);
+                offset = 0;
+            } else {
+                numBytes = calculateNumBytes(pageNum, numPages);
+                offset = previewMeta.lineLengths[pageNum];
+            }
+
+            return XcalarPreview(previewMeta.parsedPath, null, false, numBytes,
+                                 offset);
         })
         .then(function(res) {
             if (currentId === cardId) {
                 $parserCard.removeClass("loading fetchingRows");
-                showContent(res.buffer);
                 if (newContent) {
-                    updateTotalNumRows(res.totalDataSize);
+                    totalSize = res.totalDataSize;
+                } else {
+                    previewMeta.startPage = pageNum;
+                    previewMeta.endPage = pageNum;
                 }
+                showContent(res.buffer, numPages);
             }
         })
         .fail(function(error) {
@@ -257,9 +385,50 @@ window.DSParser = (function($, DSParser) {
         });
     }
 
-    function showContent(content) {
-        buffer = content;
-        $dataPreview.text(content);
+
+    function setPreviewMeta(meta) {
+        previewMeta = meta;
+        previewMeta.startPage = 0; // first visible page
+        previewMeta.endPage = 0; // last visible page
+        previewMeta.numPages = meta.lineLengths.length;
+        previewMeta.parsedPath = parseNoProtocolPath(meta.tmpPath);
+        console.log(previewMeta);
+    }      
+
+    function fetchRows(newOffset, up) {
+        var deferred = jQuery.Deferred();
+       
+        var currentId = cardId;
+        var numBytes;
+        if (up) {
+            numBytes = calculateNumBytes(previewMeta.startPage - 1, 1);
+        } else {
+            numBytes = calculateNumBytes(previewMeta.endPage + 1, 1);
+        }
+
+        if (newOffset >= totalSize || newOffset < 0) {
+            return PromiseHelper.resolve();
+        }
+        offet = newOffset;
+
+        $parserCard.addClass("fetchingRows");
+
+        XcalarPreview(previewMeta.parsedPath, null, false, numBytes, newOffset)
+        .then(function(res) {
+            if (currentId === cardId) {
+                addContent(res.buffer, up);
+            }
+        })
+        .fail(function() {
+            if (currentId === cardId) {
+                $parserCard.removeClass("fetchingRows");
+                // handleError or different error handler for scrolling errors
+            } 
+        })
+        .always(function() {
+            deferred.resolve();
+        });
+        return deferred.promise();
     }
 
     function beautifier(url) {
@@ -318,15 +487,14 @@ window.DSParser = (function($, DSParser) {
         }
     }
 
-    function updateTotalNumRows(size) {
+    function updateTotalNumRows() {
         // XXX translate bytes to number of rows
-        totalSize = size;
         var inputWidth = 50;
-        var numDigits = ("" + totalSize).length;
+        var numDigits = ("" + previewMeta.totalLines).length;
         inputWidth = Math.max(inputWidth, 10 + (numDigits * 8));
 
         $("#parserRowInput").width(inputWidth);
-        $parserCard.find(".totalRows").text("of " + totalSize);
+        $parserCard.find(".totalRows").text("of " + previewMeta.totalLines);
     }
 
     function getSelectionCharOffsetsWithin(element) {
@@ -356,17 +524,47 @@ window.DSParser = (function($, DSParser) {
             end = start + range.text.length;
         }
 
+        console.log(start);
+
         // XXX need to be tested in IE
         res = getRightSelection(start);
-        if (res != null) {
-            priorRange.setStart(range.startContainer, res.start);
-            priorRange.setEnd(range.startContainer, res.end);
+        if (res != null && res.start > -1) {
+            var nodes = getTextNodes(element);
+            var range = document.createRange();
+
+            // check if start is on 1st or 2nd page
+            if (res.start < buffers[0].length) {
+                range.setStart(nodes[0], res.start);
+            } else {
+                range.setStart(nodes[1], res.start - buffers[0].length);
+            }
+
+             if (res.end < buffers[0].length) {
+                range.setEnd(nodes[0], res.end);
+            } else {
+                range.setEnd(nodes[1], res.end - buffers[0].length);
+            }
+
+            var sel = window.getSelection();
             sel.removeAllRanges();
-            sel.addRange(priorRange);
+            sel.addRange(range);
             return res;
         } else {
             return null;
         }
+    }
+
+    function getTextNodes(node) {
+        var textNodes = [];
+        if (node.nodeType == 3) {
+            textNodes.push(node);
+        } else {
+            var children = node.childNodes;
+            for (var i = 0, len = children.length; i < len; ++i) {
+                textNodes.push.apply(textNodes, getTextNodes(children[i]));
+            }
+        }
+        return textNodes;
     }
 
     function getRightSelection(start) {
@@ -501,7 +699,7 @@ window.DSParser = (function($, DSParser) {
         .siblings().removeClass("active");
 
         if (scrollToView) {
-            $li.get(0).scrollIntoView();
+            // $li.get(0).scrollIntoView(); // causes whole page to move
         }
     }
 
@@ -536,9 +734,19 @@ window.DSParser = (function($, DSParser) {
         return buffer.substring(start, end);
     }
 
-    function calculateNumBytes() {
-        // XXX implement it! Calculate based on the panel's size?
-        return 4000;
+    function calculateNumBytes(page, numPages) {
+        var lineLengths = previewMeta.lineLengths;
+        var numBytes  = 0;
+
+        for (var i = 0; i < numPages; i++) {
+            if (page + 1 === lineLengths.length) {
+                numBytes += (totalSize - lineLengths[page]);
+            } else {
+                numBytes += (lineLengths[page + 1] - lineLengths[page]);
+            }
+            page++;
+        }
+        return numBytes;
     }
 
     function handleError(error) {
@@ -641,10 +849,97 @@ window.DSParser = (function($, DSParser) {
         })
         .always(function() {
             $parserCard.removeClass("submitting");
+            $dataPreview.off("mousedown.dsparser");
+            $(document).off("mouseup.dsparser");
         });
 
         return promise;
     }
+
+    function showContent(content, numPages) {
+        buffers = [content];
+        buffer = content;
+        var $page;
+        var pageHtml = "";
+        $previewContent.empty();
+        // XXX will refactor
+        if (numPages === 2) {
+            var firstPageSize = previewMeta.lineLengths[previewMeta.startPage + 1];
+            var firstContent = buffer.substr(0, firstPageSize);
+            var secondContent = buffer.substr(firstPageSize);
+            
+            $page = $(getPageHtml(previewMeta.startPage));
+            $page.text(firstContent);  
+            $previewContent.append($page);
+
+            $page = $(getPageHtml(previewMeta.startPage + 1));
+            $page.text(secondContent);
+            $previewContent.append($page);
+        } else {
+            $page = $(getPageHtml(previewMeta.startPage));
+            $page.text(content);
+            $previewContent.append($page);
+        }
+        
+        $dataPreview.find(".sizer").height(previewMeta.startPage * pageHeight);
+        var padding;
+        if (previewMeta.startPage === 0) {
+            padding = 0;
+        } else {
+            padding = containerPadding;
+        }
+        $dataPreview.scrollTop(previewMeta.startPage * pageHeight + padding);
+        $previewContent.parent().height(getScrollHeight());
+        getScrollLineNum();
+    }
+
+    function getPageHtml(pageNum) {
+        return '<span class="page page' + pageNum + '"></span>';
+    }
+
+    function addContent(content, up) {
+        var pageClass = "";
+        if (up) {
+            previewMeta.startPage--;
+            pageClass = "page" + previewMeta.startPage;
+            buffers.unshift(content);
+        } else {
+            previewMeta.endPage++;
+            pageClass = "page" + previewMeta.endPage;
+            buffers.push(content);
+        }
+        
+        var scrollTop = $dataPreview.scrollTop();
+        var color = "rgba(" + Math.round(Math.random() * 255) + "," + Math.round(Math.random() * 255) + "," + Math.round(Math.random() * 255) + ", 0.5)";
+        var $page = $('<span class="page ' + pageClass + '" style="background:' + color + ';"></span>');
+        $page.text(content);
+        if (up) {
+            $previewContent.prepend($page);
+        } else {
+            $previewContent.append($page);
+        }
+
+        if (previewMeta.endPage - previewMeta.startPage > 1) { // no more than 2 pages visible at a time
+            if (up) {
+                $previewContent.find(".page").last().remove();
+                buffers.pop();
+                previewMeta.endPage--;
+            } else {
+                $previewContent.find(".page").eq(0).remove();
+                buffers.shift();
+                previewMeta.startPage++;
+            }
+        }
+        var sizerHeight = (previewMeta.startPage) * pageHeight;
+        $dataPreview.find(".sizer").height(sizerHeight);
+        $dataPreview.scrollTop(scrollTop);
+        $parserCard.removeClass("fetchingRows");
+        buffer = buffers[0];
+        if (buffers[1]) {
+            buffer += buffers[1];
+        }
+    }
+
 
     function validateSubmit() {
         var isValid = xcHelper.validate([
@@ -703,6 +998,7 @@ window.DSParser = (function($, DSParser) {
             "prettyPath": previewMeta.tmpPath,
             "keys": keys
         };
+        console.log(options);
         var inputStr = JSON.stringify(options);
         return XcalarAppExecute(xmlApp, false, inputStr);
     }
@@ -715,11 +1011,25 @@ window.DSParser = (function($, DSParser) {
     function closeCard() {
         DSForm.switchView(DSForm.View.Preview);
         resetView();
+        $dataPreview.off("mousedown.dsparser");
+        $(document).off("mouseup.dsparser");
+        isMouseDown = false;
     }
 
     function resetRowInput() {
         $parserCard.find(".totalRows").text("");
         $("#parserRowInput").val(0).data("val", 0);
+    }
+
+    function updateRowInput(lineNum) {
+        $("#parserRowInput").val(lineNum).data("val", lineNum);
+    }
+   
+    function getScrollLineNum() {
+        var lineNum = Math.floor(($dataPreview.scrollTop() - containerPadding) /
+                                  rowHeight);
+        lineNum = Math.max(0, lineNum);
+        updateRowInput(lineNum);
     }
 
     /* Unit Test Only */

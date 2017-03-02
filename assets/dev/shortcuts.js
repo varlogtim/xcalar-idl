@@ -298,7 +298,11 @@ window.Shortcuts = (function($, Shortcuts) {
                         break;
                     case ("thousand"):
                         file = "thousand";
-                        filePath = "netstore/qa/crashes/bug4293/Datasets/Tb/1K/";
+                        filePath = "netstore/datasets/edgeCases/manyFiles/tenThousand";
+                        break;
+                    case ("parse"):
+                        file = "parse";
+                        filePath = "netstore/datasets/dsParser/";
                         break;
                     default:
                         break;
