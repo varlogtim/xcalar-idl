@@ -62,6 +62,10 @@ window.UDF = (function($, UDF) {
         updateUDF();
     };
 
+    UDF.refresh = function(isInBg) {
+        return refreshUDF(isInBg);
+    };
+
     function initializeUDFList() {
         var deferred = jQuery.Deferred();
 
@@ -71,6 +75,7 @@ window.UDF = (function($, UDF) {
             var len = listXdfsObj.numXdfs;
             var udfs = listXdfsObj.fnDescs;
             var moduleName;
+            var oldStoredUDF = xcHelper.deepCopy(storedUDF);
 
             for (var i = 0; i < len; i++) {
                 moduleName = udfs[i].fnName.split(":")[0];
@@ -80,7 +85,13 @@ window.UDF = (function($, UDF) {
                     // when user fetch this module,
                     // the entire string will cached here
                     storedUDF[moduleName] = null;
+                } else {
+                    delete oldStoredUDF[moduleName];
                 }
+            }
+            // remove udfs that not exist any more
+            for (var key in oldStoredUDF) {
+                delete storedUDF[key];
             }
 
             updateUDF();
@@ -350,6 +361,7 @@ window.UDF = (function($, UDF) {
     }
 
     function refreshUDF(isInBg) {
+        var deferred = jQuery.Deferred();
         var $udfManager = $("#udf-manager");
         $udfManager.addClass("loading");
         if (!isInBg) {
@@ -361,10 +373,14 @@ window.UDF = (function($, UDF) {
             DSPreview.update(listXdfsObj);
             FnBar.updateOperationsMap(listXdfsObj.fnDescs, true);
             DSExport.refreshUDF(listXdfsObj);
+            deferred.resolve();
         })
+        .fail(deferred.reject)
         .always(function() {
             $udfManager.removeClass("loading");
         });
+
+        return deferred.promise();
     }
 
     function updateUDF() {

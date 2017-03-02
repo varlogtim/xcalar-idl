@@ -15,7 +15,10 @@ window.DSParser = (function($, DSParser) {
 
     // const
     var previewApp = "ds_parser_preview";
+    var xmlApp = "ds_parser_xml";
+    var jsonApp = "ds_parser_json";
     var notSameCardError = "current card id changed";
+    var cancelError = "cancel submit";
 
     DSParser.setup = function() {
         $parserCard = $("#dsParser");
@@ -73,12 +76,15 @@ window.DSParser = (function($, DSParser) {
     function setApp() {
         var previewAppStr = "import sys, json, re, random\nfrom lxml import etree as ET\n\ndef findLongestLineLength(s):\n    maxLen = 0\n    curSum = 0\n    lineNo = 0\n    lineLengths = []\n    for line in s.split(\"\\n\"):\n        if lineNo % 100 == 0:\n            lineLengths.append(curSum)\n        lineLen = len(line)\n        curSum += lineLen + 1\n        if lineLen > maxLen:\n            maxLen = lineLen\n        lineNo += 1\n    return (lineNo, maxLen, lineLengths)\n\ndef prettyPrintJson(inp, tmpp):\n    structs = json.load(open(inp, \"rb\"))\n    prettyString = json.dumps(structs, indent=2)\n    fout = open(tmpp, \"wb\")\n    fout.write(prettyString)\n    fout.close()\n    return findLongestLineLength(prettyString)\n\ndef prettyPrintXml(inp, tmpp):\n    parser = ET.XMLParser(remove_blank_text=True)\n    root = ET.parse(inp, parser).getroot()\n    prettyString = ET.tostring(root, pretty_print=True)\n    fout = open(tmpp, \"wb\")\n    fout.write(prettyString)\n    fout.close()\n    return findLongestLineLength(prettyString)\n\ndef main(inBlob):\n    arguments = json.loads(inBlob)\n    outPath = \"/tmp/vp-\" + str(random.randint(0, 1000000)) + \".\" + arguments[\"format\"]\n    if (arguments[\"format\"] == \"xml\"):\n        (total, maxLen, lineLengths) = prettyPrintXml(arguments[\"path\"], outPath)\n    elif (arguments[\"format\"] == \"json\"):\n        (total, maxLen, lineLengths) = prettyPrintJson(arguments[\"path\"], outPath)\n    return json.dumps({\"maxLen\": maxLen, \"lineLengths\": lineLengths, \"tmpPath\": outPath, \"totalLines\": total})"
         XcalarAppSet(previewApp, "Python", "Import", previewAppStr);
+
+        var xmlAppStr = "import sys, json, re\nfrom lxml import etree as ET\nimport xmltodict\n\ndef findFullXmlPath(keyArray, inp):\n    #keyArray must be of the form [(\"key\", characterOffset)]\n    sortedArray = sorted(keyArray, key=lambda (key, offset): offset)\n    initialFile = open(inp, \"r\").read()\n    segments = []\n    prevIndex = 0\n    for (keyPartialName, charOffset) in sortedArray:\n        #explode initialFile at the correct places\n        segments.append(initialFile[prevIndex:charOffset])\n        prevIndex = charOffset\n    segments.append(initialFile[prevIndex:])\n    withXcTags = \"\"\n    for idx in xrange(len(segments)-1):\n        withXcTags += segments[idx]\n        withXcTags += \"<xctag></xctag>\"\n        #print str(idx) + \": >>\" + segments[idx][-20:] + \"<xctag></xctag>\" + segments[idx + 1][:20]\n    withXcTags += segments[-1]\n    root = ET.fromstring(withXcTags)\n    allObj = root.findall(\".//xctag\")\n    paths = []\n    tree = ET.ElementTree(root)\n    for obj in allObj:\n        path = tree.getpath(obj.getparent())\n        path = re.sub(r\"[\\[0-9+\\]]\", \"\", path)\n        paths.append(path)\n    return paths\n\ndef constructRecords(keyArray, prettyIn):\n    # keyArray must be of the form [(key, characterOffset, type)]\n    # where type == \"full\" or \"partial\"\n    fullKeyArray = []\n    partialPaths = []\n    fullPaths = []\n    partialElements = []\n    fullElements = []\n    for k, o, t in keyArray:\n        if t == \"full\":\n            fullKeyArray.append((k, o))\n        else:\n            partialPaths.append(k)\n    fullPaths = findFullXmlPath(fullKeyArray, prettyIn)\n    return \"\"\"\nimport sys, json, re\nfrom lxml import etree as ET\nimport xmltodict\ndef parser(inp, ins):\n    # Find all partials\n    root = ET.fromstring(ins.read())\n    tree = ET.ElementTree(root)\n\n    partialPaths = \"\"\" + json.dumps(partialPaths) + \"\"\"\n    fullPaths = \"\"\" + json.dumps(fullPaths) + \"\"\"\n\n    if len(partialPaths):\n        eString = \".//*[self::\" + \" or self::\".join(partialPaths) + \"]\"\n        print eString\n        partialElements = root.xpath(eString)\n        for element in partialElements:\n            elementDict = xmltodict.parse(ET.tostring(element))\n            elementDict[\"xcXmlPath\"] = tree.getpath(element)\n            elementDict[\"xcMethod\"] = \"partial\"\n            yield elementDict\n\n    for fullPath in fullPaths:\n        fullElements = root.xpath(fullPath)\n        for element in fullElements:\n            elementDict = xmltodict.parse(ET.tostring(element))\n            elementDict[\"xcXmlPath\"] = tree.getpath(element)\n            elementDict[\"xcMethod\"] = \"full\"\n            yield elementDict\n\"\"\"\n\ndef adjust(array):\n    adjustedArray = []\n    for entry in array:\n        key = entry[\"key\"]\n        offset = entry[\"offset\"]\n        type = entry[\"type\"]\n        nkey = key.strip()[1:-1]\n        if nkey[0] == \"/\":\n            # this is a closing tag. Set offset to be 1 char before <\n            offset = offset - len(key)\n            nkey = nkey[1:]\n        adjustedArray.append((nkey, offset, type))\n    return adjustedArray\n\ndef main(inBlob):\n    args = json.loads(inBlob)\n    adjustedArray = adjust(args[\"keys\"])\n    udf = constructRecords(adjustedArray, args[\"prettyPath\"])\n    return json.dumps({\"udf\": udf})"
+        XcalarAppSet(xmlApp, "Python", "Import", xmlAppStr);
     }
 
     DSParser.show = function(url) {
         DSForm.switchView(DSForm.View.Parser);
         resetView(url);
-        previewContent(url, true, true);
+        previewContent(url, true);
     };
 
     function resetView(url) {
@@ -197,7 +203,7 @@ window.DSParser = (function($, DSParser) {
 
             $input.data("val", val).val(val);
             offset = val;
-            previewContent(curUrl, offset);
+            previewContent(curUrl);
         });
 
         $input.blur(function() {
@@ -206,17 +212,16 @@ window.DSParser = (function($, DSParser) {
         });
     }
 
-    function previewContent(url, detect, newContent) {
+    function previewContent(url, newContent) {
         $parserCard.removeClass("error");
         if (newContent) {
             $parserCard.addClass("loading");
         } else {
             $parserCard.addClass("fetchingRows");
         }
-        
 
         var currentId = cardId;
-        var promise = (detect) ? detectFormat(url) : PromiseHelper.resolve();
+        var promise = newContent ? detectFormat(url) : PromiseHelper.resolve();
 
         promise
         .then(function() {
@@ -252,6 +257,11 @@ window.DSParser = (function($, DSParser) {
         });
     }
 
+    function showContent(content) {
+        buffer = content;
+        $dataPreview.text(content);
+    }
+
     function beautifier(url) {
         var deferred = jQuery.Deferred();
         var path = url.split(/^.*:\/\//)[1];
@@ -262,18 +272,11 @@ window.DSParser = (function($, DSParser) {
         var inputStr = JSON.stringify(options);
         XcalarAppExecute(previewApp, false, inputStr)
         .then(function(ret) {
-            var error = parseAppRes(ret.errStr);
-            if (error) {
-                deferred.reject(error);
-                return;
-            }
-
-            var metaStr = parseAppRes(ret.outStr);
-            try {
-                var meta = JSON.parse(metaStr);
-                deferred.resolve(meta);
-            } catch (error) {
-                deferred.reject(error);
+            var parsedRet = parseAppRes(ret);
+            if (parsedRet.error) {
+                deferred.reject(parsedRet.error);
+            } else {
+                deferred.resolve(parsedRet.out);
             }
         })
         .fail(deferred.reject);
@@ -286,13 +289,32 @@ window.DSParser = (function($, DSParser) {
         return (protocol + path);
     }
 
-    function parseAppRes(res) {
+    function parseAppRes(ret) {
+        var error = parseAppResHelper(ret.errStr);
+        if (error.out) {
+            return {"error": error.out};
+        }
+
+        var parsed = parseAppResHelper(ret.outStr);
+        if (parsed.error) {
+            return {"error": parsed.error};
+        }
         try {
-            var out = JSON.parse(res)[0][0];
-            return out;
+            // parsed.out is a string, need another parse
+            var parsedRet = JSON.parse(parsed.out);
+            return {"out": parsedRet};
+        } catch (error) {
+            return {"error": error.toString()};
+        }
+    }
+
+    function parseAppResHelper(appRes) {
+        try {
+            var out = JSON.parse(appRes)[0][0];
+            return {"out": out};
         } catch (error) {
             console.error(error);
-            return null;
+            return {"error": error};
         }
     }
 
@@ -302,7 +324,7 @@ window.DSParser = (function($, DSParser) {
         var inputWidth = 50;
         var numDigits = ("" + totalSize).length;
         inputWidth = Math.max(inputWidth, 10 + (numDigits * 8));
-        
+
         $("#parserRowInput").width(inputWidth);
         $parserCard.find(".totalRows").text("of " + totalSize);
     }
@@ -381,29 +403,24 @@ window.DSParser = (function($, DSParser) {
 
     function findJSONOpenTag(start) {
         var s = start;
-        if (getCharAt(s) === "[") {
-            return {
-                "start": s,
-                "end": s + 1
-            };
-        }
-
         var cnt = 0;
         var ch;
 
-        while (s >= 0) {
-            ch = getCharAt(s);
-            if (ch === "{") {
-                if (cnt === 0) {
-                    break;
-                } else {
-                    cnt--;
+        if (getCharAt(s) !== "[") {
+            while (s >= 0) {
+                ch = getCharAt(s);
+                if (ch === "{") {
+                    if (cnt === 0) {
+                        break;
+                    } else {
+                        cnt--;
+                    }
+                } else if (ch === "}") {
+                    cnt++;
                 }
-            } else if (ch === "}") {
-                cnt++;
-            }
 
-            s--;
+                s--;
+            }
         }
 
         var end = s + 1;
@@ -586,13 +603,113 @@ window.DSParser = (function($, DSParser) {
         return false;
     }
 
-    function showContent(content) {
-        buffer = content;
-        $dataPreview.text(content);
+    function submitForm() {
+        if (!validateSubmit()) {
+            return PromiseHelper.reject();
+        }
+        var deferred = jQuery.Deferred();
+        var promise = deferred.promise();
+        var udfName;
+
+        alertHelper()
+        .then(function() {
+            $parserCard.addClass("submitting");
+            xcHelper.showRefreshIcon($dataPreview, false, promise);
+            return parseHelper();
+        })
+        .then(function(udfStr) {
+            udfName = xcHelper.randName("_xcalar_visual_parser");
+            return XcalarUploadPython(udfName, udfStr);
+        })
+        .then(function() {
+            return PromiseHelper.alwaysResolve(UDF.refresh());
+        })
+        .then(function() {
+            DSPreview.backFromParser(udfName);
+            deferred.resolve();
+        })
+        .fail(function(error) {
+            if (error.error !== cancelError) {
+                Alert.error(DSParserTStr.Fail, error.error);
+            }
+            if (udfName != null) {
+                // has update the udf
+                XcalarDeletePython(udfName);
+            }
+
+            deferred.reject(error);
+        })
+        .always(function() {
+            $parserCard.removeClass("submitting");
+        });
+
+        return promise;
     }
 
-    function submitForm() {
+    function validateSubmit() {
+        var isValid = xcHelper.validate([
+            {
+                "$ele": $("#delimitersBox"),
+                "error": DSParserTStr.NoKey,
+                "side": "left",
+                "check": function() {
+                    return (keys.length === 0);
+                }
+            }
+        ]);
+        return isValid;
+    }
 
+    function alertHelper() {
+        var deferred = jQuery.Deferred();
+        Alert.show({
+            "title": DSParserTStr.Submit,
+            "msg": DSParserTStr.SubmitMsg,
+            "onConfirm": function() { deferred.resolve(); },
+            "onCancel": function() { deferred.reject(cancelError); }
+        });
+        return deferred.promise();
+    }
+
+    function parseHelper() {
+        var deferred = jQuery.Deferred();
+        var format = getFormat();
+        var promise;
+
+        if (format === "XML") {
+            promise = xmlParser();
+        } else if (format === "JSON") {
+            promise = jsonParser();
+        } else {
+            return PromiseHelper.reject({"error": DSParserTStr.NotSupport});
+        }
+
+        promise
+        .then(function(ret) {
+            var parsedRet = parseAppRes(ret);
+            if (parsedRet.error) {
+                deferred.reject({"error": parsedRet.error});
+            } else {
+                deferred.resolve(parsedRet.out.udf);
+            }
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    function xmlParser() {
+        var options = {
+            "prettyPath": previewMeta.tmpPath,
+            "keys": keys
+        };
+        var inputStr = JSON.stringify(options);
+        return XcalarAppExecute(xmlApp, false, inputStr);
+    }
+
+    function jsonParser() {
+        // XXX not implement yet
+        return PromiseHelper.reject({"error": DSParserTStr.NotSupport});
     }
 
     function closeCard() {

@@ -719,6 +719,13 @@ DSFormTStr = {
                       'dataset. Are you sure you want to continue?'
 };
 
+DSParserTStr = {
+    "NotSupport": "Not support parsing this format of data",
+    "Fail": "Submit Visual Parser Failed",
+    "Submit": "Submit Visual Parser",
+    "SubmitMsg": "Are you sure you want to submit the visual parser?",
+    "NoKey": "No keys are selected"
+};
 
 DSExportTStr = {
     'ExportFail': 'Failed to add export target',

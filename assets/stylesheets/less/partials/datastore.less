@@ -2000,6 +2000,20 @@ table.datasetTable {
         }
     }
 
+    &.submitting {
+        .cardTopMain, .cardMain {
+            pointer-events: none;
+            opacity: @opacity-disabled;
+        }
+    }
+
+    &.previewOnly {
+        .confirm {
+            pointer-events: none;
+            opacity: @opacity-disabled;
+        }
+    }
+
     .cardTopMain {
         @barHeight: 64px;
         @topPadding: 14px;
@@ -2083,6 +2097,7 @@ table.datasetTable {
 
         .dataPreview {
             .size(@height: 100%);
+            .font(@family: monospace);
             padding: 10px;
             white-space: pre;
             overflow: auto;

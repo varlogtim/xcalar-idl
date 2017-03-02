@@ -33,6 +33,7 @@ window.DSPreview = (function($, DSPreview) {
     var lastUDFModule = null;
     var lastUDFFunc = null;
     var backToFormCard = false;
+    var tempParserUDF;
 
     // constant
     var rowsToFetch = 40;
@@ -192,19 +193,17 @@ window.DSPreview = (function($, DSPreview) {
 
         listUDFSection(listXdfsObj)
         .always(function() {
-            // reselect old udf
-            if (validateUDFModule(moduleName)) {
-                selectUDFModule(moduleName);
-                if (!validateUDFFunc(moduleName, funcName)) {
-                    funcName = "";
-                }
-                selectUDFFunc(funcName);
-            } else {
-                // if udf module not exists
-                selectUDFModule("");
-                selectUDFFunc("");
-            }
+            seletUDF(moduleName, funcName);
         });
+    };
+
+    DSPreview.backFromParser = function(moduleName) {
+        cleanTempParser();
+        tempParserUDF = moduleName;
+        toggleUDF(true);
+        seletUDF(moduleName, "parser");
+        DSForm.switchView(DSForm.View.Preview);
+        refreshPreview();
     };
 
     DSPreview.clear = function() {
@@ -454,6 +453,20 @@ window.DSPreview = (function($, DSPreview) {
         }
     }
 
+    function seletUDF(moduleName, funcName) {
+        if (validateUDFModule(moduleName)) {
+            selectUDFModule(moduleName);
+            if (!validateUDFFunc(moduleName, funcName)) {
+                funcName = "";
+            }
+            selectUDFFunc(funcName);
+        } else {
+            // if udf module not exists
+            selectUDFModule("");
+            selectUDFFunc("");
+        }
+    }
+
     function selectUDFModule(module) {
         if (module == null) {
             module = "";
@@ -553,6 +566,17 @@ window.DSPreview = (function($, DSPreview) {
         // to show \t, \ should be escaped
         $("#fieldText").val("Null").addClass("nullVal");
         $("#lineText").val("\\n").removeClass("nullVal");
+    }
+
+    function cleanTempParser() {
+        if (tempParserUDF != null) {
+            var tempUDF = tempParserUDF;
+            tempParserUDF = null;
+            XcalarDeletePython(tempUDF)
+            .always(function() {
+                UDF.refresh();
+            });
+        }
     }
 
     function restoreForm(options) {
@@ -725,7 +749,10 @@ window.DSPreview = (function($, DSPreview) {
 
             return DS.point(pointArgs, options);
         })
-        .then(deferred.resolve)
+        .then(function() {
+            cleanTempParser();
+            deferred.resolve();
+        })
         .fail(deferred.reject);
 
         return deferred.promise();
