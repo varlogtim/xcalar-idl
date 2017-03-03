@@ -1908,8 +1908,7 @@ window.JSONModal = (function($, JSONModal) {
                 needsDot = true;
             }
             key += "";
-            // escapedKey = xcHelper.escapeColName(key);
-            escapedKey = key;
+            escapedKey = xcHelper.escapeColName(key);
 
             if (needsBrackets) {
                 key = "[" + key + "]";

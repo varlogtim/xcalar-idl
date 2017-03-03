@@ -1748,9 +1748,9 @@ window.ColManager = (function($, ColManager) {
         if (nested == null) {
             return "";
         }
-        // for (var i = 0; i < nested.length; i++) {
-        //     nested[i] = xcHelper.unescapeColName(nested[i]);
-        // }
+        for (var i = 0; i < nested.length; i++) {
+            nested[i] = xcHelper.unescapeColName(nested[i]);
+        }
         return nested;
     }
 
@@ -1793,8 +1793,6 @@ window.ColManager = (function($, ColManager) {
                     closingSymbol = "]";
                 }
             }
-            // openSymbol = isArray ? "" : ".";
-            // closingSymbol = isArray ? "" : "";
             unnestColName = progCol.getBackColName();
         }
 
@@ -1804,12 +1802,18 @@ window.ColManager = (function($, ColManager) {
             }
         } else {
             for (var tdKey in jsonTd) {
-                addParsedColName(tdKey);
+                addParsedColName(tdKey, true);
             }
         }
 
-        function addParsedColName(colName) {
-            var escapedColName = colName;
+        // only escaping if column names not passed into parseUnnestTd
+        function addParsedColName(colName, escape) {
+            var escapedColName;
+            if (escape) {
+                escapedColName = xcHelper.escapeColName(colName);
+            } else {
+                escapedColName = colName;
+            }
 
             if (isNotDATACol) {
                 colName = unnestColName + openSymbol + colName + closingSymbol;

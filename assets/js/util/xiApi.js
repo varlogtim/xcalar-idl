@@ -1268,8 +1268,11 @@ window.XIApi = (function(XIApi, $) {
                 // from the backend will be escaped again
 
                 // both "a\.b" and "a.b" will become "a\.b" after groupby
-                escapedName = xcHelper.unescapeColName(backColName);
+                // escapedName = xcHelper.unescapeColName(backColName);
+                escapedName = xcHelper.escapeColName(backColName);
+                // backend returns escaped dots so we must escape again
                 escapedName = xcHelper.escapeColName(escapedName);
+                
                 // with no sample, group col is immediates
                 escapedName = xcHelper.parsePrefixColName(escapedName).name;
                 var colName = progCol.name || backColName;
