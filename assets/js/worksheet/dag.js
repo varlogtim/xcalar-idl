@@ -87,7 +87,9 @@ window.DagPanel = (function($, DagPanel) {
         $dags.filter(".worksheet-" + wsId).removeClass("inActive");
     };
 
-    DagPanel.heightForDFView = function(noAnimateDelay, onlyIfNeeded) {
+    // high tolerance - will only move panel only if almost completely covering
+    DagPanel.heightForTableReveal = function(noAnimateDelay, onlyIfNeeded,
+                                        highTolerance) {
         if ($dagPanel.hasClass('hidden')) {
             // open dfg by triggering panelSwitch click
             // set dagTopPct to 50 so it opens half way
@@ -100,6 +102,11 @@ window.DagPanel = (function($, DagPanel) {
         if (onlyIfNeeded) {
             var pct = dagTopPct || 0;
             if (Math.abs(pct - 50) < 25) {
+                return;
+            }
+        }
+        if (highTolerance) {
+            if (dagTopPct > 10) {
                 return;
             }
         }
@@ -911,6 +918,7 @@ window.DagPanel = (function($, DagPanel) {
             }
             var tableId = $menu.data('tableId');
             DagFunction.focusTable(tableId);
+            DagPanel.heightForTableReveal(null, true, true);
         });
 
         $menu.find('.addNoDelete').mouseup(function(event) {
