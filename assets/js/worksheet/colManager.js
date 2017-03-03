@@ -1257,7 +1257,9 @@ window.ColManager = (function($, ColManager) {
             var newColNum = isDATACol ? colNum + index : colNum + index + 1;
 
             table.addCol(newColNum, newProgCol);
-            ths += TblManager.getColHeadHTML(newColNum, tableId);
+            ths += TblManager.getColHeadHTML(newColNum, tableId, {
+                "columnClass": " selectedCell"
+            });
             colNums.push(newColNum);
         });
 
