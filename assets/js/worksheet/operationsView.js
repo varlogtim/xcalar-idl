@@ -246,8 +246,6 @@ window.OperationsView = (function($, OperationsView) {
                     enterFunctionsInput($input.data('fninputnum'));
                     // prevent modal tabbing
                     return (false);
-                } else {
-                    closeListIfNeeded($input);
                 }
             },
             'input': function() {
@@ -1340,15 +1338,6 @@ window.OperationsView = (function($, OperationsView) {
         checkIfStringReplaceNeeded(true);
     }
 
-    function closeListIfNeeded($input) {
-        var parentNum = $input.closest('.dropDownList').data('fnlistnum');
-        var $mousedownTarget = gMouseEvents.getLastMouseDownTarget();
-        if ($mousedownTarget.closest('[data-fnlistnum="' + parentNum + '"]')
-                            .length === 0) {
-            hideDropdowns();
-        }
-    }
-
     function listHighlight($input, keyCodeNum, event, isArgInput) {
         var direction;
         if (keyCodeNum === keyCode.Up) {
@@ -1710,6 +1699,13 @@ window.OperationsView = (function($, OperationsView) {
                 $input.val("");
             }
             $input.data("typeid", typeId);
+
+            // special case to ignore removing autoquotes from 
+            // function-like arguments if it is 2nd regex input
+            if (operObj.fnName === "regex" && i === 1) {
+                $input.data("nofunc", true);
+            }
+           
             $rows.eq(i).find('.description').text(description + ':');
 
             // automatically show empty checkbox if optional detected
@@ -1933,7 +1929,7 @@ window.OperationsView = (function($, OperationsView) {
                 if ($input.closest(".dropDownList").hasClass("colNameSection"))
                 {
                     return;
-                } else if (hasFuncFormat(arg)) {
+                } else if (!$input.data("nofunc") && hasFuncFormat(arg)) {
                     // skip
                 } else if (xcHelper.hasValidColPrefix(arg)) {
                     arg = parseColPrefixes(arg);
@@ -1979,7 +1975,7 @@ window.OperationsView = (function($, OperationsView) {
                             !xcHelper.hasValidColPrefix(arg) &&
                             arg[0] !== gAggVarPrefix &&
                             parsedType.indexOf("string") > -1 &&
-                            !hasFuncFormat(arg)) {
+                            ($input.data("nofunc") || !hasFuncFormat(arg))) {
                     // one of the valid types is string
 
                     if (parsedType.length === 1) {
@@ -2643,7 +2639,7 @@ window.OperationsView = (function($, OperationsView) {
 
             // col name field, do not add quote
             if ($input.closest(".dropDownList").hasClass("colNameSection") ||
-                hasFuncFormat(trimmedArg)) {
+                (!$input.data("nofunc") && hasFuncFormat(trimmedArg))) {
                 arg = parseColPrefixes(trimmedArg);
             } else if (trimmedArg[0] === gAggVarPrefix) {
                 arg = trimmedArg;
@@ -3820,8 +3816,15 @@ window.OperationsView = (function($, OperationsView) {
                         $input.trigger(fakeEvent.enter);
                     }
                     break;
+                case (keyCode.Tab):
+                    hideDropdowns();
+                    break;
                 default:
                     break;
+            }
+        } else {
+            if (event.which === keyCode.Tab) {
+                hideDropdowns();
             }
         }
     }

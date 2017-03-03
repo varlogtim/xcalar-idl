@@ -2167,6 +2167,7 @@ MenuHelper.prototype = {
         $sections.find(".list").hide().removeClass("openList");
         $sections.removeClass("open");
         $(document).off('mousedown.closeDropDown' + self.id);
+        $(document).off('keydown.closeDropDown' + self.id);
     },
     toggleList: function($curlDropDownList, openUpwards) {
         var self = this;
@@ -2225,6 +2226,12 @@ MenuHelper.prototype = {
                     self.hideDropdowns();
                 }
             });
+
+            $(document).on("keydown.closeDropDown" + self.id, function(event) {
+                if (event.which === keyCode.Tab) {
+                    self.hideDropdowns();
+                }
+            })
 
 
             if (typeof self.options.onOpen === "function") {
