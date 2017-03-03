@@ -49,67 +49,21 @@ window.MonitorConfig = (function(MonitorConfig, $) {
             }
         });
 
+        
         $configCard.on('keypress', '.paramName', function(e) {
             if (e.which !== keyCode.Enter) {
                 return;
             }
-            var $nameInput = $(this);
-            var val = $nameInput.val().trim();
-
-            if (!val.length) {
-                return;
-            }
-
-            // var valLower = val.toLowerCase();
-            var $formRow = $nameInput.closest('.formRow');
-            var $curValInput = $formRow.find('.curVal');
-            var $newValInput = $formRow.find('.newVal');
-            var paramObj = getParamObjFromInput($nameInput);
-
-            if (paramObj) {
-                $nameInput.data('value', paramObj.paramName)
-                          .prop('readonly', true)
-                          .val(paramObj.paramName);
-                $curValInput.val(paramObj.paramValue);
-                $formRow.addClass('nameIsSet');
-                
-                if (paramObj.changeable) {
-                    if ($newValInput.val() === "") {
-                        $newValInput.val(paramObj.paramValue);
-                    }
-                    $newValInput.prop('readonly', false).focus();
-                } else {
-                    $formRow.addClass('uneditable');
-                    $newValInput.addClass('readonly')
-                                .prop('readonly', true)
-                                .val("");
-                    $formRow.find('.defaultParam').addClass('xc-hidden');
-                    xcTooltip.enable($newValInput);
-                }
-                var defValTooltip;
-                if (paramObj && paramObj.hasOwnProperty('defaultValue')) {
-                    defValTooltip = xcHelper.replaceMsg(
-                                                MonitorTStr.DefaultWithVal,
-                                                {value: paramObj.defaultValue});
-                } else {
-                    defValTooltip = CommonTxtTstr.RevertDefaultVal;
-                }
-                xcTooltip.changeText($formRow.find('.defaultParam'),
-                                     defValTooltip);
-            } else {
-                $nameInput.data('value', val);
-                $curValInput.val('');
-
-                StatusBox.show(ErrTStr.ConfigParamNotFound, $nameInput, false, {
-                    "offsetX": -5,
-                    "side": "top"
-                });
-            }
+            submitParamName($(this));
         });
 
         $configCard.on('blur', '.paramName', function() {
             var $nameInput = $(this);
             $nameInput.val($nameInput.data('value'));
+        });
+
+        $configCard.on("change", ".paramName", function() {
+            submitParamName($(this), true);
         });
 
         $configCard.on('keydown', '.newVal', function(e) {
@@ -146,6 +100,63 @@ window.MonitorConfig = (function(MonitorConfig, $) {
     function getParamObjFromInput($nameInput) {
         return paramsCache[$nameInput.val().toLowerCase().trim()];
     }
+
+    function submitParamName($nameInput, onChangeTriggered) {
+        console.log('submitted');
+        var val = $nameInput.val().trim();
+
+        if (!val.length) {
+            return;
+        }
+
+        // var valLower = val.toLowerCase();
+        var $formRow = $nameInput.closest('.formRow');
+        var $curValInput = $formRow.find('.curVal');
+        var $newValInput = $formRow.find('.newVal');
+        var paramObj = getParamObjFromInput($nameInput);
+
+        if (paramObj) {
+            $nameInput.data('value', paramObj.paramName)
+                      .prop('readonly', true)
+                      .val(paramObj.paramName);
+            $curValInput.val(paramObj.paramValue);
+            $formRow.addClass('nameIsSet');
+            
+            if (paramObj.changeable) {
+                if ($newValInput.val() === "") {
+                    $newValInput.val(paramObj.paramValue);
+                }
+                $newValInput.prop('readonly', false).focus();
+            } else {
+                $formRow.addClass('uneditable');
+                $newValInput.addClass('readonly')
+                            .prop('readonly', true)
+                            .val("");
+                $formRow.find('.defaultParam').addClass('xc-hidden');
+                xcTooltip.enable($newValInput);
+            }
+            var defValTooltip;
+            if (paramObj && paramObj.hasOwnProperty('defaultValue')) {
+                defValTooltip = xcHelper.replaceMsg(
+                                            MonitorTStr.DefaultWithVal,
+                                            {value: paramObj.defaultValue});
+            } else {
+                defValTooltip = CommonTxtTstr.RevertDefaultVal;
+            }
+            xcTooltip.changeText($formRow.find('.defaultParam'),
+                                 defValTooltip);
+        } else {
+            $nameInput.data('value', val);
+            $curValInput.val('');
+            if (!onChangeTriggered) {
+                StatusBox.show(ErrTStr.ConfigParamNotFound, $nameInput, false, {
+                    "offsetX": -5,
+                    "side": "top"
+                });
+            }
+        }
+    }
+
 
     //xx need to handle submitting duplicate rows
     function submitForm() {
