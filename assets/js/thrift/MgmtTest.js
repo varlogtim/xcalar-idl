@@ -769,8 +769,6 @@ PromiseHelper = (function(PromiseHelper, $) {
                     DfFormatTypeTStr[dataset.formatType]);
                 console.log("\tdataset[" + i.toString() + "].loadIsComplete = "+
                     dataset.loadIsComplete.toString());
-                console.log("\tdataset[" + i.toString() + "].refCount = " +
-                    dataset.refCount.toString());
 
                 if (dataset.name === loadOutput.dataset.name) {
                     foundLoadDs = true;
@@ -925,7 +923,6 @@ PromiseHelper = (function(PromiseHelper, $) {
                                                      DfFormatTypeT.DfFormatJson;
         workItem.input.loadInput.dataset.name = "datasetName";
         workItem.input.loadInput.dataset.loadIsComplete = false;
-        workItem.input.loadInput.dataset.refCount = 32;
 
         xcalarApiGetQuery(thriftHandle, workItem)
         .done(function(getQueryOutput) {
@@ -969,8 +966,6 @@ PromiseHelper = (function(PromiseHelper, $) {
             var pgCount2 = 0;
             var rowCount1 = 0;
             var rowCount2 = 0;
-            var totalTranspageSent = 0;
-            var totalTranspageRevc = 0;
 
             var totalXdbPageConsumed = 0;
             var totalXdbPageAllocated = 0;
@@ -983,9 +978,6 @@ PromiseHelper = (function(PromiseHelper, $) {
                     pgCount2 += metaOutput.metas[i].numPagesPerSlot[j];
                 }
 
-                totalTranspageSent += metaOutput.metas[i].numTransPageSent;
-                totalTranspageRevc += metaOutput.metas[i].numTransPageRecv;
-
                 totalXdbPageConsumed = metaOutput.metas[i].xdbPageConsumedInBytes;
                 totalXdbPageAllocated = metaOutput.metas[i].xdbPageAllocatedInBytes;
             }
@@ -997,13 +989,6 @@ PromiseHelper = (function(PromiseHelper, $) {
             test.assert(totalXdbPageConsumed < totalXdbPageAllocated, undefined,
                         "totalXdbPageConsumed (" + totalXdbPageConsumed +
                         ")should less than allocated");
-
-            test.assert(totalTranspageSent > 0, undefined,
-                        "totalTranspageSent should be greater than 0");
-
-            test.assert(totalTranspageSent == totalTranspageRevc, undefined,
-                        "transpage sent (" + totalTranspageSent + ") does " +
-                        "not match transpage recv (" + totalTranspageRevc + ")");
 
             if (pgCount1 == pgCount2 && rowCount1 == rowCount2) {
                 test.pass();
@@ -1706,12 +1691,14 @@ PromiseHelper = (function(PromiseHelper, $) {
         var query = "index --key votes.funny --dataset " + datasetPrefix +
                     "yelp" + " --dsttable " + cancelledTableName + " --sorted";
         var queryNamePrefix = "testQuery-";
+        var time = 1000;
+        console.log("interval " + time);
 
         function queryAndCancel(jj) {
             queryName = queryNamePrefix + "" + jj;
             xcalarQuery(thriftHandle, queryName, query, true)
             .then(function() {
-                return (xcalarApiCancelOp(thriftHandle, cancelledTableName));
+                return (xcalarQueryCancel(thriftHandle, queryName));
             })
             .then(function(cancelStatus) {
                 (function wait() {
@@ -1724,18 +1711,14 @@ PromiseHelper = (function(PromiseHelper, $) {
                             return wait();
                         }
 
-                        if (qrStateOutput.numFailedWorkItem === 0 &&
-                            qrStateOutput.queryState != QueryStateT.qrFinished) {
-                            test.fail("no failed query. queryState: " +
-                                      QueryStateTStr[qrStateOutput.queryState]);
-                        }
-
+                        return (xcalarQueryDelete(thriftHandle, queryName));
+                    })
+                    .then(function(status) {
                         test.pass();
-
-                     })
-                     .fail(test.fail);
-                 }, 1000);
-             })();
+                    })
+                    .fail(test.fail);
+                }, time);
+                })();
             })
             .fail(function(reason) {
                 if (reason == StatusT.StatusOperationHasFinished) {
@@ -3791,8 +3774,6 @@ PromiseHelper = (function(PromiseHelper, $) {
     addTestCase(testJoin, "join", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testGetOpStats, "getOpStats", defaultTimeout, TestCaseEnabled, "");
 
-    // XXX Re-enable when either the query-DAG bug is fixed or the test is changed to create a session and
-    //     have the query run under the current session instead of creating its own.
     addTestCase(testCancel, "test cancel", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testQuery, "Submit Query", defaultTimeout, TestCaseDisabled, "");
     addTestCase(testQueryState, "Request query state of indexing dataset (int)", defaultTimeout, TestCaseDisabled, "");
