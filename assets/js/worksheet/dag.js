@@ -1645,10 +1645,7 @@ window.Dag = (function($, Dag) {
             activeTableId = tableId;
             $dagWrap = $('#dagWrap-' + activeTableId);
             $dag = $dagWrap.find('.dagImageWrap');
-            var isDagVisible = checkIfDagWrapVisible($dagWrap);
-            if (!isDagVisible) {
-                $dag.scrollLeft($dag.find('.dagImage').width());
-            }
+            $dag.scrollLeft($dag.find('.dagImage').width());
             DagPanel.setScrollBarId($(window).height());
             DagPanel.adjustScrollBarPositionAndSize();
         } else {
