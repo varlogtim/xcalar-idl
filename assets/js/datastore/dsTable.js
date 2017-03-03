@@ -10,6 +10,7 @@ window.DSTable = (function($, DSTable) {
     var previousColSelected; // used for shift clicking columns
     var lastDSToSample; // used to track the last table to samle in async call
     var advanceOption;
+    var defaultColWidth = 130;
 
     // constant
     var initialNumRowsToFetch = 40;
@@ -189,14 +190,16 @@ window.DSTable = (function($, DSTable) {
         $tableWrap.html("");
     };
 
-    DSTable.refresh = function() {
+    DSTable.refresh = function(resizeCols) {
         // size tableWrapper so borders fit table size
         var $dsTable = $("#dsTable");
         var tableHeight = $dsTable.height();
         var scrollBarPadding = 0;
         $tableWrap.width($dsTable.width());
-        if ($dsTable.width() > $dsTableContainer.width()) {
+        if ($dsTable.width() > $dsTableContainer.parent().width()) {
             scrollBarPadding = 10;
+        } else if (resizeCols) {
+            sizeColumns();
         }
         $dsTableContainer.height(tableHeight + scrollBarPadding);
     };
@@ -205,10 +208,11 @@ window.DSTable = (function($, DSTable) {
         var html = getSampleTableHTML(dsObj, jsonKeys, jsons);
         $tableWrap.html(html);
         restoreSelectedColumns();
-        DSTable.refresh();
+        DSTable.refresh(true);
         moveFirstColumn($("#dsTable"));
 
-        // scroll cannot use event bubble
+        // scroll cannot use event bubble so we have to add listener
+        // to .datasetTbodyWrap every time it's created
         $("#dsTableWrap .datasetTbodyWrap").scroll(function() {
             dataStoreTableScroll($(this));
         });
@@ -512,6 +516,65 @@ window.DSTable = (function($, DSTable) {
         });
         previousColSelected = null;
     }
+
+    // if table is less wide than the panel, expand column widths if content is
+    // oveflowing
+    function sizeColumns() {
+        var destWidth = $dsTableContainer.parent().width() - 40;
+        var $headers = $tableWrap.find("th:gt(0)");
+        var numCols = $headers.length;
+        var destColWidth = Math.floor(destWidth / numCols);
+        var bestFitWidths = [];
+        var totalWidths = 0;
+        var needsExpanding = [];
+        var numStaticWidths = 0;
+        var expandWidths = 0;
+
+        // track which columns will expand and which will remain at 
+        // default colwidth
+        $headers.each(function() {
+            var width = getWidestTdWidth($(this),
+                    {includeHeader: true, fitAll: true, datastore: true});
+            var expanding = false;
+            if (width > defaultColWidth) {
+                expanding = true;
+            } else {
+                numStaticWidths++;
+            }
+            needsExpanding.push(expanding);
+            width = Math.max(width, defaultColWidth);
+            bestFitWidths.push(width);
+            totalWidths += width;
+            if (expanding) {
+                expandWidths += width;
+            }
+        });
+
+        var ratio = destWidth / totalWidths;
+        if (ratio < 1) {
+            // extra width is the remainining width that the larger columns
+            // can take up
+            var remainingWidth = destWidth - (numStaticWidths *
+                                              defaultColWidth);
+            ratio = remainingWidth / expandWidths;
+
+            bestFitWidths = bestFitWidths.map(function(width, i, arr) {
+                if (needsExpanding[i]) {
+                    return Math.max(defaultColWidth, Math.floor(width * ratio));
+                } else {
+                    return width;
+                }
+            }); 
+        }
+
+        $headers.each(function(i) {
+            $(this).outerWidth(bestFitWidths[i]);
+        });
+
+        var $dsTable = $("#dsTable");
+        $tableWrap.width($dsTable.width());
+    }
+
     // hightligt column
     function highlightColumn($input, active) {
         var colNum = xcHelper.parseColNum($input);
@@ -599,7 +662,7 @@ window.DSTable = (function($, DSTable) {
             });
 
             width += 2; // text will overflow without it
-            width = Math.max(width, 130); // min of 130px
+            width = Math.max(width, defaultColWidth); // min of 130px
 
             th +=
                 '<th class="' + thClass + '" style="width:' + width + 'px;">' +
