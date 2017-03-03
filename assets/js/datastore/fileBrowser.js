@@ -63,6 +63,11 @@ window.FileBrowser = (function($, FileBrowser) {
                 event.stopPropagation();
                 cleanContainer();
 
+                if (isSystemMac && event.metaKey ||
+                !isSystemMac && event.ctrlKey) {
+                    return; // ctrl+click deselects via cleancontainer
+                }
+
                 $grid.addClass("active");
             },
             "dblclick": function() {
