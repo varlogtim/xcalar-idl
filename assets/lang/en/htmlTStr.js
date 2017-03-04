@@ -651,7 +651,7 @@ module.exports = {
         "Add": "Add Schedule",
         "dfgName": "Dataflow Name",
         "runtime": "Run Time",
-        "last": "Time taken",
+        "parameters": "Parameters",
         "outputLocation" : "Output Location",
         "noRun": "Not run yet",
     },

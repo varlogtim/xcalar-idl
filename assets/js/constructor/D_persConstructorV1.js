@@ -1101,10 +1101,12 @@ var SchedObjV1 = (function() {
         dateText: (string) date text
         timeText: (string) time text
         repeat: (string) repate frequency
-        freq: (number) ?
-        modified: (date) modified time
-        created: (date) created time
-        recur: (number) number of runs
+        modified: (date) the latest time when this schedule is modified
+        created: (date) the time when this schedule is created
+        activeSession: (boolean)
+        newTableName: (String)
+        usePremadeCronString: (boolean) whether to use user defined cron
+        premadeCronString: (String) cron defined by the user
     */
     function SchedObjV1(options) {
         options = options || {};
@@ -1115,8 +1117,11 @@ var SchedObjV1 = (function() {
         this.timeText = options.timeText;
         this.repeat = options.repeat;
         this.modified = options.modified;
-        this.created = options.modified;
-        this.recur = options.recur;
+        this.created = options.created;
+        this.activeSession = options.activeSession;
+        this.newTableName = options.newTableName;
+        this.usePremadeCronString = options.usePremadeCronString;
+        this.premadeCronString = options.premadeCronString;
         return this;
     }
 

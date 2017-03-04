@@ -1938,12 +1938,15 @@ var SchedObj = (function(_super) {
     __extends(SchedObj, _super, {
         update: function(options) {
             options = options || {};
-            this.startTime = options.startTime || this.startTime;
-            this.dateText = options.dateText || this.dateText;
-            this.timeText = options.timeText || this.timeText;
-            this.repeat = options.repeat || this.repeat;
-            this.modified = options.modified || this.modified;
-            this.recur = options.recur || this.recur;
+            this.startTime = options.startTime;
+            this.dateText = options.dateText;
+            this.timeText = options.timeText;
+            this.repeat = options.repeat;
+            this.modified = options.modified;
+            this.activeSession = options.activeSession;
+            this.newTableName = options.newTableName;
+            this.usePremadeCronString = options.usePremadeCronString;
+            this.premadeCronString = options.premadeCronString;
         }
     });
 

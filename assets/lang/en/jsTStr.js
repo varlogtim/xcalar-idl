@@ -594,7 +594,10 @@ SchedTStr = {
     'DelSchedMsg': "Are you sure you want to permanently delete " +
                  "this schedule? This action cannot be undone.",
     "detail": "Schedule Detail",
-    "revert": "REVERT"
+    "revert": "REVERT",
+    "simFail": "Simulation Fail!",
+    "noParam": "None parameter is defined!",
+    "unknown": "Unknown!"
 };
 
 DFGTStr = {

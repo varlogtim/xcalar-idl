@@ -1,10 +1,18 @@
 window.Scheduler = (function(Scheduler, $) {
     var $dfgView;          // $("#dataflowView");
-    var $modScheduleForm;  // $('#modifyScheduleForm');
     var $scheduleDetail;   // $("#scheduleDetail");
-    var $modTimePicker;    // $("#modScheduler-timePicker");
-    var $simpleMode;
-    var $advancedMode;
+    var $scheduleSettings; // $("#scheduleSettings");
+    var $scheduleResults;  // $("#scheduleResults");
+    var $modScheduleForm;  // $('#modifyScheduleForm');
+    var $datePicker;
+    var $timePicker;
+    var $dateInput;
+    var $timeInput;
+    var $tabs;
+
+    var serverTimeZone;
+    var currentDataFlowName;
+    var displayServerTimeCycle;
 
     // constant
     var scheduleFreq = {
@@ -17,61 +25,42 @@ window.Scheduler = (function(Scheduler, $) {
         "dayPerMonth": "dayPerMonth"
     };
 
-    var radixMap = {
-        "First": 1,
-        "Second": 2,
-        "Third": 3,
-        "Fourth": 4,
-        "Last": -1
-    };
-
-    var dayMap = {
-        "Sunday": 0,
-        "Monday": 1,
-        "Tuesday": 2,
-        "Wednesday": 3,
-        "Thursday": 4,
-        "Friday": 5,
-        "Saturday": 6
-    };
-
-    var currentDataFlowName;
-
     Scheduler.setup = function() {
         $dfgView = $("#dataflowView");
         $scheduleDetail = $("#scheduleDetail");
+        $scheduleSettings = $("#scheduleSettings");
+        $scheduleResults = $("#scheduleResults");
         $modScheduleForm = $('#modifyScheduleForm');
-        $modTimePicker = $("#modScheduler-timePicker");
-        $simpleMode = $modScheduleForm.find(".simpleMode");
-        $advancedMode = $modScheduleForm.find(".advancedMode");
+        $datePicker = $("#modScheduler-datePicker");
+        $timePicker = $("#modScheduler-timePicker");
+        $dateInput = $modScheduleForm.find(".timeSection .date");
+        $timeInput = $modScheduleForm.find(".timeSection .time");
+        $tabs = $('#scheduleDetail .tabArea .tab');
+
+        // Card
         $scheduleDetail.find('.close').on('click', function() {
             $scheduleDetail.addClass('xc-hidden');
         });
 
-        var $modTimeSection = $modScheduleForm.find(".timeSection");
-        var $modDateInput = $modTimeSection.find(".date");
-        var $modTimeInput = $modTimeSection.find(".time");
-
-        $modDateInput.datepicker({
+        // Simple Mode
+        $dateInput.datepicker({
             "showOtherMonths": true,
             "dateFormat": "m/d/yy",
             "dayNamesMin": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
             "minDate": 0,
             "beforeShow": function() {
-                if ($modDateInput.val() === "") {
-                    $modDateInput.datepicker("setDate", new Date());
+                if ($dateInput.val() === "") {
+                    $dateInput.datepicker("setDate", new Date());
                 }
                 var $el = $("#ui-datepicker-div");
                 $el.addClass("schedulerDatePicker")
-                    .appendTo($modTimeSection.find(".datePickerPart"));
+                    .appendTo($scheduleSettings.find(".datePickerPart"));
             }
         });
 
-        $modDateInput.on({
+        $dateInput.on({
             "focus": function() {
-                // toggleTimePicker($modScheduleForm, true);
-                $(this).closest(".datePickerPart").children(".icon-wrap")
-                .addClass("active");
+                $(this).closest(".datePickerPart").addClass("active");
             },
             "focusout": function() {
                 var date = $(this).val();
@@ -86,29 +75,29 @@ window.Scheduler = (function(Scheduler, $) {
                 ]);
 
                 if (isValid) {
-                    $(this).closest(".datePickerPart").children(".icon-wrap")
-                    .removeClass("active");
+                    $(this).closest(".datePickerPart").removeClass("active");
                 }
 
-                if (!$simpleMode.is(":visible")) {
+                if (!$("#modifyScheduleForm .simpleMode").is(":visible")) {
                     if (!isValid) {
-                        var schedule = DF.getSchedule(currentDataFlowName);
-                        resetModifiedScheduleForm(schedule);
+                        showScheduleSettings();
+                        $scheduleSettings.find(".datePickerPart")
+                        .removeClass("active");
+                        $scheduleSettings.find(".timePickerPart")
+                        .removeClass("active");
                         StatusBox.forceHide();
                     }
                 }
             }
         });
 
-        $modTimeInput.on({
+        $timeInput.on({
             "focus": function() {
                 toggleTimePicker($modScheduleForm, true);
-                $("#modifyScheduleForm").find(".timePickerPart .icon-wrap")
-                .addClass("active");
+                $(this).closest(".timePickerPart").addClass("active");
             },
             "focusout": function() {
-                $("#modifyScheduleForm").find(".timePickerPart .icon-wrap")
-                .removeClass("active");
+                $(this).closest(".timePickerPart").removeClass("active");
             },
             "keydown": function() {
                 // no input event
@@ -116,11 +105,10 @@ window.Scheduler = (function(Scheduler, $) {
             }
         });
 
-        $modTimePicker.on("click", ".btn", function() {
+        $timePicker.on("click", ".btn", function() {
             var $btn = $(this);
             var isIncrease = $btn.hasClass("increase");
             var type;
-            var $form = $btn.closest('.scheduleForm');
             if ($btn.hasClass("hour")) {
                 type = "hour";
             } else if ($btn.hasClass("minute")) {
@@ -128,13 +116,12 @@ window.Scheduler = (function(Scheduler, $) {
             } else {
                 type = "ampm";
             }
-            changeTime(type, isIncrease, $form);
+            changeTime(type, isIncrease);
         });
 
-        $modTimePicker.on("input", "input", function() {
+        $timePicker.on("input", "input", function() {
             var $input = $(this);
             var type;
-            var $form = $input.closest('.scheduleForm');
             if ($input.hasClass("hour")) {
                 type = "hour";
             } else if ($input.hasClass("minute")) {
@@ -143,17 +130,42 @@ window.Scheduler = (function(Scheduler, $) {
                 // invalid case
                 return;
             }
-            inputTime(type, $input.val(), $form);
+            inputTime(type, $input.val());
         });
 
         // frequent section event
         var $freqSection = $dfgView.find(".frequencySection");
         xcHelper.optionButtonEvent($freqSection, function() {
-            var $datepickerPart = $modTimeSection.find(".datePickerPart");
+            var $datepickerPart = $scheduleSettings.find(".datePickerPart");
             $datepickerPart.removeClass("inActive");
         });
 
-        $("#modScheduleForm-delete").on("click", function() {
+        // advanced Mode
+        $("#modScheduleForm-simulate").click(function() {
+            var cronString = $('#cronScheduler').val().trim();
+            var retMsg = simulateCron(cronString);
+            if (retMsg.isValid) {
+                setSimulationInfos(retMsg.lastRun, retMsg.nextRun, retMsg.error);
+            } else {
+                var errorHint = SchedTStr.simFail;
+                setSimulationInfos(errorHint, errorHint, retMsg.error);
+            }
+        });
+
+        // Toggling between simple/advanced Mode
+        $("#scheduleSettings .simpleModeTab").click(function() {
+            $("#scheduleSettings").addClass("showSimpleMode")
+            .removeClass("showAdvancedMode");
+            $("#scheduleDetail .icon-wrap").removeClass("active");
+        });
+
+        $("#scheduleSettings .advancedModeTab").click(function() {
+            $("#scheduleSettings").addClass("showAdvancedMode")
+            .removeClass("showSimpleMode");
+        });
+
+        // Card bottom
+        $("#modScheduleForm-delete").click(function() {
             $(this).blur();
             Alert.show({
                 'title': SchedTStr.DelSched,
@@ -168,37 +180,46 @@ window.Scheduler = (function(Scheduler, $) {
 
         $("#modScheduleForm-save").click(function() {
             $(this).blur();
-            if (saveScheduleForm($modScheduleForm, currentDataFlowName)) {
+            if (saveScheduleForm(currentDataFlowName)) {
                 Scheduler.showScheduleDetailView();
             }
         });
 
         $("#modScheduleForm-cancel").click(function() {
             $(this).blur();
-            var schedule = DF.getSchedule(currentDataFlowName);
-            resetModifiedScheduleForm(schedule);
+            showScheduleSettings();
         });
 
-        $("#scheduleDetail .simpleModeTab").click(function() {
-            $(this).addClass("active");
-            $("#scheduleDetail .advancedModeTab").removeClass("active");
-            $("#scheduleDetail .advancedMode").addClass("xc-hidden");
-            $("#scheduleDetail .simpleMode").removeClass("xc-hidden");
-            $("#middle-left-border").addClass("active");
-            $("#middle-right-border").removeClass("active");
-            $("#scheduleDetail .icon-wrap").removeClass("active");
+        // schedule Tabs
+        $tabs.click(function() {
+            var $tab = $(this);
+            if ($tab.hasClass('active')) {
+                return;
+            }
+            $tabs.removeClass('active');
+            var index = $tab.index();
+            $tab.addClass('active');
+
+            if (index === 0) {
+                showScheduleSettings();
+            } else {
+                showScheduleResult();
+            }
+            $scheduleDetail.find('.scheduleInfoSection').hide();
+            $scheduleDetail.find('.scheduleInfoSection').eq(index).show();
         });
 
-        $("#scheduleDetail .advancedModeTab").click(function() {
-            $(this).addClass("active");
-            $("#scheduleDetail .simpleModeTab").removeClass("active");
-            $("#scheduleDetail .advancedMode").removeClass("xc-hidden");
-            $("#scheduleDetail .simpleMode").addClass("xc-hidden");
-            $("#middle-left-border").removeClass("active");
-            $("#middle-right-border").addClass("active");
-        });
+        // Get Timezone
+        serverTimeZone = getServerTimezone();
+    };
 
-        schedDetailTabs();
+    Scheduler.displayServerTime = function(){
+        clearInterval(displayServerTimeCycle);
+        displayServerTimeCycle = setInterval(showServerTime, 500);
+    };
+
+    Scheduler.clearServerTime = function() {
+        clearInterval(displayServerTimeCycle);
     };
 
     Scheduler.setDataFlowName = function(groupName) {
@@ -214,11 +235,20 @@ window.Scheduler = (function(Scheduler, $) {
     }
 
     Scheduler.showScheduleDetailView = function () {
-        var schedule = DF.getSchedule(currentDataFlowName);
-        fillInScheduleDetail(schedule);
-        resetModifiedScheduleForm(schedule);
+        showScheduleSettings();
+        showScheduleResult();
+        $scheduleDetail.find("#scheduleHeadingWrapper .heading")
+        .text(currentDataFlowName);
         $scheduleDetail.removeClass("xc-hidden");
         $modScheduleForm.removeClass("xc-hidden");
+        // show schedule settings as default
+        $scheduleDetail.find('.scheduleInfoSection').hide();
+        $scheduleDetail.find('.scheduleInfoSection').eq(0).show();
+        // show simple Mode as default
+        if ((!$scheduleSettings.hasClass("showSimpleMode")) &&
+        (!$scheduleSettings.hasClass("showAdvancedMode"))) {
+            $scheduleSettings.addClass("showSimpleMode");
+        }
         if (XVM.getLicenseMode() === XcalarMode.Mod) {
             lockCard();
         } else {
@@ -230,129 +260,38 @@ window.Scheduler = (function(Scheduler, $) {
         $scheduleDetail.addClass("xc-hidden");
     };
 
+    function showServerTime() {
+        var now = new Date();
+        var transferedTime = timeZoneTransfer(now, serverTimeZone);
+        var serverTimeStr = getTime(transferedTime);
+        $("#scheduleDetail .serverTime .text").text(serverTimeStr);
+    }
+
     function newScheduleIcon (dataflowName) {
-        var $span = $("#dfgMenu .listSection span").filter(function() {
+        $span = $("#dfgMenu span").filter(function() {
             return ($(this).text() === dataflowName);
         });
-        var $addScheduleIcon = $span.siblings('.addScheduleToDataflow');
+        $addScheduleIcon = $span.siblings('.addScheduleToDataflow');
         $addScheduleIcon.removeClass('xi-menu-scheduler');
         $addScheduleIcon.addClass('xi-menu-add-scheduler');
     }
 
     function existScheduleIcon (dataflowName) {
-        var $span = $("#dfgMenu .listSection span").filter(function() {
+        $span = $("#dfgMenu span").filter(function() {
             return ($(this).text() === dataflowName);
         });
-        var $addScheduleIcon = $span.siblings('.addScheduleToDataflow');
+        $addScheduleIcon = $span.siblings('.addScheduleToDataflow');
         $addScheduleIcon.addClass('xi-menu-scheduler');
         $addScheduleIcon.removeClass('xi-menu-add-scheduler');
     }
 
-    function resetModifiedScheduleForm (schedule) {
+    function showScheduleSettings () {
+        var schedule = DF.getSchedule(currentDataFlowName);
+        var $scheduleInfos = $("#scheduleInfos");
         var $timeSection = $modScheduleForm.find(".timeSection");
         var $freqSection = $modScheduleForm.find(".frequencySection");
-        if (schedule) {
-            var $checkBox = $freqSection.find('.radioButton[data-option="' +
-                                schedule.repeat + '"]');
-            $timeSection.find(".datePickerPart").removeClass("inActive")
-                    .find(".date").val(schedule.dateText);
-            var date = new Date(schedule.startTime);
-            $timeSection.find(".time").val(schedule.timeText)
-                        .data("date", date);
-            $freqSection.find(".radioButton.active").removeClass("active");
-            $checkBox.click();
-            $("#scheduleDetail").find(".cardHeader .title")
-            .text(SchedTStr.detail);
-            $("#modScheduleForm-cancel").text(SchedTStr.revert);
-        } else {
-            var $checkBox = $modScheduleForm.find(".radioButton").eq(0);
-            $timeSection.find(".datePickerPart").removeClass("inActive")
-                .find(".date").val("");
-            $timeSection.find(".time").val("").removeData("date");
-            $modTimePicker.hide().removeData("date");
-            $freqSection.find(".radioButton.active").removeClass("active");
-            $checkBox.click();
-            $("#scheduleDetail").find(".cardHeader .title")
-            .text("Create New Schedule");
-            $("#modScheduleForm-cancel").text(AlertTStr.CANCEL);
-        }
-    }
-
-// Control the Tabs at the column of schedule Detail
-
-
-    function saveScheduleForm($form, dataflowName) {
-        var $scheduleDate = $form.find(".timeSection .date");
-        var $scheduleTime = $form.find(".timeSection .time");
-        // validation
-        var isValid;
-
-        isValid = xcHelper.validate([
-            {
-                "$ele": $scheduleDate,
-                "text": ErrTStr.NoEmpty,
-                "check": function() {
-                    var $div = $scheduleDate.closest(".datePickerPart");
-                    if ($div.hasClass("inActive")) {
-                        return false;
-                    } else {
-                        return ($scheduleDate.val() === "");
-                    }
-                }
-            },
-            {
-                "$ele": $scheduleTime
-            }
-        ]);
-
-        if (!isValid) {
-            return false;
-        }
-
-        if (!isValid) {
-            return false;
-        }
-
-        var date = $scheduleDate.val().trim();
-        var time = $scheduleTime.val().trim();
-        var timeObj = $scheduleTime.data("date");
-        var repeat = $form.find(".frequencySection .radioButton.active")
-                                    .data("option");
-
-        var isDayPerMonth = (repeat === scheduleFreq.dayPerMonth);
-
-        var d = isDayPerMonth ? new Date() : new Date(date);
-        d.setHours(timeObj.getHours(), timeObj.getMinutes(),
-                    timeObj.getSeconds());
-
-        var startTime = d.getTime();
-        var currentTime = new Date().getTime();
-
-        if (!isDayPerMonth && startTime < currentTime) {
-            StatusBox.show(ErrTStr.TimeExpire, $scheduleTime);
-            return;
-        }
-
-        var options = {
-            "startTime": startTime,
-            "dateText": date,
-            "timeText": time,
-            "repeat": repeat,
-            "modified": currentTime
-        };
-
-        DF.addScheduleToDataflow(dataflowName, options);
-        xcHelper.showSuccess(SuccessTStr.Sched);
-
-        existScheduleIcon(dataflowName);
-        return true;
-    }
-
-
-    function fillInScheduleDetail(schedule) {
-
-        var $scheduleInfos = $("#scheduleInfos");
         var text;
+        var $checkBox;
 
         // Update the schedule detail card
         // Created
@@ -363,49 +302,361 @@ window.Scheduler = (function(Scheduler, $) {
         text = (schedule && getTime(schedule.modified)) ?
             getTime(schedule.modified) : "N/A";
         $scheduleInfos.find(".modified .text").text(text);
-        // Frequency
-        text = (schedule && schedule.repeat) ? schedule.repeat : "N/A";
-        $scheduleInfos.find(".frequency .text").text(text);
-        // Last run
-        text = (schedule && getTime(schedule.lastRun)) ?
-            getTime(schedule.lastRun) : "N/A";
-        $scheduleInfos.find(".lastRunInfo .text").text(text);
         // Next run
+        getNextRunTime(schedule);
         text = (schedule && getTime(schedule.startTime)) ?
             getTime(schedule.startTime) : "N/A";
         $scheduleInfos.find(".nextRunInfo .text").text(text);
+        // date picker input
+        text = (schedule && schedule.dateText) ? schedule.dateText: "";
+        $timeSection.find(".date").val(text);
+        // time picker input
+        text = (schedule && schedule.timeText) ? schedule.timeText: "";
+        $timeSection.find(".time").val(text);
+        // frequency input
+        text = (schedule && schedule.repeat) ? schedule.repeat: "N/A";
+        if (text === "N/A") {
+            $freqSection.find(".radioButton.active").removeClass("active");
+            $checkBox = $freqSection
+            .find('.radioButton[data-option="minute"]');
+            $checkBox.click();
+        } else {
+            $checkBox = $freqSection.find('.radioButton[data-option="'+
+                text + '"]');
+            $checkBox.click();
+        }
+        // cron
+        text = (schedule && schedule.premadeCronString) ?
+            schedule.premadeCronString : "";
+        $('#modifyScheduleForm #cronScheduler').val(text);
+        // title
+        text = schedule ? SchedTStr.detail : "Create New Schedule";
+        $("#scheduleDetail").find(".cardHeader")
+        .find(".title").text(text);
+        // Only support create and delete, not support update now
+        // text = schedule ? SchedTStr.revert : AlertTStr.CANCEL;
+        text = AlertTStr.CANCEL;
+        $("#modScheduleForm-cancel").text(text);
+        if (schedule) {
+            $("#scheduleDetail").addClass("withSchedule")
+            .removeClass("withoutSchedule");
+            if (schedule.premadeCronString) {
+                $("#scheduleSettings .advancedModeTab").click();
+            } else {
+                $("#scheduleSettings .simpleModeTab").click();
+                setSimulationInfos();
+            }
+        } else {
+            $("#scheduleDetail").removeClass("withSchedule")
+            .addClass("withoutSchedule");
+            setSimulationInfos();
+        }
+        $timeSection.find(".datePickerPart").removeClass("inActive");
     }
 
-    function schedDetailTabs() {
-        var $scheduleInfos = $('#scheduleInfos');
-        var $tabs = $('.tabArea').find('.tab');
-        $tabs.click(function() {
-            var $tab = $(this);
-            if ($tab.hasClass('active')) {
+    function setSimulationInfos(last, next, error) {
+        var lastRun = last ? last : "";
+        var nextRun = next ? next : "";
+        var errorInfo = error ? error : "";
+        $("#modifyScheduleForm .errorInfo").text(errorInfo);
+        $("#modifyScheduleForm .simulateLast .text").text(lastRun);
+        $("#modifyScheduleForm .simulateNext .text").text(nextRun);
+    }
+
+    function simulateCron(cronString) {
+        var str = {"startTime": timeZoneTransfer(new Date(), serverTimeZone),
+            "cronString": cronString};
+        var res;
+        $.ajax({
+            "type": "POST",
+            "data": JSON.stringify(str),
+            "contentType": "application/json",
+            "async": false,
+            "url": xcHelper.getAppUrl() + "/simulateSchedule",
+            success: function(retMsg) {
+                res = retMsg;
+            },
+            error: function(error) {
+                var errMsg = {"isValid": false,
+                    "lastRun": "",
+                    "nextRun": "",
+                    "error": error.message};
+                res = errMsg;
+            }
+        });
+        return res;
+    }
+
+    // dateStr: with the format of 3/1/2017
+    // timeStr: with the format of 02 : 51 PM
+    // completeTimeStr: with the format of 3/1/2017 02:51 PM
+    function getDate(dateStr, timeStr) {
+        var completeTimeStr = getCompleteTimeStr(dateStr, timeStr);
+        return new Date(completeTimeStr);
+    }
+    function getCompleteTimeStr(dateStr, timeStr) {
+        return dateStr + ' ' + timeStr.replace(' ', '').replace(' ', '');
+    }
+    // transfer time zone from the timezone of browser to the timezone of
+    // target Area
+    function timeZoneTransfer (date, targetTimeZone) {
+        var targetAreaTimeStr = date.toLocaleString(
+            'en-US',{timeZone: targetTimeZone});
+        return new Date(targetAreaTimeStr).getTime();
+    }
+    function getServerTimezone () {
+        var res;
+        $.ajax({
+            "type": "POST",
+            "contentType": "application/json",
+            "async": false,
+            "url": xcHelper.getAppUrl() + "/getTimezone",
+            success: function(retMsg) {
+                res = retMsg;
+            },
+            error: function(error) {
+                console.log(error);
+                res = "N/A";
+            }
+        });
+        // Default timezone
+        if (res === "N/A") {
+            res = "America/Los_Angeles";
+        }
+        return res;
+    }
+
+    function saveScheduleForm(dataflowName) {
+        var isValid;
+        var currentTime;
+        if ($("#modifyScheduleForm .simpleMode").is(":visible")) {
+            // Simple mode
+            var options;
+
+            isValid = xcHelper.validate([
+                {
+                    "$ele": $dateInput,
+                    "text": ErrTStr.NoEmpty,
+                    "check": function() {
+                        var $div = $dateInput.closest(".datePickerPart");
+                        if ($div.hasClass("inActive")) {
+                            return false;
+                        } else {
+                            return ($dateInput.val() === "");
+                        }
+                    }
+                }
+            ]);
+
+            if (!isValid) {
+                return false;
+            }
+
+            var $hourInput = $('.timePicker:visible').find('input.hour');
+            var $minInput = $('.timePicker:visible').find('input.minute');
+            if ($("#modScheduler-timePicker").is(":visible")) {
+                if ($hourInput.val() > 12 || $hourInput.val() < 1) {
+                    StatusBox.show(ErrTStr.SchedHourWrong, $hourInput, false,
+                                   {"side": "left"});
+                } else if ($minInput.val() > 59 || $minInput.val() < 0) {
+                    StatusBox.show(ErrTStr.SchedMinWrong, $minInput, false,
+                                    {"side": "right"});
+                }
+                return false;
+            }
+
+            var dateStr = $dateInput.val().trim();
+            var timeStr = $timeInput.val().trim();
+            var repeat = $modScheduleForm
+                         .find(".frequencySection .radioButton.active")
+                         .data("option");
+            if (repeat === undefined) {
+                repeat = "minute";  // default choice
+            }
+            var d = getDate(dateStr, timeStr);
+
+            var startTime = d.getTime();
+            // Everything should use servertime, transfer the current time
+            // to server time
+            currentTime = timeZoneTransfer(new Date(), serverTimeZone);
+
+            if (startTime < currentTime) {
+                StatusBox.show(ErrTStr.TimeExpire, $timeInput);
                 return;
             }
-            $tabs.removeClass('active');
-            var index = $tab.index();
-            $tab.addClass('active');
-            $scheduleInfos.find('.scheduleInfoSection').addClass('xc-hidden');
-            $scheduleInfos.find('.scheduleInfoSection').eq(index)
-                                                .removeClass('xc-hidden');
-            if (index === 0) {
-                $("#scheduleDetail").find(".border").removeClass('xc-hidden');
-                $("#scheduleDetail").find(".lowerArea").removeClass('xc-hidden');
-                $("#scheduleDetail").find(".simpleModeTab").addClass("active");
-                // tab
-                $("#modifyScheduleForm").find(".datePickerPart .icon-wrap")
-                .removeClass("active");
-                $("#modifyScheduleForm").find(".timePickerPart .icon-wrap")
-                .removeClass("active");
-            } else {
-                $("#scheduleDetail").find(".border").addClass('xc-hidden');
-                $("#scheduleDetail").find(".lowerArea").addClass('xc-hidden');
+
+            options = {
+                "startTime": startTime, // In milliseconds
+                "dateText": dateStr,       // String
+                "timeText": timeStr,       // String
+                "repeat": repeat,       // element in scheduleFreq in Scheduler
+                "modified": currentTime,// In milliseconds
+                "created": currentTime,
+                "activeSession": false,
+                "newTableName": "",
+                "usePremadeCronString": false,
+                "premadeCronString": ""
+            };
+            setSimulationInfos();
+
+        } else {
+            // Advanced mode, is considered starting immediately
+            var $cronScheduler = $('#cronScheduler');
+            var cronString = $cronScheduler.val().trim();
+            isValid = xcHelper.validate([
+                {
+                    "$ele": $cronScheduler,
+                    "text": ErrTStr.NoEmpty,
+                    "check": function() {
+                        if ($cronScheduler.val().trim() === "") {
+                            return true;
+                        } else {
+                            var ret = simulateCron(cronString);
+                            if (!ret.isValid) {
+                                $("#modifyScheduleForm .errorInfo")
+                                .text(ret.error);
+                                return true;
+                            } else {
+                                $("#modifyScheduleForm .errorInfo")
+                                .text("");
+                            }
+                        }
+                    }
+                }
+            ]);
+
+            if (!isValid) {
+                return false;
             }
+
+            currentTime = timeZoneTransfer(new Date(), serverTimeZone);
+            options = {
+                "startTime": currentTime,  // In milliseconds
+                "dateText": "", // String
+                "timeText": "", // String
+                "repeat": "N/A",
+                "modified": currentTime,
+                "created": currentTime,
+                "activeSession": false,
+                "newTableName": "",
+                "usePremadeCronString": true,
+                "premadeCronString": cronString
+            };
+        }
+
+        DF.addScheduleToDataflow(dataflowName, options);
+        xcHelper.showSuccess(SuccessTStr.Sched);
+        existScheduleIcon(dataflowName);
+        return true;
+    }
+
+    function showScheduleResult() {
+        var runTimeStr = "";
+        var parameterStr = "";
+        var statusStr = "";
+        var outputStr = "";
+        var html = "";
+        html += getOneRecordHtml(runTimeStr, parameterStr,
+         statusStr, outputStr);
+        $("#scheduleTable .mainSection").html(html);
+
+        var deferred = $.Deferred();
+
+        getOutputStr()
+        .always(function(outputLocation) {
+            outputStr = outputLocation;
+            XcalarListSchedules(currentDataFlowName)
+            .then(function(data) {
+                deferred.resolve(data);
+            })
+            .fail(function(error) {
+                deferred.reject(error);
+            });
+            return deferred.promise();
+        });
+
+        deferred.promise()
+        .then(function(data) {
+            var scheduleInfo = data[0];
+            html = "";
+            if (scheduleInfo) {
+                var scheduleResults = scheduleInfo.scheduleResults;
+                for (var i = 0; i < scheduleResults.length; i++) {
+                    var currResult = scheduleResults[i];
+                    runTimeStr = getTime(currResult.endTime);
+                    parameterStr = getParameterStr(currResult.parameters);
+                    statusStr = "Success";
+                    html += getOneRecordHtml(runTimeStr, parameterStr,
+                     statusStr, outputStr);
+                }
+            }
+            runTimeStr = "Not run yet";
+            parameterStr = "Not run yet";
+            statusStr = "Not run yet";
+            outputStr = "Not run yet";
+            html += getOneRecordHtml(runTimeStr, parameterStr,
+             statusStr, outputStr);
+            $("#scheduleTable .mainSection").html(html);
+        })
+        .fail(function(error) {
+            console.log(error);
+            runTimeStr = "";
+            parameterStr = "";
+            statusStr = "";
+            outputStr = "";
+            html += getOneRecordHtml(runTimeStr, parameterStr,
+             statusStr, outputStr);
+            $("#scheduleTable .mainSection").html(html);
         });
     }
 
+    function getOneRecordHtml(runTimeStr, timeTakenStr, statusStr, outputStr) {
+        var record = '<div class="content timeContent">'
+            + runTimeStr
+            + '</div>'
+            + '<div class="content lastContent">'
+            + timeTakenStr
+            + '</div>'
+            + '<div class="content statusContent">'
+            + statusStr
+            + '</div>'
+            + '<div class="content outputLocationContent">'
+            + outputStr
+            + '</div>';
+        return record;
+    }
+
+    function getParameterStr(paramArray) {
+        var str = "";
+        for (var i = 0; i < paramArray.length; i++) {
+            var currParam = paramArray[i];
+            str += currParam.parameterName + ":"
+                + currParam.parameterValue + ", ";
+        }
+        if (str.length === 0) {
+            str = SchedTStr.noParam;
+        } else {
+            str = str.substring(0, str.length - 2);
+        }
+        return str;
+    }
+
+    function getOutputStr() {
+        var deferred = $.Deferred();
+        var str = "";
+        XcalarListExportTargets('*','*')
+        .always(function(data) {
+            if (data && data.targets && data.targets[0].specificInput &&
+                    data.targets[0].specificInput.sfInput &&
+                    data.targets[0].specificInput.sfInput.url) {
+                str = data.targets[0].specificInput.sfInput.url;
+            } else {
+                str = SchedTStr.unknown;
+            }
+            deferred.resolve(str);
+        });
+        return deferred.promise(str);
+    }
     function getTime(time) {
         if (time == null) {
             return null;
@@ -427,16 +678,11 @@ window.Scheduler = (function(Scheduler, $) {
             return;
         }
 
-        var date = $modScheduleForm.find(".timeSection .time").data("date");
-        if (date == null) {
-            // new date is one minute faster than current time
-            // which is a valid time
-            date = new Date();
-            date.setMinutes(date.getMinutes() + 1);
-        }
+        date = new Date();
+        date.setMinutes(date.getMinutes() + 1);
 
         $timePicker.fadeIn(200);
-        showTimeHelper(date, false, false, $modScheduleForm);
+        showTimeHelper(date, false, false);
 
         // mouse down outside the timePicker, and the input is legal,
         // hide time picker
@@ -457,10 +703,10 @@ window.Scheduler = (function(Scheduler, $) {
 
         // focus out from inside he timePicker
         $("#modScheduler-timePicker .inputSection input")
-        .on("focusout", function(event) {
+        .on("focusout", function() {
             var $hourInput = $('.timePicker:visible').find('input.hour');
             var $minInput = $('.timePicker:visible').find('input.minute');
-            if ($simpleMode.is(":visible")) {
+            if ($("#modifyScheduleForm .simpleMode").is(":visible")) {
                 if ($hourInput.val() > 12 || $hourInput.val() < 1) {
                     StatusBox.show(ErrTStr.SchedHourWrong, $hourInput, false,
                                    {"side": "left"});
@@ -469,17 +715,16 @@ window.Scheduler = (function(Scheduler, $) {
                                     {"side": "right"});
                 }
             } else {
-                var schedule = DF.getSchedule(currentDataFlowName);
-                resetModifiedScheduleForm(schedule);
+                showScheduleSettings();
                 StatusBox.forceHide();
                 toggleTimePicker(false);
             }
         });
     }
 
-    function changeTime(type, isIncrease, $form) {
-        var ampm = $form.find(".inputSection .ampm").text();
-        var date = $form.find('.timePicker').data("date");
+    function changeTime(type, isIncrease) {
+        var ampm = $modScheduleForm.find(".inputSection .ampm").text();
+        var date = $modScheduleForm.find('.timePicker').data("date");
         var hour = date.getHours();
         var diff;
 
@@ -512,10 +757,10 @@ window.Scheduler = (function(Scheduler, $) {
                 // error case
                 break;
         }
-        showTimeHelper(date, false, false, $form);
+        showTimeHelper(date, false, false);
     }
 
-    function inputTime(type, val, $form) {
+    function inputTime(type, val) {
         if (val === "") {
             return;
         }
@@ -523,7 +768,7 @@ window.Scheduler = (function(Scheduler, $) {
         if (isNaN(val) || !Number.isInteger(val)) {
             return;
         }
-        var $timePicker = $form.find('.timePicker');
+        var $timePicker = $modScheduleForm.find('.timePicker');
 
         var date = $timePicker.data("date");
 
@@ -533,14 +778,14 @@ window.Scheduler = (function(Scheduler, $) {
                     return;
                 }
                 date.setMinutes(val);
-                showTimeHelper(date, false, true, $form);
+                showTimeHelper(date, false, true);
                 break;
             case "hour":
                 if (val < 1 || val > 12) {
                     return;
                 }
 
-                var ampm = $form.find(".inputSection .ampm").text();
+                var ampm = $modScheduleForm.find(".inputSection .ampm").text();
 
                 if (val === 12 && ampm === "AM") {
                     val = 0;
@@ -548,7 +793,7 @@ window.Scheduler = (function(Scheduler, $) {
                     val += 12;
                 }
                 date.setHours(val);
-                showTimeHelper(date, true, false, $form);
+                showTimeHelper(date, true, false);
                 break;
             default:
                 // error case
@@ -576,7 +821,7 @@ window.Scheduler = (function(Scheduler, $) {
             && Number(inputYear) === year;
     }
 
-    function showTimeHelper(date, noHourRest, noMinReset, $form) {
+    function showTimeHelper(date, noHourRest, noMinReset) {
         var hours = date.getHours();
         var minutes = date.getMinutes();
         var ampm = hours >= 12 ? "PM" : "AM";
@@ -586,46 +831,26 @@ window.Scheduler = (function(Scheduler, $) {
 
         hours = hours < 10 ? "0" + hours : hours;
         minutes = minutes < 10 ? "0" + minutes : minutes;
-        var $timePicker = $form.find('.timePicker');
-        var $inputSection = $timePicker.find(".inputSection");
 
         if (!noHourRest) {
-            $inputSection.find(".hour").val(hours);
+            $timePicker.find(".inputSection .hour").val(hours);
         }
         if (!noMinReset) {
-            $inputSection.find(".minute").val(minutes);
+            $timePicker.find(".inputSection .minute").val(minutes);
         }
-        $inputSection.find(".ampm").text(ampm);
+        $timePicker.find(".inputSection .ampm").text(ampm);
 
         $timePicker.data("date", date);
 
-        var timeStamp = hours + " : " + minutes + " " + ampm;
-        $form.find(".timeSection .time").val(timeStamp)
-                                    .data("date", date);
-    }
-
-    function getRepeatPeriod(schedule) {
-        var oneHour = 3600; // 1 hour = 3600s
-
-        switch (schedule.repeat) {
-            case scheduleFreq.minute:
-                return 60; // 60s
-            case scheduleFreq.hourly:
-                return oneHour;
-            case scheduleFreq.daily:
-                return 24 * oneHour; // one day
-            case scheduleFreq.weekly:
-                return 7 * 24 * oneHour; // one week
-            case scheduleFreq.biweekly:
-                return 14 * 24 * oneHour; // two weeks
-            case scheduleFreq.monthly:
-                throw "Not support yet!";
-            default:
-                throw "Invalid option!";
-        }
+        var timeStr = hours + " : " + minutes + " " + ampm;
+        $timeInput.val(timeStr);
+        $modScheduleForm.find(".timeSection .time").val(timeStr);
     }
 
     function getNextRunTime(schedule) {
+        if (!schedule) {
+            return;
+        }
         var d = new Date();
         var time = new Date(schedule.startTime);
 
@@ -633,49 +858,54 @@ window.Scheduler = (function(Scheduler, $) {
             // the start time has not passed
             return;
         }
-
-        var repeat = schedule.repeat;
-        while (time < d) {
-            switch (repeat) {
-                case scheduleFreq.minute:
-                    time.setMinutes(time.getMinutes() + 1);
-                    break;
-                case scheduleFreq.hourly:
-                    time.setHours(time.getHours() + 1);
-                    break;
-                case scheduleFreq.daily:
-                    time.setDate(time.getDate() + 1);
-                    break;
-                case scheduleFreq.weekly:
-                    time.setDate(time.getDate() + 7);
-                    break;
-                case scheduleFreq.biweekly:
-                    time.setDate(time.getDate() + 14);
-                    break;
-                case scheduleFreq.monthly:
-                    time.setMonth(time.getMonth() + 1);
-                    break;
-                default:
-                    console.error("Invalid option!");
-                    return;
+        if (schedule.premadeCronString) {
+            var retMsg = simulateCron(schedule.premadeCronString);
+            if (retMsg.isValid) {
+                schedule.startTime = new Date(retMsg.lastRun).getTime();
+            } else {
+                // if fail, start time is the current time
+                schedule.startTime = time.getTime();
             }
+        } else {
+            var repeat = schedule.repeat;
+            while (time < d) {
+                switch (repeat) {
+                    case scheduleFreq.minute:
+                        time.setMinutes(time.getMinutes() + 1);
+                        break;
+                    case scheduleFreq.hourly:
+                        time.setHours(time.getHours() + 1);
+                        break;
+                    case scheduleFreq.daily:
+                        time.setDate(time.getDate() + 1);
+                        break;
+                    case scheduleFreq.weekly:
+                        time.setDate(time.getDate() + 7);
+                        break;
+                    case scheduleFreq.biweekly:
+                        time.setDate(time.getDate() + 14);
+                        break;
+                    case scheduleFreq.monthly:
+                        time.setMonth(time.getMonth() + 1);
+                        break;
+                    default:
+                        console.error("Invalid option!");
+                        return;
+                }
+            }
+            schedule.startTime = time.getTime();
         }
-        schedule.startTime = time.getTime();
     }
 
     /* Unit Test Only */
     if (window.unitTestMode) {
         Scheduler.__testOnly__ = {};
         Scheduler.__testOnly__.getNextRunTime = getNextRunTime;
-        Scheduler.__testOnly__.getRepeatPeriod = getRepeatPeriod;
         Scheduler.__testOnly__.showTimeHelper = showTimeHelper;
         Scheduler.__testOnly__.inputTime = inputTime;
         Scheduler.__testOnly__.changeTime = changeTime;
-        // Scheduler.__testOnly__.resetCreateNewScheduleForm = resetCreateNewScheduleForm;
-        Scheduler.__testOnly__.resetModifiedScheduleForm = resetModifiedScheduleForm;
+        Scheduler.__testOnly__.showScheduleSettings = showScheduleSettings;
         Scheduler.__testOnly__.saveScheduleForm = saveScheduleForm;
-        Scheduler.__testOnly__.fillInScheduleDetail = fillInScheduleDetail;
-        Scheduler.__testOnly__.schedDetailTabs = schedDetailTabs;
     }
     /* End Of Unit Test Only */
 

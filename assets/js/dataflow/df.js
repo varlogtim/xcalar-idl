@@ -125,7 +125,10 @@ window.DF = (function($, DF) {
 
     DF.removeDataflow = function(dataflowName) {
         var deferred = jQuery.Deferred();
-        XcalarDeleteRetina(dataflowName)
+        DF.removeScheduleFromDataflow(dataflowName)
+        .then(function() {
+            return XcalarDeleteRetina(dataflowName);
+        })
         .then(function() {
             return resolveDelete();
         })
@@ -162,29 +165,59 @@ window.DF = (function($, DF) {
         }
     };
 
-    DF.addScheduleToDataflow = function(dataflowName, options) {
+    DF.addScheduleToDataflow = function(dataflowName, allOptions) {
         var dataflow = dataflows[dataflowName];
         if (dataflow) {
             if (!dataflow.schedule) {
-                dataflow.schedule = new SchedObj(options);
+                dataflow.schedule = new SchedObj(allOptions);
+                var substitutions = getSubstitutions(dataflowName);
+                var options = getOptions(allOptions);
+                var timingInfo = getTimingInfo(allOptions);
+                XcalarCreateSched(dataflowName, dataflowName,
+                    substitutions, options, timingInfo)
+                .then(function() {
+                    KVStore.commit();
+                });
             } else {
                 var schedule = dataflow.schedule;
-                schedule.update(options);
+                schedule.update(allOptions);
+                XcalarDeleteSched(dataflowName)
+                .then(function() {
+                    var substitutions = getSubstitutions(dataflowName);
+                    var options = getOptions(allOptions);
+                    var timingInfo = getTimingInfo(allOptions);
+                    XcalarCreateSched(dataflowName, dataflowName,
+                        substitutions, options, timingInfo)
+                    .then(function() {
+                        KVStore.commit();
+                    });
+                });
             }
         } else {
             console.warn("No such dataflow exist!");
         }
-        KVStore.commit();
     };
 
     DF.removeScheduleFromDataflow = function(dataflowName) {
+        var deferred = jQuery.Deferred();
         var dataflow = dataflows[dataflowName];
         if (dataflow) {
             dataflow.schedule = null;
+            XcalarDeleteSched(dataflowName)
+            .then(function() {
+                KVStore.commit();
+                deferred.resolve();
+            })
+            .fail(function() {
+                KVStore.commit();
+                deferred.reject();
+            });
         } else {
             console.warn("No such dataflow exist!");
+            KVStore.commit();
+            deferred.resolve();
         }
-        KVStore.commit();
+        return deferred.promise();
     };
 
     DF.hasSchedule = function(dataflowName) {
@@ -254,6 +287,39 @@ window.DF = (function($, DF) {
                 break;
             }
         }
+    }
+
+    function getSubstitutions(dataflowName) {
+        var paramsArray = [];
+        var dfObj = DF.getDataflow(dataflowName);
+        var parameters = dfObj.paramMap;
+        for (var param in parameters) {
+            var p = new XcalarApiParameterT();
+            p.parameterName = param;
+            p.parameterValue = parameters[param];
+            paramsArray.push(p);
+        }
+        return paramsArray;
+    }
+
+    function getOptions(allOptions) {
+        var options = {
+            "activeSession": allOptions.activeSession,
+            "newTableName": allOptions.newTableName,
+            "usePremadeCronString": allOptions.usePremadeCronString,
+            "premadeCronString": allOptions.premadeCronString
+        };
+        return options;
+    }
+    function getTimingInfo(allOptions) {
+        var timingInfo = {
+            "startTime": allOptions.startTime,
+            "dateText": allOptions.dataText,
+            "timeText": allOptions.timeText,
+            "repeat": allOptions.repeat,
+            "modified": allOptions.modified
+        };
+        return timingInfo;
     }
 
     return (DF);

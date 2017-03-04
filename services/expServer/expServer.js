@@ -4,6 +4,8 @@
 // Start of generic setup stuff
 var express = require('express');
 var bodyParser = require('body-parser');
+var cronParser = require('cron-parser');
+var time = require('time');
 var fs = require('fs');
 var http = require('http');
 var https = require("https");
@@ -936,6 +938,59 @@ app.post("/uploadContent", function(req, res) {
 app.post("/uploadMeta", function(req, res) {
     upload.uploadMeta(req, res);
 });
+
+app.post('/simulateSchedule', function(req, res) {
+    console.log("Simulate Schedule");
+    var credArray = req.body;
+    var cronString = credArray.cronString; // like '*/2 * * * * *'
+    var startTime = credArray.startTime;
+    console.log("cronString", cronString)
+    console.log("startTime", startTime)
+    var options = {
+      currentDate: startTime               // like '2017-03-01 00:00:01'
+    }
+
+    try {
+      var interval = cronParser.parseExpression(cronString, options);
+      var next1 = interval.next();
+      var lastRun = getTimeString(next1);
+      var next2 = interval.next();
+      var nextRun = getTimeString(next2);
+      var retMsg = {"isValid": true, "lastRun" : lastRun, "nextRun" : nextRun};
+    } catch (err) {
+      console.log('Error: ' + err.message);
+      var retMsg = {"isValid": false, "lastRun" : "Simulation Fail!",
+        "nextRun" : "Simulation Fail!", "error": err.message};
+    }
+    res.send(retMsg);
+});
+
+app.post('/getTimezone', function(req, res){
+        var date = new time.Date();
+        console.log(date.getTimezone());
+        res.send(date.getTimezone());
+});
+
+function getTimeString(next) {
+     var month = next._date.month() + 1;
+     var date = next._date.date();
+     var year = next._date.year();
+     var hour = next._date.hour() > 12 ?
+        next._date.hour() - 12: next._date.hour();
+     if (hour == 0) {
+        hour = 12;
+     }
+     var minute =  next._date.minute();
+     if (hour < 10) {
+         hour = '0' + hour;
+    }
+    if (minute < 10) {
+          minute = '0' + minute;
+    }
+     var suffix = next._date.hour() >= 12 ? 'PM' : 'AM';
+     return month + '/' + date + '/' + year + ' ' + hour + ':' +
+            minute + ' ' + suffix;
+}
 
 var httpServer = http.createServer(app);
 try {

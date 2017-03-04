@@ -315,6 +315,8 @@ window.MainMenu = (function($, MainMenu) {
                 $activeCompSwitch.attr('data-original-title',
                                         TooltipTStr.OpenQG);
             }
+        } else if(lastTabId === "dataflowTab") {
+            DataflowPanel.inActive();
         }
 
         StatusMessage.updateLocation();

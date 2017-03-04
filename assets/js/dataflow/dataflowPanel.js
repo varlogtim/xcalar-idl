@@ -12,7 +12,11 @@ window.DataflowPanel = (function($, DataflowPanel) {
     };
 
     DataflowPanel.active = function() {
+        Scheduler.displayServerTime();
+    };
 
+    DataflowPanel.inActive = function() {
+        Scheduler.clearServerTime();
     };
 
     return (DataflowPanel);
