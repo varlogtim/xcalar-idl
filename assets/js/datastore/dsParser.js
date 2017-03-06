@@ -94,6 +94,9 @@ window.DSParser = (function($, DSParser) {
 
         var xmlAppStr = "import sys, json, re\nfrom lxml import etree as ET\nimport xmltodict\n\ndef findFullXmlPath(keyArray, inp):\n    #keyArray must be of the form [(\"key\", characterOffset)]\n    sortedArray = sorted(keyArray, key=lambda (key, offset): offset)\n    initialFile = open(inp, \"r\").read()\n    segments = []\n    prevIndex = 0\n    for (keyPartialName, charOffset) in sortedArray:\n        #explode initialFile at the correct places\n        segments.append(initialFile[prevIndex:charOffset])\n        prevIndex = charOffset\n    segments.append(initialFile[prevIndex:])\n    withXcTags = \"\"\n    for idx in xrange(len(segments)-1):\n        withXcTags += segments[idx]\n        withXcTags += \"<xctag></xctag>\"\n        #print str(idx) + \": >>\" + segments[idx][-20:] + \"<xctag></xctag>\" + segments[idx + 1][:20]\n    withXcTags += segments[-1]\n    root = ET.fromstring(withXcTags)\n    allObj = root.findall(\".//xctag\")\n    paths = []\n    tree = ET.ElementTree(root)\n    for obj in allObj:\n        path = tree.getpath(obj.getparent())\n        path = re.sub(r\"[\\[0-9+\\]]\", \"\", path)\n        paths.append(path)\n    return paths\n\ndef constructRecords(keyArray, prettyIn):\n    # keyArray must be of the form [(key, characterOffset, type)]\n    # where type == \"full\" or \"partial\"\n    fullKeyArray = []\n    partialPaths = []\n    fullPaths = []\n    partialElements = []\n    fullElements = []\n    for k, o, t in keyArray:\n        if t == \"full\":\n            fullKeyArray.append((k, o))\n        else:\n            partialPaths.append(k)\n    fullPaths = findFullXmlPath(fullKeyArray, prettyIn)\n    return \"\"\"\nimport sys, json, re\nfrom lxml import etree as ET\nimport xmltodict\ndef parser(inp, ins):\n    # Find all partials\n    root = ET.fromstring(ins.read())\n    tree = ET.ElementTree(root)\n\n    partialPaths = \"\"\" + json.dumps(partialPaths) + \"\"\"\n    fullPaths = \"\"\" + json.dumps(fullPaths) + \"\"\"\n\n    if len(partialPaths):\n        eString = \".//*[self::\" + \" or self::\".join(partialPaths) + \"]\"\n        print eString\n        partialElements = root.xpath(eString)\n        for element in partialElements:\n            elementDict = xmltodict.parse(ET.tostring(element))\n            elementDict[\"xcXmlPath\"] = tree.getpath(element)\n            elementDict[\"xcMethod\"] = \"partial\"\n            yield elementDict\n\n    for fullPath in fullPaths:\n        fullElements = root.xpath(fullPath)\n        for element in fullElements:\n            elementDict = xmltodict.parse(ET.tostring(element))\n            elementDict[\"xcXmlPath\"] = tree.getpath(element)\n            elementDict[\"xcMethod\"] = \"full\"\n            yield elementDict\n\"\"\"\n\ndef adjust(array):\n    adjustedArray = []\n    for entry in array:\n        key = entry[\"key\"]\n        offset = entry[\"offset\"]\n        type = entry[\"type\"]\n        nkey = key.strip()[1:-1]\n        if nkey[0] == \"/\":\n            # this is a closing tag. Set offset to be 1 char before <\n            offset = offset - len(key)\n            nkey = nkey[1:]\n        adjustedArray.append((nkey, offset, type))\n    return adjustedArray\n\ndef main(inBlob):\n    args = json.loads(inBlob)\n    adjustedArray = adjust(args[\"keys\"])\n    udf = constructRecords(adjustedArray, args[\"prettyPath\"])\n    return json.dumps({\"udf\": udf})"
         XcalarAppSet(xmlApp, "Python", "Import", xmlAppStr);
+
+        var jsonAppStr = "import jsonpath_rw, json\n\ndef findJsonPath(keyArray, inp):\n    #keyArray must be of the form [(\"key\", characterOffset)]\n    sortedArray = sorted(keyArray, key=lambda (key, offset, type): offset)\n    initialFile = open(inp, \"r\").read()\n    segments = []\n    prevIndex = 0\n    for (keyPartialName, charOffset, type) in sortedArray:\n        #explode initialFile at the correct places\n        segments.append(initialFile[prevIndex:charOffset])\n        prevIndex = charOffset\n    segments.append(initialFile[prevIndex:])\n    withXcTags = \"\"\n    for idx in xrange(len(segments)-1):\n        withXcTags += segments[idx]\n        key, offset, type = sortedArray[idx]\n        if key == \"{\":\n            withXcTags += '\"xctag\": {\"type\": \"'+ type + '\"},'\n        else:\n            if type == \"partial\":\n                # This is not allowed\n                type = \"full\"\n            withXcTags += '{\"xctag\": {\"array\": true, \"type\": \"' + type + '\"}},'\n    withXcTags += segments[-1]\n    fout = open(\"tmp.txt\", \"wb\")\n    fout.write(withXcTags)\n    fout.close()\n    objects = json.loads(withXcTags)\n    jsonPath = jsonpath_rw.parse(\"$..xctag\")\n    allObj = []\n    if isinstance(objects, list):\n        for obj in objects:\n            allObj += jsonPath.find(obj)\n    else:\n        allObj += jsonPath.find(objects)\n    fullPaths = []\n    partialPaths = []\n    for obj in allObj:\n        isArray = \"array\" in obj.value\n        type = obj.value[\"type\"]\n        if isinstance(obj.full_path, jsonpath_rw.jsonpath.Fields):\n            # special case for top level\n            fullPaths.append(\"*\")\n            continue\n        path = obj.full_path.left\n        if (isArray):\n            path = path.left\n        fragments = []\n        indexPart = \"\"\n        if type == \"full\":\n            while hasattr(path, \"left\"):\n                if isinstance(path.right, jsonpath_rw.jsonpath.Index):\n                    indexPart += str(path.right)\n                else:\n                    fragments.append(\"'\" + str(path.right) + \"'\" + indexPart)\n                    indexPart = \"\"\n                path = path.left\n            fragments.append(\"'\" + str(path) + \"'\" + indexPart)\n            fullPaths.append(\".\".join(reversed(fragments)))\n        else:\n            partialPaths.append(\"'\" + str(path.right) + \"'\")\n    return (fullPaths, partialPaths)\n\ndef constructRecords(keyArray, prettyIn):\n\n    (fullPaths, partialPaths) = findJsonPath(keyArray, prettyIn)\n    return \"\"\"\nimport json, objectpath\ndef parser(inp, ins):\n    # Find all partials\n    roots = json.load(ins)\n    if (not isinstance(roots, list)):\n        roots = [roots]\n    partialPaths = \"\"\" + json.dumps(partialPaths) + \"\"\"\n    fullPaths = \"\"\" + json.dumps(fullPaths) + \"\"\"\n\n    for root in roots:\n        tree = objectpath.Tree(root)\n        for partialPath in partialPaths:\n            partialElements = tree.execute(\"$..\" + partialPath)\n            #if not isinstance(partialElements, list):\n            #    partialElements = [partialElements]\n            for element in partialElements:\n                # XXX This package unfortunately cannot give the full path.\n                # In order to get this information, we will have to add\n                # the xctag struct to every element here and then trace as per\n                # full path\n                #element[\"xcXmlPath\"] = element.full_path\n                element[\"xcMethod\"] = \"partial\"\n                yield element\n        for fullPath in fullPaths:\n            element = tree.execute(\"$.\" + fullPath)\n            if (not isinstance(element, list)):\n                element = [element]\n            for ele in element:\n                ele[\"xcXmlPath\"] = fullPath\n                ele[\"xcMethod\"] = \"full\"\n                yield ele\n\"\"\"\n\ndef adjust(array):\n    adjustedArray = []\n    for entry in array:\n        key = entry[\"key\"]\n        offset = entry[\"offset\"]\n        type = entry[\"type\"]\n        nkey = key.strip()\n        adjustedArray.append((nkey, offset, type))\n    return adjustedArray\n\ndef main(inBlob):\n    args = json.loads(inBlob)\n    adjustedArray = adjust(args[\"keys\"])\n    udf = constructRecords(adjustedArray, args[\"prettyPath\"])\n    return json.dumps({\"udf\": udf})"
+        XcalarAppSet(jsonApp, "Python", "Import", jsonAppStr);
     }
 
     DSParser.show = function(url) {
@@ -126,7 +129,7 @@ window.DSParser = (function($, DSParser) {
             isMouseDown = true;
         });
         $(document).on("mouseup.dsparser", function() {
-            if (mousedown) {
+            if (isMouseDown) {
                 checkIfScrolled();
                 isMouseDown = false;
             }
@@ -158,7 +161,7 @@ window.DSParser = (function($, DSParser) {
                 var res = getSelectionCharOffsetsWithin($previewContent[0]);
                 res.end += previewMeta.lineLengths[previewMeta.startPage];
                 var $target = $(event.target);
-                if ($parserCard.hasClass("previewOnly")) {
+                if ($parserCard.hasClass("previewOnly") || res.tag == null) {
                     $menu.find("li").addClass("unavailable");
                     $menu.removeData("tag");
                     $menu.removeData("end");
@@ -499,7 +502,7 @@ window.DSParser = (function($, DSParser) {
 
     function getSelectionCharOffsetsWithin(element) {
         var start = 0;
-        var end = 0;
+        // var end = 0;
         var sel;
         var range;
         var priorRange;
@@ -512,7 +515,7 @@ window.DSParser = (function($, DSParser) {
             priorRange.selectNodeContents(element);
             priorRange.setEnd(range.startContainer, range.startOffset);
             start = priorRange.toString().length;
-            end = start + range.toString().length;
+            // end = start + range.toString().length;
         } else if (typeof document.selection !== "undefined" &&
                     document.selection.type !== "Control") {
             sel = document.selection;
@@ -521,16 +524,14 @@ window.DSParser = (function($, DSParser) {
             priorRange.moveToElementText(element);
             priorRange.setEndPoint("EndToStart", range);
             start = priorRange.text.length;
-            end = start + range.text.length;
+            // end = start + range.text.length;
         }
-
-        console.log(start);
 
         // XXX need to be tested in IE
         res = getRightSelection(start);
         if (res != null && res.start > -1) {
             var nodes = getTextNodes(element);
-            var range = document.createRange();
+            range = document.createRange();
 
             // check if start is on 1st or 2nd page
             if (res.start < buffers[0].length) {
@@ -539,13 +540,13 @@ window.DSParser = (function($, DSParser) {
                 range.setStart(nodes[1], res.start - buffers[0].length);
             }
 
-             if (res.end < buffers[0].length) {
+            if (res.end < buffers[0].length) {
                 range.setEnd(nodes[0], res.end);
             } else {
                 range.setEnd(nodes[1], res.end - buffers[0].length);
             }
 
-            var sel = window.getSelection();
+            sel = window.getSelection();
             sel.removeAllRanges();
             sel.addRange(range);
             return res;
@@ -556,7 +557,7 @@ window.DSParser = (function($, DSParser) {
 
     function getTextNodes(node) {
         var textNodes = [];
-        if (node.nodeType == 3) {
+        if (node.nodeType === 3) {
             textNodes.push(node);
         } else {
             var children = node.childNodes;
@@ -602,9 +603,9 @@ window.DSParser = (function($, DSParser) {
     function findJSONOpenTag(start) {
         var s = start;
         var cnt = 0;
-        var ch;
+        var ch = getCharAt(s);
 
-        if (getCharAt(s) !== "[") {
+        if (ch !== "[") {
             while (s >= 0) {
                 ch = getCharAt(s);
                 if (ch === "{") {
@@ -613,7 +614,7 @@ window.DSParser = (function($, DSParser) {
                     } else {
                         cnt--;
                     }
-                } else if (ch === "}") {
+                } else if (ch === "}" && s !== start) {
                     cnt++;
                 }
 
@@ -621,11 +622,16 @@ window.DSParser = (function($, DSParser) {
             }
         }
 
-        var end = s + 1;
+        // check if it's a valid tag
+        var tag = null;
+        if (cnt === 0 && (ch === "{" || ch === "[")) {
+            tag = getSubStr(s, s + 1);
+        }
+
         return {
             "start": s,
-            "end": end,
-            "tag": getSubStr(s, end)
+            "end": s + 1,
+            "tag": tag
         };
     }
 
@@ -643,28 +649,98 @@ window.DSParser = (function($, DSParser) {
             }
         }
 
-        var key = {
-            "key": generateKey(tag),
+        // offset start with 1, cursor start with 0
+        var displayKey = (getFormat() === "JSON")
+                         ? getJSONPath(keyOffset - 1)
+                         : tag;
+        keys.push({
+            "key": tag,
             "type": type,
             "offset": keyOffset
-        };
-
-        keys.push(key);
-        addKeyItem(key);
+        });
+        addKeyItem(displayKey, type);
     }
 
-    function generateKey(tag) {
-        var format = getFormat();
-        if (format === "JSON") {
-            // XXX will handle JSON populate tag later
-            return tag;
-        } else {
-            return tag;
+    function getJSONPath(cursor) {
+        var isChildOfArray = true;
+        var p = cursor - 1;
+        var ch;
+        var jsonPath;
+
+        // detect it's child of array or not
+        while (p >= 0) {
+            ch = getCharAt(p);
+            if (ch === ":") {
+                isChildOfArray = false;
+                break;
+            } else if (ch === "[" || ch === ",") {
+                isChildOfArray = true;
+                break;
+            }
+            p--;
+            // other case will be the empty space
         }
+
+        if (isChildOfArray) {
+            var eleCnt = 0;
+            var bracketCnt = 0;
+
+            while (p >= 0) {
+                ch = getCharAt(p);
+                if (ch === "[") {
+                    break;
+                } else if (ch === "," && bracketCnt === 0) {
+                    eleCnt++;
+                } else if (ch === "}") {
+                    bracketCnt++;
+                } else if (ch === "{") {
+                    bracketCnt--;
+                }
+                p--;
+            }
+            // find the first colon before [
+            while (p >= 0 && getCharAt(p) !== ":") {
+                p--;
+            }
+        }
+
+        if (getCharAt(p) !== ":") {
+            console.warn("cannot parse due to lack of data");
+            jsonPath = "..." + getCharAt(cursor);
+        } else {
+            jsonPath = retrieveJSONKey(p - 1);
+            if (isChildOfArray) {
+                jsonPath += "[" + eleCnt + "]";
+            }
+        }
+
+        return jsonPath;
     }
 
-    function addKeyItem(key) {
-        var tag = xcHelper.escapeHTMLSepcialChar(key.key);
+    function retrieveJSONKey(cursor) {
+        var ch;
+        var start = null;
+        var end = null;
+
+        while (cursor >= 0) {
+            ch = getCharAt(cursor);
+            if (ch === "\"") {
+                if (cursor === 0 || getCharAt(cursor - 1) !== "\\") {
+                    if (end == null) {
+                        end = cursor;
+                    } else {
+                        start = cursor;
+                        break;
+                    }
+                }
+            }
+            cursor--;
+        }
+        return getSubStr(start + 1, end);
+    }
+
+    function addKeyItem(displayKey, type) {
+        var tag = xcHelper.escapeHTMLSepcialChar(displayKey);
         var li =
                 '<li class="key">' +
                     '<div class="item">' +
@@ -673,7 +749,7 @@ window.DSParser = (function($, DSParser) {
                             tag +
                         '</span>' +
                         '<span class="type">' +
-                            key.type +
+                            type +
                         '</span>' +
                     '</div>' +
                     '<i class="remove icon xi-trash xc-action fa-15"></i>' +
@@ -969,17 +1045,23 @@ window.DSParser = (function($, DSParser) {
     function parseHelper() {
         var deferred = jQuery.Deferred();
         var format = getFormat();
-        var promise;
+        var app;
 
         if (format === "XML") {
-            promise = xmlParser();
+            app = xmlApp;
         } else if (format === "JSON") {
-            promise = jsonParser();
+            app = jsonApp;
         } else {
             return PromiseHelper.reject({"error": DSParserTStr.NotSupport});
         }
 
-        promise
+        var options = {
+            "prettyPath": previewMeta.tmpPath,
+            "keys": keys
+        };
+        var inputStr = JSON.stringify(options);
+
+        XcalarAppExecute(app, false, inputStr)
         .then(function(ret) {
             var parsedRet = parseAppRes(ret);
             if (parsedRet.error) {
@@ -991,21 +1073,6 @@ window.DSParser = (function($, DSParser) {
         .fail(deferred.reject);
 
         return deferred.promise();
-    }
-
-    function xmlParser() {
-        var options = {
-            "prettyPath": previewMeta.tmpPath,
-            "keys": keys
-        };
-        console.log(options);
-        var inputStr = JSON.stringify(options);
-        return XcalarAppExecute(xmlApp, false, inputStr);
-    }
-
-    function jsonParser() {
-        // XXX not implement yet
-        return PromiseHelper.reject({"error": DSParserTStr.NotSupport});
     }
 
     function closeCard() {
