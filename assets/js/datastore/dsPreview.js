@@ -219,6 +219,10 @@ window.DSPreview = (function($, DSPreview) {
         return advanceOption;
     };
 
+    DSPreview.cleanup = function() {
+        return cleanTempParser();
+    };
+
     function setupForm() {
         // setup udf
         $("#dsForm-refresh").click(function() {
@@ -569,13 +573,19 @@ window.DSPreview = (function($, DSPreview) {
     }
 
     function cleanTempParser() {
-        if (tempParserUDF != null) {
+        if (tempParserUDF == null) {
+            return PromiseHelper.resolve();
+        } else {
+            var deferred = jQuery.Deferred();
             var tempUDF = tempParserUDF;
             tempParserUDF = null;
             XcalarDeletePython(tempUDF)
             .always(function() {
                 UDF.refresh();
+                deferred.resolve();
             });
+
+            return deferred.promise();
         }
     }
 

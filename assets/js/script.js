@@ -27,9 +27,13 @@ function unloadHandler(isAsync, doNotLogout) {
         // async unload should only be called in beforeload
         // this time, no commit, only free result set
         // as commit may only partially finished, which is dangerous
+        DSPreview.cleanup();
         TblManager.freeAllResultSets();
     } else {
-        TblManager.freeAllResultSetsSync()
+        DSPreview.cleanup()
+        .then(function() {
+            return TblManager.freeAllResultSetsSync();
+        })
         .then(function() {
             return Support.releaseSession();
         })
