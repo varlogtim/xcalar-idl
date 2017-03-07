@@ -9,7 +9,7 @@
     <div class="topSection">
       <div class="labelSection">
         <label class="previewLabel"><%= dicts.dsPreview.Previewing %></label>
-        <span class="filename">file:///test.json</span>
+        <span class="filename tooltipOverflow textOverflowOneLine" data-toggle="tooltip" data-container="body" data-placement="top">file:///test.json</span>
       </div>
       <div class="dropDownList fileFormat">
         <input class="text" type="text" spellcheck="false" disabled="" placeholder="<%= dicts.dsParser.SelectFormat %>">
@@ -55,7 +55,7 @@
       </div>
     </div>
     <div id="previewModeBox" class="parserBox">
-      <header id="aaa" class="boxHeader">
+      <header class="boxHeader">
         <div class="title"><%= dicts.dsParser.PreviewMode %></div>
         <div class="resize">
           <i class="icon xi-expand"></i>

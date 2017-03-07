@@ -2035,6 +2035,22 @@ table.datasetTable {
                 float: left;
                 line-height: @barHeight - (2 * @topPadding);
             }
+
+            .filename, .previewLabel {
+                float: left;
+                display: inline-block;
+            }
+
+            .previewLabel {
+                .size(@width: 90px);
+                .font(@color: @color-font-select-blue, @size: 16px, @weight: 700);
+                margin-left: 8px;
+                margin-right: 10px;
+            }
+
+            .filename {
+                .size(@width: ~"calc(100% - 108px)");
+            }
         }
 
 
@@ -2058,12 +2074,6 @@ table.datasetTable {
         .flex(0 1 auto);
         margin-right: 10px;
         .textOverflowOneLine;
-    }
-
-    .previewLabel {
-        .font(@color: @color-font-select-blue, @size: 16px, @weight: 700);
-        margin-left: 8px;
-        margin-right: 10px;
     }
 
     .fileFormat {
@@ -2122,7 +2132,7 @@ table.datasetTable {
 
     .parserBox {
         // display: none;
-        .position(absolute, @right: 0px, @top: 20px);
+        .position(absolute, @right: 0px, @top: 10px);
         .size(@width: 300px, @min-width: 300px);
         border: 1px solid rgba(0, 0, 0, 0.2);
 
@@ -2175,7 +2185,7 @@ table.datasetTable {
     }
 
     #delimitersBox {
-        top: 310px;
+        top: 295px;
 
         ul {
             padding: 5px 10px;

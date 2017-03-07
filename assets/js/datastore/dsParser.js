@@ -73,6 +73,10 @@ window.DSParser = (function($, DSParser) {
             closeCard();
         });
 
+        $parserCard.on("mouseenter", ".tooltipOverflow", function() {
+            xcTooltip.auto(this);
+        });
+
         setupMenu();
         setupRowInput();
         setupInfScroll();
@@ -108,7 +112,9 @@ window.DSParser = (function($, DSParser) {
 
     function resetView(url) {
         $previewContent.html("");
-        $parserCard.find(".topSection .filename").text(url);
+        var $fileName = $parserCard.find(".topSection .filename");
+        $fileName.text(url);
+        xcTooltip.changeText($fileName, url);
         $formatList.find("input").val("");
         $("#delimitersBox .boxBody ul").empty();
         offset = 0;
@@ -210,10 +216,6 @@ window.DSParser = (function($, DSParser) {
 
     function setupKeyBox() {
         var $box = $("#delimitersBox");
-        $box.on("mouseenter", ".tooltipOverflow", function() {
-            xcTooltip.auto(this);
-        });
-
         $box.on("click", "li", function() {
             focusKey($(this));
         });
