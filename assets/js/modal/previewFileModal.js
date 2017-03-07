@@ -2,16 +2,10 @@ window.PreviewFileModal = (function(PreviewFileModal, $) {
     var $modal;     // $("#previewFileModal")
     var modalHelper;
     var modalId;
-    var $searchArea;
-    var $searchInput;
     var searchHelper;
-    var $counter;
 
     PreviewFileModal.setup = function() {
         $modal = $("#previewFileModal");
-        $searchArea = $modal.find(".searchbarArea"); 
-        $searchInput = $searchArea.find("input");
-        $counter = $searchArea.find(".counter");
 
         var minWidth = 680;
         var minHeight = 400;
@@ -52,6 +46,8 @@ window.PreviewFileModal = (function(PreviewFileModal, $) {
     };
 
     PreviewFileModal.show = function(url, options) {
+        var deferred = jQuery.Deferred();
+
         modalHelper.setup();
         $modal.removeClass("error").addClass("loading");
         modalId = xcHelper.randName("previewFile");
@@ -69,12 +65,16 @@ window.PreviewFileModal = (function(PreviewFileModal, $) {
                 $modal.removeClass("loading");
                 loadFiles(url, res.files, options.previewFile);
             }
+            deferred.resolve();
         })
         .fail(function(error) {
             if (currentId === modalId) {
                 handleError(error);
             }
+            deferred.reject(error);
         });
+
+        return deferred.promise();
     };
 
     function setupMode(isParseMode) {
@@ -100,6 +100,7 @@ window.PreviewFileModal = (function(PreviewFileModal, $) {
     function setupSearch() {
         $modal.on("click", ".searchIcon", toggleSearch);
         
+        var $searchArea = $modal.find(".searchbarArea");
         searchHelper = new SearchBar($searchArea, {
             "removeSelected": function() {
                 $modal.find('.selected').removeClass('selected');
@@ -114,6 +115,7 @@ window.PreviewFileModal = (function(PreviewFileModal, $) {
 
         searchHelper.setup();
 
+        var $searchInput = $searchArea.find("input");
         $searchInput.on("input", function() {
             searchText();
         });
@@ -130,6 +132,8 @@ window.PreviewFileModal = (function(PreviewFileModal, $) {
 
     function searchText() {
         var $content = $modal.find(".contentSection");
+        var $searchArea = $modal.find(".searchbarArea");
+        var $searchInput = $searchArea.find("input");
         var text = $searchInput.val().toLowerCase();
         if (text === "") {
             searchHelper.clearSearch();
@@ -182,7 +186,7 @@ window.PreviewFileModal = (function(PreviewFileModal, $) {
 
         } else {
             $searchBar.addClass("closed");
-            $searchInput.val("");
+            $searchBar.find("input").val("");
             searchText();
         }
     }
@@ -265,7 +269,7 @@ window.PreviewFileModal = (function(PreviewFileModal, $) {
         modalHelper.clear();
         modalId = null;
         searchHelper.clearSearch();
-        $searchArea.addClass("closed");
+        $modal.find(".searchbarArea").addClass("closed");
     }
 
     return PreviewFileModal;
