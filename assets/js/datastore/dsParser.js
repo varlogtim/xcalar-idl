@@ -107,7 +107,6 @@ window.DSParser = (function($, DSParser) {
 
         // XXX this should be removed later
         setApp();
-        
     };
 
     // XXX for testing, remove soon
@@ -246,7 +245,6 @@ window.DSParser = (function($, DSParser) {
                 }
 
                 var res = getSelectionCharOffsetsWithin($previewContent[0]);
-                res.end += previewMeta.lineLengths[previewMeta.startPage];
                 var $target = $(event.target);
                 if ($parserCard.hasClass("previewOnly") || res.tag == null) {
                     $menu.find("li").addClass("unavailable");
@@ -290,8 +288,8 @@ window.DSParser = (function($, DSParser) {
 
             var tag = $menu.data("tag");
             var type = $li.data("action");
-            var keyOffset = $menu.data("end");
-            populateKey(tag, type, keyOffset);
+            var bufferOffset = $menu.data("end");
+            populateKey(tag, type, bufferOffset);
         });
     }
 
@@ -816,7 +814,9 @@ window.DSParser = (function($, DSParser) {
         };
     }
 
-    function populateKey(tag, type, keyOffset) {
+    function populateKey(tag, type, bufferOffset) {
+        var keyOffset = bufferOffset +
+                        previewMeta.lineLengths[previewMeta.startPage];
         for (var i = 0, len = keys.length; i < len; i++) {
             if (keys[i].offset === keyOffset && keys[i].type === type) {
                 // when key alreay exists
@@ -832,7 +832,7 @@ window.DSParser = (function($, DSParser) {
 
         // offset start with 1, cursor start with 0
         var displayKey = (getFormat() === "JSON")
-                         ? getJSONPath(keyOffset - 1)
+                         ? getJSONPath(bufferOffset - 1)
                          : tag;
         keys.push({
             "key": tag,
@@ -844,6 +844,7 @@ window.DSParser = (function($, DSParser) {
 
     function getJSONPath(cursor) {
         var isChildOfArray = true;
+        var isFirstLevelChild = false;
         var p = cursor - 1;
         var ch;
         var jsonPath;
@@ -868,7 +869,7 @@ window.DSParser = (function($, DSParser) {
 
             while (p >= 0) {
                 ch = getCharAt(p);
-                if (ch === "[") {
+                if (ch === "[" && bracketCnt === 0) {
                     break;
                 } else if (ch === "," && bracketCnt === 0) {
                     eleCnt++;
@@ -879,13 +880,21 @@ window.DSParser = (function($, DSParser) {
                 }
                 p--;
             }
-            // find the first colon before [
-            while (p >= 0 && getCharAt(p) !== ":") {
-                p--;
+
+            if (previewMeta.startPage === 0 && p === 0 &&
+                ch === "[" && bracketCnt === 0)
+            {
+                isFirstLevelChild = true;
+            } else {
+                // find the first colon before [
+                while (p >= 0 && getCharAt(p) !== ":") {
+                    p--;
+                }
             }
         }
-
-        if (getCharAt(p) !== ":") {
+        if (isFirstLevelChild) {
+            jsonPath = "...[" + eleCnt + "]";
+        } else if (getCharAt(p) !== ":") {
             console.warn("cannot parse due to lack of data");
             jsonPath = "..." + getCharAt(cursor);
         } else {
