@@ -6,7 +6,6 @@ window.DSParser = (function($, DSParser) {
     var $formatList;
     var $dataPreview;
     var $previewContent;
-    var buffer;
     var buffers = [];
     var curUrl;
     var totalSize = 0;
@@ -18,6 +17,7 @@ window.DSParser = (function($, DSParser) {
     var containerPadding = 10;
     var isMouseDown = false;
     var fetchId = 0; // used to detect stale requests
+    var boxMin = 300;
 
     // const
     var previewApp = "vpFormatter";
@@ -46,48 +46,6 @@ window.DSParser = (function($, DSParser) {
             }
         }).setupListeners();
 
-        var $previewBox = $("#previewModeBox");
-        var $keysBox = $("#delimitersBox");
-
-        $previewBox.mousedown(function() {
-            $previewBox.css({"z-index": 1});
-            $keysBox.css({"z-index": 0});
-        });
-
-        $keysBox.mousedown(function() {
-            $previewBox.css({"z-index": 0});
-            $keysBox.css({"z-index": 1});
-        });
-
-        // TODO change z-index of dragged box so it's higher than other box
-        // handle window resizing
-        $previewBox.draggable({
-            handle: ".boxHeader", // #previewModeBox .boxHeader doesn't work =(
-            cursor: "-webkit-grabbing",
-            containment: "#dsParser .cardMain",
-            stop: rightAlignBox
-        });
-
-        $keysBox.draggable({
-            handle: ".boxHeader",
-            cursor: "-webkit-grabbing",
-            containment: "#dsParser .cardMain",
-            stop: rightAlignBox
-        });
-
-        function rightAlignBox(e, obj) {
-            var $box = obj.helper;
-            var cardWidth = $parserCard.width();
-            var right = cardWidth - (obj.position.left +
-                                        $box.outerWidth() +
-                                        parseInt($box.css("margin-right")));
-            $box.css({"left": "auto", "right": right});
-        }
-
-        $parserCard.find(".parserBox").on("click", ".resize", function() {
-            toggleBoxResize($(this));
-        });
-
         $parserCard.on("click", ".confirm", function() {
             submitForm();
         });
@@ -100,6 +58,7 @@ window.DSParser = (function($, DSParser) {
             xcTooltip.auto(this);
         });
 
+        setupBoxes();
         setupMenu();
         setupRowInput();
         setupInfScroll();
@@ -143,7 +102,6 @@ window.DSParser = (function($, DSParser) {
         $formatList.find("input").val("");
         $("#previewModeBox .boxBody").empty();
         $("#delimitersBox .boxBody ul").empty();
-        buffer = null;
         buffers = [];
         totalRows = null;
         keys = [];
@@ -174,17 +132,27 @@ window.DSParser = (function($, DSParser) {
         repositionBoxes();
     }
 
+    // makes sure boxes don't go off screen
     function repositionBoxes() {
         $parserCard.find(".parserBox").each(function() {
             var $box = $(this);
             if ($box.position().left < 0) {
-                // var width = $box.width();
-                var right = $parserCard.width() - ($box.outerWidth() +
-                    parseInt($box.css("margin-right")));
+                var boxWidth = $box.outerWidth();
+                var cardWidth = $parserCard.width();
+                var right = cardWidth - (boxWidth +
+                            parseInt($box.css("margin-right")));
+                right = Math.max(0, right);
                 $box.css({"right": right});
+                if (boxWidth > cardWidth) {
+                    $box.outerWidth(cardWidth);
+                }
             }
             var cardMainHeight = $parserCard.find(".cardMain").height();
             var boxHeight = $box.outerHeight();
+            if (boxHeight > cardMainHeight) {
+                boxHeight = cardMainHeight;
+                $box.outerHeight(boxHeight);
+            }
             if ($box.position().top + boxHeight > cardMainHeight) {
                 $box.css({"top": cardMainHeight - boxHeight});
             }
@@ -203,20 +171,6 @@ window.DSParser = (function($, DSParser) {
         });
     }
 
-    function toggleBoxResize($icon) {
-        var $box = $icon.closest(".parserBox");
-        if ($box.hasClass("minimized")) {
-            $box.removeClass("minimized");
-            var $sibling = $box.siblings(".parserBox");
-            if (isBoxCoveringSibling($box, $sibling)) {
-                $sibling.css({"top": $box.position().top + $box.outerHeight()});
-                repositionBoxes();
-            }
-        } else {
-            $box.addClass("minimized");
-        }
-    }
-
     function isBoxCoveringSibling($box, $sibling) {
         var boxTop = $box.position().top;
         var siblingTop = $sibling.position().top;
@@ -229,6 +183,93 @@ window.DSParser = (function($, DSParser) {
             }
         }
         return false;
+    }
+
+
+    function setupBoxes() {
+        var $boxes = $parserCard.find(".parserBox");
+
+        $boxes.mousedown(function() {
+            $(this).css({"z-index": 1});
+            $(this).siblings(".parserBox").css({"z-index": 0});
+        });
+
+        $boxes.draggable({
+            handle: ".boxHeader",
+            cursor: "-webkit-grabbing",
+            containment: "parent",
+            stop: function(e, ui) {
+                var $box = ui.helper;
+                var right = getRightPos($box);
+                $box.css({
+                    left: "auto",
+                    right: right
+                });
+            }
+        });
+
+        var containerWidth;
+
+        $boxes.resizable({
+            handles: "n, e, s, w, se, sw",
+            minHeight: boxMin,
+            minWidth: boxMin,
+            containment: "parent",
+            start: function(e, ui) {
+                var $box = ui.helper;
+                $box.css("left", $box.position().left);
+                containerWidth = $parserCard.find(".cardMain").width() -
+                                 parseInt($box.css("margin-right"));
+            },
+            resize: function(e, ui) {
+                if (ui.position.left + ui.size.width > containerWidth) {
+                    ui.helper.width(containerWidth - ui.position.left);
+                }
+            },
+            stop: function(e, ui) {
+                var $box = ui.helper;
+                var right = getRightPos($box);
+                $box.css({
+                    left: "auto",
+                    right: right
+                });
+            }
+        });
+
+        $boxes.on("click", ".xi-fullscreen", function() {
+            var $box = $(this).closest(".parserBox");
+            var $container = $parserCard.find(".cardMain");
+            var containerWidth = $container.width();
+            var containerHeight = $container.height();
+            $box.outerWidth(containerWidth - 22);
+            $box.outerHeight(containerHeight - 16);
+            $box.css({
+                "top": 4,
+                "left": "auto",
+                "right": 11
+            });
+        });
+
+         $boxes.on("click", ".xi-exit-fullscreen", function() {
+            var $box = $(this).closest(".parserBox");
+            var right = getRightPos($box);
+            $box.outerWidth(boxMin);
+            $box.outerHeight(boxMin);
+            $box.css({
+                "left": "auto",
+                "right": right
+            });
+        });
+
+        function getRightPos($box) {
+            var $container = $parserCard.find(".cardMain");
+            var containerWidth = $container.width();
+            // var containerHeight = $container.height();
+            var right = containerWidth - ($box.position().left +
+                                          $box.outerWidth() +
+                                          parseInt($box.css("margin-right")));
+            return right;
+        }
     }
 
     function setupMenu() {
@@ -351,10 +392,9 @@ window.DSParser = (function($, DSParser) {
 
     function setupInfScroll() {
         var prevScrollPos = 0;
-        var scrollTop = 0;
-        // var $container = $previewContent.parent();
-
+        var scrollTop;
         var scrollTimer;
+
         $dataPreview.scroll(function() {
             getScrollLineNum();
             clearTimeout(scrollTimer);
@@ -502,6 +542,8 @@ window.DSParser = (function($, DSParser) {
         .fail(function(error) {
             if (curFetchId === fetchId) {
                 handleError(error);
+            } else {
+                $parserCard.removeClass("loading fetchingRows");
             }
             deferred.reject();
         });
@@ -710,18 +752,19 @@ window.DSParser = (function($, DSParser) {
         if (res != null && res.start > -1) {
             var nodes = getTextNodes(element);
             range = document.createRange();
+            var firstBuffLen = buffers[0].length;
 
             // check if start is on 1st or 2nd page
-            if (res.start < buffers[0].length) {
+            if (res.start < firstBuffLen) {
                 range.setStart(nodes[0], res.start);
             } else {
-                range.setStart(nodes[1], res.start - buffers[0].length);
+                range.setStart(nodes[1], res.start - firstBuffLen);
             }
 
-            if (res.end < buffers[0].length) {
+            if (res.end < firstBuffLen) {
                 range.setEnd(nodes[0], res.end);
             } else {
-                range.setEnd(nodes[1], res.end - buffers[0].length);
+                range.setEnd(nodes[1], res.end - firstBuffLen);
             }
 
             sel = window.getSelection();
@@ -987,16 +1030,36 @@ window.DSParser = (function($, DSParser) {
 
     function getBufferedCharLength() {
         // XXX later may change the implementation
-        return buffer.length;
+        var charLen = 0;
+        for (var i = 0; i < buffers.length; i++) {
+            charLen += buffers[i].length;
+        }
+        return charLen;
     }
 
     function getCharAt(pos) {
         // XXX later may change the implementation
-        return buffer[pos];
+        var firstBuffLen = buffers[0].length;
+        if (pos < firstBuffLen) {
+            return buffers[0][pos];
+        } else {
+            return buffers[1][pos - firstBuffLen];
+        }
     }
 
     function getSubStr(start, end) {
-        return buffer.substring(start, end);
+        var firstBuffLen = buffers[0].length;
+        if (end < firstBuffLen) {
+            return buffers[0].substring(start, end);
+        } else if (start >= firstBuffLen) {
+            return buffers[1].substring(start - firstBuffLen,
+                                        end - firstBuffLen);
+        } else {
+            // between 2 buffers
+            var part1 = buffers[0].substring(start);
+            var part2 = buffers[1].substring(0, end - firstBuffLen);
+            return part1 + part2;
+        }
     }
 
     function calculateNumBytes(page, numPages) {
@@ -1125,7 +1188,6 @@ window.DSParser = (function($, DSParser) {
     // fetch
     function showContent(content, numPages, scrollTop) {
         buffers = [];
-        buffer = content;
         var $page;
         var firstContent = content;
         var secondContent = ""; // in case numPages === 2
@@ -1133,8 +1195,8 @@ window.DSParser = (function($, DSParser) {
 
         if (numPages === 2) {
             var firstPageSize = calculateNumBytes(previewMeta.startPage, 1);
-            firstContent = buffer.substr(0, firstPageSize);
-            secondContent = buffer.substr(firstPageSize);
+            firstContent = content.substr(0, firstPageSize);
+            secondContent = content.substr(firstPageSize);
             buffers = [firstContent, secondContent];
         } else {
             buffers = [firstContent];
@@ -1209,10 +1271,6 @@ window.DSParser = (function($, DSParser) {
         $dataPreview.find(".sizer").height(sizerHeight);
         $dataPreview.scrollTop(scrollTop);
         $parserCard.removeClass("fetchingRows");
-        buffer = buffers[0];
-        if (buffers[1]) {
-            buffer += buffers[1];
-        }
     }
 
 

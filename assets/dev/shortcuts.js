@@ -75,6 +75,20 @@ window.Shortcuts = (function($, Shortcuts) {
         }
     };
 
+    Shortcuts.toggleDebug = function(turnOn) {
+        if (turnOn) {
+            $('#shortcutSubMenu').find('.debugOff').show();
+            $('#shortcutSubMenu').find('.debugOn').hide();
+            xcLocalStorage.setItem("debugOn", "true");
+            window.debugOn = true;
+        } else {
+            $('#shortcutSubMenu').find('.debugOff').hide();
+            $('#shortcutSubMenu').find('.debugOn').show();
+            xcLocalStorage.removeItem("debugOn");
+            window.debugOn = false;
+        }
+    };
+
     Shortcuts.toggleAdmin = function(turnOn) {
         if (turnOn) {
             $('#shortcutSubMenu').find('.adminOff').show();
@@ -120,6 +134,12 @@ window.Shortcuts = (function($, Shortcuts) {
             autoLogin = false;
         }
 
+        if (xcLocalStorage.getItem("debugOn") === "true") {
+            window.debugOn = true;
+        } else {
+            window.debugOn = false;
+        }
+
         if (xcLocalStorage.getItem("verbose") === "true") {
             verbose = true;
         } else {
@@ -146,6 +166,7 @@ window.Shortcuts = (function($, Shortcuts) {
         Shortcuts.toggleVerbose(verbose);
         Shortcuts.toggleAdmin(gAdmin);
         Shortcuts.toggleJoinKey(gEnableJoinKeyCheck);
+        Shortcuts.toggleDebug(window.debugOn);
     };
 
     Shortcuts.remove = function () {
@@ -375,6 +396,8 @@ window.Shortcuts = (function($, Shortcuts) {
                         '<li class="verboseOn">Turn on verbose</li>' +
                         '<li class="adminOn">Turn on admin mode</li>' +
                         '<li class="adminOff">Turn off admin mode</li>' +
+                        '<li class="debugOn">Turn on debug mode</li>' +
+                        '<li class="debugOff">Turn off debug mode</li>' +
                     '</ul>' +
                 '</div>';
 
@@ -427,6 +450,14 @@ window.Shortcuts = (function($, Shortcuts) {
 
         $subMenu.on('mouseup', '.verboseOn', function() {
             Shortcuts.toggleVerbose(true);
+        });
+
+        $subMenu.on('mouseup', '.debugOff', function() {
+            Shortcuts.toggleDebug();
+        });
+
+        $subMenu.on('mouseup', '.debugOn', function() {
+            Shortcuts.toggleDebug(true);
         });
 
         $subMenu.on('mouseup', '.adminOff', function() {

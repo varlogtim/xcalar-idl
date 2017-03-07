@@ -1990,6 +1990,7 @@ table.datasetTable {
     .size(@height: ~"calc(100% - 5px)");
     .flex-display;
     .flex-direction(column);
+    overflow: hidden; // if parserBox overflows out
 
     &.fetchingRows {
         .cardTopMain, .cardMain {
@@ -2132,24 +2133,10 @@ table.datasetTable {
 
     .parserBox {
         .position(absolute, @right: 0px, @top: 10px);
-        .size(@width: 300px, @min-width: 300px);
+        .size(@width: 300px, @min-width: 300px, @height: 300px);
         border: 1px solid rgba(0, 0, 0, 0.2);
         margin-right: 11px; // for chrome scrollbar
         // XXX change margin-right according to browser scrollbar width
-        &.minimized {
-            .resize {
-                .xi-expand {
-                    display: block;
-                }
-                .xi-minimize {
-                    display: none;
-                }
-            }
-
-            .boxBody, .boxFooter {
-                display: none;
-            }
-        }
 
         .boxHeader {
             height: 30px;
@@ -2165,20 +2152,21 @@ table.datasetTable {
         }
         .resize {
             height: 100%;
-            padding: 0px 5px;
             float: right;
             cursor: pointer;
             .icon {
                 margin-top: 8px;
                 font-size: 15px;
-            }
-            .xi-expand {
-                display: none;
+                padding: 0px 5px 0px 3px;
+
+                &:first-child {
+                    padding-right: 2px;
+                }
             }
         }
 
         .boxBody {
-            height: 250px;
+            height: ~"calc(100% - 30px)";
             padding: 10px;
             background-color: @color-white;
         }
@@ -2198,7 +2186,7 @@ table.datasetTable {
     }
 
     #delimitersBox {
-        top: 295px;
+        top: 310px;
 
         ul {
             padding: 5px 10px;

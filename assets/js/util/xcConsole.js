@@ -1,5 +1,5 @@
 window.xcConsole = (function(xcConsole, $) {
-    window.debugOn = false;
+    window.debugOn = window.debugOn || false;
     var showThrift = false;
     var logs = [];
 
