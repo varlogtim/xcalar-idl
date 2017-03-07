@@ -6,19 +6,18 @@ window.DSParser = (function($, DSParser) {
     var $formatList;
     var $dataPreview;
     var $previewContent;
-    var offset;
     var buffer;
     var buffers = [];
-    var cardId;
     var curUrl;
     var totalSize = 0;
     var keys;
     var previewMeta; // will have lineLengths, maxLen, tmpPath, totalLines
-    var rowHeight = 18;
+    var lineHeight = 18;
     var linesPerPage = 100;
-    var pageHeight = rowHeight * linesPerPage;
+    var pageHeight = lineHeight * linesPerPage;
     var containerPadding = 10;
     var isMouseDown = false;
+    var fetchId = 0; // used to detect stale requests
 
     // const
     var previewApp = "ds_parser_preview";
@@ -106,7 +105,9 @@ window.DSParser = (function($, DSParser) {
     DSParser.show = function(url) {
         DSForm.switchView(DSForm.View.Parser);
         resetView(url);
-        previewContent(url, true, 0, 1);
+        var startPage = 0;
+        var numPages = 1;
+        previewContent(startPage, numPages);
         resetScrolling();
     };
 
@@ -117,12 +118,12 @@ window.DSParser = (function($, DSParser) {
         xcTooltip.changeText($fileName, url);
         $formatList.find("input").val("");
         $("#delimitersBox .boxBody ul").empty();
-        offset = 0;
         buffer = null;
+        buffers = [];
         totalRows = null;
         keys = [];
         previewMeta = null;
-        cardId = xcHelper.randName("dsParser");
+        fetchId++;
         curUrl = url;
         resetRowInput();
         $dataPreview.find(".sizer").height(0);
@@ -209,7 +210,7 @@ window.DSParser = (function($, DSParser) {
 
             var tag = $menu.data("tag");
             var type = $li.data("action");
-            var keyOffset = offset + $menu.data("end");
+            var keyOffset = $menu.data("end");
             populateKey(tag, type, keyOffset);
         });
     }
@@ -246,11 +247,22 @@ window.DSParser = (function($, DSParser) {
 
             val = Math.min(previewMeta.totalLines, val);
             val = Math.max(0, val);
-            var page = Math.floor(val / linesPerPage);
-            val = page * linesPerPage;
             $input.data("val", val).val(val);
             
-            previewContent(curUrl, false, page, 1);
+            var page = Math.floor(val / linesPerPage);
+            var padding = containerPadding;
+            if (val === 0) {
+                padding = 0;
+            }
+            var newScrollTop = val * lineHeight + padding;
+            var numPages = 1;
+            var numVisibleLines = Math.ceil($dataPreview.outerHeight() /
+                                            lineHeight);
+            if (Math.floor((val + numVisibleLines) / linesPerPage) !== page) {
+                numPages++;
+            }
+
+            previewContent(page, numPages, newScrollTop);
         });
 
         $input.blur(function() {
@@ -267,9 +279,15 @@ window.DSParser = (function($, DSParser) {
         var scrollTimer;
         $dataPreview.scroll(function() {
             getScrollLineNum();
+            clearTimeout(scrollTimer);
             if (isMouseDown) {
                 return;
             }
+
+            // when scrolling stops, will check position and see if we need
+            // to fetch rows
+            scrollTimer = setTimeout(checkIfScrolled, 300);
+
             if ($parserCard.hasClass("fetchingRows")) {
                 return;
             }
@@ -286,14 +304,15 @@ window.DSParser = (function($, DSParser) {
                 return;
             }
         });
-    } 
+    }
 
     function checkIfNeedFetch(up) {
         if (!previewMeta) {
             return; // scroll may be triggered when refreshing with new data
         }
-        var scrollTop = Math.max(0, $dataPreview.scrollTop() - containerPadding);
-        
+        var scrollTop = Math.max(0, $dataPreview.scrollTop() -
+                                    containerPadding);
+
         if (up) {
             var startPage = Math.floor(scrollTop / pageHeight);
             if (startPage < previewMeta.startPage) {
@@ -312,23 +331,37 @@ window.DSParser = (function($, DSParser) {
         if (!previewMeta) {
             return; // scroll may be triggered when refreshing with new data
         }
-        var scrollTop = Math.max(0, $dataPreview.scrollTop() - containerPadding);
+        var scrollTop = Math.max(0, $dataPreview.scrollTop() -
+                                    containerPadding);
         var topPage = Math.floor(scrollTop / pageHeight);
-        var botPage = Math.floor((scrollTop + $dataPreview[0].offsetHeight) / pageHeight);
-        console.log(topPage, botPage);
-        var visiblePages = [];     
+        var botPage = Math.floor((scrollTop + $dataPreview[0].offsetHeight) /
+                                 pageHeight);
+
+        if (previewMeta.startPage === topPage &&
+            previewMeta.endPage === botPage) {
+            return;
+        } else {
+            // XXX need to do a better check of which pages to fetch
+            var numPages = 1;
+            if (topPage !== botPage) {
+                numPages = 2;
+            }
+            previewContent(topPage, numPages, $dataPreview.scrollTop());
+        }
     }
 
     function getScrollHeight() {
         var numRows = previewMeta.totalLines;
-        var scrollHeight = Math.max(rowHeight * numRows,
+        var scrollHeight = Math.max(lineHeight * numRows,
                                     $previewContent.height());
                                     // $previewContent.height() - 10);
 
         return (scrollHeight);
     }
 
-    function previewContent(url, newContent, pageNum, numPages) {
+    function previewContent(pageNum, numPages, scrollTop) {
+        var deferred = jQuery.Deferred();
+
         $parserCard.removeClass("error");
         if (newContent) {
             $parserCard.addClass("loading");
@@ -336,58 +369,66 @@ window.DSParser = (function($, DSParser) {
             $parserCard.addClass("fetchingRows");
         }
 
-        var currentId = cardId;
+        var url = curUrl;
+        var newContent = previewMeta == null;
         var promise = newContent ? detectFormat(url) : PromiseHelper.resolve();
+        fetchId++;
+        var curFetchId = fetchId;
 
         promise
         .then(function() {
-            if (currentId === cardId) {
-                if (newContent) {
-                    return beautifier(url);
-                } else {
-                    return PromiseHelper.resolve();
-                }
-                
-            } else {
-                return PromiseHelper.reject(notSameCardError);
-            }
-        })
-        .then(function(meta) {
-            if (currentId !== cardId) {
+            if (curFetchId !== fetchId) {
                 return PromiseHelper.reject(notSameCardError);
             }
 
-            var numBytes;
+            if (newContent) {
+                return beautifier(url);
+            } else {
+                return PromiseHelper.resolve();
+            }
+        })
+        .then(function(meta) {
+            if (curFetchId !== fetchId) {
+                return PromiseHelper.reject(notSameCardError);
+            }
+
+            var offset;
             if (newContent) {
                 setPreviewMeta(meta);
                 updateTotalNumRows();
-                numBytes = calculateNumBytes(previewMeta.startPage, 1);
                 offset = 0;
             } else {
-                numBytes = calculateNumBytes(pageNum, numPages);
                 offset = previewMeta.lineLengths[pageNum];
             }
+            var numBytes = calculateNumBytes(pageNum, numPages);
 
             return XcalarPreview(previewMeta.parsedPath, null, false, numBytes,
                                  offset);
         })
         .then(function(res) {
-            if (currentId === cardId) {
-                $parserCard.removeClass("loading fetchingRows");
-                if (newContent) {
-                    totalSize = res.totalDataSize;
-                } else {
-                    previewMeta.startPage = pageNum;
-                    previewMeta.endPage = pageNum;
-                }
-                showContent(res.buffer, numPages);
+            if (curFetchId !== fetchId) {
+                deferred.reject();
+                return;
             }
+            if (newContent) {
+                totalSize = res.totalDataSize;
+            } else {
+                previewMeta.startPage = pageNum;
+                previewMeta.endPage = pageNum + numPages - 1;
+            }
+            showContent(res.buffer, numPages, scrollTop);
+            $parserCard.removeClass("loading fetchingRows");
+
+            deferred.resolve();
         })
         .fail(function(error) {
-            if (currentId === cardId) {
+            if (curFetchId !== fetchId) {
                 handleError(error);
             }
+            deferred.reject();
         });
+
+        return deferred.promise();
     }
 
 
@@ -398,12 +439,14 @@ window.DSParser = (function($, DSParser) {
         previewMeta.numPages = meta.lineLengths.length;
         previewMeta.parsedPath = parseNoProtocolPath(meta.tmpPath);
         console.log(previewMeta);
-    }      
+    }
 
+    // used for scrolling and appending or prepending 1 block
     function fetchRows(newOffset, up) {
         var deferred = jQuery.Deferred();
-       
-        var currentId = cardId;
+
+        fetchId++;
+        var curFetchId = fetchId;
         var numBytes;
         if (up) {
             numBytes = calculateNumBytes(previewMeta.startPage - 1, 1);
@@ -414,21 +457,20 @@ window.DSParser = (function($, DSParser) {
         if (newOffset >= totalSize || newOffset < 0) {
             return PromiseHelper.resolve();
         }
-        offet = newOffset;
 
         $parserCard.addClass("fetchingRows");
 
         XcalarPreview(previewMeta.parsedPath, null, false, numBytes, newOffset)
         .then(function(res) {
-            if (currentId === cardId) {
+            if (curFetchId === fetchId) {
                 addContent(res.buffer, up);
             }
         })
         .fail(function() {
-            if (currentId === cardId) {
+            if (curFetchId === fetchId) {
                 $parserCard.removeClass("fetchingRows");
                 // handleError or different error handler for scrolling errors
-            } 
+            }
         })
         .always(function() {
             deferred.resolve();
@@ -496,9 +538,9 @@ window.DSParser = (function($, DSParser) {
         // XXX translate bytes to number of rows
         var inputWidth = 50;
         var numDigits = ("" + previewMeta.totalLines).length;
-        inputWidth = Math.max(inputWidth, 10 + (numDigits * 8));
+        inputWidth = Math.max(inputWidth, 20 + (numDigits * 9));
 
-        $("#parserRowInput").width(inputWidth);
+        $("#parserRowInput").outerWidth(inputWidth);
         $parserCard.find(".totalRows").text("of " + previewMeta.totalLines);
     }
 
@@ -817,12 +859,13 @@ window.DSParser = (function($, DSParser) {
         var numBytes  = 0;
 
         for (var i = 0; i < numPages; i++) {
-            if (page + 1 === lineLengths.length) {
+            if (page + 1 >= lineLengths.length) {
                 numBytes += (totalSize - lineLengths[page]);
+                break;
             } else {
                 numBytes += (lineLengths[page + 1] - lineLengths[page]);
+                page++;
             }
-            page++;
         }
         return numBytes;
     }
@@ -929,36 +972,41 @@ window.DSParser = (function($, DSParser) {
             $parserCard.removeClass("submitting");
             $dataPreview.off("mousedown.dsparser");
             $(document).off("mouseup.dsparser");
+            isMouseDown = false;
         });
 
         return promise;
     }
 
-    function showContent(content, numPages) {
-        buffers = [content];
+    // called when jumping to a line via input, dragging scrollbar, or on first
+    // fetch
+    function showContent(content, numPages, scrollTop) {
+        buffers = [];
         buffer = content;
         var $page;
-        var pageHtml = "";
+        var firstContent = content;
+        var secondContent = ""; // in case numPages === 2
         $previewContent.empty();
-        // XXX will refactor
-        if (numPages === 2) {
-            var firstPageSize = previewMeta.lineLengths[previewMeta.startPage + 1];
-            var firstContent = buffer.substr(0, firstPageSize);
-            var secondContent = buffer.substr(firstPageSize);
-            
-            $page = $(getPageHtml(previewMeta.startPage));
-            $page.text(firstContent);  
-            $previewContent.append($page);
 
+        if (numPages === 2) {
+            var firstPageSize = calculateNumBytes(previewMeta.startPage, 1);
+            firstContent = buffer.substr(0, firstPageSize);
+            secondContent = buffer.substr(firstPageSize);
+            buffers = [firstContent, secondContent];
+        } else {
+            buffers = [firstContent];
+        }
+
+        $page = $(getPageHtml(previewMeta.startPage));
+        $page.text(firstContent);
+        $previewContent.append($page);
+
+        if (secondContent.length) {
             $page = $(getPageHtml(previewMeta.startPage + 1));
             $page.text(secondContent);
             $previewContent.append($page);
-        } else {
-            $page = $(getPageHtml(previewMeta.startPage));
-            $page.text(content);
-            $previewContent.append($page);
         }
-        
+
         $dataPreview.find(".sizer").height(previewMeta.startPage * pageHeight);
         var padding;
         if (previewMeta.startPage === 0) {
@@ -966,7 +1014,13 @@ window.DSParser = (function($, DSParser) {
         } else {
             padding = containerPadding;
         }
-        $dataPreview.scrollTop(previewMeta.startPage * pageHeight + padding);
+        if (scrollTop != null) {
+            $dataPreview.scrollTop(scrollTop);
+        } else {
+            $dataPreview.scrollTop(previewMeta.startPage * pageHeight +
+                                    padding);
+        }
+
         $previewContent.parent().height(getScrollHeight());
         getScrollLineNum();
     }
@@ -1077,6 +1131,21 @@ window.DSParser = (function($, DSParser) {
         return deferred.promise();
     }
 
+    function xmlParser() {
+        var options = {
+            "prettyPath": previewMeta.tmpPath,
+            "keys": keys
+        };
+
+        var inputStr = JSON.stringify(options);
+        return XcalarAppExecute(xmlApp, false, inputStr);
+    }
+
+    function jsonParser() {
+        // XXX not implement yet
+        return PromiseHelper.reject({"error": DSParserTStr.NotSupport});
+    }
+
     function closeCard() {
         DSForm.switchView(DSForm.View.Preview);
         resetView();
@@ -1093,10 +1162,10 @@ window.DSParser = (function($, DSParser) {
     function updateRowInput(lineNum) {
         $("#parserRowInput").val(lineNum).data("val", lineNum);
     }
-   
+    
     function getScrollLineNum() {
         var lineNum = Math.floor(($dataPreview.scrollTop() - containerPadding) /
-                                  rowHeight);
+                                  lineHeight);
         lineNum = Math.max(0, lineNum);
         updateRowInput(lineNum);
     }
