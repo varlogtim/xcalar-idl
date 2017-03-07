@@ -46,19 +46,43 @@ window.DSParser = (function($, DSParser) {
             }
         }).setupListeners();
 
-        // TODO change z-index of dragged box so it's higher than other box
-        // handle window resizing
-        $("#previewModeBox").draggable({
-            handle: ".boxHeader", // #previewModeBox .boxHeader doesn't work =(
-            cursor: "-webkit-grabbing",
-            containment: "#dsParser .cardMain"
+        var $previewBox = $("#previewModeBox");
+        var $keysBox = $("#delimitersBox");
+
+        $previewBox.mousedown(function() {
+            $previewBox.css({"z-index": 1});
+            $keysBox.css({"z-index": 0});
         });
 
-        $("#delimitersBox").draggable({
+        $keysBox.mousedown(function() {
+            $previewBox.css({"z-index": 0});
+            $keysBox.css({"z-index": 1});
+        });
+
+        // TODO change z-index of dragged box so it's higher than other box
+        // handle window resizing
+        $previewBox.draggable({
+            handle: ".boxHeader", // #previewModeBox .boxHeader doesn't work =(
+            cursor: "-webkit-grabbing",
+            containment: "#dsParser .cardMain",
+            stop: rightAlignBox
+        });
+
+        $keysBox.draggable({
             handle: ".boxHeader",
             cursor: "-webkit-grabbing",
-            containment: "#dsParser .cardMain"
+            containment: "#dsParser .cardMain",
+            stop: rightAlignBox
         });
+
+        function rightAlignBox(e, obj) {
+            var $box = obj.helper;
+            var cardWidth = $parserCard.width();
+            var right = cardWidth - (obj.position.left +
+                                        $box.outerWidth() +
+                                        parseInt($box.css("margin-right")));
+            $box.css({"left": "auto", "right": right});
+        }
 
         $parserCard.find(".parserBox").on("click", ".resize", function() {
             toggleBoxResize($(this));
@@ -109,6 +133,7 @@ window.DSParser = (function($, DSParser) {
         var numPages = 1;
         previewContent(startPage, numPages);
         resetScrolling();
+        resetWinResize();
     };
 
     function resetView(url) {
@@ -131,6 +156,41 @@ window.DSParser = (function($, DSParser) {
         $dataPreview.scrollTop(0);
     }
 
+    // called after clicking next OR close
+    function cleanupCard() {
+        $dataPreview.off("mousedown.dsparser");
+        $(document).off("mouseup.dsparser");
+        isMouseDown = false;
+        $(window).off("resize.dsparser");
+    }
+
+    function resetWinResize() {
+        var timeout;
+        $(window).on("resize.dsparser", function() {
+            clearTimeout(timeout);
+            timeout = setTimeout(repositionBoxes, 100);
+        });
+
+        repositionBoxes();
+    }
+
+    function repositionBoxes() {
+        $parserCard.find(".parserBox").each(function() {
+            var $box = $(this);
+            if ($box.position().left < 0) {
+                var width = $box.width();
+                var right = $parserCard.width() - ($box.outerWidth() +
+                    parseInt($box.css("margin-right")));
+                $box.css({"right": right});
+            }
+            var cardMainHeight = $parserCard.find(".cardMain").height();
+            var boxHeight = $box.outerHeight()
+            if ($box.position().top +  boxHeight > cardMainHeight) {
+                $box.css({"top": cardMainHeight - boxHeight});
+            }
+        });
+    }
+
     function resetScrolling() {
         $dataPreview.on("mousedown.dsparser", function() {
             isMouseDown = true;
@@ -147,9 +207,28 @@ window.DSParser = (function($, DSParser) {
         var $box = $icon.closest(".parserBox");
         if ($box.hasClass("minimized")) {
             $box.removeClass("minimized");
+            var $sibling = $box.siblings(".parserBox");
+            if (isBoxCoveringSibling($box, $sibling)) {
+                $sibling.css({"top": $box.position().top + $box.outerHeight()});
+                repositionBoxes();
+            }
         } else {
             $box.addClass("minimized");
         }
+    }
+
+    function isBoxCoveringSibling($box, $sibling) {
+        var boxTop = $box.position().top;
+        var siblingTop = $sibling.position().top;
+        if ((boxTop < siblingTop) && (boxTop + $box.height() > siblingTop)) {
+            if (($box.position().left + $box.width() >
+                $sibling.position().left) &&
+                $box.position().left <
+                ($sibling.position().left +$sibling.width())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     function setupMenu() {
@@ -970,9 +1049,7 @@ window.DSParser = (function($, DSParser) {
         })
         .always(function() {
             $parserCard.removeClass("submitting");
-            $dataPreview.off("mousedown.dsparser");
-            $(document).off("mouseup.dsparser");
-            isMouseDown = false;
+            cleanupCard();
         });
 
         return promise;
@@ -1149,9 +1226,7 @@ window.DSParser = (function($, DSParser) {
     function closeCard() {
         DSForm.switchView(DSForm.View.Preview);
         resetView();
-        $dataPreview.off("mousedown.dsparser");
-        $(document).off("mouseup.dsparser");
-        isMouseDown = false;
+        cleanupCard();
     }
 
     function resetRowInput() {
