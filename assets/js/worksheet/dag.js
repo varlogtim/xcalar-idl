@@ -2864,26 +2864,27 @@ window.Dag = (function($, Dag) {
                 // backName as curColName
                 var colCreatedHere = false; // if this is the first place
                 // where descendent column has no value
+
+                // make a copy so we have original for every table iteration
+                var sourceColNamesCopy = xcHelper.deepCopy(sourceColNames);
                 for (var j = 0; j < cols.length; j++) {
                     // skip DATA COL
                     if (cols[j].isDATACol()) {
                         continue;
                     }
                     var srcNames;
-                    var backColName = cols[j].getBackColName();
-                    if (!backColName) {
-                        backColName = cols[j].getFrontColName();
-                    }
+                    var backColName = cols[j].getBackColName() ||
+                                      cols[j].getFrontColName();
                     //XX backColName could be blank
 
+                    // check if table has column of the same name
                     if (!foundSameColName && backColName === curColName) {
                         foundSameColName = true;
-                        var isEmpty = cols[j].isEmptyCol();
                         srcNames = getSourceColNames(cols[j].func);
                         highlightColumnHelper($dagWrap, cols[j], srcNames,
                                                     tableIndex, nodes,
                                                     backColName);
-                        colCreatedHere = isEmpty && !isEmptyCol;
+                        colCreatedHere = cols[j].isEmptyCol() && !isEmptyCol;
                         if (colCreatedHere) {
                             // this table is where the column became non-empty,
                              // continue and look through sourceColNames for
@@ -2892,19 +2893,21 @@ window.Dag = (function($, Dag) {
                             break;
                         }
                     } else {
-                        var colNameIndex = sourceColNames.indexOf(backColName);
-                        if (colNameIndex !== -1) {
-                            if (!srcNames) {
-                                srcNames = getSourceColNames(cols[j].func);
-                            }
-                            sourceColNames.splice(colNameIndex, 1);
+                        // table doesn't have column of that name but check if
+                        // table has column that matches target column's
+                        // derivatives
+                        var colNameIndex = sourceColNamesCopy.indexOf(backColName);
+                        if (colNameIndex > -1) {
+                            srcNames = getSourceColNames(cols[j].func);
+
+                            sourceColNamesCopy.splice(colNameIndex, 1);
                             highlightColumnHelper($dagWrap, cols[j], srcNames,
                                                         tableIndex, nodes,
                                                         backColName);
                         }
                     }
 
-                    if (sourceColNames.length === 0 && colCreatedHere) {
+                    if (sourceColNamesCopy.length === 0 && colCreatedHere) {
                         break;
                     }
                 }
@@ -2913,7 +2916,7 @@ window.Dag = (function($, Dag) {
                 var $dagTable = $dagWrap
                         .find('.dagTable[data-index="' + tableIndex + '"]');
                 if ($dagTable.hasClass('Dropped')) {
-                    findColumnSource(sourceColNames, $dagWrap, tableIndex,
+                    findColumnSource(sourceColNamesCopy, $dagWrap, tableIndex,
                                      nodes, curColName);
                 } else {
                     // table has no data, could be orphaned
