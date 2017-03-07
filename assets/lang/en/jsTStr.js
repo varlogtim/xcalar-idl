@@ -880,7 +880,7 @@ JsonModalTStr = {
   'MultiSelectMode': 'Multi Select Mode',
   'Original': 'Original',
   'OriginalTip': 'View the original data fields',
-  'ProjectMode': 'Projection Mode',
+  'ProjectMode': 'Project Mode',
   'PullAll': 'Pull all fields',
   'RemoveCol': 'Remove this panel',
   'SeeAll': 'See All',

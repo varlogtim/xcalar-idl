@@ -10,7 +10,11 @@
         <section class="topDropdowns">
           <div>
             <div class="subHeading clearfix">
-              <div><%= dicts.joinView.JoinType %>:</div>
+              <div><%= dicts.joinView.JoinType %>:
+                <div class="hint csHelp" data-topic="joinTables" title="" data-toggle="tooltip" data-container="body" data-original-title="Click to open up Xcalar Help for more information">
+                  <i class="icon xi-help fa-12"></i>
+                </div>
+              </div>
             </div>
             <div id="joinType" class="dropDownList">
               <div class="text"><%= dicts.joinView.InnerJoin %></div>
