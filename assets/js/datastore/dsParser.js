@@ -116,7 +116,7 @@ window.DSParser = (function($, DSParser) {
     }
 
     function setApp() {
-        var previewAppStr = "import sys, json, re, random\nfrom lxml import etree as ET\n\ndef findLongestLineLength(s):\n    maxLen = 0\n    curSum = 0\n    lineNo = 0\n    lineLengths = []\n    for line in s.split(\"\\n\"):\n        if lineNo % 100 == 0:\n            lineLengths.append(curSum)\n        lineLen = len(line)\n        curSum += lineLen + 1\n        if lineLen > maxLen:\n            maxLen = lineLen\n        lineNo += 1\n    return (lineNo, maxLen, lineLengths)\n\ndef prettyPrintJson(inp, tmpp):\n    structs = json.load(open(inp, \"rb\"))\n    prettyString = json.dumps(structs, indent=2)\n    fout = open(tmpp, \"wb\")\n    fout.write(prettyString)\n    fout.close()\n    return findLongestLineLength(prettyString)\n\ndef prettyPrintXml(inp, tmpp):\n    parser = ET.XMLParser(remove_blank_text=True)\n    root = ET.parse(inp, parser).getroot()\n    prettyString = ET.tostring(root, pretty_print=True)\n    fout = open(tmpp, \"wb\")\n    fout.write(prettyString)\n    fout.close()\n    return findLongestLineLength(prettyString)\n\ndef main(inBlob):\n    arguments = json.loads(inBlob)\n    outPath = \"/tmp/vp-\" + str(random.randint(0, 1000000)) + \".\" + arguments[\"format\"]\n    if (arguments[\"format\"] == \"xml\"):\n        (total, maxLen, lineLengths) = prettyPrintXml(arguments[\"path\"], outPath)\n    elif (arguments[\"format\"] == \"json\"):\n        (total, maxLen, lineLengths) = prettyPrintJson(arguments[\"path\"], outPath)\n    return json.dumps({\"maxLen\": maxLen, \"lineLengths\": lineLengths, \"tmpPath\": outPath, \"totalLines\": total})"
+        var previewAppStr = "import sys, json, re, random, hashlib\nfrom lxml import etree as ET\n\ndef getMeta(s, ssf, isArray):\n    for k in s:\n        if isArray:\n            value = k\n        else:\n            value = s[k]\n        if isinstance(value, str) or isinstance(value, unicode):\n            if isArray:\n                if \"String\" not in ssf:\n                    ssf[\"String\"] = True\n            else:\n                if k not in ssf:\n                    ssf[k] = {}\n                ssf[k][\"String\"] = True\n        elif isinstance(value, float):\n            if isArray:\n                if \"Float\" not in ssf:\n                    ssf[\"Float\"] = True\n            else:\n                if k not in ssf:\n                    ssf[k] = {}\n                ssf[k][\"Float\"] = True\n        elif isinstance(value, int):\n            if isArray:\n                if \"Integer\" not in ssf:\n                    ssf[\"Integer\"] = True\n            else:\n                if k not in ssf:\n                    ssf[k] = {}\n                ssf[k][\"Integer\"] = True\n        elif isinstance(value, bool):\n            if isArray:\n                if \"Boolean\" not in ssf:\n                    ssf[\"Boolean\"] = True\n            else:\n                if k not in ssf:\n                    ssf[k] = {}\n                ssf[k][\"Boolean\"] = True\n        elif isinstance(value, dict):\n            if isArray:\n                if \"Object\" not in ssf:\n                    ssf[\"Object\"] = {}\n                getMeta(value, ssf[\"Object\"], False)\n            else:\n                if k not in ssf:\n                    ssf[k] = {}\n                if \"Object\" not in ssf[k]:\n                    ssf[k][\"Object\"] = {}\n                getMeta(value, ssf[k][\"Object\"], False)\n        elif isinstance(value, list):\n            if isArray:\n                if \"Array\" not in ssf:\n                    ssf[\"Array\"] = {}\n                getMeta(value, ssf[\"Array\"], True)\n            else:\n                if k not in ssf:\n                    ssf[k] = {}\n                if \"Array\" not in ssf[k]:\n                    ssf[k][\"Array\"] = {}\n                getMeta(value, ssf[k][\"Array\"], True)\n        else:\n            print value\n            print type(value)\n\ndef getMetaWrapper(s):\n    d = {}\n    if isinstance(s, list):\n        getMeta(s, d, True)\n    else:\n        getMeta(s, d, False)\n    return d\n\ndef findLongestLineLength(s):\n    maxLen = 0\n    curSum = 0\n    lineNo = 0\n    lineLengths = []\n    for line in s.split(\"\\n\"):\n        if lineNo % 100 == 0:\n            lineLengths.append(curSum)\n        lineLen = len(line)\n        curSum += lineLen + 1\n        if lineLen > maxLen:\n            maxLen = lineLen\n        lineNo += 1\n    return (lineNo, maxLen, lineLengths)\n\ndef prettyPrintJson(inp, tmpp, metap):\n    structs = json.load(open(inp, \"rb\"))\n    prettyString = json.dumps(structs, indent=2)\n    fout = open(tmpp, \"wb\")\n    fout.write(prettyString)\n    fout.close()\n    metaPrettyString = json.dumps(getMetaWrapper(structs), indent=2)\n    fout = open(metap, \"wb\")\n    fout.write(metaPrettyString)\n    fout.close()\n    return (findLongestLineLength(prettyString), findLongestLineLength(\n            metaPrettyString))\n\ndef constructXml(elements, root):\n    for e in elements:\n        elems = root.findall(\"./[\" + e.tag + \"]\")\n        if len(elems) == 0:\n            newElem = ET.SubElement(root, e.tag)\n        else:\n            newElem = elems[0]\n        constructXml(e.findall(\"./\"), newElem)\n\ndef constructXmlMeta(root):\n    prettyRoot = ET.Element(root.tag)\n    constructXml(root.findall(\"./\"), prettyRoot)\n    return prettyRoot\n\ndef prettyPrintXml(inp, tmpp, metap):\n    parser = ET.XMLParser(remove_blank_text=True)\n    try:\n        root = ET.parse(inp, parser).getroot()\n    except:\n        parser.feed(\"<xcRecord>\")\n        parser.feed(open(inp).read().decode(\"utf-8\", \"ignore\").encode(\"utf-8\"))\n        parser.feed(\"</xcRecord>\")\n        root = parser.close()\n    prettyString = ET.tostring(root, pretty_print=True)\n    fout = open(tmpp, \"wb\")\n    fout.write(prettyString)\n    fout.close()\n    prettyRoot = constructXmlMeta(root)\n    metaPrettyString = ET.tostring(prettyRoot, pretty_print=True)\n    fout = open(metap, \"wb\")\n    fout.write(metaPrettyString)\n    fout.close()\n    return (findLongestLineLength(prettyString), findLongestLineLength(\n            metaPrettyString))\n\ndef main(inBlob):\n    arguments = json.loads(inBlob)\n    userName = arguments[\"user\"]\n    sessionName = arguments[\"session\"]\n    hashName = hashlib.md5(userName + \"-\" + sessionName).hexdigest()\n    outPath = \"/tmp/vp-\" + str(hashName)\n    metaOutPath = \"/tmp/mvp-\" + str(hashName)\n    if (arguments[\"format\"] == \"xml\"):\n         ((total, maxLen, lineLengths),\n         (metaTotalLines, metaMaxLen, metaLineLengths)) = prettyPrintXml(\n                                                          arguments[\"path\"],\n                                                          outPath, metaOutPath)\n    elif (arguments[\"format\"] == \"json\"):\n        ((total, maxLen, lineLengths),\n         (metaTotalLines, metaMaxLen, metaLineLengths)) = prettyPrintJson(\n                                                          arguments[\"path\"],\n                                                          outPath, metaOutPath)\n    return json.dumps({\"maxLen\": maxLen, \"lineLengths\": lineLengths,\n                       \"tmpPath\": outPath, \"totalLines\": total, \"meta\":{\n            \"path\": metaOutPath, \"lineLengths\": metaLineLengths,\n            \"totalLines\":metaTotalLines, \"maxLen\": metaMaxLen\n        }})"
         XcalarAppSet(previewApp, "Python", "Import", previewAppStr);
 
         var xmlAppStr = "import sys, json, re\nfrom lxml import etree as ET\nimport xmltodict\n\ndef findFullXmlPath(keyArray, inp):\n    #keyArray must be of the form [(\"key\", characterOffset)]\n    sortedArray = sorted(keyArray, key=lambda (key, offset): offset)\n    initialFile = open(inp, \"r\").read()\n    segments = []\n    prevIndex = 0\n    for (keyPartialName, charOffset) in sortedArray:\n        #explode initialFile at the correct places\n        segments.append(initialFile[prevIndex:charOffset])\n        prevIndex = charOffset\n    segments.append(initialFile[prevIndex:])\n    withXcTags = \"\"\n    for idx in xrange(len(segments)-1):\n        withXcTags += segments[idx]\n        withXcTags += \"<xctag></xctag>\"\n        #print str(idx) + \": >>\" + segments[idx][-20:] + \"<xctag></xctag>\" + segments[idx + 1][:20]\n    withXcTags += segments[-1]\n    root = ET.fromstring(withXcTags)\n    allObj = root.findall(\".//xctag\")\n    paths = []\n    tree = ET.ElementTree(root)\n    for obj in allObj:\n        path = tree.getpath(obj.getparent())\n        path = re.sub(r\"[\\[0-9+\\]]\", \"\", path)\n        paths.append(path)\n    return paths\n\ndef constructRecords(keyArray, prettyIn):\n    # keyArray must be of the form [(key, characterOffset, type)]\n    # where type == \"full\" or \"partial\"\n    fullKeyArray = []\n    partialPaths = []\n    fullPaths = []\n    partialElements = []\n    fullElements = []\n    for k, o, t in keyArray:\n        if t == \"full\":\n            fullKeyArray.append((k, o))\n        else:\n            partialPaths.append(k)\n    fullPaths = findFullXmlPath(fullKeyArray, prettyIn)\n    return \"\"\"\nimport sys, json, re\nfrom lxml import etree as ET\nimport xmltodict\ndef parser(inp, ins):\n    # Find all partials\n    root = ET.fromstring(ins.read())\n    tree = ET.ElementTree(root)\n\n    partialPaths = \"\"\" + json.dumps(partialPaths) + \"\"\"\n    fullPaths = \"\"\" + json.dumps(fullPaths) + \"\"\"\n\n    if len(partialPaths):\n        eString = \".//*[self::\" + \" or self::\".join(partialPaths) + \"]\"\n        print eString\n        partialElements = root.xpath(eString)\n        for element in partialElements:\n            elementDict = xmltodict.parse(ET.tostring(element))\n            elementDict[\"xcXmlPath\"] = tree.getpath(element)\n            elementDict[\"xcMethod\"] = \"partial\"\n            yield elementDict\n\n    for fullPath in fullPaths:\n        fullElements = root.xpath(fullPath)\n        for element in fullElements:\n            elementDict = xmltodict.parse(ET.tostring(element))\n            elementDict[\"xcXmlPath\"] = tree.getpath(element)\n            elementDict[\"xcMethod\"] = \"full\"\n            yield elementDict\n\"\"\"\n\ndef adjust(array):\n    adjustedArray = []\n    for entry in array:\n        key = entry[\"key\"]\n        offset = entry[\"offset\"]\n        type = entry[\"type\"]\n        nkey = key.strip()[1:-1]\n        if nkey[0] == \"/\":\n            # this is a closing tag. Set offset to be 1 char before <\n            offset = offset - len(key)\n            nkey = nkey[1:]\n        adjustedArray.append((nkey, offset, type))\n    return adjustedArray\n\ndef main(inBlob):\n    args = json.loads(inBlob)\n    adjustedArray = adjust(args[\"keys\"])\n    udf = constructRecords(adjustedArray, args[\"prettyPath\"])\n    return json.dumps({\"udf\": udf})"
@@ -142,6 +142,7 @@ window.DSParser = (function($, DSParser) {
         $fileName.text(url);
         xcTooltip.changeText($fileName, url);
         $formatList.find("input").val("");
+        $("#previewModeBox .boxBody").empty();
         $("#delimitersBox .boxBody ul").empty();
         buffer = null;
         buffers = [];
@@ -178,14 +179,14 @@ window.DSParser = (function($, DSParser) {
         $parserCard.find(".parserBox").each(function() {
             var $box = $(this);
             if ($box.position().left < 0) {
-                var width = $box.width();
+                // var width = $box.width();
                 var right = $parserCard.width() - ($box.outerWidth() +
                     parseInt($box.css("margin-right")));
                 $box.css({"right": right});
             }
             var cardMainHeight = $parserCard.find(".cardMain").height();
-            var boxHeight = $box.outerHeight()
-            if ($box.position().top +  boxHeight > cardMainHeight) {
+            var boxHeight = $box.outerHeight();
+            if ($box.position().top + boxHeight > cardMainHeight) {
                 $box.css({"top": cardMainHeight - boxHeight});
             }
         });
@@ -353,7 +354,7 @@ window.DSParser = (function($, DSParser) {
     function setupInfScroll() {
         var prevScrollPos = 0;
         var scrollTop = 0;
-        var $container = $previewContent.parent();
+        // var $container = $previewContent.parent();
 
         var scrollTimer;
         $dataPreview.scroll(function() {
@@ -440,6 +441,7 @@ window.DSParser = (function($, DSParser) {
 
     function previewContent(pageNum, numPages, scrollTop) {
         var deferred = jQuery.Deferred();
+        var newContent = (previewMeta == null);
 
         $parserCard.removeClass("error");
         if (newContent) {
@@ -449,7 +451,6 @@ window.DSParser = (function($, DSParser) {
         }
 
         var url = curUrl;
-        var newContent = previewMeta == null;
         var promise = newContent ? detectFormat(url) : PromiseHelper.resolve();
         fetchId++;
         var curFetchId = fetchId;
@@ -475,6 +476,7 @@ window.DSParser = (function($, DSParser) {
             if (newContent) {
                 setPreviewMeta(meta);
                 updateTotalNumRows();
+                showPreviewMode();
                 offset = 0;
             } else {
                 offset = previewMeta.lineLengths[pageNum];
@@ -517,6 +519,10 @@ window.DSParser = (function($, DSParser) {
         previewMeta.endPage = 0; // last visible page
         previewMeta.numPages = meta.lineLengths.length;
         previewMeta.parsedPath = parseNoProtocolPath(meta.tmpPath);
+        if (meta.meta) {
+            previewMeta.meta.parsedPath = parseNoProtocolPath(meta.meta.path);
+        }
+
         console.log(previewMeta);
     }
 
@@ -557,12 +563,64 @@ window.DSParser = (function($, DSParser) {
         return deferred.promise();
     }
 
+    function showPreviewMode() {
+        var deferred = jQuery.Deferred();
+        var promise = deferred.promise();
+
+        if (!previewMeta.meta) {
+            console.error("error case");
+            handlePreviewModeError(ErrTStr.Unknown);
+            return PromiseHelper.reject(ErrTStr.Unknown);
+        }
+
+        var $box = $("#previewModeBox");
+        $box.removeClass("error");
+        var parsedPath = previewMeta.meta.parsedPath;
+        var curFetchId = fetchId;
+
+        var numBytes = 4000; // XXX hard coded
+        var newOffset = 0; // XXX hard coded
+
+        XcalarPreview(parsedPath, null, false, numBytes, newOffset)
+        .then(function(res) {
+            if (curFetchId === fetchId) {
+                addPreviewModeContent(res.buffer);
+            }
+            deferred.resolve();
+        })
+        .fail(function(error) {
+            if (curFetchId === fetchId) {
+                handlePreviewModeError(error);
+            }
+            deferred.reject(error);
+        });
+
+        xcHelper.showRefreshIcon($box.find(".boxBody"), promise);
+        return promise;
+    }
+
+    function addPreviewModeContent(content, up) {
+        var $box = $("#previewModeBox");
+        $box.find(".boxBody").text(content);
+    }
+
+    function handlePreviewModeError(error) {
+        var $box = $("#previewModeBox");
+        $box.addClass("error");
+        if (typeof error === "object") {
+            error = JSON.stringify(error);
+        }
+        $box.find(".boxBody").text(error);
+    }
+
     function beautifier(url) {
         var deferred = jQuery.Deferred();
         var path = url.split(/^.*:\/\//)[1];
         var options = {
             "format": getFormat().toLowerCase(),
-            "path": path
+            "path": path,
+            "user": Support.getUser(),
+            "session": WorkbookManager.getActiveWKBK()
         };
         var inputStr = JSON.stringify(options);
         XcalarAppExecute(previewApp, false, inputStr)
@@ -1206,21 +1264,6 @@ window.DSParser = (function($, DSParser) {
         .fail(deferred.reject);
 
         return deferred.promise();
-    }
-
-    function xmlParser() {
-        var options = {
-            "prettyPath": previewMeta.tmpPath,
-            "keys": keys
-        };
-
-        var inputStr = JSON.stringify(options);
-        return XcalarAppExecute(xmlApp, false, inputStr);
-    }
-
-    function jsonParser() {
-        // XXX not implement yet
-        return PromiseHelper.reject({"error": DSParserTStr.NotSupport});
     }
 
     function closeCard() {

@@ -2131,13 +2131,11 @@ table.datasetTable {
     }
 
     .parserBox {
-        // display: none;
         .position(absolute, @right: 0px, @top: 10px);
         .size(@width: 300px, @min-width: 300px);
         border: 1px solid rgba(0, 0, 0, 0.2);
         margin-right: 11px; // for chrome scrollbar
         // XXX change margin-right according to browser scrollbar width
-
         &.minimized {
             .resize {
                 .xi-expand {
@@ -2181,8 +2179,21 @@ table.datasetTable {
 
         .boxBody {
             height: 250px;
-            padding: 15px;
+            padding: 10px;
             background-color: @color-white;
+        }
+    }
+
+    #previewModeBox {
+        &.error {
+            color: @color-text-error;
+        }
+
+        .boxBody {
+            white-space: pre;
+            overflow: auto;
+            font-family: @font-code;
+            font-size: 12px;
         }
     }
 

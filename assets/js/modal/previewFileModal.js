@@ -99,7 +99,7 @@ window.PreviewFileModal = (function(PreviewFileModal, $) {
 
     function setupSearch() {
         $modal.on("click", ".searchIcon", toggleSearch);
-        
+
         var $searchArea = $modal.find(".searchbarArea");
         searchHelper = new SearchBar($searchArea, {
             "removeSelected": function() {
