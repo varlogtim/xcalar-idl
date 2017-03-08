@@ -1146,10 +1146,19 @@ window.StartManager = (function(StartManager, $) {
         }
         var x = Math.abs(deltaX);
         var y = Math.abs(deltaY);
-
         // iterate over the target and all its parents in turn
         var $target = $(e.target);
         var $pathToRoot = $target.add($target.parents());
+
+        // this is to fix the issue when scroll table
+        // both horizontally and verticall will move
+        if ($target.closest(".dataTable").length) {
+            if (y > x) {
+                x = 0;
+            } else if (x > y) {
+                y = 0;
+            }
+        }
 
         $($pathToRoot.get().reverse()).each(function() {
             var $el = $(this);
@@ -1159,6 +1168,13 @@ window.StartManager = (function(StartManager, $) {
                 // do horizontal scrolling
                 if (deltaX > 0) {
                     var scrollWidth = $el.prop("scrollWidth");
+                    // because there is a rowReiszer in .idWrap,
+                    // which wrongly detect the element as scrollable
+                    // we just skip it
+                    if ($el.closest(".dataTable").length) {
+                        scrollWidth = 0;
+                    }
+
                     var scrollLeftMax = scrollWidth - $el.outerWidth();
                     if ($el.scrollLeft() < scrollLeftMax) {
                         // we can scroll right
