@@ -68,11 +68,6 @@ window.DSParser = (function($, DSParser) {
         setApp();
     };
 
-    // XXX for testing, remove soon
-    DSParser.getMeta = function() {
-        return previewMeta;
-    }
-
     function setApp() {
         var previewAppStr = "import sys, json, re, random, hashlib\nfrom lxml import etree as ET\n\ndef getMeta(s, ssf, isArray):\n    for k in s:\n        if isArray:\n            value = k\n        else:\n            value = s[k]\n        if isinstance(value, str) or isinstance(value, unicode):\n            if isArray:\n                if \"String\" not in ssf:\n                    ssf[\"String\"] = True\n            else:\n                if k not in ssf:\n                    ssf[k] = {}\n                ssf[k][\"String\"] = True\n        elif isinstance(value, float):\n            if isArray:\n                if \"Float\" not in ssf:\n                    ssf[\"Float\"] = True\n            else:\n                if k not in ssf:\n                    ssf[k] = {}\n                ssf[k][\"Float\"] = True\n        elif isinstance(value, int):\n            if isArray:\n                if \"Integer\" not in ssf:\n                    ssf[\"Integer\"] = True\n            else:\n                if k not in ssf:\n                    ssf[k] = {}\n                ssf[k][\"Integer\"] = True\n        elif isinstance(value, bool):\n            if isArray:\n                if \"Boolean\" not in ssf:\n                    ssf[\"Boolean\"] = True\n            else:\n                if k not in ssf:\n                    ssf[k] = {}\n                ssf[k][\"Boolean\"] = True\n        elif isinstance(value, dict):\n            if isArray:\n                if \"Object\" not in ssf:\n                    ssf[\"Object\"] = {}\n                getMeta(value, ssf[\"Object\"], False)\n            else:\n                if k not in ssf:\n                    ssf[k] = {}\n                if \"Object\" not in ssf[k]:\n                    ssf[k][\"Object\"] = {}\n                getMeta(value, ssf[k][\"Object\"], False)\n        elif isinstance(value, list):\n            if isArray:\n                if \"Array\" not in ssf:\n                    ssf[\"Array\"] = {}\n                getMeta(value, ssf[\"Array\"], True)\n            else:\n                if k not in ssf:\n                    ssf[k] = {}\n                if \"Array\" not in ssf[k]:\n                    ssf[k][\"Array\"] = {}\n                getMeta(value, ssf[k][\"Array\"], True)\n        else:\n            print value\n            print type(value)\n\ndef getMetaWrapper(s):\n    d = {}\n    if isinstance(s, list):\n        getMeta(s, d, True)\n        d = [d]\n    else:\n        getMeta(s, d, False)\n    return d\n\ndef reformatMeta(s, indent, step, array):\n    out = \"\"\n    for ss in s:\n        # must be a key name\n        if not array and len(s[ss]) == 1:\n            if list(s[ss])[0] != \"Object\" and list(s[ss])[0] != \"Array\":\n                out += \" \" * indent + json.dumps(ss) + \": <\" + list(s[ss])[0]\\\n                       + \">,\\n\"\n            else:\n                out += \" \" * indent + json.dumps(ss) + \": \"\n                if list(s[ss])[0] == \"Object\":\n                    out += \"{\\n\"\n                    out += reformatMeta(s[ss][\"Object\"], indent + step, step,\n                                    False)\n                    out += \" \" * indent + \"},\\n\"\n                else:\n                    out += \"[\\n\"\n                    out += reformatMeta(s[ss][\"Array\"], indent + step, step,\n                                    True)\n                    out += \" \" * indent + \"],\\n\"\n        elif not array and len(s[ss]) == 0:\n            # This is actually a bug\n            out += \" \" * indent + json.dumps(ss) + \": <Unknown>,\\n\"\n        else:\n            if not array:\n                out += \" \" * indent + json.dumps(ss) + \":(\\n\"\n                iterObj = s[ss]\n            else:\n                iterObj = s\n            if \"String\" in iterObj:\n                out += \" \" * (indent + step) + \"<String>,\\n\"\n            if \"Integer\" in iterObj:\n                out += \" \" * (indent + step) + \"<Integer>,\\n\"\n            if \"Float\" in iterObj:\n                out += \" \" * (indent + step) + \"<Float>,\\n\"\n            if \"Boolean\" in iterObj:\n                out += \" \" * (indent + step) + \"<Boolean>,\\n\"\n            if \"Object\" in iterObj:\n                out += \" \" * (indent + step) + \"{\\n\"\n                out += reformatMeta(iterObj[\"Object\"], indent + step, step,\n                                    False)\n                out += \" \" * (indent + step) + \"},\\n\"\n            if \"Array\" in iterObj:\n                out += \" \" * (indent + step) + \"[\\n\"\n                out += reformatMeta(iterObj[\"Array\"], indent + step, step,\n                                    True)\n                out += \" \" * (indent + step) + \"],\\n\"\n            if not array:\n                out += \" \" * indent + \")\\n\"\n            else:\n                break\n    return out\n\ndef reformat(struct):\n    if isinstance(struct, list):\n        return reformatMeta(struct[0][\"Object\"], 0, 2, False)\n    else:\n        return reformatMeta(struct, 0, 2, False)\n\ndef findLongestLineLength(s):\n    maxLen = 0\n    curSum = 0\n    lineNo = 0\n    lineLengths = []\n    for line in s.split(\"\\n\"):\n        if lineNo % 100 == 0:\n            lineLengths.append(curSum)\n        lineLen = len(line)\n        curSum += lineLen + 1\n        if lineLen > maxLen:\n            maxLen = lineLen\n        lineNo += 1\n    return (lineNo, maxLen, lineLengths)\n\ndef prettyPrintJson(inp, tmpp, metap):\n    try:\n        structs = json.load(open(inp, \"rb\"))\n    except:\n        structs = json.loads(\"[\" +\n                             \",\".join(open(inp, \"rb\").read().split(\"\\n\")) +\n                             \"]\")\n    prettyString = json.dumps(structs, indent=2)\n    fout = open(tmpp, \"wb\")\n    fout.write(prettyString)\n    fout.close()\n    metaPrettyString = reformat(getMetaWrapper(structs))\n    fout = open(metap, \"wb\")\n    fout.write(metaPrettyString)\n    fout.close()\n    return (findLongestLineLength(prettyString), findLongestLineLength(\n            metaPrettyString))\n\ndef constructXml(elements, root):\n    for e in elements:\n        elems = root.findall(\"./[\" + e.tag + \"]\")\n        if len(elems) == 0:\n            newElem = ET.SubElement(root, e.tag)\n        else:\n            newElem = elems[0]\n        constructXml(e.findall(\"./\"), newElem)\n\ndef constructXmlMeta(root):\n    prettyRoot = ET.Element(root.tag)\n    constructXml(root.findall(\"./\"), prettyRoot)\n    return prettyRoot\n\ndef prettyPrintXml(inp, tmpp, metap):\n    parser = ET.XMLParser(remove_blank_text=True)\n    try:\n        root = ET.parse(inp, parser).getroot()\n    except:\n        parser.feed(\"<xcRecord>\")\n        parser.feed(open(inp).read().decode(\"utf-8\", \"ignore\").encode(\"utf-8\"))\n        parser.feed(\"</xcRecord>\")\n        root = parser.close()\n    prettyString = ET.tostring(root, pretty_print=True)\n    fout = open(tmpp, \"wb\")\n    fout.write(prettyString)\n    fout.close()\n    prettyRoot = constructXmlMeta(root)\n    metaPrettyString = ET.tostring(prettyRoot, pretty_print=True)\n    fout = open(metap, \"wb\")\n    fout.write(metaPrettyString)\n    fout.close()\n    return (findLongestLineLength(prettyString), findLongestLineLength(\n            metaPrettyString))\n\ndef main(inBlob):\n    arguments = json.loads(inBlob)\n    userName = arguments[\"user\"]\n    sessionName = arguments[\"session\"]\n    hashName = hashlib.md5(userName + \"-\" + sessionName).hexdigest()\n    outPath = \"/tmp/vp-\" + str(hashName)\n    metaOutPath = \"/tmp/mvp-\" + str(hashName)\n    if (arguments[\"format\"] == \"xml\"):\n         ((total, maxLen, lineLengths),\n         (metaTotalLines, metaMaxLen, metaLineLengths)) = prettyPrintXml(\n                                                          arguments[\"path\"],\n                                                          outPath, metaOutPath)\n    elif (arguments[\"format\"] == \"json\"):\n        ((total, maxLen, lineLengths),\n         (metaTotalLines, metaMaxLen, metaLineLengths)) = prettyPrintJson(\n                                                          arguments[\"path\"],\n                                                          outPath, metaOutPath)\n    return json.dumps({\"maxLen\": maxLen, \"lineLengths\": lineLengths,\n                       \"tmpPath\": outPath, \"totalLines\": total, \"meta\":{\n            \"path\": metaOutPath, \"lineLengths\": metaLineLengths,\n            \"totalLines\":metaTotalLines, \"maxLen\": metaMaxLen\n        }})"
         XcalarAppSet(previewApp, "Python", "Import", previewAppStr);
@@ -89,9 +84,10 @@ window.DSParser = (function($, DSParser) {
         resetView(url);
         var startPage = 0;
         var numPages = 1;
-        previewContent(startPage, numPages);
+        var promise = previewContent(startPage, numPages);
         resetScrolling();
         resetWinResize();
+        return promise;
     };
 
     function resetView(url) {
@@ -581,7 +577,6 @@ window.DSParser = (function($, DSParser) {
         if (newOffset >= totalSize || newOffset < 0) {
             return PromiseHelper.resolve();
         }
-
         $parserCard.addClass("fetchingRows");
 
         XcalarPreview(previewMeta.parsedPath, null, false, numBytes, newOffset)
@@ -686,7 +681,6 @@ window.DSParser = (function($, DSParser) {
         if (error.out) {
             return {"error": error.out};
         }
-
         var parsed = parseAppResHelper(ret.outStr);
         if (parsed.error) {
             return {"error": parsed.error};
@@ -885,7 +879,7 @@ window.DSParser = (function($, DSParser) {
     }
 
     function getJSONPath(cursor) {
-        var isChildOfArray = true;
+        var isChildOfArray = (getCharAt(cursor) === "[");
         var isFirstLevelChild = false;
         var p = cursor - 1;
         var ch;
@@ -1142,7 +1136,7 @@ window.DSParser = (function($, DSParser) {
 
     function submitForm() {
         if (!validateSubmit()) {
-            return PromiseHelper.reject();
+            return PromiseHelper.reject("invalid submit");
         }
         var deferred = jQuery.Deferred();
         var promise = deferred.promise();
@@ -1273,7 +1267,6 @@ window.DSParser = (function($, DSParser) {
         $parserCard.removeClass("fetchingRows");
     }
 
-
     function validateSubmit() {
         var isValid = xcHelper.validate([
             {
@@ -1294,7 +1287,7 @@ window.DSParser = (function($, DSParser) {
             "title": DSParserTStr.Submit,
             "msg": DSParserTStr.SubmitMsg,
             "onConfirm": function() { deferred.resolve(); },
-            "onCancel": function() { deferred.reject(cancelError); }
+            "onCancel": function() { deferred.reject({"error": cancelError}); }
         });
         return deferred.promise();
     }
@@ -1357,6 +1350,24 @@ window.DSParser = (function($, DSParser) {
     /* Unit Test Only */
     if (window.unitTestMode) {
         DSParser.__testOnly__ = {};
+        DSParser.__testOnly__.setBuffers = function(newBuffers) {
+            buffers = newBuffers;
+        };
+
+        DSParser.__testOnly__.setMeta = function(meta) {
+            previewMeta = meta;
+        };
+        DSParser.__testOnly__.resetView = resetView;
+        DSParser.__testOnly__.beautifier = beautifier;
+        DSParser.__testOnly__.parseNoProtocolPath = parseNoProtocolPath;
+        DSParser.__testOnly__.parseAppResHelper = parseAppResHelper;
+        DSParser.__testOnly__.parseAppRes = parseAppRes;
+        DSParser.__testOnly__.detectFormat = detectFormat;
+        DSParser.__testOnly__.getFormat = getFormat;
+        DSParser.__testOnly__.getRightSelection = getRightSelection;
+        DSParser.__testOnly__.showPreviewMode = showPreviewMode;
+        DSParser.__testOnly__.getJSONPath = getJSONPath;
+        DSParser.__testOnly__.submitForm = submitForm;
     }
     /* End Of Unit Test Only */
 

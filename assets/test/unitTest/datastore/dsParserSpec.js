@@ -1,0 +1,646 @@
+describe("DSParser Test", function() {
+    var $formatInput;
+
+    before(function() {
+        $formatInput = $("#dsParser .fileFormat input");
+    });
+
+    describe("Basic Function Test", function() {
+        it("should reset view", function() {
+            var $previewContent = $("#dsParser .previewContent");
+            $previewContent.text("test html");
+            DSParser.__testOnly__.resetView("test");
+            expect($previewContent.text()).to.be.empty;
+        });
+    });
+
+    describe("Format Detection Test", function() {
+        var oldPreview;
+        var detectFormat;
+        var getFormat;
+
+        before(function() {
+            oldPreview = XcalarPreview;
+            detectFormat = DSParser.__testOnly__.detectFormat;
+            getFormat = DSParser.__testOnly__.getFormat;
+        });
+
+        it("Should detect xml", function(done) {
+            XcalarPreview = function() {
+                return PromiseHelper.resolve({
+                    "buffer": "<a></a>"
+                });
+            };
+
+            detectFormat("test")
+            .then(function() {
+                expect(getFormat()).to.equal("XML");
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        it("Should detect xml including {", function(done) {
+            XcalarPreview = function() {
+                return PromiseHelper.resolve({
+                    "buffer": "<a></a>{}"
+                });
+            };
+
+            detectFormat("test")
+            .then(function() {
+                expect(getFormat()).to.equal("XML");
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+
+        it("Should detect json", function(done) {
+            XcalarPreview = function() {
+                return PromiseHelper.resolve({
+                    "buffer": "[{\"a\": \"b\"}]"
+                });
+            };
+
+            detectFormat("test")
+            .then(function() {
+                expect(getFormat()).to.equal("JSON");
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        it("Should detect part of json", function(done) {
+            XcalarPreview = function() {
+                return PromiseHelper.resolve({
+                    "buffer": "[{\"a\": \"b\""
+                });
+            };
+
+            detectFormat("test")
+            .then(function() {
+                expect(getFormat()).to.equal("JSON");
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        it("Should detect part of json with <", function(done) {
+            XcalarPreview = function() {
+                return PromiseHelper.resolve({
+                    "buffer": "[{\"a\": {\"<b>\": {}}"
+                });
+            };
+
+            detectFormat("test")
+            .then(function() {
+                expect(getFormat()).to.equal("JSON");
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        it("Should detect plain text", function(done) {
+            XcalarPreview = function() {
+                return PromiseHelper.resolve({
+                    "buffer": "<a, {b, b"
+                });
+            };
+
+            detectFormat("test")
+            .then(function() {
+                expect(getFormat()).to.equal("PLAIN TEXT");
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        after(function() {
+            XcalarPreview = oldPreview;
+        });
+    });
+
+    describe("Beautifier Test", function() {
+        it("parseNoProtocolPath should work", function() {
+            var res = DSParser.__testOnly__.parseNoProtocolPath("/test");
+            expect(res).to.equal("file:///test");
+        });
+
+        it("parseAppResHelper should work", function() {
+            var parseAppResHelper = DSParser.__testOnly__.parseAppResHelper;
+            var res = parseAppResHelper('[["test"]]');
+            expect(res).to.be.an("object");
+            expect(res.out).to.equal("test");
+
+            // case 2
+            res = parseAppResHelper('error structure');
+            expect(res).to.be.an("object");
+            expect(res.error).not.to.be.null;
+        });
+
+        it("parseAppRes should work", function() {
+            var parseAppRes = DSParser.__testOnly__.parseAppRes;
+            // case 1
+            var res = parseAppRes({"errStr": '[["error"]]'});
+            expect(res).to.be.an("object");
+            expect(res.error).to.equal("error");
+
+            // case 2
+            res = parseAppRes({"outStr": 'cannot parse'});
+            expect(res.error).not.to.be.null;
+
+            // case 3
+            res = parseAppRes({"outStr": '[["cannt parse"]]'});
+            expect(res.error).not.to.be.null;
+
+            // case 4
+            res = parseAppRes({"outStr": '[["{\\"key\\":\\"value\\"}"]]'});
+            expect(res.out).to.be.an("object");
+            expect(res.out.key).to.equal("value");
+        });
+
+        it("beautifier should work", function(done) {
+            var oldFunc = XcalarAppExecute;
+            XcalarAppExecute = function() {
+                return PromiseHelper.resolve({
+                    "errStr": '[[""]]',
+                    "outStr": '[["{\\"key\\":\\"value\\"}"]]'
+                });
+            };
+            DSParser.__testOnly__.beautifier("test")
+            .then(function(out) {
+                expect(out).to.be.an("object");
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                XcalarAppExecute = oldFunc;
+            });
+        });
+
+        it("beautifier should reject error case", function(done) {
+            var oldFunc = XcalarAppExecute;
+            XcalarAppExecute = function() {
+                return PromiseHelper.resolve({
+                    "errStr": '[["error"]]'
+                });
+            };
+            DSParser.__testOnly__.beautifier("test")
+            .then(function() {
+                done("fail");
+            })
+            .fail(function(error) {
+                expect(error).not.to.be.null;
+                done();
+            })
+            .always(function() {
+                XcalarAppExecute = oldFunc;
+            });
+        });
+    });
+
+    describe("Preview Mode Box Test", function() {
+        var showPreviewMode;
+        var setMeta;
+        var oldPreview;
+        var $box;
+
+        before(function() {
+            showPreviewMode = DSParser.__testOnly__.showPreviewMode;
+            setMeta = DSParser.__testOnly__.setMeta;
+            oldPreview = XcalarPreview;
+            $box = $("#previewModeBox");
+        });
+
+        it("should handle error case", function(done) {
+            setMeta({});
+            showPreviewMode()
+            .then(function() {
+                done("fail");
+            })
+            .fail(function(error) {
+                expect(error).to.equal(ErrTStr.Unknown);
+                expect($box.hasClass("error")).to.be.true;
+                expect($box.find(".boxBody").text()).to.equal(ErrTStr.Unknown);
+                done();
+            });
+        });
+
+        it("should handle promise error", function(done) {
+            XcalarPreview = function() {
+                return PromiseHelper.reject({"error": "test"});
+            };
+
+            setMeta({"meta": "testMeta"});
+
+            showPreviewMode()
+            .then(function() {
+                done("fail");
+            })
+            .fail(function(error) {
+                expect(error).to.be.an("object");
+                expect(error.error).to.equal("test");
+                expect($box.hasClass("error")).to.be.true;
+                expect($box.find(".boxBody").text()).to.include("test");
+                done();
+            });
+        });
+
+        it("should show preview mode content", function(done) {
+            XcalarPreview = function() {
+                return PromiseHelper.resolve({"buffer": "testBuffer"});
+            };
+
+            setMeta({"meta": "testMeta"});
+
+            showPreviewMode()
+            .then(function() {
+                expect($box.hasClass("error")).to.be.false;
+                expect($box.find(".boxBody").text()).to.equal("testBuffer");
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        after(function() {
+            XcalarPreview = oldPreview;
+            DSParser.__testOnly__.resetView();
+        });
+    });
+
+    describe("Find and Match Tag Test", function() {
+        var getRightSelection;
+        var setBuffers;
+
+        before(function() {
+            getRightSelection = DSParser.__testOnly__.getRightSelection;
+            setBuffers = DSParser.__testOnly__.setBuffers;
+        });
+
+        it("should get selection for xml", function() {
+            $formatInput.val("XML");
+            setBuffers(["<a></a>"]);
+            var res = getRightSelection(1);
+            expect(res).to.be.an("object");
+            expect(res.start).to.equal(0);
+            expect(res.end).to.equal(3);
+            expect(res.tag).to.equal("<a>");
+        });
+
+        it("should get selection for json", function() {
+            $formatInput.val("JSON");
+            setBuffers(["{a:{b:c},d:e}"]);
+            var res = getRightSelection(8);
+            expect(res).to.be.an("object");
+            expect(res.start).to.equal(0);
+            expect(res.end).to.equal(1);
+            expect(res.tag).to.equal("{");
+        });
+
+        it("should get selection for json with [", function() {
+            $formatInput.val("JSON");
+            setBuffers(["{a:[1,2,3],d:e}"]);
+            var res = getRightSelection(3);
+            expect(res).to.be.an("object");
+            expect(res.start).to.equal(3);
+            expect(res.end).to.equal(4);
+            expect(res.tag).to.equal("[");
+        });
+
+        it("should not get selection for plain text", function() {
+            $formatInput.val("PLAIN TEXT");
+            var res = getRightSelection(1);
+            expect(res).to.be.null;
+        });
+
+        after(function() {
+            $formatInput.val("");
+        });
+    });
+
+    describe("Seletecd Key Test", function() {
+        var $box;
+        var $menu;
+
+        before(function() {
+            UnitTest.onMinMode();
+            $box = $("#delimitersBox");
+            $menu = $("#parserMenu");
+        });
+
+        it("should get jsonPath", function() {
+            var getJSONPath = DSParser.__testOnly__.getJSONPath;
+            DSParser.__testOnly__.setBuffers(["{\"a\": {\"b\": 1}}"]);
+            var res = getJSONPath(6);
+            expect(res).to.equal("a");
+            // case 2
+            res = getJSONPath(0);
+            expect(res).to.equal("...{");
+
+            // case 3
+            DSParser.__testOnly__.setMeta({"startPage": 0});
+            DSParser.__testOnly__.setBuffers(["[{\"a\": [{\"b\": {\"c\": 1}}, {\"d\": 2}]}]"]);
+            res = getJSONPath(25);
+            expect(res).to.equal("a[1]");
+
+            // case 4
+            res = getJSONPath(1);
+            expect(res).to.equal("...[0]");
+        });
+
+        it("should not add key item if option disabled", function() {
+            var $li = $menu.find(".full");
+            $li.addClass("unavailable");
+            $li.click();
+
+            expect($box.find(".key").length).to.equal(0);
+            $li.removeClass("unavailable");
+        });
+
+        it("should add key item", function() {
+            DSParser.__testOnly__.setMeta({
+                "startPage": 0,
+                "lineLengths": [0]
+            });
+            $formatInput.val("XML");
+
+            addKeyToBox("<a>", 0);
+            var $li = $box.find(".key");
+            expect($li.length).to.equal(1);
+            expect($li.hasClass("active")).to.be.true;
+            expect($li.find(".tag").text()).to.equal("<a>");
+            expect($li.find(".type").text()).to.equal("full");
+        });
+
+        it("should not add the same key", function() {
+            $box.find(".key.active").removeClass("active");
+            addKeyToBox("<a>", 0);
+            var $li = $box.find(".key");
+            expect($li.length).to.equal(1);
+            expect($li.hasClass("active")).to.be.true;
+
+            $menu.removeData("tag");
+            $menu.removeData("end");
+        });
+
+        it("should focus on key", function() {
+            var $li = $box.find(".key.active");
+            $li.removeClass("active");
+            $li.click();
+            expect($li.hasClass("active")).to.be.true;
+        });
+
+        it("should remove key", function() {
+            var $li = $box.find(".key");
+            $li.find(".remove").click();
+            expect($box.find(".key").length).to.equal(0);
+        });
+
+        after(function() {
+            DSParser.__testOnly__.resetView();
+            UnitTest.offMinMode();
+        });
+    });
+
+    describe("Submit Form Test", function() {
+        var submitForm;
+        var oldAppExecute;
+        var oldUpload;
+        var oldRefresh;
+        var oldBack;
+
+        before(function() {
+            submitForm = DSParser.__testOnly__.submitForm;
+            DSParser.__testOnly__.setMeta({
+                "startPage": 0,
+                "lineLengths": [0]
+            });
+
+            oldAppExecute = XcalarAppExecute;
+            oldUpload = XcalarUploadPython;
+            oldRefresh = UDF.refresh;
+            oldBack = DSPreview.backFromParser;
+
+            UDF.refresh = XcalarUploadPython = function() {
+                return PromiseHelper.resolve();
+            };
+
+            UnitTest.onMinMode();
+        });
+
+        it("should handle fail case", function(done) {
+            submitForm()
+            .then(function() {
+                done("fail");
+            })
+            .fail(function(error) {
+                expect(error).to.equal("invalid submit");
+                done();
+            });
+        });
+
+        it("should show alert", function(done) {
+            addKeyToBox("<a>", 0);
+            var promise = submitForm();
+            UnitTest.hasAlertWithText(DSParserTStr.SubmitMsg);
+
+            promise
+            .then(function() {
+                done("fail");
+            })
+            .fail(function(error) {
+                expect(error.error).to.equal("cancel submit");
+                done();
+            });
+        });
+
+        it("should not parse if format is not right", function(done) {
+            $formatInput.val("PLAIN TEXT");
+            var promise = submitForm();
+            UnitTest.hasAlertWithText(DSParserTStr.SubmitMsg, {
+                "confirm": true,
+                "nextAlert": true
+            });
+
+            promise
+            .then(function() {
+                done("fail");
+            })
+            .fail(function(error) {
+                expect(error.error).to.equal(DSParserTStr.NotSupport);
+                UnitTest.hasAlertWithText(DSParserTStr.NotSupport);
+                done();
+            });
+        });
+
+        it("should handle parse error", function(done) {
+            $formatInput.val("JSON");
+            XcalarAppExecute = function() {
+                return PromiseHelper.resolve({
+                    "errStr": '[["test"]]',
+                    "outStr": '[["{\\"key\\":\\"value\\"}"]]'
+                });
+            };
+
+            var promise = submitForm();
+            UnitTest.hasAlertWithText(DSParserTStr.SubmitMsg, {
+                "confirm": true,
+                "nextAlert": true
+            });
+
+            promise
+            .then(function() {
+                done("fail");
+            })
+            .fail(function(error) {
+                expect(error.error).to.equal("test");
+                UnitTest.hasAlertWithText("test");
+                done();
+            });
+        });
+
+        it("should submit the form", function(done) {
+            var test = false;
+
+            XcalarAppExecute = function() {
+                return PromiseHelper.resolve({
+                    "errStr": '[[""]]',
+                    "outStr": '[["{\\"key\\":\\"value\\"}"]]'
+                });
+            };
+
+            DSPreview.backFromParser = function() {
+                test = true;
+            };
+
+            var promise = submitForm();
+            UnitTest.hasAlertWithText(DSParserTStr.SubmitMsg, {
+                "confirm": true,
+                "nextAlert": true
+            });
+
+            promise
+            .then(function() {
+                expect(test).to.be.true;
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        after(function() {
+            DSParser.__testOnly__.resetView();
+            XcalarAppExecute = oldAppExecute;
+            XcalarUploadPython = oldUpload;
+            UDF.refresh = oldRefresh;
+            DSPreview.backFromParser = oldBack;
+            UnitTest.onMinMode();
+        });
+    });
+
+    describe("Behavior Test", function() {
+        var $mainTabCache;
+        var $card;
+
+        before(function() {
+            $mainTabCache = $(".topMenuBarTab.active");
+            $("#dataStoresTab").click();
+            UnitTest.onMinMode();
+
+            $card = $("#dsParser");
+        });
+
+        it("should show parser", function(done) {
+            var url = "nfs:///netstore/datasets/dsParser/Sample_JSON_-_Ugly.json";
+            DSParser.show(url)
+            .then(function() {
+                assert.isTrue($card.is(":visible"));
+                expect($card.find(".totalRows").text()).to.equal("of 540");
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        // XXX this tirgger checkIfScrolled but don't trigger checkIfNeedFetch
+        it("should scroll to fetch new rows", function(done) {
+            verbose = true;
+            var scrollHeight = $card.find(".dataPreview")[0].scrollHeight;
+            $card.find(".dataPreview").scrollTop(scrollHeight);
+            // this is a tricky, because scroll need some time
+            // so here we add the class manually
+            // and detect when it will be removed
+            $card.addClass("fetchingRows");
+            var checkFunc = function() {
+                return !$card.hasClass("fetchingRows");
+            };
+
+            UnitTest.testFinish(checkFunc)
+            .then(function() {
+                expect($("#parserRowInput").val()).not.to.equal(0);
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        it("should use input to skip to row", function(done) {
+            $("#parserRowInput").val(100).trigger(fakeEvent.enter);
+            expect($card.hasClass("fetchingRows")).to.be.true;
+            var checkFunc = function() {
+                return !$card.hasClass("fetchingRows");
+            };
+
+            UnitTest.testFinish(checkFunc)
+            .then(function() {
+                expect($card.find(".dataPreview").scrollTop())
+                .to.above(0);
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        it("should closes the parser", function() {
+            $card.find(".close").click();
+            assert.isFalse($card.is(":visible"));
+        });
+
+        after(function() {
+            DSForm.show();
+            $mainTabCache.click();
+            UnitTest.offMinMode();
+        });
+    });
+
+    function addKeyToBox(tag, end) {
+        var $menu = $("#parserMenu");
+        $menu.data("tag", tag);
+        $menu.data("end", end);
+
+        $menu.find(".full").click();
+        $menu.removeData("tag");
+        $menu.removeData("end");
+    }
+});
