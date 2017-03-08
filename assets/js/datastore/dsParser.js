@@ -486,8 +486,7 @@ window.DSParser = (function($, DSParser) {
         })
         .then(function(res) {
             if (curFetchId !== fetchId) {
-                deferred.reject();
-                return;
+                return PromiseHelper.reject(notSameCardError);
             }
             if (newContent) {
                 totalSize = res.totalDataSize;
@@ -501,7 +500,7 @@ window.DSParser = (function($, DSParser) {
             deferred.resolve();
         })
         .fail(function(error) {
-            if (curFetchId !== fetchId) {
+            if (curFetchId === fetchId) {
                 handleError(error);
             }
             deferred.reject();
@@ -1070,7 +1069,7 @@ window.DSParser = (function($, DSParser) {
 
     function isJSON(str) {
         if (str.startsWith("[") || str.startsWith("{")) {
-            if (/{(.|[\r\n])+:(.|[\r\n])+},?/.test(str)) {
+            if (/{(.|[\r\n])+:(.|[\r\n])+}?,?/.test(str)) {
                 return true;
             }
         }
