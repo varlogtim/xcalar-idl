@@ -2127,10 +2127,6 @@ table.datasetTable {
         }
     }
 
-    .sizer {
-        // background-color: lightyellow;
-    }
-
     .parserBox {
         .position(absolute, @right: 0px, @top: 10px);
         .size(@width: 300px, @min-width: 300px, @height: 300px);
@@ -2169,6 +2165,7 @@ table.datasetTable {
             height: ~"calc(100% - 30px)";
             padding: 10px;
             background-color: @color-white;
+
         }
     }
 
@@ -2177,11 +2174,15 @@ table.datasetTable {
             color: @color-text-error;
         }
 
-        .boxBody {
-            white-space: pre;
+        .boxBody {           
             overflow: auto;
-            font-family: @font-code;
-            font-size: 12px;
+            
+            .boxContent {
+                font-family: @font-code;
+                font-size: 12px;
+                line-height: 15px;
+                white-space: pre;
+            }
         }
     }
 

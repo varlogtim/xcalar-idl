@@ -236,7 +236,7 @@ describe("DSParser Test", function() {
             .fail(function(error) {
                 expect(error).to.equal(ErrTStr.Unknown);
                 expect($box.hasClass("error")).to.be.true;
-                expect($box.find(".boxBody").text()).to.equal(ErrTStr.Unknown);
+                expect($box.find(".boxBody .content").text()).to.equal(ErrTStr.Unknown);
                 done();
             });
         });
@@ -246,9 +246,9 @@ describe("DSParser Test", function() {
                 return PromiseHelper.reject({"error": "test"});
             };
 
-            setMeta({"meta": "testMeta"});
+            setMeta({"meta": {"lineLengths": [0, 200]}});
 
-            showPreviewMode()
+            showPreviewMode(0, 1, 0)
             .then(function() {
                 done("fail");
             })
@@ -266,12 +266,12 @@ describe("DSParser Test", function() {
                 return PromiseHelper.resolve({"buffer": "testBuffer"});
             };
 
-            setMeta({"meta": "testMeta"});
+            setMeta({"meta": {"lineLengths": [0, 200]}});
 
             showPreviewMode()
             .then(function() {
                 expect($box.hasClass("error")).to.be.false;
-                expect($box.find(".boxBody").text()).to.equal("testBuffer");
+                expect($box.find(".boxBody .content").text()).to.equal("testBuffer");
                 done();
             })
             .fail(function() {

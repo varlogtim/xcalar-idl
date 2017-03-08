@@ -8,16 +8,19 @@ window.DSParser = (function($, DSParser) {
     var $previewContent;
     var buffers = [];
     var curUrl;
-    var totalSize = 0;
     var keys;
-    var previewMeta; // will have lineLengths, maxLen, tmpPath, totalLines
+    var previewMeta; // will have lineLengths, maxLen, tmpPath, totalLines, numChar
     var lineHeight = 18;
+    var boxLineHeight = 15;
     var linesPerPage = 100;
-    var pageHeight = lineHeight * linesPerPage;
     var containerPadding = 10;
     var isMouseDown = false;
+    var isBoxMouseDown = false;
     var fetchId = 0; // used to detect stale requests
+    var boxFetchId = 0;
     var boxMin = 300;
+    var $miniPreview;
+    var $miniContent;
 
     // const
     var previewApp = "vpFormatter";
@@ -31,6 +34,8 @@ window.DSParser = (function($, DSParser) {
         $formatList = $parserCard.find(".fileFormat");
         $dataPreview = $parserCard.find('.dataPreview');
         $previewContent = $parserCard.find('.previewContent');
+        $miniPreview = $("#previewModeBox").find(".boxBody");
+        $miniContent = $miniPreview.find('.boxContent');
 
         new MenuHelper($formatList, {
             "onSelect": function($li) {
@@ -61,7 +66,8 @@ window.DSParser = (function($, DSParser) {
         setupBoxes();
         setupMenu();
         setupRowInput();
-        setupInfScroll();
+        setupInfScroll($dataPreview);
+        setupInfScroll($miniPreview);
         setupKeyBox();
 
         // XXX this should be removed later
@@ -69,7 +75,7 @@ window.DSParser = (function($, DSParser) {
     };
 
     function setApp() {
-        var previewAppStr = "import sys, json, re, random, hashlib\nfrom lxml import etree as ET\n\ndef getMeta(s, ssf, isArray):\n    for k in s:\n        if isArray:\n            value = k\n        else:\n            value = s[k]\n        if isinstance(value, str) or isinstance(value, unicode):\n            if isArray:\n                if \"String\" not in ssf:\n                    ssf[\"String\"] = True\n            else:\n                if k not in ssf:\n                    ssf[k] = {}\n                ssf[k][\"String\"] = True\n        elif isinstance(value, float):\n            if isArray:\n                if \"Float\" not in ssf:\n                    ssf[\"Float\"] = True\n            else:\n                if k not in ssf:\n                    ssf[k] = {}\n                ssf[k][\"Float\"] = True\n        elif isinstance(value, int):\n            if isArray:\n                if \"Integer\" not in ssf:\n                    ssf[\"Integer\"] = True\n            else:\n                if k not in ssf:\n                    ssf[k] = {}\n                ssf[k][\"Integer\"] = True\n        elif isinstance(value, bool):\n            if isArray:\n                if \"Boolean\" not in ssf:\n                    ssf[\"Boolean\"] = True\n            else:\n                if k not in ssf:\n                    ssf[k] = {}\n                ssf[k][\"Boolean\"] = True\n        elif isinstance(value, dict):\n            if isArray:\n                if \"Object\" not in ssf:\n                    ssf[\"Object\"] = {}\n                getMeta(value, ssf[\"Object\"], False)\n            else:\n                if k not in ssf:\n                    ssf[k] = {}\n                if \"Object\" not in ssf[k]:\n                    ssf[k][\"Object\"] = {}\n                getMeta(value, ssf[k][\"Object\"], False)\n        elif isinstance(value, list):\n            if isArray:\n                if \"Array\" not in ssf:\n                    ssf[\"Array\"] = {}\n                getMeta(value, ssf[\"Array\"], True)\n            else:\n                if k not in ssf:\n                    ssf[k] = {}\n                if \"Array\" not in ssf[k]:\n                    ssf[k][\"Array\"] = {}\n                getMeta(value, ssf[k][\"Array\"], True)\n        else:\n            print value\n            print type(value)\n\ndef getMetaWrapper(s):\n    d = {}\n    if isinstance(s, list):\n        getMeta(s, d, True)\n        d = [d]\n    else:\n        getMeta(s, d, False)\n    return d\n\ndef reformatMeta(s, indent, step, array):\n    out = \"\"\n    for ss in s:\n        # must be a key name\n        if not array and len(s[ss]) == 1:\n            if list(s[ss])[0] != \"Object\" and list(s[ss])[0] != \"Array\":\n                out += \" \" * indent + json.dumps(ss) + \": <\" + list(s[ss])[0]\\\n                       + \">,\\n\"\n            else:\n                out += \" \" * indent + json.dumps(ss) + \": \"\n                if list(s[ss])[0] == \"Object\":\n                    out += \"{\\n\"\n                    out += reformatMeta(s[ss][\"Object\"], indent + step, step,\n                                    False)\n                    out += \" \" * indent + \"},\\n\"\n                else:\n                    out += \"[\\n\"\n                    out += reformatMeta(s[ss][\"Array\"], indent + step, step,\n                                    True)\n                    out += \" \" * indent + \"],\\n\"\n        elif not array and len(s[ss]) == 0:\n            # This is actually a bug\n            out += \" \" * indent + json.dumps(ss) + \": <Unknown>,\\n\"\n        else:\n            if not array:\n                out += \" \" * indent + json.dumps(ss) + \":(\\n\"\n                iterObj = s[ss]\n            else:\n                iterObj = s\n            if \"String\" in iterObj:\n                out += \" \" * (indent + step) + \"<String>,\\n\"\n            if \"Integer\" in iterObj:\n                out += \" \" * (indent + step) + \"<Integer>,\\n\"\n            if \"Float\" in iterObj:\n                out += \" \" * (indent + step) + \"<Float>,\\n\"\n            if \"Boolean\" in iterObj:\n                out += \" \" * (indent + step) + \"<Boolean>,\\n\"\n            if \"Object\" in iterObj:\n                out += \" \" * (indent + step) + \"{\\n\"\n                out += reformatMeta(iterObj[\"Object\"], indent + step, step,\n                                    False)\n                out += \" \" * (indent + step) + \"},\\n\"\n            if \"Array\" in iterObj:\n                out += \" \" * (indent + step) + \"[\\n\"\n                out += reformatMeta(iterObj[\"Array\"], indent + step, step,\n                                    True)\n                out += \" \" * (indent + step) + \"],\\n\"\n            if not array:\n                out += \" \" * indent + \")\\n\"\n            else:\n                break\n    return out\n\ndef reformat(struct):\n    if isinstance(struct, list):\n        return reformatMeta(struct[0][\"Object\"], 0, 2, False)\n    else:\n        return reformatMeta(struct, 0, 2, False)\n\ndef findLongestLineLength(s):\n    maxLen = 0\n    curSum = 0\n    lineNo = 0\n    lineLengths = []\n    for line in s.split(\"\\n\"):\n        if lineNo % 100 == 0:\n            lineLengths.append(curSum)\n        lineLen = len(line)\n        curSum += lineLen + 1\n        if lineLen > maxLen:\n            maxLen = lineLen\n        lineNo += 1\n    return (lineNo, maxLen, lineLengths)\n\ndef prettyPrintJson(inp, tmpp, metap):\n    try:\n        structs = json.load(open(inp, \"rb\"))\n    except:\n        structs = json.loads(\"[\" +\n                             \",\".join(open(inp, \"rb\").read().split(\"\\n\")) +\n                             \"]\")\n    prettyString = json.dumps(structs, indent=2)\n    fout = open(tmpp, \"wb\")\n    fout.write(prettyString)\n    fout.close()\n    metaPrettyString = reformat(getMetaWrapper(structs))\n    fout = open(metap, \"wb\")\n    fout.write(metaPrettyString)\n    fout.close()\n    return (findLongestLineLength(prettyString), findLongestLineLength(\n            metaPrettyString))\n\ndef constructXml(elements, root):\n    for e in elements:\n        elems = root.findall(\"./[\" + e.tag + \"]\")\n        if len(elems) == 0:\n            newElem = ET.SubElement(root, e.tag)\n        else:\n            newElem = elems[0]\n        constructXml(e.findall(\"./\"), newElem)\n\ndef constructXmlMeta(root):\n    prettyRoot = ET.Element(root.tag)\n    constructXml(root.findall(\"./\"), prettyRoot)\n    return prettyRoot\n\ndef prettyPrintXml(inp, tmpp, metap):\n    parser = ET.XMLParser(remove_blank_text=True)\n    try:\n        root = ET.parse(inp, parser).getroot()\n    except:\n        parser.feed(\"<xcRecord>\")\n        parser.feed(open(inp).read().decode(\"utf-8\", \"ignore\").encode(\"utf-8\"))\n        parser.feed(\"</xcRecord>\")\n        root = parser.close()\n    prettyString = ET.tostring(root, pretty_print=True)\n    fout = open(tmpp, \"wb\")\n    fout.write(prettyString)\n    fout.close()\n    prettyRoot = constructXmlMeta(root)\n    metaPrettyString = ET.tostring(prettyRoot, pretty_print=True)\n    fout = open(metap, \"wb\")\n    fout.write(metaPrettyString)\n    fout.close()\n    return (findLongestLineLength(prettyString), findLongestLineLength(\n            metaPrettyString))\n\ndef main(inBlob):\n    arguments = json.loads(inBlob)\n    userName = arguments[\"user\"]\n    sessionName = arguments[\"session\"]\n    hashName = hashlib.md5(userName + \"-\" + sessionName).hexdigest()\n    outPath = \"/tmp/vp-\" + str(hashName)\n    metaOutPath = \"/tmp/mvp-\" + str(hashName)\n    if (arguments[\"format\"] == \"xml\"):\n         ((total, maxLen, lineLengths),\n         (metaTotalLines, metaMaxLen, metaLineLengths)) = prettyPrintXml(\n                                                          arguments[\"path\"],\n                                                          outPath, metaOutPath)\n    elif (arguments[\"format\"] == \"json\"):\n        ((total, maxLen, lineLengths),\n         (metaTotalLines, metaMaxLen, metaLineLengths)) = prettyPrintJson(\n                                                          arguments[\"path\"],\n                                                          outPath, metaOutPath)\n    return json.dumps({\"maxLen\": maxLen, \"lineLengths\": lineLengths,\n                       \"tmpPath\": outPath, \"totalLines\": total, \"meta\":{\n            \"path\": metaOutPath, \"lineLengths\": metaLineLengths,\n            \"totalLines\":metaTotalLines, \"maxLen\": metaMaxLen\n        }})"
+        var previewAppStr = "import sys, json, re, random, hashlib\nfrom lxml import etree as ET\n\ndef getMeta(s, ssf, isArray):\n    for k in s:\n        if isArray:\n            value = k\n        else:\n            value = s[k]\n        if isinstance(value, str) or isinstance(value, unicode):\n            if isArray:\n                if \"String\" not in ssf:\n                    ssf[\"String\"] = True\n            else:\n                if k not in ssf:\n                    ssf[k] = {}\n                ssf[k][\"String\"] = True\n        elif isinstance(value, float):\n            if isArray:\n                if \"Float\" not in ssf:\n                    ssf[\"Float\"] = True\n            else:\n                if k not in ssf:\n                    ssf[k] = {}\n                ssf[k][\"Float\"] = True\n        elif isinstance(value, int):\n            if isArray:\n                if \"Integer\" not in ssf:\n                    ssf[\"Integer\"] = True\n            else:\n                if k not in ssf:\n                    ssf[k] = {}\n                ssf[k][\"Integer\"] = True\n        elif isinstance(value, bool):\n            if isArray:\n                if \"Boolean\" not in ssf:\n                    ssf[\"Boolean\"] = True\n            else:\n                if k not in ssf:\n                    ssf[k] = {}\n                ssf[k][\"Boolean\"] = True\n        elif isinstance(value, dict):\n            if isArray:\n                if \"Object\" not in ssf:\n                    ssf[\"Object\"] = {}\n                getMeta(value, ssf[\"Object\"], False)\n            else:\n                if k not in ssf:\n                    ssf[k] = {}\n                if \"Object\" not in ssf[k]:\n                    ssf[k][\"Object\"] = {}\n                getMeta(value, ssf[k][\"Object\"], False)\n        elif isinstance(value, list):\n            if isArray:\n                if \"Array\" not in ssf:\n                    ssf[\"Array\"] = {}\n                getMeta(value, ssf[\"Array\"], True)\n            else:\n                if k not in ssf:\n                    ssf[k] = {}\n                if \"Array\" not in ssf[k]:\n                    ssf[k][\"Array\"] = {}\n                getMeta(value, ssf[k][\"Array\"], True)\n        else:\n            # error\n            print value\n            print type(value)\n\ndef getMetaWrapper(s):\n    d = {}\n    if isinstance(s, list):\n        getMeta(s, d, True)\n        d = [d]\n    else:\n        getMeta(s, d, False)\n    return d\n\ndef reformatMeta(s, indent, step, array):\n    out = \"\"\n    for ss in s:\n        # must be a key name\n        if not array and len(s[ss]) == 1:\n            if list(s[ss])[0] != \"Object\" and list(s[ss])[0] != \"Array\":\n                out += \" \" * indent + json.dumps(ss) + \": <\" + list(s[ss])[0]\\\n                       + \">,\\n\"\n            else:\n                out += \" \" * indent + json.dumps(ss) + \": \"\n                if list(s[ss])[0] == \"Object\":\n                    out += \"{\\n\"\n                    out += reformatMeta(s[ss][\"Object\"], indent + step, step,\n                                    False)\n                    out += \" \" * indent + \"},\\n\"\n                else:\n                    out += \"[\\n\"\n                    out += reformatMeta(s[ss][\"Array\"], indent + step, step,\n                                    True)\n                    out += \" \" * indent + \"],\\n\"\n        elif not array and len(s[ss]) == 0:\n            # This is actually a bug\n            out += \" \" * indent + json.dumps(ss) + \": <Unknown>,\\n\"\n        else:\n            if not array:\n                out += \" \" * indent + json.dumps(ss) + \":(\\n\"\n                iterObj = s[ss]\n            else:\n                iterObj = s\n            if \"String\" in iterObj:\n                out += \" \" * (indent + step) + \"<String>,\\n\"\n            if \"Integer\" in iterObj:\n                out += \" \" * (indent + step) + \"<Integer>,\\n\"\n            if \"Float\" in iterObj:\n                out += \" \" * (indent + step) + \"<Float>,\\n\"\n            if \"Boolean\" in iterObj:\n                out += \" \" * (indent + step) + \"<Boolean>,\\n\"\n            if \"Object\" in iterObj:\n                out += \" \" * (indent + step) + \"{\\n\"\n                out += reformatMeta(iterObj[\"Object\"], indent + step, step,\n                                    False)\n                out += \" \" * (indent + step) + \"},\\n\"\n            if \"Array\" in iterObj:\n                out += \" \" * (indent + step) + \"[\\n\"\n                out += reformatMeta(iterObj[\"Array\"], indent + step, step,\n                                    True)\n                out += \" \" * (indent + step) + \"],\\n\"\n            if not array:\n                out += \" \" * indent + \")\\n\"\n            else:\n                break\n    return out\n\ndef reformat(struct):\n    if isinstance(struct, list):\n        return reformatMeta(struct[0][\"Object\"], 0, 2, False)\n    else:\n        return reformatMeta(struct, 0, 2, False)\n\ndef findLongestLineLength(s):\n    maxLen = 0\n    curSum = 0\n    lineNo = 0\n    lineLengths = []\n    for line in s.split(\"\\n\"):\n        if lineNo % 100 == 0:\n            lineLengths.append(curSum)\n        lineLen = len(line)\n        curSum += lineLen + 1\n        if lineLen > maxLen:\n            maxLen = lineLen\n        lineNo += 1\n    return (lineNo, maxLen, lineLengths, len(s))\n\ndef prettyPrintJson(inp, tmpp, metap):\n    try:\n        structs = json.load(open(inp, \"rb\"))\n    except:\n        structs = json.loads(\"[\" +\n                             \",\".join(open(inp, \"rb\").read().split(\"\\n\")) +\n                             \"]\")\n    prettyString = json.dumps(structs, indent=2)\n    fout = open(tmpp, \"wb\")\n    fout.write(prettyString)\n    fout.close()\n    metaPrettyString = reformat(getMetaWrapper(structs))\n    fout = open(metap, \"wb\")\n    fout.write(metaPrettyString)\n    fout.close()\n    return (findLongestLineLength(prettyString), findLongestLineLength(\n            metaPrettyString))\n\ndef constructXml(elements, root):\n    for e in elements:\n        elems = root.findall(\"./[\" + e.tag + \"]\")\n        if len(elems) == 0:\n            newElem = ET.SubElement(root, e.tag)\n        else:\n            newElem = elems[0]\n        constructXml(e.findall(\"./\"), newElem)\n\ndef constructXmlMeta(root):\n    prettyRoot = ET.Element(root.tag)\n    constructXml(root.findall(\"./\"), prettyRoot)\n    return prettyRoot\n\ndef prettyPrintXml(inp, tmpp, metap):\n    parser = ET.XMLParser(remove_blank_text=True)\n    try:\n        root = ET.parse(inp, parser).getroot()\n    except:\n        parser.feed(\"<xcRecord>\")\n        parser.feed(open(inp).read().decode(\"utf-8\", \"ignore\").encode(\"utf-8\"))\n        parser.feed(\"</xcRecord>\")\n        root = parser.close()\n    prettyString = ET.tostring(root, pretty_print=True)\n    fout = open(tmpp, \"wb\")\n    fout.write(prettyString)\n    fout.close()\n    prettyRoot = constructXmlMeta(root)\n    metaPrettyString = ET.tostring(prettyRoot, pretty_print=True)\n    fout = open(metap, \"wb\")\n    fout.write(metaPrettyString)\n    fout.close()\n    return (findLongestLineLength(prettyString), findLongestLineLength(\n            metaPrettyString))\n\ndef main(inBlob):\n    arguments = json.loads(inBlob)\n    userName = arguments[\"user\"]\n    sessionName = arguments[\"session\"]\n    hashName = hashlib.md5(userName + \"-\" + sessionName).hexdigest()\n    outPath = \"/tmp/vp-\" + str(hashName)\n    metaOutPath = \"/tmp/mvp-\" + str(hashName)\n    if (arguments[\"format\"] == \"xml\"):\n         ((total, maxLen, lineLengths, numChar),\n         (metaTotalLines, metaMaxLen, metaLineLengths,\n                                      metaNumChar)) = prettyPrintXml(\n                                                      arguments[\"path\"],\n                                                      outPath, metaOutPath)\n    elif (arguments[\"format\"] == \"json\"):\n        ((total, maxLen, lineLengths, numChar),\n         (metaTotalLines, metaMaxLen, metaLineLengths,\n                                      metaNumChar)) = prettyPrintJson(\n                                                      arguments[\"path\"],\n                                                      outPath, metaOutPath)\n    return json.dumps({\"maxLen\": maxLen, \"lineLengths\": lineLengths,\n                       \"tmpPath\": outPath, \"totalLines\": total,\n                       \"numChar\": numChar,\n                       \"meta\":{\n            \"tmpPath\": metaOutPath, \"lineLengths\": metaLineLengths,\n            \"totalLines\": metaTotalLines, \"maxLen\": metaMaxLen,\n            \"numChar\": metaNumChar}})";
         XcalarAppSet(previewApp, "Python", "Import", previewAppStr);
 
         var xmlAppStr = "# This app is part of the visual parser. It takes in a bunch of offsets of\n# xml tags and outputs a stream UDF that will be then applied to the dataset\n# to extract the relevant tags out as records.\nimport sys, json, re, xmltodict\nfrom lxml import etree as ET\n\ndef findFullXmlPath(keyArray, inp):\n    #keyArray must be of the form [(\"key\", characterOffset)]\n    sortedArray = sorted(keyArray, key=lambda (key, offset): offset)\n    initialFile = open(inp, \"r\").read()\n    segments = []\n    prevIndex = 0\n    for (keyPartialName, charOffset) in sortedArray:\n        #explode initialFile at the correct places\n        segments.append(initialFile[prevIndex:charOffset])\n        prevIndex = charOffset\n    segments.append(initialFile[prevIndex:])\n    withXcTags = \"\"\n    for idx in xrange(len(segments)-1):\n        withXcTags += segments[idx]\n        withXcTags += \"<xctag></xctag>\"\n        #print str(idx) + \": >>\" + segments[idx][-20:] + \"<xctag></xctag>\" + segments[idx + 1][:20]\n    withXcTags += segments[-1]\n    root = ET.fromstring(withXcTags)\n    allObj = root.findall(\".//xctag\")\n    paths = []\n    tree = ET.ElementTree(root)\n    for obj in allObj:\n        path = tree.getpath(obj.getparent())\n        path = re.sub(r\"[\\[0-9+\\]]\", \"\", path)\n        paths.append(path)\n    return paths\n\ndef constructRecords(keyArray, prettyIn):\n    # keyArray must be of the form [(key, characterOffset, type)]\n    # where type == \"full\" or \"partial\"\n    fullKeyArray = []\n    partialPaths = []\n    fullPaths = []\n    partialElements = []\n    fullElements = []\n    for k, o, t in keyArray:\n        if t == \"full\":\n            fullKeyArray.append((k, o))\n        else:\n            partialPaths.append(k)\n    fullPaths = findFullXmlPath(fullKeyArray, prettyIn)\n    return \"\"\"\nimport sys, json, re\nfrom lxml import etree as ET\nimport xmltodict\ndef parser(inp, ins):\n    # Find all partials\n    try:\n        root = ET.fromstring(ins.read())\n    except:\n        parser = ET.XMLParser()\n        parser.feed(\"<xcRecord>\")\n        parser.feed(open(inp).read().decode(\"utf-8\", \"ignore\").encode(\"utf-8\"))\n        parser.feed(\"</xcRecord>\")\n        root = parser.close()\n    tree = ET.ElementTree(root)\n\n    partialPaths = \"\"\" + json.dumps(partialPaths) + \"\"\"\n    fullPaths = \"\"\" + json.dumps(fullPaths) + \"\"\"\n\n    if len(partialPaths):\n        eString = \".//*[self::\" + \" or self::\".join(partialPaths) + \"]\"\n        print eString\n        partialElements = root.xpath(eString)\n        for element in partialElements:\n            elementDict = xmltodict.parse(ET.tostring(element))\n            elementDict[\"xcXmlPath\"] = tree.getpath(element)\n            elementDict[\"xcMethod\"] = \"partial\"\n            yield elementDict\n\n    for fullPath in fullPaths:\n        fullElements = root.xpath(fullPath)\n        for element in fullElements:\n            elementDict = xmltodict.parse(ET.tostring(element))\n            elementDict[\"xcXmlPath\"] = tree.getpath(element)\n            elementDict[\"xcMethod\"] = \"full\"\n            yield elementDict\n\"\"\"\n\ndef adjust(array):\n    adjustedArray = []\n    for entry in array:\n        key = entry[\"key\"]\n        offset = entry[\"offset\"]\n        type = entry[\"type\"]\n        nkey = key.strip()[1:-1]\n        if nkey[0] == \"/\":\n            # this is a closing tag. Set offset to be 1 char before <\n            offset = offset - len(key)\n            nkey = nkey[1:]\n        adjustedArray.append((nkey, offset, type))\n    return adjustedArray\n\ndef main(inBlob):\n    args = json.loads(inBlob)\n    adjustedArray = adjust(args[\"keys\"])\n    udf = constructRecords(adjustedArray, args[\"prettyPath\"])\n    return json.dumps({\"udf\": udf})"
@@ -96,25 +102,29 @@ window.DSParser = (function($, DSParser) {
         $fileName.text(url);
         xcTooltip.changeText($fileName, url);
         $formatList.find("input").val("");
-        $("#previewModeBox .boxBody").empty();
+        $miniContent.empty();
         $("#delimitersBox .boxBody ul").empty();
         buffers = [];
         totalRows = null;
         keys = [];
         previewMeta = null;
         fetchId++;
+        boxFetchId++;
         curUrl = url;
         resetRowInput();
         $dataPreview.find(".sizer").height(0);
         $previewContent.parent().height("auto");
+        $miniContent.parent().height("auto");
         $dataPreview.scrollTop(0);
     }
 
     // called after clicking next OR close
     function cleanupCard() {
         $dataPreview.off("mousedown.dsparser");
+        $miniPreview.off("mousedown.dsparser");
         $(document).off("mouseup.dsparser");
         isMouseDown = false;
+        isBoxMouseDown  = false;
         $(window).off("resize.dsparser");
     }
 
@@ -159,28 +169,21 @@ window.DSParser = (function($, DSParser) {
         $dataPreview.on("mousedown.dsparser", function() {
             isMouseDown = true;
         });
+
+        $miniPreview.on("mousedown.dsparser", function() {
+            isBoxMouseDown = true;
+        });
+
         $(document).on("mouseup.dsparser", function() {
             if (isMouseDown) {
-                checkIfScrolled();
+                checkIfScrolled($dataPreview, previewMeta);
                 isMouseDown = false;
+            } else if (isBoxMouseDown) {
+                checkIfScrolled($miniPreview, previewMeta.meta);
+                isBoxMouseDown = false;
             }
         });
     }
-
-    function isBoxCoveringSibling($box, $sibling) {
-        var boxTop = $box.position().top;
-        var siblingTop = $sibling.position().top;
-        if ((boxTop < siblingTop) && (boxTop + $box.height() > siblingTop)) {
-            if (($box.position().left + $box.width() >
-                $sibling.position().left) &&
-                $box.position().left <
-                ($sibling.position().left +$sibling.width())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
 
     function setupBoxes() {
         var $boxes = $parserCard.find(".parserBox");
@@ -386,31 +389,55 @@ window.DSParser = (function($, DSParser) {
         });
     }
 
-    function setupInfScroll() {
+    function setupInfScroll($preview) {
         var prevScrollPos = 0;
         var scrollTop;
         var scrollTimer;
+        var $container;
+        var isBox = false;
 
-        $dataPreview.scroll(function() {
-            getScrollLineNum();
+        if ($preview.hasClass("boxBody")) {
+            $container = $preview;
+            isBox = true;
+        } else {
+            $container = $parserCard;
+        }
+
+        $preview.scroll(function() {
+            if (!isBox) {
+                getScrollLineNum();
+            }
+
             clearTimeout(scrollTimer);
-            if (isMouseDown) {
+            if (isMouseDown || isBoxMouseDown) {
                 return;
             }
 
             // when scrolling stops, will check position and see if we need
             // to fetch rows
-            scrollTimer = setTimeout(checkIfScrolled, 300);
+            scrollTimer = setTimeout(function() {
+                if (!previewMeta) {
+                    return;
+                }
+                var meta;
+                if (isBox) {
+                    meta = previewMeta.meta;
+                } else {
+                    meta = previewMeta;
+                }
 
-            if ($parserCard.hasClass("fetchingRows")) {
+                checkIfScrolled($preview, meta);
+            }, 300);
+
+            if ($container.hasClass("fetchingRows")) {
                 return;
             }
-            scrollTop = $dataPreview.scrollTop();
+            scrollTop = $preview.scrollTop();
             if (scrollTop !== prevScrollPos) {
                 if (scrollTop > prevScrollPos) {
-                    checkIfNeedFetch();
+                    checkIfNeedFetch($preview);
                 } else if (scrollTop < prevScrollPos) {
-                    checkIfNeedFetch(true);
+                    checkIfNeedFetch($preview, true);
                 }
                 prevScrollPos = scrollTop;
             } else {
@@ -420,39 +447,49 @@ window.DSParser = (function($, DSParser) {
         });
     }
 
-    function checkIfNeedFetch(up) {
+    // called on scroll to see if needs block appended or prepended
+    function checkIfNeedFetch($preview, up) {
         if (!previewMeta) {
             return; // scroll may be triggered when refreshing with new data
         }
-        var scrollTop = Math.max(0, $dataPreview.scrollTop() -
+        var meta;
+        if ($preview.hasClass("boxBody")) {
+            meta = previewMeta.meta;
+        } else {
+            meta = previewMeta;
+        }
+
+        var scrollTop = Math.max(0, $preview.scrollTop() -
                                     containerPadding);
 
         if (up) {
-            var startPage = Math.floor(scrollTop / pageHeight);
-            if (startPage < previewMeta.startPage) {
-                fetchRows(previewMeta.lineLengths[startPage], up);
+            var startPage = Math.floor(scrollTop / meta.pageHeight);
+            if (startPage < meta.startPage) {
+                fetchRows(meta, meta.lineLengths[startPage], up);
             }
         } else {
-            var scrollBottom = scrollTop + $dataPreview[0].offsetHeight;
-            var endPage = Math.floor(scrollBottom / pageHeight);
-            if (endPage > previewMeta.endPage) {
-                fetchRows(previewMeta.lineLengths[endPage]);
+            var scrollBottom = scrollTop + $preview[0].offsetHeight;
+            var endPage = Math.floor(scrollBottom / meta.pageHeight);
+            if (endPage > meta.endPage) {
+                fetchRows(meta, meta.lineLengths[endPage]);
             }
         }
     }
 
-    function checkIfScrolled() {
-        if (!previewMeta) {
+    // called after pressing mousedown on scrollbar, scrolling and releasing
+    // also called at a timeout after a scrollevent to check if new content is
+    // needed
+    function checkIfScrolled($preview, meta) {
+        if (!previewMeta || !previewMeta.meta) {
             return; // scroll may be triggered when refreshing with new data
         }
-        var scrollTop = Math.max(0, $dataPreview.scrollTop() -
-                                    containerPadding);
-        var topPage = Math.floor(scrollTop / pageHeight);
-        var botPage = Math.floor((scrollTop + $dataPreview[0].offsetHeight) /
-                                 pageHeight);
+        var scrollTop = Math.max(0, $preview.scrollTop() - containerPadding);
+        var topPage = Math.floor(scrollTop / meta.pageHeight);
+        var botPage = Math.floor((scrollTop + $preview[0].offsetHeight) /
+                                 meta.pageHeight);
 
-        if (previewMeta.startPage === topPage &&
-            previewMeta.endPage === botPage) {
+        if (meta.startPage === topPage &&
+            meta.endPage === botPage) {
             return;
         } else {
             // XXX need to do a better check of which pages to fetch
@@ -460,18 +497,14 @@ window.DSParser = (function($, DSParser) {
             if (topPage !== botPage) {
                 numPages = 2;
             }
-            previewContent(topPage, numPages, $dataPreview.scrollTop());
+            if (meta.meta) {
+                previewContent(topPage, numPages, $preview.scrollTop());
+            } else {
+                showPreviewMode(topPage, numPages, $preview.scrollTop());
+            }
         }
     }
 
-    function getScrollHeight() {
-        var numRows = previewMeta.totalLines;
-        var scrollHeight = Math.max(lineHeight * numRows,
-                                    $previewContent.height());
-                                    // $previewContent.height() - 10);
-
-        return (scrollHeight);
-    }
 
     function previewContent(pageNum, numPages, scrollTop) {
         var deferred = jQuery.Deferred();
@@ -510,12 +543,14 @@ window.DSParser = (function($, DSParser) {
             if (newContent) {
                 setPreviewMeta(meta);
                 updateTotalNumRows();
-                showPreviewMode();
+                var prom = showPreviewMode(0, 1, 0);
+                xcHelper.showRefreshIcon($miniPreview, false, prom);
+
                 offset = 0;
             } else {
                 offset = previewMeta.lineLengths[pageNum];
             }
-            var numBytes = calculateNumBytes(pageNum, numPages);
+            var numBytes = calculateNumBytes(pageNum, numPages, previewMeta);
 
             return XcalarPreview(previewMeta.parsedPath, null, false, numBytes,
                                  offset);
@@ -524,13 +559,12 @@ window.DSParser = (function($, DSParser) {
             if (curFetchId !== fetchId) {
                 return PromiseHelper.reject(notSameCardError);
             }
-            if (newContent) {
-                totalSize = res.totalDataSize;
-            } else {
+            if (!newContent) {
                 previewMeta.startPage = pageNum;
                 previewMeta.endPage = pageNum + numPages - 1;
             }
-            showContent(res.buffer, numPages, scrollTop);
+
+            showContent(res.buffer, numPages, $dataPreview, previewMeta, scrollTop)
             $parserCard.removeClass("loading fetchingRows");
 
             deferred.resolve();
@@ -548,46 +582,74 @@ window.DSParser = (function($, DSParser) {
     }
 
 
-    function setPreviewMeta(meta) {
-        previewMeta = meta;
-        previewMeta.startPage = 0; // first visible page
-        previewMeta.endPage = 0; // last visible page
-        previewMeta.numPages = meta.lineLengths.length;
-        previewMeta.parsedPath = parseNoProtocolPath(meta.tmpPath);
-        if (meta.meta) {
-            previewMeta.meta.parsedPath = parseNoProtocolPath(meta.meta.path);
+    function setPreviewMeta(meta, innerMeta) {
+        if (!innerMeta) {
+            previewMeta = meta;
         }
 
-        console.log(previewMeta);
+        meta.startPage = 0; // first visible page
+        meta.endPage = 0; // last visible page
+        meta.numPages = meta.lineLengths.length;
+        meta.parsedPath = parseNoProtocolPath(meta.tmpPath);
+        meta.lineHeight = lineHeight;
+        meta.pageHeight = lineHeight * linesPerPage;
+
+        if (meta.meta) {
+            setPreviewMeta(meta.meta, true);
+            meta.meta.lineHeight = boxLineHeight;
+            meta.meta.pageHeight = boxLineHeight * linesPerPage;
+        }
     }
 
     // used for scrolling and appending or prepending 1 block
-    function fetchRows(newOffset, up) {
+    function fetchRows(meta, newOffset, up) {
         var deferred = jQuery.Deferred();
 
-        fetchId++;
-        var curFetchId = fetchId;
-        var numBytes;
-        if (up) {
-            numBytes = calculateNumBytes(previewMeta.startPage - 1, 1);
-        } else {
-            numBytes = calculateNumBytes(previewMeta.endPage + 1, 1);
-        }
-
-        if (newOffset >= totalSize || newOffset < 0) {
+        if (newOffset >= meta.numChar || newOffset < 0) {
             return PromiseHelper.resolve();
         }
-        $parserCard.addClass("fetchingRows");
 
-        XcalarPreview(previewMeta.parsedPath, null, false, numBytes, newOffset)
+        var curFetchId;
+        if (meta.meta) {
+            fetchId++;
+            curFetchId = fetchId;
+        } else {
+            boxFetchId++;
+            curFetchId = boxFetchId;
+        }
+
+        var numBytes;
+        if (up) {
+            numBytes = calculateNumBytes(meta.startPage - 1, 1, meta);
+        } else {
+            numBytes = calculateNumBytes(meta.endPage + 1, 1, meta);
+        }
+
+        if (meta.meta) {
+            $parserCard.addClass("fetchingRows");
+        } else {
+            $miniPreview.addClass("fetchingRows");
+        }
+
+        XcalarPreview(meta.parsedPath, null, false, numBytes, newOffset)
         .then(function(res) {
-            if (curFetchId === fetchId) {
-                addContent(res.buffer, up);
+            if (meta.meta) {
+                if (curFetchId === fetchId) {
+                    addContent(res.buffer, $dataPreview, meta, up);
+                }
+            } else {
+                if (curFetchId === boxFetchId) {
+                    addContent(res.buffer, $miniPreview, meta, up);
+                }
             }
         })
         .fail(function() {
             if (curFetchId === fetchId) {
-                $parserCard.removeClass("fetchingRows");
+                if (meta.meta) {
+                    $parserCard.removeClass("fetchingRows");
+                } else {
+                    $miniPreview.removeClass("fetchingRows");
+                }
                 // handleError or different error handler for scrolling errors
             }
         })
@@ -597,45 +659,98 @@ window.DSParser = (function($, DSParser) {
         return deferred.promise();
     }
 
-    function showPreviewMode() {
+    function showPreviewMode(pageNum, numPages, scrollTop) {
         var deferred = jQuery.Deferred();
         var promise = deferred.promise();
 
-        if (!previewMeta.meta) {
+        if (!previewMeta || !previewMeta.meta) {
             console.error("error case");
             handlePreviewModeError(ErrTStr.Unknown);
             return PromiseHelper.reject(ErrTStr.Unknown);
         }
 
+        $miniPreview.addClass("fetchingRows");
+
         var $box = $("#previewModeBox");
         $box.removeClass("error");
         var parsedPath = previewMeta.meta.parsedPath;
-        var curFetchId = fetchId;
+        boxFetchId++;
+        var curFetchId = boxFetchId;
 
-        var numBytes = 4000; // XXX hard coded
-        var newOffset = 0; // XXX hard coded
+        var numBytes = calculateNumBytes(pageNum, numPages, previewMeta.meta);
+        var newOffset = previewMeta.meta.lineLengths[pageNum];
 
         XcalarPreview(parsedPath, null, false, numBytes, newOffset)
         .then(function(res) {
-            if (curFetchId === fetchId) {
-                addPreviewModeContent(res.buffer);
+            if (curFetchId === boxFetchId) {
+                previewMeta.meta.startPage = pageNum;
+                previewMeta.meta.endPage = pageNum + numPages - 1;
+                showContent(res.buffer, numPages, $miniPreview,
+                            previewMeta.meta, scrollTop);
+                $miniPreview.removeClass("loading fetchingRows");
             }
             deferred.resolve();
         })
         .fail(function(error) {
-            if (curFetchId === fetchId) {
+            if (curFetchId === boxFetchId) {
                 handlePreviewModeError(error);
             }
             deferred.reject(error);
         });
-
-        xcHelper.showRefreshIcon($box.find(".boxBody"), promise);
         return promise;
     }
 
-    function addPreviewModeContent(content, up) {
-        var $box = $("#previewModeBox");
-        $box.find(".boxBody").text(content);
+    // after scroll, wipes content and replaces with new content
+    function showContent(content, numPages, $preview, meta, scrollTop) {
+        if (meta.meta) {
+            buffers = [];
+        }
+
+        var $page;
+        var firstContent = content;
+        var secondContent = ""; // in case numPages === 2
+        $content = $preview.find(".content");
+        $content.empty();
+
+        if (numPages === 2) {
+            var firstPageSize = calculateNumBytes(meta.startPage, 1, meta);
+            firstContent = content.substr(0, firstPageSize);
+            secondContent = content.substr(firstPageSize);
+            if (meta.meta) {
+                buffers = [firstContent, secondContent];
+            }
+        } else if (meta.meta) {
+            buffers = [firstContent];
+        }
+
+        $page = $(getPageHtml(meta.startPage));
+        $page.text(firstContent);
+        $content.append($page);
+
+        if (secondContent.length) {
+            $page = $(getPageHtml(meta.startPage + 1));
+            $page.text(secondContent);
+            $content.append($page);
+        }
+
+        adjustSizer($preview, meta);
+
+        var padding;
+        if (meta.startPage === 0) {
+            padding = 0;
+        } else {
+            padding = containerPadding;
+        }
+        if (scrollTop != null) {
+            $preview.scrollTop(scrollTop);
+        } else {
+            $preview.scrollTop(meta.startPage * meta.pageHeight + padding);
+        }
+
+        setScrollHeight($content, meta);
+        if (meta.meta) {
+            getScrollLineNum();
+        }
     }
 
     function handlePreviewModeError(error) {
@@ -644,7 +759,7 @@ window.DSParser = (function($, DSParser) {
         if (typeof error === "object") {
             error = JSON.stringify(error);
         }
-        $box.find(".boxBody").text(error);
+        $box.find(".boxContent").text(error);
     }
 
     function beautifier(url) {
@@ -1056,13 +1171,13 @@ window.DSParser = (function($, DSParser) {
         }
     }
 
-    function calculateNumBytes(page, numPages) {
-        var lineLengths = previewMeta.lineLengths;
+    function calculateNumBytes(page, numPages, meta) {
+        var lineLengths = meta.lineLengths;
         var numBytes  = 0;
 
         for (var i = 0; i < numPages; i++) {
             if (page + 1 >= lineLengths.length) {
-                numBytes += (totalSize - lineLengths[page]);
+                numBytes += (meta.numChar - lineLengths[page]);
                 break;
             } else {
                 numBytes += (lineLengths[page + 1] - lineLengths[page]);
@@ -1178,93 +1293,73 @@ window.DSParser = (function($, DSParser) {
         return promise;
     }
 
-    // called when jumping to a line via input, dragging scrollbar, or on first
-    // fetch
-    function showContent(content, numPages, scrollTop) {
-        buffers = [];
-        var $page;
-        var firstContent = content;
-        var secondContent = ""; // in case numPages === 2
-        $previewContent.empty();
+    function setScrollHeight($content, meta) {
+        var numRows = meta.totalLines;
+        var scrollHeight = Math.max(meta.lineHeight * numRows,
+                                    $content.height());
+                                    // $previewContent.height() - 10);
 
-        if (numPages === 2) {
-            var firstPageSize = calculateNumBytes(previewMeta.startPage, 1);
-            firstContent = content.substr(0, firstPageSize);
-            secondContent = content.substr(firstPageSize);
-            buffers = [firstContent, secondContent];
-        } else {
-            buffers = [firstContent];
-        }
-
-        $page = $(getPageHtml(previewMeta.startPage));
-        $page.text(firstContent);
-        $previewContent.append($page);
-
-        if (secondContent.length) {
-            $page = $(getPageHtml(previewMeta.startPage + 1));
-            $page.text(secondContent);
-            $previewContent.append($page);
-        }
-
-        $dataPreview.find(".sizer").height(previewMeta.startPage * pageHeight);
-        var padding;
-        if (previewMeta.startPage === 0) {
-            padding = 0;
-        } else {
-            padding = containerPadding;
-        }
-        if (scrollTop != null) {
-            $dataPreview.scrollTop(scrollTop);
-        } else {
-            $dataPreview.scrollTop(previewMeta.startPage * pageHeight +
-                                    padding);
-        }
-
-        $previewContent.parent().height(getScrollHeight());
-        getScrollLineNum();
+        $content.parent().height(scrollHeight);
     }
 
     function getPageHtml(pageNum) {
         return '<span class="page page' + pageNum + '"></span>';
     }
 
-    function addContent(content, up) {
+    // called after scroll, appends or prepends and removes 1 block if needed
+    function addContent(content, $preview, meta, up) {
         var pageClass = "";
         if (up) {
-            previewMeta.startPage--;
-            pageClass = "page" + previewMeta.startPage;
-            buffers.unshift(content);
+            meta.startPage--;
+            pageClass = "page" + meta.startPage;
+            if (meta.meta) {
+                buffers.unshift(content);
+            }
         } else {
-            previewMeta.endPage++;
-            pageClass = "page" + previewMeta.endPage;
-            buffers.push(content);
+            meta.endPage++;
+            pageClass = "page" + meta.endPage;
+            if (meta.meta) {
+                buffers.push(content);
+            }
         }
-        
-        var scrollTop = $dataPreview.scrollTop();
+        var $content = $preview.find(".content");
+        var scrollTop = $preview.scrollTop();
         var color = "rgba(" + Math.round(Math.random() * 255) + "," + Math.round(Math.random() * 255) + "," + Math.round(Math.random() * 255) + ", 0.5)";
         var $page = $('<span class="page ' + pageClass + '" style="background:' + color + ';"></span>');
         $page.text(content);
         if (up) {
-            $previewContent.prepend($page);
+            $content.prepend($page);
         } else {
-            $previewContent.append($page);
+            $content.append($page);
         }
 
-        if (previewMeta.endPage - previewMeta.startPage > 1) { // no more than 2 pages visible at a time
+        if (meta.endPage - meta.startPage > 1) { // no more than 2 pages visible at a time
             if (up) {
-                $previewContent.find(".page").last().remove();
-                buffers.pop();
-                previewMeta.endPage--;
+                $content.find(".page").last().remove();
+                meta.endPage--;
+                if (meta.meta) {
+                    buffers.pop();
+                }
             } else {
-                $previewContent.find(".page").eq(0).remove();
-                buffers.shift();
-                previewMeta.startPage++;
+                $content.find(".page").eq(0).remove();
+                meta.startPage++;
+                if (meta.meta) {
+                    buffers.shift();
+                }
             }
         }
-        var sizerHeight = (previewMeta.startPage) * pageHeight;
-        $dataPreview.find(".sizer").height(sizerHeight);
-        $dataPreview.scrollTop(scrollTop);
-        $parserCard.removeClass("fetchingRows");
+
+        adjustSizer($preview, meta);
+        $preview.scrollTop(scrollTop);
+        if (meta.meta) {
+            $parserCard.removeClass("fetchingRows");
+        } else {
+            $preview.removeClass("fetchingRows");
+        }
+    }
+
+    function adjustSizer($preview, meta) {
+        $preview.find(".sizer").height(meta.startPage * meta.pageHeight);
     }
 
     function validateSubmit() {

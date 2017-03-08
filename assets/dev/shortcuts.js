@@ -323,7 +323,7 @@ window.Shortcuts = (function($, Shortcuts) {
                         break;
                     case ("parse"):
                         file = "parse";
-                        filePath = "netstore/datasets/dsParser/";
+                        filePath = "netstore/datasets/dsParser/Sample_JSON_-_Pretty.json";
                         break;
                     default:
                         break;

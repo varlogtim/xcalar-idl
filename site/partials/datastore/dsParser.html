@@ -51,10 +51,10 @@
     <div class="dataPreview xc-contentView">
       <div class="innerDataPreview">
         <div class="sizer"></div>
-        <div class="previewContent"></div>
+        <div class="previewContent content"></div>
       </div>
     </div>
-    <div id="previewModeBox" class="parserBox">
+    <div id="previewModeBox" class="parserBox" style="z-index: 1;">
       <header class="boxHeader">
         <div class="title"><%= dicts.dsParser.PreviewMode %></div>
         <div class="resize">
@@ -62,7 +62,12 @@
           <i class="icon xi-fullscreen xc-action" data-toggle="tooltip" data-container="body" data-placement="top auto" data-original-title="<%= dicts.common.Maximize %>"></i>
         </div>
       </header>
-      <div class="boxBody"></div>
+      <div class="boxBody">
+        <div class="innerBox">
+          <div class="sizer boxSizer"></div>
+          <div class="boxContent content"></div>
+        </div>
+      </div>
       <div class="boxFooter"></div>
     </div>
     <div id="delimitersBox" class="parserBox">
