@@ -1,5 +1,6 @@
 window.xcConsole = (function(xcConsole, $) {
-    window.debugOn = window.debugOn || false;
+    window.debugOn = window.debugOn ||
+                     xcLocalStorage.getItem("debugOn") === "true" || false;
     var showThrift = false;
     var logs = [];
 

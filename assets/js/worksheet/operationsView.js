@@ -412,6 +412,8 @@ window.OperationsView = (function($, OperationsView) {
 
                 clearTimeout(argumentTimer);
                 argumentTimer = setTimeout(function() {
+                    // XXX the first arg's list scroller won't be set up until
+                    // 2nd part of form is filled, need to fix
                     if (!$input.hasClass('gbOnArg')) {
                         argSuggest($input);
                     }
@@ -931,7 +933,8 @@ window.OperationsView = (function($, OperationsView) {
         for (var i = 1; i < colNums.length; i++) {
             var progCol = gTables[tableId].getCol(colNums[i]);
             if (!progCol.isNewCol) {
-                addGroupOnArg();var name = progCol.getFrontColName(true);
+                addGroupOnArg();
+                var name = progCol.getFrontColName(true);
                 $activeOpSection.find('.gbOnArg').last().val(gColPrefix + name);
             }
         }
@@ -1124,7 +1127,7 @@ window.OperationsView = (function($, OperationsView) {
         var $ul = $input.siblings(".list");
         var $allGroups = $activeOpSection.find('.group');
         var groupIndex = $allGroups.index($ul.closest('.group'));
-        var argIndex = $ul.closest('.group').find('.hint').index($ul);
+        var argIndex = $ul.closest('.group').find('.list.hint').index($ul);
         var listLis = "";
         var aggNameMatches;
         var colNameMatches;
@@ -1149,8 +1152,13 @@ window.OperationsView = (function($, OperationsView) {
         if (listLis.length) {
             $ul.find('ul').html(listLis);
             $ul.addClass("openList").show();
-            suggestLists[groupIndex][argIndex].showOrHideScrollers();
 
+            // this should always exists, just taking precaution
+            if (suggestLists[groupIndex] &&
+                suggestLists[groupIndex][argIndex]) {
+                suggestLists[groupIndex][argIndex].showOrHideScrollers();
+            }
+        
             $input.closest('.dropDownList').addClass('open');
             positionDropdown($ul);
         } else {
@@ -1665,7 +1673,7 @@ window.OperationsView = (function($, OperationsView) {
         if (operatorName === "group by") {
             $activeOpSection.find('.hint').addClass('new');
         }
-        $activeOpSection.find('.hint.new').each(function() {
+        $activeOpSection.find('.list.hint.new').each(function() {
             var scroller = new MenuHelper($(this), {
                 scrollerOnly: true,
                 bounds: '#operationsView',
@@ -4093,6 +4101,9 @@ window.OperationsView = (function($, OperationsView) {
         $activeOpSection.find('.gbOnRow').append(html);
         $activeOpSection.find('.gbOnArg').last().focus();
         formHelper.refreshTabbing();
+
+        var $ul = $activeOpSection.find('.gbOnArg').last().siblings(".list");
+        addSuggestListForExtraArg($ul);
     }
 
     function addMapArg($btn) {
@@ -4100,6 +4111,24 @@ window.OperationsView = (function($, OperationsView) {
         $btn.parent().prev().find('.inputWrap').last().after(html);
         $btn.parent().prev().find('.inputWrap').last().find('input').focus();
         formHelper.refreshTabbing();
+        
+        var $ul = $btn.parent().prev().find('.inputWrap').last().find(".list");
+        addSuggestListForExtraArg($ul);
+    }
+
+    function addSuggestListForExtraArg($ul) {
+        var $allGroups = $activeOpSection.find('.group');
+        var groupIndex = $allGroups.index($ul.closest('.group'));
+        var argIndex = $ul.closest('.group').find('.list.hint').index($ul);
+        
+        var scroller = new MenuHelper($ul, {
+            scrollerOnly: true,
+            bounds: '#operationsView',
+            bottomPadding: 5
+        });
+        
+        suggestLists[groupIndex].splice(argIndex, 0, scroller);
+        $ul.removeClass('new');
     }
 
     function getArgInputHtml() {
@@ -4133,6 +4162,12 @@ window.OperationsView = (function($, OperationsView) {
     }
 
     function removeExtraArg($inputWrap) {
+        var $allGroups = $activeOpSection.find('.group');
+        var groupIndex = $allGroups.index($inputWrap.closest('.group'));
+        var $ul = $inputWrap.find(".list");
+        var argIndex = $ul.closest('.group').find('.list.hint').index($ul);
+
+        suggestLists[groupIndex].splice(argIndex, 1);
         $inputWrap.remove();
         checkIfStringReplaceNeeded();
     }
