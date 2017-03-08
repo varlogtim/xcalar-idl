@@ -199,10 +199,29 @@ window.SQL = (function($, SQL) {
         commitLogs()
         .then(function() {
             lastSavedCursor = logCursor;
-            return commitErrors();
+            return SQL.commitErrors();
         })
         .then(deferred.resolve)
         .fail(deferred.reject);
+
+        return (deferred.promise());
+    };
+
+    SQL.commitErrors = function() {
+        if (errToCommit === "") {
+            return PromiseHelper.resolve();
+        }
+
+        var deferred = jQuery.Deferred();
+        var tmpSql = errToCommit;
+        errToCommit = "";
+
+        KVStore.append(KVStore.gErrKey, tmpSql, true, gKVScope.ERR)
+        .then(deferred.resolve)
+        .fail(function(error) {
+            errToCommit = tmpSql;
+            deferred.reject(error);
+        });
 
         return (deferred.promise());
     };
@@ -487,25 +506,6 @@ window.SQL = (function($, SQL) {
         })
         .fail(function(error) {
             sqlToCommit = tmpSql;
-            deferred.reject(error);
-        });
-
-        return (deferred.promise());
-    }
-
-    function commitErrors() {
-        if (errToCommit === "") {
-            return jQuery.Deferred().resolve().promise();
-        }
-
-        var deferred = jQuery.Deferred();
-        var tmpSql = errToCommit;
-        errToCommit = "";
-
-        KVStore.append(KVStore.gErrKey, tmpSql, true, gKVScope.ERR)
-        .then(deferred.resolve)
-        .fail(function(error) {
-            errToCommit = tmpSql;
             deferred.reject(error);
         });
 

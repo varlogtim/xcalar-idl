@@ -42,10 +42,11 @@ window.xcConsole = (function(xcConsole, $) {
                 console.log.apply(this, args.concat(originMsg));
             }
         }
+        return stack;
     };
 
     xcConsole.error = function() {
-        xcConsole.log.apply({isError: true}, arguments);
+        return xcConsole.log.apply({isError: true}, arguments);
     };
 
     xcConsole.getLogs = function() {

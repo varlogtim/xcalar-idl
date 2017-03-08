@@ -104,6 +104,12 @@ window.Alert = (function($, Alert){
         $modal.height(minHeight);
         modalHelper.setup(extraOptions);
 
+        if ($modal.find("button:visible").length > 3) {
+            $modal.addClass("flex");
+        } else {
+            $modal.removeClass("flex");
+        }
+
         if (window.isBrowserIE) { // all text will be on 1 line otherwise
             setTimeout(function() {
                 $modal.width(parseInt(minWidth) + 1);

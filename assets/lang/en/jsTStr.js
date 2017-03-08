@@ -258,6 +258,8 @@ ErrTStr = {
     'NotDisplayRows': 'Could Not Display Rows',
     'AppInstallFailed': 'App Installation Failed',
     'CannotDropLocked': 'Cannot drop locked tables',
+    'RefreshBrowser': 'Refresh  Browser',
+    'RefreshBrowserDesc': 'We have detected an issue that requires a refresh.\nPlease refresh your browser now. Your work will be recovered to the last consistent state.',
 
     // With replace
     'WorkbookExists': 'A workbook named <workbookName> already exists. Please' +

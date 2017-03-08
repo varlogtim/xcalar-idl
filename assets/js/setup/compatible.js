@@ -79,7 +79,7 @@ window.Compatible = (function($, Compatible) {
                     var T, A, k;
 
                     if (this == null) {
-                        throw new TypeError(' this is null or not defined');
+                        throw (' this is null or not defined');
                     }
 
                     // 1. Let O be the result of calling ToObject passing the |this|
@@ -94,7 +94,7 @@ window.Compatible = (function($, Compatible) {
                     // 4. If IsCallable(callback) is false, throw a TypeError exception.
                     // See: http://es5.github.com/#x9.11
                     if (typeof callback !== 'function') {
-                        throw new TypeError(callback + ' is not a function');
+                        throw (callback + ' is not a function');
                     }
 
                     // 5. If thisArg was supplied, let T be thisArg; else let T be undefined.
@@ -167,7 +167,7 @@ window.Compatible = (function($, Compatible) {
                 value: function(searchElement) {
                     'use strict';
                     if (this == null) {
-                        throw new TypeError('Array.prototype.includes called on null or undefined');
+                        throw ('Array.prototype.includes called on null or undefined');
                     }
 
                     var O = Object(this);
@@ -204,7 +204,7 @@ window.Compatible = (function($, Compatible) {
                     value: function(count) {
                         'use strict';
                         if (this == null) {
-                            throw new TypeError('can\'t convert ' + this + ' to object');
+                            throw ('can\'t convert ' + this + ' to object');
                         }
                         var str = '' + this;
                         count = +count;
@@ -212,10 +212,10 @@ window.Compatible = (function($, Compatible) {
                             count = 0;
                         }
                         if (count < 0) {
-                            throw new RangeError('repeat count must be non-negative');
+                            throw ('repeat count must be non-negative');
                         }
                         if (count === Infinity) {
-                            throw new RangeError('repeat count must be less than infinity');
+                            throw ('repeat count must be less than infinity');
                         }
                         count = Math.floor(count);
                         if (str.length === 0 || count === 0) {
@@ -225,7 +225,7 @@ window.Compatible = (function($, Compatible) {
                         // main part. But anyway, most current (August 2014) browsers can't handle
                         // strings 1 << 28 chars or longer, so:
                         if (str.length * count >= 1 << 28) {
-                            throw new RangeError('repeat count must not overflow maximum string size');
+                            throw ('repeat count must not overflow maximum string size');
                         }
                         var rpt = '';
                         for (;;) {

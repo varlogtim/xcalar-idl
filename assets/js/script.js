@@ -919,28 +919,94 @@ window.StartManager = (function(StartManager, $) {
             });
         }
 
-        window.onerror = function(error, url, line, column) {
+        window.onerror = function(msg, url, line, column, error) {
             var mouseDownTargetHTML = "";
-            var $lastTarget = gMouseEvents.getLastMouseDownTarget();
+            var parentsHTML = [];
+            var lastTargets = gMouseEvents.getLastMouseDownTargets();
+            var $lastTarget = lastTargets[0];
+            var prevTargetsHtml = [];
+
+            // get last 3 mousedown elements and parents
             if ($lastTarget && !$lastTarget.is(document)) {
                 mouseDownTargetHTML = $lastTarget.clone().empty()[0].outerHTML;
+
+                $lastTarget.parents().each(function() {
+                    if (!this.tagName) {
+                        return;
+                    }
+                    var html = "<" + this.tagName.toLowerCase();
+                    $.each(this.attributes, function() {
+                        if(this.specified) {
+                            html += ' ' + this.name + '="' + this.value + '"';
+                        }
+                    });
+                    html += ">";
+                    parentsHTML.push(html);
+                });
+
+                for (var i = 1; i < lastTargets.length; i++) {
+                    var prevTargetParents = [];
+                    lastTargets[i].parents().andSelf().each(function() {
+                        if (!this.tagName) {
+                            return;
+                        }
+                        var html = "<" + this.tagName.toLowerCase();
+                        $.each(this.attributes, function() {
+                            if(this.specified) {
+                                html += ' ' + this.name + '="' + this.value +
+                                        '"';
+                            }
+                        });
+                        html += ">";
+                        prevTargetParents.unshift(html);
+                    });
+
+                    prevTargetsHtml.push(prevTargetParents);
+                }
             }
+
             var mouseDownTime = gMouseEvents.getLastMouseDownTime();
+            var stack = null;
+            if (error && error.stack) {
+                stack = error.stack.split("\n");
+            }
 
             var info = {
-                "error": error,
+                "error": msg,
                 "url": url,
                 "line": line,
                 "column": column,
                 "lastMouseDown": {
                     "el": mouseDownTargetHTML,
-                    "time": mouseDownTime
-                }
+                    "time": mouseDownTime,
+                    "parents": parentsHTML,
+                    "prevMouseDowns": prevTargetsHtml
+                },
+                "stack": stack
             };
-
-            xcConsole.log(error, url + ":" + line + ":" + column);
+            xcConsole.log(msg, url + ":" + line + ":" + column);
 
             SQL.errorLog("Console error", null, null, info);
+
+            // if debugOn, xcConsole.log will show it's own error
+            // if no stack, then it's a custom error, don't show message
+            if (!window.debugOn && stack) {
+                var promise = SQL.commitErrors();
+
+                Alert.error(ErrTStr.RefreshBrowser, ErrTStr.RefreshBrowserDesc,
+                    {"lockScreen": true,
+                    "buttons": [{
+                        className: "refresh",
+                        name: "Refresh",
+                        func: function() {
+                            // wait for commit to finish before refreshing
+                            promise
+                            .always(function() {
+                                location.reload();
+                            });
+                        }
+                    }]});
+            }
         };
 
         function tableScroll(scrollType, isUp) {

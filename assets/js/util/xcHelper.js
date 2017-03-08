@@ -2879,7 +2879,7 @@ window.xcHelper = (function($, xcHelper) {
             try {
                 nodeInfo = JSON.parse(node[0]);
             } catch (error) {
-                throw error;
+                xcConsole.error(error);
             }
 
             return nodeInfo;

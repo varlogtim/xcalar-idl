@@ -1146,7 +1146,7 @@ window.DSPreview = (function($, DSPreview) {
                 $quoteRow.addClass("xc-hidden");
                 break;
             default:
-                throw new ReferenceError("Format Not Support");
+                throw ("Format Not Support");
         }
 
         loadArgs.setFormat(formatMap[format]);
