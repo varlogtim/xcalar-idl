@@ -150,6 +150,15 @@ p.userInput
 	font-weight: bold;
 }
 
+p.Copyright
+{
+	text-align: left;
+	margin: 10px 10px 10px 10px;
+	padding-left: 20px;
+	padding-bottom: 15px;
+	background-color: #d7d7d7;
+}
+
 img.BigImage
 {
 	mc-thumbnail: popup;
@@ -464,5 +473,10 @@ ul.navigation	/*To be used by menu items in the top navigation bar in HTML5.*/
 ul.sub-menu	/*Applied to sub menu items displayed when you hover over a top navigation menu item.*/
 {
 	text-transform: none;
+}
+
+a.ForCSH
+{
+	
 }
 

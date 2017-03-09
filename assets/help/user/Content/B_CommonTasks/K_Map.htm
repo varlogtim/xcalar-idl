@@ -184,7 +184,7 @@
                                                 </li>
                                                 <li><a href="../D_Reference/H_CellOptions.htm">Cell options</a>
                                                 </li>
-                                                <li><a href="../D_Reference/I_FunctionsUnderMap.htm">Map functions</a>
+                                                <li><a href="../D_Reference/I_MapFunctions.htm">Map functions</a>
                                                 </li>
                                                 <li><a href="../D_Reference/J_ExcelComparison.htm">Excel-equivalent functions</a>
                                                 </li>
@@ -310,14 +310,14 @@
                                     </div>
                                     <div class="bodyProxyNarrow">
                                         <h1>Using the Map function to create new values</h1>
-                                        <p>The Map function is divided into categories of functions that  create new values to help you derive meanings from your dataset. The new values can be based on one or multiple selected columns. For example, you can perform an arithmetic calculation from values in two selected columns to create a third column that contains the results of the calculation. The new value may also be generated without any input. For example, you can generate a column of unique, random values.</p>
-                                        <p>This section describes the steps for performing a Map function. For descriptions of all Map functions, see <a href="../D_Reference/I_FunctionsUnderMap.htm" class="MCXref xref">Map functions</a>.</p>
+                                        <p>The Map function is divided into categories of functions that  create new values to help you derive meaning from your dataset. The new values can be based on one or multiple selected columns. For example, you can perform an arithmetic calculation from values in two selected columns to create a third column that contains the results of the calculation. The new value may also be generated without any input. For example, you can generate a column of unique, random values.</p>
+                                        <p>This section describes the steps for performing a Map function. For descriptions of all Map functions, see <a href="../D_Reference/I_MapFunctions.htm" class="MCXref xref">Map functions</a>.</p>
                                         <div class="Note"><span class="label">IMPORTANT</span>:&#160;Many  Map functions work in a similar way as Microsoft Excel functions. However, there might be differences such as differences in the  number of operands accepted.&#160;Do not assume that the  Map functions are identical to the Excel functions even though they share the same name. </div>
-                                        <h2>How a Map function works if input data type is Mixed or Object</h2>
-                                        <p>If you use a Mixed column as input to a Map function that accepts only numerical values, the function generates FNF for cells containing a non-numerical value. </p>
-                                        <p>If you use an Object column as input to a Map function, the input value is treated as FNF. </p>
+                                        <h2>How a Map function works if input data type is Mixed, Array, or Object</h2>
+                                        <p>If you use a Mixed column as input to a Map function, the function is executed on the cells of a data type appropriate for the function. For all other cells, the function returns FNF. For example, if a Mixed column is the input for the div function, the division is performed only on numerical cells. FNF&#160;is displayed for each non-numerical cell in the resultant column.</p>
+                                        <p>If you use an Array or Object column as input to a Map function, the input value is treated as FNF. </p>
                                         <p>For more information about FNF, see <a href="P_UnderstandFNF.htm" class="MCXref xref">Working with a table containing FNF</a>.</p>
-                                        <div class="Note"><span class="label">NOTE</span>:&#160;You cannot start  a Map function from the drop-down menu of an Array, Mixed, or Object column, but you can run the function from the function bar using a column of any type as input. For more information about using the function bar, see <a href="../C_AdvancedTasks/D_FunctionBar.htm" class="MCXref xref">Using the function or search bar</a></div>
+                                        <div class="Note"><span class="label">NOTE</span>:&#160;You cannot start  a Map function from the column drop-down menu of an Array or Object column, but you can run the function from the function bar using a column of any type as input. For more information about using the function bar, see <a href="../C_AdvancedTasks/D_FunctionBar.htm" class="MCXref xref">Using the function or search bar</a></div>
                                         <h2>Creating a column by Map</h2>
                                         <p>Follow these steps to create a column by the Map function:</p>
                                         <ol>

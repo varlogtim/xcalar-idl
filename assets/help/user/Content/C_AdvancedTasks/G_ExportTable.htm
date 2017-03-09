@@ -184,7 +184,7 @@
                                                 </li>
                                                 <li><a href="../D_Reference/H_CellOptions.htm">Cell options</a>
                                                 </li>
-                                                <li><a href="../D_Reference/I_FunctionsUnderMap.htm">Map functions</a>
+                                                <li><a href="../D_Reference/I_MapFunctions.htm">Map functions</a>
                                                 </li>
                                                 <li><a href="../D_Reference/J_ExcelComparison.htm">Excel-equivalent functions</a>
                                                 </li>
@@ -303,8 +303,8 @@
                                         <div class="Note"><span class="label">NOTE:</span> Columns of the Array or Object type cannot be exported.</div>
                                         <p>You can export a table in one of two ways:</p>
                                         <ul>
-                                            <li value="1">Manually export a table from the table drop-down menu</li>
-                                            <li value="2">Automatically export a table resulting from running a batch dataflow</li>
+                                            <li value="1">Manually export a table from the table drop-down menu. </li>
+                                            <li value="2">Automatically export a table resulting from running a batch dataflow. For more information about batch dataflows, see <a href="F_UseBatchDataflow.htm" class="MCXref xref">Using batch dataflows</a>.</li>
                                         </ul>
                                         <h2>Where tables are exported</h2>
                                         <p>By default, tables are exported to export files in a subdirectory in the /mnt/xcalar/export directory, which is called the default export target. You can, however, create export targets for different export files. An export target specifies both the location of the export directory  and whether a UDF is used to process the tables before the tables are saved to the export files.</p>
@@ -328,14 +328,14 @@
                                         <h2>Creating an export target</h2>
                                         <p>Creating an export target is necessary if one or both of these conditions are true:</p>
                                         <ul>
-                                            <li value="1">You want export files to be saved at a location other than the default location (/var/opt/xcalar/export).</li>
+                                            <li value="1">You want export files to be saved at a location other than the default location.</li>
                                             <li value="2">You want the exported table to be processed by a UDF&#160;before being saved. </li>
                                         </ul>
                                         <p>Follow these steps to create an export target:</p>
                                         <ol>
                                             <li value="1">
                                                 <p>Create a file system that will be used as the export location. For example, create the directory /var/my_exportdir. </p>
-                                                <div class="Note"><span class="label">IMPORTANT:</span>&#160;This directory must point to shared storage that can be accessible to all nodes of your cluster.</div>
+                                                <div class="Note"><span class="label">IMPORTANT:</span>&#160;This directory must be accessible to all nodes of your cluster.</div>
                                             </li>
                                             <li value="2">Click <img src="../Resources/Images/XD_assets/xi-datastores.png" /> to expand the icons for Data Stores. Then click <img src="../Resources/Images/XD_assets/xi-datastores-out.png" /> to display the <span class="UIelement">Export Target</span> panel and the <span class="UIelement">Create Export Target</span> window, The following screenshot shows the location of the Data Stores icons.</li>
                                             <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/datastores-icon-out.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1452" data-mc-height="581" src="../Resources/Images/XD_screenshots/datastores-icon-out_thumb_0_150.png" tabindex="" /></a>
@@ -353,7 +353,7 @@
                                                     </div>
                                                 </div>
                                             </li>
-                                            <li value="5">Enter the pathname of the export location. Export files using this target will be saved to this location. </li>
+                                            <li value="5">Enter the pathname of the export location created in step 1. Export files using this target will be saved to this location. </li>
                                             <li value="6">
                                                 <p>(Optional) If you want the export file to be processed by a UDF, follow these steps:</p>
                                                 <ol style="list-style-type: lower-alpha;">
@@ -363,6 +363,12 @@
                                             </li>
                                             <li value="7">Click <span class="UIelement">ADD</span>.</li>
                                         </ol>
+                                        <h2>Displaying export target information</h2>
+                                        <p>In the <span class="UIelement">Export Targets</span> panel, click an export target icon to display information about the target. </p>
+                                        <h2>Deleting an export target</h2>
+                                        <p>In the window where the export target information is displayed, click DELETE to delete the target. </p>
+                                        <p>Alternatively, right click an export target icon to display a pop-up menu, in which you can click <span class="UIelement">Delete Target</span>.</p>
+                                        <div class="Note"><span class="label">NOTE</span>:&#160;You cannot edit an export target. To change the name or definition of an export target, delete and re-create it.</div>
                                         <h2>Exporting a table from the table drop-down menu</h2>
                                         <p>Follow these steps to export a table:</p>
                                         <ol>

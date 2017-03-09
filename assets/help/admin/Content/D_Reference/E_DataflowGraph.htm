@@ -186,7 +186,7 @@
                                                 </li>
                                                 <li><a href="H_CellOptions.htm">Cell options</a>
                                                 </li>
-                                                <li><a href="I_FunctionsUnderMap.htm">Map functions</a>
+                                                <li><a href="I_MapFunctions.htm">Map functions</a>
                                                 </li>
                                                 <li><a href="J_ExcelComparison.htm">Excel-equivalent functions</a>
                                                 </li>
@@ -286,7 +286,7 @@
                                                     </li>
                                                     <li><a href="H_CellOptions.htm">Cell options</a>
                                                     </li>
-                                                    <li><a href="I_FunctionsUnderMap.htm">Map functions</a>
+                                                    <li><a href="I_MapFunctions.htm">Map functions</a>
                                                     </li>
                                                     <li><a href="J_ExcelComparison.htm">Excel-equivalent functions</a>
                                                     </li>
@@ -305,19 +305,17 @@
                                         <p>The dataflow graph provides an audit trail for your data. It helps you trace data lineage through all stages of your analytics pipeline. Over time, the data in your table might become increasingly complex due to the operations performed on the table. You can use the dataflow graph to determine how the data has been transformed since the table was created.  For example,  you can determine when a value in a column was filtered out or what operation was used to create a particular column.</p>
                                         <h2>Overview of the dataflow graph</h2>
                                         <p>The dataflow graph panel presents the dataflow graphs for all active tables in the same worksheet. The following screen shows an example of a dataflow graph.</p>
-                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/overview-query-graph-viewer.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1558" data-mc-height="357" src="../Resources/Images/XD_screenshots/overview-query-graph-viewer_thumb_0_150.png" tabindex="" /></a>
+                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/overview-query-graph-viewer.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="958" data-mc-height="380" src="../Resources/Images/XD_screenshots/overview-query-graph-viewer_thumb_0_150.png" tabindex="" /></a>
                                         </p>
                                         <h2>Example of a dataflow</h2>
-                                        <p>In the following example, a series of operations take place on a table with a column named <span class="UIelement">DayOfWeek</span>, as explained in this list:</p>
+                                        <p>In the following example, a series of operations take place on a table created from a dataset with airlines data:</p>
                                         <ol>
-                                            <li value="1">A table named <span class="UIelement">airlines2#L835</span> is created.</li>
-                                            <li value="2">A Map function is executed to change the data type of the <span class="UIelement">DayOfWeek</span> column to Integer. </li>
-                                            <li value="3">A Map function is executed to create a column that keeps values greater than 4 in the <span class="UIelement">DayOfWeek_integer</span> column.</li>
-                                            <li value="4">The table is filtered to include only rows with the letter U in the Carrier column.</li>
-                                            <li value="5">A Map function is executed on the DayOfWeek_integer column to produce a table with rows containing errors. For more information about erroneous rows, see <a href="../B_CommonTasks/H_ErroneousRows.htm" class="MCXref xref">Creating a table with erroneous rows only</a>.</li>
+                                            <li value="1">A table named <span class="UIelement">airlines4#XS10</span> is created.</li>
+                                            <li value="2">A Map function is executed to change the data type of the <span class="UIelement">DayOfWeek</span> column to Integer. In this example, the user locks the resultant table to prevent it from being dropped accidentally.</li>
+                                            <li value="3">A Map function is executed to change the data type of the <span class="UIelement">DepTime</span> column to Integer, but only erroneous rows are included in the resultant table. For more information about erroneous rows, see <a href="../B_CommonTasks/H_ErroneousRows.htm" class="MCXref xref">Creating a table with erroneous rows only</a>.</li>
+                                            <li value="4">The table named <span class="UIelement">airlines4#XS10</span> is dropped. This table is removed  permanently. You cannot add it back to your worksheet or perform operations on it.</li>
                                         </ol>
-                                        <p>In this example, a table is dropped. This table is removed from <span class="GeneralProductName">Xcalar Design</span> permanently. You cannot add it back to your worksheet or perform operations on it.</p>
-                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/example-query-graph.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1231" data-mc-height="276" src="../Resources/Images/XD_screenshots/example-query-graph_thumb_0_150.png" tabindex="" /></a>
+                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/dataflow-icons.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="908" data-mc-height="288" src="../Resources/Images/XD_screenshots/dataflow-icons_thumb_0_150.png" tabindex="" /></a>
                                         </p>
                                         <h2>Collapsing and expanding table icons in a dataflow graph</h2>
                                         <p><span class="GeneralProductName">Xcalar Design</span> automatically collapses multiple table icons in a dataflow graph for better readability. The following screenshot shows the icon that indicates some table icons are collapsed in the dataflow graph.&#160;You can hover over the icon to see the exact number of table icons collapsed. Click the icon to expand the table icons.</p>
@@ -325,7 +323,7 @@
                                             <img src="../Resources/Images/XD_screenshots/collapse-tables-in-dataflow.png" />
                                         </p>
                                         <p>The following partial screenshot shows the icon that you can click to collapse a list of tables.</p>
-                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/expanded-table-list-in-dataflow.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1262" data-mc-height="230" src="../Resources/Images/XD_screenshots/expanded-table-list-in-dataflow_thumb_0_150.png" tabindex="" /></a>
+                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/expanded-table-list-in-dataflow.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1206" data-mc-height="212" src="../Resources/Images/XD_screenshots/expanded-table-list-in-dataflow_thumb_0_150.png" tabindex="" /></a>
                                         </p>
                                         <h2>Tasks you can perform by clicking the table icon</h2>
                                         <p>You can click a table icon in the dataflow graph to display a pop-up that lists the actions you can take. The possible actions depend on whether the selected table is in the worksheet or is a temporary table or active table.</p>
@@ -364,7 +362,7 @@
                                                 <div class="Note"><span class="label">IMPORTANT:</span>&#160;You cannot undo the action of dropping a table.</div>
                                                 <div class="Note"><span class="label">NOTE:</span>&#160;You cannot drop a table if an operation is taking place on that table.</div>
                                             </li>
-                                            <li value="2">Locking a table:&#160;To prevent a table from being dropped accidentally, you can lock it. You cannot perform any tasks on a locked table until you unlock it.</li>
+                                            <li value="2">Locking a table:&#160;To prevent a table from being dropped accidentally, you can lock it. A lock icon is displayed on the table icon to show that the table is locked. If the table exists in multiple dataflow graphs or multiple worksheets, the lock is applied to all occurrences of the table icon.</li>
                                             <li value="3">
                                                 <p>Show schema: A pop-up shows the number of rows in the table, in addition to the fields and their data type in the table. If you click the field name, one or more table icons are highlighted. The highlighted icons represent all tables that also contain that field. This enables you to trace the lineage of a field. To remove the highlight, click a highlighted table icon.</p>
                                                 <div class="Example"><span class="label">EXAMPLE:</span>&#160;After a Join operation, it might not be obvious where a particular column comes from because multiple tables are involved in creating the resultant table. Use <span class="UIelement">Show Schema</span> to quickly determine the origin of the field.</div>

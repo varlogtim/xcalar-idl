@@ -184,7 +184,7 @@
                                                 </li>
                                                 <li><a href="../D_Reference/H_CellOptions.htm">Cell options</a>
                                                 </li>
-                                                <li><a href="../D_Reference/I_FunctionsUnderMap.htm">Map functions</a>
+                                                <li><a href="../D_Reference/I_MapFunctions.htm">Map functions</a>
                                                 </li>
                                                 <li><a href="../D_Reference/J_ExcelComparison.htm">Excel-equivalent functions</a>
                                                 </li>
@@ -309,7 +309,7 @@
                                     <div class="MCBreadcrumbsBox_0"><span class="MCBreadcrumbsPrefix">You are here: </span><a class="MCBreadcrumbsLink" href="CommonTasks.htm">Common tasks</a><span class="MCBreadcrumbsDivider"> &gt; </span><span class="MCBreadcrumbs">Managing worksheets</span>
                                     </div>
                                     <div class="bodyProxyNarrow">
-                                        <h1>Managing worksheets</h1>
+                                        <h1><a name="worksheetsList" class="ForCSH"></a>Managing worksheets</h1>
                                         <p>Each workbook contains at least one worksheet. To manage the worksheets in a workbook, click <img src="../Resources/Images/XD_assets/xi-worksheet.png" /> to display the <span class="UIelement">Worksheets</span> panel. You ca perform the following tasks related to worksheets in this panel:</p>
                                         <ul>
                                             <li value="1">Renaming</li>
@@ -340,15 +340,26 @@
                                             <li value="1">In the <span class="UIelement">Worksheet</span> panel, right click <img src="../Resources/Images/XD_assets/xi-unhide-worksheet.png" /> for a worksheet in the <span class="UIelement">Hidden Worksheet List</span>. </li>
                                             <li value="2">In the drop-down menu, click <span class="UIelement">Unhide worksheet</span>. The worksheet becomes active and is automatically displayed in the <span class="GeneralProductName">Xcalar Design</span> window.</li>
                                         </ol>
-                                        <h2>Deleting a worksheet</h2>
+                                        <h2><a name="Deleting"></a>Deleting a worksheet</h2>
                                         <p>You can delete a worksheet if it is not the only active worksheet. Follow these steps to delete a worksheet:</p>
                                         <ol>
                                             <li value="1">In the <span class="UIelement">Worksheet</span> panel, right click the name of a worksheet in the <span class="UIelement">Active Worksheet List</span>.</li>
                                             <li value="2">
-                                                <p>In the drop-down menu, click <span class="UIelement">Delete worksheet</span>. If the worksheet does not contain any tables, it is deleted immediately. Otherwise, a modal window asks what you want to do with the tables in the worksheet. You can either drop all tables or hide the tables. For information about table statuses, see <a href="N_ChangeTableStatus.htm" class="MCXref xref">Understanding and changing table statuses</a>.</p>
-                                                <div class="Note"><span class="label">IMPORTANT</span>:&#160;You cannot undo the action of dropping tables.</div>
+                                                <p>In the drop-down menu, click <span class="UIelement">Delete worksheet</span>. If the worksheet does not contain any active tables, it is deleted immediately. Otherwise, a modal window asks whether you want to cancel the deletion or continue the deletion after dropping or hiding the tables. The following screenshot shows the modal window:</p>
+                                                <p>
+                                                    <img src="../Resources/Images/XD_screenshots/worksheet-delete-with-active-tables.png" /> </p>
+                                                <p>For information about table statuses, see <a href="N_ChangeTableStatus.htm" class="MCXref xref">Understanding and changing table statuses</a>.</p>
                                             </li>
                                         </ol>
+                                        <h3>Effects of worksheet deletion on tables</h3>
+                                        <p>The following list describes how tables are affected by a worksheet deletion:</p>
+                                        <ul>
+                                            <li value="1">Hidden tables from the deleted worksheet become not associated with any worksheet. If you want to put a hidden table back in a worksheet, you can change its status to Active. <span class="GeneralProductName">Xcalar Design</span> displays a modal window for you to choose the worksheet to which you add the hidden table.</li>
+                                            <li value="2">
+                                                <p>If you choose to hide tables when deleting a worksheet, the worksheet deletion can be undone through the <span class="UIelement">Undo</span> button. After the deletion is undone, the hidden tables become active again.</p>
+                                                <div class="Note"><span class="label">IMPORTANT</span>:&#160;You cannot undo the action of dropping tables. Therefore, if you choose to drop tables during the worksheet deletion, you cannot undo the worksheet deletion through the <span class="UIelement">Undo</span> button.</div>
+                                            </li>
+                                        </ul>
                                         <h2>Moving a worksheet up or down</h2>
                                         <p>Follow these steps to move a worksheet up or down the list:</p>
                                         <ol>

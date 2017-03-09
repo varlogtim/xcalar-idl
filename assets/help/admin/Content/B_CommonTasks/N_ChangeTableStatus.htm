@@ -186,7 +186,7 @@
                                                 </li>
                                                 <li><a href="../D_Reference/H_CellOptions.htm">Cell options</a>
                                                 </li>
-                                                <li><a href="../D_Reference/I_FunctionsUnderMap.htm">Map functions</a>
+                                                <li><a href="../D_Reference/I_MapFunctions.htm">Map functions</a>
                                                 </li>
                                                 <li><a href="../D_Reference/J_ExcelComparison.htm">Excel-equivalent functions</a>
                                                 </li>
@@ -311,7 +311,7 @@
                                     <div class="MCBreadcrumbsBox_0"><span class="MCBreadcrumbsPrefix">You are here: </span><a class="MCBreadcrumbsLink" href="CommonTasks.htm">Common tasks</a><span class="MCBreadcrumbsDivider"> &gt; </span><span class="MCBreadcrumbs">Understanding and changing a table status</span>
                                     </div>
                                     <div class="bodyProxyNarrow">
-                                        <h1>Understanding and changing table statuses</h1>
+                                        <h1><a name="tablesList" class="ForCSH"></a>Understanding and changing table statuses</h1>
                                         <p>A table can be active, hidden, or temporary. You can change the status of a table in multiple ways.</p>
                                         <p>Tables consume memory regardless of their status. To determine how much memory each table uses, see <a href="../C_AdvancedTasks/I_UnderstandMemoryUse.htm" class="MCXref xref">Understanding memory usage</a>.</p>
                                         <h2>Viewing the tables list</h2>
@@ -326,15 +326,21 @@
                                         <p>An active table is a table being displayed on a worksheet. You can perform operations on a column in an active table. You can also perform operations on multiple active tables, for example, by joining them.</p>
                                         <div class="Note"><span class="label">NOTE</span>:&#160;The table you are currently interacting with has a blue background for the table title. Other tables in the worksheet have a gray background for the table title, but these tables are also active tables. </div>
                                         <h2>Hidden table</h2>
-                                        <p>A hidden table is a table that you set aside to reduce clutter in your worksheet.&#160;The hidden table can be added back to the worksheet in the future. When you hide a table, both the table and the dataflow graph associated with the table disappear from the worksheet.</p>
+                                        <p>A hidden table is a table that you set aside to reduce clutter in your worksheet.&#160;You can also hide tables from a worksheet that you want to delete. For information about deleting a worksheet, see <a href="O_ManageWorksheet.htm#Deleting" class="MCXref xref">Deleting a worksheet</a>. When you hide a table, both the table and the dataflow graph associated with the table disappear from the worksheet.</p>
+                                        <p>The hidden table can be added back to a worksheet in the future. If the worksheet from which the table originated exists, the table is added to that worksheet. </p>
+                                        <p>If you delete the worksheet after hiding the table, the hidden table is no longer associated with any worksheet. When you add it back to a worksheet, <span class="GeneralProductName">Xcalar Design</span> displays the following modal window. Select the worksheet to which you want to add the table and then click <span class="UIelement">CONFIRM</span>.</p>
+                                        <p>
+                                            <img src="../Resources/Images/XD_screenshots/add-hidden-table-to-worksheet.png" />
+                                        </p>
                                         <h2>Temporary table</h2>
                                         <p><span class="GeneralProductName">Xcalar Design</span> creates temporary tables in several ways.</p>
                                         <p>A temporary table is a table that is no longer active after you perform an operation or undo  an operation. </p>
                                         <div class="Example"><span class="label">Example</span>:&#160;Suppose you create from your dataset a table named <span class="UIelement">airlines#pe8</span>. It is the active table displayed in the worksheet, in which you  can perform various operations. If you change the data type of one of its columns, a new active table  named <span class="UIelement">airlines#pe9</span> is created. The table named <span class="UIelement">airlines#pe8</span> is now categorized as a temporary table.</div>
-                                        <p>A temporary table can be created when you undo an operation either through the <span class="UIelement">Undo</span> button or the <span class="UIelement">Revert To This Table</span> option in a dataflow graph. <span class="GeneralProductName">Xcalar Design</span> does not drop the table resulting from the operation; instead, it categorizes the table as a temporary table.</p>
+                                        <p>A temporary table can be created when you undo an operation either through the <span class="UIelement">Undo</span> button or the <span class="UIelement">Revert to this table</span> option in a dataflow graph. <span class="GeneralProductName">Xcalar Design</span> does not drop the table resulting from the operation; instead, it categorizes the table as a temporary table. </p>
                                         <div class="Example"><span class="label">Example</span>:&#160;Suppose you change a data type for a column in <span class="UIelement">airlines#pe8</span> and the resultant table is named <span class="UIelement">airlines#pe9</span>. If you undo the data type change, airlines#pe8 becomes the active table again, but <span class="UIelement">airlines#pe9</span> is not dropped. Instead, <span class="UIelement">airlines#pe9</span> is kept as a temporary table.</div>
                                         <p>A temporary table can be added back to the worksheet to become an active table again.</p>
                                         <div class="Note"><span class="label">NOTE</span>: Remember to click <img src="../Resources/Images/XD_assets/xi-refresh-temp-tables.png" /> in the <span class="UIelement">Tables</span> panel to refresh the temporary tables list after you run an operation or undo an operation. It ensures that the  most up-to-date list is displayed. </div>
+                                        <div class="Note"><span class="label">NOTE</span>:&#160;The temporary table created by clicking the <span class="UIelement">Undo</span> button is dropped automatically if you perform other operations after undoing. The temporary tables created by reverting are kept until you drop them. For more information about undoing an operation, see <a href="F_UndoRedo.htm" class="MCXref xref">Undoing and redoing an operation</a>.</div>
                                         <h2>Hiding a table</h2>
                                         <p>You can only hide an active table.&#160;You cannot hide a temporary table. Follow one of these steps to hide a table:</p>
                                         <ul>

@@ -95,6 +95,7 @@ p.Copyright
 	margin: 10px 10px 10px 10px;
 	padding-left: 20px;
 	padding-bottom: 15px;
+	background-color: #d7d7d7;
 }
 
 .centered-text
@@ -925,5 +926,13 @@ hr.MasterPageRule	/*For the HR on the master page*/
 	margin-left: 10%;
 	margin-right: 10%;
 	border: 1px solid #378cb3;
+}
+
+p.CopyrightAndPubDate
+{
+	margin: 10px;
+	padding-bottom: 15px;
+	padding-left: 20px;
+	text-align: left;
 }
 

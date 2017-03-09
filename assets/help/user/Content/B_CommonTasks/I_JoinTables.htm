@@ -184,7 +184,7 @@
                                                 </li>
                                                 <li><a href="../D_Reference/H_CellOptions.htm">Cell options</a>
                                                 </li>
-                                                <li><a href="../D_Reference/I_FunctionsUnderMap.htm">Map functions</a>
+                                                <li><a href="../D_Reference/I_MapFunctions.htm">Map functions</a>
                                                 </li>
                                                 <li><a href="../D_Reference/J_ExcelComparison.htm">Excel-equivalent functions</a>
                                                 </li>
@@ -309,7 +309,7 @@
                                     <div class="MCBreadcrumbsBox_0"><span class="MCBreadcrumbsPrefix">You are here: </span><a class="MCBreadcrumbsLink" href="CommonTasks.htm">Common tasks</a><span class="MCBreadcrumbsDivider"> &gt; </span><span class="MCBreadcrumbs">Joining tables</span>
                                     </div>
                                     <div class="bodyProxyNarrow">
-                                        <h1>Joining tables</h1>
+                                        <h1><a name="joinTables" class="ForCSH"></a>Joining tables</h1>
                                         <p>You can join tables in the same worksheet. The Join function works in the same way as the SQL join clause.</p>
                                         <div class="Note"><span class="label">NOTE:</span>&#160;You can join two tables or join a table to itself (that is, perform a self join). You cannot use one operation to join more than two tables.</div>
                                         <p>By default, the Join function uses one key from each table for joining. That is, you can select one column from each table by which the tables are joined. </p>
@@ -339,20 +339,20 @@
                                             </li>
                                             <li value="6">Click <span class="UIelement">NEXT</span>.</li>
                                             <li value="7">Enter the new table name.</li>
-                                            <li value="8">In the <span class="UIelement">Column Selector</span> section, select the columns from the left and right tables that are included in the resultant table. </li>
+                                            <li value="8">In the <span class="UIelement">Column Selector</span> section, select the columns from the left and right tables that are included in the resultant table. The following screenshot illustrates how to select columns:<p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/join-select-columns.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="552" data-mc-height="573" src="../Resources/Images/XD_screenshots/join-select-columns_thumb_0_150.png" tabindex="" /></a></p></li>
                                             <li value="9">(Optional)&#160;Select <span class="UIelement">Keep original tables</span> if you want both tables to remain on the worksheet. If you want to keep only the resultant table, leave this option unchecked.</li>
                                             <li value="10">(Optional)&#160;Check the number of rows in the <span class="UIelement">Estimated join size</span> section. <span class="GeneralProductName">Xcalar Design</span> provides the minimum, maximum, and median number of rows in the resultant table. The time required to complete the Join operation is proportional to the number of rows created. Based on the estimates, you can decide whether you should perform the operation at this time.</li>
                                             <li value="11">
                                                 <p>Click <span class="UIelement">JOIN&#160;TABLES</span>. A new table is created as a result of joining the tables with the keys you selected.</p>
-                                                <div class="Note"><span class="label">NOTE:</span>&#160;If there are duplicate column names in the resultant table, you are prompted to rename the columns before the Join operation takes place.  </div>
+                                                <div class="Note"><span class="label">NOTE:</span>&#160;If there are duplicate column names in the resultant table, you are prompted to rename the columns before the Join operation takes place. </div>
                                             </li>
                                         </ol>
                                         <h2>Renaming columns to avoid column name duplication</h2>
-                                        <p>The following partial screenshot of the <span class="UIelement">JOIN</span>&#160;panel illustrates how you rename columns to avoid column name duplication in the resultant table created by a self join operation.</p>
-                                        <p>
-                                            <img src="../Resources/Images/XD_screenshots/join-rename-columns.png" />
-                                        </p>
-                                        <p>Fields that exist originally in the data source can be distinguished through column name prefixes. In this example, you can change the prefix for the left table from airlines1 to Left_airlines1 and the prefix for the right table from airlines1 to Right_airlines1. The resultant table will have columns named Left_airlines1::Carrier and Right_airlines::Carrier, which no longer conflict with each other. </p>
+                                        <p>Because columns in a table created by a Join operation come from two tables, it is possible for these columns to have the same name and hence cause confusion.&#160;To eliminate duplicate column names, the <span class="UIelement">JOIN</span>&#160;panel allows you to rename columns by filling out the <span class="UIelement">New Name</span> field.</p>
+                                        <div class="Note"><span class="label">NOTE:</span>&#160;Even if you do not rename a column, you must copy the original name to the <span class="UIelement">New Name</span> field. Do not leave the <span class="UIelement">New Name</span> field blank.</div>
+                                        <h3>Renaming prefixed columns</h3>
+                                        <p>Fields that exist in different data sources are distinguished from one another by column prefixes. If the tables being joined have the same prefix (for example, in the case of a self join), and if prefixed columns are in the resultant table,  change the prefix for one table or both tables to eliminate the naming conflict. </p>
+                                        <p>For example, you can change the prefix for the left table from airlines1 to Left_airlines1 and the prefix for the right table from airlines1 to Right_airlines1. The resultant table will have columns named Left_airlines1::Carrier and Right_airlines::Carrier, which no longer conflict with each other. </p>
                                         <div class="MCDropDown MCDropDown_Open dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the naming conventions:</a></span>
                                             <div class="MCDropDownBody dropDownBody">
                                                 <ul>
@@ -363,7 +363,18 @@
                                                 </ul>
                                             </div>
                                         </div>
-                                        <p>Because derived fields do not have prefixes, you can rename the column to avoid the name duplication. In this example, the column DayOfWeek_integer in the left table can be renamed to LDayOfWeek_integer. The column DayOfWeek_integer in the right table can either be renamed or remain unchanged.</p>
+                                        <p>The following screenshot illustrates how to change a prefix. In this example, the prefix for the left table remains unchanged, and the new prefix for the right table is manually entered. </p>
+                                        <p>Alternatively, you can click the Rename icon for the right table to generate a default new prefix to resolve the conflict. For example, if you click the Rename icon for the right table to change the airlines4 prefix, a new prefix (airlines41) will be automatically entered in the <span class="UIelement">New Name</span> field.</p>
+                                        <p>
+                                            <img src="../Resources/Images/XD_screenshots/join-change-prefix.png" />
+                                        </p>
+                                        <div class="Note"><span class="label">TIP</span>: If a lot of prefixes need renaming, follow the instructions in <a href="#Renaming" class="MCXref xref selected">Renaming in bulk</a> to rename them quickly.</div>
+                                        <h3>Renaming derived columns</h3>
+                                        <p>Derived fields do not have a prefix. Therefore, you must change the column name to avoid name duplication. In the following example, the derived fields from the left table remain unchanged, and the derived fields from the right table  are manually entered. </p>
+                                        <p>Alternatively, you can click the Rename icon for the right table to generate a default new name to resolve the conflict. For example, if you click the Rename icon for the right table to change DayOfWeek_integer, a new name (DayOfWeek_integer1) is automatically entered in the <span class="UIelement">New Name</span> field.</p>
+                                        <p>
+                                            <img src="../Resources/Images/XD_screenshots/join-change-column-name.png" />
+                                        </p>
                                         <div class="MCDropDown MCDropDown_Open dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the naming conventions:</a></span>
                                             <div class="MCDropDownBody dropDownBody">
                                                 <ul>
@@ -388,8 +399,22 @@
                                                 </ul>
                                             </div>
                                         </div>
-                                        <div class="Note"><span class="label">NOTE:</span>&#160;Remember that even if you do not rename a column, you must copy the original name to the <span class="UIelement">New Name</span> field. Do not leave the <span class="UIelement">New Name</span> field blank.</div>
-                                        <p>After  renaming the columns, click <span class="UIelement">JOIN&#160;TABLES</span>. A new table is created as a result of joining the tables with the keys you selected.</p>
+                                        <div class="Note"><span class="label">TIP</span>: If a lot of derived fields need renaming, follow the instructions in <a href="#Renaming" class="MCXref xref selected">Renaming in bulk</a> to rename them quickly.</div>
+                                        <h3><a name="Renaming"></a>Renaming in bulk</h3>
+                                        <p>Xcalar Design provides a convenient way for you to specify multiple new names.&#160;The following steps are the same for both prefixes and derived field names:</p>
+                                        <ol>
+                                            <li value="1">
+                                                <p>Click the <span class="UIelement">Rename in bulk</span> icon as shown in the following screenshot to display a pop-up menu.</p>
+                                                <p>
+                                                    <img src="../Resources/Images/XD_screenshots/join-rename-in-bulk.png" />
+                                                </p>
+                                            </li>
+                                            <li value="2">
+                                                <p>In the menu, you can click <span class="UIelement">Copy All</span> to copy existing names to the <span class="UIelement">New Name</span> field. </p>
+                                                <p>Alternatively, type a string under <span class="UIelement">Copy &amp; Append</span>. The string is appended to each existing name before the name is copied to the <span class="UIelement">New Name</span> field. In this example, the string <span class="UIelement">-left</span> is appended.</p>
+                                                <p>You can enter another string to overwrite what is currently in the <span class="UIelement">New Name</span> field. For example, if you want another string instead of <span class="UIelement">-left</span> to be appended, simply type the new string in the pop-up menu. The change is reflected in the <span class="UIelement">New Name</span> column immediately.</p>
+                                            </li>
+                                        </ol>
                                     </div>
                                     <p><a href="#Top" class="selected">Go to top</a>
                                     </p>
