@@ -839,18 +839,11 @@ window.ColManager = (function($, ColManager) {
         var isInvalid = false;
         var error = ErrTStr.ColumnConflict;
         var table = gTables[tableId];
-        var firstrChar = columnName.charAt(0);
+        xcTooltip.hideAll();
 
-        $(".tooltip").hide();
-        // temporarily use, will be removed when backend allow name with space
-        if (xcHelper.hasInvalidCharInCol(columnName)) {
-            error = ColTStr.RenameSpecialChar;
-            isInvalid = true;
-        } else if (columnName === "DATA") {
-            error = ErrTStr.PreservedName;
-            isInvalid = true;
-        } else if (firstrChar >= "0" && firstrChar <= "9") {
-            error = ColTStr.RenameStartNum;
+        var nameErr = xcHelper.validateColName(columnName);
+        if (nameErr != null) {
+            error = nameErr;
             isInvalid = true;
         } else if (table.getImmediateNames().includes(columnName)) {
             error = ColTStr.ImmediateClash;

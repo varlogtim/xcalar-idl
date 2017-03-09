@@ -850,45 +850,8 @@ window.DSCart = (function($, DSCart) {
         // so xcHelper.validate not working
         var $prefix = $cart.find(".prefixName");
         var prefix = cart.getPrefix();
-
-        isValid = xcHelper.validate([
-            {
-                "$ele": $prefix,
-                "error": ErrTStr.PrefixStartsWithLetter,
-                "side": "left",
-                "onErr": onPrefixErr,
-                "check": function() {
-                    return (prefix != null &&
-                           !xcHelper.isStartWithLetter(prefix));
-                }
-            },
-            {
-                "$ele": $prefix,
-                "error": ErrTStr.PrefixTooLong,
-                "side": "left",
-                "onErr": onPrefixErr,
-                "check": function() {
-                    return (prefix != null && prefix.length > gPrefixLimit);
-                }
-            },
-            {
-                "$ele": $prefix,
-                "error": ColTStr.RenameSpecialChar,
-                "side": "left",
-                "onErr": onPrefixErr,
-                "check": function() {
-                    return !xcHelper.checkNamePattern("prefix", "check",
-                                                      prefix);
-                }
-            }
-        ]);
-
-
-        if (!isValid) {
-            return false;
-        }
-
-        function onPrefixErr() {
+        var error = xcHelper.validatePrefixName(prefix);
+        if (error != null) {
             // open prefix field if not show
             var $action = $tableName.siblings(".action");
             if (!$action.hasClass("active")) {
@@ -896,6 +859,8 @@ window.DSCart = (function($, DSCart) {
             }
 
             scrollToInput($prefix);
+            StatusBox.show(error, $prefix, false, {"side": "left"});
+            return false;
         }
 
         return true;

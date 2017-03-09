@@ -545,6 +545,7 @@ window.JoinView = (function($, JoinView) {
     }
 
     function toggleNextView() {
+        StatusBox.forceHide();
         if ($joinView.hasClass('nextStep')) {
             // go to step 1
             goToFirstStep();
@@ -1030,8 +1031,17 @@ window.JoinView = (function($, JoinView) {
         // Check that none are empty
         var isValid = true;
         $newNames.each(function(index) {
-            if ($(this).val().trim().length === 0) {
-                StatusBox.show(ErrTStr.NoEmpty, $renames.eq(index), true);
+            var newName = $(this).val();
+            if (newName.trim().length === 0) {
+                error = ErrTStr.NoEmpty;
+            } else if (isFatptr) {
+                error = xcHelper.validatePrefixName(newName);
+            } else {
+                error = xcHelper.validateColName(newName);
+            }
+
+            if (error != null) {
+                StatusBox.show(error, $renames.eq(index), true);
                 // stop loop
                 isValid = false;
                 return false;
@@ -1305,7 +1315,6 @@ window.JoinView = (function($, JoinView) {
         var $rightFatNewNames = $rightFatRenames.find(".newName");
         var rFatPtr = xcHelper.deepCopy(rFatPtrCache);
         var rightFatRenameArray = [];
-
         if (!executeChecks($leftFatRenames, $leftFatOrigNames,
                            $leftFatNewNames, lFatPtr, leftFatRenameArray,
                            true) ||

@@ -1809,6 +1809,37 @@ window.xcHelper = (function($, xcHelper) {
         return /^ | $|[\^,\(\)\[\]{}'"\.\\]|:/.test(str);
     };
 
+    xcHelper.validateColName = function(columnName) {
+        if (!columnName || columnName.trim().length === 0) {
+            return ErrTStr.NoEmpty;
+        }
+
+        var error = null;
+        var firstrChar = columnName.charAt(0);
+        if (columnName.length > XcalarApisConstantsT.XcalarApiMaxFieldNameLen) {
+            error = ColTStr.LongName;
+        } else if (xcHelper.hasInvalidCharInCol(columnName)) {
+            error = ColTStr.RenameSpecialChar;
+        } else if (columnName === "DATA") {
+            error = ErrTStr.PreservedName;
+        } else if (firstrChar >= "0" && firstrChar <= "9") {
+            error = ColTStr.RenameStartNum;
+        }
+        return error;
+    };
+
+    xcHelper.validatePrefixName = function(prefix) {
+        var error = null;
+        if (prefix != null && !xcHelper.isStartWithLetter(prefix)) {
+            error = ErrTStr.PrefixStartsWithLetter;
+        } else if (prefix != null && prefix.length > gPrefixLimit) {
+            error = ErrTStr.PrefixTooLong;
+        } else if (!xcHelper.checkNamePattern("prefix", "check", prefix)) {
+            error = ColTStr.RenameSpecialChar;
+        }
+        return error;
+    };
+
     xcHelper.escapeHTMLSepcialChar = function(str) {
         // esacpe & to &amp;, so text &quot; will not become " in html
         // escape < & > so external html doesn't get injected

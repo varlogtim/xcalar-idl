@@ -1273,6 +1273,78 @@ describe('xcHelper Test', function() {
         });
     });
 
+    it("xcHelper.validateColName should work", function() {
+        var testCases = [
+            {
+                "str": "",
+                "res": ErrTStr.NoEmpty
+            },
+            {
+                "str": "\t",
+                "res": ErrTStr.NoEmpty
+            },
+            {
+                "str": "a".repeat(256),
+                "res": ColTStr.LongName
+            },
+            {
+                "str": "ab[c",
+                "res": ColTStr.RenameSpecialChar
+            },
+            {
+                "str": "DATA",
+                "res": ErrTStr.PreservedName
+            },
+            {
+                "str": "data",
+                "res": null
+            },
+            {
+                "str": "Data",
+                "res": null
+            },
+            {
+                "str": "0test",
+                "res": ColTStr.RenameStartNum
+            },
+            {
+                "str": "abc",
+                "res": null
+            }
+        ];
+
+        testCases.forEach(function(test) {
+            var res = xcHelper.validateColName(test.str);
+            expect(res).to.equal(test.res);
+        });
+    });
+
+    it("xcHelper.validatePrefixName should work", function() {
+        var testCases = [
+            {
+                "str": "1test",
+                "res": ErrTStr.PrefixStartsWithLetter
+            },
+            {
+                "str": "a".repeat(32),
+                "res": ErrTStr.PrefixTooLong
+            },
+            {
+                "str": "ab[c",
+                "res": ColTStr.RenameSpecialChar
+            },
+            {
+                "str": "abc",
+                "res": null
+            }
+        ];
+
+        testCases.forEach(function(test) {
+            var res = xcHelper.validatePrefixName(test.str);
+            expect(res).to.equal(test.res);
+        });
+    });
+
     it('xcHelper.escapeRegExp should work', function() {
         // case 1
         var res = xcHelper.escapeRegExp(']');

@@ -789,9 +789,10 @@ ColTStr = {
     'RenameSpecialChar': 'Invalid name. Ensure name contains only ' +
                          'alphanumeric, -, _ and space. It must start with ' +
                          'an alphabet.',
-    'RenameStartNum': 'Invalid name, cannot begin with a number',
+    'RenameStartNum': 'Invalid name, cannot begin with a number.',
     'ImmediateClash': 'Invalid name, name already exists in at least one ' +
                       'DATA cell',
+    'LongName': 'Colunm Name is too long, please use less than 255 chars.',
     'NoOperateArray': 'Cannot directly operate on entire arrays',
     'NoOperateObject': 'Cannot directly operate on entire objects',
     'NoOperateGeneral': 'Cannot directly operate on columns of this type',
