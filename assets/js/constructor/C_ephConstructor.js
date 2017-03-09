@@ -2228,11 +2228,11 @@ MenuHelper.prototype = {
             });
 
             $(document).on("keydown.closeDropDown" + self.id, function(event) {
-                if (event.which === keyCode.Tab) {
+                if (event.which === keyCode.Tab ||
+                    event.which === keyCode.Escape) {
                     self.hideDropdowns();
                 }
-            })
-
+            });
 
             if (typeof self.options.onOpen === "function") {
                 self.options.onOpen($curlDropDownList);

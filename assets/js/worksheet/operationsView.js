@@ -59,7 +59,9 @@ window.OperationsView = (function($, OperationsView) {
 
         // GENERAL LISTENERS, not inputs
 
-        formHelper = new FormHelper($operationsView);
+        formHelper = new FormHelper($operationsView, {
+            noEsc: true
+        });
 
         var scrolling = false;
         var scrollTimeout;
@@ -866,6 +868,16 @@ window.OperationsView = (function($, OperationsView) {
                 }
             }
             allowInputChange = true;
+        });
+
+        $(document).on("keydown.OpSection", function(event) {
+            if (event.which === keyCode.Escape) {
+                if ($operationsView.find(".hint.list:visible").length) {
+                    hideDropdowns();
+                } else if (!$operationsView.find(".list:visible").length) {
+                    closeOpSection();
+                }
+            }
         });
     }
 
@@ -3941,6 +3953,7 @@ window.OperationsView = (function($, OperationsView) {
         StatusBox.forceHide();// hides any error boxes;
         $('.tooltip').hide();
         $(document).off('click.OpSection');
+        $(document).off("keydown.OpSection");
         $(document).off('mousedown.mapCategoryListener');
     }
 
