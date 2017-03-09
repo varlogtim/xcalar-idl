@@ -554,7 +554,7 @@ module.exports = {
         "CreateTargetInstr": "Select a target type and choose a name for your export target. Provided any additional information as needed.",
         "TargetInfo": "Details about the selected export target are provided below. To create a new target, click the button on the top left corner of the left panel.",
         "TargetType": "Target Type",
-        "LocalFS": "Local File System",
+        "LocalFS": "File System",
         "AddConnector": "Add New Connector",
         "windowsAuth": "Use windows authentication",
         "usernameAuth": "Use specific username and password",

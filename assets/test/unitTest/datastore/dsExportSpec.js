@@ -125,10 +125,10 @@ describe("DSExport Test", function() {
             $targetTypeList.trigger(fakeEvent.click);
             expect($fileFormatMenu.is(":visible")).to.be.true;
             expect($targetTypeList.find("li").eq(0).text())
-            .to.equal("Local File System");
+            .to.equal("File System");
             // select local file system
             $targetTypeList.find("li").eq(0).trigger(fakeEvent.mouseup);
-            expect($targetInput.val()).to.equal("Local File System");
+            expect($targetInput.val()).to.equal("File System");
             expect($targetInput.data("value")).to.equal("LocalFilesystem");
             expect($("#exportURL").closest(".formRow").hasClass("active"))
             .to.be.true;
@@ -234,7 +234,7 @@ describe("DSExport Test", function() {
                 StatusBox.forceHide();
                 $nameInput.val("ab");
                 $targetTypeList.find("li").eq(0).trigger(fakeEvent.mouseup);
-                expect($targetInput.val()).to.equal("Local File System");
+                expect($targetInput.val()).to.equal("File System");
                 $("#exportURL").val("");
                 expect($("#exportURL").val()).to.equal("");
                 $submitBtn.click();
@@ -302,14 +302,14 @@ describe("DSExport Test", function() {
         });
 
         it("localFileSystem should work", function(done) {
-            var numGrids = $("#gridTarget-LocalFileSystem")
+            var numGrids = $("#gridTarget-FileSystem")
                             .find(".grid-unit").length;
             expect($('.grid-unit[data-name="' + testTargetName + '"]').length)
             .to.equal(0);
 
             submitForm("LocalFilesystem", testTargetName, "url", {})
             .then(function() {
-                var newNumGrids = $("#gridTarget-LocalFileSystem")
+                var newNumGrids = $("#gridTarget-FileSystem")
                                     .find(".grid-unit").length;
                 expect(newNumGrids).to.equal(numGrids + 1);
                 var $grid = $('.grid-unit[data-name="' + testTargetName + '"]');

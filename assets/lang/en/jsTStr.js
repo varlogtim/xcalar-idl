@@ -474,7 +474,7 @@ ExportTStr = {
                     ' under the name: <file>',
     'ExportOfCol': 'Export columns of <table>',
     'ListTargFail': 'List Targets Failed',
-    'LocalFS': 'Local File System'
+    'LocalFS': 'File System'
 };
 
 ProfileTStr = {
