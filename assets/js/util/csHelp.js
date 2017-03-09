@@ -2,17 +2,17 @@ window.CSHelp = (function($, CSHelp) {
 
     // To be kept in sync with latest documentation
     var csLookup = {
-        pointToDataSource: "A_GettingStarted/D_DetailedStepsForPointing.htm#pointToDataSource",
+        pointToDataSource: "A_GettingStarted/D_DetailedStepsForPointing.htm#Creating2",
         manageDatasetRef: "B_CommonTasks/A_ManageDatasetRef.htm#manageDatasetRef",
         filterMultiple: "B_CommonTasks/G_FilterValue.htm#filterMultiple",
         joinTables: "B_CommonTasks/I_JoinTables.htm#joinTables",
         tablesList: "B_CommonTasks/N_ChangeTableStatus.htm#tablesList",
         worksheetsList: "B_CommonTasks/O_ManageWorksheet.htm#worksheetsList",
         dataflowGraph: "C_AdvancedTasks/E_CreateBatchDataflow.htm#dataflowGraph",
-        createBatchDataflow: "C_AdvancedTasks/E_CreateBatchDataflow.htm#createBatchDataflow",
+        createBatchDataflow: "C_AdvancedTasks/E_CreateBatchDataflow.htm#Creating",
         dropTablesModal: "C_AdvancedTasks/I_UnderstandMemoryUse.htm#dropTablesModal",
         dataBrowserContents: "D_Reference/D_DataBrowser.htm#dataBrowserContents",
-        mapFunctions: "D_Reference/I_FunctionsUnderMap.htm#mapFunctions"
+        mapFunctions: "D_Reference/I_MapFunctions.htm#mapFunctions",
     };
 
     var helpBaseUrl = paths.helpUserContent;
