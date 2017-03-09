@@ -522,17 +522,35 @@ window.UDF = (function($, UDF) {
         xcAssert(storedUDF.hasOwnProperty(moduleName), "Delete UDF error");
 
         XcalarDeletePython(moduleName)
-        .then(function() {
+        .then(resolve)
+        .fail(function(error) {
+            // assume deletion if module is not listed
+            if (error && error.status === StatusT.StatusUdfModuleNotFound) {
+                XcalarListXdfs(moduleName + ":*", "User*")
+                .then(function(listXdfsObj) {
+                    if (listXdfsObj.numXdfs === 0) {
+                        resolve();
+                    } else {
+                        Alert.error(UDFTStr.DelFail, error);
+                    }
+                })
+                .fail(function(otherErr) {
+                    console.warn(otherErr);
+                    Alert.error(UDFTStr.DelFail, error);
+                });
+            } else {
+                Alert.error(UDFTStr.DelFail, error);
+            }
+        });
+
+        function resolve() {
             delete storedUDF[moduleName];
             updateUDF();
 
             refreshUDF(true);
 
             xcHelper.showSuccess(SuccessTStr.DelUDF);
-        })
-        .fail(function(error) {
-            Alert.error(UDFTStr.DelFail, error);
-        });
+        }
     }
 
     function upload(moduleName, entireString, type) {
