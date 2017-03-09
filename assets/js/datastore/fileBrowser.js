@@ -948,14 +948,14 @@ window.FileBrowser = (function($, FileBrowser) {
         var name;
 
         if (typeof grid === "string") {
-            name = grid;
+            name = xcHelper.escapeRegExp(grid);
             if (isAll) {
                 str = '.grid-unit .label[data-name="' + name + '"]';
             } else {
                 str = '.grid-unit.folder .label[data-name="' + name + '"]';
             }
         } else {
-            name = grid.name;
+            name = xcHelper.escapeRegExp(grid.name);
             var type = grid.type;
 
             if (type == null) {
