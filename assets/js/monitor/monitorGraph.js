@@ -1,5 +1,5 @@
 window.MonitorGraph = (function($, MonitorGraph) {
-    var interval = 3000; // update interval in milliseconds
+    var intervalTime = 3000; // update interval in milliseconds
     var xGridWidth = 60; // space between each x-axis grid line
     var height = 210;
     var yAxis;
@@ -20,6 +20,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
     var $graphWrap;
     var timeStamp;
     var failCount = 0;
+    var curIteration = 0;
 
     MonitorGraph.setup = function() {
         var $monitorPanel = $('#monitorPanel');
@@ -87,17 +88,20 @@ window.MonitorGraph = (function($, MonitorGraph) {
         $graph.find('svg').remove();
         $graph.find('.xLabels').empty();
         $('#rightYAxis').empty();
-        clearInterval(graphCycle);
+        curIteration++;
+        clearTimeout(graphCycle);
     };
 
     MonitorGraph.stop = function() {
-        clearInterval(graphCycle);
+        curIteration++;
+        clearTimeout(graphCycle);
     };
 
     MonitorGraph.updateInterval = function(time) {
-        interval = time;
-        clearInterval(graphCycle);
-        graphCycle = setInterval(getStatsAndUpdateGraph, interval);
+        intervalTime = time;
+        curIteration++;
+        clearTimeout(graphCycle);
+        cycle();
     };
 
     function startCycle() {
@@ -111,14 +115,46 @@ window.MonitorGraph = (function($, MonitorGraph) {
         });
         firstTime = true;
 
-        getStatsAndUpdateGraph();
-        interval = (UserSettings.getPref('monitorGraphInterval') * 1000) ||
-                    interval;
-        clearInterval(graphCycle);
-        graphCycle = setInterval(getStatsAndUpdateGraph, interval);
+        intervalTime = (UserSettings.getPref('monitorGraphInterval') * 1000) ||
+                        intervalTime;
+
+        curIteration++;
+        clearTimeout(graphCycle);
+        var prevIteration = curIteration;
+        var startTime = Date.now();
+
+        getStatsAndUpdateGraph()
+        .always(function() {
+            if (prevIteration === curIteration) {
+                var elapsedTime = Date.now() - startTime;
+                cycle(elapsedTime);
+            }
+        });
+    }
+
+    // ajustTime is the time to subtract from the interval time due to the
+    // length of time it takes for the backend call to return
+    function cycle(adjustTime) {
+        var prevIteration = curIteration;
+        var intTime = intervalTime;
+        if (adjustTime) {
+            intTime = Math.max(200, intervalTime - adjustTime);
+        }
+        graphCycle = setTimeout(function() {
+            var startTime = Date.now();
+            getStatsAndUpdateGraph()
+            .always(function() {
+                if (prevIteration === curIteration) {
+                    var elapsedTime = Date.now() - startTime;
+                    cycle(elapsedTime);
+                }
+            }) 
+        }, intTime);
     }
 
     function getStatsAndUpdateGraph() {
+        var deferred = jQuery.Deferred();
+
         if (count % 10 === 0) {
             xGridVals.push(numXGridMarks * xGridWidth);
             numXGridMarks++;
@@ -136,19 +172,28 @@ window.MonitorGraph = (function($, MonitorGraph) {
 
         var numNodes;
         var apiTopResult;
+        var prevIteration = curIteration;
 
         XcalarApiTop()
         .then(function(result) {
+            if (prevIteration !== curIteration) {
+                return PromiseHelper.resolve();
+            }
             apiTopResult = result;
             numNodes = result.numNodes;
             return xcHelper.getMemUsage();
         })
         .then(function(memInfos) {
+            if (prevIteration !== curIteration) {
+                deferred.resolve();
+                return;
+            }
             var allStats = processNodeStats(memInfos, apiTopResult, numNodes);
             updateGraph(allStats, numNodes);
             MonitorPanel.updateDonuts(allStats, numNodes);
             failCount = 0;
             toggleErrorScreen();
+            deferred.resolve();
         })
         .fail(function(error) {
             console.error("get status fails", error);
@@ -158,6 +203,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
                 console.error("failed to get stats twice in a row");
                 toggleErrorScreen(true, error);
             }
+            deferred.reject();
         });
 
         count++;
@@ -168,6 +214,8 @@ window.MonitorGraph = (function($, MonitorGraph) {
             var rand = Math.random() * 0.1;
             svgWrap.attr("height", height + rand);
         }, 150);
+
+        return deferred.promise();
     }
 
     function processNodeStats(memInfos, apiTopResult, numNodes) {

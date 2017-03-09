@@ -29,6 +29,9 @@ window.Workbook = (function($, Workbook) {
                 if (!$workbookPanel.is(":visible")) {
                     // on monitor view or something else
                     $('#container').removeClass('monitorMode');
+                    if (!wasMonitorActive) {
+                        MonitorPanel.inActive();
+                    }
                 } else if ($('#container').hasClass('noWorkbook')) {
                     // do not allow user to exit without entering a workbook
                     $workbookPanel.addClass('closeAttempt');
@@ -67,13 +70,6 @@ window.Workbook = (function($, Workbook) {
         $workbookPanel.show();
         $('#container').addClass('workbookMode');
 
-        if (!MonitorPanel.isGraphActive()) {
-            wasMonitorActive = false;
-            MonitorPanel.active();
-        } else {
-            wasMonitorActive = true;
-        }
-
         if (isForceShow) {
             getWorkbookInfo(isForceShow);
             $workbookPanel.removeClass('hidden'); // no animation if force show
@@ -104,9 +100,7 @@ window.Workbook = (function($, Workbook) {
                 $('#container').removeClass('workbookMode');
             }, 400);
         }
-        if (!wasMonitorActive) {
-            MonitorPanel.inActive();
-        }
+
         $('.tooltip').hide();
         StatusBox.forceHide();
     };
@@ -172,6 +166,14 @@ window.Workbook = (function($, Workbook) {
             $('#container').addClass('monitorMode');
             $('#mainMenu').addClass('noAnim');
             $('#container').addClass('noMenuAnim');
+
+            if (!MonitorPanel.isGraphActive()) {
+                wasMonitorActive = false;
+                MonitorPanel.active();
+            } else {
+                wasMonitorActive = true;
+            }
+
             setTimeout(function() {
                 $('#mainMenu').removeClass('noAnim');
                 $('#container').removeClass('noMenuAnim');
@@ -181,6 +183,9 @@ window.Workbook = (function($, Workbook) {
         // from monitor to workbook panel
         $('#monitorPanel').find('.backToWB').click(function() {
             $('#container').removeClass('monitorMode');
+            if (!wasMonitorActive) {
+                MonitorPanel.inActive();
+            }
         });
     }
 
