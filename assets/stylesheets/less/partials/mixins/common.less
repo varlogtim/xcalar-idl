@@ -95,6 +95,16 @@
     transition: 0s !important;
 }
 
+.selectionBackground(@color) {
+    // combining ::selection, ::-moz-selection won't work. Must separate them
+    &::selection {
+        background: @color;
+    }
+    &::-moz-selection {
+        background: @color;
+    }
+}
+
 .cursor-move() {
     cursor: move;
     cursor: -webkit-grab;

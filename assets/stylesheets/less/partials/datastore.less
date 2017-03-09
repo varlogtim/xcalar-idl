@@ -1729,7 +1729,10 @@ table.datasetTable {
             background: @color-table-preview-highlight;
         }
 
-        &::selection, &::-moz-selection {
+        &::selection {
+            color: @color-table-preview-highlight;
+        }
+        &::-moz-selection {
             color: @color-table-preview-highlight;
         }
     }
@@ -2120,10 +2123,12 @@ table.datasetTable {
             .text-selection;
             font-family: @font-code;
             line-height: 18px;
+            .selectionBackground(@color: @color-bg-bright-light-blue);
         }
 
         .page {
             background: transparent !important;
+            .selectionBackground(@color: @color-bg-bright-light-blue-half);
         }
     }
 
@@ -2133,6 +2138,20 @@ table.datasetTable {
         border: 1px solid rgba(0, 0, 0, 0.2);
         margin-right: 11px; // for chrome scrollbar
         // XXX change margin-right according to browser scrollbar width
+
+        // shrinking resize grabbers, too big, gets in the way of scrollbars
+        .ui-resizable-w {
+            left: -5px;
+            width: 12px;
+        }
+        .ui-resizable-e {
+            right: -4px;
+            width: 8px;
+        }
+        .ui-resizable-s {
+            height: 10px;
+            bottom: -8px;
+        }
 
         .boxHeader {
             height: 30px;
