@@ -476,8 +476,10 @@ window.TblMenu = (function(TblMenu, $) {
 
                 if (delim === "") {
                     StatusBox.show(ErrTStr.NoEmpty, $delimInput, null, {
-                        "closeable": true
+                        "closeable": true,
+                        "side": "left",
                     });
+                    return;
                 }
 
                 var $numInput = $li.find(".num");
