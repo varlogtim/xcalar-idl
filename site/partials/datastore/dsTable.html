@@ -116,13 +116,8 @@
   <div class="cardMain">
     <!-- Datastore Table -->
     <div id="dsTableContainer">
-      <div class="loadSection animatedEllipsisWrapper">
-        <div class="text"><%= dicts.common.PleaseWait %></div>
-        <div class="animatedEllipsis">
-          <div>.</div>
-          <div>.</div>
-          <div>.</div>
-        </div>
+      <div class="loadSection">
+        include "../../util/animatedEllipsis.html"
       </div>
       <div class="errorSection">
         <div class="error"></div>

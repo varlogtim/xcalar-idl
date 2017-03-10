@@ -29,14 +29,7 @@
     <div class="cardMain">
       <!-- waitSection -->
       <div class="waitSection">
-        <div class="animatedEllipsisWrapper">
-          <div class="text"><%= dicts.extension.Load %></div>
-          <div class="animatedEllipsis">
-            <div>.</div>
-            <div>.</div>
-            <div>.</div>
-          </div>
-        </div>
+        include "../../util/animatedEllipsis.html"
       </div>
       <!-- errorSection -->
       <div class="errorSection"><%= dicts.extension.LoadErr %></div>

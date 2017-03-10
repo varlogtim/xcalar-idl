@@ -40,13 +40,8 @@
   </div>
   <div class="cardMain">
     <div class="errorSection xc-errorView"></div>
-    <div class="loadSection animatedEllipsisWrapper xc-loadView">
-      <div class="text"><%= dicts.common.PleaseWait %></div>
-      <div class="animatedEllipsis">
-        <div>.</div>
-        <div>.</div>
-        <div>.</div>
-      </div>
+    <div class="loadSection xc-loadView">
+      include "../../util/animatedEllipsis.html"
     </div>
     <div class="dataPreview xc-contentView">
       <div class="innerDataPreview">
