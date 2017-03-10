@@ -863,7 +863,7 @@ window.DS = (function ($, DS) {
         for (var i = 0; i < numDatasets; i++) {
             var dsName = datasets.datasets[i].name;
 
-            if (atStartUp && dsName.endsWith(".preview") &&
+            if (atStartUp && dsName.endsWith("-xcalar-preview") &&
                 xcHelper.parseDSName(dsName).user === userPrefix) {
                 // deal with preview datasets,
                 // if it's the current user's preview ds,

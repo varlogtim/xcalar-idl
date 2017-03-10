@@ -1732,7 +1732,7 @@ window.DSPreview = (function($, DSPreview) {
             name = xcHelper.randName("previewTable");
         }
         // specific format for preview table
-        name = xcHelper.wrapDSName(name) + ".preview";
+        name = xcHelper.wrapDSName(name) + "-xcalar-preview";
         return name;
     }
 
