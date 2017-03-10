@@ -256,11 +256,11 @@ describe("DSPreview Test", function() {
             var getPreviewTableName = DSPreview.__testOnly__.getPreviewTableName;
             var res = getPreviewTableName("test");
             expect(res.indexOf("test-") > 0).to.be.true;
-            expect(res.endsWith(".preview")).to.be.true;
+            expect(res.endsWith("-xcalar-preview")).to.be.true;
 
             res = getPreviewTableName();
             expect(res.indexOf("previewTable") > 0).to.be.true;
-            expect(res.endsWith(".preview")).to.be.true;
+            expect(res.endsWith("-xcalar-preview")).to.be.true;
         });
 
         it("toggleHeader() should workh", function() {
