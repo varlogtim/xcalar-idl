@@ -35,15 +35,15 @@ describe("Agg Modal Test", function() {
         });
 
         it("getColLabelHTML should work", function() {
-            var labels = ["label1", "label2"];
+            var labels = [{colName: "label1", prefix: "a"}, {colName: "label2", prefix: "a"}];
             var html = AggModal.__testOnly__.getColLabelHTML(labels);
             var $container = $('<div>' + html + '</div>');
             expect($container.find(".padding").length).to.equal(1);
             var $colLabels = $container.find(".colLabel");
             expect($colLabels.length).to.equal(3);
             expect($colLabels.eq(0).hasClass("blankSpace")).to.be.true;
-            expect($colLabels.eq(1).text()).to.equal("label1");
-            expect($colLabels.eq(2).text()).to.equal("label2");
+            expect($colLabels.eq(1).text()).to.equal("alabel1");
+            expect($colLabels.eq(2).text()).to.equal("alabel2");
         });
     });
 

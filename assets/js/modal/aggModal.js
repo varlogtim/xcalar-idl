@@ -270,8 +270,10 @@ window.AggModal = (function($, AggModal) {
 
             var progCol = aggCol.col;
             var isChildOfArray = aggCol.isChildOfArray;
-
-            colLabels.push(progCol.getFrontColName(true));
+            var nameObj = {};
+            nameObj.colName = progCol.getFrontColName();
+            nameObj.prefix  = progCol.getPrefix() || CommonTxtTstr.Immediates;
+            colLabels.push(nameObj);
             wholeTable += '<div class="aggCol">';
 
             for (var row = 0; row < funLen; row++) {
@@ -325,7 +327,10 @@ window.AggModal = (function($, AggModal) {
                 continue;
             }
 
-            colLabels.push(progCol.getFrontColName(true));
+            var nameObj = {};
+            nameObj.colName = progCol.getFrontColName();
+            nameObj.prefix  = progCol.getPrefix() || CommonTxtTstr.Immediates;
+            colLabels.push(nameObj);
             wholeTable += '<div class="aggCol">';
 
             for (var row = 0; row < colLen; row++) {
@@ -362,7 +367,11 @@ window.AggModal = (function($, AggModal) {
             {
                 continue;
             }
-            rowLabels.push(aggCols[i].col.getFrontColName(true));
+
+            var nameObj = {};
+            nameObj.colName = aggCols[i].col.getFrontColName();
+            nameObj.prefix  = aggCols[i].col.getPrefix() || CommonTxtTstr.Immediates;
+            rowLabels.push(nameObj);
         }
 
         if (wholeTable === "") {
@@ -378,14 +387,33 @@ window.AggModal = (function($, AggModal) {
 
     function getRowLabelHTML(operations) {
         var html = '<div class="aggCol labels">';
-
+        var prefixLabel = "";
+        var name;
         for (var i = 0, len = operations.length; i < len; i++) {
+            if (typeof operations[i] === "string") {
+                name = operations[i];
+            } else {
+                var prefClass = "";
+                if (operations[i].prefix === CommonTxtTstr.Immediates) {
+                    prefClass = " derived";
+                }
+                prefixLabel = '<span data-original-title="' +
+                                operations[i].prefix + '" ' +
+                                'data-toggle="tooltip" data-placement="top" ' +
+                                'data-container="body" ' +
+                                'class="textOverflow tooltipOverflow prefix '
+                                + prefClass + '">' +
+                                operations[i].prefix +
+                            '</span>';
+                name = operations[i].colName;
+            }
             html += '<div class="aggTableField rowLabel">' +
-                        '<span data-original-title="' + operations[i] + '" ' +
+                        prefixLabel + 
+                        '<span data-original-title="' + name + '" ' +
                             'data-toggle="tooltip" data-placement="top" ' +
                             'data-container="body" ' +
                             'class="textOverflow tooltipOverflow">' +
-                            operations[i] +
+                            name +
                         '</span>' +
                     '</div>';
         }
@@ -397,14 +425,28 @@ window.AggModal = (function($, AggModal) {
     function getColLabelHTML(labels) {
         var html = '<div class="padding"></div>' +
                    '<div class="aggTableField colLabel blankSpace"></div>';
-
+        var prefClass = "";
         for (var i = 0, len = labels.length; i < len; i++) {
+            if (labels[i].prefix === CommonTxtTstr.Immediates) {
+                prefClass = " derived";
+            } else {
+                prefClass = "";
+            }
             html += '<div class="aggTableField colLabel">' +
-                        '<span data-original-title="' + labels[i] + '" ' +
+                        '<span data-original-title="' + labels[i].prefix +
+                        '" ' +
+                            'data-toggle="tooltip" data-placement="top" ' +
+                            'data-container="body" ' +
+                            'class="prefix textOverflow tooltipOverflow ' +
+                            prefClass + '">' +
+                            labels[i].prefix +
+                        '</span>' +
+                        '<span data-original-title="' + labels[i].colName +
+                        '" ' +
                             'data-toggle="tooltip" data-placement="top" ' +
                             'data-container="body" ' +
                             'class="textOverflow tooltipOverflow">' +
-                            labels[i] +
+                            labels[i].colName +
                         '</span>' +
                     '</div>';
         }
