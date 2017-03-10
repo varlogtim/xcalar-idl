@@ -5,6 +5,7 @@ describe('JsonModal Test', function() {
     var $jsonModal;
     var tableId;
     var $table;
+    var oldTableId;
 
     before(function(done) {
         UnitTest.onMinMode();
@@ -16,12 +17,20 @@ describe('JsonModal Test', function() {
             prefix = tPrefix;
             $jsonModal = $('#jsonModal');
             tableId = xcHelper.getTableId(tableName);
-            $table = $('#xcTable-' + tableId);
-            JSONModal.show($table.find('.jsonElement').eq(0));
-            // allow modal to fade in
-            setTimeout(function() {
-                done();
-            }, 500);
+            oldTableId = tableId;
+
+            xcFunction.sort(10, tableId, SortDirection.Forward)
+            .then(function(tName) {
+                tableName = tName;
+                tableId = xcHelper.getTableId(tableName);
+
+                $table = $('#xcTable-' + tableId);
+                JSONModal.show($table.find('.jsonElement').eq(0));
+                // allow modal to fade in
+                setTimeout(function() {
+                    done();
+                }, 100);
+            });
         });
     });
 
@@ -70,7 +79,7 @@ describe('JsonModal Test', function() {
             JSONModal.__testOnly__.closeJSONModal();
             setTimeout(function() {
                 done();
-            }, 300);
+            }, 100);
         });
 
         it('object in mixed col should work', function(done) {
@@ -87,8 +96,8 @@ describe('JsonModal Test', function() {
                 JSONModal.__testOnly__.closeJSONModal();
                 setTimeout(function() {
                     done();
-                }, 300);
-            }, 500);
+                }, 100);
+            }, 100);
         });
 
         it('array in mixed col should work', function(done) {
@@ -105,8 +114,8 @@ describe('JsonModal Test', function() {
                 JSONModal.__testOnly__.closeJSONModal();
                 setTimeout(function() {
                     done();
-                }, 300);
-            }, 500);
+                }, 100);
+            }, 100);
         });
 
         after(function(done) {
@@ -114,7 +123,7 @@ describe('JsonModal Test', function() {
             // allow modal to fade in
             setTimeout(function() {
                 done();
-            }, 500);
+            }, 100);
         });
     });
 
@@ -149,39 +158,39 @@ describe('JsonModal Test', function() {
                     return ($(this).text() === "average_stars");
                 });
                 expect($averageStarsKey.length).to.equal(1);
-                expect($averageStarsKey.siblings().text()).to.equal("3.54");
+                expect($averageStarsKey.siblings().text()).to.equal("5");
                 $averageStarsKey.click();
                 var $headerInput = $table.find('.editableHead').filter(function() {
                     return ($(this).val() === "average_stars");
                 });
                 expect($headerInput.length).to.equal(1);
                 expect($headerInput.closest('th').hasClass('col12')).to.be.true;
-                expect($table.find('.row0 .col12 .displayedData').text()).to.equal("3.54");
+                expect($table.find('.row0 .col12 .displayedData').text()).to.equal("5");
 
                 JSONModal.show($table.find('.jsonElement').eq(0));
                 // allow modal to fade in
                 setTimeout(function() {
                     done();
-                }, 500);
+                }, 100);
             });
         });
 
         it('pulling a nested field out should work', function() {
-            var $complimentsNoteKey = $jsonModal.find('.jKey').filter(function() {
-                return ($(this).text() === "note");
+            var $votesFunnyKey = $jsonModal.find('.jKey').filter(function() {
+                return ($(this).text() === "funny");
             });
-            expect($complimentsNoteKey.length).to.equal(1);
-            expect($complimentsNoteKey.siblings().text()).to.equal("1");
+            expect($votesFunnyKey.length).to.equal(1);
+            expect($votesFunnyKey.siblings().text()).to.equal("1");
             var $headerInput = $table.find('.editableHead').filter(function() {
-                return ($(this).val() === "compliments.note");
+                return ($(this).val() === "votes.funny");
             });
             expect($headerInput.length).to.equal(0);
 
             // trigger pull col
-            $complimentsNoteKey.click();
+            $votesFunnyKey.click();
 
             $headerInput = $table.find('.editableHead').filter(function() {
-                return ($(this).val() === "compliments.note");
+                return ($(this).val() === "votes.funny");
             });
             expect($headerInput.length).to.equal(1);
             expect($headerInput.closest('th').hasClass('col13')).to.be.true;
@@ -201,12 +210,12 @@ describe('JsonModal Test', function() {
                     return ($(this).text() === "yelping_since");
                 });
                 expect($yelpingSinceKey.length).to.equal(1);
-                expect($yelpingSinceKey.siblings().text()).to.equal("2008-03");
+                expect($yelpingSinceKey.siblings().text()).to.equal("2012-11");
                 $yelpingSinceKey.click();
                 expect($headerInput.closest('th.selectedCell')).to.have.lengthOf(1);
 
                 done();
-            }, 500);
+            }, 100);
         });
     });
 
@@ -220,8 +229,7 @@ describe('JsonModal Test', function() {
             .then(function() {
                 expect($jsonModal.find('.bar:visible').length).to.equal(1);
                 var jsonObj = JSON.parse("{" + $jsonModal.find('.jObject').text().replace(/[\s\n]/g, "") + "}");
-                expect(Object.keys(jsonObj).length).to.equal(2);
-                expect(jsonObj.note).to.equal(1);
+                expect(Object.keys(jsonObj).length).to.equal(1);
                 expect(jsonObj.cool).to.equal(1);
                 done();
             });
@@ -256,17 +264,17 @@ describe('JsonModal Test', function() {
     describe('examine option in json modal', function() {
         it('examine should work', function(done) {
             var $td = $table.find('td').filter(function() {
-                return $(this).text() === '2008-03';
+                return $(this).text() === '2012-11';
             }).eq(0);
 
             JSONModal.show($td, {type: "string"});
             UnitTest.timeoutPromise(500)
             .then(function() {
-                expect($jsonModal.find('.jsonWrap .prettyJson').text()).to.equal('"2008-03"');
+                expect($jsonModal.find('.jsonWrap .prettyJson').text()).to.equal('"2012-11"');
                 JSONModal.__testOnly__.closeJSONModal();
                 setTimeout(function() {
                     done();
-                }, 300);
+                }, 100);
             });
         });
     });
@@ -281,11 +289,11 @@ describe('JsonModal Test', function() {
             JSONModal.show($table.find('.jsonElement').eq(0));
             // allow modal to fade in
             setTimeout(function() {
-                JSONModal.show($table.find('.jsonElement').eq(1));
+                JSONModal.show($table.find('.jsonElement').eq(4));
                 setTimeout(function() {
                     done();
                 }, 100);
-            }, 500);
+            }, 100);
         });
 
         it('compare matches on 2 data browser panels', function() {
@@ -339,7 +347,7 @@ describe('JsonModal Test', function() {
             compare($jsonModal.find('.compareIcon').eq(2));
 
             // check matches
-            expect($jsonModal.find('.matched').eq(2).children().length).to.equal(3);
+            expect($jsonModal.find('.matched').eq(2).children().length).to.equal(2);
             var matched1Text = $jsonModal.find('.matched').eq(0).text();
             var matched2Text = $jsonModal.find('.matched').eq(1).text();
             var matched3Text = $jsonModal.find('.matched').eq(2).text();
@@ -348,7 +356,7 @@ describe('JsonModal Test', function() {
 
 
             // check partial matches
-            expect($jsonModal.find('.partial').eq(2).children().length).to.equal(8);
+            expect($jsonModal.find('.partial').eq(2).children().length).to.equal(9);
   
             expect($jsonModal.find('.partial').eq(1).children().eq(0).data('key'))
             .to.equal($jsonModal.find('.partial').eq(2).children().eq(0).data('key'));
@@ -413,7 +421,7 @@ describe('JsonModal Test', function() {
             expect($jsonModal.find('.comparison').length).to.equal(0);
             expect($jsonModal.find('.matches').length).to.equal(0);
             expect($jsonModal.find('.jsonWrap').eq(0).find('.rowNum').text()).to.equal('Row:1');
-            expect($jsonModal.find('.jsonWrap').eq(1).find('.rowNum').text()).to.equal('Row:2');
+            expect($jsonModal.find('.jsonWrap').eq(1).find('.rowNum').text()).to.equal('Row:5');
 
             // remove 2nd panel
             $jsonModal.find('.remove').eq(1).click();
@@ -774,8 +782,8 @@ describe('JsonModal Test', function() {
                 expect(1).to.equal(1);
                 expect($table.find('th').length).to.be.gt(5).and.lt(30);
                 var rowText = $table.find('tbody tr:eq(0) td:not(".jsonElement")').text();
-                expect(rowText.indexOf("72lSH7LyIdaPzqZgA0v7Qg")).to.not.equal(-1);
-                expect(rowText.indexOf('"useful":20')).to.not.equal(-1);
+                expect(rowText.indexOf("SEDFpR4oMPKqXMjbJiMGog")).to.not.equal(-1);
+                expect(rowText.indexOf('"useful":1')).to.not.equal(-1);
                 done();
             }, 1);
         });
@@ -794,15 +802,18 @@ describe('JsonModal Test', function() {
                     expect(newRowText).to.equal(rowText);
                     done();
                 }, 1);
-            }, 500);
+            }, 100);
         });
     });
 
     after(function(done) {
-        UnitTest.deleteAll(tableName, testDs)
-        .always(function() {
-            UnitTest.offMinMode();
-            done();
-        });
+        UnitTest.deleteAllTables()
+        .then(function() {
+            UnitTest.deleteDS(testDs)
+            .always(function() {
+                UnitTest.offMinMode();
+                done();
+            });
+        })
     });
 });
