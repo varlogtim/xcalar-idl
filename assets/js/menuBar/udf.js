@@ -159,6 +159,10 @@ window.UDF = (function($, UDF) {
         });
         /* end of switch between UDF sections */
 
+        $udfSection.on("mouseenter", ".tooltipOverflow", function() {
+            xcTooltip.auto(this);
+        });
+
         // browser file
         var $browserBtn = $("#udf-upload-fileBrowser");
         $("#udf-upload-browse").click(function() {
@@ -398,7 +402,13 @@ window.UDF = (function($, UDF) {
         var html = "";
         for (var i = 0, len = moduleNames.length; i < len; i++) {
             var module = moduleNames[i];
-            html += "<li>" + module + "</li>";
+            html += '<li class="tooltipOverflow"' +
+                    ' data-toggle="tooltip"' +
+                    ' data-container="body"' +
+                    ' data-placement="top"' +
+                    ' data-title="' + module + '">' +
+                        module +
+                    '</li>';
             if (!hasSelectedModule && module === selectedModule) {
                 hasSelectedModule = true;
             }
@@ -431,7 +441,11 @@ window.UDF = (function($, UDF) {
                     '<div class="iconWrap udfIcon">' +
                     '<i class="icon xi-module center fa-15"></i>' +
                 '</div>' +
-                '<div class="text">' +
+                '<div class="text tooltipOverflow"' +
+                ' data-toggle="tooltip"' +
+                ' data-container="body"' +
+                ' data-placement="top"' +
+                ' data-title="' + moduleName + '">' +
                   moduleName +
                 '</div>' +
                 '<div class="actions">' +
