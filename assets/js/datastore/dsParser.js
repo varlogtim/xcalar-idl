@@ -87,7 +87,6 @@ window.DSParser = (function($, DSParser) {
     function refreshView(noDetect) {
         var promise = previewContent(0, 1, null, noDetect);
         resetScrolling();
-        resetWinResize();
         return promise;
     }
 
@@ -142,43 +141,6 @@ window.DSParser = (function($, DSParser) {
         $(window).off("resize.dsparser");
     }
 
-    function resetWinResize() {
-        var timeout;
-        $(window).on("resize.dsparser", function() {
-            clearTimeout(timeout);
-            timeout = setTimeout(repositionBoxes, 100);
-        });
-
-        repositionBoxes();
-    }
-
-    // makes sure boxes don't go off screen
-    function repositionBoxes() {
-        $parserCard.find(".parserBox").each(function() {
-            var $box = $(this);
-            if ($box.position().left < 0) {
-                var boxWidth = $box.outerWidth();
-                var cardWidth = $parserCard.width();
-                var right = cardWidth - (boxWidth +
-                            parseInt($box.css("margin-right")));
-                right = Math.max(0, right);
-                $box.css({"right": right});
-                if (boxWidth > cardWidth) {
-                    $box.outerWidth(cardWidth);
-                }
-            }
-            var cardMainHeight = $parserCard.find(".cardMain").height();
-            var boxHeight = $box.outerHeight();
-            if (boxHeight > cardMainHeight) {
-                boxHeight = cardMainHeight;
-                $box.outerHeight(boxHeight);
-            }
-            if ($box.position().top + boxHeight > cardMainHeight) {
-                $box.css({"top": cardMainHeight - boxHeight});
-            }
-        });
-    }
-
     function resetScrolling() {
         $dataPreview.on("mousedown.dsparser", function() {
             isMouseDown = true;
@@ -207,82 +169,30 @@ window.DSParser = (function($, DSParser) {
             $(this).siblings(".parserBox").css({"z-index": 0});
         });
 
-        $boxes.draggable({
-            handle: ".boxHeader",
-            cursor: "-webkit-grabbing",
-            containment: "parent",
-            stop: function(e, ui) {
-                var $box = ui.helper;
-                var right = getRightPos($box);
-                $box.css({
-                    left: "auto",
-                    right: right
-                });
-            }
-        });
-
-        var containerWidth;
-
-        $boxes.resizable({
-            handles: "n, e, s, w, se, sw",
-            minHeight: boxMin,
-            minWidth: boxMin,
-            containment: "parent",
-            start: function(e, ui) {
-                var $box = ui.helper;
-                $box.css("left", $box.position().left);
-                containerWidth = $parserCard.find(".cardMain").width() -
-                                 parseInt($box.css("margin-right"));
-            },
-            resize: function(e, ui) {
-                if (ui.position.left + ui.size.width > containerWidth) {
-                    ui.helper.width(containerWidth - ui.position.left);
+        $boxes.on("click", ".resize", function() {
+            var $box = $(this).closest(".parserBox");
+            $box.removeClass("minimized");
+            if ($box.hasClass("maximized")) {
+                $box.removeClass("maximized");
+            } else {
+                $box.addClass("maximized");
+                if ($box.is("#previewModeBox")) {
+                    checkIfScrolled($miniPreview, previewMeta.meta);
                 }
-            },
-            stop: function(e, ui) {
-                var $box = ui.helper;
-                var right = getRightPos($box);
-                $box.css({
-                    left: "auto",
-                    right: right
-                });
             }
         });
 
-        $boxes.on("click", ".xi-fullscreen", function() {
+        $boxes.on("click", ".boxHeader", function(event) {
+            if ($(event.target).closest(".resize").length) {
+                return;
+            }
             var $box = $(this).closest(".parserBox");
-            var $container = $parserCard.find(".cardMain");
-            var containerWidth = $container.width();
-            var containerHeight = $container.height();
-            $box.outerWidth(containerWidth - 22);
-            $box.outerHeight(containerHeight - 16);
-            $box.css({
-                "top": 4,
-                "left": "auto",
-                "right": 4
-            });
+            if ($box.hasClass("minimized")) {
+                $box.removeClass("minimized");
+            } else {
+                $box.addClass("minimized");
+            }
         });
-
-        $boxes.on("click", ".xi-exit-fullscreen", function() {
-            var $box = $(this).closest(".parserBox");
-            var right = getRightPos($box);
-            $box.outerWidth(boxMin);
-            $box.outerHeight(boxMin);
-            $box.css({
-                "left": "auto",
-                "right": right
-            });
-        });
-
-        function getRightPos($box) {
-            var $container = $parserCard.find(".cardMain");
-            var containerWidth = $container.width();
-            // var containerHeight = $container.height();
-            var right = containerWidth - ($box.position().left +
-                                          $box.outerWidth() +
-                                          parseInt($box.css("margin-right")));
-            return right;
-        }
     }
 
     function setupMenu() {
@@ -862,7 +772,8 @@ window.DSParser = (function($, DSParser) {
         inputWidth = Math.max(inputWidth, 20 + (numDigits * 9));
 
         $("#parserRowInput").outerWidth(inputWidth);
-        $parserCard.find(".totalRows").text("of " + previewMeta.totalLines);
+        var numLines = xcHelper.numToStr(previewMeta.totalLines);
+        $parserCard.find(".totalRows").text("of " + numLines);
     }
 
     function getSelectionCharOffsetsWithin(element) {
@@ -1504,7 +1415,6 @@ window.DSParser = (function($, DSParser) {
         DSParser.__testOnly__.showPreviewMode = showPreviewMode;
         DSParser.__testOnly__.getJSONPath = getJSONPath;
         DSParser.__testOnly__.submitForm = submitForm;
-        DSParser.__testOnly__.repositionBoxes = repositionBoxes;
         DSParser.__testOnly__.fetchRows = fetchRows;
         DSParser.__testOnly__.addContent = addContent;
     }

@@ -49,34 +49,36 @@
         <div class="previewContent content"></div>
       </div>
     </div>
-    <div id="previewModeBox" class="parserBox" style="z-index: 1;">
-      <header class="boxHeader">
-        <div class="title"><%= dicts.dsParser.PreviewMode %></div>
-        <div class="resize">
-          <i class="icon xi-exit-fullscreen xc-action" data-toggle="tooltip" data-container="body" data-placement="top auto" data-original-title="<%= dicts.common.Minimize %>"></i>
-          <i class="icon xi-fullscreen xc-action" data-toggle="tooltip" data-container="body" data-placement="top auto" data-original-title="<%= dicts.common.Maximize %>"></i>
+    <div class="boxContainer">
+      <div id="previewModeBox" class="parserBox" style="z-index: 1;">
+        <header class="boxHeader">
+          <div class="title"><%= dicts.dsParser.PreviewMode %></div>
+          <div class="resize">
+            <i class="icon xi-expand xc-action" data-toggle="tooltip" data-container="body" data-placement="top auto" data-original-title="<%= dicts.common.Maximize %>"></i>
+            <i class="icon xi-minimize xc-action" data-toggle="tooltip" data-container="body" data-placement="top auto" data-original-title="<%= dicts.common.Minimize %>"></i>
+          </div>
+        </header>
+        <div class="boxBody">
+          <div class="innerBox">
+            <div class="sizer boxSizer"></div>
+            <div class="boxContent content"></div>
+          </div>
         </div>
-      </header>
-      <div class="boxBody">
-        <div class="innerBox">
-          <div class="sizer boxSizer"></div>
-          <div class="boxContent content"></div>
-        </div>
+        <div class="boxFooter"></div>
       </div>
-      <div class="boxFooter"></div>
-    </div>
-    <div id="delimitersBox" class="parserBox">
-       <header class="boxHeader">
-        <div class="title"><%= dicts.dsParser.SelectedKeys %></div>
-        <div class="resize">
-          <i class="icon xi-exit-fullscreen xc-action" data-toggle="tooltip" data-container="body" data-placement="top auto" data-original-title="<%= dicts.common.Minimize %>"></i>
-          <i class="icon xi-fullscreen xc-action" data-toggle="tooltip" data-container="body" data-placement="top auto" data-original-title="<%= dicts.common.Maximize %>"></i>
+      <div id="delimitersBox" class="parserBox">
+         <header class="boxHeader">
+          <div class="title"><%= dicts.dsParser.SelectedKeys %></div>
+          <div class="resize">
+            <i class="icon xi-expand xc-action" data-toggle="tooltip" data-container="body" data-placement="top auto" data-original-title="<%= dicts.common.Maximize %>"></i>
+            <i class="icon xi-minimize xc-action" data-toggle="tooltip" data-container="body" data-placement="top auto" data-original-title="<%= dicts.common.Minimize %>"></i>
+          </div>
+        </header>
+        <div class="boxBody">
+          <ul></ul>
         </div>
-      </header>
-      <div class="boxBody">
-        <ul></ul>
+        <div class="boxFooter"></div>
       </div>
-      <div class="boxFooter"></div>
     </div>
     <ul id="parserMenu" class="menu">
       <li class="full" data-action="full">

@@ -676,37 +676,22 @@ describe("DSParser Test", function() {
         it("box fullscreen should work", function() {
             var $box = $("#previewModeBox");
             var $parserCard = $("#dsParser");
-            expect($box.outerWidth()).to.equal(300);
-            expect($box.outerHeight()).to.equal(300);
-            $box.find(".xi-fullscreen").click();
-            expect($box.outerWidth()).to.be.gt(300);
-            expect($box.outerHeight()).to.be.gt(300);
-            expect($box.outerWidth()).to.be.lt($parserCard.find(".cardMain").width());
-            expect($box.outerWidth()).to.be.gt($parserCard.find(".cardMain").width() - 30);
-            expect($box.outerHeight()).to.be.lt($parserCard.find(".cardMain").height());
-            expect($box.outerHeight()).to.be.gt($parserCard.find(".cardMain").height() - 30);
-            expect($box.css("top")).to.equal("4px");
-            expect($box.css("right")).to.equal("4px");
+            expect($box.outerWidth()).to.be.lt(301);
+            expect($box.outerHeight()).to.be.lt(301);
+            $box.find(".resize").click();
+            expect($box.outerWidth()).to.be.gt(301);
+            expect($box.outerHeight()).to.be.gt(301);
+            expect($box.outerWidth()).to.equal($parserCard.find(".cardMain").width());
+            expect($box.outerHeight()).to.equal($parserCard.find(".cardMain").height());
         });
 
         it("box minimize should work", function() {
             var $box = $("#previewModeBox");
-            expect($box.outerWidth()).to.not.equal(300);
-            expect($box.outerHeight()).to.not.equal(300);
-            $box.find(".xi-exit-fullscreen").click();
-            expect($box.outerWidth()).to.equal(300);
-            expect($box.outerHeight()).to.equal(300);
-            expect($box.css("top")).to.equal("4px");
-            expect($box.css("right")).to.equal("4px");
-        });
-
-        it("reposition boxes should work", function() {
-            var $box = $("#previewModeBox");
-            $box.css("left", -10);
-            expect($box.css("left")).to.equal("-10px");
-            DSParser.__testOnly__.repositionBoxes();
-            $box.css("left", "auto");
-            expect($box.css("left")).to.equal("0px");
+            expect($box.outerWidth()).to.be.gt(301);
+            expect($box.outerHeight()).to.be.gt(301);
+            $box.find(".resize").click();
+            expect($box.outerWidth()).to.be.lt(301);
+            expect($box.outerHeight()).to.be.lt(301);
         });
 
         it("mousedown selecting text should open menu", function(done) {
