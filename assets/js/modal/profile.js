@@ -1356,7 +1356,8 @@ window.Profile = (function($, Profile, d3) {
         if (num == null) {
             console.warn("cannot format empty or null value");
             return "";
-        } else if (isNaN(num)) {
+        } else if (isNaN(num) ||
+                   (typeof(num) === "string" && num.trim().length === 0)) {
             return num;
         }
         // if not speify maximumFractionDigits, 168711.0001 will be 168,711
