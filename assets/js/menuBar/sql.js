@@ -856,7 +856,7 @@ window.SQL = (function($, SQL) {
         $sqls.each(function() {
             var $sql = $(this);
             var sqlId = $sql.data("sql");
-            if (sqlId > cursor) {
+            if (sqlId >= cursor) {
                 $sql.remove();
             } else {
                 return false; // stop loop
@@ -867,7 +867,7 @@ window.SQL = (function($, SQL) {
         $clis.each(function() {
             var $cli = $(this);
             var cliId = $cli.data("cli");
-            if (cliId > cursor) {
+            if (cliId >= cursor) {
                 $cli.remove();
             } else {
                 return false; // stop loop
