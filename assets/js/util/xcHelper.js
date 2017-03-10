@@ -2910,7 +2910,9 @@ window.xcHelper = (function($, xcHelper) {
             try {
                 nodeInfo = JSON.parse(node[0]);
             } catch (error) {
-                xcConsole.error(error);
+                // this throw will be catched by the catch
+                // in xcHelper.getMemUsage
+                throw error;
             }
 
             return nodeInfo;

@@ -289,7 +289,7 @@ describe('ColManager Test', function() {
             // expect(fn('colname\\[child]')).to.deep.equal(['colname[child]']);
             // expect(fn('colname\\\\[child]')).to.deep.equal(['colname\\', 'child']);
             // expect(fn('colname[\\[a]')).to.deep.equal(['colname', '[a']);
-            expect(fn('colname\\.child')).to.deep.equal(['colname\\.child']);
+            expect(fn('colname\\.child')).to.deep.equal(['colname.child']);
             expect(fn('colname.child')).to.deep.equal(['colname', 'child']);
             // expect(fn('colname\\.child')).to.deep.equal(['colname.child']);
             // expect(fn('colname\\\\.child')).to.deep.equal(['colname\\', 'child']);

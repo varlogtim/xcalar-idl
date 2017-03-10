@@ -225,6 +225,7 @@ describe("DSParser Test", function() {
             setMeta = DSParser.__testOnly__.setMeta;
             oldPreview = XcalarPreview;
             $box = $("#previewModeBox");
+            $formatInput.val("JSON");
         });
 
         it("should handle error case", function(done) {

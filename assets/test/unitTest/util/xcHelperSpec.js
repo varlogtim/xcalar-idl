@@ -69,7 +69,7 @@ describe('xcHelper Test', function() {
         expect(res).to.equal('{"a":1}');
         // case 6
         res = xcHelper.parseJsonValue(["a", "b"]);
-        expect(res).to.equal('["a", "b"]');
+        expect(res).to.equal('["a","b"]');
         // case 7
         res = xcHelper.parseJsonValue("test<>");
         expect(res).to.equal('test&lt;&gt;');
