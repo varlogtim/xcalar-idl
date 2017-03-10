@@ -1239,9 +1239,18 @@ window.QueryManager = (function(QueryManager, $) {
 
         function focusOnDSGrid($grid, dsId) {
             // switch to correct panels
-            $('#dataStoresTab').click();
-            if (!$('#inButton').hasClass('active')) {
-                $('#inButton').click();
+            var $datastoreTab = $("#dataStoresTab");
+            if (!$datastoreTab.hasClass("active")) {
+                $datastoreTab.click();
+            }
+
+            if (!$datastoreTab.hasClass("mainMenuOpen")) {
+                $datastoreTab.find(".mainTab").click();
+            }
+
+            var $inButton = $("#inButton");
+            if (!$inButton.hasClass("active")) {
+                $inButton.click();
             }
 
             var folderId = DS.getDSObj(dsId).parentId;

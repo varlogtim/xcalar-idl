@@ -441,7 +441,7 @@ window.StartManager = (function(StartManager, $) {
                 }
 
                 if (!$datastoreTab.hasClass("mainMenuOpen")) {
-                    $datastoreTab.click();
+                    $datastoreTab.find(".mainTab").click();
                 }
 
                 var $inButton = $("#inButton");
