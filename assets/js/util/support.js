@@ -188,7 +188,6 @@ window.Support = (function(Support, $) {
                 shouldAlert = false;
                 $memoryAlert.removeClass("red").removeClass("yellow");
             }
-
             if (shouldAlert) {
                 var text;
                 if (isTable) {
