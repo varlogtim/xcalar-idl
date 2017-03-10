@@ -1374,8 +1374,9 @@ window.ColManager = (function($, ColManager) {
         if (!parsed) {
             return ColumnType.undefined;
         }
-        
-        var val = data[colName];
+        var nested = parseColFuncArgs(colName);
+        var val = getTdInfo(data, nested).tdValue;
+
         return (xcHelper.parseColType(val));
     };
 
