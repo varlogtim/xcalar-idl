@@ -4,6 +4,7 @@ window.Support = (function(Support, $) {
     var commitCheckTimer;
     var commitCheckInterval = 120000; // 2 mins each check
     var commitCheckError = "commit key not match";
+    var cancelCheck = "cancel check";
 
     var connectionCheckTimer;
     var connectionCheckInterval = 10000; // 10s/check
@@ -72,7 +73,7 @@ window.Support = (function(Support, $) {
         });
     };
 
-    Support.commitCheck = function() {
+    Support.commitCheck = function(isFromHeatbeatCheck) {
         var deferred = jQuery.Deferred();
         if (KVStore.commitKey == null ||
             WorkbookManager.getActiveWKBK() == null) {
@@ -81,7 +82,9 @@ window.Support = (function(Support, $) {
         } else {
             XcalarKeyLookup(KVStore.commitKey, gKVScope.FLAG)
             .then(function(val) {
-                if (val == null || val.value !== commitFlag) {
+                if (isFromHeatbeatCheck && (commitCheckTimer == null)) {
+                    deferred.reject(cancelCheck);
+                } else if (val == null || val.value !== commitFlag) {
                     commitMismatchHandler();
                     deferred.reject(commitCheckError);
                 } else {
@@ -89,7 +92,9 @@ window.Support = (function(Support, $) {
                 }
             })
             .fail(function(error) {
-                if (error.status === StatusT.StatusSessionNotFound) {
+                if (isFromHeatbeatCheck && (commitCheckTimer == null)) {
+                    deferred.reject(cancelCheck);
+                } else if (error.status === StatusT.StatusSessionNotFound) {
                     commitMismatchHandler();
                     deferred.reject(commitCheckError);
                 } else {
@@ -208,6 +213,7 @@ window.Support = (function(Support, $) {
     };
 
     Support.heartbeatCheck = function() {
+        var isChecking = false;
         commitCheckInterval = (UserSettings.getPref('commitInterval') * 1000) ||
                              commitCheckInterval;
         clearInterval(commitCheckTimer);
@@ -217,7 +223,14 @@ window.Support = (function(Support, $) {
                 return;
             }
 
-            Support.commitCheck()
+            // last time not finishing
+            if (isChecking) {
+                console.warn("Last time's check not finishing yet!");
+                return;
+            }
+
+            isChecking = true;
+            Support.commitCheck(true)
             .then(function() {
                 // this one just commit tracker data
                 // can be paraell
@@ -229,6 +242,9 @@ window.Support = (function(Support, $) {
             })
             .fail(function(error) {
                 console.error(error);
+            })
+            .always(function() {
+                isChecking = false;
             });
 
         }, commitCheckInterval);
@@ -236,6 +252,7 @@ window.Support = (function(Support, $) {
 
     Support.stopHeartbeatCheck = function() {
         clearInterval(commitCheckTimer);
+        commitCheckTimer = null;
     };
 
     Support.checkConnection = function() {
