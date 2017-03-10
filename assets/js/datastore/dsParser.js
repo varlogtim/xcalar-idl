@@ -259,7 +259,7 @@ window.DSParser = (function($, DSParser) {
             $box.css({
                 "top": 4,
                 "left": "auto",
-                "right": 11
+                "right": 4
             });
         });
 
@@ -300,7 +300,8 @@ window.DSParser = (function($, DSParser) {
 
                 var res = getSelectionCharOffsetsWithin($previewContent[0]);
                 var $target = $(event.target);
-                if ($parserCard.hasClass("previewOnly") || res.tag == null) {
+                if ($parserCard.hasClass("previewOnly") || !res || 
+                    res.tag == null) {
                     $menu.find("li").addClass("unavailable");
                     $menu.removeData("tag");
                     $menu.removeData("end");
@@ -506,9 +507,14 @@ window.DSParser = (function($, DSParser) {
             meta.endPage === botPage) {
             return;
         } else {
-            // XXX need to do a better check of which pages to fetch
             var numPages = 1;
-            if (topPage !== botPage) {
+            if (topPage === botPage) {
+                numPages = 1;
+                if (meta.startPage === topPage || meta.endPage === topPage) {
+                    // fetch not needed, needed page is already visible 
+                    return;
+                }
+            } else {
                 numPages = 2;
             }
             if (meta.meta) {
@@ -558,7 +564,7 @@ window.DSParser = (function($, DSParser) {
             var offset;
             if (newContent) {
                 setPreviewMeta(meta);
-                updateTotalNumRows();
+                updateTotalNumLines();
                 var prom = showPreviewMode(0, 1, 0);
                 xcHelper.showRefreshIcon($miniPreview, false, prom);
 
@@ -735,7 +741,7 @@ window.DSParser = (function($, DSParser) {
         var $page;
         var firstContent = content;
         var secondContent = ""; // in case numPages === 2
-        $content = $preview.find(".content");
+        var $content = $preview.find(".content");
         $content.empty();
 
         if (numPages === 2) {
@@ -850,8 +856,7 @@ window.DSParser = (function($, DSParser) {
         }
     }
 
-    function updateTotalNumRows() {
-        // XXX translate bytes to number of rows
+    function updateTotalNumLines() {
         var inputWidth = 50;
         var numDigits = ("" + previewMeta.totalLines).length;
         inputWidth = Math.max(inputWidth, 20 + (numDigits * 9));
@@ -1147,7 +1152,8 @@ window.DSParser = (function($, DSParser) {
         .siblings().removeClass("active");
 
         if (scrollToView) {
-            // $li.get(0).scrollIntoView(); // causes whole page to move
+            $("#delimitersBox").mousedown(); // triggers bring to front
+            xcHelper.scrollIntoView($li, $li.closest(".boxBody"));
         }
     }
 
@@ -1339,25 +1345,25 @@ window.DSParser = (function($, DSParser) {
 
     // called after scroll, appends or prepends and removes 1 block if needed
     function addContent(content, $preview, meta, up) {
-        var pageClass = "";
+        var pageNum;
         if (up) {
             meta.startPage--;
-            pageClass = "page" + meta.startPage;
+            pageNum = meta.startPage;
             if (meta.meta) {
                 buffers.unshift(content);
             }
         } else {
             meta.endPage++;
-            pageClass = "page" + meta.endPage;
+            pageNum = meta.endPage;
             if (meta.meta) {
                 buffers.push(content);
             }
         }
         var $content = $preview.find(".content");
         var scrollTop = $preview.scrollTop();
-        var color = "rgba(" + Math.round(Math.random() * 255) + "," + Math.round(Math.random() * 255) + "," + Math.round(Math.random() * 255) + ", 0.5)";
-        var $page = $('<span class="page ' + pageClass + '" style="background:' + color + ';"></span>');
+        var $page = $(getPageHtml(pageNum));
         $page.text(content);
+
         if (up) {
             $content.prepend($page);
         } else {
@@ -1480,6 +1486,10 @@ window.DSParser = (function($, DSParser) {
             buffers = newBuffers;
         };
 
+        DSParser.__testOnly__.getBuffers = function() {
+            return buffers;
+        };
+
         DSParser.__testOnly__.setMeta = function(meta) {
             previewMeta = meta;
         };
@@ -1494,6 +1504,9 @@ window.DSParser = (function($, DSParser) {
         DSParser.__testOnly__.showPreviewMode = showPreviewMode;
         DSParser.__testOnly__.getJSONPath = getJSONPath;
         DSParser.__testOnly__.submitForm = submitForm;
+        DSParser.__testOnly__.repositionBoxes = repositionBoxes;
+        DSParser.__testOnly__.fetchRows = fetchRows;
+        DSParser.__testOnly__.addContent = addContent;
     }
     /* End Of Unit Test Only */
 

@@ -598,11 +598,34 @@ describe("DSParser Test", function() {
             UnitTest.testFinish(checkFunc)
             .then(function() {
                 expect($("#parserRowInput").val()).not.to.equal(0);
-                done();
+                // allow time for xcalarpreview to be called
+                setTimeout(function() {
+                    done();
+                }, 400);   
             })
             .fail(function() {
                 done("fail");
             });
+        });
+
+        it("fetchRows() should work", function(done) {
+            var previewCalled = false;
+            var cached = XcalarPreview;
+            XcalarPreview = function(url, pattern, isRecur, numBytes, offset) {
+                previewCalled = true;
+                expect(numBytes).to.equal(100);
+                return PromiseHelper.reject();
+            };
+            var meta = {numChar: 500,
+                        endPage: 0,
+                        lineLengths: [0, 100, 200, 300, 400]
+                    };
+            DSParser.__testOnly__.fetchRows(meta, 200)
+            .then(function() {
+                expect(previewCalled).to.be.true;
+                XcalarPreview = cached;
+                done();
+            });   
         });
 
         it("should use input to skip to row", function(done) {
@@ -621,6 +644,101 @@ describe("DSParser Test", function() {
             .fail(function() {
                 done("fail");
             });
+        });
+
+        it("addContent should work", function() {
+            var prevBuffers = DSParser.__testOnly__.getBuffers();
+            var buffers = ["a", "b"];
+            DSParser.__testOnly__.setBuffers(buffers);
+            var html = '<div>' + 
+                            '<div class="content">' +
+                                '<span class="page page1">a</span>' +
+                                '<span class="page page2">b</span>' +
+                            '</div>' +
+                        '</div>';
+
+            var $preview = $(html);
+            var meta = {startPage: 1, endPage: 2, meta: {}};
+            DSParser.__testOnly__.addContent("some text", $preview, meta);
+            expect(meta.startPage).to.equal(2);
+            expect(meta.endPage).to.equal(3);
+            expect($preview.text()).to.equal("bsome text");
+            expect($preview.find(".page").length).to.equal(2);
+            expect($preview.find(".page").eq(0).hasClass("page2")).to.be.true;
+            expect($preview.find(".page").eq(1).hasClass("page3")).to.be.true;
+            expect(buffers.length).to.equal(2);
+            expect(buffers[0]).to.equal("b");
+            expect(buffers[1]).to.equal("some text");
+
+            DSParser.__testOnly__.setBuffers(prevBuffers);
+        });
+
+        it("box fullscreen should work", function() {
+            var $box = $("#previewModeBox");
+            var $parserCard = $("#dsParser");
+            expect($box.outerWidth()).to.equal(300);
+            expect($box.outerHeight()).to.equal(300);
+            $box.find(".xi-fullscreen").click();
+            expect($box.outerWidth()).to.be.gt(300);
+            expect($box.outerHeight()).to.be.gt(300);
+            expect($box.outerWidth()).to.be.lt($parserCard.find(".cardMain").width());
+            expect($box.outerWidth()).to.be.gt($parserCard.find(".cardMain").width() - 30);
+            expect($box.outerHeight()).to.be.lt($parserCard.find(".cardMain").height());
+            expect($box.outerHeight()).to.be.gt($parserCard.find(".cardMain").height() - 30);
+            expect($box.css("top")).to.equal("4px");
+            expect($box.css("right")).to.equal("4px");
+        });
+
+        it("box minimize should work", function() {
+            var $box = $("#previewModeBox");
+            expect($box.outerWidth()).to.not.equal(300);
+            expect($box.outerHeight()).to.not.equal(300);
+            $box.find(".xi-exit-fullscreen").click();
+            expect($box.outerWidth()).to.equal(300);
+            expect($box.outerHeight()).to.equal(300);
+            expect($box.css("top")).to.equal("4px");
+            expect($box.css("right")).to.equal("4px");
+        });
+
+        it("reposition boxes should work", function() {
+            var $box = $("#previewModeBox");
+            $box.css("left", -10);
+            expect($box.css("left")).to.equal("-10px");
+            DSParser.__testOnly__.repositionBoxes();
+            $box.css("left", "auto");
+            expect($box.css("left")).to.equal("0px");
+        });
+
+        it("mousedown selecting text should open menu", function(done) {
+            var cached = xcHelper.dropdownOpen;
+            var opened = false;
+            xcHelper.dropdownOpen = function($target, $menu) {
+                expect($menu.data().tag).to.equal("{");
+                expect($menu.data().end).to.equal(73);
+                opened = true;
+            };
+
+            $("#dsParser .previewContent").mouseup();
+            UnitTest.timeoutPromise(1)
+            .then(function() {
+                expect(opened).to.be.false;
+
+                // select {
+                var range = document.createRange();
+                range.setStart($("#dsParser .page1")[0].childNodes[0], 72);
+                range.setEnd($("#dsParser .page1")[0].childNodes[0], 73);
+                var sel = window.getSelection();
+                sel.removeAllRanges();
+                sel.addRange(range);
+
+                $("#dsParser .previewContent").mouseup();
+                UnitTest.timeoutPromise(1)
+                .then(function() {
+                    expect(opened).to.be.true;
+                    xcHelper.dropdownOpen = cached;
+                    done();
+                });
+            })
         });
 
         it("should closes the parser", function() {

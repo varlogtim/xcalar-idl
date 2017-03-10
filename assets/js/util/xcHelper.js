@@ -1670,6 +1670,21 @@ window.xcHelper = (function($, xcHelper) {
         return (tableRight >= mainFrameOffsetLeft) && (tableLeft <= windowWidth);
     };
 
+    // for scrolling list items vertically into view, expecting $list to have
+    // position relative or absolute
+    // feel free to add options
+    xcHelper.scrollIntoView = function($item, $list, options) {
+        options = options || {};
+        var listHeight = $list.outerHeight(); // outer to include padding
+        var scrollTop = $list.scrollTop();
+        var itemOffsetTop = $item.position().top;
+        if (itemOffsetTop > (listHeight - 25)) {
+            $list.scrollTop(itemOffsetTop + scrollTop - (listHeight / 2) + 30);
+        } else if (itemOffsetTop < -5) {
+            $list.scrollTop(scrollTop + itemOffsetTop - (listHeight / 2));
+        }
+    };
+
     xcHelper.createNextName = function(str, delimiter) {
         var parts = str.split(delimiter);
         var rets = /([0-9])+/.exec(parts[parts.length-1]);

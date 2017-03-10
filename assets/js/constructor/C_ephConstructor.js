@@ -730,14 +730,7 @@ SearchBar.prototype = {
         if (!$list || $list.length === 0) {
             return;
         }
-        var listHeight = $list.height();
-        var scrollTop = $list.scrollTop();
-        var matchOffsetTop = $match.position().top;
-        if (matchOffsetTop > (listHeight - 25)) {
-            $list.scrollTop(matchOffsetTop + scrollTop - (listHeight / 2) + 30);
-        } else if (matchOffsetTop < -5) {
-            $list.scrollTop(scrollTop + matchOffsetTop - (listHeight / 2));
-        }
+        xcHelper.scrollIntoView($match, $list);
     },
     updateResults: function($matches) {
         var searchBar = this;

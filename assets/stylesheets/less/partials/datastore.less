@@ -2208,10 +2208,13 @@ table.datasetTable {
     #delimitersBox {
         top: 310px;
 
+        .boxBody {
+            position: relative;
+            overflow-y: auto;
+        }
+
         ul {
             padding: 5px 10px;
-            .size(@height: 100%);
-            overflow-y: auto;
         }
 
         li {
