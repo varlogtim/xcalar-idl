@@ -943,17 +943,19 @@ window.xcHelper = (function($, xcHelper) {
         return txt;
     };
 
-    xcHelper.toggleListGridBtn = function($btn, ToListView, noRefresh) {
-        if (ToListView) {
+    xcHelper.toggleListGridBtn = function($btn, toListView, noRefresh) {
+        var $icon = $btn.hasClass("icon") ? $btn : $btn.find(".icon");
+
+        if (toListView) {
             // toggle to list view
-            $btn.removeClass("gridView").addClass("listView")
-                .removeClass("xi-list-view").addClass("xi-grid-view");
+            $btn.removeClass("gridView").addClass("listView");
+            $icon.removeClass("xi-list-view").addClass("xi-grid-view");
             // suggest become 'to grid view'
             xcTooltip.changeText($btn, TooltipTStr.ToGridView);
         } else {
             // toggle to grid view
-            $btn.removeClass("listView").addClass("gridView")
-                .removeClass("xi-grid-view").addClass("xi-list-view");
+            $btn.removeClass("listView").addClass("gridView");
+            $icon.removeClass("xi-grid-view").addClass("xi-list-view");
             xcTooltip.changeText($btn, TooltipTStr.ToListView);
         }
         // refresh tooltip

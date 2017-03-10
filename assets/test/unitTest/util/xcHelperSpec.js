@@ -724,14 +724,35 @@ describe('xcHelper Test', function() {
     });
 
     it('xcHelper.toggleListGridBtn should work', function() {
-        var $btn = $('<button class="gridView"></button>');
+        var $btn = $('<button class="gridView">' +
+                        '<i class="icon"></i>' +
+                     '</button>');
+        var $icon = $btn.find(".icon");
         xcHelper.toggleListGridBtn($btn, true);
         expect($btn.hasClass("gridView")).to.be.false;
         expect($btn.hasClass("listView")).to.be.true;
+        expect($icon.hasClass("xi-grid-view")).to.be.true;
+        expect($icon.hasClass("xi-list-view")).to.be.false;
 
         xcHelper.toggleListGridBtn($btn, false, false);
         expect($btn.hasClass("gridView")).to.be.true;
         expect($btn.hasClass("listView")).to.be.false;
+        expect($icon.hasClass("xi-grid-view")).to.be.false;
+        expect($icon.hasClass("xi-list-view")).to.be.true;
+
+        // case 2
+        $btn = $('<button class="gridView icon"></button>');
+        xcHelper.toggleListGridBtn($btn, true);
+        expect($btn.hasClass("gridView")).to.be.false;
+        expect($btn.hasClass("listView")).to.be.true;
+        expect($btn.hasClass("xi-grid-view")).to.be.true;
+        expect($btn.hasClass("xi-list-view")).to.be.false;
+
+        xcHelper.toggleListGridBtn($btn, false, false);
+        expect($btn.hasClass("gridView")).to.be.true;
+        expect($btn.hasClass("listView")).to.be.false;
+        expect($btn.hasClass("xi-grid-view")).to.be.false;
+        expect($btn.hasClass("xi-list-view")).to.be.true;
     });
 
     it('xcHelper.showRefreshIcon should work', function(done) {
