@@ -67,7 +67,6 @@ window.Scheduler = (function(Scheduler, $) {
             }
         });
 
-        $modDateInput.datepicker("option", "constrainInput", false);
         $modDateInput.on({
             "focus": function() {
                 // toggleTimePicker($modScheduleForm, true);
