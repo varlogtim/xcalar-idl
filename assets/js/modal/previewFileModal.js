@@ -194,10 +194,12 @@ window.PreviewFileModal = (function(PreviewFileModal, $) {
     function loadFiles(url, files, activeFilePath) {
         var htmls = ["", "", ""];
         var paths = [];
+        var nameMap = {};
         var $section = $modal.find(".contentSection");
         if (files.length === 1 && url.endsWith(files[0].name)) {
             // when it's a single file
             paths[0] = url;
+            nameMap[url] = files[0].name;
         } else {
             // when it's a folder
             if (!url.endsWith("/")) {
@@ -208,6 +210,7 @@ window.PreviewFileModal = (function(PreviewFileModal, $) {
                 if (!file.attr.isDirectory) {
                     var path = url + file.name;
                     paths.push(path);
+                    nameMap[path] = file.name;
                 }
             });
 
@@ -217,9 +220,10 @@ window.PreviewFileModal = (function(PreviewFileModal, $) {
         for (var i = 0, len = paths.length; i < len; i++) {
             var path = paths[i];
             var classes = (path === activeFilePath) ? " active" : "";
-
+            var fileName = nameMap[path];
             htmls[i % 3] +=
-                '<div class="radioButton' + classes + '">' +
+                '<div class="radioButton' + classes + '"' +
+                'data-path="' + path + '">' +
                     '<div class="radio">' +
                         '<i class="icon xi-radio-selected"></i>' +
                         '<i class="icon xi-radio-empty"></i>' +
@@ -228,8 +232,8 @@ window.PreviewFileModal = (function(PreviewFileModal, $) {
                     ' data-toggle="tooltip"' +
                     ' data-container="body"' +
                     ' data-placement="top"' +
-                    ' title="' + path + '">' +
-                        path +
+                    ' title="' + fileName + '">' +
+                        fileName +
                     '</div>' +
                 '</div>';
         }
@@ -253,7 +257,7 @@ window.PreviewFileModal = (function(PreviewFileModal, $) {
     }
 
     function submitForm() {
-        var path = $modal.find(".radioButton.active").text();
+        var path = $modal.find(".radioButton.active").data("path");
         if ($modal.hasClass("parseMode")) {
             // parse mode
             DSParser.show(path);

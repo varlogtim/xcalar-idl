@@ -177,7 +177,7 @@ describe("PreviewFileModal Test", function() {
 
         it("Should search text", function() {
             $modal.find(".searchIcon").click();
-            $searchBar.find("input").val("nfs").trigger("input");
+            $searchBar.find("input").val("test").trigger("input");
             expect($modal.find(".highlightedText").length).to.equal(1);
         });
 
