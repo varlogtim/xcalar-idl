@@ -307,6 +307,8 @@ describe("Ephemeral Constructor Test", function() {
             expect(controller.useHeader()).to.be.false;
             expect(controller.getQuote()).to.equal("\"");
             expect(controller.getPreviewFile()).to.be.null;
+            expect(controller.getArgStr())
+            .to.equal('{"hasHeader":false,"fieldDelim":"","lineDelim":"\\n","quote":"\\""}');
         });
     });
 

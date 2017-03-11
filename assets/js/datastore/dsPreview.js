@@ -197,13 +197,13 @@ window.DSPreview = (function($, DSPreview) {
         });
     };
 
-    DSPreview.backFromParser = function(moduleName) {
+    DSPreview.backFromParser = function(curUrl, moduleName) {
         cleanTempParser();
         tempParserUDF = moduleName;
         toggleUDF(true);
         seletUDF(moduleName, "parser");
         DSForm.switchView(DSForm.View.Preview);
-        refreshPreview();
+        DSPreview.changePreviewFile(curUrl);
     };
 
     DSPreview.clear = function() {
@@ -1222,13 +1222,7 @@ window.DSPreview = (function($, DSPreview) {
             return PromiseHelper.reject("Error Case!");
         }
 
-        var urlToPreview;
-        if (hasUDF) {
-            urlToPreview = loadURL;
-        } else {
-            urlToPreview = loadArgs.getPreviewFile() || loadURL;
-        }
-
+        var urlToPreview = loadArgs.getPreviewFile() || loadURL;
         var $loadHiddenSection = $previeWrap.find(".loadHidden")
                                             .addClass("hidden");
         var $waitSection = $previeWrap.find(".waitSection")
@@ -1252,7 +1246,7 @@ window.DSPreview = (function($, DSPreview) {
 
         var initialLoadArgStr;
         if (!noDetect) {
-            initialLoadArgStr = JSON.stringify(loadArgs);
+            initialLoadArgStr = loadArgs.getArgStr();
         }
 
         var promise;
@@ -1277,7 +1271,7 @@ window.DSPreview = (function($, DSPreview) {
             getPreviewTable();
 
             if (!noDetect) {
-                var currentLoadArgStr = JSON.stringify(loadArgs);
+                var currentLoadArgStr = loadArgs.getArgStr();
                 // when user not do any modification, then do smart detect
                 if (initialLoadArgStr === currentLoadArgStr) {
                     smartDetect();
@@ -1322,12 +1316,27 @@ window.DSPreview = (function($, DSPreview) {
         }
     }
 
-    function setPreviewFile(path, enable) {
+    function setPreviewFile(path, forceHidden) {
         var $file = $("#preview-file");
         var $ele = $("#preview-changeFile").add($file);
-        $file.find(".text").text(path);
+        var fullURL = loadArgs.getPath();
+        var enable;
 
-        if (enable) {
+        $file.find(".text").text(path);
+        if (!loadArgs.getPreviewFile()) {
+            // set the path to be preview file if not set yet
+            loadArgs.setPreviewFile(path);
+        }
+
+        if (fullURL.endsWith(path)) {
+            // when fullPath is part of the url,
+            // which means it's a single file
+            enable = false;
+        } else {
+            enable = true;
+        }
+
+        if (enable || forceHidden) {
             $ele.removeClass("xc-hidden");
         } else {
              // when it's a single file or udf
@@ -1399,14 +1408,14 @@ window.DSPreview = (function($, DSPreview) {
         bufferData(loadURL, pattern, isRecur, numBytesRequest)
         .then(function(res) {
             var fullURL = loadArgs.getPath();
-            if (fullURL.includes(res.fullPath)) {
+            if (fullURL.endsWith(res.fullPath)) {
                 // when fullPath is part of the url,
                 // which means it's a single file
-                setPreviewFile(fullURL, false);
+                setPreviewFile(fullURL);
             } else {
                 var path = fullURL.endsWith("/") ? fullURL : fullURL + "/";
                 path += res.fileName;
-                setPreviewFile(path, true);
+                setPreviewFile(path);
             }
             deferred.resolve(res.buffer);
         })
@@ -1448,14 +1457,21 @@ window.DSPreview = (function($, DSPreview) {
     function loadDataWithUDF(txId, loadURL, pattern, dsName,
                             udfModule, udfFunc, isRecur, previewSize) {
         var deferred = jQuery.Deferred();
+        var urlToPreview;
+        var disablePreview;
         var format = formatMap.JSON;
 
         var tempDSName = getPreviewTableName(dsName);
         tableName = tempDSName;
 
-        XcalarLoad(loadURL, format, tempDSName, "", "\n",
-                    false, udfModule, udfFunc, isRecur,
-                    previewSize, gDefaultQDelim, 0, pattern, txId)
+        getFileToPreviewInUDF(loadURL, isRecur, pattern)
+        .then(function(url, noPreview) {
+            urlToPreview = url;
+            disablePreview = noPreview;
+            return XcalarLoad(urlToPreview, format, tempDSName, "", "\n",
+                            false, udfModule, udfFunc, isRecur,
+                            previewSize, gDefaultQDelim, 0, pattern, txId)
+        })
         .then(function() {
             return sampleData(tempDSName, rowsToFetch);
         })
@@ -1468,7 +1484,7 @@ window.DSPreview = (function($, DSPreview) {
             try {
                 var rows = parseRows(result);
                 var buffer = JSON.stringify(rows);
-                setPreviewFile(loadURL, false);
+                setPreviewFile(urlToPreview, disablePreview);
                 deferred.resolve(buffer);
             } catch (err) {
                 console.error(err.stack);
@@ -1492,6 +1508,36 @@ window.DSPreview = (function($, DSPreview) {
 
             return rows;
         }
+
+        return deferred.promise();
+    }
+
+    function getFileToPreviewInUDF(url, isRecur, pattern) {
+        var deferred = jQuery.Deferred();
+
+        XcalarListFilesWithPattern(url, isRecur, pattern)
+        .then(function(res) {
+            if (res && res.numFiles > 0) {
+                var fileName = res.files[0].name;
+                var fileURL;
+                if (res.numFiles === 1 && url.endsWith(fileName)) {
+                    // when select a single file
+                    fileURL = url;
+                } else {
+                    // when select a folder
+                    fileURL = url.endsWith("/") ? url : url + "/";
+                    fileURL += fileName;
+                }
+                deferred.resolve(fileURL);
+            } else {
+                console.error("no file listed");
+                deferred.resolve(url, true);
+            }
+        })
+        .fail(function(error) {
+            console.error("list file fails", error);
+            deferred.resolve(url, true);
+        });
 
         return deferred.promise();
     }

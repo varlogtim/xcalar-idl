@@ -372,6 +372,12 @@ DSFormController.prototype = {
 
     getPreviewFile: function() {
         return this.previewFile;
+    },
+
+    getArgStr: function() {
+        var args = $.extend({}, this);
+        delete args.previewFile;
+        return JSON.stringify(args);
     }
 };
 

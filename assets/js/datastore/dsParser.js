@@ -1252,7 +1252,7 @@ window.DSParser = (function($, DSParser) {
             return PromiseHelper.alwaysResolve(UDF.refresh());
         })
         .then(function() {
-            DSPreview.backFromParser(udfName);
+            DSPreview.backFromParser(curUrl, udfName);
             deferred.resolve();
         })
         .fail(function(error) {
