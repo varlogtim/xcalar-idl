@@ -155,7 +155,9 @@ window.DSParser = (function($, DSParser) {
                 checkIfScrolled($dataPreview, previewMeta);
                 isMouseDown = false;
             } else if (isBoxMouseDown) {
-                checkIfScrolled($miniPreview, previewMeta.meta);
+                if (previewMeta) {
+                    checkIfScrolled($miniPreview, previewMeta.meta);
+                }
                 isBoxMouseDown = false;
             }
         });
@@ -176,7 +178,7 @@ window.DSParser = (function($, DSParser) {
                 $box.removeClass("maximized");
             } else {
                 $box.addClass("maximized");
-                if ($box.is("#previewModeBox")) {
+                if ($box.is("#previewModeBox") && previewMeta) {
                     checkIfScrolled($miniPreview, previewMeta.meta);
                 }
             }
