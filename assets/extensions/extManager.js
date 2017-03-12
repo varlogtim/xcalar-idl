@@ -184,7 +184,16 @@ window.ExtensionManager = (function(ExtensionManager, $) {
 
         innerDeferred
         .then(function(htmlString) {
-            $("#extension-ops-script").html(htmlString);
+            var promises = [];
+            var $tag = $('<div>' + htmlString + '</div>');
+            $tag.find("script").each(function() {
+                var $script = $(this);
+                promises.push(loadScript($script));
+            });
+
+            return PromiseHelper.when.apply(this, promises);
+        })
+        .then(function() {
             return setupPart2();
         })
         .then(deferred.resolve)
@@ -195,6 +204,23 @@ window.ExtensionManager = (function(ExtensionManager, $) {
 
         return deferred.promise();
     };
+
+    function loadScript($script) {
+        var deferred = jQuery.Deferred();
+        var src = $script.attr("src");
+        $.getScript(src)
+        .then(function() {
+            $("#extension-ops-script").append($script);
+            deferred.resolve();
+        })
+        .fail(function(error) {
+            console.error(error);
+            // still resolve it
+            deferred.resolve();
+        });
+
+        return deferred.promise();
+    }
     // This registers an extension.
     // The extension must have already been added via addExtension
     ExtensionManager.registerExtension = function(extName) {
