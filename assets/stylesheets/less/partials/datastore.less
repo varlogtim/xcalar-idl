@@ -2123,13 +2123,14 @@ table.datasetTable {
             .text-selection;
             font-family: @font-code;
             line-height: 18px;
-            .selectionBackground(@color: @color-bg-bright-light-blue);
+            .selectionBackground(@color: @color-bg-bright-light-blue-half);
         }
 
         .page {
             .selectionBackground(@color: @color-bg-bright-light-blue-half);
         }
         .line {
+            .selectionBackground(@color: @color-bg-bright-light-blue-half);
             display: block;
             color: @color-json-default;
 
@@ -2140,12 +2141,14 @@ table.datasetTable {
             }
         }
         .quotes {
+            .selectionBackground(@color: @color-bg-bright-light-blue-half);
             color: @color-json-key;
             &.objValue {
                 color: @color-json-string;
             }
         }
         .other {
+            .selectionBackground(@color: @color-bg-bright-light-blue-half);
             color: @color-json-num;
         }
     }

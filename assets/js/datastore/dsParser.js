@@ -206,7 +206,7 @@ window.DSParser = (function($, DSParser) {
         var $menu = $("#parserMenu");
         addMenuBehaviors($menu);
 
-        $previewContent.mouseup(function(event) {
+        $dataPreview.mouseup(function(event) {
 
             // timeout because deselecting may not take effect until after
             // mouse up
