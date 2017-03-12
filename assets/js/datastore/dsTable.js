@@ -478,9 +478,9 @@ window.DSTable = (function($, DSTable) {
                     "value": val,
                     "type": type
                 });
-                highlightColumn($input);
             }
         });
+        highlightAllColumns();
         DSCart.addItem(dsId, items);
     }
 
@@ -588,6 +588,12 @@ window.DSTable = (function($, DSTable) {
             $header.addClass("colAdded");
             $table.find(".col" + colNum).addClass("selectedCol");
         }
+    }
+
+    function highlightAllColumns() {
+        $("#dsTable").find(".header:gt(0)").addClass("colAdded")
+                     .parent().addClass("selectedCol");
+        $("#dsTable").find("td:not(.lineMarker)").addClass("selectedCol");
     }
 
     function reloadDS(dsId) {

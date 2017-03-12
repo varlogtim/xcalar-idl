@@ -76,7 +76,7 @@ var gDefaultFDelim = "\t";
 var gDefaultRDelim = "\n";
 var gDefaultQDelim = '"';
 var gLongTestSuite = 1;
-var gMaxColToPull = 300; // Max num of column can create directly from preview.
+var gMaxColToPull = 200; // Max num of column can create directly from preview.
 var gMaxSampleSize = 0; // Max Sample Size for datasets. If this is set, all
                         // datasets will abide by this limit. If you don't want
                         // to use it anymore, just set it back to 0

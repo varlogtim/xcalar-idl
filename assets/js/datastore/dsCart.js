@@ -35,7 +35,40 @@ window.DSCart = (function($, DSCart) {
 
             var cart = filterCarts(dsId);
             var worksheet = $cartList.data("ws");
-            DSCart.createTable(cart, worksheet);
+            tooManyColAlertHelper()
+            .then(function() {
+                DSCart.createTable(cart, worksheet);
+            })
+            .fail(function() {
+                // do nothing
+            });
+
+            function tooManyColAlertHelper() {
+                if (cart == null || !checkCartArgs(cart)) {
+                    return PromiseHelper.reject("Wrong args");
+                }
+                if (cart.items.length < gMaxColToPull) {
+                    return PromiseHelper.resolve();
+                }
+
+                var deferred = jQuery.Deferred();
+
+                xcHelper.disableSubmit($("#dataCart-submit"));
+                Alert.show({
+                    "title": DSFormTStr.CreateWarn,
+                    "msg": DSFormTStr.CreateWarnMsg,
+                    "onConfirm": function() {
+                        xcHelper.enableSubmit($("#dataCart-submit"));
+                        deferred.resolve();
+                    },
+                    "onCancel": function() {
+                        xcHelper.enableSubmit($("#dataCart-submit"));
+                        deferred.reject();
+                    }
+                });
+
+                return deferred.promise();
+            }
         });
 
         // clear cart
