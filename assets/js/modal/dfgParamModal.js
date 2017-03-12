@@ -216,12 +216,19 @@ window.DFParamModal = (function($, DFParamModal){
 
         if (draggableInputs === "") {
             draggableInputs = DFTStr.AddParamHint;
-            $dfgParamModal.find('.draggableParams').addClass("hint")
+            $dfgParamModal.find('.draggableParams.currParams').addClass("hint")
                         .html(draggableInputs);
         } else {
-            $dfgParamModal.find('.draggableParams').removeClass("hint")
+            $dfgParamModal.find('.draggableParams.currParams').removeClass("hint")
                             .html(draggableInputs);
         }
+
+        draggableInputs = "";
+        for (var key in systemParams) {
+            draggableInputs += generateDraggableParams(key);
+        }
+        $dfgParamModal.find('.draggableParams.systemParams').removeClass("hint")
+                            .html(draggableInputs);
 
         fillUpRows();
         populateSavedFields(id, dfName);
@@ -461,7 +468,7 @@ window.DFParamModal = (function($, DFParamModal){
         return ($(b).text()) < ($(a).text()) ? 1 : -1;
     }
 
-    function addParamToLists(paramName, paramVal, isRestore) {
+    function addParamToLists(paramName, paramVal, isRestore, isSystemParam) {
         var $row = $paramLists.find(".unfilled:first");
 
         if ($row.length === 0) {
@@ -475,6 +482,11 @@ window.DFParamModal = (function($, DFParamModal){
             .find(".paramVal").val(paramVal).removeAttr("disabled")
             .end()
             .removeClass("unfilled");
+        if (isSystemParam) {
+            $row.addClass("systemParams");
+        } else {
+            $row.addClass("currParams");
+        }
         if (isRestore && paramVal === "") {
             // When it's from restore and val is empty, it mease
             // previously this param is saved as "allow empty"
@@ -556,10 +568,14 @@ window.DFParamModal = (function($, DFParamModal){
             $paramFound = $paramNames.filter(function() {
                 return ($(this).text() === param);
             });
-            if (!$paramFound.length && validParams.indexOf(param) !== -1) {
-                var dfg = DF.getDataflow($dfgParamModal.data("dfg"));
-                var paramVal = dfg.getParameter(param) || "";
-                addParamToLists(param, paramVal);
+            if (!$paramFound.length) {
+                if (validParams.indexOf(param) !== -1) {
+                    var dfg = DF.getDataflow($dfgParamModal.data("dfg"));
+                    var paramVal = dfg.getParameter(param) || "";
+                    addParamToLists(param, paramVal, false, false);
+                } else if (systemParams.hasOwnProperty(param)) {
+                    addParamToLists(param, CommonTxtTstr.DefaultVal, false, true);
+                }
             }
         }
 
@@ -665,16 +681,29 @@ window.DFParamModal = (function($, DFParamModal){
             var val = $row.find(".paramVal").val().trim();
             var check = $row.find(".checkbox").hasClass("checked");
 
-            if (val === "" && !check) {
-                isValid = false;
-                $invalidTr = $row;
-                return false; // stop iteration
-            }
+            if ($row.hasClass("currParams")) {
+                if (val === "" && !check) {
+                    isValid = false;
+                    $invalidTr = $row;
+                    return false; // stop iteration
+                }
 
-            params.push({
-                "name": name,
-                "val": val
-            });
+                params.push({
+                    "name": name,
+                    "val": val
+                });
+            } else if ($row.hasClass("systemParams")) {
+                if (systemParams.hasOwnProperty(name)) {
+                    params.push({
+                        "name": name,
+                        "val": systemParams[name]
+                    });
+                } else {
+                    isValid = false;
+                    $invalidTr = $row;
+                    return false; // stop iteration
+                }
+            }
         });
 
         if (!isValid) {
@@ -911,7 +940,6 @@ window.DFParamModal = (function($, DFParamModal){
         var retinaNode = dfg.getParameterizedNode(dagNodeId);
         var paramMap = dfg.paramMap;
         var nameMap = {};
-
         // Here's what we are doing:
         // For parameterized nodes, the retDag is actually the post-param
         // version, so we must store the original pre-param version.
@@ -934,7 +962,6 @@ window.DFParamModal = (function($, DFParamModal){
                 $templateVals.eq(i).text(retinaNode.paramQuery[i]);
             }
             var $editableDivs = $editableRow.find("input.editableParamDiv");
-
             parameterizedVals.forEach(function(query, index) {
                 var html = query;
                 var len = query.length;
@@ -971,9 +998,16 @@ window.DFParamModal = (function($, DFParamModal){
             // keep the order of paramName the in dfg.parameters
             dfg.parameters.forEach(function(paramName) {
                 if (nameMap.hasOwnProperty(paramName)) {
-                    addParamToLists(paramName, paramMap[paramName], true);
+                    addParamToLists(paramName, paramMap[paramName], true, false);
                 }
             });
+
+            for (var systemParam in systemParams) {
+                if (nameMap.hasOwnProperty(systemParam)) {
+                    addParamToLists(systemParam, CommonTxtTstr.DefaultVal,
+                    true, true);
+                }
+            }
         }
     }
 

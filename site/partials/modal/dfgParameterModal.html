@@ -24,9 +24,20 @@
       </div>
     </div>
     <div class="border"></div>
-    <div class="currentParameterList retinaSection" ondragover="DFParamModal.allowParamDrop(event)">
+    <!-- <div class="currentParameterList retinaSection" ondragover="DFParamModal.allowParamDrop(event)">
       <div class="heading"><%= dicts.dfgParam.paramList %>:</div>
       <div class="draggableParams"></div>
+    </div> -->
+    <div class="parameterList retinaSection">
+      <div class="currentParameterList" ondragover="DFParamModal.allowParamDrop(event)">
+        <div class="heading"><%= dicts.dfgParam.currParamList %>:</div>
+        <div class="draggableParams currParams"></div>
+      </div>
+      <div class="vertical-border"></div>
+      <div class="systemParameterList" ondragover="DFParamModal.allowParamDrop(event)">
+        <div class="heading"><%= dicts.dfgParam.systemParamList %>:</div>
+        <div class="draggableParams systemParams"></div>
+      </div>
     </div>
     <div class="border"></div>
     <div class="editableParamQuery retinaSection">

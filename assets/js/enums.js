@@ -334,3 +334,8 @@ var MLSetting = {
 var XCTrackerCategory = {
     SuggestJoinKey: "SuggestJoinKey",
 };
+
+// system Param
+var systemParams = {
+    "N": 0,
+};

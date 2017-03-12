@@ -1876,7 +1876,8 @@ var Dataflow = (function(_super) {
             params.forEach(function(param) {
                 var name = param.name;
                 var val  = param.val;
-                xcAssert(paramMap.hasOwnProperty(name), "Invalid name");
+                xcAssert((paramMap.hasOwnProperty(name) ||
+                    systemParams.hasOwnProperty(name)), "Invalid name");
                 paramMap[name] = val;
             });
         },

@@ -274,6 +274,8 @@ ErrWRepTStr = {
                         'please choose another name.',
     'ParamConflict': 'Parameter "<name>" already exists, ' +
                     'please choose another name.',
+    'SystemParamConflict': 'Parameter "<name>" is a system parameter, ' +
+                    'please choose another name.',
     'TableConflict': 'Table "<name>" already exists, ' +
                         'please choose another name.',
     'NoPath': '<path> was not found. Redirected to the root directory.',

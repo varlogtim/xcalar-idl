@@ -146,7 +146,9 @@ window.DFCard = (function($, DFCard) {
         var paramMap = dfg.paramMap;
 
         dfg.parameters.forEach(function(paramName) {
-            addParamToRetina(paramName, paramMap[paramName]);
+            if (!systemParams.hasOwnProperty(paramName)) {
+                addParamToRetina(paramName, paramMap[paramName]);
+            }
         });
 
         $retTabSection.removeClass("hidden");
@@ -276,6 +278,18 @@ window.DFCard = (function($, DFCard) {
 
             if (isNameConflict) {
                 var text = xcHelper.replaceMsg(ErrWRepTStr.ParamConflict, {
+                    "name": paramName
+                });
+                StatusBox.show(text, $input);
+                return;
+            }
+
+            var isSystemParam = false;
+            if (systemParams.hasOwnProperty(paramName)) {
+                isSytemParam = true;
+            }
+            if (isSytemParam) {
+                var text = xcHelper.replaceMsg(ErrWRepTStr.SystemParamConflict, {
                     "name": paramName
                 });
                 StatusBox.show(text, $input);
