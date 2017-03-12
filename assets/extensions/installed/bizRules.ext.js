@@ -111,7 +111,7 @@ window.UExtBizRules = (function(UExtBizRules) {
                                 '        pass\n' +
                                 '    return False\n';
                 udfString += "\n";
-                udfString +='def collateScore(resultCol):\n' +
+                udfString +='def __collateScore(resultCol):\n' +
                             '    results = resultCol.split(",")\n' +
                             '    nonPassing = []\n' +
                             '    for result in results:\n' +
@@ -218,7 +218,7 @@ window.UExtBizRules = (function(UExtBizRules) {
                 '    desc = [<DESC>]\n' +
                 '    descs = []\n' +
                 '    for rule in rules.split(","):\n' +
-                '        if rule == "":\n' +
+                '        if rule.strip() == "" or rule.strip() == "0":\n' +
                 '            continue\n' +
                 '        try:\n' +
                 '            idx = ruleId.index(rule)\n' +
@@ -241,6 +241,13 @@ window.UExtBizRules = (function(UExtBizRules) {
                 return XcalarUploadPython("bri_" + userIdName, udfString);
             })
             .then(function() {
+                Alert.show({title: "Business Rules Inventory",
+                            msg: "Please select the target table " +
+                            " and apply the map operation bri_" + userIdName +
+                            ":business_rules_inventory.",
+                            instr: "User Defined Module bri_" + userIdName +
+                                 " uploaded successfully.",
+                            isAlert: true});
                 deferred.resolve();
             });
 
