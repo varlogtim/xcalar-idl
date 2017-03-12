@@ -1907,7 +1907,7 @@ function generateAggregateString(fieldName, op) {
             evalStr += "listAgg(";
             break;
         default:
-            console.log("bug!:" + op);
+            console.error("bug!:" + op);
     }
 
     evalStr += fieldName;

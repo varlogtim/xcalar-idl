@@ -1697,7 +1697,7 @@ window.xcHelper = (function($, xcHelper) {
         }
     };
 
-    // Create a column name that is not in allNames and not in str
+    // Create a column name that is not in allNames and is not str
     xcHelper.createNextColumnName = function(allNames, str, tableId) {
         var delimiter = "_";
         var parts = str.split(delimiter);
