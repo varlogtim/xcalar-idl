@@ -185,10 +185,15 @@ window.DSParser = (function($, DSParser) {
         });
 
         $boxes.on("click", ".boxHeader", function(event) {
-            if ($(event.target).closest(".resize").length) {
+            if ($(event.target).closest(".resize").length ||
+                gMouseEvents.getLastMouseDownTarget().closest(".resize").length)
+            {
                 return;
             }
             var $box = $(this).closest(".parserBox");
+            if ($box.hasClass("maximized")) {
+                return;
+            }
             if ($box.hasClass("minimized")) {
                 $box.removeClass("minimized");
             } else {
