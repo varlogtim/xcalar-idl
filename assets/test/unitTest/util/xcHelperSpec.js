@@ -2064,6 +2064,17 @@ describe('xcHelper Test', function() {
             .then(function(res) {
                 expect(res).to.be.an("array");
                 expect(res.length).to.be.at.least(1);
+                var nodeInfo = res[0];
+                // check nodeInfo
+                expect(nodeInfo).to.have.property("Mlocked");
+                expect(nodeInfo).to.have.property("malloc");
+                expect(nodeInfo).to.have.property("swap");
+                expect(nodeInfo).to.have.property("sys");
+                // check Mlocked
+                var mLocked = nodeInfo.Mlocked;
+                expect(mLocked).to.have.property("total");
+                expect(mLocked).to.have.property("transport_pages");
+                expect(mLocked).to.have.property("xdb_pages");
                 done();
             })
             .fail(function() {

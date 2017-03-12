@@ -144,14 +144,16 @@ window.Support = (function(Support, $) {
         function detectMemoryUsage(nodes) {
             jQuery.each(nodes, function(index, nodeInfo) {
                 var shouldAlert;
-                if (nodeInfo.mlock && nodeInfo.mlock.xdb_pages) {
-                    var tableInfo = nodeInfo.mlock.xdb_pages;
+                if (nodeInfo.Mlocked && nodeInfo.Mlocked.xdb_pages) {
+                    var tableInfo = nodeInfo.Mlocked.xdb_pages;
                     var tableUsage = tableInfo.used / tableInfo.total;
                     shouldAlert = handleMemoryUsage(tableUsage, true);
                     if (shouldAlert) {
                         // stop looping
                         return false;
                     }
+                } else {
+                    console.error("no table mem info");
                 }
                 // XXX not sure if it's the right formula for ds yet
                 if (nodeInfo.malloc) {
@@ -163,6 +165,8 @@ window.Support = (function(Support, $) {
                         // stop looping
                         return false;
                     }
+                } else {
+                    console.error("no ds mem info");
                 }
             });
         }
@@ -170,7 +174,6 @@ window.Support = (function(Support, $) {
         function handleMemoryUsage(memoryUsage, isTable) {
             var shouldAlert = false;
             var $memoryAlert = $("#memoryAlert");
-
             if (memoryUsage > redThreshold) {
                 // when it's red, can stop loop immediately
                 $memoryAlert.addClass("red").removeClass("yellow");
