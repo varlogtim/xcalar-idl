@@ -647,6 +647,7 @@ describe("DSParser Test", function() {
         });
 
         it("addContent should work", function() {
+            $("#dsParser").find(".fileFormat").find("input").val("XML");
             var prevBuffers = DSParser.__testOnly__.getBuffers();
             var buffers = ["a", "b"];
             DSParser.__testOnly__.setBuffers(buffers);
@@ -671,6 +672,7 @@ describe("DSParser Test", function() {
             expect(buffers[1]).to.equal("some text");
 
             DSParser.__testOnly__.setBuffers(prevBuffers);
+            $("#dsParser").find(".fileFormat").find("input").val("JSON");
         });
 
         it("box fullscreen should work", function() {
@@ -708,10 +710,10 @@ describe("DSParser Test", function() {
             .then(function() {
                 expect(opened).to.be.false;
 
-                // select {
+                // select { on 3rd line
                 var range = document.createRange();
-                range.setStart($("#dsParser .page1")[0].childNodes[0], 72);
-                range.setEnd($("#dsParser .page1")[0].childNodes[0], 73);
+                range.setStart($("#dsParser .page1 .line")[2].childNodes[0], 14);
+                range.setEnd($("#dsParser .page1 .line")[2].childNodes[0], 15);
                 var sel = window.getSelection();
                 sel.removeAllRanges();
                 sel.addRange(range);

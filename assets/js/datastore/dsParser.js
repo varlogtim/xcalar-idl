@@ -496,8 +496,8 @@ window.DSParser = (function($, DSParser) {
                 previewMeta.endPage = pageNum + numPages - 1;
             }
 
-            showContent(res.buffer, numPages, $dataPreview,
-                        previewMeta, scrollTop);
+            showContent(res.buffer, numPages, $dataPreview, previewMeta,
+                        scrollTop);
             $parserCard.removeClass("loading fetchingRows");
 
             deferred.resolve();
@@ -666,12 +666,25 @@ window.DSParser = (function($, DSParser) {
         }
 
         $page = $(getPageHtml(meta.startPage));
-        $page.text(firstContent);
+
+        var pretty = shouldPrettyPrint(meta);
+        if (pretty) {
+            var $splitContent = parseContent(firstContent);
+            $page.append($splitContent);
+        } else {
+            $page.text(firstContent);
+        }
+
         $content.append($page);
 
         if (secondContent.length) {
             $page = $(getPageHtml(meta.startPage + 1));
-            $page.text(secondContent);
+            if (pretty) {
+                var $splitContent = parseContent(secondContent);
+                $page.append($splitContent);
+            } else {
+                $page.text(secondContent);
+            }
             $content.append($page);
         }
 
@@ -808,21 +821,34 @@ window.DSParser = (function($, DSParser) {
         if (res != null && res.start > -1) {
             var nodes = getTextNodes(element);
             range = document.createRange();
-            var firstBuffLen = buffers[0].length;
 
-            // check if start is on 1st or 2nd page
-            if (res.start < firstBuffLen) {
-                range.setStart(nodes[0], res.start);
-            } else {
-                range.setStart(nodes[1], res.start - firstBuffLen);
+            var startNode = 0;
+            var curLen = 0;
+            var startIndex;
+            var endIndex;
+            var endNode;
+            for (var i = 0; i < nodes.length; i++) {
+                var len = nodes[i].length;
+                if (curLen + len >= res.start) {
+                    startNode = i;
+                    startIndex = (res.start - curLen);
+                    break;
+                }
+                curLen += len;
             }
 
-            if (res.end < firstBuffLen) {
-                range.setEnd(nodes[0], res.end);
-            } else {
-                range.setEnd(nodes[1], res.end - firstBuffLen);
+            for (var i = startNode; i < nodes.length; i++) {
+                var len = nodes[i].length;
+                if (curLen + len >= res.end) {
+                    endNode = i;
+                    endIndex = (res.end - curLen);
+                    break;
+                }
+                curLen += len;
             }
 
+            range.setStart(nodes[startNode], startIndex);
+            range.setEnd(nodes[endNode], endIndex);
             sel = window.getSelection();
             sel.removeAllRanges();
             sel.addRange(range);
@@ -1273,7 +1299,14 @@ window.DSParser = (function($, DSParser) {
         var $content = $preview.find(".content");
         var scrollTop = $preview.scrollTop();
         var $page = $(getPageHtml(pageNum));
-        $page.text(content);
+        var pretty = shouldPrettyPrint(meta);
+
+        if (pretty) {
+            var $splitContent = parseContent(content);
+            $page.append($splitContent);
+        } else {
+            $page.text(content);
+        }
 
         if (up) {
             $content.prepend($page);
@@ -1304,6 +1337,93 @@ window.DSParser = (function($, DSParser) {
         } else {
             $preview.removeClass("fetchingRows");
         }
+    }
+
+    function parseContent(content) {
+        var html = "";
+        var lines = content.split("\n");
+        var $line;
+        var $lines = $();
+        var line;
+        var ch;
+        var specialChars = ["{", "}", "[", "]", ","];
+        // ignore the last element because it's an empty string
+        var linesLen = Math.min(linesPerPage, lines.length - 1);
+        
+        for (var i = 0; i < linesLen; i++) {
+            line = lines[i];
+            var inQuotes = false;
+            var isEscaped = false;
+            var html = "";
+            var isObj = false;
+            var valFound = false;
+            var nonStrVal = false;
+            var lineLen = line.length;
+            for (var j = 0; j < lineLen; j++) {
+                ch = line[j];
+                if (isEscaped) {
+                    html += ch;
+                    isEscaped = false;
+                    continue;
+                }
+
+                if (ch === "\\") {
+                    isEscaped = true;
+                    html += ch;
+                } else if (ch === " ") {
+                    html += ch;
+                } else if (ch === '"') {
+                    if (!inQuotes) {
+                        inQuotes = true;
+                        valFound = true;
+                        if (isObj) {
+                            html += ch + '<span class="quotes objValue">';
+                        } else {
+                            html += ch + '<span class="quotes">';
+                        }
+                    } else {
+                        inQuotes = false;
+                        html += '</span>' + ch;
+                    } 
+                } else {
+                    if (inQuotes) {
+                        html += ch;
+                    } else {
+                        if (ch === ":") {
+                            isObj = true;
+                            html += ch;
+                        } else {
+                            if (nonStrVal) {
+                                if (ch === ",") {
+                                    html += '</span>' + ch;
+                                    nonStrVal = false;
+                                } else if (j === lineLen - 1) {
+                                    html += ch + '</span>';
+                                } else {
+                                    html += ch;
+                                }
+                            } else {
+                                if (specialChars.indexOf(ch) === -1) {
+                                    html += '<span class="other">';
+                                    nonStrVal = true;
+                                    valFound = true;
+                                }
+                                html += ch;
+                            }               
+                        }
+                    }
+                }
+            }
+            if (!isObj && valFound) {
+                $line = $('<span class="line array"></span>');
+            } else {
+                $line = $('<span class="line"></span>');
+            }
+            
+            $line.append(html + "\n");
+            $lines = $lines.add($line);
+        }
+        return $lines;
     }
 
     function adjustSizer($preview, meta) {
@@ -1388,6 +1508,15 @@ window.DSParser = (function($, DSParser) {
                                   lineHeight);
         lineNum = Math.max(0, lineNum);
         updateRowInput(lineNum);
+    }
+
+    function shouldPrettyPrint(meta) {
+        var format = getFormat();
+        if (meta && meta.meta && format === "JSON") {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /* Unit Test Only */

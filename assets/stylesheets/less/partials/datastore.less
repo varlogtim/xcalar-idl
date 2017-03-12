@@ -2127,8 +2127,26 @@ table.datasetTable {
         }
 
         .page {
-            background: transparent !important;
             .selectionBackground(@color: @color-bg-bright-light-blue-half);
+        }
+        .line {
+            display: block;
+            color: @color-json-default;
+
+            &.array {
+                .quotes {
+                    color: @color-json-array;
+                }
+            }
+        }
+        .quotes {
+            color: @color-json-key;
+            &.objValue {
+                color: @color-json-string;
+            }
+        }
+        .other {
+            color: @color-json-num;
         }
     }
 
