@@ -2,7 +2,7 @@ window.QueryManager = (function(QueryManager, $) {
     var $queryList;   // $("#monitor-queryList")
     var $queryDetail; // $("#monitor-queryDetail")
     var queryLists = {}; // will be populated by xcQuery objs with transaction id as key
-    var queryCheckLists = {}; // setInterval timers
+    var queryCheckList = {}; // setTimeout timers
     var canceledQueries = {}; // for canceled queries that have been deleted
                               // but the operation has not returned yet
 
@@ -368,7 +368,7 @@ window.QueryManager = (function(QueryManager, $) {
     QueryManager.check = function(forceStop, doNotAnimate) {
         if (forceStop || !$("#monitor-queries").hasClass("active") ||
             !$('#monitorTab').hasClass('active')) {
-            for (var id in queryCheckLists) {
+            for (var id in queryCheckList) {
                 clearIntervalHelper(id);
             }
         } else {
@@ -404,7 +404,7 @@ window.QueryManager = (function(QueryManager, $) {
     QueryManager.getAll = function() {
         return ({
             "queryLists": queryLists,
-            "queryCheckLists": queryCheckLists
+            "queryCheckLists": queryCheckList
         });
     };
 
@@ -489,17 +489,46 @@ window.QueryManager = (function(QueryManager, $) {
         });
     }
 
+    function checkCycle(fn, id, adjustTime) {
+        clearIntervalHelper(id);
+
+        var intTime = checkInterval;
+        if (adjustTime) {
+            intTime = Math.max(200, checkInterval - adjustTime);
+        }
+
+        queryCheckList[id] = setTimeout(function() {
+            var startTime = Date.now();
+            fn()
+            .then(function() {
+                if (queryCheckList[id] != null) {
+                    var elapsedTime = Date.now() - startTime;
+                    checkCycle(fn, id, elapsedTime);
+                }
+            });
+        }, intTime);
+
+        return queryCheckList[id];
+    }
+
     // used for xcalarQuery
     function mainQueryCheck(id, doNotAnimate) {
         var mainQuery = queryLists[id];
-        clearIntervalHelper(id);
-        queryCheckLists[id] = setInterval(check, checkInterval);
-        check();
+        var startTime = Date.now();
+        check()
+        .then(function() {
+            var elapsedTime = Date.now() - startTime;
+            checkCycle(check, id, elapsedTime);
+        });
         
         function check() {
+            var deferred = jQuery.Deferred();
+
             mainQuery.check()
             .then(function(res) {
                 if (!queryLists[id]) {
+                    clearIntervalHelper(id);
+                    deferred.reject();
                     return;
                 }
                 var state = res.queryState;
@@ -507,6 +536,7 @@ window.QueryManager = (function(QueryManager, $) {
                     clearIntervalHelper(id);
                     //xx unable to match up with sql id number
                     QueryManager.queryDone(id);
+                    deferred.reject();
                     return;
                 }
 
@@ -515,18 +545,24 @@ window.QueryManager = (function(QueryManager, $) {
                 if (state === QueryStateT.qrError) {
                     clearIntervalHelper(id);
                     updateQueryBar(id, res, true, false, doNotAnimate);
+                    deferred.reject();
                 } if (state === QueryStateT.qrCancelled) {
                     clearIntervalHelper(id);
                     updateQueryBar(id, res, false, true, doNotAnimate);
+                    deferred.reject();
                 } else {
                     subQueryCheckHelper(mainQuery.subQueries[step], id, step);
+                    deferred.resolve();
                 }
             })
             .fail(function(error) {
                 console.error("Check failed", error);
                 updateQueryBar(id, null, error, false, doNotAnimate);
                 clearIntervalHelper(id);
+                deferred.reject();
             });
+
+            return deferred.promise();
         }
     }
 
@@ -567,11 +603,17 @@ window.QueryManager = (function(QueryManager, $) {
 
         var mainQuery = queryLists[id];
         var firstQueryPos = getFirstQueryPos(mainQuery);
-        clearIntervalHelper(id);
-        queryCheckLists[id] = setInterval(check, checkInterval);
-        check();
+        
+        var startTime = Date.now();
+        check()
+        .then(function() {
+            var elapsedTime = Date.now() - startTime;
+            checkCycle(check, id, elapsedTime);
+        });
 
         function check() {
+            var deferred = jQuery.Deferred();
+
             var queryName = mainQuery.subQueries[mainQuery.currStep].queryName;
             XcalarQueryState(queryName)
             .then(function(res) {
@@ -591,23 +633,29 @@ window.QueryManager = (function(QueryManager, $) {
                                           doNotAnimate);
                         }
                     }
+                    deferred.reject();
                     return;
                 } else if (state === QueryStateT.qrError ||
                            state === QueryStateT.qrCancelled) {
                     clearIntervalHelper(id);
                     updateQueryBar(id, res, true, false, doNotAnimate);
+                    deferred.reject();
                 } else {
                     subQueryCheckHelper(mainQuery.subQueries[currStep], id,
                                         currStep, doNotAnimate);
                     // only stop animation the first time, do not persist it
                     doNotAnimate = false;
+                    deferred.resolve();
                 }
             })
             .fail(function(error) {
                 console.error("Check failed", error, queryName);
                 updateQueryBar(id, null, error, false, doNotAnimate);
                 clearIntervalHelper(id);
+                deferred.reject();
             });
+
+            return deferred.promise();
         }
     }
 
@@ -850,23 +898,30 @@ window.QueryManager = (function(QueryManager, $) {
         }
         // only stop animation the first time, do not persist it
         doNotAnimate = false;
-        clearIntervalHelper(id);
-        queryCheckLists[id] = setInterval(checkFunc, checkInterval);
-        checkFunc();
-
-        function checkFunc() {
-            subQueryCheckHelper(subQuery, id, subQuery.index, doNotAnimate);
-        }
+        
+        var startTime = Date.now();
+        subQueryCheckHelper(subQuery, id, subQuery.index, doNotAnimate)
+        .then(function() {
+            var elapsedTime = Date.now() - startTime;
+            checkCycle(function() {
+                return subQueryCheckHelper(subQuery, id, subQuery.index,
+                                           doNotAnimate);
+            }, id, elapsedTime);
+        })
     }
 
     function subQueryCheckHelper(subQuery, id, step, doNotAnimate) {
+        var deferred = jQuery.Deferred();
         if (subQuery.state === QueryStatus.Done) {
-            return;
+            clearIntervalHelper(id);
+            return PromiseHelper.reject();
         }
+
         subQuery.check()
         .then(function(res) {
             if (!queryLists[id]) {
-                return;
+                clearIntervalHelper(id);
+                return PromiseHelper.reject();
             }
             var mainQuery = queryLists[id];
             var currStep = mainQuery.currStep;
@@ -881,7 +936,6 @@ window.QueryManager = (function(QueryManager, $) {
                     $query.find('.querySteps').text('step ' + (currStep + 1) +
                                                     ' of ' + numSteps);
                 }
-                return;
             } else {
                 updateQueryBar(id, res, false, false, doNotAnimate);
                 mainQuery.setElapsedTime();
@@ -892,12 +946,16 @@ window.QueryManager = (function(QueryManager, $) {
                     "total": CommonTxtTstr.NA
                 }, id);
             }
+            deferred.resolve();
         })
         .fail(function(error) {
             console.error("Check failed", error);
             updateQueryBar(id, null, error);
             clearIntervalHelper(id);
+            deferred.reject();
         });
+
+        return deferred.promise();
     }
 
     function updateQueryBar(id, progress, isError, isCanceled, doNotAnimate) {
@@ -1559,8 +1617,8 @@ window.QueryManager = (function(QueryManager, $) {
     }
 
     function clearIntervalHelper(id) {
-        clearInterval(queryCheckLists[id]);
-        delete queryCheckLists[id];
+        clearTimeout(queryCheckList[id]);
+        delete queryCheckList[id];
     }
 
      /* Unit Test Only */
@@ -1568,7 +1626,7 @@ window.QueryManager = (function(QueryManager, $) {
         QueryManager.__testOnly__ = {};
         QueryManager.__testOnly__.getElapsedTimeStr = getElapsedTimeStr;
         QueryManager.__testOnly__.queryLists = queryLists;
-        QueryManager.__testOnly__.queryCheckLists = queryCheckLists;
+        QueryManager.__testOnly__.queryCheckLists = queryCheckList;
     }
     /* End Of Unit Test Only */
 

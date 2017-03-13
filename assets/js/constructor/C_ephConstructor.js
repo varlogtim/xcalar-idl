@@ -724,7 +724,6 @@ SearchBar.prototype = {
 
         // click listener on search icon for searchbar sliding
         if (searchBar.isSlider) {
-            console.log( searchBar.$searchArea.find(".searchIcon"))
             searchBar.$searchArea.find(".searchIcon")
                                  .click(function() {
                                         searchBar.toggleSlider();

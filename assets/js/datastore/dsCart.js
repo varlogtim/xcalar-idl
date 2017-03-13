@@ -10,10 +10,10 @@ window.DSCart = (function($, DSCart) {
     var queryQueue = [];
     var resetTimer;
     var fadeOutTimer;
-    var queryInterval;
     // constant
     var animationLimit = 20;
     var intervalTime = 2000;
+    var checkTimeout = null;
 
     DSCart.setup = function() {
         $cartArea = $("#dataCart");
@@ -460,13 +460,12 @@ window.DSCart = (function($, DSCart) {
     // used for turning on/off checking when switching tabs
     DSCart.checkQueries = function() {
         if (!$('#dataStoresTab').hasClass('active')) {
-            clearInterval(queryInterval);
+            clearCycle();
         } else {
             if (queryQueue.length) {
                 clearTimeout(resetTimer);
                 clearTimeout(fadeOutTimer);
-                interval();
-                queryInterval = setInterval(interval, intervalTime);
+                trackQueries();
             } else {
                 endBarAnimation(0, true);
             }
@@ -540,14 +539,18 @@ window.DSCart = (function($, DSCart) {
     }
 
     function trackQueries() {
-        interval();
-        queryInterval = setInterval(interval, intervalTime);
+        var startTime = Date.now();
+        check()
+        .then(function() {
+            var elapsedTime = Date.now() - startTime;
+            checkCycle(check, elapsedTime);
+        });
     }
 
-    function interval() {
+    function check() {
         if (!queryQueue.length) {
             finishQueryBar();
-            return;
+            return PromiseHelper.reject();
         }
         var mainQuery = queryQueue[0];
         var subQuery = mainQuery.subQueries[0];
@@ -559,9 +562,11 @@ window.DSCart = (function($, DSCart) {
                 subQuery = mainQuery.subQueries[0];
             } else {
                 finishQueryBar();
-                return;
+                return PromiseHelper.reject();
             }
         }
+
+        var deferred = jQuery.Deferred();
 
         subQuery.check()
         .then(function(res) {
@@ -571,11 +576,41 @@ window.DSCart = (function($, DSCart) {
             }
             updateQueryBar(res);
             mainQuery.setElapsedTime();
+            deferred.resolve();
         })
         .fail(function(error) {
             console.error("Check failed", error);
             endBarAnimation(0, true);
+            deferred.reject();
         });
+
+        return deferred.promise();
+    }
+
+    function checkCycle(fn, adjustTime) {
+        clearCycle();
+
+        var intTime = intervalTime;
+        if (adjustTime) {
+            intTime = Math.max(200, intervalTime - adjustTime);
+        }
+
+        checkTimeout = setTimeout(function() {
+            var cachedTimeout = checkTimeout;
+            var startTime = Date.now();
+            fn()
+            .then(function() {
+                if (checkTimeout != null && checkTimeout === cachedTimeout) {
+                    var elapsedTime = Date.now() - startTime;
+                    checkCycle(fn, elapsedTime);
+                }
+            });
+        }, intTime);
+    }
+
+    function clearCycle() {
+        clearTimeout(checkTimeout);
+        checkTimeout = null;
     }
 
     function endBarAnimation(time, force) {
@@ -583,7 +618,7 @@ window.DSCart = (function($, DSCart) {
             time = 3000;
         }
 
-        clearInterval(queryInterval);
+        clearCycle();
         clearTimeout(resetTimer);
         clearTimeout(fadeOutTimer);
         if (time) {
@@ -607,7 +642,7 @@ window.DSCart = (function($, DSCart) {
 
     // sets progress bar to 100%
     function finishQueryBar() {
-        clearInterval(queryInterval);
+        clearCycle();
         clearTimeout(resetTimer);
         clearTimeout(fadeOutTimer);
         if ($loadingBar.hasClass('full')) {

@@ -2294,27 +2294,30 @@ function XcalarQueryCheck(queryName, txId) {
     }
 
     var checkTime = 1000; // 1s per check
-    var timer = setInterval(function() {
-        XcalarQueryState(queryName)
-        .then(function(queryStateOutput) {
-            var nodeStatuses =
-                           getDagNodeStatuses(queryStateOutput.queryGraph.node);
-            console.log(nodeStatuses);
-            var state = queryStateOutput.queryState;
-            if (state === QueryStateT.qrFinished ||
-                state === QueryStateT.qrCancelled) {
-                clearInterval(timer);
-                deferred.resolve(queryStateOutput);
-            } else if (state === QueryStateT.qrError) {
-                clearInterval(timer);
-                deferred.reject(queryStateOutput);
-            }
-        })
-        .fail(function(error) {
-            clearInterval(timer);
-            deferred.reject(error);
-        });
-    }, checkTime);
+    cycle();
+
+    function cycle() {
+        setTimeout(function() {
+             XcalarQueryState(queryName)
+            .then(function(queryStateOutput) {
+                var nodeStatuses =
+                        getDagNodeStatuses(queryStateOutput.queryGraph.node);
+                console.log(nodeStatuses);
+                var state = queryStateOutput.queryState;
+                if (state === QueryStateT.qrFinished ||
+                    state === QueryStateT.qrCancelled) {
+                    deferred.resolve(queryStateOutput);
+                } else if (state === QueryStateT.qrError) {
+                    deferred.reject(queryStateOutput);
+                } else {
+                    cycle();
+                }
+            })
+            .fail(function(error) {
+                deferred.reject(error);
+            });
+        }, checkTime);
+    }
 
     return (deferred.promise());
 }

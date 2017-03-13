@@ -86,7 +86,6 @@ describe('QueryManager Test', function() {
         it('QueryManager.addSubQuery should work', function() {
             var getStatsCalled = false;
             XcalarGetOpStats = function() {
-                expect(queryCheckLists[1]).to.be.gt(0);
                 getStatsCalled = true;
                 return PromiseHelper.reject();
             };
@@ -116,7 +115,6 @@ describe('QueryManager Test', function() {
             };
             XcalarQueryState = function() {
                 getQueryStateCalled = true;
-                expect(queryCheckLists[1]).to.be.gt(0);
                 return PromiseHelper.reject();
             };
 
