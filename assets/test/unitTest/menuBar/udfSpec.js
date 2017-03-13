@@ -175,7 +175,7 @@ describe("UDF Test", function() {
         });
     });
 
-    describe("Public Api Test", function() {
+    describe("UDF Public API Test", function() {
         it("UDF.getEditor should work", function() {
             var editor = UDF.getEditor();
             expect(editor instanceof CodeMirror).to.be.true;
@@ -191,6 +191,19 @@ describe("UDF Test", function() {
             UDF.storePython(moduleName, "test");
             var udfs = UDF.getUDFs();
             expect(udfs).to.have.ownProperty(moduleName);
+        });
+
+        it("UDF.list should work", function(done) {
+            UDF.list()
+            .then(function(res) {
+                expect(res).to.be.an("object");
+                expect(res).to.have.property("fnDescs");
+                expect(res).to.have.property("numXdfs");
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
         });
 
         it("UDF.clear should work", function() {

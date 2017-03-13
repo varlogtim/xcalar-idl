@@ -396,7 +396,7 @@ window.DSPreview = (function($, DSPreview) {
 
         if (!listXdfsObj) {
             // update python module list
-            XcalarListXdfs("*", "User*")
+            UDF.list()
             .then(updateUDFList)
             .then(deferred.resolve)
             .fail(function(error) {
@@ -572,7 +572,12 @@ window.DSPreview = (function($, DSPreview) {
         $("#lineText").val("\\n").removeClass("nullVal");
     }
 
-    function cleanTempParser() {
+    function cleanTempParser(keepUDF) {
+        if (keepUDF) {
+            // if not keep applied UDF, dataflow will be broken
+            tempParserUDF = null;
+        }
+
         if (tempParserUDF == null) {
             return PromiseHelper.resolve();
         } else {
@@ -760,7 +765,7 @@ window.DSPreview = (function($, DSPreview) {
             return DS.point(pointArgs, options);
         })
         .then(function() {
-            cleanTempParser();
+            cleanTempParser(true);
             deferred.resolve();
         })
         .fail(deferred.reject);
@@ -1470,7 +1475,7 @@ window.DSPreview = (function($, DSPreview) {
             disablePreview = noPreview;
             return XcalarLoad(urlToPreview, format, tempDSName, "", "\n",
                             false, udfModule, udfFunc, isRecur,
-                            previewSize, gDefaultQDelim, 0, pattern, txId)
+                            previewSize, gDefaultQDelim, 0, pattern, txId);
         })
         .then(function() {
             return sampleData(tempDSName, rowsToFetch);

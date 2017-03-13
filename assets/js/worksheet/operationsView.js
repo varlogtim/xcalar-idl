@@ -788,7 +788,7 @@ window.OperationsView = (function($, OperationsView) {
                 transparent: true
             });
             disableInputs();
-            XcalarListXdfs("*", "User*")
+            UDF.list()
             .then(function(listXdfsObj) {
                 udfUpdateOperatorsMap(listXdfsObj.fnDescs);
                 operationsViewShowHelper(options.restore);

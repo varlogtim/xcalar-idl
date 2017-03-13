@@ -25,7 +25,7 @@ window.UDF = (function($, UDF) {
     UDF.initialize = function() {
         var deferred = jQuery.Deferred();
 
-        initializeUDFList()
+        initializeUDFList(true)
         .then(function(listXdfsObj) {
             DSExport.refreshUDF(listXdfsObj);
             deferred.resolve();
@@ -66,19 +66,30 @@ window.UDF = (function($, UDF) {
         return refreshUDF(isInBg);
     };
 
-    function initializeUDFList() {
+    UDF.list = function() {
+        return XcalarListXdfs("*", "User*");
+    };
+
+    function initializeUDFList(isSetup) {
         var deferred = jQuery.Deferred();
 
         // update udf
-        XcalarListXdfs("*", "User*")
+        UDF.list()
         .then(function(listXdfsObj) {
-            var len = listXdfsObj.numXdfs;
-            var udfs = listXdfsObj.fnDescs;
-            var moduleName;
             var oldStoredUDF = xcHelper.deepCopy(storedUDF);
+            // list udf and filter out temp udfs
+            listXdfsObj.fnDescs = listXdfsObj.fnDescs.filter(function(udf) {
+                var moduleName = udf.fnName.split(":")[0];
 
-            for (var i = 0; i < len; i++) {
-                moduleName = udfs[i].fnName.split(":")[0];
+                // XXX not delete udf as if it applied, delete udf
+                // will break DF(replay session)
+                // will handle it when we have better way
+                // if (isSetup &&
+                //     moduleName.startsWith(xcHelper.getTempUDFPrefix())) {
+                //     XcalarDeletePython(moduleName);
+                //     // filter out
+                //     return false;
+                // }
 
                 if (!storedUDF.hasOwnProperty(moduleName)) {
                     // this means modueName exists
@@ -88,12 +99,13 @@ window.UDF = (function($, UDF) {
                 } else {
                     delete oldStoredUDF[moduleName];
                 }
-            }
+                return true;
+            });
+            listXdfsObj.numXdfs = listXdfsObj.fnDescs.length;
             // remove udfs that not exist any more
             for (var key in oldStoredUDF) {
                 delete storedUDF[key];
             }
-
             updateUDF();
             deferred.resolve(listXdfsObj);
         })

@@ -217,7 +217,7 @@ window.DSParser = (function($, DSParser) {
 
                 var res = getSelectionCharOffsetsWithin($previewContent[0]);
                 var $target = $(event.target);
-                if ($parserCard.hasClass("previewOnly") || !res || 
+                if ($parserCard.hasClass("previewOnly") || !res ||
                     res.tag == null) {
                     $menu.find("li").addClass("unavailable");
                     $menu.removeData("tag");
@@ -428,7 +428,7 @@ window.DSParser = (function($, DSParser) {
             if (topPage === botPage) {
                 numPages = 1;
                 if (meta.startPage === topPage || meta.endPage === topPage) {
-                    // fetch not needed, needed page is already visible 
+                    // fetch not needed, needed page is already visible
                     return;
                 }
             } else {
@@ -1245,7 +1245,7 @@ window.DSParser = (function($, DSParser) {
             return parseHelper();
         })
         .then(function(udfStr) {
-            udfName = xcHelper.randName("_xcalar_visual_parser");
+            udfName = xcHelper.randName(xcHelper.getTempUDFPrefix() + "_vp_");
             return XcalarUploadPython(udfName, udfStr);
         })
         .then(function() {
@@ -1391,7 +1391,7 @@ window.DSParser = (function($, DSParser) {
                     } else {
                         inQuotes = false;
                         html += '</span>' + ch;
-                    } 
+                    }
                 } else {
                     if (inQuotes) {
                         html += ch;
@@ -1416,7 +1416,7 @@ window.DSParser = (function($, DSParser) {
                                     valFound = true;
                                 }
                                 html += ch;
-                            }               
+                            }
                         }
                     }
                 }

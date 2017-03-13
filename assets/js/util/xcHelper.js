@@ -2371,6 +2371,10 @@ window.xcHelper = (function($, xcHelper) {
         return validName;
     };
 
+    xcHelper.getTempUDFPrefix = function() {
+        return "_xcalar_" + Support.getUser();
+    };
+
     /**
      * sortVals
      * @param  {string} a     [first value]

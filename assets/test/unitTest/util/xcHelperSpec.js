@@ -1623,6 +1623,11 @@ describe('xcHelper Test', function() {
         expect(res.length).to.equal(9);
     });
 
+    it("xcHelper.getTempUDFPrefix should work", function() {
+        var res = xcHelper.getTempUDFPrefix();
+        expect(res).to.equal("_xcalar_" + Support.getUser());
+    });
+
     it('xcHelper.sortVals should work', function() {
         var func = xcHelper.sortVals;
         var asc = ColumnSortOrder.ascending;
@@ -1820,7 +1825,7 @@ describe('xcHelper Test', function() {
     });
 
     it('xcHelper.getUDFList should work', function(done) {
-        XcalarListXdfs("*", "User*")
+        UDF.list()
         .then(function(ret) {
             expect(ret).to.be.an('object');
             expect(ret).to.have.all.keys('numXdfs', 'fnDescs');
