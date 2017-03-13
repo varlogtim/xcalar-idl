@@ -1190,7 +1190,7 @@ window.JSONModal = (function($, JSONModal) {
                 '</h3>';
         for (var i = 0; i < groups.length; i++) {
             var tempJson = prettifyJson(groups[i].objs, null, checkboxes, {
-                "inarray": isArray
+                "inArray": isArray
             });
             tempJson = '<div class="jObject">' +
                         tempJson +
@@ -1228,8 +1228,8 @@ window.JSONModal = (function($, JSONModal) {
 
     function getJsonHtmlForNonDataCol(jsonObj, isArray) {
         var prettyJson = prettifyJson(jsonObj, null , true, {
-            inarray: isArray
-        });
+            inArray: isArray
+        }, isArray);
         prettyJson = '<div class="jObject">' + prettyJson + '</div>';
         return prettyJson;
     }
@@ -1778,7 +1778,7 @@ window.JSONModal = (function($, JSONModal) {
         var result = "";
         indent = indent || 0;
         options = options || {};
-        options.inarray = options.inarray || 0;
+        options.inArray = options.inArray || 0;
 
         for (var key in obj) {
             var value = obj[key];
@@ -1805,7 +1805,7 @@ window.JSONModal = (function($, JSONModal) {
                         value = '<span class="jNull text ' + arrayElClass + 
                                 '">' + value + '</span>';
                     } else if (value.constructor === Array) {
-                        ++options.inarray;
+                        ++options.inArray;
                         var emptyArray = "";
                         if (value.length === 0) {
                             emptyArray = " emptyArray";
@@ -1831,7 +1831,7 @@ window.JSONModal = (function($, JSONModal) {
                     break;
             }
 
-            if (options.inarray) {
+            if (options.inArray) {
                 value += ",";
                 result += '<div class="jsonBlock jInfo arrayVal' +
                             '" data-key="' + dataKey + '">' +
@@ -1853,7 +1853,7 @@ window.JSONModal = (function($, JSONModal) {
             }
         }
 
-        --options.inarray;
+        --options.inArray;
 
         if (options.comparison) {
             // removes last comma unless inside div
