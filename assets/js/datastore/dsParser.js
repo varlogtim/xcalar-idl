@@ -9,6 +9,7 @@ window.DSParser = (function($, DSParser) {
     var buffers = [];
     var curUrl;
     var keys;
+    var previewMetaSet; // set of previewMeta in different  format
     var previewMeta; // will have lineLengths, maxLen, tmpPath, totalLines, numChar
     var lineHeight = 18;
     var boxLineHeight = 15;
@@ -18,7 +19,7 @@ window.DSParser = (function($, DSParser) {
     var isBoxMouseDown = false;
     var fetchId = 0; // used to detect stale requests
     var boxFetchId = 0;
-    var boxMin = 300;
+    // var boxMin = 300;
     var $miniPreview;
     var $miniContent;
 
@@ -97,6 +98,7 @@ window.DSParser = (function($, DSParser) {
         xcTooltip.changeText($fileName, url);
         if (!isChangeFormat) {
             $formatList.find("input").val("");
+            previewMetaSet = {};
         }
         $miniContent.empty();
         $("#delimitersBox .boxBody ul").empty();
@@ -442,7 +444,6 @@ window.DSParser = (function($, DSParser) {
         }
     }
 
-
     function previewContent(pageNum, numPages, scrollTop, noDetect) {
         var deferred = jQuery.Deferred();
         var newContent = (previewMeta == null);
@@ -523,11 +524,11 @@ window.DSParser = (function($, DSParser) {
 
 
     function setPreviewMeta(meta, innerMeta) {
+        var format = getFormat();
         if (!innerMeta) {
             previewMeta = meta;
+            previewMetaSet[format] = previewMeta;
         }
-
-        var format = getFormat();
         var isText = (format === "PLAIN TEXT");
         meta.startPage = 0; // first visible page
         meta.endPage = 0; // last visible page
@@ -727,7 +728,13 @@ window.DSParser = (function($, DSParser) {
     function beautifier(url) {
         var deferred = jQuery.Deferred();
         var path = url.split(/^.*:\/\//)[1];
-        var format = getFormat().toLowerCase();
+        var format = getFormat();
+        if (previewMetaSet[format] != null) {
+            // when has cache
+            return PromiseHelper.resolve(previewMetaSet[format]);
+        }
+
+        format = format.toLowerCase();
         if (format === "plain text") {
             format = "text";
         }
@@ -1426,7 +1433,6 @@ window.DSParser = (function($, DSParser) {
             } else {
                 $line = $('<span class="line"></span>');
             }
-            
             $line.append(html + "\n");
             $lines = $lines.add($line);
         }
