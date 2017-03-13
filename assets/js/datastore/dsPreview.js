@@ -128,7 +128,11 @@ window.DSPreview = (function($, DSPreview) {
         });
 
         $("#preview-parser").click(function() {
-            previewFileSelect(true);
+            if ($("#preview-file").hasClass("xc-hidden")) {
+                DSParser.show(loadArgs.getPath());
+            } else {
+                previewFileSelect(true);
+            }
         });
 
         setupForm();
