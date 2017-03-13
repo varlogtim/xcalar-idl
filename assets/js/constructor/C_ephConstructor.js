@@ -614,11 +614,17 @@ function SearchBar($searchArea, options) {
         this.isSlider = true;
     }
 
+    if (typeof options.toggleSliderCallback === "function") {
+        this.toggleSliderCallback = options.toggleSliderCallback;
+    }
+
+    this._setup();
+
     return this;
 }
 
 SearchBar.prototype = {
-    setup: function() {
+    _setup: function() {
         var searchBar = this;
         var options = searchBar.options || {};
         var $searchInput;
@@ -698,7 +704,6 @@ SearchBar.prototype = {
             } else {
                 $searchInput.trigger(evt);
             }
-
         });
 
         searchBar.$upArrow.click(function() {
@@ -714,6 +719,22 @@ SearchBar.prototype = {
             searchBar.$arrows.mousedown(function(e) {
                 e.preventDefault();
                 e.stopPropagation();
+            });
+        }
+
+        // click listener on search icon for searchbar sliding
+        if (searchBar.isSlider) {
+            console.log( searchBar.$searchArea.find(".searchIcon"))
+            searchBar.$searchArea.find(".searchIcon")
+                                 .click(function() {
+                                        searchBar.toggleSlider();
+                                    });
+        }
+
+        if (typeof options.onInput === "function") {
+            searchBar.$searchInput.on("input", function() {
+                var val = $(this).val();
+                options.onInput(val);
             });
         }
     },
@@ -775,6 +796,26 @@ SearchBar.prototype = {
 
         if (typeof callback === "function") {
             callback();
+        }
+    },
+    toggleSlider: function(callback) {
+        var searchBar = this;
+        if (!searchBar.isSlider) {
+            return;
+        }
+        var $searchBar = searchBar.$searchArea;
+        if ($searchBar.hasClass('closed')) {
+            $searchBar.removeClass('closed');
+            setTimeout(function() {
+                searchBar.$searchInput.focus();
+            }, 310);
+
+        } else {
+            $searchBar.addClass('closed');
+            searchBar.$searchInput.val("");
+            if (searchBar.toggleSliderCallback) {
+                searchBar.toggleSliderCallback();
+            }
         }
     }
 };

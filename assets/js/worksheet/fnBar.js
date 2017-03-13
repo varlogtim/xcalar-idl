@@ -443,7 +443,7 @@ window.FnBar = (function(FnBar, $) {
             }
             // clearTimeout(timer1);
             // timer1 = setTimeout(function(){
-            //     debugger;
+            //
             // }, 2000);
             list.sort(function(a, b) {
                 return a.displayText.length - b.displayText.length;
@@ -629,8 +629,6 @@ window.FnBar = (function(FnBar, $) {
             "ignore": "=",
             "arrowsPreventDefault": true
         });
-
-        searchHelper.setup();
     }
 
     function functionBarEnter() {

@@ -123,14 +123,10 @@ window.Admin = (function($, Admin) {
             },
             "highlightSelected": function($match) {
                 $match.addClass("selected");
+            },
+            "onInput": function(val) {
+                filterUserList(val);
             }
-        });
-        searchHelper.setup();
-
-
-        $("#adminUserSearch").on('input', 'input', function() {
-            var keyWord = $(this).val();
-            filterUserList(keyWord);
         });
 
         $("#adminUserSearch").on("click", ".closeBox", function() {

@@ -98,8 +98,6 @@ window.PreviewFileModal = (function(PreviewFileModal, $) {
     }
 
     function setupSearch() {
-        $modal.on("click", ".searchIcon", toggleSearch);
-
         var $searchArea = $modal.find(".searchbarArea");
         searchHelper = new SearchBar($searchArea, {
             "removeSelected": function() {
@@ -110,18 +108,18 @@ window.PreviewFileModal = (function(PreviewFileModal, $) {
             },
             "scrollMatchIntoView": scrollMatchIntoView,
             "$list": $modal.find(".contentSection"),
-            "removeHighlight": true
+            "removeHighlight": true,
+            "toggleSlider": searchText,
+            "onInput": function(val) {
+                searchText();
+            }
         });
-
-        searchHelper.setup();
 
         var $searchInput = $searchArea.find("input");
-        $searchInput.on("input", function() {
-            searchText();
-        });
+        
         $searchArea.find(".closeBox").click(function() {
             if ($searchInput.val() === "") {
-                toggleSearch();
+                searchHelper.toggleSlider();
             } else {
                 searchHelper.clearSearch(function() {
                     $searchInput.focus();
@@ -173,21 +171,6 @@ window.PreviewFileModal = (function(PreviewFileModal, $) {
         if (matchOffset > containerHeight - 15 || matchOffset < 0) {
             $container.scrollTop(scrollTop + matchOffset -
                                  (containerHeight / 2));
-        }
-    }
-
-    function toggleSearch() {
-        var $searchBar = $modal.find(".searchbarArea");
-        if ($searchBar.hasClass("closed")) {
-            $searchBar.removeClass("closed");
-            setTimeout(function() {
-                $searchBar.find("input").focus();
-            }, 310);
-
-        } else {
-            $searchBar.addClass("closed");
-            $searchBar.find("input").val("");
-            searchText();
         }
     }
 

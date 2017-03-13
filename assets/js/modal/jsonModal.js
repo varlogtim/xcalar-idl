@@ -176,17 +176,16 @@ window.JSONModal = (function($, JSONModal) {
             },
             "scrollMatchIntoView": function($match) {
                 scrollMatchIntoView($match);
+            },
+            "toggleSlider": searchText,
+            "onInput": function(val) {
+                searchText();
             }
         });
 
-        searchHelper.setup();
-
-        $searchInput.on('input', function() {
-            searchText();
-        });
         $jsonModal.find('.closeBox').click(function() {
             if ($searchInput.val() === "") {
-                toggleSearch();
+                searchHelper.toggleSlider();
             } else {
                 searchHelper.clearSearch(function() {
                     var focus = true;
@@ -194,7 +193,6 @@ window.JSONModal = (function($, JSONModal) {
                 });
             }
         });
-        $jsonModal.find('.searchIcon').click(toggleSearch);
 
         $jsonArea.on({
             "click": function(event) {
@@ -910,21 +908,6 @@ window.JSONModal = (function($, JSONModal) {
 
         if (matchOffset > modalHeight - 15 || matchOffset < 0) {
             $modalWindow.scrollTop(scrollTop + matchOffset - (modalHeight / 2));
-        }
-    }
-
-    function toggleSearch() {
-        var $searchBar = $('#jsonSearch');
-        if ($searchBar.hasClass('closed')) {
-            $searchBar.removeClass('closed');
-            setTimeout(function() {
-                $searchBar.find('input').focus();
-            }, 310);
-
-        } else {
-            $searchBar.addClass('closed');
-            $searchInput.val("");
-            searchText();
         }
     }
 

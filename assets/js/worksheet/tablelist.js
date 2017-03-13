@@ -249,16 +249,13 @@ window.TableList = (function($, TableList) {
             },
             "highlightSelected": function($match) {
                 $match.addClass("selected");
+            },
+            "onInput": function(val) {
+                filterTableList(val);
             }
         });
 
-        searchHelper.setup();
         searchHelper.$arrows.hide();
-
-        $("#orphanedTableList-search").on("input", "input", function() {
-            var keyWord = $(this).val();
-            filterTableList($("#orphanedTableListSection"), keyWord);
-        });
 
         $("#orphanedTableList-search").on("click", ".clear", function() {
             searchHelper.clearSearch(function() {
@@ -1325,7 +1322,8 @@ window.TableList = (function($, TableList) {
         return deferred.promise();
     }
 
-    function filterTableList($section, keyWord) {
+    function filterTableList(keyWord) {
+        var $section = $("#orphanedTableListSection");
         var $lis = $section.find(".tableInfo");
         // $lis.find('.highlightedText').contents().unwrap();
         $lis.each(function() {
@@ -1457,7 +1455,7 @@ window.TableList = (function($, TableList) {
 
     function clearTableListFilter($section) {
         $section.find(".searchbarArea input").val("");
-        filterTableList($section, null);
+        filterTableList(null);
     }
 
     // default by name
