@@ -914,6 +914,11 @@ window.ExportView = (function($, ExportView) {
         $exportView.find('.cols').html(colHtml);
         $exportView.find('.selectAllWrap').find('.checkbox')
                                           .addClass('checked');
+        if ($exportView.find(".cols li").length === 0) {
+            $exportView.find(".exportColumnsSection").addClass("empty");
+        } else {
+            $exportView.find(".exportColumnsSection").removeClass("empty");
+        }
     }
 
     // get selected options when submitting form
