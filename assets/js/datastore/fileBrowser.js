@@ -743,7 +743,15 @@ window.FileBrowser = (function($, FileBrowser) {
         FilePreviewer.close();
 
         try {
-            var regEx = (searchKey == null) ? null : new RegExp(searchKey);
+            var regEx = null;
+            if (searchKey != null) {
+                // backend use re.match, so if you do "xlsx",
+                // it's in backend it actually do "^xlsx"
+                searchKey = (searchKey.startsWith("^"))
+                            ? searchKey
+                            : "^" + searchKey;
+                regEx = new RegExp(searchKey);
+            }
             var grid = getFocusGrid();
             sortFilesBy(sortKey, regEx);
             focusOn(grid);

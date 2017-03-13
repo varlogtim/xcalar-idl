@@ -663,6 +663,18 @@ describe("File Browser Test", function() {
             expect($grid.hasClass("active")).to.be.true;
         });
 
+        it("Should match re.match's way to search", function() {
+            var $input = $searchSection.find("input");
+            // should no result
+            $input.val("ets").trigger("input");
+            var $grids = $("#innerFileBrowserContainer").find(".grid-unit");
+            expect($grids.length).to.equal(0);
+            // should have one result
+            $input.val(".*ets").trigger("input");
+            $grids = $("#innerFileBrowserContainer").find(".grid-unit");
+            expect($grids.length).to.be.at.least(1);
+        });
+
         it("Should hanld invalid search", function() {
             var $input = $searchSection.find("input");
             $searchSection.find("input").val("*").trigger("input");
