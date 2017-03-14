@@ -729,6 +729,15 @@ window.DSParser = (function($, DSParser) {
         var deferred = jQuery.Deferred();
         var path = url.split(/^.*:\/\//)[1];
         var format = getFormat();
+
+        // they all point to same backend file
+        // so must overwritten when switch the format between the two
+        if (format === "XML") {
+            previewMetaSet["JSON"] = null;
+        } else if (format === "JSON") {
+            previewMetaSet["XML"] = null;
+        }
+
         if (previewMetaSet[format] != null) {
             // when has cache
             return PromiseHelper.resolve(previewMetaSet[format]);
