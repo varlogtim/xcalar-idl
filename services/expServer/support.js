@@ -185,18 +185,26 @@ function sendCommandToSlaves(action, str, hosts) {
             res.setEncoding('utf8');
             res.on('data', function(data) {
                 process.stdout.write(data);
-                var ret = data;
                 var retMsg;
-                if (ret.status === Status.Ok) {
-                    retMsg = ret;
-                } else if (ret.status === Status.Error
-                    || ret.status === Status.Incomplete) {
-                    retMsg = ret;
-                    hasFailure = true;
-                } else {
+                try {
+                    var ret = JSON.parse(data);
+                    if (ret.status === Status.Ok) {
+                        retMsg = ret;
+                    } else if (ret.status === Status.Error
+                        || ret.status === Status.Incomplete) {
+                        retMsg = ret;
+                        hasFailure = true;
+                    } else {
+                        retMsg = {
+                            status: Status.Unknown,
+                            error: ret
+                        };
+                        hasFailure = true;
+                    }
+                } catch (error) {
                     retMsg = {
-                        status: Status.Unknown,
-                        error: ret
+                        status: Status.Error,
+                        error: error
                     };
                     hasFailure = true;
                 }
