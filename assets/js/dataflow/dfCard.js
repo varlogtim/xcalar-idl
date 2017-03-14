@@ -284,7 +284,7 @@ window.DFCard = (function($, DFCard) {
                 return;
             }
 
-            var isSystemParam = false;
+            var isSytemParam = false;
             if (systemParams.hasOwnProperty(paramName)) {
                 isSytemParam = true;
             }
