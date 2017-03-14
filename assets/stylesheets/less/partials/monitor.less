@@ -358,6 +358,31 @@
                 overflow: hidden;
                 position: relative;
 
+                &.xdbMode {
+                    .line.line1 {
+                        display: none;
+                    }
+                    .line.line2 {
+                        display: block;
+                    }
+                    .area.area1 {
+                        display: none;
+                    }
+                    .area.area2 {
+                        display: block;
+                    }
+                }
+                &.hideCPU {
+                    .line0, .area0, .yAxis.left  {
+                        display: none !important;
+                    }
+                }
+                &.hideRam {
+                    .line1, .line2, .area1, .area2, .yAxis.right {
+                        display: none !important;
+                    }
+                }
+
                 #graphWrap {
                     .size(@width: ~"calc(100% - 160px)", @height: 260px);
                     .position(absolute, @left: 79px);
@@ -492,8 +517,11 @@
                     &.line0 {
                         stroke: @color-bg-graph-one;
                     }
-                    &.line1 {
+                    &.line1, &.line2 {
                         stroke: @color-bg-graph-two;
+                    }
+                    &.line2 {
+                        display: none;
                     }
                 }
 
@@ -503,8 +531,11 @@
                     &.area0 {
                         fill: @color-bg-graph-one;
                     }
-                    &.area1 {
+                    &.area1, &.area2 {
                         fill: @color-bg-graph-two;
+                    }
+                    &.area2 {
+                        display: none;
                     }
 
                     &.highlighted {
@@ -654,11 +685,9 @@
                     }
                 }
 
-                &#donut0 {
-                    .donut {
-                        .font(@color: @color-bg-graph-one);
-      
-                    }
+                #donut0 {
+                    .font(@color: @color-bg-graph-one);
+
                     .donutInfo {
                         top: 37px;
                     }
@@ -666,6 +695,14 @@
                         margin-left: -4px;
                     }
 
+                    svg:first-of-type {
+                        path:first-child {
+                            fill: @color-bg-graph-one;
+                        }
+                    }
+                }
+
+                #donutStats0 {
                     .statsTopHeading {
                         .font(@color: @color-bg-graph-one);
                     }
@@ -673,27 +710,34 @@
                     .statsHeadingBar {
                         background-color: @color-bg-graph-one;
                     }
-                    svg:first-of-type {
-                        path:first-child {
-                            fill: @color-bg-graph-one;
-                        }
-                    }
-
                 }
 
-                &#donut1 {
-                    .donut {
-                        .font(@color: @color-bg-graph-two);
+                &.ramDonut.xdbMode {
+                    #donut1 {
+                        .donutInfo {
+                            display: none;
+                        }
+                        svg {
+                            opacity: 0.5;
+                        }
                     }
+                    #donut2 {
+                        .donutInfo {
+                            display: block;
+                        }
+                        svg {
+                            opacity:  1;
+                        }
+                    }
+                    #donutStats1 {
+                        display: none;
+                    }
+                    #donutStats2 {
+                        display: block;
+                    }
+                }
 
-                    .statsTopHeading {
-                        .font(@color: @color-bg-graph-two);
-                    }
-
-                    .statsHeadingBar {
-                        background-color: @color-bg-graph-two;
-                        
-                    }
+                #donut1{
                     svg:first-of-type {
                         path:first-child {
                             fill: @color-bg-graph-two;
@@ -701,11 +745,48 @@
                     }
                 }
 
+                #donut2 {
+                    width: 112px;
+                    height: 112px;
+                    .position(absolute, @top: -6px, @left: 79px);
 
-                &#donut2 {
-                    .donut {
-                        .font(@color: @color-bg-graph-three);
+                    .donutInfo {
+                        display: none;
+                        top: 36px;
                     }
+                    svg {
+                        opacity: 0.5;
+                    }
+                }
+
+                #donut1, #donut2 {
+                    .font(@color: @color-bg-graph-two);
+                    cursor: pointer;
+
+                    svg:first-of-type {
+                        fill: @color-bg-graph-two;
+                    }
+                }
+
+                #donutStats2 {
+                    display: none;
+                }
+
+                #donutStats1, #donutStats2 {
+                    .statsTopHeading {
+                        .font(@color: @color-bg-graph-two);
+                    }
+
+                    .statsHeadingBar {
+                        background-color: @color-bg-graph-two;
+                    }
+                }
+
+                #donut3 {
+                    .font(@color: @color-bg-graph-three);
+                }
+
+                #donutStats3 {
                     .statsTopHeading {
                         .font(@color: @color-bg-graph-three);
                     }
@@ -745,7 +826,7 @@
                         padding: 0 0 0 4px;
                         margin: 0 auto;
                         overflow: hidden;
-                        // cursor: pointer;
+                        cursor: pointer;
                         // 
                         .userSize {
                             padding-right: 0px;

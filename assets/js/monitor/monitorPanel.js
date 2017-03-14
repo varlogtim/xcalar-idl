@@ -5,8 +5,10 @@ window.MonitorPanel = (function($, MonitorPanel) {
     var donutThickness = 6;
     var defDurationForD3Anim = 800;
     var graphIsActive = false;
+    var $monitorPanel;
 
     MonitorPanel.setup = function() {
+        $monitorPanel = $("#monitor-system");
         MonitorGraph.setup();
         QueryManager.setup();
         MonitorConfig.setup();
@@ -46,6 +48,12 @@ window.MonitorPanel = (function($, MonitorPanel) {
                        .addClass('open');
             }
         });
+
+        $monitorPanel.find(".ramDonut .donut").click(function() {
+            var $donutSection = $(this).closest(".donutSection");
+            $donutSection.toggleClass("xdbMode");
+            $monitorPanel.find(".graphSection").toggleClass("xdbMode");
+        });
     };
 
     MonitorPanel.active = function() {
@@ -78,17 +86,16 @@ window.MonitorPanel = (function($, MonitorPanel) {
                 used = allStats[index].sumUsed;
                 total = allStats[index].sumTot;
             }
-            if (index !== 2) {
-                updateOneDonut(el, used, total);
-            } else {
-                updateDonutNums('#donut' + index + ' .userSize .num',
+            if (index === 3) {
+                updateDonutMidText('#donut3 .userSize .num',
                                 allStats[index].sumUsed,
                                 defDurationForD3Anim, index);
 
-                updateDonutNums('#donut' + index + ' .totalSize .num',
+                updateDonutMidText('#donut3 .totalSize .num',
                                 allStats[index].sumTot,
                                 defDurationForD3Anim, index);
-    
+            } else {
+                updateOneDonut(el, index, used, total);
             }
             updateDonutStatsSection(el, index, allStats[index]);
         });
@@ -157,56 +164,74 @@ window.MonitorPanel = (function($, MonitorPanel) {
     }
 
     function initializeDonuts() {
-        var numDonuts = 2;
+        var numDonuts = 3;
         var radius = diameter / 2;
+        var outerDonutRadius = radius + donutThickness;
         var arc = d3.svg.arc()
                     .innerRadius(radius)
                     .outerRadius(radius - donutThickness);
+        var outerArc = d3.svg.arc()
+                        .innerRadius(outerDonutRadius)
+                        .outerRadius(outerDonutRadius - donutThickness);
         var pie = d3.layout.pie()
                 .sort(null);
 
         var svg;
+
         for (var i = 0; i < numDonuts; i++) {
-            svg = makeSvg('#donut' + i + ' .donut');
-            drawPath(svg, pie, arc);
+            if (i === 2) {
+                svg = makeSvg("#donut" + i, diameter + (donutThickness * 2), outerDonutRadius);
+                drawPath(svg, pie, outerArc);
+            } else {
+                svg = makeSvg("#donut" + i, diameter, radius);
+                drawPath(svg, pie, arc);
+            }
         }
         var smallRadius = radius - 2;
+        var outerSmallRadius = outerDonutRadius - 2;
         arc = d3.svg.arc()
                     .innerRadius(smallRadius)
                     .outerRadius(smallRadius - (donutThickness - 3));
+        outerArc = d3.svg.arc()
+                    .innerRadius(outerSmallRadius)
+                    .outerRadius(outerSmallRadius - (donutThickness - 3));
         for (var i = 0; i < numDonuts; i++) {
-            svg = makeSvg('#donut' + i + ' .donut');
-            drawPath(svg, pie, arc);
+            
+            if (i === 2) {
+                svg = makeSvg("#donut" + i, diameter + (donutThickness * 2), outerDonutRadius);
+                drawPath(svg, pie, outerArc);
+            } else {
+                svg = makeSvg("#donut" + i, diameter, radius);
+                drawPath(svg, pie, arc);
+            }
+            
         }
 
-        function makeSvg (selector) {
+        function makeSvg (selector, diam, rad) {
             var svg = d3.select(selector).append("svg")
-                        .attr("width", diameter)
-                        .attr("height", diameter)
+                        .attr("width", diam)
+                        .attr("height", diam)
                         .append("g")
-                        .attr("transform", "translate(" + radius + "," +
-                               radius + ") rotate(180, 0,0)");
+                        .attr("transform", "translate(" + rad + "," +
+                               rad + ") rotate(180, 0,0)");
             return (svg);
         }
 
-        function drawPath(svg, pie, arc) {
+        function drawPath(svg, pie, arc2) {
             var data = [0, 100];
             svg.selectAll("path")
                 .data(pie(data))
                 .enter()
                 .append("path")
-                .attr("d", arc)
-                .attr("class", "myclass")
+                .attr("d", arc2)
                 .each(function(d) {
                     this._current = d; // store the initial angles
                 });
         }
     }
 
-    function updateOneDonut(el, val, total) {
+    function updateOneDonut(el, index, val, total) {
         var duration = defDurationForD3Anim;
-        var index = parseInt($(el).closest('.donutSection')
-                                  .attr('id').substring(5));
         var pie = d3.layout.pie().sort(null);
         var userSize = val;
         if (index === 0) {
@@ -219,21 +244,27 @@ window.MonitorPanel = (function($, MonitorPanel) {
         var donut = d3.select(el);
         var paths = donut.selectAll("path").data(pie(data));
         var radius = diameter / 2;
+        var rad = radius;
+        if (index === 2) {
+            rad = radius + donutThickness;
+        }
         var arc = d3.svg.arc()
-                    .innerRadius(radius)
-                    .outerRadius(radius - donutThickness);
+                    .innerRadius(rad)
+                    .outerRadius(rad - donutThickness);
 
         paths.transition()
              .duration(duration)
              .attrTween("d", arcTween);
 
-        updateDonutNums('#donut' + index + ' .userSize .num', userSize,
-                        duration, index);
-        if (index !== 0) {
-            updateDonutNums('#donut' + index + ' .totalSize .num', total,
+
+        updateDonutMidText("#donut" + index + " .userSize .num", userSize,
                             duration, index);
+
+        if (index !== 0) {
+            updateDonutMidText('#donut' + index + ' .totalSize .num', total,
+                                duration, index);
         }
-        
+
         function arcTween(a) {
             var i = d3.interpolate(this._current, a);
             this._current = i(0);
@@ -243,7 +274,8 @@ window.MonitorPanel = (function($, MonitorPanel) {
         }
     }
 
-    function updateDonutNums(selector, num, duration, index) {
+    // updates the large text in the middle of the donut
+    function updateDonutMidText(selector, num, duration, index) {
         var $sizeType = $(selector).next();
         var type = $sizeType.text();
 
@@ -300,7 +332,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
             var sumTotal = xcHelper.sizeTranslator(stats.sumTot, true);
             var sumUsed = xcHelper.sizeTranslator(stats.sumUsed, true);
 
-            if (index === 2) {
+            if (index === 3) {
                 $statsSection.find('.statsHeadingBar .totNum')
                              .text(sumTotal[0] + sumTotal[1] + "ps");
                 $statsSection.find('.statsHeadingBar .avgNum')
@@ -318,7 +350,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
                 var usedUnits;
                 var totalUnits;
 
-                if (index === 2) {
+                if (index === 3) {
                     usedUnits = used[1] + "ps";
                     totalUnits = total[1] + "ps";
                 } else {

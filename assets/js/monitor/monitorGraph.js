@@ -34,20 +34,29 @@ window.MonitorGraph = (function($, MonitorGraph) {
 
             if ($switch.hasClass('on')) {
                 $switch.removeClass('on');
-                $monitorPanel.find('.line' + index).hide();
-                $monitorPanel.find('.area' + index).hide();
-                $monitorPanel.find(".yAxis").eq(index).hide();
+                if (index === 0) {
+                    $monitorPanel.find(".graphSection").addClass("hideCPU");
+                } else {
+                    $monitorPanel.find(".graphSection").addClass("hideRam");
+                }
             } else {
                 $switch.addClass('on');
+                if (index === 0) {
+                    $monitorPanel.find(".graphSection").removeClass("hideCPU");
+                } else {
+                    $monitorPanel.find(".graphSection").removeClass("hideRam");
+                }
                 var $area = $monitorPanel.find('.area' + index);
                 var $line = $monitorPanel.find('.line' + index);
 
-                $area.show();
-                $line.show();
-                $monitorPanel.find(".yAxis").eq(index).show();
-
                 // bring this line and area in front of the others
                 $monitorPanel.find('.mainSvg').children().append($line, $area);
+                if (index === 1) {
+                    $area = $monitorPanel.find('.area2');
+                    $line = $monitorPanel.find('.line2');
+                    $monitorPanel.find('.mainSvg').children()
+                                                  .append($line, $area);
+                }
             }
         });
 
@@ -66,7 +75,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
     };
 
     MonitorGraph.start = function() {
-        datasets = [[0], [0]];
+        datasets = [[0], [0], [0]];
 
         $('#ramTab, #cpuTab').addClass('on');
 
@@ -229,9 +238,11 @@ window.MonitorGraph = (function($, MonitorGraph) {
 
         var cpu = new StatsObj();
         var ram = new StatsObj();
+        var xdb = new StatsObj();
         var network = new StatsObj(); // For network, send is used, recv is tot
 
         for (var i = 0; i < numNodes; i++) {
+            // cpu
             var node = apiTopResult.topOutputPerNode[i];
             var cpuPct = node.cpuUsageInPercent;
             cpuPct = Math.round(cpuPct * 100) / 100;
@@ -239,15 +250,27 @@ window.MonitorGraph = (function($, MonitorGraph) {
             cpu.sumUsed += cpuPct;
             cpu.sumTot += 100;
 
-            if (memInfos[i] != null && memInfos[i].sys != null) {
-                var ramUsed = memInfos[i].sys.used;
-                var ramTot = memInfos[i].sys.total;
-                ram.used.push(ramUsed);
-                ram.tot.push(ramTot);
-                ram.sumUsed += ramUsed;
-                ram.sumTot += ramTot;
+            // 2 memory graphs
+            if (memInfos[i] != null) {
+                if (memInfos[i].sys != null) {
+                    var ramUsed = memInfos[i].sys.used;
+                    var ramTot = memInfos[i].sys.total;
+                    ram.used.push(ramUsed);
+                    ram.tot.push(ramTot);
+                    ram.sumUsed += ramUsed;
+                    ram.sumTot += ramTot;
+                }
+                if (memInfos[i].Mlocked && memInfos[i].Mlocked.xdb_pages) {
+                    var xdbUsed = memInfos[i].Mlocked.xdb_pages.used;
+                    var xdbTot = memInfos[i].Mlocked.xdb_pages.total;
+                    xdb.used.push(xdbUsed);
+                    xdb.tot.push(xdbTot);
+                    xdb.sumUsed += xdbUsed;
+                    xdb.sumTot += xdbTot;
+                }
             }
 
+            // network
             var networkUsed = node.networkSendInBytesPerSec;
             var networkTot = node.networkRecvInBytesPerSec;
             network.used.push(networkUsed);
@@ -256,12 +279,12 @@ window.MonitorGraph = (function($, MonitorGraph) {
             network.sumTot += networkTot;
         }
 
-        var allStats = [cpu, ram, network];
+        var allStats = [cpu, ram, xdb, network];
         return (allStats);
     }
 
     function updateGraph(allStats, numNodes) {
-        var numGraphs = 2;
+        var numGraphs = 3;
         var rightYMaxUnit;
         for (var i = 0; i < numGraphs; i++) {
             var xVal = allStats[i].sumUsed;
@@ -271,15 +294,18 @@ window.MonitorGraph = (function($, MonitorGraph) {
                 xVal = Math.min(100, xVal);
             }
 
-            if (i === 1) {
-                rightYMaxUnit = xcHelper.sizeTranslator(allStats[i].sumTot,
+            if (i === 1 || i === 2) { // memory
+                if (i === 1) {
+                    rightYMaxUnit = xcHelper.sizeTranslator(allStats[i].sumTot,
                                                         true)[1];
+                }
+                
                 xVal = xcHelper.sizeTranslator(xVal, true, rightYMaxUnit)[0];
             }
             datasets[i].push(xVal);
         }
         var yMax = xcHelper.sizeTranslator(allStats[1].sumTot, true)[0];
-        yMax = [100, yMax];
+        yMax = [100, yMax, yMax];
 
         redraw(newWidth, gridRight, numGraphs, yMax, rightYMaxUnit);
 
