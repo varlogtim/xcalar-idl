@@ -1010,7 +1010,7 @@ describe("Ephemeral Constructor Test", function() {
             expect(extSet.has("marketTest")).to.be.false;
             extSet.addExtension(item2);
             expect(extSet.has("marketTest")).to.be.true;
-            expect(extSet.get("marketTest").getName()).to.equal("marketTest");
+            expect(extSet.get("marketTest").getName()).to.equal("markettest");
             var ext = extSet.getExtension("wrong category", "test");
             expect(ext).to.be.null;
             ext = extSet.getExtension("marketTest", "marketTestItem");
@@ -1019,7 +1019,7 @@ describe("Ephemeral Constructor Test", function() {
 
             var list = extSet.getList(true);
             expect(list.length).to.equal(2);
-            expect(list[0].getName()).to.equal("marketTest");
+            expect(list[0].getName()).to.equal("markettest");
             expect(list[1].getName()).to.equal("test");
         });
     });

@@ -2608,15 +2608,18 @@ function ExtCategorySet() {
 
 ExtCategorySet.prototype = {
     get: function(categoryName) {
+        categoryName = categoryName.toLowerCase();
         return this.set[categoryName];
     },
 
     has: function(categoryName) {
+        categoryName = categoryName.toLowerCase();
         return this.set.hasOwnProperty(categoryName);
     },
 
     addExtension: function(extension) {
         var categoryName = extension.category || ExtTStr.XcCategory;
+        categoryName = categoryName.toLowerCase();
         var extCategory;
 
         if (this.has(categoryName)) {
@@ -2629,6 +2632,7 @@ ExtCategorySet.prototype = {
     },
 
     getExtension: function(categoryName, extensionName) {
+        categoryName = categoryName.toLowerCase();
         if (!this.has(categoryName)) {
             return null;
         }
