@@ -284,11 +284,11 @@ window.DFCard = (function($, DFCard) {
                 return;
             }
 
-            var isSytemParam = false;
+            var isSystemParam = false;
             if (systemParams.hasOwnProperty(paramName)) {
-                isSytemParam = true;
+                isSystemParam = true;
             }
-            if (isSytemParam) {
+            if (isSystemParam) {
                 var text = xcHelper.replaceMsg(ErrWRepTStr.SystemParamConflict, {
                     "name": paramName
                 });

@@ -19,7 +19,6 @@ window.DSParser = (function($, DSParser) {
     var isBoxMouseDown = false;
     var fetchId = 0; // used to detect stale requests
     var boxFetchId = 0;
-    // var boxMin = 300;
     var $miniPreview;
     var $miniContent;
 
@@ -223,11 +222,15 @@ window.DSParser = (function($, DSParser) {
                     res.tag == null) {
                     $menu.find("li").addClass("unavailable");
                     $menu.removeData("tag");
+                    $menu.removeData("start");
                     $menu.removeData("end");
+                    $menu.removeData("line");
                 } else {
                     $menu.find("li").removeClass("unavailable");
                     $menu.data("tag", res.tag);
+                    $menu.data("start", res.start);
                     $menu.data("end", res.end);
+                    $menu.data("line", res.line);
                 }
 
                 xcHelper.dropdownOpen($target, $menu, {
@@ -263,14 +266,19 @@ window.DSParser = (function($, DSParser) {
             var tag = $menu.data("tag");
             var type = $li.data("action");
             var bufferOffset = $menu.data("end");
-            populateKey(tag, type, bufferOffset);
+            var start = $menu.data("start");
+            var line = $menu.data("line");
+            populateKey(tag, type, start, bufferOffset, line);
         });
     }
 
     function setupKeyBox() {
         var $box = $("#delimitersBox");
-        $box.on("click", "li", function() {
+        $box.on("click", "li", function(event) {
             focusKey($(this));
+            if (!$(event.target).closest(".remove").length) {
+                findKey($(this));
+            }
         });
 
         $box.on("click", ".remove", function() {
@@ -279,17 +287,74 @@ window.DSParser = (function($, DSParser) {
         });
     }
 
+    // centerFocus: boolean, whether to align line to center instead of top
+    //              if line is found visible in bottom half of panel
+    function submitRowInput(val, centerFocus) {
+        var $input = $("#parserRowInput");
+        if ($parserCard.hasClass("loading") ||
+                $parserCard.hasClass("fetchingRows")) {
+            return PromiseHelper.reject();
+        }
+
+        var deferred = jQuery.Deferred();
+
+        val = Math.min(previewMeta.totalLines, val);
+        val = Math.max(1, val);
+
+        var numVisibleLines = Math.ceil($dataPreview.outerHeight() /
+                                        lineHeight);
+
+        // align to center if line is currently in bottom half of view port
+        if (centerFocus) {
+            var lineNum = getScrollLineNum();
+            if (val < (lineNum + numVisibleLines)) {
+                if (val > (lineNum + (numVisibleLines / 2))) {
+                    var midLine = Math.floor(lineNum + (numVisibleLines / 2));
+                    val = lineNum + (val - midLine);
+                } else if (val >= lineNum) {
+                    deferred.resolve();
+                    return deferred.promise(); // no need to scroll
+                } else {
+                    val--;
+                }
+            } else {
+                val--; // allow 1 row above to be visible
+            }
+        }
+        val = Math.max(1, val);
+
+        $input.data("val", val).val(val);
+        val -= 1; // change 1 indexed to 0 indexed
+        
+        var page = Math.floor(val / linesPerPage);
+        var padding = containerPadding;
+        if (val === 1) {
+            padding = 0;
+        }
+        var newScrollTop = val * lineHeight + padding;
+        var numPages = 1;
+        
+        if (Math.floor((val + numVisibleLines) / linesPerPage) !== page) {
+            numPages++;
+        }
+
+        if (checkIfNeedContent(page, numPages)) {
+            previewContent(page, numPages, newScrollTop)
+            .then(deferred.resolve)
+            .fail(deferred.reject);
+        } else {
+            $dataPreview.scrollTop(newScrollTop);
+            deferred.resolve();
+        }
+        return deferred.promise();
+    }
+
     function setupRowInput() {
         var $input = $("#parserRowInput");
         $input.keypress(function(event) {
             if (event.which !== keyCode.Enter) {
                 return;
             }
-            if ($parserCard.hasClass("loading") ||
-                $parserCard.hasClass("fetchingRows")) {
-                return;
-            }
-
             var prevVal = $input.data("val");
             var val = Number($input.val());
             if (isNaN(val) || val % 1 !== 0) {
@@ -297,24 +362,7 @@ window.DSParser = (function($, DSParser) {
                 return;
             }
 
-            val = Math.min(previewMeta.totalLines, val);
-            val = Math.max(0, val);
-            $input.data("val", val).val(val);
-            
-            var page = Math.floor(val / linesPerPage);
-            var padding = containerPadding;
-            if (val === 0) {
-                padding = 0;
-            }
-            var newScrollTop = val * lineHeight + padding;
-            var numPages = 1;
-            var numVisibleLines = Math.ceil($dataPreview.outerHeight() /
-                                            lineHeight);
-            if (Math.floor((val + numVisibleLines) / linesPerPage) !== page) {
-                numPages++;
-            }
-
-            previewContent(page, numPages, newScrollTop);
+            submitRowInput(val);
         });
 
         $input.blur(function() {
@@ -339,7 +387,7 @@ window.DSParser = (function($, DSParser) {
 
         $preview.scroll(function() {
             if (!isBox) {
-                getScrollLineNum();
+                updateRowInput();
             }
 
             clearTimeout(scrollTimer);
@@ -441,6 +489,15 @@ window.DSParser = (function($, DSParser) {
             } else {
                 showPreviewMode(topPage, numPages, $preview.scrollTop());
             }
+        }
+    }
+
+    function checkIfNeedContent(page, numPages) {
+        if (page === previewMeta.startPage &&
+            ((page + numPages - 1) <= previewMeta.endPage)) {
+            return false;
+        } else {
+            return true;
         }
     }
 
@@ -712,7 +769,7 @@ window.DSParser = (function($, DSParser) {
 
         setScrollHeight($content, meta);
         if (meta.meta) {
-            getScrollLineNum();
+            updateRowInput();
         }
     }
 
@@ -842,43 +899,72 @@ window.DSParser = (function($, DSParser) {
         // XXX need to be tested in IE
         res = getRightSelection(start);
         if (res != null && res.start > -1) {
-            var nodes = getTextNodes(element);
-            range = document.createRange();
-
-            var startNode = 0;
-            var curLen = 0;
-            var startIndex;
-            var endIndex;
-            var endNode;
-            for (var i = 0; i < nodes.length; i++) {
-                var len = nodes[i].length;
-                if (curLen + len >= res.start) {
-                    startNode = i;
-                    startIndex = (res.start - curLen);
-                    break;
-                }
-                curLen += len;
-            }
-
-            for (var i = startNode; i < nodes.length; i++) {
-                var len = nodes[i].length;
-                if (curLen + len >= res.end) {
-                    endNode = i;
-                    endIndex = (res.end - curLen);
-                    break;
-                }
-                curLen += len;
-            }
-
-            range.setStart(nodes[startNode], startIndex);
-            range.setEnd(nodes[endNode], endIndex);
-            sel = window.getSelection();
-            sel.removeAllRanges();
-            sel.addRange(range);
+            createSelection(res.start, res.end, element);
+            // find the line number of the selection
+            res.line = getLineNumOfSelection(sel, element);
             return res;
         } else {
             return null;
         }
+    }
+
+    function createSelection(start, end, element) {
+
+        var nodes = getTextNodes(element);
+        var range = document.createRange();
+
+        var startNode = 0;
+        var curLen = 0;
+        var startIndex;
+        var endIndex;
+        var endNode;
+        for (var i = 0; i < nodes.length; i++) {
+            var len = nodes[i].length;
+            if (curLen + len >= start) {
+                startNode = i;
+                startIndex = (start - curLen);
+                break;
+            }
+            curLen += len;
+        }
+
+        for (var i = startNode; i < nodes.length; i++) {
+            var len = nodes[i].length;
+            if (curLen + len >= end) {
+                endNode = i;
+                endIndex = (end - curLen);
+                break;
+            }
+            curLen += len;
+        }
+        range.setStart(nodes[startNode], startIndex);
+        range.setEnd(nodes[endNode], endIndex);
+        var sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+    }
+
+    function getLineNumOfSelection(sel, element) {
+        var sel = window.getSelection();
+        var line;
+        var parentEl = sel.getRangeAt(0).commonAncestorContainer;
+        if (parentEl.nodeType !== 1) {
+            var $el = $(parentEl.parentNode);
+            if ($el.closest(".line").length) {
+               var line = $el.index();
+               var page = $el.closest(".page").data("page");
+               line = line + (page * linesPerPage);
+            }
+        }
+        if (line == null) {
+            var el = sel.getRangeAt(0);
+            var coors = el.getBoundingClientRect();
+            var parentCoors = element.getBoundingClientRect();
+            var line = Math.floor((coors.top - parentCoors.top) /
+                                lineHeight);
+            line = line + (previewMeta.startPage * linesPerPage);
+        }
+        return line;
     }
 
     function getTextNodes(node) {
@@ -961,7 +1047,7 @@ window.DSParser = (function($, DSParser) {
         };
     }
 
-    function populateKey(tag, type, bufferOffset) {
+    function populateKey(tag, type, start, bufferOffset, line) {
         var keyOffset = bufferOffset +
                         previewMeta.lineLengths[previewMeta.startPage];
         for (var i = 0, len = keys.length; i < len; i++) {
@@ -984,7 +1070,9 @@ window.DSParser = (function($, DSParser) {
         keys.push({
             "key": tag,
             "type": type,
-            "offset": keyOffset
+            "offset": keyOffset,
+            "line": line,
+            "start": start + previewMeta.lineLengths[previewMeta.startPage],
         });
         addKeyItem(displayKey, type);
     }
@@ -1115,6 +1203,17 @@ window.DSParser = (function($, DSParser) {
             $("#delimitersBox").mousedown(); // triggers bring to front
             xcHelper.scrollIntoView($li, $li.closest(".boxBody"));
         }
+    }
+
+    function findKey($li) {
+        var index = $li.index();
+        key = keys[index];
+        submitRowInput(key.line + 1, true)
+        .then(function() {
+            var start = key.start - previewMeta.lineLengths[previewMeta.startPage];
+            var end = key.offset - previewMeta.lineLengths[previewMeta.startPage];
+            createSelection(start, end, $previewContent[0]);
+        });
     }
 
     function removeKey($li) {
@@ -1300,7 +1399,7 @@ window.DSParser = (function($, DSParser) {
     }
 
     function getPageHtml(pageNum) {
-        return '<span class="page page' + pageNum + '"></span>';
+        return '<span class="page" data-page="' + pageNum + '"></span>';
     }
 
     // called after scroll, appends or prepends and removes 1 block if needed
@@ -1490,9 +1589,19 @@ window.DSParser = (function($, DSParser) {
             return PromiseHelper.reject({"error": DSParserTStr.NotSupport});
         }
 
+        var keysModified = [];
+        for (var i = 0; i < keys.length; i++) {
+            keysModified.push({
+                key: keys[i].key,
+                offset: keys[i].offset,
+                type: keys[i].type
+                // omitting keys[i].line from being sent 
+            });
+        }
+
         var options = {
             "prettyPath": previewMeta.tmpPath,
-            "keys": keys
+            "keys": keysModified
         };
         var inputStr = JSON.stringify(options);
 
@@ -1521,15 +1630,15 @@ window.DSParser = (function($, DSParser) {
         $("#parserRowInput").val(0).data("val", 0);
     }
 
-    function updateRowInput(lineNum) {
+    function updateRowInput() {
+        var lineNum = getScrollLineNum();
         $("#parserRowInput").val(lineNum).data("val", lineNum);
     }
     
     function getScrollLineNum() {
         var lineNum = Math.floor(($dataPreview.scrollTop() - containerPadding) /
-                                  lineHeight);
-        lineNum = Math.max(0, lineNum);
-        updateRowInput(lineNum);
+                                  lineHeight) + 1;
+        return Math.max(1, lineNum);
     }
 
     function shouldPrettyPrint(meta) {

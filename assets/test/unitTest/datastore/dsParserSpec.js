@@ -653,8 +653,8 @@ describe("DSParser Test", function() {
             DSParser.__testOnly__.setBuffers(buffers);
             var html = '<div>' + 
                             '<div class="content">' +
-                                '<span class="page page1">a</span>' +
-                                '<span class="page page2">b</span>' +
+                                '<span class="page" data-page="1">a</span>' +
+                                '<span class="page" data-page="2">b</span>' +
                             '</div>' +
                         '</div>';
 
@@ -665,8 +665,8 @@ describe("DSParser Test", function() {
             expect(meta.endPage).to.equal(3);
             expect($preview.text()).to.equal("bsome text");
             expect($preview.find(".page").length).to.equal(2);
-            expect($preview.find(".page").eq(0).hasClass("page2")).to.be.true;
-            expect($preview.find(".page").eq(1).hasClass("page3")).to.be.true;
+            expect($preview.find(".page").eq(0).data("page")).to.equal(2);
+            expect($preview.find(".page").eq(1).data("page")).to.equal(3);
             expect(buffers.length).to.equal(2);
             expect(buffers[0]).to.equal("b");
             expect(buffers[1]).to.equal("some text");
@@ -701,7 +701,7 @@ describe("DSParser Test", function() {
             var opened = false;
             xcHelper.dropdownOpen = function($target, $menu) {
                 expect($menu.data().tag).to.equal("{");
-                expect($menu.data().end).to.equal(73);
+                expect($menu.data().end).to.equal(3806);
                 opened = true;
             };
 
@@ -710,10 +710,10 @@ describe("DSParser Test", function() {
             .then(function() {
                 expect(opened).to.be.false;
 
-                // select { on 3rd line
+                // select { on 3rd line of page1
                 var range = document.createRange();
-                range.setStart($("#dsParser .page1 .line")[2].childNodes[0], 14);
-                range.setEnd($("#dsParser .page1 .line")[2].childNodes[0], 15);
+                range.setStart($("#dsParser .page[data-page='1']").find(".line")[2].childNodes[0], 14);
+                range.setEnd($("#dsParser .page[data-page='1']").find(".line")[2].childNodes[0], 15);
                 var sel = window.getSelection();
                 sel.removeAllRanges();
                 sel.addRange(range);
