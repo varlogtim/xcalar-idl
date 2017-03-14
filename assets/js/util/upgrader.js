@@ -20,7 +20,7 @@ window.Upgrader = (function(Upgrader, $) {
             }
         })
         .then(deferred.resolve)
-        .fail(deferred.fail);
+        .fail(deferred.reject);
 
         return deferred.promise();
     };
@@ -33,6 +33,10 @@ window.Upgrader = (function(Upgrader, $) {
 
     function execUpgrade(currentKeys, upgradeKeys) {
         var deferred = jQuery.Deferred();
+        var $text = $("#initialLoadScreen .text");
+        var oldText = $text.text();
+
+        $text.text(CommonTxtTstr.Upgrading);
         console.log("upgrade workbook", currentKeys, upgradeKeys);
         // step 1. read and upgrade old data
         readAndUpgrade(currentKeys)
@@ -53,6 +57,9 @@ window.Upgrader = (function(Upgrader, $) {
             // may have a better way to handle it
             xcConsole.error(error);
             deferred.reject(error);
+        })
+        .always(function() {
+            $text.text(oldText);
         });
 
         return deferred.promise();
@@ -243,7 +250,7 @@ window.Upgrader = (function(Upgrader, $) {
                 var newMeta = KVStore.upgrade(meta, consctorName);
                 deferred.resolve(newMeta);
             } catch (error) {
-                console.error(error.stack);
+                console.error(error.stack || error);
                 deferred.reject(error);
             }
         })

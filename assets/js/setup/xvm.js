@@ -145,6 +145,11 @@ window.XVM = (function(XVM) {
         return deferred.promise();
     };
 
+    // XXX it's not used anywhere, just for testing upgrade
+    XVM.rmKVVersion = function() {
+        return KVStore.delete(kvVersionKey, gKVScope.VER);
+    };
+
     // commit kvVersion
     XVM.commitKVVersion = function() {
         var version = JSON.stringify(kvVersion);

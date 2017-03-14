@@ -586,7 +586,7 @@ Corrector.prototype = {
  * codeMirror: codeMirror object
  * $input: jquery input, will search for 'input' in $searchArea by default
  * $list: container (typically a ul) for search contents
- * 
+ *
  */
 
 function SearchBar($searchArea, options) {
@@ -724,10 +724,9 @@ SearchBar.prototype = {
 
         // click listener on search icon for searchbar sliding
         if (searchBar.isSlider) {
-            searchBar.$searchArea.find(".searchIcon")
-                                 .click(function() {
-                                        searchBar.toggleSlider();
-                                    });
+            searchBar.$searchArea.find(".searchIcon").click(function() {
+                searchBar.toggleSlider();
+            });
         }
 
         if (typeof options.onInput === "function") {
@@ -789,7 +788,7 @@ SearchBar.prototype = {
         if (searchBar.options.removeHighlight && searchBar.$list) {
             searchBar.$list.find(".highlightedText").contents().unwrap();
         }
-        if(searchBar.isSlider) {
+        if (searchBar.isSlider) {
             searchBar.$searchInput.css("padding-right", 25);
         }
 

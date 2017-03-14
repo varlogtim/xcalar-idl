@@ -318,7 +318,7 @@ describe("Persistent Constructor Test", function() {
             expect(progCol).to.be.an.instanceof(ProgCol);
             expect(Object.keys(progCol).length).to.equal(17);
             expect(progCol).to.have.property("version")
-            .and.to.equal(1);
+            .and.to.equal(currentVersion);
             expect(progCol).to.have.property("name")
             .and.to.equal("test");
             expect(progCol).to.have.property("backName")
@@ -2600,14 +2600,21 @@ describe("Persistent Constructor Test", function() {
                 "timeText": "09 : 25 AM",
                 "repeat": "hourly",
                 "modified": modifiedTime,
-                "recur": 10,
-                "created": createTime
+                "created": createTime,
+                "activeSession": true,
+                "newTableName": "test",
+                "usePremadeCronString": "str1",
+                "premadeCronString": "str2"
             };
             sched = new SchedObj(options);
         });
 
         it("Should have 8 attributes", function() {
             expect(sched).to.be.an.instanceof(SchedObj);
+            expect(Object.keys(sched).length).to.equal(11);
+
+            expect(sched).to.have.property("version")
+            .and.to.equal(currentVersion);
             expect(sched).to.have.property("startTime")
             .and.to.equal(currentTime);
             expect(sched).to.have.property("dateText")
@@ -2618,10 +2625,16 @@ describe("Persistent Constructor Test", function() {
             .and.to.equal("hourly");
             expect(sched).to.have.property("modified")
             .and.to.equal(currentTime);
-            expect(sched).to.have.property("recur")
-            .and.to.equal(10);
             expect(sched).to.have.property("created")
             .and.to.equal(currentTime);
+            expect(sched).to.have.property("activeSession")
+            .and.to.be.true;
+            expect(sched).to.have.property("newTableName")
+            .and.to.equal("test");
+            expect(sched).to.have.property("usePremadeCronString")
+            .and.to.equal("str1");
+            expect(sched).to.have.property("premadeCronString")
+            .and.to.equal("str2");
         });
 
         it("Should update schedule", function() {
@@ -2634,8 +2647,10 @@ describe("Persistent Constructor Test", function() {
                 "timeText": "10 : 35 AM",
                 "repeat": "weekly",
                 "modified": modifiedTime2,
-                "recur": 7,
-                "created": createTime2
+                "created": createTime2,
+                "newTableName": "test2",
+                "usePremadeCronString": "str3",
+                "premadeCronString": "str4"
             };
 
             sched.update(options2);
@@ -2644,10 +2659,15 @@ describe("Persistent Constructor Test", function() {
             expect(sched.timeText).to.equal("10 : 35 AM");
             expect(sched.repeat).to.equal("weekly");
             expect(sched.modified).to.equal(modifiedTime2);
-            expect(sched.recur).to.equal(7);
             // create time cannot be update
             expect(sched.created).not.to.equal(createTime2);
             expect(sched.created).to.equal(currentTime);
+            expect(sched).to.have.property("newTableName")
+            .and.to.equal("test2");
+            expect(sched).to.have.property("usePremadeCronString")
+            .and.to.equal("str3");
+            expect(sched).to.have.property("premadeCronString")
+            .and.to.equal("str4");
         });
     });
 

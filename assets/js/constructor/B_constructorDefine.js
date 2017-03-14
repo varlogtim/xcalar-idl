@@ -9,11 +9,6 @@ var __extends = (this && this.__extends) || function (d, b, methods) {
     }
 };
 
-var __isCurrentVersion = function(options) {
-    return (options == null ||
-            options.version == null ||
-            options.version === currentVersion);
-};
 var __isOldVersion = function(options, constructorVersion) {
     // check if the version is one before the constructorVersion
     return (options != null &&
@@ -25,8 +20,12 @@ var __getConstructor = function(constructorName, version) {
     var suffix = "";
     if (version != null) {
         suffix = "V" + version;
-        // constructor cannot already terminate with V+version
-        xcAssert(!constructorName.endsWith(version));
+        // in setup time, xcAssert is not loaded yet
+        if (window.xcAssert) {
+            // constructor cannot already terminate with V+version
+            xcAssert(!constructorName.endsWith(version));
+        }
+        
     }
 
     return window[constructorName + suffix];

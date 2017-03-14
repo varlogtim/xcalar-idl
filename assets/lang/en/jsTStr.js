@@ -151,7 +151,8 @@ CommonTxtTstr = {
     'XcWelcome': 'Have fun with Xcalar Design!',
     'NoUndone': 'This action cannot be undone',
     'InvalidSize': 'Invalid size',
-    'Uploading': 'Uploading'
+    'Uploading': 'Uploading',
+    'Upgrading': 'Upgrading',
 };
 
 ErrTStr = {
