@@ -847,7 +847,7 @@ window.DSPreview = (function($, DSPreview) {
             "$ele": $formatText,
             "error": ErrTStr.NoEmptyList,
             "check": function() {
-                return (format == null);
+                return (!isUseUDF() && (format == null));
             }
         }]);
 
@@ -1553,8 +1553,7 @@ window.DSPreview = (function($, DSPreview) {
 
     function autoPreview() {
         $("#dsForm-skipRows").val(0);
-        smartDetect();
-        xcHelper.showSuccess(SuccessTStr.Detect);
+        smartDetect(true);
     }
 
     function refreshPreview() {
@@ -2161,7 +2160,14 @@ window.DSPreview = (function($, DSPreview) {
         return (html);
     }
 
-    function smartDetect() {
+    function smartDetect(showMessage) {
+        if (rawData == null) {
+            if (showMessage) {
+                xcHelper.showFail(DSTStr.NoRecords);
+            }
+            return;
+        }
+
         applyLineDelim("\n");
         applyQuote("\"");
 
@@ -2209,6 +2215,10 @@ window.DSPreview = (function($, DSPreview) {
 
         // step 4: update preview after detection
         getPreviewTable();
+
+        if (showMessage) {
+             xcHelper.showSuccess(SuccessTStr.Detect);
+        }
     }
 
     function detectFormat(format, data, lineDelim) {
