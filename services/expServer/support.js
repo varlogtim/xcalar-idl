@@ -4,6 +4,7 @@ var fs = require('fs');
 var os = require('os');
 var path = require('path');
 var timer = require('timers');
+var http = require('http');
 var https = require('https');
 
 var ssf = require('./supportStatusFile');
@@ -181,10 +182,15 @@ function sendCommandToSlaves(action, str, hosts) {
             'Content-Length': Buffer.byteLength(postData)
            }
         };
+
         var req = https.request(options, function(res) {
-            res.setEncoding('utf8');
-            res.on('data', function(data) {
-                process.stdout.write(data);
+            var data = "";
+            res.on('data', function(retData) {
+                data += retData;
+            });
+
+            res.on('end', function() {
+                res.setEncoding('utf8');
                 var retMsg;
                 try {
                     var ret = JSON.parse(data);
