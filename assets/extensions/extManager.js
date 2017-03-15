@@ -54,7 +54,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         var data;
         jQuery.ajax({
             type: "GET",
-            url: "assets/extensions/installed/" + extName + ".py"
+            url: "assets/extensions/ext-enabled/" + extName + ".py"
         })
         .then(function(response, status, xhr) {
             // Success case
@@ -71,8 +71,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             innerDef.resolve();
         })
         .fail(function() {
-            console.error("Extension failed to upload. Removing: "
-                          + extName);
+            console.error("Extension failed to upload. Removing: " + extName);
             // Remove extension from list
             removeExt(extName);
             innerDef.reject();
@@ -88,10 +87,10 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             var jsFile = extLoaded[i].src;
 
             // extract module name
-            var strLoc = jsFile.indexOf("assets/extensions/installed/");
+            var strLoc = jsFile.indexOf("assets/extensions/ext-enabled/");
             if (strLoc !== -1) {
                 jsFile = jsFile.substring(strLoc +
-                                         "assets/extensions/installed/".length,
+                                         "assets/extensions/ext-enabled/".length,
                                          jsFile.length - 3);
                 extFileNames[i] = jsFile;
             } else {

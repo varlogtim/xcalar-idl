@@ -152,17 +152,79 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
         $.ajax({
             "type": "POST",
             "dataType": "JSON",
-            "url": url + "/downloadPackage",
+            "url": url + "/downloadExtension",
             "data": {name: ext.getName(), version: ext.getVersion()},
             "success": function(data) {
+                // Now we need to enable after installing
                 console.log(data);
-                refreshAfterInstall(ext);
-                xcHelper.enableSubmit($submitBtn);
-                xcHelper.showSuccess(SuccessTStr.InstallApp);
+                return enableExtension(ext.getName());
             },
             "error": function(error) {
                 xcHelper.enableSubmit($submitBtn);
-                Alert.error(ErrTStr.AppInstallFailed, JSON.stringify(error));
+                Alert.error(ErrTStr.ExtDownloadFailure, JSON.stringify(error));
+            }
+        })
+        .then(function() {
+            refreshAfterInstall(ext);
+            xcHelper.enableSubmit($submitBtn);
+            xcHelper.showSuccess(SuccessTStr.ExtDownload);
+        })
+        .always(function() {
+            xcHelper.enableSubmit($submitBtn);
+        });
+    }
+
+    function removeExtension(extName) {
+        var url = xcHelper.getAppUrl();
+        $.ajax({
+            "type": "POST",
+            "dataType": "JSON",
+            "url": url + "/removeExtension",
+            "data": {name: extName},
+            "success": function(data) {
+                console.log(data);
+                xcHelper.showSuccess(SuccessTStr.ExtRemove);
+            },
+            "error": function(error) {
+                Alert.error(ErrTStr.ExtRemovalFailure, JSON.stringify(error));
+            }
+        });
+    }
+
+    function enableExtension(extName) {
+        var deferred = jQuery.Deferred();
+        var url = xcHelper.getAppUrl();
+        $.ajax({
+            "type": "POST",
+            "dataType": "JSON",
+            "url": url + "/enableExtension",
+            "data": {name: extName},
+            "success": function(data) {
+                console.log(data);
+                xcHelper.showSuccess(SuccessTStr.ExtEnable);
+                deferred.resolve();
+            },
+            "error": function(error) {
+                Alert.error(ErrTStr.ExtEnableFailure, JSON.stringify(error));
+                deferred.reject();
+            }
+        });
+        return deferred.promise();
+    }
+
+    function disableExtension(extName) {
+        var url = xcHelper.getAppUrl();
+        $.ajax({
+            "type": "POST",
+            "dataType": "JSON",
+            "url": url + "/disableExtension",
+            "data": {name: extName},
+            "success": function(data) {
+                console.log(data);
+                xcHelper.showSuccess(SuccessTStr.ExtDisable);
+            },
+            "error": function(error) {
+                Alert.error(ErrTStr.ExtDisableFailure, JSON.stringify(error));
             }
         });
     }

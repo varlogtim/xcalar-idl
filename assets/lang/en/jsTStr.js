@@ -258,6 +258,10 @@ ErrTStr = {
     'SelectOption': 'Please select an option.',
     'NotDisplayRows': 'Could Not Display Rows',
     'AppInstallFailed': 'App Installation Failed',
+    'ExtEnableFailure': 'Extension failed to be enabled',
+    'ExtDisableFailure': 'Extension failed to be disabled',
+    'ExtRemovalFailure': 'Extension failed to be removed',
+    'ExtDownloadFailure': 'Extension failed to be downloaded',
     'CannotDropLocked': 'Cannot drop locked tables',
     'RefreshBrowser': 'Refresh  Browser',
     'RefreshBrowserDesc': 'We have detected an issue that requires a refresh.\nPlease refresh your browser now. Your work will be recovered to the last consistent state.',
@@ -357,7 +361,11 @@ SuccessTStr = {
     "UpdateLicense": "License Successfully Updated. New license will take effect after next cluster restart.",
     "Upload": "Upload Successful!",
     "UploadApp": "App Successfully Uploaded!",
-    "UploadUDF": "UDF Successfully Uploaded!"
+    "UploadUDF": "UDF Successfully Uploaded!",
+    "ExtDownload": "Extension Successfully Downloaded!",
+    "ExtRemove": "Extension Successfully Removed!",
+    "ExtEnable": "Extension Successfully Enabled!",
+    "ExtDisable": "Extension Successfully Disabled!"
 };
 
 ThriftTStr = {

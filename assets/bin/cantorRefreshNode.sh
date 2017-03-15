@@ -1,11 +1,11 @@
-scp ~/gui/services/expServer/expServer.js jyang@cantor:~/xcalar-gui/services/expServer
+scp ~/gui/services/expServer/expServer.js jyang@cantor:~/xcalar-gui/prod/services/expServer
 
 ssh jyang@cantor '
 set +e
 set -x
 PID=`ps aux | grep -v bash | grep -v grep | grep expServer | tr -s " " | cut -d " " -f 2`
 kill -9 ${PID}
-cd ~/xcalar-gui/services/expServer
+cd /var/www/xcalar-gui/services/expServer
 nodejs expServer.js'
 
 #ssh jyang@cantor '
