@@ -1994,6 +1994,7 @@ table.datasetTable {
     .flex-display;
     .flex-direction(column);
     overflow: hidden; // if parserBox overflows out
+    border-left: 1px solid rgba(0,0,0,0.2);
 
     &.fetchingRows {
         .cardTopMain, .cardMain {
@@ -2109,16 +2110,36 @@ table.datasetTable {
         .flex-direction(column);
         position: relative; // for preview mode and history tool boxes
 
+        .errorSection, .loadSection {
+            padding-left: 45px;
+        }
         .dataPreview {
             .size(@height: 100%);
             .font(@family: monospace);
-            padding: 10px;
+            // padding: 10px;
             overflow: auto;
+            // margin-left: 40px;
+        }
+        .rowNumCol {
+            background-color: @color-bg-white-gray;
+            padding: 4px 6px 10px 4px;
+            font-family: @font-code;
+            line-height: 18px;
+            text-align: right;
+            white-space: pre;
+            position: absolute;
+            height: 100%;
+            min-height: 100%;
+            overflow: hidden;
+            border-right: 5px solid @color-background-colIcon-gray;
         }
         .innerDataPreview {
             // overflow: hidden;
+            .flex-display;
         }
         .previewContent {
+            padding: 4px 10px;
+            padding-bottom: 10px;
             white-space: pre;
             .text-selection;
             font-family: @font-code;
@@ -2224,7 +2245,7 @@ table.datasetTable {
 
         .boxBody {
             height: ~"calc(100% - 30px)";
-            padding: 10px;
+            padding: 4px 10px;
             background-color: rgba(255, 255, 255, 0.95);
         }
     }
@@ -2236,6 +2257,16 @@ table.datasetTable {
 
         .boxBody {           
             overflow: auto;
+            position: relative;
+
+            .rowNumCol {
+                font-size: 12px;
+                line-height: 15px;
+                height: auto;
+                left: 0px;
+                top: 0px;
+                border-right-width: 4px;
+            }
             
             .boxContent {
                 font-family: @font-code;

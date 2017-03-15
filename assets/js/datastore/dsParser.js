@@ -14,7 +14,7 @@ window.DSParser = (function($, DSParser) {
     var lineHeight = 18;
     var boxLineHeight = 15;
     var linesPerPage = 100;
-    var containerPadding = 10;
+    var containerPadding = 4;
     var isMouseDown = false;
     var isBoxMouseDown = false;
     var fetchId = 0; // used to detect stale requests
@@ -385,11 +385,15 @@ window.DSParser = (function($, DSParser) {
             $container = $parserCard;
         }
 
+        var $rowNumCol = $parserCard.find(".previewRowNumCol");
+
         $preview.scroll(function() {
+            scrollTop = $preview.scrollTop();
             if (!isBox) {
                 updateRowInput();
+                $rowNumCol.scrollTop(scrollTop);
             }
-
+            
             clearTimeout(scrollTimer);
             if (isMouseDown || isBoxMouseDown) {
                 return;
@@ -414,7 +418,7 @@ window.DSParser = (function($, DSParser) {
             if ($container.hasClass("fetchingRows")) {
                 return;
             }
-            scrollTop = $preview.scrollTop();
+
             if (scrollTop !== prevScrollPos) {
                 if (scrollTop > prevScrollPos) {
                     checkIfNeedFetch($preview);
@@ -867,6 +871,22 @@ window.DSParser = (function($, DSParser) {
         $("#parserRowInput").outerWidth(inputWidth);
         var numLines = xcHelper.numToStr(previewMeta.totalLines);
         $parserCard.find(".totalRows").text("of " + numLines);
+
+        var rowColHtml = "";
+        for (var i = 1; i <= previewMeta.totalLines; i++) {
+            rowColHtml += i + "\n";
+        }
+        $parserCard.find(".previewRowNumCol").html(rowColHtml);
+        var width = $parserCard.find(".previewRowNumCol").outerWidth();
+        $dataPreview.css("margin-left", width);
+
+        rowColHtml = "";
+        for (var i = 1; i <= previewMeta.meta.totalLines; i++) {
+            rowColHtml += i + "\n";
+        }
+        $parserCard.find(".metaRowNumCol").html(rowColHtml);
+        var width = $parserCard.find(".metaRowNumCol").outerWidth();
+        $miniContent.css("margin-left", width);
     }
 
     function getSelectionCharOffsetsWithin(element) {
@@ -1469,8 +1489,11 @@ window.DSParser = (function($, DSParser) {
         var line;
         var ch;
         var specialChars = ["{", "}", "[", "]", ","];
-        // ignore the last element because it's an empty string
-        var linesLen = Math.min(linesPerPage, lines.length - 1);
+        var linesLen = lines.length; 
+        // ignore the last element because if it's an empty string
+        if (linesLen === 0 || lines[linesLen - 1].trim().length === 0) {
+            linesLen--;
+        } 
         
         for (var i = 0; i < linesLen; i++) {
             line = lines[i];
