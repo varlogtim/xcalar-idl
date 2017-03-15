@@ -673,6 +673,7 @@ DSTStr = {
     'NewFolder': 'New Folder',
     'NoNewFolder': 'Cannot Create Folder',
     'NoNewFolderMsg': 'This folder is uneditable, cannot create new folder here',
+    'NotFindDS': 'Cannot find the dataset',
     'DelFolder': 'Delete Folder',
     'DelFolderInstr': 'Please remove all the dataset references in the ' +
                       'folder first.',

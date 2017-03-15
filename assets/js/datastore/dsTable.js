@@ -608,7 +608,13 @@ window.DSTable = (function($, DSTable) {
     }
 
     function rePointDS(dsId) {
-        var dsObj = DS.getErrorDSObj(dsId);
+        // maybe it's a succes point but ds table has error
+        var dsObj = DS.getErrorDSObj(dsId) || DS.getDSObj(dsId);
+        if (!dsObj) {
+            Alert.error(DSTStr.NotFindDS);
+            return;
+        }
+
         DSPreview.show({
             "path": dsObj.getPath(),
             "format": dsObj.getFormat(),
