@@ -5,6 +5,7 @@
 /assets/customerPortal/_table_render.html
 /assets/customerPortal/_error_license.html
 /assets/js/setup/constructorVersion.js
+/assets/js/constructor/E_persConstructor.js
 /assets/dev/!shortCutStyles.css
 *.DS_Store
 /prod/*

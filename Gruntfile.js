@@ -1,5 +1,5 @@
-render = require('./site/scripts/render.js');
-genCtor = require('./site/scripts/genConstructor.js');
+genHTML = require('./site/render/genHTML.js');
+genCtor = require('./site/render/genConstructor.js');
 tmpDest = 'site/tmp';
 prettifyOptions = {
   options: {
@@ -110,8 +110,8 @@ module.exports = function(grunt) {
 
     customWatch: {
       normal: {
-        files: ['site/**/*.html', '!' + tmpDest + '/index.html', 'Gruntfile.js', 'package.json'],
-        tasks: ['includes', 'template', 'clean', 'tags', 'htmlmin', 'prettify'],
+        files: ['site/**/*.html', '!' + tmpDest + '/*.html', 'Gruntfile.js', 'package.json', 'site/render/template/constructor.template.js'],
+        tasks: ['dev'],
         options: {
           atBegin: true,
         }
@@ -167,11 +167,17 @@ module.exports = function(grunt) {
 
   grunt.registerTask('html', ['includes']);
   grunt.registerTask('template', function() {
-    render(tmpDest, destMap);
+    genHTML(tmpDest, destMap);
   });
 
+  // template to build a version constructor file
   grunt.registerTask('version', function() {
-    genCtor("assets/js/constructor/test.js");
+    genCtor();
+  });
+
+  // build E_persConstructor.js
+  grunt.registerTask('ctor', function() {
+    genCtor(true);
   });
 
   grunt.renameTask('watch', 'customWatch');
@@ -183,9 +189,9 @@ module.exports = function(grunt) {
   grunt.registerTask("reloadCSSLess", ['concurrent:set5']);
 
   // used for prod
-  grunt.registerTask("render", ['html', 'template', 'clean', 'htmlmin', 'prettify']);
+  grunt.registerTask("render", ['html', 'template', 'clean', 'htmlmin', 'prettify', 'ctor']);
 
   // used for dev
-  grunt.registerTask("dev", ['html', 'template', 'clean', 'tags', 'htmlmin', 'prettify']);
+  grunt.registerTask("dev", ['html', 'template', 'clean', 'tags', 'htmlmin', 'prettify', 'ctor']);
   grunt.registerTask("test", ['exec:expServer']);
 };

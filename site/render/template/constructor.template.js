@@ -1,26 +1,54 @@
-(function createCurrentConstructors(win) {
-    var parentVersion = currentVersion;
-    var version = null;
+<% v = isCurCtor ? "" : "V" + version %>
+<% checkFunc = isCurCtor ? "__isCurrentVersion" : "__isParentVersion"%>
+<% assert = isCurCtor ? "xcAssert(__isCurrentVersion(options));" : ""%>
+<% addVersion = isCurCtor ? "" : "self.version = version;" %>
+(function createConstructors<%= v %>(win) {
+    var parentVersion = <%= isCurCtor ? "currentVersion"  : version - 1 %>;
+    var version = <%= isCurCtor ? "null" : version %>;
+
+    <% if (isCurCtor) {%>
     var __isCurrentVersion = function(options) {
         return (options == null ||
                 options.version == null ||
                 options.version === currentVersion);
     };
+    <%} else {%>
+    var __isParentVersion = function(options) {
+        return __isOldVersion(options, version);
+    };
+    <%}%>
+
     // kvStore.js
-    win.METAConstructor = (function() {
+    win.METAConstructor<%= v %> = (function() {
         var _super = __getConstructor("METAConstructor", parentVersion);
+        <% if (isCurCtor) {%>
         var METAKeys = new _super().getMetaKeys();
+        <%}%>
+        /* Attr:
+            version: <%= version %>,
+            METAKeys.TI: (obj) table meta
+            METAKeys.WS: (obj) worksheet meta
+            METAKeys.AGGS: (obj) agg meta
+            METAKeys.CART: (obj) cart meta
+            METAKeys.STATS: (obj) profile meta
+            METAKeys.LOGC: (integer) log cursor position
+            METAKeys.TPFX: (obj) table prefix meta
+            METAKeys.QUERY: (obj) query meta
+        */
+        function METAConstructor<%= v %>(options) {
+            options = options || {};
+            <%= assert %>
+            var self = _super.call(this, options);
+            <%= addVersion %>
 
-        function METAConstructor(oldMeta) {
-            oldMeta = oldMeta || {};
-            xcAssert(__isCurrentVersion(oldMeta));
-            var self = _super.call(this, oldMeta);
-
-            METAConstructor.restore(self, oldMeta, version);
+            if (<%= checkFunc %>(options)) {
+                METAConstructor<%= v %>.restore(self, options, version);
+            }
             return self;
         }
 
-        __extends(METAConstructor, _super, {
+        __extends(METAConstructor<%= v %>, _super, {
+            <% if (isCurCtor) {%>
             update: function() {
                 // basic thing to store
                 this[METAKeys.TI] = savegTables();
@@ -82,26 +110,36 @@
             getQueryMeta: function() {
                 return this[METAKeys.QUERY];
             }
+            <%}%>
         });
 
-        return METAConstructor;
+        return METAConstructor<%= v %>;
     }());
 
     // kvStore.js
-    win.EMetaConstructor = (function() {
+    win.EMetaConstructor<%= v %> = (function() {
         var _super = __getConstructor("EMetaConstructor", parentVersion);
+        <% if (isCurCtor) {%>
         var EMetaKeys = new _super().getMetaKeys();
-
-        function EMetaConstructor(oldMeta) {
-            oldMeta = oldMeta || {};
-            xcAssert(__isCurrentVersion(oldMeta));
+        <%}%>
+        /* Attr:
+            version: <%= version %>,
+            EMetaKeys.DF: (obj) dataflow meta
+        */
+        function EMetaConstructor<%= v %>(options) {
+            options = options || {};
+            <%= assert %>
             var self = _super.call(this);
+            <%= addVersion %>
 
-            EMetaConstructor.restore(self, oldMeta, version);
+            if (<%= checkFunc %>(options)) {
+                EMetaConstructor<%= v %>.restore(self, options, version);
+            }
             return self;
         }
 
-        __extends(EMetaConstructor, _super, {
+        __extends(EMetaConstructor<%= v %>, _super, {
+            <% if (isCurCtor) {%>
             update: function() {
                 // update
                 this[EMetaKeys.DF] = DF.getAllCommitKeys();
@@ -111,26 +149,37 @@
             getDFMeta: function() {
                 return this[EMetaKeys.DF];
             }
+            <%}%>
         });
 
-        return EMetaConstructor;
+        return EMetaConstructor<%= v %>;
     }());
 
     // userSettings.js
-    win.UserInfoConstructor = (function() {
+    win.UserInfoConstructor<%= v %> = (function() {
         var _super = __getConstructor("UserInfoConstructor", parentVersion);
+        <% if (isCurCtor) {%>
         var UserInfoKeys = new _super().getMetaKeys();
-
-        function UserInfoConstructor(oldMeta) {
-            oldMeta = oldMeta || {};
-            xcAssert(__isCurrentVersion(oldMeta));
+        <%}%>
+        /* Attr:
+            version: <%= version %>,
+            UserInfoKeys.DS: (obj) datasets meta
+            UserInfoKeys.PREF: (obj) user preference meta
+        */
+        function UserInfoConstructor<%= v %>(options) {
+            options = options || {};
+            <%= assert %>
             var self = _super.call(this);
+            <%= addVersion %>
 
-            UserInfoConstructor.restore(self, oldMeta, version);
+            if (<%= checkFunc %>(options)) {
+                UserInfoConstructor<%= v %>.restore(self, options, version);
+            }
             return self;
         }
 
-        __extends(UserInfoConstructor, _super, {
+        __extends(UserInfoConstructor<%= v %>, _super, {
+            <% if (isCurCtor) {%>
             update: function() {
                 this[UserInfoKeys.DS] = DS.getHomeDir();
                 this[UserInfoKeys.PREF] = UserSettings.getAllPrefs();
@@ -143,20 +192,28 @@
             getDSInfo: function() {
                 return this[UserInfoKeys.DS];
             }
+            <%}%>
         });
 
-        return UserInfoConstructor;
+        return UserInfoConstructor<%= v %>;
     }());
 
     // authentication.js
-    win.XcAuth = (function() {
+    win.XcAuth<%= v %> = (function() {
         var _super = __getConstructor("XcAuth", parentVersion);
-        function XcAuth(options) {
+        /* Attr:
+            version: <%= version %>,
+            idCount: (integer) current id num,
+            hasTag: (string) 2 characters string
+        */
+        function XcAuth<%= v %>(options) {
             var self = _super.call(this, options);
+            <%= addVersion %>
             return self;
         }
 
-        __extends(XcAuth, _super, {
+        __extends(XcAuth<%= v %>, _super, {
+            <% if (isCurCtor) {%>
             getHashTag: function() {
                 return this.hashTag;
             },
@@ -169,20 +226,32 @@
                 this.idCount++;
                 return this.idCount;
             }
+            <%}%>
         });
 
-        return XcAuth;
+        return XcAuth<%= v %>;
     }());
 
     // sql.js
-    win.XcLog = (function() {
+    win.XcLog<%= v %> = (function() {
         var _super = __getConstructor("XcLog", parentVersion);
-        function XcLog(options) {
+        /* Attr:
+            version: <%= version %>,
+            title: (string) log's title,
+            options: (obj) log's options
+            cli: (string, optional) cli log
+            error: (any, optional) error log
+            sqlType: (string, optional) log's type
+            timestamp: (date) time
+        */
+        function XcLog<%= v %>(options) {
             var self = _super.call(this, options);
+            <%= addVersion %>
             return self;
         }
 
-        __extends(XcLog, _super, {
+        __extends(XcLog<%= v %>, _super, {
+            <% if (isCurCtor) {%>
             isError: function() {
                 if (this.sqlType === SQLType.Error) {
                     return true;
@@ -202,27 +271,52 @@
             getOptions: function() {
                 return this.options;
             }
+            <%}%>
         });
 
-        return XcLog;
+        return XcLog<%= v %>;
     }());
 
     // Constructor for table meta data
-    win.TableMeta = (function() {
+    win.TableMeta<%= v %> = (function() {
         var _super = __getConstructor("TableMeta", parentVersion);
-        function TableMeta(options) {
-            options = options || {};
-            xcAssert(__isCurrentVersion(options));
-            var self = _super.call(this, options);
+        /* Attr
+            version: <%= version %>,
+            tableName: (string) table's name
+            tableId: (string) table's id
+            isLocked: (boolean) if table is locked
+            noDelete: (boolean) if table should not be deleted
+            status: (string) enums of TableType
+            timeStamp: (date) last change time
+            tableCols: (array) ProgCols
+            bookmarks: (array) row bookmark cache
+            rowHeights: (obj) row height cache
+            currentRowNumber: (integer, not persist) current row number
+            resultSetId: (string) result id
+            icv: (string), icv table
 
-            // TableMeta.initializeProgCol is inherited from super class
-            self.tableCols = TableMeta.restoreProgCol(options.tableCols,
-                                                      version);
+            keyName: (string, not persist) column on index
+            resultSetCount: (integer, not persist) total row num
+            resultSetMax: (integer, not persist) ?
+            numPages: (integer, not persist) num of pages
+            backTableMeta: (obj, not persist) backTableMeta
+        */
+        function TableMeta<%= v %>(options) {
+            options = options || {};
+            <%= assert %>
+            var self = _super.call(this, options);
+            <%= addVersion %>
+
+            if (<%= checkFunc %>(options)) {
+                self.tableCols = TableMeta<%= v %>.restoreProgCol(options.tableCols,
+                                                            version);
+            }
 
             return self;
         }
 
-        __extends(TableMeta, _super, {
+        __extends(TableMeta<%= v %>, _super, {
+            <% if (isCurCtor) {%>
             getId: function() {
                 return this.tableId;
             },
@@ -702,37 +796,67 @@
 
                 return colContents;
             }
+            <%}%>
         });
 
-        return TableMeta;
+        return TableMeta<%= v %>;
 
     }());
 
     // inner part of progCol
-    win.ColFunc = (function() {
+    win.ColFunc<%= v %> = (function() {
         var _super = __getConstructor("ColFunc", parentVersion);
-        function ColFunc(options) {
+        /* Attr
+            version: <%= version %>,
+            name: (string) col func's name
+            args: (array) col func's arguments
+        */
+        function ColFunc<%= v %>(options) {
             var self = _super.call(this, options);
+            <%= addVersion %>
             return self;
         }
 
-        __extends(ColFunc, _super);
+        __extends(ColFunc<%= v %>, _super);
 
-        return ColFunc;
+        return ColFunc<%= v %>;
     }());
 
-    win.ProgCol = (function() {
+    win.ProgCol<%= v %> = (function() {
         var _super = __getConstructor("ProgCol", parentVersion);
-        function ProgCol(options) {
+        /* Attr
+            version: <%= version %>,
+            name: (string) front column name
+            backName: (string) back column name,
+            prefix: (string, not persist) striped from backName
+            immediate: (boolean) immdiate or fat ptr
+            type: (string) enums in ColumnType
+            knownType: (boolean) if the type is known or just a guess
+            childOfArray: (boolean) if is child of array
+            isNewCol: (boolean) if is new column
+            isMinimized: (boolean) columns is hidden or not
+            width: (number) column width
+            format: (string) enums in ColFormat
+            decimal: (integer) num of decimals
+            sizedToHeader: (boolean) if size to header
+            textAlign: (string) enums in ColTextAlign
+            userStr: (string) user string
+            func: (ColFunc) func info
+        */
+        function ProgCol<%= v %>(options) {
             options = options || {};
-            xcAssert(__isCurrentVersion(options));
+            <%= assert %>
             var self = _super.call(this, options);
+            <%= addVersion %>
 
-            self.func = new ColFunc(options.func);
+            if (<%= checkFunc %>(options)) {
+                self.func = new ColFunc<%= v %>(options.func);
+            }
             return self;
         }
 
-        __extends(ProgCol, _super, {
+        __extends(ProgCol<%= v %>, _super, {
+            <% if (isCurCtor) {%>
             isDATACol: function() {
                 if (this.name === "DATA" && this.func.name === "raw") {
                     return true;
@@ -983,33 +1107,52 @@
                 ColManager.parseFuncString(funcSt, func);
                 self.func = new ColFunc(func.args[0]);
             },
+            <%}%>
         });
 
-        return ProgCol;
+        return ProgCol<%= v %>;
     }());
 
     // aggregates.js
-    win.Agg = (function() {
+    win.Agg<%= v %> = (function() {
         var _super = __getConstructor("Agg", parentVersion);
-        function Agg(options) {
+        /* Attr
+            version: <%= version %>,
+            op: (string) agg operation name
+            value: (number/string) agg result
+            tableId: (string) source table id
+            backColName: (string) source column name
+            dagName: (string) dst dag name
+            aggname: aggregate name
+        */
+        function Agg<%= v %>(options) {
             var self = _super.call(this, options);
+            <%= addVersion %>
             return self;
         }
 
-        __extends(Agg, _super);
+        __extends(Agg<%= v %>, _super);
 
-        return Agg;
+        return Agg<%= v %>;
     }());
 
     // userSettings.js
-    win.GenSettings = (function() {
+    win.GenSettings<%= v %> = (function() {
         var _super = __getConstructor("GenSettings", parentVersion);
-        function GenSettings(userConfigParms, options) {
+        /* Attr
+            version: <%= version %>,
+            adminSettins: (obj) admin settings
+            xcSettings: (obj) xcSttings
+            baseSettings: (obj) baseSettings
+        */
+        function GenSettings<%= v %>(userConfigParms, options) {
             var self = _super.call(this, userConfigParms, options);
+            <%= addVersion %>
             return self;
         }
 
-        __extends(GenSettings, _super, {
+        __extends(GenSettings<%= v %>, _super, {
+            <% if (isCurCtor) {%>
             getPref: function(pref) {
                 return this.baseSettings[pref];
             },
@@ -1030,20 +1173,31 @@
                     "xcSettings": this.xcSettings
                 });
             }
+            <%}%>
         });
 
-        return GenSettings;
+        return GenSettings<%= v %>;
     }());
 
     // userSettings.js
-    win.UserPref = (function() {
+    win.UserPref<%= v %> = (function() {
         var _super = __getConstructor("UserPref", parentVersion);
-        function UserPref(options) {
+        /* Attr
+            version: <%= version %>,
+            datasetListView: (boolean) ds use list/grid view
+            browserListView: (boolean) browser use list/grid view
+            keepJoinTables: (boolean) keep tables to join or hide them
+            activeMainTab: (string) which tab is in active
+            general: (obj) holds general settings
+        */
+        function UserPref<%= v %>(options) {
             var self = _super.call(this, options);
+            <%= addVersion %>
             return self;
         }
 
-        __extends(UserPref, _super, {
+        __extends(UserPref<%= v %>, _super, {
+            <% if (isCurCtor) {%>
             update: function() {
                 this.datasetListView = $("#dataViewBtn").hasClass("listView");
                 this.browserListView = $("#fileBrowserGridView")
@@ -1052,43 +1206,61 @@
                                                      .find(".checkbox")
                                                      .hasClass("checked");
                 this.sqlCollapsed = $("#sql-TextArea")
-                                    .find(".expanded").length === 0 &&
-                                    $("#sql-TextArea")
+                                     .find(".expanded").length === 0 &&
+                                     $("#sql-TextArea")
                                      .find(".collapsed").length !== 0;
                 return this;
             }
+            <%}%>
         });
 
-        return UserPref;
+        return UserPref<%= v %>;
     }());
 
     // dsCart.js
     // inner part of Cart
-    win.CartItem = (function() {
+    win.CartItem<%= v %> = (function() {
         var _super = __getConstructor("CartItem", parentVersion);
-        function CartItem(options) {
+        /* Attr:
+            version: <%= version %>,
+            colNum: (integer) column num
+            value: (string) column name,
+            type: (string) column type
+        */
+        function CartItem<%= v %>(options) {
             var self = _super.call(this, options);
+            <%= addVersion %>
             return self;
         }
 
-        __extends(CartItem, _super);
+        __extends(CartItem<%= v %>, _super);
 
-        return CartItem;
+        return CartItem<%= v %>;
     }());
 
     // dsCart.js
-    win.Cart = (function() {
+    win.Cart<%= v %> = (function() {
         var _super = __getConstructor("Cart", parentVersion);
-        function Cart(options) {
+        /* Attr:
+            version: <%= version %>,
+            dsId: (string) dataset id,
+            tableName: (string) tableName
+            items: (array) list of CartItem
+        */
+        function Cart<%= v %>(options) {
             options = options || {};
-            xcAssert(__isCurrentVersion(options));
+            <%= assert %>
             var self = _super.call(this, options);
+            <%= addVersion %>
 
-            self.items = Cart.restoreItem(options.items, version);
+            if (<%= checkFunc %>(options)) {
+                self.items = Cart<%= v %>.restoreItem(options.items, version);
+            }
             return self;
         }
 
-        __extends(Cart, _super, {
+        __extends(Cart<%= v %>, _super, {
+            <% if (isCurCtor) {%>
             getId: function() {
                 return this.dsId;
             },
@@ -1137,19 +1309,34 @@
             emptyItem: function() {
                 this.items = [];
             }
+            <%}%>
         });
 
-        return Cart;
+        return Cart<%= v %>;
     }());
 
-    win.WorksheetObj = (function() {
+    win.WorksheetObj<%= v %> = (function() {
         var _super = __getConstructor("WorksheetObj", parentVersion);
-        function WorksheetObj(options) {
+        /* Attr
+            version: <%= version %>,
+            id: (string) worksheet id
+            name: (string) worksheet name
+            date: (string) create date
+            tables: (array) list of active tables in the sheet
+            archivedTables: (array) list of archived tables in the sheet
+            orphanedTables: (array) list of orphaned tables in the sheet
+            tempHiddenTables: (array) list of temp hidden tables
+            undoneTables: (array) list of undone tables in the list
+            lockedTables: (array, not persist) list of locked table in the sheet
+        */
+        function WorksheetObj<%= v %>(options) {
             var self = _super.call(this, options);
+            <%= addVersion %>
             return self;
         }
 
-        __extends(WorksheetObj, _super, {
+        __extends(WorksheetObj<%= v %>, _super, {
+            <% if (isCurCtor) {%>
             getId: function() {
                 return this.id;
             },
@@ -1180,38 +1367,62 @@
                 tableArray.push(tableId);
                 return true;
             }
+            <%}%>
         });
 
-        return WorksheetObj;
+        return WorksheetObj<%= v %>;
     }());
 
     // worksheet.js
-    win.WSMETA = (function() {
-        var _super = __getConstructor("WSMETA", currentVersion);
-        function WSMETA(options) {
+    win.WSMETA<%= v %> = (function() {
+        var _super = __getConstructor("WSMETA", parentVersion);
+        /* Attr:
+            version: <%= version %>,
+            wsInfos: (obj) set of WorksheetObj
+            wsOrder: (array) worksheet order
+            hiddenWS: (array) list of hidden worksheet
+            noSheetTables: (array) list of tables not in any worksheets
+            activeWS: (string) current active worksheet
+        */
+        function WSMETA<%= v %>(options) {
             options = options || {};
-            xcAssert(__isCurrentVersion(options));
-
+            <%= assert %>
             var self = _super.call(this, options);
+            <%= addVersion %>
 
-            self.wsInfos = WSMETA.restoreWSInfos(options.wsInfos, version);
+            if (<%= checkFunc %>(options)) {
+                self.wsInfos = WSMETA<%= v %>.restoreWSInfos(options.wsInfos, version);
+            }
             return self;
         }
 
-        __extends(WSMETA, _super);
+        __extends(WSMETA<%= v %>, _super);
 
-        return WSMETA;
+        return WSMETA<%= v %>;
     }());
 
     // workbook.js
-    win.WKBK = (function() {
+    win.WKBK<%= v %> = (function() {
         var _super = __getConstructor("WKBK", parentVersion);
-        function WKBK(options) {
+        /* Attr:
+            version: <%= version %>,
+            name: (string) workbook name
+            id: (string) workbook id
+            noMeta: (boolean) has meta or not
+            srcUser: (string) who create the workbook
+            curUser: (string) who is using the workbook
+            created: (date) create time
+            modified: (date) last modified time
+            numWorksheets: (integer) num of worksheets in the workbook
+        */
+        function WKBK<%= v %>(options) {
             var self = _super.call(this, options);
+            <%= addVersion %>
             return self;
         }
 
-        __extends(WKBK, _super, {
+        __extends(WKBK<%= v %>, _super, {
+            <% if (isCurCtor) {%>
             update: function() {
                 // store modified data
                 this.modified = xcHelper.getCurrentTimeStamp();
@@ -1244,84 +1455,140 @@
             isNoMeta: function() {
                 return this.noMeta;
             }
+            <%}%>
         });
 
-        return WKBK;
+        return WKBK<%= v %>;
     }());
 
     // profile.js
-    win.ProfileAggInfo = (function() {
+    win.ProfileAggInfo<%= v %> = (function() {
         var _super = __getConstructor("ProfileAggInfo", parentVersion);
-        function ProfileAggInfo(options) {
+        /* Attr:
+            version: <%= version %>,
+            max: (number/string) agg max
+            min: (number/string) agg min
+            count: (integer/string) agg count
+            sum: (number/string) agg sum
+            average: (number/string) agg average
+            sd: (number/string) agg sd
+        */
+        function ProfileAggInfo<%= v %>(options) {
             var self = _super.call(this, options);
+            <%= addVersion %>
             return self;
         }
 
-        __extends(ProfileAggInfo, _super);
+        __extends(ProfileAggInfo<%= v %>, _super);
 
-        return ProfileAggInfo;
+        return ProfileAggInfo<%= v %>;
     }());
 
     // profile.js
-    win.ProfileStatsInfo = (function() {
+    win.ProfileStatsInfo<%= v %> = (function() {
         var _super = __getConstructor("ProfileStatsInfo", parentVersion);
-        function ProfileStatsInfo(options) {
+        /* Attr:
+            version: <%= version %>,
+            unsorted: (boolean) if columns is sorted or not
+            zeroQuartile: (number, optional): 0% row (first row)
+            lowerQuartile: (number, optional): 25% row
+            median: (number, optional): 50% row
+            upperQuartile: (number, optional): 75% row
+            fullQuartile: (number, optional): 100% row (last row)
+        */
+        function ProfileStatsInfo<%= v %>(options) {
             var self = _super.call(this, options);
+            <%= addVersion %>
             return self;
         }
 
-        __extends(ProfileStatsInfo, _super);
+        __extends(ProfileStatsInfo<%= v %>, _super);
 
-        return ProfileStatsInfo;
+        return ProfileStatsInfo<%= v %>;
     }());
 
     // profile.js
-    win.ProfileGroupbyInfo = (function() {
+    win.ProfileGroupbyInfo<%= v %> = (function() {
         var _super = __getConstructor("ProfileGroupbyInfo", parentVersion);
-        function ProfileGroupbyInfo(options) {
+        /* Attr:
+            version: <%= version %>,
+            isComplete: (boolean/string) true/false/running
+            nullCount: (integer) how many null values
+            allNull: (boolean) if all values are null
+            buckes: (obj) a set of ProfileBucketInfo
+        */
+        function ProfileGroupbyInfo<%= v %>(options) {
             options = options || {};
-            xcAssert(__isCurrentVersion(options));
+            <%= assert %>
             var self = _super.call(this, options);
+            <%= addVersion %>
 
-            self.buckets = ProfileGroupbyInfo.restoreBuckets(options.buckets,
-                                                             version);
+            if (<%= checkFunc %>(options)) {
+                self.buckets = ProfileGroupbyInfo<%= v %>.restoreBuckets(options.buckets,
+                                                                    version);
+            }
             return self;
         }
 
-        __extends(ProfileGroupbyInfo, _super);
+        __extends(ProfileGroupbyInfo<%= v %>, _super);
 
-        return ProfileGroupbyInfo;
+        return ProfileGroupbyInfo<%= v %>;
     }());
 
     // profile.js
-    win.ProfileBucketInfo = (function() {
+    win.ProfileBucketInfo<%= v %> = (function() {
         var _super = __getConstructor("ProfileBucketInfo", parentVersion);
-        function ProfileBucketInfo(options) {
+        /* Attr:
+            version: <%= version %>,
+            bucketSize: (number) size of the bucket
+            table: (string) bucketing result table
+            ascTable: (string) asc sort of table
+            descTable: (string) desc sort of table
+            colName: (string) column name
+            max: (integer) max count
+            sum: (integer) total row of table
+        */
+        function ProfileBucketInfo<%= v %>(options) {
             var self = _super.call(this, options);
+            <%= addVersion %>
             return self;
         }
 
-        __extends(ProfileBucketInfo, _super);
+        __extends(ProfileBucketInfo<%= v %>, _super);
 
-        return ProfileBucketInfo;
+        return ProfileBucketInfo<%= v %>;
     }());
 
     // profile.js
-    win.ProfileInfo = (function() {
+    win.ProfileInfo<%= v %> = (function() {
         var _super = __getConstructor("ProfileInfo", parentVersion);
-        function ProfileInfo(options) {
+        /* Attr
+            version: <%= version %>,
+            id: (string) uniquely identify the obj
+            colName: (string) column's name
+            frontColName: (string, not persist) column's front name
+            type: (string) column's type
+            aggInfo: (ProfileAggInfo) agg info
+            statsInfo: (ProfileStatsInfo) stats info
+            groupByInfo: (ProfileGroupbyInfo) groupBy info
+        */
+        function ProfileInfo<%= v %>(options) {
             options = options || {};
-            xcAssert(__isCurrentVersion(options));
+            <%= assert %>
             var self = _super.call(this, options);
+            <%= addVersion %>
 
-            var restoreInfos = ProfileInfo.restoreInfos(options, version);
-            self.aggInfo = restoreInfos.aggInfo;
-            self.statsInfo = restoreInfos.statsInfo;
-            self.groupByInfo = restoreInfos.groupByInfo;
+            if (<%= checkFunc %>(options)) {
+                var restoreInfos = ProfileInfo<%= v %>.restoreInfos(options, version);
+                self.aggInfo = restoreInfos.aggInfo;
+                self.statsInfo = restoreInfos.statsInfo;
+                self.groupByInfo = restoreInfos.groupByInfo;
+            }
             return self;
         }
 
-        __extends(ProfileInfo, _super, {
+        __extends(ProfileInfo<%= v %>, _super, {
+            <% if (isCurCtor) {%>
             addBucket: function(bucketNum, options) {
                 this.groupByInfo.buckets[bucketNum] = new ProfileBucketInfo(options);
             },
@@ -1329,21 +1596,57 @@
             getId: function() {
                 return this.id;
             }
+            <%}%>
         });
 
-        return ProfileInfo;
+        return ProfileInfo<%= v %>;
     }());
 
     /*** Start of DSObj ***/
     /* datastore.js */
-    win.DSObj = (function() {
+    win.DSObj<%= v %> = (function() {
         var _super = __getConstructor("DSObj", parentVersion);
-        function DSObj(options) {
+        /* Attr:
+            version: <%= version %>,
+            id: (number/string) uniquely identify dsObj
+            names: (string) ds/folder's name
+            user: (string) the user that creates it
+            fullName: (string) fullName for ds, user.name,
+                                        for folder, equal to name
+            parentId: (number) parent folder's id
+            isFolder (boolean) folder or ds
+            uneditable: (boolean) if set true, no action for it
+            eles: (array) its children DSObj
+            totalChildren: (integer) total nummber of children
+        */
+        /* ds only attr:
+            format: (string) data foramt of ds
+            path: (string) point url of ds
+            size: (string) ds's size
+            numEntries: (integer) total records in ds
+            resultSetId: (string) ds' resultId
+            pattern: (string) path's pattern
+            fieldDelim: (string) field delim
+            lineDelim: (string) line delim
+            hasHeader: (boolean) promote header or not
+            moduleName: (string) udf's module
+            funcName: (string) udf's func
+            isRecur: (boolean) recursive or not
+            previewSize: (integer) ds's previewSize
+            quoteChar: (string) ds's quoteChar
+            skipRows: (integer) how many rows to skip
+            isRegex: (boolean) path is using regEx or not;
+            headers: (array, optional) XXX temp fix to preserve CSV header order
+            error: (string, optional) ds's error
+        */
+        function DSObj<%= v %>(options) {
             var self = _super.call(this, options);
+            <%= addVersion %>
             return self;
         }
 
-        __extends(DSObj, _super, {
+        __extends(DSObj<%= v %>, _super, {
+            <% if (isCurCtor) {%>
             addToParent: function() {
                 if (this.parentId !== DSObjTerm.homeParentId) {
                     var parent = DS.getDSObj(this.parentId);
@@ -1800,9 +2103,10 @@
                     parent = DS.getDSObj(parent.parentId);
                 }
             }
+            <%}%>
         });
 
-        return DSObj;
+        return DSObj<%= v %>;
     }());
     /* End of DSObj */
 
@@ -1810,33 +2114,54 @@
     /* dataflow.js */
     // a inner part of Dataflow
     // Stores the original values for the parameterized node
-    win.RetinaNode = (function() {
+    win.RetinaNode<%= v %> = (function() {
         var _super = __getConstructor("RetinaNode", parentVersion);
-        function RetinaNode(options) {
+        /* Attr:
+            version: <%= version %>,
+            paramType: (string) param's type
+            paramValue: (string) param's value
+            paramQuery: (array) list of param's query
+        */
+        function RetinaNode<%= v %>(options) {
             var self = _super.call(this, options);
+            <%= addVersion %>
             return self;
         }
 
-        __extends(RetinaNode, _super);
+        __extends(RetinaNode<%= v %>, _super);
 
-        return RetinaNode;
+        return RetinaNode<%= v %>;
     }());
 
-    win.Dataflow = (function() {
+    win.Dataflow<%= v %> = (function() {
         var _super = __getConstructor("Dataflow", parentVersion);
-        function Dataflow(name, options) {
+        /* Attr
+            version: <%= version %>,
+            name: (string) Retina name
+            columns: (array, not persist) Columns to export
+            parameters: (array) array of parameters in Dataflow
+            paramMap: (obj) map for parameters
+            nodeIds: (obj, not pesist) map of dagNames and dagIds
+            retinaNodes: (obj, not persist) retina node info from backend
+            parameterizedNodes: (obj) map of dagNodeIds to parameterized structs
+            schedule: (SchedObj) schedule of the dataflow
+        */
+        function Dataflow<%= v %>(name, options) {
             options = options || {};
-            xcAssert(__isCurrentVersion(options));
-
+            <%= assert %>
             var self = _super.call(this, name, options);
+            <%= addVersion %>
 
-            var restoreInfos = Dataflow.restoreInfos(options, version);
-            self.parameterizedNodes = restoreInfos.parameterizedNodes;
-            self.schedule = restoreInfos.schedule;
+            if (<%= checkFunc %>(options)) {
+                var restoreInfos = Dataflow<%= v %>.restoreInfos(options, version);
+                self.parameterizedNodes = restoreInfos.parameterizedNodes;
+                self.schedule = restoreInfos.schedule;
+            }
             return self;
         }
 
-        __extends(Dataflow, _super, {
+        __extends(Dataflow<%= v %>, _super, {
+            <% if (isCurCtor) {%>
             addParameterizedNode: function(dagNodeId, oldParamNode, paramInfo) {
                 this.parameterizedNodes[dagNodeId] = new RetinaNode(oldParamNode);
                 this.updateParameterizedNode(dagNodeId, paramInfo);
@@ -1963,21 +2288,39 @@
             hasSchedule: function() {
                 return this.schedule != null;
             }
+            <%}%>
         });
 
-        return Dataflow;
+        return Dataflow<%= v %>;
     }());
     /* End of Dataflow */
 
     /* Start of Schedule */
-    win.SchedObj = (function() {
+    win.SchedObj<%= v %> = (function() {
         var _super = __getConstructor("SchedObj", parentVersion);
-        function SchedObj(options) {
+        /* Attr:
+            version: <%= version %>,
+            startTime: (date) schedule start time
+            dateText: (string) date text
+            timeText: (string) time text
+            repeat: (string) repate frequency
+            modified: (date) the latest time when this schedule is modified
+        * new attrs:
+            created: (date) the time when this schedule is created
+            activeSession: (boolean)
+            newTableName: (String)
+            usePremadeCronString: (boolean) whether to use user defined cron
+            premadeCronString: (String) cron defined by the user
+        * removed attrs:
+            recur
+        */
+        function SchedObj<%= v %>(options) {
+            options = options || {};
             var self = _super.call(this, options);
+            <%= addVersion %>
 
-            // XXX should be removed when bump to version 2
-            if (currentVersion === 1) {
-                console.log("please remove it in version 2")
+            // XXX this is only for version 2!!!
+            if (<%= checkFunc %>(options)) {
                 delete self.recur;
                 self.created = options.created;
                 self.activeSession = options.activeSession;
@@ -1989,7 +2332,8 @@
             return self;
         }
 
-        __extends(SchedObj, _super, {
+        __extends(SchedObj<%= v %>, _super, {
+            <% if (isCurCtor) {%>
             update: function(options) {
                 options = options || {};
                 this.startTime = options.startTime;
@@ -2002,21 +2346,42 @@
                 this.usePremadeCronString = options.usePremadeCronString;
                 this.premadeCronString = options.premadeCronString;
             }
+            <%}%>
         });
 
-        return SchedObj;
+        return SchedObj<%= v %>;
     }());
     /* End of SchedObj */
 
     /* Query */
-    win.XcQuery = (function() {
+    win.XcQuery<%= v %> = (function() {
         var _super = __getConstructor("XcQuery", parentVersion);
-        function XcQuery(options) {
+        /* Attr:
+            version: <%= version %>,
+            name: (string) queryName
+            fullName: (string) fullName
+            time: (date)
+            elapsedTime: (integer) time used
+            type: (sring) query type
+            id:  (integer) query id
+            numSteps: (integer) total steps in query
+            currStep: (integer) current step
+            outputTableName: (string) output table
+            outputTableState: (string) output table state
+            queryStr: (string) query string
+            sqlNum: sql's id
+            state: (string) enums in QueryStateT
+            cancelable: (boolean) can cancel or not
+            subQueries: (array, not persist) list of XcSubQuery
+        */
+        function XcQuery<%= v %>(options) {
             var self = _super.call(this, options);
+            <%= addVersion %>
             return self;
         }
 
-        __extends(XcQuery, _super, {
+        __extends(XcQuery<%= v %>, _super, {
+            <% if (isCurCtor) {%>
             getName: function() {
                 return this.name;
             },
@@ -2131,9 +2496,10 @@
                     });
                 }
             },
+            <%}%>
         });
 
-        return XcQuery;
+        return XcQuery<%= v %>;
     }());
     /* End of Query */
 }(window));

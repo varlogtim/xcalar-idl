@@ -10,14 +10,14 @@ var tutorMap = {
     "workbookTut.html"          : "workbookTut"
 };
 
-function render(srcDir, destMap) {
+function genHTML(srcDir, destMap) {
     files = fs.readdirSync(srcDir);
     for (var i = 0, len = files.length; i < len; i++) {
-        renderHelper(files[i], srcDir, destMap);
+        genHTMLHelper(files[i], srcDir, destMap);
     }
 }
 
-function renderHelper(file, srcDir, destMap) {
+function genHTMLHelper(file, srcDir, destMap) {
     if (!destMap.hasOwnProperty(file)) {
         console.error(file, "has not dest");
         return;
@@ -55,4 +55,4 @@ function renderHelper(file, srcDir, destMap) {
     fs.writeFileSync(dest, parsedHTML);
 }
 
-module.exports = render;
+module.exports = genHTML;
