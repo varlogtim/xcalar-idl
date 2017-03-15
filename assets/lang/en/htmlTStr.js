@@ -270,6 +270,7 @@ module.exports = {
         "popOutBtn": "Undock",
         "toggleSqlBtn": "Toggle machine/human Log",
         "copySqlBtn": "Copy Log",
+        "copySqlBtnTip": "Copy log",
         "helpCategories": "Categories",
         "Help": "Help",
         "HelpSupport": "HELP & SUPPORT",
@@ -282,7 +283,9 @@ module.exports = {
         "Walkthrough": "Start a Walkthrough",
         "wkbkTutor": "Workbook Tutorial",
         "dsTutor1": "Data Stores Tutorial - Part 1",
-        "dsTutor2": "Data Stores Tutorial - Part 2"
+        "dsTutor2": "Data Stores Tutorial - Part 2",
+        "collapseAll": "Collapse all",
+        "expandAll": "Expand all"
     },
 
     "statusBar": {

@@ -2347,6 +2347,16 @@ window.xcHelper = (function($, xcHelper) {
         }
     };
 
+    xcHelper.hasSelection = function() {
+        var selection;
+        if (window.getSelection) {
+            selection = window.getSelection();
+        } else if (document.selection) {
+            selection = document.selection.createRange();
+        }
+        return (selection.toString().length > 0);
+    };
+
     xcHelper.convertToHtmlEntity = function(s) {
         return s.replace(/[\u00A0-\u9999<>\&]/g, function(i) {
             return '&#' + i.charCodeAt(0) + ';';
@@ -2977,7 +2987,8 @@ window.xcHelper = (function($, xcHelper) {
         callback: function,
         isDataTd: boolean, true if clicking on the json td,
         toClose: function, return true if want to close the menu
-        toggle: boolean, if set true, will toggle open/close of menu
+        toggle: boolean, if set true, will toggle open/close of menu,
+        allowSelection: boolean, if true, will not clear any selected text
     }
     */
     xcHelper.dropdownOpen = function($dropdownIcon, $menu, options) {
@@ -3066,8 +3077,9 @@ window.xcHelper = (function($, xcHelper) {
 
         // adjust menu height and position it properly
         positionAndShowMenu(menuId, $menu, $dropdownIcon, options);
-
-        addMenuKeyboardNavigation($menu, $subMenu);
+        var navOptions = {};
+        navOptions.allowSelection = options.allowSelection;
+        addMenuKeyboardNavigation($menu, $subMenu, navOptions);
     };
 
     /*
@@ -3296,7 +3308,7 @@ window.xcHelper = (function($, xcHelper) {
         toggleUnnestandJsonOptions($menu, $div, columnType, isMultiCell,
                                     notAllowed, options);
     }
-    
+
     // used for deciding if cell can be filtered
     // returns true if cell is mixed and not an object or array
     // assumes cells from only 1 column are highlighted

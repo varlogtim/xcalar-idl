@@ -515,7 +515,7 @@
         background: rgba(0, 0, 0, 0.3);
     }
     ::-webkit-scrollbar-thumb {
-        -webkit-box-shadow: none; 
+        -webkit-box-shadow: none;
         background-color: rgb(67, 88, 113) !important; // xi2 temp
     }
 
@@ -565,7 +565,7 @@
         }
     }
 
-    &.jsonModalOpen { 
+    &.jsonModalOpen {
         z-index: @z-index-modal;
         .ui-resizable-handle {
             display: none !important;
@@ -711,12 +711,51 @@
             }
         }
 
+        &:hover {
+            .expand {
+                display: block;
+            }
+        }
+
+        &.collapsed {
+            .title {
+                .colon {
+                    display: none;
+                }
+                .expand {
+                     .transform(rotate(-90deg));
+                }
+            }
+            .content {
+                display: none;
+            }
+            &:last-child {
+                padding-bottom: 2px !important;
+            }
+        }
+
         .sqlKey {
             color: @color-sql-lightGray;
         }
 
         .title {
             color: @color-sql-blue;
+            cursor: pointer;
+            &:hover {
+                .expand {
+                    opacity: 1;
+                }
+            }
+        }
+
+        .expand {
+            float: right;
+            margin-right: 4px;
+            display: none;
+            opacity: 0.8;
+            .icon {
+                font-size: 10px;
+            }
         }
 
         .content {

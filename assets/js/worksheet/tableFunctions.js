@@ -142,7 +142,7 @@ function getWidestTdWidth(el, options) {
             $th = $table.find('th.col' + id);
             extraPadding -= 40;
         }
-        
+
         headerWidth = getTextWidth($th) + extraPadding;
         // include prefix width
         if ($th.closest('.xcTable').length) {
@@ -152,7 +152,7 @@ function getWidestTdWidth(el, options) {
             });
             headerWidth = Math.max(headerWidth, prefixWidth);
         }
-        
+
         if (!fitAll) {
             return (headerWidth);
         }
@@ -228,7 +228,7 @@ function highlightCell($td, tableId, rowNum, colNum, isShift, options) {
         // to select multi rows
         divClass += " noShiftKey";
     }
-    
+
     var $highlightBox = $('<div class="' + divClass + '" ' +
                             'style="' + styling + '" data-count="1">' +
                         '</div>');
@@ -474,8 +474,13 @@ function addMenuBehaviors($mainMenu, options) {
     }
 }
 
-function addMenuKeyboardNavigation($menu, $subMenu) {
-    $('body').addClass('noSelection');
+// options:
+//      allowSelection: boolean, if true will not clear selected text
+function addMenuKeyboardNavigation($menu, $subMenu, options) {
+    options = options || {};
+    if (!options.allowSelection) {
+        $('body').addClass('noSelection');
+    }
     $(document).on('keydown.menuNavigation', function(event) {
         listHighlight(event);
     });
@@ -828,7 +833,7 @@ function moveTableTitles($tableWraps, options) {
                 } else {
                     $tableTitle.css('left', center);
                 }
-                
+
                 $table.find('.lockedTableIcon')
                       .css('left', center + titleWidth / 2 + 5);
             } else {
@@ -845,7 +850,7 @@ function moveTableTitlesAnimated(tableId, oldWidth, widthChange, speed) {
     if (speed == null) { // lets speed 0 be 0
         speed = 250;
     }
-    
+
     var $table = $('#xcTableWrap-' + tableId);
     var $thead = $table.find('.xcTheadWrap');
     var rect = $thead[0].getBoundingClientRect();
@@ -990,7 +995,7 @@ function moveFirstColumn($targetTable) {
     if (!$targetTable) {
         datasetPreview = false;
         tableOffsetLeft = MainMenu.getOffset();
-        
+
         $('.xcTableWrap:not(".inActive")').each(function() {
             rightOffset = $(this)[0].getBoundingClientRect().right;
             if (rightOffset > tableOffsetLeft) {
@@ -998,7 +1003,7 @@ function moveFirstColumn($targetTable) {
                 return false;
             }
         });
-        
+
     } else {
         datasetPreview = true;
         tableOffsetLeft = 0;

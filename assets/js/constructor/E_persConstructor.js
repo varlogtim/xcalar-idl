@@ -1051,6 +1051,10 @@
                 this.keepJoinTables = $("#joinView").find(".keepTablesCBWrap")
                                                      .find(".checkbox")
                                                      .hasClass("checked");
+                this.sqlCollapsed = $("#sql-TextArea")
+                                    .find(".expanded").length === 0 &&
+                                    $("#sql-TextArea")
+                                     .find(".collapsed").length !== 0;
                 return this;
             }
         });

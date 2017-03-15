@@ -306,7 +306,7 @@
         function TableMetaV1(options) {
             var self = this;
             options = options || {};
-            
+
             if (!options.tableName || !options.tableId) {
                 throw "error table meta!";
             }
@@ -530,6 +530,7 @@
             this.version = version;
             this.datasetListView = options.datasetListView || false;
             this.browserListView = options.browserListView || false;
+            this.sqlCollapsed = options.sqlCollapsed || false;
             this.keepJoinTables = options.keepJoinTables || false;
             this.activeMainTab = options.activeMainTab || "workspaceTab";
             this.general = options.general || {}; // holds general settings that can

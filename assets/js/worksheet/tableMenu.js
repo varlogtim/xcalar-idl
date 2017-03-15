@@ -695,7 +695,7 @@ window.TblMenu = (function(TblMenu, $) {
             }
             var colNum = $colMenu.data('colNum');
             var tableId = $colMenu.data('tableId');
-            
+
             ExtensionManager.openView(colNum, tableId);
         });
 
@@ -912,7 +912,7 @@ window.TblMenu = (function(TblMenu, $) {
                 default:
                     break;
             }
-            
+
         });
     }
 

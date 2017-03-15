@@ -212,7 +212,7 @@ window.DSParser = (function($, DSParser) {
             // timeout because deselecting may not take effect until after
             // mouse up
             setTimeout(function() {
-                if (!hasSelection()) { // no selection made
+                if (!xcHelper.hasSelection()) { // no selection made
                     return;
                 }
 
@@ -246,16 +246,6 @@ window.DSParser = (function($, DSParser) {
                 return false;
             }
         });
-
-        function hasSelection() {
-            var selection;
-            if (window.getSelection) {
-                selection = window.getSelection();
-            } else if (document.selection) {
-                selection = document.selection.createRange();
-            }
-            return (selection.toString().length > 0);
-        }
 
         $menu.on("click", "li", function() {
             var $li = $(this);
@@ -325,7 +315,7 @@ window.DSParser = (function($, DSParser) {
 
         $input.data("val", val).val(val);
         val -= 1; // change 1 indexed to 0 indexed
-        
+
         var page = Math.floor(val / linesPerPage);
         var padding = containerPadding;
         if (val === 1) {
@@ -333,7 +323,7 @@ window.DSParser = (function($, DSParser) {
         }
         var newScrollTop = val * lineHeight + padding;
         var numPages = 1;
-        
+
         if (Math.floor((val + numVisibleLines) / linesPerPage) !== page) {
             numPages++;
         }
@@ -393,7 +383,7 @@ window.DSParser = (function($, DSParser) {
                 updateRowInput();
                 $rowNumCol.scrollTop(scrollTop);
             }
-            
+
             clearTimeout(scrollTimer);
             if (isMouseDown || isBoxMouseDown) {
                 return;
@@ -1489,12 +1479,12 @@ window.DSParser = (function($, DSParser) {
         var line;
         var ch;
         var specialChars = ["{", "}", "[", "]", ","];
-        var linesLen = lines.length; 
+        var linesLen = lines.length;
         // ignore the last element because if it's an empty string
         if (linesLen === 0 || lines[linesLen - 1].trim().length === 0) {
             linesLen--;
-        } 
-        
+        }
+
         for (var i = 0; i < linesLen; i++) {
             line = lines[i];
             var inQuotes = false;
@@ -1618,7 +1608,7 @@ window.DSParser = (function($, DSParser) {
                 key: keys[i].key,
                 offset: keys[i].offset,
                 type: keys[i].type
-                // omitting keys[i].line from being sent 
+                // omitting keys[i].line from being sent
             });
         }
 
@@ -1657,7 +1647,7 @@ window.DSParser = (function($, DSParser) {
         var lineNum = getScrollLineNum();
         $("#parserRowInput").val(lineNum).data("val", lineNum);
     }
-    
+
     function getScrollLineNum() {
         var lineNum = Math.floor(($dataPreview.scrollTop() - containerPadding) /
                                   lineHeight) + 1;

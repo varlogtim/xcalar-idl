@@ -6,7 +6,7 @@
     <i class="icon xi_popout fa-18 popOut" data-toggle="tooltip" data-placement="top" data-container="body" data-original-title="<%= dicts.bottomMenu.popOutBtn %>"></i>
     <div id="sqlButtonWrap" class="xc-hidden">
       <i class="icon xi-human-dot fa-18 humanLog" data-toggle="tooltip" data-placement="top" data-container="body" title="<%= dicts.bottomMenu.toggleSqlBtn %>"></i>
-      <i class="icon xi-copy-clipboard fa-18 copyLog" data-toggle="tooltip" data-placement="top" data-container="body" title="<%= dicts.bottomMenu.copySqlBtn %>"></i>
+      <i class="icon xi-copy-clipboard fa-18 copyLog" data-toggle="tooltip" data-placement="top" data-container="body" title="<%= dicts.bottomMenu.copySqlBtnTip %>"></i>
     </div>
     <div id="helpButtonWrap" class="xc-hidden">
       <i id="helpCategories" class="icon xi-menu-table-list fa-18" data-toggle="tooltip" data-placement="top" data-container="body" title="<%= dicts.bottomMenu.helpCategories %>"></i>
@@ -65,6 +65,19 @@
         <div class="container">
           <div id="sql-TextArea" class="sqlTextArea"></div>
           <div id="sql-MachineTextArea" class="sqlTextArea"></div>
+        </div>
+      </div>
+      <div id="sqlMenu" class="menu">
+        <ul>
+          <li class="copy" data-action="copy"><%= dicts.bottomMenu.copySqlBtnTip %></li>
+          <li class="collapseAll" data-action="collapseAll"><%= dicts.bottomMenu.collapseAll %></li>
+          <li class="expandAll" data-action="expandAll"><%= dicts.bottomMenu.expandAll %></li>
+        </ul>
+        <div class="scrollArea top">
+          <div class="arrow"></div>
+        </div>
+        <div class="scrollArea bottom">
+          <div class="arrow"></div>
         </div>
       </div>
     </section>

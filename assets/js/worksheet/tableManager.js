@@ -1278,7 +1278,7 @@ window.TblManager = (function($, TblManager) {
             } else if (numActualFails > 1) {
                 tablesMsg += ErrTStr.TablesNotDeleted + " " + failedTablesStr;
             }
-            
+
             if (hasSuccess || noDeleteTables.length) {
                 if (!numActualFails) {
                     errorMsg = noDeleteMsg;
@@ -1329,7 +1329,7 @@ window.TblManager = (function($, TblManager) {
             removeMenuKeyboardNavigation();
             $('.highlightBox').remove();
 
-            
+
             RowScroller.genFirstVisibleRowNum();
             var table = gTables[tableId];
             var $table = $('#xcTable-' + tableId);
@@ -1889,7 +1889,7 @@ window.TblManager = (function($, TblManager) {
             }
             TblAnim.startTableDrag($(this).parent(), event);
         });
-       
+
         var $table = $('#xcTable-' + tableId);
         $table.width(0);
         matchHeaderSizes($table);
@@ -2636,7 +2636,7 @@ window.TblManager = (function($, TblManager) {
         var deleteables = [];
         var nonDeletables = [];
         var tId;
-       
+
         tables.forEach(function(tIdOrName) {
             if (tableType === TableType.Orphan) {
                 tId = xcHelper.getTableId(tIdOrName);

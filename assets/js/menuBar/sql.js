@@ -2,6 +2,7 @@ window.SQL = (function($, SQL) {
     var $sqlButtons;      // $("#sqlButtonWrap");
     var $textarea;        // $("#sql-TextArea");
     var $machineTextarea; // $("#sql-MachineTextArea");
+    var $sqlMenu; // $("#sqlMenu");
 
     var $undo; // $("#undo");
     var $redo; // $("#redo");
@@ -29,11 +30,13 @@ window.SQL = (function($, SQL) {
         "Skip": 1,   // should skip undo/redo
         "Invalid": 2    // cannot undo/redo
     };
+    var isCollapsed = false;
 
     SQL.setup = function() {
         $sqlButtons = $("#sqlButtonWrap");
         $textarea = $("#sql-TextArea");
         $machineTextarea = $("#sql-MachineTextArea");
+        $sqlMenu = $("#sqlMenu");
 
         $undo = $("#undo");
         $redo = $("#redo");
@@ -58,25 +61,7 @@ window.SQL = (function($, SQL) {
         });
 
         $sqlButtons.on("click", ".copyLog", function() {
-            var $hiddenInput = $("<input>");
-            $("body").append($hiddenInput);
-            var value;
-            if ($machineTextarea.is(":visible")) {
-                xcAssert(!$textarea.is(":visible"),
-                        "human and android cannot coexist!");
-                value = $machineTextarea.text();
-            } else {
-                xcAssert(!$machineTextarea.is(":visible"),
-                        "human and android cannot coexist!");
-                xcAssert($textarea.is(":visible"),
-                        "At least one bar should be showing");
-                value = JSON.stringify(SQL.getAllLogs());
-            }
-
-            $hiddenInput.val(value).select();
-            document.execCommand("copy");
-            $hiddenInput.remove();
-            xcHelper.showSuccess(SuccessTStr.Copy);
+            copyLog();
         });
 
         $undo.click(function() {
@@ -94,6 +79,51 @@ window.SQL = (function($, SQL) {
 
             SQL.redo();
         });
+
+        $textarea.on("click", ".title", function() {
+            $(this).parent().toggleClass("collapsed");
+            $(this).parent().toggleClass("expanded");
+            if ($textarea.find(".expanded").length) {
+                isCollapsed = false;
+            } else if ($textarea.find(".collapsed").length) {
+                isCollapsed = true;
+            }
+        });
+
+        addMenuBehaviors($sqlMenu);
+        setupMenuActions();
+
+        $textarea.parent().contextmenu(function(event) {
+
+            var $target = $(event.target);
+            xcHelper.dropdownOpen($target, $sqlMenu, {
+                "mouseCoors": {"x": event.pageX, "y": event.pageY + 10},
+                "floating": true
+            });
+
+            if ($machineTextarea.is(":visible")) {
+                $sqlMenu.find(".expandAll, .collapseAll").hide();
+                return false;
+            } else {
+                $sqlMenu.find(".expandAll, .collapseAll").show();
+            }
+
+            if ($textarea.find(".collapsed").length) {
+                $sqlMenu.find(".expandAll").removeClass("unavailable");
+            } else {
+                $sqlMenu.find(".expandAll").addClass("unavailable");
+            }
+
+            if ($textarea.find(".expanded").length) {
+                $sqlMenu.find(".collapseAll").removeClass("unavailable");
+            } else {
+                $sqlMenu.find(".collapseAll").addClass("unavailable");
+            }
+
+            return false;
+        });
+
+
     };
 
     SQL.hasUnCommitChange = function() {
@@ -107,6 +137,8 @@ window.SQL = (function($, SQL) {
             updateUndoRedoState();
             return deferred.resolve().promise();
         }
+
+        isCollapsed = UserSettings.getPref("sqlCollapsed");
 
         restoreLogs(oldLogCursor)
         .then(function() {
@@ -892,9 +924,20 @@ window.SQL = (function($, SQL) {
 
         var opsToExclude = options.htmlExclude || []; // array of keys to
         // exclude from HTML
-
-        var html = '<div class="sqlContentWrap" data-sql=' + id + '>' +
-                    '<div class="title"> >>' + sql.title + ':</div>' +
+        var collapseClass;
+        if (isCollapsed) {
+            collapseClass = " collapsed";
+        } else {
+            collapseClass = " expanded";
+        }
+        var html = '<div class="sqlContentWrap '+ collapseClass +
+                    '" data-sql=' + id + '>' +
+                    '<div class="title"> >>' + sql.title +
+                        '<span class="colon">:</span>' +
+                        '<span class="expand">' +
+                            '<i class="icon xi-arrow-down"></i>' +
+                        '</span>' +
+                    '</div>' +
                     '<div class="content">{';
         var count = 0;
 
@@ -943,6 +986,59 @@ window.SQL = (function($, SQL) {
                          '</span>';
             return string;
         }
+    }
+
+    function copyLog() {
+        var $hiddenInput = $("<input>");
+        $("body").append($hiddenInput);
+        var value;
+        if ($machineTextarea.is(":visible")) {
+            xcAssert(!$textarea.is(":visible"),
+                    "human and android cannot coexist!");
+            value = $machineTextarea.text();
+        } else {
+            xcAssert(!$machineTextarea.is(":visible"),
+                    "human and android cannot coexist!");
+            xcAssert($textarea.is(":visible"),
+                    "At least one bar should be showing");
+            value = JSON.stringify(SQL.getAllLogs());
+        }
+
+        $hiddenInput.val(value).select();
+        document.execCommand("copy");
+        $hiddenInput.remove();
+        xcHelper.showSuccess(SuccessTStr.Copy);
+    }
+
+    function setupMenuActions() {
+        $sqlMenu.on("mouseup", "li", function(event) {
+            if (event.which !== 1) {
+                return;
+            }
+            var action = $(this).data('action');
+            if (!action) {
+                return;
+            }
+
+            switch (action) {
+                case ("copy"):
+                    copyLog();
+                    break;
+                case ("collapseAll"):
+                    $textarea.find(".sqlContentWrap").addClass("collapsed");
+                    $textarea.find(".sqlContentWrap").removeClass("expanded");
+                    isCollapsed = true;
+                    break;
+                case ("expandAll"):
+                    $textarea.find(".sqlContentWrap").removeClass("collapsed");
+                    $textarea.find(".sqlContentWrap").addClass("expanded");
+                    isCollapsed = false;
+                    break;
+                default:
+                    console.error("action not found");
+                    break;
+            }
+        });
     }
 
     function isBackendOperation(sql) {
