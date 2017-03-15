@@ -216,6 +216,18 @@ window.UserSettings = (function($, UserSettings) {
             }
         });
 
+        $("#enableFileBox").click(function() {
+            var $checkbox = $(this);
+            $checkbox.toggleClass('checked');
+            if ($checkbox.hasClass("checked")) {
+                UserSettings.setPref('fileEnabled', true, true);
+                $("#fileProtocolMenu").find('li[name="file"]').show();
+            } else {
+                UserSettings.setPref('fileEnabled', false, true);
+                $("#fileProtocolMenu").find('li[name="file"]').hide();
+            }
+        });
+
         var $dsSampleLimit = $('#monitorDsSampleInput');
         new MenuHelper($dsSampleLimit.find(".dropDownList"), {
             "onSelect": function($li) {
@@ -271,21 +283,25 @@ window.UserSettings = (function($, UserSettings) {
             });
         }
     }
-           
+
     function restoreSettingsPanel() {
-        var hideDataCol = UserSettings.getPref('hideDataCol');
-        var skipSplash = UserSettings.getPref('skipSplash');
-        var graphInterval = UserSettings.getPref('monitorGraphInterval');
-        var commitInterval = UserSettings.getPref('commitInterval');
-        var dsSampleLimit = UserSettings.getPref('DsDefaultSampleSize');
-        
+        var hideDataCol = UserSettings.getPref("hideDataCol");
+        var skipSplash = UserSettings.getPref("skipSplash");
+        var showFile = UserSettings.getPref("fileEnabled");
+        var graphInterval = UserSettings.getPref("monitorGraphInterval");
+        var commitInterval = UserSettings.getPref("commitInterval");
+        var dsSampleLimit = UserSettings.getPref("DsDefaultSampleSize");
+
         if (!hideDataCol) {
-            $('#showDataColBox').addClass('checked');
+            $("#showDataColBox").addClass("checked");
         }
-        if (!window.hasFlash) {
-            $('#skipSplashBox').closest('.optionSet').addClass('xc-hidden');
-        } else if (skipSplash) {
-            $('#skipSplashBox').addClass('checked');
+        if (skipSplash) {
+            $("#skipSplashBox").addClass("checked");
+        }
+        if (showFile) {
+            $("#enableFileBox").addClass("checked");
+        } else {
+            $("#fileProtocolMenu").find('li[name="file"]').hide();
         }
 
         monIntervalSlider.setSliderValue(graphInterval);

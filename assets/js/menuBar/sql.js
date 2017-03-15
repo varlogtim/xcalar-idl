@@ -80,6 +80,19 @@ window.SQL = (function($, SQL) {
             SQL.redo();
         });
 
+        $textarea.on("click", ".collapsed", function(event) {
+            if ($(event.target).closest(".title").length) {
+                return;
+            }
+            $(this).toggleClass("collapsed");
+            $(this).toggleClass("expanded");
+            if ($textarea.find(".expanded").length) {
+                isCollapsed = false;
+            } else if ($textarea.find(".collapsed").length) {
+                isCollapsed = true;
+            }
+        });
+
         $textarea.on("click", ".title", function() {
             $(this).parent().toggleClass("collapsed");
             $(this).parent().toggleClass("expanded");

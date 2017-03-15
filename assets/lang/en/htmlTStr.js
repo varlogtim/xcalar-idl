@@ -351,6 +351,7 @@ module.exports = {
         "DeleteOptions": "Delete Options",
         "DetailQuery": "Detail of Query",
         "ElaspedTime": "Elapsed Time",
+        "enableFile": "Enable file://",
         "GeneralSettings": "General Settings",
         "GenSub": "Generate Support Ticket",
         "graphInterval": "MONITOR GRAPH INTERVAL",
