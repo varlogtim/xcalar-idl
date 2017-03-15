@@ -1,4 +1,5 @@
-render = require('./site/render.js');
+render = require('./site/scripts/render.js');
+genCtor = require('./site/scripts/genConstructor.js');
 tmpDest = 'site/tmp';
 prettifyOptions = {
   options: {
@@ -167,6 +168,10 @@ module.exports = function(grunt) {
   grunt.registerTask('html', ['includes']);
   grunt.registerTask('template', function() {
     render(tmpDest, destMap);
+  });
+
+  grunt.registerTask('version', function() {
+    genCtor("assets/js/constructor/test.js");
   });
 
   grunt.renameTask('watch', 'customWatch');

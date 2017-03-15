@@ -1,7 +1,7 @@
 lang = "en";
 fs = require('fs');
 _ = require('underscore');
-dicts = require('../assets/lang/' + lang + '/htmlTStr.js');
+dicts = require('../../assets/lang/' + lang + '/htmlTStr.js');
 
 var tutorMap = {
     "datastoreTut1.html"        : "datastoreTut1",
