@@ -22,7 +22,7 @@ function genDest(version) {
         throw "version too large";
     }
     var str = "ABCDEFGHIJKLMNOPQRETUVWXYZ";
-    var ch = (version < 2) ? "" : str[version - 2];
+    var ch = (version < 2) ? "" : str[version - 1];
     return "assets/js/constructor/D" + ch +
            "_persConstructorV" + version + ".js";
 }
