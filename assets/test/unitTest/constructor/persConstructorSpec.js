@@ -89,12 +89,12 @@ describe("Persistent Constructor Test", function() {
             expect(metaInfos.getStatsMeta()).not.to.have.property("testTable");
             expect(metaInfos.getLogCMeta()).not.to.equal(-2);
             expect(metaInfos.getTpfxMeta()).not.to.have.property("testPrefix");
-            
+
             var queryList = metaInfos.getQueryMeta();
             if (queryList.length > 0) {
                 expect(queryList[0].name).not.to.equal("testQuery");
             }
-            
+
         });
     });
 
@@ -1752,11 +1752,11 @@ describe("Persistent Constructor Test", function() {
     });
 
     describe("UserPref Constructor Test", function() {
-        it("Should have 6 attributes", function() {
+        it("Should have 7 attributes", function() {
             var userPref = new UserPref();
 
             expect(userPref).to.be.an.instanceof(UserPref);
-            expect(Object.keys(userPref).length).to.equal(6);
+            expect(Object.keys(userPref).length).to.equal(7);
             expect(userPref).to.have.property("version")
             .and.to.equal(currentVersion);
             expect(userPref).to.have.property("datasetListView")
@@ -1764,6 +1764,8 @@ describe("Persistent Constructor Test", function() {
             expect(userPref).to.have.property("browserListView")
             .and.to.be.false;
             expect(userPref).to.have.property("keepJoinTables")
+            .and.to.be.false;
+            expect(userPref).to.have.property("sqlCollapsed")
             .and.to.be.false;
             expect(userPref).to.have.property("activeMainTab")
             .and.to.equal("workspaceTab");
