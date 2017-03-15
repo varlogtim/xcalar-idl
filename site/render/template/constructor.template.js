@@ -68,7 +68,6 @@
                         var table = persistTables[tableId];
                         delete table.currentRowNumber;
                         delete table.keyName;
-                        delete table.resultSetCount;
                         delete table.resultSetMax;
                         delete table.numPages;
                         delete table.ordering;
@@ -294,10 +293,10 @@
             currentRowNumber: (integer, not persist) current row number
             resultSetId: (string) result id
             icv: (string), icv table
+            resultSetCount: (integer) total row num
 
             keyName: (string, not persist) column on index
-            resultSetCount: (integer, not persist) total row num
-            resultSetMax: (integer, not persist) ?
+            resultSetMax: (integer, not persist) last row able to fetch
             numPages: (integer, not persist) num of pages
             backTableMeta: (obj, not persist) backTableMeta
         */

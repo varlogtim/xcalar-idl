@@ -335,11 +335,16 @@
                 self.resultSetId = -1;
             }
 
+            if (options.resultSetCount != null) {
+                self.resultSetCount = options.resultSetCount;
+            } else {
+                self.resultSetCount = -1; // placeholder
+            }
+
             self.icv = options.icv || "";
             self.keyName = ""; // placeholder
             self.ordering = null; // placeholder
             self.backTableMeta = null; // placeholder
-            self.resultSetCount = -1; // placeholder
             self.resultSetMax = -1; // placeholder
             self.numPages = -1; // placeholder
 
