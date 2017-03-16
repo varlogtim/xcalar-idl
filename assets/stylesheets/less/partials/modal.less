@@ -40,7 +40,7 @@
             }
 
             &:active {
-                
+
             }
         }
         .close, .headerBtn {
@@ -58,7 +58,7 @@
         .fullScreen {
             .position(absolute, @top: 7px, @right: 34px);
             .icon {
-               font-size: 18px; 
+               font-size: 18px;
             }
         }
         .exitFullScreen {
@@ -259,7 +259,7 @@
             box-shadow: -1px 0px 0px @color-bg-pinkish-grey2;
             .prettyJson {
                 height: ~"calc(100% - 48px)";
-            }  
+            }
         }
         &.active {
             .optionsBar {
@@ -299,8 +299,8 @@
             .prettyJson {
                 .noSelection;
             }
-           
-            .immediatesType { 
+
+            .immediatesType {
                 .jsonCheckbox {
                     display: block;
                 }
@@ -332,7 +332,7 @@
                     }
                 }
             }
-            
+
             .split, .pullAll, .compareIcon, .sort {
                 opacity: 0.5;
                 pointer-events: none;
@@ -379,7 +379,7 @@
                 display: block;
             }
 
-            .prefixedType { 
+            .prefixedType {
                 .jsonCheckbox {
                     display: block;
                 }
@@ -444,8 +444,8 @@
             .prettyJson {
                 background-color: @color-json-project-bg;
             }
-           
-            .immediatesType { 
+
+            .immediatesType {
                 .jsonCheckbox {
                     display: block;
                 }
@@ -494,7 +494,7 @@
                     }
                 }
             }
-            
+
             .menu {
                 li.selectionOpt, li.multiSelectionOpt {
                     color: @color-font-darkGray;
@@ -666,7 +666,7 @@
             float: right;
 
             .icon {
-               color: @color-white; 
+               color: @color-white;
             }
         }
         .flexArea {
@@ -895,13 +895,13 @@
     .fullScreen {
         .position(absolute, @top: 6px, @right: 36px);
         .icon {
-           font-size: 16px; 
+           font-size: 16px;
         }
     }
     .exitFullScreen {
         .position(absolute, @top: 5px, @right: 63px);
         .icon {
-           font-size: 14px; 
+           font-size: 14px;
         }
     }
 
@@ -1001,7 +1001,7 @@
         }
     }
     .prefixGroup {
-        margin-top: 20px; 
+        margin-top: 20px;
 
         .jObject {
             padding-left: 31px;
@@ -1971,7 +1971,7 @@ html.microsoft {
 
                 .radioButton {
                     .size(@height: 30px);
-                    
+
 
                     > div, > i, > input {
                         display: inline-block;
@@ -1986,10 +1986,10 @@ html.microsoft {
                     }
 
                     .text {
-                
+
                         .font(@size: 13px, @color: @color-font-navy);
                         line-height: 30px;
-                        .textOverflowOneLine;             
+                        .textOverflowOneLine;
                     }
                 }
             }
@@ -2107,7 +2107,7 @@ html.microsoft {
 
                         &:first-child {
                             border-bottom: 1px solid @color-border-softBlue;
-                            
+
                             .icon {
                                 top: 0;
                             }
@@ -2203,7 +2203,7 @@ html.microsoft {
     }
 
 
-    #profile-chart {   
+    #profile-chart {
         .loadingSection {
             display: none;
             .size(@width: 100%, @height: 100%);
@@ -2244,7 +2244,7 @@ html.microsoft {
 
                 &.left-arrow {
                     left: 9px;
-                    
+
                 }
 
                 &.right-arrow {
@@ -2439,7 +2439,7 @@ html.microsoft {
                         top: 3px;
                     }
                 }
-                
+
             }
 
             .title {
@@ -2533,6 +2533,10 @@ html.microsoft {
 
             &:first-child {
                 text-transform: capitalize;
+                margin-left: 0px;
+            }
+            &:last-child {
+                margin-right: 0px;
             }
         }
         .boxed {
@@ -2543,23 +2547,17 @@ html.microsoft {
             padding: 0px 4px 0px 6px;
 
             &.small {
-                .size(@min-width: 35px, @max-width: 50px);
-                text-align: center;
-                padding-left: 6px;
-            }
-            &.sm-med {
                 .flex(1 0 120px);
                 .size(@width: 120px);
+                max-width: 200px;
             }
             &.medium {
-                .size(@min-width: 120px, @max-width: 350px);
-                .size(@width: 350px);
+                .size(@min-width: 120px, @width: 350px);
+                .flex(1 1 350px);
             }
             &.large {
-                .size(@min-width: 400px, @max-width: 600px);
-            }
-            &.xlarge {
-                .size(@min-width: 500px, @max-width: 800px);
+                .size(@min-width: 500px);
+                .flex(1 1 500px);
             }
 
             .boxed {
@@ -2944,7 +2942,7 @@ html.microsoft {
         padding-right: @sidePadding;
         font-size: @fontSize;
         // font-weight: 700;
-          
+
         .label {
             line-height: 30px;
             width: 110px;
@@ -2954,7 +2952,7 @@ html.microsoft {
             max-width: 300px;
             width: ~"calc(100% - 110px)";
             float: right;
-            
+
 
             .text {
                 width: ~"calc(100% - 30px)";
@@ -3176,7 +3174,7 @@ html.microsoft {
                     .textOverflowOneLine;
                 }
             }
-            
+
             .highlightedText {
                 background-color: yellow;
                 &.selected {

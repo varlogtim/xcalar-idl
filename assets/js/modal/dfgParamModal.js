@@ -8,6 +8,7 @@ window.DFParamModal = (function($, DFParamModal){
     var validParams = [];
     var modalHelper;
     var dropdownHelper;
+    var filterFnMap = {}; // stores fnName: numArgs
 
     var paramListTrLen = 7;
     var trTemplate =
@@ -177,6 +178,7 @@ window.DFParamModal = (function($, DFParamModal){
                     }
 
                     $input.val(func);
+                    updateNumArgs(func);
                 },
                 "onOpen": function() {
                     var $lis = $list.find('li')
@@ -198,14 +200,22 @@ window.DFParamModal = (function($, DFParamModal){
             });
             dropdownHelper.setupListeners();
 
+            $list.find("input").change(function() {
+                var func = $(this).val().trim();
+                updateNumArgs(func);
+            });
+
             XcalarListXdfs('*', 'Conditional*')
             .then(function(ret) {
                 var numXdfs = ret.numXdfs;
                 var html = "";
                 var fnNames = [];
+                var fns = ret.fnDescs;
                 for (var i = 0; i < numXdfs; i++) {
                     fnNames.push(ret.fnDescs[i].fnName);
+                    filterFnMap[ret.fnDescs[i].fnName] = ret.fnDescs[i].numArgs;
                 }
+
                 fnNames = fnNames.sort();
                 for (i = 0; i < numXdfs; i++) {
                     html += '<li>' + fnNames[i] + '</li>';
@@ -365,38 +375,38 @@ window.DFParamModal = (function($, DFParamModal){
             defaultText += '<div>' +
                                 DFTStr.PointTo + ':' +
                             '</div>' +
-                            '<div class="boxed xlarge">' +
+                            '<div class="boxed large">' +
                                 xcHelper.escapeHTMLSepcialChar(paramValue) +
                             '</div>';
 
             editableText += '<div class="static" data-op="load">' +
                                 DFTStr.PointTo + ':' +
                             '</div>' +
-                            getParameterInputHTML(0, "xlarge");
+                            getParameterInputHTML(0, "large");
         } else if (type === "export") {
             defaultText += '<div>' +
                                 DFTStr.ExportTo + ':' +
                             '</div>' +
-                            '<div class="boxed xlarge">' +
+                            '<div class="boxed large">' +
                                 xcHelper.escapeHTMLSepcialChar(paramValue) +
                             '</div>';
             editableText += '<div class="static" data-op="export">' +
                                 DFTStr.ExportTo + ':' +
                             '</div>' +
-                            getParameterInputHTML(0, "xlarge");
+                            getParameterInputHTML(0, "large");
         } else { // not a datastore but a table
-            if (checkForNestedEval(paramValue)) {
+            if (!checkForOneParen(paramValue)) {
                 defaultText += '<div>' +
                                 'Filter' + ':' +
                             '</div>' +
-                            '<div class="boxed xlarge">' +
+                            '<div class="boxed large">' +
                                 xcHelper.escapeHTMLSepcialChar(paramValue) +
                             '</div>';
 
                 editableText += '<div class="static" data-op="' + type + '">' +
                                 'Filter' + ':' +
                             '</div>' +
-                            getParameterInputHTML(0, "xlarge");
+                            getParameterInputHTML(0, "large");
             } else {
                 var retStruct = xcHelper.extractOpAndArgs(paramValue, ',');
 
@@ -412,9 +422,8 @@ window.DFParamModal = (function($, DFParamModal){
 
                 if (type === "filter") {
 
-
                     defaultText += '<div class="static">by</div>' +
-                                    '<div class="boxed sm-med">' +
+                                    '<div class="boxed small">' +
                                     xcHelper.escapeHTMLSepcialChar(retStruct.op) +
                                     '</div>';
                     for (var i = 1; i < retStruct.args.length; i++) {
@@ -424,11 +433,10 @@ window.DFParamModal = (function($, DFParamModal){
                                         '</div>';
                     }
 
-
                     editableText +=
                             getParameterInputHTML(0, "medium") +
                             '<div class="static">by</div>' +
-                            getParameterInputHTML(1, "sm-med", {filter: true});
+                            getParameterInputHTML(1, "small", {filter: true});
                     for (var i = 1; i < retStruct.args.length; i++) {
                         editableText +=
                                 getParameterInputHTML(1 + i, "medium allowEmpty");
@@ -444,8 +452,7 @@ window.DFParamModal = (function($, DFParamModal){
         $editableRow.html(editableText);
     }
 
-
-    function checkForNestedEval(paramValue) {
+    function checkForOneParen(paramValue) {
         var val;
         var inQuote = false;
         var isEscaped = false;
@@ -478,7 +485,7 @@ window.DFParamModal = (function($, DFParamModal){
                 case ("("):
                     if (!inQuote) {
                         if (braceFound) {
-                            return true;
+                            return false;
                         } else {
                             braceFound = true;
                         }
@@ -489,7 +496,7 @@ window.DFParamModal = (function($, DFParamModal){
                     break;
             }
         }
-        return false;
+        return braceFound;
     }
 
     function suggest($input) {
@@ -533,6 +540,34 @@ window.DFParamModal = (function($, DFParamModal){
 
     function sortHTML(a, b){
         return ($(b).text()) < ($(a).text()) ? 1 : -1;
+    }
+
+    function updateNumArgs(func) {
+        var numArgs = filterFnMap[func];
+        if (numArgs == null) { // entry could be misspelled or empty
+            return;
+        }
+        var $paramPart = $dfgParamModal.find(".editableTable");
+        var $editableDivs = $paramPart.find('input.editableParamDiv');
+        var numDivs = $editableDivs.length - 1; // don't count the op div
+        if (numDivs === numArgs) {
+            return;
+        }
+        $paramPart.find(".tdWrapper:gt(" + numArgs + ")").remove();
+
+        if (numArgs > numDivs) {
+            var editableText = "";
+            for (var i = numDivs; i < numArgs; i++) {
+                editableText +=
+                getParameterInputHTML(1 + i, "medium allowEmpty");
+            }
+            $dfgParamModal.find(".editableRow").append(editableText);
+        }
+
+        modalHelper.refreshTabbing();
+        $editableDivs.each(function() {
+            checkInputForParam($(this));
+        });
     }
 
     function addParamToLists(paramName, paramVal, isRestore, isSystemParam) {
@@ -838,8 +873,11 @@ window.DFParamModal = (function($, DFParamModal){
                             paramQuery.push(arg);
                         }
                         additionalArgs = additionalArgs.slice(0, -1);
-                        paramValue = filterText + "(" + str1 + "," +
-                                     additionalArgs + ")";
+                        if (additionalArgs.length) {
+                            additionalArgs = "," + additionalArgs;
+                        }
+                        paramValue = filterText + "(" + str1 +
+                                                    additionalArgs + ")";
                     }
 
                     break;
@@ -897,9 +935,12 @@ window.DFParamModal = (function($, DFParamModal){
                             paramQuery.push(arg);
                         }
                         additionalArgs = additionalArgs.slice(0, -1);
+                        if (additionalArgs.length) {
+                            additionalArgs = "," + additionalArgs;
+                        }
 
-                        paramValue = filterText + "(" + str1 + "," +
-                                     additionalArgs + ")";
+                        paramValue = filterText + "(" + str1 +
+                                                    additionalArgs + ")";
                     }
 
 
@@ -1032,16 +1073,31 @@ window.DFParamModal = (function($, DFParamModal){
         // paramMap.
 
         if (retinaNode != null && retinaNode.paramQuery != null) {
-            var $templateVals = $editableRow.closest(".modalTopMain")
-                                            .find(".template .boxed");
-            xcAssert(retinaNode.paramQuery.length === $templateVals.length);
+            var $templateVals = $dfgParamModal.find(".template .boxed");
             var i = 0;
             var parameterizedVals = [];
-            for (; i<retinaNode.paramQuery.length; i++) {
-                parameterizedVals.push(decodeURI($templateVals.eq(i).text()));
+
+            $templateVals.each(function() {
+                parameterizedVals.push(decodeURI($(this).text()));
+            });
+
+            for (; i < retinaNode.paramQuery.length; i++) {
+                if (!$templateVals.eq(i).length) {
+                    // more params than there are divs
+                    var html = '<div class="boxed medium"></div>';
+                    $dfgParamModal.find(".template").append(html);
+                    $templateVals = $dfgParamModal.find(".template .boxed");
+                }
                 $templateVals.eq(i).text(retinaNode.paramQuery[i]);
             }
+            $dfgParamModal.find(".template .boxed:gt(" +
+                            (retinaNode.paramQuery.length - 1) + ")").remove();
+            if ($dfgParamModal.find(".template .boxed").length === 1) {
+                $dfgParamModal.find(".template").find(".static").remove();
+            }
+
             var $editableDivs = $editableRow.find("input.editableParamDiv");
+
             parameterizedVals.forEach(function(query, index) {
                 var html = query;
                 var len = query.length;
