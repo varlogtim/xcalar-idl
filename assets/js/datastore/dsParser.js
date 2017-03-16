@@ -14,7 +14,9 @@ window.DSParser = (function($, DSParser) {
     var lineHeight = 18;
     var boxLineHeight = 15;
     var linesPerPage = 100;
-    var containerPadding = 4;
+    var paddingTop = 4;
+    var paddingBottom = 10;
+    var loadingMargin = 45;
     var isMouseDown = false;
     var isBoxMouseDown = false;
     var fetchId = 0; // used to detect stale requests
@@ -34,8 +36,8 @@ window.DSParser = (function($, DSParser) {
         $formatList = $parserCard.find(".fileFormat");
         $dataPreview = $parserCard.find('.dataPreview');
         $previewContent = $parserCard.find('.previewContent');
-        $miniPreview = $("#previewModeBox").find(".boxBody");
-        $miniContent = $miniPreview.find('.boxContent');
+        $miniPreview = $("#previewModeBox").find(".innerMetaPreview");
+        $miniContent = $miniPreview.find('.metaContent');
 
         new MenuHelper($formatList, {
             "onSelect": function($li) {
@@ -112,7 +114,12 @@ window.DSParser = (function($, DSParser) {
         $dataPreview.find(".sizer").height(0);
         $previewContent.parent().height("auto");
         $miniContent.parent().height("auto");
+        $parserCard.find()
         $dataPreview.scrollTop(0);
+        $dataPreview.css("margin-left", loadingMargin);
+        $miniPreview.css("margin-left", loadingMargin);
+        $parserCard.find(".rowNums").empty();
+        $parserCard.find(".rowNumCol").scrollTop(0);
     }
 
     function changeFormat($li) {
@@ -317,7 +324,7 @@ window.DSParser = (function($, DSParser) {
         val -= 1; // change 1 indexed to 0 indexed
 
         var page = Math.floor(val / linesPerPage);
-        var padding = containerPadding;
+        var padding = paddingTop;
         if (val === 1) {
             padding = 0;
         }
@@ -365,26 +372,44 @@ window.DSParser = (function($, DSParser) {
         var prevScrollPos = 0;
         var scrollTop;
         var scrollTimer;
+        var rowNumTimer;
         var $container;
         var isBox = false;
+        var $rowNumCol;
 
-        if ($preview.hasClass("boxBody")) {
+        if ($preview.hasClass("innerMetaPreview")) {
             $container = $preview;
+            $rowNumCol = $parserCard.find(".metaRowNumCol");
             isBox = true;
         } else {
             $container = $parserCard;
+            $rowNumCol = $parserCard.find(".previewRowNumCol");
         }
-
-        var $rowNumCol = $parserCard.find(".previewRowNumCol");
 
         $preview.scroll(function() {
             scrollTop = $preview.scrollTop();
             if (!isBox) {
                 updateRowInput();
-                $rowNumCol.scrollTop(scrollTop);
             }
 
+            $rowNumCol.scrollTop(scrollTop);
+
             clearTimeout(scrollTimer);
+            clearTimeout(rowNumTimer);
+
+            rowNumTimer = setTimeout(function() {
+                if (!previewMeta) {
+                    return;
+                }
+                var meta;
+                if (isBox) {
+                    meta = previewMeta.meta;
+                } else {
+                    meta = previewMeta;
+                }
+                checkIfScrolled($preview, meta, true);
+            }, 200);
+
             if (isMouseDown || isBoxMouseDown) {
                 return;
             }
@@ -429,14 +454,13 @@ window.DSParser = (function($, DSParser) {
             return; // scroll may be triggered when refreshing with new data
         }
         var meta;
-        if ($preview.hasClass("boxBody")) {
+        if ($preview.hasClass("innerMetaPreview")) {
             meta = previewMeta.meta;
         } else {
             meta = previewMeta;
         }
 
-        var scrollTop = Math.max(0, $preview.scrollTop() -
-                                    containerPadding);
+        var scrollTop = Math.max(0, $preview.scrollTop() - paddingTop);
 
         if (up) {
             var startPage = Math.floor(scrollTop / meta.pageHeight);
@@ -455,11 +479,11 @@ window.DSParser = (function($, DSParser) {
     // called after pressing mousedown on scrollbar, scrolling and releasing
     // also called at a timeout after a scrollevent to check if new content is
     // needed
-    function checkIfScrolled($preview, meta) {
+    function checkIfScrolled($preview, meta, forRowNum) {
         if (!previewMeta || !previewMeta.meta) {
             return; // scroll may be triggered when refreshing with new data
         }
-        var scrollTop = Math.max(0, $preview.scrollTop() - containerPadding);
+        var scrollTop = Math.max(0, $preview.scrollTop() - paddingTop);
         var topPage = Math.floor(scrollTop / meta.pageHeight);
         var botPage = Math.floor((scrollTop + $preview[0].offsetHeight) /
                                  meta.pageHeight);
@@ -478,10 +502,14 @@ window.DSParser = (function($, DSParser) {
             } else {
                 numPages = 2;
             }
-            if (meta.meta) {
-                previewContent(topPage, numPages, $preview.scrollTop());
+            if (forRowNum) {
+                updateRowNumCol(topPage, numPages, meta);
             } else {
-                showPreviewMode(topPage, numPages, $preview.scrollTop());
+                if (meta.meta) {
+                    previewContent(topPage, numPages, $preview.scrollTop());
+                } else {
+                    showPreviewMode(topPage, numPages, $preview.scrollTop());
+                }
             }
         }
     }
@@ -542,6 +570,8 @@ window.DSParser = (function($, DSParser) {
                 offset = previewMeta.lineLengths[pageNum];
             }
             var numBytes = calculateNumBytes(pageNum, numPages, previewMeta);
+
+            updateRowNumCol(pageNum, numPages, previewMeta, scrollTop);
 
             return XcalarPreview(previewMeta.parsedPath, null, false, numBytes,
                                  offset);
@@ -613,10 +643,17 @@ window.DSParser = (function($, DSParser) {
         }
 
         var numBytes;
+        var start;
         if (up) {
             numBytes = calculateNumBytes(meta.startPage - 1, 1, meta);
+            start = meta.startPage - 1;
         } else {
             numBytes = calculateNumBytes(meta.endPage + 1, 1, meta);
+            if (meta.startPage === meta.endPage) {
+                start = meta.startPage;
+            } else {
+                start = meta.startPage + 1;
+            }
         }
 
         if (meta.meta) {
@@ -624,6 +661,8 @@ window.DSParser = (function($, DSParser) {
         } else {
             $miniPreview.addClass("fetchingRows");
         }
+
+        updateRowNumCol(start, 2, meta);
 
         XcalarPreview(meta.parsedPath, null, false, numBytes, newOffset)
         .then(function(res) {
@@ -680,6 +719,8 @@ window.DSParser = (function($, DSParser) {
 
         var numBytes = calculateNumBytes(pageNum, numPages, previewMeta.meta);
         var newOffset = previewMeta.meta.lineLengths[pageNum];
+
+        updateRowNumCol(pageNum, numPages, previewMeta.meta, scrollTop);
 
         XcalarPreview(parsedPath, null, false, numBytes, newOffset)
         .then(function(res) {
@@ -754,7 +795,7 @@ window.DSParser = (function($, DSParser) {
         if (meta.startPage === 0) {
             padding = 0;
         } else {
-            padding = containerPadding;
+            padding = paddingTop;
         }
         if (scrollTop != null) {
             $preview.scrollTop(scrollTop);
@@ -862,22 +903,37 @@ window.DSParser = (function($, DSParser) {
         $("#parserRowInput").outerWidth(inputWidth);
         var numLines = xcHelper.numToStr(previewMeta.totalLines);
         $parserCard.find(".totalRows").text("of " + numLines);
+    }
 
+    function updateRowNumCol(pageNum, numPages, meta, scrollTop) {
         var rowColHtml = "";
-        for (var i = 1; i <= previewMeta.totalLines; i++) {
+        var start = pageNum * linesPerPage + 1;
+        var end = (pageNum + numPages) * linesPerPage + 1;
+        end = Math.min(meta.totalLines + 1, end);
+        for (var i = start; i < end; i++) {
             rowColHtml += i + "\n";
         }
-        $parserCard.find(".previewRowNumCol").html(rowColHtml);
-        var width = $parserCard.find(".previewRowNumCol").outerWidth();
-        $dataPreview.css("margin-left", width);
+        rowColHtml = rowColHtml.slice(0, -1);
 
-        rowColHtml = "";
-        for (var i = 1; i <= previewMeta.meta.totalLines; i++) {
-            rowColHtml += i + "\n";
+        var $rowNumCol;
+        if (meta.meta) {
+            $rowNumCol = $parserCard.find(".previewRowNumCol");
+        } else {
+            $rowNumCol = $parserCard.find(".metaRowNumCol");
         }
-        $parserCard.find(".metaRowNumCol").html(rowColHtml);
-        width = $parserCard.find(".metaRowNumCol").outerWidth();
-        $miniContent.css("margin-left", width);
+
+        $rowNumCol.find(".rowNums").html(rowColHtml);
+        var width = $rowNumCol.outerWidth();
+        if (meta.meta) {
+            $dataPreview.css("margin-left", width);
+        } else {
+            $miniPreview.css("margin-left", width);
+        }
+
+        $rowNumCol.find(".rowSizer").height(pageNum * meta.pageHeight);
+        if (scrollTop != null) {
+           $rowNumCol.scrollTop(scrollTop);
+        }
     }
 
     function getSelectionCharOffsetsWithin(element) {
@@ -1401,11 +1457,16 @@ window.DSParser = (function($, DSParser) {
 
     function setScrollHeight($content, meta) {
         var numRows = meta.totalLines;
-        var scrollHeight = Math.max(meta.lineHeight * numRows,
+        var scrollHeight = Math.max((meta.lineHeight * numRows) +
+                                    (paddingTop + paddingBottom),
                                     $content.height());
-                                    // $previewContent.height() - 10);
 
         $content.parent().height(scrollHeight);
+        if (meta.meta) {
+            $parserCard.find(".previewRowNumCol .rowContainer").height(scrollHeight);
+        } else {
+            $parserCard.find(".metaRowNumCol .rowContainer").height(scrollHeight);
+        }
     }
 
     function getPageHtml(pageNum) {
@@ -1648,7 +1709,7 @@ window.DSParser = (function($, DSParser) {
     }
 
     function getScrollLineNum() {
-        var lineNum = Math.floor(($dataPreview.scrollTop() - containerPadding) /
+        var lineNum = Math.floor(($dataPreview.scrollTop() - paddingTop) /
                                   lineHeight) + 1;
         return Math.max(1, lineNum);
     }

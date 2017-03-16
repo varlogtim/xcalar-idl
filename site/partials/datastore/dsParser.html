@@ -43,13 +43,16 @@
     <div class="loadSection xc-loadView">
       include "../../util/animatedEllipsis.html"
     </div>
-    <div class="rowNumCol previewRowNumCol"></div>
+    <div class="rowNumCol previewRowNumCol">
+      <div class="rowContainer">
+        <div class="rowSizer"></div>
+        <div class="rowNums"></div>
+      </div>
+    </div>
     <div class="dataPreview xc-contentView">
-      <div class="innerDataPreview">
-        <div class="contentContainer">
-          <div class="sizer"></div>
-          <div class="previewContent content"></div>
-        </div>
+      <div class="contentContainer">
+        <div class="sizer"></div>
+        <div class="previewContent content"></div>
       </div>
     </div>
     <div class="boxContainer">
@@ -62,10 +65,17 @@
           </div>
         </header>
         <div class="boxBody">
-          <div class="innerBox">
-            <div class="rowNumCol metaRowNumCol"></div>
-            <div class="sizer boxSizer"></div>
-            <div class="boxContent content"></div>
+          <div class="rowNumCol metaRowNumCol">
+            <div class="rowContainer">
+              <div class="rowSizer"></div>
+              <div class="rowNums"></div>
+            </div>
+          </div>
+          <div class="innerMetaPreview">
+            <div class="contentContainer">
+              <div class="sizer boxSizer"></div>
+              <div class="metaContent content"></div>
+            </div>
           </div>
         </div>
         <div class="boxFooter"></div>

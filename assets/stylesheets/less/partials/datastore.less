@@ -2111,32 +2111,31 @@ table.datasetTable {
         position: relative; // for preview mode and history tool boxes
 
         .errorSection, .loadSection {
-            padding-left: 45px;
+            padding-left: 55px;
         }
         .dataPreview {
             .size(@height: 100%);
             .font(@family: monospace);
-            // padding: 10px;
             overflow: auto;
-            // margin-left: 40px;
         }
         .rowNumCol {
             background-color: @color-bg-white-gray;
-            padding: 4px 6px 10px 4px;
             font-family: @font-code;
-            line-height: 18px;
-            text-align: right;
-            white-space: pre;
+            line-height: 0px;
             position: absolute;
             height: 100%;
             min-height: 100%;
             overflow: hidden;
             border-right: 5px solid @color-background-colIcon-gray;
+            min-width: 43px;
+            .rowNums {
+                white-space: pre;
+                text-align: right;
+                line-height: 18px;
+                padding: 4px 6px 10px 6px;
+            }
         }
-        .innerDataPreview {
-            // overflow: hidden;
-            .flex-display;
-        }
+
         .previewContent {
             padding: 4px 10px;
             padding-bottom: 10px;
@@ -2256,23 +2255,35 @@ table.datasetTable {
         }
 
         .boxBody {
-            overflow: auto;
             position: relative;
+            padding: 0px;
+
+            .innerMetaPreview {
+                overflow: auto;
+                padding: 4px 10px;
+                height: 100%;
+            }
 
             .rowNumCol {
                 font-size: 12px;
-                line-height: 15px;
-                height: auto;
                 left: 0px;
                 top: 0px;
                 border-right-width: 4px;
+                min-width: 34px;
+                .rowNums {
+                    line-height: 15px;
+                    padding: 4px 4px 10px 4px;
+                }
             }
 
-            .boxContent {
+            .metaContent {
                 font-family: @font-code;
                 font-size: 12px;
                 line-height: 15px;
                 white-space: pre;
+            }
+            .someContainer {
+                .flex-display;
             }
         }
     }
@@ -2348,7 +2359,6 @@ table.datasetTable {
                     .vertical-align;
                 }
             }
-
         }
     }
 }
