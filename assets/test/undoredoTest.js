@@ -33,7 +33,7 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
                 var authInfo = Authentication.getInfo();
                 authInfo.idCount = 0;
                 return fetchLogs();
-            } 
+            }
         })
         .then(function(testLogs) {
             switch (operationType) {
@@ -242,7 +242,7 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
         for (var ws in info.wsMeta.wsInfos) {
             delete info.wsMeta.wsInfos[ws].orphanedTables;
             delete info.wsMeta.wsInfos[ws].undoneTables;
-            info.wsMeta.wsInfos[ws].lockedTables = []; 
+            info.wsMeta.wsInfos[ws].lockedTables = [];
             // we won't always have locked tables during an undo
         }
 
@@ -282,7 +282,7 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
             for (var ws in currentReplayLog.wsMeta.wsInfos) {
                 delete currentReplayLog.wsMeta.wsInfos[ws].orphanedTables;
                 delete currentReplayLog.wsMeta.wsInfos[ws].undoneTables;
-                currentReplayLog.wsMeta.wsInfos[ws].lockedTables = []; 
+                currentReplayLog.wsMeta.wsInfos[ws].lockedTables = [];
                 // we won't always have locked tables during an undo
             }
 
@@ -321,7 +321,7 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
 
         SQL.undo()
         .then(function() {
-            deferred.resolve(); 
+            deferred.resolve();
         });
 
         return (deferred.promise());
@@ -404,7 +404,7 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
                                                             ' step passed');
 
             deferred.resolve();
-            
+
         });
         return (deferred.promise());
     }
@@ -443,7 +443,7 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
         } else {
             dsName = yelpName;
         }
-        
+
         var $grid = DS.getGridByName(dsName);
         var dsId = $grid.data("dsid");
         var dsObj = DS.getDSObj(dsId);
@@ -471,11 +471,12 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
                     "split column",
                     "change data type",
                     "GroupBy",
-                    "Join"];
+                    "Join",
+                    "RenameTable"];
 
     // the following icv map needs to be tested and integrated into testLogs.json
     // currently, we lack an overall function that does this kind of map
-    // 
+    //
     //{"title":"Map",
     // "options":{"operation":"map",
     // "tableName":"schedule15551#yz3",
@@ -488,26 +489,26 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
     // "cli":"map --eval \"add(teacher_id, 100)\" --srctable \"schedule15551#yz1\" --fieldName \"teacher_id_add1_er\" --dsttable \"schedule15551_er#yz4\" --icv;",
     // "timestamp":1486512471289},
 
-    var frontEndOps = ["Add New Column", 
-                        "Rename Column", 
-                        "Hide Column", 
-                        "Minimize Columns",
-                        "Maximize Columns", 
-                        "Text Align",
-                        "Change Column Order", 
-                        "Hide Column", 
-                        "Pull Column",
-                        "Change Format", 
-                        "Round To Fixed", 
-                        "Resize Column",
-                        "Resize Columns", 
-                        "Sort Table Columns", 
+    var frontEndOps = ["Add New Column",
+                        "Rename Column",
                         "Hide Column",
-                        "Pull All Columns", 
-                        "Resize Row", 
+                        "Minimize Columns",
+                        "Maximize Columns",
+                        "Text Align",
+                        "Change Column Order",
+                        "Hide Column",
+                        "Pull Column",
+                        "Change Format",
+                        "Round To Fixed",
+                        "Resize Column",
+                        "Resize Columns",
+                        "Sort Table Columns",
+                        "Hide Column",
+                        "Pull All Columns",
+                        "Resize Row",
                         "Bookmark Row",
-                        "Remove Bookmark", 
-                        "Minimize Table", 
+                        "Remove Bookmark",
+                        "Minimize Table",
                         "Maximize Table"];
 
     // create 3 tables

@@ -301,7 +301,7 @@
     "worksheetIndex": 0,
     "worksheetName":"renamedSheet"},
     "timestamp":1460668873743},
-    
+
     {"title":"Unhide Worksheet",
     "options":{"operation":"unhideWorksheet",
     "worksheetIds":["k6"],
@@ -433,9 +433,9 @@
     "aggCol":"review_count",
     "newColName":"review_count_count7",
     "newTableName":"testyelp-GB#ja9",
-    "options": {"dstTableName": "testyelp-GB", 
-                "icvMode": false, 
-                "isIncSample":false, 
+    "options": {"dstTableName": "testyelp-GB",
+                "icvMode": false,
+                "isIncSample":false,
                 "isJoin": false}
     },
     "cli":"index --key \"review_count\" --srctable \"testyelp#ja7\" --dsttable \"testyelp#ja8\";groupBy --srctable \"testyelp#ja8\" --eval \"count(review_count)\" --fieldName review_count_count7 --dsttable \"testyelp-GB#ja9\" --nosample;",
@@ -473,7 +473,7 @@
                 "keepTables": false,
                 "formOpenTime": 1478561388521
             },
-            "htmlExclude": [                
+            "htmlExclude": [
                 "lJoinInfo",
                 "rJoinInfo",
                 "worksheet",
@@ -482,6 +482,18 @@
         },
         "cli": "index --key \"testyelp::review_count\" --srctable \"testyelp#0S7\" --dsttable \"testyelp.index#0S11\" --prefix ;join --leftTable \"testyelp-GB#0S8\" --rightTable \"testyelp.index#0S11\" --joinType innerJoin  --joinTable \"joined#0S10\" --collisionCheck;",
         "timestamp": 1478561432058
+    },
+
+    {
+        "title": "RenameTable",
+        "options": {
+            "operation": "renameTable",
+            "tableId": "0S10",
+            "oldTableName": "joined#0S10",
+            "newTableName": "newrename#0S10"
+        },
+        "cli": "rename node  joined#0S10  newrename#0S10;",
+        "timestamp": 1478561444979
     }
 ],
 

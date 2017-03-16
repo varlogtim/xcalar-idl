@@ -17,7 +17,7 @@ html.firefox {
 html.firefox, html.microsoft {
     .xcTable {
         margin-right: -12px;
-    } 
+    }
     .dataTable {
         .header {
             height: @height-colHeaderOuter;
@@ -140,7 +140,7 @@ html.edge {
         tr {
             background-color: @color-white;
             td {
-               border-right: 5px solid @color-white; 
+               border-right: 5px solid @color-white;
             }
 
             &:nth-child(odd) {
@@ -260,7 +260,7 @@ html.edge {
             }
             .editableHead {
                 cursor: default;
-                &:focus {   
+                &:focus {
                     cursor: initial;
                 }
             }
@@ -292,7 +292,7 @@ html.edge {
                     height: 18px;
                     margin-top: 4px;
                     z-index: @z-index-tableHeaderInput;
-                    pointer-events: none; 
+                    pointer-events: none;
                     // make unclickable to allow dragging area to take
                     //  precedence
 
@@ -790,7 +790,7 @@ html.edge {
         .tableTitle {
             background: @color-bg-unselect-gray !important;
         }
-        
+
         .editableHead {
             pointer-events: none;
         }
@@ -874,7 +874,7 @@ html.edge {
         .dragArea {
             display: none;
         }
-        
+
         .tableTitle {
             .tableGrab {
                 cursor: pointer;
@@ -883,7 +883,7 @@ html.edge {
                 pointer-events: none;
             }
         }
-        
+
         th:first-child, td:first-child {
             pointer-events: none;
         }
@@ -958,7 +958,7 @@ html.edge {
         }
     }
 
-   
+
 }
 
 .xcTheadWrap {
@@ -1043,7 +1043,7 @@ html.edge {
             white-space: nowrap;
             margin-top: 5px;
             display: inline-block;
-            // z-index: @z-index-tableHeaderInput; // used for editable table name
+            z-index: @z-index-tableHeaderInput; // used for editable table name
 
             .hashName {
                 opacity: 0.7;
@@ -1062,15 +1062,15 @@ html.edge {
             color: @color-white;
             -webkit-text-fill-color: @color-white;
             // used for editable table name
-            // &:focus {
-            //     background-color: @color-white;
-            //     color: @color-font-darkGray !important;
-            //     -webkit-text-fill-color: @color-font-darkGray !important;
-            //     padding: 1px 4px;
-            //     margin: 1px 0px;
-            //     outline: none;
-            //     .rounded;
-            // }
+            &:focus {
+                background-color: @color-white;
+                color: @color-font-darkGray !important;
+                -webkit-text-fill-color: @color-font-darkGray !important;
+                padding: 1px 4px;
+                margin: 1px 0px;
+                outline: none;
+                .rounded;
+            }
         }
     }
 }
@@ -1120,7 +1120,7 @@ html.edge {
         .tdText, .dataColText {
             display: none;
         }
-        
+
         &.dataCol {
             input {
                 padding-left: 10px;
@@ -1169,7 +1169,7 @@ html.edge {
         border-left: none;
         border-radius: 0px;
         .typeIcon;
-        
+
         .type.icon {
             color: @color-font-greyish-brown;
         }
@@ -1208,7 +1208,7 @@ html.edge {
         .header {
             .selectedHeaderStyling;
         }
-    } 
+    }
 
     // basic highlighted column settings
     th.modalHighlighted {
@@ -1240,7 +1240,7 @@ html.edge {
                 background-color: @color-heather !important;
             }
         }
-    }   
+    }
 }
 
 .xcTable {
