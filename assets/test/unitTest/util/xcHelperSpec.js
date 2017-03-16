@@ -372,6 +372,24 @@ describe('xcHelper Test', function() {
         expect(args.length).to.equal(2);
         expect(args[0]).to.equal('a\\"b');
         expect(args[1]).to.equal("3");
+
+        res = xcHelper.extractOpAndArgs('eq(ab, ",")', ',');
+        args = res.args;
+        expect(args.length).to.equal(2);
+        expect(args[0]).to.equal('ab');
+        expect(args[1]).to.equal('","');
+
+        res = xcHelper.extractOpAndArgs("eq(ab, ',')", ',');
+        args = res.args;
+        expect(args.length).to.equal(2);
+        expect(args[0]).to.equal('ab');
+        expect(args[1]).to.equal("','");
+
+        res = xcHelper.extractOpAndArgs("eq(nest(ab, 5), 'hi')", ',');
+        args = res.args;
+        expect(args.length).to.equal(2);
+        expect(args[0]).to.equal('nest(ab, 5)');
+        expect(args[1]).to.equal("'hi'");
     });
 
     it('xcHelper.getTableKeyFromMeta should work', function() {
@@ -1081,7 +1099,7 @@ describe('xcHelper Test', function() {
         expect($input.val()).to.be.equal("b");
 
         // rest of test cases will use "append" option
-        
+
         // case 5
         $input = $('<input type="text" value="a">');
         xcHelper.insertText($input, "b", {append: true});

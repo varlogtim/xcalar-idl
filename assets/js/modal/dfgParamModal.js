@@ -175,7 +175,7 @@ window.DFParamModal = (function($, DFParamModal){
                             '</div>';
 
             if (type === "filter") {
-                
+
 
                 defaultText += '<div class="static">by</div>' +
                                 '<div class="boxed sm-med">' +
@@ -203,7 +203,7 @@ window.DFParamModal = (function($, DFParamModal){
             }
         }
 
-        
+
         $dfgParamModal.find('.template').html(defaultText);
         $editableRow.html(editableText);
 
@@ -445,7 +445,7 @@ window.DFParamModal = (function($, DFParamModal){
         if (dropdownHelper) {
             dropdownHelper.showOrHideScrollers();
         }
-        
+
         if (value === "") {
             return;
         }
@@ -624,6 +624,7 @@ window.DFParamModal = (function($, DFParamModal){
         return (!braceOpen);
     }
 
+    // submit
     function storeRetina() {
         //XX need to check if all default inputs are filled
         var deferred = jQuery.Deferred();

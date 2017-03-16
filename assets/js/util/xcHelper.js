@@ -438,21 +438,47 @@ window.xcHelper = (function($, xcHelper) {
         var args = [];
         var i = 0;
         var inQuote = false;
+        var singleQuote = false; // ' is true, " is false
         var curArg = "";
+        var braceCount = 0; // track nested functions
 
         for (i = 0; i < argString.length; i++) {
             switch (argString[i]) {
                 case ('"'):
                     curArg += argString[i];
-                    inQuote = !inQuote;
+                    if (!inQuote || (inQuote && !singleQuote)) {
+                        inQuote = !inQuote;
+                    }
+                    break;
+                case ("'"):
+                    curArg += argString[i];
+                    if (inQuote && singleQuote) {
+                        inQuote = !inQuote;
+                        singleQuote = false;
+                    } else if (!inQuote) {
+                        inQuote = !inQuote;
+                        singleQuote = true;
+                    }
                     break;
                 case ('\\'):
                     curArg += argString[i];
                     curArg += argString[i + 1];
                     i++;
                     break;
-                case (delim):
+                case ("("):
+                    curArg += argString[i];
                     if (!inQuote) {
+                        braceCount++;
+                    }
+                    break;
+                case (")"):
+                    curArg += argString[i];
+                    if (!inQuote) {
+                        braceCount--;
+                    }
+                    break;
+                case (delim):
+                    if (!inQuote && braceCount === 0) {
                         args.push(curArg);
                         curArg = "";
                     } else {
