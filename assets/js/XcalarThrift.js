@@ -2298,7 +2298,7 @@ function XcalarQueryCheck(queryName, txId) {
 
     function cycle() {
         setTimeout(function() {
-             XcalarQueryState(queryName)
+            XcalarQueryState(queryName)
             .then(function(queryStateOutput) {
                 var nodeStatuses =
                         getDagNodeStatuses(queryStateOutput.queryGraph.node);

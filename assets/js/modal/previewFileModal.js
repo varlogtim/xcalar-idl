@@ -110,13 +110,12 @@ window.PreviewFileModal = (function(PreviewFileModal, $) {
             "$list": $modal.find(".contentSection"),
             "removeHighlight": true,
             "toggleSlider": searchText,
-            "onInput": function(val) {
+            "onInput": function() {
                 searchText();
             }
         });
 
         var $searchInput = $searchArea.find("input");
-        
         $searchArea.find(".closeBox").click(function() {
             if ($searchInput.val() === "") {
                 searchHelper.toggleSlider();

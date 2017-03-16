@@ -2217,7 +2217,7 @@ window.DSPreview = (function($, DSPreview) {
         getPreviewTable();
 
         if (showMessage) {
-             xcHelper.showSuccess(SuccessTStr.Detect);
+            xcHelper.showSuccess(SuccessTStr.Detect);
         }
     }
 

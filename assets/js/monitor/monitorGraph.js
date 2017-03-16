@@ -157,7 +157,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
                     var elapsedTime = Date.now() - startTime;
                     cycle(elapsedTime);
                 }
-            }) 
+            });
         }, intTime);
     }
 

@@ -1721,12 +1721,12 @@ window.OperationsView = (function($, OperationsView) {
             }
             $input.data("typeid", typeId);
 
-            // special case to ignore removing autoquotes from 
+            // special case to ignore removing autoquotes from
             // function-like arguments if it is 2nd regex input
             if (operObj.fnName === "regex" && i === 1) {
                 $input.data("nofunc", true);
             }
-           
+
             $rows.eq(i).find('.description').text(description + ':');
 
             // automatically show empty checkbox if optional detected

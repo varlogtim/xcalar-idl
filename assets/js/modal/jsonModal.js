@@ -1771,21 +1771,21 @@ window.JSONModal = (function($, JSONModal) {
             switch (typeof value) {
                 case ('string'):
                     value = xcHelper.escapeHTMLSepcialChar(value);
-                    value = '"<span class="jString text ' + arrayElClass + 
+                    value = '"<span class="jString text ' + arrayElClass +
                             '">' + value + '</span>"';
                     break;
                 case ('number'):
-                    value = '<span class="jNum text ' + arrayElClass + 
+                    value = '<span class="jNum text ' + arrayElClass +
                             '">' + value + '</span>';
                     break;
                 case ('boolean'):
-                    value = '<span class="jBool text ' + arrayElClass + 
+                    value = '<span class="jBool text ' + arrayElClass +
                             '">' + value + '</span>';
                     break;
                 case ('object'):
                     // divs are used in css selectors so careful with changing
                     if (value == null) {
-                        value = '<span class="jNull text ' + arrayElClass + 
+                        value = '<span class="jNull text ' + arrayElClass +
                                 '">' + value + '</span>';
                     } else if (value.constructor === Array) {
                         ++options.inArray;
@@ -1800,7 +1800,7 @@ window.JSONModal = (function($, JSONModal) {
                         '</div>' + getIndent(indent) + ']';
                     } else {
                         var object = prettifyJson(value, indent + 1);
-                        var emptyObj = ""; 
+                        var emptyObj = "";
                         if (object === "") {
                             emptyObj = " emptyObj";
                         }
@@ -1818,12 +1818,12 @@ window.JSONModal = (function($, JSONModal) {
                 value += ",";
                 result += '<div class="jsonBlock jInfo arrayVal' +
                             '" data-key="' + dataKey + '">' +
-                            getCheckbox(indent) +  getIndent(indent) + value +
+                            getCheckbox(indent) + getIndent(indent) + value +
                         '</div>';
             } else {
                 var classNames = "";
                 value = value.replace(/,$/, "");
-                
+
                 if (mainKey) {
                     classNames = " mainKey";
                 }

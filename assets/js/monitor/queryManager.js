@@ -898,7 +898,7 @@ window.QueryManager = (function(QueryManager, $) {
         }
         // only stop animation the first time, do not persist it
         doNotAnimate = false;
-        
+
         var startTime = Date.now();
         subQueryCheckHelper(subQuery, id, subQuery.index, doNotAnimate)
         .then(function() {
@@ -907,7 +907,7 @@ window.QueryManager = (function(QueryManager, $) {
                 return subQueryCheckHelper(subQuery, id, subQuery.index,
                                            doNotAnimate);
             }, id, elapsedTime);
-        })
+        });
     }
 
     function subQueryCheckHelper(subQuery, id, step, doNotAnimate) {

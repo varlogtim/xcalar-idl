@@ -315,7 +315,7 @@ window.MainMenu = (function($, MainMenu) {
                 $activeCompSwitch.attr('data-original-title',
                                         TooltipTStr.OpenQG);
             }
-        } else if(lastTabId === "dataflowTab") {
+        } else if (lastTabId === "dataflowTab") {
             DataflowPanel.inActive();
         }
 
@@ -324,7 +324,6 @@ window.MainMenu = (function($, MainMenu) {
     }
 
     function openMenu($curTab, noAnim) {
-        
         var id = $curTab.attr("id");
         $mainMenu.find(".commonSection").removeClass("active").filter(function() {
             return $(this).data("tab") === id;

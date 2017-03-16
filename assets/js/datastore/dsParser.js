@@ -242,7 +242,7 @@ window.DSParser = (function($, DSParser) {
 
         // prevent browser's default menu if text selected
         $previewContent.contextmenu(function() {
-            if (hasSelection()) {
+            if (xcHelper.hasSelection()) {
                 return false;
             }
         });
@@ -708,6 +708,7 @@ window.DSParser = (function($, DSParser) {
         }
 
         var $page;
+        var $splitContent;
         var firstContent = content;
         var secondContent = ""; // in case numPages === 2
         var $content = $preview.find(".content");
@@ -728,7 +729,7 @@ window.DSParser = (function($, DSParser) {
 
         var pretty = shouldPrettyPrint(meta);
         if (pretty) {
-            var $splitContent = parseContent(firstContent);
+            $splitContent = parseContent(firstContent);
             $page.append($splitContent);
         } else {
             $page.text(firstContent);
@@ -739,7 +740,7 @@ window.DSParser = (function($, DSParser) {
         if (secondContent.length) {
             $page = $(getPageHtml(meta.startPage + 1));
             if (pretty) {
-                var $splitContent = parseContent(secondContent);
+                $splitContent = parseContent(secondContent);
                 $page.append($splitContent);
             } else {
                 $page.text(secondContent);
@@ -875,7 +876,7 @@ window.DSParser = (function($, DSParser) {
             rowColHtml += i + "\n";
         }
         $parserCard.find(".metaRowNumCol").html(rowColHtml);
-        var width = $parserCard.find(".metaRowNumCol").outerWidth();
+        width = $parserCard.find(".metaRowNumCol").outerWidth();
         $miniContent.css("margin-left", width);
     }
 
@@ -955,23 +956,22 @@ window.DSParser = (function($, DSParser) {
     }
 
     function getLineNumOfSelection(sel, element) {
-        var sel = window.getSelection();
+        // var sel = window.getSelection();
         var line;
         var parentEl = sel.getRangeAt(0).commonAncestorContainer;
         if (parentEl.nodeType !== 1) {
             var $el = $(parentEl.parentNode);
             if ($el.closest(".line").length) {
-               var line = $el.index();
-               var page = $el.closest(".page").data("page");
-               line = line + (page * linesPerPage);
+                line = $el.index();
+                var page = $el.closest(".page").data("page");
+                line = line + (page * linesPerPage);
             }
         }
         if (line == null) {
             var el = sel.getRangeAt(0);
             var coors = el.getBoundingClientRect();
             var parentCoors = element.getBoundingClientRect();
-            var line = Math.floor((coors.top - parentCoors.top) /
-                                lineHeight);
+            line = Math.floor((coors.top - parentCoors.top) / lineHeight);
             line = line + (previewMeta.startPage * linesPerPage);
         }
         return line;
@@ -1472,7 +1472,6 @@ window.DSParser = (function($, DSParser) {
     }
 
     function parseContent(content) {
-        var html = "";
         var lines = content.split("\n");
         var $line;
         var $lines = $();

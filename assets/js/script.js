@@ -936,7 +936,7 @@ window.StartManager = (function(StartManager, $) {
                     }
                     var html = "<" + this.tagName.toLowerCase();
                     $.each(this.attributes, function() {
-                        if(this.specified) {
+                        if (this.specified) {
                             html += ' ' + this.name + '="' + this.value + '"';
                         }
                     });
@@ -952,7 +952,7 @@ window.StartManager = (function(StartManager, $) {
                         }
                         var html = "<" + this.tagName.toLowerCase();
                         $.each(this.attributes, function() {
-                            if(this.specified) {
+                            if (this.specified) {
                                 html += ' ' + this.name + '="' + this.value +
                                         '"';
                             }

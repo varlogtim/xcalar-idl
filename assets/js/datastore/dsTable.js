@@ -522,15 +522,15 @@ window.DSTable = (function($, DSTable) {
     function sizeColumns() {
         var destWidth = $dsTableContainer.parent().width() - 40;
         var $headers = $tableWrap.find("th:gt(0)");
-        var numCols = $headers.length;
-        var destColWidth = Math.floor(destWidth / numCols);
+        // var numCols = $headers.length;
+        // var destColWidth = Math.floor(destWidth / numCols);
         var bestFitWidths = [];
         var totalWidths = 0;
         var needsExpanding = [];
         var numStaticWidths = 0;
         var expandWidths = 0;
 
-        // track which columns will expand and which will remain at 
+        // track which columns will expand and which will remain at
         // default colwidth
         $headers.each(function() {
             var width = getWidestTdWidth($(this),
@@ -558,13 +558,13 @@ window.DSTable = (function($, DSTable) {
                                               defaultColWidth);
             ratio = remainingWidth / expandWidths;
 
-            bestFitWidths = bestFitWidths.map(function(width, i, arr) {
+            bestFitWidths = bestFitWidths.map(function(width, i) {
                 if (needsExpanding[i]) {
                     return Math.max(defaultColWidth, Math.floor(width * ratio));
                 } else {
                     return width;
                 }
-            }); 
+            });
         }
 
         $headers.each(function(i) {

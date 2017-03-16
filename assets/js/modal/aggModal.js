@@ -272,7 +272,7 @@ window.AggModal = (function($, AggModal) {
             var isChildOfArray = aggCol.isChildOfArray;
             var nameObj = {};
             nameObj.colName = progCol.getFrontColName();
-            nameObj.prefix  = progCol.getPrefix() || CommonTxtTstr.Immediates;
+            nameObj.prefix = progCol.getPrefix() || CommonTxtTstr.Immediates;
             colLabels.push(nameObj);
             wholeTable += '<div class="aggCol">';
 
@@ -315,6 +315,7 @@ window.AggModal = (function($, AggModal) {
         // column's order is column0, column1...columnX
         // row's order is columnX, column(X-1).....column1
         var colLabels = [];
+        var nameObj = {};
 
         for (var col = 0; col < colLen; col++) {
             var aggCol = aggCols[col];
@@ -327,9 +328,9 @@ window.AggModal = (function($, AggModal) {
                 continue;
             }
 
-            var nameObj = {};
+            nameObj = {};
             nameObj.colName = progCol.getFrontColName();
-            nameObj.prefix  = progCol.getPrefix() || CommonTxtTstr.Immediates;
+            nameObj.prefix = progCol.getPrefix() || CommonTxtTstr.Immediates;
             colLabels.push(nameObj);
             wholeTable += '<div class="aggCol">';
 
@@ -368,9 +369,9 @@ window.AggModal = (function($, AggModal) {
                 continue;
             }
 
-            var nameObj = {};
+            nameObj = {};
             nameObj.colName = aggCols[i].col.getFrontColName();
-            nameObj.prefix  = aggCols[i].col.getPrefix() || CommonTxtTstr.Immediates;
+            nameObj.prefix = aggCols[i].col.getPrefix() || CommonTxtTstr.Immediates;
             rowLabels.push(nameObj);
         }
 
@@ -408,7 +409,7 @@ window.AggModal = (function($, AggModal) {
                 name = operations[i].colName;
             }
             html += '<div class="aggTableField rowLabel">' +
-                        prefixLabel + 
+                        prefixLabel +
                         '<span data-original-title="' + name + '" ' +
                             'data-toggle="tooltip" data-placement="top" ' +
                             'data-container="body" ' +
