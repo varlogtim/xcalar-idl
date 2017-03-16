@@ -28,6 +28,7 @@ require("jsdom").env("", function(err, window) {
     jQuery = require("jquery")(window);
 });
 
+var socket = require('./socket');
 var tail = require('./tail');
 var support = require('./support');
 var login = require('./expLogin');
@@ -45,6 +46,7 @@ app.all('/*', function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "X-Requested-With");
     res.header("Access-Control-Allow-Headers", "Content-Type");
+    // res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     next();
 });
 
@@ -1157,6 +1159,9 @@ try {
     console.log("You do not have /etc/apache2/ssl/ca.pem! " +
                 "https will not be enabled!");
 }
+
+socket(httpServer);
+
 var port = 12124;
 httpServer.listen(port, function() {
     var hostname = process.env.DEPLOY_HOST;
@@ -1165,5 +1170,3 @@ httpServer.listen(port, function() {
     }
     console.log("All ready");
 });
-
-

@@ -73,6 +73,10 @@ window.Support = (function(Support, $) {
         });
     };
 
+    Support.forceLogout = function() {
+        return commitMismatchHandler();
+    };
+
     Support.commitCheck = function(isFromHeatbeatCheck) {
         var deferred = jQuery.Deferred();
         if (KVStore.commitKey == null ||

@@ -152,6 +152,8 @@ window.StartManager = (function(StartManager, $) {
             'color: #ffffff; font-size:18px; font-family:Open Sans, Arial;');
 
             XVM.alertLicenseExpire();
+            // start socket
+            XcSocket.init();
             // start heartbeat check
             Support.heartbeatCheck();
             deferred.resolve();
