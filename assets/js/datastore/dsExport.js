@@ -314,11 +314,11 @@ window.DSExport = (function($, DSExport) {
 
     function docTempMouseup() {
         clearSelectedGrid();
-        $(document).off('mouseup', docTempMouseup);
+        $(document).off('mouseup.gridSelected');
     }
 
     function setupGridMenu() {
-        $gridView.closest('.mainSection')[0].oncontextmenu = function(event) {
+        $gridView.closest('.mainSection').contextmenu(function(event) {
             var $target = $(event.target);
             var $grid = $target.closest(".grid-unit");
             var classes = "";
@@ -326,7 +326,14 @@ window.DSExport = (function($, DSExport) {
 
             if ($grid.length) {
                 $grid.addClass("selected");
-                $(document).on('mouseup', docTempMouseup);
+                $gridMenu.data("grid", $grid);
+                $(document).on('mouseup.gridSelected', function(event) {
+                    // do not deselect if mouseup is on the menu or menu open
+                    if (!$(event.target).closest("#expTargetGridMenu").length
+                        && !$("#expTargetGridMenu").is(":visible")) {
+                        docTempMouseup();
+                    }
+                });
                 classes += " targetOpts";
             } else {
                 classes += " bgOpts";
@@ -348,7 +355,7 @@ window.DSExport = (function($, DSExport) {
                 "floating": true
             });
             return false;
-        };
+        });
 
         $gridMenu.on('mouseup', 'li', function(event) {
             if (event.which !== 1) {
@@ -363,10 +370,10 @@ window.DSExport = (function($, DSExport) {
             }
             switch (action) {
                 case ('view'):
-                    selectGrid($gridView.find(".selected"));
+                    selectGrid($gridMenu.data("grid"));
                     break;
                 case ('delete'):
-                    deleteTarget();
+                    deleteTarget($gridMenu.data("grid"));
                     break;
                 case ('create'):
                     showExportTargetForm();
@@ -392,9 +399,11 @@ window.DSExport = (function($, DSExport) {
         }
     }
 
-    function deleteTarget() {
-        var $activeIcon = $gridView.find('.target.selected');
-        if ($activeIcon.length === 0) {
+    function deleteTarget($grid) {
+        var $activeIcon;
+        if ($grid && $grid.length) {
+            $activeIcon = $grid;
+        } else {
             $activeIcon = $gridView.find('.target.active');
         }
 
@@ -586,7 +595,7 @@ window.DSExport = (function($, DSExport) {
             } else {
                 $activeGrid.addClass('active');
             }
-            
+
         }
 
         updateNumGrids();
