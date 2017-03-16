@@ -970,6 +970,9 @@
                         height: 100%;
                         overflow: hidden;
                         display: inline-block;
+                        &.fail {
+                            color: @color-error-border;
+                        }
                     }
                 }
             }
@@ -1223,6 +1226,7 @@
                 background-color: @color-bg-white-three;
                 color: @color-border-pinkish-grey;
                 border-bottom: none;
+                cursor: pointer;
                 &.simpleModeTab {
                     border-right: none;
                 }
@@ -1329,6 +1333,22 @@
                 margin-top: 2px;
             }
             .trash-info {
+                display: inline-block;
+                float: left;
+                margin-left: 10px;
+            }
+        }
+        #modScheduleForm-refresh {
+            float: left;
+            margin-left: 40px;
+            .refresh {
+                width: 24px;
+                display: inline-block;
+                float: left;
+                margin-left: 15px;
+                margin-top: 2px;
+            }
+            .refresh-info {
                 display: inline-block;
                 float: left;
                 margin-left: 10px;

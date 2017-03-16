@@ -2,7 +2,6 @@ window.Scheduler = (function(Scheduler, $) {
     var $dfgView;          // $("#dataflowView");
     var $scheduleDetail;   // $("#scheduleDetail");
     var $scheduleSettings; // $("#scheduleSettings");
-    var $scheduleResults;  // $("#scheduleResults");
     var $modScheduleForm;  // $('#modifyScheduleForm');
     var $datePicker;
     var $timePicker;
@@ -10,7 +9,7 @@ window.Scheduler = (function(Scheduler, $) {
     var $timeInput;
     var $tabs;
 
-    var serverTimeZone;
+    var serverTimeZoneOffset;
     var currentDataFlowName;
     var displayServerTimeCycle;
 
@@ -69,7 +68,11 @@ window.Scheduler = (function(Scheduler, $) {
                         "$ele": $(this),
                         "text": ErrTStr.NoEmpty,
                         "check": function() {
-                            return !testDate(date);
+                            if (date !== "") {
+                                return !testDate(date);
+                            } else {
+                                return false;
+                            }
                         }
                     }
                 ]);
@@ -190,6 +193,10 @@ window.Scheduler = (function(Scheduler, $) {
             showScheduleSettings();
         });
 
+        $("#modScheduleForm-refresh").click(function() {
+            showScheduleResult();
+        });
+
         // schedule Tabs
         $tabs.click(function() {
             var $tab = $(this);
@@ -205,17 +212,21 @@ window.Scheduler = (function(Scheduler, $) {
             } else {
                 showScheduleResult();
             }
+            $("#modScheduleForm-refresh").hide();
+            if (index === 1) {
+                $("#modScheduleForm-refresh").show();
+            }
             $scheduleDetail.find('.scheduleInfoSection').hide();
             $scheduleDetail.find('.scheduleInfoSection').eq(index).show();
         });
 
         // Get Timezone
-        serverTimeZone = getServerTimezone();
+        serverTimeZoneOffset = getServerTimezoneOffset();
     };
 
     Scheduler.displayServerTime = function(){
         clearInterval(displayServerTimeCycle);
-        displayServerTimeCycle = setInterval(showServerTime, 500);
+        displayServerTimeCycle = setInterval(showServerTime, 1000);
     };
 
     Scheduler.clearServerTime = function() {
@@ -242,8 +253,15 @@ window.Scheduler = (function(Scheduler, $) {
         $scheduleDetail.removeClass("xc-hidden");
         $modScheduleForm.removeClass("xc-hidden");
         // show schedule settings as default
+        var index = $('#scheduleDetail .tabArea .tab.active').index();
         $scheduleDetail.find('.scheduleInfoSection').hide();
-        $scheduleDetail.find('.scheduleInfoSection').eq(0).show();
+        $scheduleDetail.find('.scheduleInfoSection').eq(index).show();
+        // $tabs.eq(index).click();
+        if (index !== 1) {
+            $("#modScheduleForm-refresh").hide();
+        } else {
+            $("#modScheduleForm-refresh").show();
+        }
         // show simple Mode as default
         if ((!$scheduleSettings.hasClass("showSimpleMode")) &&
         (!$scheduleSettings.hasClass("showAdvancedMode"))) {
@@ -261,10 +279,18 @@ window.Scheduler = (function(Scheduler, $) {
     };
 
     function showServerTime() {
-        var now = new Date();
-        var transferedTime = timeZoneTransfer(now, serverTimeZone);
-        var serverTimeStr = getTime(transferedTime);
-        $("#scheduleDetail .serverTime .text").text(serverTimeStr);
+        if (serverTimeZoneOffset) {
+            var now = new Date();
+            var transferedTime = timeZoneTransfer(now, serverTimeZoneOffset);
+            var serverTimeStr = getTime(transferedTime);
+            $("#scheduleDetail .serverTime .text")
+            .removeClass("fail")
+            .text(serverTimeStr);
+        } else {
+            $("#scheduleDetail .serverTime .text")
+            .addClass("fail")
+            .text(SchedTStr.failServerTime);
+        }
     }
 
     function newScheduleIcon (dataflowName) {
@@ -364,27 +390,22 @@ window.Scheduler = (function(Scheduler, $) {
     }
 
     function simulateCron(cronString) {
-        var str = {"startTime": timeZoneTransfer(new Date(), serverTimeZone),
-            "cronString": cronString};
-        var res;
-        $.ajax({
-            "type": "POST",
-            "data": JSON.stringify(str),
-            "contentType": "application/json",
-            "async": false,
-            "url": xcHelper.getAppUrl() + "/simulateSchedule",
-            success: function(retMsg) {
-                res = retMsg;
-            },
-            error: function(error) {
-                var errMsg = {"isValid": false,
-                    "lastRun": "",
-                    "nextRun": "",
-                    "error": error.message};
-                res = errMsg;
-            }
-        });
-        return res;
+        var options = {
+            currentDate: timeZoneTransfer(new Date(), serverTimeZoneOffset)
+        };
+        var retMsg;
+        try {
+            var interval = CronParser.parseExpression(cronString, options);
+            var next1 = interval.next();
+            var lastRun = getTime(next1);
+            var next2 = interval.next();
+            var nextRun = getTime(next2);
+            retMsg = {"isValid": true, "lastRun": lastRun, "nextRun": nextRun};
+        } catch (err) {
+            retMsg = {"isValid": false, "lastRun": "Simulation Fail!",
+                "nextRun": "Simulation Fail!", "error": err.message};
+        }
+        return retMsg;
     }
 
     // dateStr: with the format of 3/1/2017
@@ -397,32 +418,33 @@ window.Scheduler = (function(Scheduler, $) {
     function getCompleteTimeStr(dateStr, timeStr) {
         return dateStr + ' ' + timeStr.replace(' ', '').replace(' ', '');
     }
-    // transfer time zone from the timezone of browser to the timezone of
-    // target Area
-    function timeZoneTransfer (date, targetTimeZone) {
-        var targetAreaTimeStr = date.toLocaleString(
-            'en-US',{timeZone: targetTimeZone});
-        return new Date(targetAreaTimeStr).getTime();
+    function timeZoneTransfer(localDate, serverTimezoneOffset) {
+        // UTC time == localTime + localTimezoneOffset * 60000
+        //          == serverTime + serverTimezoneOffset * 60000
+        var localTime = localDate.getTime();
+        var localTimezoneOffset = new Date().getTimezoneOffset();
+        var serverTime = localTime
+                + (localTimezoneOffset - serverTimezoneOffset) * 60000;
+        return serverTime;
     }
-    function getServerTimezone () {
+    function getServerTimezoneOffset() {
         var res;
         $.ajax({
             "type": "POST",
             "contentType": "application/json",
             "async": false,
-            "url": xcHelper.getAppUrl() + "/getTimezone",
+            "url": xcHelper.getAppUrl() + "/getTimezoneOffset",
             success: function(retMsg) {
-                res = retMsg;
+                res = Number(retMsg);
             },
             error: function(error) {
                 console.log(error);
-                res = "N/A";
+                // everytime is based on server time, res should not have
+                // default value, this is a bug
+                // res = undefined;
+                res = 420;
             }
         });
-        // Default timezone
-        if (res === "N/A") {
-            res = "America/Los_Angeles";
-        }
         return res;
     }
 
@@ -442,7 +464,13 @@ window.Scheduler = (function(Scheduler, $) {
                         if ($div.hasClass("inActive")) {
                             return false;
                         } else {
-                            return ($dateInput.val() === "");
+                            var date = $dateInput.val();
+                            // return ($dateInput.val() === "");
+                            if (date !== "") {
+                                return !testDate(date);
+                            } else {
+                                return true;
+                            }
                         }
                     }
                 }
@@ -452,8 +480,10 @@ window.Scheduler = (function(Scheduler, $) {
                 return false;
             }
 
-            var $hourInput = $('.timePicker:visible').find('input.hour');
-            var $minInput = $('.timePicker:visible').find('input.minute');
+            var $hourInput = $('#modifyScheduleForm .timePicker:visible')
+            .find('input.hour');
+            var $minInput = $('#modifyScheduleForm .timePicker:visible')
+            .find('input.minute');
             if ($("#modScheduler-timePicker").is(":visible")) {
                 if ($hourInput.val() > 12 || $hourInput.val() < 1) {
                     StatusBox.show(ErrTStr.SchedHourWrong, $hourInput, false,
@@ -478,7 +508,7 @@ window.Scheduler = (function(Scheduler, $) {
             var startTime = d.getTime();
             // Everything should use servertime, transfer the current time
             // to server time
-            currentTime = timeZoneTransfer(new Date(), serverTimeZone);
+            currentTime = timeZoneTransfer(new Date(), serverTimeZoneOffset);
 
             if (startTime < currentTime) {
                 StatusBox.show(ErrTStr.TimeExpire, $timeInput);
@@ -529,7 +559,7 @@ window.Scheduler = (function(Scheduler, $) {
                 return false;
             }
 
-            currentTime = timeZoneTransfer(new Date(), serverTimeZone);
+            currentTime = timeZoneTransfer(new Date(), serverTimeZoneOffset);
             options = {
                 "startTime": currentTime,  // In milliseconds
                 "dateText": "", // String
@@ -560,22 +590,11 @@ window.Scheduler = (function(Scheduler, $) {
          statusStr, outputStr);
         $("#scheduleTable .mainSection").html(html);
 
-        var deferred = $.Deferred();
-
         getOutputStr()
-        .always(function(outputLocation) {
+        .then(function(outputLocation) {
             outputStr = outputLocation;
-            XcalarListSchedules(currentDataFlowName)
-            .then(function(data) {
-                deferred.resolve(data);
-            })
-            .fail(function(error) {
-                deferred.reject(error);
-            });
-            return deferred.promise();
-        });
-
-        deferred.promise()
+            return XcalarListSchedules(currentDataFlowName);
+        })
         .then(function(data) {
             var scheduleInfo = data[0];
             html = "";
@@ -645,15 +664,20 @@ window.Scheduler = (function(Scheduler, $) {
         var deferred = $.Deferred();
         var str = "";
         XcalarListExportTargets('*','*')
-        .always(function(data) {
+        .then(function(data) {
             if (data && data.targets && data.targets[0].specificInput &&
                     data.targets[0].specificInput.sfInput &&
                     data.targets[0].specificInput.sfInput.url) {
                 str = data.targets[0].specificInput.sfInput.url;
+                deferred.resolve(str);
             } else {
                 str = SchedTStr.unknown;
+                deferred.reject(str);
             }
-            deferred.resolve(str);
+        })
+        .fail(function(error) {
+            console.log(error);
+            deferred.reject(error);
         });
         return deferred.promise(str);
     }

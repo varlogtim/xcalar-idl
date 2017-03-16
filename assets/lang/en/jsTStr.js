@@ -609,7 +609,8 @@ SchedTStr = {
     "revert": "REVERT",
     "simFail": "Simulation Fail!",
     "noParam": "None parameter is defined!",
-    "unknown": "Unknown!"
+    "unknown": "Unknown!",
+    "failServerTime": "Fail to get Server Time!"
 };
 
 DFGTStr = {

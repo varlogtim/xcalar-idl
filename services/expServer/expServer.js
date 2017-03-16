@@ -5,7 +5,6 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 var cronParser = require('cron-parser');
-var time = require('time');
 var fs = require('fs');
 var http = require('http');
 var https = require("https");
@@ -1099,36 +1098,10 @@ app.post("/uploadMeta", function(req, res) {
     upload.uploadMeta(req, res);
 });
 
-app.post('/simulateSchedule', function(req, res) {
-    console.log("Simulate Schedule");
-    var credArray = req.body;
-    var cronString = credArray.cronString; // like '*/2 * * * * *'
-    var startTime = credArray.startTime;
-    console.log("cronString", cronString)
-    console.log("startTime", startTime)
-    var options = {
-      currentDate: startTime               // like '2017-03-01 00:00:01'
-    }
-
-    try {
-      var interval = cronParser.parseExpression(cronString, options);
-      var next1 = interval.next();
-      var lastRun = getTimeString(next1);
-      var next2 = interval.next();
-      var nextRun = getTimeString(next2);
-      var retMsg = {"isValid": true, "lastRun" : lastRun, "nextRun" : nextRun};
-    } catch (err) {
-      console.log('Error: ' + err.message);
-      var retMsg = {"isValid": false, "lastRun" : "Simulation Fail!",
-        "nextRun" : "Simulation Fail!", "error": err.message};
-    }
-    res.send(retMsg);
-});
-
-app.post('/getTimezone', function(req, res){
-        var date = new time.Date();
-        console.log(date.getTimezone());
-        res.send(date.getTimezone());
+app.post('/getTimezoneOffset', function(req, res){
+        var timezoneOffset = new Date().getTimezoneOffset();
+        console.log("Server timezone offset: " +  timezoneOffset);
+        res.send(timezoneOffset);
 });
 
 function getTimeString(next) {

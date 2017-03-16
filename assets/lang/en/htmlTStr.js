@@ -58,6 +58,7 @@ module.exports = {
         "Port": "Port",
         "Prefs": "Preferences",
         "Refresh": "Refresh",
+        "REFRESH": "REFRESH",
         "Rename": "Rename",
         "REVERT": "REVERT",
         "SAVE": "SAVE",

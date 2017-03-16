@@ -33,6 +33,7 @@ window.XFTSupportTools = (function(XFTSupportTools) {
                 .fail(function(err) {
                     console.warn(err);
                     lastReturnSucc = true;
+
                     // If not all nodes return successfully, getLog() will
                     // enter here, then we should still keep watching the
                     // successfully return logs.
