@@ -134,78 +134,9 @@ window.DFParamModal = (function($, DFParamModal){
             "id": id,
             "dfg": dfName
         });
-        var defaultText = ""; // The html corresponding to Current Query:
-        var editableText = ""; // The html corresponding to Parameterized Query:
+
         var paramValue = decodeURI($currentIcon.data('paramValue'));
-
-        if (type === "dataStore") {
-            defaultText += '<div>' +
-                                DFTStr.PointTo + ':' +
-                            '</div>' +
-                            '<div class="boxed xlarge">' +
-                                xcHelper.escapeHTMLSepcialChar(paramValue) +
-                            '</div>';
-
-            editableText += '<div class="static" data-op="load">' +
-                                DFTStr.PointTo + ':' +
-                            '</div>' +
-                            getParameterInputHTML(0, "xlarge");
-        } else if (type === "export") {
-            defaultText += '<div>' +
-                                DFTStr.ExportTo + ':' +
-                            '</div>' +
-                            '<div class="boxed xlarge">' +
-                                xcHelper.escapeHTMLSepcialChar(paramValue) +
-                            '</div>';
-            editableText += '<div class="static" data-op="export">' +
-                                DFTStr.ExportTo + ':' +
-                            '</div>' +
-                            getParameterInputHTML(0, "xlarge");
-        } else { // not a datastore but a table
-            var retStruct = xcHelper.extractOpAndArgs(paramValue, ',');
-
-            defaultText += '<div>' + type + ':</div>' +
-                            '<div class="boxed medium">' +
-                                xcHelper.escapeHTMLSepcialChar(
-                                    retStruct.args[0]) +
-                            '</div>';
-
-            editableText += '<div class="static" data-op="' + type + '">' +
-                                type + ':' +
-                            '</div>';
-
-            if (type === "filter") {
-
-
-                defaultText += '<div class="static">by</div>' +
-                                '<div class="boxed sm-med">' +
-                                xcHelper.escapeHTMLSepcialChar(retStruct.op) +
-                                '</div>';
-                for (var i = 1; i < retStruct.args.length; i++) {
-                    defaultText += '<div class="boxed medium">' +
-                                        xcHelper.escapeHTMLSepcialChar(
-                                            retStruct.args[i]) +
-                                    '</div>';
-                }
-
-
-                editableText +=
-                        getParameterInputHTML(0, "medium") +
-                        '<div class="static">by</div>' +
-                        getParameterInputHTML(1, "sm-med", {filter: true});
-                for (var i = 1; i < retStruct.args.length; i++) {
-                    editableText +=
-                            getParameterInputHTML(1 + i, "medium allowEmpty");
-                }
-            } else {
-                // index, sort, map etc to be added in later
-                defaultText += '<div class="static">by</div>';
-            }
-        }
-
-
-        $dfgParamModal.find('.template').html(defaultText);
-        $editableRow.html(editableText);
+        setupInputText(paramValue, type);
 
         var draggableInputs = "";
         validParams = [];
@@ -424,6 +355,142 @@ window.DFParamModal = (function($, DFParamModal){
     DFParamModal.allowParamDrop = function(event) {
         event.preventDefault();
     };
+
+    function setupInputText(paramValue, type) {
+        var defaultText = ""; // The html corresponding to Current Query:
+        var editableText = ""; // The html corresponding to Parameterized
+                                // Query:
+
+        if (type === "dataStore") {
+            defaultText += '<div>' +
+                                DFTStr.PointTo + ':' +
+                            '</div>' +
+                            '<div class="boxed xlarge">' +
+                                xcHelper.escapeHTMLSepcialChar(paramValue) +
+                            '</div>';
+
+            editableText += '<div class="static" data-op="load">' +
+                                DFTStr.PointTo + ':' +
+                            '</div>' +
+                            getParameterInputHTML(0, "xlarge");
+        } else if (type === "export") {
+            defaultText += '<div>' +
+                                DFTStr.ExportTo + ':' +
+                            '</div>' +
+                            '<div class="boxed xlarge">' +
+                                xcHelper.escapeHTMLSepcialChar(paramValue) +
+                            '</div>';
+            editableText += '<div class="static" data-op="export">' +
+                                DFTStr.ExportTo + ':' +
+                            '</div>' +
+                            getParameterInputHTML(0, "xlarge");
+        } else { // not a datastore but a table
+            if (checkForNestedEval(paramValue)) {
+                defaultText += '<div>' +
+                                'Filter' + ':' +
+                            '</div>' +
+                            '<div class="boxed xlarge">' +
+                                xcHelper.escapeHTMLSepcialChar(paramValue) +
+                            '</div>';
+
+                editableText += '<div class="static" data-op="' + type + '">' +
+                                'Filter' + ':' +
+                            '</div>' +
+                            getParameterInputHTML(0, "xlarge");
+            } else {
+                var retStruct = xcHelper.extractOpAndArgs(paramValue, ',');
+
+                defaultText += '<div>' + type + ':</div>' +
+                                '<div class="boxed medium">' +
+                                    xcHelper.escapeHTMLSepcialChar(
+                                        retStruct.args[0]) +
+                                '</div>';
+
+                editableText += '<div class="static" data-op="' + type + '">' +
+                                    type + ':' +
+                                '</div>';
+
+                if (type === "filter") {
+
+
+                    defaultText += '<div class="static">by</div>' +
+                                    '<div class="boxed sm-med">' +
+                                    xcHelper.escapeHTMLSepcialChar(retStruct.op) +
+                                    '</div>';
+                    for (var i = 1; i < retStruct.args.length; i++) {
+                        defaultText += '<div class="boxed medium">' +
+                                            xcHelper.escapeHTMLSepcialChar(
+                                                retStruct.args[i]) +
+                                        '</div>';
+                    }
+
+
+                    editableText +=
+                            getParameterInputHTML(0, "medium") +
+                            '<div class="static">by</div>' +
+                            getParameterInputHTML(1, "sm-med", {filter: true});
+                    for (var i = 1; i < retStruct.args.length; i++) {
+                        editableText +=
+                                getParameterInputHTML(1 + i, "medium allowEmpty");
+                    }
+                } else {
+                    // index, sort, map etc to be added in later
+                    defaultText += '<div class="static">by</div>';
+                }
+            }
+        }
+
+        $dfgParamModal.find('.template').html(defaultText);
+        $editableRow.html(editableText);
+    }
+
+
+    function checkForNestedEval(paramValue) {
+        var val;
+        var inQuote = false;
+        var isEscaped = false;
+        var singleQuote = false;
+        var braceFound = false;
+        for (var i = 0; i < paramValue.length; i++) {
+            val = paramValue[i];
+            if (isEscaped) {
+                isEscaped = false;
+                continue;
+            }
+            switch (val) {
+                case ("\\"):
+                    isEscaped = true;
+                    break;
+                case ("'"):
+                    if (inQuote && singleQuote) {
+                        inQuote = false;
+                        singleQuote = false;
+                    } else if (!inQuote) {
+                        inQuote = true;
+                        singleQuote = true;
+                    }
+                    break;
+                case ('"'):
+                    if (!inQuote || (inQuote && !singleQuote)) {
+                        inQuote = !inQuote;
+                    }
+                    break;
+                case ("("):
+                    if (!inQuote) {
+                        if (braceFound) {
+                            return true;
+                        } else {
+                            braceFound = true;
+                        }
+                    }
+
+                    break;
+                default:
+                    break;
+            }
+        }
+        return false;
+    }
 
     function suggest($input) {
         var value = $input.val().trim().toLowerCase();
@@ -756,19 +823,25 @@ window.DFParamModal = (function($, DFParamModal){
             switch (type) {
                 case ("filter"):
                     paramType = XcalarApisT.XcalarApiFilter;
-                    var filterText = $oldVals.eq(1).text().trim();
-                    var str1 = $oldVals.eq(0).text().trim();
-                    var additionalArgs = "";
-                    var arg;
-                    paramQuery = [str1, filterText];
-                    for (var i = 2; i < $oldVals.length; i++) {
-                        arg = $oldVals.eq(i).text().trim();
-                        additionalArgs += arg + ",";
-                        paramQuery.push(arg);
+                    if ($oldVals.length === 1) {
+                        paramValue = $oldVals.eq(0).text().trim();
+                        paramQuery = [paramValue];
+                    } else {
+                        var filterText = $oldVals.eq(1).text().trim();
+                        var str1 = $oldVals.eq(0).text().trim();
+                        var additionalArgs = "";
+                        var arg;
+                        paramQuery = [str1, filterText];
+                        for (var i = 2; i < $oldVals.length; i++) {
+                            arg = $oldVals.eq(i).text().trim();
+                            additionalArgs += arg + ",";
+                            paramQuery.push(arg);
+                        }
+                        additionalArgs = additionalArgs.slice(0, -1);
+                        paramValue = filterText + "(" + str1 + "," +
+                                     additionalArgs + ")";
                     }
-                    additionalArgs = additionalArgs.slice(0, -1);
-                    paramValue = filterText + "(" + str1 + "," +
-                                 additionalArgs + ")";
+
                     break;
                 case ("dataStore"):
                     paramType = XcalarApisT.XcalarApiBulkLoad;
@@ -800,30 +873,36 @@ window.DFParamModal = (function($, DFParamModal){
             switch (operation) {
                 case ("filter"):
                     paramType = XcalarApisT.XcalarApiFilter;
+                    if ($editableDivs.length === 1) {
+                        paramValue = $editableDivs.eq(0).val().trim();
+                        paramQuery = [paramValue];
+                    } else {
+                        var filterText = $editableDivs.eq(1).val().trim();
+                        var str1 = $editableDivs.eq(0).val().trim();
+                        var filterExists = checkIfValidFilter(filterText,
+                                                              $editableDivs.eq(1),
+                                                              params);
 
-                    var filterText = $editableDivs.eq(1).val().trim();
-                    var str1 = $editableDivs.eq(0).val().trim();
-                    var filterExists = checkIfValidFilter(filterText,
-                                                          $editableDivs.eq(1),
-                                                          params);
+                        if (!filterExists) {
+                            deferred.reject("Filter type not currently supported.");
+                            return (deferred.promise());
+                        }
 
-                    if (!filterExists) {
-                        deferred.reject("Filter type not currently supported.");
-                        return (deferred.promise());
+                        var additionalArgs = "";
+                        var arg;
+                        paramQuery = [str1, filterText];
+                        for (var i = 2; i < $editableDivs.length; i++) {
+                            arg = $editableDivs.eq(i).val().trim();
+                            additionalArgs += arg + ",";
+                            paramQuery.push(arg);
+                        }
+                        additionalArgs = additionalArgs.slice(0, -1);
+
+                        paramValue = filterText + "(" + str1 + "," +
+                                     additionalArgs + ")";
                     }
 
-                    var additionalArgs = "";
-                    var arg;
-                    paramQuery = [str1, filterText];
-                    for (var i = 2; i < $editableDivs.length; i++) {
-                        arg = $editableDivs.eq(i).val().trim();
-                        additionalArgs += arg + ",";
-                        paramQuery.push(arg);
-                    }
-                    additionalArgs = additionalArgs.slice(0, -1);
 
-                    paramValue = filterText + "(" + str1 + "," +
-                                 additionalArgs + ")";
                     // paramInput.paramFilter = new XcalarApiParamFilterT();
                     // paramInput.paramFilter.filterStr = str;
                     break;
