@@ -554,7 +554,9 @@ StatusT = {
   'StatusDurVerError' : 545,
   'StatusDurDirtyWriter' : 546,
   'StatusMaxFieldSizeExceeded' : 547,
-  'StatusQrQueryAlreadyExists' : 548
+  'StatusQrQueryAlreadyExists' : 548,
+  'StatusUdfModuleInUse' : 549,
+  'StatusTargetInUse' : 550
 };
 StatusTStr = {0 : 'Success',
 1 : 'Operation not permitted',
@@ -1104,5 +1106,7 @@ StatusTStr = {0 : 'Success',
 545 : 'Durable version not supported',
 546 : 'Durable data written by build from unclean workspace',
 547 : 'Maximum field size was exceeded',
-548 : 'The query name already exists'
+548 : 'The query name already exists',
+549 : 'UDF module currently in use',
+550 : 'Target currently in use'
 };

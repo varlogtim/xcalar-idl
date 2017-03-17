@@ -880,7 +880,7 @@ PromiseHelper = (function(PromiseHelper, $) {
         workItem.input = new XcalarApiInputT();
         workItem.input.indexInput = new XcalarApiIndexInputT();
         workItem.input.indexInput.source = new XcalarApiNamedInputT();
-        workItem.input.indexInput.dstTable = new XcalarApiTableT();
+        workItem.input.indexInput.dstTable = new XcalarApiTableInputT();
 
         workItem.api = XcalarApisT.XcalarApiIndex;
         workItem.input.indexInput.source.isTable = false;

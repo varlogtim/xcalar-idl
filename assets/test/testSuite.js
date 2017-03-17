@@ -534,7 +534,7 @@ window.TestSuite = (function($, TestSuite) {
             if (dsName.indexOf("flight") > -1) {
                 return checkExists(".selectedTable li:eq(33)");
             } else if (dsName.indexOf("airport") > -1) {
-                return checkExists(".selectedTable li:eq(7)");
+                return checkExists(".selectedTable li:eq(6)");
             } else if (dsName.indexOf("schedule") > -1) {
                 return checkExists(".selectedTable li:eq(5)");
             } else {

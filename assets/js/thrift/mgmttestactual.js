@@ -12190,6 +12190,7 @@ JoinOperatorTStr = {0 : 'innerJoin',
 
 
 XcalarApiKeyScopeT = {
+  'XcalarApiKeyInvalid' : 0,
   'XcalarApiKeyScopeGlobal' : 1,
   'XcalarApiKeyScopeUser' : 2,
   'XcalarApiKeyScopeSession' : 3
@@ -13873,7 +13874,7 @@ XcalarApiKeyDeleteInputT.prototype.write = function(output) {
   return;
 };
 
-XcalarApiTableT = function(args) {
+XcalarApiTableInputT = function(args) {
   this.tableName = null;
   this.tableId = null;
   this.state = null;
@@ -13889,8 +13890,8 @@ XcalarApiTableT = function(args) {
     }
   }
 };
-XcalarApiTableT.prototype = {};
-XcalarApiTableT.prototype.read = function(input) {
+XcalarApiTableInputT.prototype = {};
+XcalarApiTableInputT.prototype.read = function(input) {
   input.readStructBegin();
   while (true)
   {
@@ -13933,8 +13934,8 @@ XcalarApiTableT.prototype.read = function(input) {
   return;
 };
 
-XcalarApiTableT.prototype.write = function(output) {
-  output.writeStructBegin('XcalarApiTableT');
+XcalarApiTableInputT.prototype.write = function(output) {
+  output.writeStructBegin('XcalarApiTableInputT');
   if (this.tableName !== null && this.tableName !== undefined) {
     output.writeFieldBegin('tableName', Thrift.Type.STRING, 1);
     output.writeString(this.tableName);
@@ -14587,7 +14588,7 @@ XcalarApiExportInputT.prototype.read = function(input) {
     {
       case 1:
       if (ftype == Thrift.Type.STRUCT) {
-        this.srcTable = new XcalarApiTableT();
+        this.srcTable = new XcalarApiTableInputT();
         this.srcTable.read(input);
       } else {
         input.skip(ftype);
@@ -15357,7 +15358,7 @@ XcalarApiIndexInputT.prototype.read = function(input) {
       break;
       case 4:
       if (ftype == Thrift.Type.STRUCT) {
-        this.dstTable = new XcalarApiTableT();
+        this.dstTable = new XcalarApiTableInputT();
         this.dstTable.read(input);
       } else {
         input.skip(ftype);
@@ -15815,7 +15816,7 @@ XcalarApiProjectInputT.prototype.read = function(input) {
       break;
       case 3:
       if (ftype == Thrift.Type.STRUCT) {
-        this.srcTable = new XcalarApiTableT();
+        this.srcTable = new XcalarApiTableInputT();
         this.srcTable.read(input);
       } else {
         input.skip(ftype);
@@ -15823,7 +15824,7 @@ XcalarApiProjectInputT.prototype.read = function(input) {
       break;
       case 4:
       if (ftype == Thrift.Type.STRUCT) {
-        this.dstTable = new XcalarApiTableT();
+        this.dstTable = new XcalarApiTableInputT();
         this.dstTable.read(input);
       } else {
         input.skip(ftype);
@@ -15913,7 +15914,7 @@ XcalarApiFilterInputT.prototype.read = function(input) {
       break;
       case 2:
       if (ftype == Thrift.Type.STRUCT) {
-        this.srcTable = new XcalarApiTableT();
+        this.srcTable = new XcalarApiTableInputT();
         this.srcTable.read(input);
       } else {
         input.skip(ftype);
@@ -15921,7 +15922,7 @@ XcalarApiFilterInputT.prototype.read = function(input) {
       break;
       case 3:
       if (ftype == Thrift.Type.STRUCT) {
-        this.dstTable = new XcalarApiTableT();
+        this.dstTable = new XcalarApiTableInputT();
         this.dstTable.read(input);
       } else {
         input.skip(ftype);
@@ -16002,7 +16003,7 @@ XcalarApiGroupByInputT.prototype.read = function(input) {
     {
       case 1:
       if (ftype == Thrift.Type.STRUCT) {
-        this.srcTable = new XcalarApiTableT();
+        this.srcTable = new XcalarApiTableInputT();
         this.srcTable.read(input);
       } else {
         input.skip(ftype);
@@ -16010,7 +16011,7 @@ XcalarApiGroupByInputT.prototype.read = function(input) {
       break;
       case 2:
       if (ftype == Thrift.Type.STRUCT) {
-        this.dstTable = new XcalarApiTableT();
+        this.dstTable = new XcalarApiTableInputT();
         this.dstTable.read(input);
       } else {
         input.skip(ftype);
@@ -16122,7 +16123,7 @@ XcalarApiAggregateInputT.prototype.read = function(input) {
     {
       case 1:
       if (ftype == Thrift.Type.STRUCT) {
-        this.srcTable = new XcalarApiTableT();
+        this.srcTable = new XcalarApiTableInputT();
         this.srcTable.read(input);
       } else {
         input.skip(ftype);
@@ -16130,7 +16131,7 @@ XcalarApiAggregateInputT.prototype.read = function(input) {
       break;
       case 2:
       if (ftype == Thrift.Type.STRUCT) {
-        this.dstTable = new XcalarApiTableT();
+        this.dstTable = new XcalarApiTableInputT();
         this.dstTable.read(input);
       } else {
         input.skip(ftype);
@@ -16591,7 +16592,7 @@ XcalarApiJoinInputT.prototype.read = function(input) {
     {
       case 1:
       if (ftype == Thrift.Type.STRUCT) {
-        this.leftTable = new XcalarApiTableT();
+        this.leftTable = new XcalarApiTableInputT();
         this.leftTable.read(input);
       } else {
         input.skip(ftype);
@@ -16599,7 +16600,7 @@ XcalarApiJoinInputT.prototype.read = function(input) {
       break;
       case 2:
       if (ftype == Thrift.Type.STRUCT) {
-        this.rightTable = new XcalarApiTableT();
+        this.rightTable = new XcalarApiTableInputT();
         this.rightTable.read(input);
       } else {
         input.skip(ftype);
@@ -16607,7 +16608,7 @@ XcalarApiJoinInputT.prototype.read = function(input) {
       break;
       case 3:
       if (ftype == Thrift.Type.STRUCT) {
-        this.joinTable = new XcalarApiTableT();
+        this.joinTable = new XcalarApiTableInputT();
         this.joinTable.read(input);
       } else {
         input.skip(ftype);
@@ -17463,7 +17464,7 @@ XcalarApiExecuteRetinaInputT.prototype.read = function(input) {
       break;
       case 3:
       if (ftype == Thrift.Type.STRUCT) {
-        this.dstTable = new XcalarApiTableT();
+        this.dstTable = new XcalarApiTableInputT();
         this.dstTable.read(input);
       } else {
         input.skip(ftype);
@@ -17841,7 +17842,7 @@ XcalarApiMapInputT.prototype.read = function(input) {
       break;
       case 2:
       if (ftype == Thrift.Type.STRUCT) {
-        this.srcTable = new XcalarApiTableT();
+        this.srcTable = new XcalarApiTableInputT();
         this.srcTable.read(input);
       } else {
         input.skip(ftype);
@@ -17849,7 +17850,7 @@ XcalarApiMapInputT.prototype.read = function(input) {
       break;
       case 3:
       if (ftype == Thrift.Type.STRUCT) {
-        this.dstTable = new XcalarApiTableT();
+        this.dstTable = new XcalarApiTableInputT();
         this.dstTable.read(input);
       } else {
         input.skip(ftype);
@@ -17942,7 +17943,7 @@ XcalarApiGetRowNumInputT.prototype.read = function(input) {
     {
       case 1:
       if (ftype == Thrift.Type.STRUCT) {
-        this.srcTable = new XcalarApiTableT();
+        this.srcTable = new XcalarApiTableInputT();
         this.srcTable.read(input);
       } else {
         input.skip(ftype);
@@ -17950,7 +17951,7 @@ XcalarApiGetRowNumInputT.prototype.read = function(input) {
       break;
       case 2:
       if (ftype == Thrift.Type.STRUCT) {
-        this.dstTable = new XcalarApiTableT();
+        this.dstTable = new XcalarApiTableInputT();
         this.dstTable.read(input);
       } else {
         input.skip(ftype);
@@ -22514,7 +22515,7 @@ XcalarApiErrorpointSetInputT.prototype.write = function(output) {
 XcalarApiImportRetinaInputT = function(args) {
   this.retinaName = null;
   this.overwriteExistingUdf = null;
-  this.retinaSize = null;
+  this.retinaCount = null;
   this.retina = null;
   if (args) {
     if (args.retinaName !== undefined) {
@@ -22523,8 +22524,8 @@ XcalarApiImportRetinaInputT = function(args) {
     if (args.overwriteExistingUdf !== undefined) {
       this.overwriteExistingUdf = args.overwriteExistingUdf;
     }
-    if (args.retinaSize !== undefined) {
-      this.retinaSize = args.retinaSize;
+    if (args.retinaCount !== undefined) {
+      this.retinaCount = args.retinaCount;
     }
     if (args.retina !== undefined) {
       this.retina = args.retina;
@@ -22561,7 +22562,7 @@ XcalarApiImportRetinaInputT.prototype.read = function(input) {
       break;
       case 3:
       if (ftype == Thrift.Type.I64) {
-        this.retinaSize = input.readI64().value;
+        this.retinaCount = input.readI64().value;
       } else {
         input.skip(ftype);
       }
@@ -22594,9 +22595,9 @@ XcalarApiImportRetinaInputT.prototype.write = function(output) {
     output.writeBool(this.overwriteExistingUdf);
     output.writeFieldEnd();
   }
-  if (this.retinaSize !== null && this.retinaSize !== undefined) {
-    output.writeFieldBegin('retinaSize', Thrift.Type.I64, 3);
-    output.writeI64(this.retinaSize);
+  if (this.retinaCount !== null && this.retinaCount !== undefined) {
+    output.writeFieldBegin('retinaCount', Thrift.Type.I64, 3);
+    output.writeI64(this.retinaCount);
     output.writeFieldEnd();
   }
   if (this.retina !== null && this.retina !== undefined) {
@@ -23583,7 +23584,7 @@ XcalarApiInputT.prototype.read = function(input) {
       break;
       case 11:
       if (ftype == Thrift.Type.STRUCT) {
-        this.getTableRefCountInput = new XcalarApiTableT();
+        this.getTableRefCountInput = new XcalarApiTableInputT();
         this.getTableRefCountInput.read(input);
       } else {
         input.skip(ftype);
@@ -25407,11 +25408,11 @@ XcalarApiImportRetinaOutputT.prototype.write = function(output) {
 };
 
 XcalarApiExportRetinaOutputT = function(args) {
-  this.retinaSize = null;
+  this.retinaCount = null;
   this.retina = null;
   if (args) {
-    if (args.retinaSize !== undefined) {
-      this.retinaSize = args.retinaSize;
+    if (args.retinaCount !== undefined) {
+      this.retinaCount = args.retinaCount;
     }
     if (args.retina !== undefined) {
       this.retina = args.retina;
@@ -25434,7 +25435,7 @@ XcalarApiExportRetinaOutputT.prototype.read = function(input) {
     {
       case 1:
       if (ftype == Thrift.Type.I64) {
-        this.retinaSize = input.readI64().value;
+        this.retinaCount = input.readI64().value;
       } else {
         input.skip(ftype);
       }
@@ -25457,9 +25458,9 @@ XcalarApiExportRetinaOutputT.prototype.read = function(input) {
 
 XcalarApiExportRetinaOutputT.prototype.write = function(output) {
   output.writeStructBegin('XcalarApiExportRetinaOutputT');
-  if (this.retinaSize !== null && this.retinaSize !== undefined) {
-    output.writeFieldBegin('retinaSize', Thrift.Type.I64, 1);
-    output.writeI64(this.retinaSize);
+  if (this.retinaCount !== null && this.retinaCount !== undefined) {
+    output.writeFieldBegin('retinaCount', Thrift.Type.I64, 1);
+    output.writeI64(this.retinaCount);
     output.writeFieldEnd();
   }
   if (this.retina !== null && this.retina !== undefined) {
@@ -27101,7 +27102,26 @@ XcalarApisT = {
   'XcalarApiAppReap' : 86,
   'XcalarApiDemoFile' : 87,
   'XcalarApiUpdateLicense' : 88,
-  'XcalarApiFunctionInvalid' : 89
+  'XcalarApiListFuncTest' : 89,
+  'XcalarApiListSchedTask' : 90,
+  'XcalarApiQueryName' : 91,
+  'XcalarApiSchedTask' : 92,
+  'XcalarApiStartFuncTest' : 93,
+  'XcalarApiStat' : 94,
+  'XcalarApiStatByGroupId' : 95,
+  'XcalarApiTable' : 96,
+  'XcalarStressSetKeyType' : 97,
+  'XcalarApiDagTableName' : 98,
+  'XcalarApiLicenseUpdate' : 99,
+  'XcalarApiSessionListScalar' : 100,
+  'XcalarApiSessionListArray' : 101,
+  'XcalarApiExExportTarget' : 102,
+  'XcalarApiExExportTargetHdr' : 103,
+  'XcalarApiPacked' : 104,
+  'XcalarApiDagNodeNamePattern' : 105,
+  'XcalarApiDagNodeNamePatternDelete' : 106,
+  'XcalarApiAddParameterToRetina' : 107,
+  'XcalarApiFunctionInvalid' : 108
 };
 XcalarApisTStr = {0 : 'XcalarApiUnknown',
 1 : 'XcalarApiGetVersion',
@@ -27192,7 +27212,26 @@ XcalarApisTStr = {0 : 'XcalarApiUnknown',
 86 : 'XcalarApiAppReap',
 87 : 'XcalarApiDemoFile',
 88 : 'XcalarApiUpdateLicense',
-89 : 'XcalarApiFunctionInvalid'
+89 : 'XcalarApiListFuncTest',
+90 : 'XcalarApiListSchedTask',
+91 : 'XcalarApiQueryName',
+92 : 'XcalarApiSchedTask',
+93 : 'XcalarApiStartFuncTest',
+94 : 'XcalarApiStat',
+95 : 'XcalarApiStatByGroupId',
+96 : 'XcalarApiTable',
+97 : 'XcalarStressSetKeyType',
+98 : 'XcalarApiDagTableName',
+99 : 'XcalarApiLicenseUpdate',
+100 : 'XcalarApiSessionListScalar',
+101 : 'XcalarApiSessionListArray',
+102 : 'XcalarApiExExportTarget',
+103 : 'XcalarApiExExportTargetHdr',
+104 : 'XcalarApiPacked',
+105 : 'XcalarApiDagNodeNamePattern',
+106 : 'XcalarApiDagNodeNamePatternDelete',
+107 : 'XcalarApiAddParameterToRetina',
+108 : 'XcalarApiFunctionInvalid'
 };
 //
 // Autogenerated by Thrift Compiler (0.9.2)
@@ -27808,7 +27847,9 @@ StatusT = {
   'StatusDurVerError' : 545,
   'StatusDurDirtyWriter' : 546,
   'StatusMaxFieldSizeExceeded' : 547,
-  'StatusQrQueryAlreadyExists' : 548
+  'StatusQrQueryAlreadyExists' : 548,
+  'StatusUdfModuleInUse' : 549,
+  'StatusTargetInUse' : 550
 };
 StatusTStr = {0 : 'Success',
 1 : 'Operation not permitted',
@@ -28358,7 +28399,9 @@ StatusTStr = {0 : 'Success',
 545 : 'Durable version not supported',
 546 : 'Durable data written by build from unclean workspace',
 547 : 'Maximum field size was exceeded',
-548 : 'The query name already exists'
+548 : 'The query name already exists',
+549 : 'UDF module currently in use',
+550 : 'Target currently in use'
 };
 //
 // Autogenerated by Thrift Compiler (0.9.2)
@@ -28669,9 +28712,9 @@ XcalarApiServiceClient.prototype.recv_queueWork = function() {
 
 
 XcalarApiVersionT = {
-  'XcalarApiVersionSignature' : 170639536
+  'XcalarApiVersionSignature' : 5034566
 };
-XcalarApiVersionTStr = {170639536 : 'a2bc0b0ad88ee28c45dcd43c927425b4'
+XcalarApiVersionTStr = {5034566 : '04cd246ae70ed913708fbad5ba826306'
 };
 // Async extension for XcalarApiService.js
 XcalarApiServiceClient.prototype.queueWorkAsync = function(workItem) {
@@ -29199,7 +29242,7 @@ xcalarIndexDatasetWorkItem = runEntity.xcalarIndexDatasetWorkItem = function(dat
     workItem.input = new XcalarApiInputT();
     workItem.input.indexInput = new XcalarApiIndexInputT();
     workItem.input.indexInput.source = new XcalarApiNamedInputT();
-    workItem.input.indexInput.dstTable = new XcalarApiTableT();
+    workItem.input.indexInput.dstTable = new XcalarApiTableInputT();
 
     workItem.api = XcalarApisT.XcalarApiIndex;
     workItem.input.indexInput.source.isTable = false;
@@ -29259,7 +29302,7 @@ xcalarIndexTableWorkItem = runEntity.xcalarIndexTableWorkItem = function(srcTabl
     workItem.input = new XcalarApiInputT();
     workItem.input.indexInput = new XcalarApiIndexInputT();
     workItem.input.indexInput.source = new XcalarApiNamedInputT();
-    workItem.input.indexInput.dstTable = new XcalarApiTableT();
+    workItem.input.indexInput.dstTable = new XcalarApiTableInputT();
 
     workItem.api = XcalarApisT.XcalarApiIndex;
     workItem.input.indexInput.source.isTable = true;
@@ -30138,9 +30181,9 @@ xcalarJoinWorkItem = runEntity.xcalarJoinWorkItem = function(leftTableName, righ
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.joinInput = new XcalarApiJoinInputT();
-    workItem.input.joinInput.leftTable = new XcalarApiTableT();
-    workItem.input.joinInput.rightTable = new XcalarApiTableT();
-    workItem.input.joinInput.joinTable = new XcalarApiTableT();
+    workItem.input.joinInput.leftTable = new XcalarApiTableInputT();
+    workItem.input.joinInput.rightTable = new XcalarApiTableInputT();
+    workItem.input.joinInput.joinTable = new XcalarApiTableInputT();
 
     workItem.api = XcalarApisT.XcalarApiJoin;
     workItem.input.joinInput.leftTable.tableName = leftTableName;
@@ -30221,8 +30264,8 @@ xcalarProjectWorkItem = runEntity.xcalarProjectWorkItem = function(numColumns, c
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.projectInput = new XcalarApiProjectInputT();
-    workItem.input.projectInput.srcTable = new XcalarApiTableT();
-    workItem.input.projectInput.dstTable = new XcalarApiTableT();
+    workItem.input.projectInput.srcTable = new XcalarApiTableInputT();
+    workItem.input.projectInput.dstTable = new XcalarApiTableInputT();
 
     workItem.api = XcalarApisT.XcalarApiProject;
     workItem.input.projectInput.srcTable.tableName = srcTableName;
@@ -30274,8 +30317,8 @@ xcalarFilterWorkItem = runEntity.xcalarFilterWorkItem = function(srcTableName, d
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.filterInput = new XcalarApiFilterInputT();
-    workItem.input.filterInput.srcTable = new XcalarApiTableT();
-    workItem.input.filterInput.dstTable = new XcalarApiTableT();
+    workItem.input.filterInput.srcTable = new XcalarApiTableInputT();
+    workItem.input.filterInput.dstTable = new XcalarApiTableInputT();
 
     workItem.api = XcalarApisT.XcalarApiFilter;
     workItem.input.filterInput.srcTable.tableName = srcTableName;
@@ -30323,8 +30366,8 @@ xcalarGroupByWorkItem = runEntity.xcalarGroupByWorkItem = function(srcTableName,
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.groupByInput = new XcalarApiGroupByInputT();
-    workItem.input.groupByInput.srcTable = new XcalarApiTableT();
-    workItem.input.groupByInput.dstTable = new XcalarApiTableT();
+    workItem.input.groupByInput.srcTable = new XcalarApiTableInputT();
+    workItem.input.groupByInput.dstTable = new XcalarApiTableInputT();
 
     workItem.api = XcalarApisT.XcalarApiGroupBy;
     workItem.input.groupByInput.srcTable.tableName = srcTableName;
@@ -30521,7 +30564,7 @@ xcalarDeleteDagNodes = runEntity.xcalarDeleteDagNodes = function(thriftHandle, n
 xcalarGetTableRefCountWorkItem = runEntity.xcalarGetTableRefCountWorkItem = function(tableName) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
-    workItem.input.getTableRefCountInput = new XcalarApiTableT();
+    workItem.input.getTableRefCountInput = new XcalarApiTableInputT();
 
     workItem.api = XcalarApisT.XcalarApiGetTableRefCount;
     workItem.input.getTableRefCountInput.tableName = tableName;
@@ -30563,8 +30606,8 @@ xcalarApiMapWorkItem = runEntity.xcalarApiMapWorkItem = function(evalStr, srcTab
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.mapInput = new XcalarApiMapInputT();
-    workItem.input.mapInput.srcTable = new XcalarApiTableT();
-    workItem.input.mapInput.dstTable = new XcalarApiTableT();
+    workItem.input.mapInput.srcTable = new XcalarApiTableInputT();
+    workItem.input.mapInput.dstTable = new XcalarApiTableInputT();
 
     workItem.api = XcalarApisT.XcalarApiMap;
     workItem.input.mapInput.evalStr = evalStr;
@@ -30646,8 +30689,8 @@ xcalarApiGetRowNumWorkItem = runEntity.xcalarApiGetRowNumWorkItem = function(src
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.getRowNumInput = new XcalarApiGetRowNumInputT();
-    workItem.input.getRowNumInput.srcTable = new XcalarApiTableT();
-    workItem.input.getRowNumInput.dstTable = new XcalarApiTableT();
+    workItem.input.getRowNumInput.srcTable = new XcalarApiTableInputT();
+    workItem.input.getRowNumInput.dstTable = new XcalarApiTableInputT();
 
     workItem.api = XcalarApisT.XcalarApiGetRowNum;
     workItem.input.getRowNumInput.srcTable.tableName = srcTableName;
@@ -30695,8 +30738,8 @@ xcalarAggregateWorkItem = runEntity.xcalarAggregateWorkItem = function(srcTableN
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.aggregateInput = new XcalarApiAggregateInputT();
-    workItem.input.aggregateInput.srcTable = new XcalarApiTableT();
-    workItem.input.aggregateInput.dstTable = new XcalarApiTableT();
+    workItem.input.aggregateInput.srcTable = new XcalarApiTableInputT();
+    workItem.input.aggregateInput.dstTable = new XcalarApiTableInputT();
 
     workItem.api = XcalarApisT.XcalarApiAggregate;
     workItem.input.aggregateInput.srcTable.tableName = srcTableName;
@@ -30857,7 +30900,7 @@ xcalarExportWorkItem = runEntity.xcalarExportWorkItem = function(tableName, targ
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.exportInput = new XcalarApiExportInputT();
-    workItem.input.exportInput.srcTable = new XcalarApiTableT();
+    workItem.input.exportInput.srcTable = new XcalarApiTableInputT();
     workItem.input.exportInput.meta = new ExExportMetaT();
 
     workItem.api = XcalarApisT.XcalarApiExport;
@@ -31164,7 +31207,7 @@ xcalarExecuteRetinaWorkItem = runEntity.xcalarExecuteRetinaWorkItem = function(r
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.executeRetinaInput = new XcalarApiExecuteRetinaInputT();
-    workItem.input.executeRetinaInput.dstTable = new XcalarApiTableT();
+    workItem.input.executeRetinaInput.dstTable = new XcalarApiTableInputT();
 
     workItem.api = XcalarApisT.XcalarApiExecuteRetina;
     workItem.input.executeRetinaInput.retinaName = retinaName;
@@ -32302,7 +32345,7 @@ xcalarApiImportRetinaWorkItem = runEntity.xcalarApiImportRetinaWorkItem = functi
     workItem.input.importRetinaInput = new XcalarApiImportRetinaInputT();
     workItem.input.importRetinaInput.retinaName = retinaName;
     workItem.input.importRetinaInput.overwriteExistingUdf = overwrite;
-    workItem.input.importRetinaInput.retinaSize = encodedRetina.length;
+    workItem.input.importRetinaInput.retinaCount = encodedRetina.length;
     workItem.input.importRetinaInput.retina = encodedRetina;
 
     return (workItem);
@@ -32373,7 +32416,7 @@ xcalarApiExportRetina = runEntity.xcalarApiExportRetina = function(thriftHandle,
         }
 
         exportRetinaOutput.retina = atob(exportRetinaOutput.retina);
-        exportRetinaOutput.retinaSize = exportRetinaOutput.retina.length;
+        exportRetinaOutput.retinaCount = exportRetinaOutput.retina.length;
 
         deferred.resolve(exportRetinaOutput);
     })
@@ -32632,6 +32675,94 @@ xcalarDemoFileDelete = runEntity.xcalarDemoFileDelete = function(thriftHandle, f
     });
 
     return (deferred.promise());
+};
+
+XcalarApiListSchedTaskWorkItem = runEntity.xcalarApiListSchedTaskWorkItem = function(paramName, paramValue) {
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiListSchedTaskInputT();
+
+    // NOOP
+    return ("NOT_IMPLEMENTED");
+};
+
+XcalarApiLicenseUpdateWorkItem = runEntity.xcalarApiLicenseUpdateWorkItem = function(paramName, paramValue) {
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiLicenseUpdateInputT();
+
+    // NOOP
+    return ("NOT_IMPLEMENTED");
+};
+
+XcalarApiDagTableNameWorkItem = runEntity.xcalarApiDagTableNameWorkItem = function(paramName, paramValue) {
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiDagTableNameInputT();
+
+    // NOOP
+    return ("NOT_IMPLEMENTED");
+};
+
+XcalarApiSchedTaskWorkItem = runEntity.xcalarApiSchedTaskWorkItem = function(paramName, paramValue) {
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiSchedTaskInputT();
+
+    // NOOP
+    return ("NOT_IMPLEMENTED");
+};
+
+XcalarApiSessionListScalarWorkItem = runEntity.xcalarApiSessionListScalarWorkItem = function(paramName, paramValue) {
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiSessionListScalarInputT();
+
+    // NOOP
+    return ("NOT_IMPLEMENTED");
+};
+
+XcalarApiSessionListArrayWorkItem = runEntity.xcalarApiSessionListArrayWorkItem = function(paramName, paramValue) {
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiSessionListArrayInputT();
+
+    // NOOP
+    return ("NOT_IMPLEMENTED");
+};
+
+XcalarApiExExportTargetWorkItem = runEntity.xcalarApiExExportTargetWorkItem = function(paramName, paramValue) {
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiExExportTargetInputT();
+
+    // NOOP
+    return ("NOT_IMPLEMENTED");
+};
+
+XcalarApiExExportTargetHdrWorkItem = runEntity.xcalarApiExExportTargetHdrWorkItem = function(paramName, paramValue) {
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiExExportTargetHdrInputT();
+
+    // NOOP
+    return ("NOT_IMPLEMENTED");
+};
+
+XcalarApiPackedWorkItem = runEntity.xcalarApiPackedWorkItem = function(paramName, paramValue) {
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiPackedInputT();
+
+    // NOOP
+    return ("NOT_IMPLEMENTED");
+};
+
+XcalarApiDagNodeNamePatternDeleteWorkItem = runEntity.xcalarApiDagNodeNamePatternDeleteWorkItem = function(paramName, paramValue) {
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiDagNodeNamePatternDeleteInputT();
+
+    // NOOP
+    return ("NOT_IMPLEMENTED");
+};
+
+XcalarApiAddParameterToRetinaWorkItem = runEntity.xcalarApiAddParameterToRetinaWorkItem = function(paramName, paramValue) {
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiAddParameterToRetinaInputT();
+
+    // NOOP
+    return ("NOT_IMPLEMENTED");
 };
 // Scroll all the way down to add test cases
 // Or search for function addTestCase
@@ -33515,7 +33646,7 @@ PromiseHelper = (function(PromiseHelper, $) {
         workItem.input = new XcalarApiInputT();
         workItem.input.indexInput = new XcalarApiIndexInputT();
         workItem.input.indexInput.source = new XcalarApiNamedInputT();
-        workItem.input.indexInput.dstTable = new XcalarApiTableT();
+        workItem.input.indexInput.dstTable = new XcalarApiTableInputT();
 
         workItem.api = XcalarApisT.XcalarApiIndex;
         workItem.input.indexInput.source.isTable = false;

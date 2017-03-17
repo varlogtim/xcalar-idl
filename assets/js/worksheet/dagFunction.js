@@ -537,7 +537,7 @@ window.DagFunction = (function($, DagFunction) {
         for (var i = 0; i<orderedArray.length; i++) {
             var nodeValue = orderedArray[i].value;
             var workItem = new WorkItem();
-            workItem.input = new XcalarApiInputT();
+            workItem.input = new XcalarApiTableInputT();
             workItem.input[nodeValue.inputName] = nodeValue.struct;
             workItem.api = nodeValue.api;
             promiseArray.push(populateGlobalArray.bind(this, workItem));

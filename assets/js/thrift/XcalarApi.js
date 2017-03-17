@@ -474,7 +474,7 @@ xcalarIndexDatasetWorkItem = runEntity.xcalarIndexDatasetWorkItem = function(dat
     workItem.input = new XcalarApiInputT();
     workItem.input.indexInput = new XcalarApiIndexInputT();
     workItem.input.indexInput.source = new XcalarApiNamedInputT();
-    workItem.input.indexInput.dstTable = new XcalarApiTableT();
+    workItem.input.indexInput.dstTable = new XcalarApiTableInputT();
 
     workItem.api = XcalarApisT.XcalarApiIndex;
     workItem.input.indexInput.source.isTable = false;
@@ -534,7 +534,7 @@ xcalarIndexTableWorkItem = runEntity.xcalarIndexTableWorkItem = function(srcTabl
     workItem.input = new XcalarApiInputT();
     workItem.input.indexInput = new XcalarApiIndexInputT();
     workItem.input.indexInput.source = new XcalarApiNamedInputT();
-    workItem.input.indexInput.dstTable = new XcalarApiTableT();
+    workItem.input.indexInput.dstTable = new XcalarApiTableInputT();
 
     workItem.api = XcalarApisT.XcalarApiIndex;
     workItem.input.indexInput.source.isTable = true;
@@ -1413,9 +1413,9 @@ xcalarJoinWorkItem = runEntity.xcalarJoinWorkItem = function(leftTableName, righ
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.joinInput = new XcalarApiJoinInputT();
-    workItem.input.joinInput.leftTable = new XcalarApiTableT();
-    workItem.input.joinInput.rightTable = new XcalarApiTableT();
-    workItem.input.joinInput.joinTable = new XcalarApiTableT();
+    workItem.input.joinInput.leftTable = new XcalarApiTableInputT();
+    workItem.input.joinInput.rightTable = new XcalarApiTableInputT();
+    workItem.input.joinInput.joinTable = new XcalarApiTableInputT();
 
     workItem.api = XcalarApisT.XcalarApiJoin;
     workItem.input.joinInput.leftTable.tableName = leftTableName;
@@ -1496,8 +1496,8 @@ xcalarProjectWorkItem = runEntity.xcalarProjectWorkItem = function(numColumns, c
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.projectInput = new XcalarApiProjectInputT();
-    workItem.input.projectInput.srcTable = new XcalarApiTableT();
-    workItem.input.projectInput.dstTable = new XcalarApiTableT();
+    workItem.input.projectInput.srcTable = new XcalarApiTableInputT();
+    workItem.input.projectInput.dstTable = new XcalarApiTableInputT();
 
     workItem.api = XcalarApisT.XcalarApiProject;
     workItem.input.projectInput.srcTable.tableName = srcTableName;
@@ -1549,8 +1549,8 @@ xcalarFilterWorkItem = runEntity.xcalarFilterWorkItem = function(srcTableName, d
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.filterInput = new XcalarApiFilterInputT();
-    workItem.input.filterInput.srcTable = new XcalarApiTableT();
-    workItem.input.filterInput.dstTable = new XcalarApiTableT();
+    workItem.input.filterInput.srcTable = new XcalarApiTableInputT();
+    workItem.input.filterInput.dstTable = new XcalarApiTableInputT();
 
     workItem.api = XcalarApisT.XcalarApiFilter;
     workItem.input.filterInput.srcTable.tableName = srcTableName;
@@ -1598,8 +1598,8 @@ xcalarGroupByWorkItem = runEntity.xcalarGroupByWorkItem = function(srcTableName,
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.groupByInput = new XcalarApiGroupByInputT();
-    workItem.input.groupByInput.srcTable = new XcalarApiTableT();
-    workItem.input.groupByInput.dstTable = new XcalarApiTableT();
+    workItem.input.groupByInput.srcTable = new XcalarApiTableInputT();
+    workItem.input.groupByInput.dstTable = new XcalarApiTableInputT();
 
     workItem.api = XcalarApisT.XcalarApiGroupBy;
     workItem.input.groupByInput.srcTable.tableName = srcTableName;
@@ -1796,7 +1796,7 @@ xcalarDeleteDagNodes = runEntity.xcalarDeleteDagNodes = function(thriftHandle, n
 xcalarGetTableRefCountWorkItem = runEntity.xcalarGetTableRefCountWorkItem = function(tableName) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
-    workItem.input.getTableRefCountInput = new XcalarApiTableT();
+    workItem.input.getTableRefCountInput = new XcalarApiTableInputT();
 
     workItem.api = XcalarApisT.XcalarApiGetTableRefCount;
     workItem.input.getTableRefCountInput.tableName = tableName;
@@ -1838,8 +1838,8 @@ xcalarApiMapWorkItem = runEntity.xcalarApiMapWorkItem = function(evalStr, srcTab
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.mapInput = new XcalarApiMapInputT();
-    workItem.input.mapInput.srcTable = new XcalarApiTableT();
-    workItem.input.mapInput.dstTable = new XcalarApiTableT();
+    workItem.input.mapInput.srcTable = new XcalarApiTableInputT();
+    workItem.input.mapInput.dstTable = new XcalarApiTableInputT();
 
     workItem.api = XcalarApisT.XcalarApiMap;
     workItem.input.mapInput.evalStr = evalStr;
@@ -1921,8 +1921,8 @@ xcalarApiGetRowNumWorkItem = runEntity.xcalarApiGetRowNumWorkItem = function(src
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.getRowNumInput = new XcalarApiGetRowNumInputT();
-    workItem.input.getRowNumInput.srcTable = new XcalarApiTableT();
-    workItem.input.getRowNumInput.dstTable = new XcalarApiTableT();
+    workItem.input.getRowNumInput.srcTable = new XcalarApiTableInputT();
+    workItem.input.getRowNumInput.dstTable = new XcalarApiTableInputT();
 
     workItem.api = XcalarApisT.XcalarApiGetRowNum;
     workItem.input.getRowNumInput.srcTable.tableName = srcTableName;
@@ -1970,8 +1970,8 @@ xcalarAggregateWorkItem = runEntity.xcalarAggregateWorkItem = function(srcTableN
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.aggregateInput = new XcalarApiAggregateInputT();
-    workItem.input.aggregateInput.srcTable = new XcalarApiTableT();
-    workItem.input.aggregateInput.dstTable = new XcalarApiTableT();
+    workItem.input.aggregateInput.srcTable = new XcalarApiTableInputT();
+    workItem.input.aggregateInput.dstTable = new XcalarApiTableInputT();
 
     workItem.api = XcalarApisT.XcalarApiAggregate;
     workItem.input.aggregateInput.srcTable.tableName = srcTableName;
@@ -2132,7 +2132,7 @@ xcalarExportWorkItem = runEntity.xcalarExportWorkItem = function(tableName, targ
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.exportInput = new XcalarApiExportInputT();
-    workItem.input.exportInput.srcTable = new XcalarApiTableT();
+    workItem.input.exportInput.srcTable = new XcalarApiTableInputT();
     workItem.input.exportInput.meta = new ExExportMetaT();
 
     workItem.api = XcalarApisT.XcalarApiExport;
@@ -2439,7 +2439,7 @@ xcalarExecuteRetinaWorkItem = runEntity.xcalarExecuteRetinaWorkItem = function(r
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.executeRetinaInput = new XcalarApiExecuteRetinaInputT();
-    workItem.input.executeRetinaInput.dstTable = new XcalarApiTableT();
+    workItem.input.executeRetinaInput.dstTable = new XcalarApiTableInputT();
 
     workItem.api = XcalarApisT.XcalarApiExecuteRetina;
     workItem.input.executeRetinaInput.retinaName = retinaName;
@@ -3577,7 +3577,7 @@ xcalarApiImportRetinaWorkItem = runEntity.xcalarApiImportRetinaWorkItem = functi
     workItem.input.importRetinaInput = new XcalarApiImportRetinaInputT();
     workItem.input.importRetinaInput.retinaName = retinaName;
     workItem.input.importRetinaInput.overwriteExistingUdf = overwrite;
-    workItem.input.importRetinaInput.retinaSize = encodedRetina.length;
+    workItem.input.importRetinaInput.retinaCount = encodedRetina.length;
     workItem.input.importRetinaInput.retina = encodedRetina;
 
     return (workItem);
@@ -3648,7 +3648,7 @@ xcalarApiExportRetina = runEntity.xcalarApiExportRetina = function(thriftHandle,
         }
 
         exportRetinaOutput.retina = atob(exportRetinaOutput.retina);
-        exportRetinaOutput.retinaSize = exportRetinaOutput.retina.length;
+        exportRetinaOutput.retinaCount = exportRetinaOutput.retina.length;
 
         deferred.resolve(exportRetinaOutput);
     })
@@ -3907,4 +3907,92 @@ xcalarDemoFileDelete = runEntity.xcalarDemoFileDelete = function(thriftHandle, f
     });
 
     return (deferred.promise());
+};
+
+XcalarApiListSchedTaskWorkItem = runEntity.xcalarApiListSchedTaskWorkItem = function(paramName, paramValue) {
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiListSchedTaskInputT();
+
+    // NOOP
+    return ("NOT_IMPLEMENTED");
+};
+
+XcalarApiLicenseUpdateWorkItem = runEntity.xcalarApiLicenseUpdateWorkItem = function(paramName, paramValue) {
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiLicenseUpdateInputT();
+
+    // NOOP
+    return ("NOT_IMPLEMENTED");
+};
+
+XcalarApiDagTableNameWorkItem = runEntity.xcalarApiDagTableNameWorkItem = function(paramName, paramValue) {
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiDagTableNameInputT();
+
+    // NOOP
+    return ("NOT_IMPLEMENTED");
+};
+
+XcalarApiSchedTaskWorkItem = runEntity.xcalarApiSchedTaskWorkItem = function(paramName, paramValue) {
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiSchedTaskInputT();
+
+    // NOOP
+    return ("NOT_IMPLEMENTED");
+};
+
+XcalarApiSessionListScalarWorkItem = runEntity.xcalarApiSessionListScalarWorkItem = function(paramName, paramValue) {
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiSessionListScalarInputT();
+
+    // NOOP
+    return ("NOT_IMPLEMENTED");
+};
+
+XcalarApiSessionListArrayWorkItem = runEntity.xcalarApiSessionListArrayWorkItem = function(paramName, paramValue) {
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiSessionListArrayInputT();
+
+    // NOOP
+    return ("NOT_IMPLEMENTED");
+};
+
+XcalarApiExExportTargetWorkItem = runEntity.xcalarApiExExportTargetWorkItem = function(paramName, paramValue) {
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiExExportTargetInputT();
+
+    // NOOP
+    return ("NOT_IMPLEMENTED");
+};
+
+XcalarApiExExportTargetHdrWorkItem = runEntity.xcalarApiExExportTargetHdrWorkItem = function(paramName, paramValue) {
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiExExportTargetHdrInputT();
+
+    // NOOP
+    return ("NOT_IMPLEMENTED");
+};
+
+XcalarApiPackedWorkItem = runEntity.xcalarApiPackedWorkItem = function(paramName, paramValue) {
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiPackedInputT();
+
+    // NOOP
+    return ("NOT_IMPLEMENTED");
+};
+
+XcalarApiDagNodeNamePatternDeleteWorkItem = runEntity.xcalarApiDagNodeNamePatternDeleteWorkItem = function(paramName, paramValue) {
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiDagNodeNamePatternDeleteInputT();
+
+    // NOOP
+    return ("NOT_IMPLEMENTED");
+};
+
+XcalarApiAddParameterToRetinaWorkItem = runEntity.xcalarApiAddParameterToRetinaWorkItem = function(paramName, paramValue) {
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiAddParameterToRetinaInputT();
+
+    // NOOP
+    return ("NOT_IMPLEMENTED");
 };
