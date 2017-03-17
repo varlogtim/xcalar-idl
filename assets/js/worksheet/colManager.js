@@ -118,6 +118,8 @@ window.ColManager = (function($, ColManager) {
                       .addClass('col' + j);
             }
 
+            TblFunc.moveFirstColumn();
+
             TblManager.updateHeaderAndListInfo(tableId);
             xcHelper.removeSelectionRange();
 

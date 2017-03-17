@@ -409,6 +409,7 @@ window.TblAnim = (function($, TblAnim) {
 
             $table.find('tr:not(.dragging)').addClass('notDragging');
             lockScrolling($('#mainFrame'), 'horizontal');
+            $table.siblings(".tableScrollBar").hide();
         }
     }
 
@@ -429,6 +430,7 @@ window.TblAnim = (function($, TblAnim) {
 
     function endRowResize() {
         $(document).off('mouseup.endRowResize');
+
         if (gMouseStatus === "checkingRowMove") {
             $(document).off('mousemove.checkRowResize');
             gMouseStatus = null;
@@ -446,12 +448,13 @@ window.TblAnim = (function($, TblAnim) {
         xcHelper.reenableTextSelection();
         $('body').removeClass('tooltipOff');
         $('#rowResizeCursor').remove();
+        rowInfo.$table.siblings(".tableScrollBar").show();
         unlockScrolling($('#mainFrame'), 'horizontal');
         var $table = $('#xcTable-' + rowInfo.tableId);
         $table.find('tr').removeClass('notDragging dragging');
+
         if (gTables[gActiveTableId].resultSetCount !== 0) {
             RowScroller.genFirstVisibleRowNum();
-            RowScroller.updateViewRange(rowInfo.tableId);
         }
 
         if (newRowHeight !== gRescol.minCellHeight) {
@@ -472,6 +475,7 @@ window.TblAnim = (function($, TblAnim) {
             rowInfo.targetTd.parent().find('.jsonElement >  div')
                                      .css('max-height', 16);
         }
+        RowScroller.setSizerHeight(rowInfo.tableId);
 
         // settimeout because unhiding is slow
         setTimeout(function() {
@@ -527,7 +531,6 @@ window.TblAnim = (function($, TblAnim) {
             $targetTd.parent().find('.jsonElement >  div')
                                      .css('max-height', 16);
         }
-        RowScroller.updateViewRange(tableId);
 
         SQL.add(SQLTStr.ResizeRow, {
             "operation": SQLOps.DragResizeRow,

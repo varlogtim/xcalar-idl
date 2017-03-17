@@ -43,6 +43,10 @@ html.firefox, html.microsoft {
         }
     }
 
+    .tableScrollBar {
+        width: 18px;
+    }
+
 }
 
 html.edge {
@@ -226,6 +230,7 @@ html.edge {
         .justify-content (center);
         .align-items (center);
         z-index: @z-index-firstColumn;
+        pointer-events: none !important; // disabling bookmarking
 
         &::after {
             content: "";
@@ -389,6 +394,17 @@ html.edge {
         }
     }
 
+    tr.empty {
+        .jsonElement {
+            cursor: initial;
+            &:hover {
+                .pop {
+                    display: none;
+                }
+            }
+        }
+    }
+
     .jsonElement {
         cursor: pointer;
         .position(relative);
@@ -459,6 +475,13 @@ html.edge {
 
     .unhideTable {
         display: none;
+    }
+
+    &:hover {
+        .tableScrollBar {
+            opacity: 1;
+            .transition(0.6s opacity 0.2s);
+        }
     }
 
     &.tableHidden {
@@ -957,8 +980,6 @@ html.edge {
             pointer-events: initial;
         }
     }
-
-
 }
 
 .xcTheadWrap {
@@ -1153,6 +1174,28 @@ html.edge {
     }
 }
 
+.tableScrollBar {
+    @scrollTop: @height-xcColHeaderOuter + @height-tableTitle;
+    width: 12px;
+    height: ~"calc(100% - @{scrollTop})";
+    .position(absolute, @top: @scrollTop, @right: 5px);
+    overflow: auto;
+    opacity: 0;
+    .transition(0.2s opacity 0.2s);
+
+    &:hover {
+        opacity: 1;
+        .transition(0.2s opacity 0.2s) !important;
+    }
+
+    &::-webkit-scrollbar-thumb{
+        min-height: 30px;
+    }
+    .sizer {
+        height: 20000px;
+    }
+}
+
 .xcTable, .datasetTable {
     tbody {
         td:first-child {
@@ -1248,7 +1291,7 @@ html.edge {
         content: "";
         .size(@width: ~"calc(100% - 5px)", @height: 5px);
         position: absolute;
-        background-color: white;
+        background-color: @color-white;
     }
 
     &.emptyTable {
@@ -1293,6 +1336,7 @@ html.edge {
     tbody tr td:first-child {
         cursor: pointer; // for bookmark
         border-right: 0px;
+        cursor: initial !important; // disabling bookmark
     }
 
     th {

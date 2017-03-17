@@ -374,7 +374,6 @@ window.TblFunc = (function(TblFunc, $) {
             $('#rowInput').val(0).data('val', 0);
         } else {
             RowScroller.genFirstVisibleRowNum();
-            RowScroller.updateViewRange(tableId);
         }
         if (focusDag) {
             var tableFocused = true;
@@ -418,29 +417,42 @@ window.TblFunc = (function(TblFunc, $) {
         }
     };
 
-    TblFunc.moveFirstColumn = function($targetTable) {
+    TblFunc.moveFirstColumn = function($targetTable, noScrollBar) {
         var rightOffset;
         var datasetPreview;
-        var tableOffsetLeft;
+        var mainMenuOffset;
+        var windowWidth;
+        var $rightTable;
+        var moveScrollBar = !noScrollBar;
+        var $allTables = $('.xcTableWrap:not(".inActive")');
         if (isBrowserMicrosoft || isBrowserSafari) {
             return;
         }
 
         if (!$targetTable) {
             datasetPreview = false;
-            tableOffsetLeft = MainMenu.getOffset();
+            mainMenuOffset = MainMenu.getOffset();
+            windowWidth = $(window).width() - 5;
+            var tableFound = false;
 
-            $('.xcTableWrap:not(".inActive")').each(function() {
-                rightOffset = $(this)[0].getBoundingClientRect().right;
-                if (rightOffset > tableOffsetLeft) {
+            $allTables.each(function() {
+                rightOffset = this.getBoundingClientRect().right;
+                if (!tableFound && rightOffset > mainMenuOffset) {
                     $targetTable = $(this);
+                    tableFound = true;
+                    if (!moveScrollBar) {
+                        return false;
+                    }
+                }
+                if (moveScrollBar && (rightOffset > windowWidth)) {
+                    $rightTable = $(this);
                     return false;
                 }
             });
 
         } else {
             datasetPreview = true;
-            tableOffsetLeft = 0;
+            mainMenuOffset = 0;
         }
 
         if ($targetTable && $targetTable.length > 0) {
@@ -452,13 +464,13 @@ window.TblFunc = (function(TblFunc, $) {
                 scrollLeft = -($targetTable.offset().left -
                                   $('#dsTableContainer').offset().left);
             } else {
-                scrollLeft = -$targetTable.offset().left + tableOffsetLeft;
+                scrollLeft = mainMenuOffset - $targetTable.offset().left;
             }
 
             var rightDiff = rightOffset - (cellWidth + 15);
 
-            if (rightDiff < tableOffsetLeft) {
-                scrollLeft += rightDiff - tableOffsetLeft;
+            if (rightDiff < mainMenuOffset) {
+                scrollLeft += rightDiff - mainMenuOffset;
             }
 
             scrollLeft = Math.max(0, scrollLeft);
@@ -469,17 +481,47 @@ window.TblFunc = (function(TblFunc, $) {
                 while (adjustNext) {
                     $targetTable = $targetTable.next();
                     if ($targetTable.length === 0) {
-                        return;
-                    }
-                    rightOffset = $targetTable[0].getBoundingClientRect().right;
-                    if (rightOffset > $(window).width()) {
                         adjustNext = false;
+                    } else {
+                        rightOffset = $targetTable[0].getBoundingClientRect().right;
+                        if (rightOffset > $(window).width()) {
+                            adjustNext = false;
+                        }
+                        $targetTable.find('.idSpan').css('left', 0);
+                        $targetTable.find('th.rowNumHead > div').css('left', 0);
                     }
-                    $targetTable.find('.idSpan').css('left', 0);
-                    $targetTable.find('th.rowNumHead > div').css('left', 0);
+
                 }
             }
         }
+
+        if (moveScrollBar) {
+            if (!$rightTable || !$rightTable.length) {
+                $rightTable = $allTables.last();
+                if (!$rightTable.length) {
+                    return;
+                }
+            }
+
+            rightOffset = $rightTable[0].getBoundingClientRect().right;
+            var right = Math.max(5, rightOffset - windowWidth);
+            $rightTable.find(".tableScrollBar").css("right", right);
+
+            var adjustNext = true;
+            while (adjustNext) {
+                $rightTable = $rightTable.prev();
+                if ($rightTable.length === 0) {
+                    return;
+                }
+                rightOffset = $rightTable[0].getBoundingClientRect().right;
+                if (rightOffset < mainMenuOffset) {
+                    return;
+                }
+
+                $rightTable.find(".tableScrollBar").css("right", 5);
+            }
+        }
+
     };
 
     //options:

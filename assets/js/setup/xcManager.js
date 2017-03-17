@@ -698,7 +698,6 @@ window.xcManager = (function(xcManager, $) {
                 var table = gTables[gActiveTableId];
                 if (table && table.resultSetCount !== 0) {
                     RowScroller.genFirstVisibleRowNum();
-                    RowScroller.updateViewRange(gActiveTableId);
                 }
                 TblFunc.moveTableDropdownBoxes();
                 TblManager.adjustRowFetchQuantity();
@@ -743,13 +742,14 @@ window.xcManager = (function(xcManager, $) {
                 $('.xcTheadWrap').find('.dropdownBox')
                                  .addClass('dropdownBoxHidden');
                 $('.tooltip').hide();
+                $('.tableScrollBar').hide();
             }
             $(this).scrollTop(0);
 
             clearTimeout(mainFrameScrollTimer);
             mainFrameScrollTimer = setTimeout(mainFrameScrollingStop, 300);
             if (!scrollPrevented) {
-                TblFunc.moveFirstColumn();
+                TblFunc.moveFirstColumn(null, true);
                 TblFunc.moveTableTitles();
             }
         });
@@ -757,6 +757,8 @@ window.xcManager = (function(xcManager, $) {
         function mainFrameScrollingStop() {
             $('.xcTheadWrap').find('.dropdownBox')
                              .removeClass('dropdownBoxHidden');
+            $('.tableScrollBar').show();
+            TblFunc.moveFirstColumn();
             TblFunc.moveTableDropdownBoxes();
             mainFrameScrolling = false;
             scrollPrevented = false;

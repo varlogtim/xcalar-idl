@@ -136,7 +136,6 @@ window.DagPanel = (function($, DagPanel) {
                 dagTopPct = newHeight;
                 clickDisabled = false;
                 $('#maximizeDag').removeClass('unavailable');
-                RowScroller.updateViewRange(gActiveTableId);
                 var winHeight = $(window).height();
                 DagPanel.setScrollBarId(winHeight);
                 DagPanel.adjustScrollBarPositionAndSize();
@@ -193,7 +192,6 @@ window.DagPanel = (function($, DagPanel) {
                         $dagPanel.addClass('noTransform');
                         $dagPanel.css('top', dagTopPct + '%');
                         clickDisabled = false;
-                        RowScroller.updateViewRange(gActiveTableId);
                         var winHeight = $(window).height();
                         DagPanel.setScrollBarId(winHeight);
                         DagPanel.adjustScrollBarPositionAndSize();
@@ -241,7 +239,6 @@ window.DagPanel = (function($, DagPanel) {
                 $dagPanel.css('top', 0);
                 dagTopPct = 0;
                 clickDisabled = false;
-                RowScroller.updateViewRange(gActiveTableId);
                 var winHeight = $(window).height();
                 DagPanel.setScrollBarId(winHeight);
                 DagPanel.adjustScrollBarPositionAndSize();
@@ -310,7 +307,6 @@ window.DagPanel = (function($, DagPanel) {
                 if (dagPanelTop + 30 > containerHeight) {
                     // close the dag panel
                     closePanel();
-                    RowScroller.updateViewRange(gActiveTableId);
                     return;
                 }
                 dagTopPct = 100 * (dagPanelTop / containerHeight);
@@ -318,7 +314,6 @@ window.DagPanel = (function($, DagPanel) {
                 $dagPanel.css('top', dagTopPct + '%');
                 $('#mainFrame').height(dagTopPct + '%');
                 $dagArea.css('height', 'calc(' + (100 - dagTopPct) + '% - 5px)');
-                RowScroller.updateViewRange(gActiveTableId);
                 // Refocus on table
                 Dag.focusDagForActiveTable(undefined, true);
 
@@ -361,7 +356,6 @@ window.DagPanel = (function($, DagPanel) {
 
             clickDisabled = false;
             $dagPanel.addClass('xc-hidden');
-            RowScroller.updateViewRange(gActiveTableId);
 
             if (window.isBrowserMicrosoft) {
                 // hack because rows become invisible in IE/EDGE

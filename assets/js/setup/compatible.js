@@ -289,6 +289,7 @@ window.Compatible = (function($, Compatible) {
 
     function featureCheck() {
         window.hasFlash = flashBlockDetect() === 0;
+        window.gMaxDivHeight = getMaxDivHeight();
 
         function flashBlockDetect(callbackMethod){
             var return_value = 0;
@@ -325,6 +326,47 @@ window.Compatible = (function($, Compatible) {
                 callbackMethod(return_value);
             } else {
                 return return_value;
+            }
+        }
+
+        function getMaxDivHeight() {
+            var max = Math.pow(2, 53);
+            var curHeight = 1000000;
+            $("body").append('<div id="maxDivHeight"></div>');
+            var $div = $("#maxDivHeight");
+            var height = findHeight(curHeight);
+            $("#maxDivHeight").remove();
+
+            return height;
+
+            function findHeight(height) {
+                var newHeight = height  * 2;
+                if (newHeight > max) {
+                    return 1000000;
+                }
+                $div.height(newHeight);
+                var divHeight = $div.height();
+                if (divHeight === 0) {
+                    return getMaxHeight(height, newHeight);
+                } else if (divHeight === height) {
+                    return divHeight;
+                } else {
+                    return findHeight(divHeight);
+                }
+            }
+
+            function getMaxHeight(minHeight, maxHeight) {
+                var mid = Math.floor((minHeight + maxHeight) / 2);
+                if (mid === minHeight) {
+                    return minHeight;
+                }
+                $div.height(mid);
+                var midHeight = $div.height();
+                if (midHeight === 0) {
+                    return getMaxHeight(minHeight, mid);
+                } else {
+                    return getMaxHeight(mid, maxHeight);
+                }
             }
         }
     }

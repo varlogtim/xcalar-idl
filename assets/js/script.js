@@ -26,5 +26,3 @@
 function documentReadyIndexFunction() {
     $(document).ready(xcManager.setup);
 }
-
-

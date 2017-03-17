@@ -110,16 +110,6 @@ window.Tips = (function($, Tips) {
 
     /* Section of adding tips */
     function addTopMenuBarTips() {
-        // xcalar horizontal scrollbar
-        // only show when there is row scroller in the area
-        var $rowScroller = $("#rowScrollerArea .rowScroller:visible");
-        if ($rowScroller.length > 0) {
-            setTooltip($rowScroller, {
-                "title": TipsTStr.Scrollbar,
-                "container": "#workspaceBar",
-                "placement": "left"
-            });
-        }
 
         // // function bar
         // setTooltip($("#fnBar"), {

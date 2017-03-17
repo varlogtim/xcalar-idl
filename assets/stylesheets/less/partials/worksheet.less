@@ -202,6 +202,9 @@
             border-right: none;
             min-width: 53px;
         }
+        &:last-child {
+            border-right: 1px solid @color-border-warmGray;
+        }
     }
 }
 
@@ -370,7 +373,7 @@
 
         &.CodeMirror-focused {
             background-color: @color-white;
-            color: @color-text-fnBar-blue; 
+            color: @color-text-fnBar-blue;
             border: 1px solid @color-border-softBlue;
         }
 
@@ -550,7 +553,7 @@ ul.CodeMirror-hints {
         }
 
         &.CodeMirror-hint-active, &:hover {
-            background-color: @color-selectedCell-light; 
+            background-color: @color-selectedCell-light;
         }
         &.operator {
             color: @color-sql-blue;
@@ -634,127 +637,6 @@ ul.CodeMirror-hints {
     margin-right: 3px;
 }
 
-#rowScrollerArea {
-    .size(@width: 140px, @height: 35px);
-    .flex(2 0 140px);
-    cursor: default;
-    margin: 7px 4px 0px;
-    overflow: hidden;
-
-    @height-innerScroller: 20px;
-
-    .rowScroller {
-        .position(relative);
-        .size(@width: 100%, @height: @height-innerScroller);
-        margin: 8px 0 25px 0;
-        background-color: @color-bg-white-nine;
-        border: 1px solid @color-border-pinkish-grey2;
-
-        .bookmark {
-            .position(absolute, @bottom: -2px);
-            .size(@width: 2px, @height: @height-innerScroller);
-            background-color: @color-bg-bright-light-blue;
-            margin-left: -1px;
-            z-index: 2;
-        }
-
-        .rowMarker {
-            .position(absolute, @top: -11px, @left: 0px);
-            .size(@width: 100%, @height: 35px);
-            display: inline-block;
-            .transition (transform 0.13s);
-            &.scrolling {
-                .transition (transform 0s);
-            }
-            z-index: 1;
-            pointer-events: none;
-        }
-
-        .tooltipHelper {
-            width: 100%;
-            height: 20px;
-            top: -5px;
-            left: 0px;
-            position: absolute;
-        }
-
-        .rangeWrapper {
-            .position(absolute, @top: 11px, @left: 0px);
-            top: 5px;
-            min-width: 3px !important;
-            z-index: 1;
-            pointer-events: initial;
-            cursor: pointer;
-            height: 20px;
-
-            .arrow {
-                width: 15px;
-                height: 20px;
-            }
-
-            .rangeBar {
-                height: @height-innerScroller - 2px;
-                width: 100%;
-                background-color: @color-white;
-                border-left: 2px solid white;
-                border-right: 2px solid white;
-                position: absolute;
-                top: 6px;
-            }
-
-            .bar {
-                width: 2px;
-                height: 11px;
-                position: absolute;
-                left: 7px;
-                z-index: 1;
-            }
-
-            .top {
-                position: absolute;
-                top: -3px;
-                left: -7px;
-                .triangle {
-                    width: 0;
-                    height: 0;
-                    border-left: 7px solid transparent;
-                    border-right: 7px solid transparent;
-                    border-top: 8px solid @color-tooltip-border;
-                    position: absolute;
-                    top:1px;
-
-                }
-                .bar {
-                    top: 9px;
-                }
-            }
-            .bottom {
-                position: absolute;
-                top: 13px;
-                right: -7px;
-                .triangle {
-                    width: 0;
-                    height: 0;
-                    border-left: 7px solid transparent;
-                    border-right: 7px solid transparent;
-
-                    border-bottom: 8px solid @color-tooltip-border;
-                    position: absolute;
-                    top: 11px;
-                    left: 1px;
-                }
-                .bar {
-                    top: 0px;
-                    left: 6px;
-                }
-            }
-        }
-
-        &.hidden {
-            display: none !important;
-        }
-    }
-}
 /* ========== End Of Work Sheet Bar ========== */
 
 /* ========== Main Frame ========== */
@@ -1019,7 +901,7 @@ ul.CodeMirror-hints {
                 opacity: @opacity-unhover;
                 cursor: pointer;
             }
-            
+
             .tableLists {
                 padding-top: 16px;
             }
@@ -1425,7 +1307,7 @@ ul.CodeMirror-hints {
 
 #constantList {
     padding-top: 10px;
-    
+
     &.tableLists {
         .tableInfo {
             padding-left: 5px;
@@ -1442,8 +1324,8 @@ ul.CodeMirror-hints {
             }
         }
         .tableListBox {
-            padding-left: 8px; 
-            .flex-display; 
+            padding-left: 8px;
+            .flex-display;
             width: 72%;
 
             .constName, .value {
@@ -1453,7 +1335,7 @@ ul.CodeMirror-hints {
                 max-width: none;
             }
             .constName {
-                padding-right: 2px; 
+                padding-right: 2px;
                 height: 25px;
                 line-height: 25px;
             }

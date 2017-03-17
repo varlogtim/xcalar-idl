@@ -15,24 +15,33 @@ window.RowManager = (function($, RowManager) {
     // if our table has rows 60-120 and we're scrolling upwards, startIndex = 40
     // assuming we're fetching 20 rows
     RowManager.addRows = function(startIndex, numRowsToAdd, direction, info) {
-        // rowNumber is checked for validity before calling RowManager.addRows()
+        // rowNumber is checked for validity before calling RowManager.addRows
         var deferred = jQuery.Deferred();
         var tableId = info.tableId;
         var table = gTables[tableId];
 
-        if (startIndex >= table.resultSetMax) { // already at the end
+        if (startIndex >= table.resultSetCount) { // already at the end
             return PromiseHelper.resolve(null);
         } else if (startIndex < 0) {
             numRowsToAdd += startIndex;
             startIndex = 0;
         }
 
+        if (direction === RowDirection.Bottom) {
+            var num = xcHelper.parseRowNum($("#xcTable-" + tableId).find("tbody tr").last());
+            if (!info.bulk && num > startIndex) {
+
+            }
+        }
         prepTableForAddingRows(startIndex, numRowsToAdd, direction, info);
 
         fetchRows(startIndex, numRowsToAdd, direction, info)
         .then(function() {
             TblFunc.moveFirstColumn();
-            removeOldRows(info, direction);
+            if (info.bulk) {
+                removeOldRows(info, direction);
+            }
+
             if (info.missingRows) {
                 console.log('some rows were too large to be retrieved,' +
                             'rows:', info.missingRows);
@@ -56,7 +65,7 @@ window.RowManager = (function($, RowManager) {
         var tableId = info.tableId;
         var table = gTables[tableId];
 
-        if (startIndex >= table.resultSetMax) { // already at the end
+        if (startIndex >= table.resultSetCount) { // already at the end
             deferred.resolve();
             return deferred.promise();
         } else if (startIndex < 0) {
@@ -67,33 +76,51 @@ window.RowManager = (function($, RowManager) {
         getDataColumnJson(tableId, startIndex, numRowsToAdd)
         .then(function(jsonData) {
             var jsonLen = jsonData.length;
+            var emptyReturn = false;
+            if (!jsonLen) {
+                emptyReturn = true;
+                jsonLen = 1;
+            }
             var numRowsLacking = numRowsToAdd - jsonLen;
             info.numRowsAdded += jsonLen;
-            var scrollPosition;
-            
-            if (jsonLen) {
+
+            if (emptyReturn) {
+                if (info.bulk) {
+                    addTempRows(info.tableId, startIndex, 1, direction);
+                }
+                cleanupMissingRows(info, startIndex, direction);
+            } else {
                 if (!info.bulk && rowToPrependTo != null) {
                     rowToPrependTo -= numRowsLacking;
                 }
                 TblManager.pullRowsBulk(tableId, jsonData, startIndex,
                                     direction, rowToPrependTo);
-            } else {
-                scrollPosition = cleanupMissingRows(info, startIndex,
-                                                    direction);
             }
+            var prevRow;
+            if (!info.bulk) {
+                info.$table.find("tbody tr").each(function() {
+                    var $tr = $(this);
+                    var curRow = xcHelper.parseRowNum($tr);
+                    if (prevRow && curRow !== prevRow + 1) {
+
+                    }
+                    prevRow = curRow;
+                });
+            }
+
+
             TblFunc.moveFirstColumn();
 
-            var totalRowsStillNeeded = info.numRowsToAdd - info.numRowsAdded;
-            if (totalRowsStillNeeded > 0) {
+            if (numRowsLacking > 0) {
                 var newStartIndex = startIndex + Math.max(1, jsonLen);
 
                 if (direction === RowDirection.Bottom) {
                     return (scrollDownHelper(newStartIndex, startIndex, jsonLen,
-                                              totalRowsStillNeeded, info,
-                                              scrollPosition));
+                                              numRowsLacking, info));
                 } else {
-                    return (scrollUpHelper(newStartIndex, totalRowsStillNeeded,
-                                          numRowsLacking, info, jsonLen));
+                     // fetches more rows when scrolling up
+                    return fetchRows(newStartIndex, numRowsLacking, direction,
+                                    info, newStartIndex + numRowsLacking);
                 }
             } else {
                 return PromiseHelper.resolve(null);
@@ -112,10 +139,22 @@ window.RowManager = (function($, RowManager) {
         info.numRowsToAdd = numRowsToAdd;
         info.numRowsAdded = 0;
 
+        var table = gTables[info.tableId];
+
         if (info.bulk) {
             TblManager.addWaitingCursor(info.tableId);
+            table.currentRowNumber = startIndex + numRowsToAdd;
         } else {
+            if (direction === RowDirection.Bottom) {
+                table.currentRowNumber += numRowsToAdd;
+            } else {
+                table.currentRowNumber -= numRowsToAdd;
+            }
+
             addTempRows(info.tableId, startIndex, numRowsToAdd, direction);
+            if (!info.dontRemoveRows) {
+                removeRows(info, numRowsToAdd, direction);
+            }
         }
     }
 
@@ -123,13 +162,34 @@ window.RowManager = (function($, RowManager) {
         info.$table.find('.tempRow').remove();
         var $xcTbodyWrap = $('#xcTbodyWrap-' + info.tableId);
         var scrollTop = $xcTbodyWrap.scrollTop();
+        var prevScrollTop = scrollTop;
         if (scrollTop < 2) {
             // leave some space for scrolling up
-            $xcTbodyWrap.scrollTop(2);
+            scrollTop = 2;
+            $xcTbodyWrap.scrollTop(scrollTop);
         } else if ($xcTbodyWrap[0].scrollHeight - scrollTop -
                        $xcTbodyWrap.outerHeight() <= 1) {
             // leave some space for scrolling down
-            $xcTbodyWrap.scrollTop(scrollTop - 2);
+            scrollTop -= 2;
+            $xcTbodyWrap.scrollTop(scrollTop);
+        }
+
+        if (!info.bulk) {
+            var table = gTables[info.tableId];
+            var visibleRows = Math.min(gMaxEntriesPerPage,
+                                       table.resultSetCount);
+            var numRowsAbove = table.currentRowNumber - visibleRows;
+            var rowsAboveHeight = RowScroller.getRowsAboveHeight(info.tableId,
+                                                                numRowsAbove);
+            var scrollBarTop = scrollTop + rowsAboveHeight -
+                               table.scrollMeta.base;
+            var curTop = $xcTbodyWrap.siblings(".tableScrollBar").scrollTop();
+
+            if (curTop !== scrollBarTop) {
+                table.scrollMeta.isTableScrolling = true;
+                $xcTbodyWrap.siblings(".tableScrollBar")
+                            .scrollTop(scrollBarTop);
+            }
         }
 
         info.$table.removeClass('scrolling');
@@ -139,154 +199,53 @@ window.RowManager = (function($, RowManager) {
 
     // fetches more rows when scrolling down
     function scrollDownHelper(position, oldPosition, jsonLen,
-                              numRowsStillNeeded, info, scrollPosition) {
+                              numRowsStillNeeded, info) {
         var newStartIndex;
         var table = gTables[info.tableId];
         var $table = info.$table;
-        if (position < table.resultSetMax) {
-            newStartIndex = Math.min(position, table.resultSetMax);
+        if (position < table.resultSetCount) {
+            newStartIndex = Math.min(position, table.resultSetCount);
             numRowsToFetch = Math.min(numRowsStillNeeded,
-                                      (table.resultSetMax - newStartIndex));
-
-            if (jsonLen === 0 && !info.bulk) {
-                addTempRows(table.getId(), position, numRowsToFetch,
-                            RowDirection.Bottom, false, scrollPosition);
-            }
+                                      (table.resultSetCount - newStartIndex));
 
             return (fetchRows(newStartIndex, numRowsToFetch,
                               RowDirection.Bottom, info));
-
-        } else if (info.bulk) {
-            // reached the very end of table, will start scrolling up for
-            // the first time and should never scroll back down
-            newStartIndex = Math.max(0, info.currentFirstRow -
-                                        numRowsStillNeeded);
-            numRowsStillNeeded = Math.min(info.currentFirstRow,
-                                          numRowsStillNeeded);
-            info.targetRow = newStartIndex;
-            if (!info.reverseLooped) {
-                table.resultSetMax = jsonLen + oldPosition;
-                table.currentRowNumber = table.resultSetMax;
-                var numRowsToRemove = $table.find("tbody tr").length -
-                                      info.numRowsAdded;
-                $table.find("tbody tr").slice(0, numRowsToRemove).remove();
-            }
-            if (numRowsStillNeeded === 0) {
-                return PromiseHelper.resolve(null);
-            } else {
-                info.reverseLooped = true;
-                return (fetchRows(newStartIndex, numRowsStillNeeded,
-                                  RowDirection.Top, info));
-            }
         } else {
+            // reached the very end of table
             return PromiseHelper.resolve(null);
         }
     }
 
-    // fetches more rows when scrolling up
-    function scrollUpHelper(position, totalRowsStillNeeded, numRowsToFetch,
-                            info, jsonLen) {
-        if (numRowsToFetch > 0) {
-            if (position + numRowsToFetch > info.currentFirstRow) {
-                // if newRowToGoTo is 95, numRowsToFetch is 10, but
-                // info.currentFirstRow is 100, we only want to fetch 5 rows
-                // not 10
-                numRowsToFetch = info.currentFirstRow - position;
-            }
-            if (numRowsToFetch > 0) {
-                if (jsonLen === 0 && !info.bulk) {
-                    var numTempRowsToAdd = info.numRowsToAdd -
-                                           info.numRowsAdded - numRowsToFetch;
-                    var tempRowPosition = Math.max(info.targetRow -
-                                                   numTempRowsToAdd, 0);
-                    addTempRows(info.tableId, tempRowPosition, numTempRowsToAdd,
-                                RowDirection.Top, true);
-                }
-                return (fetchRows(position, numRowsToFetch,
-                                           RowDirection.Top, info,
-                                           position + numRowsToFetch));
-            } else {
-                return (scrollUpHelper(position, totalRowsStillNeeded,
-                                       numRowsToFetch, info, jsonLen));
-            }
-        } else { // need to reposition cursor
-            totalRowsStillNeeded = getRowsNeededOnScrollUp(jsonLen, info);
-
-            if (totalRowsStillNeeded > 0 && info.targetRow !== 0) {
-                position = resetScrollUpPosition(info, position,
-                                                 totalRowsStillNeeded);
-                if (jsonLen === 0 && !info.bulk) {
-                    addTempRows(info.tableId, position, totalRowsStillNeeded,
-                                RowDirection.Top, true);
-                }
-                return (fetchRows(position, totalRowsStillNeeded,
-                                  RowDirection.Top, info));
-            } else {
-                return PromiseHelper.resolve(null);
-            }
-        }
-    }
-
-    function resetScrollUpPosition(info, position, totalRowsStillNeeded) {
-        info.targetRow = Math.max(0, info.targetRow - totalRowsStillNeeded);
-        info.currentFirstRow = info.targetRow + totalRowsStillNeeded;
-        return info.targetRow;
-    }
-
-    function getRowsNeededOnScrollUp(jsonLen, info) {
-        var totalRowsStillNeeded;
-        if (jsonLen === 0 || info.bulk) {
-            var $firstRow = info.$table.find('tbody tr').eq(0);
-            var topRowNum = xcHelper.parseRowNum($firstRow);
-            totalRowsStillNeeded = Math.min(totalRowsStillNeeded,
-                                            topRowNum);
-        } else {
-            totalRowsStillNeeded = info.$table.find('.tempRow').length;
-        }
-        return totalRowsStillNeeded;
-    }
-
-    // also handles the scroll position
-    function removeOldRows(info, direction) {
-        if (info.reverseLooped || info.dontRemoveRows) {
+    function removeRows(info, numRowsToRemove, direction) {
+        if (info.bulk) {
             return;
         }
 
+        if (direction === RowDirection.Bottom) {
+            info.$table.find("tbody tr").slice(0, numRowsToRemove).remove();
+        } else {
+            info.$table.find("tbody tr").slice(gMaxEntriesPerPage).remove();
+        }
+    }
+
+    // for bulk
+    // also handles the scroll position
+    function removeOldRows(info, direction) {
         var $table = info.$table;
         var prevTableHeight = $table.height();
         var $xcTbodyWrap = $('#xcTbodyWrap-' + info.tableId);
         var table = gTables[info.tableId];
-        $table.find('.tempRow').remove();
 
-        if (direction === RowDirection.Top) {
-            $table.find("tbody tr").slice(gMaxEntriesPerPage).remove();
-            if ($xcTbodyWrap.scrollTop() < 2) {
-                $xcTbodyWrap.scrollTop(2); // leave some space for scrolling
-            }
-        } else { // scrolled bottom
-            if (info.numRowsAdded === 0) {
-                table.resultSetMax = info.lastRowToDisplay - info.numRowsToAdd;
-                table.currentRowNumber = table.resultSetMax;
-            }
+        var numRowsToRemove = $table.find("tbody tr").length -
+                              info.numRowsAdded;
 
-            var numRowsToRemove;
-            if (info.bulk) {
-                numRowsToRemove = $table.find("tbody tr").length -
-                                  info.numRowsAdded;
-            } else {
-                numRowsToRemove = info.numRowsAdded;
-            }
-
-            var prevScrollTop = $xcTbodyWrap.scrollTop();
-            $table.find("tbody tr").slice(0, numRowsToRemove).remove();
-            var scrollTop = Math.max(2, prevScrollTop - (prevTableHeight -
-                                                        $table.height()));
-            $xcTbodyWrap.scrollTop(scrollTop);
-        }
-
-        var $lastRow = $table.find('tbody tr:last');
-        table.currentRowNumber = xcHelper.parseRowNum($lastRow) + 1;
+        var prevScrollTop = $xcTbodyWrap.scrollTop();
+        $table.find("tbody tr").slice(0, numRowsToRemove).remove();
+        var scrollTop = Math.max(2, prevScrollTop - (prevTableHeight -
+                                                    $table.height()));
+        $xcTbodyWrap.scrollTop(scrollTop);
     }
+
 
     // produces an array of all the td values that will go into the DATA column
     function getDataColumnJson(tableId, rowPosition, numRowsToFetch) {
@@ -322,7 +281,7 @@ window.RowManager = (function($, RowManager) {
             }
 
             var numRows = Math.min(numRowsToFetch, numKvPairs);
-            
+
             for (var i = 0; i < numRows; i++) {
                 jsons.push(kvPairs[i].value);
             }
@@ -393,11 +352,9 @@ window.RowManager = (function($, RowManager) {
         return (deferred.promise());
     }
 
-    function addTempRows(tableId, startIndex, numRowsToAdd, direction,
-                         ignoreScrollHeight, scrollPosition) {
+    function addTempRows(tableId, startIndex, numRowsToAdd, direction) {
         startIndex = startIndex || 0;
         var table = gTables[tableId];
-        // var tableCols = table.tableCols;
         var numCols = table.getNumCols();
         var $table = $('#xcTable-' + tableId);
         var tBodyHTML = "";
@@ -407,7 +364,6 @@ window.RowManager = (function($, RowManager) {
 
         for (var row = 0; row < numRowsToAdd; row++) {
             var rowNum = row + startIndex;
-            // var idTitle = "";
 
             tBodyHTML += '<tr class="row' + rowNum + ' tempRow">';
 
@@ -452,30 +408,22 @@ window.RowManager = (function($, RowManager) {
 
         var $xcTbodyWrap = $('#xcTbodyWrap-' + tableId);
 
-        if (direction === RowDirection.Top && !ignoreScrollHeight) {
+        if (direction === RowDirection.Top) {
             var newTableHeight = $table.height();
             var heightDiff = newTableHeight - oldTableHeight;
             var scrollTop = Math.max(1, heightDiff);
             $xcTbodyWrap.scrollTop(scrollTop);
-        } else if (direction === RowDirection.Bottom && scrollPosition) {
-            $xcTbodyWrap.scrollTop(scrollPosition);
         }
         TblFunc.moveFirstColumn();
     }
 
     function cleanupMissingRows(info, rowPosition, direction) {
-        var scrollPosition = $('#xcTbodyWrap-' + info.tableId).scrollTop();
         if (!info.missingRows) {
             info.missingRows = [];
         }
+        info.$table.find(".tempRow.row" + rowPosition).removeClass("tempRow")
+                                                      .addClass("empty");
         info.missingRows.push(rowPosition + 1);
-
-        if (direction === RowDirection.Bottom) {
-            info.$table.find('.tempRow').remove();
-        } else {
-            info.$table.find('.tempRow.row' + rowPosition).remove();
-        }
-        return (scrollPosition);
     }
     return (RowManager);
 }(jQuery, {}));

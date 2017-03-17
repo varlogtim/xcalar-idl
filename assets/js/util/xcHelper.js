@@ -1439,7 +1439,6 @@ window.xcHelper = (function($, xcHelper) {
             $tableWrap.find('.xcTbodyWrap').append('<div class="tableCover">' +
                                                    '</div>');
             $tableWrap.find('.tableCover').height(tbodyHeight);
-            $('#rowScroller-' + tableId).addClass('locked');
             // add lock class to dataflow
             $('#dagWrap-' + tableId).addClass('locked notSelected')
                                     .removeClass('selected');
@@ -1481,7 +1480,6 @@ window.xcHelper = (function($, xcHelper) {
             $tableWrap.find('.lockedTableIcon').remove();
             $tableWrap.find('.tableCover').remove();
             $tableWrap.removeClass('tableLocked');
-            $('#rowScroller-' + tableId).removeClass('locked');
             $('#dagWrap-' + tableId).removeClass('locked');
 
             var $tbody = $tableWrap.find('.xcTbodyWrap');

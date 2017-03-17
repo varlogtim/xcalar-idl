@@ -1,92 +1,14 @@
 window.RowScroller = (function($, RowScroller) {
     var $rowInput;        // $("#rowInput");
-    var $rowScrollerArea; // $("#rowScrollerArea");
     var rowInfo = {};
 
     RowScroller.setup = function() {
         $rowInput = $("#rowInput");
-        $rowScrollerArea = $("#rowScrollerArea");
 
         $rowInput.val("").data("");
         $rowInput.blur(function() {
             var val = $(this).data('val');
             $(this).val(val);
-        });
-
-        $rowScrollerArea.mousedown(function(event) {
-            if (event.which !== 1 || $(".rowScroller").length === 0) {
-                return;
-            }
-            if (!gActiveTableId) {
-                return;
-            }
-
-            var tableId = gActiveTableId;
-            if ($('#rowScroller-' + tableId).hasClass('scrolling')) {
-                return;
-            }
-            var $tableWrap = $('#xcTableWrap-' + tableId);
-            xcHelper.centerFocusedTable($tableWrap, false,
-                                                {onlyIfOffScreen: true});
-            var $eventTarget = $(event.target);
-
-            if ($eventTarget.hasClass("rangeWrapper")) {
-                rowScrollerStartDrag(event, $(event.target).parent());
-                return;
-            }
-            if ($eventTarget.closest('.arrow').length ||
-                $eventTarget.closest('.rangeBar').length) {
-                rowScrollerStartDrag(event, $eventTarget.closest('.rowMarker'));
-                return;
-            }
-
-            var $rowScroller = $('#rowScroller-' + tableId);
-            if ($rowScroller.hasClass('locked')) {
-                return;
-            }
-            var table = gTables[tableId];
-            var mouseX = event.pageX - $rowScroller.offset().left;
-            var rowPercent = mouseX / $(this).width();
-
-
-            var translate = Math.min(99.9, Math.max(0, rowPercent * 100));
-            var pctOfRowsShowing = getPctOfRowsShowing(tableId);
-            var update = false;
-            if (translate > (100 - pctOfRowsShowing)) {
-                update = true;
-            }
-            translate = Math.min(translate, 100 - pctOfRowsShowing);
-            var $rowMarker = $('#rowMarker-' + tableId);
-            $rowMarker.css("transform",
-                                "translate3d(" + translate + "%, 0px, 0px)");
-            if (update) {
-                RowScroller.updateViewRange(tableId);
-            }
-
-            var rowNum = Math.ceil(rowPercent * table.resultSetCount);
-            if ($rowScroller.find(".bookmark").length > 0) {
-                // check 8 pixels around for bookmark?
-                var yCoor = $rowScroller.offset().top + $rowScroller.height() - 5;
-                for (var x = (event.pageX - 4); x < (event.pageX + 4); x++) {
-                    var element = $(document.elementFromPoint(x, yCoor));
-                    if (element.hasClass("bookmark")) {
-                        rowNum = parseBookmarkNum(element);
-                        break;
-                    }
-                }
-            }
-
-            if (!TblFunc.isTableScrollable(tableId)) {
-                return;
-            }
-
-            var e = $.Event("keypress");
-            e.which = keyCode.Enter;
-            e.rowScrollerMousedown = true;
-
-            setTimeout( function() {
-                $rowInput.val(rowNum).trigger(e);
-            }, 145);
         });
 
         $rowInput.keypress(function(event) {
@@ -102,7 +24,7 @@ window.RowScroller = (function($, RowScroller) {
                 return;
             }
 
-            if ($('#rowScroller-' + tableId).hasClass('scrolling')) {
+            if ($table.hasClass('scrolling')) {
                 return;
             }
 
@@ -117,7 +39,6 @@ window.RowScroller = (function($, RowScroller) {
                     $rowInput.val(0).data("val", 0);
                 } else {
                     $rowInput.data("val", 1).val(1);
-                    rowScrollerMove(1, maxCount);
                 }
 
                 return;
@@ -149,6 +70,8 @@ window.RowScroller = (function($, RowScroller) {
                                 targetRow - rowToBuffer);
             backRow = Math.max(backRow, 0);
 
+
+
             var numRowsToAdd = Math.min(gMaxEntriesPerPage, table.resultSetMax);
             var info = {
                 "lastRowToDisplay": backRow + numRowsToAdd,
@@ -157,85 +80,331 @@ window.RowScroller = (function($, RowScroller) {
                 "tableId": tableId,
                 "currentFirstRow": backRow
             };
-            $('#rowScroller-' + tableId).addClass('scrolling');
 
             RowManager.addRows(backRow, numRowsToAdd, RowDirection.Bottom, info)
             .always(function() {
                 TblManager.removeWaitingCursor(tableId);
-                $('#rowScroller-' + tableId).removeClass('scrolling');
                 var rowToScrollTo = Math.min(targetRow, table.resultSetMax);
-                positionScrollbar(rowToScrollTo, tableId);
+                var adjustTableScroller = event.originalEvent != null;
+                positionScrollbar(rowToScrollTo, tableId, adjustTableScroller);
                 RowScroller.genFirstVisibleRowNum();
-                RowScroller.updateViewRange(tableId);
-
-                if (!event.rowScrollerMousedown) {
-                    rowScrollerMove($rowInput.val(), maxCount);
-                } else {
-                    $rowScrollerArea.addClass("autoScroll");
-                }
             });
         });
 
         $('#rowInputArea').mousedown(function() {
-            if ($(".rowScroller").length === 0 || !gActiveTableId) {
+            if (!gActiveTableId) {
                 return;
             }
             var tableId = gActiveTableId;
             var $tableWrap = $('#xcTableWrap-' + tableId);
+            if (!$tableWrap.length) {
+                return;
+            }
             xcHelper.centerFocusedTable($tableWrap, false,
                                                 {onlyIfOffScreen: true});
         });
     };
 
-    RowScroller.add = function(tableId) {
-        var rowScrollerHTML =
-            '<div id="rowScroller-' + tableId + '" ' +
-            'class="rowScroller" data-id="' + tableId + '">' +
-                '<div id="rowMarker-' + tableId + '" class="rowMarker" ' +
-                'data-id="' + tableId + '">' +
-                    '<div class="rangeWrapper">' +
-                        '<div class="top arrow"' +
-                            'data-toggle="tooltip" ' +
-                            'data-container="body" ' +
-                            'data-placement="left" ' +
-                            'data-original-title="row 0">' +
-                            '<div class="bar"></div>' +
-                            '<div class="triangle"></div>' +
-                        '</div>' +
-                        '<div class="rangeBar"></div>' +
-                        '<div class="bottom arrow"' +
-                            'data-toggle="tooltip" ' +
-                            'data-container="body" ' +
-                            'data-placement="left" ' +
-                            'data-original-title="row 0">' +
-                            '<div class="bar"></div>' +
-                            '<div class="triangle"></div>' +
-                        '</div>' +
-                    '</div>' +
-                '</div>' +
-                '<div class="tooltipHelper"' +
-                    'data-toggle="tooltip" ' +
-                    'data-container="body" ' +
-                    'data-placement="bottom" title="' + ScrollTStr.Title +
-                '"></div>' +
-            '</div>';
+    RowScroller.setSizerHeight = function(tableId) {
+        var sizerHeight = getSizerHeight(tableId);
+        var scale = 1;
+        if (sizerHeight > gMaxDivHeight) {
+            scale = sizerHeight / gMaxDivHeight;
+            sizerHeight = gMaxDivHeight;
+        }
+        gTables[tableId].scrollMeta.scale = scale;
+        $("#xcTableWrap-" + tableId).find(".sizer").height(sizerHeight);
+    };
 
-        $rowScrollerArea.append(rowScrollerHTML);
+    function getSizerHeight(tableId) {
+        var table = gTables[tableId];
+        var sizerHeight = table.resultSetCount * gRescol.minCellHeight;
+        for (var pageNum in table.rowHeights) {
+            var page = table.rowHeights[pageNum];
+            for (var row in page) {
+                sizerHeight += (page[row] - gRescol.minCellHeight);
+            }
+        }
+        return sizerHeight;
+    }
+
+    // calculates the height of all the top rows that are not visible
+    RowScroller.getRowsAboveHeight = function(tableId, numRowsAbove) {
+        var table = gTables[tableId];
+        var numPages = Math.ceil(numRowsAbove / gNumEntriesPerPage);
+        var height = numRowsAbove * gRescol.minCellHeight;
+        for (var pageNum in table.rowHeights) {
+            if (pageNum < numPages) {
+                var page = table.rowHeights[pageNum];
+                if (pageNum === numPages - 1) {
+                    for (var row in page) {
+                        if (row <= numRowsAbove) {
+                            height += (page[row] - gRescol.minCellHeight);
+                        }
+                    }
+                } else {
+                    for (var row in page) {
+                        height += (page[row] - gRescol.minCellHeight);
+                    }
+                }
+            }
+        }
+        return height;
+    };
+
+    function setupScrollbar(tableId) {
+        var $scrollBar = $("#xcTableWrap-" + tableId).find(".tableScrollBar");
+        var table = gTables[tableId];
+        var numRows = table.resultSetCount;
+        var isMouseDown = false;
+        var $table = $("#xcTable-" + tableId);
+
+        // XXX move this into the table constructor
+        table.scrollMeta = {};
+        var scrollMeta = table.scrollMeta;
+        scrollMeta.base = 0;
+        scrollMeta.isTableScrolling = false;
+        scrollMeta.isBarScrolling = false;
+        RowScroller.setSizerHeight(tableId);
+        var visibleRows = Math.min(gMaxEntriesPerPage, table.resultSetCount);
+
+        $scrollBar.scroll(function(event) {
+            if (isMouseDown) {
+                return;
+            }
+            if (scrollMeta.isTableScrolling) {
+                scrollMeta.isTableScrolling = false;
+            } else {
+                scrollMeta.isBarScrolling = true;
+                var top = $scrollBar.scrollTop() + scrollMeta.base;
+                var numRowsAbove = table.currentRowNumber - visibleRows;
+                var rowsAboveHeight = RowScroller.getRowsAboveHeight(tableId,
+                                                                numRowsAbove);
+                top -= rowsAboveHeight;
+                $("#xcTbodyWrap-" + tableId).scrollTop(top);
+            }
+        });
+
+
+        $scrollBar.on("mousedown", function(event) {
+            if (event.which !== 1) {
+                return;
+            }
+            isMouseDown = true;
+            $(document).on("mouseup.tableScrollBar", function() {
+                isMouseDown = false;
+                $(document).off("mouseup.tableScrollBar");
+
+                if ($table.hasClass("scrolling")) {
+                    return;
+                }
+
+                var top = $scrollBar.scrollTop() * scrollMeta.scale;
+
+                // if scrollbar is all the way at the bottom
+                if (scrollMeta.scale > 1 && ($scrollBar[0].scrollHeight -
+                    $scrollBar.scrollTop() - $scrollBar.outerHeight() <= 1)) {
+                    top += $scrollBar.outerHeight() * scrollMeta.scale;
+                }
+
+                var rowNum = Math.ceil((top / gRescol.minCellHeight));
+                var defaultRowNum = rowNum;
+
+                var numPages = Math.ceil(rowNum / gNumEntriesPerPage);
+                var extraHeight = 0;
+                var numAdjustedRows = 0;
+                for (var pageNum in table.rowHeights) {
+                    if (pageNum < numPages) {
+                        var page = table.rowHeights[pageNum];
+                        for (var row in page) {
+                            if (row <= rowNum) {
+                                var height = page[row] - gRescol.minCellHeight;
+                                extraHeight += height;
+                                numAdjustedRows++;
+                                rowNum = Math.ceil(defaultRowNum -
+                                    (extraHeight / gRescol.minCellHeight));
+
+                                numPages = Math.ceil(rowNum /
+                                                     gNumEntriesPerPage);
+                                if (pageNum >= numPages) {
+                                    extraHeight -= height;
+                                    rowNum = Math.ceil(defaultRowNum -
+                                        (extraHeight / gRescol.minCellHeight));
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                rowNum += 1;
+                rowNum = Math.round(rowNum);
+                $rowInput.val(rowNum);
+                $rowInput.trigger(fakeEvent.enter);
+                scrollMeta.base = top - (top / scrollMeta.scale);
+            });
+        });
+    }
+
+    function infScrolling(tableId) {
+        var scrolling = false;
+        var $xcTbodyWrap = $('#xcTbodyWrap-' + tableId);
+        var updateRangeTimer;
+        var needsFocusing = true;
+        var focusTimer;
+        var table = gTables[tableId];
+        var visibleRows = Math.min(gMaxEntriesPerPage, table.resultSetCount);
+
+        $xcTbodyWrap.scroll(function() {
+            if (gMouseStatus === "movingTable") {
+                return;
+            }
+
+            var $table = $('#xcTable-' + tableId);
+
+            if ($table.hasClass('autoScroll')) {
+                $table.removeClass('autoScroll');
+                return;
+            }
+
+            var deferred = jQuery.Deferred();
+
+            if (needsFocusing) {
+                needsFocusing = false;
+                TblFunc.focusTable(tableId);
+                clearElements();
+            }
+
+            clearTimeout(focusTimer);
+            focusTimer = setTimeout(scrollingEnd, 200);
+
+            RowScroller.genFirstVisibleRowNum();
+
+            var scrollTop = $xcTbodyWrap.scrollTop();
+            var scrollMeta = table.scrollMeta;
+
+            if (scrollMeta.isBarScrolling) {
+                scrollMeta.isBarScrolling = false;
+            } else {
+                scrollMeta.isTableScrolling = true;
+                var numRowsAbove = table.currentRowNumber - visibleRows;
+                var rowsAboveHeight = RowScroller.getRowsAboveHeight(tableId,
+                                                                 numRowsAbove);
+                var scrollBarTop = scrollTop + rowsAboveHeight;
+
+                scrollBarTop -= scrollMeta.base;
+                $xcTbodyWrap.siblings(".tableScrollBar")
+                            .scrollTop(scrollBarTop);
+            }
+
+            var firstRow = $table.find('tbody tr:first');
+            var topRowNum = xcHelper.parseRowNum(firstRow);
+            var info;
+            var numRowsToAdd;
+
+            // gets this class from RowManager.addRows
+            scrolling = $table.hasClass('scrolling');
+
+            if (firstRow.length === 0) {
+                deferred.resolve();
+            } else if (scrollTop === 0 && !firstRow.hasClass('row0')) {
+                // scrolling to top
+                if (!scrolling) {
+
+                    // var initialTop = firstRow.offset().top;
+                    numRowsToAdd = Math.min(gNumEntriesPerPage, topRowNum,
+                                            table.resultSetMax);
+
+                    var rowNumber = topRowNum - numRowsToAdd;
+                    if (rowNumber < table.resultSetMax) {
+                        var lastRowToDisplay = table.currentRowNumber -
+                                               numRowsToAdd;
+
+                        info = {
+                            "targetRow": rowNumber,
+                            "lastRowToDisplay": lastRowToDisplay,
+                            "bulk": false,
+                            "tableId": tableId,
+                            "currentFirstRow": topRowNum
+                        };
+
+                        RowManager.addRows(rowNumber, numRowsToAdd,
+                                            RowDirection.Top, info)
+                        .then(deferred.resolve)
+                        .fail(deferred.reject);
+                    } else {
+                        deferred.resolve();
+                    }
+
+                } else {
+                    deferred.resolve();
+                }
+            } else if (isScrollBarAtBottom()) {
+                // scrolling to bottom
+                if (!scrolling && (table.currentRowNumber < table.resultSetMax))
+                {
+                    numRowsToAdd = Math.min(gNumEntriesPerPage,
+                                    table.resultSetMax -
+                                    table.currentRowNumber);
+                    info = {
+                        "targetRow": table.currentRowNumber + numRowsToAdd,
+                        "lastRowToDisplay": table.currentRowNumber + numRowsToAdd,
+                        "bulk": false,
+                        "tableId": tableId,
+                        "currentFirstRow": topRowNum
+                    };
+
+                    RowManager.addRows(table.currentRowNumber, numRowsToAdd,
+                             RowDirection.Bottom, info)
+                    .then(deferred.resolve)
+                    .fail(deferred.reject);
+                } else {
+                    deferred.resolve();
+                }
+            } else {
+                deferred.resolve();
+            }
+
+            deferred
+            .always(function() {
+                if ($table.find('.jsonElement.modalHighlighted').length) {
+                    JSONModal.rehighlightTds($table);
+                }
+                var rowScrollerMove = true;
+                RowScroller.genFirstVisibleRowNum(rowScrollerMove);
+            });
+        });
+
+        function scrollingEnd() {
+            needsFocusing = true;
+        }
+
+        function isScrollBarAtBottom() {
+            return ($xcTbodyWrap[0].scrollHeight - $xcTbodyWrap.scrollTop() -
+                       $xcTbodyWrap.outerHeight() <= 1);
+        }
+
+        function clearElements() {
+            $(".menu:visible").hide();
+            xcMenu.removeKeyboardNavigation();
+            $('.highlightBox').remove();
+        }
+    }
+
+    RowScroller.add = function(tableId) {
+        setupScrollbar(tableId);
+        var table = gTables[tableId];
+        if (table.resultSetCount > 0) {
+            infScrolling(tableId);
+        }
 
         var bookmarks = gTables[tableId].bookmarks;
         RowScroller.addBookmark(bookmarks, tableId);
-
-        if ($(".xcTable").length > 1) {
-            $(".rowScroller").last().hide();
-        } else if ($("#xcTableWrap-" + tableId).hasClass('inActive')) {
-            $('#rowScroller-' + tableId).hide();
-        }
     };
 
     RowScroller.update = function(tableId) {
         var $numPages = $("#numPages");
         var table = gTables[gActiveTableId];
-        showRowScroller(tableId);
         var inputWidth = 50;
         if (!gActiveTableId || $.isEmptyObject(table)) {
             $numPages.text("");
@@ -247,20 +416,6 @@ window.RowScroller = (function($, RowScroller) {
             inputWidth = Math.max(inputWidth, 10 + (numDigits * 8));
         }
         $rowInput.width(inputWidth);
-    };
-
-    RowScroller.updateViewRange = function(tableId) {
-        if (!tableId) {
-            return;
-        }
-        var tableRowInfo = getTableRowInfo(tableId);
-        var $rowMarker = $('#rowMarker-' + tableId);
-
-        $rowMarker.find('.rangeWrapper').width(tableRowInfo.pctRowsShowing + "%");
-        $rowMarker.find('.top').attr('data-original-title',
-                                     'row ' + tableRowInfo.topRow);
-        $rowMarker.find('.bottom').attr('data-original-title',
-                                        'row ' + tableRowInfo.botRow);
     };
 
     RowScroller.empty = function() {
@@ -292,12 +447,12 @@ window.RowScroller = (function($, RowScroller) {
                        ' data-container="body"></div>';
         });
 
-        $('#rowScroller-' + tableId).append(bookmark);
+        // $('#rowScroller-' + tableId).append(bookmark);
     };
 
     RowScroller.removeBookmark = function(rowNum, tableId) {
-        var $rowScroller = $('#rowScroller-' + tableId);
-        $rowScroller.find('.bkmkRow' + rowNum).remove();
+        // var $rowScroller = $('#rowScroller-' + tableId);
+        // $rowScroller.find('.bkmkRow' + rowNum).remove();
     };
 
     RowScroller.resize = function() {
@@ -322,10 +477,6 @@ window.RowScroller = (function($, RowScroller) {
         if (firstRowNum !== null) {
             var activeTableId = gActiveTableId;
             $('#rowInput').val(firstRowNum).data('val', firstRowNum);
-            if (TblFunc.isTableScrollable(activeTableId)) {
-                rowScrollerMove(firstRowNum,
-                                 gTables[activeTableId].resultSetCount);
-            }
         }
     };
 
@@ -397,74 +548,19 @@ window.RowScroller = (function($, RowScroller) {
         return null;
     };
 
-    function rowScrollerMove(rowNum, resultSetCount) {
-        var pct = 100 * ((rowNum - 1) / resultSetCount);
-        var $rowMarker = $('#rowMarker-' + gActiveTableId);
-        $rowMarker.css("transform", "translate3d(" + pct + "%, 0px, 0px)");
-        var currRangeWidth = $rowMarker.find('.rangeWrapper').width();
-        var rowMarkerWidth = $rowMarker.width();
-        if (100 * (currRangeWidth / rowMarkerWidth) > (100 - pct)) {
-            $rowMarker.find('.rangeWrapper').width((100 - pct) + '%');
-        }
-    }
-
-    // mouse event for row scroller
-    function rowScrollerMouseMove(event) {
-        var mouseX = event.pageX;
-        var translate;
-
-        if (mouseX - rowInfo.totalOffset < rowInfo.boundary.lower) {
-            translate = 0;
-        } else if (mouseX - rowInfo.totalOffset > rowInfo.boundary.upper ) {
-            translate = rowInfo.maxTranslate;
-        } else {
-            translate = 100 * (mouseX - rowInfo.scrollAreaOffset -
-                        rowInfo.totalOffset) / (rowInfo.rowScrollerWidth);
-        }
-
-        rowInfo.el.css('transform', 'translate3d(' + translate + '%, 0px, 0px)');
-    }
-
-    function rowScrollerMouseUp() {
-        gMouseStatus = null;
-        $(document).off('mousemove.rowScrollerDrag');
-        $(document).off('mouseup.rowScrollerMouseUp');
-        rowInfo.el.removeClass('scrolling');
-        $('#moveCursor').remove();
-        xcHelper.reenableTextSelection();
-        $('body').removeClass('tooltipOff');
-        var e = $.Event("mousedown");
-        e.which = 1;
-        e.pageX = (rowInfo.el.offset().left - parseInt(rowInfo.el.css('left')) + 0.5);
-        if (e.pageX + 3 >= rowInfo.boundary.upper) {
-            e.pageX += 3;
-        } else if (e.pageX - 2 <= rowInfo.scrollAreaOffset) {
-            e.pageX -= 2;
-        }
-        $rowScrollerArea.trigger(e);
-    }
-
-    function showRowScroller(tableId) {
-        $(".rowScroller").hide();
-        if (tableId != null) {
-            var $rowScroller = $('#rowScroller-' + tableId);
-            $rowScroller.show();
-        }
-    }
-
     function parseBookmarkNum(el) {
         var classNames = el.attr('class');
         var index = classNames.indexOf('bkmkRow') + 'bkmkRow'.length;
         return parseInt(classNames.substring(index)) + 1;
     }
 
-    function positionScrollbar(row, tableId) {
+    function positionScrollbar(row, tableId, adjustTableScroller) {
         var canScroll = true;
         var $table = $('#xcTable-' + tableId);
         var theadHeight = $table.find('thead').height();
 
         function positionScrollToRow() {
-            if (!$table.find('.row' + (row - 1))[0]) {
+            if (!$table.find('.row' + (row - 1)).length) {
                 return;
             }
             var $tableWrap = $('#xcTableWrap-' + tableId);
@@ -477,8 +573,23 @@ window.RowScroller = (function($, RowScroller) {
             {
                 canScroll = false;
             }
-            $rowScrollerArea.addClass('autoScroll');
+            $table.addClass('autoScroll');
             $tbodyWrap.scrollTop(scrollPos);
+
+            if (adjustTableScroller) {
+                // adjust tableScrollBar;
+                var table = gTables[tableId];
+                var scrollMeta = table.scrollMeta;
+                scrollMeta.isTableScrolling = true;
+                var numRowsAbove = table.currentRowNumber -
+                        Math.min(gMaxEntriesPerPage, table.resultSetCount);
+                var rowsAboveHeight = RowScroller.getRowsAboveHeight(tableId,
+                                                                 numRowsAbove);
+                var scrollBarTop = scrollPos + rowsAboveHeight;
+                var newTop = scrollBarTop / scrollMeta.scale;
+                $tbodyWrap.siblings(".tableScrollBar").scrollTop(newTop);
+                scrollMeta.base = scrollBarTop - (scrollBarTop / scrollMeta.scale);
+            }
         }
 
         positionScrollToRow();
@@ -488,31 +599,6 @@ window.RowScroller = (function($, RowScroller) {
             // try to position the scrollbar to the proper row again
             setTimeout(positionScrollToRow, 1);
         }
-    }
-
-    function rowScrollerStartDrag(event, $el) {
-        gMouseStatus = "rowScroller";
-        $el.addClass('scrolling');
-        rowInfo.el = $el;
-        rowInfo.mouseStart = event.pageX;
-        rowInfo.scrollAreaOffset = $el.parent().offset().left;
-        rowInfo.rowScrollerWidth = $el.parent().width();
-        var rangeWidth = $el.find('.rangeWrapper').outerWidth();
-        var mouseOffset = rowInfo.mouseStart - $el.offset().left;
-        var cssLeft = parseInt($el.css('left'));
-        rowInfo.totalOffset = mouseOffset + cssLeft;
-        rowInfo.boundary = {
-            "lower": rowInfo.scrollAreaOffset,
-            "upper": rowInfo.scrollAreaOffset + rowInfo.rowScrollerWidth -
-                     rangeWidth
-        };
-        rowInfo.maxTranslate = 100 - 100 * (rangeWidth / rowInfo.rowScrollerWidth) + 0.2;
-
-        var cursorStyle = '<div id="moveCursor"></div>';
-        $('body').addClass('tooltipOff').append(cursorStyle);
-        xcHelper.disableTextSelection();
-        $(document).on('mousemove.rowScrollerDrag', rowScrollerMouseMove);
-        $(document).on('mouseup.rowScrollerMouseUp', rowScrollerMouseUp);
     }
 
     // returns object containing numbers of rows showing, percent of full table,

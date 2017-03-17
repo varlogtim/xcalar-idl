@@ -203,10 +203,6 @@ window.TblManager = (function($, TblManager) {
             $xcTableWrap.addClass("worksheet-" + wsId);
             $("#dagWrap-" + tableId).addClass("worksheet-" + wsId);
 
-            if (table.resultSetCount !== 0) {
-                infScrolling(tableId);
-            }
-
             RowScroller.resize();
 
             if ($('#mainFrame').hasClass('empty')) {
@@ -319,7 +315,6 @@ window.TblManager = (function($, TblManager) {
         // var tempHide = options.tempHide || false;
         if (delayTableRemoval) {
             $("#xcTableWrap-" + tableId).addClass('tableToRemove');
-            $("#rowScroller-" + tableId).addClass('rowScrollerToRemove');
             $("#dagWrap-" + tableId).addClass('dagWrapToRemove');
         } else {
             removeTableDisplay(tableId);
@@ -366,7 +361,6 @@ window.TblManager = (function($, TblManager) {
             removeTableDisplay(tableId);
         } else {
             $("#xcTableWrap-" + tableId).addClass('tableToRemove');
-            $("#rowScroller-" + tableId).addClass('rowScrollerToRemove');
             $("#dagWrap-" + tableId).addClass('dagWrapToRemove');
         }
 
@@ -426,7 +420,6 @@ window.TblManager = (function($, TblManager) {
             removeTableDisplay(tableId);
         } else {
             $("#xcTableWrap-" + tableId).addClass('tableToRemove');
-            $("#rowScroller-" + tableId).addClass('rowScrollerToRemove');
             $("#dagWrap-" + tableId).addClass('dagWrapToRemove');
         }
 
@@ -1379,156 +1372,6 @@ window.TblManager = (function($, TblManager) {
         };
     }
 
-    function infScrolling(tableId) {
-        var $rowScroller = $('#rowScrollerArea');
-        var scrolling = false;
-        var $xcTbodyWrap = $('#xcTbodyWrap-' + tableId);
-        var updateRangeTimer;
-        var needsFocusing = true;
-        var focusTimer;
-        $xcTbodyWrap.scroll(function() {
-            if (gMouseStatus === "movingTable") {
-                return;
-            }
-
-            if ($rowScroller.hasClass('autoScroll')) {
-                $rowScroller.removeClass('autoScroll');
-                return;
-            }
-
-            var deferred = jQuery.Deferred();
-
-            if (needsFocusing) {
-                needsFocusing = false;
-                TblFunc.focusTable(tableId);
-            }
-
-            clearTimeout(focusTimer);
-            focusTimer = setTimeout(scrollingEnd, 200);
-
-            $(".menu:visible").hide();
-            xcMenu.removeKeyboardNavigation();
-            $('.highlightBox').remove();
-
-
-            RowScroller.genFirstVisibleRowNum();
-            var table = gTables[tableId];
-            var $table = $('#xcTable-' + tableId);
-
-            var firstRow = $table.find('tbody tr:first');
-            var topRowNum = xcHelper.parseRowNum(firstRow);
-            var info;
-            var numRowsToAdd;
-            var adjustRowScrollerRange = false;
-
-            // gets this class from RowManager.addRows
-            scrolling = $table.hasClass('scrolling');
-
-            if (firstRow.length === 0) {
-                deferred.resolve();
-            } else if ($(this).scrollTop() === 0 &&
-                        !firstRow.hasClass('row0'))
-            {
-                // scrolling to top
-                if (!scrolling) {
-
-                    // var initialTop = firstRow.offset().top;
-                    numRowsToAdd = Math.min(gNumEntriesPerPage, topRowNum,
-                                            table.resultSetMax);
-
-                    var rowNumber = topRowNum - numRowsToAdd;
-                    if (rowNumber < table.resultSetMax) {
-                        var lastRowToDisplay = table.currentRowNumber -
-                                               numRowsToAdd;
-
-                        info = {
-                            "targetRow": rowNumber,
-                            "lastRowToDisplay": lastRowToDisplay,
-                            "bulk": false,
-                            "tableId": tableId,
-                            "currentFirstRow": topRowNum
-                        };
-
-                        RowManager.addRows(rowNumber, numRowsToAdd,
-                                            RowDirection.Top, info)
-                        .then(deferred.resolve)
-                        .fail(deferred.reject);
-                    } else {
-                        adjustRowScrollerRange = true;
-                    }
-
-                } else {
-                    adjustRowScrollerRange = true;
-                    deferred.resolve();
-                }
-            } else if (isScrollBarAtBottom()) {
-                // scrolling to bottom
-
-                if (!scrolling && (table.currentRowNumber < table.resultSetMax))
-                {
-                    numRowsToAdd = Math.min(gNumEntriesPerPage,
-                                    table.resultSetMax -
-                                    table.currentRowNumber);
-                    info = {
-                        "targetRow": table.currentRowNumber + numRowsToAdd,
-                        "lastRowToDisplay": table.currentRowNumber + numRowsToAdd,
-                        "bulk": false,
-                        "tableId": tableId,
-                        "currentFirstRow": topRowNum
-                    };
-
-                    RowManager.addRows(table.currentRowNumber, numRowsToAdd,
-                             RowDirection.Bottom, info)
-                    .then(deferred.resolve)
-                    .fail(deferred.reject);
-                } else {
-                    adjustRowScrollerRange = true;
-                    deferred.resolve();
-                }
-            } else {
-                deferred.resolve();
-                adjustRowScrollerRange = true;
-            }
-
-            if (adjustRowScrollerRange && !scrolling) {
-                clearTimeout(updateRangeTimer);
-                  // rowscroller range flickers if we update too often
-                updateRangeTimer = setTimeout(function() {
-                    if (!$table.hasClass('scrolling')) {
-                        RowScroller.updateViewRange(tableId);
-                    }
-                }, 200);
-                return;
-            }
-
-            deferred
-            .always(function() {
-                if ($table.find('.jsonElement.modalHighlighted').length) {
-                    JSONModal.rehighlightTds($table);
-                }
-                var rowScrollerMove = true;
-                RowScroller.genFirstVisibleRowNum(rowScrollerMove);
-                clearTimeout(updateRangeTimer);
-                // rowscroller range flickers if we update too often
-                updateRangeTimer = setTimeout(function() {
-                    if (!$table.hasClass('scrolling')) {
-                        RowScroller.updateViewRange(tableId);
-                    }
-                }, 200);
-            });
-        });
-
-        function scrollingEnd() {
-            needsFocusing = true;
-        }
-
-        function isScrollBarAtBottom() {
-            return ($xcTbodyWrap[0].scrollHeight - $xcTbodyWrap.scrollTop() -
-                       $xcTbodyWrap.outerHeight() <= 1);
-        }
-    }
-
-
     /**
         This function sets up new tables to be added to the display and
         removes old tables.
@@ -1655,7 +1498,6 @@ window.TblManager = (function($, TblManager) {
 
     function removeTableDisplay(tableId) {
         $("#xcTableWrap-" + tableId).remove();
-        $("#rowScroller-" + tableId).remove();
         Dag.destruct(tableId);
     }
 
@@ -1698,7 +1540,6 @@ window.TblManager = (function($, TblManager) {
                 for (var i = 0, len = tablesToRemove.length; i < len; i++) {
                     var tblId = tablesToRemove[i];
                     $("#xcTableWrap-" + tblId).remove();
-                    $("#rowScroller-" + tblId).remove();
                 }
             }
             table.currentRowNumber = jsonData.length;
@@ -1729,7 +1570,7 @@ window.TblManager = (function($, TblManager) {
                     "bulk": false,
                     "dontRemoveRows": true,
                     "tableId": tableId,
-                    "currentFirstRow": topRowNum
+                    "currentFirstRow": topRowNum,
                 };
 
                 return RowManager.addRows(table.currentRowNumber,
@@ -1761,7 +1602,6 @@ window.TblManager = (function($, TblManager) {
             autoSizeDataCol(tableId);
             // position sticky row column on visible tables
             TblFunc.moveFirstColumn();
-            RowScroller.updateViewRange(tableId);
             deferred.resolve();
         })
         .fail(function(error) {
@@ -1789,7 +1629,6 @@ window.TblManager = (function($, TblManager) {
 
         if (options.isEmpty && numRows === 0) {
             console.log('no rows found, ERROR???');
-            $('#rowScroller-' + tableId).addClass('hidden');
             $table.addClass('emptyTable');
             jsonData = [""];
         }
@@ -2593,6 +2432,9 @@ window.TblManager = (function($, TblManager) {
                 'data-id="' + tableId + '">' +
                 '<div id="xcTbodyWrap-' + tableId + '" class="xcTbodyWrap" ' +
                 'data-id="' + tableId + '"></div>' +
+                '<div class="tableScrollBar">' +
+                    '<div class="sizer"></div>' +
+                '</div>' +
             '</div>';
         // creates a new table, completed thead, and empty tbody
         var position = WSManager.getTablePosition(tableId);

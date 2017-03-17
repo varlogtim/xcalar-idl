@@ -72,6 +72,7 @@
                         delete table.numPages;
                         delete table.ordering;
                         delete table.backTableMeta;
+                        delete table.scrollMeta;
                     }
 
                     return persistTables;

@@ -311,15 +311,9 @@ describe('Dag Test', function() {
         });
 
         it('panel should open', function(done) {
-            var rowScrollCheck = false;
             var scrollBarCheck = false;
 
-            var rowScrollFunc = RowScroller.updateViewRange;
             var scrollBarFunc = DagPanel.adjustScrollBarPositionAndSize;
-
-            RowScroller.updateViewRange = function() {
-                rowScrollCheck = true;
-            };
 
             DagPanel.adjustScrollBarPositionAndSize = function() {
                 scrollBarCheck = true;
@@ -335,7 +329,6 @@ describe('Dag Test', function() {
             // open panel
             $switch.click();
 
-            expect(rowScrollCheck).to.be.false;
             expect(scrollBarCheck).to.be.false;
 
             setTimeout(function() {
@@ -345,10 +338,8 @@ describe('Dag Test', function() {
                 expect($dagPanel.offset().top)
                 .to.equal($("#mainFrame").offset().top);
                 expect($("#mainFrame").height()).to.equal(0);
-                expect(rowScrollCheck).to.be.true;
                 expect(scrollBarCheck).to.be.true;
 
-                RowScroller.updateViewRange = rowScrollFunc;
                 DagPanel.adjustScrollBarPositionAndSize = scrollBarFunc;
 
                 done();
@@ -357,10 +348,6 @@ describe('Dag Test', function() {
 
         it('panel should close', function(done) {
             var rowScrollCheck = false;
-            var rowScrollFunc = RowScroller.updateViewRange;
-            RowScroller.updateViewRange = function() {
-                rowScrollCheck = true;
-            };
 
             // close panel
             $switch.click();
@@ -375,23 +362,16 @@ describe('Dag Test', function() {
                 expect($dagPanel.offset().top)
                 .to.not.equal($("#mainFrame").offset().top);
                 expect($dagPanel.attr('style').indexOf('top')).to.equal(-1);
-                expect(rowScrollCheck).to.be.true;
 
-                RowScroller.updateViewRange = rowScrollFunc;
                 done();
             }, 600);
         });
 
         it('maximizing dag should work', function(done) {
             var rowScrollCheck = false;
-            var rowScrollFunc = RowScroller.updateViewRange;
-            RowScroller.updateViewRange = function() {
-                rowScrollCheck = true;
-            };
 
             // open panel
             $switch.click();
-            expect(rowScrollCheck).to.be.false;
 
             setTimeout(function() {
                 expect($dagPanel.hasClass('hidden')).to.be.false;
@@ -411,8 +391,6 @@ describe('Dag Test', function() {
 
                 setTimeout(function() {
                     expect(parseInt($dagPanel.css('top'))).to.equal(0);
-                    expect(rowScrollCheck).to.be.true;
-                    RowScroller.updateViewRange = rowScrollFunc;
                     done();
                 }, 600);
 
