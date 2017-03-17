@@ -102,6 +102,7 @@ TooltipTStr = {
     "ColumnAlreadyInt": "Column is already an integer",
     "ColumnAlreadyFloat": "Column is already a float",
     "CannotDropLocked": "Cannot drop locked table",
+    "SystemGood": "All Systems Good",
 
     // with replace
     'CollapsedTables': '<number> tables are collapsed',

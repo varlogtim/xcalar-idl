@@ -385,22 +385,41 @@ body {
 
 #memoryAlert {
     .rounded;
-    visibility: hidden;
+    background-color: @color-bg-apple-green;
     outline: none;
     padding: 0;
+    cursor: default;
 
     .icon {
         position: relative;
     }
+    .xi-success {
+        display: block;
+    }
+    .xi-warning {
+        display: none;
+    }
 
     &.yellow {
-        visibility: visible;
+        cursor: pointer;
         background-color: @color-bg-gold;
+        .xi-success {
+            display: none;
+        }
+        .xi-warning {
+            display: block;
+        }
     }
 
     &.red {
-        visibility: visible;
+        cursor: pointer;
         background-color: @color-error-border;
+        .xi-success {
+            display: none;
+        }
+        .xi-warning {
+            display: block;
+        }
     }
 }
 /* =========== END TOP RIGHT CORNER =========== */

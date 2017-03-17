@@ -174,6 +174,7 @@ window.Support = (function(Support, $) {
         function handleMemoryUsage(memoryUsage, isTable) {
             var shouldAlert = false;
             var $memoryAlert = $("#memoryAlert");
+
             if (memoryUsage > redThreshold) {
                 // when it's red, can stop loop immediately
                 $memoryAlert.addClass("red").removeClass("yellow");
@@ -190,6 +191,7 @@ window.Support = (function(Support, $) {
             if (!isTable) {
                 shouldAlert = false;
                 $memoryAlert.removeClass("red").removeClass("yellow");
+                xcTooltip.changeText($memoryAlert, TooltipTStr.SystemGood);
             }
             if (shouldAlert) {
                 var text;

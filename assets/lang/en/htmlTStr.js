@@ -241,6 +241,7 @@ module.exports = {
         "DropTables": "Drop Tables",
         "DropConsts": "Drop Aggregates",
         "OnlyInOpMode": "Feature only available in Operational mode",
+        "SystemGood": "All Systems Good",
         "CSHelp": "Click to open up Xcalar Help for more information",
         "ChooseUdfModule": 'Please choose a module first' // used in jststr
     },

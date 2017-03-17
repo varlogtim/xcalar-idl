@@ -431,6 +431,9 @@ window.StartManager = (function(StartManager, $) {
 
     function setupMemoryAlert() {
         $("#memoryAlert").click(function() {
+            if (!$(this).hasClass("yellow") && !$(this).hasClass("red")) {
+                return false;
+            }
             if ($(this).hasClass("tableAlert")) {
                 DeleteTableModal.show();
             } else {
