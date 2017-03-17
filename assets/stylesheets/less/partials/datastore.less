@@ -924,7 +924,7 @@ table.datasetTable {
 
             .icon {
                 .size(100%, 100%);
-                .image("../../images/datastore/upFolder.png", 50%, 50%);
+                font-size: 16px;
             }
         }
 
@@ -2109,6 +2109,10 @@ table.datasetTable {
         .flex-display;
         .flex-direction(column);
         position: relative; // for preview mode and history tool boxes
+
+        ::-webkit-scrollbar-thumb{
+            min-height: 30px;
+        }
 
         .errorSection, .loadSection {
             padding-left: 55px;
