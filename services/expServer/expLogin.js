@@ -44,6 +44,9 @@ UserInformation.prototype = {
     getEmployeeType: function() {
         return this.employeeType;
     },
+    getIsADUser: function() {
+        return this.isADUser;
+    },
 
     setLoginId: function(loginId) {
         this.loginId = loginId;
@@ -59,6 +62,9 @@ UserInformation.prototype = {
     },
     setEmployeeType: function(employeeType) {
         this.employeeType = employeeType;
+    },
+    setIsADUser: function(isADUser) {
+        this.isADUser = isADUser;
     },
 
     isSupporter: function() {
@@ -101,7 +107,8 @@ function loginAuthentication(credArray, res) {
                     filter: searchFilter != "" ?
                         searchFilter.replace('%username%',username):undefined,
                     scope: 'sub',
-                    attributes: ['cn','mail','employeeType']
+                    attributes: activeDir ?
+                        ['cn','mail','memberOf']:['cn','mail','employeeType']
                 };
                 if (!activeDir) {
                     userDN = userDN.replace('%username%', username);
@@ -151,7 +158,7 @@ function loginAuthentication(credArray, res) {
                     var deferred2 = jQuery.Deferred();
                     search.on('searchEntry', function(entry) {
                         console.log('Searching entries.....');
-                        writeEntry(entry, currLogin);
+                        writeEntry(entry, currLogin, activeDir);
                     });
 
                     search.on('error', function(error) {
@@ -161,7 +168,16 @@ function loginAuthentication(credArray, res) {
 
                     search.on('end', function(result) {
                         console.log('Finished Search!');
+                        if (activeDir) {
+                            user = users.get(currLogin);
+                            if (!user.getIsADUser()) {
+                                console.log('User is not a member of Xce Users');
+                                deferred2.reject();
+                            }
+                        }
+
                         client.unbind();
+
                         deferred2.resolve(currLogin);
                     });
                     return deferred2.promise();
@@ -189,14 +205,29 @@ function loginAuthentication(credArray, res) {
     });
 }
 
-function writeEntry(entry, loginId) {
-    if(entry.object){
-        var entryObject = JSON.parse(JSON.stringify(entry.object));
+function writeEntry(entry, loginId, activeDir) {
+    if (entry.object) {
+        var entryObject = entry.object;
         var user = users.get(loginId);
         user.setEntryCount(user.getEntryCount() + 1);
         user.setMail(entryObject.mail);
         user.setFirstName(entryObject.cn);
-        user.setEmployeeType(entryObject.employeeType);
+        if (activeDir) {
+            user.setEmployeeType("user");
+            user.setIsADUser(false);
+            entryObject.memberOf.forEach(function(element, index, array) {
+                var admin_re = /^CN=Xce\sAdmin*/;
+                if (admin_re.test(element)) {
+                    user.setEmployeeType("administrator");
+                }
+                var user_re = /^CN=Xce\sUser*/;
+                if (user_re.test(element)) {
+                    user.setIsADUser(true);
+                }
+            });
+        } else {
+            user.setEmployeeType(entryObject.employeeType);
+        }
     }
 }
 
