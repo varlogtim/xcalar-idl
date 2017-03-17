@@ -54,7 +54,7 @@ module.exports = {
         "Other": "Other",
         "Password": "Password",
         "Path": "Path",
-        "PleaseWait": "Please Wait",
+        "PleaseWait": "Please wait",
         "Port": "Port",
         "Prefs": "Preferences",
         "Refresh": "Refresh",
