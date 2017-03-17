@@ -925,7 +925,14 @@ function XcalarExport(tableName, exportName, targetName, numColumns,
                 deferred.reject(StatusTStr[StatusT.StatusCanceled]);
             } else {
                 Transaction.log(txId, ret2);
-                deferred.resolve(ret1);
+                // XXX There is a bug here that backend actually needs to fix
+                // We must drop the export node on a successful export.
+                // Otherwise you will not be able to delete your dataset
+                xcalarDeleteDagNodes(tHandle, options.handleName,
+                                     SourceTypeT.SrcExport)
+                .always(function() {
+                    deferred.resolve(ret1);
+                });
             }
         })
         .fail(function(error) {
