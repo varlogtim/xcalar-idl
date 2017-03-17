@@ -210,7 +210,7 @@ window.XcSDK.Extension.prototype = (function() {
             var deferred = jQuery.Deferred();
             var self = this;
             var txId = self.txId;
-
+            options = options || {};
             options.icvMode = false;
 
             XIApi.groupBy(txId, operator, groupByCols, aggColName,
