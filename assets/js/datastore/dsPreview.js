@@ -231,7 +231,7 @@ window.DSPreview = (function($, DSPreview) {
         // setup udf
         $("#dsForm-refresh").click(function() {
             $(this).blur();
-            refreshPreview();
+            refreshPreview(true);
         });
 
         // udf checkbox
@@ -1556,7 +1556,7 @@ window.DSPreview = (function($, DSPreview) {
         smartDetect(true);
     }
 
-    function refreshPreview() {
+    function refreshPreview(noDetect) {
         var res = validateForm();
         if (res == null) {
             return;
@@ -1575,7 +1575,7 @@ window.DSPreview = (function($, DSPreview) {
 
         clearPreviewTable()
         .then(function() {
-            return previewData(udfModule, udfFunc, true);
+            return previewData(udfModule, udfFunc, noDetect);
         })
         .fail(errorHandler);
     }
