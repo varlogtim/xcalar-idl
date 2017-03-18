@@ -958,7 +958,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
 
         $input.focus();
         if ($input.attr('type') === "text") {
-            $input.caret(-1);// put cursor at the end;
+            $input.caret($input.val().length);// put cursor at the end;
         }
     }
 
