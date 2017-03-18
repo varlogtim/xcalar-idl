@@ -181,8 +181,8 @@ window.Help = (function($, Help) {
         var topicIndex;
         var url;
         var fullName;
-        for (var i = 0; i < curHelpHashTags.pages.length; i++) {
-            page = curHelpHashTags.pages[i];
+        for (var i = 0; i < curHelpHashTags.length; i++) {
+            page = curHelpHashTags[i];
             topic = page.url;
             topicIndex = topic.indexOf('Content/');
             url = topic.slice(topicIndex + 'Content/'.length);

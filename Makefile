@@ -42,7 +42,7 @@ build: $(DESTDIR) generateHtml
 	@rm -rf $(DESTDIR)/prod/assets/dev
 	@rm -f $(DESTDIR)/prod/services/expServer/awsWriteConfig.json
 	@echo "=== Minifying ==="
-	@cd $(DESTDIR)/prod/assets/python && python getHashTags.py
+	@cd $(DESTDIR)/prod/assets/python && python genHelpAnchors.py
 	cd $(DESTDIR) && ./prod/assets/bin/MINIFY.sh
 	export GIT_DIR=`pwd`/.git && cd $(DESTDIR) && ./prod/assets/bin/autoGenFiles.sh
 	@echo "=== Running python build.py ==="
