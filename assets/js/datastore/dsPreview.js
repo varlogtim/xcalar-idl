@@ -1428,7 +1428,22 @@ window.DSPreview = (function($, DSPreview) {
             }
             deferred.resolve(res.buffer);
         })
-        .fail(deferred.reject);
+        .fail(function(error) {
+            if (typeof error === "object" &&
+                error.status === StatusT.StatusUdfExecuteFailed) {
+                XcalarListFilesWithPattern(loadURL, pattern, isRecur)
+                .then(function() {
+                    // when it's not list error
+                    deferred.reject(error);
+                })
+                .fail(function() {
+                    // when it's not find file error
+                    deferred.reject(DSFormTStr.NoFile);
+                });
+            } else {
+                deferred.reject(error);
+            }
+        });
 
         return deferred.promise();
     }
