@@ -2694,8 +2694,15 @@ table.datasetTable {
 
 #gridViewMenu, #expTargetGridMenu {
     z-index: @z-index-gridViewMenu;
+    background-color: @color-bg-menu-light-blue;
+
     li {
+        background-color: @color-bg-menu-light-blue;
         display: none;
+
+        &.selected {
+             background-color: @color-bg-light-navy;
+        }
     }
     &.dsOpts {
         .dsOpt {
