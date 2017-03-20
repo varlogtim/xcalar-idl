@@ -366,7 +366,12 @@ SuccessTStr = {
     "ExtDownload": "Extension Successfully Downloaded!",
     "ExtRemove": "Extension Successfully Removed!",
     "ExtEnable": "Extension Successfully Enabled!",
-    "ExtDisable": "Extension Successfully Disabled!"
+    "ExtDisable": "Extension Successfully Disabled!",
+    "Profile": "Save Profile As PNG Successfully!"
+};
+
+FailTStr = {
+    "Profile": "Save Profile As PNG Failed."
 };
 
 ThriftTStr = {
