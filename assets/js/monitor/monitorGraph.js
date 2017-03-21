@@ -1,5 +1,5 @@
 window.MonitorGraph = (function($, MonitorGraph) {
-    var intervalTime = 3000; // update interval in milliseconds
+    var intervalTime = 60000; // update interval in milliseconds
     var xGridWidth = 60; // space between each x-axis grid line
     var height = 210;
     var yAxis;

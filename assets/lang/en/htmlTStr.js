@@ -450,7 +450,7 @@ module.exports = {
 
 // keep in sync with the FileProtocol in enums.js
     "FileProtocol": {
-        "nfs": "nfs:///",
+        "nfs": "file:///",
         "hdfs": "hdfs://",
         "file": "file:///"
     },

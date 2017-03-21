@@ -738,7 +738,7 @@ window.SQL = (function($, SQL) {
         .then(function() {
             if (logs.length !== logLen) {
                 // XXX debug use
-                console.error("log lenght should not change during undo!");
+                console.error("log length should not change during undo!");
             }
             // update cursor, so intermediate undo fail doest have side effect
             logCursor = cursor - 1; // update cursor

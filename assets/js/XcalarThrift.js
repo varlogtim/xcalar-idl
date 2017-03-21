@@ -606,6 +606,10 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
         console.log("Max sample size set to: ", maxSampleSize);
     }
 
+    if (url.indexOf(FileProtocol.nfs) === 0 && !gEnableLocalFiles) {
+        url = url.replace(FileProtocol.nfs, "nfs:///");
+    }
+
     var workItem = xcalarLoadWorkItem(url, datasetName, formatType,
                                       maxSampleSize, loadArgs);
 
