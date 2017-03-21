@@ -20,7 +20,7 @@ describe("Mocha Setup Test", function() {
     });
 
     it("Should set up XI", function(done) {
-        StartManager.setup()
+        xcManager.setup()
         .then(function() {
             expect("pass").to.equal("pass");
             done();

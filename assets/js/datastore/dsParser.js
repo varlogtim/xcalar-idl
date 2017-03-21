@@ -698,7 +698,6 @@ window.DSParser = (function($, DSParser) {
         var format = getFormat();
         var $box = $("#previewModeBox");
         var $delimBox = $("#delimitersBox");
-
         if (!previewMeta || !previewMeta.meta) {
             console.error("error case");
             handlePreviewModeError(ErrTStr.Unknown);
@@ -815,7 +814,7 @@ window.DSParser = (function($, DSParser) {
         if (typeof error === "object") {
             error = JSON.stringify(error);
         }
-        $box.find(".boxContent").text(error);
+        $box.find(".boxBody .content").text(error);
     }
 
     function beautifier(url) {

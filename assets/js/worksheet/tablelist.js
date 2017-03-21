@@ -639,7 +639,7 @@ window.TableList = (function($, TableList) {
                     delete tableMap[tableName];
                 }
             }
-            setupOrphanedList(tableMap);
+            TblManager.setOrphanedList(tableMap);
             xcHelper.showRefreshIcon($('#orphanedTableListSection'));
 
             if (prettyPrint) {

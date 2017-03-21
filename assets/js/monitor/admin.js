@@ -88,7 +88,7 @@ window.Admin = (function($, Admin) {
             xcSessionStorage.setItem("adminName", Support.getUser());
         }
 
-        unloadHandler(false, true);
+        xcManager.unload(false, true);
     };
 
     Admin.userToAdmin = function() {
@@ -100,7 +100,7 @@ window.Admin = (function($, Admin) {
         xcSessionStorage.setItem("xcalar-username", adminName);
         xcSessionStorage.setItem("xcalar-fullUsername", adminName);
 
-        unloadHandler(false, true);
+        xcManager.unload(false, true);
     };
 
     Admin.showSupport = function() {

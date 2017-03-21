@@ -254,12 +254,12 @@ describe("WorkbookManager Test", function() {
             testWkbkName = xcHelper.randName("testWkbk");
             oldActiveWkbkId = WorkbookManager.getActiveWKBK();
 
-            oldRemoveUnload = removeUnloadPrompt;
+            oldRemoveUnload = xcManager.removeUnloadPrompt;
             oldReload = xcHelper.reload;
             // switch is slow, so use a fake one
             oldSwitch = XcalarSwitchToWorkbook;
             oldDeactive = XcalarDeactivateWorkbook;
-            removeUnloadPrompt = function() {};
+            xcManager.removeUnloadPrompt = function() {};
             xcHelper.reload = function() {};
             XcalarSwitchToWorkbook = function() {
                 return PromiseHelper.resolve();
@@ -506,7 +506,7 @@ describe("WorkbookManager Test", function() {
         });
 
         after(function() {
-            removeUnloadPrompt = oldRemoveUnload;
+            xcManager.removeUnloadPrompt = oldRemoveUnload;
             xcHelper.reload = oldReload;
             XcalarSwitchToWorkbook = oldSwitch;
             XcalarDeactivateWorkbook = oldDeactive;

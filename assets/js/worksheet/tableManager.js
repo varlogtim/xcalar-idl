@@ -242,6 +242,14 @@ window.TblManager = (function($, TblManager) {
         return (deferred.promise());
     };
 
+    TblManager.setOrphanedList = function(tableMap) {
+        var tables = [];
+        for (var table in tableMap) {
+            tables.push(table);
+        }
+        gOrphanTables = tables;
+    };
+
     /*
         Sets gTable meta data, specially for orphan table
     */

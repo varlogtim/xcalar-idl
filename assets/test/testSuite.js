@@ -106,7 +106,7 @@ window.TestSuite = (function($, TestSuite) {
         PromiseHelper.alwaysResolve(promise)
         .then(Support.releaseSession)
         .then(function() {
-            removeUnloadPrompt();
+            xcManager.removeUnloadPrompt();
             window.location.href = paths.testAbsolute;
         })
         .fail(function(error) {

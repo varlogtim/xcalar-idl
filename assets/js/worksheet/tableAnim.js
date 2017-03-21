@@ -56,7 +56,6 @@ window.TblAnim = (function($, TblAnim) {
             $(document).on('mousemove.onColResize', onColResize);
             gMouseStatus = "resizingCol";
 
-            
             var $table = rescol.$th.closest('.dataTable');
             var colNum = rescol.index;
             if (rescol.$th.hasClass("userHidden")) {

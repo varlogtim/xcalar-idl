@@ -271,7 +271,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
         })
         .then(function() {
             switchWorkbookAnimation();
-            removeUnloadPrompt();
+            xcManager.removeUnloadPrompt();
             activeWKBKId = wkbkId;
             xcHelper.reload();
             deferred.resolve();
@@ -427,7 +427,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
             return removeActiveWKBKKey();
         })
         .then(function() {
-            removeUnloadPrompt();
+            xcManager.removeUnloadPrompt();
             xcHelper.reload();
             deferred.resolve();
         })

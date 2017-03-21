@@ -62,7 +62,7 @@ describe("DSTable Test", function() {
                 assert.isTrue($dsTableContainer.hasClass("loading"));
 
                 var loadText = $dsTableContainer.find(".loadSection .text").text();
-                expect(loadText).to.equal("Please Wait");
+                expect(loadText).to.equal("Please wait");
                 done();
             })
             .fail(function() {

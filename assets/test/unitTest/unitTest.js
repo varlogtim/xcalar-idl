@@ -71,7 +71,7 @@ window.UnitTest = (function(UnitTest, $) {
             PromiseHelper.alwaysResolve(promise)
             .then(Support.releaseSession)
             .then(function() {
-                removeUnloadPrompt();
+                xcManager.removeUnloadPrompt();
                 window.location = paths.indexAbsolute;
             })
             .fail(function(error) {

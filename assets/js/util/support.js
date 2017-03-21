@@ -40,7 +40,7 @@ window.Support = (function(Support, $) {
         var deferred = jQuery.Deferred();
         var promise;
 
-        if (StartManager.getStatus() === SetupStatus.Fail) {
+        if (xcManager.getStatus() === SetupStatus.Fail) {
             // when setup fails and logout, should not commit
             // (the module even didn't setup yet)
             promise = PromiseHelper.resolve();

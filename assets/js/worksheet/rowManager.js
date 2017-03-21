@@ -82,9 +82,8 @@ window.RowManager = (function($, RowManager) {
                                                     direction);
             }
             TblFunc.moveFirstColumn();
-            
+
             var totalRowsStillNeeded = info.numRowsToAdd - info.numRowsAdded;
-               
             if (totalRowsStillNeeded > 0) {
                 var newStartIndex = startIndex + Math.max(1, jsonLen);
 
@@ -470,7 +469,7 @@ window.RowManager = (function($, RowManager) {
             info.missingRows = [];
         }
         info.missingRows.push(rowPosition + 1);
-        
+
         if (direction === RowDirection.Bottom) {
             info.$table.find('.tempRow').remove();
         } else {

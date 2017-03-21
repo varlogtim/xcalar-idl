@@ -47,7 +47,7 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
             heartBeat();
         }
 
-        StartManager.setup()
+        xcManager.setup()
         .then(function() {
             if (!runTest) {
                 if (!hasUser) {

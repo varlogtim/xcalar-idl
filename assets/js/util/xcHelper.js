@@ -1209,7 +1209,7 @@ window.xcHelper = (function($, xcHelper) {
                 $btn = $(html);
                 $btn.click(function() {
                     $(this).blur();
-                    unloadHandler();
+                    xcManager.unload();
                 });
 
         }

@@ -855,8 +855,6 @@ window.WSManager = (function($, WSManager) {
         setTimeout(function() {
             TblFunc.unhideOffScreenTables();
         },0);
-       
-
         // position sticky row column on visible tables
         TblFunc.moveFirstColumn();
 

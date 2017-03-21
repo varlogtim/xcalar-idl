@@ -307,7 +307,7 @@ window.SQL = (function($, SQL) {
     };
 
     SQL.backup = function() {
-        if (StartManager.isStart()) {
+        if (xcManager.isInSetup()) {
             // start up time error don't trigger backup
             // or it may overwrite old log backup
             return;
