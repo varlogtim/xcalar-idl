@@ -1,4 +1,4 @@
-describe("Schedule related Test", function() {
+describe.skip("Schedule related Test", function() {
     describe("Time related function Test", timeRelatedFunctionTest);
     describe("View related function Test", viewRelatedFunctionTest);
 });

@@ -483,10 +483,7 @@ window.OperationsView = (function($, OperationsView) {
                 val = gColPrefix + val;
             }
 
-            $li.closest(".hint").removeClass("openList").hide()
-                .siblings(".arg").val(val)
-                .closest(".dropDownList").removeClass("open");
-            checkIfStringReplaceNeeded();
+            applyArgSuggest($li, val);
         });
 
         addCastDropDownListener();
@@ -1134,49 +1131,70 @@ window.OperationsView = (function($, OperationsView) {
         return ($(b).text()) < ($(a).text()) ? 1 : -1;
     }
 
-    function argSuggest($input) {
-        var curVal = $input.val().trim();
-        var $ul = $input.siblings(".list");
-        var $allGroups = $activeOpSection.find('.group');
-        var groupIndex = $allGroups.index($ul.closest('.group'));
-        var argIndex = $ul.closest('.group').find('.list.hint').index($ul);
+    function getArgSuggestMenu($list) {
+        var $allGroups = $activeOpSection.find(".group");
+        var $group = $list.closest(".group");
+        var groupIndex = $allGroups.index($group);
+        var argIndex = $group.find(".list.hint").index($list);
+        // this should always exists, just taking precaution
+        if (suggestLists[groupIndex] && suggestLists[groupIndex][argIndex]) {
+            return suggestLists[groupIndex][argIndex];
+        } else {
+            console.error("cannot find menu");
+            return null;
+        }
+    }
+
+    function getArgSuggestLists(input) {
         var listLis = "";
-        var aggNameMatches;
-        var colNameMatches;
-        var allMatches;
+        // ignore if there are multiple cols
+        if (input.includes(",")) {
+            return listLis;
+        }
+
+        var aggNameMatches = getMatchingAggNames(input);
+        var colNameMatches = getMatchingColNames(input);
+        var allMatches = aggNameMatches.concat(colNameMatches);
         var count = 0;
 
-        // ignore if there are multiple cols
-        if (curVal.indexOf(",") === -1) {
-            aggNameMatches = getMatchingAggNames(curVal);
-            colNameMatches = getMatchingColNames(curVal);
-            allMatches = aggNameMatches.concat(colNameMatches);
-            for (var i = 0; i < allMatches.length; i++) {
-                listLis += '<li>' + allMatches[i] + '</li>';
-                count++;
-                if (count > listMax) {
-                    break;
-                }
+        for (var i = 0; i < allMatches.length; i++) {
+            listLis += "<li>" + allMatches[i] + "</li>";
+            count++;
+            if (count > listMax) {
+                break;
             }
         }
+        return listLis;
+    }
 
+    function argSuggest($input) {
+        var $list = $input.siblings(".list");
+        var menu = getArgSuggestMenu($list);
+        if (menu == null) {
+            return;
+        }
+
+        var input = $input.val().trim();
+        var listLis = getArgSuggestLists(input);
+
+        $list.find("ul").html(listLis);
         // should not suggest if the input val is already a column name
         if (listLis.length) {
-            $ul.find('ul').html(listLis);
-            $ul.addClass("openList").show();
-
-            // this should always exists, just taking precaution
-            if (suggestLists[groupIndex] &&
-                suggestLists[groupIndex][argIndex]) {
-                suggestLists[groupIndex][argIndex].showOrHideScrollers();
-            }
-        
-            $input.closest('.dropDownList').addClass('open');
-            positionDropdown($ul);
+            menu.showDropdowns();
+            positionDropdown($list);
         } else {
-            $ul.find('ul').empty().end().removeClass("openList").hide()
-            .closest(".dropDownList").removeClass("open");
+            menu.hideDropdowns();
         }
+    }
+
+    function applyArgSuggest($li, val) {
+        var $list = $li.closest(".list");
+        var menu = getArgSuggestMenu($list);
+        if (menu != null) {
+            menu.hideDropdowns();
+        }
+        $list.siblings(".arg").val(val);
+        checkIfStringReplaceNeeded();
     }
 
     function updateColNamesCache() {

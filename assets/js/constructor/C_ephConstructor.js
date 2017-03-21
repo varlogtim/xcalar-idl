@@ -2199,13 +2199,26 @@ MenuHelper.prototype = {
 
         return this;
     },
+    showDropdowns: function() {
+        var self = this;
+        var $sections = self.$container;
+        var $dropdown = $sections.hasClass("dropDownList")
+                        ? $sections
+                        : $sections.find(".dropDownList");
+        $dropdown.find(".list").addClass("openList").show();
+        $dropdown.addClass("open");
+        self.showOrHideScrollers();
+    },
     hideDropdowns: function() {
         var self = this;
-        var $sections = self.$container.find(".dropDownList");
-        $sections.find(".list").hide().removeClass("openList");
-        $sections.removeClass("open");
-        $(document).off('mousedown.closeDropDown' + self.id);
-        $(document).off('keydown.closeDropDown' + self.id);
+        var $sections = self.$container;
+        var $dropdown = $sections.hasClass("dropDownList")
+                        ? $sections
+                        : $sections.find(".dropDownList");
+        $dropdown.find(".list").hide().removeClass("openList");
+        $dropdown.removeClass("open");
+        $(document).off("mousedown.closeDropDown" + self.id);
+        $(document).off("keydown.closeDropDown" + self.id);
     },
     toggleList: function($curlDropDownList, openUpwards) {
         var self = this;

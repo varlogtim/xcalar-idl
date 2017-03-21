@@ -495,6 +495,7 @@ describe('OperationsView Test', function() {
                 $arg.trigger(fakeEvent.enter);
                 expect($("#statusBox").is(":visible")).to.be.true;
                 StatusBox.forceHide();
+                $list.parent().hide().removeClass("openList");
             });
 
             it("keypress enter on any input field except functionsInput should submit form", function(done) {
