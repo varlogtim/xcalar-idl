@@ -66,7 +66,7 @@ window.TblAnim = (function($, TblAnim) {
                 gTables[rescol.tableId].tableCols[colNum - 1].isMinimized = false;
             }
 
-            hideOffScreenTables({
+            TblFunc.hideOffScreenTables({
                 marginLeft: 0,
                 marginRight: rescol.startWidth
             });
@@ -93,7 +93,7 @@ window.TblAnim = (function($, TblAnim) {
         rescol.$th.outerWidth(newWidth);
         rescol.newWidth = newWidth;
 
-        moveTableTitles();
+        TblFunc.moveTableTitles();
         if (rescol.isDatastore) {
             rescol.$tableWrap.width(rescol.$dsTable.width());
                // size line divider to fit table
@@ -154,10 +154,10 @@ window.TblAnim = (function($, TblAnim) {
 
         // set timeout because unhiding is slow
         setTimeout(function() {
-            unhideOffScreenTables();
+            TblFunc.unhideOffScreenTables();
         }, 0);
 
-        moveTableDropdownBoxes();
+        TblFunc.moveTableDropdownBoxes();
 
         if (!isDatastore && wasResized) {
             SQL.add(SQLTStr.ResizeCol, {
@@ -189,7 +189,7 @@ window.TblAnim = (function($, TblAnim) {
             $(document).off('mousemove.checkColResize');
             $(document).off('mousemove.onColResize');
             $(document).off('mouseup.endColResize');
-            unhideOffScreenTables();
+            TblFunc.unhideOffScreenTables();
             xcHelper.reenableTextSelection();
             $('.xcTheadWrap').find('.dropdownBox').removeClass('dropdownBoxHidden');
             clearTimeout(gRescol.timer);    //prevent single-click action
@@ -274,7 +274,7 @@ window.TblAnim = (function($, TblAnim) {
             }
 
             $selectedCols.each(function() {
-                newColumnWidths.push(autosizeCol($(this), {
+                newColumnWidths.push(TblFunc.autosizeCol($(this), {
                     "dblClick": true,
                     "minWidth": minWidth,
                     "unlimitedWidth": true,
@@ -341,7 +341,7 @@ window.TblAnim = (function($, TblAnim) {
             progCol.sizedToHeader = widthState;
         }
         var newWidthState = progCol.sizedToHeader;
-        matchHeaderSizes($table);
+        TblFunc.matchHeaderSizes($table);
 
         SQL.add(SQLTStr.ResizeCol, {
             "operation": SQLOps.DragResizeTableCol,
@@ -389,7 +389,7 @@ window.TblAnim = (function($, TblAnim) {
             $(document).on('mousemove.onRowResize', onRowResize);
             gMouseStatus = "rowMove";
 
-            hideOffScreenTables();
+            TblFunc.hideOffScreenTables();
             // var el = rowInfo.$el;
             var $table = rowInfo.$table;
 
@@ -476,7 +476,7 @@ window.TblAnim = (function($, TblAnim) {
 
         // settimeout because unhiding is slow
         setTimeout(function() {
-            unhideOffScreenTables();
+            TblFunc.unhideOffScreenTables();
         }, 0);
 
 
@@ -632,7 +632,7 @@ window.TblAnim = (function($, TblAnim) {
             marginLeft: mfScrollLeft - leftLimit,
             marginRight: rightLimit - mfScrollLeft
         };
-        hideOffScreenTables(hideOptions);
+        TblFunc.hideOffScreenTables(hideOptions);
 
         var scrollLeft;
         $mainFrame.on('scroll.draglocked', function() {
@@ -644,8 +644,8 @@ window.TblAnim = (function($, TblAnim) {
                 $mainFrame.scrollLeft(rightLimit);
             }
 
-            moveTableTitles();
-            moveFirstColumn();
+            TblFunc.moveTableTitles();
+            TblFunc.moveFirstColumn();
         });
 
         // create a fake transparent column by cloning
@@ -734,7 +734,7 @@ window.TblAnim = (function($, TblAnim) {
         }
 
         setTimeout(function() {
-            unhideOffScreenTables();
+            TblFunc.unhideOffScreenTables();
         }, 0);
 
     }
@@ -1033,8 +1033,9 @@ window.TblAnim = (function($, TblAnim) {
 
         if (dragInfo.tableIndex !== dragInfo.originalIndex) {
             // reorder only if order changed
-            reorderAfterTableDrop(dragInfo.tableId, dragInfo.originalIndex,
-                                    dragInfo.tableIndex);
+            TblFunc.reorderAfterTableDrop(dragInfo.tableId,
+                                          dragInfo.originalIndex,
+                                          dragInfo.tableIndex);
         }
         TblManager.alignTableEls();
         $('.xcTheadWrap').find('.dropdownBox').removeClass('dropdownBoxHidden');

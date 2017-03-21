@@ -373,9 +373,9 @@ describe('TableMenu Test', function() {
             });
 
             it('moveLeft', function() {
-                var cachedFunc = reorderAfterTableDrop;
+                var cachedFunc = TblFunc.reorderAfterTableDrop;
                 var called = false;
-                reorderAfterTableDrop = function(tId, srcIdx, desIdx) {
+                TblFunc.reorderAfterTableDrop = function(tId, srcIdx, desIdx) {
                     expect(tId).to.equal(tableId);
                     expect(desIdx).to.equal(srcIdx - 1);
                     called = true;
@@ -388,13 +388,13 @@ describe('TableMenu Test', function() {
                 $tableSubMenu.find('.moveLeft').trigger(fakeEvent.mouseup);
                 expect(called).to.be.true;
 
-                reorderAfterTableDrop = cachedFunc;
+                TblFunc.reorderAfterTableDrop = cachedFunc;
             });
 
             it('moveRight', function() {
-                var cachedFunc = reorderAfterTableDrop;
+                var cachedFunc = TblFunc.reorderAfterTableDrop;
                 var called = false;
-                reorderAfterTableDrop = function(tId, srcIdx, desIdx) {
+                TblFunc.reorderAfterTableDrop = function(tId, srcIdx, desIdx) {
                     expect(tId).to.equal(tableId);
                     expect(desIdx).to.equal(srcIdx + 1);
                     called = true;
@@ -407,7 +407,7 @@ describe('TableMenu Test', function() {
                 $tableSubMenu.find('.moveRight').trigger(fakeEvent.mouseup);
                 expect(called).to.be.true;
 
-                reorderAfterTableDrop = cachedFunc;
+                TblFunc.reorderAfterTableDrop = cachedFunc;
             });
 
             it('sortForward by name', function(done) {

@@ -35,7 +35,7 @@ window.StatusMessage = (function($, StatusMessage) {
             });
         });
 
-        addMenuBehaviors($statusMenu);
+        xcMenu.add($statusMenu);
         $statusMenu.on("mouseup", "li", function() {
             var $li = $(this);
             if ($li.hasClass("activeWS")) {

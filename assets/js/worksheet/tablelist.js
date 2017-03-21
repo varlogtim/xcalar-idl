@@ -1530,7 +1530,7 @@ window.TableList = (function($, TableList) {
                 var tableId = xcHelper.parseTableId($lastTable);
                 $mainFrame.animate({scrollLeft: leftPos}, 500).promise()
                 .then(function(){
-                    focusTable(tableId);
+                    TblFunc.focusTable(tableId);
                 });
             }
         }

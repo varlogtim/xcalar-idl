@@ -1,9 +1,9 @@
 window.TblMenu = (function(TblMenu, $) {
     TblMenu.setup = function() {
         try {
-            addMenuBehaviors($('#tableMenu'));
-            addMenuBehaviors($('#colMenu'));
-            addMenuBehaviors($('#cellMenu'));
+            xcMenu.add($('#tableMenu'));
+            xcMenu.add($('#colMenu'));
+            xcMenu.add($('#cellMenu'));
             addTableMenuActions();
             addColMenuActions();
             addPrefixColumnMenuActions();
@@ -207,7 +207,7 @@ window.TblMenu = (function(TblMenu, $) {
 
                 $input.val("");
                 $input.blur();
-                closeMenu($allMenus);
+                xcMenu.close($allMenus);
             }
         });
 
@@ -217,7 +217,7 @@ window.TblMenu = (function(TblMenu, $) {
             }
             var tableId = $tableMenu.data('tableId');
             var curIndex = WSManager.getTableRelativePosition(tableId);
-            reorderAfterTableDrop(tableId, curIndex, curIndex - 1, {
+            TblFunc.reorderAfterTableDrop(tableId, curIndex, curIndex - 1, {
                 moveHtml: true
             });
         });
@@ -228,7 +228,7 @@ window.TblMenu = (function(TblMenu, $) {
             }
             var tableId = $tableMenu.data('tableId');
             var curIndex = WSManager.getTableRelativePosition(tableId);
-            reorderAfterTableDrop(tableId, curIndex, curIndex + 1, {
+            TblFunc.reorderAfterTableDrop(tableId, curIndex, curIndex + 1, {
                 moveHtml: true
             });
         });
@@ -363,7 +363,7 @@ window.TblMenu = (function(TblMenu, $) {
 
                 ColManager.renameCol(colNum, tableId, colName);
                 $input.val("").blur();
-                closeMenu($allMenus);
+                xcMenu.close($allMenus);
             }
         });
 
@@ -428,7 +428,7 @@ window.TblMenu = (function(TblMenu, $) {
                 decimals.push(decimal);
             }
             ColManager.roundToFixed(colNums, tableId, decimals);
-            closeMenu($allMenus);
+            xcMenu.close($allMenus);
         });
 
         $subMenu.on('mouseup', '.changeRound.default', function(event) {
@@ -516,7 +516,7 @@ window.TblMenu = (function(TblMenu, $) {
                 ColManager.splitCol(colNum, tableId, delim, numColToGet, true);
                 $delimInput.val("").blur();
                 $numInput.val("").blur();
-                closeMenu($allMenus);
+                xcMenu.close($allMenus);
             }
         });
 
@@ -929,7 +929,7 @@ window.TblMenu = (function(TblMenu, $) {
 
             $wrap.addClass("selected").siblings().removeClass("selected");
             TPrefix.markColor(prefix, color);
-            closeMenu($prefixColorMenu);
+            xcMenu.close($prefixColorMenu);
         });
     }
 

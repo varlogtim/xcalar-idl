@@ -379,7 +379,7 @@ window.StartManager = (function(StartManager, $) {
 
     function setupUserBox() {
         var $menu = $("#userMenu");
-        addMenuBehaviors($menu);
+        xcMenu.add($menu);
 
         $("#userNameArea").click(function() {
             var $target = $(this);
@@ -729,7 +729,7 @@ window.StartManager = (function(StartManager, $) {
                 otherResize = true;
             } else {
                 otherResize = false;
-                moveTableTitles();
+                TblFunc.moveTableTitles();
             }
             clearTimeout(winResizeTimer);
             winResizeTimer = setTimeout(winResizeStop, 100);
@@ -744,7 +744,7 @@ window.StartManager = (function(StartManager, $) {
                     RowScroller.genFirstVisibleRowNum();
                     RowScroller.updateViewRange(gActiveTableId);
                 }
-                moveTableDropdownBoxes();
+                TblFunc.moveTableDropdownBoxes();
                 TblManager.adjustRowFetchQuantity();
                 DagPanel.setScrollBarId($(window).height());
                 DagPanel.adjustScrollBarPositionAndSize();
@@ -781,7 +781,7 @@ window.StartManager = (function(StartManager, $) {
                     $('.menu').hide();
                 }
 
-                removeMenuKeyboardNavigation();
+                xcMenu.removeKeyboardNavigation();
                 $(".highlightBox").remove();
                 // table head's dropdown has position issue if not hide
                 $('.xcTheadWrap').find('.dropdownBox')
@@ -793,15 +793,15 @@ window.StartManager = (function(StartManager, $) {
             clearTimeout(mainFrameScrollTimer);
             mainFrameScrollTimer = setTimeout(mainFrameScrollingStop, 300);
             if (!scrollPrevented) {
-                moveFirstColumn();
-                moveTableTitles();
+                TblFunc.moveFirstColumn();
+                TblFunc.moveTableTitles();
             }
         });
 
         function mainFrameScrollingStop() {
             $('.xcTheadWrap').find('.dropdownBox')
                              .removeClass('dropdownBoxHidden');
-            moveTableDropdownBoxes();
+            TblFunc.moveTableDropdownBoxes();
             mainFrameScrolling = false;
             scrollPrevented = false;
         }
@@ -825,7 +825,7 @@ window.StartManager = (function(StartManager, $) {
                             $target.hasClass("highlightBox");
             if (!clickable && $target.closest('.dropdownBox').length === 0) {
                 $('.menu').hide();
-                removeMenuKeyboardNavigation();
+                xcMenu.removeKeyboardNavigation();
                 $('.highlightBox').remove();
             }
 
@@ -911,7 +911,7 @@ window.StartManager = (function(StartManager, $) {
 
         $(window).blur(function() {
             $('.menu').hide();
-            removeMenuKeyboardNavigation();
+            xcMenu.removeKeyboardNavigation();
             StatusBox.forceHide();
         });
 
@@ -1038,7 +1038,7 @@ window.StartManager = (function(StartManager, $) {
             if (isInMainFrame && xcHelper.isTableInScreen(tableId)) {
                 if (gIsTableScrolling ||
                     $("#modalBackground").is(":visible") ||
-                    !isTableScrollable(tableId)) {
+                    !TblFunc.isTableScrollable(tableId)) {
                     // not trigger table scroll, but should return true
                     // to prevent table's natural scroll
                     return true;
@@ -1100,7 +1100,7 @@ window.StartManager = (function(StartManager, $) {
                 }
 
                 $(".menu").hide();
-                removeMenuKeyboardNavigation();
+                xcMenu.removeKeyboardNavigation();
                 gMouseEvents.setMouseDownTarget(null);
                 $rowInput.val(rowToGo).trigger(fakeEvent.enter);
 
@@ -1124,7 +1124,7 @@ window.StartManager = (function(StartManager, $) {
 
                 event.preventDefault();
                 $('.menu').hide();
-                removeMenuKeyboardNavigation();
+                xcMenu.removeKeyboardNavigation();
                 $('.highlightBox').remove();
 
                 if (event.which === keyCode.Z) {

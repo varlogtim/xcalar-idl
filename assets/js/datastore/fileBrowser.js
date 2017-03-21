@@ -147,7 +147,7 @@ window.FileBrowser = (function($, FileBrowser) {
         var $sortMenu = $("#fileBrowserSortMenu");
         var $sortSection = $("#fileBrowserSort");
 
-        addMenuBehaviors($sortMenu);
+        xcMenu.add($sortMenu);
         $sortSection.on({
             "mouseup": function(event){
                 if (event.which !== 1) {
@@ -1379,7 +1379,7 @@ window.FileBrowser = (function($, FileBrowser) {
 
     function addBrowserMenuListener() {
         var $fileBrowserMenu = $("#fileBrowserMenu");
-        addMenuBehaviors($fileBrowserMenu);
+        xcMenu.add($fileBrowserMenu);
 
         $fileBrowserMain[0].oncontextmenu = function(event) {
             var $target = $(event.target);

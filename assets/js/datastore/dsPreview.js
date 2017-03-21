@@ -1713,7 +1713,7 @@ window.DSPreview = (function($, DSPreview) {
                 headerText = $tds.eq(i).text();
                 $th = $headers.eq(i).parent();
                 width = Math.max(gNewCellWidth,
-                                 getTextWidth($th, headerText) + 8);
+                                 xcHelper.getTextWidth($th, headerText) + 8);
                 $th.width(width);
                 $headers.eq(i).find(".text").html(headerHtml);
             }
@@ -1902,8 +1902,10 @@ window.DSPreview = (function($, DSPreview) {
                         '<div class="header"></div>' +
                     '</th>';
         for (var i = 0; i < colLen; i++) {
-            var width = Math.max(gNewCellWidth + 5,
-               getTextWidth(null, headers[i], {defaultHeaderStyle: true}) - 36);
+            var cellWidth = xcHelper.getTextWidth(null, headers[i], {
+                "defaultHeaderStyle": true
+            }) - 36;
+            var width = Math.max(gNewCellWidth + 5, cellWidth);
             html += '<th style="width:' + width + 'px;">' +
                         '<div class="header">' +
                             colGrabTemplate +

@@ -152,6 +152,58 @@ window.xcHelper = (function($, xcHelper) {
         return (type);
     };
 
+    /*
+     * options:
+     *  defaultHeaderStyle: when set true, use the default table header style
+     */
+    xcHelper.getTextWidth = function($el, val, options) {
+        $el = $el || $();
+        options = options || {};
+
+        var defaultStyle;
+        if (options.defaultHeaderStyle) {
+            defaultStyle = { // styling we use for column header
+                "fontFamily": "'Open Sans', 'Trebuchet MS', Arial, sans-serif",
+                "fontSize": "13px",
+                "fontWeight": "600",
+                "padding": 48
+            };
+        } else {
+            defaultStyle = {"padding": 0};
+        }
+
+        var text;
+        if (val === undefined) {
+            if ($el.is("input")) {
+                text = $.trim($el.val() + " ");
+            } else {
+                if ($el.hasClass("truncated")) {
+                    $el = $el.find(".displayedData");
+                }
+                text = $.trim($el.text());
+            }
+        } else {
+            text = val;
+        }
+
+        // XXX why this part need escape?
+        text = xcHelper.escapeHTMLSepcialChar(text);
+
+        var $tempDiv = $("<div>" + text + "</div>");
+        $tempDiv.css({
+            "font-family": defaultStyle.fontFamily || $el.css("font-family"),
+            "font-size": defaultStyle.fontSize || $el.css("font-size"),
+            "font-weight": defaultStyle.fontWeight || $el.css("font-weight"),
+            "position": "absolute",
+            "display": "inline-block",
+            "white-space": "pre"
+        }).appendTo($("body"));
+
+        var width = $tempDiv.width() + defaultStyle.padding;
+        $tempDiv.remove();
+        return width;
+    };
+
     xcHelper.getPreviewSize = function(previewSize, unit) {
         if (previewSize === "" || previewSize == null) {
             previewSize = gMaxSampleSize;
@@ -623,7 +675,7 @@ window.xcHelper = (function($, xcHelper) {
                 //     cellWidth = options.width;
                 // } else
                 if (options.resize) {
-                    cellWidth = getTextWidth($(), colName, widthOption);
+                    cellWidth = xcHelper.getTextWidth($(), colName, widthOption);
                 } else {
                     cellWidth = copiedCols[colNum - 1].width;
                 }
@@ -672,8 +724,8 @@ window.xcHelper = (function($, xcHelper) {
             prefixText = CommonTxtTstr.Immediates;
         }
 
-        var width = getTextWidth(null, colName, widthOption);
-        var prefixW = getTextWidth(null, prefixText, widthOption);
+        var width = xcHelper.getTextWidth(null, colName, widthOption);
+        var prefixW = xcHelper.getTextWidth(null, prefixText, widthOption);
 
         return Math.max(width, prefixW);
     };
@@ -1392,7 +1444,7 @@ window.xcHelper = (function($, xcHelper) {
             $('#dagWrap-' + tableId).addClass('locked notSelected')
                                     .removeClass('selected');
 
-            moveTableTitles();
+            TblFunc.moveTableTitles();
 
             // prevent vertical scrolling on the table
             var $tbody = $tableWrap.find('.xcTbodyWrap');
@@ -1534,8 +1586,8 @@ window.xcHelper = (function($, xcHelper) {
         }
 
         var inputText = $input.val().substring(0, currentPos);
-        var textWidth = getTextWidth($input, inputText);
-        var newValWidth = getTextWidth($input, newVal);
+        var textWidth = xcHelper.getTextWidth($input, inputText);
+        var newValWidth = xcHelper.getTextWidth($input, newVal);
         var inputWidth = $input.width();
         var widthDiff = textWidth - inputWidth;
         if (widthDiff > 0) {
@@ -1573,7 +1625,7 @@ window.xcHelper = (function($, xcHelper) {
             WSManager.switchWS(wsId);
         }
 
-        focusTable(tableId);
+        TblFunc.focusTable(tableId);
 
         options = options || {};
 
@@ -1666,16 +1718,17 @@ window.xcHelper = (function($, xcHelper) {
         var leftPosition = currentScrollPosition + columnOffset;
         var scrollPosition = leftPosition - ((mainFrameWidth - colWidth) / 2);
 
-        focusTable(tableId);
+        TblFunc.focusTable(tableId);
         $th.find('.flex-mid').mousedown();
 
         if (animate && !gMinModeOn) {
-            $('#mainFrame').animate({scrollLeft: scrollPosition}, 500,
-                                function() {
-                                    focusTable(tableId);
-                                    TblManager.alignTableEls();
-                                    xcHelper.removeSelectionRange();
-                                });
+            $('#mainFrame').animate({
+                scrollLeft: scrollPosition
+            }, 500, function() {
+                TblFunc.focusTable(tableId);
+                TblManager.alignTableEls();
+                xcHelper.removeSelectionRange();
+            });
         } else {
             $('#mainFrame').scrollLeft(scrollPosition);
             TblManager.alignTableEls();
@@ -2893,16 +2946,16 @@ window.xcHelper = (function($, xcHelper) {
             options = {marginRight: openOffset};
             menuOffset *= -1;
         }
-        hideOffScreenTables(options);
+        TblFunc.hideOffScreenTables(options);
         $('#mainFrame').addClass('scrollLocked');
         $('#dagScrollBarWrap').addClass('xc-hidden');
-        moveTableTitles(null, {
+        TblFunc.moveTableTitles(null, {
             "offset": menuOffset,
             "menuAnimating": true,
             "animSpeed": menuAnimTime
         });
         setTimeout(function() {
-            unhideOffScreenTables();
+            TblFunc.unhideOffScreenTables();
             TblManager.alignTableEls();
             $('#mainFrame').removeClass('scrollLocked');
             $('#dagScrollBarWrap').removeClass('xc-hidden');
@@ -3046,7 +3099,7 @@ window.xcHelper = (function($, xcHelper) {
         $('.menu .selected').removeClass('selected');
         $(".leftColMenu").removeClass("leftColMenu");
         $('.tooltip').hide();
-        removeMenuKeyboardNavigation();
+        xcMenu.removeKeyboardNavigation();
         $menu.removeData("rowNum");
 
         if (typeof options.callback === "function") {
@@ -3059,7 +3112,7 @@ window.xcHelper = (function($, xcHelper) {
                                           menuId, tableId, options);
 
         if (menuHelperResult === "closeMenu") {
-            closeMenu($allMenus);
+            xcMenu.close($allMenus);
             return;
         }
 
@@ -3105,7 +3158,7 @@ window.xcHelper = (function($, xcHelper) {
         positionAndShowMenu(menuId, $menu, $dropdownIcon, options);
         var navOptions = {};
         navOptions.allowSelection = options.allowSelection;
-        addMenuKeyboardNavigation($menu, $subMenu, navOptions);
+        xcMenu.addKeyboardNavigation($menu, $subMenu, navOptions);
     };
 
     /*

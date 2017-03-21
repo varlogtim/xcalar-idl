@@ -1120,7 +1120,7 @@ window.XIApi = (function(XIApi, $) {
                                     var widthOptions = {
                                         defaultHeaderStyle: true
                                     };
-                                    cellWidth = getTextWidth(null,
+                                    cellWidth = xcHelper.getTextWidth(null,
                                                 lRename[j].new,
                                                 widthOptions);
                                     lCols[colNum].width = cellWidth;
@@ -1154,7 +1154,7 @@ window.XIApi = (function(XIApi, $) {
                                     var widthOptions = {
                                         defaultHeaderStyle: true
                                     };
-                                    cellWidth = getTextWidth(null,
+                                    cellWidth = xcHelper.getTextWidth(null,
                                                 rRename[j].new,
                                                 widthOptions);
                                     rCols[colNum].width = cellWidth;

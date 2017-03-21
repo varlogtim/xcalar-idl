@@ -26,7 +26,6 @@ window.BottomMenu = (function($, BottomMenu) {
     BottomMenu.clear = function() {
         UDF.clear();
         SQL.clear();
-        // CLIBox.clear();
     };
 
     BottomMenu.close = function(topMenuOpening) {

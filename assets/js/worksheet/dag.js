@@ -389,12 +389,12 @@ window.DagPanel = (function($, DagPanel) {
 
     function setupDagTableDropdown() {
         var $menu = $dagPanel.find('.dagTableDropDown');
-        addMenuBehaviors($menu);
+        xcMenu.add($menu);
         dagTableDropDownActions($menu);
 
         $dagPanel.on('click', '.dagTable:not(.dataStore)', function(event) {
             $('.menu').hide().removeClass('leftColMenu');
-            removeMenuKeyboardNavigation();
+            xcMenu.removeKeyboardNavigation();
             $('#dagSchema').hide();
             var $dagTable = $(this).closest('.dagTable');
             if (!$dagTable.hasClass(DgDagStateTStr[5])) {
@@ -509,13 +509,13 @@ window.DagPanel = (function($, DagPanel) {
             }
 
             positionAndShowDagTableDropdown($dagTable, $menu, $(event.target));
-            addMenuKeyboardNavigation($menu);
+            xcMenu.addKeyboardNavigation($menu);
         });
     }
 
     function setupRightClickDropdown() {
         var $menu = $dagPanel.find('.rightClickDropDown');
-        addMenuBehaviors($menu);
+        xcMenu.add($menu);
         addRightClickActions($menu);
 
         $dagPanel[0].oncontextmenu = function(e) {
@@ -535,7 +535,7 @@ window.DagPanel = (function($, DagPanel) {
                                         .data('tablename');
                 $menu.data('tableName', tableName);
                 positionAndShowRightClickDropdown(e, $menu);
-                addMenuKeyboardNavigation($menu);
+                xcMenu.addKeyboardNavigation($menu);
                 return false;
             }
         };
@@ -2719,7 +2719,7 @@ window.Dag = (function($, Dag) {
                 }
                 if ($('.menu').is(':visible')) {
                     $('.menu').hide();
-                    removeMenuKeyboardNavigation();
+                    xcMenu.removeKeyboardNavigation();
                 }
                 vertScrolling = true;
                 winHeight = $(window).height();
@@ -2750,7 +2750,7 @@ window.Dag = (function($, Dag) {
                 DagPanel.setScrollBarId(winHeight);
                 if ($('.menu').is(':visible')) {
                     $('.menu').hide();
-                    removeMenuKeyboardNavigation();
+                    xcMenu.removeKeyboardNavigation();
                 }
             }
             clearInterval(horzScrollingTimeout);

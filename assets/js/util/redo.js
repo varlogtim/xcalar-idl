@@ -228,7 +228,7 @@ window.Redo = (function($, Redo) {
         ColManager.renameCol(options.colNum, options.tableId, options.newName);
         var $th = $('#xcTable-' + options.tableId)
                     .find('th.col' + options.colNum);
-        highlightColumn($th);
+        TblManager.highlightColumn($th);
         return PromiseHelper.resolve(null);
     };
 
@@ -316,8 +316,8 @@ window.Redo = (function($, Redo) {
 
     redoFuncs[SQLOps.ReorderTable] = function(options) {
         focusTableHelper(options);
-        reorderAfterTableDrop(options.tableId, options.srcIndex, options.desIndex,
-                                {moveHtml: true});
+        TblFunc.reorderAfterTableDrop(options.tableId, options.srcIndex,
+                                      options.desIndex, {moveHtml: true});
         return PromiseHelper.resolve(null);
     };
 
@@ -412,7 +412,7 @@ window.Redo = (function($, Redo) {
 
     function focusTableHelper(options) {
         if (options.tableId !== gActiveTableId) {
-            focusTable(options.tableId, true);
+            TblFunc.focusTable(options.tableId, true);
         }
     }
 

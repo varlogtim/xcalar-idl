@@ -408,7 +408,7 @@ window.Shortcuts = (function($, Shortcuts) {
                     '</div>'
         $('#dfgPanelSwitch').before(html);
 
-        addMenuBehaviors($('#shortcutMenu'));
+        xcMenu.add($('#shortcutMenu'));
         addMenuActions();
 
         $('#shortcutMenuIcon').click(function(){

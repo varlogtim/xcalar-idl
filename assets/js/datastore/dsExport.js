@@ -26,7 +26,7 @@ window.DSExport = (function($, DSExport) {
 
         setupDropdowns();
         setupGridMenu();
-        addMenuBehaviors($gridMenu);
+        xcMenu.add($gridMenu);
 
         $("#dsExport-refresh").click(function() {
             DSExport.refresh();

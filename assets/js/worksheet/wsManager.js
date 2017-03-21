@@ -853,12 +853,12 @@ window.WSManager = (function($, WSManager) {
         // offscreenTables were hidden for performance reasons. Use settimeout
         // so panel switch is smoother, then reveal offscreen tables
         setTimeout(function() {
-            unhideOffScreenTables();
+            TblFunc.unhideOffScreenTables();
         },0);
        
 
         // position sticky row column on visible tables
-        moveFirstColumn();
+        TblFunc.moveFirstColumn();
 
         //vertically align any locked table icons
         var mainFrameHeight = $('#mainFrame').height();
@@ -876,7 +876,7 @@ window.WSManager = (function($, WSManager) {
         });
 
         // make table undraggable if only one in worksheet
-        checkTableDraggable();
+        TblFunc.checkTableDraggable();
 
         // show dataflow groups corresponding to current worksheet
         DagPanel.focusOnWorksheet(activeWorksheet);
@@ -888,7 +888,7 @@ window.WSManager = (function($, WSManager) {
             $('#dagScrollBarWrap').hide();
             if ($curActiveTables.length > 0) {
                 $curActiveTables.find('.xcTable:visible').each(function() {
-                    matchHeaderSizes($(this));
+                    TblFunc.matchHeaderSizes($(this));
                 });
             }
         } else {
@@ -896,24 +896,24 @@ window.WSManager = (function($, WSManager) {
 
             if (tableId != null) {
                 isFocus = true;
-                focusTable(tableId);
+                TblFunc.focusTable(tableId);
             }
             $curActiveTables.find('.xcTable:visible').each(function() {
                 var $table = $(this);
-                matchHeaderSizes($table);
+                TblFunc.matchHeaderSizes($table);
             });
 
             if (!isFocus) {
                 var tableIdToFocus;
                 if ($curActiveTables.find('.tblTitleSelected').length === 0) {
                     tableIdToFocus = $curActiveTables.eq(0).data('id');
-                    focusTable(tableIdToFocus);
+                    TblFunc.focusTable(tableIdToFocus);
                 } else {
                     var $focusedTable = $curActiveTables
                                          .find('.tblTitleSelected')
                                          .closest('.xcTableWrap');
                     tableIdToFocus = $focusedTable.data('id');
-                    focusTable(tableIdToFocus);
+                    TblFunc.focusTable(tableIdToFocus);
                 }
             }
         }
@@ -1172,7 +1172,7 @@ window.WSManager = (function($, WSManager) {
 
     function setupWorksheetMenu() {
         var $tabMenu = $("#worksheetTabMenu");
-        addMenuBehaviors($tabMenu);
+        xcMenu.add($tabMenu);
 
         $workSheetTabs[0].oncontextmenu = function(event) {
             var $target = $(event.target).closest(".worksheetTab");

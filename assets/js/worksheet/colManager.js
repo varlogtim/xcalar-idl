@@ -100,9 +100,9 @@ window.ColManager = (function($, ColManager) {
                                        noAnimate));
         }
         if (gMinModeOn || noAnimate) {
-            moveTableTitles($table.closest('.xcTableWrap'));
+            TblFunc.moveTableTitles($table.closest('.xcTableWrap'));
         } else {
-            moveTableTitlesAnimated(tableId, tableWidth, colWidths, 200);
+            TblFunc.moveTableTitlesAnimated(tableId, tableWidth, colWidths, 200);
         }
 
         FnBar.clear(true);
@@ -565,7 +565,7 @@ window.ColManager = (function($, ColManager) {
 
         $editableHead.val(newName).attr("value", newName);
         if (!keepEditable && curCol.sizedToHeader) {
-            autosizeCol($th, {
+            TblFunc.autosizeCol($th, {
                 "dblClick": true,
                 "minWidth": 17,
                 "includeHeader": true
@@ -934,14 +934,14 @@ window.ColManager = (function($, ColManager) {
         });
 
         if (!gMinModeOn) {
-            moveTableTitlesAnimated(tableId, tableWidth, widthDiff, 250);
+            TblFunc.moveTableTitlesAnimated(tableId, tableWidth, widthDiff, 250);
         }
 
         xcHelper.removeSelectionRange();
 
         PromiseHelper.when.apply(window, promises)
         .done(function() {
-            matchHeaderSizes($table);
+            TblFunc.matchHeaderSizes($table);
             SQL.add(SQLTStr.MinimizeCols, {
                 "operation": SQLOps.MinimizeCols,
                 "tableName": table.getName(),
@@ -999,12 +999,12 @@ window.ColManager = (function($, ColManager) {
         });
 
         if (!gMinModeOn && !noAnim) {
-            moveTableTitlesAnimated(tableId, tableWidth, -widthDiff);
+            TblFunc.moveTableTitlesAnimated(tableId, tableWidth, -widthDiff);
         }
 
         PromiseHelper.when.apply(window, promises)
         .done(function() {
-            matchHeaderSizes($table);
+            TblFunc.matchHeaderSizes($table);
             SQL.add(SQLTStr.MaximizeCols, {
                 "operation": SQLOps.MaximizeCols,
                 "tableName": table.getName(),
@@ -1561,7 +1561,7 @@ window.ColManager = (function($, ColManager) {
         }
         if ($th.hasClass("selectedCell") ||
             $th.hasClass("modalHighlighted")) {
-            highlightColumn($th, true);
+            TblManager.highlightColumn($th, true);
         }
         if (!progCol.isEmptyCol()) {
             $th.removeClass('newColumn');
@@ -1663,7 +1663,7 @@ window.ColManager = (function($, ColManager) {
 
         if (gMinModeOn || noAnimate) {
             TblManager.updateHeaderAndListInfo(tableId);
-            moveFirstColumn();
+            TblFunc.moveFirstColumn();
         } else {
             $th.width(10);
             if (!isMinimized) {
@@ -1672,8 +1672,8 @@ window.ColManager = (function($, ColManager) {
                     TblManager.updateHeaderAndListInfo(tableId);
                     $table.find('.col' + newColNum).removeClass('animating');
                 });
-                moveTableTitlesAnimated(tableId, $tableWrap.width(),
-                                    10 - width, 300);
+                TblFunc.moveTableTitlesAnimated(tableId, $tableWrap.width(),
+                                                10 - width, 300);
             } else {
                 TblManager.updateHeaderAndListInfo(tableId);
             }
@@ -1853,7 +1853,7 @@ window.ColManager = (function($, ColManager) {
 
         TblManager.pullRowsBulk(tableId, jsonData, rowNum, RowDirection.Bottom);
         TblManager.updateHeaderAndListInfo(tableId);
-        moveFirstColumn();
+        TblFunc.moveFirstColumn();
     }
 
     function delColHelper(colNum, tableId, multipleCols, colId, noAnim) {
@@ -1875,7 +1875,7 @@ window.ColManager = (function($, ColManager) {
                 }
 
                 var $table = $('#xcTable-' + tableId);
-                matchHeaderSizes($table);
+                TblFunc.matchHeaderSizes($table);
             } else {
                 table.removeCol(colId);
             }
@@ -1981,7 +1981,7 @@ window.ColManager = (function($, ColManager) {
                 $('.dagWrap.selected').removeClass('selected')
                                       .addClass('notSelected');
                 if (initialTableId && initialTableId === gActiveTableId) {
-                    focusTable(initialTableId, true);
+                    TblFunc.focusTable(initialTableId, true);
                 } else {
                     RowScroller.empty();
                 }

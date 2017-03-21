@@ -582,7 +582,7 @@ window.ExportView = (function($, ExportView) {
         $ths.addClass('exportable');
 
         $ths.on('mousedown.addColToExport', function(event) {
-            closeMenu($('#colMenu'));
+            xcMenu.close($('#colMenu'));
             if ($(event.target).hasClass('colGrab')) {
                 return;
             }

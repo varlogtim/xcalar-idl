@@ -103,7 +103,7 @@ window.SQL = (function($, SQL) {
             }
         });
 
-        addMenuBehaviors($sqlMenu);
+        xcMenu.add($sqlMenu);
         setupMenuActions();
 
         $textarea.parent().contextmenu(function(event) {

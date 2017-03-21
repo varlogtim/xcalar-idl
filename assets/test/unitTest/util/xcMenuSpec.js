@@ -1,4 +1,4 @@
-describe('TableFunctions', function() {
+describe('XcMenu Test', function() {
     var testDs;
     var tableName;
     var prefix;
@@ -84,7 +84,7 @@ describe('TableFunctions', function() {
         })
         .fail(done);
     });
-    describe("addMenuKeyboardNavigation should work", function() {
+    describe("xcMenu.addKeyboardNavigation should work", function() {
         it("Main menu scrolling should work.", function(){
             expect($colMenu.is(":visible")).to.be.false;
             $yelpSinceDragArea.contextmenu();

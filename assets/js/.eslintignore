@@ -4,3 +4,4 @@ sample-config.js
 loginAnim.js
 enums.js
 unused/*
+util/helpHashTags.js

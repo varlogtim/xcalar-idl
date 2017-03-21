@@ -158,8 +158,9 @@ window.JSONModal = (function($, JSONModal) {
             if (jsonTableId === tableId) {
                 var $td = $table.find('.row' + data.rownum).find('.jsonElement');
                 if ($td.length && !$td.find('.jsonModalHighlightBox').length) {
-                    highlightCell($td, jsonTableId, data.rownum, data.colnum,
-                                    false, {jsonModal: true});
+                    TblManager.highlightCell($td, jsonTableId,
+                                            data.rownum, data.colnum,
+                                            {jsonModal: true});
                 }
             }
         });
@@ -1487,8 +1488,9 @@ window.JSONModal = (function($, JSONModal) {
         $jsonWrap.data('isarray', isArray);
 
         if (isDataCol) {
-            highlightCell($jsonTd, tableId, rowNum, colNum, false,
-                            {jsonModal: true});
+            TblManager.highlightCell($jsonTd, tableId, rowNum, colNum, {
+                jsonModal: true
+            });
             var id = tableId + rowNum + colNum;
             if (refCounts[id] == null) {
                 refCounts[id] = 1;

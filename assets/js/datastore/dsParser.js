@@ -212,7 +212,7 @@ window.DSParser = (function($, DSParser) {
 
     function setupMenu() {
         var $menu = $("#parserMenu");
-        addMenuBehaviors($menu);
+        xcMenu.add($menu);
 
         $dataPreview.mouseup(function(event) {
 
@@ -932,7 +932,7 @@ window.DSParser = (function($, DSParser) {
 
         $rowNumCol.find(".rowSizer").height(pageNum * meta.pageHeight);
         if (scrollTop != null) {
-           $rowNumCol.scrollTop(scrollTop);
+            $rowNumCol.scrollTop(scrollTop);
         }
     }
 

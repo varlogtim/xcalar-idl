@@ -575,8 +575,8 @@ window.Undo = (function($, Undo) {
 
     undoFuncs[SQLOps.ReorderTable] = function(options) {
         focusTableHelper(options);
-        reorderAfterTableDrop(options.tableId, options.desIndex, options.srcIndex,
-                                {moveHtml: true});
+        TblFunc.reorderAfterTableDrop(options.tableId, options.desIndex,
+                                      options.srcIndex, {moveHtml: true});
         return PromiseHelper.resolve(null);
     };
 
@@ -816,7 +816,7 @@ window.Undo = (function($, Undo) {
         TblManager.pullRowsBulk(tableId, jsonData, rowNum, RowDirection.Bottom);
         TblManager.addColListeners($table, tableId);
         TblManager.updateHeaderAndListInfo(tableId);
-        moveFirstColumn();
+        TblFunc.moveFirstColumn();
     }
 
     // function focusOnActiveWS(options) {
@@ -829,7 +829,7 @@ window.Undo = (function($, Undo) {
 
     function focusTableHelper(options) {
         if (options.tableId !== gActiveTableId) {
-            focusTable(options.tableId, true);
+            TblFunc.focusTable(options.tableId, true);
         }
     }
 

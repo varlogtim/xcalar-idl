@@ -32,7 +32,7 @@ window.DS = (function ($, DS) {
 
         setupGridViewButtons();
         setupGrids();
-        addMenuBehaviors($gridMenu);
+        xcMenu.add($gridMenu);
         setupMenuActions();
     };
 

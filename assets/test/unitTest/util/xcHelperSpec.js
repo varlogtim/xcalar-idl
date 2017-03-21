@@ -120,6 +120,55 @@ describe('xcHelper Test', function() {
         expect(res).to.equal("mixed");
     });
 
+    it("xcHelper.getTextWidth should work", function() {
+        var res = xcHelper.getTextWidth(null, "test", {
+            "defaultHeaderStyle": true
+        });
+        expect(res).to.equal(72);
+
+        // case 2
+        res = xcHelper.getTextWidth(null, "test");
+        expect(res).to.equal(0);
+
+        // case 3
+        // this don't have the 48px padding
+        var $e = $("<input>");
+        $e.css({
+            "fontFamily": "'Open Sans', 'Trebuchet MS', Arial, sans-serif",
+            "fontSize": "13px",
+            "fontWeight": "600"
+        });
+        res = xcHelper.getTextWidth($e, "test");
+        expect(res).to.equal(24);
+
+        // case 4
+        $e.val("test");
+        res = xcHelper.getTextWidth($e);
+        expect(res).to.equal(24);
+
+        // case 5
+        $e = $("<div>test</div>");
+        $e.css({
+            "fontFamily": "'Open Sans', 'Trebuchet MS', Arial, sans-serif",
+            "fontSize": "13px",
+            "fontWeight": "600"
+        });
+        res = xcHelper.getTextWidth($e);
+        expect(res).to.equal(24);
+
+        // case 6
+        $e = $('<div class="truncated">' +
+                '<div class="displayedData">test</div>' +
+               '</div>');
+        $e.find(".displayedData").css({
+            "fontFamily": "'Open Sans', 'Trebuchet MS', Arial, sans-serif",
+            "fontSize": "13px",
+            "fontWeight": "600"
+        });
+        res = xcHelper.getTextWidth($e);
+        expect(res).to.equal(24);
+    });
+
     it('xcHelper.getPreviewSize should work', function() {
         expect(xcHelper.getPreviewSize("")).to.be.equal(gMaxSampleSize);
         expect(xcHelper.getPreviewSize(null)).to.equal(gMaxSampleSize);

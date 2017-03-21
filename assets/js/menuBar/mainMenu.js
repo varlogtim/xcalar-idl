@@ -259,7 +259,7 @@ window.MainMenu = (function($, MainMenu) {
             // hide off screen tables so that the next time we return to the
             // workspace panel, the switch is quicker because we have less html
             // to render. WSManager.focusOnWorksheet() will reveal hidden tables
-            hideOffScreenTables();
+            TblFunc.hideOffScreenTables();
         }
         $('.mainPanel').removeClass('active');
         var curTab = $curTab.attr('id');

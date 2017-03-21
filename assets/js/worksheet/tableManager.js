@@ -110,7 +110,7 @@ window.TblManager = (function($, TblManager) {
                     if ($('.xcTableWrap.worksheet-' + wsNum).
                                        find('.tblTitleSelected').length === 0) {
                         var tableId = xcHelper.getTableId(newTableName);
-                        focusTable(tableId);
+                        TblFunc.focusTable(tableId);
                     }
                 }
                 deferred.resolve(newTableName);
@@ -229,11 +229,11 @@ window.TblManager = (function($, TblManager) {
                 TableList.removeTable(table.getName(), TableType.Orphan);
             }
             if ($('.xcTable:visible').length === 1) {
-                focusTable(tableId);
+                TblFunc.focusTable(tableId);
             }
 
             // disallow dragging if only 1 table in worksheet
-            checkTableDraggable();
+            TblFunc.checkTableDraggable();
 
             deferred.resolve();
         })
@@ -344,7 +344,7 @@ window.TblManager = (function($, TblManager) {
         TblManager.alignTableEls();
 
         // disallow dragging if only 1 table in worksheet
-        checkTableDraggable();
+        TblFunc.checkTableDraggable();
     };
 
     //options:
@@ -401,7 +401,7 @@ window.TblManager = (function($, TblManager) {
             TblManager.alignTableEls();
 
             // disallow dragging if only 1 table in worksheet
-            checkTableDraggable();
+            TblFunc.checkTableDraggable();
             deferred.resolve();
         })
         .fail(deferred.reject);
@@ -467,7 +467,7 @@ window.TblManager = (function($, TblManager) {
             TblManager.alignTableEls();
 
             // disallow dragging if only 1 table in worksheet
-            checkTableDraggable();
+            TblFunc.checkTableDraggable();
             deferred.resolve();
         })
         .fail(deferred.reject);
@@ -665,11 +665,11 @@ window.TblManager = (function($, TblManager) {
         addRowListeners($trs);
         TblManager.adjustRowHeights($trs, startIndex, tableId);
 
-        var idColWidth = getTextWidth($table.find('tr:last td:first'));
+        var idColWidth = xcHelper.getTextWidth($table.find('tr:last td:first'));
         var newWidth = Math.max(idColWidth, 22);
         var padding = 12;
         $table.find('th:first-child').width(newWidth + padding);
-        matchHeaderSizes($table);
+        TblFunc.matchHeaderSizes($table);
     };
 
     TblManager.adjustRowHeights = function($trs, rowIndex, tableId) {
@@ -841,8 +841,8 @@ window.TblManager = (function($, TblManager) {
 
         var bottomBorderHeight = 5;
         $table.height(tableHeight + bottomBorderHeight);
-        matchHeaderSizes($table);
-        moveFirstColumn();
+        TblFunc.matchHeaderSizes($table);
+        TblFunc.moveFirstColumn();
 
         SQL.add(SQLTStr.MinimizeTable, {
             "operation": SQLOps.HideTable,
@@ -860,8 +860,8 @@ window.TblManager = (function($, TblManager) {
 
         var $table = $('#xcTable-' + tableId);
         $table.height('auto');
-        matchHeaderSizes($table);
-        moveFirstColumn();
+        TblFunc.matchHeaderSizes($table);
+        TblFunc.moveFirstColumn();
 
         SQL.add(SQLTStr.MaximizeTable, {
             "operation": SQLOps.UnhideTable,
@@ -1056,7 +1056,7 @@ window.TblManager = (function($, TblManager) {
             columns[i].maximize();
             oldColumnWidths.push(columns[i].width);
 
-            newWidths.push(autosizeCol($th, {
+            newWidths.push(TblFunc.autosizeCol($th, {
                 "dblClick": true,
                 "minWidth": 17,
                 "unlimitedWidth": false,
@@ -1066,7 +1066,7 @@ window.TblManager = (function($, TblManager) {
             }));
         }
 
-        matchHeaderSizes($table);
+        TblFunc.matchHeaderSizes($table);
 
         SQL.add(SQLTStr.ResizeCols, {
             "operation": SQLOps.ResizeTableCols,
@@ -1100,7 +1100,7 @@ window.TblManager = (function($, TblManager) {
             progCols[colNum - 1].width = widths[i];
             progCols[colNum - 1].sizedToHeader = widthStates[i];
         }
-        matchHeaderSizes($table);
+        TblFunc.matchHeaderSizes($table);
     };
 
     TblManager.adjustRowFetchQuantity = function() {
@@ -1156,17 +1156,90 @@ window.TblManager = (function($, TblManager) {
         });
     };
 
+    /*
+     * options:
+     *  jsonModal: if it's jsonModal
+     *  isShift: if press shiftKey or not
+     */
+    TblManager.highlightCell = function($td, tableId, rowNum, colNum, options) {
+        // draws a new div positioned where the cell is, intead of highlighting
+        // the actual cell
+        options = options || {};
+        if (options.jsonModal &&
+            $td.find('.jsonModalHighlightBox').length !== 0)
+        {
+            $td.find('.jsonModalHighlightBox').data().count++;
+            return;
+        }
+
+        var border = 5;
+        var width = $td.outerWidth() - border;
+        var height = $td.outerHeight();
+        var left = $td.position().left;
+        var top = $td.position().top;
+        var styling = 'width:' + width + 'px;' +
+                      'height:' + height + 'px;' +
+                      'left:' + left + 'px;' +
+                      'top:' + top + 'px;';
+        var divClass;
+        if (options.jsonModal) {
+            divClass = "jsonModalHighlightBox";
+        } else {
+            divClass = "highlightBox " + tableId;
+        }
+
+        if (options.isShift) {
+            divClass += " shiftKey";
+        } else {
+            // this can be used as a base cell when user press shift
+            // to select multi rows
+            divClass += " noShiftKey";
+        }
+
+        var $highlightBox = $('<div class="' + divClass + '" ' +
+                                'style="' + styling + '" data-count="1">' +
+                            '</div>');
+
+        $highlightBox.data("rowNum", rowNum)
+                     .data("colNum", colNum);
+
+        $td.append($highlightBox);
+    };
+
+    function unHighlightCell($td) {
+        $td.find(".highlightBox").remove();
+    }
+
+    TblManager.highlightColumn = function($el, keepOthersSelected) {
+        var index = xcHelper.parseColNum($el);
+        var tableId = xcHelper.parseTableId($el.closest('.dataTable'));
+        var $table = $('#xcTable-' + tableId);
+        if (!keepOthersSelected) {
+            $('.selectedCell').removeClass('selectedCell');
+        }
+        $table.find('th.col' + index).addClass('selectedCell');
+        $table.find('td.col' + index).addClass('selectedCell');
+    };
+
+    function unhighlightColumn($el) {
+        var index = xcHelper.parseColNum($el);
+        var tableId = xcHelper.parseTableId($el.closest('.dataTable'));
+        var $table = $('#xcTable-' + tableId);
+        $table.find('th.col' + index).removeClass('selectedCell');
+        $table.find('td.col' + index).removeClass('selectedCell');
+    }
+
     TblManager.updateHeaderAndListInfo = function(tableId) {
         updateTableHeader(tableId);
         TableList.updateTableInfo(tableId);
         var $table = $('#xcTable-' + tableId);
-        matchHeaderSizes($table);
+        TblFunc.matchHeaderSizes($table);
     };
 
     TblManager.alignTableEls = function($tableWrap) {
-        moveTableTitles($tableWrap);
-        moveTableDropdownBoxes();
-        moveFirstColumn();
+        TblFunc.moveTableTitles($tableWrap);
+        TblFunc.moveTableDropdownBoxes();
+        TblFunc.moveFirstColumn();
     };
 
     TblManager.addWaitingCursor = function(tableId) {
@@ -1319,14 +1392,14 @@ window.TblManager = (function($, TblManager) {
 
             if (needsFocusing) {
                 needsFocusing = false;
-                focusTable(tableId);
+                TblFunc.focusTable(tableId);
             }
 
             clearTimeout(focusTimer);
             focusTimer = setTimeout(scrollingEnd, 200);
 
             $(".menu:visible").hide();
-            removeMenuKeyboardNavigation();
+            xcMenu.removeKeyboardNavigation();
             $('.highlightBox').remove();
 
 
@@ -1669,7 +1742,7 @@ window.TblManager = (function($, TblManager) {
                                 ' .flexContainer').mousedown();
                     for (var i = 0; i < options.selectCol.length; i++) {
                         var $th = $table.find('th.col' + options.selectCol[i]);
-                        highlightColumn($th, true);
+                        TblManager.highlightColumn($th, true);
                     }
                 } else {
                     $table.find('th.col' + options.selectCol +
@@ -1679,7 +1752,7 @@ window.TblManager = (function($, TblManager) {
 
             autoSizeDataCol(tableId);
             // position sticky row column on visible tables
-            moveFirstColumn();
+            TblFunc.moveFirstColumn();
             RowScroller.updateViewRange(tableId);
             deferred.resolve();
         })
@@ -1725,7 +1798,7 @@ window.TblManager = (function($, TblManager) {
             $('.xcTableWrap.worksheet-' + activeWS).find('.tblTitleSelected')
                                                    .length === 0) {
             // if active worksheet and no other table is selected;
-            focusTable(tableId, true);
+            TblFunc.focusTable(tableId, true);
         }
 
         // highlights new cell if no other cell is selected
@@ -1739,7 +1812,7 @@ window.TblManager = (function($, TblManager) {
                     for (var i = 0; i < options.selectCol.length; i++) {
                         var $th = $table
                         .find('th.col' + options.selectCol[i]);
-                        highlightColumn($th, true);
+                        TblManager.highlightColumn($th, true);
                     }
                 } else {
                     $table.find('th.col' + (options.selectCol) +
@@ -1811,17 +1884,17 @@ window.TblManager = (function($, TblManager) {
             "focus": function() {
                 var $tableName = $(this);
                 updateTableNameWidth($tableName);
-                moveTableTitles();
+                TblFunc.moveTableTitles();
             },
             "blur": function() {
                 var tableId = $xcTheadWrap.data("id");
                 updateTableHeader(tableId);
-                moveTableTitles();
+                TblFunc.moveTableTitles();
             },
             "input": function() {
                 var $tableName = $(this);
                 updateTableNameWidth($tableName);
-                moveTableTitles($tableName.closest('.xcTableWrap'));
+                TblFunc.moveTableTitles($tableName.closest('.xcTableWrap'));
             }
         }, ".tableTitle .tableName");
 
@@ -1892,7 +1965,7 @@ window.TblManager = (function($, TblManager) {
 
         var $table = $('#xcTable-' + tableId);
         $table.width(0);
-        matchHeaderSizes($table);
+        TblFunc.matchHeaderSizes($table);
     }
 
     function updateTableHeader(tableId) {
@@ -1925,7 +1998,7 @@ window.TblManager = (function($, TblManager) {
     }
 
     function updateTableNameWidth($tableName) {
-        var width = getTextWidth($tableName, $tableName.val());
+        var width = xcHelper.getTextWidth($tableName, $tableName.val());
         $tableName.width(width + 1);
     }
 
@@ -1955,7 +2028,7 @@ window.TblManager = (function($, TblManager) {
                 if (oldId !== gActiveTableId) {
                     focusDag = true;
                 }
-                focusTable(tableId, focusDag);
+                TblFunc.focusTable(tableId, focusDag);
             }
         }).scroll(function() {
             $(this).scrollLeft(0); // prevent scrolling when colmenu is open
@@ -2052,7 +2125,7 @@ window.TblManager = (function($, TblManager) {
                         return;
                     }
                 } else {
-                    highlightColumn($editableHead, true);
+                    TblManager.highlightColumn($editableHead, true);
                 }
             } else if (event.shiftKey) {
                 if (lastSelectedCell && lastSelectedCell.length > 0) {
@@ -2073,7 +2146,7 @@ window.TblManager = (function($, TblManager) {
                             }
 
                             if (select) {
-                                highlightColumn($col, true);
+                                TblManager.highlightColumn($col, true);
                             } else if (notDropDown) {
                                 unhighlightColumn($col);
                             }
@@ -2087,13 +2160,13 @@ window.TblManager = (function($, TblManager) {
                 if ($el.closest('.selectedCell').length > 0) {
                     // when not on dropdown and is left click
                     if (notDropDown && event.which === 1) {
-                        highlightColumn($editableHead, false);
+                        TblManager.highlightColumn($editableHead, false);
                         lastSelectedCell = null;
                     } else {
-                        highlightColumn($editableHead, true);
+                        TblManager.highlightColumn($editableHead, true);
                     }
                 } else {
-                    highlightColumn($editableHead, false);
+                    TblManager.highlightColumn($editableHead, false);
                     lastSelectedCell = null;
                 }
             }
@@ -2126,7 +2199,7 @@ window.TblManager = (function($, TblManager) {
                 return;
             }
             $thead.find('.editableHead').each(function() {
-                highlightColumn($(this), true);
+                TblManager.highlightColumn($(this), true);
             });
         });
 
@@ -2134,7 +2207,7 @@ window.TblManager = (function($, TblManager) {
             var $th = $(this).closest('th');
             var colNum = xcHelper.parseColNum($th);
             FnBar.focusOnCol($th, tableId, colNum);
-            highlightColumn($th, false);
+            TblManager.highlightColumn($th, false);
             lastSelectedCell = $th;
         });
 
@@ -2327,7 +2400,7 @@ window.TblManager = (function($, TblManager) {
             }
             if ($td.hasClass('jsonElement')) {
                 $('.menu').hide();
-                removeMenuKeyboardNavigation();
+                xcMenu.removeKeyboardNavigation();
                 $('.highlightBox').remove();
                 return;
             }
@@ -2376,7 +2449,6 @@ window.TblManager = (function($, TblManager) {
 
                         var minIndex = Math.min(baseRowNum, rowNum);
                         var maxIndex = Math.max(baseRowNum, rowNum);
-                        var isShift = true;
 
                         for (var r = minIndex; r <= maxIndex; r++) {
                             var $cell = $curTable.find(".row" + r + " .col" + colNum);
@@ -2384,9 +2456,12 @@ window.TblManager = (function($, TblManager) {
                             $cell.find(".highlightBox").remove();
 
                             if (r === baseRowNum) {
-                                highlightCell($cell, tableId, r, colNum);
+                                TblManager.highlightCell($cell, tableId,
+                                                         r, colNum);
                             } else {
-                                highlightCell($cell, tableId, r, colNum, isShift);
+                                TblManager.highlightCell($cell, tableId,
+                                                         r, colNum,
+                                                         {"isShift": true});
                             }
                         }
                     }
@@ -2416,7 +2491,7 @@ window.TblManager = (function($, TblManager) {
                     isUnSelect = true;
                 } else {
                     $highlightBoxs.remove();
-                    highlightCell($td, tableId, rowNum, colNum);
+                    TblManager.highlightCell($td, tableId, rowNum, colNum);
                 }
             }
 
@@ -2430,7 +2505,7 @@ window.TblManager = (function($, TblManager) {
                     unHighlightCell($td);
                     isUnSelect = true;
                 } else {
-                    highlightCell($td, tableId, rowNum, colNum);
+                    TblManager.highlightCell($td, tableId, rowNum, colNum);
                 }
             }
         });
@@ -2462,7 +2537,7 @@ window.TblManager = (function($, TblManager) {
             if ($td.find(".highlightBox").length === 0) {
                 // same as singleSelection()
                 $(".highlightBox").remove();
-                highlightCell($td, tableId, rowNum, colNum);
+                TblManager.highlightCell($td, tableId, rowNum, colNum);
             }
 
             xcHelper.dropdownOpen($div, $("#cellMenu"), {
@@ -2536,6 +2611,16 @@ window.TblManager = (function($, TblManager) {
             '<div class="rowGrab last"></div>';
 
         $('#xcTbodyWrap-' + tableId).append(tableHtml);
+    }
+
+    function resetColMenuInputs($el) {
+        var tableId = xcHelper.parseTableId($el.closest('.xcTableWrap'));
+        var $menu = $('#colMenu-' + tableId);
+        $menu.find('.gb input').val("groupBy");
+        $menu.find('.numFilter input').val(0);
+        $menu.find('.strFilter input').val("");
+        $menu.find('.mixedFilter input').val("");
+        $menu.find('.regex').next().find('input').val("*");
     }
 
     TblManager.generateTheadTbody = function(tableId) {
@@ -2763,7 +2848,7 @@ window.TblManager = (function($, TblManager) {
                 dataCol.width = minWidth;
             }
             var $th = $('#xcTable-' + tableId).find('th.col' + dataColIndex);
-            autosizeCol($th, {
+            TblFunc.autosizeCol($th, {
                 "fitAll": true,
                 "minWidth": minWidth,
                 "maxWidth": maxWidth

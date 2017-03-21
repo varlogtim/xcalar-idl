@@ -54,7 +54,7 @@ window.UExtATags = (function(UExtATags, $) {
                                     " Click on any cell and select open link.");
         } else {
             Alert.error("Already enabled", "This extension is already enabled");
-            closeMenu($cellMenu);
+            xcMenu.close($cellMenu);
         }
 
         return new XcSDK.Extension();

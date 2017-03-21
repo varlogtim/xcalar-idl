@@ -51,7 +51,7 @@ window.SmartCastView = (function($, SmartCastView) {
         });
 
         var $castMenu = $("#castMenu");
-        addMenuBehaviors($castMenu);
+        xcMenu.add($castMenu);
 
         $castView.on("click", ".colType", function() {
             var $col = $(this);

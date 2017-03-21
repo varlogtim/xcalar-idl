@@ -76,7 +76,7 @@ window.RowScroller = (function($, RowScroller) {
                 }
             }
 
-            if (!isTableScrollable(tableId)) {
+            if (!TblFunc.isTableScrollable(tableId)) {
                 return;
             }
 
@@ -108,10 +108,10 @@ window.RowScroller = (function($, RowScroller) {
 
             // note that resultSetCount is the total num of rows
             // resultSetMax is the max row that can fetch
-            var maxRow   = table.resultSetMax;
+            var maxRow = table.resultSetMax;
             var maxCount = table.resultSetCount;
 
-            if (!isTableScrollable(tableId)) {
+            if (!TblFunc.isTableScrollable(tableId)) {
                 if (maxRow === 0) {
                     // when table has no rows
                     $rowInput.val(0).data("val", 0);
@@ -322,7 +322,7 @@ window.RowScroller = (function($, RowScroller) {
         if (firstRowNum !== null) {
             var activeTableId = gActiveTableId;
             $('#rowInput').val(firstRowNum).data('val', firstRowNum);
-            if (isTableScrollable(activeTableId)) {
+            if (TblFunc.isTableScrollable(activeTableId)) {
                 rowScrollerMove(firstRowNum,
                                  gTables[activeTableId].resultSetCount);
             }

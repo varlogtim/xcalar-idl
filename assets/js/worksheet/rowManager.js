@@ -31,7 +31,7 @@ window.RowManager = (function($, RowManager) {
 
         fetchRows(startIndex, numRowsToAdd, direction, info)
         .then(function() {
-            moveFirstColumn();
+            TblFunc.moveFirstColumn();
             removeOldRows(info, direction);
             if (info.missingRows) {
                 console.log('some rows were too large to be retrieved,' +
@@ -81,7 +81,7 @@ window.RowManager = (function($, RowManager) {
                 scrollPosition = cleanupMissingRows(info, startIndex,
                                                     direction);
             }
-            moveFirstColumn();
+            TblFunc.moveFirstColumn();
             
             var totalRowsStillNeeded = info.numRowsToAdd - info.numRowsAdded;
                
@@ -461,7 +461,7 @@ window.RowManager = (function($, RowManager) {
         } else if (direction === RowDirection.Bottom && scrollPosition) {
             $xcTbodyWrap.scrollTop(scrollPosition);
         }
-        moveFirstColumn();
+        TblFunc.moveFirstColumn();
     }
 
     function cleanupMissingRows(info, rowPosition, direction) {

@@ -976,7 +976,7 @@ window.OperationsView = (function($, OperationsView) {
     }
 
     function keepInputFocused(event) {
-        closeMenu($('#colMenu'));
+        xcMenu.close($('#colMenu'));
         event.preventDefault();
         event.stopPropagation();
     }
@@ -3180,7 +3180,7 @@ window.OperationsView = (function($, OperationsView) {
             mapOptions.replaceColumn = true;
             if (colName === "") {
                 var widthOptions = {defaultHeaderStyle: true};
-                var width = getTextWidth($(), newColName, widthOptions);
+                var width = xcHelper.getTextWidth($(), newColName, widthOptions);
                 mapOptions.width = width;
             }
         }

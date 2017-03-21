@@ -209,7 +209,7 @@ window.DSTable = (function($, DSTable) {
         $tableWrap.html(html);
         restoreSelectedColumns();
         DSTable.refresh(true);
-        moveFirstColumn($("#dsTable"));
+        TblFunc.moveFirstColumn($("#dsTable"));
 
         // scroll cannot use event bubble so we have to add listener
         // to .datasetTbodyWrap every time it's created
@@ -349,7 +349,7 @@ window.DSTable = (function($, DSTable) {
 
             var tr = getTableRowsHTML(realJsonKeys, jsons, false, selectedCols);
             $dsTable.append(tr);
-            moveFirstColumn($dsTable);
+            TblFunc.moveFirstColumn($dsTable);
 
             deferred.resolve();
         })
@@ -457,7 +457,7 @@ window.DSTable = (function($, DSTable) {
         $dsTableContainer.scroll(function(){
             var $dsTable = $("#dsTable");
             $(this).scrollTop(0);
-            moveFirstColumn($dsTable);
+            TblFunc.moveFirstColumn($dsTable);
         });
     }
 
@@ -533,8 +533,11 @@ window.DSTable = (function($, DSTable) {
         // track which columns will expand and which will remain at
         // default colwidth
         $headers.each(function() {
-            var width = getWidestTdWidth($(this),
-                    {includeHeader: true, fitAll: true, datastore: true});
+            var width = TblFunc.getWidestTdWidth($(this), {
+                "includeHeader": true,
+                "fitAll": true,
+                "datastore": true
+            });
             var expanding = false;
             if (width > defaultColWidth) {
                 expanding = true;
@@ -669,7 +672,7 @@ window.DSTable = (function($, DSTable) {
             var key = jsonKeys[i].replace(/\'/g, '&#39');
             var thClass = "th col" + (i + 1);
             var type = columnsType[i];
-            var width = getTextWidth(null, key, {
+            var width = xcHelper.getTextWidth(null, key, {
                 "defaultHeaderStyle": true
             });
 

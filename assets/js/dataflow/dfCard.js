@@ -699,7 +699,7 @@ window.DFCard = (function($, DFCard) {
 
         $dagArea.on('click', selector, function() {
             $('.menu').hide();
-            removeMenuKeyboardNavigation();
+            xcMenu.removeKeyboardNavigation();
             $('.leftColMenu').removeClass('leftColMenu');
             $currentIcon = $(this);
 
@@ -727,7 +727,7 @@ window.DFCard = (function($, DFCard) {
                 // if on the left side of the screen
                 $menu.css('left', MainMenu.getOffset() + 5);
             }
-            addMenuKeyboardNavigation($menu);
+            xcMenu.addKeyboardNavigation($menu);
 
             if (XVM.getLicenseMode() === XcalarMode.Mod) {
                 $menu.find('.createParamQuery').hide();
@@ -748,7 +748,7 @@ window.DFCard = (function($, DFCard) {
             }
         });
 
-        addMenuBehaviors($menu);
+        xcMenu.add($menu);
 
         $menu.find('.createParamQuery').mouseup(function(event) {
             if (event.which !== 1) {

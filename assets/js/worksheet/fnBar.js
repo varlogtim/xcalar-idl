@@ -598,7 +598,7 @@ window.FnBar = (function(FnBar, $) {
                 $('.xcTable').find('.modalHighlighted')
                              .removeClass('modalHighlighted');
                 if ($match.is('th')) {
-                    highlightColumn($match);
+                    TblManager.highlightColumn($match);
                     $('#mainFrame').find('.tblTitleSelected')
                                    .removeClass('tblTitleSelected');
                     $('.dagWrap.selected').removeClass('selected')
@@ -606,7 +606,7 @@ window.FnBar = (function(FnBar, $) {
                     RowScroller.empty();
                 } else if ($match.is('.tableTitle')) {
                     var tableId = $match.closest('.xcTableWrap').data('id');
-                    focusTable(tableId, true);
+                    TblFunc.focusTable(tableId, true);
                 }
             },
             "scrollMatchIntoView": function($match) {

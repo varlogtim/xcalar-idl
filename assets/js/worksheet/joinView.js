@@ -83,7 +83,7 @@ window.JoinView = (function($, JoinView) {
                         $joinView.find('.clause').eq(index).focus();
                         checkNextBtn();
                         updatePreviewText();
-                        focusTable(getTableIds(index));
+                        TblFunc.focusTable(getTableIds(index));
                         activateClauseSection(index);
                     }
                 }
@@ -227,7 +227,7 @@ window.JoinView = (function($, JoinView) {
 
             var tableId = getTableIds(index);
             if (gTables[tableId]) {
-                focusTable(tableId);
+                TblFunc.focusTable(tableId);
                 activateClauseSection(index);
                 $joinView.find('.clause').eq(index).focus();
             } else {
@@ -1918,7 +1918,7 @@ window.JoinView = (function($, JoinView) {
 
     function setupRenameMenu($renameSection) {
         $renameSection.find(".menu").each(function() {
-            addMenuBehaviors($(this), {"keepOpen": true});
+            xcMenu.add($(this), {"keepOpen": true});
         });
 
         $renameSection.on("click", ".option", function(event) {

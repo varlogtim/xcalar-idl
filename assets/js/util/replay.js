@@ -763,7 +763,7 @@ window.Replay = (function($, Replay) {
             $table.insertBefore($targetTable);
         }
 
-        reorderAfterTableDrop.apply(window, args);
+        TblFunc.reorderAfterTableDrop.apply(window, args);
 
         return PromiseHelper.resolve(null);
     };

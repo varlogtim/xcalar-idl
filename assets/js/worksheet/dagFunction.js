@@ -227,7 +227,7 @@ window.DagFunction = (function($, DagFunction) {
         var $tableWrap = $('#xcTableWrap-' + tableId);
         xcHelper.centerFocusedTable($tableWrap);
         $tableWrap.mousedown();
-        moveFirstColumn();
+        TblFunc.moveFirstColumn();
         Dag.focusDagForActiveTable(undefined, true);
     };
 
