@@ -290,7 +290,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             return;
         }
 
-        if (!extMap[module] || !extMap[module][func]) {
+        if (!extMap[module] || !extMap[module].hasOwnProperty(func)) {
             var msg = xcHelper.replaceMsg(ErrTStr.ExtNotFound, {
                 module: module,
                 fn: func
@@ -628,6 +628,8 @@ window.ExtensionManager = (function(ExtensionManager, $) {
 
             if (arrayOfFields == null || arrayOfFields.length === 0) {
                 funcClass += " simple";
+                // make the value null, but still has the key
+                extMap[modName][fnName] = null;
             } else {
                 // cache arryOfField
                 extMap[modName][fnName] = func.arrayOfFields;
