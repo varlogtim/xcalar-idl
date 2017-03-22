@@ -1,4 +1,4 @@
-describe("xcFunctions Test", function() {
+describe("xcFunction Test", function() {
     var testDs;
     var tableName;
     var tableName2;

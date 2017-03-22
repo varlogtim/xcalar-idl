@@ -300,6 +300,7 @@ describe('RowManager Test', function() {
                 } else if (count === 4) {
                     console.error('should not get page 5 times');
                     expect(true).to.be.false;
+                }
             };
             var info = {
                 bulk: true,
@@ -334,7 +335,7 @@ describe('RowManager Test', function() {
                 done();
             })
             .fail(function() {
-                throw "error case";
+                done("fail");
             });
         });
     });
