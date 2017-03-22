@@ -1956,6 +1956,81 @@ FormHelper.prototype = {
                     !$ele.hasClass("btn-disabled") &&
                     $ele.css('visibility') !== "hidden");
         }
+    },
+
+    listHighlight: function($input, event, isArgInput) {
+        var direction;
+        var keyCodeNum = event.which;
+        if (keyCodeNum === keyCode.Up) {
+            direction = -1;
+        } else if (keyCodeNum === keyCode.Down) {
+            direction = 1;
+        } else {
+            // key code not supported
+            return;
+        }
+        event.preventDefault();
+        event.stopPropagation();
+        var $menu = $input.siblings('.list');
+        var $lis = $input.siblings('.list').find('li:visible');
+        var numLis = $lis.length;
+
+        if (numLis === 0) {
+            return;
+        }
+
+        var $highlightedLi = $lis.filter(function() {
+            return ($(this).hasClass('highlighted'));
+        });
+
+        var index;
+        if ($highlightedLi.length !== 0) {
+            // When a li is highlighted
+            var highlightIndex = $highlightedLi.index();
+            $lis.each(function() {
+                var liIndex = $(this).index();
+                if (highlightIndex === liIndex) {
+                    index = liIndex;
+                    return (false);
+                }
+            });
+
+            $highlightedLi.removeClass('highlighted');
+
+            var newIndex = (index + direction + numLis) % numLis;
+            $highlightedLi = $lis.eq(newIndex);
+        } else {
+            index = (direction === -1) ? (numLis - 1) : 0;
+            $highlightedLi = $lis.eq(index);
+        }
+
+        var val = $highlightedLi.text();
+        if (isArgInput && val[0] !== gAggVarPrefix) {
+            val = gColPrefix + val;
+        }
+        $highlightedLi.addClass('highlighted');
+        $input.val(val);
+
+        var menuHeight = $menu.height();
+        var liTop = $highlightedLi.position().top;
+        var liHeight = 30;
+        var currentScrollTop;
+
+        if (liTop > menuHeight - liHeight) {
+            currentScrollTop = $menu.find('ul').scrollTop();
+            var newScrollTop = liTop - menuHeight + liHeight +
+                               currentScrollTop;
+            $menu.find('ul').scrollTop(newScrollTop);
+            if ($menu.hasClass('hovering')) {
+                $menu.addClass('disableMouseEnter');
+            }
+        } else if (liTop < 0) {
+            currentScrollTop = $menu.find('ul').scrollTop();
+            $menu.find('ul').scrollTop(currentScrollTop + liTop);
+            if ($menu.hasClass('hovering')) {
+                $menu.addClass('disableMouseEnter');
+            }
+        }
     }
 };
 /* End of FormHelper */
@@ -2199,16 +2274,6 @@ MenuHelper.prototype = {
 
         return this;
     },
-    showDropdowns: function() {
-        var self = this;
-        var $sections = self.$container;
-        var $dropdown = $sections.hasClass("dropDownList")
-                        ? $sections
-                        : $sections.find(".dropDownList");
-        $dropdown.find(".list").addClass("openList").show();
-        $dropdown.addClass("open");
-        self.showOrHideScrollers();
-    },
     hideDropdowns: function() {
         var self = this;
         var $sections = self.$container;
@@ -2217,8 +2282,16 @@ MenuHelper.prototype = {
                         : $sections.find(".dropDownList");
         $dropdown.find(".list").hide().removeClass("openList");
         $dropdown.removeClass("open");
+
         $(document).off("mousedown.closeDropDown" + self.id);
         $(document).off("keydown.closeDropDown" + self.id);
+    },
+    openList: function() {
+        var self = this;
+        var $list = self.$list;
+        $list.addClass("openList").show();
+        $list.closest(".dropDownList").addClass("open");
+        self.showOrHideScrollers();
     },
     toggleList: function($curlDropDownList, openUpwards) {
         var self = this;
@@ -2468,6 +2541,38 @@ MenuHelper.prototype = {
         // set scrollArea states
         $list.find('.scrollArea.top').addClass('stopped');
         $list.find('.scrollArea.bottom').removeClass('stopped');
+    }
+};
+
+function InputSuggest(options) {
+    options = options || {};
+    this.$container = options.$container;
+    this.onClick = options.onClick;
+    this.timer = null;
+    this.__init();
+    return this;
+}
+
+InputSuggest.prototype = {
+    __init: function() {
+        var self = this;
+        var $container = self.$container;
+        // when click the hint list
+        $container.on("click", ".hint li", function() {
+            if (typeof self.onClick === "function") {
+                self.onClick($(this));
+            }
+        });
+    },
+
+    listHighlight: function(event, formHelper) {
+        var $input = $(event.currentTarget);
+        var $list = $input.siblings('.openList');
+        if ($list.length && (event.which === keyCode.Up ||
+            event.which === keyCode.Down))
+        {
+            formHelper.listHighlight($input, event, true);
+        }
     }
 };
 

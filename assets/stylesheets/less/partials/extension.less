@@ -584,6 +584,20 @@
                     color: @color-font-greyish-brown;
                 }
 
+                .hintDropdown {
+                    background-color: transparent;
+                    float: none;
+
+                    li {
+                        &:hover {
+                            background-color: transparent;
+                        }
+                        &.highlighted {
+                            background-color: @color-selectedCell-light;
+                        }
+                    }
+                }
+
                 .picker {
                     display: none;
                     float: right;

@@ -387,9 +387,10 @@ window.OperationsView = (function($, OperationsView) {
                 var $input = $(this);
                 var $list = $input.siblings('.openList');
                 if ($list.length && (event.which === keyCode.Up ||
-                    event.which === keyCode.Down)) {
+                    event.which === keyCode.Down))
+                {
                     var isArgInput = true;
-                    listHighlight($input, event.which, event, isArgInput);
+                    formHelper.listHighlight($input, event, isArgInput);
                 }
             },
             'focus': function() {
@@ -1180,7 +1181,7 @@ window.OperationsView = (function($, OperationsView) {
         $list.find("ul").html(listLis);
         // should not suggest if the input val is already a column name
         if (listLis.length) {
-            menu.showDropdowns();
+            menu.openList();
             positionDropdown($list);
         } else {
             menu.hideDropdowns();
@@ -1374,80 +1375,6 @@ window.OperationsView = (function($, OperationsView) {
         $activeOpSection.find('.newTableNameRow').addClass('inactive');
         hideDropdowns();
         checkIfStringReplaceNeeded(true);
-    }
-
-    function listHighlight($input, keyCodeNum, event, isArgInput) {
-        var direction;
-        if (keyCodeNum === keyCode.Up) {
-            direction = -1;
-        } else if (keyCodeNum === keyCode.Down) {
-            direction = 1;
-        } else {
-            // key code not supported
-            return;
-        }
-        event.preventDefault();
-        event.stopPropagation();
-        var $menu = $input.siblings('.list');
-        var $lis = $input.siblings('.list').find('li:visible');
-        var numLis = $lis.length;
-
-        if (numLis === 0) {
-            return;
-        }
-
-        var $highlightedLi = $lis.filter(function() {
-            return ($(this).hasClass('highlighted'));
-        });
-
-        var index;
-        if ($highlightedLi.length !== 0) {
-            // When a li is highlighted
-            var highlightIndex = $highlightedLi.index();
-            $lis.each(function() {
-                var liIndex = $(this).index();
-                if (highlightIndex === liIndex) {
-                    index = liIndex;
-                    return (false);
-                }
-            });
-
-            $highlightedLi.removeClass('highlighted');
-
-            var newIndex = (index + direction + numLis) % numLis;
-            $highlightedLi = $lis.eq(newIndex);
-        } else {
-            index = (direction === -1) ? (numLis - 1) : 0;
-            $highlightedLi = $lis.eq(index);
-        }
-
-        var val = $highlightedLi.text();
-        if (isArgInput && val[0] !== gAggVarPrefix) {
-            val = gColPrefix + val;
-        }
-        $highlightedLi.addClass('highlighted');
-        $input.val(val);
-
-        var menuHeight = $menu.height();
-        var liTop = $highlightedLi.position().top;
-        var liHeight = 30;
-        var currentScrollTop;
-
-        if (liTop > menuHeight - liHeight) {
-            currentScrollTop = $menu.find('ul').scrollTop();
-            var newScrollTop = liTop - menuHeight + liHeight +
-                               currentScrollTop;
-            $menu.find('ul').scrollTop(newScrollTop);
-            if ($menu.hasClass('hovering')) {
-                $menu.addClass('disableMouseEnter');
-            }
-        } else if (liTop < 0) {
-            currentScrollTop = $menu.find('ul').scrollTop();
-            $menu.find('ul').scrollTop(currentScrollTop + liTop);
-            if ($menu.hasClass('hovering')) {
-                $menu.addClass('disableMouseEnter');
-            }
-        }
     }
 
     function isOperationValid(index) {
@@ -3843,7 +3770,7 @@ window.OperationsView = (function($, OperationsView) {
             switch (event.which) {
                 case (keyCode.Down):
                 case (keyCode.Up):
-                    listHighlight($input, event.which, event);
+                    formHelper.listHighlight($input, event);
                     break;
                 case (keyCode.Right):
                     $input.trigger(fakeEvent.enter);
