@@ -11,7 +11,7 @@ window.RowScroller = (function($, RowScroller) {
             $(this).val(val);
         });
 
-        $rowInput.keypress(function(event) {
+        $rowInput.keypress(function(event, noScrollBar) {
             if (event.which !== keyCode.Enter) {
                 return;
             }
@@ -70,8 +70,6 @@ window.RowScroller = (function($, RowScroller) {
                                 targetRow - rowToBuffer);
             backRow = Math.max(backRow, 0);
 
-
-
             var numRowsToAdd = Math.min(gMaxEntriesPerPage, table.resultSetMax);
             var info = {
                 "lastRowToDisplay": backRow + numRowsToAdd,
@@ -85,8 +83,7 @@ window.RowScroller = (function($, RowScroller) {
             .always(function() {
                 TblManager.removeWaitingCursor(tableId);
                 var rowToScrollTo = Math.min(targetRow, table.resultSetMax);
-                var adjustTableScroller = event.originalEvent != null;
-                positionScrollbar(rowToScrollTo, tableId, adjustTableScroller);
+                positionScrollbar(rowToScrollTo, tableId, !noScrollBar);
                 RowScroller.genFirstVisibleRowNum();
             });
         });
@@ -240,7 +237,7 @@ window.RowScroller = (function($, RowScroller) {
                 rowNum += 1;
                 rowNum = Math.round(rowNum);
                 $rowInput.val(rowNum);
-                $rowInput.trigger(fakeEvent.enter);
+                $rowInput.trigger(fakeEvent.enter, true);
                 scrollMeta.base = top - (top / scrollMeta.scale);
             });
         });
