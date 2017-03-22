@@ -1,6 +1,8 @@
 window.xcManager = (function(xcManager, $) {
-    var setupStatus = SetupStatus.Setup;
+    var setupStatus;
+
     xcManager.setup = function() {
+        setupStatus = SetupStatus.Setup;
         // use promise for better unit test
         var deferred = jQuery.Deferred();
         gMinModeOn = true; // startup use min mode;
