@@ -150,6 +150,9 @@ window.DSTable = (function($, DSTable) {
     }
 
     function setupViewAfterError(error) {
+        if (typeof error === "object") {
+            error = JSON.stringify(error);
+        }
         error = StatusMessageTStr.LoadFailed + ". " + error;
         // backend might return this: "<string>"
         error = xcHelper.escapeHTMLSepcialChar(error);

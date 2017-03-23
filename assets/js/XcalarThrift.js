@@ -559,7 +559,7 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
             console.error("No longer supported");
             return PromiserHelper.reject("Rand format no longer supported");
         case ("raw"):
-            recordDelim = "\n";
+            // recordDelim = "\n";
             // No field delim
             fieldDelim = ""; // jshint ignore:line
             // fallthrough
