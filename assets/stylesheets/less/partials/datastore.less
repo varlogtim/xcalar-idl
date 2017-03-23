@@ -1630,6 +1630,7 @@ table.datasetTable {
             .size(@width: ~"calc(100% - 340px)");
             float: left;
             .flex-display;
+            padding-right: 5px;
 
             > div {
                 .flex(0 1 auto);
@@ -2034,6 +2035,7 @@ table.datasetTable {
 
             &:first-child {
                 .flex(2 1 auto);
+                min-width: 135px; // allows inner text to shrink
             }
 
             > span, > label, > div {
@@ -2072,6 +2074,7 @@ table.datasetTable {
 
         .btn.confirm {
             .flex(0 1 150px);
+            min-width: 70px;
         }
     }
 
