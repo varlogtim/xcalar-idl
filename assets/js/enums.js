@@ -306,6 +306,7 @@ var SQLOps = {
     DelFolder: "deleteFolder",
     Profile: "profile",
     ProfileAgg: "profileAggregate",
+    ProfileStats: "profileStatistics",
     ProfileSort: "profileSort",
     ProfileBucketing: "profileBucketing",
     QuickAgg: "quickAgg",

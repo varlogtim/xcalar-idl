@@ -717,6 +717,7 @@ window.SQL = (function($, SQL) {
             case SQLOps.ProfileSort:
             case SQLOps.ProfileBucketing:
             case SQLOps.ProfileAgg:
+            case SQLOps.ProfileStats:
             case SQLOps.QuickAgg:
             case SQLOps.Corr:
             case SQLOps.Aggr:
@@ -1127,6 +1128,7 @@ window.SQL = (function($, SQL) {
             case (SQLOps.ProfileSort):
             case (SQLOps.ProfileBucketing):
             case (SQLOps.ProfileAgg):
+            case (SQLOps.ProfileStats):
             case (SQLOps.Project):
             case (SQLOps.Ext):
             case (SQLOps.Query):

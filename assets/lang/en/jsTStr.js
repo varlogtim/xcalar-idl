@@ -371,7 +371,8 @@ SuccessTStr = {
 };
 
 FailTStr = {
-    "Profile": "Save Profile As PNG Failed."
+    "Profile": "Save Profile As PNG Failed.",
+    "ProfileStats": "Generate Statistics Failed."
 };
 
 ThriftTStr = {

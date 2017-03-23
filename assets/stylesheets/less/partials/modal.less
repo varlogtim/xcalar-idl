@@ -2399,10 +2399,14 @@ html.microsoft {
 
         .container {
             .size(@width: 100%);
-            padding: 5px 15px;
+            padding: 5px 0;
             border-top: 1px solid @color-border-pinkish-grey2;
             .flex-display;
             .flex-direction(column);
+
+            > div {
+                padding: 0 15px;
+            }
 
             &:first-child {
                 border-top: 0;
@@ -2458,6 +2462,34 @@ html.microsoft {
                 .text {
                     .size(@width: ~"calc(100% - 40px)");
                 }
+
+                .button {
+                    .flex(1 1 auto);
+                    .flex-display;
+                    .flex-wrap(wrap-reverse);
+                    padding: 5px 15px;
+                }
+
+                .warn {
+                    .font(@size: 10px);
+                    opacity: 0.7;
+                    padding: 0 8px;
+                    text-align: center;
+                }
+
+                .info {
+                    display: none;
+                }
+
+                &.hasStats {
+                    .info {
+                        .flex-display;
+                    }
+
+                    .instruction, .button, .warn {
+                        display: none;
+                    }
+                }
             }
 
             &.corr {
@@ -2474,12 +2506,12 @@ html.microsoft {
             }
 
             .title {
-                .flex(0 0 28px);
+                .flex(0 0 25px);
                 .font(@size: 14px);
             }
 
             .instruction {
-                .font(@size: 12px);
+                .font(@size: 11px);
                 opacity: 0.7;
             }
 

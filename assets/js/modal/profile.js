@@ -380,6 +380,11 @@ window.Profile = (function($, Profile, d3) {
             });
         });
 
+        // do stats
+        $statsSection.on("click", ".genStats", function() {
+            genStats();
+        });
+
         // do correlation
         $("#profile-corr").click(function() {
             var tableId = curTableId;
@@ -425,7 +430,7 @@ window.Profile = (function($, Profile, d3) {
         var promises = [];
 
         checkAgg(statsCol);
-        promises.push(runStats(table, statsCol));
+        promises.push(runStats(table.getName(), statsCol));
 
         // do group by
         if (statsCol.groupByInfo.isComplete === true) {
@@ -634,19 +639,15 @@ window.Profile = (function($, Profile, d3) {
         }
     }
 
-    function refreshStatsInfo() {
+    function refreshStatsInfo(forceShow) {
         // update stats info
         var $infoSection = $("#profile-stats");
         var $statsInfo = $infoSection.find(".statsInfo");
 
-        if (statsCol.statsInfo.unsorted) {
-            $statsInfo.find(".info").hide()
-                    .end()
-                    .find(".instruction").show();
+        if (statsCol.statsInfo.unsorted && !forceShow) {
+            $statsInfo.removeClass("hasStats");
         } else {
-            $statsInfo.find(".instruction").hide()
-                    .end()
-                    .find(".info").show();
+            $statsInfo.addClass("hasStats");
 
             for (var key in statsKeyMap) {
                 var statsKey = statsKeyMap[key];
@@ -763,10 +764,54 @@ window.Profile = (function($, Profile, d3) {
         return deferred.promise();
     }
 
-    function runStats(table, curStatsCol) {
+    function genStats() {
+        var curStatsCol = statsCol;
+        var table = gTables[curTableId];
+        var tableName = table.getName();
+        var colName = curStatsCol.colName;
+        var sortTable = null;
+        var sql = {
+            "operation": SQLOps.ProfileStats,
+            "tableId": curTableId,
+            "colNum": curColNum,
+            "id": curStatsCol.getId()
+        };
+        var txId = Transaction.start({
+            "operation": SQLOps.ProfileStats,
+            "sql": sql
+        });
+
+        refreshStatsInfo(true);
+        XIApi.sortAscending(txId, colName, tableName)
+        .then(function(tableAfterSort) {
+            sortTable = tableAfterSort;
+            curStatsCol.statsInfo.unsorted = false;
+            return runStats(sortTable, curStatsCol);
+        })
+        .then(function() {
+            Transaction.done(txId);
+        })
+        .fail(function(error) {
+            if (isModalVisible(curStatsCol)) {
+                Transaction.fail(txId, {
+                    "failMsg": StatusMessageTStr.ProfileFailed,
+                    "error": error,
+                    "sql": sql,
+                    "noAlert": true
+                });
+                xcHelper.showFail(FailTStr.ProfileStats);
+            }
+        })
+        .always(function() {
+            if (sortTable != null) {
+                XIApi.deleteTable(txId, sortTable, true);
+            }
+        });
+    }
+
+    function runStats(tableName, curStatsCol) {
         var deferred = jQuery.Deferred();
         var hasStatsInfo = true;
-
         if (!curStatsCol.statsInfo.unsorted) {
             for (var key in statsKeyMap) {
                 var curStatsKey = statsKeyMap[key];
@@ -787,7 +832,6 @@ window.Profile = (function($, Profile, d3) {
         }
 
         var isNum = isTypeNumber(curStatsCol.type);
-        var tableName = table.getName();
         XIApi.checkOrder(tableName)
         .then(getStats)
         .then(function() {
