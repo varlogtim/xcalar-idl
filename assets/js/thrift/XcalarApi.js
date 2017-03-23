@@ -337,7 +337,7 @@ xcalarAppReap = runEntity.xcalarAppReap = function(thriftHandle, appGroupId) {
             status = result.jobStatus;
         }
         if (status != StatusT.StatusOk) {
-            deferred.reject(status);
+            deferred.reject(appReapOutput);
         }
         deferred.resolve(appReapOutput);
     })
@@ -1855,11 +1855,18 @@ xcalarApiMapWorkItem = runEntity.xcalarApiMapWorkItem = function(evalStr, srcTab
 xcalarApiMapWithWorkItem = runEntity.xcalarApiMapWithWorkItem = function(thriftHandle, workItem) {
     var deferred = jQuery.Deferred();
     if (verbose) {
-        console.log("xcalarApiMap(newFieldName = " + newFieldName +
+        var mapInput = workItem.input.mapInput;
+        var newFieldName = mapInput.newFieldName;
+        var evalStr = mapInput.evalStr;
+        var srcTableName = mapInput.srcTable.tableName;
+        var dstTableName = mapInput.dstTable.tableName;
+        var icvMode = mapInput.icvMode;
+        console.log("xcalarApiMapWithWorkItem(newFieldName = " + newFieldName +
                     ", evalStr = " + evalStr + ", srcTableName = " +
                     srcTableName + ", dstTableName = " + dstTableName +
                     ", icvMode = " + icvMode + ")");
     }
+
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result){

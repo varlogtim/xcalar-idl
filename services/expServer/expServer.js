@@ -707,6 +707,74 @@ function sendRequest(options) {
     return deferred.promise();
 }
 
+app.post("/uploadExtension", function(req, res) {
+    var tarFile = req.body.targz;
+    writeTarGzWithCleanup({status: Status.Ok,
+                           data: req.body.targz})
+    .then(function() {
+        res.jsonp({status:Status.Ok});
+    })
+    .fail(function(err) {
+        console.log("Error: " + err);
+        res.jsonp({status: Status.Error,
+                   error: err});
+    });
+});
+
+function writeTarGzWithCleanup(ret) {
+    function writeTarGz(retStruct) {
+        var innerDeferred = jQuery.Deferred();
+        try {
+            if (retStruct.status !== Status.Ok) {
+                return innerDeferred.reject(retStruct);
+            }
+        } catch(e) {
+            return innerDeferred.reject(ret);
+        }
+
+        xcConsole.log(retStruct.data.length);
+
+        var zipFile = new Buffer(retStruct.data, 'base64');
+        var zipPath = basePath + "ext-available/" + pkg.name + "-" + pkg.version +
+                      ".tar.gz";
+        xcConsole.log(zipPath);
+        fs.writeFile(basePath + "ext-available/" + pkg.name + "-" + pkg.version +
+                     ".tar.gz", zipFile, function(error) {
+            if (error) {
+                innerDeferred.reject(error);
+            }
+            xcConsole.log("Writing");
+            var out = exec("tar -zxf " + zipPath + " -C " + basePath +
+                           "ext-available/");
+            out.on('close', function(code) {
+                if (code) {
+                    innerDeferred.reject(code);
+                } else {
+                    innerDeferred.resolve();
+                }
+            });
+        });
+        return innerDeferred.promise();
+    }
+
+    var deferred = jQuery.Deferred();
+    writeTarGz(ret)
+    .then(function() {
+        // Remove the tar.gz
+        fs.unlink(basePath + "ext-available/" + pkg.name + "-" + pkg.version +
+                  ".tar.gz", function(err) {
+                    // regardless of status, this is a successful install.
+                    // we simply console log if the deletion went wrong.
+            if (err) {
+                console.log("Deletion of .tar.gz failed: " + err);
+            }
+            deferred.resolve();
+        });
+    })
+    .fail(deferred.reject);
+    return deferred.promise();
+}
+
 app.post("/downloadExtension", function(req, res) {
     var download = function(appName, version) {
         var deferred = jQuery.Deferred();
@@ -735,56 +803,7 @@ app.post("/downloadExtension", function(req, res) {
 
     download(pkg.name, pkg.version)
     .then(function(ret) {
-        xcConsole.log(ret);
-        var deferred = jQuery.Deferred();
-        var retStruct;
-        try {
-            // retStruct = JSON.parse(ret);
-            retStruct = ret;
-            if (retStruct.status !== Status.Ok) {
-                return deferred.reject(retStruct);
-            }
-        } catch(e) {
-            return deferred.reject(ret);
-        }
-
-        xcConsole.log(retStruct.data.length);
-
-        var zipFile = new Buffer(retStruct.data, 'base64');
-        var zipPath = basePath + "ext-available/" + pkg.name + "-" + pkg.version +
-                      ".tar.gz";
-        xcConsole.log(zipPath);
-        fs.writeFile(basePath + "ext-available/" + pkg.name + "-" + pkg.version +
-                     ".tar.gz", zipFile, function(error) {
-            if (error) {
-                deferred.reject(error);
-            }
-            xcConsole.log("Writing");
-            var out = exec("tar -zxf " + zipPath + " -C " + basePath +
-                           "ext-available/");
-            out.on('close', function(code) {
-                if (code) {
-                    deferred.reject(code);
-                } else {
-                    deferred.resolve();
-                }
-            });
-        });
-        return deferred.promise();
-    })
-    .then(function() {
-        var deferred = jQuery.Deferred();
-        // Remove the tar.gz
-        fs.unlink(basePath + "ext-available/" + pkg.name + "-" + pkg.version +
-                  ".tar.gz", function(err) {
-                    // regardless of status, this is a successful install.
-                    // we simply console log if the deletion went wrong.
-            if (err) {
-                console.log("Deletion of .tar.gz failed: " + err);
-            }
-            deferred.resolve();
-        });
-        return deferred.promise();
+        writeTarGzWithCleanup(ret);
     })
     .then(function() {
         res.jsonp({status: Status.Ok});
@@ -1097,7 +1116,7 @@ app.post("/uploadMeta", function(req, res) {
     upload.uploadMeta(req, res);
 });
 
-app.post('/getTimezoneOffset', function(req, res){
+app.post('/getTimezoneOffset', function(req, res) {
         var timezoneOffset = new Date().getTimezoneOffset();
         console.log("Server timezone offset: " +  timezoneOffset);
         res.send(timezoneOffset);
