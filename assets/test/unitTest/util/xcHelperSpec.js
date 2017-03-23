@@ -270,11 +270,11 @@ describe('xcHelper Test', function() {
         res = xcHelper.getFilterOptions(FltOp.Exclude, "test", {1: true});
         expect(res).to.be.an('object');
         expect(res.operator).to.be.equal(FltOp.Exclude);
-        expect(res.filterString).to.be.equal('not(eq(test, 1))');
+        expect(res.filterString).to.be.equal('neq(test, 1)');
         // exclude case 2
         res = xcHelper.getFilterOptions(FltOp.Exclude, "test", {"a": true, "b": true});
         expect(res.operator).to.be.equal(FltOp.Exclude);
-        expect(res.filterString).to.be.equal('and(not(eq(test, a)), not(eq(test, b)))');
+        expect(res.filterString).to.be.equal('and(neq(test, a), neq(test, b))');
         // exclude case 3
         res = xcHelper.getFilterOptions(FltOp.Exclude, "test", null, true);
         expect(res).to.be.an('object');
@@ -284,7 +284,7 @@ describe('xcHelper Test', function() {
         res = xcHelper.getFilterOptions(FltOp.Exclude, "test", {1: true}, true);
         expect(res).to.be.an('object');
         expect(res.operator).to.be.equal(FltOp.Exclude);
-        expect(res.filterString).to.be.equal('and(not(eq(test, 1)), exists(test))');
+        expect(res.filterString).to.be.equal('and(neq(test, 1), exists(test))');
     });
 
     it("xcHelper.getUserPrefix should work", function() {

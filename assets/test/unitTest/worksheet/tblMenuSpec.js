@@ -1238,7 +1238,7 @@ describe('TableMenu Test', function() {
             xcFunction.filter = function(colNum, tId, options) {
                 expect(colNum).to.equal(12);
                 expect(tId).to.equal(tableId);
-                expect(options.filterString).to.equal('not(eq(' + prefix + gPrefixSign + 'yelping_since, "' + cellText + '"))');
+                expect(options.filterString).to.equal('neq(' + prefix + gPrefixSign + 'yelping_since, "' + cellText + '")');
                 expect(options.operator).to.equal("Exclude");
                 called = true;
             };

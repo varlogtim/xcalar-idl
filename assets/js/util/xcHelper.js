@@ -298,10 +298,10 @@ window.xcHelper = (function($, xcHelper) {
         } else if (operator === FltOp.Exclude){
             if (len > 0) {
                 for (i = 0; i < len - 1; i++) {
-                    str += "and(not(eq(" + colName + ", " + colVals[i] + ")), ";
+                    str += "and(neq(" + colName + ", " + colVals[i] + "), ";
                 }
 
-                str += "not(eq(" + colName + ", " + colVals[len - 1] + ")";
+                str += "neq(" + colName + ", " + colVals[len - 1];
                 str += ")".repeat(len);
             }
 

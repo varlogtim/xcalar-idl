@@ -1707,7 +1707,7 @@ function generateFilterString(operator, value1, value2, value3) {
             filterStr = "le(" + value1 + ", " + value2 + ")";
             break;
         case ("Exclude number"):
-            filterStr = "not(eq(" + value1 + ", " + value2 + "))";
+            filterStr = "neq(" + value1 + ", " + value2 + ")";
             break;
         case ("Exclude string"):
             filterStr = "not(like(" + value1 + ', "' + value2 + '"))';

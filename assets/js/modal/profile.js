@@ -1035,7 +1035,7 @@ window.Profile = (function($, Profile, d3) {
         var deferred = jQuery.Deferred();
         var def1 = getAggResult(colName, tableName, aggMap.max, txId);
         var def2 = getAggResult(colName, tableName, aggMap.sum, txId);
-        
+
         PromiseHelper.when(def1, def2)
         .then(function(ret1, ret2) {
             var maxVal = ret1[0];
@@ -2476,7 +2476,7 @@ window.Profile = (function($, Profile, d3) {
                     str = "or(lt(" + colName + ", " + min + "), " +
                              "gt(" + colName + ", " + max + "))";
                 } else if (count === 1) {
-                    str = "not(eq(" + colName + ", " + min + "))";
+                    str = "neq(" + colName + ", " + min + ")";
                 }
             } else {
                 return null;
