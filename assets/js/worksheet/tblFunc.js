@@ -461,7 +461,7 @@ window.TblFunc = (function(TblFunc, $) {
 
         if ($targetTable && $targetTable.length > 0) {
             var $idCol =  $targetTable.find('.idSpan');
-            var cellWidth = $idCol.width();
+            var cellWidth = $idCol.outerWidth();
             var scrollLeft;
 
             if (datasetPreview) {
@@ -471,11 +471,12 @@ window.TblFunc = (function(TblFunc, $) {
                 scrollLeft = mainMenuOffset - $targetTable.offset().left;
             }
 
-            var rightDiff = rightOffset - (cellWidth + 15);
+            var rightDiff = rightOffset - (cellWidth + 5);
 
             if (rightDiff < mainMenuOffset) {
                 scrollLeft += rightDiff - mainMenuOffset;
             }
+            scrollLeft = Math.min($targetTable.width() - (cellWidth + 15), scrollLeft);
 
             scrollLeft = Math.max(0, scrollLeft);
             $idCol.css('left', scrollLeft);
@@ -487,14 +488,14 @@ window.TblFunc = (function(TblFunc, $) {
                     if ($targetTable.length === 0) {
                         adjustNext = false;
                     } else {
-                        rightOffset = $targetTable[0].getBoundingClientRect().right;
+                        rightOffset = $targetTable[0].getBoundingClientRect()
+                                                     .right;
                         if (rightOffset > $(window).width()) {
                             adjustNext = false;
                         }
                         $targetTable.find('.idSpan').css('left', 0);
                         $targetTable.find('th.rowNumHead > div').css('left', 0);
                     }
-
                 }
             }
         }
