@@ -250,22 +250,7 @@ window.Profile = (function($, Profile, d3) {
             }
         });
 
-        $("#profile-stats").on("click", ".popBar", function() {
-            $modal.toggleClass("collapse");
-            resizeChart();
-        });
-
-        // do correlation
-        $("#profile-corr").click(function() {
-            var tableId = curTableId;
-            var colNum = curColNum;
-            var tmp = gMinModeOn;
-            // use gMinMode to aviod blink in open/close modal
-            gMinModeOn = true;
-            closeProfileModal();
-            AggModal.corrAgg(tableId, null, [colNum], colNum);
-            gMinModeOn = tmp;
-        });
+        setupStatsSection();
     };
 
     Profile.restore = function(oldInfos) {
@@ -293,7 +278,7 @@ window.Profile = (function($, Profile, d3) {
     Profile.show = function(tableId, colNum) {
         var deferred = jQuery.Deferred();
 
-        var table   = gTables[tableId];
+        var table = gTables[tableId];
         var progCol = table.tableCols[colNum - 1];
         var colName = progCol.getBackColName();
 
@@ -378,6 +363,36 @@ window.Profile = (function($, Profile, d3) {
         });
     }
 
+    function setupStatsSection() {
+        var $statsSection = $("#profile-stats");
+        $statsSection.on("click", ".popBar", function() {
+            $modal.toggleClass("collapse");
+            resizeChart();
+        });
+
+        // do agg
+        $statsSection.on("click", ".genAgg", function() {
+            var $btn = $(this);
+            $btn.addClass("xc-disabled");
+            generateAggs()
+            .always(function() {
+                $btn.removeClass("xc-disabled");
+            });
+        });
+
+        // do correlation
+        $("#profile-corr").click(function() {
+            var tableId = curTableId;
+            var colNum = curColNum;
+            var tmp = gMinModeOn;
+            // use gMinMode to aviod blink in open/close modal
+            gMinModeOn = true;
+            closeProfileModal();
+            AggModal.corrAgg(tableId, null, [colNum], colNum);
+            gMinModeOn = tmp;
+        });
+    }
+
     function closeProfileModal() {
         modalHelper.clear();
         $modal.find(".groupbyChart").empty();
@@ -408,18 +423,8 @@ window.Profile = (function($, Profile, d3) {
     function generateProfile(table, txId) {
         var deferred = jQuery.Deferred();
         var promises = [];
-        var isNum = isTypeNumber(statsCol.type);
 
-        for (var i = 0, len = aggKeys.length; i < len; i++) {
-            var aggkey = aggKeys[i];
-            if (aggkey !== "count" && !isNum) {
-                statsCol.aggInfo[aggkey] = "--";
-                refreshAggInfo(aggkey);
-            } else {
-                promises.push(runAgg(table, aggKeys[i], statsCol, txId));
-            }
-        }
-
+        checkAgg(statsCol);
         promises.push(runStats(table, statsCol));
 
         // do group by
@@ -504,7 +509,7 @@ window.Profile = (function($, Profile, d3) {
 
         $modal.find(".modalInstruction .text").html(instr);
 
-        refreshAggInfo();
+        refreshAggInfo(aggKeys, true);
         refreshStatsInfo();
 
         return refreshGroupbyInfo();
@@ -585,29 +590,48 @@ window.Profile = (function($, Profile, d3) {
         return deferred.promise();
     }
 
-    function refreshAggInfo(aggKeysToRefesh) {
+    function refreshAggInfo(aggKeysToRefesh, isStartUp) {
         // update agg info
         var $infoSection = $("#profile-stats");
-        aggKeysToRefesh = aggKeysToRefesh || aggKeys;
         if (!(aggKeysToRefesh instanceof Array)) {
             aggKeysToRefesh = [aggKeysToRefesh];
         }
 
         aggKeysToRefesh.forEach(function(aggkey) {
             var aggVal = statsCol.aggInfo[aggkey];
-            if (aggVal == null) {
+            if (aggVal == null && !isStartUp) {
                 // when aggregate is still running
                 $infoSection.find("." + aggkey).html("...")
                             .attr("data-origina-title", "...")
                             .addClass("animatedEllipsis");
             } else {
-                var text = xcHelper.numToStr(aggVal);
+                var text = (aggVal != null) ? xcHelper.numToStr(aggVal) : "N/A";
                 $infoSection.find("." + aggkey)
                             .removeClass("animatedEllipsis")
                             .attr("data-original-title", text)
                             .text(text);
             }
         });
+
+        // update the section
+        var notRunAgg = false;
+        aggKeys.forEach(function(aggkey) {
+            if (aggkey !== "count" && statsCol.aggInfo[aggkey] == null) {
+                notRunAgg = true;
+                return false; // end loop
+            }
+        });
+
+        var $section = $("#profile-stats").find(".aggInfo");
+        if (isStartUp) {
+            $section.find(".genAgg").removeClass("xc-disabled");
+        }
+
+        if (notRunAgg) {
+            $section.removeClass("hasAgg");
+        } else {
+            $section.addClass("hasAgg");
+        }
     }
 
     function refreshStatsInfo() {
@@ -659,7 +683,54 @@ window.Profile = (function($, Profile, d3) {
         return (deferred.promise());
     }
 
-    function runAgg(table, aggkey, curStatsCol, txId) {
+    function checkAgg(curStatsCol) {
+        var isNum = isTypeNumber(curStatsCol.type);
+        aggKeys.forEach(function(aggkey) {
+            if (aggkey === "count") {
+                if (curStatsCol.aggInfo[aggkey] == null &&
+                    gTables.hasOwnProperty(curTableId) &&
+                    gTables[curTableId].resultSetCount != null) {
+                    var count = gTables[curTableId].resultSetCount;
+                    curStatsCol.aggInfo[aggkey] = count;
+                    refreshAggInfo(aggkey);
+                }
+            } else if (!isNum) {
+                curStatsCol.aggInfo[aggkey] = "--";
+                refreshAggInfo(aggkey);
+            }
+        });
+    }
+
+    function generateAggs() {
+        var deferred = jQuery.Deferred();
+        var promises = [];
+        var sql = {
+            "operation": SQLOps.ProfileAgg,
+            "tableId": curTableId,
+            "colNum": curColNum,
+            "id": statsCol.getId()
+        };
+        var txId = Transaction.start({
+            "operation": SQLOps.ProfileAgg,
+            "sql": sql
+        });
+
+        // show ellipsis as progressing
+        refreshAggInfo(aggKeys);
+        aggKeys.forEach(function(aggkey) {
+            promises.push(runAgg(aggkey, statsCol, txId));
+        });
+
+        PromiseHelper.when.apply(this, promises)
+        .always(function() {
+            Transaction.done(txId);
+            deferred.resolve();
+        });
+
+        return deferred.promise();
+    }
+
+    function runAgg(aggkey, curStatsCol, txId) {
         // pass in statsCol beacuse close modal may clear the global statsCol
         if (curStatsCol.aggInfo[aggkey] != null) {
             // when already have cached agg info
@@ -668,26 +739,25 @@ window.Profile = (function($, Profile, d3) {
 
         var deferred = jQuery.Deferred();
         var fieldName = curStatsCol.colName;
+        var tableName = gTables[curTableId].getName();
         var aggrOp = aggMap[aggkey];
         var res;
 
-        getAggResult(fieldName, table.getName(), aggrOp, txId)
+        getAggResult(fieldName, tableName, aggrOp, txId)
         .then(function(val) {
             res = val;
-            deferred.resolve();
         })
         .fail(function(error) {
             res = "--";
             console.error(error);
-            deferred.resolve();
         })
         .always(function() {
             curStatsCol.aggInfo[aggkey] = res;
-
             // modal is open and is for that column
             if (isModalVisible(curStatsCol)) {
                 refreshAggInfo(aggkey);
             }
+            deferred.resolve();
         });
 
         return deferred.promise();

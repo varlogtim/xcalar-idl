@@ -37,6 +37,7 @@ module.exports = {
         "Func": "Function",
         "Header": "Header",
         "Help": "Help",
+        "Generate": "Generate",
         "LastUpdated": "Last updated",
         "Loading": "Loading",
         "Location": "Location",
@@ -821,7 +822,8 @@ module.exports = {
         "filterSingle": "Filter this value",
         "filterPlural": "Filter these values",
         "exclude": "Exclude",
-        "LAUNCH": "LAUNCH"
+        "LAUNCH": "LAUNCH",
+        "Corr": "Launch Correlation Calculator"
     },
 
     "workbook": {

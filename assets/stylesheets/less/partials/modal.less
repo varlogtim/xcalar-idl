@@ -2398,7 +2398,7 @@ html.microsoft {
         }
 
         .container {
-            .size(@width: 100%, @height: ~"calc(50% - 43px)");
+            .size(@width: 100%);
             padding: 5px 15px;
             border-top: 1px solid @color-border-pinkish-grey2;
             .flex-display;
@@ -2409,6 +2409,24 @@ html.microsoft {
             }
 
             &.aggInfo {
+                &.hasAgg {
+                    .info.aggCount {
+                        margin-bottom: 0;
+                        border-bottom: none;
+
+                        + .info {
+                            margin-top: 0;
+                        }
+                    }
+
+                    .btn {
+                        pointer-events: none;
+                        opacity: @opacity-disabled;
+                    }
+                }
+
+                .size(@height: 50%);
+
                 .label {
                     .size(@width: 55px);
                     text-transform: capitalize;
@@ -2417,9 +2435,22 @@ html.microsoft {
                 .text {
                     .size(@width: ~"calc(100% - 55px)");
                 }
+
+                .info {
+                    &.aggCount {
+                        margin-bottom: 2px;
+                        border-bottom: 1px solid @color-bg-pinkish-grey2;
+
+                        + .info {
+                            margin-top: 2px;
+                        }
+                    }
+                }
             }
 
             &.statsInfo {
+                .size(@height: ~"calc(50% - 50px)");
+
                 .label {
                     .size(@width: 36px);
                 }
@@ -2430,9 +2461,9 @@ html.microsoft {
             }
 
             &.corr {
-                .size(@height: 86px);
+                padding: 10px 15px;
+                .size(@height: 50px);
                 button {
-                    margin-top: 18px;
                     i {
                         position: relative;
                         left: -8px;
@@ -2475,6 +2506,11 @@ html.microsoft {
                         width: 2px !important;
                     }
                 }
+            }
+
+            .btn {
+                .size(@height: 30px);
+                line-height: 30px;
             }
         }
     }

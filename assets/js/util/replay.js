@@ -1308,6 +1308,10 @@ window.Replay = (function($, Replay) {
         return deferred.promise();
     };
 
+    replayFuncs[SQLOps.ProfileAgg] = function(options) {
+        throw "not suported yet!";
+    }
+
     replayFuncs[SQLOps.QuickAgg] = function(options) {
         var deferred = jQuery.Deferred();
         var args = getArgs(options);
@@ -1409,7 +1413,8 @@ window.Replay = (function($, Replay) {
         var nextSql = options.nextReplay || {};
         var nextOptions = nextSql.options || {};
         if (nextOptions.operation === SQLOps.ProfileSort ||
-            nextOptions.operation === SQLOps.ProfileBucketing)
+            nextOptions.operation === SQLOps.ProfileBucketing ||
+            nextOptions.operation === SQLOps.ProfileAgg)
         {
             if (options.id === nextOptions.id) {
                 return true;

@@ -305,6 +305,7 @@ var SQLOps = {
     DSDropBack: "dsBack",
     DelFolder: "deleteFolder",
     Profile: "profile",
+    ProfileAgg: "profileAggregate",
     ProfileSort: "profileSort",
     ProfileBucketing: "profileBucketing",
     QuickAgg: "quickAgg",
