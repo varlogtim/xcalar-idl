@@ -221,17 +221,27 @@ window.DSCart = (function($, DSCart) {
         var newTableCols = [];
         var dsName = cart.getDSName();
         var srcName = cart.getTableName();
-        var tableName = srcName + Authentication.getHashId();
+        var startTableName = srcName + Authentication.getHashId();
+        var endTableName = startTableName;
         var cartId = cart.getId();
+        var dsObj = DS.getDSObj(cartId);
+        var sortByLineNum = false;
+        var numSteps = 1;
+        if (dsObj.moduleName === "genlinenumber") {
+            sortByLineNum = true;
+            endTableName = srcName + Authentication.getHashId();
+            numSteps++;
+        }
 
         // add sql
         var sql = {
             "operation": SQLOps.IndexDS,
             "dsName": dsName,
             "dsId": cartId,
-            "tableName": tableName,
+            "tableName": endTableName,
             "columns": [],
             "worksheet": worksheet,
+            "sortedByLineNum": sortByLineNum,
             "htmlExclude": ["worksheet"]
         };
 
@@ -264,29 +274,40 @@ window.DSCart = (function($, DSCart) {
         DSCart.removeCart(cartId);
         DSCart.refresh();
         var txId = Transaction.start({
-            "msg": StatusMessageTStr.CreatingTable + ': ' + tableName,
+            "msg": StatusMessageTStr.CreatingTable + ': ' + endTableName,
             "operation": SQLOps.IndexDS,
             "sql": sql,
-            "steps": 1
+            "steps": numSteps
         });
 
-        XcalarIndexFromDataset(dsName, "recordNum", tableName, prefix, txId)
+        XcalarIndexFromDataset(dsName, "recordNum", startTableName, prefix, txId)
         .then(function() {
+            if (sortByLineNum) {
+                return XcalarIndexFromTable(startTableName, "lineNumber", endTableName,
+                                        XcalarOrderingT.XcalarOrderingAscending, txId);
+            } else {
+                return PromiseHelper.resolve();
+            }
+        })
+        .then(function() {
+            if (sortByLineNum) {
+                TblManager.setOrphanTableMeta(startTableName, newTableCols);
+            }
             var options = {"focusWorkspace": !noFocus};
-            return TblManager.refreshTable([tableName], newTableCols,
+            return TblManager.refreshTable([endTableName], newTableCols,
                                             [], worksheet, txId, options);
         })
         .then(function() {
             // this will be saved later
             Transaction.done(txId, {
-                "msgTable": xcHelper.getTableId(tableName),
+                "msgTable": xcHelper.getTableId(endTableName),
                 "title": TblTStr.Create,
                 "msgOptions": {
                     "indexNotification": noFocus
                 }
             });
             // resolve tableName for unit test
-            deferred.resolve(tableName);
+            deferred.resolve(endTableName);
         })
         .fail(function(error) {
             Transaction.fail(txId, {

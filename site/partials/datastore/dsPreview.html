@@ -187,6 +187,17 @@
             </div>
           </div>
           <!-- row -->
+          <!-- row -->
+          <div class="row" <%= (dicts.tutor.name == 'datastoreTut1' || dicts.tutor.name == 'dataStoreTut1Demo') ? 'style="display:none;"' : '' %>>
+            <div id="genLineNumbersCheckbox" class="checkboxSection rowContent">
+              <div class="text">Generate Line Numbers</div>
+              <div class="checkbox">
+                <i class="icon xi-ckbox-empty"></i>
+                <i class="icon xi-ckbox-selected"></i>
+              </div>
+            </div>
+          </div>
+          <!-- row -->
           <div class="row">
             <label for="lineText"><%= dicts.dsForm.LineDelim %>:</label>
             <div id="lineDelim" class="dropDownList" <%= (dicts.tutor.name == 'datastoreTut1' || dicts.tutor.name == 'datastoreTut1Demo') ? 'data-introstep="w2-dsOptions"' : '' %>>

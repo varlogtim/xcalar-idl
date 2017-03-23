@@ -19,6 +19,7 @@ window.DSPreview = (function($, DSPreview) {
     var $udfFuncList;   // $("#udfArgs-funcList")
 
     var $headerCheckBox; // $("#promoteHeaderCheckbox") promote header checkbox
+    var $genLineNumCheckBox; // $("#genLineNumbersCheckbox");
 
     var tableName = null;
     var rawData = null;
@@ -69,6 +70,7 @@ window.DSPreview = (function($, DSPreview) {
         $udfFuncList = $("#udfArgs-funcList");
 
         $headerCheckBox = $("#promoteHeaderCheckbox");
+        $genLineNumCheckBox = $("#genLineNumbersCheckbox");
 
         var $advanceOption = $form.find(".advanceOption");
         advanceOption = new DSFormAdvanceOption($advanceOption, "#dsForm-preview");
@@ -349,6 +351,18 @@ window.DSPreview = (function($, DSPreview) {
             } else {
                 $checkbox.addClass("checked");
                 toggleHeader(true);
+            }
+        });
+
+        $genLineNumCheckBox.on("click", function() {
+            var $checkbox = $genLineNumCheckBox.find(".checkbox");
+            if ($checkbox.hasClass("checked")) {
+                // remove header
+                $checkbox.removeClass("checked");
+                toggleGenLineNum(false);
+            } else {
+                $checkbox.addClass("checked");
+                toggleGenLineNum(true);
             }
         });
 
@@ -860,7 +874,26 @@ window.DSPreview = (function($, DSPreview) {
         var udfModule = "";
         var udfFunc = "";
 
-        if (hasUDF) {
+        if (format === "raw" &&
+            $genLineNumCheckBox.find(".checkbox").hasClass("checked")) {
+            udfModule = "genlinenumber";
+            if (loadArgs.useHeader()) {
+                udfFunc = "genLineNumberWithHeader";
+            } else {
+                udfFunc = "genLineNumber";
+            }
+            format = formatMap.JSON;
+            return {
+                "dsName": dsName,
+                "format": format,
+                "udfModule": udfModule,
+                "udfFunc": udfFunc,
+                "fieldDelim": "\t",
+                "lineDelim": "\n",
+                "quote": "\"",
+                "skipRows": 0
+            };
+        } else if (hasUDF) {
             var $moduleInput = $udfModuleList.find("input");
             var $funcInput = $udfFuncList.find("input");
 
@@ -1100,6 +1133,8 @@ window.DSPreview = (function($, DSPreview) {
 
         var $lineDelim = $("#lineDelim").parent().removeClass("xc-hidden");
         var $fieldDelim = $("#fieldDelim").parent().removeClass("xc-hidden");
+        var $genLineNums = $("#genLineNumbersCheckbox").parent()
+                                                      .addClass("xc-hidden");
         var $udfArgs = $("#udfArgs").removeClass("xc-hidden");
         var $headerRow = $headerCheckBox.parent().removeClass("xc-hidden");
         var $quoteRow = $quote.closest(".row").removeClass("xc-hidden");
@@ -1132,6 +1167,8 @@ window.DSPreview = (function($, DSPreview) {
             case "TEXT":
                 // no field delimiter when format is text
                 $fieldDelim.addClass("xc-hidden");
+                $genLineNums.removeClass("xc-hidden");
+                toggleGenLineNum(false);
                 loadArgs.setFieldDelim("");
                 break;
             case "EXCEL":
@@ -1746,6 +1783,25 @@ window.DSPreview = (function($, DSPreview) {
             $trs.eq(0).before(html);
             $headers.eq(0).empty()
                     .closest("th").removeClass("undo-promote");
+        }
+    }
+
+    function toggleGenLineNum(genLineNum) {
+        if (genLineNum) {
+            $genLineNumCheckBox.find(".checkbox").addClass("checked");
+            $("#udfArgs").addClass("xc-hidden");
+            $("#lineDelim").parent().addClass("xc-hidden");
+            $quote.closest(".row").addClass("xc-hidden");
+            $("#dsForm-skipRows").closest(".row").addClass("xc-hidden");
+            $form.find(".advanceSection").addClass("xc-hidden");
+
+        } else {
+            $genLineNumCheckBox.find(".checkbox").removeClass("checked");
+            $("#udfArgs").removeClass("xc-hidden");
+            $("#lineDelim").parent().removeClass("xc-hidden");
+            $quote.closest(".row").removeClass("xc-hidden");
+            $("#dsForm-skipRows").closest(".row").removeClass("xc-hidden");
+            $form.find(".advanceSection").removeClass("xc-hidden");
         }
     }
 
