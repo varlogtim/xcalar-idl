@@ -154,20 +154,19 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
             "dataType": "JSON",
             "url": url + "/downloadExtension",
             "data": {name: ext.getName(), version: ext.getVersion()},
-            "success": function(data) {
-                // Now we need to enable after installing
-                console.log(data);
-                return enableExtension(ext.getName());
-            },
-            "error": function(error) {
-                xcHelper.enableSubmit($submitBtn);
-                Alert.error(ErrTStr.ExtDownloadFailure, JSON.stringify(error));
-            }
+        })
+        .then(function(data) {
+            // Now we need to enable after installing
+            console.log(data);
+            return enableExtension(ext.getName());
         })
         .then(function() {
             refreshAfterInstall(ext);
             xcHelper.enableSubmit($submitBtn);
             xcHelper.showSuccess(SuccessTStr.ExtDownload);
+        })
+        .fail(function(error) {
+            Alert.error(ErrTStr.ExtDownloadFailure, JSON.stringify(error));
         })
         .always(function() {
             xcHelper.enableSubmit($submitBtn);
