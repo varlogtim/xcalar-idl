@@ -146,9 +146,7 @@ window.DSPreview = (function($, DSPreview) {
 
     // restore: boolean, set to true if restoring after an error
     DSPreview.show = function(options, fromFormCard, dsId, restore) {
-
         xcHelper.enableSubmit($form.find(".confirm"));
-
         DSForm.switchView(DSForm.View.Preview);
 
         if (dsId != null) {
@@ -1608,7 +1606,12 @@ window.DSPreview = (function($, DSPreview) {
 
     function autoPreview() {
         $("#dsForm-skipRows").val(0);
+        var oldFormat = loadArgs.getFormat();
         smartDetect(true);
+        var newFormat = loadArgs.getFormat();
+        if (oldFormat !== formatMap.EXCEL && newFormat === formatMap.EXCEL) {
+            refreshPreview();
+        }
     }
 
     function refreshPreview(noDetect) {
@@ -2254,8 +2257,7 @@ window.DSPreview = (function($, DSPreview) {
 
         // step 1: detect format
         var lineDelim = loadArgs.getLineDelim();
-        var format = loadArgs.getFormat();
-        detectArgs.format = detectFormat(format, rawData, lineDelim);
+        detectArgs.format = detectFormat(rawData, lineDelim);
 
         var formatText;
         for (var key in formatMap) {
@@ -2297,7 +2299,9 @@ window.DSPreview = (function($, DSPreview) {
         }
     }
 
-    function detectFormat(format, data, lineDelim) {
+    function detectFormat(data, lineDelim) {
+        var path = loadArgs.getPath();
+        var format = xcHelper.getFormat(path);
         if (format === formatMap.EXCEL) {
             return format;
         } else {

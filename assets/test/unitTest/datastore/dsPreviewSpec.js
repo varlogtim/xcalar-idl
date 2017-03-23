@@ -302,16 +302,17 @@ describe("DSPreview Test", function() {
 
         it("Should detect correct format", function() {
             var detectFormat = DSPreview.__testOnly__.detectFormat;
-            expect(detectFormat("Excel")).to.equal("Excel");
-
+            loadArgs.set({"path": "test.xlsx"});
+            expect(detectFormat()).to.equal("Excel");
+            loadArgs.set({"path": "test"});
             var data = "[{\"test\"}";
-            expect(detectFormat(null, data, "\n")).to.equal("JSON");
+            expect(detectFormat(data, "\n")).to.equal("JSON");
 
             data = "{\"test\": \"val\"}";
-            expect(detectFormat(null, data, "\n")).to.equal("JSON");
+            expect(detectFormat(data, "\n")).to.equal("JSON");
 
             data = "abc";
-            expect(detectFormat(null, data, "\n")).to.equal("CSV");
+            expect(detectFormat(data, "\n")).to.equal("CSV");
         });
 
         it("Should detect correct header", function() {
