@@ -101,6 +101,8 @@ window.ColManager = (function($, ColManager) {
         }
         if (gMinModeOn || noAnimate) {
             TblFunc.moveTableTitles($table.closest('.xcTableWrap'));
+            // for tableScrollBar
+            TblFunc.moveFirstColumn();
         } else {
             TblFunc.moveTableTitlesAnimated(tableId, tableWidth, colWidths, 200);
         }
@@ -117,8 +119,6 @@ window.ColManager = (function($, ColManager) {
                       .removeClass('col' + oldColNum)
                       .addClass('col' + j);
             }
-
-            TblFunc.moveFirstColumn();
 
             TblManager.updateHeaderAndListInfo(tableId);
             xcHelper.removeSelectionRange();

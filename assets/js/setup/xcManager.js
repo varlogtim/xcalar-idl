@@ -700,6 +700,8 @@ window.xcManager = (function(xcManager, $) {
                     RowScroller.genFirstVisibleRowNum();
                 }
                 TblFunc.moveTableDropdownBoxes();
+                // for tableScrollBar
+                TblFunc.moveFirstColumn();
                 TblManager.adjustRowFetchQuantity();
                 DagPanel.setScrollBarId($(window).height());
                 DagPanel.adjustScrollBarPositionAndSize();

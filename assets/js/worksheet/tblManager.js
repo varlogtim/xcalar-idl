@@ -890,6 +890,7 @@ window.TblManager = (function($, TblManager) {
         // record original position of each column
         for (var colNum = 1; colNum <= numCols; colNum++) {
             var progCol = table.getCol(colNum);
+            // XXX need to handle duplicate empty col names
             colNumMap[progCol.getBackColName()] = colNum;
             var $th = $table.find("th.col" + colNum);
             thLists[colNum] = $th;

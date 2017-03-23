@@ -157,6 +157,8 @@ window.TblAnim = (function($, TblAnim) {
         }, 0);
 
         TblFunc.moveTableDropdownBoxes();
+        // for tableScrollBar
+        TblFunc.moveFirstColumn();
 
         if (!isDatastore && wasResized) {
             SQL.add(SQLTStr.ResizeCol, {
@@ -560,6 +562,7 @@ window.TblAnim = (function($, TblAnim) {
 
         var cursorStyle = '<div id="moveCursor"></div>';
         $('body').addClass('tooltipOff').append(cursorStyle);
+        $tableWrap.addClass("checkingColDrag");
 
         $('.highlightBox').remove();
 
@@ -574,6 +577,7 @@ window.TblAnim = (function($, TblAnim) {
         if (Math.abs(dragInfo.mouseX - dragInfo.pageX) < 2) {
             return;
         }
+        dragInfo.$tableWrap.removeClass("checkingColDrag");
 
         $(document).off('mousemove.checkColDrag');
         $(document).on('mousemove.onColDrag', onColDrag);
@@ -647,7 +651,7 @@ window.TblAnim = (function($, TblAnim) {
             }
 
             TblFunc.moveTableTitles();
-            TblFunc.moveFirstColumn();
+            TblFunc.moveFirstColumn(null, true);
         });
 
         // create a fake transparent column by cloning
@@ -675,6 +679,7 @@ window.TblAnim = (function($, TblAnim) {
         $(document).off('mouseup.endColDrag');
         $('#moveCursor').remove();
         setTimeout(function() {
+            dragInfo.$tableWrap.removeClass("checkingColDrag");
             $('body').removeClass('tooltipOff');
             // without timeout, tooltip will flicker on and off
         }, 0);
@@ -685,7 +690,6 @@ window.TblAnim = (function($, TblAnim) {
             $(document).off('mousemove.checkColDrag');
             return;
         }
-
         $(document).off('mousemove.onColDrag');
 
         gMouseStatus = null;
@@ -738,7 +742,6 @@ window.TblAnim = (function($, TblAnim) {
         setTimeout(function() {
             TblFunc.unhideOffScreenTables();
         }, 0);
-
     }
 
     function cloneCellHelper(obj) {

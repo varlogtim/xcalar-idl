@@ -152,6 +152,8 @@ window.TblFunc = (function(TblFunc, $) {
 
         TblFunc.moveTableDropdownBoxes();
         TblFunc.moveTableTitles();
+        // for scrollbar
+        TblFunc.moveFirstColumn();
         $table.find('.rowGrab').width(tableWidth);
         $table.siblings('.rowGrab').width(tableWidth);
     };
@@ -337,6 +339,8 @@ window.TblFunc = (function(TblFunc, $) {
             $tableTitle.animate({left: center}, speed, "linear", function() {
                 $thead.find('.dropdownBox').removeClass('dropdownBoxHidden');
                 TblFunc.moveTableDropdownBoxes();
+                // for tableScrollBar
+                TblFunc.moveFirstColumn();
             });
         }
     };
