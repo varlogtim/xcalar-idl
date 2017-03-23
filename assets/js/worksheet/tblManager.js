@@ -885,13 +885,21 @@ window.TblManager = (function($, TblManager) {
         }
 
         var colNumMap = {};
-        var thLists = [];
+        var thLists = {};
+        var noNameCols = [];
         var $table = $("#xcTable-" + tableId);
         // record original position of each column
         for (var colNum = 1; colNum <= numCols; colNum++) {
             var progCol = table.getCol(colNum);
-            // XXX need to handle duplicate empty col names
-            colNumMap[progCol.getBackColName()] = colNum;
+            var colName = progCol.getFrontColName(true);
+
+            // can't use map for columns with no name because of duplicates
+            if (colName === "") {
+                noNameCols.push(colNum);
+            } else {
+                colNumMap[colName] = colNum;
+            }
+
             var $th = $table.find("th.col" + colNum);
             thLists[colNum] = $th;
         }
@@ -900,11 +908,19 @@ window.TblManager = (function($, TblManager) {
 
         var $rows = $table.find('tbody tr');
         var numRows = $rows.length;
+        var noNameIndex = 0;
         // loop through each column
         for (var i = 0; i < numCols; i++) {
             var newColNum = i + 1;
             var newProgCol = table.getCol(newColNum);
-            var oldColNum = colNumMap[newProgCol.getBackColName()];
+            var colName = newProgCol.getFrontColName(true);
+            var oldColNum;
+            if (colName === "") {
+                oldColNum = noNameCols[noNameIndex];
+                noNameIndex++;
+            } else {
+                oldColNum = colNumMap[colName];
+            }
             var $thToMove = thLists[oldColNum];
 
             $thToMove.removeClass("col" + oldColNum)
