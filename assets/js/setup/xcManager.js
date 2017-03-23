@@ -991,7 +991,7 @@ window.xcManager = (function(xcManager, $) {
 
             var tableId = gActiveTableId;
             var $lastTarget = gMouseEvents.getLastMouseDownTarget();
-            var isInMainFrame = $lastTarget.selector === "" ||
+            var isInMainFrame = !$lastTarget.context ||
                                 ($lastTarget.closest("#mainFrame").length > 0 &&
                                 !$lastTarget.is("input"));
 
