@@ -1167,9 +1167,12 @@ window.DSPreview = (function($, DSPreview) {
             case "TEXT":
                 // no field delimiter when format is text
                 $fieldDelim.addClass("xc-hidden");
-                $genLineNums.removeClass("xc-hidden");
+
                 toggleGenLineNum(false);
                 loadArgs.setFieldDelim("");
+                if ($("#preview-file").hasClass("xc-hidden")) {
+                    $genLineNums.removeClass("xc-hidden");
+                }
                 break;
             case "EXCEL":
                 $lineDelim.addClass("xc-hidden");
