@@ -27,33 +27,31 @@ window.RowManager = (function($, RowManager) {
             startIndex = 0;
         }
 
-        if (direction === RowDirection.Bottom) {
-            var num = xcHelper.parseRowNum($("#xcTable-" + tableId).find("tbody tr").last());
-            if (!info.bulk && num > startIndex) {
-
-            }
-        }
         prepTableForAddingRows(startIndex, numRowsToAdd, direction, info);
 
         fetchRows(startIndex, numRowsToAdd, direction, info)
         .then(function() {
             TblFunc.moveFirstColumn();
-            if (info.bulk) {
-                removeOldRows(info, direction);
-            }
+
 
             if (info.missingRows) {
                 console.log('some rows were too large to be retrieved,' +
                             'rows:', info.missingRows);
             }
+            if (info.bulk) {
+                removeOldRows(info);
+            }
+            tableCleanup(info);
+
             deferred.resolve(info);
         })
         .fail(function(error) {
+            if (info.bulk) {
+                removeOldRows(info);
+            }
+            tableCleanup(info);
             console.error("goToPage fails!", error);
             deferred.reject(error);
-        })
-        .always(function() {
-            tableCleanup(info);
         });
 
         return deferred.promise();
@@ -108,7 +106,6 @@ window.RowManager = (function($, RowManager) {
                 });
             }
 
-
             TblFunc.moveFirstColumn();
 
             if (numRowsLacking > 0) {
@@ -159,7 +156,8 @@ window.RowManager = (function($, RowManager) {
     }
 
     function tableCleanup(info) {
-        info.$table.find('.tempRow').remove();
+        info.$table.find('.tempRow').removeClass("tempRow")
+                                    .addClass("empty");
         var $xcTbodyWrap = $('#xcTbodyWrap-' + info.tableId);
         var scrollTop = $xcTbodyWrap.scrollTop();
         var prevScrollTop = scrollTop;
@@ -230,7 +228,7 @@ window.RowManager = (function($, RowManager) {
 
     // for bulk
     // also handles the scroll position
-    function removeOldRows(info, direction) {
+    function removeOldRows(info) {
         var $table = info.$table;
         var prevTableHeight = $table.height();
         var $xcTbodyWrap = $('#xcTbodyWrap-' + info.tableId);
@@ -244,6 +242,12 @@ window.RowManager = (function($, RowManager) {
         var scrollTop = Math.max(2, prevScrollTop - (prevTableHeight -
                                                     $table.height()));
         $xcTbodyWrap.scrollTop(scrollTop);
+        var numMissingRows = info.numRowsToAdd - info.numRowsAdded;
+        if (numMissingRows) {
+            var startIndex = table.currentRowNumber - numMissingRows;
+            addTempRows(info.tableId, startIndex, numMissingRows,
+                        RowDirection.Bottom);
+        }
     }
 
 
@@ -315,12 +319,13 @@ window.RowManager = (function($, RowManager) {
                 XcalarMakeResultSetFromTable(table.getName())
                 .then(function(result) {
                     table.resultSetId = result.resultSetId;
-                    return tableGetNextPage(table, numRowsToFetch, true);
+                    return getNextPage(table, numRowsToFetch, true);
                 })
                 .then(deferred.resolve)
                 .fail(deferred.reject);
             } else {
                 deferred.reject(error);
+                Alert.error(ErrTStr.NotDisplayRows, error);
             }
         });
 

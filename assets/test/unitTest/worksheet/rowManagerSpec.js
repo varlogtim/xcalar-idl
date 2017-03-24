@@ -340,6 +340,68 @@ describe('RowManager Test', function() {
         });
     });
 
+    describe("Fail Handlers", function() {
+        it("SetAbsolute Fail should work", function(done) {
+            var cachedFn = XcalarSetAbsolute;
+            XcalarSetAbsolute = function() {
+                return PromiseHelper.reject({status: StatusT.StatusInvalidResultSetId});
+            };
+
+            var info = {
+                bulk: true,
+                currentFirstRow: 0,
+                lastRowToDisplay: 60,
+                tableId: tableId,
+                targetRow: 1
+            };
+
+            RowManager.addRows(0, 60, RowDirection.Bottom, info)
+            .then(function() {
+                expect(true).to.be.false;
+            })
+            .fail(function() {
+                expect($table.find("tbody tr").length).to.equal(60);
+                expect($table.find("tbody tr.empty").length).to.equal(60);
+                expect($table.find("tbody tr").eq(0).hasClass("row0")).to.be.true;
+                expect($table.find("tbody tr").last().hasClass("row59")).to.be.true;
+                expect(gTables[tableId].currentRowNumber).to.equal(60);
+                UnitTest.hasAlertWithTitle("Could not display rows");
+                XcalarSetAbsolute = cachedFn;
+                done();
+            })
+        });
+
+        it("GetNextPage Fail should work", function(done) {
+            var cachedFn = XcalarGetNextPage;
+            XcalarGetNextPage = function() {
+                return PromiseHelper.reject({status: StatusT.StatusInvalidResultSetId});
+            };
+
+            var info = {
+                bulk: true,
+                currentFirstRow: 0,
+                lastRowToDisplay: 60,
+                tableId: tableId,
+                targetRow: 1
+            };
+
+            RowManager.addRows(0, 60, RowDirection.Bottom, info)
+            .then(function() {
+                expect(true).to.be.false;
+            })
+            .fail(function() {
+                expect($table.find("tbody tr").length).to.equal(60);
+                expect($table.find("tbody tr.empty").length).to.equal(60);
+                expect($table.find("tbody tr").eq(0).hasClass("row0")).to.be.true;
+                expect($table.find("tbody tr").last().hasClass("row59")).to.be.true;
+                expect(gTables[tableId].currentRowNumber).to.equal(60);
+                UnitTest.hasAlertWithTitle("Could not display rows");
+                XcalarGetNextPage = cachedFn;
+                done();
+            })
+        });
+    });
+
     after(function(done) {
         setTimeout(function() {
             UnitTest.deleteTable(oldTableName, TableType.Orphan)

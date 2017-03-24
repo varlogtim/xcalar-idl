@@ -120,6 +120,7 @@ window.TblManager = (function($, TblManager) {
                 if (worksheet != null) {
                     WSManager.removeTable(newTableId);
                     delete gTables[newTableId];
+                    removeTableDisplay(newTableId);
                 }
                 deferred.reject(error);
             })
@@ -318,10 +319,6 @@ window.TblManager = (function($, TblManager) {
             $("#dagWrap-" + tableId).addClass('dagWrapToRemove');
         } else {
             removeTableDisplay(tableId);
-            if (gActiveTableId === tableId) {
-                $('#rowInput').val("").data("val", "");
-                $('#numPages').empty();
-            }
         }
 
         if (!del) {
@@ -825,10 +822,6 @@ window.TblManager = (function($, TblManager) {
 
     TblManager.hideWorksheetTable = function(tableId) {
         removeTableDisplay(tableId);
-
-        if (gActiveTableId === tableId) {
-            gActiveTableId = null;
-        }
     };
 
     TblManager.hideTable = function(tableId) {
@@ -1516,6 +1509,11 @@ window.TblManager = (function($, TblManager) {
     function removeTableDisplay(tableId) {
         $("#xcTableWrap-" + tableId).remove();
         Dag.destruct(tableId);
+        if (gActiveTableId === tableId) {
+            $('#rowInput').val("").data("val", "");
+            $('#numPages').empty();
+            gActiveTableId = null;
+        }
     }
 
     function focusOnWorkspace() {
@@ -1550,6 +1548,7 @@ window.TblManager = (function($, TblManager) {
         var table = gTables[tableId];
         var $table;
         options = options || {};
+        var initialTableBuilt = false;
 
         RowManager.getFirstPage(tableId)
         .then(function(jsonData) {
@@ -1565,6 +1564,7 @@ window.TblManager = (function($, TblManager) {
             }
 
             buildInitialTable(tableId, jsonData, options);
+            initialTableBuilt = true;
 
             $table = $('#xcTable-' + tableId);
             var requiredNumRows = Math.min(gMaxEntriesPerPage,
@@ -1593,12 +1593,30 @@ window.TblManager = (function($, TblManager) {
                 return RowManager.addRows(table.currentRowNumber,
                                             numRowsStillNeeded,
                                             RowDirection.Bottom, info);
+            } else {
+                return PromiseHelper.resolve();
             }
         })
         .then(function() {
-            var lastRow = $table.find('tr:last');
-            var lastRowNum = parseInt(lastRow.attr('class')
-                                             .substr(3));
+            afterBuild();
+            deferred.resolve();
+        })
+        .fail(function(error) {
+            if (!initialTableBuilt) {
+                 console.error("startBuildTable fails!", error);
+                deferred.reject(error);
+            } else {
+                afterBuild();
+                deferred.resolve();
+            }
+        })
+        .always(function() {
+            TblManager.removeWaitingCursor(tableId);
+        });
+
+        function afterBuild() {
+            var $lastRow = $table.find('tr:last');
+            var lastRowNum = xcHelper.parseRowNum($lastRow);
             table.currentRowNumber = lastRowNum + 1;
             if (options.selectCol != null &&
                 $('.xcTable th.selectedCell').length === 0)
@@ -1619,15 +1637,7 @@ window.TblManager = (function($, TblManager) {
             autoSizeDataCol(tableId);
             // position sticky row column on visible tables
             TblFunc.moveFirstColumn();
-            deferred.resolve();
-        })
-        .fail(function(error) {
-            console.error("startBuildTable fails!", error);
-            deferred.reject(error);
-        })
-        .always(function() {
-            TblManager.removeWaitingCursor(tableId);
-        });
+        }
 
         return deferred.promise();
     }

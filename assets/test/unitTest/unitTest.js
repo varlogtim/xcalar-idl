@@ -276,7 +276,8 @@ window.UnitTest = (function(UnitTest, $) {
         options = options || {};
         var $alertModal = $("#alertModal");
         assert.isTrue($alertModal.is(":visible"));
-        expect($("#alertHeader .text").text()).to.equal(title);
+        title = title.toLowerCase();
+        expect($("#alertHeader .text").text().toLowerCase()).to.equal(title);
         if (options.inputVal != null) {
             $alertModal.find('input').val(options.inputVal);
         }
