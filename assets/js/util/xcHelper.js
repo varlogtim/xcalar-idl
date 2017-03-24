@@ -177,7 +177,7 @@ window.xcHelper = (function($, xcHelper) {
             if ($el.is("input")) {
                 text = $.trim($el.val() + " ");
             } else {
-                if ($el.hasClass("truncated")) {
+                if ($el.find(".displayedData").length) {
                     $el = $el.find(".displayedData");
                 }
                 text = $.trim($el.text());
