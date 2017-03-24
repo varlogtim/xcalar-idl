@@ -202,8 +202,8 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
         }
 
         var promise;
-        var extName = getExtNameFromList($slider);
         var $ext = $slider.closest(".item");
+        var extName = getExtNameFromList($ext);
         var enable;
 
         if ($slider.hasClass("on")) {
@@ -218,21 +218,18 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
         promise
         .then(function() {
             if (enable) {
-                $slider.removeClass("on");
-                $ext.removeClass("enabled");
-            } else {
                 $slider.addClass("on");
                 $ext.addClass("enabled");
+            } else {
+                $slider.removeClass("on");
+                $ext.removeClass("enabled");
             }
-            var msg = enable
-                      ? SuccessTStr.ExtEnable
-                      : SuccessTStr.ExtDisable;
+            var msg = enable ? SuccessTStr.ExtEnable : SuccessTStr.ExtDisable;
             xcHelper.showSuccess(msg);
         })
         .fail(function(error) {
-            var title = enable
-                        ? ErrTStr.ExtEnableFailure
-                        : ErrTStr.ExtDisableFailure;
+            var title = enable ? ErrTStr.ExtEnableFailure :
+                                 ErrTStr.ExtDisableFailure;
             Alert.error(title, JSON.stringify(error));
         })
         .always(function() {
@@ -262,6 +259,7 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
     }
 
     function disableExtension(extName) {
+        var deferred = jQuery.Deferred();
         var url = xcHelper.getAppUrl();
         $.ajax({
             "type": "POST",
@@ -271,11 +269,14 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
             "success": function(data) {
                 console.log(data);
                 xcHelper.showSuccess(SuccessTStr.ExtDisable);
+                deferred.resolve();
             },
             "error": function(error) {
                 Alert.error(ErrTStr.ExtDisableFailure, JSON.stringify(error));
+                deferred.reject();
             }
         });
+        return deferred.promise();
     }
 
     function refreshAfterInstall() {
@@ -340,7 +341,7 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
     }
 
     function getInstalledExtListHTML(category) {
-        var extensions = category.getInstalledExtensionList();
+        var extensions = category.getAvailableExtensionList();
         var extLen = extensions.length;
         if (extLen === 0) {
             return "";

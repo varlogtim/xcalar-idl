@@ -446,7 +446,7 @@ module.exports = {
         "Retry": "Retry",
         "RetryPoint": "Please try to point to data with different parameters(for example, a larger dataset size)",
         "RetryLimit": "Please set the dataset size limit and try again.",
-        "TableInstr": "To create a table from dataset reference, select columns, choose a worksheet, modified the table name and then click \"SEND TO WORKSHEET\" button. You can also click the \"Select Columns Later\" button and pull out columns after the table is created."
+        "TableInstr": "To create a table from dataset reference, select columns, choose a worksheet, modify the table name and then click \"SEND TO WORKSHEET\" button. You can also click the \"Select Columns Later\" button and pull out columns after the table is created."
     },
 
 // keep in sync with the FileProtocol in enums.js

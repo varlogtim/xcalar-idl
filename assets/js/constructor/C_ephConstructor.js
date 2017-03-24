@@ -2706,7 +2706,7 @@ ExtCategory.prototype = {
         return resList;
     },
 
-    getInstalledExtensionList: function() {
+    getAvailableExtensionList: function() {
         var list = this.getExtensionList();
         var resList = [];
         for (var i = 0, len = list.length; i < len; i++) {

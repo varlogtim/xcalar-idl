@@ -710,7 +710,11 @@ function sendRequest(options) {
 app.post("/uploadExtension", function(req, res) {
     var tarFile = req.body.targz;
     writeTarGzWithCleanup({status: Status.Ok,
-                           data: req.body.targz})
+                           data: req.body.targz},
+                           req.body.name, "0.0.1")
+    .then(function() {
+        return enableExtension(req.body.name);
+    })
     .then(function() {
         res.jsonp({status:Status.Ok});
     })
@@ -721,7 +725,7 @@ app.post("/uploadExtension", function(req, res) {
     });
 });
 
-function writeTarGzWithCleanup(ret) {
+function writeTarGzWithCleanup(ret, name, version) {
     function writeTarGz(retStruct) {
         var innerDeferred = jQuery.Deferred();
         try {
@@ -735,10 +739,10 @@ function writeTarGzWithCleanup(ret) {
         xcConsole.log(retStruct.data.length);
 
         var zipFile = new Buffer(retStruct.data, 'base64');
-        var zipPath = basePath + "ext-available/" + pkg.name + "-" + pkg.version +
+        var zipPath = basePath + "ext-available/" + name + "-" + version +
                       ".tar.gz";
         xcConsole.log(zipPath);
-        fs.writeFile(basePath + "ext-available/" + pkg.name + "-" + pkg.version +
+        fs.writeFile(basePath + "ext-available/" + name + "-" + version +
                      ".tar.gz", zipFile, function(error) {
             if (error) {
                 innerDeferred.reject(error);
@@ -761,7 +765,7 @@ function writeTarGzWithCleanup(ret) {
     writeTarGz(ret)
     .then(function() {
         // Remove the tar.gz
-        fs.unlink(basePath + "ext-available/" + pkg.name + "-" + pkg.version +
+        fs.unlink(basePath + "ext-available/" + name + "-" + version +
                   ".tar.gz", function(err) {
                     // regardless of status, this is a successful install.
                     // we simply console log if the deletion went wrong.
@@ -803,7 +807,7 @@ app.post("/downloadExtension", function(req, res) {
 
     download(pkg.name, pkg.version)
     .then(function(ret) {
-        writeTarGzWithCleanup(ret);
+        writeTarGzWithCleanup(ret, pkg.name, pkg.version);
     })
     .then(function() {
         res.jsonp({status: Status.Ok});
@@ -824,15 +828,18 @@ function getExtensionFiles(extName, type) {
             deferred.reject(err);
         }
         for (var i = 0; i < files.length; i++) {
-            if (files[i].indexOf(extName + ".ext") === 0) {
+            if (extName === "") {
                 extFiles.push(files[i]);
+            } else {
+                if (files[i].indexOf(extName + ".ext") === 0) {
+                    extFiles.push(files[i]);
+                }
             }
         }
         deferred.resolve(extFiles);
     });
     return deferred.promise();
 }
-
 
 app.post("/removeExtension", function(req, res) {
     var extName = req.body.name;
@@ -876,11 +883,8 @@ app.post("/removeExtension", function(req, res) {
     });
 });
 
-app.post("/enableExtension", function(req, res) {
-
-    var extName = req.body.name;
-    console.log("Enabling extension: " + extName);
-
+function enableExtension(extName) {
+    var deferred = jQuery.Deferred();
     var filesToEnable = [];
     // List files in ext-available
     getExtensionFiles(extName, "available")
@@ -893,8 +897,6 @@ app.post("/enableExtension", function(req, res) {
         return getExtensionFiles(extName, "enabled");
     })
     .then(function(files) {
-        var deferred = jQuery.Deferred();
-
         var filesRemaining = [];
         // Check whether the extension is already enabled
         for (var i = 0; i < filesToEnable.length; i++) {
@@ -902,7 +904,6 @@ app.post("/enableExtension", function(req, res) {
                 filesRemaining.push(filesToEnable[i]);
             }
         }
-
         if (filesRemaining.length === 0) {
             return deferred.reject("Extension already enabled");
         }
@@ -921,8 +922,15 @@ app.post("/enableExtension", function(req, res) {
                 deferred.resolve();
             }
         });
-        return deferred.promise();
-    })
+    });
+    return deferred.promise();
+}
+
+app.post("/enableExtension", function(req, res) {
+    var extName = req.body.name;
+    console.log("Enabling extension: " + extName);
+
+    enableExtension(extName)
     .then(function() {
         res.jsonp({status:Status.Ok});
     })
@@ -974,7 +982,28 @@ app.post("/disableExtension", function(req, res) {
     });
 });
 
-app.post("/getInstalledExtensions", function(req, res) {
+app.post("/getAvailableExtension", function(req, res) {
+    console.log("Getting available extensions");
+    getExtensionFiles("", "available")
+    .then(function(files) {
+        var fileObj = {};
+        for (var i = 0; i < files.length; i++) {
+            if (files[i].indexOf(".ext.js") === -1 &&
+                files[i].indexOf(".ext.py") === -1) {
+                continue;
+            }
+            fileObj[files[i].substr(0, files[i].length - 7)] = true;
+        }
+        res.jsonp({status: Status.Ok,
+                   extensionsAvailable: Object.keys(fileObj)});
+    })
+    .fail(function(err) {
+        res.jsonp({status: Status.Error,
+                   error: err});
+    });
+});
+
+app.post("/getEnabledExtensions", function(req, res) {
     console.log("Getting installed extensions");
     fs.readdir(basePath + "ext-enabled/", function(err, allNames) {
         if (err) {

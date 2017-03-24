@@ -984,7 +984,7 @@ describe("Ephemeral Constructor Test", function() {
             list = extCategory.getExtensionList("noResultKey");
             expect(list.length).to.equal(0);
 
-            list = extCategory.getInstalledExtensionList();
+            list = extCategory.getAvailableExtensionList();
             expect(list.length).to.equal(0);
         });
 
