@@ -74,39 +74,27 @@
     .cardMain {
         .size(@height: ~"calc(100% - @{h-extUpload-noMain})");
         padding-left: 20px;
-        padding-right: 20px;
 
         .text {
             .size(@width: 50px);
             display: inline-block;
         }
 
-        .input-box(@w: ~"calc(100% - 250px)", @h: 30px);
+        .input-box(@w: ~"calc(100% - 237px)", @h: 30px);
 
         input {
-            margin-right: 20px;
+            margin-right: 10px;
         }
     }
 
     .cardBottom {
         .size(@height: @h-extUpload-bottom);
-        padding: 20px;
+        padding: 12px 20px;
 
-        .icon, .text {
-            display: inline-block;
-            float: left;
-            .size(@height: 20px);
-            line-height: 20px;
-        }
-
-        .icon {
-            .size(@width: 20px);
-            margin-right: 16px;
-            .font(@size: 24px, @color: @color-bg-select-blue);
-        }
-
-        .text {
-            .font(@weight: 600, @size: 14px);
+        .buttonTooltipWrap {
+            .size(@width: 150px, @height: 36px);
+            float: right;
+            margin-left: 10px;
         }
     }
 }

@@ -858,7 +858,7 @@ module.exports = {
     },
 
     "extension": {
-        "EXTList": "Extension List",
+        "uploadInstr": "Upload an extension into Xcalar. Your file should be of the format .tar.gz and a .ext.js and a .ext.py file",
         "Installed": "Installed Extensions",
         "Load": "Loading Extensions",
         "Upload": "Upload Custom Extension",

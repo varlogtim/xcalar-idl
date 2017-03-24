@@ -1,4 +1,5 @@
 <section id="extension-upload" class="cardContainer xc-hidden">
+  <div class="cardLocked"></div>
   <header class="cardHeader">
     <div class="title"><%= dicts.extension.Upload %></div>
     <div class="close">
@@ -6,20 +7,22 @@
     </div>
   </header>
   <div class="cardInstruction">
-    <i class="icon xi-info-circle"></i>
+    <i class="icon xi-warning"></i>
     <div class="text">
-      <span><%= dicts.extension.EXTList %></span>
+      <span><%= dicts.extension.uploadInstr %></span>
     </div>
   </div>
   <div class="cardMain">
     <span class="text"><%= dicts.common.URL %>:</span>
-    <input type="text">
-    <button class="btn"><%= dicts.common.BROWSE %></button>
+    <input class="path" type="text" disabled>
+    <input class="browse" spellcheck="false" type="file" style="display: none">
+    <button class="btn fakeBrowse"><%= dicts.common.BROWSE %></button>
   </div>
-  <div class="cardBorder"></div>
   <div class="cardBottom">
-    <i class="icon xi-warning"></i>
-    <span class="text"><%= dicts.extension.NotFound %></span>
+    <div class="buttonTooltipWrap" data-toggle="tooltip" data-container="body" data-placement="top" data-original-title="<%= dicts.TooltipTStr.SelectFile %>">
+        <button type="button" class="btn confirm btn-disabled"><%= dicts.dataflow.upload %></button>
+      </div>
+      <button type="button" class="btn btn-cancel cancel"><%= dicts.common.CANCEL %></button>
   </div>
 </section>
 <section id="extensionInstallPanel">

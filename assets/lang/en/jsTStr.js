@@ -259,6 +259,7 @@ ErrTStr = {
     'SelectOption': 'Please select an option.',
     'NotDisplayRows': 'Could Not Display Rows',
     'AppInstallFailed': 'App Installation Failed',
+    'ExtUploadFailed': 'Failed to upload extension', 
     'ExtEnableFailure': 'Extension failed to be enabled',
     'ExtDisableFailure': 'Extension failed to be disabled',
     'ExtRemovalFailure': 'Extension failed to be removed',

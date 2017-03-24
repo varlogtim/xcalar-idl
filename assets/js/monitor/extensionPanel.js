@@ -59,14 +59,7 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
             refreshExtension(searchKey);
         });
 
-        var $uploadSection = $("#extension-upload");
-        $("#uploadExtension").click(function() {
-            $uploadSection.removeClass("xc-hidden");
-        });
-
-        $uploadSection.on("click", ".close", function() {
-            $uploadSection.addClass("xc-hidden");
-        });
+        UploadExtensionCard.setup();
     };
 
     ExtensionPanel.active = function() {
