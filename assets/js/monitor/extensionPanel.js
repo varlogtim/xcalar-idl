@@ -17,31 +17,6 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
             installExtension(ext, $(this));
         });
 
-        $extLists.on("click", ".listInfo", function() {
-            $(this).closest(".listWrap").toggleClass("active");
-        });
-
-        $extLists.on("click", ".switch", function() {
-            var $slider = $(this);
-            if (!$slider.hasClass("unavailable")) {
-                $slider.toggleClass("on");
-            }
-        });
-
-        $extLists.on("mousedown", ".item", function(event) {
-            if (event.which !== 1) {
-                return;
-            }
-
-            var $item = $(this);
-            if ($item.hasClass("active")) {
-                return;
-            }
-
-            $extLists.find(".item.active").removeClass("active");
-            $item.addClass("active");
-        });
-
         $panel.on("click", ".item .url", function() {
             var url = $(this).data("url");
             if (url == null) {
@@ -59,6 +34,7 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
             refreshExtension(searchKey);
         });
 
+        setupExtLists();
         UploadExtensionCard.setup();
     };
 
@@ -75,6 +51,39 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
         var ext = getExtensionFromEle($(ele).closest(".item"));
         ext.setImage(imgSrc);
     };
+
+    function setupExtLists() {
+        if (Admin.isAdmin()) {
+            $extLists.addClass("admin");
+        }
+
+        $extLists.on("click", ".listInfo", function() {
+            $(this).closest(".listWrap").toggleClass("active");
+        });
+
+        $extLists.on("click", ".switch", function() {
+            toggleExtension($(this));
+        });
+
+        $extLists.on("click", ".delete", function() {
+            var $ext = $(this).closest(".item");
+            removeExtension($ext);
+        });
+
+        $extLists.on("mousedown", ".item", function(event) {
+            if (event.which !== 1) {
+                return;
+            }
+
+            var $item = $(this);
+            if ($item.hasClass("active")) {
+                return;
+            }
+
+            $extLists.find(".item.active").removeClass("active");
+            $item.addClass("active");
+        });
+    }
 
     function fetchData() {
         $panel.addClass("wait");
@@ -166,20 +175,68 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
         });
     }
 
-    function removeExtension(extName) {
+    function removeExtension($ext) {
         var url = xcHelper.getAppUrl();
+        var extName = getExtNameFromList($ext);
+        $ext.addClass("xc-disabled");
+
         $.ajax({
             "type": "POST",
             "dataType": "JSON",
             "url": url + "/removeExtension",
-            "data": {name: extName},
-            "success": function(data) {
-                console.log(data);
-                xcHelper.showSuccess(SuccessTStr.ExtRemove);
-            },
-            "error": function(error) {
-                Alert.error(ErrTStr.ExtRemovalFailure, JSON.stringify(error));
+            "data": {"name": extName}
+        })
+        .then(function() {
+            xcHelper.showSuccess(SuccessTStr.ExtRemove);
+            $ext.remove();
+        })
+        .fail(function(error) {
+            Alert.error(ErrTStr.ExtRemovalFailure, JSON.stringify(error));
+            $ext.removeClass("xc-disabled");
+        });
+    }
+
+    function toggleExtension($slider) {
+        if ($slider.hasClass("unavailable")) {
+            return;
+        }
+
+        var promise;
+        var extName = getExtNameFromList($slider);
+        var $ext = $slider.closest(".item");
+        var enable;
+
+        if ($slider.hasClass("on")) {
+            enable = false;
+            promise = disableExtension(extName);
+        } else {
+            enable = true;
+            promise = enableExtension(extName);
+        }
+
+        $ext.addClass("xc-disabled");
+        promise
+        .then(function() {
+            if (enable) {
+                $slider.removeClass("on");
+                $ext.removeClass("enabled");
+            } else {
+                $slider.addClass("on");
+                $ext.addClass("enabled");
             }
+            var msg = enable
+                      ? SuccessTStr.ExtEnable
+                      : SuccessTStr.ExtDisable;
+            xcHelper.showSuccess(msg);
+        })
+        .fail(function(error) {
+            var title = enable
+                        ? ErrTStr.ExtEnableFailure
+                        : ErrTStr.ExtDisableFailure;
+            Alert.error(title, JSON.stringify(error));
+        })
+        .always(function() {
+            $ext.removeClass("xc-disabled");
         });
     }
 
@@ -235,6 +292,10 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
             $panel.removeClass("refreshing");
             $extLists.removeClass("refreshing");
         });
+    }
+
+    function getExtNameFromList($el) {
+        return $el.find(".name").text();
     }
 
     function getExtensionFromEle($ext) {
@@ -298,7 +359,7 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
                         '<ul class="itemList">';
 
         for (var i = 0, len = extLen; i < len; i++) {
-            var status = (i === 0) ? "on" : "";
+            // var status = (i === 0) ? "on" : "";
             html += '<li class="item no-selection">' +
                         '<i class="icon xi-menu-extension fa-15"></i>' +
                         '<span class="name textOverflowOneLine">' +

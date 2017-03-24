@@ -4,6 +4,14 @@
         pointer-events: none;
     }
 
+    &.admin {
+        .item {
+            .switch, .delete {
+                display: block;
+            }
+        }
+    }
+
     .listInfo {
         .text {
             margin-left: 10px;
@@ -13,6 +21,13 @@
     }
 
     .item {
+        &.enabled {
+            .delete {
+                pointer-events: none;
+                opacity: @opacity-disabled;
+            }
+        }
+
         .name {
             margin-left: 8px;
             .size(@width: ~"calc(100% - 70px)");
@@ -27,7 +42,6 @@
             float: right;
         }
 
-        // XXX temporary hidden
         .switch, .delete {
             display: none;
         }

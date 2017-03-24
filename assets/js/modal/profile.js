@@ -338,6 +338,10 @@ window.Profile = (function($, Profile, d3) {
         //set up dropdown for worksheet list
         new MenuHelper($rangeSection.find(".dropDownList"), {
             "onSelect": function($li) {
+                var oldRange = $rangeSection.find(".dropDownList input").val();
+                if ($li.text() === oldRange) {
+                    return;
+                }
                 var option = $li.attr("name");
                 toggleRange(option);
             },
