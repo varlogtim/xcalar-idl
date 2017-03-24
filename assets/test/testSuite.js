@@ -1224,8 +1224,11 @@ window.TestSuite = (function($, TestSuite) {
             assert($(".barArea .xlabel:contains('134')").length > 0);
             assert($(".barArea .xlabel:contains('153')").length > 0);
             assert($(".barArea .xlabel:contains('272')").length > 0);
-
-            assert($(".infoSection .min").eq(0).text() ===
+            $("#profileModal .genAgg").click();
+            return checkExists("#profileModal .infoSection .min:contains(1)", 30000);
+         })
+         .then(function() {
+             assert($(".infoSection .min").eq(0).text() ===
                     Number(1).toLocaleString());
             assert($(".infoSection .count").text() ===
                     Number(1953).toLocaleString());
