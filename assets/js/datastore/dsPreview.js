@@ -186,9 +186,9 @@ window.DSPreview = (function($, DSPreview) {
         }
     };
 
-    DSPreview.changePreviewFile = function(path) {
+    DSPreview.changePreviewFile = function(path, noDetect) {
         loadArgs.setPreviewFile(path);
-        refreshPreview();
+        refreshPreview(noDetect);
     };
 
     DSPreview.update = function(listXdfsObj) {
@@ -201,13 +201,20 @@ window.DSPreview = (function($, DSPreview) {
         });
     };
 
-    DSPreview.backFromParser = function(curUrl, moduleName) {
-        cleanTempParser();
-        tempParserUDF = moduleName;
-        toggleUDF(true);
-        seletUDF(moduleName, "parser");
+    DSPreview.backFromParser = function(curUrl, moduleName, delimiter) {
+        var noDetect = false;
+        if (delimiter == null) {
+            cleanTempParser();
+            tempParserUDF = moduleName;
+            toggleUDF(true);
+            seletUDF(moduleName, "parser");
+        } else {
+            applyLineDelim(delimiter);
+            noDetect = true;
+        }
+
         DSForm.switchView(DSForm.View.Preview);
-        DSPreview.changePreviewFile(curUrl);
+        DSPreview.changePreviewFile(curUrl, noDetect);
     };
 
     DSPreview.clear = function() {

@@ -114,12 +114,12 @@ window.DSParser = (function($, DSParser) {
         $dataPreview.find(".sizer").height(0);
         $previewContent.parent().height("auto");
         $miniContent.parent().height("auto");
-        $parserCard.find()
         $dataPreview.scrollTop(0);
         $dataPreview.css("margin-left", loadingMargin);
         $miniPreview.css("margin-left", loadingMargin);
         $parserCard.find(".rowNums").empty();
         $parserCard.find(".rowNumCol").scrollTop(0);
+        $("#plainTextBox input").val("\\n").removeClass("nullVal");
     }
 
     function changeFormat($li) {
@@ -208,6 +208,31 @@ window.DSParser = (function($, DSParser) {
                 $box.addClass("minimized");
             }
         });
+
+        // setUp line delimiter and field delimiter
+        new MenuHelper($("#plainTextBox").find(".dropDownList"), {
+            "onSelect": selectDelim,
+            "container": "#plainTextBox",
+            "bounds": "#plainTextBox"
+        }).setupListeners();
+
+        function selectDelim($li) {
+            var name = $li.attr("name");
+            var $input = $('#plainTextBox').find("input");
+            if (name === "default") {
+                $input.val("\\n");
+                $input.removeClass("nullVal");
+            } else if (name === "null") {
+                $input.val("Null");
+                $input.addClass("nullVal");
+            }
+            $("#plainTextBox").val($li.text());
+        }
+
+        $("#plainTextBox").on("input", "input", function() {
+            var $input = $(this);
+            $input.removeClass("nullVal");
+        });
     }
 
     function setupMenu() {
@@ -220,6 +245,9 @@ window.DSParser = (function($, DSParser) {
             // mouse up
             setTimeout(function() {
                 if (!xcHelper.hasSelection()) { // no selection made
+                    return;
+                }
+                if ($(document.activeElement).is("input")) {
                     return;
                 }
 
@@ -698,6 +726,7 @@ window.DSParser = (function($, DSParser) {
         var format = getFormat();
         var $box = $("#previewModeBox");
         var $delimBox = $("#delimitersBox");
+        var $plainTextBox = $("#plainTextBox");
         if (!previewMeta || !previewMeta.meta) {
             console.error("error case");
             handlePreviewModeError(ErrTStr.Unknown);
@@ -705,12 +734,14 @@ window.DSParser = (function($, DSParser) {
         } else if (format === "PLAIN TEXT") {
             $box.addClass("xc-hidden");
             $delimBox.addClass("xc-hidden");
+            $plainTextBox.removeClass("xc-hidden");
             return PromiseHelper.resolve();
         }
 
         $miniPreview.addClass("fetchingRows");
         $box.removeClass("error").removeClass("xc-hidden");
         $delimBox.removeClass("xc-hidden");
+        $plainTextBox.addClass("xc-hidden");
 
         var parsedPath = previewMeta.meta.parsedPath;
         boxFetchId++;
@@ -1417,6 +1448,12 @@ window.DSParser = (function($, DSParser) {
         var deferred = jQuery.Deferred();
         var promise = deferred.promise();
         var udfName;
+        var format = getFormat();
+        var lineDelim;
+        if (format === "PLAIN TEXT") {
+            var $lineText = $("#plainTextBox input");
+            lineDelim = xcHelper.delimiterTranslate($lineText);
+        }
 
         alertHelper()
         .then(function() {
@@ -1425,14 +1462,23 @@ window.DSParser = (function($, DSParser) {
             return parseHelper();
         })
         .then(function(udfStr) {
-            udfName = xcHelper.randName(xcHelper.getTempUDFPrefix() + "_vp_");
-            return XcalarUploadPython(udfName, udfStr);
+            if (lineDelim != null) {
+                return PromiseHelper.resolve();
+            } else {
+                udfName = xcHelper.randName(xcHelper.getTempUDFPrefix() +
+                                            "_vp_");
+                return XcalarUploadPython(udfName, udfStr);
+            }
         })
         .then(function() {
-            return PromiseHelper.alwaysResolve(UDF.refresh());
+            if (lineDelim != null) {
+                return PromiseHelper.resolve();
+            } else {
+                return PromiseHelper.alwaysResolve(UDF.refresh());
+            }
         })
         .then(function() {
-            DSPreview.backFromParser(curUrl, udfName);
+            DSPreview.backFromParser(curUrl, udfName, lineDelim);
             deferred.resolve();
         })
         .fail(function(error) {
@@ -1624,20 +1670,41 @@ window.DSParser = (function($, DSParser) {
     }
 
     function validateSubmit() {
-        var isValid = xcHelper.validate([
-            {
-                "$ele": $("#delimitersBox"),
-                "error": DSParserTStr.NoKey,
-                "side": "left",
-                "check": function() {
-                    return (keys.length === 0);
+        var isValid;
+        if (getFormat() === "PLAIN TEXT") {
+            var $lineText = $("#plainTextBox input");
+            var lineDelim = xcHelper.delimiterTranslate($lineText);
+
+            isValid = xcHelper.validate([
+                {
+                    "$ele": $lineText,
+                    "error": DSFormTStr.InvalidDelim,
+                    "formMode": true,
+                    "check": function() {
+                        return (typeof lineDelim === "object");
+                    }
                 }
-            }
-        ]);
+            ]);
+        } else {
+            isValid = xcHelper.validate([
+                {
+                    "$ele": $("#delimitersBox"),
+                    "error": DSParserTStr.NoKey,
+                    "side": "left",
+                    "check": function() {
+                        return (keys.length === 0);
+                    }
+                }
+            ]);
+        }
+
         return isValid;
     }
 
     function alertHelper() {
+        if (getFormat() === "PLAIN TEXT") {
+            return PromiseHelper.resolve();
+        }
         var deferred = jQuery.Deferred();
         Alert.show({
             "title": DSParserTStr.Submit,
@@ -1657,6 +1724,8 @@ window.DSParser = (function($, DSParser) {
             app = xmlApp;
         } else if (format === "JSON") {
             app = jsonApp;
+        } else if (format === "PLAIN TEXT") {
+            return PromiseHelper.resolve();
         } else {
             return PromiseHelper.reject({"error": DSParserTStr.NotSupport});
         }

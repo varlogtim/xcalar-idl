@@ -458,6 +458,7 @@ describe("DSParser Test", function() {
         });
 
         it("should show alert", function(done) {
+            $formatInput.val("XML");
             addKeyToBox("<a>", 0);
             var promise = submitForm();
             UnitTest.hasAlertWithText(DSParserTStr.SubmitMsg);
@@ -468,25 +469,6 @@ describe("DSParser Test", function() {
             })
             .fail(function(error) {
                 expect(error.error).to.equal("cancel submit");
-                done();
-            });
-        });
-
-        it("should not parse if format is not right", function(done) {
-            $formatInput.val("PLAIN TEXT");
-            var promise = submitForm();
-            UnitTest.hasAlertWithText(DSParserTStr.SubmitMsg, {
-                "confirm": true,
-                "nextAlert": true
-            });
-
-            promise
-            .then(function() {
-                done("fail");
-            })
-            .fail(function(error) {
-                expect(error.error).to.equal(DSParserTStr.NotSupport);
-                UnitTest.hasAlertWithText(DSParserTStr.NotSupport);
                 done();
             });
         });
@@ -601,7 +583,7 @@ describe("DSParser Test", function() {
                 // allow time for xcalarpreview to be called
                 setTimeout(function() {
                     done();
-                }, 400);   
+                }, 400);
             })
             .fail(function() {
                 done("fail");
@@ -625,7 +607,7 @@ describe("DSParser Test", function() {
                 expect(previewCalled).to.be.true;
                 XcalarPreview = cached;
                 done();
-            });   
+            });
         });
 
         it("should use input to skip to row", function(done) {
@@ -651,7 +633,7 @@ describe("DSParser Test", function() {
             var prevBuffers = DSParser.__testOnly__.getBuffers();
             var buffers = ["a", "b"];
             DSParser.__testOnly__.setBuffers(buffers);
-            var html = '<div>' + 
+            var html = '<div>' +
                             '<div class="content">' +
                                 '<span class="page" data-page="1">a</span>' +
                                 '<span class="page" data-page="2">b</span>' +

@@ -2013,13 +2013,6 @@ table.datasetTable {
         }
     }
 
-    &.previewOnly {
-        .confirm {
-            pointer-events: none;
-            opacity: @opacity-disabled;
-        }
-    }
-
     .cardTopMain {
         @barHeight: 64px;
         @topPadding: 14px;
@@ -2366,6 +2359,31 @@ table.datasetTable {
                     .vertical-align;
                 }
             }
+        }
+    }
+
+    #plainTextBox {
+        .boxBody {
+            padding: 10px 10px;
+        }
+
+        .dropDownList {
+            width: 100%;
+        }
+
+        input {
+            cursor: text;
+            width: ~"calc(100% - 30px)";
+
+            &:focus {
+                outline: none;
+                border-color: @color-border-softBlue;
+                background-color: @color-white;
+            }
+        }
+
+        .nullVal {
+            font-style: italic;
         }
     }
 }

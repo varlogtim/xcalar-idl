@@ -93,6 +93,27 @@
         </div>
         <div class="boxFooter"></div>
       </div>
+      <div id="plainTextBox" class="parserBox">
+         <header class="boxHeader">
+          <div class="title"><%= dicts.dsForm.LineDelim %></div>
+        </header>
+        <div class="boxBody">
+          <div class="dropDownList">
+            <input class="text inputable" type="text" spellcheck="false" autocomplete="off">
+            <div class="iconWrapper">
+              <i class="icon xi-arrow-down"></i>
+            </div>
+            <!-- dropdown menu -->
+            <div class="list">
+              <ul>
+                <li name="default"><%= dicts.common.Default %> (\n)</li>
+                <li name="null" class="nullVal"><%= dicts.common.Null %></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="boxFooter"></div>
+      </div>
     </div>
     <ul id="parserMenu" class="menu">
       <li class="full" data-action="full">
