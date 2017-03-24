@@ -25,7 +25,8 @@ window.Profile = (function($, Profile, d3) {
     var sortMap = {
         "asc": "asc",
         "origin": "origin",
-        "desc": "desc"
+        "desc": "desc",
+        "ztoa": "ztoa"
     };
     var tooltipOptions = {
         "trigger": "manual",
@@ -156,6 +157,8 @@ window.Profile = (function($, Profile, d3) {
                 sortData(sortMap.asc, statsCol);
             } else if (option === "desc") {
                 sortData(sortMap.desc, statsCol);
+            } else if (option === "ztoa") {
+                sortData(sortMap.ztoa, statsCol);
             } else {
                 sortData(sortMap.origin, statsCol);
             }
@@ -558,6 +561,8 @@ window.Profile = (function($, Profile, d3) {
                     table = tableInfo.ascTable;
                 } else if (order === sortMap.desc) {
                     table = tableInfo.descTable;
+                } else if (order === sortMap.ztoa){
+                    table = tableInfo.ztoaTable;
                 } else {
                     table = tableInfo.table;
                 }
@@ -1877,60 +1882,68 @@ window.Profile = (function($, Profile, d3) {
     }
 
     function runSort(newOrder, curStatsCol, txId) {
-        var deferred = jQuery.Deferred();
+        if (newOrder === sortMap.origin) {
+            // already have this table
+            return PromiseHelper.resolve();
+        }
+
         var tableInfo = curStatsCol.groupByInfo.buckets[bucketNum];
+        var tableKey;
 
         if (newOrder === sortMap.asc) {
-            if (tableInfo.ascTable != null) {
-                deferred.resolve();
-            } else {
-                // get a sort table
-                sortHelper(newOrder)
-                .then(function(sortedTable) {
-                    tableInfo.ascTable = sortedTable;
-                    deferred.resolve();
-                })
-                .fail(deferred.reject);
-            }
+            // get a sort table
+            tableKey = "ascTable";
         } else if (newOrder === sortMap.desc) {
-            if (tableInfo.descTable != null) {
-                deferred.resolve();
-            } else {
-                // get a reverse sort table
-                sortHelper(newOrder)
-                .then(function(sortedTable) {
-                    tableInfo.descTable = sortedTable;
-                    deferred.resolve();
-                })
-                .fail(deferred.reject);
-            }
+            tableKey = "descTable";
+        } else if (newOrder === sortMap.ztoa) {
+            tableKey = "ztoaTable";
         } else {
+            return PromiseHelper.reject("error case");
+        }
+
+        if (tableInfo[tableKey] != null) {
+            return PromiseHelper.resolve();
+        }
+
+        var deferred = jQuery.Deferred();
+        // get a sort table
+        sortHelper(newOrder, tableInfo, txId)
+        .then(function(sortedTable) {
+            tableInfo[tableKey] = sortedTable;
             deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    function sortHelper(sortOrder, tableInfo, txId) {
+        var deferred = jQuery.Deferred();
+        var tableName = tableInfo.table;
+        var newTableName = getNewName(tableName, "." + sortOrder);
+        var colName;
+
+        if (sortOrder === sortMap.ztoa) {
+            colName = tableInfo.colName;
+            // need to escape
+            colName = xcHelper.escapeColName(colName);
+        } else {
+            colName = (bucketNum === 0) ? statsColName : bucketColName;
         }
 
-        function sortHelper(sortOrder) {
-            var innerDeferred = jQuery.Deferred();
-            var tableName = tableInfo.table;
-            var newTableName = getNewName(tableName, "." + sortOrder);
-            var colName = (bucketNum === 0) ? statsColName : bucketColName;
-
-            var xcOrder;
-            if (sortOrder === sortMap.desc) {
-                xcOrder = XcalarOrderingT.XcalarOrderingDescending;
-            } else {
-                xcOrder = XcalarOrderingT.XcalarOrderingAscending;
-            }
-
-            XcalarIndexFromTable(tableName, colName, newTableName, xcOrder, txId)
-            .then(function() {
-                innerDeferred.resolve(newTableName);
-            })
-            .fail(innerDeferred.reject);
-
-            return (innerDeferred.promise());
+        var xcOrder;
+        if (sortOrder === sortMap.desc || sortOrder === sortMap.ztoa) {
+            xcOrder = XcalarOrderingT.XcalarOrderingDescending;
+        } else {
+            xcOrder = XcalarOrderingT.XcalarOrderingAscending;
         }
+        XcalarIndexFromTable(tableName, colName, newTableName, xcOrder, txId)
+        .then(function() {
+            deferred.resolve(newTableName);
+        })
+        .fail(deferred.reject);
 
-        return (deferred.promise());
+        return deferred.promise();
     }
 
     function toggleRange(rangeOption, reset) {

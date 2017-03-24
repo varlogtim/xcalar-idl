@@ -1547,10 +1547,17 @@
             colName: (string) column name
             max: (integer) max count
             sum: (integer) total row of table
+        * new attrs:
+            ztoa: (string) buckting result table in z to a order
         */
         function ProfileBucketInfo<%= v %>(options) {
             var self = _super.call(this, options);
             <%= addVersion %>
+            // XXX this is only for version 2!!!
+            if (<%= checkFunc %>(options)) {
+                self.ztoa = options.ztoa || null;
+            }
+
             return self;
         }
 

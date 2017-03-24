@@ -161,10 +161,10 @@
             currentRowNumber: (integer, not persist) current row number
             resultSetId: (string) result id
             icv: (string), icv table
+            resultSetCount: (integer) total row num
 
             keyName: (string, not persist) column on index
-            resultSetCount: (integer, not persist) total row num
-            resultSetMax: (integer, not persist) ?
+            resultSetMax: (integer, not persist) last row able to fetch
             numPages: (integer, not persist) num of pages
             backTableMeta: (obj, not persist) backTableMeta
         */
@@ -535,10 +535,17 @@
             colName: (string) column name
             max: (integer) max count
             sum: (integer) total row of table
+        * new attrs:
+            ztoa: (string) buckting result table in z to a order
         */
         function ProfileBucketInfoV2(options) {
             var self = _super.call(this, options);
             self.version = version;
+            // XXX this is only for version 2!!!
+            if (__isParentVersion(options)) {
+                self.ztoa = options.ztoa || null;
+            }
+
             return self;
         }
 
