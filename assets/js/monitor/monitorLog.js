@@ -1,5 +1,8 @@
 window.MonitorLog = (function(MonitorLog, $) {
     var $logCard;
+    var colorId = 0;
+    var colorNum = 8;
+
     MonitorLog.setup = function() {
         $logCard = $("#monitorLogCard");
         addListeners();
@@ -178,11 +181,32 @@ window.MonitorLog = (function(MonitorLog, $) {
         var curScrollTop = $content.scrollTop();
         var contentHeight = $content.height();
         $logCard.find('.content').append(row);
-        $logCard.find('.content').find('.msgRow').last().text(msg);
-
+        $logCard.find('.content').find('.msgRow').last()
+        .html(splitLogByHost(msg));
         if (curScrollTop + contentHeight + 30 > scrollHeight) {
             $content.scrollTop($content[0].scrollHeight);
         }
+    }
+
+    function splitLogByHost(logs) {
+        var out = "";
+        var allNodes = logs.split("Host:");
+        for (var i = 0; i < allNodes.length; i++) {
+            if (allNodes[i] === "" ||
+                allNodes[i].indexOf("for all Nodes:") !== -1) {
+                continue;
+            } else {
+                var color = "color" + colorId;
+                out += "<div class='" + color + "'>"
+                        + "Host:" + allNodes[i]
+                        + "</div>";
+                colorId++;
+                if (colorId >= colorNum) {
+                    colorId -= colorNum;
+                }
+            }
+        }
+        return out;
     }
 
     function clearLogs() {
