@@ -2419,7 +2419,7 @@ window.Dag = (function($, Dag) {
 
     function drawDagTableToCanvas($dagTable, ctx, top, left, tImage, tGrayImage,
                                   dImage) {
-        left += 40;
+        left += 35;
         top += 50;
         var iconLeft = left;
         var iconTop = top + 6;
@@ -2462,7 +2462,7 @@ window.Dag = (function($, Dag) {
 
     function drawDagActionTypeToCanvas($actionType, ctx, top, left) {
         var deferred = jQuery.Deferred();
-        left += 40;
+        left += 35;
         top += 50;
         var $dagIcon = $actionType.find('.dagIcon');
         var iconSource = $dagIcon.find('.icon').attr('class');
