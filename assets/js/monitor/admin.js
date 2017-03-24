@@ -400,16 +400,28 @@ window.Admin = (function($, Admin) {
             });
         })
         .fail(function(err) {
-            var msg;
-            if (err.error.statusText === "error") {
-                msg = ErrTStr.Unknown;
+            if (err) {
+                // the error status is not set by
+                // server, it may be due to other reasons
+                if (err.logs) {
+                    // unexpected error
+                    if (err.unexpectedError) {
+                        msg = (err.logs === "error")? ErrTStr.Unknown : err.logs;
+                        Alert.error(MonitorTStr.GetStatusFail, msg);
+                    } else {
+                        // the reason for why all the nodes are success or
+                        // fail is known and defined.
+                        Alert.show({
+                            "title": MonitorTStr.ClusterStatus,
+                            "msg": err.logs,
+                            "isAlert": true
+                        });
+                    }
+                }
             } else {
-                msg = err.error.statusText;
-            }
-            if (!msg) {
                 msg = ErrTStr.Unknown;
+                Alert.error(MonitorTStr.GetStatusFail, msg);
             }
-            Alert.error(MonitorTStr.GetStatusFail, msg);
         })
         .always(function() {
             $('#configSupportStatus').removeClass('unavailable');
@@ -453,8 +465,7 @@ window.Admin = (function($, Admin) {
                     deferred.resolve();
                 })
                 .fail(function(err) {
-                    $("#initialLoadScreen").hide();
-                    deferred.reject(err);
+                    deferred.resolve();
                 });
             },
             "onCancel": function() {

@@ -85,15 +85,25 @@ window.MonitorLog = (function(MonitorLog, $) {
         })
         .fail(function(err) {
             var msg;
-            if (err.error.statusText === "error") {
-                msg = ErrTStr.Unknown;
+            if (err) {
+                // the error status is not set by
+                // server, it may due to other reasons
+                if (err.logs) {
+                    // unexpect erro shos up
+                    if (err.unexpectedError) {
+                        msg = (err.logs === "error")? ErrTStr.Unknown : err.logs;
+                        Alert.error(MonitorTStr.GetLogsFail, msg);
+                    } else {
+                        // the reason for why all the nodes are success or
+                        // fail is known and defined.
+                        xcHelper.showSuccess(SuccessTStr.RetrieveLogs);
+                        appendLog(err.logs);
+                    }
+                }
             } else {
-                msg = err.error.statusText;
-            }
-            if (!msg) {
                 msg = ErrTStr.Unknown;
+                Alert.error(MonitorTStr.GetLogsFail, msg);
             }
-            Alert.error(MonitorTStr.GetLogsFail, msg);
         })
         .always(function() {
             $recentLogsGroup.removeClass('xc-disabled');
@@ -146,17 +156,30 @@ window.MonitorLog = (function(MonitorLog, $) {
         $streamBtns.addClass('xc-disabled');
 
         XFTSupportTools.monitorLogs(function(err) {
-            $streamBtns.removeClass('xc-disabled streaming');
+            // $streamBtns.removeClass('xc-disabled streaming');
+
             var msg;
-            if (err.error.statusText === "error") {
-                msg = ErrTStr.Unknown;
+            if (err) {
+                // the error status is not set by
+                // server, it may due to other reasons
+                if (err.logs) {
+                    // unexpect erro shos up
+                    if (err.unexpectedError) {
+                        msg = (err.logs === "error")? ErrTStr.Unknown : err.logs;
+                        $streamBtns.removeClass('xc-disabled streaming');
+                        Alert.error(MonitorTStr.StartStreamFail, msg);
+                    } else {
+                        // the reason for why all the nodes are success or
+                        // fail is known and defined.
+                        $streamBtns.removeClass('xc-disabled').addClass('streaming');
+                        appendLog(err.logs);
+                    }
+                }
             } else {
-                msg = err.error.statusText;
-            }
-            if (!msg) {
                 msg = ErrTStr.Unknown;
+                $streamBtns.removeClass('xc-disabled streaming');
+                Alert.error(MonitorTStr.StartStreamFail, msg);
             }
-            Alert.error(MonitorTStr.StartStreamFail, msg);
         }, function(ret) {
             $streamBtns.removeClass('xc-disabled').addClass('streaming');
             appendLog(ret.logs);
@@ -168,10 +191,7 @@ window.MonitorLog = (function(MonitorLog, $) {
         // var $btn = $logCard.find('.stopStream');
         $streamBtns.removeClass('xc-disabled streaming');
 
-        XFTSupportTools.stopMonitorLogs()
-        .fail(function(err) {
-            // xx stream interval should have stopped so it's ok to fail
-        });
+        XFTSupportTools.stopMonitorLogs();
     }
 
     function appendLog(msg) {
@@ -182,7 +202,7 @@ window.MonitorLog = (function(MonitorLog, $) {
         var contentHeight = $content.height();
         $logCard.find('.content').append(row);
         $logCard.find('.content').find('.msgRow').last()
-        .html(splitLogByHost(msg));
+                .html(splitLogByHost(msg));
         if (curScrollTop + contentHeight + 30 > scrollHeight) {
             $content.scrollTop($content[0].scrollHeight);
         }

@@ -1,16 +1,17 @@
-var cp = require('child_process');
-var lineReader = require('readline');
-var fs = require('fs');
-var os = require('os');
-var path = require('path');
-var timer = require('timers');
-var http = require('http');
-var https = require('https');
+var cp = require("child_process");
+var lineReader = require("readline");
+var fs = require("fs");
+var os = require("os");
+var path = require("path");
+var timer = require("timers");
+var http = require("http");
+var https = require("https");
 
-var ssf = require('./supportStatusFile');
-var tail = require('./tail');
+var ssf = require("./supportStatusFile");
+var tail = require("./tail");
 
 var Status = ssf.Status;
+var httpStatus = require("./../../assets/js/httpStatus.js").httpStatus;
 
 var jQuery;
 require("jsdom").env("", function(err, window) {
@@ -21,7 +22,8 @@ require("jsdom").env("", function(err, window) {
     jQuery = require("jquery")(window);
 });
 
-var hostFile = '/config/privHosts.txt';
+var hostFile = "/config/privHosts.txt";
+var logPath = "/var/log/Xcalar.log";
 
 var bufferSize = 1024 * 1024;
 var gMaxLogs = 500;
@@ -54,136 +56,179 @@ function readHostsFromFile(hostFile) {
         return deferred.reject(err);
     });
 
-    rl.on('close', function(line) {
+    rl.on('close', function() {
         return deferred.resolve(hosts);
     });
     return deferred.promise();
 }
 
 function setTimeOut(time, res) {
-    console.log("time", time)
     var deferred = jQuery.Deferred();
     if (time >= timeoutBase && time <= timeoutBase * networkFactor) {
         timeout = time;
         res.send({"status": Status.Ok,
-                  "logs": "Set new timeout " + time
-                    + " successfully!"});
+                  "logs": "Set new timeout " + time +
+                          " successfully!"});
         deferred.resolve();
     } else {
         res.send({"status": Status.Error,
-                  "logs": "Please Enter timeout between " + timeoutBase + " and "
-                          + timeoutBase * networkFactor});
+                  "logs": "Please Enter timeout between " + timeoutBase +
+                          " and " + timeoutBase * networkFactor});
         deferred.reject();
     }
 }
 
-function masterExecuteAction (action, res, str) {
-    var slaveAction = action + "/slave";
-    var xlrRootPromise = getXlrRoot();
-    xlrRootPromise.always(function(xlrRoot) {
+function masterExecuteAction(action, slaveUrl, content) {
+    var deferredOut = jQuery.Deferred();
+    getXlrRoot()
+    .then(function(xlrRoot) {
+        var deferred = jQuery.Deferred();
         readHostsFromFile(xlrRoot + hostFile)
         .then(function(hosts) {
-            sendCommandToSlaves(slaveAction, str, hosts)
-            .then(function(results) {
-                var logs = generateLogs(action, results);
-                if (logs) {
-                    res.send({"status": Status.Ok,
-                              "logs": new Buffer(logs).toString('base64')});
-                } else {
-                    res.send({"status": Status.Ok});
-                }
-            })
-            .fail(function(results) {
-                var logs = generateLogs(action, results);
-                if (logs) {
-                    res.send({"status": Status.Error,
-                              "logs": new Buffer(logs).toString('base64')});
-                } else {
-                    res.send({"status": Status.Error});
-                }
-            });
+            deferred.resolve(hosts);
         })
         .fail(function(err) {
-            res.send({"status": Status.Error,
-                      "error": err});
+            var retMsg = {
+                // No matter what error happens, the master
+                // should return return a 404 uniformly
+                "status": httpStatus.NotFound,
+                "logs": "Fails to read the message! " + err.message
+            };
+            deferred.reject(retMsg);
         });
+        return deferred.promise();
     })
+    .then(function(hosts) {
+        var deferred = jQuery.Deferred();
+        var retMsg;
+        sendCommandToSlaves(action, slaveUrl, content, hosts)
+        .then(function(results) {
+            var logs = generateLogs(action, slaveUrl, results);
+            var retMsg = {
+                // If every child node return with status 200, then master should
+                // return a 200 code
+                "status": httpStatus.OK,
+                "logs": logs
+            };
+            if (slaveUrl === "/logs/slave" && action === "GET"
+                && content.isMonitoring === "true") {
+                retMsg["updatedLastMonitorMap"] = generateLastMonitorMap(results);
+            }
+            deferred.resolve(retMsg);
+        })
+        .fail(function(results) {
+            var logs = generateLogs(action, slaveUrl, results);
+            var retMsg = {
+                // If some child nodes do not return with status 200, then master
+                // should return return a 404 uniformly
+                "status": httpStatus.NotFound,
+                "logs": logs
+            };
+            if (slaveUrl === "/logs/slave" && action === "GET"
+                && content.isMonitoring === "true") {
+                retMsg["updatedLastMonitorMap"] = generateLastMonitorMap(results);
+            }
+            deferred.reject(retMsg);
+        });
+        return deferred.promise();
+    })
+    .then(function(retMsg) {
+        deferredOut.resolve(retMsg);
+    })
+    .fail(function(retMsg) {
+        deferredOut.resolve(retMsg);
+    });
+    return deferredOut.promise();
 }
 
-function slaveExecuteAction (action, res, str) {
-    switch(action) {
+function slaveExecuteAction(action, slaveUrl, content) {
+    switch (slaveUrl) {
         case "/service/start/slave" :
-            return xcalarStart(res);
+            return xcalarStart();
         case "/service/stop/slave" :
-            return xcalarStop(res);
-        case "/service/restart/slave" :
-            return xcalarRestart(res);
+            return xcalarStop();
         case "/service/status/slave" :
-            return xcalarStatus(res);
-        case "/service/condrestart/slave":
-            return xcalarCondrestart(res);
-        case "/recentLogs/slave":
-            return tail.tail(str["filename"], str["requireLineNum"], res);
-        case "/monitorLogs/slave":
+            return xcalarStatus();
+        case "/logs/slave":
             {
-                tail.createTailUser(str["userID"]);
-                return tail.tailf(str["filename"], res, str["userID"]);
+                var deferredOut = jQuery.Deferred();
+                hasLogFile(logPath)
+                .then(function() {
+                    if (content.isMonitoring === "true") {
+                        tail.monitorLog(Number(content["lastMonitor"]))
+                        .always(function(message) {
+                            deferredOut.resolve(message);
+                        });
+                    } else {
+                        tail.tailLog(Number(content["requireLineNum"]))
+                        .always(function(message) {
+                            deferredOut.resolve(message);
+                        });
+                    }
+                })
+                .fail(function() {
+                    if (content.isMonitoring === "true") {
+                        tail.monitorJournal(content["lastMonitor"])
+                        .always(function(message) {
+                            deferredOut.resolve(message);
+                        });
+                    } else {
+                        tail.tailJournal(Number(content["requireLineNum"]))
+                        .always(function(message) {
+                            deferredOut.resolve(message);
+                        });
+                    }
+                });
+                return deferredOut.promise();
             }
-        case "/stopMonitorLogs/slave":
-            {
-                tail.removeTailUser(str["userID"]);
-                var retMsg = {"status": Status.Ok,
-                              "logs" : "Stop monitoring successfully!"};
-                res.send(retMsg);
-                return;
-            }
-        case "/recentJournals/slave":
-            return tail.tailWithoutLog(str["requireLineNum"], res);
-        case "/monitorJournals/slave":
-            {
-                tail.createTailUser(str["userID"]);
-                return tail.tailfWithoutLog(res, str["userID"]);
-            }
-        case "/setTimeout/slave":
-            {
-                return setTimeOut(str["timeout"], res);
-            }
-
         default:
             console.log("Should not be here!");
     }
 }
 
-function sendCommandToSlaves(action, str, hosts) {
-    var mainDeferred = jQuery.Deferred();
+function sendCommandToSlaves(action, slaveUrl, content, hosts) {
+    var deferredOut = jQuery.Deferred();
     var numDone = 0;
     var returns = {};
     var hasFailure = false;
-
-    for(var i = 0; i < hosts.length; i++) {
-        postRequest(hosts[i], str);
+    for (var i = 0; i < hosts.length; i++) {
+        if (slaveUrl === "/logs/slave" && content.isMonitoring === "true") {
+            addLastMonitorIndex(hosts[i], content);
+        }
+        postRequest(hosts[i]);
     }
 
-    function postRequest(hostName, str) {
-        if(str) {
-           var postData = JSON.stringify(str);
+    function addLastMonitorIndex(hostname, content) {
+        var lastMonitorMap = JSON.parse(content.lastMonitorMap);
+        var lastMonitor;
+        if (lastMonitorMap && lastMonitorMap[hostname]) {
+            lastMonitor = lastMonitorMap[hostname];
+        } else {
+            lastMonitor = -1;
+        }
+        content.lastMonitor = lastMonitor;
+    }
+
+    function postRequest(hostName) {
+        if (content) {
+            var postData = JSON.stringify(content);
         } else {
             // content can not be empty
-           var postData = "{}";
+            var postData = "{}";
         }
-        // var postData = str;
-        var options = {
-          host: hostName,
-          port: 443,
-          path: '/app' + action,
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Content-Length': Buffer.byteLength(postData)
-           }
-        };
 
-        var req = https.request(options, function(res) {
+        var options = {
+            host: hostName,
+            port: content.isHTTP ? 80 : 443,
+            path: '/app' + slaveUrl,
+            method: action,
+            headers: {
+                'Content-Type': 'application/json',
+                'Content-Length': Buffer.byteLength(postData)
+            }
+        };
+        var protocol = content.isHTTP ? http: https;
+        var req = protocol.request(options, function(res) {
             var data = "";
             res.on('data', function(retData) {
                 data += retData;
@@ -193,24 +238,14 @@ function sendCommandToSlaves(action, str, hosts) {
                 res.setEncoding('utf8');
                 var retMsg;
                 try {
-                    var ret = JSON.parse(data);
-                    if (ret.status === Status.Ok) {
-                        retMsg = ret;
-                    } else if (ret.status === Status.Error
-                        || ret.status === Status.Incomplete) {
-                        retMsg = ret;
-                        hasFailure = true;
-                    } else {
-                        retMsg = {
-                            status: Status.Unknown,
-                            error: ret
-                        };
+                    var retMsg = JSON.parse(data);
+                    if (retMsg.status !== httpStatus.OK) {
                         hasFailure = true;
                     }
                 } catch (error) {
                     retMsg = {
-                        status: Status.Error,
-                        error: error
+                        status: httpStatus.InternalServerError,
+                        logs: error.message
                     };
                     hasFailure = true;
                 }
@@ -218,16 +253,16 @@ function sendCommandToSlaves(action, str, hosts) {
                 numDone++;
                 if (numDone === hosts.length) {
                     if (hasFailure) {
-                        mainDeferred.reject(returns);
+                        deferredOut.reject(returns);
                     } else {
-                        mainDeferred.resolve(returns);
+                        deferredOut.resolve(returns);
                     }
                 }
             });
         });
         req.on('socket', function (socket) {
             // 2 is for restart command (need double time)
-            socket.setTimeout(action == "/monitorLogs/slave" ?
+            socket.setTimeout(action === "/logs/slave" ?
                 timeout * monitorFactor : 2 * timeout * expendFactor);
             socket.on('timeout', function() {
                 req.abort();
@@ -236,8 +271,7 @@ function sendCommandToSlaves(action, str, hosts) {
         req.on('error', function(error) {
             console.error(error);
             retMsg = {
-                status: Status.Error,
-                error: error,
+                status: httpStatus.InternalServerError,
                 logs: error.message
             };
             returns[hostName] = retMsg;
@@ -245,30 +279,32 @@ function sendCommandToSlaves(action, str, hosts) {
             numDone++;
             if (numDone === hosts.length) {
                 if (hasFailure) {
-                    mainDeferred.reject(returns);
+                    deferredOut.reject(returns);
                 } else {
-                    mainDeferred.resolve(returns);
+                    deferredOut.resolve(returns);
                 }
             }
         });
         req.write(postData);
         req.end();
     }
-    return mainDeferred.promise();
+    return deferredOut.promise();
 }
 
-function generateLogs(action, results) {
-    var str = "Execute " + action + " for all Nodes:\n\n";
+function generateLogs(action, slaveUrl, results) {
+    var str = "Execute " + action + " " +
+              slaveUrl.substring(0, slaveUrl.length - "/slave".length) +
+              " for all Nodes:\n\n";
     if (results) {
         for (var key in results) {
             var resSlave = results[key];
-            str = str + "Host: " +  key + "\n"
-                      + "Return Status: "
-                      + ssf.getStatus(resSlave["status"]) + "\n";
+            str = str + "Host: " + key + "\n" +
+                  "Return Status: " +
+                  resSlave["status"] + "\n";
             if (resSlave["logs"]) {
-                str = str + "Logs: " + resSlave["logs"] + "\n\n";
+                str = str + "Logs:\n" + resSlave["logs"] + "\n\n";
             } else if (resSlave["error"]) {
-                str = str + "Error: " + resSlave["error"] + "\n\n";
+                str = str + "Error:\n" + resSlave["error"] + "\n\n";
             }
         }
     }
@@ -276,109 +312,81 @@ function generateLogs(action, results) {
 }
 
 // Handle Xcalar Services
-function xcalarStart(res) {
+function xcalarStart() {
     console.log("Enter Xcalar Start");
     var command = 'service xcalar start';
-    return executeCommand(command, res);
+    return executeCommand(command);
 }
 
-function xcalarStop(res) {
+function xcalarStop() {
     console.log("Enter Xcalar Stop");
     var command = 'service xcalar stop';
-    return executeCommand(command, res);
+    return executeCommand(command);
 }
 
-function xcalarRestart(res) {
-    console.log("Enter Xcalar Restart");
-    var deferred = jQuery.Deferred();
-    xcalarStop()
-    .always(function(data1) {
-        xcalarStart()
-        .then(function(data2) {
-            var retMsg = {"status": Status.Ok,
-                      "logs" : new Buffer("Success: " + data1 +
-                       " " + data2).toString('base64')};
-            res.send(retMsg);
-            deferred.resolve();
-        })
-        .fail(function(data2) {
-            var retMsg = {"status": Status.Ok,
-                          "logs" : new Buffer("Fail: " + data1 +
-                            " " + data2).toString('base64')};
-            res.send(retMsg);
-            deferred.reject();
-        });
-    });
-    return deferred.promise();
+function getOperatingSystem() {
+    console.log("Getting operating system");
+    var command = "cat /etc/*release";
+    return executeCommand(command);
 }
 
-function xcalarStatus(res) {
+function xcalarStatus() {
     console.log("Enter Xcalar Status");
     var command = 'service xcalar status';
-    return executeCommand(command, res);
-}
-
-function xcalarCondrestart(res) {
-    console.log("Enter Xcalar Condrestart");
-    var command = 'service xcalar condrestart';
-    return executeCommand(command, res);
+    return executeCommand(command);
 }
 
 // Remove session files
-function removeSessionFiles(filePath, res) {
+function removeSessionFiles(filePath) {
     // '/var/opt/xcalar/sessions' without the final slash is also legal
     var deferredOut = jQuery.Deferred();
 
     getXlrRoot()
     .then(function(xlrRoot) {
+        var deferred = jQuery.Deferred();
         var sessionPath = xlrRoot + "/sessions/";
         var completePath = getCompletePath(sessionPath, filePath);
         var isLegalPath = isUnderBasePath(sessionPath, completePath);
         if (!isLegalPath) {
-            console.log("The filename " + completePath + " is illegal");
-            var retMsg = {"status": Status.Error,
-                          "error" : new Error("Please Send a" +
-                          " legal Session file/folder name.")};
-            res.send(retMsg);
+            var logs = "The filename " + filePath + " is illegal, please " +
+                "Send a legal Session file/folder name.";
+            var retMsg = {"status": httpStatus.BadRequest,
+                "logs": logs};
+            deferred.reject(retMsg);
             return;
         }
         // Handle'/var/opt/xcalar/sessions', change to'/var/opt/xcalar/sessions/'
-        if (completePath == sessionPath.substring(0, sessionPath.length - 1)) {
+        if (completePath === sessionPath.substring(0, sessionPath.length - 1)) {
             completePath = completePath + '/';
         }
         // Handle '/var/opt/xcalar/sessions/', avoid delete the whole session
         // folder, just delete everything under this folder.
-        if (completePath == sessionPath) {
+        if (completePath === sessionPath) {
             completePath = completePath + '*';
         }
         console.log("Remove file at: ", completePath);
         var command = 'rm -rf ' + completePath;
+        deferred.resolve(command);
+        return deferred.promise();
+    })
+    .then(function(command) {
         return executeCommand(command);
     })
     .then(function() {
-        var file = filePath;
-        if (!filePath) {
-            file = "all files under session folder";
-        }
-        var retMsg = {"status": Status.Ok,
-                      "logs" : new Buffer("Remove " + file
-                        + " successfully!").toString('base64')};
-        res.send(retMsg);
-        deferredOut.resolve();
+        var logs = "Remove " + filePath + " successfully!";
+        var retMsg = {"status": httpStatus.OK,
+                      "logs": logs};
+        deferredOut.resolve(retMsg);
     })
-    .fail(function() {
-        var retMsg = result;
-        res.send(retMsg);
-        deferredOut.reject();
+    .fail(function(retMsg) {
+        deferredOut.reject(retMsg);
     });
-
     return deferredOut.promise();
 }
 
 function removeSHM(res) {
-    console.log("Enter Xcalar remove SHM");
     var command = 'rm /dev/shm/xcalar-*';
-    return executeCommand(command, res);
+    return executeCommand(command);
 }
 
 function getCompletePath(sessionPath, filePath) {
@@ -399,64 +407,60 @@ function isUnderBasePath(basePath, completePath) {
            completePath === basePath.substring(0, basePath.length - 1);
 }
 
-// function executeCommand(command, res) {
-//     var deferred = jQuery.Deferred();
-//     cp.exec(command, function(err,stdout,stderr) {
-//         var lines = String(stdout);
-//         console.log(lines);
-//         var result;
-//         result = {"status": Status.Ok,
-//                   "logs" : lines};
-//         if (res) {
-//             res.send(result);
-//         }
-//         deferred.resolve();
-//     });
-//     return deferred.promise();
-// }
-
-
-function executeCommand(command, res) {
+function executeCommand(command) {
     var deferred = jQuery.Deferred();
     var intervalID;
     var out = cp.exec(command);
     var lines = "";
-    var isSend = false;
-    var isClose = false;
+    var isResolved = false;
 
+    // could overtime
     intervalID = timer.setTimeout(function(){
-        if (!isSend && res) {
-            var result;
-            result = {"status": isComplete(command, lines) ? Status.Ok :
-                                                            Status.Incomplete,
-                      "logs" : lines};
-            isSend = true;
-            res.send(result);
-        }
+        var result;
+        result = {"status": isComplete(command, lines) ? httpStatus.OK :
+            httpStatus.InternalServerError,
+            "logs": lines};
         timer.clearTimeout(intervalID);
-        deferred.resolve(lines);
+        if (!isResolved) {
+            if (result.status === httpStatus.OK) {
+                deferred.resolve(result);
+            } else {
+                deferred.reject(result);
+            }
+            isResolved = true;
+            return;
+        }
     }, timeout);
 
     out.stdout.on('data', function(data) {
-        console.log("data", data)
+        console.log("data", data);
         lines += data;
     });
 
     out.stdout.on('close', function(data) {
-        if (!isSend && res) {
-            isSend = true;
-            var result;
-            result = {"status": isComplete(command, lines) ? Status.Ok :
-                                                            Status.Incomplete,
-                      "logs" : lines};
-            res.send(result);
+        var result;
+        result = {"status": isComplete(command, lines) ? httpStatus.OK :
+            httpStatus.InternalServerError,
+            "logs": lines};
+        if (!isResolved) {
+            if (result.status === httpStatus.OK) {
+                deferred.resolve(result);
+            } else {
+                deferred.reject(result);
+            }
+            isResolved = true;
+            return;
         }
-        deferred.resolve(lines);
+        return;
     });
 
     out.stdout.on('error', function(data) {
         lines += data;
-        console.log("lines", lines);
+        var result;
+        result = {"status": httpStatus.InternalServerError,
+            "logs": lines};
+        deferred.reject(result);
+        return;
     });
 
     return deferred.promise();
@@ -464,23 +468,23 @@ function executeCommand(command, res) {
 
 function isComplete(command, data) {
     switch(command) {
-        case  "service xcalar start" :
-            if ((data.indexOf('Mgmtd running') != -1)
-            || (data.indexOf('Mgmtd already running') != -1)) {
+        case "service xcalar start" :
+            if ((data.indexOf('Mgmtd running') !== -1)
+            || (data.indexOf('Mgmtd already running') !== -1)) {
                 return true;
             } else {
                 return false;
             }
-        case  "service xcalar stop" :
-            if ((data.indexOf('Xcalar is not running') != -1)
-            || (data.indexOf('Stopping Xcalar') != -1)
-            || (data.indexOf('Stopping remaining Xcalar processes') != -1)) {
+        case "service xcalar stop" :
+            if ((data.indexOf('Xcalar is not running') !== -1)
+            || (data.indexOf('Stopping Xcalar') !== -1)
+            || (data.indexOf('Stopping remaining Xcalar processes') !== -1)) {
                 return true;
             } else {
                 return false;
             }
-        case  "service xcalar restart" :
-            if(data.indexOf('Mgmtd running') != -1) {
+        case "service xcalar restart" :
+            if (data.indexOf('Mgmtd running') !== -1) {
                 return true;
             } else {
                 return false;
@@ -506,7 +510,6 @@ function getXlrRoot() {
             }
             deferred.resolve(defaultLoc);
         } catch (error) {
-            console.log("Error: " + error);
             deferred.resolve("/mnt/xcalar");
         }
     });
@@ -514,24 +517,26 @@ function getXlrRoot() {
     return deferred.promise();
 }
 
-function getLicense(res) {
+function getLicense() {
+    var deferredOut = jQuery.Deferred();
     getXlrRoot()
     .then(function(location) {
         var licenseLocation = location + "/config/license.txt";
         fs.readFile(licenseLocation, 'utf8', function(err, data) {
+            var retMsg;
             try {
-                if (err) throw err;
                 var license = data;
-                res.send({"status": Status.Ok,
-                          "logs": new Buffer(license).toString('base64')});
+                retMsg = {"status": httpStatus.OK,
+                    "logs": license};
+                deferredOut.resolve(retMsg);
             } catch (error) {
-                console.log("Error: " + error);
-                res.send({"status": Status.Error,
-                          "error": err});
+                retMsg = {"status": httpStatus.BadRequest,
+                    "error": error};
+                deferredOut.reject(retMsg);
             }
         });
     });
-
+    return deferredOut.promise();
 }
 
 // Following function is from https://gist.github.com/tmazur/3965625
@@ -540,7 +545,8 @@ function isValidEmail(emailAddress) {
     return pattern.test(emailAddress);
 }
 
-function submitTicket(contents, res) {
+function submitTicket(contents) {
+    var deferredOut = jQuery.Deferred();
     var customerName = JSON.parse(contents).userIdName;
     var subject = "Ticket from " + encodeURIComponent(customerName);
     contents = encodeURIComponent(contents);
@@ -562,20 +568,25 @@ function submitTicket(contents, res) {
             var line = lines[i];
             if (line.indexOf("X-Zendesk-Request-Id") > -1) {
                 acked = true;
-                res.send({"status": Status.Ok,
-                          "logs": new Buffer(lines).toString('base64')});
+                var retMsg = {"status": httpStatus.OK,
+                    "logs": lines};
                 console.log("Acked");
+                deferredOut.resolve(retMsg);
+                return;
             }
         }
     });
     out.on('close', function() {
         if (!acked) {
-            res.send({"status": Status.Error,
-                      "error": "Failed to submit ticket"});
+            var retMsg = {"status": httpStatus.BadRequest,
+                "error": "Failed to submit ticket"};
             acked = true;
             console.log("Failed to submit ticket");
+            deferredOut.reject(retMsg);
+            return;
         }
     });
+    return deferredOut.promise();
 }
 
 function hasLogFile(filePath) {
@@ -592,27 +603,25 @@ function hasLogFile(filePath) {
     return deferred.promise();
 }
 
-function unitTest() {
-    exports.generateLogs = generateLogs;
-    exports.isUnderBasePath = isUnderBasePath;
-    exports.isComplete = isComplete;
-    exports.readHostsFromFile = readHostsFromFile;
-    exports.xcalarStart = xcalarStart;
-    exports.xcalarStop = xcalarStop;
-    exports.xcalarStatus = xcalarStatus;
-    executeCommand = function (command, res) {
-        console.log("send Fake execution!")
-        res.send("Fake execution!")
+function generateLastMonitorMap(results) {
+    var lastMonitorMap = {};
+    if (results) {
+        for (var key in results) {
+            var resSlave = results[key];
+            if (resSlave.lastMonitor) {
+                lastMonitorMap[key] = resSlave.lastMonitor;
+            }
+        }
     }
+    return lastMonitorMap;
 }
 
 exports.getXlrRoot = getXlrRoot;
 exports.getLicense = getLicense;
 exports.submitTicket = submitTicket;
 exports.removeSessionFiles = removeSessionFiles;
-exports.slaveExecuteAction =  slaveExecuteAction;
+exports.slaveExecuteAction = slaveExecuteAction;
 exports.masterExecuteAction = masterExecuteAction;
 exports.readHostsFromFile = readHostsFromFile;
 exports.removeSHM = removeSHM;
 exports.hasLogFile = hasLogFile;
-exports.unitTest = unitTest;

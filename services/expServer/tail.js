@@ -13,121 +13,73 @@ require("jsdom").env("", function(err, window) {
 var bufferSize = 1024 * 1024;
 var gMaxLogs = 500;
 
-var ssf = require('./supportStatusFile');
-var Status = ssf.Status;
+var httpStatus = require('./../../assets/js/httpStatus.js').httpStatus;
+var logPath = "/var/log/Xcalar.log";
 
-var tailUsers = new Map();
+//*** This file is broken into two parts due to different OS requiring different
+//*** methods to access syslog. On Ubuntu, we tail /var/log/Xcalar.log
+//*** On centos, we call journalctl
 
-function TailUserInformation() {
-    this.userID = undefined;
-    this.isFirstMonitorReq = true;
-    this.fileID = undefined;
-    this.position = undefined;
-    // The last time that expServer receive a request
-    this.lastMonitorTime = undefined;
-    // The last time to fetch the log
-    this.lastGetLogTime = undefined;
-    return this;
-}
-
-TailUserInformation.prototype = {
-    getUserID: function() {
-        return this.userID;
-    },
-    getIsFirstMonitorReq: function() {
-        return this.isFirstMonitorReq;
-    },
-    getFileID: function() {
-        return this.fileID;
-    },
-    getPosition: function() {
-        return this.position;
-    },
-    getLastMonitorTime: function() {
-        return this.lastMonitorTime;
-    },
-    getLastGetLogTime: function() {
-        return this.lastGetLogTime;
-    },
-    setUserID: function(userID) {
-        this.userID = userID;
-    },
-    setIsFirstMonitorReq: function(value) {
-        this.isFirstMonitorReq = value;
-    },
-    setFileID: function(fileID) {
-        this.fileID = fileID;
-    },
-    setPosition: function(position) {
-        this.position = position;
-    },
-    setLastMonitorTime: function(lastMonitorTime) {
-        this.lastMonitorTime = lastMonitorTime;
-    },
-    setLastGetLogTime: function(lastGetLogTime) {
-        this.lastGetLogTime = lastGetLogTime;
-    }
-};
-
-function createTailUser(userID) {
-    if(!(tailUsers.has(userID))) {
-        var currentUser = new TailUserInformation();
-        currentUser.setUserID(userID);
-        tailUsers.set(userID, currentUser);
-    }
-}
-
-function removeTailUser(userID) {
-    if(tailUsers.has(userID)) {
-        tailUsers.delete(userID);
-    }
-}
-
-// tail with Xcalar.log exist
-function tail(filename, requireLineNum, res) {
-    console.log("Enter tail by large buffer")
-    if(!isLogNumValid(requireLineNum)) {
-        if(res) {
-            res.send({"status": Status.Error,
-                      "error": "Please Enter a nonnegative integer" +
-                                         "not over 500"});
-        }
-        return;
-    }
-    var deferred = jQuery.Deferred();
+// *************************** tail Xcalar.log ****************************** //
+// Tail Xcalar.log
+function tailLog(requireLineNum) {
     var deferredOut = jQuery.Deferred();
-    fs.stat(filename, function(err, stat) {
-        if (err) {
-            console.log("fail to get file status: " + err.message);
-            deferred.reject();
-        } else {
-            deferred.resolve(stat);
-        }
-    });
+    var deferred = jQuery.Deferred();
+    requireLineNum = Number(requireLineNum);
+    if (!isLogNumValid(requireLineNum)) {
+        var retMsg = {
+            "status": Status.BadRequest, // Bad Request
+            "logs": "Please Enter a nonnegative integer not over 500"
+        };
+        deferred.reject(retMsg);
+    } else {
+        deferred.resolve();
+    }
+
     deferred.promise()
-    .then(function(stat) {
-        console.log("stat", stat)
-        if(!stat || stat.size == 0) {
-            if(res) {
-                console.log("Empty file");
-                res.send({"status": Status.Ok,
-                          "logs": "The file is empty!"});
-            }
-            deferred.reject();
-        }
-        var deferred2 = jQuery.Deferred();
-        fs.open(filename, 'r', function(err, fd) {
-            if(err) {
-                console.log("fail to open the file: " + err.message);
-                deferred2.reject();
+    .then(function() {
+        var deferred = jQuery.Deferred();
+        fs.stat(logPath, function(err, stat) {
+            if (err) {
+                var retMsg = {
+                    "status": httpStatus.InternalServerError, // Server Internal error
+                    "logs": "fail to get file status: " + err.message
+                };
+                deferred.reject(retMsg);
             } else {
-                deferred2.resolve(fd, stat);
+                deferred.resolve(stat);
             }
         });
-        return deferred2.promise();
+        return deferred.promise();
+    })
+    .then(function(stat) {
+        var deferred = jQuery.Deferred();
+        if (!stat || stat.size === 0) {
+            var retMsg = {
+                "status": httpStatus.OK,
+                "logs": "Empty File"
+            };
+            // reject doesn't means that the status can't be 200, it means that
+            // we already know the result and do not need to pass parameters
+            // and move forward to next steps
+            deferred.reject(retMsg);
+        } else {
+            fs.open(logPath, 'r', function(err, fd) {
+                if (err) {
+                    var retMsg = {
+                        "status": httpStatus.InternalServerError, // Server Internal error
+                        "logs": "fail to open the file: " + err.message
+                    };
+                    deferred.reject(retMsg);
+                } else {
+                    deferred.resolve(fd, stat);
+                }
+            });
+        }
+        return deferred.promise();
     })
     .then(function(fd, stat) {
-        var deferred3 = jQuery.Deferred();
+        var deferred = jQuery.Deferred();
         //  How many line end have been meet
         var lineEndNum = 0;
         var lines = '';
@@ -135,205 +87,262 @@ function tail(filename, requireLineNum, res) {
             var startPosition;
             var bufferReadLength;
             // If the file is large, fill in the whole buf
-            if((stat.size-lines.length) >= buf.length) {
-                startPosition = stat.size-lines.length-buf.length;
+            if ((stat.size - lines.length) >= buf.length) {
+                startPosition = stat.size - lines.length - buf.length;
                 bufferReadLength = buf.length;
             // If the file is small, fill in part of the buf
             } else {
                 startPosition = 0;
-                bufferReadLength = stat.size-lines.length;
+                bufferReadLength = stat.size - lines.length;
             }
             fs.read(fd, buf, 0, bufferReadLength, startPosition,
                 function(err, bytesRead, buffer) {
-                if(err) {
-                    client.log("fail to read the buffer: " + err.message);
-                    deferred3.reject();
-                } else {
-                    for(var i = bufferReadLength - 1; i >= 0; i--) {
-                        if ((lines.length + 1) >= stat.size) {
-                            lines = lines.substring(lines.length-stat.size);
-                            deferred3.resolve(fd, stat, lines);
-                            return;
-                        }
-                        // meet a '\n'
-                        if (buffer[i] === 0x0a) {
-                            lineEndNum++;
-                            if (lineEndNum == requireLineNum + 1) {
-                                deferred3.resolve(fd, stat, lines);
+                    if (err) {
+                        var retMsg = {
+                            "status": httpStatus.Forbidden,
+                            "logs": "fail to read the file: " + err.message
+                        };
+                        deferred.reject(retMsg);
+                    } else {
+                        for (var i = bufferReadLength - 1; i >= 0; i--) {
+                            // If we don't have requireNum lines and we already
+                            // reach the beginning of the this file, don't read
+                            // the last bits as they are non sense
+                            if ((lines.length + 1) >= stat.size) {
+                                lines = lines.substring(lines.length - stat.size);
+                                deferred3.resolve(lines, stat);
                                 return;
                             }
+                            // meet a '\n'
+                            if (buffer[i] === 0x0a) {
+                                lineEndNum++;
+                                // as the last line always ends with '\n', if you
+                                // want to have requireNum + 1 lines, you need to
+                                // meet require + 1 '\n'
+                                if (lineEndNum === requireLineNum + 1) {
+                                    deferred.resolve(lines, stat);
+                                    return;
+                                }
+                            }
+                            lines = String.fromCharCode(buffer[i]) + lines;
                         }
-                        lines = String.fromCharCode(buffer[i]) + lines;
+                        readFromEnd(new Buffer(bufferSize));
                     }
-                    readFromEnd(new Buffer(bufferSize));
-                }
-            });
-            return deferred3.promise();
-        }
+                });
+            return deferred.promise();
+        };
         return readFromEnd(new Buffer(bufferSize));
     })
-    .then(function(fd, stat, lines) {
-        if(lines) {
+    .then(function(lines, stat) {
+        if (lines) {
+            console.log("lines", lines);
             console.log(lines.substring(0, lines.length - 1));
-            res.send({"status": Status.Ok, "logs" : lines});
-        } else {
-            res.send({"status": Status.Ok});
         }
-        deferredOut.resolve(fd, stat, lines);
+        var retMsg = {
+            "status": httpStatus.OK,
+            "logs": lines,
+            "lastMonitor": stat.size
+        };
+        deferredOut.resolve(retMsg);
     })
-    .fail(function() {
-        console.log("something fails!");
-        res.send({"status": Status.Error});
-        deferredOut.reject();
+    .fail(function(retMsg) {
+        deferredOut.reject(retMsg);
+    });
+
+    return deferredOut.promise();
+}
+
+// Tail -f
+function monitorLog(lastMonitor) {
+    if (lastMonitor === -1) {
+        return tailLog(10);
+    } else {
+        return sinceLastMonitorLog(Number(lastMonitor));
+    }
+}
+
+// Send delta Xcalar.log logs
+function sinceLastMonitorLog(lastMonitor) {
+    var lines = "";
+    var deferredOut = jQuery.Deferred();
+    var deferred = jQuery.Deferred();
+    fs.stat(logPath, function(err, stat) {
+        if (err) {
+            var retMsg = {
+                "status": httpStatus.InternalServerError, // Server Internal error
+                "logs": "fail to get file status: " + err.message
+            };
+            deferred.reject(retMsg);
+        } else {
+            deferred.resolve(stat);
+        }
+        return deferred.promise();
+    });
+
+    deferred.promise()
+    .then(function(stat) {
+        var deferred = jQuery.Deferred();
+        if (!stat || stat.size === 0) {
+            var retMsg = {
+                "status": httpStatus.OK,
+                "logs": "Empty File"
+            };
+            // reject doesn't means that the status can't be 200, it means that
+            // we already know the result and do not need to pass parameters
+            // and move forward to next steps
+            deferred.reject(retMsg);
+        } else {
+            fs.open(logPath, 'r', function(err, fd) {
+                if (err) {
+                    var retMsg = {
+                        "status": httpStatus.Forbidden,
+                        "logs": "fail to open the file: " + err.message
+                    };
+                    deferred.reject(retMsg);
+                } else {
+                    deferred.resolve(fd, stat);
+                }
+            });
+        }
+        return deferred.promise();
+    })
+    .then(function(fd, stat) {
+        var lines = '';
+        var buf = new Buffer(bufferSize);
+        var deferred = jQuery.Deferred();
+        var readRecentLogs = function() {
+            fs.read(fd, buf, 0, bufferSize, lastMonitor,
+                function(err, bytesRead, buf) {
+                    if (err) {
+                        var retMsg = {
+                            "status": httpStatus.Forbidden,
+                            "logs": "fail to read the file: " + err.message
+                        };
+                        deferred.reject(retMsg);
+                    }
+                    for (var i = 0; i < bytesRead; i++) {
+                        lines = lines + String.fromCharCode(buf[i]);
+                    }
+                    if (bytesRead === bufferSize) {
+                        readRecentLogs();
+                    } else {
+                        deferred.resolve(lines, stat);
+                    }
+                });
+            return deferred.promise();
+        };
+        return readRecentLogs();
+    })
+    .then(function(lines, stat){
+        var retMsg = {
+            "status": httpStatus.OK,
+            "logs": lines,
+            "lastMonitor": stat.size
+        };
+        if (lines) {
+            console.log(lines.substring(0, lines.length - 1));
+        }
+        deferredOut.resolve(retMsg);
+    })
+    .fail(function(retMsg) {
+        deferredOut.reject(retMsg);
     });
     return deferredOut.promise();
 }
 
-// tail f with Xcalar.log exist
-function tailf(filename, res, userID) {
-    var user = tailUsers.get(userID);
-    // Detect the case that xi quit without sending the stop Monitoring command
-    lostConnectDetection(userID);
-    // First time for Monitor, just fetch 10 recent logs by calling function tailByLargeBuffer
-    if(user.getIsFirstMonitorReq()) {
-        clearFirstMonitor(userID);
-        var promise = tail(filename, 10, res);
-        jQuery.when(promise)
-        .then(function(fd, stat) {
-            user.setFileID(fd);
-            user.setPosition(stat.size);
-        });
-    // Fetch new Logs after the first time;
-    } else {
-        sendRecentLogsWithLog(res, userID);
-    }
-}
-
-// send recent logs with Xcalar.log exist
-function sendRecentLogsWithLog(res, userID) {
-    var user = tailUsers.get(userID);
-    var lines = "";
+// ***************************** journalctl ********************************* //
+// journalctl
+function tailJournal(requireLineNum) {
+    var deferredOut = jQuery.Deferred();
     var deferred = jQuery.Deferred();
-
-    var readRecentLogs = function() {
-        var buf = new Buffer(bufferSize);
-        var fileID = user.getFileID();
-        var userPosition = user.getPosition();
-        fs.read(fileID, buf, 0, bufferSize, userPosition,
-            function(err, bytesRead, buf) {
+    if (!isLogNumValid(requireLineNum)) {
+        var retMsg = {
+            "status": httpStatus.BadRequest, // Bad Request
+            "logs": "Please Enter a nonnegative integer not over 500"
+        };
+        deferred.reject(retMsg);
+    } else {
+        deferred.resolve();
+    }
+    deferred.promise()
+    .then(function() {
+        var deferred = jQuery.Deferred();
+        var command = 'journalctl -n ' + requireLineNum;
+        cp.exec(command, function(err,stdout,stderr) {
+            var retMsg;
             if (err) {
-                console.log(err.message);
-                deferred.reject();
-            }
-            for (var i = 0; i < bytesRead; i++) {
-                user.position++;
-                lines = lines + String.fromCharCode(buf[i]);
-            }
-            if (bytesRead == bufferSize) {
-                readRecentLogs();
+                retMsg = {
+                    "status": httpStatus.InternalServerError, // Server Internal Error
+                    "logs": "Fail to execute " + err.message
+                };
+                deferred.reject(retMsg);
             } else {
-                deferred.resolve(lines);
+                var lines = String(stdout);
+                var currentTime = getCurrentTime();
+                retMsg = {
+                    "status": httpStatus.OK,
+                    "logs": lines,
+                    "lastMonitor": currentTime
+                };
+                deferred.resolve(retMsg);
             }
         });
         return deferred.promise();
-    };
-    readRecentLogs();
-
-    deferred.promise()
-    .then(function(lines){
-        if(lines) {
-            console.log(lines.substring(0, lines.length - 1));
-            res.send({"status": Status.Ok, "logs" : lines});
-        } else {
-            res.send({"status": Status.Ok});
-        }
     })
-    .fail(function() {
-        console.log("Tail Process fails!");
-        res.send({"status": Status.Error});
+    .then(function(retMsg) {
+        deferredOut.resolve(retMsg);
+    })
+    .fail(function(retMsg) {
+        deferredOut.reject(retMsg);
     });
+    return deferredOut.promise();
 }
 
-// tail without Xcalar.log exists, in centOS
-function tailWithoutLog(requireLineNum, res) {
-    console.log("Tail the Xcalar logs");
-    if (!isLogNumValid(requireLineNum)) {
-        if (res) {
-            res.send({"status": Status.Error,
-                      "error": "Please Enter a nonnegative integer" +
-                                         "not over 500"});
-        }
-        return;
-    }
-    var deferred = jQuery.Deferred();
-    var command = 'journalctl -n ' + requireLineNum;
-    cp.exec(command, function(err,stdout,stderr) {
-        var lines = String(stdout);
-        console.log(lines);
-        var result;
-        result = {"status": Status.Ok,
-                  "logs" : lines};
-        if (res) {
-            res.send(result);
-        }
-        var currentTime = getCurrentTime();
-        deferred.resolve(currentTime);
-    });
-    return deferred.promise();
-}
-
-// tail f without Xcalar.log exist, in centOS
-function tailfWithoutLog(res, userID) {
-    var user = tailUsers.get(userID);
-    // Detect the case that xi quit without sending the stop Monitoring command
-    lostConnectDetection(userID);
-    // First time for Monitor, just fetch 10 recent logs by calling function
-    // tailByLargeBuffer
-    if(user.getIsFirstMonitorReq()) {
-        clearFirstMonitor(userID);
-        tailWithoutLog(10, res)
-        .then(function(currentTime) {
-            user.setLastGetLogTime(currentTime);
-        });
-    // Fetch new Logs after the first time;
+// journalctl -f
+function monitorJournal(lastMonitor) {
+    if (lastMonitor === -1) {
+        return tailJournal(10);
     } else {
-        return sendRecentLogsWithoutLog(res, userID);
+        return sinceLastMonitorJournal(lastMonitor);
     }
 }
 
-// send recent logs without Xcalar.log exist
-function sendRecentLogsWithoutLog(res, userID) {
-    var user = tailUsers.get(userID);
-    var lastGetLogTime = user.getLastGetLogTime();
+// Send delta journalctl logs
+function sinceLastMonitorJournal(lastMonitor) {
+    var deferredOut = jQuery.Deferred();
     var currentTime = getCurrentTime();
-
-    user.setLastGetLogTime(currentTime);
-    var deferred = jQuery.Deferred();
-    var command = 'journalctl --since ' + lastGetLogTime +
+    var command = 'journalctl --since ' + lastMonitor +
                   ' --until ' + currentTime;
     cp.exec(command, function(err,stdout,stderr) {
-        var lines = String(stdout);
-        var firstLineIndex = lines.indexOf("\n");
-        lines = lines.substring(firstLineIndex + 1);
-        if(lines) {
-            console.log(lines);
+        var retMsg;
+        if (err) {
+            retMsg = {
+                "status": httpStatus.InternalServerError, // Server Internal Error
+                "logs": "Fail to execute " + err.message
+            };
+            deferredOut.reject(retMsg);
+        } else {
+            var lines = "";
+            lines = String(stdout);
+            var firstLineIndex = lines.indexOf("\n");
+            lines = lines.substring(firstLineIndex + 1);
+            retMsg = {
+                "status": httpStatus.OK,
+                "logs": lines,
+                "lastMonitor": currentTime
+            };
+            deferredOut.resolve(retMsg);
         }
-        var result;
-        result = {"status": Status.Ok,
-                  "logs" : lines};
-        if (res) {
-            res.send(result);
-        }
-        deferred.resolve(currentTime);
     });
-    return deferred.promise();
+    return deferredOut.promise();
 }
 
+// *************************** Common Functions ***************************** //
 function isLogNumValid(num) {
-    if(isNaN(num)) {
+    if (isNaN(num)) {
         return false;
     } else {
-        if(Number.isInteger(num) && num >= 0  && num <= gMaxLogs) {
+        if (Number.isInteger(num) && num >= 0 && num <= gMaxLogs) {
             return true;
         }
         return false;
@@ -341,45 +350,25 @@ function isLogNumValid(num) {
 }
 
 function getCurrentTime() {
+    function addLeading0(val) {
+        if (val < 10) {
+            return "0" + val;
+        }
+        return val;
+    }
     var date = new Date();
-    var month = date.getMonth()+1 < 10 ? "0" + (date.getMonth() + 1) :
-                                         date.getMonth()+1 ;
-    var day = date.getDate() < 10 ? "0" + date.getDate() : date.getDate();
+    var month = addLeading0(date.getMonth() + 1);
+    var day = addLeading0(date.getDate());
     var year = date.getFullYear();
-    var hour = date.getHours() < 10 ? "0" + date.getHours() : date.getHours();
-    var minute = date.getMinutes() < 10 ? "0" + date.getMinutes() :
-                                          date.getMinutes();
-    var second = date.getSeconds() < 10 ? "0" + date.getSeconds() :
-                                          date.getSeconds();
-    var formatedDate = '"' + year + '-' + month + '-' + day + ' ' + hour + ':'
-                        + minute + ':' + second + '"';
+    var hour = addLeading0(date.getHours());
+    var minute = addLeading0(date.getMinutes());
+    var second = addLeading0(date.getSeconds());
+    var formatedDate = '"' + year + '-' + month + '-' + day + ' ' + hour +
+                       ':' + minute + ':' + second + '"';
     return formatedDate;
 }
 
-function lostConnectDetection(userID) {
-    var user = tailUsers.get(userID);
-    var currentTime = new Date().getTime();
-    var lastMonitorTime = user.getLastMonitorTime();
-    if((!lastMonitorTime) || (currentTime - lastMonitorTime > 30000)) {
-        setFirstMonitor(userID);
-    }
-    user.setLastMonitorTime(currentTime);
-}
-
-function setFirstMonitor(userID) {
-    var user = tailUsers.get(userID);
-    user.setIsFirstMonitorReq(true);
-}
-
-function clearFirstMonitor(userID) {
-    var user = tailUsers.get(userID);
-    user.setIsFirstMonitorReq(false);
-}
-
-exports.tail = tail;
-exports.tailf = tailf;
-exports.tailWithoutLog = tailWithoutLog;
-exports.tailfWithoutLog = tailfWithoutLog;
-exports.setFirstMonitor = setFirstMonitor;
-exports.createTailUser = createTailUser;
-exports.removeTailUser = removeTailUser;
+exports.tailLog = tailLog;
+exports.monitorLog = monitorLog;
+exports.tailJournal = tailJournal;
+exports.monitorJournal = monitorJournal;

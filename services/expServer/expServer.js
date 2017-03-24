@@ -9,6 +9,7 @@ require("jsdom").env("", function(err, window) {
     }
     jQuery = require("jquery")(window);
 
+
 var express = require('express');
 var bodyParser = require('body-parser');
 var fs = require('fs');
@@ -26,7 +27,7 @@ try {
         AWS.config.loadFromPath(guiDir + "/services/expServer/awsReadConfig.json");
     }
     var s3 = new AWS.S3();
-} catch (error) {
+} catch(error) {
     console.log("Fail to set up AWS!")
 }
 
@@ -36,6 +37,7 @@ var support = require('./support');
 var login = require('./expLogin');
 var upload = require('./upload');
 var Status = require('./supportStatusFile').Status;
+var httpStatus = require('./../../assets/js/httpStatus.js').httpStatus;
 
 var basePath = "/var/www/xcalar-gui/assets/extensions/";
 
@@ -48,12 +50,8 @@ app.all('/*', function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "X-Requested-With");
     res.header("Access-Control-Allow-Headers", "Content-Type");
-    // res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    res.header("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT");
     next();
-});
-
-app.get('/*', function(req, res) {
-    res.send('Please use post instead');
 });
 
 var verbose = true;
@@ -69,16 +67,16 @@ var xcConsole = {
 
 // Start of installer calls
 var finalStruct = {
-    "nfsOption"    : undefined, // Either empty struct (use ours) or
+    "nfsOption": undefined, // Either empty struct (use ours) or
             // { "nfsServer": "netstore.int.xcalar.com",
             //   "nfsMountPoint": "/public/netstore",
             //   "nfsUsername": "jyang",
             //   "nfsGroup": "xcalarEmployee" }
-    "hostnames"    : [],
+    "hostnames": [],
     "privHostNames": [],
-    "username"     : "",
-    "port"         : 22,
-    "credentials"  : {} // Either password or sshKey
+    "username": "",
+    "port": 22,
+    "credentials": {} // Either password or sshKey
 };
 
 var curStep = {};
@@ -97,9 +95,9 @@ var credentialLocation = "/tmp/key.txt";
 
 function initStepArray() {
     curStep = {
-        "stepString"           : "Step [0] Starting...",
+        "stepString": "Step [0] Starting...",
         "nodesCompletedCurrent": [],
-        "status"               : Status.Running,
+        "status": Status.Running,
     };
 }
 
@@ -178,11 +176,11 @@ function sendStatusArray(finalStruct, res) {
 
     if (curStep.status !== Status.Ok) {
         res.send({"status": curStep.status,
-            "retVal"  : ackArray,
+            "retVal": ackArray,
             "errorLog": errorLog});
     } else {
         res.send({"status": curStep.status,
-                  "retVal": ackArray});
+            "retVal": ackArray});
     }
     console.log("Success: send status array");
 }
@@ -208,6 +206,10 @@ function stdOutCallback(dataBlock) {
             }
         }
     }
+}
+
+function convertToBase64(logs) {
+    return new Buffer(logs).toString('base64');
 }
 
 var errorLog = "";
@@ -270,13 +272,13 @@ app.post("/runInstaller", function(req, res) {
             isPassword = false;
             var sshkey = credArray.credentials.sshKey;
             fs.writeFile(credentialLocation, sshkey,
-             {mode: parseInt('600', 8)}, function(err) {
-                if (err) {
-                    deferred.reject(err);
-                    return;
-                }
-                deferred.resolve();
-             });
+                {mode: parseInt('600', 8)}, function(err) {
+                    if (err) {
+                        deferred.reject(err);
+                        return;
+                    }
+                    deferred.resolve();
+                });
         }
         return deferred.promise();
     }
@@ -295,7 +297,7 @@ app.post("/runInstaller", function(req, res) {
     })
     .then(function() {
         var deferred = jQuery.Deferred();
-        if(credArray.privHostNames.length > 0) {
+        if (credArray.privHostNames.length > 0) {
             fs.writeFile(privHostnameLocation,
                 credArray.privHostNames.join("\n"),
                 function(err) {
@@ -374,178 +376,165 @@ app.post("/cancelInstall", function(req, res) {
     res.send({"status": Status.Ok});
 });
 
-var file = "/var/log/Xcalar.log";
-
 // Single node commands
-app.post("/removeSessionFiles", function(req, res) {
+app.delete("/sessionFiles", function(req, res) {
     console.log("Remove Session Files");
     var filename =  req.body.filename;
-    support.removeSessionFiles(filename, res);
+    support.removeSessionFiles(filename)
+    .always(function(message) {
+        if (message.logs) {
+            message.logs = convertToBase64(message.logs);
+        }
+        res.status(message.status).send(message);
+    });
 });
 
-app.post("/removeSHM", function(req, res) {
+app.delete("/SHMFiles", function(req, res) {
     console.log("Remove Files under folder SHM");
-    support.removeSHM(res);
+    support.removeSHM()
+    .always(function(message) {
+        if (message.logs) {
+            message.logs = convertToBase64(message.logs);
+        }
+        res.status(message.status).send(message);
+    });
 });
 
-app.post("/getLicense", function(req, res) {
+app.get("/license", function(req, res) {
     console.log("Get License");
-    support.getLicense(res);
+    support.getLicense()
+    .always(function(message) {
+        if (message.logs) {
+            message.logs = convertToBase64(message.logs);
+        }
+        res.status(message.status).send(message);
+    });
 });
 
-app.post("/fileTicket", function(req, res) {
+app.post("/ticket", function(req, res) {
     console.log("File Ticket");
     var contents = req.body.contents;
-    support.submitTicket(contents, res);
+    support.submitTicket(contents)
+    .always(function(message) {
+        if (message.logs) {
+            message.logs = convertToBase64(message.logs);
+        }
+        res.status(message.status).send(message);
+    });
 });
 
 // Master request
 app.post("/service/start", function(req, res) {
     console.log("Start Xcalar Services as Master");
-    support.masterExecuteAction("/service/start", res);
+    support.masterExecuteAction("POST", "/service/start/slave", req.body)
+    .always(function(message) {
+        if (message.logs) {
+            message.logs = convertToBase64(message.logs);
+        }
+        res.status(message.status).send(message);
+    });
 });
 
 app.post("/service/stop", function(req, res) {
     console.log("Stop Xcalar Service as Master");
-    support.masterExecuteAction("/service/stop", res);
+    support.masterExecuteAction("POST", "/service/stop/slave", req.body)
+    .always(function(message) {
+        if (message.logs) {
+            message.logs = convertToBase64(message.logs);
+        }
+        res.status(message.status).send(message);
+    });
 });
 
+// We call stop and then start instead of restart because xcalar service restart
+// restarts each node individually rather than the nodes as a cluster. This causes
+// the generation count on the nodes to be different.
 app.post("/service/restart", function(req, res) {
     console.log("Restart Xcalar Services as Master");
-    support.masterExecuteAction("/service/restart", res);
+    var message1;
+    var message2;
+    function stop() {
+        var deferred = jQuery.Deferred();
+        support.masterExecuteAction("POST", "/service/stop/slave", req.body)
+        .always(deferred.resolve);
+        return deferred;
+    }
+    stop()
+    .then(function(ret) {
+        var deferred = jQuery.Deferred();
+        message1 = ret;
+        support.masterExecuteAction("POST", "/service/start/slave", req.body)
+        .always(deferred.resolve);
+        return deferred;
+    })
+    .then(function(ret) {
+        var deferred = jQuery.Deferred();
+        message2 = ret;
+        message2.logs = message1.logs + message2.logs;
+        return deferred.resolve().promise();
+    })
+    .then(function(ret) {
+        if (message2.logs) {
+            message2.logs = convertToBase64(message2.logs);
+        }
+        res.status(message2.status).send(message2);
+    });
 });
 
-app.post("/service/status", function(req, res) {
+app.get("/service/status", function(req, res) {
     console.log("Show Xcalar Services status as Master");
-    support.masterExecuteAction("/service/status", res);
+    // req.query for Ajax, req.body for sennRequest
+    support.masterExecuteAction("GET", "/service/status/slave", req.query)
+    .always(function(message) {
+        if (message.logs) {
+            message.logs = convertToBase64(message.logs);
+        }
+        res.status(message.status).send(message);
+    });
 });
 
-app.post("/service/condrestart", function(req, res) {
-    console.log("Condrestart Xcalar Services as Master");
-    support.masterExecuteAction("/service/condrestart", res);
-});
-
-app.post("/recentLogs", function(req, res) {
+app.get("/logs", function(req, res) {
     console.log("Fetch Recent Logs as Master");
-    var credArray = req.body;
-    var requireLineNum =  credArray["requireLineNum"];
-
-    support.hasLogFile(file)
-    .then(function() {
-        var str = {requireLineNum : requireLineNum, filename: file};
-        support.masterExecuteAction("/recentLogs", res, str);
-    })
-    .fail(function() {
-        var str = {"requireLineNum" : requireLineNum};
-        // var str = {"requireLineNum" : requireLineNum};
-        support.masterExecuteAction("/recentJournals", res, str);
+    support.masterExecuteAction("GET", "/logs/slave", req.query)
+    .always(function(message) {
+        if (message.logs) {
+            message.logs = convertToBase64(message.logs);
+        }
+        res.status(message.status).send(message);
     });
-});
-
-app.post("/monitorLogs", function(req, res) {
-    console.log("Monitor Recent Logs as Master");
-    var credArray = req.body;
-    var userID =  credArray["userID"];
-
-    support.hasLogFile(file)
-    .then(function() {
-        var str = {"filename": file, "userID": userID};
-        support.masterExecuteAction("/monitorLogs", res, str);
-    })
-    .fail(function() {
-        var str = {"userID": userID};
-        support.masterExecuteAction("/monitorJournals", res, str);
-    });
-});
-
-app.post("/stopMonitorLogs", function(req, res) {
-    console.log("Stop Monitoring Logs as Master");
-    var credArray = req.body;
-    var userID =  credArray["userID"];
-    var str = {"userID": userID};
-    support.masterExecuteAction("/stopMonitorLogs", res, str);
-});
-
-app.post("/setTimeout", function(req, res) {
-    console.log("Set the current time out as Master");
-    var credArray = req.body;
-    var timeout =  credArray["timeout"];
-    var str = {"timeout": timeout};
-    support.masterExecuteAction("/setTimeout", res, str);
 });
 
 // Slave request
 app.post("/service/start/slave", function(req, res) {
     console.log("Start Xcalar Services as Slave");
-    support.slaveExecuteAction("/service/start/slave", res);
+    support.slaveExecuteAction("POST", "/service/start/slave")
+    .always(function(message) {
+        res.status(message.status).send(message);
+    });
 });
 
 app.post("/service/stop/slave", function(req, res) {
     console.log("Stop Xcalar Services as Slave");
-    support.slaveExecuteAction("/service/stop/slave", res);
+    support.slaveExecuteAction("POST", "/service/stop/slave")
+    .always(function(message) {
+        res.status(message.status).send(message);
+    });
 });
 
-app.post("/service/restart/slave", function(req, res) {
-    console.log("Restart Xcalar Services as Slave");
-    support.slaveExecuteAction("/service/restart/slave", res);
+app.get("/service/status/slave", function(req, res) {
+    console.log("Show Xcalar Services status as Slave");
+    support.slaveExecuteAction("GET", "/service/status/slave")
+    .always(function(message) {
+        res.status(message.status).send(message);
+    });
 });
 
-app.post("/service/status/slave", function(req, res) {
-    console.log("Show Xcalar Services statu as Slave");
-    support.slaveExecuteAction("/service/status/slave", res);
-});
-
-app.post("/service/condrestart/slave", function(req, res) {
-    console.log("Condrestart Xcalar Services as Slave");
-    support.slaveExecuteAction("/service/condrestart/slave", res);
-});
-
-app.post("/recentLogs/slave", function(req, res) {
+app.get("/logs/slave", function(req, res) {
     console.log("Fetch Recent Logs as Slave");
-    var credArray = req.body;
-    var requireLineNum =  credArray["requireLineNum"];
-    var str = {"requireLineNum" : requireLineNum, "filename": file};
-    support.slaveExecuteAction("/recentLogs/slave", res, str);
-});
-
-app.post("/monitorLogs/slave", function(req, res) {
-    console.log("Monitor Recent Logs as Slave");
-    var credArray = req.body;
-    var userID =  credArray["userID"];
-    var str = {"filename": file, "userID": userID};
-    support.slaveExecuteAction("/monitorLogs/slave", res, str);
-});
-
-app.post("/stopMonitorLogs/slave", function(req, res) {
-    console.log("Stop Monitoring Logs as Slave");
-    var credArray = req.body;
-    var userID =  credArray["userID"];
-    var str = {"filename": file, "userID": userID};
-    support.slaveExecuteAction("/stopMonitorLogs/slave", res, str);
-});
-
-app.post("/recentJournals/slave", function(req, res) {
-    console.log("Fetch Recent Journals as Slave");
-    var credArray = req.body;
-    var requireLineNum =  credArray["requireLineNum"];
-    var str = {"requireLineNum" : requireLineNum};
-    support.slaveExecuteAction("/recentJournals/slave", res, str);
-});
-
-app.post("/monitorJournals/slave", function(req, res) {
-    console.log("Monitor Recent Journals as Slave");
-    var credArray = req.body;
-    var userID =  credArray["userID"];
-    var str = {"userID": userID};
-    support.slaveExecuteAction("/monitorJournals/slave", res, str);
-});
-
-app.post("/setTimeout/slave", function(req, res) {
-    console.log("Set the current time out as Slave");
-    var credArray = req.body;
-    var timeout =  credArray["timeout"];
-    var str = {"timeout": timeout};
-    support.slaveExecuteAction("/setTimeout/slave", res, str);
+    support.slaveExecuteAction("GET", "/logs/slave", req.body)
+    .always(function(message) {
+        res.status(message.status).send(message);
+    });
 });
 
 function copyFiles(res) {
@@ -589,7 +578,7 @@ app.post("/writeConfig", function(req, res) {
     } catch (err) {
         console.log(err);
         res.send({"status": Status.Error,
-            "reason": JSON.stringify(err)});
+                  "reason": JSON.stringify(err)});
     }
 });
 
@@ -685,8 +674,8 @@ function sendRequest(options) {
             totalData += data;
         });
         res.on('end', function() {
-           xcConsole.log("ended");
-           deferred.resolve(totalData);
+            xcConsole.log("ended");
+            deferred.resolve(totalData);
         });
     }
 
@@ -1086,7 +1075,7 @@ app.post("/listPackage", function(req, res){
                     }
                 });
                 return deferredOnGetFile.promise();
-            }
+            };
             if (fileName.endsWith(".txt")) {
                 get(fileName)
                 .then(function(data) {
@@ -1100,7 +1089,7 @@ app.post("/listPackage", function(req, res){
                 deferredOnProcessItem.resolve();
             }
             return deferredOnProcessItem.promise();
-        }
+        };
 
         var params = {
             Bucket: 'marketplace.xcalar.com', /* required */
@@ -1154,117 +1143,75 @@ app.post("/uploadMeta", function(req, res) {
 
 app.post('/getTimezoneOffset', function(req, res) {
     var timezoneOffset = new Date().getTimezoneOffset();
-    console.log("Server timezone offset: " +  timezoneOffset);
+    console.log("Server timezone offset: " + timezoneOffset);
     res.send(timezoneOffset);
 });
 
-function getTimeString(next) {
-    var month = next._date.month() + 1;
-    var date = next._date.date();
-    var year = next._date.year();
-    var hour = next._date.hour() > 12 ?
-       next._date.hour() - 12: next._date.hour();
-    if (hour === 0) {
-       hour = 12;
-    }
-    var minute =  next._date.minute();
-    if (hour < 10) {
-        hour = '0' + hour;
-    }
-    if (minute < 10) {
-        minute = '0' + minute;
-    }
-    var suffix = next._date.hour() >= 12 ? 'PM' : 'AM';
-    return month + '/' + date + '/' + year + ' ' + hour + ':' +
-           minute + ' ' + suffix;
-}
-
-var httpServer = http.createServer(app);
-try {
-    require('ssl-root-cas').addFile('/etc/apache2/ssl/ca.pem').inject();
-} catch (e) {
-    console.log("You do not have /etc/apache2/ssl/ca.pem! " +
-                "https will not be enabled!");
+function getOperatingSystem() {
+    var deferred = jQuery.Deferred();
+    var out = exec("cat /etc/*release");
+    var output = "";
+    out.stdout.on('data', function(data) {
+        output += data;
+    });
+    out.stderr.on('data', function(err) {
+        console.log("Get OS information failed!" + err);
+        deferred.reject(output);
+    });
+    out.on('close', function(code) {
+        if (code) {
+            console.log("Get OS information failed!" + code);
+            deferred.reject(output);
+        } else {
+            deferred.resolve(output);
+        }
+    });
+    return deferred.promise();
 }
 
 socket(httpServer);
 
-function unitTest() {
-    exports.genExecString = genExecString;
-    exports.genLdapExecString = genLdapExecString;
-    exports.getTimeString = getTimeString;
-    responseReplace();
-    function responseReplace() {
-        support.removeSessionFiles = fakeResponseRSF;
-        support.removeSHM = fakeResponseSHM;
-        support.getLicense = fakeResponseLicense;
-        support.submitTicket = fakeResponseSubmitTicket;
-        support.masterExecuteAction = fakeResponseMasterExecuteAction;
-        support.slaveExecuteAction = fakeResponseSlaveExecuteAction;
-        login.loginAuthentication = fakeResponseUploadContent;
-        upload.uploadContent = fakeResponseUploadContent;
-        upload.uploadMeta = fakeResponseUploadMeta;
+getOperatingSystem()
+.always(function(data) {
+    data = data.toLowerCase();
+    var ca = '';
+    if (data.indexOf("centos") > -1) {
+        console.log("CentOS System");
+        ca = '/etc/pki/tls/certs/XcalarInc_RootCA.pem';
     }
-    function fakeResponseRSF(arg, res) {
-        res.send("Fake response remove Session Files!");
+    if (data.indexOf("ubuntu") > -1) {
+        console.log("Ubuntu System");
+        ca = '/etc/ssl/certs/XcalarInc_RootCA.pem';
     }
-    function fakeResponseSHM(res) {
-        res.send("Fake response remove SHM Files!");
+    if (data.indexOf("ret hat") > -1 || data.indexOf("rethat") > -1) {
+        console.log("RHEL System");
+        ca = '/etc/pki/tls/certs/XcalarInc_RootCA.pem';
     }
-    function fakeResponseLicense(res) {
-        res.send("Fake response get License");
+    if (data.indexOf("oracle linux") > -1) {
+        console.log("Oracle Linux System");
+        ca = '/etc/pki/tls/certs/XcalarInc_RootCA.pem';
     }
-    function fakeResponseSubmitTicket(arg, res) {
-        res.send("Fake response submit Ticket!");
-    }
-    function fakeResponseMasterExecuteAction(action, res) {
-        res.send("Fake response! " + action);
-    }
-    function fakeResponseSlaveExecuteAction(action, res) {
-        res.send("Fake response! " + action);
-    }
-    function fakeResponseLogin(arg, res) {
-        res.send("Fake response login!");
-    }
-    function fakeResponseUploadContent(arg, res) {
-        res.send("Fake response uploadContent!");
-    }
-    function fakeResponseUploadMeta(arg, res) {
-        res.send("Fake response uploadMeta!");
-    }
-
-    app.post('/fakeRequest/xcalarStart', function(req, res) {
-        support.xcalarStart(res);
-    });
-    app.post('/fakeRequest/xcalarStop', function(req, res) {
-        support.xcalarStop(res);
-    });
-    app.post('/fakeRequest/xcalarStatus', function(req, res) {
-        support.xcalarStatus(res);
-    });
-}
-
-function hasLog(isTrue) {
-    support.hasLogFile = returnPromise;
-    function returnPromise(arg) {
-        var deferred = jQuery.Deferred();
-        if (isTrue) {
-            return deferred.resolve().promise();
-        } else {
-            return deferred.reject().promise();
+    if (ca !== '' && fs.existsSync(ca)) {
+        console.log('loading trusted certificates from ' + ca);
+        try {
+            require('ssl-root-cas').addFile(ca).inject();
+            console.log("Load CA successfully!");
+        } catch (e) {
+            console.log("Fail to load ca: " + ca + " !" +
+                "https will not be enabled!");
         }
+    } else {
+        console.log('Xcalar trusted certificate not found');
     }
-}
 
-exports.unitTest = unitTest;
-exports.hasLog = hasLog;
-
-var port = 12124;
-httpServer.listen(port, function() {
-    var hostname = process.env.DEPLOY_HOST;
-    if (!hostname) {
-        hostname = "localhost";
-    }
-    console.log("All ready");
+    var httpServer = http.createServer(app);
+    var port = 12124;
+    httpServer.listen(port, function() {
+        var hostname = process.env.DEPLOY_HOST;
+        if (!hostname) {
+            hostname = "localhost";
+        }
+        console.log("All ready");
+    });
 });
 });
