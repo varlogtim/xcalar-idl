@@ -164,39 +164,6 @@ window.Profile = (function($, Profile, d3) {
             }
         });
 
-        // event on range section
-        xcHelper.optionButtonEvent($rangeSection, function(option) {
-            toggleRange(option);
-        });
-
-        $rangeInput.keypress(function(event) {
-            if (event.which === keyCode.Enter) {
-                var val = $rangeInput.val();
-                // Note that because the input type is number,
-                // any no-numeric string in the input will get ""
-                // when do $rangeInput.val()
-                var isValid = xcHelper.validate([
-                    {
-                        "$ele": $rangeInput,
-                        "error": ErrTStr.OnlyPositiveNumber
-                    },
-                    {
-                        "$ele": $rangeInput,
-                        "error": ErrTStr.OnlyPositiveNumber,
-                        "check": function() {
-                            return (Number(val) <= 0);
-                        }
-                    }
-                ]);
-
-                if (!isValid) {
-                    return;
-                }
-
-                bucketData(val, statsCol);
-            }
-        });
-
         var skipInputTimer;
         $skipInput.on("keypress", function(event) {
             if (event.which === keyCode.Enter) {
@@ -253,6 +220,7 @@ window.Profile = (function($, Profile, d3) {
             }
         });
 
+        setupRangeSection();
         setupStatsSection();
     };
 
@@ -363,6 +331,46 @@ window.Profile = (function($, Profile, d3) {
         .catch(function (error) {
             console.error(error);
             xcHelper.showFail(FailTStr.Profile);
+        });
+    }
+
+    function setupRangeSection() {
+        //set up dropdown for worksheet list
+        new MenuHelper($rangeSection.find(".dropDownList"), {
+            "onSelect": function($li) {
+                var option = $li.attr("name");
+                toggleRange(option);
+            },
+            "container": "#profileModal",
+            "bounds": "#profileModal"
+        }).setupListeners();
+
+        $rangeInput.keypress(function(event) {
+            if (event.which === keyCode.Enter) {
+                var val = $rangeInput.val();
+                // Note that because the input type is number,
+                // any no-numeric string in the input will get ""
+                // when do $rangeInput.val()
+                var isValid = xcHelper.validate([
+                    {
+                        "$ele": $rangeInput,
+                        "error": ErrTStr.OnlyPositiveNumber
+                    },
+                    {
+                        "$ele": $rangeInput,
+                        "error": ErrTStr.OnlyPositiveNumber,
+                        "check": function() {
+                            return (Number(val) <= 0);
+                        }
+                    }
+                ]);
+
+                if (!isValid) {
+                    return;
+                }
+                val = Number(val);
+                bucketData(val, statsCol);
+            }
         });
     }
 
@@ -1947,10 +1955,11 @@ window.Profile = (function($, Profile, d3) {
     }
 
     function toggleRange(rangeOption, reset) {
+        var $dropdown = $rangeSection.find(".dropDownList");
+        var $li = $dropdown.find('li[name="' + rangeOption + '"]');
+        $dropdown.find("input").val($li.text());
+
         if (reset) {
-            $rangeSection.find(".active").removeClass("active")
-                        .end()
-                        .find(".single").addClass("active");
             $rangeInput.val("");
             return;
         }
@@ -1960,13 +1969,14 @@ window.Profile = (function($, Profile, d3) {
         switch (rangeOption) {
             case "range":
                 // go to range
-                bucketSize = $rangeInput.val();
+                bucketSize = Number($rangeInput.val());
                 break;
             case "fitAll":
                 // fit all
                 // it need async all, will get it in bucketData
                 bucketSize = null;
                 isFitAll = true;
+                break;
             case "single":
                 // go to single
                 var curBucketNum = Number($rangeInput.val());
@@ -1985,7 +1995,6 @@ window.Profile = (function($, Profile, d3) {
     }
 
     function bucketData(newBucketNum, curStatsCol, isFitAll) {
-        newBucketNum = Number(newBucketNum);
         if (newBucketNum === bucketNum) {
             return;
         }
@@ -2012,8 +2021,8 @@ window.Profile = (function($, Profile, d3) {
         });
 
         var bucketSizePromise = isFitAll
-                                ? PromiseHelper.resolve(newBucketNum)
-                                : getFitAllBucketSize(curStatsCol, txId);
+                                ? getFitAllBucketSize(curStatsCol, txId)
+                                : PromiseHelper.resolve(newBucketNum);
         bucketSizePromise
         .then(function(bucketSize) {
             newBucketNum = bucketSize;

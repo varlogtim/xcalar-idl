@@ -811,7 +811,7 @@ module.exports = {
         "BucketTitle": "Range bucketing",
         "Single": "Single",
         "Range": "Range",
-        "FitAll": "Fit All",
+        "FitAll": "Fit all",
         "BucketInstr": "Input range size (e.g. 0.5)",
         "AggSummary": "Aggregate Summary",
         "QuartileSummary": "Quartile Summary",

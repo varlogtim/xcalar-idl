@@ -58,28 +58,23 @@
       <!-- range section -->
       <div class="rangeSection loadDisabled">
         <div class="title"><%= dicts.profile.BucketTitle %></div>
-        <div class="radioButtonGroup">
-          <div class="radioButton xc-action single active" data-option="single">
-            <div class="radio">
-              <i class="icon xi-radio-selected"></i>
-              <i class="icon xi-radio-empty"></i>
+        <div class="group">
+          <div class="dropDownList range">
+            <input class="text" type="text" value="<%= dicts.profile.Single %>" spellcheck="false" disabled>
+            <div class="iconWrapper">
+              <i class="icon xi-arrow-down"></i>
             </div>
-            <div class="text"><%= dicts.profile.Single %></div>
+            <div class="list">
+              <ul>
+                <li name="single"><%= dicts.profile.Single %></li>
+                <li name="range"><%= dicts.profile.Range %></li>
+                <div class="divider"></div>
+                <li name="fitAll"><%= dicts.profile.FitAll %></li>
+              </ul>
+            </div>
           </div>
-          <div class="radioButton xc-action range" data-option="range">
-            <div class="radio">
-              <i class="icon xi-radio-selected"></i>
-              <i class="icon xi-radio-empty"></i>
-            </div>
-            <div class="text"><%= dicts.profile.Range %></div>
+          <div class="input">
             <input id="profile-range" type="number" step="1" min="1" spellcheck="false" placeholder="<%= dicts.profile.BucketInstr %>">
-          </div>
-          <div class="radioButton xc-action fitAll" data-option="fitAll">
-            <div class="radio">
-              <i class="icon xi-radio-selected"></i>
-              <i class="icon xi-radio-empty"></i>
-            </div>
-            <div class="text"><%= dicts.profile.FitAll %></div>
           </div>
         </div>
       </div> 
