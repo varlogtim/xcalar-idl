@@ -3,6 +3,7 @@ window.UploadExtensionCard = (function($, UploadExtensionCard) {
     var $extPath;          // $car.find(".path");
     var $browserBtn;       // $card.find(".browse");
     var file;
+    var extName;
     var lockTimer;
 
     UploadExtensionCard.setup = function() {
@@ -52,7 +53,7 @@ window.UploadExtensionCard = (function($, UploadExtensionCard) {
             "type": "POST",
             "dataType": "JSON",
             "url": url + "/uploadExtension",
-            "data": {"targz": str},
+            "data": {"targz": str, "name": extName},
         });
         return promise;
     }
@@ -92,8 +93,8 @@ window.UploadExtensionCard = (function($, UploadExtensionCard) {
             }
             var path = $(this).val().replace(/C:\\fakepath\\/i, '');
             file = $browserBtn[0].files[0];
-            // var extName = path.substring(0, path.indexOf(".")).toLowerCase()
-            //                   .replace(/ /g, "");
+            extName = path.substring(0, path.indexOf(".")).toLowerCase()
+                              .replace(/ /g, "");
             $extPath.val(path);
             if (path.indexOf(".tar.gz") > 0) {
                 $card.find(".confirm").removeClass("btn-disabled");
@@ -124,6 +125,7 @@ window.UploadExtensionCard = (function($, UploadExtensionCard) {
     function closeCard() {
         $card.addClass("xc-hidden");
         file = "";
+        extName = null;
         $extPath.val("");
         $card.find(".confirm").addClass("btn-disabled");
         $browserBtn.val("");
