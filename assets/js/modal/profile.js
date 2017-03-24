@@ -1947,8 +1947,16 @@ window.Profile = (function($, Profile, d3) {
     }
 
     function toggleRange(rangeOption, reset) {
-        var bucketSize;
+        if (reset) {
+            $rangeSection.find(".active").removeClass("active")
+                        .end()
+                        .find(".single").addClass("active");
+            $rangeInput.val("");
+            return;
+        }
 
+        var bucketSize;
+        var isFitAll = false;
         switch (rangeOption) {
             case "range":
                 // go to range
@@ -1956,17 +1964,9 @@ window.Profile = (function($, Profile, d3) {
                 break;
             case "fitAll":
                 // fit all
-                // if max = 100, min = 0, numRowsToFetch = 20,
-                // (max - min) / numRowsToFetch will get bucketSize 5
-                // but range [100, 105) is the 21th size,
-                // so we should do (max + min + numRowsToFetch) / numRowsToFetch
-                bucketSize = (statsCol.aggInfo.max - statsCol.aggInfo.min +
-                              numRowsToFetch) / numRowsToFetch;
-                if (bucketSize >= 0.01) {
-                    // have mostly two digits after decimal
-                    bucketSize = Math.round(bucketSize * 100) / 100;
-                }
-                break;
+                // it need async all, will get it in bucketData
+                bucketSize = null;
+                isFitAll = true;
             case "single":
                 // go to single
                 var curBucketNum = Number($rangeInput.val());
@@ -1981,24 +1981,12 @@ window.Profile = (function($, Profile, d3) {
                 console.error("Error Case");
                 return;
         }
-
-        if (!reset) {
-            bucketData(bucketSize, statsCol);
-        } else {
-            $rangeSection.find(".active").removeClass("active")
-                        .end()
-                        .find(".single").addClass("active");
-            $rangeInput.val("");
-        }
+        bucketData(bucketSize, statsCol, isFitAll);
     }
 
-    function bucketData(newBucketNum, curStatsCol) {
+    function bucketData(newBucketNum, curStatsCol, isFitAll) {
         newBucketNum = Number(newBucketNum);
-
-        if (isNaN(newBucketNum) ||
-            newBucketNum < 0 ||
-            newBucketNum === bucketNum)
-        {
+        if (newBucketNum === bucketNum) {
             return;
         }
 
@@ -2014,7 +2002,6 @@ window.Profile = (function($, Profile, d3) {
 
         var sql = {
             "operation": SQLOps.ProfileBucketing,
-            "bucketSize": newBucketNum,
             "tableId": curTableId,
             "colNum": curColNum,
             "id": statsCol.getId()
@@ -2024,7 +2011,18 @@ window.Profile = (function($, Profile, d3) {
             "sql": sql
         });
 
-        runBucketing(newBucketNum, curStatsCol, txId)
+        var bucketSizePromise = isFitAll
+                                ? PromiseHelper.resolve(newBucketNum)
+                                : getFitAllBucketSize(curStatsCol, txId);
+        bucketSizePromise
+        .then(function(bucketSize) {
+            newBucketNum = bucketSize;
+            if (!isValidBucketSize(newBucketNum)) {
+                return PromiseHelper.reject(ProfileTStr.InvalidBucket);
+            }
+
+            return runBucketing(newBucketNum, curStatsCol, txId);
+        })
         .then(function() {
             // remove timer as first thing
             clearTimeout(refreshTimer);
@@ -2032,7 +2030,8 @@ window.Profile = (function($, Profile, d3) {
             order = sortMap.origin; // reset to normal order
             curStatsCol.groupByInfo.isComplete = true;
 
-            Transaction.done(txId);
+            sql.bucketSize = bucketNum;
+            Transaction.done(txId, {"sql": sql});
             return refreshGroupbyInfo(true);
         })
         .then(function() {
@@ -2043,6 +2042,38 @@ window.Profile = (function($, Profile, d3) {
             curStatsCol.groupByInfo.isComplete = true;
             failureHandler(curStatsCol, error, txId);
         });
+    }
+
+    function getFitAllBucketSize(curStatsCol, txId) {
+        var deferred = jQuery.Deferred();
+        var maxAgg = runAgg("max", curStatsCol, txId);
+        var minAgg = runAgg("min", curStatsCol, txId);
+        PromiseHelper.when(maxAgg, minAgg)
+        .then(function() {
+            // if max = 100, min = 0, numRowsToFetch = 20,
+            // (max - min) / numRowsToFetch will get bucketSize 5
+            // but range [100, 105) is the 21th size,
+            // so we should do (max + min + numRowsToFetch) / numRowsToFetch
+            var bucketSize = (curStatsCol.aggInfo.max
+                              - curStatsCol.aggInfo.min
+                              + numRowsToFetch) / numRowsToFetch;
+            if (bucketSize >= 0.01) {
+                // have mostly two digits after decimal
+                bucketSize = Math.round(bucketSize * 100) / 100;
+            }
+            deferred.resolve(bucketSize);
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    function isValidBucketSize(bucketSize) {
+        if (isNaN(bucketSize) || bucketSize < 0) {
+            return false;
+        } else {
+            return true;
+        }
     }
 
     function runBucketing(newBucketNum, curStatsCol, txId) {
