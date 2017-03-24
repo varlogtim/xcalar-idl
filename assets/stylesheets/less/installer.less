@@ -187,6 +187,17 @@ form {
             font-size: 14px;
         }
     }
+
+    &.choiceSection {
+        display: initial;
+        .radio {
+            top: 20%;
+        }
+        .label {
+            padding-left: 11px;
+            .size(@width:~"calc(100% - 30px)");
+        }
+    }
 }
 
 .animatedEllipsis > div {
@@ -217,11 +228,12 @@ input:-webkit-autofill:focus {
                 display: inline-block;
                 font-weight: 700;
                 &:first-child {
-                    width: 78px;
+                    &:not(.choice) {
+                        width: 78px;
+                    }
                 }
             }
         }
-
         .step {
             .font(@size: 14px);
         }
@@ -383,6 +395,29 @@ input:-webkit-autofill:focus {
             }
             &:active {
                 outline: none;
+            }
+        }
+
+        &.choiceSection {
+            left: -50px;
+            margin-top: 22px;
+            .choice {
+                width: 100%;
+                height: 40px;
+                margin-top: 26px;
+                &:first-child {
+                    margin-top: 0px;
+                }
+            }
+            .radio {
+                top: 10px;
+            }
+            .name, .content {
+                font-size: 12px;
+                line-height: 18px;
+            }
+            .content {
+                margin-top: 5px;
             }
         }
 
@@ -634,6 +669,10 @@ input:-webkit-autofill:focus {
             border-color: @color-bg-unselect-gray;
             pointer-events: none;
         }
+    }
+
+    .unclickable {
+        pointer-events: none;
     }
 
     #sharedStorageForm {

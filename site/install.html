@@ -15,7 +15,7 @@
     </div>
     <div id="installerContainer" class="container">
       <div class="outerWrap">
-        <header class="title">Xcalar Install Wizard</header>
+        <header class="title">Xcalar Wizard</header>
         <div class="instruction">
           <i class="icon xi-info-circle"></i>
           <span class="text">This install wizard will take you step by step through the Xcalar Data Platform (XDP) installation process.</span>
@@ -26,9 +26,69 @@
       </div>
       <div class="outerWrap" id="bottomSection">
         <div id="formArea">
+          <!-- Xcalar wizard choice -->
+          <form id="choiceForm">
+            <div class="title choice">
+              <div class="step">
+                <span class="choice"><%= dicts.installer.select %></span>
+              </div>
+            </div>
+            <div class="section choiceSection radioButtonGroup" id="installChoice">
+              <div class="choice installWizard radioButton" data-option='install'>
+                <div class="radio">
+                  <i class="icon xi-radio-selected"></i>
+                  <i class="icon xi-radio-empty"></i>
+                </div>
+                <div class="label">
+                  <div class="name">
+                    <%= dicts.installer.installWizard %>
+                  </div>
+                  <div class="content">
+                    <%= dicts.installer.installWizardContent %>
+                  </div>
+                </div>
+              </div>
+              <div class="choice uninstallWizard radioButton" data-option='uninstall'>
+                <div class="radio">
+                  <i class="icon xi-radio-selected"></i>
+                  <i class="icon xi-radio-empty"></i>
+                </div>
+                <div class="label">
+                  <div class="name">
+                    <%= dicts.installer.uninstallWizard %>
+                  </div>
+                  <div class="content">
+                    <%= dicts.installer.uninstallWizardContent %>
+                  </div>
+                </div>
+              </div>
+              <div class="choice upgradeWizard radioButton" data-option='upgrade'>
+                <div class="radio">
+                  <i class="icon xi-radio-selected"></i>
+                  <i class="icon xi-radio-empty"></i>
+                </div>
+                <div class="label">
+                  <div class="name">
+                    <%= dicts.installer.upgradeWizard %>
+                  </div>
+                  <div class="content">
+                    <%= dicts.installer.upgradeWizardContent %>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="section invalidLicense error">
+              <div class="leftBar">&nbsp;</div>
+              <span>Unknown Error<br></span>
+              <span>Unknown Error!</span>
+            </div>
+            <div class="section buttonSection">
+              <input class="btn next unclickable" type="button" value="NEXT">
+            </div>
+          </form>
 
           <!-- Step 1: Enter in license key -->
-          <form id="licenseForm">
+          <form id="licenseForm" class="hidden">
             <div class="title">
               <div class="step">
                 <span>STEP 1 </span>
@@ -48,6 +108,7 @@
             </div>
             <div class="section buttonSection">
               <input class="btn next" type="button" value="NEXT">
+              <input class="btn back" type="button" value="BACK">
               <input class="btn clear" type="button" value="CLEAR">
             </div>
           </form>
@@ -118,6 +179,7 @@
             </div>
             <div class="section buttonSection">
               <input class="btn next" type="button" value="NEXT">
+              <input class="btn back" type="button" value="BACK">
               <input class="btn clear" type="button" value="CLEAR">
             </div>
           </form>

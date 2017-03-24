@@ -922,5 +922,19 @@ module.exports = {
         "terms": "Terms & Conditions",
         "alreadyAccount": "Already have an account?",
         "signin": "Sign in"
+    },
+
+    "installer": {
+        "select": "MAKE A SELECTION",
+        "installWizard": "INSTALL WIZARD",
+        "uninstallWizard": "UNINSTALL WIZARD",
+        "upgradeWizard": "UPGRADE WIZARD",
+        "installWizardContent": "The setup will install Xcalar on your " +
+                                "computer.",
+        "upgradeWizardContent": "Upgrade to a newer version of Xcalar. The " +
+                                "option to upgrade is only available when an " +
+                                "existing version exists and your Xcalar" +
+                                " cluster is powered off.",
+        "uninstallWizardContent": "Remove Xcalar from your machine."
     }
 }

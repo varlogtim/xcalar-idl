@@ -38,7 +38,6 @@ window.Installer = (function(Installer, $) {
         $(".buttonSection").on("click", "input.next", function() {
             var curFormId = $(this).closest("form").attr("id");
             var curStepId = findStepId(curFormId);
-
             validateCurrentStep(curStepId)
             .then(function() {
                 setupNextStep(curStepId);
@@ -129,6 +128,22 @@ window.Installer = (function(Installer, $) {
 
     function radioAction(radioGroup, radioOption) {
         switch (radioGroup) {
+            case ("installChoice"):
+                switch (radioOption) {
+                    case ("install"):
+                        // install
+                        $("#choiceForm .btn.next").removeClass("unclickable");
+                        break;
+                    case ("uninstall"):
+                        // uninstall
+                        $("#choiceForm .btn.next").addClass("unclickable");
+                        break;
+                    case ("upgrade"):
+                        // upgrade
+                        $("#choiceForm .btn.next").addClass("unclickable");
+                        break;
+                }
+                break;
             case ("nfsOption"):
                 $(".customerNfsOptions").hide();
                 $(".readyNfsOptions").hide();
@@ -214,7 +229,6 @@ window.Installer = (function(Installer, $) {
                                         "[/etc/ssl/certs/ca-certificates.crt]");
                         break;
                 }
-
                 break;
             default:
                 console.error("Unexpected radio group!");
@@ -332,13 +346,16 @@ window.Installer = (function(Installer, $) {
         $(".error").hide();
         switch (stepId) {
             case (0):
+                var deferred = $.Deferred();
+                return deferred.resolve().promise();
+            case (1):
                 $(".invalidLicense").hide();
                 return validateKey();
-            case (1):
-                return validateNfs();
             case (2):
-                return validateCredentials();
+                return validateNfs();
             case (3):
+                return validateCredentials();
+            case (4):
                 return validateLdap();
             default:
                 console.error("Unexpected step");
