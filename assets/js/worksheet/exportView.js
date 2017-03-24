@@ -66,7 +66,7 @@ window.ExportView = (function($, ExportView) {
         $exportView.find('.advancedTitle').click(function() {
             if ($advancedSection.hasClass('collapsed')) {
                 $advancedSection.addClass('expanded').removeClass('collapsed');
-               
+
                 // scroll to the advanced section
                 var advSectionTop = $advancedSection.position().top;
                 var expTitleHeight = $exportView.find('header').height();
@@ -260,11 +260,11 @@ window.ExportView = (function($, ExportView) {
 
         $tableWraps.find('.modalHighlighted')
                   .removeClass('modalHighlighted');
-           
+
         $exportView.find('.exportRowOrderSection').addClass('xc-hidden');
         exportTableName = null;
         exportTargInfo = null;
-        $exportPath.val("");
+        // leave target path as is
         $exportColumns.val("");
         $('.exportable').removeClass('exportable');
         $selectableThs = null;
@@ -533,15 +533,25 @@ window.ExportView = (function($, ExportView) {
             lis += '<li data-type="' + targets[i].hdr.type + '">' + targets[i].hdr.name + '</li>';
         }
         $exportList.html(lis);
-        var $defaultLi = $exportList.find('li').filter(function() {
-            return ($(this).text().trim() === 'Default');
-        });
+        var prevVal = $exportPath.val();
+        var $selectedLi;
+        if (prevVal) {
+            $selectedLi = $exportList.find('li').filter(function() {
+                return ($(this).text().trim() === prevVal);
+            });
+        }
+        if (!prevVal || !$selectedLi.length) {
+            prevVal = "Default";
+            $selectedLi = $exportList.find('li').filter(function() {
+                return ($(this).text().trim() === prevVal);
+            });
+        }
 
-        $exportPath.val($defaultLi.text()).attr('value', $defaultLi.text());
-        var type = $defaultLi.data('type');
+        $exportPath.val(prevVal).attr('value', prevVal);
+        var type = $selectedLi.data('type');
         $exportPath.data('type', type);
         checkSortedTable();
-        
+
         function sortTargets(a, b) {
             return xcHelper.sortVals(a.hdr.name, b.hdr.name);
         }
@@ -779,7 +789,7 @@ window.ExportView = (function($, ExportView) {
                    .find('.checkbox').addClass('checked');
         $exportView.find('.selectAllWrap').find('.checkbox')
                                           .addClass('checked');
-        
+
         focusedThNum = null;
         focusedListNum = null;
         exportHelper.clearRename();
@@ -983,7 +993,7 @@ window.ExportView = (function($, ExportView) {
         ExportView.__testOnly__.checkSortedTable = checkSortedTable;
         ExportView.__testOnly__.applyOtherDelim = applyOtherDelim;
         ExportView.__testOnly__.restoreAdvanced = restoreAdvanced;
-        
+
     }
     /* End Of Unit Test Only */
 
