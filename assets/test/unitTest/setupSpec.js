@@ -50,6 +50,19 @@ describe("Mocha Setup Test", function() {
         expect(DSCart.__testOnly__.filterCarts).to.be.a("function");
     });
 
+    it("duplicate element IDs should not exist", function() {
+        var map = {};
+        $('[id]').each(function(){
+            var id = $(this).attr('id');
+            if (map[id]) {
+                expect(id).to.equal("duplicate element IDs should not exist");
+                return false;
+            } else {
+                map[id] = true;
+            }
+        });
+    });
+
     after(function() {
         UnitTest.offMinMode();
     });
