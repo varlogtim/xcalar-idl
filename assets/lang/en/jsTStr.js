@@ -865,7 +865,8 @@ ExtTStr = {
     "Installed": "INSTALLED",
     "More": "VIEW MORE",
     "Less": "HIDE DETAIL",
-    "XcCategory": "Xcalar Extensions"
+    "XcCategory": "Xcalar Extensions",
+    'extListFail': "Failed to get installed extensions list"
 };
 
 DaysTStr = {

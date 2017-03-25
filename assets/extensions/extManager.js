@@ -147,6 +147,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
     };
 
     ExtensionManager.install = function() {
+        extMap = {};
         var deferred = jQuery.Deferred();
         var innerDeferred = jQuery.Deferred();
         var url = xcHelper.getAppUrl();
@@ -230,6 +231,12 @@ window.ExtensionManager = (function(ExtensionManager, $) {
     // This unregisters an extension. This does not remove it from the system.
     ExtensionManager.unregisterExtension = function(extName) {
     };
+
+    ExtensionManager.isExtensionEnabled = function(extName) {
+        var modName = "UExt" + xcHelper.capitalize(extName);
+        return extMap.hasOwnProperty(modName);
+    };
+
     // This adds an extension to the current list of extensions. fileString
     // represents a version of the .py and .js files. It might be tar gz, or
     // might just be the two files concatted together. We are still deciding

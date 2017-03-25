@@ -2634,6 +2634,19 @@ ExtItem.prototype = {
     },
 
     isInstalled: function() {
+        var $extLists = $("#extension-lists");
+        if ($extLists.find(".error").length) {
+            return __findInstallFindScript();
+        } else {
+            var name = this.getName();
+            var $li = $extLists.find(".item").filter(function() {
+                return $(this).find(".name").text() === name;
+            });
+            return $li.length;
+        }
+    },
+
+    __findInstallFindScript: function() {
         var exist = false;
         var name = this.getName() + ".ext.js";
 
