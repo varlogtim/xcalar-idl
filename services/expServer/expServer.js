@@ -117,19 +117,23 @@ function genExecString(hostnameLocation, hasPrivHosts,
     execString += " --license-file " + licenseLocation;
     // execString += " --installer " + installerLocation;
 
-    if (nfsOptions && "nfsServer" in nfsOptions) {
-        execString += " --nfs-host " + nfsOptions.nfsServer;
-        execString += " --nfs-folder " + nfsOptions.nfsMountPoint;
+    if (nfsOptions) {
+        // Xcalar to mount NFS
+        if (nfsOptions.nfsServer) {
+            execString += " --nfs-host " + nfsOptions.nfsServer;
+            execString += " --nfs-folder " + nfsOptions.nfsMountPoint;
+            if (nfsOptions.nfsUsername) {
+                execString += " --nfs-uid " + nfsOptions.nfsUsername;
+            }
 
-        if (nfsOptions.nfsUsername) {
-            execString += " --nfs-uid " + nfsOptions.nfsUsername;
-        }
-
-        if (nfsOptions.nfsGroup) {
-            execString += " --nfs-gid " + nfsOptions.nfsGroup;
+            if (nfsOptions.nfsGroup) {
+                execString += " --nfs-gid " + nfsOptions.nfsGroup;
+            }
+        } else if (nfsOption.nfsReuse) {
+            // Xcalar Root Already mounted
+            execString += " --nfs-reuse " + nfsOption.nfsReuse;
         }
     }
-
     return execString;
 }
 

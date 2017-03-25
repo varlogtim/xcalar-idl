@@ -61,7 +61,7 @@
               </div>
               <div class="hint">
                 <span></span>
-                <span>Select the location of XDP's root directory</span>
+                <span>Choose the option that best describes your situation. If this is a brand new install, please select "Xcalar Deployed Shared Storage" or "Existing Shared Storage to be Mounted"/span>
               </div>
             </div>
             <div class="section nfsSection">
@@ -71,32 +71,45 @@
                     <i class="icon xi-radio-selected"></i>
                     <i class="icon xi-radio-empty"></i>
                   </div>
-                  <div class="label">Xcalar Deployed</div>
+                  <div class="label">Xcalar Deployed Shared Storage</div>
                 </div>
                 <div class="radioButton nfsOption" data-option="customerNfs">
                   <div class="radio">
                     <i class="icon xi-radio-selected"></i>
                     <i class="icon xi-radio-empty"></i>
                   </div>
-                  <div class="label">Existing Shared Storage</div>
+                  <div class="label">Existing Shared Storage to be Mounted</div>
                 </div>
-              </div>
-              <div class="customerNfsOptions">
-                <div class="nfsMountPoint nfsSubOption">
-                  <div class="input" id="nfsServer" contenteditable="true" placeholder="[Server]"></div>
-                  <span>:/</span>
-                  <div class="input" id="nfsMountPoint" type="text" contenteditable="true" autocorrect="off" autocapitalize="off" placeholder="[Mount Point]"></div>
-                  <div class="bar">Path</div>
-                </div>
-                <div class="nfsUser nfsSubOption">
-                  <input class="input" id="nfsUserName" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" placeholder="[user_id]  (optional)">
-                  <div class="bar">Username</div>
-                </div>
-                <div class="nfsUser nfsSubOption">
+                <div class="customerNfsOptions">
+                  <div class="nfsMountPoint nfsSubOption">
+                    <div class="input" id="nfsServer" contenteditable="true" placeholder="[Server]"></div>
+                    <span>:/</span>
+                    <div class="input" id="nfsMountPoint" type="text" autocorrect="off" contenteditable="true" autocapitalize="off" placeholder="[Mount Point]"></div>
+                    <div class="bar">Path</div>
+                  </div>
+                  <div class="nfsUser nfsSubOption">
+                    <input class="input" id="nfsUserName" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" placeholder="[user_id]  (optional)">
+                    <div class="bar">Username</div>
+                  </div>
+                  <div class="nfsUser nfsSubOption">
                   <input class="input" id="nfsUserGroup" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" placeholder="[user_group]  (optional)">
                   <div class="bar">Group</div>
                 </div>
               </div>
+                <div class="radioButton nfsOption" data-option="readyNfs">
+                  <div class="radio">
+                    <i class="icon xi-radio-selected"></i>
+                    <i class="icon xi-radio-empty"></i>
+                  </div>
+                  <div class="label">Existing Shared Storage Already Mounted</div>
+                </div>
+              </div>
+                <div class="readyNfsOptions">
+                  <div class="nfsMountPoint nfsSubOption">
+                    <input class="input" id="nfsMountPointReady" type="text" autocorrect="off" autocapitalize="off" placeholder="[Mount Point]">
+                    <div class="bar">Path</div>
+                  </div>
+                </div>
             </div>
             <div class="section error">
               <div class="leftBar">&nbsp;</div>

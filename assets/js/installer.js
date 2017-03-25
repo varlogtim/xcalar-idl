@@ -131,11 +131,24 @@ window.Installer = (function(Installer, $) {
         switch (radioGroup) {
             case ("nfsOption"):
                 $(".customerNfsOptions").hide();
+                $(".readyNfsOptions").hide();
                 switch (radioOption) {
+                    // Xcalar Deployed Shared Storage
                     case ("xcalarNfs"):
                         break;
+                    // Existing Shared Storage to be Mounted
                     case ("customerNfs"):
-                        $(".customerNfsOptions").show();
+                        $("#sharedStorageForm .customerNfsOptions").show();
+                        $("#sharedStorageForm .readyNfsOptions")
+                        .find("input").val("");
+                        break;
+                    // Existing Shared Storage Already Mounted
+                    case ("readyNfs"):
+                        $("#sharedStorageForm .readyNfsOptions").show();
+                        $("#sharedStorageForm .customerNfsOptions")
+                        .find("[contenteditable='true']").html("");
+                        $("#sharedStorageForm .customerNfsOptions")
+                        .find("input").val("");
                         break;
                     default:
                         console.error("Unexpected option!");
@@ -369,10 +382,10 @@ window.Installer = (function(Installer, $) {
         if (nfsOption === "xcalarNfs") {
             finalStruct.nfsOption = {};
             deferred.resolve();
-        } else {
+        } else if (nfsOption === "customerNfs") {
             if ($("#nfsServer").text().trim().length === 0) {
                 deferred.reject("NFS Server Invalid",
-                              "You must provide a valid NFS Server IP or FQDN");
+                    "You must provide a valid NFS Server IP or FQDN");
             } else {
                 finalStruct.nfsOption = {};
                 finalStruct.nfsOption.nfsServer = $("#nfsServer").text().trim();
@@ -382,6 +395,18 @@ window.Installer = (function(Installer, $) {
                                                                      .trim();
                 finalStruct.nfsOption.nfsGroup = $("#nfsUserGroup").val()
                                                                    .trim();
+                deferred.resolve();
+            }
+        } else {
+            if ($("#nfsMountPointReady").val().trim().length === 0) {
+                deferred.reject("NFS Mount Path Invalid",
+                    "You must provide a valid NFS Mount Path");
+            } else {
+                $("#sharedStorageForm .nfsSection").addClass("lock");
+                var path = "/" + $("#nfsMountPointReady").text().trim();
+                finalStruct.nfsOption = {};
+                finalStruct.nfsOption.nfsReuse = path;
+                $("#sharedStorageForm").removeClass("lock");
                 deferred.resolve();
             }
         }

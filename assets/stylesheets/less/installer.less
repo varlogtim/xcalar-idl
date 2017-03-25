@@ -407,7 +407,7 @@ input:-webkit-autofill:focus {
                 width: 100%;
                 height: 20px;
             }
-            .customerNfsOptions {
+            .customerNfsOptions, .readyNfsOptions {
                 display: none;
                 width: 100%;
                 position: relative;
@@ -632,6 +632,12 @@ input:-webkit-autofill:focus {
         &.inactive {
             color: @color-bg-unselect-gray;
             border-color: @color-bg-unselect-gray;
+            pointer-events: none;
+        }
+    }
+
+    #sharedStorageForm {
+        &.lock {
             pointer-events: none;
         }
     }
