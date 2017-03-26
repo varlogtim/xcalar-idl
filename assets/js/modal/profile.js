@@ -1962,7 +1962,7 @@ window.Profile = (function($, Profile, d3) {
         var $dropdown = $rangeSection.find(".dropDownList");
         var $li = $dropdown.find('li[name="' + rangeOption + '"]');
         $dropdown.find("input").val($li.text());
-
+        $rangeInput.addClass("xc-disabled");
         if (reset) {
             $rangeInput.val("");
             return;
@@ -1974,6 +1974,7 @@ window.Profile = (function($, Profile, d3) {
             case "range":
                 // go to range
                 bucketSize = Number($rangeInput.val());
+                $rangeInput.removeClass("xc-disabled");
                 break;
             case "fitAll":
                 // fit all
@@ -2095,8 +2096,16 @@ window.Profile = (function($, Profile, d3) {
         var curBucket = buckets[newBucketNum];
 
         if (curBucket != null && curBucket.table != null) {
-            deferred.resolve();
-            return (deferred.promise());
+            XcalarGetTables(curBucket.table)
+            .then(function(tableInfo) {
+                if (tableInfo == null || tableInfo.numNodes === 0) {
+                    curBucket.table = null;
+                    return runBucketing(newBucketNum, curStatsCol, txId);
+                }
+            })
+            .then(deferred.resolve)
+            .fail(deferred.reject);
+            return deferred.promise();
         }
 
         // bucket based on original groupby table
