@@ -2319,14 +2319,12 @@ function XcalarQueryCheck(queryName, txId) {
                     state === QueryStateT.qrCancelled) {
                     deferred.resolve(queryStateOutput);
                 } else if (state === QueryStateT.qrError) {
-                    deferred.reject(queryStateOutput);
+                    deferred.reject(queryStateOutput.queryStatus);
                 } else {
                     cycle();
                 }
             })
-            .fail(function(error) {
-                deferred.reject(error);
-            });
+            .fail(deferred.reject);
         }, checkTime);
     }
 
@@ -2341,7 +2339,7 @@ function XcalarQueryWithCheck(queryName, queryString, txId) {
 
     XcalarQuery(queryName, queryString, txId)
     .then(function() {
-        return (XcalarQueryCheck(queryName));
+        return XcalarQueryCheck(queryName);
     })
     .then(function() {
         if (Transaction.checkAndSetCanceled(txId)) {
@@ -2351,9 +2349,10 @@ function XcalarQueryWithCheck(queryName, queryString, txId) {
             deferred.resolve();
         }
     })
-    .fail(function() {
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarQuery" + queryName, error);
         Transaction.checkAndSetCanceled(txId);
-        deferred.reject(StatusTStr[StatusT.StatusCanceled]);
+        deferred.reject(thriftError);
     });
 
     return (deferred.promise());
