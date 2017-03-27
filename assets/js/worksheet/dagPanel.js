@@ -800,7 +800,7 @@ window.DagPanel = (function($, DagPanel) {
         if ($dagWrap.hasClass('fromRetina')) {
             $menu.find('.dataflow').addClass('unavailable');
             xcTooltip.changeText($menu.find('.dataflow'),
-                                DFGTStr.CannotCreateMsg);
+                                DFTStr.CannotCreateMsg);
         } else {
             $menu.find('.dataflow').removeClass('unavailable');
             xcTooltip.changeText($menu.find('.dataflow'), "");
@@ -1417,7 +1417,7 @@ window.Dag = (function($, Dag) {
             var isFromRetina = checkNodeArrayForRetina(dagObj.node);
             var addDFTooltip;
             if (isFromRetina) {
-                addDFTooltip = DFGTStr.CannotCreateMsg;
+                addDFTooltip = DFTStr.CannotCreateMsg;
             } else {
                 addDFTooltip = TooltipTStr.AddDataflow;
             }

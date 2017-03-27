@@ -40,7 +40,7 @@ window.DFCreateView = (function($, DFCreateView) {
             return;
         }
         if ($dagWrap.hasClass('fromRetina')) {
-            Alert.error(DFGTStr.CannotCreate, DFGTStr.CannotCreateMsg);
+            Alert.error(DFTStr.CannotCreate, DFTStr.CannotCreateMsg);
             return;
         }
 

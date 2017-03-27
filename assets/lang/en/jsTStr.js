@@ -226,7 +226,7 @@ ErrTStr = {
     'InvalidFunction': 'Invalid function',
     'TooLong': 'Please use fewer than 255 characters.',
     'PrefixTooLong': 'Please use fewer than 32 characters.',
-    'NoTable': 'Table doesn\'t exists',
+    'NoTable': 'Table doesn\'t exist',
     'TablesNotDeleted': 'The following tables were not deleted:',
     'ConstsNotDeleted': 'The following aggregates were not deleted:',
     'NoTablesDeleted': 'No tables were deleted.',
@@ -307,7 +307,7 @@ ErrWRepTStr = {
     'InvalidAggName': 'Aggregate name must be prefixed with <aggPrefix>',
     'InvalidAggLength': 'Aggregate name must be prefixed with <aggPrefix>' +
                         ' and followed by the name',
-    'InvalidSampleSize': 'Maxmium dataset size is <size>.'
+    'InvalidSampleSize': 'Maximium dataset size is <size>.'
 };
 
 DemoTStr = {
@@ -368,11 +368,11 @@ SuccessTStr = {
     "ExtRemove": "Extension Successfully Removed!",
     "ExtEnable": "Extension Successfully Enabled!",
     "ExtDisable": "Extension Successfully Disabled!",
-    "Profile": "Save Profile As PNG Successfully!"
+    "Profile": "Profile Image Saved Successfully!"
 };
 
 FailTStr = {
-    "Profile": "Save Profile As PNG Failed.",
+    "Profile": "Saving Profile Image Failed.",
     "ProfileStats": "Generate Statistics Failed."
 };
 
@@ -404,7 +404,7 @@ AlertTStr = {
 FnBarTStr = {
     'NewCol': 'Please specify the new column name and press enter.',
     'InvalidOpParen': 'Operation must be preceeded by operator name and ' +
-                      'arguments in parenthesis.',
+                      'arguments in parentheses.',
     'ValidOps': 'Valid operators are: <b>pull, map, filter</b>.',
     'DiffColumn': 'The selected column (<colName>) is not included ' +
                     'in this operation. Do you want to continue?',
@@ -497,8 +497,8 @@ ExportTStr = {
 };
 
 ProfileTStr = {
-    'Instr': 'Hover on the bar to see details. Use scroll bar and input box ' +
-             'to view more data.',
+    'Instr': 'Hover over the bars to see details. Use the scroll bar and ' +
+            'input box to view more data.',
     'LoadInstr': 'Please wait for the data preparation, you can close the ' +
                  'modal and view it later.',
     'InvalidBucket': 'Invalid Bucket Size',
@@ -556,7 +556,6 @@ WKBKTStr = {
     'Creating': 'Creating Workbook',
     'SwitchErr': 'Switch Workbook Error',
     'SwitchErrMsg': 'Error occurred while switching workbooks. Proceeding with the switch may cause problems to the workbook. Do you still want to continue?',
-    'Delete': 'Delete Workbook',
     'DeleteMsg': 'Are you sure you want to delete the workbook?',
     'Deactivate': 'Deactivate Workbook',
     'DeactivateMsg': 'Are you sure you want to deactivate the workbook?',
@@ -617,58 +616,39 @@ SchedTStr = {
     "simFail": "Simulation Fail!",
     "noParam": "None parameter is defined!",
     "unknown": "Unknown!",
-    "failServerTime": "Fail to get Server Time!"
-};
-
-DFGTStr = {
-    'AddParamHint': 'Please create parameters in Dataflow Panel first.',
-    'DFCreateFail': 'Dataflow Creation Failed',
-    'ParamModalFail': 'Parameter Creation Failed',
-    'UpdateParamFail': 'Update Parameters Failed',
-    'NoDFG1': 'No dataflows added',
-    'NoDFG2': 'Add a dataflow in Query Graph',
-    'RunDone': 'Run Complete',
-    'RunDoneMsg': 'Successfully ran DFG!',
-    'RunFail': 'Run DFG Failed',
-    "DFGTitle": "SCHEDULER/DATAFLOW",
-    "PointTo": "File Path",
-    "ExportTo": "Export As",
-    "DelDFG": "Permanently Delete Dataflow",
-    "DelDFGMsg": "Are you sure you want to permanently delete " +
-                 "this dataflow? This action cannot be undone.",
-    "DownloadErr": "Download Failed",
-    "CannotCreate": "Cannot Create Batch Dataflow",
-    "CannotCreateMsg": "Cannot create a batch dataflow from a table " +
-                        "originating from a dataflow."
+    "failServerTime": "Failed to get Server Time!"
 };
 
 DFTStr = {
-    'AddParamHint': 'Please create parameters in Dataflow Panel first.',
-    'DFCreateFail': 'Dataflow Creation Failed',
-    'ExportFileExists': 'Export file already exists.',
-    'ParamModalFail': 'Parameter Creation Failed',
-    'UpdateParamFail': 'Update Parameters Failed',
-    'NoDF1': 'No dataflows added',
-    'NoDF2': 'Add a dataflow in Dataflow Graph',
+    "CannotCreate": "Cannot Create Batch Dataflow",
+    "CannotCreateMsg": "Cannot create a batch dataflow from a table " +
+                        "originating from a dataflow.",
+    "AdvancedOpts": "Advanced Export Options",
+    "Default": "Export to file system",
+    "DelDF": "Permanently Delete Dataflow",
+    "DelDFMsg": "Are you sure you want to permanently delete " +
+                     "this dataflow? This action cannot be undone.",
+    "DFTitle": "DATAFLOW",
+    "DownloadErr": "Download Failed",
+    "ExportTo": "Export As",
+    "FindTable": "The final table <table> is in the worksheet",
+    "Import": "Export as a Xcalar table",
+    "NoFileExt": "Export file name must have an extension",
+    "PointTo": "File Path",
+    'AddParamHint': 'Please create parameters in the Dataflow Panel first.',
     'Cancel': 'Cancel batch dataflow',
     'CancelSuccessMsg': 'Cancellation of batch dataflow was successful.',
+    'DFCreateFail': 'Dataflow Creation Failed',
+    'ExportFileExists': 'Export file already exists.',
+    'NoDF1': 'No dataflows added',
+    'NoDF2': 'Add a dataflow from the Dataflow Graph',
+    'ParamModalFail': 'Parameter Creation Failed',
     'Run': 'Run batch dataflow',
-    'Running': 'Running batch dataflow',
     'RunDone': 'Run Complete',
     'RunDoneMsg': 'Successfully ran dataflow!',
     'RunFail': 'Run DF Failed',
-    "DFTitle": "DATAFLOW",
-    "PointTo": "File Path",
-    "ExportTo": "Export As",
-    "DelDF": "Permanently Delete Dataflow",
-    "DelDFMsg": "Are you sure you want to permanently delete " +
-                 "this dataflow? This action cannot be undone.",
-    "DownloadErr": "Download Failed",
-    "AdvancedOpts": "Advanced Export Options",
-    "Default": "Export to file system",
-    "Import": "Export as a Xcalar table",
-    "FindTable": "The final table <table> is in the worksheet",
-    "NoFileExt": "Export file name must have an extension"
+    'Running': 'Running batch dataflow',
+    'UpdateParamFail': 'Update Parameters Failed'
 };
 
 DSTStr = {
@@ -681,7 +661,7 @@ DSTStr = {
     'DelDSFail': 'Delete Dataset Reference Failed',
     'NewFolder': 'New Folder',
     'NoNewFolder': 'Cannot Create Folder',
-    'NoNewFolderMsg': 'This folder is uneditable, cannot create new folder here',
+    'NoNewFolderMsg': 'This folder is uneditable, cannot create a new folder here',
     'NotFindDS': 'Cannot find the dataset',
     'DelFolder': 'Delete Folder',
     'DelFolderInstr': 'Please remove all the dataset references in the ' +
@@ -719,7 +699,7 @@ DSTStr = {
     'Unlistable': 'Dataset is marked for deletion',
 
     // With replace
-    'DelDSConfirm': 'Are you sure you want to delete dataset reference <ds> ?',
+    'DelDSConfirm': 'Are you sure you want to delete dataset reference <ds>?',
     'DelUneditable': 'This <ds> is uneditable, cannot delete',
     'CancelPointMsg': 'Are you sure you want to cancel pointing dataset ' +
                       'reference <ds> ?',
@@ -737,7 +717,7 @@ DSFormTStr = {
     'InvalidDelim': 'Invalid delimiter.',
     'InvalidQuote': 'Cannot have more than 1 quote character',
     'NoParseJSON': 'Cannot parse data as json',
-    'GoBack': 'Please click the \"BACK\" button to re-enter a valid path or user a valid path pattern',
+    'GoBack': 'Please click the \"BACK\" button to re-enter a valid path or use a valid path pattern',
     'NoData': 'No data',
     'NoFile': 'File not found, please go back to select a valid file/folder.',
     'CreateWarn': 'Too Many Columns To Create',
@@ -749,7 +729,7 @@ DSFormTStr = {
 };
 
 DSParserTStr = {
-    "NotSupport": "Not support parsing this format of data",
+    "NotSupport": "Parsing this data format is not supported",
     "Fail": "Submit Visual Parser Failed",
     "Submit": "Submit Visual Parser",
     "SubmitMsg": "Are you sure you want to submit the visual parser?",
@@ -817,7 +797,7 @@ ColTStr = {
     'RenameStartNum': 'Invalid name, cannot begin with a number.',
     'ImmediateClash': 'Invalid name, name already exists in at least one ' +
                       'DATA cell',
-    'LongName': 'Colunm Name is too long, please use less than 255 chars.',
+    'LongName': 'Column Name is too long, please use fewer than 255 characters.',
     'NoOperateArray': 'Cannot directly operate on entire arrays',
     'NoOperateObject': 'Cannot directly operate on entire objects',
     'NoOperateGeneral': 'Cannot directly operate on columns of this type',

@@ -14,7 +14,6 @@ module.exports = {
         "ClickToOpts": "Click to see options",
         "Close": "Close",
         "CLOSE": "CLOSE",
-        "CLEAR": "CLEAR",
         "ColRenames": "Column Renames",
         "ColRenameInstr": "The columns that you have selected have duplicates. Please rename either or both of the offending columns.",
         "ComeSoon": "Coming Soon",
@@ -473,7 +472,8 @@ module.exports = {
         "SelectedKeys": "Selected Keys",
         "SelectFormat": "Select format",
         "Full": "Full",
-        "Partial": "Partial"
+        "Partial": "Partial",
+        "SkipToLine": "Skip to line"
     },
 
     "dsUploader": {
@@ -505,7 +505,7 @@ module.exports = {
         "CreateRefHint": "Create a reference of the dataset",
         "CreateTableHint": "Create a reference of the dataset and create a table from the reference",
         "REDETECT": "REDETECT",
-        "Minimize": "Toggle minimization of form",
+        "Minimize": "Toggle minimization of the form",
         "EntireFileSize": "Entire file/folder",
         "CustomizedSize": "Custom size",
         "PARSER": "ADVANCED VISUAL PARSER"
@@ -538,7 +538,7 @@ module.exports = {
         "Path": "Path",
         "Records": "Records",
         "SelectLater": "Select Columns Later",
-        "SelectLaterHint": "Create A Table Without Picking Any Column"
+        "SelectLaterHint": "Create a table without selecting any columns"
     },
 
     "dsCart": {
@@ -702,7 +702,7 @@ module.exports = {
         "instr": "First, select the column from the left table that you would like to join on. Next, select the table followed by the column from the right that you would like to join on.",
         "NewTableName": "New Table Name",
         "keepTables": "Keep original tables",
-        "keepTablesHint": "Keep both left and right tables and append new table to the current worksheet",
+        "keepTablesHint": "Keep both left and right tables and append the new table to the current worksheet",
         "JoinType": "Join Type",
         "InnerJoin": "Inner Join",
         "LeftJoin": "Left Outer Join",
@@ -719,8 +719,8 @@ module.exports = {
         "PrefixHeader": "Prefixes",
         "DerivedHeader": "Derived Fields",
         "NewName": "New Name",
-        "SuggLeftHint": "Suggest a key in left table to match right table",
-        "SuggRightHint": "Suggest a key in right table to match left table",
+        "SuggLeftHint": "Suggest a key in the left table to match to the right table",
+        "SuggRightHint": "Suggest a key in the right table to match to the left table",
         "SmartSuggBtn": "Smart Suggest",
         "CONFIRM": "JOIN TABLES",
         "ADDCLAUSE": "ADD ANOTHER CLAUSE",
@@ -755,7 +755,7 @@ module.exports = {
         "detect": "DETECT",
         "clearAll": "CLEAR ALL",
         "colInstrHeader": "Select Columns to Cast",
-        "colInstrText": "To cast a column, first select the column on the table. You will see a row appended for the column. Next click on the drop down and select its new type. To remove a column from being casted, click on the column in the table to deselect it. You can jump to the column by click on the column name in the table.",
+        "colInstrText": "To cast a column, first select the column in the table. You will see a row appended for the column. Next click on the drop down and select its new type. To remove a column from being casted, click on the column in the table to deselect it. You can jump to the column by clicking on the column name in the table.",
         "colName": "Column Name",
         "newType": "New Type",
         "cast" : "CAST",
@@ -765,7 +765,7 @@ module.exports = {
     "opsView": {
         "mapInstr": "Select a category (e.g Arithmetic Functions). Then select a specific function, e.g. add. Finally, enter in any arguments if applicable. Column names should be prefixed by a $ sign, e.g. $column1.",
         "filterInstr": "Select a function, e.g. isBoolean. Then, enter in any arguments if applicable. To add additional conditions, select \"Additional Conditions.\" Column names should be prefixed by a $ sign, e.g. $column1.",
-        "groupbyInstr": "Enter one or multiple fields group on. Then, select a function, e.g. count. Finally, enter in any arguments if applicable. Column names should be prefixed by a $ sign, e.g. $column1.",
+        "groupbyInstr": "Enter one or multiple fields to group on. Then, select a function, e.g. count. Finally, enter in any arguments if applicable. Column names should be prefixed by a $ sign, e.g. $column1.",
         "aggInstr": "Select a function, e.g. sum. Then, enter in any arguments if applicable. Column names should be prefixed by a $ sign, e.g. $column1. Optional resultant aggregate names should be prefixed by a ^ sign.",
         "DescripFunc": "Description of Function",
         "ArgList": "Argument List",
@@ -863,7 +863,7 @@ module.exports = {
     },
 
     "extension": {
-        "uploadInstr": "Upload an extension into Xcalar. Your file should be of the format .tar.gz and a .ext.js and a .ext.py file",
+        "uploadInstr": "Upload an extension into Xcalar. Your file should be of the format .tar.gz and include a .ext.js and a .ext.py file",
         "Installed": "Installed Extensions",
         "Load": "Loading Extensions",
         "Upload": "Upload Custom Extension",
@@ -885,8 +885,8 @@ module.exports = {
     "tutor": {
         "user": "John Smith",
         "wkbk": "Walkthrough",
-        "wkbkDate": "3-31-2016",
-        "wkbkSaveDate": "3-31-2016 0:00:00 AM",
+        "wkbkDate": "4-31-2017",
+        "wkbkSaveDate": "4-31-2017 0:00:00 AM",
         "meta": {
             // leave it empty, it will be overwritten by render.js
         },

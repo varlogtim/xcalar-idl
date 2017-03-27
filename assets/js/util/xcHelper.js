@@ -3506,7 +3506,7 @@ window.xcHelper = (function($, xcHelper) {
 
         if ($dagWrap.hasClass('fromRetina')) {
             xcHelper.disableMenuItem($menu.find('.createDf'),
-                                     {title: DFGTStr.CannotCreateMsg});
+                                     {title: DFTStr.CannotCreateMsg});
         } else {
             xcHelper.enableMenuItem($menu.find('.createDf'));
         }
