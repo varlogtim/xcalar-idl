@@ -2655,7 +2655,7 @@ ExtItem.prototype = {
             var $li = $extLists.find(".item").filter(function() {
                 return $(this).find(".name").text() === name;
             });
-            return $li.length;
+            return ($li.length > 0);
         }
     },
 

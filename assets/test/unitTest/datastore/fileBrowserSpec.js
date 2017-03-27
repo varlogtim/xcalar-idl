@@ -143,10 +143,10 @@ describe("File Browser Test", function() {
             var prevSource = $defaultPath.text();
             // error case
             changeProtocol("error protocol");
-            expect($defaultPath.text()).to.equal("nfs:///");
+            expect($defaultPath.text()).to.equal("file:///");
 
-            changeProtocol("nfs:///");
-            expect($defaultPath.text()).to.equal("nfs:///");
+            changeProtocol("file:///");
+            expect($defaultPath.text()).to.equal("file:///");
             changeProtocol(prevSource);
             expect($defaultPath.text()).to.equal(prevSource);
         });
@@ -238,7 +238,7 @@ describe("File Browser Test", function() {
         before(function() {
             oldFunc = XcalarListFiles;
             goToPath = FileBrowser.__testOnly__.goToPath;
-            $li = $('<li>' + "nfs:///netstore/datasets/" + '</li>');
+            $li = $('<li>' + "file:///netstore/datasets/" + '</li>');
         });
 
         it('Should go to path', function(done) {
@@ -359,7 +359,7 @@ describe("File Browser Test", function() {
             FileBrowser.show(FileProtocol.nfs)
             .then(function() {
                 var $li = $pathLists.find("li:first-of-type");
-                expect($li.text()).to.equal("nfs:///");
+                expect($li.text()).to.equal("file:///");
                 assert.isTrue($fileBrowser.is(":visible"));
                 done();
             })

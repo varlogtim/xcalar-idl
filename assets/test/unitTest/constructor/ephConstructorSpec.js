@@ -878,6 +878,7 @@ describe("Ephemeral Constructor Test", function() {
             $("#colMenu li").filter(function(idx, elt) {
                 return $(elt).text().startsWith("RandElt");
             }).remove();
+            $("#colMenu").hide();
             UnitTest.deleteAll(tableName, testDs)
             .always(function(){
                 UnitTest.offMinMode();

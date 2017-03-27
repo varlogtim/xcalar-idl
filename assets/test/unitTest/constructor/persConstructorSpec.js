@@ -2873,7 +2873,7 @@ describe("Persistent Constructor Test", function() {
     });
 
     describe("ProfileBucketInfo Constructor Test", function() {
-        it("Should have 8 attributes", function() {
+        it("Should have 9 attributes", function() {
             var bucketInfo = new ProfileBucketInfo({
                 "bucketSize": 0,
                 "table": "testTable",
@@ -2883,7 +2883,7 @@ describe("Persistent Constructor Test", function() {
             });
 
             expect(bucketInfo).to.be.an.instanceof(ProfileBucketInfo);
-            expect(Object.keys(bucketInfo).length).to.equal(8);
+            expect(Object.keys(bucketInfo).length).to.equal(9);
             expect(bucketInfo).to.have.property("version")
             .and.to.equal(currentVersion);
             expect(bucketInfo).to.have.property("bucketSize").and.to.equal(0);
@@ -2891,6 +2891,7 @@ describe("Persistent Constructor Test", function() {
             .and.to.equal("testTable");
             expect(bucketInfo).to.have.property("ascTable").and.to.be.null;
             expect(bucketInfo).to.have.property("descTable").and.to.be.null;
+            expect(bucketInfo).to.have.property("ztoa").and.to.be.null;
             expect(bucketInfo).to.have.property("colName")
             .and.to.equal("testCol");
             expect(bucketInfo).to.have.property("max").and.to.equal(1);
