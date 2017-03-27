@@ -1,7 +1,7 @@
 window.XcSocket = (function(XcSocket, $) {
     var socket = null;
     var connected = false;
-    var enable = false;  // use it or not
+    var enable = true;  // use it or not
 
     XcSocket.init = function() {
         if (!enable) {

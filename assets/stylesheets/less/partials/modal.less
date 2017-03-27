@@ -2471,6 +2471,7 @@ html.microsoft {
                 }
 
                 .button {
+                    padding-top: 15px;
                     .flex(1 0 30px);
                 }
             }
@@ -2497,7 +2498,7 @@ html.microsoft {
 
                 .warn {
                     .font(@size: 10px);
-                    opacity: 0.7;
+                    opacity: 0.5;
                     padding: 0 8px;
                     text-align: center;
                 }
@@ -2541,6 +2542,7 @@ html.microsoft {
             }
 
             .info {
+                position: relative;
                 .flex(1 1 auto);
                 .font(@size: 12px, @line-height: 20px);
                 white-space: nowrap;
@@ -2552,9 +2554,14 @@ html.microsoft {
 
                 .label {
                     .font(@weight: 400);
+                    position: absolute;
+                    bottom: 0px;
                 }
 
                 .text {
+                    position: absolute;
+                    bottom: 0px;
+                    left: 80px;
                     .font(@color: @color-font-select-blue);
                     .textOverflow;
 

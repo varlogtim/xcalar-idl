@@ -245,6 +245,10 @@ module.exports = {
         "OnlyInOpMode": "Feature only available in Operational mode",
         "SystemGood": "All Systems Good",
         "CSHelp": "Click to open up Xcalar Help for more information",
+        "ProfileSortInc": "Ascending by occurrence",
+        "ProfileSortDec": "Descending by occurrence",
+        "ProfileSortAsc": "Ascending alphabetically by label",
+        "ProfileSortDesc": "Descending alphabetically by label",
         "ChooseUdfModule": 'Please choose a module first' // used in jststr
     },
 
@@ -817,7 +821,7 @@ module.exports = {
         "AggSummary": "Aggregate Summary",
         "QuartileSummary": "Quartile Summary",
         "QuartileInstr": "Quartile statistics can only be calculated when the column is sorted.",
-        "QuartileWarn": "Warning: This operation may take a few monments to complete.",
+        "QuartileWarn": "Warning: This operation may take a few moments to complete.",
         "fail": "Cannot profile the data",
         "Showing": "Showing",
         "results": "results",
