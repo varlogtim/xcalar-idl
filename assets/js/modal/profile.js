@@ -351,7 +351,8 @@ window.Profile = (function($, Profile, d3) {
 
         $rangeInput.keypress(function(event) {
             if (event.which === keyCode.Enter) {
-                var val = $rangeInput.val();
+                var val = Number($rangeInput.val());
+                var rangeOption = getRangeOption();
                 // Note that because the input type is number,
                 // any no-numeric string in the input will get ""
                 // when do $rangeInput.val()
@@ -366,14 +367,24 @@ window.Profile = (function($, Profile, d3) {
                         "check": function() {
                             return (Number(val) <= 0);
                         }
+                    },
+                    {
+                        "$ele": $rangeInput,
+                        "error": ErrTStr.OnlyInt,
+                        "check": function() {
+                            return (rangeOption !== "range" &&
+                                    !Number.isInteger(val));
+                        }
                     }
                 ]);
 
                 if (!isValid) {
                     return;
                 }
-                val = Number(val);
-                bucketData(val, statsCol);
+                var bucketSize = (rangeOption === "range")
+                                 ? val
+                                 : -val;
+                bucketData(bucketSize, statsCol);
             }
         });
     }
@@ -1399,10 +1410,14 @@ window.Profile = (function($, Profile, d3) {
         barAreas.exit().remove();
 
         function getXAxis(d) {
-            var name = formatNumber(d[xName]);
+            var isLogScale = (tableInfo.bucketSize < 0);
+            var num = getNumInScale(d[xName], isLogScale);
+            var name = formatNumber(num, isLogScale);
             if (!noBucket && !noSort && d.type !== "nullVal") {
-                var num2 = formatNumber(d[xName] + tableInfo.bucketSize);
-                name = name + "-" + num2;
+                num = d[xName] + Math.abs(tableInfo.bucketSize);
+                num = getNumInScale(num, isLogScale);
+                var upperBound = formatNumber(num, isLogScale);
+                name = name + "-" + upperBound;
             }
 
             if (name.length > charLenToFit) {
@@ -1415,8 +1430,22 @@ window.Profile = (function($, Profile, d3) {
         function getLastBucketTick() {
             var obj = {};
             obj[xName] = data[dataLen - 1][xName] +
-                            tableInfo.bucketSize;
+                         Math.abs(tableInfo.bucketSize);
             return getXAxis(obj);
+        }
+
+        function getNumInScale(num, isLogScale) {
+            if (!isLogScale) {
+                return num;
+            }
+            // log scale;
+            if (num === 0) {
+                return 0;
+            }
+
+            var absNum = Math.abs(num);
+            absNum = Math.pow(10, absNum - 1);
+            return (num > 0) ? absNum : -absNum;
         }
 
         function getLabel(d) {
@@ -1447,14 +1476,18 @@ window.Profile = (function($, Profile, d3) {
             // a little weird method to setup tooltip
             // may have better way
             var title;
+            var isLogScale = (tableInfo.bucketSize < 0);
+            var lowerBound = getNumInScale(d[xName], isLogScale);
 
             if (noBucket || d.type === "nullVal") {
                 // xName is the backColName, may differenet with frontColName
                 title = "Value: " +
-                        formatNumber(d[xName]) + "<br>";
+                        formatNumber(lowerBound, isLogScale) + "<br>";
             } else {
-                title = "Value: [" + formatNumber(d[xName]) +
-                        ", " + formatNumber(d[xName] + tableInfo.bucketSize) +
+                var upperBound = d[xName] + Math.abs(tableInfo.bucketSize);
+                upperBound = getNumInScale(upperBound, isLogScale);
+                title = "Value: [" + formatNumber(lowerBound, isLogScale) +
+                        ", " + formatNumber(upperBound, isLogScale) +
                         ")<br>";
             }
 
@@ -1506,13 +1539,19 @@ window.Profile = (function($, Profile, d3) {
         }
     }
 
-    function formatNumber(num) {
+    function formatNumber(num, isLogScale) {
         if (num == null) {
             console.warn("cannot format empty or null value");
             return "";
         } else if (isNaN(num) ||
                    (typeof(num) === "string" && num.trim().length === 0)) {
             return num;
+        } else if (isLogScale) {
+            if (num <= 1 && num >= -1) {
+                return num;
+            } else {
+                return num.toExponential();
+            }
         }
         // if not speify maximumFractionDigits, 168711.0001 will be 168,711
         return xcHelper.numToStr(num, 5);
@@ -1958,11 +1997,20 @@ window.Profile = (function($, Profile, d3) {
         return deferred.promise();
     }
 
+    function getRangeOption() {
+        var $rangeOption = $rangeSection.find(".dropDownList input");
+        var rangeOption = ($rangeOption.val().toLowerCase() === "range")
+                          ? "range"
+                          : "rangeLog";
+        return rangeOption;
+    }
+
     function toggleRange(rangeOption, reset) {
         var $dropdown = $rangeSection.find(".dropDownList");
         var $li = $dropdown.find('li[name="' + rangeOption + '"]');
         $dropdown.find("input").val($li.text());
         $rangeInput.addClass("xc-disabled");
+
         if (reset) {
             $rangeInput.val("");
             return;
@@ -1974,6 +2022,10 @@ window.Profile = (function($, Profile, d3) {
             case "range":
                 // go to range
                 bucketSize = Number($rangeInput.val());
+                $rangeInput.removeClass("xc-disabled");
+                break;
+            case "rangeLog":
+                bucketSize = -Number($rangeInput.val());
                 $rangeInput.removeClass("xc-disabled");
                 break;
             case "fitAll":
@@ -1998,6 +2050,23 @@ window.Profile = (function($, Profile, d3) {
         }
         bucketData(bucketSize, statsCol, isFitAll);
     }
+
+    // UDF for log scale bucketing
+    // import math
+
+    // def log(n):
+    //     if n == 0:
+    //         return 0
+    //     abs_n = abs(n)
+    //     if abs_n <= 1:
+    //         # this represents -1 to 1
+    //         res = 1
+    //     else:
+    //         res = math.ceil(math.log(abs_n, 10)) + 1
+    //     if n < 0:
+    //         return -1 * int(res)
+    //     else:
+    //         return int(res)
 
     function bucketData(newBucketNum, curStatsCol, isFitAll) {
         if (newBucketNum === bucketNum) {
@@ -2083,7 +2152,7 @@ window.Profile = (function($, Profile, d3) {
     }
 
     function isValidBucketSize(bucketSize) {
-        if (isNaN(bucketSize) || bucketSize < 0) {
+        if (isNaN(bucketSize)) {
             return false;
         } else {
             return true;
@@ -2123,8 +2192,18 @@ window.Profile = (function($, Profile, d3) {
         var mapCol = xcHelper.randName("bucketMap", 4);
 
         // example map(mult(floor(div(review_count, 10)), 10))
-        var mapString = "mult(floor(div(" + colName + ", " + newBucketNum +
-                        ")), " + newBucketNum + ")";
+        var mapString;
+        var step;
+        if (newBucketNum >= 0) {
+            mapString = colName;
+            step = newBucketNum;
+        } else {
+            mapString = "int(log:log(" + colName + "))";
+            step = -1 * newBucketNum;
+        }
+
+        mapString = "mult(floor(div(" + mapString + ", " + step +
+                        ")), " + step + ")";
 
         XIApi.map(txId, mapString, tableName, mapCol, mapTable)
         .then(function() {
