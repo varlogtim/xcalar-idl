@@ -35,6 +35,7 @@ describe('DFCard Test', function() {
             $("#maximizeDag").click();
             setTimeout(function() {
                 $("#closeDag").click();
+                $("#dataflowTab .mainTab").click();
                 setTimeout(function() {
                     UnitTest.deleteAll(tableName, testDs)
                     .always(function() {
@@ -45,6 +46,37 @@ describe('DFCard Test', function() {
         })
         .fail(function() {
             done("fail");
+        });
+    });
+
+        // XXX need comprehensive test, currently just has test for certain bugs
+    describe("dfcard menu", function() {
+        before(function(){
+            $("#dfgMenu .groupName").filter(function() {
+                return $(this).text() === testDfName;
+            }).closest('.dataFlowGroup').click();
+
+        });
+
+        it("menu should show correct options depending on license mode", function() {
+            var cachedFn = XVM.getLicenseMode;
+            XVM.getLicenseMode = function() {
+                return XcalarMode.Oper;
+            };
+            var $menu = $('#dfgViz').find('.dagDropDown');
+            $dfWrap.find(".export .dagTableIcon").click();
+            expect($menu.find("li:visible").length).to.equal(2);
+            expect($menu.find("li.createParamQuery:visible").length).to.equal(1);
+
+            XVM.getLicenseMode = function() {
+                return XcalarMode.Mod;
+            };
+
+            $dfWrap.find(".export .dagTableIcon").click();
+            expect($menu.find("li:visible").length).to.equal(1);
+            expect($menu.find("li.createParamQuery:visible").length).to.equal(0);
+
+            XVM.getLicenseMode = cachedFn;
         });
     });
 
@@ -151,6 +183,7 @@ describe('DFCard Test', function() {
     after(function(done) {
         DFCard.__testOnly__.deleteDataflow(testDfName)
         .always(function() {
+            XcalarDeleteRetina.log("unitTestDF");
             Alert.forceClose();
             done();
         });

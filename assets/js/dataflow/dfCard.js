@@ -736,15 +736,16 @@ window.DFCard = (function($, DFCard) {
             }
 
             // If node is not export, hide showExportCols option
-            if (!$(this).hasClass("export")) {
-                $menu.find(".showExportCols").hide();
-            } else {
+            if ($(this).hasClass("export")) {
                 $menu.find(".showExportCols").show();
-                if (!$(this).hasClass("parameterizable")) {
+                if (!$(this).hasClass("parameterizable") ||
+                    XVM.getLicenseMode() === XcalarMode.Mod) {
                     $menu.find(".createParamQuery").hide();
                 } else {
                     $menu.find(".createParamQuery").show();
                 }
+            } else {
+                $menu.find(".showExportCols").hide();
             }
         });
 

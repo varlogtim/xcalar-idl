@@ -40,6 +40,7 @@ window.XVM = (function(XVM) {
         // If you want to test file uploader, uncomment line below
         // return (XcalarMode.Oper);
         // return (XcalarMode.Demo);
+        // return (XcalarMode.Mod);
         return (licenseMode);
     };
 
