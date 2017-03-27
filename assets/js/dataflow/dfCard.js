@@ -63,7 +63,11 @@ window.DFCard = (function($, DFCard) {
         var html = getDFListItemHtml(dataflowName);
 
         $dfMenu.find('.listSection').append(html);
-        $dfMenu.find('.numGroups').text(DF.getNumDataflows());
+        var numDfs = DF.getNumDataflows()
+        $dfMenu.find('.numGroups').text(numDfs);
+        if (numDfs === 1) {
+            DFCard.focusFirstDF();
+        }
     };
 
     DFCard.refreshDFList = function() {
