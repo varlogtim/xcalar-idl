@@ -4,9 +4,11 @@ describe('DFCreateView', function() {
     var $dfView;
     var tableId;
     var $table;
-    var testDfName = "unitTestDF";
+    var testDfName;
 
     before(function(done) {
+        testDfName = xcHelper.randName("unitTestDF");
+
         var testDSObj = testDatasets.fakeYelp;
         UnitTest.addAll(testDSObj, "unitTestFakeYelp")
         .always(function(ds, tName) {
@@ -194,9 +196,7 @@ describe('DFCreateView', function() {
                 expect(df.name).to.equal(testDfName);
             })
             .fail(function() {
-                var df = DF.getDataflow(testDfName);
-                expect(df).to.equal('undefined');
-                expect('failed').to.equal('should succeed');
+                done("fail")
             })
             .always(function() {
                 // wait for submit inner always

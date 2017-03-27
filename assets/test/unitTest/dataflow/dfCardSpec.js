@@ -2,42 +2,49 @@ describe('DFCard Test', function() {
     var testDs;
     var tableName;
     var tableId;
-    var testDfName = "unitTestDF";
+    var testDfName;
     var $dfWrap;
 
     before(function(done) {
+        testDfName = xcHelper.randName("unitTestDF");
         var testDSObj = testDatasets.fakeYelp;
         UnitTest.addAll(testDSObj, "unitTestFakeYelp")
         .always(function(ds, tName) {
             testDs = ds;
             tableName = tName;
             tableId = xcHelper.getTableId(tableName);
+            done();
+        });
+    });
 
-            DFCreateView.show($("#dagWrap-" + tableId));
+    it("Should sumbit form", function(done) {
+        DFCreateView.show($("#dagWrap-" + tableId));
 
-            var $newNameInput = $('#newDFNameInput');
-            $newNameInput.val(testDfName);
+        var $newNameInput = $('#newDFNameInput');
+        $newNameInput.val(testDfName);
 
-            DFCreateView.__testOnly__.submitForm()
-            .then(function() {
-                // triggers construction of dag image
-                $('#dfgMenu').find('.listBox').filter(function() {
-                    return ($(this).find('.groupName').text() === testDfName);
-                }).closest('.listBox').trigger('click');
+        DFCreateView.__testOnly__.submitForm()
+        .then(function() {
+            // triggers construction of dag image
+            $('#dfgMenu').find('.listBox').filter(function() {
+                return ($(this).find('.groupName').text() === testDfName);
+            }).closest('.listBox').trigger('click');
 
-                $dfWrap = $('#dfgViz .dagWrap[data-dataflowname="' + testDfName + '"]');
+            $dfWrap = $('#dfgViz .dagWrap[data-dataflowname="' + testDfName + '"]');
 
-                $("#maximizeDag").click();
+            $("#maximizeDag").click();
+            setTimeout(function() {
+                $("#closeDag").click();
                 setTimeout(function() {
-                    $("#closeDag").click();
-                    setTimeout(function() {
-                        UnitTest.deleteAll(tableName, testDs)
-                        .always(function() {
-                            done();
-                        });
-                    }, 100);
-                }, 400);
-            });
+                    UnitTest.deleteAll(tableName, testDs)
+                    .always(function() {
+                        done();
+                    });
+                }, 100);
+            }, 400);
+        })
+        .fail(function() {
+            done("fail");
         });
     });
 

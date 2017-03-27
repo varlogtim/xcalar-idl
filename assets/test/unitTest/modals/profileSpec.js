@@ -332,20 +332,21 @@ describe("Profile Test", function() {
 
     describe("Range bucket test", function() {
         var $rangeSection;
+        var $dropdown;
 
         before(function() {
             $rangeSection = $modal.find(".rangeSection");
+            $dropdown = $rangeSection.find(".dropDownList");
         });
 
         it("Should in single bucket by default", function() {
-            expect($rangeSection.find(".single").hasClass("active"))
-            .to.be.true;
+            expect($dropdown.find("input").val()).to.equal("Single");
         });
 
         it("Should range bucket", function(done) {
-            var $range = $rangeSection.find(".range");
-            $range.click();
-            expect($range.hasClass("active")).to.be.true;
+            var $range = $dropdown.find('li[name="range"]');
+            $range.trigger(fakeEvent.mouseup)
+            expect($dropdown.find("input").val()).to.equal("Range");
 
 
             $("#profile-range").val(10).trigger(fakeEvent.enter);
@@ -366,8 +367,8 @@ describe("Profile Test", function() {
         });
 
         it("Should fit all", function(done) {
-            var $fitAll = $rangeSection.find(".fitAll");
-            $fitAll.click();
+            var $fitAll = $dropdown.find('li[name="fitAll"]');
+            $fitAll.trigger(fakeEvent.mouseup)
             expect($modal.attr("data-state")).to.equal("pending");
 
             var checkFunc = function() {
@@ -376,7 +377,7 @@ describe("Profile Test", function() {
 
             UnitTest.testFinish(checkFunc)
             .then(function() {
-                expect($fitAll.hasClass("active")).to.be.true;
+                expect($dropdown.find("input").val()).to.equal("Fit all");
                 done();
             })
             .fail(function() {
@@ -385,8 +386,8 @@ describe("Profile Test", function() {
         });
 
         it("Should back to single bucket", function(done) {
-            var $single = $rangeSection.find(".single");
-            $single.click();
+            var $single = $dropdown.find('li[name="single"]');
+            $single.trigger(fakeEvent.mouseup)
             expect($modal.attr("data-state")).to.equal("pending");
 
             var checkFunc = function() {
@@ -395,7 +396,7 @@ describe("Profile Test", function() {
 
             UnitTest.testFinish(checkFunc)
             .then(function() {
-                expect($single.hasClass("active")).to.be.true;
+                expect($dropdown.find("input").val()).to.equal("Single");
                 done();
             })
             .fail(function() {
