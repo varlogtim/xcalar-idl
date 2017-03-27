@@ -1480,6 +1480,26 @@ describe('xcHelper Test', function() {
         expect(res).to.equal("a_b");
     });
 
+    it("xcHelper.scrollToBottom should work", function() {
+        var html = '<div id="scrollTest" style="position:fixed; top:0px; left:0px; z-index:999999; height:100px; width: 20px; overflow:hidden; overflow-y:scroll">' +
+                        '<div id="scrollTest1" style="height:200px;"></div>' +
+                        '<div id="scrollTest2" style="height:10px;"></div>' +
+                    '</div>'
+        $('body').append(html);
+        var $outerDiv = $("#scrollTest");
+        expect($outerDiv.scrollTop()).to.equal(0);
+        expect($outerDiv.height()).to.equal(100);
+        var el = document.elementFromPoint(1, 99);
+        expect($(el).attr("id")).to.equal("scrollTest1");
+
+        xcHelper.scrollToBottom($outerDiv);
+        expect($outerDiv.scrollTop()).to.equal(110);
+        var el = document.elementFromPoint(1, 99);
+        expect($(el).attr("id")).to.equal("scrollTest2");
+
+        $("#scrollTest").remove();
+    });
+
     it('xcHelper.disableTextSelection and xcHelper.reenableTextSelection should work', function() {
         xcHelper.disableTextSelection();
         expect($("#disableSelection").length).to.equal(1);

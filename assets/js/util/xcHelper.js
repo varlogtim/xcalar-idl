@@ -1971,7 +1971,8 @@ window.xcHelper = (function($, xcHelper) {
         // scroll to bottom
         var scrollDiff = $target[0].scrollHeight - $target.height();
         if (scrollDiff > 0) {
-            $target.scrollTop(scrollDiff);
+            var horzScrollBar = 20; // at least 11 pixels for scrollbar
+            $target.scrollTop(scrollDiff + horzScrollBar);
         }
     };
 
