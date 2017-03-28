@@ -556,7 +556,11 @@ StatusT = {
   'StatusMaxFieldSizeExceeded' : 547,
   'StatusQrQueryAlreadyExists' : 548,
   'StatusUdfModuleInUse' : 549,
-  'StatusTargetInUse' : 550
+  'StatusTargetInUse' : 550,
+  'StatusOperationOutstanding' : 551,
+  'StatusDhtAlreadyExists' : 552,
+  'StatusDhtInUse' : 553,
+  'StatusTooManyResultSets' : 554
 };
 StatusTStr = {0 : 'Success',
 1 : 'Operation not permitted',
@@ -1108,5 +1112,9 @@ StatusTStr = {0 : 'Success',
 547 : 'Maximum field size was exceeded',
 548 : 'The query name already exists',
 549 : 'UDF module currently in use',
-550 : 'Target currently in use'
+550 : 'Target currently in use',
+551 : 'Cannot switch session, operations outstanding',
+552 : 'The DHT already exists',
+553 : 'The DHT is currently in use',
+554 : 'Number of result sets exceeded table meta limit'
 };

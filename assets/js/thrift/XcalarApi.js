@@ -1867,7 +1867,6 @@ xcalarApiMapWithWorkItem = runEntity.xcalarApiMapWithWorkItem = function(thriftH
                     ", icvMode = " + icvMode + ")");
     }
 
-
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result){
         var mapOutput = result.output.outputResult.mapOutput;

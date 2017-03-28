@@ -3422,46 +3422,65 @@ PromiseHelper = (function(PromiseHelper, $) {
         });
     }
 
-    function testUdf(test)
-    {
+    function testUdf(test) {
         var source1 = "def foo():\n return 'foo'\n";
-        var source2 = "def bar():\n return 'bar'\n";
+        var source2 = "def bar(c):\n return 'bar'\n";
 
-        xcalarApiUdfDelete(thriftHandle, "mgmttest*")
-        .always(function () {
-            xcalarApiUdfAdd(thriftHandle, UdfTypeT.UdfTypePython,
-                            "mgmttestfoo", source1)
-            .then(function () {
-                return xcalarApiUdfGet(thriftHandle, "mgmttestfoo");
-            })
-            .then(function (output) {
-                if (output.source != source1) {
-                    printResult(output);
-                    test.fail("Expected source '" + source1 + "' got '" + output.source + "'.");
-                } else {
-                    return xcalarApiUdfUpdate(thriftHandle,
-                                              UdfTypeT.UdfTypePython,
-                                              "mgmttestfoo", source2);
-                }
-            })
-            .then(function () {
-                return xcalarApiUdfGet(thriftHandle, "mgmttestfoo");
-            })
-            .then(function (output) {
-                if (output.source != source2) {
-                    printResult(output);
-                    test.fail("Expected source '" + source2 + "' got '" +
-                            output.source + "'.");
-                } else {
-                    return xcalarApiUdfDelete(thriftHandle, "mgmttestfoo");
-                }
-            })
-            .then(function () {
-                test.pass();
-            })
-            .fail(function(reason) {
-                test.fail(StatusTStr[reason]);
-            });
+        function udfCleanup() {
+            var deferred = jQuery.Deferred();
+            xcalarApiUdfDelete(thriftHandle, "mgmttest*")
+            .always(deferred.resolve);
+            return deferred.promise();
+        }
+
+        udfCleanup()
+        .then(function () {
+            return xcalarApiUdfAdd(thriftHandle, UdfTypeT.UdfTypePython,
+                            "mgmttestfoo", source1);
+        })
+        .then(function () {
+            return xcalarApiUdfGet(thriftHandle, "mgmttestfoo");
+        })
+        .then(function(output) {
+            if (output.source != source1) {
+                printResult(output);
+                test.fail("Expected source '" + source1 + "' got '" +
+                          output.source + "'.");
+            } else {
+                return xcalarApiListXdfs(thriftHandle, "mgmttestfoo:foo", "*");
+            }
+        })
+        .then(function(output) {
+            test.assert(output.numXdfs === 1);
+            test.assert(output.fnDescs[0].numArgs === 0);
+            return xcalarApiUdfUpdate(thriftHandle,
+                                      UdfTypeT.UdfTypePython,
+                                      "mgmttestfoo", source2);
+        })
+        .then(function () {
+            return xcalarApiUdfGet(thriftHandle, "mgmttestfoo");
+        })
+        .then(function (output) {
+            if (output.source != source2) {
+                printResult(output);
+                test.fail("Expected source '" + source2 + "' got '" +
+                        output.source + "'.");
+            } else {
+                return xcalarApiListXdfs(thriftHandle, "mgmttestfoo:*", "*");
+            }
+        })
+        .then(function(output) {
+            test.assert(output.numXdfs === 1);
+            test.assert(output.fnDescs[0].numArgs === 1);
+            test.assert(output.fnDescs[0].fnName === "mgmttestfoo:bar");
+            test.assert(output.fnDescs[0].argDescs[0].argDesc === "c");
+            return xcalarApiUdfDelete(thriftHandle, "mgmttestfoo");
+        })
+        .then(function () {
+            test.pass();
+        })
+        .fail(function(reason) {
+            test.fail(StatusTStr[reason]);
         });
     }
 
