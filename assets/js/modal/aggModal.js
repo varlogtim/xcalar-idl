@@ -118,7 +118,7 @@ window.AggModal = (function($, AggModal) {
 
         cachedTableId = tableId;
         cachedHorColNums = horColNums;
-        showAggModal(tableName, "aggTab");
+        showAggModal(tableName, "aggTab", cachedHorColNums);
 
         aggColsInitialize(tableId);
         aggTableInitialize();
@@ -169,7 +169,7 @@ window.AggModal = (function($, AggModal) {
         cachedTableId = tableId;
         cachedVertColNums = vertColNums;
         cachedHorColNums = horColNums;
-        showAggModal(tableName, "corrTab");
+        showAggModal(tableName, "corrTab", cachedHorColNums);
 
         aggColsInitialize(tableId);
         corrTableInitialize();
@@ -206,19 +206,43 @@ window.AggModal = (function($, AggModal) {
         return (deferred.promise());
     };
 
-    function showAggModal(tableName, mode) {
+    function showAggModal(tableName, mode, hasSelectedCols) {
         if (mode === "aggTab") {
             // when it's quick aggregation
             $("#aggTab").addClass("active")
                     .siblings().removeClass("active");
             $quickAgg.show();
             $corr.hide();
+            var which;
+            var which2;
+            if (hasSelectedCols) {
+                which = AggTStr.selected;
+                which2 = AggTStr.somePairs;
+            } else {
+                which = AggTStr.all;
+                which2 = AggTStr.everyPair;
+            }
+            var instr = xcHelper.replaceMsg(AggTStr.AggTopInstr,
+                                        {which: which, which2: which2});
+            $aggModal.find(".modalInstruction .text").text(instr);
         } else if (mode === "corrTab") {
             // when it's correlation
             $("#corrTab").addClass("active")
                     .siblings().removeClass("active");
             $quickAgg.hide();
             $corr.show();
+            var which;
+            var which2;
+            if (hasSelectedCols) {
+                which = AggTStr.somePairs;
+                which2 = AggTStr.selected;
+            } else {
+                which = AggTStr.everyPair;
+                which2 = AggTStr.all;
+            }
+            var instr = xcHelper.replaceMsg(AggTStr.CorrInstr,
+                                            {which: which, which2: which2});
+            $aggModal.find(".modalInstruction .text").text(instr);
         } else {
             // error case
             throw "Invalid mode in quick agg!";

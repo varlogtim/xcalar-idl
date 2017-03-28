@@ -196,6 +196,9 @@ describe("Agg Modal Test", function() {
                 expect($quickAgg.find(".aggContainer .aggCol").length)
                 .to.equal(aggColLen);
                 assert.isTrue($quickAgg.is(":visible"));
+                expect($aggModal.find(".modalInstruction .text").text()).to
+                    .equal("Viewing aggregate functions on all numerical columns." +
+                        " To view correlation coefficients for every pair of numerical columns, please click on the vertical tab.");
                 done();
             })
             .fail(function(error) {
@@ -210,6 +213,9 @@ describe("Agg Modal Test", function() {
                 expect($corr.find(".aggContainer .aggCol").length)
                 .to.equal(aggColLen);
                 assert.isTrue($corr.is(":visible"));
+                expect($aggModal.find(".modalInstruction .text").text()).to
+                    .equal("Viewing correlation coefficients for every pair of numerical columns. " +
+                        "To view common aggregate functions on all numerical columns, please click on the vertical tab.");
                 done();
             })
             .fail(function(error) {

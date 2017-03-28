@@ -427,7 +427,20 @@ OpFormTStr = {
     'NewColName': 'New column name for the group by resultant column'
 };
 
+
 AggTStr = {
+    'selected': 'the selected',
+    'everyPair': 'every pair of',
+    'somePairs': 'pairs of selected',
+    'all': 'all',
+    'CorrInstr': 'Viewing correlation coefficients for <which> ' +
+                 'numerical columns. To view common aggregate functions ' +
+                 'on <which2> numerical columns, please click on the vertical '+
+                 'tab.',
+    'AggTopInstr' : 'Viewing aggregate functions on <which> numerical ' +
+                 'columns. To view correlation coefficients for <which2> ' +
+                 'numerical columns, please click on the vertical '+
+                 'tab.',
     'NoSupport': 'Not Supported',
     'DivByZeroExplain': 'Only one distinct value',
     'NoCorr': 'No columns of type number for correlation',
