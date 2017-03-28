@@ -603,6 +603,7 @@ Corrector.prototype = {
  */
 
 function SearchBar($searchArea, options) {
+    options = options || {};
     this.$searchArea = $searchArea;
     this.$counter = $searchArea.find('.counter');
     this.$position = this.$counter.find('.position');

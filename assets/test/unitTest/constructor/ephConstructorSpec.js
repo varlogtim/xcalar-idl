@@ -338,6 +338,172 @@ describe("Ephemeral Constructor Test", function() {
         });
     });
 
+    describe("Searchbar test", function() {
+        var searchHelper;
+        var $searchArea;
+        var $input;
+
+        before(function() {
+            var html = '<div id="unitTestSearchWrap" class="slidingSearchWrap">' +
+                        '<div id="unitTestSearch" class="searchbarArea closed">' +
+                          '<i class="icon searchIcon xi-search"></i>' +
+                          '<input type="text" spellcheck="false">' +
+                          '<div class="closeBox iconWrap">' +
+                            '<i class="icon xi-cancel"></i>' +
+                          '</div>' +
+                          '<div class="counter">' +
+                            '<span class="position"></span>' +
+                            '<span class="total"></span>' +
+                          '</div>' +
+                          '<div class="arrows">' +
+                            '<div class="upArrow iconWrap">' +
+                              '<i class="icon xi-up"></i>' +
+                            '</div>' +
+                            '<div class="downArrow iconWrap">' +
+                              '<i class="icon xi-down"></i>' +
+                            '</div>' +
+                          '</div>' +
+                        '</div>' +
+                        '<ul id="unitTestUl">' +
+                            '<li>test</li>' +
+                            '<li>text</li>' +
+                            '<li>word</li>' +
+                        '</ul>' +
+                        '</div>';
+            $("body").append(html);
+            $searchArea = $("#unitTestSearch");
+            $input = $searchArea.find("input");
+            searchHelper = new SearchBar($searchArea, {
+                "removeSelected": function() {
+                    $("#unitTestUl").find('.selected').removeClass('selected');
+                },
+                removeHighlight: true,
+                $list: $("#unitTestUl")
+            });
+        });
+
+        it("searchHelper update results should work", function() {
+            var val = "te";
+            $input.val(val);
+            expect(true).to.be.true;
+            var regex = new RegExp(val, "gi");
+            $("#unitTestUl").find("li").each(function() {
+                var text = $(this).text();
+                if (text.indexOf(val) > -1) {
+                    text = text.replace(regex, function(match) {
+                       return ('<span class="highlightedText">' + match +
+                        '</span>');
+                    });
+                    $(this).html(text);
+                }
+            });
+            var $matches = $("#unitTestUl").find(".highlightedText");
+            searchHelper.updateResults($matches);
+            expect($matches.eq(0).hasClass("selected")).to.be.true;
+            expect($matches.eq(1).hasClass("selected")).to.be.false;
+        });
+
+        it("keyboard events should work", function() {
+            var $matches = $("#unitTestUl").find(".highlightedText");
+            expect($searchArea.find(".counter").text()).to.equal("1of 2");
+
+            // down
+            var e = {
+                type: "keydown",
+                which: keyCode.Down
+            };
+
+            $input.trigger(e);
+            expect($matches.eq(0).hasClass("selected")).to.be.false;
+            expect($matches.eq(1).hasClass("selected")).to.be.true;
+            expect($searchArea.find(".counter").text()).to.equal("2of 2");
+
+            $input.trigger(e);
+            expect($matches.eq(0).hasClass("selected")).to.be.true;
+            expect($matches.eq(1).hasClass("selected")).to.be.false;
+            expect($searchArea.find(".counter").text()).to.equal("1of 2");
+
+            // enter(down)
+            e = {
+                type: "keydown",
+                which: keyCode.Down
+            };
+
+            $input.trigger(e);
+            expect($matches.eq(0).hasClass("selected")).to.be.false;
+            expect($matches.eq(1).hasClass("selected")).to.be.true;
+            expect($searchArea.find(".counter").text()).to.equal("2of 2");
+
+            $input.trigger(e);
+            expect($matches.eq(0).hasClass("selected")).to.be.true;
+            expect($matches.eq(1).hasClass("selected")).to.be.false;
+            expect($searchArea.find(".counter").text()).to.equal("1of 2");
+
+            // up
+            e = {
+                type: "keydown",
+                which: keyCode.Up
+            };
+
+            $input.trigger(e);
+            expect($matches.eq(0).hasClass("selected")).to.be.false;
+            expect($matches.eq(1).hasClass("selected")).to.be.true;
+            expect($searchArea.find(".counter").text()).to.equal("2of 2");
+
+            $input.trigger(e);
+            expect($matches.eq(0).hasClass("selected")).to.be.true;
+            expect($matches.eq(1).hasClass("selected")).to.be.false;
+            expect($searchArea.find(".counter").text()).to.equal("1of 2");
+        });
+
+        it("arrow keys should work", function() {
+            var $matches = $("#unitTestUl").find(".highlightedText");
+            $searchArea.find(".upArrow").click();
+            expect($matches.eq(0).hasClass("selected")).to.be.false;
+            expect($matches.eq(1).hasClass("selected")).to.be.true;
+            expect($searchArea.find(".counter").text()).to.equal("2of 2");
+
+            $searchArea.find(".upArrow").click();
+            expect($matches.eq(0).hasClass("selected")).to.be.true;
+            expect($matches.eq(1).hasClass("selected")).to.be.false;
+            expect($searchArea.find(".counter").text()).to.equal("1of 2");
+
+            $searchArea.find(".downArrow").click();
+            expect($matches.eq(0).hasClass("selected")).to.be.false;
+            expect($matches.eq(1).hasClass("selected")).to.be.true;
+            expect($searchArea.find(".counter").text()).to.equal("2of 2");
+
+            $searchArea.find(".downArrow").click();
+            expect($matches.eq(0).hasClass("selected")).to.be.true;
+            expect($matches.eq(1).hasClass("selected")).to.be.false;
+            expect($searchArea.find(".counter").text()).to.equal("1of 2");
+        });
+
+        it("clear search should work", function() {
+            var $matches = $("#unitTestUl").find(".highlightedText");
+            expect($searchArea.find(".counter").text()).to.equal("1of 2");
+            expect($matches.length).to.equal(2);
+
+            searchHelper.clearSearch();
+
+            $matches = $("#unitTestUl").find(".highlightedText");
+            expect($searchArea.find(".counter").text()).to.equal("");
+            expect($matches.length).to.equal(0);
+        });
+
+        it("slider should work", function() {
+            $searchArea.find(".searchIcon").click();
+            expect($searchArea.hasClass("closed")).to.be.false;
+
+            $searchArea.find(".searchIcon").click();
+            expect($searchArea.hasClass("closed")).to.be.true;
+        });
+
+        after(function() {
+            $("#unitTestSearchWrap").remove();
+        });
+    });
+
     describe("ModalHelper Constructor Test", function() {
         var $fakeModal;
         var modalHelper;
