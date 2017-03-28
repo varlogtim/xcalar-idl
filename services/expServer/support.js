@@ -592,6 +592,20 @@ function hasLogFile(filePath) {
     return deferred.promise();
 }
 
+function unitTest() {
+    exports.generateLogs = generateLogs;
+    exports.isUnderBasePath = isUnderBasePath;
+    exports.isComplete = isComplete;
+    exports.readHostsFromFile = readHostsFromFile;
+    exports.xcalarStart = xcalarStart;
+    exports.xcalarStop = xcalarStop;
+    exports.xcalarStatus = xcalarStatus;
+    executeCommand = function (command, res) {
+        console.log("send Fake execution!")
+        res.send("Fake execution!")
+    }
+}
+
 exports.getXlrRoot = getXlrRoot;
 exports.getLicense = getLicense;
 exports.submitTicket = submitTicket;
@@ -601,3 +615,4 @@ exports.masterExecuteAction = masterExecuteAction;
 exports.readHostsFromFile = readHostsFromFile;
 exports.removeSHM = removeSHM;
 exports.hasLogFile = hasLogFile;
+exports.unitTest = unitTest;

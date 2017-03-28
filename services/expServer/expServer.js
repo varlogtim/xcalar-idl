@@ -2,6 +2,13 @@
 // calls that aren't used
 
 // Start of generic setup stuff
+require("jsdom").env("", function(err, window) {
+    if (err) {
+        console.error(err);
+        return;
+    }
+    jQuery = require("jquery")(window);
+
 var express = require('express');
 var bodyParser = require('body-parser');
 var fs = require('fs');
@@ -10,21 +17,18 @@ var https = require("https");
 require('shelljs/global');
 var ldap = require('ldapjs');
 var exec = require('child_process').exec;
-var AWS = require('aws-sdk');
-var guiDir = "/var/www/xcalar-gui";
-if (fs.existsSync(guiDir + "/services/expServer/awsWriteConfig.json")) {
-    AWS.config.loadFromPath(guiDir + "/services/expServer/awsWriteConfig.json");
-} else {
-    AWS.config.loadFromPath(guiDir + "/services/expServer/awsReadConfig.json");
-}
-var s3 = new AWS.S3();
-require("jsdom").env("", function(err, window) {
-    if (err) {
-        console.error(err);
-        return;
+try {
+    var AWS = require('aws-sdk');
+    var guiDir = "/var/www/xcalar-gui";
+    if (fs.existsSync("./awsWriteConfig.json")) {
+        AWS.config.loadFromPath(guiDir + "/services/expServer/awsWriteConfig.json");
+    } else {
+        AWS.config.loadFromPath(guiDir + "/services/expServer/awsReadConfig.json");
     }
-    jQuery = require("jquery")(window);
-});
+    var s3 = new AWS.S3();
+} catch (error) {
+    console.log("Fail to set up AWS!")
+}
 
 var socket = require('./socket');
 var tail = require('./tail');
@@ -1127,7 +1131,6 @@ app.post("/listPackage", function(req, res){
         });
         return deferredOnFetch.promise();
     };
-
     fetchAllApps()
     .then(function(data) {
         return res.send(data);
@@ -1150,30 +1153,30 @@ app.post("/uploadMeta", function(req, res) {
 });
 
 app.post('/getTimezoneOffset', function(req, res) {
-        var timezoneOffset = new Date().getTimezoneOffset();
-        console.log("Server timezone offset: " +  timezoneOffset);
-        res.send(timezoneOffset);
+    var timezoneOffset = new Date().getTimezoneOffset();
+    console.log("Server timezone offset: " +  timezoneOffset);
+    res.send(timezoneOffset);
 });
 
 function getTimeString(next) {
-     var month = next._date.month() + 1;
-     var date = next._date.date();
-     var year = next._date.year();
-     var hour = next._date.hour() > 12 ?
-        next._date.hour() - 12: next._date.hour();
-     if (hour == 0) {
-        hour = 12;
-     }
-     var minute =  next._date.minute();
-     if (hour < 10) {
-         hour = '0' + hour;
+    var month = next._date.month() + 1;
+    var date = next._date.date();
+    var year = next._date.year();
+    var hour = next._date.hour() > 12 ?
+       next._date.hour() - 12: next._date.hour();
+    if (hour === 0) {
+       hour = 12;
+    }
+    var minute =  next._date.minute();
+    if (hour < 10) {
+        hour = '0' + hour;
     }
     if (minute < 10) {
-          minute = '0' + minute;
+        minute = '0' + minute;
     }
-     var suffix = next._date.hour() >= 12 ? 'PM' : 'AM';
-     return month + '/' + date + '/' + year + ' ' + hour + ':' +
-            minute + ' ' + suffix;
+    var suffix = next._date.hour() >= 12 ? 'PM' : 'AM';
+    return month + '/' + date + '/' + year + ' ' + hour + ':' +
+           minute + ' ' + suffix;
 }
 
 var httpServer = http.createServer(app);
@@ -1186,6 +1189,76 @@ try {
 
 socket(httpServer);
 
+function unitTest() {
+    exports.genExecString = genExecString;
+    exports.genLdapExecString = genLdapExecString;
+    exports.getTimeString = getTimeString;
+    responseReplace();
+    function responseReplace() {
+        support.removeSessionFiles = fakeResponseRSF;
+        support.removeSHM = fakeResponseSHM;
+        support.getLicense = fakeResponseLicense;
+        support.submitTicket = fakeResponseSubmitTicket;
+        support.masterExecuteAction = fakeResponseMasterExecuteAction;
+        support.slaveExecuteAction = fakeResponseSlaveExecuteAction;
+        login.loginAuthentication = fakeResponseUploadContent;
+        upload.uploadContent = fakeResponseUploadContent;
+        upload.uploadMeta = fakeResponseUploadMeta;
+    }
+    function fakeResponseRSF(arg, res) {
+        res.send("Fake response remove Session Files!");
+    }
+    function fakeResponseSHM(res) {
+        res.send("Fake response remove SHM Files!");
+    }
+    function fakeResponseLicense(res) {
+        res.send("Fake response get License");
+    }
+    function fakeResponseSubmitTicket(arg, res) {
+        res.send("Fake response submit Ticket!");
+    }
+    function fakeResponseMasterExecuteAction(action, res) {
+        res.send("Fake response! " + action);
+    }
+    function fakeResponseSlaveExecuteAction(action, res) {
+        res.send("Fake response! " + action);
+    }
+    function fakeResponseLogin(arg, res) {
+        res.send("Fake response login!");
+    }
+    function fakeResponseUploadContent(arg, res) {
+        res.send("Fake response uploadContent!");
+    }
+    function fakeResponseUploadMeta(arg, res) {
+        res.send("Fake response uploadMeta!");
+    }
+
+    app.post('/fakeRequest/xcalarStart', function(req, res) {
+        support.xcalarStart(res);
+    });
+    app.post('/fakeRequest/xcalarStop', function(req, res) {
+        support.xcalarStop(res);
+    });
+    app.post('/fakeRequest/xcalarStatus', function(req, res) {
+        support.xcalarStatus(res);
+    });
+}
+
+function hasLog(isTrue) {
+    support.hasLogFile = returnPromise;
+    function returnPromise(arg) {
+        var deferred = jQuery.Deferred();
+        if (isTrue) {
+            return deferred.resolve().promise();
+        } else {
+            return deferred.reject().promise();
+        }
+    }
+}
+
+exports.unitTest = unitTest;
+exports.hasLog = hasLog;
+
 var port = 12124;
 httpServer.listen(port, function() {
     var hostname = process.env.DEPLOY_HOST;
@@ -1193,4 +1266,5 @@ httpServer.listen(port, function() {
         hostname = "localhost";
     }
     console.log("All ready");
+});
 });
