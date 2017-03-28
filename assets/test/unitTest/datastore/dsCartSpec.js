@@ -261,6 +261,93 @@ describe("DSCart Test", function() {
         });
     });
 
+    describe("Too Many Col Alert Test", function() {
+        var tooManyColAlertHelper;
+        var oldFunc;
+
+        before(function() {
+            tooManyColAlertHelper = DSCart.__testOnly__.tooManyColAlertHelper;
+            oldFunc = xcHelper.tableNameInputChecker;
+            xcHelper.tableNameInputChecker = function() { return true; };
+        });
+
+        it("Should fail in error case", function(done) {
+            tooManyColAlertHelper(null)
+            .then(function() {
+                done("fail");
+            })
+            .fail(function(error) {
+                expect(error).to.equal("Wrong args");
+                done();
+            });
+        });
+
+        it("Should resolve with valid cart", function(done) {
+            var cart = new Cart({
+                "dsId": "test",
+                "tableName": "testTable"
+            });
+            cart.setPrefix("testPrefix");
+            tooManyColAlertHelper(cart)
+            .then(function() {
+                expect(true).to.be.true;
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        it("Should alert with too many columns and cancel", function(done) {
+            var cart = new Cart({
+                "dsId": "test",
+                "tableName": "testTable"
+            });
+            cart.setPrefix("testPrefix");
+            cart.items = new Array(300);
+
+            var prmoise = tooManyColAlertHelper(cart);
+            UnitTest.hasAlertWithTitle(DSFormTStr.CreateWarn);
+
+            prmoise
+            .then(function() {
+                done("fail");
+            })
+            .fail(function(error) {
+                expect(error).to.be.undefined;
+                assert.isFalse($("#alertModal").is(":visible"));
+                done();
+            });
+        });
+
+        it("Should alert with too many columns and confirm", function(done) {
+            var cart = new Cart({
+                "dsId": "test",
+                "tableName": "testTable"
+            });
+            cart.setPrefix("testPrefix");
+            cart.items = new Array(300);
+
+            var prmoise = tooManyColAlertHelper(cart);
+            UnitTest.hasAlertWithTitle(DSFormTStr.CreateWarn, {
+                "confirm": true
+            });
+
+            prmoise
+            .then(function() {
+                assert.isFalse($("#alertModal").is(":visible"));
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        after(function() {
+            xcHelper.tableNameInputChecker = oldFunc;
+        });
+    });
+
     describe("UI Behavior Test", function() {
         var dsName;
         var dsId;

@@ -35,40 +35,13 @@ window.DSCart = (function($, DSCart) {
 
             var cart = filterCarts(dsId);
             var worksheet = $cartList.data("ws");
-            tooManyColAlertHelper()
+            tooManyColAlertHelper(cart)
             .then(function() {
                 DSCart.createTable(cart, worksheet);
             })
             .fail(function() {
                 // do nothing
             });
-
-            function tooManyColAlertHelper() {
-                if (cart == null || !checkCartArgs(cart)) {
-                    return PromiseHelper.reject("Wrong args");
-                }
-                if (cart.items.length < gMaxColToPull) {
-                    return PromiseHelper.resolve();
-                }
-
-                var deferred = jQuery.Deferred();
-
-                xcHelper.disableSubmit($("#dataCart-submit"));
-                Alert.show({
-                    "title": DSFormTStr.CreateWarn,
-                    "msg": DSFormTStr.CreateWarnMsg,
-                    "onConfirm": function() {
-                        xcHelper.enableSubmit($("#dataCart-submit"));
-                        deferred.resolve();
-                    },
-                    "onCancel": function() {
-                        xcHelper.enableSubmit($("#dataCart-submit"));
-                        deferred.reject();
-                    }
-                });
-
-                return deferred.promise();
-            }
         });
 
         // clear cart
@@ -955,11 +928,39 @@ window.DSCart = (function($, DSCart) {
         return true;
     }
 
+    function tooManyColAlertHelper(cart) {
+        if (cart == null || !checkCartArgs(cart)) {
+            return PromiseHelper.reject("Wrong args");
+        }
+        if (cart.items.length < gMaxColToPull) {
+            return PromiseHelper.resolve();
+        }
+
+        var deferred = jQuery.Deferred();
+        var $btn = $("#dataCart-submit");
+        xcHelper.disableSubmit($btn);
+        Alert.show({
+            "title": DSFormTStr.CreateWarn,
+            "msg": DSFormTStr.CreateWarnMsg,
+            "onConfirm": function() {
+                xcHelper.enableSubmit($btn);
+                deferred.resolve();
+            },
+            "onCancel": function() {
+                xcHelper.enableSubmit($btn);
+                deferred.reject();
+            }
+        });
+
+        return deferred.promise();
+    }
+
     /* Unit Test Only */
     if (window.unitTestMode) {
         DSCart.__testOnly__ = {};
         DSCart.__testOnly__.filterCarts = filterCarts;
         DSCart.__testOnly__.checkCartArgs = checkCartArgs;
+        DSCart.__testOnly__.tooManyColAlertHelper = tooManyColAlertHelper;
     }
     /* End Of Unit Test Only */
 

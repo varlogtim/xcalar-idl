@@ -1311,7 +1311,7 @@ window.DS = (function ($, DS) {
 
     function refreshHelper() {
         xcHelper.showRefreshIcon($gridView);
-        restoreDS(DS.getHomeDir())
+        DS.restore(DS.getHomeDir())
         .then(function() {
             cleanFocusedDSIfNecessary();
             KVStore.commit();

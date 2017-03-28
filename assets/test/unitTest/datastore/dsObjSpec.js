@@ -381,6 +381,218 @@ describe("DSObj Test", function() {
         });
     });
 
+    describe("Grid Menu Test", function() {
+        var $wrap;
+        var $gridMenu;
+        var $ds;
+        var $folder;
+
+        before(function() {
+            $wrap = $("#dsListSection .gridViewWrapper");
+            $gridMenu = $("#gridViewMenu");
+            $ds = DS.getGrid(testDS.getId());
+            $folder = DS.getGrid(testFolder.getId());
+        });
+
+        afterEach(function() {
+            $gridMenu.hide();
+        });
+
+        it("Should open menu on background", function() {
+            var e = jQuery.Event("contextmenu", {
+                "target": $("#dsListSection").get(0)
+            });
+            $wrap.trigger(e);
+            assert.isTrue($gridMenu.is(":visible"));
+            expect($gridMenu.hasClass("bgOpts")).to.be.true;
+        });
+
+        it("Should open menu on folder", function() {
+            var e = jQuery.Event("contextmenu", {
+                "target": $folder.get(0)
+            });
+            $wrap.trigger(e);
+            assert.isTrue($gridMenu.is(":visible"));
+            expect($gridMenu.hasClass("bgOpts")).to.be.false;
+            expect($gridMenu.hasClass("folderOpts")).to.be.true;
+        });
+
+        it("Should open menu on ds", function() {
+            var e = jQuery.Event("contextmenu", {
+                "target": $ds.get(0)
+            });
+            $wrap.trigger(e);
+            assert.isTrue($gridMenu.is(":visible"));
+            expect($gridMenu.hasClass("bgOpts")).to.be.false;
+            expect($gridMenu.hasClass("dsOpts")).to.be.true;
+        });
+
+        it("Should open menu with the right class", function() {
+            $ds.addClass("unlistable").addClass("noAction");
+            var e = jQuery.Event("contextmenu", {
+                "target": $ds.get(0)
+            });
+            $wrap.trigger(e);
+            assert.isTrue($gridMenu.is(":visible"));
+            expect($gridMenu.hasClass("unlistable")).to.be.true;
+            expect($gridMenu.hasClass("noAction")).to.be.true;
+            $ds.removeClass("unlistable").removeClass("noAction");
+        });
+
+        it("Should click .newFolder to create new folder", function() {
+            var oldFunc = DS.newFolder;
+            var test = false;
+            DS.newFolder = function() {
+                test = true;
+            };
+
+            var $li = $gridMenu.find(".newFolder");
+            // simple mouse up not work
+            $li.mouseup();
+            expect(test).to.be.false;
+            $li.trigger(fakeEvent.mouseup);
+            expect(test).to.be.true;
+
+            DS.newFolder = oldFunc;
+        });
+
+        it("Should click .back to up folder", function() {
+            var oldFunc = DS.upDir;
+            var test = false;
+            DS.upDir = function() {
+                test = true;
+            };
+
+            var $li = $gridMenu.find(".back");
+            var isDisabled = $li.hasClass("disabled");
+            $li.removeClass("disabled");
+            // simple mouse up not work
+            $li.mouseup();
+            expect(test).to.be.false;
+            $li.trigger(fakeEvent.mouseup);
+            expect(test).to.be.true;
+
+            DS.upDir = oldFunc;
+
+            if (isDisabled) {
+                $li.addClass("disabled");
+            }
+        });
+
+        it("Should click .refresh to refresh ds/folder", function() {
+            var oldFunc = DS.restore;
+            var test = false;
+            DS.restore = function() {
+                test = true;
+                // reject to not trigger KVStore.commit
+                return PromiseHelper.reject();
+            };
+
+            var $li = $gridMenu.find(".refresh");
+            // simple mouse up not work
+            $li.mouseup();
+            expect(test).to.be.false;
+            $li.trigger(fakeEvent.mouseup);
+            expect(test).to.be.true;
+
+            DS.restore = oldFunc;
+        });
+
+        it("Should click .open to open folder/ds", function() {
+            var oldFunc =DS.goToDir;
+            var test = false;
+            DS.goToDir = function() {
+                test = true;
+            };
+
+            var $li = $gridMenu.find(".open");
+            // simple mouse up not work
+            $li.mouseup();
+            expect(test).to.be.false;
+            $li.trigger(fakeEvent.mouseup);
+            expect(test).to.be.true;
+
+            DS.goToDir = oldFunc;
+        });
+
+        it("Should click .moveUp to drop grid to parent", function() {
+            var oldFunc = DS.dropToParent;
+            var test = false;
+            DS.dropToParent = function() {
+                test = true;
+            };
+
+            var $li = $gridMenu.find(".moveUp");
+            // simple mouse up not work
+            $li.mouseup();
+            expect(test).to.be.false;
+            $li.trigger(fakeEvent.mouseup);
+            expect(test).to.be.true;
+
+            DS.dropToParent = oldFunc;
+        });
+
+        it("Should click .rename to rename foler", function() {
+            var e = jQuery.Event("contextmenu", {
+                "target": $folder.get(0)
+            });
+            $wrap.trigger(e);
+            assert.isTrue($gridMenu.is(":visible"));
+            expect($gridMenu.hasClass("folderOpts")).to.be.true;
+
+            var $li = $gridMenu.find(".rename");
+            // simple mouse up not work
+            $li.mouseup();
+            expect($folder.find("textarea").length).to.equal(0);
+            $li.trigger(fakeEvent.mouseup);
+            expect($folder.find("textarea").length).to.equal(1);
+
+            $folder.find("textarea").blur();
+            expect($folder.find("textarea").length).to.equal(0);
+        });
+
+        it("Should click .preview to preview ds", function() {
+            var oldFunc = DS.dropToParent;
+            var test = false;
+            DS.focusOn = function() {
+                test = true;
+            };
+
+            var e = jQuery.Event("contextmenu", {
+                "target": $ds.get(0)
+            });
+            $wrap.trigger(e);
+            assert.isTrue($gridMenu.is(":visible"));
+            expect($gridMenu.hasClass("dsOpts")).to.be.true;
+
+            var $li = $gridMenu.find(".preview");
+            // simple mouse up not work
+            $li.mouseup();
+            expect(test).to.be.false;
+            $li.trigger(fakeEvent.mouseup);
+            expect(test).to.be.true;
+
+            DS.focusOn = oldFunc;
+        });
+
+        it("Should click .delete to delte folder/ds", function() {
+            var oldFunc = DS.remove;
+            var test = false;
+            DS.remove = function() {
+                test = true;
+            };
+
+            var $li = $gridMenu.find(".delete");
+            // simple mouse up not work
+            $li.mouseup();
+            expect(test).to.be.false;
+            $li.trigger(fakeEvent.mouseup);
+            expect(test).to.be.true;
+
+            DS.remove = oldFunc;
+        });
+    });
+
     describe("Drag and Drop test", function() {
         var $ds;
         var $folder;

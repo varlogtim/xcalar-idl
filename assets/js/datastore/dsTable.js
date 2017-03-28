@@ -260,8 +260,12 @@ window.DSTable = (function($, DSTable) {
         var size = dsObj.getSize();
         if (size != null) {
             return PromiseHelper.resolve(size);
+        } else {
+            return getMemoryTakenSize(dsObj);
         }
+    }
 
+    function getMemoryTakenSize(dsObj) {
         // XXX issue here is memory taken size is a little
         // different from the actual size
         // (other user's ds do not get size)
@@ -282,15 +286,14 @@ window.DSTable = (function($, DSTable) {
 
     function dataStoreTableScroll($tableWrapper) {
         var numRowsToFetch = 20;
-
         if (currentRow + initialNumRowsToFetch >= totalRows) {
-            return;
+            return PromiseHelper.resolve();
         }
 
         if ($("#dsTable").hasClass("fetching")) {
             // when still fetch the data, no new trigger
             console.info("Still fetching previous data!");
-            return;
+            return PromiseHelper.reject("Still fetching previous data!");
         }
 
         if ($tableWrapper[0].scrollHeight - $tableWrapper.scrollTop() -
@@ -303,9 +306,12 @@ window.DSTable = (function($, DSTable) {
 
             $("#dsTable").addClass("fetching");
             var dsId = $("#dsTable").data("dsid");
+            var deferred = jQuery.Deferred();
 
             scrollSampleAndParse(dsId, currentRow, numRowsToFetch)
+            .then(deferred.resolve)
             .fail(function(error) {
+                deferred.reject(error);
                 console.error("Scroll data sample table fails", error);
             })
             .always(function() {
@@ -313,6 +319,10 @@ window.DSTable = (function($, DSTable) {
                 // so this is the only place the needs to remove class
                 $("#dsTable").removeClass("fetching");
             });
+
+            return deferred.resolve();
+        } else {
+            return PromiseHelper.reject("no need to scroll");
         }
     }
 
@@ -786,6 +796,8 @@ window.DSTable = (function($, DSTable) {
     if (window.unitTestMode) {
         DSTable.__testOnly__ = {};
         DSTable.__testOnly__.scrollSampleAndParse = scrollSampleAndParse;
+        DSTable.__testOnly__.getMemoryTakenSize = getMemoryTakenSize;
+        DSTable.__testOnly__.dataStoreTableScroll = dataStoreTableScroll;
     }
     /* End Of Unit Test Only */
 

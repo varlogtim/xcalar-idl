@@ -2,10 +2,12 @@ describe("Dataset Form Test", function() {
     var $mainTabCache;
     var $statusBox;
     var $filePath;
+    var $pathCard;
 
     before(function(){
         $statusBox = $("#statusBox");
         $filePath = $("#filePath");
+        $pathCard = $("#dsForm-path");
 
         $mainTabCache = $(".topMenuBarTab.active");
         $("#dataStoresTab").click();
@@ -13,7 +15,7 @@ describe("Dataset Form Test", function() {
         UnitTest.onMinMode();
     });
 
-    describe("Show Form Test", function() {
+    describe("Baisc APi Test", function() {
         it("Should not see form", function() {
             DSForm.hide();
             assert.isFalse($("#dsFormView").is(":visible"));
@@ -29,17 +31,41 @@ describe("Dataset Form Test", function() {
             $("#importDataButton").click();
             assert.isTrue($("#dsFormView").is(":visible"));
         });
-    });
 
-    describe("Reset Form Test", function() {
-        it("Should Reset Form When call resetForm()", function() {
+        it("Should reset form when call resetForm()", function() {
             $filePath.val("test");
             DSForm.__testOnly__.resetForm();
             expect($filePath.val()).to.be.empty;
         });
-    });
 
-    describe("Reset Form Test2", function() {
+        it("Should switch view", function() {
+            // error case
+            DSForm.switchView(null);
+            assert.isTrue($pathCard.is(":visible"));
+
+            var tests = [{
+                "view": DSForm.View.Uploader,
+                "$ele": $("#dsUploader")
+            }, {
+                "view": DSForm.View.Browser,
+                "$ele": $("#fileBrowser")
+            }, {
+                "view": DSForm.View.Preview,
+                "$ele": $("#dsForm-preview")
+            }, {
+                "view": DSForm.View.Parser,
+                "$ele": $("#dsParser")
+            }, {
+                "view": DSForm.View.Path,
+                "$ele": $pathCard
+            }];
+
+            tests.forEach(function(test) {
+                DSForm.switchView(test.view);
+                assert.isTrue(test.$ele.is(":visible"));
+            });
+        });
+
         it("Should Use DSForm.clear() to reset", function(done) {
             $filePath.val("test");
             DSForm.clear()
@@ -48,7 +74,7 @@ describe("Dataset Form Test", function() {
                 done();
             })
             .fail(function() {
-                throw "error case";
+                done("fail");
             });
         });
     });
@@ -75,7 +101,7 @@ describe("Dataset Form Test", function() {
         });
     });
 
-    describe("Allow Browse Test", function() {
+    describe("Browse and Preview Test", function() {
         var isValidPathToBrowse;
 
         before(function() {
@@ -119,7 +145,7 @@ describe("Dataset Form Test", function() {
         });
     });
 
-    describe("Allow Preview Test", function() {
+    describe("Allow Browse and Preview Test", function() {
         beforeEach(function() {
             $("#statusBoxClose").mousedown();
             assert.isFalse($statusBox.is(":visible"), "no statux box");
@@ -140,6 +166,42 @@ describe("Dataset Form Test", function() {
             var isValid = DSForm.__testOnly__.isValidToPreview();
             expect(isValid).to.be.true;
             assert.isFalse($statusBox.is(":visible"), "no statux box");
+        });
+
+        after(function() {
+            DSForm.__testOnly__.resetForm();
+        });
+    });
+
+    describe("UI Behavior Test", function() {
+        before(function() {
+            $('#fileProtocolMenu li[name="nfs"]').trigger(fakeEvent.mouseup);
+        });
+
+        it("Should click browse button to trigger browse", function() {
+            var oldFunc = FileBrowser.show;
+            var test = false;
+            FileBrowser.show = function() {
+                test = true;
+            };
+
+            $filePath.val("test");
+            $pathCard.find(".browse").click();
+            expect(test).to.be.true;
+            FileBrowser.show = oldFunc;
+        });
+
+        it("Should click preview button to trigger preview", function() {
+            var oldFunc = DSPreview.show;
+            var test = false;
+            DSPreview.show = function() {
+                test = true;
+            };
+
+            $filePath.val("test");
+            $pathCard.find(".confirm").click();
+            expect(test).to.be.true;
+            DSPreview.show = oldFunc;
         });
 
         after(function() {

@@ -133,6 +133,157 @@ describe("DSTable Test", function() {
         });
     });
 
+    describe("Scroll DSTable Test", function() {
+        var scrollSampleAndParse;
+        var dataStoreTableScroll;
+        var $tableWrapper;
+
+        before(function() {
+            scrollSampleAndParse = DSTable.__testOnly__.scrollSampleAndParse;
+            dataStoreTableScroll = DSTable.__testOnly__.dataStoreTableScroll;
+            $tableWrapper = $("#dsTableWrap .datasetTbodyWrap");
+        });
+
+        it("scrollSampleAndParse should not work in error case", function(done) {
+            scrollSampleAndParse(null)
+            .then(function() {
+                done("fail");
+            })
+            .fail(function(error) {
+                expect(error).to.equal("No DS");
+                done();
+            });
+        });
+
+        it("scrollSampleAndParse should work", function(done) {
+            var $dsTable = $("#dsTable");
+            var numRows = $dsTable.find("tr").length;
+            var rowsToFetch = 40;
+
+            scrollSampleAndParse(testDSId, 40, rowsToFetch)
+            .then(function() {
+                var currentNumRows = $dsTable.find("tr").length;
+                expect(currentNumRows - numRows).to.equal(rowsToFetch);
+                done();
+            })
+            .fail(function(error) {
+                console.error(error);
+                done("fail");
+            });
+        });
+
+        it("Should reject scroll if still fetching", function(done) {
+            $("#dsTable").addClass("fetching");
+
+            dataStoreTableScroll($tableWrapper)
+            .then(function() {
+                done("fail");
+            })
+            .fail(function(error) {
+                expect(error).not.to.be.null;
+                done();
+            })
+            .always(function() {
+                $("#dsTable").removeClass("fetching");
+            });
+        });
+
+        it("Should not trigger scroll when has not at bottom", function(done) {
+            dataStoreTableScroll($tableWrapper)
+            .then(function() {
+                done("fail");
+            })
+            .fail(function(error) {
+                expect(error).to.equal("no need to scroll");
+                done();
+            });
+        });
+
+        it("Should trigger scroll when at bottom", function(done) {
+            var oldFunc = DSObj.prototype.fetch;
+            DSObj.prototype.fetch = function() {
+                return PromiseHelper.reject("test");
+            };
+
+            var scrollHeight = $tableWrapper[0].scrollHeight;
+            var oldHeight = $("#dsTableWrap").height();
+            $("#dsTableWrap").height(scrollHeight);
+
+            dataStoreTableScroll($tableWrapper)
+            .then(function() {
+                done("fail");
+            })
+            .fail(function(error) {
+                expect(error).to.equal("test");
+                expect($("#dsTable").hasClass("fetching")).to.be.false;
+                done();
+            })
+            .always(function() {
+                DSObj.prototype.fetch = oldFunc;
+                $("#dsTableWrap").height(oldHeight);
+            });
+        });
+    });
+
+    describe("Get Memory Take Size Test", function() {
+        var oldFunc;
+        var getMemoryTakenSize;
+
+        before(function() {
+            oldFunc = DSObj.prototype.getMemoryTakenSize;
+            getMemoryTakenSize = DSTable.__testOnly__.getMemoryTakenSize;
+        });
+
+        it("Should get memory taken size", function(done) {
+            DSObj.prototype.getMemoryTakenSize = function() {
+                return PromiseHelper.resolve(1);
+            };
+
+            getMemoryTakenSize(testDSObj)
+            .then(function(size) {
+                expect(size).to.equal(1);
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        it("Should get N/A for null size", function(done) {
+            DSObj.prototype.getMemoryTakenSize = function() {
+                return PromiseHelper.resolve(null);
+            };
+
+            getMemoryTakenSize(testDSObj)
+            .then(function(size) {
+                expect(size).to.equal(CommonTxtTstr.NA);
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        it("Should get N/A in fail case", function(done) {
+            DSObj.prototype.getMemoryTakenSize = function() {
+                return PromiseHelper.reject();
+            };
+
+            getMemoryTakenSize(testDSObj)
+            .then(function(size) {
+                expect(size).to.equal(CommonTxtTstr.NA);
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        after(function() {
+            DSObj.prototype.getMemoryTakenSize = oldFunc;
+        });
+    });
+
     describe("Error Case Test", function() {
         var cache;
         var $errorSection;
@@ -154,6 +305,13 @@ describe("DSTable Test", function() {
         it("Should show error directly", function() {
             DSTable.showError(testDSId, "test");
             expect($errorSection.find(".error").text()).to.contain("test");
+        });
+
+        it("Should show error of object directly", function() {
+            var errorObj = {"error": "test"};
+            DSTable.showError(testDSId, errorObj);
+            expect($errorSection.find(".error").text())
+            .to.contain(JSON.stringify(errorObj));
         });
 
         it("Should handle not last error", function(done) {
@@ -259,9 +417,21 @@ describe("DSTable Test", function() {
         });
 
         it("Should select one column", function() {
-            var $input = $("#dsTable .editableHead").eq(0).click();
+            var $input = $("#dsTable .editableHead").eq(2).click();
             expect($("#dsTable th.selectedCol").length).to.equal(1);
             assert.isTrue($input.closest("th").hasClass("selectedCol"));
+        });
+
+        it("Should select with shift key", function() {
+            var e = jQuery.Event("click", {"shiftKey": true});
+            $("#dsTable .editableHead").eq(0).trigger(e);
+            // select 3 columns
+            expect($("#dsTable th.selectedCol").length).to.equal(3);
+        });
+
+        it("Should click .rowNumHead to select all", function() {
+            $("#dsTable .rowNumHead").click();
+            expect($("#dsTable th.selectedCol").length).to.equal(12);
         });
 
         it("Should clear all selection", function() {
