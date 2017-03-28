@@ -467,7 +467,7 @@ window.StatusMessage = (function($, StatusMessage) {
                            .data('tableid', tableId);
 
             doneNotificationListeners($tableDonePopup, msgId, options);
-            
+
             if (status.indexOf('failed') === -1 &&
                 (classes.indexOf('right') > -1 ||
                  classes.indexOf('left') > -1)) {

@@ -41,6 +41,8 @@ window.xcManager = (function(xcManager, $) {
             return setupSession();
         })
         .then(function() {
+            StatusMessage.updateLocation(true,
+                                        StatusMessageTStr.SettingExtensions);
             DataStore.initialize();
             // Extensions need to be moved to after version check because
             // somehow uploadUdf causes mgmtd to crash if checkVersion doesn't
@@ -48,10 +50,10 @@ window.xcManager = (function(xcManager, $) {
             // Extmanager promise so unit test can wait on resolution.
             var extPromise = setupExtensions();
             documentReadyGeneralFunction();
-            WSManager.initialize();
-            BottomMenu.initialize();
+            WSManager.initialize(); // async
+            BottomMenu.initialize(); // async
             Workbook.initialize();
-            DataflowPanel.initialize();
+            DataflowPanel.initialize(); // async if has df
             // restore user settings
             JoinView.restore();
             FileBrowser.restore();
@@ -63,6 +65,7 @@ window.xcManager = (function(xcManager, $) {
             return extPromise;
         })
         .then(function() {
+            StatusMessage.updateLocation();
             if (!isBrowserFirefox && !isBrowserIE) {
                 gMinModeOn = false; // turn off min mode
             }
@@ -84,14 +87,14 @@ window.xcManager = (function(xcManager, $) {
             $("body").addClass("xc-setup-error");
             setupStatus = SetupStatus.Fail;
             setupWinResize();
+            var locationText = StatusMessageTStr.Error;
 
             var title;
             if (error === WKBKTStr.NoWkbk){
                 // when it's new workbook
                 $('#initialLoadScreen').hide();
                 Workbook.forceShow();
-                var text = StatusMessageTStr.Viewing + " " + WKBKTStr.Location;
-                StatusMessage.updateLocation(true, text);
+                locationText = StatusMessageTStr.Viewing + " " + WKBKTStr.Location;
 
                 if (firstTimeUser) {
                     Admin.addNewUser();
@@ -117,6 +120,7 @@ window.xcManager = (function(xcManager, $) {
                     });
                 }
             } else if (error === WKBKTStr.Hold) {
+                locationText = WKBKTStr.Hold;
                 // when seesion is hold by others
                 Alert.show({
                     "title": WKBKTStr.Hold,
@@ -140,6 +144,7 @@ window.xcManager = (function(xcManager, $) {
                     "noCancel": true
                 });
             } else if (error.status === StatusT.StatusSessionNotFound) {
+                locationText = WKBKTStr.NoOldWKBK;
                 Alert.show({
                     "title": WKBKTStr.NoOldWKBK,
                     "instr": WKBKTStr.NoOldWKBKInstr,
@@ -155,12 +160,14 @@ window.xcManager = (function(xcManager, $) {
                     "hideButtons": ['copySql']
                 });
             } else if (error.status === StatusT.StatusSessionUsrActiveElsewhere) {
+                locationText = ThriftTStr.SessionElsewhere;
                 title = ThriftTStr.SessionElsewhere;
                 Alert.error(title, error.error + '\n' +
                             ThriftTStr.LogInDifferent,
                             {"lockScreen": true});
 
             } else {
+
                 // when it's an error from backend we cannot handle
                 var errorStruct = {"lockScreen": true};
                 if (!error || !error.error || typeof(error.error) !== "string") {
@@ -176,10 +183,11 @@ window.xcManager = (function(xcManager, $) {
                         title = ThriftTStr.SetupErr;
                     }
                 }
+                locationText = StatusMessageTStr.Error;
                 // check whether there's another alert that's already on the screen
                 Alert.error(title, error, errorStruct);
-                StatusMessage.updateLocation(true, StatusMessageTStr.Error);
             }
+            StatusMessage.updateLocation(true, locationText);
 
             deferred.reject(error);
         })
@@ -474,7 +482,6 @@ window.xcManager = (function(xcManager, $) {
             } else {
                 $("#mainFrame").addClass("empty");
             }
-            StatusMessage.updateLocation();
 
             failures.forEach(function(fail) {
                 console.error(fail);

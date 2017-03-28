@@ -916,7 +916,9 @@ window.WSManager = (function($, WSManager) {
             }
         }
 
-        StatusMessage.updateLocation();
+        if (!xcManager.isInSetup()) {
+            StatusMessage.updateLocation();
+        }
     };
 
     // Get html list of worksheets
@@ -1016,7 +1018,7 @@ window.WSManager = (function($, WSManager) {
             // allow time for scrollbar to adjust before unlocking
             $('#mainFrame').removeClass('scrollLocked');
         }, 0);
-      
+
     };
 
     // will not drop undone tables if isNoDelete, instead will change table
@@ -1036,7 +1038,7 @@ window.WSManager = (function($, WSManager) {
                 }
             }
         }
-        
+
         if (tables.length) {
             TblManager.deleteTables(tables, TableType.Undone, true, true)
             .always(function() {
@@ -1508,7 +1510,7 @@ window.WSManager = (function($, WSManager) {
     // Helper function to delete tables in a worksheet
     function deleteTableHelper(wsId) {
         var deferred = jQuery.Deferred();
-        
+
         var ws = worksheetGroup.get(wsId);
         ws.archivedTables.forEach(function(tableId) {
             noSheetTables.push(tableId);
@@ -1576,7 +1578,7 @@ window.WSManager = (function($, WSManager) {
             tableList = tableList.substr(0, tableList.length - 2);
             failedMsg += ". " + StatusMessageTStr.NotDeletedList + tableList;
         }
-        
+
         Alert.error(TblTStr.DelFail, failedMsg);
     }
 
