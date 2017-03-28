@@ -1,3 +1,4 @@
+############ Streaming UDF ############
 def transpose(inp, ins):
     first = True
     second = True
@@ -20,25 +21,7 @@ def transpose(inp, ins):
     record["values"] = ",".join(closes)
     yield record
 
-def getEma(values, numDays):
-	valArray = [float(x) for x in values.split(",")]
-	if (len(valArray) < numDays + 1):
-		return "Too few days on the market"
-	getStart = 0
-	startCount = 0
-	for i in xrange(min(len(valArray) - numDays, numDays)):
-		getStart += valArray[-1 - i]
-		startCount += 1
-	prevEma = getStart / startCount
-	multiplier = (float(2) / (numDays + 1))
-	emaArray = []
-	for i in xrange(len(valArray) - startCount):
-		curEma = (valArray[len(valArray) - startCount - 1 - i] - prevEma) *\
-				  multiplier + prevEma
-		emaArray.insert(0, str(curEma))
-		prevEma = curEma
-	return ",".join(emaArray)
-
+############ Simple Moving Averages ############
 def getSma(values, numDays):
 	allV = values.split(",")
 	curSum = 0
@@ -52,10 +35,10 @@ def getSma(values, numDays):
 		return str(curSum / curCount)
 
 def get200daySma(values):
-	return getNumDayMovingAverage(values, 200)
+	return getSma(values, 200)
 
 def get50daySma(values):
-	return getNumDayMovingAverage(values, 50)
+	return getSma(values, 50)
 
 def getGoldenCrossDate(values, lookbackDays=None):
 	maxDatapoints = len(values) - 200 + 1
@@ -83,6 +66,27 @@ def getGoldenCrossDate(values, lookbackDays=None):
 
 	return "Crossed over " + str(maxDatapoints) + " days ago"
 
+############ Exponential Moving Averages ############
+def getEma(values, numDays):
+	valArray = [float(x) for x in values.split(",")]
+	if (len(valArray) < numDays + 1):
+		return "Too few days on the market"
+	getStart = 0
+	startCount = 0
+	for i in xrange(min(len(valArray) - numDays, numDays)):
+		getStart += valArray[-1 - i]
+		startCount += 1
+	prevEma = getStart / startCount
+	multiplier = (float(2) / (numDays + 1))
+	emaArray = []
+	for i in xrange(len(valArray) - startCount):
+		curEma = (valArray[len(valArray) - startCount - 1 - i] - prevEma) *\
+				  multiplier + prevEma
+		emaArray.insert(0, str(curEma))
+		prevEma = curEma
+	return ",".join(emaArray)
+
+############ Portfolio Actions ############
 def getEmaActions(emaShort, emaLong, numDays):
 	ema5 = emaShort.split(",")
 	ema13 = emaLong.split(",")
@@ -122,9 +126,6 @@ def removeNoActions(actions, numDays):
 			break
 	return str(hasBuy)
 
-def lower(col):
-	return str(col).lower()
-
 def getCurVal(actions, price, numDays, amountOfMoney):
 	numDays = int(numDays)
 	actions = actions.split(",")
@@ -150,3 +151,7 @@ def getCurVal(actions, price, numDays, amountOfMoney):
 		return str(numShares * price[0])
 	else:
 		return str(amountOfMoney)
+
+############ Miscellaneous ############
+def lower(col):
+	return str(col).lower()
