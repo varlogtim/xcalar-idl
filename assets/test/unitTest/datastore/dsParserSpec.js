@@ -592,7 +592,7 @@ describe("DSParser Test", function() {
         it("fetchRows() should work", function(done) {
             var previewCalled = false;
             var cached = XcalarPreview;
-            XcalarPreview = function(url, pattern, isRecur, numBytes, offset) {
+            XcalarPreview = function() {
                 previewCalled = true;
                 expect(numBytes).to.equal(100);
                 return PromiseHelper.reject();
@@ -604,8 +604,13 @@ describe("DSParser Test", function() {
             DSParser.__testOnly__.fetchRows(meta, 200)
             .then(function() {
                 expect(previewCalled).to.be.true;
-                XcalarPreview = cached;
                 done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                XcalarPreview = cached;
             });
         });
 
@@ -700,13 +705,16 @@ describe("DSParser Test", function() {
                 sel.addRange(range);
 
                 $("#dsParser .previewContent").mouseup();
-                UnitTest.timeoutPromise(1)
-                .then(function() {
-                    expect(opened).to.be.true;
-                    xcHelper.dropdownOpen = cached;
-                    done();
-                });
+                return UnitTest.timeoutPromise(1);
             })
+            .then(function() {
+                expect(opened).to.be.true;
+                xcHelper.dropdownOpen = cached;
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
         });
 
         it("should closes the parser", function() {
