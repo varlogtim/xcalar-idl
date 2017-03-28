@@ -93,6 +93,7 @@ describe("Workbook Test", function() {
     });
 
     describe("Advanced Behavior Test", function() {
+        this.timeout(200000);
         it("Should force show the workbook", function() {
             var $input = $workbookPanel.find(".newWorkbookBox input");
             $input.val();
@@ -128,7 +129,7 @@ describe("Workbook Test", function() {
                 done();
             })
             .fail(function() {
-                throw "Error Case";
+                done("fail");
             });
         });
 
@@ -140,6 +141,7 @@ describe("Workbook Test", function() {
             $box.find(".modify").click();
             $input.val(name).trigger(fakeEvent.enter);
             expect($input.val()).to.equal(name);
+            $input.blur();
         });
 
         it("Should duplicate workbook", function(done) {
@@ -194,7 +196,7 @@ describe("Workbook Test", function() {
                 done();
             })
             .fail(function() {
-                throw "Error Case";
+                done("fail");
             });
 
             function deleteHelper() {

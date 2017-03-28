@@ -97,7 +97,7 @@ window.UnitTest = (function(UnitTest, $) {
     UnitTest.testFinish = function(checkFunc) {
         var deferred = jQuery.Deferred();
         var checkTime = 200;
-        var outCnt = 20;
+        var outCnt = 50;
         var timeCnt = 0;
 
         var timer = setInterval(function() {

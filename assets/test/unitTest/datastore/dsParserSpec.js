@@ -566,7 +566,6 @@ describe("DSParser Test", function() {
 
         // XXX this tirgger checkIfScrolled but don't trigger checkIfNeedFetch
         it("should scroll to fetch new rows", function(done) {
-            verbose = true;
             var scrollHeight = $card.find(".dataPreview")[0].scrollHeight;
             $card.find(".dataPreview").scrollTop(scrollHeight);
             // this is a tricky, because scroll need some time

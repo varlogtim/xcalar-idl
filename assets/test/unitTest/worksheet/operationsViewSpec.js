@@ -1869,7 +1869,10 @@ describe('OperationsView Test', function() {
             OperationsView.close();
             // allow time for operations view to close
             setTimeout(function() {
-                done();
+                TableList.refreshOrphanList()
+                .always(function() {
+                    done();
+                });
             }, 300);
         });
     });

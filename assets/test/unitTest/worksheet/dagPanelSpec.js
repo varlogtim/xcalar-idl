@@ -1,4 +1,4 @@
-describe('Dag Test', function() {
+describe('Dag Panel Test', function() {
     var $dagPanel;
     var testDs;
 
