@@ -426,16 +426,7 @@ window.DSParser = (function($, DSParser) {
             clearTimeout(rowNumTimer);
 
             rowNumTimer = setTimeout(function() {
-                if (!previewMeta) {
-                    return;
-                }
-                var meta;
-                if (isBox) {
-                    meta = previewMeta.meta;
-                } else {
-                    meta = previewMeta;
-                }
-                checkIfScrolled($preview, meta, true);
+                delayedScrollCheck(true);
             }, 200);
 
             if (isMouseDown || isBoxMouseDown) {
@@ -445,17 +436,7 @@ window.DSParser = (function($, DSParser) {
             // when scrolling stops, will check position and see if we need
             // to fetch rows
             scrollTimer = setTimeout(function() {
-                if (!previewMeta) {
-                    return;
-                }
-                var meta;
-                if (isBox) {
-                    meta = previewMeta.meta;
-                } else {
-                    meta = previewMeta;
-                }
-
-                checkIfScrolled($preview, meta);
+                delayedScrollCheck();
             }, 300);
 
             if ($container.hasClass("fetchingRows")) {
@@ -474,6 +455,19 @@ window.DSParser = (function($, DSParser) {
                 return;
             }
         });
+
+        function delayedScrollCheck(forRowNum) {
+            if (!previewMeta) {
+                return;
+            }
+            var meta;
+            if (isBox) {
+                meta = previewMeta.meta;
+            } else {
+                meta = previewMeta;
+            }
+            checkIfScrolled($preview, meta, forRowNum);
+        }
     }
 
     // called on scroll to see if needs block appended or prepended
@@ -1804,6 +1798,9 @@ window.DSParser = (function($, DSParser) {
 
         DSParser.__testOnly__.setMeta = function(meta) {
             previewMeta = meta;
+        };
+        DSParser.__testOnly__.getMeta = function() {
+            return previewMeta;
         };
         DSParser.__testOnly__.resetView = resetView;
         DSParser.__testOnly__.beautifier = beautifier;

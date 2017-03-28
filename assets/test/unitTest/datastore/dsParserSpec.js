@@ -566,33 +566,44 @@ describe("DSParser Test", function() {
 
         // XXX this tirgger checkIfScrolled but don't trigger checkIfNeedFetch
         it("should scroll to fetch new rows", function(done) {
+            // scroll to the very bottom
             var scrollHeight = $card.find(".dataPreview")[0].scrollHeight;
-            $card.find(".dataPreview").scrollTop(scrollHeight);
-            // this is a tricky, because scroll need some time
-            // so here we add the class manually
-            // and detect when it will be removed
-            $card.addClass("fetchingRows");
-            var checkFunc = function() {
-                return !$card.hasClass("fetchingRows");
+            var meta = DSParser.__testOnly__.getMeta();
+            var previewCalled = false;
+            var cached = XcalarPreview;
+            XcalarPreview = function(url, fileNamePattern, isRecur, numBytes, offset) {
+                expect(offset).to.equal(meta.lineLengths[meta.lineLengths.length - 1]);
+                previewCalled = true;
+                return PromiseHelper.reject();
             };
 
-            UnitTest.testFinish(checkFunc)
+            $card.find(".dataPreview").scrollTop(scrollHeight);
+
+            var checkFunc = function() {
+                return previewCalled;
+            };
+
+            UnitTest.timeoutPromise(1)
             .then(function() {
+                return UnitTest.testFinish(checkFunc);
+            })
+            .then(function() {
+                expect(previewCalled).to.be.true;
                 expect($("#parserRowInput").val()).not.to.equal(0);
-                // allow time for xcalarpreview to be called
-                setTimeout(function() {
-                    done();
-                }, 400);
+                done();
             })
             .fail(function() {
                 done("fail");
+            })
+            .always(function() {
+                XcalarPreview = cached;
             });
         });
 
         it("fetchRows() should work", function(done) {
             var previewCalled = false;
             var cached = XcalarPreview;
-            XcalarPreview = function() {
+            XcalarPreview = function(url, fileNamePattern, isRecur, numBytes, offset) {
                 previewCalled = true;
                 expect(numBytes).to.equal(100);
                 return PromiseHelper.reject();
@@ -682,6 +693,38 @@ describe("DSParser Test", function() {
             expect($box.outerHeight()).to.be.lt(301);
         });
 
+        it("box header click should work", function() {
+            var $box = $("#previewModeBox");
+            expect($box.find(".boxHeader").length).to.equal(1);
+            expect($box.hasClass("minimized")).to.be.false;
+            expect($box.outerHeight()).to.be.gt(50);
+
+            $box.find(".boxHeader").click();
+            expect($box.hasClass("minimized")).to.be.true;
+            expect($box.outerHeight()).to.be.lt(50);
+
+            $box.find(".boxHeader").click();
+            expect($box.hasClass("minimized")).to.be.false;
+            expect($box.outerHeight()).to.be.gt(50);
+
+            $box.addClass("maximized");
+            $box.find(".boxHeader").click();
+            expect($box.hasClass("minimized")).to.be.false;
+            expect($box.outerHeight()).to.be.gt(50);
+
+            $box.removeClass("maximized");
+        });
+
+        it("plain text line delim should work", function() {
+            var $input = $("#plainTextBox").find("input");
+            var $lis = $("#plainTextBox").find(".dropDownList").find("li")
+            $lis.eq(1).trigger(fakeEvent.mouseup);
+            expect($input.val()).to.equal("Null");
+
+            $lis.eq(0).trigger(fakeEvent.mouseup);
+            expect($input.val()).to.equal("\\n");
+        });
+
         it("mousedown selecting text should open menu", function(done) {
             var cached = xcHelper.dropdownOpen;
             var opened = false;
@@ -691,11 +734,21 @@ describe("DSParser Test", function() {
                 opened = true;
             };
 
-            $("#dsParser .previewContent").mouseup();
             UnitTest.timeoutPromise(1)
             .then(function() {
+                $("#dsParser .previewContent").mouseup();
+                return UnitTest.timeoutPromise(1);
+            })
+            .then(function() {
+                // not sure why this element doesn't exists sometimes when it should
+                var checkFunc = function() {
+                    return ($("#dsParser .page[data-page='1']").find(".line").length &&
+                           $("#dsParser .page[data-page='1']").find(".line")[2] != null);
+                };
+                return UnitTest.testFinish(checkFunc);
+            })
+            .then(function() {
                 expect(opened).to.be.false;
-
                 // select { on 3rd line of page1
                 var range = document.createRange();
                 range.setStart($("#dsParser .page[data-page='1']").find(".line")[2].childNodes[0], 14);
