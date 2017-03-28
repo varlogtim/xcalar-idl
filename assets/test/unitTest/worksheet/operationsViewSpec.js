@@ -1869,7 +1869,7 @@ describe('OperationsView Test', function() {
             OperationsView.close();
             // allow time for operations view to close
             setTimeout(function() {
-                TableList.refreshOrphanList()
+                UnitTest.removeOrphanTable()
                 .always(function() {
                     done();
                 });

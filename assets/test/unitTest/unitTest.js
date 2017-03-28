@@ -320,5 +320,18 @@ window.UnitTest = (function(UnitTest, $) {
         return deferred;
     };
 
+    UnitTest.removeOrphanTable = function() {
+        var deferred = jQuery.Deferred();
+
+        TableList.refreshOrphanList()
+        .then(function() {
+            return TblManager.deleteTables(gOrphanTables, TableType.Orphan);
+        })
+        .then(deferred.resolve)
+        .fail(deferred.resolve);
+
+        return deferred.promise();
+    };
+
     return (UnitTest);
 }({}, jQuery));

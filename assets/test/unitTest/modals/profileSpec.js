@@ -464,10 +464,7 @@ describe("Profile Test", function() {
 
         // clean up
         it("Should delete orphan tables", function(done) {
-            TableList.refreshOrphanList()
-            .then(function() {
-                return TblManager.deleteTables(gOrphanTables, TableType.Orphan);
-            })
+            UnitTest.removeOrphanTable()
             .always(function() {
                 done();
             });
@@ -487,10 +484,7 @@ describe("Profile Test", function() {
         function cleanUp() {
             var deferred = jQuery.Deferred();
 
-            TableList.refreshOrphanList()
-            .then(function() {
-                return TblManager.deleteTables(gOrphanTables, TableType.Orphan);
-            })
+            UnitTest.removeOrphanTable()
             .always(function() {
                 // in case some orphan table deletion faild
                 if ($("#alertModal").is(":visible")) {
