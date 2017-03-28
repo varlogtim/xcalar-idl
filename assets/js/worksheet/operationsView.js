@@ -3635,7 +3635,7 @@ window.OperationsView = (function($, OperationsView) {
                 parsedVal === Number(value) &&
                 shouldBeNumber)
             {
-                // the case that the field accepets both string and number and
+                // the case that the field accepts both string and number and
                 // it fills in a number, should depends on the existingTypes
 
                 // XXX potential bug is that existingTypes
@@ -3661,6 +3661,10 @@ window.OperationsView = (function($, OperationsView) {
             // add quote if the field support string
             value = "\"" + value + "\"";
             // stringify puts in too many slashes
+        } else if (shouldBeNumber) {
+            if (value.indexOf(".") === 0) {
+                value = "0" + value;
+            }
         } else {
             if (typeof value === ColumnType.string) {
                 value = value.trim();
