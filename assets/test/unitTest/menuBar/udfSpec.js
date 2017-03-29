@@ -412,87 +412,89 @@ describe("UDF Test", function() {
         });
     });
 
-    describe("App and UDF upload switcher test", function() {
-        before(function() {
-            editor = UDF.getEditor();
-            $fnName = $("#udf-fnName");
-        });
+    // Temporarily disabled due to not allowing users to upload apps anymore
+    // from XD
+    // describe("App and UDF upload switcher test", function() {
+    //     before(function() {
+    //         editor = UDF.getEditor();
+    //         $fnName = $("#udf-fnName");
+    //     });
 
-        it("Should switch to app uploader", function(done) {
-            var func = "def test():\n" +
-                   "\treturn \"a\"";
+    //     it("Should switch to app uploader", function(done) {
+    //         var func = "def test():\n" +
+    //                "\treturn \"a\"";
 
-            var uploadedApp = 0;
+    //         var uploadedApp = 0;
 
-            var checkFunc = function() {
-                return uploadedApp === 1;
-            };
+    //         var checkFunc = function() {
+    //             return uploadedApp === 1;
+    //         };
 
-            var oldAppSetFunc = XcalarAppSet;
+    //         var oldAppSetFunc = XcalarAppSet;
 
-            XcalarAppSet = function() {
-                uploadedApp = 1;
-                return PromiseHelper.resolve();
-            };
-            $("#udf-uploadType .iconWrapper .icon").click();
-            assert.isTrue($("#udf-uploadTypeMenu").is(":visible"));
-            $("#udf-uploadTypeMenu").find(".xi-add-app").closest("li")
-                                    .trigger(fakeEvent.mouseup);
-            assert.isTrue($("#udf-fnName").attr("placeholder").toLowerCase()
-                                          .indexOf("app") > -1);
-            editor.setValue(func);
-            $fnName.val(xcHelper.randName("baabaa", 5));
+    //         XcalarAppSet = function() {
+    //             uploadedApp = 1;
+    //             return PromiseHelper.resolve();
+    //         };
+    //         $("#udf-uploadType .iconWrapper .icon").click();
+    //         assert.isTrue($("#udf-uploadTypeMenu").is(":visible"));
+    //         $("#udf-uploadTypeMenu").find(".xi-add-app").closest("li")
+    //                                 .trigger(fakeEvent.mouseup);
+    //         assert.isTrue($("#udf-fnName").attr("placeholder").toLowerCase()
+    //                                       .indexOf("app") > -1);
+    //         editor.setValue(func);
+    //         $fnName.val(xcHelper.randName("baabaa", 5));
 
-            $("#udf-fnUpload").click();
+    //         $("#udf-fnUpload").click();
 
-            UnitTest.testFinish(checkFunc)
-            .then(done)
-            .fail(function() {
-                throw "error case";
-            })
-            .always(function() {
-                XcalarAppSet = oldAppSetFunc;
-            });
-        });
+    //         UnitTest.testFinish(checkFunc)
+    //         .then(done)
+    //         .fail(function() {
+    //             throw "error case";
+    //         })
+    //         .always(function() {
+    //             XcalarAppSet = oldAppSetFunc;
+    //         });
+    //     });
 
-        it("Should switch to udf uploader", function(done) {
-            var func = "def test():\n" +
-                   "\treturn \"a\"";
+    //     it("Should switch to udf uploader", function(done) {
+    //         var func = "def test():\n" +
+    //                "\treturn \"a\"";
 
-            var uploadedUdf = 0;
+    //         var uploadedUdf = 0;
 
-            var checkFunc = function() {
-                return uploadedUdf === 1;
-            };
+    //         var checkFunc = function() {
+    //             return uploadedUdf === 1;
+    //         };
 
-            var oldUploadFunc = XcalarUploadPython;
-            XcalarUploadPython = function() {
-                uploadedUdf = 1;
-                return PromiseHelper.resolve();
-            };
+    //         var oldUploadFunc = XcalarUploadPython;
+    //         XcalarUploadPython = function() {
+    //             uploadedUdf = 1;
+    //             return PromiseHelper.resolve();
+    //         };
 
-            $("#udf-uploadType .iconWrapper .icon").click();
-            assert.isTrue($("#udf-uploadTypeMenu").is(":visible"));
-            $("#udf-uploadTypeMenu").find(".xi-add-udf2").closest("li")
-                                    .trigger(fakeEvent.mouseup);
-            assert.isTrue($("#udf-fnName").attr("placeholder").toLowerCase()
-                                          .indexOf("module") > -1);
+    //         $("#udf-uploadType .iconWrapper .icon").click();
+    //         assert.isTrue($("#udf-uploadTypeMenu").is(":visible"));
+    //         $("#udf-uploadTypeMenu").find(".xi-add-udf2").closest("li")
+    //                                 .trigger(fakeEvent.mouseup);
+    //         assert.isTrue($("#udf-fnName").attr("placeholder").toLowerCase()
+    //                                       .indexOf("module") > -1);
 
-            editor.setValue(func);
-            $fnName.val(xcHelper.randName("baabaa", 5));
+    //         editor.setValue(func);
+    //         $fnName.val(xcHelper.randName("baabaa", 5));
 
-            $("#udf-fnUpload").click();
+    //         $("#udf-fnUpload").click();
 
-            UnitTest.testFinish(checkFunc)
-            .then(done)
-            .fail(function() {
-                throw "error case";
-            })
-            .always(function() {
-                XcalarUploadPython = oldUploadFunc;
-            });
-        });
-    });
+    //         UnitTest.testFinish(checkFunc)
+    //         .then(done)
+    //         .fail(function() {
+    //             throw "error case";
+    //         })
+    //         .always(function() {
+    //             XcalarUploadPython = oldUploadFunc;
+    //         });
+    //     });
+    // });
 
     after(function(done) {
         $("#udfTab").click();

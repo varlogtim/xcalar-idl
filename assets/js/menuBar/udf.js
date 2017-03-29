@@ -311,9 +311,12 @@ window.UDF = (function($, UDF) {
                 moduleName = fileName;
             }
 
-            upload(moduleName, entireString,
-                   $("#udf-uploadType .iconWrapper .icon")
-                   .attr("data-uploadType"));
+            // Temporarily disabled due to not allowing users to upload apps
+            // from XD
+            //upload(moduleName, entireString,
+            //       $("#udf-uploadType .iconWrapper .icon")
+            //       .attr("data-uploadType"));
+            upload(moduleName, entireString, "UDF");
 
         });
         /* end of upload udf section */
