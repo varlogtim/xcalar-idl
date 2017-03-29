@@ -37,8 +37,8 @@ fi
 sudo service apache2 reload
 
 sudo cp /etc/apache2/sites-available/000-default.conf  XI.conf
-sed -i 's,/var/www/html,/var/www/xcalar-gui/prod,' XI.conf
+sed -i 's,/var/www/html,/var/www/xcalar-gui,' XI.conf
 sudo mv XI.conf /etc/apache2/sites-available/
-sudo ln -sfn $XLRGUIDIR /var/www/xcalar-gui
+sudo ln -sfn $XLRGUIDIR/prod /var/www/xcalar-gui
 sudo a2dissite 000-default && sudo a2ensite XI
 sudo service apache2 restart
