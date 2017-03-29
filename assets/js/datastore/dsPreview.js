@@ -297,37 +297,6 @@ window.DSPreview = (function($, DSPreview) {
             "bounds": "#importDataForm-content"
         }).setupListeners();
 
-        function selectDelim($li) {
-            var $input = $li.closest(".dropDownList").find(".text");
-            var isField = ($input.attr("id") === "fieldText");
-
-            switch ($li.attr("name")) {
-                case "default":
-                    if (isField) {
-                        $input.val("\\t");
-                    } else {
-                        $input.val("\\n");
-                    }
-                    $input.removeClass("nullVal");
-                    break;
-                case "comma":
-                    $input.val(",").removeClass("nullVal");
-                    break;
-                case "null":
-                    $input.val("Null").addClass("nullVal");
-                    break;
-                default:
-                    console.error("error case");
-                    break;
-            }
-
-            if (isField) {
-                setFieldDelim();
-            } else {
-                setLineDelim();
-            }
-        }
-
         var $csvDelim = $("#lineDelim, #fieldDelim");
         $csvDelim.on("input", "input", function() {
             var $input = $(this);
@@ -1092,6 +1061,37 @@ window.DSPreview = (function($, DSPreview) {
     function applyQuote(quote) {
         $quote.val(quote);
         setQuote();
+    }
+
+    function selectDelim($li) {
+        var $input = $li.closest(".dropDownList").find(".text");
+        var isField = ($input.attr("id") === "fieldText");
+
+        switch ($li.attr("name")) {
+            case "default":
+                if (isField) {
+                    $input.val("\\t");
+                } else {
+                    $input.val("\\n");
+                }
+                $input.removeClass("nullVal");
+                break;
+            case "comma":
+                $input.val(",").removeClass("nullVal");
+                break;
+            case "null":
+                $input.val("Null").addClass("nullVal");
+                break;
+            default:
+                console.error("error case");
+                break;
+        }
+
+        if (isField) {
+            setFieldDelim();
+        } else {
+            setLineDelim();
+        }
     }
 
     function setFieldDelim() {
@@ -2379,6 +2379,8 @@ window.DSPreview = (function($, DSPreview) {
         DSPreview.__testOnly__.detectExcelHeader = detectExcelHeader;
         DSPreview.__testOnly__.applyHighlight = applyHighlight;
         DSPreview.__testOnly__.clearPreviewTable = clearPreviewTable;
+        DSPreview.__testOnly__.sampleData = sampleData;
+        DSPreview.__testOnly__.getFileToPreviewInUDF = getFileToPreviewInUDF;
 
         DSPreview.__testOnly__.resetForm = resetForm;
         DSPreview.__testOnly__.restoreForm = restoreForm;

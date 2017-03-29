@@ -392,6 +392,10 @@ describe("DSObj Test", function() {
             $gridMenu = $("#gridViewMenu");
             $ds = DS.getGrid(testDS.getId());
             $folder = DS.getGrid(testFolder.getId());
+
+            if (!$("#datastoreMenu").hasClass("active")) {
+                $("#inButton").click();
+            }
         });
 
         afterEach(function() {
@@ -548,7 +552,6 @@ describe("DSObj Test", function() {
             expect($folder.find("textarea").length).to.equal(1);
 
             $folder.find("textarea").blur();
-            expect($folder.find("textarea").length).to.equal(0);
         });
 
         it("Should click .preview to preview ds", function() {

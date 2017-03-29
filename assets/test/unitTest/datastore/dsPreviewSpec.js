@@ -289,9 +289,100 @@ describe("DSPreview Test", function() {
             expect($previewTable.find("tbody tr").length).to.equal(2);
         });
 
-        it("Should get advance option", function() {
+        it("sampleData() should work", function(done) {
+            var oldMakeResultSet = XcalarMakeResultSetFromDataset;
+            XcalarMakeResultSetFromDataset = function() {
+                return PromiseHelper.resolve({
+                    "resultSetId": 1,
+                    "numEntries": 0
+                });
+            };
+
+            var oldSetFree = XcalarSetFree;
+            XcalarSetFree = function() {
+                return PromiseHelper.resolve();
+            };
+
+            DSPreview.__testOnly__.sampleData()
+            .then(function(res) {
+                expect(res).to.be.null;
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                XcalarSetFree = oldSetFree;
+                XcalarMakeResultSetFromDataset = oldMakeResultSet;
+            });
+        });
+
+        it("sampleData() should work 2", function(done) {
+            var oldMakeResultSet = XcalarMakeResultSetFromDataset;
+            XcalarMakeResultSetFromDataset = function() {
+                return PromiseHelper.resolve({
+                    "resultSetId": 1,
+                    "numEntries": 1
+                });
+            };
+
+            var oldSetFree = XcalarSetFree;
+            XcalarSetFree = function() {
+                return PromiseHelper.resolve();
+            };
+
+            var oldFetch = XcalarFetchData;
+            XcalarFetchData = function() {
+                return PromiseHelper.resolve("test");
+            };
+
+            DSPreview.__testOnly__.sampleData()
+            .then(function(res) {
+                expect(res).to.equal("test");
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                XcalarSetFree = oldSetFree;
+                XcalarMakeResultSetFromDataset = oldMakeResultSet;
+                XcalarFetchData = oldFetch;
+            });
+        });
+    });
+
+    describe("Preview Public API Test", function() {
+        it("DSPreview.changePreviewFile should work", function() {
+            var oldPreviewFile = loadArgs.getPreviewFile();
+            DSPreview.changePreviewFile("test", true);
+            expect(loadArgs.getPreviewFile()).to.equal("test");
+            loadArgs.setPreviewFile(oldPreviewFile);
+        });
+
+        it("DSPreview.getAdvanceOption should work", function() {
             var advanceOption = DSPreview.getAdvanceOption();
             expect(advanceOption).to.be.an.instanceof(DSFormAdvanceOption);
+        });
+
+        it("DSPreview.backFromParser should work", function() {
+            var oldFunc = DSPreview.changePreviewFile;
+            DSPreview.changePreviewFile = function() {
+                return;
+            };
+            // case 1
+            DSPreview.backFromParser("test", "udf");
+            var useUDF = DSPreview.__testOnly__.isUseUDF();
+            expect(useUDF).to.be.true;
+            // case 2
+            DSPreview.backFromParser("test", "udf", ",");
+            expect(loadArgs.getLineDelim()).to.be.equal(",");
+
+            DSPreview.changePreviewFile = oldFunc;
+        });
+
+        after(function() {
+            DSPreview.__testOnly__.resetForm();
         });
     });
 
@@ -465,6 +556,88 @@ describe("DSPreview Test", function() {
         });
     });
 
+    describe("getFileToPreviewInUDF Test", function() {
+        var getFileToPreviewInUDF;
+        var oldFunc;
+
+        before(function() {
+            getFileToPreviewInUDF = DSPreview.__testOnly__.getFileToPreviewInUDF;
+            oldFunc = XcalarListFilesWithPattern;
+        });
+
+        it("Should get url of single file", function(done) {
+            XcalarListFilesWithPattern = function() {
+                return PromiseHelper.resolve({
+                    "numFiles": 1,
+                    "files": [{"name": "test"}]
+                });
+            };
+
+            getFileToPreviewInUDF("test")
+            .then(function(fileURL) {
+                expect(fileURL).to.equal("test");
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        it("Should get url of file in folder", function(done) {
+            XcalarListFilesWithPattern = function() {
+                return PromiseHelper.resolve({
+                    "numFiles": 1,
+                    "files": [{"name": "test2"}]
+                });
+            };
+
+            getFileToPreviewInUDF("test")
+            .then(function(fileURL) {
+                expect(fileURL).to.equal("test/test2");
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        it("Should handle error data", function(done) {
+            XcalarListFilesWithPattern = function() {
+                return PromiseHelper.resolve(null);
+            };
+
+            getFileToPreviewInUDF("test")
+            .then(function(fileURL, noPreview) {
+                expect(fileURL).to.equal("test");
+                expect(noPreview).to.be.true;
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        it("Should handle reject case", function(done) {
+            XcalarListFilesWithPattern = function() {
+                return PromiseHelper.reject();
+            };
+
+            getFileToPreviewInUDF("test")
+            .then(function(fileURL, noPreview) {
+                expect(fileURL).to.equal("test");
+                expect(noPreview).to.be.true;
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        after(function() {
+            XcalarListFilesWithPattern = oldFunc;
+        });
+    });
+
     describe("Basic form functionality test", function() {
         it("Should reset form", function() {
             $("#dsForm-skipRows").val(1);
@@ -532,6 +705,29 @@ describe("DSPreview Test", function() {
             $input.val("");
         });
 
+        it("applyQuote() should work", function() {
+            var applyQuote = DSPreview.__testOnly__.applyQuote;
+            var $quote = $("#dsForm-quote");
+
+            applyQuote("\'");
+            expect($quote.val()).to.equal("\'");
+            expect(loadArgs.getQuote()).to.equal("\'");
+
+            // error case
+            applyQuote("test");
+            expect(loadArgs.getQuote()).not.to.equal("test");
+        });
+
+        after(function() {
+            DSPreview.__testOnly__.resetForm();
+        });
+    });
+
+    describe("Delimiter Selection Test", function() {
+        before(function() {
+            DSPreview.__testOnly__.toggleFormat("CSV");
+        });
+
         it("applyFieldDelim() should work", function() {
             var applyFieldDelim = DSPreview.__testOnly__.applyFieldDelim;
 
@@ -570,17 +766,48 @@ describe("DSPreview Test", function() {
             expect(loadArgs.getLineDelim()).to.equal("\n");
         });
 
-        it("applyQuote() should work", function() {
-            var applyQuote = DSPreview.__testOnly__.applyQuote;
-            var $quote = $("#dsForm-quote");
+        it("should select line delim", function() {
+            var $ele = $("#lineDelim");
+            $ele.find('li[name="null"]').trigger(fakeEvent.mouseup);
+            expect($lineText.hasClass("nullVal")).to.be.true;
+            expect($lineText.val()).to.equal("Null");
+            expect(loadArgs.getLineDelim()).to.equal("");
 
-            applyQuote("\'");
-            expect($quote.val()).to.equal("\'");
-            expect(loadArgs.getQuote()).to.equal("\'");
+            // test2
+            $ele.find('li[name="default"]').trigger(fakeEvent.mouseup);
+            expect($lineText.hasClass("nullVal")).to.be.false;
+            expect($lineText.val()).to.equal("\\n");
+            expect(loadArgs.getLineDelim()).to.equal("\n");
+        });
 
-            // error case
-            applyQuote("test");
-            expect(loadArgs.getQuote()).not.to.equal("test");
+        it("should select field delim", function() {
+            var $ele = $("#fieldDelim");
+            $ele.find('li[name="null"]').trigger(fakeEvent.mouseup);
+            expect($fieldText.hasClass("nullVal")).to.be.true;
+            expect($fieldText.val()).to.equal("Null");
+            expect(loadArgs.getFieldDelim()).to.equal("");
+
+            // test2
+            $ele.find('li[name="comma"]').trigger(fakeEvent.mouseup);
+            expect($fieldText.hasClass("nullVal")).to.be.false;
+            expect($fieldText.val()).to.equal(",");
+            expect(loadArgs.getFieldDelim()).to.equal(",");
+
+            // test 3
+            $ele.find('li[name="default"]').trigger(fakeEvent.mouseup);
+            expect($fieldText.hasClass("nullVal")).to.be.false;
+            expect($fieldText.val()).to.equal("\\t");
+            expect(loadArgs.getFieldDelim()).to.equal("\t");
+        });
+
+        it("should input line delim", function() {
+            $lineText.val(",").trigger("input");
+            expect(loadArgs.getLineDelim()).to.equal(",");
+        });
+
+        it("should input field delim", function() {
+            $fieldText.val(",").trigger("input");
+            expect(loadArgs.getFieldDelim()).to.equal(",");
         });
 
         after(function() {
@@ -741,7 +968,7 @@ describe("DSPreview Test", function() {
         });
     });
 
-    describe("Should validate form", function() {
+    describe("Validate Form Test", function() {
         var validateForm;
 
         before(function() {
@@ -870,6 +1097,149 @@ describe("DSPreview Test", function() {
             expect($lineText.val()).to.equal("\\n");
             expect($fieldText.val()).to.equal("Null");
             expect($("#dsForm-skipRows").val()).to.equal("1");
+        });
+
+        after(function() {
+            DSPreview.__testOnly__.resetForm();
+        });
+    });
+
+    describe("Preview UI Behavior Test", function() {
+        var $previewCard;
+
+        before(function() {
+            $previewCard = $("#dsForm-preview");
+
+            DSPreview.__testOnly__.restoreForm({
+                "dsName": "test",
+                "moduleName": "default",
+                "funcName": "openExcel",
+                "format": "raw",
+                "hasHeader": true,
+                "fieldDelim": "",
+                "lineDelim": "\n",
+                "quoteChar": "\"",
+                "skipRows": 1
+            });
+            // selection of range needs it to be visible
+            DSForm.switchView(DSForm.View.Preview);
+        });
+
+        it("should apply highligher", function() {
+            var highlighter;
+            // case 1
+            $previewTable.addClass("has-delimiter");
+            $previewTable.mouseup();
+            highlighter = DSPreview.__testOnly__.get().highlighter;
+            expect(highlighter).to.be.empty;
+
+            // case 2
+            $previewTable.removeClass("has-delimiter").addClass("truncMessage");
+            $previewTable.mouseup();
+            highlighter = DSPreview.__testOnly__.get().highlighter;
+            expect(highlighter).to.be.empty;
+
+            // case 3
+            $previewTable.removeClass("truncMessage");
+
+            $previewTable.html("a");
+
+            var range = document.createRange();
+            range.setStart($previewTable[0].childNodes[0], 0);
+            range.setEnd($previewTable[0].childNodes[0], 1);
+            var sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(range);
+
+            $previewTable.mouseup();
+            highlighter = DSPreview.__testOnly__.get().highlighter;
+            expect(highlighter).to.equal("a");
+
+            $previewTable.empty();
+        });
+
+        it("should remove highlighter", function() {
+            $previewCard.find(".rmHightLight").click();
+            var highlighter = DSPreview.__testOnly__.get().highlighter;
+            expect(highlighter).to.be.empty;
+        });
+
+        it("should apply highlighter to delimiter", function() {
+            DSPreview.__testOnly__.set(null, "a");
+            $previewCard.find(".highlight").click();
+            expect(loadArgs.getFieldDelim()).to.equal("a");
+        });
+
+        it("should click colGrab to trigger col resize", function() {
+            var oldFunc = TblAnim.startColResize;
+            var test = false;
+            TblAnim.startColResize = function() {
+                test = true;
+            };
+
+            var $ele = $('<div class="colGrab"></div>');
+            $previewTable.append($ele);
+            // nothing happen
+            $ele.mousedown();
+            expect(test).to.be.false;
+            // trigger resize
+            $ele.trigger(fakeEvent.mousedown);
+            expect(test).to.be.true;
+
+            $ele.remove();
+            TblAnim.startColResize = oldFunc;
+        });
+
+        it("should click #dsForm-minimize to toggle minize", function() {
+            expect($previewCard.hasClass("minimize")).to.be.false;
+
+            var $btn = $("#dsForm-minimize");
+            $btn.click();
+            expect($previewCard.hasClass("minimize")).to.be.true;
+            $btn.click();
+            expect($previewCard.hasClass("minimize")).to.be.false;
+        });
+
+        it("shuod click change file to trigger previewFileModal", function() {
+            var oldFunc = PreviewFileModal.show;
+            var test = false;
+            PreviewFileModal.show = function() {
+                test = true;
+            };
+            $("#preview-changeFile").click();
+            expect(test).to.be.true;
+            PreviewFileModal.show = oldFunc;
+        });
+
+        it("should click parser to trigger parser", function() {
+            var oldParser = DSParser.show;
+            var oldSelect = PreviewFileModal.show;
+            var test1 = false;
+            var test2 = false;
+
+            DSParser.show = function() {
+                test1 = true;
+            };
+            PreviewFileModal.show = function() {
+                test2 = true;
+            };
+
+            var isHidden = $("#preview-file").hasClass("xc-hidden");
+            $("#preview-file").addClass("xc-hidden");
+            $("#preview-parser").click();
+            expect(test1).to.be.true;
+            expect(test2).to.be.false;
+
+            $("#preview-file").removeClass("xc-hidden");
+            $("#preview-parser").click();
+            expect(test1).to.be.true;
+            expect(test2).to.be.true;
+
+            if (isHidden) {
+                $("#preview-file").addClass("xc-hidden");
+            }
+            DSParser.show = oldParser;
+            PreviewFileModal.show = oldSelect;
         });
 
         after(function() {
