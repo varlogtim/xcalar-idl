@@ -130,7 +130,7 @@ window.Profile = (function($, Profile, d3) {
                 return;
             }
             percentageLabel = !percentageLabel;
-            buildGroupGraphs();
+            buildGroupGraphs(statsCol);
         });
 
         $groupbySection.on("mousedown", ".arrow", function(event) {
@@ -454,25 +454,26 @@ window.Profile = (function($, Profile, d3) {
     function generateProfile(table, txId) {
         var deferred = jQuery.Deferred();
         var promises = [];
+        var curStatsCol = statsCol;
 
-        checkAgg(statsCol);
-        promises.push(runStats(table.getName(), statsCol));
+        checkAgg(curStatsCol);
+        promises.push(runStats(table.getName(), curStatsCol));
 
         // do group by
-        if (statsCol.groupByInfo.isComplete === true) {
+        if (curStatsCol.groupByInfo.isComplete === true) {
             // check if the groupbyTable is not deleted
             // use XcalarGetTables because XcalarSetAbsolute cannot
             // return fail if resultSetId is not free
             var innerDeferred = jQuery.Deferred();
-            var groupbyTable = statsCol.groupByInfo.buckets[bucketNum].table;
+            var groupbyTable = curStatsCol.groupByInfo.buckets[bucketNum].table;
 
             XcalarGetTables(groupbyTable)
             .then(function(tableInfo) {
                 if (tableInfo == null || tableInfo.numNodes === 0) {
-                    statsCol.groupByInfo.isComplete = false;
-                    statsCol.groupByInfo.buckets[bucketNum] = {};
+                    curStatsCol.groupByInfo.isComplete = false;
+                    curStatsCol.groupByInfo.buckets[bucketNum] = {};
 
-                    runGroupby(table, statsCol, bucketNum, txId)
+                    runGroupby(table, curStatsCol, bucketNum, txId)
                     .then(innerDeferred.resolve)
                     .fail(innerDeferred.reject);
                 } else {
@@ -480,13 +481,13 @@ window.Profile = (function($, Profile, d3) {
                 }
             })
             .fail(function(error) {
-                failureHandler(statsCol, error, txId);
+                failureHandler(curStatsCol, error, txId);
                 innerDeferred.reject(error);
             });
 
             promises.push(innerDeferred.promise());
-        } else if (statsCol.groupByInfo.isComplete !== "running") {
-            promises.push(runGroupby(table, statsCol, bucketNum, txId));
+        } else if (curStatsCol.groupByInfo.isComplete !== "running") {
+            promises.push(runGroupby(table, curStatsCol, bucketNum, txId));
         }
 
         PromiseHelper.when.apply(window, promises)
@@ -540,13 +541,13 @@ window.Profile = (function($, Profile, d3) {
 
         $modal.find(".modalInstruction .text").html(instr);
 
-        refreshAggInfo(aggKeys, true);
-        refreshStatsInfo();
+        refreshAggInfo(aggKeys, statsCol, true);
+        refreshStatsInfo(statsCol);
 
-        return refreshGroupbyInfo();
+        return refreshGroupbyInfo(statsCol);
     }
 
-    function refreshGroupbyInfo(resetRefresh) {
+    function refreshGroupbyInfo(curStatsCol, resetRefresh) {
         var deferred = jQuery.Deferred();
         // This function never deferred.reject
 
@@ -567,17 +568,17 @@ window.Profile = (function($, Profile, d3) {
         $errorSection.addClass("hidden").find(".text").text("");
 
         // update groupby info
-        if (statsCol.groupByInfo.isComplete === true) {
+        if (curStatsCol.groupByInfo.isComplete === true) {
             // data is ready
             groupByData = [];
 
-            if (statsCol.groupByInfo.allNull) {
+            if (curStatsCol.groupByInfo.allNull) {
                 $modal.addClass("allNull");
             }
 
             freePointer()
             .then(function() {
-                var tableInfo = statsCol.groupByInfo.buckets[bucketNum];
+                var tableInfo = curStatsCol.groupByInfo.buckets[bucketNum];
                 var table;
 
                 if (order === sortMap.asc) {
@@ -604,13 +605,13 @@ window.Profile = (function($, Profile, d3) {
 
                 resetGroupbyInfo();
 
-                groupByData = addNullValue(groupByData);
-                buildGroupGraphs(true);
+                groupByData = addNullValue(curStatsCol, groupByData);
+                buildGroupGraphs(curStatsCol, true);
                 setArrows(1);
                 deferred.resolve();
             })
             .fail(function(error) {
-                failureHandler(statsCol, error);
+                failureHandler(curStatsCol, error);
                 // Since we have already cleaned up here, we no longer need our
                 // caller to clean up for us. So we can resolve here
                 deferred.resolve();
@@ -623,7 +624,7 @@ window.Profile = (function($, Profile, d3) {
         return deferred.promise();
     }
 
-    function refreshAggInfo(aggKeysToRefesh, isStartUp) {
+    function refreshAggInfo(aggKeysToRefesh, curStatsCol, isStartUp) {
         // update agg info
         var $infoSection = $("#profile-stats");
         if (!(aggKeysToRefesh instanceof Array)) {
@@ -631,7 +632,7 @@ window.Profile = (function($, Profile, d3) {
         }
 
         aggKeysToRefesh.forEach(function(aggkey) {
-            var aggVal = statsCol.aggInfo[aggkey];
+            var aggVal = curStatsCol.aggInfo[aggkey];
             if (aggVal == null && !isStartUp) {
                 // when aggregate is still running
                 $infoSection.find("." + aggkey).html("...")
@@ -649,7 +650,7 @@ window.Profile = (function($, Profile, d3) {
         // update the section
         var notRunAgg = false;
         aggKeys.forEach(function(aggkey) {
-            if (aggkey !== "count" && statsCol.aggInfo[aggkey] == null) {
+            if (aggkey !== "count" && curStatsCol.aggInfo[aggkey] == null) {
                 notRunAgg = true;
                 return false; // end loop
             }
@@ -667,19 +668,19 @@ window.Profile = (function($, Profile, d3) {
         }
     }
 
-    function refreshStatsInfo(forceShow) {
+    function refreshStatsInfo(curStatsCol, forceShow) {
         // update stats info
         var $infoSection = $("#profile-stats");
         var $statsInfo = $infoSection.find(".statsInfo");
 
-        if (statsCol.statsInfo.unsorted && !forceShow) {
+        if (curStatsCol.statsInfo.unsorted && !forceShow) {
             $statsInfo.removeClass("hasStats");
         } else {
             $statsInfo.addClass("hasStats");
 
             for (var key in statsKeyMap) {
                 var statsKey = statsKeyMap[key];
-                var statsVal = statsCol.statsInfo[statsKey];
+                var statsVal = curStatsCol.statsInfo[statsKey];
                 if (statsVal == null) {
                     // when stats is still running
                     $infoSection.find("." + statsKey).html("...")
@@ -721,11 +722,11 @@ window.Profile = (function($, Profile, d3) {
                     gTables[curTableId].resultSetCount != null) {
                     var count = gTables[curTableId].resultSetCount;
                     curStatsCol.aggInfo[aggkey] = count;
-                    refreshAggInfo(aggkey);
+                    refreshAggInfo(aggkey, curStatsCol);
                 }
             } else if (!isNum) {
                 curStatsCol.aggInfo[aggkey] = "--";
-                refreshAggInfo(aggkey);
+                refreshAggInfo(aggkey, curStatsCol);
             }
         });
     }
@@ -745,7 +746,7 @@ window.Profile = (function($, Profile, d3) {
         });
 
         // show ellipsis as progressing
-        refreshAggInfo(aggKeys);
+        refreshAggInfo(aggKeys, statsCol);
         aggKeys.forEach(function(aggkey) {
             promises.push(runAgg(aggkey, statsCol, txId));
         });
@@ -784,7 +785,7 @@ window.Profile = (function($, Profile, d3) {
             curStatsCol.aggInfo[aggkey] = res;
             // modal is open and is for that column
             if (isModalVisible(curStatsCol)) {
-                refreshAggInfo(aggkey);
+                refreshAggInfo(aggkey, curStatsCol);
             }
             deferred.resolve();
         });
@@ -809,7 +810,7 @@ window.Profile = (function($, Profile, d3) {
             "sql": sql
         });
 
-        refreshStatsInfo(true);
+        refreshStatsInfo(curStatsCol, true);
         XIApi.sortAscending(txId, colName, tableName)
         .then(function(tableAfterSort) {
             sortTable = tableAfterSort;
@@ -864,7 +865,7 @@ window.Profile = (function($, Profile, d3) {
         .then(getStats)
         .then(function() {
             if (isModalVisible(curStatsCol)) {
-                refreshStatsInfo();
+                refreshStatsInfo(curStatsCol);
             }
             deferred.resolve();
         })
@@ -1074,7 +1075,7 @@ window.Profile = (function($, Profile, d3) {
         .then(function() {
             // modal is open and is for that column
             if (isModalVisible(curStatsCol)) {
-                return refreshGroupbyInfo();
+                return refreshGroupbyInfo(curStatsCol);
             }
         })
         .then(deferred.resolve)
@@ -1162,19 +1163,18 @@ window.Profile = (function($, Profile, d3) {
         return deferred.promise();
     }
 
-    function addNullValue(data) {
+    function addNullValue(curStatsCol, data) {
         // add col info for null value
-        var nullCount = statsCol.groupByInfo.nullCount || 0;
-
+        var nullCount = curStatsCol.groupByInfo.nullCount || 0;
         if (nullCount === 0) {
-            return (data);
+            return data;
         }
 
         var nullData = {
             "rowNum": 0,
             "type": "nullVal"
         };
-        var colName = statsCol.groupByInfo.buckets[bucketNum].colName;
+        var colName = curStatsCol.groupByInfo.buckets[bucketNum].colName;
         nullData[colName] = "null";
 
         if (bucketNum === 0) {
@@ -1184,13 +1184,16 @@ window.Profile = (function($, Profile, d3) {
         }
 
         data.unshift(nullData);
-
-        return (data);
+        return data;
     }
 
-    function buildGroupGraphs(initial, resize) {
-        var nullCount = statsCol.groupByInfo.nullCount;
-        var tableInfo = statsCol.groupByInfo.buckets[bucketNum];
+    function buildGroupGraphs(curStatsCol, initial, resize) {
+        if (!isModalVisible(curStatsCol)) {
+            return;
+        }
+
+        var nullCount = curStatsCol.groupByInfo.nullCount;
+        var tableInfo = curStatsCol.groupByInfo.buckets[bucketNum];
         var noBucket  = (bucketNum === 0) ? 1 : 0;
         var noSort    = (order === sortMap.origin);
         // both "a\.b" and "a.b" will become "a\.b" after groupby
@@ -1524,7 +1527,7 @@ window.Profile = (function($, Profile, d3) {
         if (statsCol.groupByInfo &&
             statsCol.groupByInfo.isComplete === true)
         {
-            buildGroupGraphs(null, true);
+            buildGroupGraphs(statsCol, null, true);
             var $scroller = $modal.find(".scrollSection .scroller");
             resizeScroller();
             var curRowNum = Number($skipInput.val());
@@ -1747,18 +1750,19 @@ window.Profile = (function($, Profile, d3) {
 
         setArrows(null, true);
 
+        var curStatsCol = statsCol;
         fetchGroupbyData(rowPosition, rowsToFetch)
         .then(function() {
             toggleFilterOption(true);
-            groupByData = addNullValue(groupByData);
-            buildGroupGraphs(forceUpdate);
+            groupByData = addNullValue(curStatsCol, groupByData);
+            buildGroupGraphs(curStatsCol, forceUpdate);
             $modal.removeClass("loading");
             clearTimeout(loadTimer);
             setArrows(tempRowNum);
             deferred.resolve(tempRowNum);
         })
         .fail(function(error) {
-            failureHandler(statsCol, error);
+            failureHandler(curStatsCol, error);
             deferred.reject(error);
         })
         .always(function() {
@@ -1895,7 +1899,7 @@ window.Profile = (function($, Profile, d3) {
         var refreshTimer = setTimeout(function() {
             // refresh if not complete
             if (curStatsCol.groupByInfo.isComplete === "running") {
-                refreshGroupbyInfo(true);
+                refreshGroupbyInfo(curStatsCol, true);
             }
         }, 500);
 
@@ -1916,18 +1920,20 @@ window.Profile = (function($, Profile, d3) {
         .then(function() {
             // remove timer as first thing
             clearTimeout(refreshTimer);
-            order = newOrder;
             curStatsCol.groupByInfo.isComplete = true;
             Transaction.done(txId);
-            return refreshGroupbyInfo(true);
+            if (!isModalVisible(curStatsCol)) {
+                return PromiseHelper.reject("old data");
+            }
+
+            order = newOrder;
+            return refreshGroupbyInfo(curStatsCol, true);
         })
         .then(function() {
             $modal.attr("data-state", "finished");
         })
         .fail(function(error) {
             clearTimeout(refreshTimer);
-            $modal.attr("data-state", "failed");
-            curStatsCol.groupByInfo.isComplete = true;
             failureHandler(curStatsCol, error, txId);
         });
     }
@@ -2079,7 +2085,7 @@ window.Profile = (function($, Profile, d3) {
         var refreshTimer = setTimeout(function() {
             // refresh if not complete
             if (curStatsCol.groupByInfo.isComplete === "running") {
-                refreshGroupbyInfo(true);
+                refreshGroupbyInfo(curStatsCol, true);
             }
         }, 500);
 
@@ -2110,19 +2116,22 @@ window.Profile = (function($, Profile, d3) {
             // remove timer as first thing
             clearTimeout(refreshTimer);
             bucketNum = newBucketNum;
-            order = sortMap.origin; // reset to normal order
             curStatsCol.groupByInfo.isComplete = true;
-
             sql.bucketSize = bucketNum;
             Transaction.done(txId, {"sql": sql});
-            return refreshGroupbyInfo(true);
+
+            if (!isModalVisible(curStatsCol)) {
+                return PromiseHelper.reject("old data");
+            }
+
+            order = sortMap.origin; // reset to normal order
+            return refreshGroupbyInfo(curStatsCol, true);
         })
         .then(function() {
             $modal.attr("data-state", "finished");
         })
         .fail(function(error) {
             clearTimeout(refreshTimer);
-            curStatsCol.groupByInfo.isComplete = true;
             failureHandler(curStatsCol, error, txId);
         });
     }
@@ -2722,6 +2731,7 @@ window.Profile = (function($, Profile, d3) {
 
     function isModalVisible(curStatsCol) {
         return ($modal.is(":visible") &&
+                curStatsCol != null &&
                 $modal.data("id") === curStatsCol.getId());
     }
 
@@ -2740,6 +2750,7 @@ window.Profile = (function($, Profile, d3) {
                 error = error.error;
             }
 
+            $modal.attr("data-state", "failed");
             $modal.removeClass("loading");
             $modal.find(".loadHidden").removeClass("hidden")
                                     .removeClass("disabled");
