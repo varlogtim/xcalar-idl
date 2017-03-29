@@ -286,7 +286,7 @@ window.SmartCastView = (function($, SmartCastView) {
             val = $(this).find('.originalData').text();
             datas.push(val);
         });
-        return xcHelper.suggestType(datas, type);
+        return xcSuggest.suggestType(datas, type);
     }
 
     function scrollToColumn(colNum) {

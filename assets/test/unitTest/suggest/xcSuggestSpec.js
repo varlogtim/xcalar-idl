@@ -1,35 +1,6 @@
-describe('xcSuggest', function() {
-    describe("Setup ML Engine", function() {
-        it("setup should work", function() {
-            expect(xcSuggest.setup()).to.be.true;
-            expect(xcSuggest.__testOnly__.getEngine()).to.not.be.undefined;
-        });
-    });
-
-    describe("Join Key Heuristic", function() {
-        it("Process Heuristic Inputs should work", function() {
-            // TODO: processJoinKeyInputsHeuristic
-        });
-
-        it("Suggest Heuristic should work", function() {
-            // TODO: suggestJoinKeyHeuristic
-        });
-    });
-
-    describe("Join Key ML", function() {
-        it("Process ML Inputs should work", function() {
-            // TODO: processJoinKeyInputsHeuristic
-        });
-
-        it("Suggest ML should work", function() {
-            // TODO: suggestJoinKeyML
-        });
-    });
-
-    describe('Join Key & Support', function() {
-
-
-        it('contextCheck should work', function() {
+describe("xcSuggest", function() {
+    describe("Suggest Join Key Test", function() {
+        it("contextCheck should work", function() {
             var contextCheck = xcSuggest.__testOnly__.contextCheck;
             function contextEq(context1, context2) {
                 var maxEq = (context1.max === context2.max);
@@ -166,197 +137,78 @@ describe('xcSuggest', function() {
             expect(contextEq(invalidTypeCX, nullContext)).to.be.true;
         });
 
-        it.skip('getScore should work', function() {
-            // TODO: refactor and unskip this to fall in line with getScore refactor
+        it("getScore should work", function() {
             var getScore = xcSuggest.__testOnly__.getScore;
-
-            var nullContext = {
-                "max": 0,
-                "min": 0,
-                "avg": 0,
-                "sig2": 0,
-                "vals": []
+            // case 1
+            var feature = {
+                "type": "string",
+                "match": 1,
+                "maxDiff": 2,
+                "minDiff": 3,
+                "avgDiff": 4,
+                "sig2Diff": 5,
+                "titleDist": 6
             };
-
-            var fullContext = {
-                "max": 10000,
-                "min": 72,
-                "avg": 5700.5,
-                "sig2": 42.3,
-                "vals": [10000, 72, 5700]
+            expect(getScore(feature)).to.equal(-77);
+            // case 2
+            feature = {
+                "maxDiff": 2,
+                "minDiff": 3,
+                "avgDiff": 4,
+                "sig2Diff": 5,
+                "titleDist": 6
             };
-
-            var nullTD = 0.0;
-
-            var max1CX = {
-                "max": 1,
-                "min": 0,
-                "avg": 0,
-                "sig2": 0,
-                "vals": []
-            };
-
-            var max2CX = {
-                "max": 10,
-                "min": 0,
-                "avg": 0,
-                "sig2": 0,
-                "vals": []
-            };
-
-            var min1CX = {
-                "max": 0,
-                "min": -1,
-                "avg": 0,
-                "sig2": 0,
-                "vals": []
-            };
-
-            var min2CX = {
-                "max": 0,
-                "min": -10,
-                "avg": 0,
-                "sig2": 0,
-                "vals": []
-            };
-
-            var avg1CX = {
-                "max": 0,
-                "min": 0,
-                "avg": 1,
-                "sig2": 0,
-                "vals": []
-            };
-
-            var avg2CX = {
-                "max": 0,
-                "min": 0,
-                "avg": 10,
-                "sig2": 0,
-                "vals": []
-            };
-
-            var sig21CX = {
-                "max": 0,
-                "min": 0,
-                "avg": 0,
-                "sig2": 1,
-                "vals": []
-            };
-
-            var sig22CX = {
-                "max": 0,
-                "min": 0,
-                "avg": 0,
-                "sig2": 10,
-                "vals": []
-            };
-
-            var strCX = {
-                "max": 5,
-                "min": 5,
-                "avg": 5,
-                "sig2": 0,
-                "vals": ["hello"]
-            };
-
-            var strMatchCX = {
-                "max": 5,
-                "min": 5,
-                "avg": 5,
-                "sig2": 0,
-                "vals": ["byeby", "hello"]
-            };
-
-            var strNoMatchCX = {
-                "max": 5,
-                "min": 5,
-                "avg": 5,
-                "sig2": 0,
-                "vals": ["nuupe", "match"]
-            };
-
-            var intCX = {
-                "max": 100,
-                "min": 100,
-                "avg": 100,
-                "sig2": 0,
-                "vals": [100]
-            };
-
-            var intMatchCX = {
-                "max": 100,
-                "min": 100,
-                "avg": 100,
-                "sig2": 0,
-                "vals": [100,100]
-            };
-
-            // Doesn't make much sense but necessary to test int match
-            var intNoMatchCX = {
-                "max": 100,
-                "min": 100,
-                "avg": 100,
-                "sig2": 0,
-                "vals": [20, 10]
-            };
-
-            // Checking to see if context params effect score correctly
-            // TODO: Uncomment when calcSim is refactored
-            // expect(getScore(nullContext, max1CX, nullTD, ColumnType.integer))
-            // .to.be.above(getScore(max2CX, max1CX, nullTD, ColumnType.integer));
-            // expect(getScore(nullContext, min1CX, nullTD, ColumnType.integer))
-            // .to.be.above(getScore(min2CX, min1CX, nullTD, ColumnType.integer));
-            // expect(getScore(nullContext, avg1CX, nullTD, ColumnType.integer))
-            // .to.be.above(getScore(avg2CX, avg1CX, nullTD, ColumnType.integer));
-            // expect(getScore(nullContext, sig21CX, nullTD, ColumnType.integer))
-            // .to.be.above(getScore(sig22CX, sig21CX, nullTD, ColumnType.integer));
-
-            // Checking to see if title distance effects score correctly
-            expect(getScore(nullContext, nullContext, nullTD, ColumnType.integer))
-            .to.be.above(getScore(nullContext, nullContext, 10.1, ColumnType.integer, 0));
-
-            // Checking to see if bucket matches matter correctly
-            // TODO: Uncomment once Match is refactored
-            // expect(getScore(strCX, strMatchCX, nullTD, ColumnType.string))
-            // .to.be.above(getScore(strCX, strNoMatchCX, nullTD, ColumnType.string));
-            // expect(getScore(intCX, intMatchCX, nullTD, ColumnType.integer))
-            // .to.equal(getScore(intCX, intNoMatchCX, nullTD, ColumnType.integer));
-
-            // Checking reflexivity
-            expect(getScore(nullContext, fullContext, 10.1, ColumnType.integer))
-            .to.be.equal(getScore(fullContext, nullContext, 10.1, ColumnType.integer, 0));
-
+            expect(getScore(feature)).to.equal(-286);
         });
 
-        it('calcSim should work', function() {
-            // TODO: implement once calcSim is refactored
-
+        it("calcSim should work", function() {
+            var calcSim = xcSuggest.__testOnly__.calcSim;
+            // case 1
+            var res = calcSim(0, 0);
+            expect(res).to.equal(0);
+            // case 2
+            res = calcSim(1, -1);
+            expect(res).to.equal(1);
+            // case 3
+            res = calcSim(2, 3);
+            expect(res).to.equal(0.2);
+            // case 4
+            res = calcSim(3, 2);
+            expect(res).to.equal(0.2);
         });
 
-        it('titleDist should work', function() {
-            var autoGen = "columnAG";
-            var name1 = "test1";
-            var name2 = "test2";
-            var name3 = "sizeP";
-            var name4 = "supercalifragilisticexpialadocious";
-            var emptyName = ""; // Does empty title ever happen?
+        it("getTitleDistance should work", function() {
+            var getTitleDistance = xcSuggest.__testOnly__.getTitleDistance;
+            // case 1
+            var res = getTitleDistance("columnAG", "test");
+            expect(res).to.equal(0);
 
-            expect(xcSuggest.__testOnly__.getTitleDistance(autoGen, name1)).to.equal(0);
-            var sim1 = xcSuggest.__testOnly__.getTitleDistance(name1, name2);
-            var sim2 = xcSuggest.__testOnly__.getTitleDistance(name1, name3);
-            var sim3 = xcSuggest.__testOnly__.getTitleDistance(name1, name4);
-            var simEmpty1 = xcSuggest.__testOnly__.getTitleDistance(emptyName, name1);
-            var simEmpty2 = xcSuggest.__testOnly__.getTitleDistance(emptyName, name3);
+            // case 2
+            res = getTitleDistance("test", "test");
+            expect(res).to.equal(0);
 
-            // Assume: lower is more similar
-            expect(sim1).to.be.below(sim2);
-            expect(sim2).to.be.below(sim3);
-            expect(simEmpty1).to.equal(simEmpty2);
-            expect(sim2).to.be.most(simEmpty1);
+            // case 3 (not prefix or case sensitive)
+            res = getTitleDistance("prefix::test", "TEST");
+            expect(res).to.equal(0);
+
+            // case 4
+            res = getTitleDistance("start_test", "start");
+            expect(res).to.equal(2);
+
+            // case 5
+            res = getTitleDistance("start", "start_test");
+            expect(res).to.equal(2);
+
+            // case 6
+            res = getTitleDistance("long_string", "string");
+            expect(res).to.equal(5);
+
+            // case 7
+            res = getTitleDistance("string", "long_string");
+            expect(res).to.equal(5);
         });
 
-        it('suggestJoinKey should work', function() {
+        it("suggestJoinKey should work", function() {
             var emptyColInfoNum = {
                 "type": ColumnType.integer,
                 "name": "",
@@ -642,23 +494,91 @@ describe('xcSuggest', function() {
         });
     });
 
-    describe("Join Key Data Submission", function() {
-        it("Suggest Data construction should work", function() {
-            // TODO: addSuggestFeatures, addSuggestLables,
-            //       addMetaData, addIsValid
+    describe("Join Key Data Submission Test", function() {
+        it("should check suggest data match", function() {
+            checkSuggestDataPortionsMatch = xcSuggest.__testOnly__.checkSuggestDataPortionsMatch;
+            var tests = [{
+                "input": null,
+                "expect": false
+            }, {
+                "input": {"features": [], "labels": null},
+                "expect": false
+            }, {
+                "input": {"features": [], "labels": [1, 2]},
+                "expect": false
+            }, {
+                "input": {"features": [1, 1], "labels": [1, 1]},
+                "expect": false
+            }, {
+                "input": {"features": [1], "labels": [2]},
+                "expect": false
+            }, {
+                "input": {"features": [1], "labels": [1]},
+                "expect": true
+            }, {
+                "input": {"features": [1, 2], "labels": [1, 2]},
+                "expect": true
+            }];
+
+            tests.forEach(function(test) {
+                var res = checkSuggestDataPortionsMatch(test.input);
+                expect(res).to.equal(test.expect);
+            });
         });
 
+        it("xcSuggest.submitJoinKeyData", function() {
+            /* sample
+            {
+                "features": [{
+                    "avgDiff": 0.76,
+                    "match": 0,
+                    "maxDiff": 0.98,
+                    "minDiff": 0.6,
+                    "sig2Diff": 1,
+                    "titleDist": 0,
+                    "type": "integer",
+                    "uniqueIdentifier": "prefix::test"
+                }],
+                "isValid": true,
+                "labels": [1],
+                "metaData": {
+                    "srcColName": "prefix1::test1",
+                    "timeOfJoin": "Wed Mar 29 2017 11:03:16 GMT-0700 (PDT)"
+                }
+            }
+             */
+            var curDestName = "prefix::test1";
+            var joinKeyData = {
+                "destColsInfo": [{
+                    "data": ["1"],
+                    "name": "count1",
+                    "type": "integer",
+                    "uniqueIdentifier": curDestName
+                }],
+                "srcColInfo": {
+                    "data": ["8"],
+                    "name": "count2",
+                    "type": "integer",
+                    "uniqueIdentifier": "prefix::test2"
+                }
+            };
+            var res = xcSuggest.processJoinKeyData(joinKeyData, curDestName);
+            expect(res).to.be.an("object");
+            expect(res).to.have.property("features")
+            .and.to.be.an("array");
+            expect(res).to.have.property("isValid")
+            .and.to.be.true;
+            expect(res).to.have.property("labels")
+            .and.to.be.an("array");
+            expect(res).to.have.property("metaData")
+            .and.to.be.an("object");
 
-        it("Suggest Data Validation should work", function() {
-            // TODO: checkSuggestDataPortionsMatch,
-            //       checkSuggestDataPortionsValid,
-            //       checkSuggestDataPortionsFilled,
-            //       isValidJoinKeySubmitData
-        });
-
-        it("Submit Data should work", function() {
-            // TODO: processJoinKeySubmitData
-            //       submitJoinKeyData
+            expect(res.labels.length).to.equal(1);
+            expect(res.labels[0]).to.equal(1);
+            expect(res.metaData).to.have.property("srcColName")
+            .and.to.equal("prefix::test2");
+            expect(res.metaData).to.have.property("timeOfJoin")
+            .and.to.be.a("string");
         });
     });
 
@@ -748,6 +668,56 @@ describe('xcSuggest', function() {
                 var parsedRows = test.data;
                 expect(xcSuggest.detectHeader(parsedRows))
                 .to.equal(test.expect);
+            });
+        });
+    });
+
+    describe("Suggest Type Test", function() {
+        it("xcSuggest.suggestType should work", function() {
+            var tests = [{
+                "datas": null,
+                "type": ColumnType.integer,
+                "expect": ColumnType.integer
+            }, {
+                "datas": null,
+                "type": ColumnType.float,
+                "expect": ColumnType.float
+            }, {
+                "datas": "1",
+                "type": ColumnType.string,
+                "expect": ColumnType.integer
+            }, {
+                "datas": ["1", null, ""],
+                "type": ColumnType.string,
+                "expect": ColumnType.integer
+            }, {
+                "datas": ["1.1", "2"],
+                "type": ColumnType.string,
+                "expect": ColumnType.float
+            }, {
+                "datas": null,
+                "type": ColumnType.string,
+                "expect": ColumnType.string
+            }, {
+                "datas": ["1", "a"],
+                "type": ColumnType.string,
+                "expect": ColumnType.string
+            }, {
+                "datas": ["1", "a"],
+                "type": ColumnType.string,
+                "confidentRate": 0.1,
+                "expect": ColumnType.integer
+            }, {
+                "datas": ["t", "False"],
+                "type": ColumnType.string,
+                "confidentRate": 0.1,
+                "expect": ColumnType.boolean
+            }];
+
+            tests.forEach(function(test) {
+                var res = xcSuggest.suggestType(test.datas, test.type,
+                                                test.confidentRate);
+                expect(res).to.equal(test.expect);
             });
         });
     });

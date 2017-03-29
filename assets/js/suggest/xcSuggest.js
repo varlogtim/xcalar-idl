@@ -8,9 +8,7 @@ window.xcSuggest = (function($, xcSuggest) {
  * 4.) ML setting returns the unique identifier and score
  *
 */
-
     var MLEngine;
-
     // Turn off ML Engine
     var useEngine = true;
 
@@ -29,7 +27,6 @@ window.xcSuggest = (function($, xcSuggest) {
         // Requires: inputs.destCol is an array, but can be empty
 
         // For now, the ML and heuristic both use the same features.
-
         var featuresPerColumn = processJoinKeyInputs(inputs);
         var suggestResults;
         if (useEngine) {
@@ -55,19 +52,15 @@ window.xcSuggest = (function($, xcSuggest) {
         return suggestResults;
     };
 
-    xcSuggest.processJoinKeySubmitData = function(joinKeyInputs,
-                                            curDestBackName) {
+    xcSuggest.processJoinKeyData = function(joinKeyInputs, curDestBackName) {
         var mlInputData = {};
         var inputFeatures = processJoinKeyInputs(joinKeyInputs);
+
         addSuggestFeatures(mlInputData, inputFeatures);
         addSuggestLabels(mlInputData, curDestBackName);
         addMetaData(mlInputData, joinKeyInputs);
         addIsValid(mlInputData);
         return mlInputData;
-    };
-
-    xcSuggest.isValidJoinKeySubmitData = function(mlInputData) {
-        return checkSuggestDataPortionsMatch(mlInputData);
     };
 
     xcSuggest.submitJoinKeyData = function(dataPerClause) {
@@ -314,11 +307,9 @@ window.xcSuggest = (function($, xcSuggest) {
     function getScore(curFeatures) {
         // the two value of max, min, sig2, avg..closer, score is better,
         // also, shorter distance, higher score. So those socres are negative
-
         var score = 0;
 
         if (curFeatures.type === "string") {
-
             // for string compare absolute value
             score += curFeatures.match * 3;
             score += curFeatures.maxDiff * -1;
@@ -330,7 +321,6 @@ window.xcSuggest = (function($, xcSuggest) {
             // a base score for number,
             // since limit score to pass is -50
             var match = 20;
-
             // for number compare relative value
             score += match * 3;
             score += curFeatures.maxDiff * -8;
@@ -436,19 +426,14 @@ window.xcSuggest = (function($, xcSuggest) {
         }
     }
 
-    function getEngine() {
-        return MLEngine;
-    }
-
     ///////////////// Data Submission Handling //////////
     function checkSuggestDataPortionsMatch(inputData) {
         // TODO: Add more checks
-        if (!checkSuggestDataPortionsValid(inputData) ||
-            !checkSuggestDataPortionsFilled(inputData)) {
+        if (!(inputData && inputData.features && inputData.labels)) {
             return false;
         }
         if (inputData.features.length !== inputData.labels.length) {
-            console.log("InputData features lenght does not match label length.");
+            console.warn("InputData features lenght does not match label length.");
             return false;
         }
         // corrLabels tracks how many columns per dataset are labeled 1 (match).
@@ -456,40 +441,21 @@ window.xcSuggest = (function($, xcSuggest) {
         // TODO: change the corrLabel concept when we support softclass inputs
         // E.g. when we no longer require exactly one column to be correct
         var corrLabels = 0;
-        for (i = 0; i < inputData.features.length; i++) {
+        var len = inputData.labels.length;
+        for (var i = 0; i < len; i++) {
             if (inputData.labels[i] === 1) {
-                if (corrLabels > 1) {
-                    console.log("More than one column labeled as match.");
+                if (corrLabels >= 1) {
+                    console.warn("More than one column labeled as match.");
                     return false;
                 }
                 corrLabels++;
             }
         }
         if (corrLabels === 0) {
-            console.log("No columns labeled as match.");
+            console.warn("No columns labeled as match.");
             return false;
         }
         return true;
-    }
-
-    function checkSuggestDataPortionsValid(inputData) {
-        // If suggestData is cleared, OK
-        if (!inputData) {
-            return true;
-        }
-
-        // Has labels but no features, this should not happen
-        if (!inputData.features && inputDat.labels) {
-            console.log("Input features empty but labels not.");
-            return false;
-        }
-
-        return true;
-    }
-
-    function checkSuggestDataPortionsFilled(inputData) {
-        // Returns true if has all portions
-        return (inputData && inputData.features && inputData.labels);
     }
 
     function addSuggestFeatures(inputData, features) {
@@ -726,20 +692,11 @@ window.xcSuggest = (function($, xcSuggest) {
 //   progcol.gettype
 //   suggestType
 //    -Skips bool and float type
-//    xchelper.suggesttype <- Bingo
 //     -Skips integer type
 //  smartsuggest -I think it's just UI updates
-//
-// xcHelper.suggestType also shows up in
-// tableMenu, xcHelperSpec
 
-    xcSuggest.suggestTypeHeuristic = function(inputs) {
+    xcSuggest.suggestType = function(datas, currentType, confidentRate) {
         // Inputs has fields colInfo, confidentRate
-        var confidentRate = inputs.confidentRate;
-        var colInfo = inputs.colInfo;
-        var currentType = colInfo.type;
-        var datas = colInfo.data;
-
         if (currentType === ColumnType.integer ||
             currentType === ColumnType.float) {
             return currentType;
@@ -807,7 +764,7 @@ window.xcSuggest = (function($, xcSuggest) {
         xcSuggest.__testOnly__.getScore = getScore;
         xcSuggest.__testOnly__.calcSim = calcSim;
         xcSuggest.__testOnly__.getTitleDistance = getTitleDistance;
-        xcSuggest.__testOnly__.getEngine = getEngine;
+        xcSuggest.__testOnly__.checkSuggestDataPortionsMatch = checkSuggestDataPortionsMatch;
     }
     /* End Of Unit Test Only */
 

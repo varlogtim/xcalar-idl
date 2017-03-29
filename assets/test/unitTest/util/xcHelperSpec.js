@@ -1069,36 +1069,6 @@ describe('xcHelper Test', function() {
         expect(res).to.equal(true);
     });
 
-    it("xcHelper.suggestType should work", function() {
-        // case 1
-        var res = xcHelper.suggestType(null, "integer");
-        expect(res).to.equal("integer");
-        // case 2
-        res = xcHelper.suggestType(null, "float");
-        expect(res).to.equal("float");
-        // case 3
-        res = xcHelper.suggestType("1", "string");
-        expect(res).to.equal("integer");
-        // case 4
-        res = xcHelper.suggestType(["1", null, ""], "string");
-        expect(res).to.equal("integer");
-        // case 5
-        res = xcHelper.suggestType(["1.1", "2"], "string");
-        expect(res).to.equal("float");
-        // case 6
-        res = xcHelper.suggestType(null, "string");
-        expect(res).to.equal("string");
-        // case 7
-        res = xcHelper.suggestType(["1", "a"], "string");
-        expect(res).to.equal("string");
-        // case 8
-        res = xcHelper.suggestType(["1", "a"], "string", 0.1);
-        expect(res).to.equal("integer");
-        // case 9
-        res = xcHelper.suggestType(["t", "False"], "string", 0.1);
-        expect(res).to.equal("boolean");
-    });
-
     it('xcHelper.lockTable and  xcHelper.unlockTable should work', function() {
         gTables["xcTest"] = new TableMeta({
             "tableId": "xcTest",
@@ -1484,7 +1454,7 @@ describe('xcHelper Test', function() {
         var html = '<div id="scrollTest" style="position:fixed; top:0px; left:0px; z-index:999999; height:100px; width: 20px; overflow:hidden; overflow-y:scroll">' +
                         '<div id="scrollTest1" style="height:200px;"></div>' +
                         '<div id="scrollTest2" style="height:10px;"></div>' +
-                    '</div>'
+                    '</div>';
         $('body').append(html);
         var $outerDiv = $("#scrollTest");
         expect($outerDiv.scrollTop()).to.equal(0);
@@ -1494,7 +1464,7 @@ describe('xcHelper Test', function() {
 
         xcHelper.scrollToBottom($outerDiv);
         expect($outerDiv.scrollTop()).to.equal(110);
-        var el = document.elementFromPoint(1, 99);
+        el = document.elementFromPoint(1, 99);
         expect($(el).attr("id")).to.equal("scrollTest2");
 
         $("#scrollTest").remove();

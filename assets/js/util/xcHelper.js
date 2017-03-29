@@ -1392,17 +1392,6 @@ window.xcHelper = (function($, xcHelper) {
         return true;
     };
 
-    xcHelper.suggestType = function(datas, currentType, confidentRate) {
-        var inputs = {
-            'colInfo': {
-                'data': datas,
-                'type': currentType
-            },
-            'confidentRate': confidentRate
-        };
-        return xcSuggest.suggestTypeHeuristic(inputs);
-    };
-
     xcHelper.lockTable = function(tableId, txId) {
         // lock worksheet as well
         xcAssert((tableId != null), "Invalid Parameters!");

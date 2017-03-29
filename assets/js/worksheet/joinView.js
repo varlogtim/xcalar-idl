@@ -1454,7 +1454,7 @@ window.JoinView = (function($, JoinView) {
                 var joinKeyInputs = getJoinKeyInputs(lTableId,
                                                     curSrcBackName,
                                                     rTableId);
-                var dataToSubmit = xcSuggest.processJoinKeySubmitData(
+                var dataToSubmit = xcSuggest.processJoinKeyData(
                                                             joinKeyInputs,
                                                             curDestBackName);
                 if (!dataToSubmit.isValid) {
