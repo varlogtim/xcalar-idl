@@ -118,8 +118,8 @@ window.Support = (function(Support, $) {
 
         var deferred = jQuery.Deferred();
 
-        var yellowThreshold = 0.8;
-        var redThreshold = 0.9;
+        var yellowThreshold = 0.6;
+        var redThreshold = 0.8;
 
         isCheckingMem = true;
 

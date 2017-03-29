@@ -80,7 +80,7 @@ generateHtml: node_modules/.bin/grunt
 thriftSync: $(XLRDIR)/src/bin/thrift/js/XcalarApiService.js
 	@echo "=== Syncing with XLRDIR's .js files ==="
 	@./assets/bin/syncTrunk.sh
-	@echo "var hostname='`hostname`:9090';" > $(DESTDIR)/prod/assets/js/config.js
+	@echo "var hostname='http://`hostname`:9090'; var expHost='http://`hostname`:12124';" > $(DESTDIR)/prod/assets/js/config.js
 
 
 thriftAlert:
