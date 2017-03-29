@@ -383,14 +383,14 @@ window.Installer = (function(Installer, $) {
             finalStruct.nfsOption = {};
             deferred.resolve();
         } else if (nfsOption === "customerNfs") {
-            if ($("#nfsServer").text().trim().length === 0) {
+            if ($("#nfsServer").val().trim().length === 0) {
                 deferred.reject("NFS Server Invalid",
                     "You must provide a valid NFS Server IP or FQDN");
             } else {
                 finalStruct.nfsOption = {};
-                finalStruct.nfsOption.nfsServer = $("#nfsServer").text().trim();
+                finalStruct.nfsOption.nfsServer = $("#nfsServer").val().trim();
                 finalStruct.nfsOption.nfsMountPoint = "/" + $("#nfsMountPoint")
-                                                                 .text().trim();
+                                                                 .val().trim();
                 finalStruct.nfsOption.nfsUsername = $("#nfsUserName").val()
                                                                      .trim();
                 finalStruct.nfsOption.nfsGroup = $("#nfsUserGroup").val()
@@ -403,7 +403,7 @@ window.Installer = (function(Installer, $) {
                     "You must provide a valid NFS Mount Path");
             } else {
                 $("#sharedStorageForm .nfsSection").addClass("lock");
-                var path = "/" + $("#nfsMountPointReady").text().trim();
+                var path = "/" + $("#nfsMountPointReady").val().trim();
                 finalStruct.nfsOption = {};
                 finalStruct.nfsOption.nfsReuse = path;
                 $("#sharedStorageForm").removeClass("lock");
@@ -714,6 +714,10 @@ window.Installer = (function(Installer, $) {
             });
             for (i = 0; i<$(".row .curStatus").length; i++) {
                 var status = $(".row .curStatus").eq(i).text();
+                if (status.indexOf("Installing...") === 0) {
+                    $(".row .curStatus").eq(i).text("Failed");
+                    continue;
+                }
                 if (status.indexOf("(") === -1) {
                     continue;
                 }
