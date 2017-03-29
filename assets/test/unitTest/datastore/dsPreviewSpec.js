@@ -1278,7 +1278,6 @@ describe("DSPreview Test", function() {
             var testDS = xcHelper.uniqueRandName("testSuitesSp500", DS.has, 10);
             $("#dsForm-dsName").val(testDS);
             var $grid;
-
             DSPreview.__testOnly__.submitForm()
             .then(function() {
                 expect(DS.has(testDS)).to.be.true;

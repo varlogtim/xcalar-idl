@@ -555,7 +555,7 @@ describe("DSObj Test", function() {
         });
 
         it("Should click .preview to preview ds", function() {
-            var oldFunc = DS.dropToParent;
+            var oldFunc = DS.focusOn;
             var test = false;
             DS.focusOn = function() {
                 test = true;
