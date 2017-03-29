@@ -11,25 +11,35 @@ describe('TableMenu Test', function() {
     var $colSubMenu;
     var $cellMenu;
     var rightMouseup;
+    var oldTableId;
 
     before(function(done) {
         UnitTest.onMinMode();
         var testDSObj = testDatasets.fakeYelp;
+
         UnitTest.addAll(testDSObj, "unitTestFakeYelp")
         .then(function(ds, tName, tPrefix) {
             testDs = ds;
             tableName = tName;
             prefix = tPrefix;
             tableId = xcHelper.getTableId(tableName);
-            $table = $('#xcTable-' + tableId);
-            $tableWrap = $('#xcTableWrap-' + tableId);
+            oldTableId = tableId;
+
+            xcFunction.sort(10, tableId, SortDirection.Forward)
+            .then(function(tName) {
+                tableName = tName;
+                tableId = xcHelper.getTableId(tableName);
+                $table = $('#xcTable-' + tableId);
+                $tableWrap = $('#xcTableWrap-' + tableId);
+                done();
+            });
+
             $tableMenu = $('#tableMenu');
             $tableSubMenu = $('#tableSubMenu');
             $colMenu = $('#colMenu');
             $colSubMenu = $('#colSubMenu');
             $cellMenu = $('#cellMenu');
             rightMouseup = {"type": "mouseup", "which": 3};
-            done();
         });
     });
 
@@ -1216,7 +1226,7 @@ describe('TableMenu Test', function() {
             xcFunction.filter = function(colNum, tId, options) {
                 expect(colNum).to.equal(6);
                 expect(tId).to.equal(tableId);
-                expect(options.filterString).to.equal('eq(' + prefix + gPrefixSign + 'mixVal, "' + cellText + '")' );
+                expect(options.filterString).to.equal('eq(' + prefix + gPrefixSign + 'mixVal, ' + cellText + ')' );
                 expect(options.operator).to.equal("Filter");
                 called = true;
             };
@@ -1322,10 +1332,13 @@ describe('TableMenu Test', function() {
     });
 
     after(function(done) {
-        UnitTest.deleteAll(tableName, testDs)
-        .always(function() {
-            UnitTest.offMinMode();
-            done();
+        UnitTest.deleteAllTables()
+        .then(function() {
+            UnitTest.deleteDS(testDs)
+            .always(function() {
+                UnitTest.offMinMode();
+                done();
+            });
         });
     });
 });
