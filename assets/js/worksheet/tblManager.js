@@ -1119,7 +1119,7 @@ window.TblManager = (function($, TblManager) {
         // it may not be visible
         var mainFrameTop = $('.mainPanel.active').find('.topBar')[0]
                                 .getBoundingClientRect().bottom;
-        var mainFrameBottom = $('#statusBar').offset().top;
+        var mainFrameBottom = $('#statusBar')[0].getBoundingClientRect().top;
         var mainFrameHeight = mainFrameBottom - mainFrameTop;
         var tableAreaHeight = mainFrameHeight - gFirstRowPositionTop;
         var maxVisibleRows = Math.ceil(tableAreaHeight / gRescol.minCellHeight);
@@ -1127,6 +1127,7 @@ window.TblManager = (function($, TblManager) {
         var rowsNeeded = maxVisibleRows + gNumEntriesPerPage + buffer;
         gMaxEntriesPerPage = Math.max(rowsNeeded, gMinRowsPerScreen);
         gMaxEntriesPerPage = Math.ceil(gMaxEntriesPerPage / 10) * 10;
+        return gMaxEntriesPerPage;
     };
 
     TblManager.bookmarkRow = function(rowNum, tableId) {
