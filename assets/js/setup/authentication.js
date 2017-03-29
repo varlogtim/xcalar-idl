@@ -43,11 +43,11 @@ window.Authentication = (function(jQuery, Authentication) {
         return ("#" + authInfo.getHashTag() + idCount);
     };
 
-    Authentication.clear = function() {
-        // this clear all users' info
-        authInfo = null;
-        return KVStore.delete(KVStore.gAuthKey, gKVScope.AUTH);
-    };
+    // Authentication.clear = function() {
+    //     // this clear all users' info
+    //     authInfo = null;
+    //     return KVStore.delete(KVStore.gAuthKey, gKVScope.AUTH);
+    // };
 
     function generateHashTag() {
         // 2891 = 49 * 59, possibility
@@ -59,15 +59,15 @@ window.Authentication = (function(jQuery, Authentication) {
         // sessions to reduce the chance of collision
         var probability = [25, 190]; // Birthday Paradox
         var numUsers = 0; // XXX Ask Cheng
-        for (var i = 0; i<probability.length; i++) {
-            if (numUsers > probability[i]) {
+        probability.forEach(function(prob) {
+            if (numUsers > prob) {
                 numDigits++;
             }
-        }
+        });
 
         var hashTag = str.charAt(Math.floor(Math.random() * (str.length - 10)) +
                       10);
-        for (var i = 0; i<numDigits-1; i++) {
+        for (var i = 0; i < numDigits - 1; i++) {
             hashTag += str.charAt(Math.floor(Math.random() * str.length));
         }
 

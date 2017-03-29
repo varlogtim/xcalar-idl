@@ -8,7 +8,10 @@ window.XcSocket = (function(XcSocket, $) {
             return;
         }
 
-        var url = getExpServerUrl();
+        var url = getExpServerUrl(hostname);
+        // var options = {
+        //     "reconnectionAttempts": 500
+        // };
         socket = io.connect(url);
         addSocketEvent();
     };
@@ -17,13 +20,13 @@ window.XcSocket = (function(XcSocket, $) {
         return connected;
     };
 
-    function getExpServerUrl() {
-        var host = hostname;
+    function getExpServerUrl(host) {
         var port = "12124"; // XXX this is hard coded now
         if (/.*:\/\/.*:.*/.test(host)) {
             var index = host.lastIndexOf(":");
-            host = host.substring(0, index) + ":" + port;
+            host = host.substring(0, index);
         }
+        host = host + ":" + port;
         return host;
     }
 
@@ -42,6 +45,13 @@ window.XcSocket = (function(XcSocket, $) {
             }
         });
     }
+
+    /* Unit Test Only */
+    if (window.unitTestMode) {
+        XcSocket.__testOnly__ = {};
+        XcSocket.__testOnly__.getExpServerUrl = getExpServerUrl;
+    }
+    /* End Of Unit Test Only */
 
     return XcSocket;
 }({}, jQuery));
