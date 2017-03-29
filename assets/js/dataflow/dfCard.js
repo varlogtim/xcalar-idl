@@ -1232,6 +1232,7 @@ window.DFCard = (function($, DFCard) {
         DFCard.__testOnly__.retinasInProgress = retinasInProgress;
         DFCard.__testOnly__.startStatusCheck = startStatusCheck;
         DFCard.__testOnly__.endStatusCheck = endStatusCheck;
+        DFCard.__testOnly__.addParamToRetina = addParamToRetina;
     }
     /* End Of Unit Test Only */
 

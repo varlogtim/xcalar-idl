@@ -420,6 +420,7 @@ window.DFCreateView = (function($, DFCreateView) {
     if (window.unitTestMode) {
         DFCreateView.__testOnly__ = {};
         DFCreateView.__testOnly__.submitForm = submitForm;
+        DFCreateView.__testOnly__.saveDataFlow = saveDataFlow;
         DFCreateView.__testOnly__.resetDFView = resetDFView;
         DFCreateView.__testOnly__.validateDFName = validateDFName;
         DFCreateView.__testOnly__.selectAll = selectAll;

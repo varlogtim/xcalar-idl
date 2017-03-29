@@ -122,6 +122,7 @@ window.DFParamModal = (function($, DFParamModal){
     };
 
     DFParamModal.show = function($currentIcon) {
+        var deferred = jQuery.Deferred();
         var type = $currentIcon.data('type');
         var tableName = $currentIcon.data('table') || // For aliased tables
                         $currentIcon.data('tablename');
@@ -165,6 +166,24 @@ window.DFParamModal = (function($, DFParamModal){
         fillUpRows();
         populateSavedFields(id, dfName);
 
+        modalHelper.setup();
+
+        var $dummyInputs = $dfgParamModal.find('.dummy');
+        $dummyInputs.on('dragenter', '.line', function() {
+            $dummyInputs.find('.line, .space').removeClass('hover');
+            $(this).addClass('hover');
+        });
+        $dummyInputs.on('dragenter', '.space', function() {
+            $dummyInputs.find('.line, .space').removeClass('hover');
+            $(this).addClass('hover');
+        });
+        $dummyInputs.on('dragleave', '.line', function() {
+            $(this).removeClass('hover');
+        });
+        $dummyInputs.on('dragleave', '.space', function() {
+            $(this).removeClass('hover');
+        });
+
         if (type === "filter") {
             var $list = $dfgParamModal.find('.tdWrapper.dropDownList');
 
@@ -187,7 +206,7 @@ window.DFParamModal = (function($, DFParamModal){
                     $lis.prependTo($list.find('ul'));
                     $list.find('ul').width($list.width() - 1);
 
-                    //xx 10-19-2016 need to shake it or it doesn't show up
+                    //XXX 10-19-2016 need to shake it or it doesn't show up
                     $list.find('.scrollArea.bottom').css('bottom', 1);
                     setTimeout(function() {
                         $list.find('.scrollArea.bottom').css('bottom', 0);
@@ -221,31 +240,23 @@ window.DFParamModal = (function($, DFParamModal){
                     html += '<li>' + fnNames[i] + '</li>';
                 }
                 $list.find('ul').html(html);
+
+                var $input = $list.find("input.editableParamDiv");
+                var func = $input.val().trim();
+                updateNumArgs(func);
+
+                deferred.resolve();
             })
             .fail(function(error) {
                 Alert.error(DFTStr.ParamModalFail, error);
+                deferred.reject();
             });
         } else {
             dropdownHelper = null;
+            deferred.resolve();
         }
 
-        modalHelper.setup();
-
-        var $dummyInputs = $dfgParamModal.find('.dummy');
-        $dummyInputs.on('dragenter', '.line', function() {
-            $dummyInputs.find('.line, .space').removeClass('hover');
-            $(this).addClass('hover');
-        });
-        $dummyInputs.on('dragenter', '.space', function() {
-            $dummyInputs.find('.line, .space').removeClass('hover');
-            $(this).addClass('hover');
-        });
-        $dummyInputs.on('dragleave', '.line', function() {
-            $(this).removeClass('hover');
-        });
-        $dummyInputs.on('dragleave', '.space', function() {
-            $(this).removeClass('hover');
-        });
+        return deferred.promise();
     };
 
     DFParamModal.paramDragStart = function(event) {
@@ -299,32 +310,6 @@ window.DFParamModal = (function($, DFParamModal){
         $editableRow.data('copying', false);
         $dfgParamModal.find('.dummyWrap').hide();
         $dfgParamModal.find('input.editableParamDiv').show();
-    };
-
-    DFParamModal.paramDrop = function(event) {
-        event.stopPropagation();
-        var $dropTarget = $(event.target);
-        var paramId = event.dataTransfer.getData("text");
-        if (!$dropTarget.hasClass('editableParamDiv')) {
-            return; // only allow dropping into the appropriate boxes
-        }
-
-        var $draggableParam = $('#' + paramId).clone();
-        var data = $editableRow.data('origin');
-
-        if (data !== 'home') {
-            // the drag origin is from another box, therefore we're moving the
-            // div so we have to remove it from its old location
-            $editableRow.find('.editableParamDiv').filter(function() {
-                return ($(this).data('target') === data);
-            }).find('#' + paramId + ':first').remove();
-            // we remove the dragging div from its source
-        }
-
-        $dropTarget.text($dropTarget.text() + $draggableParam.text());
-        $dropTarget.parent().siblings('input').val($dropTarget.text());
-
-        checkInputForParam($dropTarget.parent().siblings('input'));
     };
 
     DFParamModal.paramDropLine = function(event) {
@@ -452,6 +437,7 @@ window.DFParamModal = (function($, DFParamModal){
         $editableRow.html(editableText);
     }
 
+    // returns true if exactly 1 open paren exists
     function checkForOneParen(paramValue) {
         var val;
         var inQuote = false;
@@ -1030,8 +1016,7 @@ window.DFParamModal = (function($, DFParamModal){
                 'spellcheck="false" type="text">' +
                 '<div class="dummyWrap ' + divClass + '">' +
                 '<div class="dummy ' + divClass + '" ' +
-                'ondragover="DFParamModal.allowParamDrop(event)"' +
-                'ondrop="DFParamModal.paramDrop(event)" ' +
+                'ondragover="DFParamModal.allowParamDrop(event)" ' +
                 'data-target="' + inputNum + '"></div></div>';
 
         if (options.filter) {
@@ -1176,6 +1161,10 @@ window.DFParamModal = (function($, DFParamModal){
     if (window.unitTestMode) {
         DFParamModal.__testOnly__ = {};
         DFParamModal.__testOnly__.storeRetina = storeRetina;
+        DFParamModal.__testOnly__.closeDFParamModal = closeDFParamModal;
+        DFParamModal.__testOnly__.checkForOneParen = checkForOneParen;
+        DFParamModal.__testOnly__.suggest = suggest;
+        DFParamModal.__testOnly__.checkInputForParam = checkInputForParam;
     }
     /* End Of Unit Test Only */
 
