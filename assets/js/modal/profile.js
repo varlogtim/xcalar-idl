@@ -241,9 +241,11 @@ window.Profile = (function($, Profile, d3) {
             return;
         }
 
-        // XXX FIXME if the shallow copy is wrong and should do a deep copy
-        // (in that case modal id should change!)
-        statsInfos[newTableId] = statsInfos[oldTableId];
+        statsInfos[newTableId] =  {};
+        for (var colName in statsInfos[oldTableId]) {
+            var options = statsInfos[oldTableId][colName];
+            statsInfos[newTableId][colName] = new ProfileInfo(options);
+        }
     };
 
     Profile.show = function(tableId, colNum) {
