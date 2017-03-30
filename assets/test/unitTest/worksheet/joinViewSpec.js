@@ -448,21 +448,30 @@ describe('JoinView Test', function() {
     });
 
     describe('smart suggest', function() {
+        var colName;
+        var nextBestColName;
+
+        before(function() {
+            colName = prefix + gPrefixSign + "yelping_since";
+            nextBestColName = prefix + gPrefixSign + "user_id";
+        });
+
         it ('smart suggest on self join col should work', function() {
-            var colName = prefix + gPrefixSign + "yelping_since";
             $joinForm.find('.leftClause').val(colName).change();
             $joinForm.find('.rightClause').val("").change();
             expect($joinForm.find('.rightClause').val()).to.equal("");
 
             $joinForm.find('.smartSuggest').click();
 
-            expect($joinForm.find('.rightClause').val()).to.equal(colName);
+            expect($joinForm.find('.rightClause').val())
+            .to.equal(nextBestColName);
 
 
             $joinForm.find('.leftClause').val("").change();
             $joinForm.find('.rightClause').val(colName).change();
             $joinForm.find('.smartSuggest').click();
-            expect($joinForm.find('.leftClause').val()).to.equal(colName);
+            expect($joinForm.find('.leftClause').val())
+            .to.equal(nextBestColName);
         });
 
         it('smart suggest error should show if both inputs filled', function() {
@@ -474,8 +483,8 @@ describe('JoinView Test', function() {
                 called = true;
             };
 
-            var colName = prefix + gPrefixSign + "yelping_since";
-            expect($joinForm.find('.leftClause').val()).to.equal(colName);
+            expect($joinForm.find('.leftClause').val())
+            .to.equal(nextBestColName);
             expect($joinForm.find('.rightClause').val()).to.equal(colName);
 
             $joinForm.find('.smartSuggest').click();

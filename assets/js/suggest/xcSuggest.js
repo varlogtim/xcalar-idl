@@ -99,6 +99,12 @@ window.xcSuggest = (function($, xcSuggest) {
             var curColInfo = inputs.destColsInfo[i];
             // 0 is rowMarker
             if (curColInfo.type === type) {
+                if (srcColInfo.uniqueIdentifier === curColInfo.uniqueIdentifier &&
+                    srcColInfo.tableId === curColInfo.tableId) {
+                    featuresPerColumn.push(null);
+                    continue;
+                }
+
                 var destContext = contextCheck(curColInfo);
                 var match = 0;
                 var maxDiff;

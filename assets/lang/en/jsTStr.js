@@ -476,6 +476,7 @@ JoinTStr = {
     'NoKeyRight': 'Right table has no selected key',
     'NoMatchLeft': 'Sorry, cannot find a valid key to match the left table',
     'NoMatchRight': 'Sorry, cannot find a valid key to match the right table',
+    "NoMatchSelf": 'Sorry, cannot find a valid key to match besides the current column',
     'UnlikelyJoinKey': 'This pairing is unlikely by our estimation, ' +
         'but still the best key found.',
     'NoColToCheck': 'No available column names to check',

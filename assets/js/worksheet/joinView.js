@@ -397,8 +397,13 @@ window.JoinView = (function($, JoinView) {
                         });
 
                     } else if (isFind === JoinKeySuggestion.KeyNotFound) {
-                        text = isLeftTableVal ? JoinTStr.NoMatchRight :
-                                                JoinTStr.NoMatchLeft;
+                        var text;
+                        if (tableId === suggTableId) {
+                            text = JoinTStr.NoMatchSelf;
+                        } else {
+                            text = isLeftTableVal ? JoinTStr.NoMatchRight :
+                                                     JoinTStr.NoMatchLeft;
+                        }
                         showErrorTooltip($suggErrorArea, {
                             "title": text,
                             "placement": "right"
@@ -1779,7 +1784,8 @@ window.JoinView = (function($, JoinView) {
             'type': type,
             'name': frontColName,
             'data': data,
-            'uniqueIdentifier': backColName // Only IDs chosen result
+            'uniqueIdentifier': backColName, // Only IDs chosen result,
+            'tableId': tableId
         };
         return requiredInfo;
     }
