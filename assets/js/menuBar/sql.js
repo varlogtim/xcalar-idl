@@ -662,7 +662,6 @@ window.SQL = (function($, SQL) {
             // must set to "" before async call, other wise KVStore.commit
             // may mess it up
             sqlToCommit = "";
-
             var logStr = stringifyLog(logs);
             KVStore.put(KVStore.gLogKey, logStr, true, gKVScope.LOG)
             .then(function() {
