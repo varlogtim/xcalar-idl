@@ -3655,9 +3655,18 @@ function XcalarAppReap(name, appGroupId) {
     xcalarAppReap(tHandle, appGroupId)
     .then(deferred.resolve)
     .fail(function(error) {
-        var thriftError = thriftLog("XcalarAppReap", error);
-        SQL.errorLog("App Reap", null, null, thriftError);
-        deferred.reject(thriftError);
+        var outError;
+        if (typeof error === "object" && error.errStr) {
+            try {
+                outError = JSON.parse(error.errStr)[0][0];
+            } catch(e) {
+                outError = error;
+            }
+        } else {
+            outError = thriftLog("XcalarAppReap", error);
+        }
+        SQL.errorLog("App Reap", null, null, outError);
+        deferred.reject(outError);
     });
     return (deferred.promise());
 }

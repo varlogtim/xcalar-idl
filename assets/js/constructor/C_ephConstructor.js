@@ -2650,7 +2650,7 @@ ExtItem.prototype = {
     isInstalled: function() {
         var $extLists = $("#extension-lists");
         if ($extLists.find(".error").length) {
-            return __findInstallFindScript();
+            return this.__findInstallFindScript();
         } else {
             var name = this.getName();
             var $li = $extLists.find(".item").filter(function() {
