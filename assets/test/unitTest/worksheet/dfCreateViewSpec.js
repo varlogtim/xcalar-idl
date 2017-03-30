@@ -262,6 +262,6 @@ describe('DFCreateView', function() {
                     done();
                 });
             }, 100);
-        }, 400);
+        }, 600);
     });
 });

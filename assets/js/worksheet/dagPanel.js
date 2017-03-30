@@ -95,6 +95,7 @@ window.DagPanel = (function($, DagPanel) {
             // set dagTopPct to 50 so it opens half way
             dagTopPct = 50;
             $panelSwitch.click();
+            $('#maximizeDag').removeClass('unavailable');
             return;
         }
         // new height is in percent
@@ -234,6 +235,7 @@ window.DagPanel = (function($, DagPanel) {
             $(this).addClass('unavailable');
             $('#dagScrollBarWrap').hide();
             clickDisabled = true;
+
             setTimeout(function() {
                 $dagPanel.addClass('noTransform');
                 $dagPanel.css('top', 0);

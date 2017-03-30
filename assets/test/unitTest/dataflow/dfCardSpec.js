@@ -42,7 +42,7 @@ describe('DFCard Test', function() {
                         done();
                     });
                 }, 100);
-            }, 400);
+            }, 600);
         })
         .fail(function() {
             done("fail");
