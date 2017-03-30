@@ -20,6 +20,7 @@ window.SQL = (function($, SQL) {
     // mark if it's in a undo redo action
     var isUndo = false;
     var isRedo = false;
+    var shouldOverWrite = false;
     var lastSavedCursor = logCursor;
 
     // constant
@@ -591,19 +592,26 @@ window.SQL = (function($, SQL) {
         KVStore.get(KVStore.gLogKey, gKVScope.LOG)
         .then(function(rawLog) {
             var oldLogs = parseRawLog(rawLog);
-
             if (oldLogs != null) {
                 if (oldLogCursor == null || oldLogCursor >= oldLogs.length) {
                     // error case
                     xcConsole.error("Loose old cursor track");
                     oldLogCursor = oldLogs.length - 1;
                 }
+
                 for (var i = 0; i <= oldLogCursor; i++) {
                     var sql = new XcLog(oldLogs[i]);
                     addLog(sql, true);
                 }
-                lastSavedCursor = logCursor;
 
+                lastSavedCursor = logCursor;
+                if (logCursor < oldLogs.length - 1) {
+                    // need to do it to detect overwrite of old logs
+                    // but we don't restore the logs from
+                    // oldCusror to olgLogs.length becaue the redo table
+                    // is removed
+                    shouldOverWrite = true;
+                }
                 deferred.resolve();
             } else {
                 deferred.reject(sqlRestoreError);
@@ -644,7 +652,7 @@ window.SQL = (function($, SQL) {
 
     function addLog(sql, isRestore, willCommit) {
         // normal log
-        if (logCursor !== logs.length - 1) {
+        if (shouldOverWrite || logCursor !== logs.length - 1) {
             // when user do a undo before
             logCursor++;
             logs[logCursor] = sql;
@@ -671,6 +679,7 @@ window.SQL = (function($, SQL) {
                 // XXX test
                 console.info("Overwrite sql log");
                 WSManager.dropUndoneTables();
+                shouldOverWrite = false;
             })
             .fail(function(error) {
                 console.error("Overwrite Sql fails!", error);
