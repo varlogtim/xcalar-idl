@@ -1058,14 +1058,15 @@ window.DagPanel = (function($, DagPanel) {
         // Check whether this table already exists. If it does, then just add
         // or focus on that table
         if (isIcvTableExists(origTableId)) {
-            return;
+            return PromiseHelper.reject();
         }
 
         var icvDagInfo = getDagInfoForIcvTable(dagTableName, mapTableName);
         if (icvDagInfo == null) {
             // error case, should already handled
-            return;
+            return PromiseHelper.reject();
         }
+        var deferred = jQuery.Deferred();
         var xcalarInput = icvDagInfo.xcalarInput;
         var op = icvDagInfo.op;
 
@@ -1127,6 +1128,7 @@ window.DagPanel = (function($, DagPanel) {
                         "msgTable": newTableId,
                         "sql": sql
                     });
+                    deferred.resolve();
                 })
                 .fail(function(error) {
                     Transaction.fail(txId, {
@@ -1135,6 +1137,7 @@ window.DagPanel = (function($, DagPanel) {
                         "sql": sql
                     });
                     StatusBox.show(ErrTStr.IcvFailed, $errMsgTarget);
+                    deferred.reject();
                 })
                 .always(function() {
                     $tableIcon.removeClass("generatingIcv");
@@ -1178,6 +1181,7 @@ window.DagPanel = (function($, DagPanel) {
                         "msgTable": newTableId,
                         "sql": sql
                     });
+                    deferred.resolve();
                 })
                 .fail(function(error) {
                     Transaction.fail(txId, {
@@ -1186,6 +1190,7 @@ window.DagPanel = (function($, DagPanel) {
                         "sql": sql
                     });
                     StatusBox.show(ErrTStr.IcvFailed, $errMsgTarget);
+                    deferred.reject();
                 })
                 .always(function() {
                     $tableIcon.removeClass("generatingIcv");
@@ -1193,8 +1198,11 @@ window.DagPanel = (function($, DagPanel) {
                 break;
             default:
                 console.error("Shouldn't get here");
+                deferred.reject();
                 break;
         }
+
+        return  deferred.promise();
 
         function postOperation(txId) {
             var newCols = [];

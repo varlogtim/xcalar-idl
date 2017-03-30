@@ -161,6 +161,7 @@ describe('Dag Panel Test', function() {
 
         })
         .then(function() {
+            Alert.forceClose();
             var mapStr = "add(" + gTables[tableId].getCol(1).backName +
                          ",^" + aggName + ")";
             return xcFunction.map(1, tableId, "agg_result", mapStr);
@@ -393,6 +394,22 @@ describe('Dag Panel Test', function() {
                 }, 600);
 
             }, 1000);
+        });
+    });
+
+    describe("dag panel resizing", function() {
+        it("should resize", function() {
+            var elem = $("#dagPanel");
+            var $bar = $("#dagPanel").find(".ui-resizable-n").eq(0);
+            var pageX = $bar.offset().left;
+            var pageY = $bar.offset().top;
+
+            $bar.trigger("mouseover");
+            $bar.trigger({ type: "mousedown", which: 1, pageX: pageX, pageY: pageY });
+            $bar.trigger({ type: "mousemove", which: 1, pageX: pageX - 1, pageY: pageY});
+            $bar.trigger({ type: "mouseup", which: 1, pageX: pageX, pageY: pageY });
+
+            expect($bar.offset().top < pageX);
         });
     });
 
@@ -957,8 +974,8 @@ describe('Dag Panel Test', function() {
                 DagPanel.__testOnly__.generateIcvTable(
                     largeTable.$dagWrap.find(".tableName").text(),
                     $largeDagTable.data("tablename"),
-                    $largeDagIcon);
-                setTimeout(function() {
+                    $largeDagIcon)
+                .then(function() {
                     $icvDagWrap = $(".dagWrap.selected");
                     expect($icvDagWrap.length).to.equal(1);
                     $icvDagTable = $icvDagWrap.find(".dagTable").last();
@@ -985,7 +1002,11 @@ describe('Dag Panel Test', function() {
                     expect(xcHelper.getFocusedTable()).to.equal(icvTableId);
 
                     done();
-                }, 700);
+                })
+                .fail(function() {
+                    expect(false).to.be.true;
+                    done("failed");
+                });
             });
             it("Drop table should work", function(done) {
                 $icvDagIcon.click();
@@ -996,7 +1017,10 @@ describe('Dag Panel Test', function() {
                 expect($("#alertModal").css("display")).to.not.equal("none");
                 expect(gTables[icvTableId]).to.not.be.undefined;
                 $("#alertModal .btn.confirm").click();
-                setTimeout(function() {
+                UnitTest.testFinish(function() {
+                    return gTables[icvTableId] == null;
+                })
+                .then(function() {
                     // Ensure was actually deleted.
                     expect(gTables[icvTableId]).to.be.undefined;
                     // Ensure was deleted from DAG
@@ -1004,15 +1028,24 @@ describe('Dag Panel Test', function() {
                     expect($dagPanel.find("#dagWrap-" + String(icvTableId)).length)
                     .to.equal(0);
                     done();
-                }, 400);
+                });
             });
             it("Hide table should work", function(done) {
                 // Use icv table to also test repeated ICV table behavior
                 $largeDagIcon.click();
                 expect($menu.find('li.generateIcv').hasClass('unavailable'))
                 .to.be.false;
+                expect($(".dagTableIcon.icv").length).to.equal(0);
                 $menu.find('.generateIcv').trigger(fakeEvent.mouseup);
-                setTimeout(function() {
+
+                UnitTest.timeoutPromise(1000)
+                .then(function() {
+                   return UnitTest.testFinish(function() {
+                        return $(".dagTableIcon.icv").length > 0 &&
+                                $(".dagWrap.selected").length > 0;
+                   });
+                })
+                .then(function() {
                     $icvDagWrap = $(".dagWrap.selected");
                     expect($icvDagWrap.length).to.equal(1);
                     $icvDagTable = $icvDagWrap.find(".dagTable").last();
@@ -1025,13 +1058,13 @@ describe('Dag Panel Test', function() {
                     expect(gTables[icvTableId].status).is.not.equal("active");
 
                     XcalarDeleteTable(gTables[icvTableId].tableName)
-                    .then(function() {
+                    .always(function() {
                         done();
-                    })
-                    .fail(function() {
-                        done("failed to delete table");
                     });
-                }, 800);
+                })
+                .fail(function() {
+                    done("failed");
+                });
             });
         });
         describe("Operations on second to last table should work", function() {
@@ -1081,7 +1114,10 @@ describe('Dag Panel Test', function() {
                 $prevDagIcon.click();
                 expect($menu.find('li.revertTable').is(":visible")).to.be.true;
                 $menu.find('.revertTable').trigger(fakeEvent.mouseup);
-                setTimeout(function() {
+                UnitTest.testFinish(function() {
+                    return gTables[prevTableId].status === "active";
+                })
+                .then(function() {
                     expect(gTables[prevTableId].status).is.equal("active");
                     expect(gTables[largeTable.tableId].status)
                     .is.not.equal("active");
@@ -1112,7 +1148,10 @@ describe('Dag Panel Test', function() {
                     .fail(function() {
                         done("failed to delete table");
                     });
-                }, 1000);
+                })
+                .fail(function() {
+                    done("failed");
+                });
             });
             it("Delete second last table should work", function(done) {
                 $prevDagIcon.click();
@@ -1120,13 +1159,19 @@ describe('Dag Panel Test', function() {
                 .to.be.false;
                 expect($("#alertModal").css("display")).to.equal("none");
                 $menu.find('.deleteTable').trigger(fakeEvent.mouseup);
-                setTimeout(function() {
+                UnitTest.testFinish(function() {
+                    return ($("#alertModal").css("display") !== "none");
+                })
+                .then(function() {
                     expect($("#alertModal").css("display")).to.not.equal("none");
                     expect(gTables[prevTableId]).to.not.be.undefined;
                     var numNodes = Object.keys(largeTable.$dagWrap
                         .data("allDagInfo").nodes).length;
                     $("#alertModal .btn.confirm").click();
-                    setTimeout(function() {
+                    UnitTest.testFinish(function() {
+                        return gTables[prevTableId] == null;
+                    })
+                    .then(function() {
                         // Ensure was actually deleted.
                         expect(gTables[prevTableId]).to.be.undefined;
                         // Ensure was deleted from DAG
@@ -1139,8 +1184,48 @@ describe('Dag Panel Test', function() {
                             .data("allDagInfo").nodes).length)
                         .to.equal(numNodes);
                         done();
-                    }, 400);
-                }, 2000);
+                    });
+                });
+            });
+        });
+
+        describe("ICV on groupby table should work", function() {
+            var $menu;
+
+            before(function() {
+                $menu = $dagPanel.find('.dagTableDropDown');
+            });
+
+            it("groupby icv", function(done) {
+                var $dagTable = $(".actionType.groupBy").eq(0).siblings(".dagTable");
+                var $icon = $dagTable.find(".dagTableIcon");
+                $icon.click();
+                expect($menu.find('li.generateIcv').hasClass('unavailable'))
+                .to.be.false;
+
+                DagPanel.__testOnly__.generateIcvTable(
+                    $icon.closest(".dagWrap").find(".tableName").text(),
+                    $dagTable.data("tablename"),
+                    $icon)
+                .then(function() {
+                    var $icvDagWrap = $(".dagWrap.selected");
+                    expect($icvDagWrap.length).to.equal(1);
+                    var $icvDagTable = $icvDagWrap.find(".dagTable").last();
+                    var icvTableId = $icvDagTable.data("id");
+                    var $icvDagIcon = $icvDagTable.find(".dagTableIcon");
+
+                    $icvDagIcon.click();
+                    expect($menu.find('li.generateIcv').hasClass('unavailable'))
+                    .to.be.true;
+                    expect(xcHelper.getFocusedTable()).to.equal(icvTableId);
+                    expect($icvDagIcon.hasClass("icv"));
+
+                    done();
+                })
+                .fail(function() {
+                    expect(false).to.be.true;
+                    done("failed");
+                });
             });
         });
     });
@@ -1152,51 +1237,13 @@ describe('Dag Panel Test', function() {
         var isSuccess = 0;
         timeOutPromise(500)
         .then(function() {
-            function promiseGenerator(tableName) {
-                var tableId = xcHelper.getTableId(tableName);
-                if (gTables[tableId] === undefined) {
-                    isSuccess += 1;
-                    return PromiseHelper.resolve();
-                }
-                var tStatus = gTables[tableId].status;
-                if (tStatus === TableType.Active) {
-                    var lastTable = gTables[tableId];
-                    var tType = lastTable.status;
-                    return UnitTest.deleteTable(tableName, tType);
-                } else if (tStatus === TableType.Orphaned ||
-                                       TableType.Archived)
-                {
-                    var deferred = PromiseHelper.deferred();
-                    TblManager.deleteTables([tableName], tStatus)
-                    // XcalarDeleteTable(tableName)
-                    .then(function() {
-                        isSuccess += 1;
-                        deferred.resolve();
-                    })
-                    .fail(function() {
-                        deferred.reject();
-                    });
-                    return deferred.promise();
-                } else {
-                    console.warn("Unhandled tstatus: " + String(tStatus));
-                    return deferred.resolve();
-                }
-            }
-            var promValues = [];
-            for (var i = 0; i < topLevelTables.length; i++) {
-                promValues.push(topLevelTables[i].tableName);
-                promValues = promValues.concat(topLevelTables[i].ancestorNames);
-            }
-            return PromiseHelper.chainHelper(promiseGenerator, promValues);
+            return PromiseHelper.alwaysResolve(Aggregates.deleteAggs([aggName]));
         })
         .then(function() {
-            return Aggregates.deleteAggs([aggName]);
+            return UnitTest.deleteAllTables();
         })
         .then(function() {
-            return UnitTest.removeOrphanTable();
-        })
-        .then(function() {
-            return UnitTest.deleteDS(testDs);
+            UnitTest.deleteDS(testDs);
         })
         .always(function() {
             done();

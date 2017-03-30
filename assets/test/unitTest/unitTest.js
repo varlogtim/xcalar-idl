@@ -245,7 +245,7 @@ window.UnitTest = (function(UnitTest, $) {
         .then(function() {
             $('#deleteTableModal').find('.listSection .checkbox')
                                   .addClass('checked');
-            return DeleteTableModal.__testOnly__.submitForm();
+            return PromiseHelper.alwaysResolve(DeleteTableModal.__testOnly__.submitForm());
         })
         .then(function() {
             return DeleteTableModal.__testOnly__.closeModal();
