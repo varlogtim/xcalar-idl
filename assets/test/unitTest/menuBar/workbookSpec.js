@@ -92,8 +92,66 @@ describe("Workbook Test", function() {
         });
     });
 
-    describe("Advanced Behavior Test", function() {
-        this.timeout(200000);
+    describe("Advanced Workbook Behavior Test", function() {
+        // this.timeout(200000);
+        var oldKVGet, oldKVPut, oldKVDelete;
+        var oldXcalarPut, oldXcalarDelete;
+        var oldWkbkNew, oldWkbkList, oldWkbkRename, oldWkbkDelete;
+        var fakeMap = {};
+
+        before(function() {
+            oldKVGet = KVStore.get;
+            oldKVPut = KVStore.put;
+            oldKVDelete = KVStore.delete;
+            oldXcalarPut = XcalarKeyPut;
+            oldXcalarDelete = XcalarKeyDelete;
+
+            XcalarKeyPut = function(key, value) {
+                fakeMap[key] = value;
+                return PromiseHelper.resolve();
+            };
+
+            XcalarKeyDelete = function(key) {
+                delete fakeMap[key];
+                return PromiseHelper.resolve();
+            };
+
+            KVStore.get = function(key) {
+                return PromiseHelper.resolve(fakeMap[key]);
+            };
+
+            KVStore.put = XcalarKeyPut;
+            KVStore.delete = XcalarKeyDelete;
+
+            oldWkbkNew = XcalarNewWorkbook;
+            oldWkbkList = XcalarListWorkbooks;
+            oldWkbkRename = XcalarRenameWorkbook;
+            oldWkbkDelete = XcalarDeleteWorkbook;
+
+            XcalarNewWorkbook = function() {
+                return PromiseHelper.resolve();
+            };
+
+            XcalarListWorkbooks = function() {
+                return PromiseHelper.resolve({
+                    "numSessions": 1,
+                    "sessions": [{"state": "InActive"}]
+                });
+            };
+
+            XcalarRenameWorkbook = function() {
+                return PromiseHelper.resolve();
+            };
+
+            XcalarDeleteWorkbook = function() {
+                return PromiseHelper.resolve();
+            };
+        });
+
+        beforeEach(function() {
+            fakeMap = {};
+        });
+
         it("Should force show the workbook", function() {
             var $input = $workbookPanel.find(".newWorkbookBox input");
             $input.val();
@@ -108,6 +166,7 @@ describe("Workbook Test", function() {
             var wkbkNum = $workbookPanel.find(selector).length;
             var name = xcHelper.randName("testWorkbook");
             var $newWorkbookBox = $workbookPanel.find(".newWorkbookBox");
+
             $newWorkbookBox.find("input").val(name)
                     .end()
                     .find(".btn").click();
@@ -133,15 +192,27 @@ describe("Workbook Test", function() {
             });
         });
 
-        it("Should edit workbook name", function() {
+        it("Should edit workbook name", function(done) {
             var name = xcHelper.randName("testModified");
             var $box = $workbookPanel.find(".workbookBox").eq(0);
             var $input = $box.find(".workbookName");
 
             $box.find(".modify").click();
             $input.val(name).trigger(fakeEvent.enter);
-            expect($input.val()).to.equal(name);
-            $input.blur();
+
+            var checkFunc = function() {
+                return Object.keys(fakeMap).length > 0;
+            };
+
+            UnitTest.testFinish(checkFunc)
+            .then(function() {
+                expect($input.val()).to.equal(name);
+                $input.blur();
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
         });
 
         it("Should duplicate workbook", function(done) {
@@ -181,6 +252,46 @@ describe("Workbook Test", function() {
             .fail(function() {
                 done("fail");
             });
+        });
+
+        it("Should not activate active workbook", function() {
+            var oldHide = Workbook.hide;
+            var test = false;
+            Workbook.hide = function() { test = true; };
+
+            var $box = $workbookPanel.find(".workbookBox.active");
+            $box.find(".activate").click();
+            expect(test).to.be.true;
+
+            Workbook.hide = oldHide;
+        });
+
+        it("Should activate inactive workbook", function() {
+            var oldSwitch = WorkbookManager.switchWKBK;
+            var test = false;
+            WorkbookManager.switchWKBK = function() {
+                test = true;
+                return PromiseHelper.resolve();
+            };
+
+            var $box = $workbookPanel.find(".workbookBox:not(.active)").eq(0);
+            $box.find(".activate").click();
+            expect(test).to.be.true;
+            WorkbookManager.switchWKBK = oldSwitch;
+        });
+
+        it("Should activate inactive workbook", function() {
+            var oldSwitch = WorkbookManager.switchWKBK;
+            var test = false;
+            WorkbookManager.switchWKBK = function() {
+                test = true;
+                return PromiseHelper.resolve();
+            };
+
+            var $box = $workbookPanel.find(".workbookBox:not(.active)").eq(0);
+            $box.find(".activate").click();
+            expect(test).to.be.true;
+            WorkbookManager.switchWKBK = oldSwitch;
         });
 
         it("Should delete workbook", function(done) {
@@ -236,6 +347,19 @@ describe("Workbook Test", function() {
             .fail(function() {
                 throw "Error Case";
             });
+        });
+
+        after(function() {
+            KVStore.get = oldKVGet;
+            KVStore.put = oldKVPut;
+            KVStore.delete = oldKVDelete;
+            XcalarKeyPut = oldXcalarPut;
+            XcalarKeyDelete = oldXcalarDelete;
+
+            XcalarNewWorkbook = oldWkbkNew;
+            XcalarListWorkbooks = oldWkbkList;
+            XcalarRenameWorkbook = oldWkbkRename;
+            XcalarDeleteWorkbook = oldWkbkDelete;
         });
     });
 
