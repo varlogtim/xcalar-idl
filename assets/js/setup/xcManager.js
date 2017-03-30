@@ -87,108 +87,7 @@ window.xcManager = (function(xcManager, $) {
             $("body").addClass("xc-setup-error");
             setupStatus = SetupStatus.Fail;
             setupWinResize();
-            var locationText = StatusMessageTStr.Error;
-
-            var title;
-            if (error === WKBKTStr.NoWkbk){
-                // when it's new workbook
-                $('#initialLoadScreen').hide();
-                Workbook.forceShow();
-                locationText = StatusMessageTStr.Viewing + " " + WKBKTStr.Location;
-
-                if (firstTimeUser) {
-                    Admin.addNewUser();
-                    // when it's new user first time login
-                    Alert.show({
-                        "title": DemoTStr.title,
-                        "msg": NewUserTStr.msg,
-                        "buttons": [
-                            {
-                                "name": AlertTStr.CLOSE,
-                                "className": "cancel"
-                            },
-                            {
-                                "name": NewUserTStr.openGuide,
-                                "className": "confirm",
-                                "func": function() {
-                                    var url = "https://university.xcalar.com/confluence/display/XU/Self-Paced+Training";
-                                    window.open(url, "_blank");
-                                }
-                            }
-                        ],
-                        "noCancel": true
-                    });
-                }
-            } else if (error === WKBKTStr.Hold) {
-                locationText = WKBKTStr.Hold;
-                // when seesion is hold by others
-                Alert.show({
-                    "title": WKBKTStr.Hold,
-                    "msg": WKBKTStr.HoldMsg,
-                    "buttons": [
-                        {
-                            "name": CommonTxtTstr.Back,
-                            "className": "cancel",
-                            "func": function() {
-                                logoutRedirect();
-                            }
-                        },
-                        {
-                            "name": WKBKTStr.Release,
-                            "className": "cancel",
-                            "func": function() {
-                                Support.forceReleaseSession();
-                            }
-                        }
-                    ],
-                    "noCancel": true
-                });
-            } else if (error.status === StatusT.StatusSessionNotFound) {
-                locationText = WKBKTStr.NoOldWKBK;
-                Alert.show({
-                    "title": WKBKTStr.NoOldWKBK,
-                    "instr": WKBKTStr.NoOldWKBKInstr,
-                    "msg": WKBKTStr.NoOldWKBKMsg,
-                    "lockScreen": true,
-                    "logout": true,
-                    "buttons": [{
-                        "name": WKBKTStr.NewWKBK,
-                        "func": function() {
-                            WorkbookManager.inActiveAllWKBK();
-                        }
-                    }],
-                    "hideButtons": ['copySql']
-                });
-            } else if (error.status === StatusT.StatusSessionUsrActiveElsewhere) {
-                locationText = ThriftTStr.SessionElsewhere;
-                title = ThriftTStr.SessionElsewhere;
-                Alert.error(title, error.error + '\n' +
-                            ThriftTStr.LogInDifferent,
-                            {"lockScreen": true});
-
-            } else {
-
-                // when it's an error from backend we cannot handle
-                var errorStruct = {"lockScreen": true};
-                if (!error || !error.error || typeof(error.error) !== "string") {
-                    title = ThriftTStr.SetupErr;
-                } else {
-                    if (error.error.indexOf('expired') !== -1) {
-                        errorStruct = {"lockScreen": true, "expired": true};
-                    } else if (error.error.indexOf('Update required') !== -1) {
-                        title = ThriftTStr.UpdateErr;
-                    } else if (error.error.indexOf('Connection') !== -1) {
-                        title = ThriftTStr.CCNBEErr;
-                    } else {
-                        title = ThriftTStr.SetupErr;
-                    }
-                }
-                locationText = StatusMessageTStr.Error;
-                // check whether there's another alert that's already on the screen
-                Alert.error(title, error, errorStruct);
-            }
-            StatusMessage.updateLocation(true, locationText);
-
+            handleSetupFail(error, firstTimeUser);
             deferred.reject(error);
         })
         .always(function() {
@@ -205,46 +104,151 @@ window.xcManager = (function(xcManager, $) {
             }
         });
 
-        // currently just used to center the modals on window resize
-        function setupWinResize() {
-            var winResizeTimer;
-            var resizing = false;
-            var modalSpecs;
-            var windowSpecs = {
-                winHeight: $(window).height(),
-                winWidth: $(window).width()
-            };
-
-            $(window).resize(function() {
-                if (!resizing) {
-                    resizing = true;
-                    var $modal = $('.modalContainer:visible');
-                    if ($modal.length) {
-                        modalSpecs = {
-                            $modal: $modal,
-                            top: $modal.offset().top,
-                            left: $modal.offset().left
-                        };
-                    } else {
-                        modalSpecs = null;
-                    }
-                }
-
-                clearTimeout(winResizeTimer);
-                winResizeTimer = setTimeout(winResizeStop, 100);
-            });
-
-            function winResizeStop() {
-                if (modalSpecs) {
-                    xcHelper.repositionModalOnWinResize(modalSpecs,
-                                                        windowSpecs);
-                }
-                resizing = false;
-            }
-        }
-
         return deferred.promise();
     };
+
+    // currently just used to center the modals on window resize
+    function setupWinResize() {
+        var winResizeTimer;
+        var resizing = false;
+        var modalSpecs;
+        var windowSpecs = {
+            winHeight: $(window).height(),
+            winWidth: $(window).width()
+        };
+
+        $(window).resize(function() {
+            if (!resizing) {
+                resizing = true;
+                var $modal = $('.modalContainer:visible');
+                if ($modal.length) {
+                    modalSpecs = {
+                        $modal: $modal,
+                        top: $modal.offset().top,
+                        left: $modal.offset().left
+                    };
+                } else {
+                    modalSpecs = null;
+                }
+            }
+
+            clearTimeout(winResizeTimer);
+            winResizeTimer = setTimeout(winResizeStop, 100);
+        });
+
+        function winResizeStop() {
+            if (modalSpecs) {
+                xcHelper.repositionModalOnWinResize(modalSpecs, windowSpecs);
+            }
+            resizing = false;
+        }
+    }
+
+    function handleSetupFail(error, firstTimeUser) {
+        var locationText = StatusMessageTStr.Error;
+        var isNotNullObj = error && (typeof error === "object");
+        if (error === WKBKTStr.NoWkbk){
+            // when it's new workbook
+            $("#initialLoadScreen").hide();
+            Workbook.forceShow();
+            locationText = StatusMessageTStr.Viewing + " " + WKBKTStr.Location;
+
+            if (firstTimeUser) {
+                Admin.addNewUser();
+                // when it's new user first time login
+                Alert.show({
+                    "title": DemoTStr.title,
+                    "msg": NewUserTStr.msg,
+                    "buttons": [{
+                        "name": AlertTStr.CLOSE,
+                        "className": "cancel"
+                    },
+                    {
+                        "name": NewUserTStr.openGuide,
+                        "className": "confirm",
+                        "func": function() {
+                            var url = "https://university.xcalar.com/confluence/display/XU/Self-Paced+Training";
+                            window.open(url, "_blank");
+                        }
+                    }],
+                    "noCancel": true
+                });
+            }
+        } else if (error === WKBKTStr.Hold) {
+            locationText = WKBKTStr.Hold;
+            // when seesion is hold by others
+            Alert.show({
+                "title": WKBKTStr.Hold,
+                "msg": WKBKTStr.HoldMsg,
+                "buttons": [{
+                    "name": CommonTxtTstr.Back,
+                    "className": "cancel",
+                    "func": function() {
+                        logoutRedirect();
+                    }
+                },
+                {
+                    "name": WKBKTStr.Release,
+                    "className": "cancel",
+                    "func": function() {
+                        Support.forceReleaseSession();
+                    }
+                }],
+                "noCancel": true
+            });
+        } else if (isNotNullObj &&
+                   error.status === StatusT.StatusSessionNotFound)
+        {
+            locationText = WKBKTStr.NoOldWKBK;
+            Alert.show({
+                "title": WKBKTStr.NoOldWKBK,
+                "instr": WKBKTStr.NoOldWKBKInstr,
+                "msg": WKBKTStr.NoOldWKBKMsg,
+                "lockScreen": true,
+                "logout": true,
+                "buttons": [{
+                    "name": WKBKTStr.NewWKBK,
+                    "func": function() {
+                        WorkbookManager.inActiveAllWKBK();
+                    }
+                }],
+                "hideButtons": ['copySql']
+            });
+        } else if (isNotNullObj &&
+                   error.status === StatusT.StatusSessionUsrActiveElsewhere)
+        {
+            locationText = ThriftTStr.SessionElsewhere;
+            var errorMsg = error.error + '\n' + ThriftTStr.LogInDifferent;
+            Alert.error(ThriftTStr.SessionElsewhere, errorMsg, {
+                "lockScreen": true
+            });
+        } else {
+            // when it's an error from backend we cannot handle
+            var errorStruct = {"lockScreen": true};
+            var title;
+            if (!isNotNullObj ||
+                !error.error ||
+                typeof(error.error) !== "string")
+            {
+                title = ThriftTStr.SetupErr;
+            } else {
+                if (error.error.includes("expired")) {
+                    title = ThriftTStr.SetupErr;
+                    errorStruct = {"lockScreen": true, "expired": true};
+                } else if (error.error.includes("Update required")) {
+                    title = ThriftTStr.UpdateErr;
+                } else if (error.error.includes("Connection")) {
+                    title = ThriftTStr.CCNBEErr;
+                } else {
+                    title = ThriftTStr.SetupErr;
+                }
+            }
+            locationText = StatusMessageTStr.Error;
+            // check whether there's another alert that's already on the screen
+            Alert.error(title, error, errorStruct);
+        }
+        StatusMessage.updateLocation(true, locationText);
+    }
 
     xcManager.isInSetup = function() {
         return $("body").hasClass("xc-setup") ||
@@ -965,8 +969,8 @@ window.xcManager = (function(xcManager, $) {
             if (!window.debugOn && stack) {
                 var promise = SQL.commitErrors();
 
-                Alert.error(ErrTStr.RefreshBrowser, ErrTStr.RefreshBrowserDesc,
-                    {"lockScreen": true,
+                Alert.error(ErrTStr.RefreshBrowser, ErrTStr.RefreshBrowserDesc, {
+                    "lockScreen": true,
                     "buttons": [{
                         className: "refresh",
                         name: "Refresh",
@@ -977,7 +981,8 @@ window.xcManager = (function(xcManager, $) {
                                 location.reload();
                             });
                         }
-                    }]});
+                    }]
+                });
             }
         };
 
@@ -1137,7 +1142,6 @@ window.xcManager = (function(xcManager, $) {
                 y = 0;
             }
         }
-
         $($pathToRoot.get().reverse()).each(function() {
             var $el = $(this);
             var delta;
@@ -1251,6 +1255,14 @@ window.xcManager = (function(xcManager, $) {
             }
         });
     }
+
+    /* Unit Test Only */
+    if (window.unitTestMode) {
+        xcManager.__testOnly__ = {};
+        xcManager.__testOnly__.handleSetupFail = handleSetupFail;
+        xcManager.__testOnly__.reImplementMouseWheel = reImplementMouseWheel;
+    }
+    /* End Of Unit Test Only */
 
     return (xcManager);
 }({}, jQuery));
