@@ -101,7 +101,7 @@ function initStepArray() {
 
 function genExecString(hostnameLocation, hasPrivHosts,
                        credentialLocation, isPassword,
-                       username, port, nfsOptions) {
+                       username, port, nfsOption) {
     var execString = " -h " + hostnameLocation;
     execString+= " -l " + username;
     if (hasPrivHosts) {
@@ -117,17 +117,17 @@ function genExecString(hostnameLocation, hasPrivHosts,
     execString += " --license-file " + licenseLocation;
     // execString += " --installer " + installerLocation;
 
-    if (nfsOptions) {
+    if (nfsOption) {
         // Xcalar to mount NFS
-        if (nfsOptions.nfsServer) {
-            execString += " --nfs-host " + nfsOptions.nfsServer;
-            execString += " --nfs-folder " + nfsOptions.nfsMountPoint;
-            if (nfsOptions.nfsUsername) {
-                execString += " --nfs-uid " + nfsOptions.nfsUsername;
+        if (nfsOption.nfsServer) {
+            execString += " --nfs-host " + nfsOption.nfsServer;
+            execString += " --nfs-folder " + nfsOption.nfsMountPoint;
+            if (nfsOption.nfsUsername) {
+                execString += " --nfs-uid " + nfsOption.nfsUsername;
             }
 
-            if (nfsOptions.nfsGroup) {
-                execString += " --nfs-gid " + nfsOptions.nfsGroup;
+            if (nfsOption.nfsGroup) {
+                execString += " --nfs-gid " + nfsOption.nfsGroup;
             }
         } else if (nfsOption.nfsReuse) {
             // Xcalar Root Already mounted
