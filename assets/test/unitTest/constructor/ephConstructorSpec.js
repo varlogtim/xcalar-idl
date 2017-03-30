@@ -1015,6 +1015,9 @@ describe("Ephemeral Constructor Test", function() {
 
         it("Menu scrolling should work", function(done) {
             $dragArea.contextmenu();
+            $("#colMenu").css("max-height", 100);
+            $("#colMenu ul").css("max-height", 100);
+            $("#colMenu .scrollArea").show();
             var oldY = $("#colMenu li").last().position().top;
             var newY;
             $("#colMenu .scrollArea.bottom").mouseenter();
