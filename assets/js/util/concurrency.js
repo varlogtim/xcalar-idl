@@ -1,8 +1,28 @@
+/**
+    Usage:
+    1) var mutex = new Mutex(YOURKEY);
+    2) Concurrency.initLock(mutex);
+    3) Concurrency.lock(mutex, OPTIONAL TIMEOUT);
+    4) Concurrency.unlock(mutex);
+*/
 window.Concurrency = (function($, Concurrency) {
-    var unlocked = 0;
+    var unlocked = "0";
     var backoffBasis = 100; // Start time for exponential backoff.
     var backoffTimeLimit = 10 * 1000; // Max time allowed for a trial before
                                       // asking user for action
+
+    Concurrency.initLock = function(lock) {
+        if (!lock) {
+            console.error("Lock cannot be undefined");
+            return PromiseHelper.reject("Lock cannot be undefined");
+        }
+        return XcalarKeyPut(lock.key, unlocked, false, lock.scope);
+    };
+
+    Concurrency.delLock = function(lock) {
+        return XcalarKeyDelete(lock.key, lock.scope);
+    };
+
 
     // Caller must look out for deferred.reject("Limit exceeded") and handle it
     // appropriately.
@@ -58,13 +78,13 @@ window.Concurrency = (function($, Concurrency) {
     }
 
     Concurrency.unlock = function(lock, lockString) {
+        var deferred = jQuery.Deferred();
         if (!lock) {
             console.error("Lock cannot be undefined");
             return PromiseHelper.reject("Lock cannot be undefined");
         }
         XcalarKeyLookup(lock.key, lock.scope)
         .then(function(ret) {
-            var deferred = jQuery.Deferred();
             if (!ret) {
                 console.warn("Key seems non-existent");
                 deferred.reject();
@@ -76,14 +96,15 @@ window.Concurrency = (function($, Concurrency) {
                     .then(deferred.resolve)
                     .fail(deferred.reject);
                 } else {
+                    console.log(ret);
                     // Looks like someone forced me out. Nothing for me to do
                     console.warn("Lock has been forcefully taken away, or " +
                                "unlocker is not the same as the locker. noop.");
                     deferred.resolve();
                 }
             }
-            return deferred.promise();
         });
+        return deferred.promise();
     };
 
     Concurrency.forceUnlock = function(lock) {
@@ -102,6 +123,29 @@ window.Concurrency = (function($, Concurrency) {
         // unless backoffTimeLimit is less than 2, otherwise this will cause
         // retryLock function to only run once
         return Concurrency.lock(lock, backoffTimeLimit - 1);
+    };
+
+    Concurrency.isLocked = function(lock) {
+        var deferred = jQuery.Deferred();
+        if (!lock) {
+            console.error("Lock cannot be undefined");
+            return PromiseHelper.reject("Lock cannot be undefined");
+        }
+        XcalarKeyLookup(lock.key, lock.scope)
+        .then(function(ret) {
+            if (!ret) {
+                console.warn("Key seems non-existent");
+                deferred.reject();
+            } else {
+                if (ret.value === unlocked) {
+                    deferred.resolve(false);
+                } else {
+                    deferred.resolve(true);
+                }
+            }
+
+        });
+        return deferred.promise();
     };
 
     return (Concurrency);
