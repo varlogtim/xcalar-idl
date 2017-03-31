@@ -98,6 +98,16 @@ describe("Concurrency Test", function() {
             });
         });
 
+        it("Should not be able to reinit already inited mutex", function(done) {
+            Concurrency.initLock(mutex)
+            .then(function() {
+                throw "Should not be able to double init";
+            })
+            .fail(function() {
+                done();
+            });
+        });
+
         it("Should not get lock after it's been locked", function(done) {
             Concurrency.lock(mutex, 1000)
             .then(function(ls) {

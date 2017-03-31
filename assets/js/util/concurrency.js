@@ -12,11 +12,21 @@ window.Concurrency = (function($, Concurrency) {
                                       // asking user for action
 
     Concurrency.initLock = function(lock) {
+        var deferred = jQuery.Deferred();
         if (!lock) {
             console.error("Lock cannot be undefined");
             return PromiseHelper.reject("Lock cannot be undefined");
         }
-        return XcalarKeyPut(lock.key, unlocked, false, lock.scope);
+        XcalarKeyLookup(lock.key, lock.scope)
+        .then(function(ret) {
+            if (ret === null) {
+                return XcalarKeyPut(lock.key, unlocked, false, lock.scope);
+            } else {
+                return PromiseHelper.reject("Mutex already initialized");
+            }
+        })
+        .then(deferred.resolve, deferred.reject);
+        return deferred.promise();
     };
 
     Concurrency.delLock = function(lock) {
