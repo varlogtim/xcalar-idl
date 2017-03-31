@@ -58,6 +58,7 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
     function setupExtLists() {
         if (Admin.isAdmin()) {
             $extLists.addClass("admin");
+            $panel.addClass("admin");
         }
 
         $extLists.on("click", ".listInfo", function() {

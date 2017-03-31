@@ -10,7 +10,7 @@ var WalkThroughTStr = {
                    'w1-user'],
         'w1-topMenu': 'This is the top menu. The buttons here change the contents of what you are viewing.',
         'w1-workbookBut': 'This is your workbook browser button. Click to open if you want to switch to another workbook. Your current workbook will be automatically saved.',
-        'w1-workspaceBut': 'This is shows your current workbook\'s active worksheet. You can have multiple worksheets in a single workbook.',
+        'w1-workspaceBut': 'This shows your current workbook\'s active worksheet. You can have multiple worksheets in a single workbook.',
         'w1-datastoresBut': 'This is the data stores button. Click this button to point to new datasets and add them to your worksheet.',
         'w1-monitorBut': 'This is your monitor button, where you will be able to view the progress of your running queries and your machine’s statistics.',
         'w1-df': 'This is your dataflow button, where you will be able to manage your dataflows and run them.',

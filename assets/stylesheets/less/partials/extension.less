@@ -121,6 +121,12 @@
 }
 
 #extensionInstallPanel {
+    &.admin {
+        .install {
+            display: block !important;
+        }
+    }
+
     &.wait, &.error, &.hint {
         .infoCard {
             display: block;
@@ -223,6 +229,7 @@
 
         .item {
             border-bottom: 1px solid @color-border-pinkish-grey2;
+            .auto-selection;
 
             &.fullSize {
                 .bottomSection {
@@ -301,6 +308,10 @@
                     .btn {
                         &:first-child {
                             margin-bottom: 8px;
+                        }
+
+                        &.install {
+                            display: none;
                         }
 
                         &.installed {
