@@ -609,6 +609,11 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
         url = url.replace(FileProtocol.nfs, "nfs:///");
     }
 
+    if (gDemoMemory) {
+        url = url.replace("nfs:///", "memory://");
+        url = url.replace("file:///", "memory://");
+    }
+
     var workItem = xcalarLoadWorkItem(url, datasetName, formatType,
                                       maxSampleSize, loadArgs);
 
