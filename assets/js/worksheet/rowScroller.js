@@ -303,7 +303,6 @@ window.RowScroller = (function($, RowScroller) {
 
             // gets this class from RowManager.addRows
             scrolling = $table.hasClass('scrolling');
-
             if (firstRow.length === 0) {
                 deferred.resolve();
             } else if (scrollTop === 0 && !firstRow.hasClass('row0')) {
@@ -352,7 +351,6 @@ window.RowScroller = (function($, RowScroller) {
                         "tableId": tableId,
                         "currentFirstRow": topRowNum
                     };
-
                     RowManager.addRows(table.currentRowNumber, numRowsToAdd,
                              RowDirection.Bottom, info)
                     .then(deferred.resolve)

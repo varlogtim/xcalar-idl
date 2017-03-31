@@ -178,13 +178,26 @@ describe("RowScroller Test", function() {
     	});
 
     	it("scrolling on scrollbar should work", function(done) {
+    		table.scrollMeta.isTableScrolling = false;
     		expect(table.scrollMeta.isBarScrolling).to.be.false;
+    		expect($scrollBar.scrollTop()).to.not.equal(50);
     		$scrollBar.scrollTop(50);
 
-    		UnitTest.timeoutPromise(100)
+    		if (!ifvisible.now()) {
+    			$scrollBar.scroll();
+    		}
+
+    		UnitTest.testFinish(function () {
+    			return $tbodyWrap.scrollTop() === 50;
+    		})
     		.then(function() {
     			expect($tbodyWrap.scrollTop()).to.equal(50);
-    			done();
+
+    			UnitTest.timeoutPromise(1)
+    			.then(function() {
+    				table.scrollMeta.isBarScrolling = false;
+					done();
+    			});
     		});
     	});
 
@@ -197,22 +210,31 @@ describe("RowScroller Test", function() {
 
     		$scrollBar.trigger(fakeEvent.mousedown);
     		$scrollBar.scrollTop(100);
-    		gTables[tableId].rowHeights[0] = {1:300};
 
-    		UnitTest.timeoutPromise(100)
+    		if (!ifvisible.now()) {
+    			$scrollBar.scroll();
+    		}
+    		gTables[tableId].rowHeights[0] = {1:300};
+    		UnitTest.timeoutPromise(500)
     		.then(function() {
     			expect(table.scrollMeta.isBarScrolling).to.be.false;
     			expect($tbodyWrap.scrollTop()).to.equal(50);
     			expect(addRowsCalled).to.be.false;
 
+    			var top = $scrollBar.scrollTop();
     			$(document).mouseup();
 
-    			UnitTest.timeoutPromise(100)
+    			UnitTest.testFinish(function() {
+    				return $tbodyWrap.scrollTop() === 100;
+    			})
     			.then(function() {
     				expect($tbodyWrap.scrollTop()).to.equal(100);
     				expect(addRowsCalled).to.be.true;
     				delete gTables[tableId].rowHeights[0];
-    				done();
+    				UnitTest.timeoutPromise(1)
+    				.then(function() {
+    					done();
+    				});
     			});
     		});
     	});
@@ -227,12 +249,11 @@ describe("RowScroller Test", function() {
     		$scrollBar = $("#xcTableWrap-" + tableId).find(".tableScrollBar");
     		$tbodyWrap = $("#xcTbodyWrap-" + tableId);
     		table = gTables[tableId];
+    		$table.removeClass('autoScroll');
     	});
     	it("scrolling down should work", function(done) {
-    		var scrollBarTop = $scrollBar.scrollTop();
-    		$tbodyWrap.scrollTop(10000);
     		var addRowsCalled = false;
-			RowManager.addRows = function(backRow, numRowsToAdd, dir, info) {
+    		RowManager.addRows = function(backRow, numRowsToAdd, dir, info) {
 				expect(backRow).to.equal(60);
     			expect(numRowsToAdd).to.equal(20);
     			expect(dir).to.equal(RowDirection.Bottom);
@@ -244,7 +265,17 @@ describe("RowScroller Test", function() {
 				addRowsCalled = true;
 				return PromiseHelper.resolve();
 			};
-			UnitTest.timeoutPromise(100)
+
+    		var scrollBarTop = $scrollBar.scrollTop();
+    		$tbodyWrap.scrollTop(10000);
+
+    		if (!ifvisible.now()) {
+    			$tbodyWrap.scroll();
+    		}
+
+    		UnitTest.testFinish(function() {
+    			return $scrollBar.scrollTop() > scrollBarTop;
+    		})
 			.then(function() {
 				expect(addRowsCalled).to.be.true;
 				expect($scrollBar.scrollTop()).to.be.gt(scrollBarTop);
@@ -255,12 +286,10 @@ describe("RowScroller Test", function() {
 			});
     	});
 
-    	it("scrolling up should work", function() {
+    	it("scrolling up should work", function(done) {
     		$table.find(".row0").removeClass("row0").addClass("tempRow0");
 
-    		var scrollBarTop = $scrollBar.scrollTop();
-    		$tbodyWrap.scrollTop(0);
-    		var addRowsCalled = false;
+			var addRowsCalled = false;
 			RowManager.addRows = function(backRow, numRowsToAdd, dir, info) {
 				expect(backRow).to.equal(0);
     			expect(numRowsToAdd).to.equal(0);
@@ -273,11 +302,20 @@ describe("RowScroller Test", function() {
 				return PromiseHelper.resolve();
 			};
 
-			UnitTest.timeoutPromise(100)
+    		var scrollBarTop = $scrollBar.scrollTop();
+    		$tbodyWrap.scrollTop(0);
+    		if (!ifvisible.now()) {
+    			$tbodyWrap.scroll();
+    		}
+
+    		UnitTest.testFinish(function() {
+    			return $scrollBar.scrollTop() < scrollBarTop;
+    		})
 			.then(function() {
 				expect(addRowsCalled).to.be.true;
 				expect($scrollBar.scrollTop()).to.be.lt(scrollBarTop);
 				$table.find(".tempRow0").removeClass("tempRow0").addClass("row0");
+				done();
 			});
     	});
     });
