@@ -36,11 +36,11 @@ window.LicenseModal = (function($, LicenseModal) {
         // var licenseKey = XVM.getLicenseKey();
         var licenseKey = "123456789";
 
-        $modal.find(".newLicenseKey").attr('placeholder', licenseKey);
+        $modal.find(".newLicenseKey").attr("placeholder", licenseKey);
     };
 
     function setupListeners() {
-        $modal.find('.confirm').click(submitForm);
+        $modal.find(".confirm").click(submitForm);
     }
 
     function submitForm() {

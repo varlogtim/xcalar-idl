@@ -1,12 +1,12 @@
 window.UploadDataflowCard = (function($, UploadDataflowCard) {
-    var $card;             // $('#uploadDataflowCard')
+    var $card;             // $("#uploadDataflowCard")
     var $retPath;          // $card.find("#retinaPath")
     var $dfName;           // $card.find("#dfName")
     var file;
     var $browserBtn;       // $("#dataflow-browse");
 
     UploadDataflowCard.setup = function() {
-        $card = $('#uploadDataflowCard');
+        $card = $("#uploadDataflowCard");
         $retPath = $card.find("#retinaPath");
         $dfName = $card.find("#dfName");
         $browserBtn = $("#dataflow-browse");
@@ -23,7 +23,6 @@ window.UploadDataflowCard = (function($, UploadDataflowCard) {
 
         reader.onload = function(event) {
             var entireString = event.target.result;
-
             XcalarImportRetina(moduleName,
                                $card.find(".checkbox").hasClass("checked"),
                                entireString)
@@ -38,8 +37,7 @@ window.UploadDataflowCard = (function($, UploadDataflowCard) {
                 deferred.reject();
             });
         };
-
-         // XXX this should really be read as data URL
+        // XXX this should really be read as data URL
         // But requires that backend changes import retina to not
         // do default base 64 encoding. Instead take it as flag
         reader.readAsBinaryString(file);
@@ -57,7 +55,7 @@ window.UploadDataflowCard = (function($, UploadDataflowCard) {
         lockCard();
         XcalarListRetinas()
         .then(function(ret) {
-            for (var i = 0; i<ret.retinaDescs.length; i++) {
+            for (var i = 0; i < ret.retinaDescs.length; i++) {
                 if (ret.retinaDescs[i].retinaName === retName) {
                     StatusBox.show(ErrTStr.NameInUse, $dfName);
                     return PromiseHelper.reject();
@@ -111,27 +109,13 @@ window.UploadDataflowCard = (function($, UploadDataflowCard) {
         // but cancel doesn't necessarily fire the .change event on other
         // browsers
         $browserBtn.change(function(event) {
-            if ($(this).val() === "") {
+            var path = $(this).val();
+            if (path === "") {
                 // This is the cancel button getting clicked. Don't do anything
                 event.preventDefault();
                 return;
             }
-            var path = $(this).val().replace(/C:\\fakepath\\/i, '');
-            file = $browserBtn[0].files[0];
-            var retName = path.substring(0, path.indexOf(".")).toLowerCase()
-                              .replace(/ /g, "");
-            $retPath.val(path);
-            $dfName.val(retName);
-            if (path.indexOf(".tar.gz") > 0) {
-                $card.find(".confirm").removeClass("btn-disabled");
-                xcTooltip.disable($card.find(".buttonTooltipWrap"));
-            } else {
-                $card.find(".confirm").addClass("btn-disabled");
-                xcTooltip.enable($card.find(".buttonTooltipWrap"));
-                StatusBox.show(ErrTStr.RetinaFormat, $retPath, false, {
-                    "side": "bottom"
-                });
-            }
+            changeFilePath(path);
         });
 
         $card.on("click", ".checkbox", function() {
@@ -141,7 +125,25 @@ window.UploadDataflowCard = (function($, UploadDataflowCard) {
         $card.on("click", ".overwriteUdf span", function() {
             $card.find(".checkbox").click();
         });
+    }
 
+    function changeFilePath(path) {
+        path = path.replace(/C:\\fakepath\\/i, '');
+        file = $browserBtn[0].files[0];
+        var retName = path.substring(0, path.indexOf(".")).toLowerCase()
+                          .replace(/ /g, "");
+        $retPath.val(path);
+        $dfName.val(retName);
+        if (path.indexOf(".tar.gz") > 0) {
+            $card.find(".confirm").removeClass("btn-disabled");
+            xcTooltip.disable($card.find(".buttonTooltipWrap"));
+        } else {
+            $card.find(".confirm").addClass("btn-disabled");
+            xcTooltip.enable($card.find(".buttonTooltipWrap"));
+            StatusBox.show(ErrTStr.RetinaFormat, $retPath, false, {
+                "side": "bottom"
+            });
+        }
     }
 
     function lockCard() {
@@ -163,6 +165,13 @@ window.UploadDataflowCard = (function($, UploadDataflowCard) {
         $card.find(".checkbox").removeClass("checked");
         xcTooltip.enable($card.find(".buttonTooltipWrap"));
     }
+
+    /* Unit Test Only */
+    if (window.unitTestMode) {
+        UploadDataflowCard.__testOnly__ = {};
+        UploadDataflowCard.__testOnly__.changeFilePath = changeFilePath;
+    }
+    /* End Of Unit Test Only */
 
     return (UploadDataflowCard);
 
