@@ -120,10 +120,7 @@ window.Profile = (function($, Profile, d3) {
 
         var $groupbySection = $modal.find(".groubyInfoSection");
 
-        // Solve weird issue with svg on some versions of Chrome
-        $(document).on("click", ".groubyInfoSection .bar-extra, " +
-                       ".groubyInfoSection .bar, .groubyInfoSection .xlabel",
-                       function(event) {
+        $groupbySection.on("click", ".bar-extra, .bar, .xlabel", function(event) {
             if (event.which !== 1) {
                 return;
             }
@@ -2333,7 +2330,8 @@ window.Profile = (function($, Profile, d3) {
             var left = self.x - bound.left;
             var top = self.y - bound.top;
 
-            var html = '<div id="profile-filterSelection" style="left:' + left +
+            var html = '<div id="profile-filterSelection" style="' +
+                        'pointer-events: none; left:' + left +
                         'px; top:' + top + 'px; width:0; height:0;"></div>';
 
             $("#profile-filterSelection").remove();
