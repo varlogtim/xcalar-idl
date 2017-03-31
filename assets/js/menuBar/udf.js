@@ -9,8 +9,6 @@ window.UDF = (function($, UDF) {
                     "# UDFs can only support\n" +
                     "# return values of \n" +
                     "# type String.\n\n"+
-                    "# XPU Apps should include \n" +
-                    "# a main function.\n\n" +
                     "# Function names that \n" +
                     "# start with __ are\n" +
                     "# considered private\n"+

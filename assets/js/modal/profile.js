@@ -120,7 +120,10 @@ window.Profile = (function($, Profile, d3) {
 
         var $groupbySection = $modal.find(".groubyInfoSection");
 
-        $groupbySection.on("click", ".bar-extra, .bar, .xlabel", function(event) {
+        // Solve weird issue with svg on some versions of Chrome
+        $(document).on("click", ".groubyInfoSection .bar-extra, " +
+                       ".groubyInfoSection .bar, .groubyInfoSection .xlabel",
+                       function(event) {
             if (event.which !== 1) {
                 return;
             }
