@@ -74,9 +74,9 @@ window.SupTicketModal = (function($, SupTicketModal) {
             "container": "#supTicketModal"
         }).setupListeners();
 
-        $modal.find('.genBundleRow .checkboxSection').click(function() {
-            var $checkbox = $(this).find('.checkbox');
-            $checkbox.toggleClass('checked');
+        $modal.find(".genBundleRow .checkboxSection").click(function() {
+            var $checkbox = $(this).find(".checkbox");
+            $checkbox.toggleClass("checked");
         });
     }
 
@@ -89,6 +89,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
     }
 
     function submitForm(download) {
+        var deferred = jQuery.Deferred();
         var genBundle = false;
         var perfOrCrash;
         var issueType = getIssueType();
@@ -110,10 +111,10 @@ window.SupTicketModal = (function($, SupTicketModal) {
 
         if (download) {
             downloadTicket(ticketObj);
-            $modal.addClass('downloadSuccess');
-            $modal.removeClass('downloadMode');
-            // closeModal();
+            $modal.addClass("downloadSuccess");
+            $modal.removeClass("downloadMode");
             xcHelper.showSuccess(SuccessTStr.DownloadTicket);
+            return deferred.resolve().promise();
         } else {
             modalHelper.disableSubmit();
             modalHelper.addWaitingBG();
@@ -125,6 +126,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
             .then(function() {
                 xcHelper.showSuccess(SuccessTStr.SubmitTicket);
                 closeModal();
+                deferred.resolve();
             })
             .fail(function() {
                 $modal.addClass('downloadMode');
@@ -137,12 +139,15 @@ window.SupTicketModal = (function($, SupTicketModal) {
                 } else {
                     Alert.error('Submit Ticket Failed', msg);
                 }
+                deferred.reject();
             })
             .always(function() {
                 modalHelper.enableSubmit();
                 modalHelper.removeWaitingBG();
             });
         }
+
+        return deferred.promise();
     }
 
     function getIssueType() {
@@ -152,28 +157,25 @@ window.SupTicketModal = (function($, SupTicketModal) {
     function submitBundle() {
         var deferred = jQuery.Deferred();
 
-        $("#monitor-genSub").addClass('xc-disabled');
+        $("#monitor-genSub").addClass("xc-disabled");
 
         XcalarSupportGenerate()
-        .then(function(ret) {
-            deferred.resolve(ret);
-            // do not show anything if succeeds
-        })
+        .then(deferred.resolve)
         .fail(function(err) {
             deferred.reject(err);
             if ($modal.is(":visible")) {
                 modalHelper.removeWaitingBG();
-                $modal.addClass('bundleError');
-                $modal.find('.errorText').text('Submit bundle failed. ' + err);
+                $modal.addClass("bundleError");
+                $modal.find(".errorText").text(ErrTStr.BundleFailed + " " + err);
             } else {
-                Alert.error('Submit Bundle Failed', err);
+                Alert.error(ErrTStr.BundleFailed, err);
             }
         })
         .always(function() {
-            $("#monitor-genSub").removeClass('xc-disabled');
+            $("#monitor-genSub").removeClass("xc-disabled");
         });
 
-        return (deferred.promise());
+        return deferred.promise();
     }
 
     function submitTicket(ticketObj) {
@@ -192,24 +194,20 @@ window.SupTicketModal = (function($, SupTicketModal) {
             };
             return XFTSupportTools.fileTicket(JSON.stringify(ticketObj));
         }
-
         var deferred = jQuery.Deferred();
         var topProm = XcalarApiTop(1000);
         var licProm = XFTSupportTools.getLicense();
         PromiseHelper.when(topProm, licProm)
         .then(promiseHandler, promiseHandler)
-        .then(function() {
-            deferred.resolve();
-        })
-        .fail(function() {
-            deferred.reject();
-        });
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+
         return deferred.promise();
     }
 
     function downloadTicket(ticketObj) {
         ticketObj.time = new Date();
-        xcHelper.downloadAsFile('xcalarTicket.txt', JSON.stringify(ticketObj));
+        xcHelper.downloadAsFile("xcalarTicket.txt", JSON.stringify(ticketObj));
     }
 
     function closeModal() {
@@ -220,6 +218,16 @@ window.SupTicketModal = (function($, SupTicketModal) {
         Alert.unhide();
         StatusBox.forceHide();
     }
+
+    /* Unit Test Only */
+    if (window.unitTestMode) {
+        SupTicketModal.__testOnly__ = {};
+        SupTicketModal.__testOnly__.submitBundle = submitBundle;
+        SupTicketModal.__testOnly__.submitTicket = submitTicket;
+        SupTicketModal.__testOnly__.downloadTicket = downloadTicket;
+        SupTicketModal.__testOnly__.submitForm = submitForm;
+    }
+    /* End Of Unit Test Only */
 
     return (SupTicketModal);
 }(jQuery, {}));

@@ -244,7 +244,7 @@ window.Profile = (function($, Profile, d3) {
             return;
         }
 
-        statsInfos[newTableId] =  {};
+        statsInfos[newTableId] = {};
         for (var colName in statsInfos[oldTableId]) {
             var options = statsInfos[oldTableId][colName];
             statsInfos[newTableId][colName] = new ProfileInfo(options);
@@ -2065,7 +2065,7 @@ window.Profile = (function($, Profile, d3) {
     // UDF for log scale bucketing
     // import math
 
-    // def log(n):
+    // def logBuckets(n):
     //     if n == 0:
     //         return 0
     //     abs_n = abs(n)
@@ -2212,7 +2212,7 @@ window.Profile = (function($, Profile, d3) {
             mapString = colName;
             step = newBucketNum;
         } else {
-            mapString = "int(log:log(" + colName + "))";
+            mapString = "int(default:logBuckets(" + colName + "))";
             step = -1 * newBucketNum;
         }
 

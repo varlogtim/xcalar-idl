@@ -268,6 +268,7 @@ ErrTStr = {
     'CannotDropLocked': 'Cannot drop locked tables',
     'RefreshBrowser': 'Refresh  Browser',
     'RefreshBrowserDesc': 'We have detected an issue that requires a refresh.\nPlease refresh your browser now. Your work will be recovered to the last consistent state.',
+    'BundleFailed': 'Submit Bundle Failed',
 
     // With replace
     'WorkbookExists': 'A workbook named <workbookName> already exists. Please' +

@@ -9,10 +9,10 @@ window.XcSocket = (function(XcSocket, $) {
         }
 
         var url = getExpServerUrl(hostname);
-        // var options = {
-        //     "reconnectionAttempts": 500
-        // };
-        socket = io.connect(url);
+        var options = {
+            "reconnectionAttempts": 50
+        };
+        socket = io.connect(url, options);
         addSocketEvent();
     };
 
