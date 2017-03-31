@@ -131,10 +131,12 @@ window.RowScroller = (function($, RowScroller) {
         var numPages = Math.ceil(numRowsAbove / gNumEntriesPerPage);
         var height = numRowsAbove * gRescol.minCellHeight;
         for (var pageNum in table.rowHeights) {
+            pageNum = parseInt(pageNum);
             if (pageNum < numPages) {
                 var page = table.rowHeights[pageNum];
                 if (pageNum === numPages - 1) {
                     for (var row in page) {
+                        row = parseInt(row);
                         if (row <= numRowsAbove) {
                             height += (page[row] - gRescol.minCellHeight);
                         }
@@ -597,49 +599,5 @@ window.RowScroller = (function($, RowScroller) {
             setTimeout(positionScrollToRow, 1);
         }
     }
-
-    // returns object containing numbers of rows showing, percent of full table,
-    // topmost visible row, bottommost visible row
-    function getTableRowInfo(tableId) {
-        var topRow = getFirstVisibleRowNum(tableId);
-        var botRow = RowScroller.getLastVisibleRowNum(tableId);
-        var totalRows = gTables[tableId].resultSetMax;
-        if (!botRow) {
-            var $table = $('#xcTable-' + tableId);
-            if ($table.length) {
-                botRow = $table.find('tbody tr').length;
-            }
-        }
-        if (!botRow) {
-            botRow = totalRows;
-        }
-        var numRowsShowing = botRow - (topRow - 1);
-        var pctRowsShowing = 100 * (numRowsShowing / totalRows);
-
-        return ({
-            topRow: topRow,
-            botRow: botRow,
-            numRowsShowing: numRowsShowing,
-            pctRowsShowing: pctRowsShowing
-        });
-    }
-
-    function getPctOfRowsShowing(tableId) {
-        var topRow = getFirstVisibleRowNum() || 1;
-        var botRow = RowScroller.getLastVisibleRowNum(tableId);
-        var totalRows = gTables[tableId].resultSetMax;
-        if (!botRow) {
-            var $table = $('#xcTable-' + tableId);
-            if ($table.length) {
-                botRow = $table.find('tbody tr').length;
-            }
-        }
-        if (!botRow) {
-            botRow = totalRows;
-        }
-        var numRowsShowing = botRow - (topRow - 1);
-        return (100 * (numRowsShowing / totalRows));
-    }
-
     return (RowScroller);
 }(jQuery, {}));

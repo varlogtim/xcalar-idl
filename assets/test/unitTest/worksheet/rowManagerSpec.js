@@ -405,7 +405,7 @@ describe('RowManager Test', function() {
     after(function(done) {
         setTimeout(function() {
             UnitTest.deleteTable(oldTableName, TableType.Orphan)
-            .then(function() {
+            .always(function() {
                 UnitTest.deleteAll(tableName, testDs)
                 .always(function() {
                     done();
