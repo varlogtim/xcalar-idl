@@ -406,7 +406,8 @@ PromiseHelper = (function(PromiseHelper, $) {
             test.assert(result.product === "Xce");
             test.assert(result.productFamily === "XcalarX");
             test.assert(result.productVersion === "1.2.3.4");
-            test.assert(result.nodeCount === 2971215073); 
+            test.assert(result.nodeCount === 2971215073);
+	    test.assert(result.userCount === 33333);
             test.pass();
         })
         .fail(function(status) {
@@ -535,7 +536,7 @@ PromiseHelper = (function(PromiseHelper, $) {
         .then(function(result) {
             printResult(result);
             loadOutput = result;
-            test.assert(result.numBytes == 27053171);
+            test.assert(result.numBytes == 20054016);
             test.assert(result.numFiles == 1);
             origDataset = loadOutput.dataset.name;
             yelpUserDataset = loadOutput.dataset.name;

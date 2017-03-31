@@ -13,7 +13,8 @@ window.XVM = (function(XVM) {
     var licenseKey = "";
     var licenseMode = "";
     var expirationDate = null;
-
+    var numUsers = -1; // Set, but not used
+    var numNodes = -1; // Set, but not used
 
     XVM.setup = function() {
         kvVersion = currentVersion;
@@ -42,6 +43,14 @@ window.XVM = (function(XVM) {
         // return (XcalarMode.Demo);
         // return (XcalarMode.Mod);
         return (licenseMode);
+    };
+
+    XVM.getMaxUsers = function() {
+        return numUsers;
+    };
+
+    XVM.getMaxNodes = function() {
+        return numNodes;
     };
 
     XVM.checkVersionMatch = function() {
@@ -80,6 +89,8 @@ window.XVM = (function(XVM) {
                         licenseMode = XcalarMode.Mod;
                     }
                 }
+                numNodes = licKey.nodeCount;
+                numUsers = licKey.userCount;
                 if (versionNum !== XcalarApiVersionT.XcalarApiVersionSignature) {
                     console.log("Thrift version mismatch! Backend's thrift " +
                       "version is:" +

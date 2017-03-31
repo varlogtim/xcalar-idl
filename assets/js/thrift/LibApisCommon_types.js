@@ -1693,16 +1693,12 @@ XcalarApiKeyDeleteInputT.prototype.write = function(output) {
 XcalarApiTableInputT = function(args) {
   this.tableName = null;
   this.tableId = null;
-  this.state = null;
   if (args) {
     if (args.tableName !== undefined) {
       this.tableName = args.tableName;
     }
     if (args.tableId !== undefined) {
       this.tableId = args.tableId;
-    }
-    if (args.state !== undefined) {
-      this.state = args.state;
     }
   }
 };
@@ -1734,13 +1730,6 @@ XcalarApiTableInputT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
-      case 3:
-      if (ftype == Thrift.Type.I32) {
-        this.state = input.readI32().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
       default:
         input.skip(ftype);
     }
@@ -1760,11 +1749,6 @@ XcalarApiTableInputT.prototype.write = function(output) {
   if (this.tableId !== null && this.tableId !== undefined) {
     output.writeFieldBegin('tableId', Thrift.Type.STRING, 2);
     output.writeString(this.tableId);
-    output.writeFieldEnd();
-  }
-  if (this.state !== null && this.state !== undefined) {
-    output.writeFieldBegin('state', Thrift.Type.I32, 3);
-    output.writeI32(this.state);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -7685,6 +7669,7 @@ XcalarApiGetLicenseOutputT = function(args) {
   this.productVersion = null;
   this.expiration = null;
   this.nodeCount = null;
+  this.userCount = null;
   if (args) {
     if (args.loaded !== undefined) {
       this.loaded = args.loaded;
@@ -7709,6 +7694,9 @@ XcalarApiGetLicenseOutputT = function(args) {
     }
     if (args.nodeCount !== undefined) {
       this.nodeCount = args.nodeCount;
+    }
+    if (args.userCount !== undefined) {
+      this.userCount = args.userCount;
     }
   }
 };
@@ -7782,6 +7770,13 @@ XcalarApiGetLicenseOutputT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 9:
+      if (ftype == Thrift.Type.I32) {
+        this.userCount = input.readI32().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -7831,6 +7826,11 @@ XcalarApiGetLicenseOutputT.prototype.write = function(output) {
   if (this.nodeCount !== null && this.nodeCount !== undefined) {
     output.writeFieldBegin('nodeCount', Thrift.Type.I64, 8);
     output.writeI64(this.nodeCount);
+    output.writeFieldEnd();
+  }
+  if (this.userCount !== null && this.userCount !== undefined) {
+    output.writeFieldBegin('userCount', Thrift.Type.I32, 9);
+    output.writeI32(this.userCount);
     output.writeFieldEnd();
   }
   output.writeFieldStop();

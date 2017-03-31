@@ -560,7 +560,9 @@ StatusT = {
   'StatusOperationOutstanding' : 551,
   'StatusDhtAlreadyExists' : 552,
   'StatusDhtInUse' : 553,
-  'StatusTooManyResultSets' : 554
+  'StatusTooManyResultSets' : 554,
+  'StatusRetinaAlreadyExists' : 555,
+  'StatusRetinaInUse' : 556
 };
 StatusTStr = {0 : 'Success',
 1 : 'Operation not permitted',
@@ -1116,5 +1118,7 @@ StatusTStr = {0 : 'Success',
 551 : 'Cannot switch session, operations outstanding',
 552 : 'The DHT already exists',
 553 : 'The DHT is currently in use',
-554 : 'Number of result sets exceeded table meta limit'
+554 : 'Number of result sets exceeded table meta limit',
+555 : 'The retina already exists',
+556 : 'The retina is currently in use'
 };
