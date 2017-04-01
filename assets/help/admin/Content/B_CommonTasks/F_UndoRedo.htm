@@ -148,11 +148,15 @@
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/C_UDFTasks.htm">Using user-defined functions (UDFs)</a>
                                                 </li>
+                                                <li><a href="../C_AdvancedTasks/C1_PointWithVisualParser.htm">Using a visual parser to create a UDF</a>
+                                                </li>
                                                 <li><a href="../C_AdvancedTasks/D_FunctionBar.htm">Using the function or search bar</a>
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/E_CreateBatchDataflow.htm">Understanding and creating batch dataflows</a>
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/F_UseBatchDataflow.htm">Using batch dataflows</a>
+                                                </li>
+                                                <li><a href="../C_AdvancedTasks/F1_ScheduleBatchDataflow.htm">Scheduling batch dataflows</a>
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/G_ExportTable.htm">Exporting a table</a>
                                                 </li>
@@ -185,6 +189,8 @@
                                                 <li><a href="../D_Reference/G_ColumnOptions.htm">Column options</a>
                                                 </li>
                                                 <li><a href="../D_Reference/H_CellOptions.htm">Cell options</a>
+                                                </li>
+                                                <li><a href="../D_Reference/H1_UdfExamples.htm">User-defined function (UDF) examples</a>
                                                 </li>
                                                 <li><a href="../D_Reference/I_MapFunctions.htm">Map functions</a>
                                                 </li>
@@ -320,7 +326,7 @@
                                             </li>
                                         </ul>
                                         <h2>Using the Undo and Redo buttons</h2>
-                                        <p>The <img src="../Resources/Images/XD_assets/xi-undo.png" /> (<span class="UIelement">Undo</span>) and <img src="../Resources/Images/XD_assets/xi-redo.png" /> (<span class="UIelement">Redo</span>) buttons are located in the upper left corner of the <span class="UIelement">Worksheet</span> window. When you hover over one of these buttons, a tooltip is displayed to indicate what operation will be undone or redone.</p>
+                                        <p>The <img src="../Resources/Images/XD_assets/xd-undo.png" /> (<span class="UIelement">Undo</span>) and <img src="../Resources/Images/XD_assets/xd-redo.png" /> (<span class="UIelement">Redo</span>) buttons are located in the upper left corner of the <span class="UIelement">Worksheet</span> window. When you hover over one of these buttons, a tooltip is displayed to indicate what operation will be undone or redone.</p>
                                         <p>The <span class="UIelement">Undo</span> and <span class="UIelement">Redo</span> buttons work for any database operation or any action taken to change the appearance of a table or worksheet. In general, the <span class="UIelement">Undo</span> and <span class="UIelement">Redo</span> buttons are useful when you want to correct a mistake. You cannot, however, undo the action of dropping a table.</p>
                                         <div class="Example"><span class="label">EXAMPLE:</span>&#160;After you perform a filter on a particular value in a cell, a new version of the table is created with only the rows containing that filtered value in the column. To revert to the version of the table before the filter operation, click <span class="UIelement">Undo</span>.</div>
                                         <div class="Example"><span class="label">EXAMPLE:</span>&#160;After you minimize a column, you can undo the minimizing by clicking <span class="UIelement">Undo</span>. The column is restored to its original width.</div>
@@ -333,7 +339,7 @@
                                         <p>The following example illustrates how to undo a Map operation:</p>
                                         <ol>
                                             <li value="1">
-                                                <p>Click <img src="../Resources/Images/XD_assets/xi-dataflow-graph-icon.png" /> (<span class="UIelement">dataflow graph</span> icon) in the lower-right corner of the <span class="GeneralProductName">Xcalar Design</span> window.</p>
+                                                <p>Click <img src="../Resources/Images/XD_assets/xd-dataflow-graph-icon.png" /> (<span class="UIelement">dataflow graph</span> icon) in the lower-right corner of the <span class="GeneralProductName">Xcalar Design</span> window.</p>
                                             </li>
                                             <li value="2">
                                                 <p>In the dataflow graph, click the table before the Map operation. A list of options is displayed in a pop-up menu. Click <span class="UIelement">Revert to this table</span>.</p>
@@ -341,7 +347,7 @@
                                                     <img src="../Resources/Images/XD_screenshots/dataflow-revert-table.png" />
                                                 </p>
                                             </li>
-                                            <li value="3">To hide the dataflow graph, click <img src="../Resources/Images/XD_assets/xi-dataflow-graph-icon.png" /> again or click the <span class="UIelement">Close</span> button in the upper right corner of the dataflow graph panel.</li>
+                                            <li value="3">To hide the dataflow graph, click <img src="../Resources/Images/XD_assets/xd-dataflow-graph-icon.png" /> again or click the <span class="UIelement">Close</span> button in the upper right corner of the dataflow graph panel.</li>
                                         </ol>
                                         <p><span class="GeneralProductName">Xcalar Design</span> removes from the dataflow graph all tables listed to the right of the table to which you revert. In this example, airlines3#XS47 is removed from the dataflow graph and added to the Temporary Tables list. This table is kept as a temporary table until you drop it.</p>
                                         <div class="Note"><span class="label">NOTE:</span>&#160;Clicking <span class="UIelement">Revert to this table</span> is considered an operation. You can undo or redo this operation through the <span class="UIelement">Undo</span> and <span class="UIelement">Redo</span> button just as you do with other operations.</div>

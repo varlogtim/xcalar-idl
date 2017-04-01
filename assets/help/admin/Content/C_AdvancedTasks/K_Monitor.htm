@@ -148,11 +148,15 @@
                                                 </li>
                                                 <li><a href="C_UDFTasks.htm">Using user-defined functions (UDFs)</a>
                                                 </li>
+                                                <li><a href="C1_PointWithVisualParser.htm">Using a visual parser to create a UDF</a>
+                                                </li>
                                                 <li><a href="D_FunctionBar.htm">Using the function or search bar</a>
                                                 </li>
                                                 <li><a href="E_CreateBatchDataflow.htm">Understanding and creating batch dataflows</a>
                                                 </li>
                                                 <li><a href="F_UseBatchDataflow.htm">Using batch dataflows</a>
+                                                </li>
+                                                <li><a href="F1_ScheduleBatchDataflow.htm">Scheduling batch dataflows</a>
                                                 </li>
                                                 <li><a href="G_ExportTable.htm">Exporting a table</a>
                                                 </li>
@@ -185,6 +189,8 @@
                                                 <li><a href="../D_Reference/G_ColumnOptions.htm">Column options</a>
                                                 </li>
                                                 <li><a href="../D_Reference/H_CellOptions.htm">Cell options</a>
+                                                </li>
+                                                <li><a href="../D_Reference/H1_UdfExamples.htm">User-defined function (UDF) examples</a>
                                                 </li>
                                                 <li><a href="../D_Reference/I_MapFunctions.htm">Map functions</a>
                                                 </li>
@@ -276,11 +282,15 @@
                                                     </li>
                                                     <li><a href="C_UDFTasks.htm">Using user-defined functions (UDFs)</a>
                                                     </li>
+                                                    <li><a href="C1_PointWithVisualParser.htm">Using a visual parser to create a UDF</a>
+                                                    </li>
                                                     <li><a href="D_FunctionBar.htm">Using the function or search bar</a>
                                                     </li>
                                                     <li><a href="E_CreateBatchDataflow.htm">Understanding and creating batch dataflows</a>
                                                     </li>
                                                     <li><a href="F_UseBatchDataflow.htm">Using batch dataflows</a>
+                                                    </li>
+                                                    <li><a href="F1_ScheduleBatchDataflow.htm">Scheduling batch dataflows</a>
                                                     </li>
                                                     <li><a href="G_ExportTable.htm">Exporting a table</a>
                                                     </li>
@@ -305,12 +315,12 @@
                                         <p>The <span class="UIelement">Monitor</span> icon enables you to monitor the status of <span class="GeneralProductName2short">XCE</span> and specify the environment in which you use <span class="GeneralProductName">Xcalar Design</span>. This section describes the tasks you can perform with the Monitor. The following screenshot shows the location of the icon.</p>
                                         <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/monitor-icon-location.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="672" data-mc-height="461" src="../Resources/Images/XD_screenshots/monitor-icon-location_thumb_0_150.png" tabindex="" /></a>
                                         </p>
-                                        <div class="Note" data-mc-conditions="General.Admin help"><span class="label">NOTE:</span>&#160;If you log in as administrator, a <span class="UIelement">Setup</span> icon (<img src="../Resources/Images/XD_assets/xi-monitor-setup.png" />) is available in the Monitor. See <a href="L_UseSetup.htm" class="MCXref xref">Using Setup (XDP administrators only)</a> for information about how to set up the cluster through this icon.</div>
-                                        <h2>Monitoring query status</h2>
+                                        <div class="Note" data-mc-conditions="General.Admin help"><span class="label">NOTE:</span>&#160;If you log in as administrator, a <span class="UIelement">Setup</span> icon (<img src="../Resources/Images/XD_assets/xd-monitor-setup.png" />) is available in the Monitor. See <a href="L_UseSetup.htm" class="MCXref xref">Using Setup (XDP administrators only)</a> for information about how to set up the cluster through this icon.</div>
+                                        <h2><a name="Monitoring" class="ForCSH"></a>Monitoring query status</h2>
                                         <p><span class="GeneralProductName">Xcalar Design</span> keeps a record of all operations since you logged in and displays information about them. The operations include the ones you have undone. Follow these steps to display query status:</p>
                                         <ol>
                                             <li value="1">
-                                                <p>Click <img src="../Resources/Images/XD_assets/xi-monitor.png" /> to start the Monitor. By default, the <span class="UIelement">Queries</span> panel is displayed. The following screenshot illustrates the icons in the <span class="UIelement">Queries</span> panel that control how the list of queries are displayed.</p>
+                                                <p>Click <img src="../Resources/Images/XD_assets/xd-monitor.png" /> to start the Monitor. By default, the <span class="UIelement">Queries</span> panel is displayed. The following screenshot illustrates the icons in the <span class="UIelement">Queries</span> panel that control how the list of queries are displayed.</p>
                                                 <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/monitor-queries-panel.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1201" data-mc-height="644" src="../Resources/Images/XD_screenshots/monitor-queries-panel_thumb_0_150.png" tabindex="" /></a>
                                                 </p>
                                                 <div class="Note"><span class="label">NOTE:</span>&#160;The icon for removing a query only affects the queries list in the <span class="UIelement">Queries</span> panel. It does not affect the output of the query.&#160;For example, a table created by a Filter function remains in the worksheet even after you remove the Filter function from the <span class="UIelement">Queries</span> panel.</div>
@@ -333,7 +343,7 @@
                                         <p>The Monitor provides an icon for you to display <span class="GeneralProductName2short">XCE</span> statistics, generate a ticket for <span class="GeneralCompanyNameShort">Xcalar</span> technical support, and release memory.&#160;The following screenshot shows the location of the <span class="UIelement">System</span> icon in the Monitor. The screenshot also illustrates how you can use the icons in the <span class="UIelement">System</span> panel to perform various tasks.</p>
                                         <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/monitor-system-statistics.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1123" data-mc-height="704" src="../Resources/Images/XD_screenshots/monitor-system-statistics_thumb_0_150.png" tabindex="" /></a>
                                         </p>
-                                        <h2><a name="Setting"></a>Setting the environment for <span class="GeneralProductName">Xcalar Design</span></h2>
+                                        <h2><a name="Setting"></a><a name="GeneralSettings" class="ForCSH"></a>Setting the environment for <span class="GeneralProductName">Xcalar Design</span></h2>
                                         <p>The Monitor provides a <span class="UIelement">Settings</span> icon for you to customize the environment in which you run <span class="GeneralProductName">Xcalar Design</span>. The following screenshot explains the fields in the <span class="UIelement">General Settings</span> window. For fields that accept a numeric value, you can type the value or drag the slider to make a change.</p>
                                         <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/monitor-general-settings.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="843" data-mc-height="684" src="../Resources/Images/XD_screenshots/monitor-general-settings_thumb_0_150.png" tabindex="" /></a>
                                         </p>

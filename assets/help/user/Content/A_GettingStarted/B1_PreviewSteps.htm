@@ -149,11 +149,15 @@
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/C_UDFTasks.htm">Using user-defined functions (UDFs)</a>
                                                 </li>
+                                                <li><a href="../C_AdvancedTasks/C1_PointWithVisualParser.htm">Using a visual parser to create a UDF</a>
+                                                </li>
                                                 <li><a href="../C_AdvancedTasks/D_FunctionBar.htm">Using the function or search bar</a>
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/E_CreateBatchDataflow.htm">Understanding and creating batch dataflows</a>
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/F_UseBatchDataflow.htm">Using batch dataflows</a>
+                                                </li>
+                                                <li><a href="../C_AdvancedTasks/F1_ScheduleBatchDataflow.htm">Scheduling batch dataflows</a>
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/G_ExportTable.htm">Exporting a table</a>
                                                 </li>
@@ -184,6 +188,8 @@
                                                 <li><a href="../D_Reference/G_ColumnOptions.htm">Column options</a>
                                                 </li>
                                                 <li><a href="../D_Reference/H_CellOptions.htm">Cell options</a>
+                                                </li>
+                                                <li><a href="../D_Reference/H1_UdfExamples.htm">User-defined function (UDF) examples</a>
                                                 </li>
                                                 <li><a href="../D_Reference/I_MapFunctions.htm">Map functions</a>
                                                 </li>
@@ -308,10 +314,10 @@
                                                     </div>
                                                 </div>
                                             </li>
-                                            <li value="2">Click <img src="../Resources/Images/XD_assets/xi-activate-workbook.png" /> to activate the workbook. The icon is the first one on the menu when you hover over the workbook card. </li>
+                                            <li value="2">Click <img src="../Resources/Images/XD_assets/xd-activate-workbook.png" /> to activate the workbook. The icon is the first one on the menu when you hover over the workbook card. </li>
                                         </ol>
                                         <h2>Displaying the Data Stores</h2>
-                                        <p>Data Stores are repositories of the datasets that are created by <span class="GeneralProductName3short">XDP</span>. Click <img src="../Resources/Images/XD_assets/xi-datastores.png" /> (<span class="UIelement">Data Stores</span> icon) to display the window where you can start the steps for pointing to data.</p>
+                                        <p>Data Stores are repositories of the datasets that are created by <span class="GeneralProductName3short">XDP</span>. Click <img src="../Resources/Images/XD_assets/xd-datastores.png" /> (<span class="UIelement">Data Stores</span> icon) to display the window where you can start the steps for pointing to data.</p>
                                         <p>The following screenshot shows the location of the <span class="UIelement">Data Stores</span> icon:</p>
                                         <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/datastores-icon-in-menu.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="863" data-mc-height="565" src="../Resources/Images/XD_screenshots/datastores-icon-in-menu_thumb_0_150.png" tabindex="" /></a>
                                         </p>
@@ -400,8 +406,8 @@
                                                     <li value="9">comma (,)</li>
                                                     <li value="10">period (.)</li>
                                                 </ul>
-                                                <p>A UDF for parsing data when <span class="GeneralProductName">Xcalar Design</span> points to the data is called a streaming UDF. You can preview the results of the streaming UDF by clicking <span class="UIelement">REFRESH&#160;PREVIEW</span>. If you see unexpected results, you can select another UDF&#160;or no UDFs. For more information about UDFs, see <a href="../C_AdvancedTasks/B_UDFUnderstand.htm" class="MCXref xref">Understanding user-defined functions (UDFs)</a> and <a href="../C_AdvancedTasks/C_UDFTasks.htm" class="MCXref xref">Using user-defined functions (UDFs)</a>. </p>
-                                                <div class="Note"><span class="label">Recommendation</span>:&#160;A streaming UDF causes columns to be ordered differently than they are in the data source. See <a href="D_DetailedStepsForPointing.htm#Before" class="MCXref xref">Before using a streaming UDF</a> for preparing your data source to ensure that you can easily locate columns in a table in <span class="GeneralProductName">Xcalar Design</span>.</div>
+                                                <p>A UDF for parsing data when <span class="GeneralProductName">Xcalar Design</span> points to the data is called a streaming UDF. You can preview the results of the streaming UDF by clicking <span class="UIelement">REFRESH&#160;PREVIEW</span>. If you see unexpected results, you can select another UDF&#160;or no UDFs. For more information about UDFs, see <a href="../C_AdvancedTasks/B_UDFUnderstand.htm" class="MCXref xref">Understanding UDFs</a> and <a href="../C_AdvancedTasks/C_UDFTasks.htm" class="MCXref xref">Using UDFs</a>. </p>
+                                                <div class="Note"><span class="label">Recommendation</span>:&#160;A streaming UDF causes columns to be ordered differently than they are in the data source. See <a href="D_DetailedStepsForPointing.htm#Before" class="MCXref xref">Preparing column headers</a> for preparing your data source to ensure that you can easily locate columns in a table in <span class="GeneralProductName">Xcalar Design</span>.</div>
                                             </li>
                                             <li value="3">
                                                 <p>The fields in the rest of the <span class="UIelement">Point to New Data Source</span> window tell <span class="GeneralProductName">Xcalar Design</span> about the data format and layout. <span class="GeneralProductName">Xcalar Design</span> automatically detects the format and layout of the data source, but you can override the default values. </p>

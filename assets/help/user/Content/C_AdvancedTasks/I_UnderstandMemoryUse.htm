@@ -148,11 +148,15 @@
                                                 </li>
                                                 <li><a href="C_UDFTasks.htm">Using user-defined functions (UDFs)</a>
                                                 </li>
+                                                <li><a href="C1_PointWithVisualParser.htm">Using a visual parser to create a UDF</a>
+                                                </li>
                                                 <li><a href="D_FunctionBar.htm">Using the function or search bar</a>
                                                 </li>
                                                 <li><a href="E_CreateBatchDataflow.htm">Understanding and creating batch dataflows</a>
                                                 </li>
                                                 <li><a href="F_UseBatchDataflow.htm">Using batch dataflows</a>
+                                                </li>
+                                                <li><a href="F1_ScheduleBatchDataflow.htm">Scheduling batch dataflows</a>
                                                 </li>
                                                 <li><a href="G_ExportTable.htm">Exporting a table</a>
                                                 </li>
@@ -183,6 +187,8 @@
                                                 <li><a href="../D_Reference/G_ColumnOptions.htm">Column options</a>
                                                 </li>
                                                 <li><a href="../D_Reference/H_CellOptions.htm">Cell options</a>
+                                                </li>
+                                                <li><a href="../D_Reference/H1_UdfExamples.htm">User-defined function (UDF) examples</a>
                                                 </li>
                                                 <li><a href="../D_Reference/I_MapFunctions.htm">Map functions</a>
                                                 </li>
@@ -274,11 +280,15 @@
                                                     </li>
                                                     <li><a href="C_UDFTasks.htm">Using user-defined functions (UDFs)</a>
                                                     </li>
+                                                    <li><a href="C1_PointWithVisualParser.htm">Using a visual parser to create a UDF</a>
+                                                    </li>
                                                     <li><a href="D_FunctionBar.htm">Using the function or search bar</a>
                                                     </li>
                                                     <li><a href="E_CreateBatchDataflow.htm">Understanding and creating batch dataflows</a>
                                                     </li>
                                                     <li><a href="F_UseBatchDataflow.htm">Using batch dataflows</a>
+                                                    </li>
+                                                    <li><a href="F1_ScheduleBatchDataflow.htm">Scheduling batch dataflows</a>
                                                     </li>
                                                     <li><a href="G_ExportTable.htm">Exporting a table</a>
                                                     </li>
@@ -298,14 +308,28 @@
                                     </div>
                                     <div class="bodyProxyNarrow">
                                         <h1>Understanding memory usage</h1>
-                                        <p><span class="GeneralProductName2short">XCE</span> optimally distributes data and metadata across the cluster using sophisticated policies. When you interactively models dataflows, if the XCE cluster is low on memory, XCE ages and serializes data to lower tiers of the memory hierarchy. It also deserializes data when necessary. While all of this is accomplished without  user intervention, <span class="GeneralCompanyNameShort">Xcalar</span> recommends that users conserve memory (with methods described in <a href="J_OptimizeMemory.htm" class="MCXref xref">Optimizing memory usage</a>) so that <span class="GeneralProductName2short">XCE</span> can deliver the highest possible performance.</p>
-                                        <p>XDP gives you fine-grained control over the distribution of data and metadata across the cluster. Such control is particularly useful when you have to deal with non-uniform data distribution or coloration that occurs for real-world applications. Production systems often need to run optimized dataflows in a similar way as database administrators optimize SQL&#160;queries. Contact Xcalar  if you need Xcalar's Field Technology Engineers to help  operationalize dataflows for you or provide training on operationalizing dataflows. </p>
-                                        <p>If <span class="GeneralProductName2short">XCE</span> is low on memory, <span class="GeneralProductName">Xcalar Design</span> displays a warning message. Then you can choose to display a modal window similar to the following for dropping tables:</p>
+                                        <p><span class="GeneralProductName2short">XCE</span> optimally distributes data and metadata across the cluster using sophisticated policies. When you interactively model dataflows, if the XCE cluster is low on memory, XCE ages and serializes data to lower tiers of the memory hierarchy. It also deserializes data when necessary. While all of this is accomplished without  user intervention, <span class="GeneralCompanyNameShort">Xcalar</span> recommends that users conserve memory (with methods described in <a href="J_OptimizeMemory.htm" class="MCXref xref">Optimizing memory usage</a>) so that <span class="GeneralProductName2short">XCE</span> can deliver the highest possible performance.</p>
+                                        <p>XDP gives you fine-grained control over the distribution of data and metadata across the cluster. Such control is particularly useful when you have to deal with non-uniform data distribution or coloration that occurs for real-world applications. Production systems often need to run optimized dataflows in a similar way as database administrators optimize SQL&#160;queries. Contact Xcalar  if you need Xcalar's Field Technology Engineers to help  operationalize dataflows for you or provide training on operationalizing dataflows.</p>
+                                        <h2>What happens when the cluster is low on memory</h2>
+                                        <p>If <span class="GeneralProductName2short">XCE</span> is low on memory, <span class="GeneralProductName">Xcalar Design</span> displays a warning icon next to the user icon. A yellow icon indicates that memory consumption is at 80% and a red icon indicates that memory consumption is at 90%. A warning message is also displayed, recommending the action to take for releasing memory.&#160;</p>
+                                        <p>If the cluster is healthy without low-memory issues, <img src="../Resources/Images/XD_assets/xd-cluster-healthy.png" /> is displayed next to the user icon. </p>
+                                        <h3>Example of low-memory warning due to tables</h3>
+                                        <p>The following partial screenshot illustrates the warning message when dropping tables is the recommended action.</p>
+                                        <p>
+                                            <img src="../Resources/Images/XD_screenshots/low-memory-tables.png" />
+                                        </p>
+                                        <p>Clicking the warning icon displays a modal window similar to the following for dropping tables:</p>
                                         <p>
                                             <img src="../Resources/Images/XD_screenshots/memory-low-notification.png" />
                                         </p>
                                         <p>The tables shown in the modal window are the same as the ones listed in the <span class="UIelement">Tables</span> panel shown when you click the <span class="UIelement">Worksheets</span> icon. They are tables from all worksheets in your active workbook.  See <a href="J_OptimizeMemory.htm" class="MCXref xref">Optimizing memory usage</a>&#160;for information about what you can do to release or conserve memory.</p>
-                                        <div class="Note"><span class="label">NOTE:</span>&#160;You can display the <span class="UIelement">Drop Table</span> modal window at any time. Click the <span class="UIelement">System</span> icon under <span class="UIelement">Monitor</span>. Then in the <span class="UIelement">System</span> panel, click <span class="UIelement">Release Memory</span>.&#160;For more information about the monitor, see <a href="K_Monitor.htm" class="MCXref xref">Using the Monitor</a>.</div>
+                                        <div class="Note"><span class="label">NOTE:</span>&#160;You can display the <span class="UIelement">Drop Table</span> modal window at any time. Click the <span class="UIelement">System</span> icon under <span class="UIelement">Monitor</span>. Then in the <span class="UIelement">System</span> panel, click the <span class="UIelement">Release Memory</span> icon.&#160;For more information about the monitor, see <a href="K_Monitor.htm" class="MCXref xref">Using the Monitor</a>.</div>
+                                        <h3>Example of low-memory warning due to datasets</h3>
+                                        <p>The following partial screenshot illustrates the warning message when deleting datasets is the recommended action.</p>
+                                        <p>
+                                            <img src="../Resources/Images/XD_screenshots/low-memory-datasets.png" />
+                                        </p>
+                                        <p>Clicking the warning icon displays the <span class="UIelement">Dataset Refs</span> panel. By deleting dataset references, you remove datasets from the cluster. For more information about dataset deletion, see <a href="../B_CommonTasks/A_ManageDatasetRef.htm" class="MCXref xref">Managing dataset references</a>.</p>
                                         <h2><a name="dropTablesModal" class="ForCSH"></a>Determining which table to drop</h2>
                                         <p>The following list describes the considerations when you determine which table to drop:</p>
                                         <ul>

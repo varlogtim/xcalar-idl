@@ -148,11 +148,15 @@
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/C_UDFTasks.htm">Using user-defined functions (UDFs)</a>
                                                 </li>
+                                                <li><a href="../C_AdvancedTasks/C1_PointWithVisualParser.htm">Using a visual parser to create a UDF</a>
+                                                </li>
                                                 <li><a href="../C_AdvancedTasks/D_FunctionBar.htm">Using the function or search bar</a>
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/E_CreateBatchDataflow.htm">Understanding and creating batch dataflows</a>
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/F_UseBatchDataflow.htm">Using batch dataflows</a>
+                                                </li>
+                                                <li><a href="../C_AdvancedTasks/F1_ScheduleBatchDataflow.htm">Scheduling batch dataflows</a>
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/G_ExportTable.htm">Exporting a table</a>
                                                 </li>
@@ -185,6 +189,8 @@
                                                 <li><a href="../D_Reference/G_ColumnOptions.htm">Column options</a>
                                                 </li>
                                                 <li><a href="../D_Reference/H_CellOptions.htm">Cell options</a>
+                                                </li>
+                                                <li><a href="../D_Reference/H1_UdfExamples.htm">User-defined function (UDF) examples</a>
                                                 </li>
                                                 <li><a href="../D_Reference/I_MapFunctions.htm">Map functions</a>
                                                 </li>
@@ -313,13 +319,27 @@
                                     <div class="bodyProxyNarrow">
                                         <h1>Determining correlation between two values</h1>
                                         <p>When you observe the data values in a table, you might want to determine whether there is significant correlation between numerical values in two columns. For example, when you view  information about flights originating from a particular airport, you might be interested to know the correlation between departure delays and arrival delays.</p>
-                                        <h2>Finding the correlation coefficient for each pair of values in the table</h2>
-                                        <p>Follow these steps to display the correlation coefficients for each pair of numerical values:</p>
+                                        <h2>Finding the correlation between selected columns or all columns</h2>
+                                        <p>Follow these steps to display the correlation that exists between selected columns:</p>
                                         <ol>
-                                            <li value="1">Right click anywhere in the table title bar or click the triangle in the lower-right corner of the table title bar to display a drop-down menu. The menu presents table options for manipulating the entire table. </li>
-                                            <li value="2">
-                                                <p>Select <span class="UIelement">Correlations…</span>. The <span class="UIelement">Correlation and Quick Aggregates</span> modal window is displayed, which shows the correlation coefficient for each pair of values in the table. <span class="GeneralProductName">Xcalar Design</span> uses background colors to indicate the strength of the correlation. Dark blue represents a strong positive correlation; dark gray represents a strong negative correlation.</p>
+                                            <li value="1">
+                                                <p>If you are interested in the correlation coefficients for particular columns, follow these steps:</p>
+                                                <ol style="list-style-type: lower-alpha;">
+                                                    <li value="1">Use the appropriate key combination for multi-selection to select the columns for which you want to find the correlation coefficients. </li>
+                                                    <li value="2">Right click the header for any  selected column to display the column drop-down menu. </li>
+                                                </ol>
+                                                <p>If you want to see the correlation coefficients for all columns, right click the table title bar to display the table drop-down menu.</p>
                                             </li>
+                                            <li value="2">
+                                                <p>Select <span class="UIelement">Correlations…</span> in the menu. The <span class="UIelement">Correlation and Quick Aggregates</span> modal window is displayed, which shows the correlation coefficient for each pair of values in the columns. <span class="GeneralProductName">Xcalar Design</span> uses background colors to indicate the strength of the correlation. Dark blue represents a strong positive correlation; dark gray represents a strong negative correlation.</p>
+                                            </li>
+                                        </ol>
+                                        <h2>Finding the correlation between one column and all other columns</h2>
+                                        <p>You can also determine the correlation that exists between one particular column and all other columns. For example, if you are interested in how the flight departure delay is correlated with all other numeric columns in a table, follow these steps:</p>
+                                        <ol>
+                                            <li value="1">Right click the header for the column to display the drop-down menu. For example, click the Distance_integer column header.</li>
+                                            <li value="2">From the drop-down menu, select <span class="UIelement">Profile…</span>. </li>
+                                            <li value="3">In the <span class="UIelement">Profile</span> window, click <span class="UIelement">Correlation</span>. The <span class="UIelement">Correlation and Quick Aggregates</span> modal window is displayed. In this example, it shows the correlation between the Distance_integer column and other numeric columns such as arrival delay, departure delay, and so on.</li>
                                         </ol>
                                     </div>
                                     <p><a href="#Top" class="selected">Go to top</a>

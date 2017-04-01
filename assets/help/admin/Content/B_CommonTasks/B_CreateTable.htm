@@ -148,11 +148,15 @@
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/C_UDFTasks.htm">Using user-defined functions (UDFs)</a>
                                                 </li>
+                                                <li><a href="../C_AdvancedTasks/C1_PointWithVisualParser.htm">Using a visual parser to create a UDF</a>
+                                                </li>
                                                 <li><a href="../C_AdvancedTasks/D_FunctionBar.htm">Using the function or search bar</a>
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/E_CreateBatchDataflow.htm">Understanding and creating batch dataflows</a>
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/F_UseBatchDataflow.htm">Using batch dataflows</a>
+                                                </li>
+                                                <li><a href="../C_AdvancedTasks/F1_ScheduleBatchDataflow.htm">Scheduling batch dataflows</a>
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/G_ExportTable.htm">Exporting a table</a>
                                                 </li>
@@ -185,6 +189,8 @@
                                                 <li><a href="../D_Reference/G_ColumnOptions.htm">Column options</a>
                                                 </li>
                                                 <li><a href="../D_Reference/H_CellOptions.htm">Cell options</a>
+                                                </li>
+                                                <li><a href="../D_Reference/H1_UdfExamples.htm">User-defined function (UDF) examples</a>
                                                 </li>
                                                 <li><a href="../D_Reference/I_MapFunctions.htm">Map functions</a>
                                                 </li>
@@ -318,7 +324,7 @@
                                         <h2>Displaying the Dataset Preview window</h2>
                                         <p>The <span class="UIelement">Dataset Preview</span> window is displayed automatically after you point to a new data source. Alternatively, follow these steps to display the <span class="UIelement">Dataset Preview</span> window:</p>
                                         <ol>
-                                            <li value="1">Click <img src="../Resources/Images/XD_assets/xi-datastores.png" /> (<span class="UIelement">Data Stores</span> icon).</li>
+                                            <li value="1">Click <img src="../Resources/Images/XD_assets/xd-datastores.png" /> (<span class="UIelement">Data Stores</span> icon).</li>
                                             <li value="2">
                                                 <p>In the <span class="UIelement">Dataset Refs</span> panel, right click a dataset reference and then select <span class="UIelement">Preview</span> in the pop-up menu, as shown in the following screenshot:</p>
                                                 <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/dataset-ref-preview.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="430" data-mc-height="665" src="../Resources/Images/XD_screenshots/dataset-ref-preview_thumb_0_150.png" tabindex="" /></a>
@@ -340,7 +346,7 @@
                                                 <p>In the right panel (<span class="UIelement">Create New Table</span> panel), select the worksheet to which the selected columns will be sent.</p>
                                             </li>
                                             <li value="3">
-                                                <p>(Optional)&#160;In the <span class="UIelement">Create New Table</span> panel, edit the table name. A default table name, based on the dataset reference name, is provided.</p>
+                                                <p>(Optional)&#160;In the <span class="UIelement">Create New Table</span> panel, edit the table name. A default table name, based on the dataset reference name, is provided. You can rename a table at a later time. (Instructions for changing a table name are provided in <a href="#Renaming" class="MCXref xref selected">Renaming a table</a>.)</p>
                                                 <div class="MCDropDown MCDropDown_Open dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the naming conventions:</a></span>
                                                     <div class="MCDropDownBody dropDownBody">
                                                         <ul>
@@ -377,6 +383,18 @@
                                         <p>The following sample screen shows the <span class="UIelement">Dataset Preview</span> window and the <span class="UIelement">Create New Table</span> panel.</p>
                                         <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/create-table-from-dataset.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1149" data-mc-height="730" src="../Resources/Images/XD_screenshots/create-table-from-dataset_thumb_0_150.png" tabindex="" /></a>
                                         </p>
+                                        <h2><a name="Renaming"></a>Renaming a table</h2>
+                                        <p>After you create a table in the worksheet, you can follow these steps to rename a table:</p>
+                                        <ol>
+                                            <li value="1">
+                                                <p>In the worksheet, double click the table name. The following screenshot shows where to enter the new table name.</p>
+                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/table-rename.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="909" data-mc-height="207" src="../Resources/Images/XD_screenshots/table-rename_thumb_0_150.png" tabindex="" /></a>
+                                                </p>
+                                            </li>
+                                            <li value="2">Type the new name.</li>
+                                            <li value="3">Press Enter.</li>
+                                        </ol>
+                                        <h2>Next step</h2>
                                         <p>For more information about the worksheet window after you create a table, see <a href="../D_Reference/C_WorksheetWindow.htm" class="MCXref xref">Worksheet window with tables</a>. You are now ready for transforming your data by using the various functions in <span class="GeneralProductName">Xcalar Design</span>.</p>
                                     </div>
                                     <p><a href="#Top" class="selected">Go to top</a>

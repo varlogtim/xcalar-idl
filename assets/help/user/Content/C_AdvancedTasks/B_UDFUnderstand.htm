@@ -6,7 +6,7 @@
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta charset="utf-8" />
         <meta name="description" content="" />
-        <meta name="author" content="" /><title>Understanding user-defined functions (UDFs)</title>
+        <meta name="author" content="" /><title>Understanding UDFs</title>
         <link href="../../Skins/Default/Stylesheets/Slideshow.css" rel="stylesheet" data-mc-generated="True" />
         <link href="../../Skins/Default/Stylesheets/TextEffects.css" rel="stylesheet" data-mc-generated="True" />
         <link href="../../Skins/Default/Stylesheets/Topic.css" rel="stylesheet" data-mc-generated="True" />
@@ -148,11 +148,15 @@
                                                 </li>
                                                 <li><a href="C_UDFTasks.htm">Using user-defined functions (UDFs)</a>
                                                 </li>
+                                                <li><a href="C1_PointWithVisualParser.htm">Using a visual parser to create a UDF</a>
+                                                </li>
                                                 <li><a href="D_FunctionBar.htm">Using the function or search bar</a>
                                                 </li>
                                                 <li><a href="E_CreateBatchDataflow.htm">Understanding and creating batch dataflows</a>
                                                 </li>
                                                 <li><a href="F_UseBatchDataflow.htm">Using batch dataflows</a>
+                                                </li>
+                                                <li><a href="F1_ScheduleBatchDataflow.htm">Scheduling batch dataflows</a>
                                                 </li>
                                                 <li><a href="G_ExportTable.htm">Exporting a table</a>
                                                 </li>
@@ -183,6 +187,8 @@
                                                 <li><a href="../D_Reference/G_ColumnOptions.htm">Column options</a>
                                                 </li>
                                                 <li><a href="../D_Reference/H_CellOptions.htm">Cell options</a>
+                                                </li>
+                                                <li><a href="../D_Reference/H1_UdfExamples.htm">User-defined function (UDF) examples</a>
                                                 </li>
                                                 <li><a href="../D_Reference/I_MapFunctions.htm">Map functions</a>
                                                 </li>
@@ -274,11 +280,15 @@
                                                     </li>
                                                     <li><a href="C_UDFTasks.htm">Using user-defined functions (UDFs)</a>
                                                     </li>
+                                                    <li><a href="C1_PointWithVisualParser.htm">Using a visual parser to create a UDF</a>
+                                                    </li>
                                                     <li><a href="D_FunctionBar.htm">Using the function or search bar</a>
                                                     </li>
                                                     <li><a href="E_CreateBatchDataflow.htm">Understanding and creating batch dataflows</a>
                                                     </li>
                                                     <li><a href="F_UseBatchDataflow.htm">Using batch dataflows</a>
+                                                    </li>
+                                                    <li><a href="F1_ScheduleBatchDataflow.htm">Scheduling batch dataflows</a>
                                                     </li>
                                                     <li><a href="G_ExportTable.htm">Exporting a table</a>
                                                     </li>
@@ -297,8 +307,8 @@
                                     <div class="MCBreadcrumbsBox_0"><span class="MCBreadcrumbsPrefix">You are here: </span><a class="MCBreadcrumbsLink" href="AdvancedTasks.htm">Advanced tasks</a><span class="MCBreadcrumbsDivider"> &gt; </span><span class="MCBreadcrumbs">Understanding user-defined functions (UDFs)</span>
                                     </div>
                                     <div class="bodyProxyNarrow">
-                                        <h1>Understanding user-defined functions (UDFs)</h1>
-                                        <p>Some built-in UDFs are included in default Python modules for you to enhance your data queries. You can create additional UDFs to further extend the functions of XCE. </p>
+                                        <h1>Understanding UDFs</h1>
+                                        <p>Some built-in UDFs (user-defined functions) are included in default Python modules for you to enhance your data queries. You can create additional UDFs to further extend the functions of XCE. </p>
                                         <h2>When to run UDFs</h2>
                                         <p>You can run UDFs in these circumstances:</p>
                                         <ul>
@@ -307,13 +317,13 @@
                                             <div class="Example"><span class="label">EXAMPLE:</span>&#160;If you want to point your data source with a format  not natively supported by <span class="GeneralProductName3">Xcalar Data Platform</span>, run a streaming UDF to convert that particular format into a natively supported format. </div>
                                             <div class="Example"><span class="label">EXAMPLE:</span>&#160;If your  data source uses a comma in field names, which is an illegal field name character in <span class="GeneralProductName">Xcalar Design</span>, run a streaming UDF to replace the comma when pointing to the data source.</div>
                                         </ul>
-                                        <p>You might need to prepare your data source before using a streaming UDF. For more information, see <a href="../A_GettingStarted/D_DetailedStepsForPointing.htm#Before" class="MCXref xref">Before using a streaming UDF</a>.</p>
+                                        <p>You might need to prepare your data source before using a streaming UDF. For more information, see <a href="../A_GettingStarted/D_DetailedStepsForPointing.htm#Before" class="MCXref xref">Preparing column headers</a>.</p>
                                         <h2>Understanding UDF names</h2>
                                         <p>Functions are defined in modules. Therefore, to uniquely identify a UDF, both the module name and function name are needed. <span class="GeneralProductName">Xcalar Design</span> shows UDF names in the following format:</p>
                                         <p>module_name:function_name</p>
                                         <p>For example, if a module named <span class="UIelement">calendar</span> contains a function named <span class="UIelement">getWeekday</span>, the name for the UDF  is <span class="UIelement">calendar:getWeekday</span>.</p>
                                         <h3><a name="UDF"></a>UDF naming conventions</h3>
-                                        <p><span class="GeneralProductName">Xcalar Design</span> does not have restrictions on function names.</p>
+                                        <p><span class="GeneralProductName">Xcalar Design</span> does not have restrictions on function names, but modules must follow the module naming conventions.</p>
                                         <p>The following list describes the naming conventions:</p>
                                         <ul>
                                             <li value="1">Characters can be a-z, 0-9, hyphen (-), and underscore (_).</li>
@@ -332,6 +342,8 @@
                                             <li value="7">UDFs cannot make any non-local network requests. Point directly to network resources rather than connecting to them in the Python code.</li>
                                             <li value="8">UDFs cannot be used for aggregate operations.</li>
                                         </ul>
+                                        <h2>About importing Python libraries</h2>
+                                        <p>Python libraries imported in the UDF must be installed on every node before you can upload the UDF. For example, if your UDF imports the PDFminer package, the package must be installed on every node of the cluster. Otherwise, your attempt to upload the UDF results in an upload error, indicating that there is no module named PDFminer.</p>
                                         <h2>About standard output in UDFs</h2>
                                         <p>All functions and statements that involve writing to standard output (stdout) are ignored by the Python interpreter. Do not use the print statement or the sys.stdout.write function to print debugging information in your UDF. If collecting debugging information is important to you,   <span class="GeneralCompanyNameShort">Xcalar</span> recommends that you use the Python logging facility, which is a standard Python library module. See your Python documentation for information about the facility.</p>
                                         <h2>Invoking modules or functions in a module</h2>

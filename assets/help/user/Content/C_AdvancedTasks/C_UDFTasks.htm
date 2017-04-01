@@ -6,7 +6,7 @@
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta charset="utf-8" />
         <meta name="description" content="" />
-        <meta name="author" content="" /><title>Using user-defined functions (UDFs)</title>
+        <meta name="author" content="" /><title>Using UDFs</title>
         <link href="../../Skins/Default/Stylesheets/Slideshow.css" rel="stylesheet" data-mc-generated="True" />
         <link href="../../Skins/Default/Stylesheets/TextEffects.css" rel="stylesheet" data-mc-generated="True" />
         <link href="../../Skins/Default/Stylesheets/Topic.css" rel="stylesheet" data-mc-generated="True" />
@@ -60,7 +60,6 @@
 }
 
 </style>
-        <link href="../Resources/TableStyles/SimpleTable.css" rel="stylesheet" />
         <script src="../../Resources/Scripts/custom.modernizr.js">
         </script>
         <script src="../../Resources/Scripts/jquery.min.js">
@@ -149,11 +148,15 @@
                                                 </li>
                                                 <li><a href="#" class="selected">Using user-defined functions (UDFs)</a>
                                                 </li>
+                                                <li><a href="C1_PointWithVisualParser.htm">Using a visual parser to create a UDF</a>
+                                                </li>
                                                 <li><a href="D_FunctionBar.htm">Using the function or search bar</a>
                                                 </li>
                                                 <li><a href="E_CreateBatchDataflow.htm">Understanding and creating batch dataflows</a>
                                                 </li>
                                                 <li><a href="F_UseBatchDataflow.htm">Using batch dataflows</a>
+                                                </li>
+                                                <li><a href="F1_ScheduleBatchDataflow.htm">Scheduling batch dataflows</a>
                                                 </li>
                                                 <li><a href="G_ExportTable.htm">Exporting a table</a>
                                                 </li>
@@ -184,6 +187,8 @@
                                                 <li><a href="../D_Reference/G_ColumnOptions.htm">Column options</a>
                                                 </li>
                                                 <li><a href="../D_Reference/H_CellOptions.htm">Cell options</a>
+                                                </li>
+                                                <li><a href="../D_Reference/H1_UdfExamples.htm">User-defined function (UDF) examples</a>
                                                 </li>
                                                 <li><a href="../D_Reference/I_MapFunctions.htm">Map functions</a>
                                                 </li>
@@ -275,11 +280,15 @@
                                                     </li>
                                                     <li><a href="#" class="selected">Using user-defined functions (UDFs)</a>
                                                     </li>
+                                                    <li><a href="C1_PointWithVisualParser.htm">Using a visual parser to create a UDF</a>
+                                                    </li>
                                                     <li><a href="D_FunctionBar.htm">Using the function or search bar</a>
                                                     </li>
                                                     <li><a href="E_CreateBatchDataflow.htm">Understanding and creating batch dataflows</a>
                                                     </li>
                                                     <li><a href="F_UseBatchDataflow.htm">Using batch dataflows</a>
+                                                    </li>
+                                                    <li><a href="F1_ScheduleBatchDataflow.htm">Scheduling batch dataflows</a>
                                                     </li>
                                                     <li><a href="G_ExportTable.htm">Exporting a table</a>
                                                     </li>
@@ -298,8 +307,8 @@
                                     <div class="MCBreadcrumbsBox_0"><span class="MCBreadcrumbsPrefix">You are here: </span><a class="MCBreadcrumbsLink" href="AdvancedTasks.htm">Advanced tasks</a><span class="MCBreadcrumbsDivider"> &gt; </span><span class="MCBreadcrumbs">Using user-defined functions (UDFs)</span>
                                     </div>
                                     <div class="bodyProxyNarrow">
-                                        <h1>Using user-defined functions (UDFs)</h1>
-                                        <p>This section describes the UDF-related tasks.</p>
+                                        <h1><a name="Using" class="ForCSH"></a>Using UDFs</h1>
+                                        <p>This section describes the tasks related to UDFs (user-defined functions). To see examples of UDFs, see <a href="../D_Reference/H1_UdfExamples.htm" class="MCXref xref">User-defined function (UDF) examples</a>. </p>
                                         <h2>Creating a UDF in <span class="GeneralProductName">Xcalar Design</span></h2>
                                         <p>UDFs are global. UDFs created by one  <span class="GeneralProductName">Xcalar Design</span> user can be used and edited by all other users. </p>
                                         <p>You define one or multiple UDFs in a Python module. You can create a module in these ways:</p>
@@ -309,7 +318,7 @@
                                         </ul>
                                         <p>Both methods require that you display the <span class="UIelement">User Defined Function</span> panel.</p>
                                         <h3>Displaying the UDF&#160;panel</h3>
-                                        <p>Click  <img src="../Resources/Images/XD_assets/xi-udf-icon.png" /> to display the <span class="UIelement">User Defined Function</span> panel.&#160;The following screenshot shows the location of the UDF icon.</p>
+                                        <p>Click  <img src="../Resources/Images/XD_assets/xd-udf-icon.png" /> to display the <span class="UIelement">User Defined Function</span> panel.&#160;The following screenshot shows the location of the UDF icon.</p>
                                         <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/udf-icon-location.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="532" data-mc-height="648" src="../Resources/Images/XD_screenshots/udf-icon-location_thumb_0_150.png" tabindex="" /></a>
                                         </p>
                                         <p>The following screenshot shows  the <span class="UIelement">User Defined Function</span> panel. </p>
@@ -323,133 +332,72 @@
                                             <li value="2">Click the drop-down arrow to display a list of existing modules. Select one to use it as a template. Alternatively, select <span class="UIelement">Blank function</span> if you want to type in an empty file.</li>
                                             <li value="3">Type the code in the panel.</li>
                                             <li value="4">
-                                                <p>In the <span class="UIelement">Module name</span> field, type the module name. </p>
+                                                <p>In the <span class="UIelement">module name</span> field, type the module name. </p>
                                                 <div class="Note"><span class="label">NOTE:</span>&#160;Module names are case insensitive. If you type letters in uppercase, <span class="GeneralProductName">Xcalar Design</span> displays them in lowercase when listing the modules. See <a href="B_UDFUnderstand.htm#UDF" class="MCXref xref">UDF naming conventions</a> for information about name requirements.</div>
                                             </li>
-                                            <li value="5"> Click <span class="UIelement">ADD&#160;UDF</span>. If a module with the same name already exists, a dialog box asks whether you want to overwrite the existing module. If so, click <span class="UIelement">CONFIRM</span>. Otherwise, click <span class="UIelement">CANCEL</span> and then rename the module.</li>
+                                            <li value="5">
+                                                <p> Click <span class="UIelement">ADD</span>. If a module with the same name already exists, a dialog box asks whether you want to overwrite the existing module. If so, click <span class="UIelement">CONFIRM</span>. Otherwise, click <span class="UIelement">CANCEL</span> and then rename the module.</p>
+                                                <p><span class="label">NOTE</span>:&#160;The icon next to the <span class="UIelement">ADD</span>&#160;button indicates whether the module will be added as a UDF&#160;or an XPU app. By default, UDF&#160;is selected, which is represented by <img src="../Resources/Images/XD_assets/xd-add-udf.png" />.</p>
+                                            </li>
                                         </ol>
                                         <h3>Uploading  files</h3>
-                                        <p>Follow these steps to upload a  file as a UDF&#160;module from your computer to XCE:</p>
+                                        <p>Follow these steps to upload a  file as a UDF&#160;module from your computer to your cluster:</p>
                                         <ol>
                                             <li value="1">Select the <span class="UIelement">Editor</span> tab if it is not selected already.</li>
-                                            <li value="2">
-                                                <p>Click <span class="UIelement">Browse File</span>, which enables you to navigate to the folder on your computer that contains the file. Then select the file. The contents of the selected file are displayed in the <span class="UIelement">User Defined Function</span> panel.</p>
-                                            </li>
-                                            <li value="3">In the <span class="UIelement">Module name</span> field, the name of the file is automatically displayed. Change the name if necessary.</li>
+                                            <li value="2">Click <span class="UIelement">Browse File</span>, which enables you to navigate to the folder on your computer that contains the file. Then select the file. The contents of the selected file are displayed in the <span class="UIelement">User Defined Function</span> panel.</li>
+                                            <li value="3">In the <span class="UIelement">module name</span> field, the name of the file is automatically displayed. Change the name if necessary.</li>
                                             <div class="Note"><span class="label">NOTE:</span> If the original filename does not follow the naming conventions, an error message notifies you that the name is invalid. See <a href="B_UDFUnderstand.htm#UDF" class="MCXref xref">UDF naming conventions</a> for name requirements.</div>
-                                            <li value="4"> Click <span class="UIelement">ADD&#160;UDF</span>. If a module with the same name already exists, a dialog box asks whether you want to overwrite the existing module. If so, click <span class="UIelement">CONFIRM</span>. Otherwise, click <span class="UIelement">CANCEL</span> and then rename the module.</li>
+                                            <li value="4">
+                                                <p> Click <span class="UIelement">ADD</span>. If a module with the same name already exists, a dialog box asks whether you want to overwrite the existing module. If so, click <span class="UIelement">CONFIRM</span>. Otherwise, click <span class="UIelement">CANCEL</span> and then rename the module.</p>
+                                                <div class="Note"><span class="label">NOTE</span>:&#160;The icon next to the <span class="UIelement">ADD</span>&#160;button indicates whether the module will be added as a UDF&#160;or an XPU app. Uploading an app is not yet supported; you can only upload a UDF, which is represented by <img src="../Resources/Images/XD_assets/xd-add-udf.png" />.</div>
+                                            </li>
                                         </ol>
                                         <h2>About Python code parsing</h2>
                                         <p>When you try to add a UDF, it is parsed by the Python interpreter. If there are parse errors, they are reported to you and the UDF is not added.</p>
+                                        <h2>Downloading a module</h2>
+                                        <p>Follow these steps to download a   UDF&#160;module from the cluster to your computer:</p>
+                                        <ol>
+                                            <li value="1">Select the <span class="UIelement">Manager</span> tab in the <span class="UIelement">User Defined Function</span> panel. A list of modules is displayed.</li>
+                                            <li value="2">Click <img src="../Resources/Images/XD_assets/xd-download-udf-icon.png" /> to download the desired module to your computer.</li>
+                                        </ol>
                                         <h2>Editing a UDF</h2>
                                         <p>Follow these steps to edit an existing UDF:</p>
                                         <ol>
                                             <li value="1">Select the <span class="UIelement">Manager</span> tab in the <span class="UIelement">User Defined Function</span> panel. A list of modules is displayed.</li>
-                                            <li value="2">Edit the module in one of two ways:<ul><li value="1">Click <img src="../Resources/Images/XD_assets/xi-edit-UDF-icon.png" /> to edit the desired module. Then edit the code in the <span class="UIelement">User Defined Function</span> panel. Add the edited module to <span class="GeneralProductName2short">XCE</span> without changing its name.</li><li value="2">Click <img src="../Resources/Images/XD_assets/xi-download-udf-icon.png" /> to download the desired module to your computer. Then modify the module by using an editor on your computer. Upload the file after you finish editing it.</li></ul></li>
+                                            <li value="2">Edit the module in one of two ways:<ul><li value="1">Click <img src="../Resources/Images/XD_assets/xd-edit-UDF-icon.png" /> to edit the desired module. Then edit the code in the <span class="UIelement">User Defined Function</span> panel. Add the edited module to <span class="GeneralProductName2short">XCE</span> without changing its name.</li><li value="2">Click <img src="../Resources/Images/XD_assets/xd-download-udf-icon.png" /> to download the desired module to your computer. Then modify the module by using an editor on your computer. Upload the file after you finish editing it.</li></ul></li>
                                         </ol>
                                         <div class="Note"><span class="label">IMPORTANT:</span>&#160;Because UDFs are global and accessible to all <span class="GeneralProductName">Xcalar Design</span> users, remember to notify other users of the changes so that they are aware of the revision.</div>
                                         <h2>Deleting a module</h2>
-                                        <p>Follow these steps to download a module from XCE to your computer:</p>
+                                        <div class="Note"><span class="label">IMPORTANT</span>:&#160;Be sure you understand the effects of a UDF&#160;deletion before you proceed.&#160;You cannot undo a UDF deletion. See <a href="#Effects" class="MCXref xref selected">Effects of UDF deletion on workbooks and batch dataflows</a>for more information. </div>
+                                        <p>Follow these steps to delete a UDF&#160;module:</p>
                                         <ol>
                                             <li value="1">Select the <span class="UIelement">Manager</span> tab in the <span class="UIelement">User Defined Function</span> panel. A list of modules is displayed.</li>
-                                            <li value="2">Click <img src="../Resources/Images/XD_assets/xi-trashcan.png" /> to delete the module.</li>
+                                            <li value="2">Click <img src="../Resources/Images/XD_assets/xd-trashcan.png" /> to delete the module.</li>
                                         </ol>
-                                        <h2>Example of a UDF for a database operation</h2>
-                                        <p>Suppose you have the following table in <span class="GeneralProductName">Xcalar Design</span> showing some events and their dates, and you want to add a column that shows the day of week for each event. You can write a UDF to create the Weekday column.</p>
-                                        <table style="mc-table-style: url('../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;" class="TableStyle-SimpleTable" cellspacing="0">
-                                            <col class="TableStyle-SimpleTable-Column-Column1" />
-                                            <col class="TableStyle-SimpleTable-Column-Column2" />
-                                            <thead>
-                                                <tr class="TableStyle-SimpleTable-Head-Header1">
-                                                    <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">Event</th>
-                                                    <th class="TableStyle-SimpleTable-HeadD-Column2-Header1">Date</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Party</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">2014-06-07</td>
-                                                </tr>
-                                                <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Concert</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">2015-09-12</td>
-                                                </tr>
-                                                <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                    <td class="TableStyle-SimpleTable-BodyB-Column1-Body1">Conference</td>
-                                                    <td class="TableStyle-SimpleTable-BodyA-Column2-Body1">2015-09-14</td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                        <h3>Coding the UDF</h3>
-                                        <p>Write the following code in a module named <span class="UIelement">calendar</span>:</p>
-                                        <p class="userInput">import time</p>
-                                        <p class="userInput">def getWeekday(column, format):</p>
-                                        <p class="userInput">&#160;&#160;&#160;&#160;&#160;parsedTime = time.strptime(column, format)</p>
-                                        <p class="userInput">&#160;&#160;&#160;&#160;&#160;weekday = time.strftime("%A", parsedTime)</p>
-                                        <p class="userInput">&#160;&#160;&#160;&#160;&#160;return weekday</p>
-                                        <p>The <span class="UIelement">getWeekday</span> function takes a column and a date-time format string as input. The Python built-in <span class="UIelement">time</span> module, which is imported into <span class="UIelement">calendar</span>, parses the input. The output from <span class="UIelement">calendar</span> is a new table with the Weekday column showing the day of week for each event.</p>
-                                        <p>After you upload the <span class="UIelement">calendar</span> module, it is available for all <span class="GeneralProductName">Xcalar Design</span> users to use.</p>
-                                        <h3>Executing the UDF</h3>
-                                        <p>In <span class="GeneralProductName">Xcalar Design</span>, start a Map operation from the <span class="UIelement">Date</span> column. Select <span class="UIelement">user-defined</span> as the category and then select <span class="UIelement">calendar:getWeekday</span> as the function. Specify the <span class="UIelement">Date</span> column ($Date)&#160;as the first argument and <span class="UIelement">"%Y-%m-%d"</span> as the second argument.</p>
-                                        <p>The process for executing a UDF is the same as those for executing other database functions. For more information about the Map operation, see <a href="../B_CommonTasks/K_Map.htm" class="MCXref xref">Using the Map function to create new values</a>.</p>
-                                        <h3>Result of executing the UDF</h3>
-                                        <p>The following table is created with an additional column showing the day of week for each date:</p>
-                                        <table style="mc-table-style: url('../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;" class="TableStyle-SimpleTable" cellspacing="0">
-                                            <col class="TableStyle-SimpleTable-Column-Column1" />
-                                            <col class="TableStyle-SimpleTable-Column-Column2" />
-                                            <col class="TableStyle-SimpleTable-Column-Column1" />
-                                            <thead>
-                                                <tr class="TableStyle-SimpleTable-Head-Header1">
-                                                    <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">Event</th>
-                                                    <th class="TableStyle-SimpleTable-HeadE-Column2-Header1">Date</th>
-                                                    <th class="TableStyle-SimpleTable-HeadD-Column1-Header1">Weekday</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Party</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">2014-06-07</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column1-Body1">Saturday</td>
-                                                </tr>
-                                                <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Concert</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">2015-09-12</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column1-Body2">Saturday</td>
-                                                </tr>
-                                                <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                    <td class="TableStyle-SimpleTable-BodyB-Column1-Body1">Conference</td>
-                                                    <td class="TableStyle-SimpleTable-BodyB-Column2-Body1">2015-09-14</td>
-                                                    <td class="TableStyle-SimpleTable-BodyA-Column1-Body1">Monday</td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                        <h2>Example of using a streaming UDF when pointing to a data source</h2>
-                                        <p>If you want to point to a data source containing data not natively supported by XCE, you can execute a streaming UDF that converts the data format immediately before <span class="GeneralProductName">Xcalar Design</span> points to the data. In the following example, the data source contains files in XML, which you can convert into JSON&#160;with a streaming UDF.</p>
-                                        <h3>Coding the streaming UDF</h3>
-                                        <p>Write the following code in a module named <span class="UIelement">convertxmlToJson</span>:</p><pre>import xmltodict
-
-def xmlToJson(xmlString, fullPath):
-
-	allJson = xmltodict.parse(xmlString)
-	for jsonStruct in allJson:
-		yield jsonStruct</pre>
-                                        <p>This module imports a third-party module named <span class="UIelement">xmltodict</span> and defines a function named <span class="UIelement">xmlToJson</span>. This function has two parameters:</p>
+                                        <h2><a name="Effects"></a>Effects of UDF deletion on workbooks and batch dataflows</h2>
+                                        <p>The following list describes what happens after you remove a function from a UDF module or delete a UDF module from the cluster. Because UDFs are shared by all users on the cluster, all users who have applied the UDF are affected in the same way.</p>
                                         <ul>
-                                            <li value="1">The <span class="UIelement">xmlString</span> parameter is a string containing the full contents of the data source. </li>
-                                            <li value="2">The <span class="UIelement">fullPath</span> parameter  is a string, which is the full pathname to the data source.</li>
+                                            <li value="1">
+                                                <p>When <span class="GeneralProductName">Xcalar Design</span> tries to re-activate a workbook (for example, after <span class="GeneralProductName2short">XCE</span> is restarted or when you switch from one workbook to another):</p>
+                                                <p>If the workbook contains a temporary or active table that is dependent on the  UDF, <span class="GeneralProductName">Xcalar Design</span> displays an error message reporting that the UDF cannot be found. As a result, the workbook cannot be activated until you re-create the UDF&#160;with the same name. </p>
+                                                <p>A table is considered to be dependent on the UDF&#160;if one of these conditions applies:</p>
+                                                <ul>
+                                                    <li value="1">The table has a column created by the UDF.</li>
+                                                    <li value="2">The table is a descendent of a dropped table that contains a column created by the UDF.</li>
+                                                </ul>
+                                            </li>
+                                            <li value="2">
+                                                <p>When you try to run a batch dataflow:</p>
+                                                <p> If the batch dataflow contains the deleted UDF, <span class="GeneralProductName">Xcalar Design</span> displays an error message as shown in the following screenshot. The batch dataflow cannot be run until you re-create the UDF with the same name.</p>
+                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/batch-dataflow-fail-function-not-found.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="801" data-mc-height="557" src="../Resources/Images/XD_screenshots/batch-dataflow-fail-function-not-found_thumb_0_150.png" tabindex="" /></a>
+                                                </p>
+                                            </li>
+                                            <li value="3">
+                                                <p>When you try to create a batch dataflow:</p>
+                                                <p>If the dataflow contains the deleted UDF, <span class="GeneralProductName">Xcalar Design</span> displays an error message. You cannot create a batch dataflow from a dataflow with a missing UDF.</p>
+                                            </li>
                                         </ul>
-                                        <p>The return value of the function will be used in the place of the actual file contents.</p>
-                                        <p>Upload this module so that it is available for execution.</p>
-                                        <h3>Executing the streaming UDF</h3>
-                                        <p>In the <span class="UIelement">Point To New Data Source</span> window, after you specify the pathname to the data source, follow these steps</p>
-                                        <ol>
-                                            <li value="1">Select the <span class="UIelement">Parse Data With UDF</span> check box. </li>
-                                            <li value="2">Select the <span class="UIelement">convertxmltojson</span> module.</li>
-                                            <li value="3">Select the <span class="UIelement">xmlToJson</span> function. </li>
-                                        </ol>
-                                        <p>For more information about pointing to a data source, see <a href="../A_GettingStarted/D_DetailedStepsForPointing.htm#Creating2" class="MCXref xref">Pointing to your data source</a>.</p>
-                                        <h3>Result of executing the streaming UDF</h3>
-                                        <p>Suppose the data source is a file named <span class="UIelement">myFile.xml</span>. Its path, which you specified in the <span class="UIelement">Data Source Path</span> field, is passed to the UDF as the <span class="UIelement">fullPath</span> parameter. The contents of <span class="UIelement">myFile.xml</span> are passed to the UDF&#160;in <span class="UIelement">xmlString</span>. The function returns a string containing the corresponding JSON&#160;data to which the dataset reference will point.</p>
+                                        <p>&#160;</p>
                                     </div>
                                     <p><a href="#Top" class="selected">Go to top</a>
                                     </p>

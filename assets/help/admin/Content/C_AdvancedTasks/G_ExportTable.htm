@@ -148,11 +148,15 @@
                                                 </li>
                                                 <li><a href="C_UDFTasks.htm">Using user-defined functions (UDFs)</a>
                                                 </li>
+                                                <li><a href="C1_PointWithVisualParser.htm">Using a visual parser to create a UDF</a>
+                                                </li>
                                                 <li><a href="D_FunctionBar.htm">Using the function or search bar</a>
                                                 </li>
                                                 <li><a href="E_CreateBatchDataflow.htm">Understanding and creating batch dataflows</a>
                                                 </li>
                                                 <li><a href="F_UseBatchDataflow.htm">Using batch dataflows</a>
+                                                </li>
+                                                <li><a href="F1_ScheduleBatchDataflow.htm">Scheduling batch dataflows</a>
                                                 </li>
                                                 <li><a href="#" class="selected">Exporting a table</a>
                                                 </li>
@@ -185,6 +189,8 @@
                                                 <li><a href="../D_Reference/G_ColumnOptions.htm">Column options</a>
                                                 </li>
                                                 <li><a href="../D_Reference/H_CellOptions.htm">Cell options</a>
+                                                </li>
+                                                <li><a href="../D_Reference/H1_UdfExamples.htm">User-defined function (UDF) examples</a>
                                                 </li>
                                                 <li><a href="../D_Reference/I_MapFunctions.htm">Map functions</a>
                                                 </li>
@@ -276,11 +282,15 @@
                                                     </li>
                                                     <li><a href="C_UDFTasks.htm">Using user-defined functions (UDFs)</a>
                                                     </li>
+                                                    <li><a href="C1_PointWithVisualParser.htm">Using a visual parser to create a UDF</a>
+                                                    </li>
                                                     <li><a href="D_FunctionBar.htm">Using the function or search bar</a>
                                                     </li>
                                                     <li><a href="E_CreateBatchDataflow.htm">Understanding and creating batch dataflows</a>
                                                     </li>
                                                     <li><a href="F_UseBatchDataflow.htm">Using batch dataflows</a>
+                                                    </li>
+                                                    <li><a href="F1_ScheduleBatchDataflow.htm">Scheduling batch dataflows</a>
                                                     </li>
                                                     <li><a href="#" class="selected">Exporting a table</a>
                                                     </li>
@@ -328,8 +338,8 @@
                                         </div>
                                         <h2>Format of export files</h2>
                                         <p>By default, tables are exported to csv files. You can, however, process a table with a UDF&#160;to save it to a file in another format. For example, if you want to export a table to a file to be used by Excel, you can use a UDF to parse the table so that it can be saved in the Excel file format. </p>
-                                        <p>You must create an export target in advance if you want to use a UDF&#160;to process your table before saving it to an export file. Also, the UDF must be accessible to <span class="GeneralProductName">Xcalar Design</span>. For information about UDFs, see <a href="B_UDFUnderstand.htm" class="MCXref xref">Understanding user-defined functions (UDFs)</a>.</p>
-                                        <h2>Creating an export target</h2>
+                                        <p>You must create an export target in advance if you want to use a UDF&#160;to process your table before saving it to an export file. Also, the UDF must be accessible to <span class="GeneralProductName">Xcalar Design</span>. For information about UDFs, see <a href="B_UDFUnderstand.htm" class="MCXref xref">Understanding UDFs</a>.</p>
+                                        <h2><a name="Creating" class="ForCSH"></a>Creating an export target</h2>
                                         <p>Creating an export target is necessary if one or both of these conditions are true:</p>
                                         <ul>
                                             <li value="1">You want export files to be saved at a location other than the default location.</li>
@@ -341,10 +351,10 @@
                                                 <p>Create a file system that will be used as the export location. For example, create the directory /var/my_exportdir. </p>
                                                 <div class="Note"><span class="label">IMPORTANT:</span>&#160;This directory must be accessible to all nodes of your cluster.</div>
                                             </li>
-                                            <li value="2">Click <img src="../Resources/Images/XD_assets/xi-datastores.png" /> to expand the icons for Data Stores. Then click <img src="../Resources/Images/XD_assets/xi-datastores-out.png" /> to display the <span class="UIelement">Export Target</span> panel and the <span class="UIelement">Create Export Target</span> window, The following screenshot shows the location of the Data Stores icons.</li>
-                                            <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/datastores-icon-out.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1452" data-mc-height="581" src="../Resources/Images/XD_screenshots/datastores-icon-out_thumb_0_150.png" tabindex="" /></a>
+                                            <li value="2">Click <img src="../Resources/Images/XD_assets/xd-datastores.png" /> to expand the icons for Data Stores. Then click <img src="../Resources/Images/XD_assets/xd-datastores-out.png" /> to display the <span class="UIelement">Export Target</span> panel and the <span class="UIelement">Create Export Target</span> window, The following screenshot shows the location of the Data Stores icons.</li>
+                                            <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/datastores-icon-out.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1128" data-mc-height="557" src="../Resources/Images/XD_screenshots/datastores-icon-out_thumb_0_150.png" tabindex="" /></a>
                                             </p>
-                                            <li value="3">In the <span class="UIelement">Create Export Target</span> window, the information about the default export target is displayed. To create a target, click <img src="../Resources/Images/XD_assets/xi-create-export-target.png" /> in the <span class="UIelement">Export Targets</span> panel. The <span class="UIelement">Create Export Target</span> window now displays fields for you to define a new export target.</li>
+                                            <li value="3">In the <span class="UIelement">Create Export Target</span> window, the information about the default export target is displayed. To create a target, click <img src="../Resources/Images/XD_assets/xd-create-export-target.png" /> in the <span class="UIelement">Export Targets</span> panel. The <span class="UIelement">Create Export Target</span> window now displays fields for you to define a new export target.</li>
                                             <li value="4">
                                                 <p>In the <span class="UIelement">Create Export Target</span> window, specify the name of the target. You need to refer to the target name when you export a table in the future.</p>
                                                 <div class="MCDropDown MCDropDown_Open dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the naming conventions:</a></span>

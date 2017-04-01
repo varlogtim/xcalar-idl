@@ -148,11 +148,15 @@
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/C_UDFTasks.htm">Using user-defined functions (UDFs)</a>
                                                 </li>
+                                                <li><a href="../C_AdvancedTasks/C1_PointWithVisualParser.htm">Using a visual parser to create a UDF</a>
+                                                </li>
                                                 <li><a href="../C_AdvancedTasks/D_FunctionBar.htm">Using the function or search bar</a>
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/E_CreateBatchDataflow.htm">Understanding and creating batch dataflows</a>
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/F_UseBatchDataflow.htm">Using batch dataflows</a>
+                                                </li>
+                                                <li><a href="../C_AdvancedTasks/F1_ScheduleBatchDataflow.htm">Scheduling batch dataflows</a>
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/G_ExportTable.htm">Exporting a table</a>
                                                 </li>
@@ -185,6 +189,8 @@
                                                 <li><a href="G_ColumnOptions.htm">Column options</a>
                                                 </li>
                                                 <li><a href="H_CellOptions.htm">Cell options</a>
+                                                </li>
+                                                <li><a href="H1_UdfExamples.htm">User-defined function (UDF) examples</a>
                                                 </li>
                                                 <li><a href="I_MapFunctions.htm">Map functions</a>
                                                 </li>
@@ -286,6 +292,8 @@
                                                     </li>
                                                     <li><a href="H_CellOptions.htm">Cell options</a>
                                                     </li>
+                                                    <li><a href="H1_UdfExamples.htm">User-defined function (UDF) examples</a>
+                                                    </li>
                                                     <li><a href="I_MapFunctions.htm">Map functions</a>
                                                     </li>
                                                     <li><a href="J_ExcelComparison.htm">Excel-equivalent functions</a>
@@ -305,7 +313,7 @@
                                         <p>The dataflow graph provides an audit trail for your data. It helps you trace data lineage through all stages of your analytics pipeline. Over time, the data in your table might become increasingly complex due to the operations performed on the table. You can use the dataflow graph to determine how the data has been transformed since the table was created.  For example,  you can determine when a value in a column was filtered out or what operation was used to create a particular column.</p>
                                         <h2>Overview of the dataflow graph</h2>
                                         <p>The dataflow graph panel presents the dataflow graphs for all active tables in the same worksheet. The following screen shows an example of a dataflow graph.</p>
-                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/overview-query-graph-viewer.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="958" data-mc-height="380" src="../Resources/Images/XD_screenshots/overview-query-graph-viewer_thumb_0_150.png" tabindex="" /></a>
+                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/dataflow-graph-overview.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="958" data-mc-height="380" src="../Resources/Images/XD_screenshots/dataflow-graph-overview_thumb_0_150.png" tabindex="" /></a>
                                         </p>
                                         <h2>Example of a dataflow</h2>
                                         <p>In the following example, a series of operations take place on a table created from a dataset with airlines data:</p>
@@ -371,8 +379,8 @@
                                             <li value="4">Create a table with erroneous rows only:&#160;You can use the same function to create a version of this table, except that the resultant table contains only erroneous rows. This option is available if the selected table is created by a Map or Group By function.&#160;For more information about tables with erroneous rows only, see <a href="../B_CommonTasks/H_ErroneousRows.htm" class="MCXref xref">Creating a table with erroneous rows only</a>.</li>
                                         </ul>
                                         <h2>Saving or displaying a dataflow graph as an image file</h2>
-                                        <p>If you want to save a dataflow graph as an image (for example, to include the image in a presentation or to share the image with others), click <img src="../Resources/Images/XD_assets/xi-save-dataflow-as-image.png" />. The image is saved in the .png format.</p>
-                                        <p>Alternatively, you can click <img src="../Resources/Images/XD_assets/xi-open-dataflow-in-new-tab.png" /> to display the dataflow graph as an .png image in a new tab of your browser.</p>
+                                        <p>If you want to save a dataflow graph as an image (for example, to include the image in a presentation or to share the image with others), click <img src="../Resources/Images/XD_assets/xd-save-dataflow-as-image.png" />. The image is saved in the .png format.</p>
+                                        <p>Alternatively, you can click <img src="../Resources/Images/XD_assets/xd-open-dataflow-in-new-tab.png" /> to display the dataflow graph as an .png image in a new tab of your browser.</p>
                                     </div>
                                     <p><a href="#Top" class="selected">Go to top</a>
                                     </p>

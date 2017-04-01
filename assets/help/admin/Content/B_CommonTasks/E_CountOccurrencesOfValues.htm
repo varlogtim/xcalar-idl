@@ -148,11 +148,15 @@
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/C_UDFTasks.htm">Using user-defined functions (UDFs)</a>
                                                 </li>
+                                                <li><a href="../C_AdvancedTasks/C1_PointWithVisualParser.htm">Using a visual parser to create a UDF</a>
+                                                </li>
                                                 <li><a href="../C_AdvancedTasks/D_FunctionBar.htm">Using the function or search bar</a>
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/E_CreateBatchDataflow.htm">Understanding and creating batch dataflows</a>
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/F_UseBatchDataflow.htm">Using batch dataflows</a>
+                                                </li>
+                                                <li><a href="../C_AdvancedTasks/F1_ScheduleBatchDataflow.htm">Scheduling batch dataflows</a>
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/G_ExportTable.htm">Exporting a table</a>
                                                 </li>
@@ -185,6 +189,8 @@
                                                 <li><a href="../D_Reference/G_ColumnOptions.htm">Column options</a>
                                                 </li>
                                                 <li><a href="../D_Reference/H_CellOptions.htm">Cell options</a>
+                                                </li>
+                                                <li><a href="../D_Reference/H1_UdfExamples.htm">User-defined function (UDF) examples</a>
                                                 </li>
                                                 <li><a href="../D_Reference/I_MapFunctions.htm">Map functions</a>
                                                 </li>
@@ -314,27 +320,29 @@
                                         <h1>Counting occurrences of unique values in a column</h1>
                                         <p>Follow these steps to count the occurrences (frequency) of each value in a column:</p>
                                         <ol>
-                                            <li value="1">Right click the header of the column in which you want to count the occurrences of its values. </li>
+                                            <li value="1">Right click the header of the column in which you want to count the occurrences of unique values. </li>
                                             <li value="2">
                                                 <p>From the drop-down menu, select <span class="UIelement">Profile…</span>. The <span class="UIelement">Profile</span> window containing a bar graph is displayed. The bar graph shows the distribution of values in the column.</p>
                                             </li>
                                         </ol>
                                         <div class="Example"><span class="label">TIP:</span>&#160;It might take a while for the bar graph to complete. You can close the window and re-select <span class="UIelement">Profile…</span> in the column drop-down menu later to view the finished bar graph.</div>
                                         <div class="Note"><span class="label">NOTE:</span>&#160;Using <span class="UIelement">Profile</span> to determine the frequency of each value does not create a table. If you need to create a table to show the frequency of each value, use the Count function, which is one of the Group By functions. For more information about Group By functions, see <a href="J_GroupBy.htm" class="MCXref xref">Grouping data in a table</a>.</div>
-                                        <h2>Sorting the frequency</h2>
-                                        <p>You can sort the bars in ascending or descending order. Or you can keep the original order. </p>
-                                        <div class="Example"><span class="label">EXAMPLE:</span> Suppose the values in the selected column represent days of the week, the bar graph is originally sorted by day1, day2, day3, and so on. You can sort the bars based on the frequency of each value. If you sort in ascending order, the value with the lowest frequency is displayed first.</div>
-                                        <h2>Displaying frequency for a range or a single value</h2>
-                                        <p>If the data type of a column is Integer or Float, you can  use the <span class="UIelement">Range Bucketing</span> section to determine how the bars are displayed as described in the following list:</p>
+                                        <h2>Sorting the bars in the graph</h2>
+                                        <p>You can sort the bars in the graph in different ways as illustrated in the following screenshot. In this examples, the values in the DayOfWeek column are sorted by name in ascending order.</p>
+                                        <p>
+                                            <img src="../Resources/Images/XD_screenshots/profile-sort.png" />
+                                        </p>
+                                        <h2>Displaying frequency with range bracketing</h2>
+                                        <p>If the data type of a column is Integer or Float, you can  use the <span class="UIelement">Range Bucketing</span> drop-down menu to determine how the bars are displayed as described in the following list:</p>
                                         <ul>
-                                            <li value="1">Select <span class="UIelement">Single</span> to  count occurrences of single values, in which case each bar represents the frequency of one value. If the data type is not Integer or Float, you can display bars for single values only.</li>
-                                            <li value="2">To count the occurrences of values that fall in a range, select <span class="UIelement">Range</span> and enter the range size. Each range is represented by a bar in the graph. </li>
+                                            <li value="1">Select <span class="UIelement">Single</span> to  count occurrences of single values, in which case each bar represents the frequency of one value. </li>
+                                            <li value="2">To count the occurrences of values that fall in a range, select <span class="UIelement">Range</span> and enter the range size. Each range is represented by a bar in the graph. Enter a numeric value in the Range field and then press Enter. For example, 0.5 and 20 are valid values.</li>
                                             <li value="3">If you want <span class="GeneralProductName">Xcalar Design</span> to choose the range size  such that all bars can fit in the window, select <span class="UIelement">Fit All</span>. </li>
                                         </ul>
                                         <div class="Note"><span class="label">NOTE:</span>&#160;A bar is displayed only if there is at least one occurrence of the value represented by the bar. For example, if the range size is 50, and there are no occurrences of any value in the range of 0 to 50, the graph does not display a bar for this range.</div>
-                                        <h2>Controlling the number of results displayed</h2>
+                                        <h2>Specifying the number of results displayed</h2>
                                         <p>If you select <span class="UIelement">Fit All</span>, you cannot control the number of results displayed. Otherwise, you can increase or decrease the number of results displayed.&#160;The number is incremented by 10. The following screenshot shows where you can control the number of results.</p>
-                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/profile.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1067" data-mc-height="596" src="../Resources/Images/XD_screenshots/profile_thumb_0_150.png" tabindex="" /></a>
+                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/profile.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="939" data-mc-height="596" src="../Resources/Images/XD_screenshots/profile_thumb_0_150.png" tabindex="" /></a>
                                         </p>
                                         <div class="Note"><span class="label">NOTE:</span>&#160;The bar showing the frequency of the null value is always displayed first. It is not counted in the number of results shown. The number of results reflects only the bars for the non-null values.</div>
                                         <h2>Displaying counts or percentages</h2>

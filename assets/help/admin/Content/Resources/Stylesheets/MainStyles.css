@@ -183,7 +183,7 @@ ul
 
 ul ul
 {
-	list-style-image: url('../Images/XD_assets/xi-arrow-right.png');
+	list-style-image: url('../Images/XD_assets/xd-arrow-right.png');
 	/*Second level unordered list uses the right arrow as the bullet. */
 }
 
@@ -285,8 +285,8 @@ img
 
 MadCap|dropDown
 {
-	mc-closed-image: url('../Images/XD_assets/xi-plus-circle-outline.png');
-	mc-open-image: url('../Images/XD_assets/xi-minus-circle-outline.png');
+	mc-closed-image: url('../Images/XD_assets/xd-plus-circle-outline.png');
+	mc-open-image: url('../Images/XD_assets/xd-minus-circle-outline.png');
 }
 
 MadCap|xref:focus

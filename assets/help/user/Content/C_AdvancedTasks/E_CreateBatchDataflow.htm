@@ -148,11 +148,15 @@
                                                 </li>
                                                 <li><a href="C_UDFTasks.htm">Using user-defined functions (UDFs)</a>
                                                 </li>
+                                                <li><a href="C1_PointWithVisualParser.htm">Using a visual parser to create a UDF</a>
+                                                </li>
                                                 <li><a href="D_FunctionBar.htm">Using the function or search bar</a>
                                                 </li>
                                                 <li><a href="#" class="selected">Understanding and creating batch dataflows</a>
                                                 </li>
                                                 <li><a href="F_UseBatchDataflow.htm">Using batch dataflows</a>
+                                                </li>
+                                                <li><a href="F1_ScheduleBatchDataflow.htm">Scheduling batch dataflows</a>
                                                 </li>
                                                 <li><a href="G_ExportTable.htm">Exporting a table</a>
                                                 </li>
@@ -183,6 +187,8 @@
                                                 <li><a href="../D_Reference/G_ColumnOptions.htm">Column options</a>
                                                 </li>
                                                 <li><a href="../D_Reference/H_CellOptions.htm">Cell options</a>
+                                                </li>
+                                                <li><a href="../D_Reference/H1_UdfExamples.htm">User-defined function (UDF) examples</a>
                                                 </li>
                                                 <li><a href="../D_Reference/I_MapFunctions.htm">Map functions</a>
                                                 </li>
@@ -274,11 +280,15 @@
                                                     </li>
                                                     <li><a href="C_UDFTasks.htm">Using user-defined functions (UDFs)</a>
                                                     </li>
+                                                    <li><a href="C1_PointWithVisualParser.htm">Using a visual parser to create a UDF</a>
+                                                    </li>
                                                     <li><a href="D_FunctionBar.htm">Using the function or search bar</a>
                                                     </li>
                                                     <li><a href="#" class="selected">Understanding and creating batch dataflows</a>
                                                     </li>
                                                     <li><a href="F_UseBatchDataflow.htm">Using batch dataflows</a>
+                                                    </li>
+                                                    <li><a href="F1_ScheduleBatchDataflow.htm">Scheduling batch dataflows</a>
                                                     </li>
                                                     <li><a href="G_ExportTable.htm">Exporting a table</a>
                                                     </li>
@@ -320,13 +330,13 @@
                                             <li value="6">You can export selected columns from the table or the entire table created by a batch dataflow to another application. Alternatively, you can export the result of the batch dataflow to a table, which automatically appears in your worksheet.</li>
                                         </ul>
                                         <h2>Displaying dataflows for all active tables</h2>
-                                        <p>To display the dataflows for all active tables in a worksheet, click <img src="../Resources/Images/XD_assets/xi-dataflow-graph-icon.png" /> in the lower right corner of the <span class="GeneralProductName">Xcalar Design</span> window. For more information about each element in the dataflow graph, see <a href="../D_Reference/E_DataflowGraph.htm" class="MCXref xref">Dataflow graph</a>.</p>
+                                        <p>To display the dataflows for all active tables in a worksheet, click <img src="../Resources/Images/XD_assets/xd-dataflow-graph-icon.png" /> in the lower right corner of the <span class="GeneralProductName">Xcalar Design</span> window. For more information about each element in the dataflow graph, see <a href="../D_Reference/E_DataflowGraph.htm" class="MCXref xref">Dataflow graph</a>.</p>
                                         <h2><a name="Creating"></a><a name="createBatchDataflow" class="ForCSH"></a>Creating a batch dataflow</h2>
                                         <p>Follow these steps to create a batch dataflow:</p>
                                         <ol>
-                                            <li value="1">Click <img src="../Resources/Images/XD_assets/xi-dataflow-graph-icon.png" /> to view the dataflows for all tables in the worksheet.</li>
+                                            <li value="1">Click <img src="../Resources/Images/XD_assets/xd-dataflow-graph-icon.png" /> to view the dataflows for all tables in the worksheet.</li>
                                             <li value="2">Locate the dataflow for the active table. This is the dataflow from which you create the batch dataflow.</li>
-                                            <li value="3">Click <img src="../Resources/Images/XD_assets/xi-batch-dataflow.png" /> in the upper right corner of the dataflow graph to display the <span class="UIelement">DATAFLOW</span>&#160;panel.</li>
+                                            <li value="3">Click <img src="../Resources/Images/XD_assets/xd-batch-dataflow.png" /> in the upper right corner of the dataflow graph to display the <span class="UIelement">DATAFLOW</span>&#160;panel.</li>
                                             <li value="4">
                                                 <p>In the panel, type the name of the dataflow. </p>
                                                 <div class="MCDropDown MCDropDown_Open dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the naming conventions:</a></span>
@@ -363,8 +373,9 @@
                                                                 </ul>
                                                             </li>
                                                             <li value="2">The name cannot begin or end with a space.</li>
-                                                            <li value="3">Length can be from 1 to 255 characters.</li>
-                                                            <li value="4">The name must not be <span class="UIelement">DATA</span>. Because column names are case sensitive, strings such as <span class="UIelement">data</span> and <span class="UIelement">Data</span> are acceptable.</li>
+                                                            <li value="3">The name cannot begin with a number.</li>
+                                                            <li value="4">Length can be from 1 to 255 characters.</li>
+                                                            <li value="5">The name must not be <span class="UIelement">DATA</span>. Because column names are case sensitive, strings such as <span class="UIelement">data</span> and <span class="UIelement">Data</span> are acceptable.</li>
                                                         </ul>
                                                     </div>
                                                 </div>

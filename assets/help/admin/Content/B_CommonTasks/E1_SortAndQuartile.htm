@@ -148,11 +148,15 @@
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/C_UDFTasks.htm">Using user-defined functions (UDFs)</a>
                                                 </li>
+                                                <li><a href="../C_AdvancedTasks/C1_PointWithVisualParser.htm">Using a visual parser to create a UDF</a>
+                                                </li>
                                                 <li><a href="../C_AdvancedTasks/D_FunctionBar.htm">Using the function or search bar</a>
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/E_CreateBatchDataflow.htm">Understanding and creating batch dataflows</a>
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/F_UseBatchDataflow.htm">Using batch dataflows</a>
+                                                </li>
+                                                <li><a href="../C_AdvancedTasks/F1_ScheduleBatchDataflow.htm">Scheduling batch dataflows</a>
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/G_ExportTable.htm">Exporting a table</a>
                                                 </li>
@@ -185,6 +189,8 @@
                                                 <li><a href="../D_Reference/G_ColumnOptions.htm">Column options</a>
                                                 </li>
                                                 <li><a href="../D_Reference/H_CellOptions.htm">Cell options</a>
+                                                </li>
+                                                <li><a href="../D_Reference/H1_UdfExamples.htm">User-defined function (UDF) examples</a>
                                                 </li>
                                                 <li><a href="../D_Reference/I_MapFunctions.htm">Map functions</a>
                                                 </li>
@@ -328,16 +334,16 @@
                                         <p>
                                             <img src="../Resources/Images/XD_screenshots/column-sorted-ascending.png" />
                                         </p>
-                                        <h2>How quartile values are affected by sorting</h2>
-                                        <p>If the column being sorted contains FNF, the FNF rows are no longer in the table after the sort. (For more information about FNF, see <a href="P_UnderstandFNF.htm#Sorting" class="MCXref xref">Sorting a table by a column containing FNF</a>.) This means that sorting a column numerically or alphabetically might result in a different number of rows in the resultant table and different quartile values. </p>
-                                        <div class="Example"><span class="label">Example</span>: In a table with 10 rows, suppose a string column called Age contains NA in 4 rows and numbers in other rows. If you sort values in this column alphabetically, the resultant table contains 10 rows. If you sort numerically, because the rows containing NA cannot be converted to integer, they are not included in the resultant table, which contains 6 rows. Because the total number of rows in the resultant table is different depending on how the sorting is done,  the quartile values for the resultant column are also different.</div>
+                                        <h2>How quartile values are affected by sorting a string column</h2>
+                                        <p>If a column being sorted contains FNF, the FNF rows are removed from the resultant table. (For more information about FNF, see <a href="P_UnderstandFNF.htm#Sorting" class="MCXref xref">Sorting a table by a column containing FNF</a>.) If sorting a string column gives you a choice of sorting numerically or alphabetically, your choice affects how many rows will contain FNF after the sort. As a result, you might get different quartile values from the same column, depending on whether the column is sorted numerically or alphabetically. </p>
+                                        <div class="Example"><span class="label">Example</span>: In a table with 10 rows, suppose a string column called Age contains NA in 4 rows and numbers in other rows. If you sort values in this column alphabetically, the resultant table contains 10 rows just as it did before sorting. If you sort numerically, because the rows containing NA cannot be converted to integer, they now contain FNF and are not included in the resultant table. The table after sorting contains 6 rows. After you generate the quartile values, you can see that the values from the 10-row table are different from those from the 6-row table.</div>
                                         <h2>Finding quartiles in a column</h2>
                                         <p>After you sort a column, follow these steps to determine the quartiles for the values in the column:</p>
                                         <ol>
                                             <li value="1"> Right click the column header to display the column drop-down menu.</li>
                                             <li value="2">
-                                                <p>Click <span class="UIelement">Profile…</span> in the drop-down menu. The <span class="UIelement">Profile</span> modal window containing the quartile summary is displayed. The following screenshot shows an example of the quartile summary.</p>
-                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/quartile-summary.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="675" data-mc-height="479" src="../Resources/Images/XD_screenshots/quartile-summary_thumb_0_150.png" tabindex="" /></a>
+                                                <p>Click <span class="UIelement">Profile…</span> in the drop-down menu. The <span class="UIelement">Profile</span> modal window containing the quartile summary section is displayed. Click <span class="UIelement">Generate</span> for the quartile summary. The following screenshot shows an example of the quartile summary.</p>
+                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/quartile-summary.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="677" data-mc-height="479" src="../Resources/Images/XD_screenshots/quartile-summary_thumb_0_150.png" tabindex="" /></a>
                                                 </p>
                                             </li>
                                         </ol>

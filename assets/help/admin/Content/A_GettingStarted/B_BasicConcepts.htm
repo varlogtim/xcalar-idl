@@ -148,11 +148,15 @@
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/C_UDFTasks.htm">Using user-defined functions (UDFs)</a>
                                                 </li>
+                                                <li><a href="../C_AdvancedTasks/C1_PointWithVisualParser.htm">Using a visual parser to create a UDF</a>
+                                                </li>
                                                 <li><a href="../C_AdvancedTasks/D_FunctionBar.htm">Using the function or search bar</a>
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/E_CreateBatchDataflow.htm">Understanding and creating batch dataflows</a>
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/F_UseBatchDataflow.htm">Using batch dataflows</a>
+                                                </li>
+                                                <li><a href="../C_AdvancedTasks/F1_ScheduleBatchDataflow.htm">Scheduling batch dataflows</a>
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/G_ExportTable.htm">Exporting a table</a>
                                                 </li>
@@ -185,6 +189,8 @@
                                                 <li><a href="../D_Reference/G_ColumnOptions.htm">Column options</a>
                                                 </li>
                                                 <li><a href="../D_Reference/H_CellOptions.htm">Cell options</a>
+                                                </li>
+                                                <li><a href="../D_Reference/H1_UdfExamples.htm">User-defined function (UDF) examples</a>
                                                 </li>
                                                 <li><a href="../D_Reference/I_MapFunctions.htm">Map functions</a>
                                                 </li>
@@ -292,6 +298,20 @@
                                         <h2>Understanding the purpose of <span class="GeneralProductName">Xcalar Design</span></h2>
                                         <p><span class="GeneralProductName">Xcalar Design</span> is an HTML5-based visual tool that enables you to interactively and intuitively design queries and algorithms, and manipulate your data to derive insights. The dataflows generated when you use  <span class="GeneralProductName">Xcalar Design</span> interactively can be saved. You can run the saved dataflows on demand or at scheduled intervals at a later time. </p>
                                         <p>The data being queried can be unstructured or organized in arbitrary formats. The data sources can reside on file systems such as NFS, HDFS, Amazon S3, or a local  file system. </p>
+                                        <h2>Shared vs. shared-nothing storage for Xcalar</h2>
+                                        <p><span class="GeneralCompanyNameShort">Xcalar</span>'s True Data in Place algorithms enable you to store source data anywhere—on shared or shared-nothing storage—without having to move your data in advance to attain maximum processing speed.</p>
+                                        <h3>Comparison between <span class="GeneralCompanyNameShort">Xcalar</span> and other architectures</h3>
+                                        <p><span class="GeneralCompanyNameShort">Xcalar</span>'s unique architecture eliminates the need for data sharding, partitioning, or placement for node affinity, which is commonly required by other data analytics tools using software frameworks such as Hadoop and Spark. In these frameworks, you typically shard the data for locality of reference to a node where a particular algorithm is running.  The placement of data occurs either at the start or when a MapReduce job begins to execute. Without proper placement,  you cannot achieve optimal data processing speed.</p>
+                                        <p>Xcalar's nodes, however, read data in parallel and process it optimally irrespective of locality. Furthermore, while processing the data, <span class="GeneralCompanyNameShort">Xcalar</span> does not shuffle data as a MapReduce job would. Data has mass, and movement of terabytes of data for locality of reference at the start of processing, or later, during the shuffle phase, incurs huge processing and performance costs. <span class="GeneralCompanyNameShort">Xcalar</span>'s capability to keep source files in their original location from beginning to end greatly simplifies deployment and improves data processing performance. </p>
+                                        <h3>Examples of <span class="GeneralCompanyNameShort">Xcalar</span> using  all cores for parallel I/O</h3>
+                                        <p>In this example, a 4-node cluster with 32 cores processes files in parallel without requiring the files to be moved from one storage space to another or redistributed among nodes.&#160;When you use <span class="GeneralProductName">Xcalar Design</span> to point to 1,024 files, the nodes of the cluster read the files in batches of 32, utilizing the full parallel I/O bandwidth from all the cores. Files may be read asynchronously or synchronously, where the former option may provide higher throughput.</p>
+                                        <p>The following figure illustrates the cluster processing 1,024 files.</p>
+                                        <p>
+                                            <img src="../Resources/Images/ingest-1024-files.png" />
+                                        </p>
+                                        <p>Suppose you use the same cluster to point to 1,025 files. Again, the 32 cores read 32 files at a time. The last file is processed in its entirety by only one core.</p>
+                                        <p>Similarly, if you only need to point to one file, only one core is used to process the file. </p>
+                                        <p>In cases where only one core processes a source file, <span class="GeneralCompanyNameShort">Xcalar</span> does not arbitrarily break the file into chunks to parallelize I/O as that would violate the sequential integrity of the data. Remember that each core reads a file in its entirety; the core never reads a partial file. Therefore, if you want to take advantage of the bandwidth of all cores, you must split the source file into multiple smaller files in a way that can be understood by your logic when you perform modeling later on. </p>
                                         <h2><a name="Understa"></a>Understanding workbooks and worksheets</h2>
                                         <p>You can create workbooks in <span class="GeneralProductName">Xcalar Design</span>, which can be regarded as files. Within a workbook, you can create as many worksheets as you want. Worksheets in the same workbook usually contain data related to the same project. The worksheet displayed on your screen is the active worksheet.</p>
                                         <p>The relationship between a worksheet and a workbook is similar to the relationship between a Microsoft Excel worksheet and workbook.</p>
@@ -319,7 +339,7 @@
                                         <h2>Displaying <span class="GeneralProductName2">Xcalar Compute Engine</span> product versions and license expiration date</h2>
                                         <p>To display <span class="GeneralCompanyNameShort">Xcalar</span> product versions and the license expiration date, follow these steps:</p>
                                         <ol>
-                                            <li value="1">Click <img src="../Resources/Images/XD_assets/xi-user.png" /> in the upper right corner of the <span class="GeneralProductName">Xcalar Design</span> window.</li>
+                                            <li value="1">Click <img src="../Resources/Images/XD_assets/xd-user.png" /> in the upper right corner of the <span class="GeneralProductName">Xcalar Design</span> window.</li>
                                             <li value="2">In the drop-down menu, click <span class="UIelement">About</span> to display a modal window that lists product versions,  license expiration date, and copyright information.</li>
                                         </ol>
                                     </div>

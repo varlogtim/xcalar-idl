@@ -148,11 +148,15 @@
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/C_UDFTasks.htm">Using user-defined functions (UDFs)</a>
                                                 </li>
+                                                <li><a href="../C_AdvancedTasks/C1_PointWithVisualParser.htm">Using a visual parser to create a UDF</a>
+                                                </li>
                                                 <li><a href="../C_AdvancedTasks/D_FunctionBar.htm">Using the function or search bar</a>
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/E_CreateBatchDataflow.htm">Understanding and creating batch dataflows</a>
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/F_UseBatchDataflow.htm">Using batch dataflows</a>
+                                                </li>
+                                                <li><a href="../C_AdvancedTasks/F1_ScheduleBatchDataflow.htm">Scheduling batch dataflows</a>
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/G_ExportTable.htm">Exporting a table</a>
                                                 </li>
@@ -185,6 +189,8 @@
                                                 <li><a href="../D_Reference/G_ColumnOptions.htm">Column options</a>
                                                 </li>
                                                 <li><a href="../D_Reference/H_CellOptions.htm">Cell options</a>
+                                                </li>
+                                                <li><a href="../D_Reference/H1_UdfExamples.htm">User-defined function (UDF) examples</a>
                                                 </li>
                                                 <li><a href="../D_Reference/I_MapFunctions.htm">Map functions</a>
                                                 </li>
@@ -315,24 +321,21 @@
                                         <p>Determining an aggregate value means using values from rows in a column as input to calculate a new value. For example, based on values in the Salary column, you can run an aggregate function to determine the average salary. </p>
                                         <p>You can determine the aggregate values for numeric columns in one of two ways:</p>
                                         <ul>
-                                            <li value="1">Calculate aggregate values for all columns in a table.</li>
+                                            <li value="1">Calculate aggregate values for multiple selected columns in a table.</li>
                                             <li value="2">Calculate aggregate values for a selected column.</li>
                                         </ul>
                                         <p>This section explains how to determine aggregate values from numeric values. One aggregate function, listAgg, is a string function. For more information about listAgg, see <a href="J_GroupBy.htm#Understa" class="MCXref xref">Understanding the listAgg (list aggregate) function</a>.</p>
-                                        <h2>Calculating aggregate values for all columns</h2>
+                                        <h2>Calculating aggregate values for multiple columns</h2>
                                         <p>Follow these steps to calculate aggregate values for all numeric columns in a table:</p>
                                         <ol>
-                                            <li value="1">Right click anywhere in the table title bar or click the triangle in the lower-right corner of the table title bar to display a drop-down menu. The menu presents table options for manipulating the entire table. </li>
-                                            <li value="2">
-                                                <p>Select <span class="UIelement">Correlations…</span>. The <span class="UIelement">Correlation and Quick Aggregates</span> modal window is displayed.</p>
-                                            </li>
-                                            <li value="3">Click the <span class="UIelement">Quick Aggregate</span> vertical tab. The modal window displays the values resulting from common aggregate functions for all numeric columns.</li>
+                                            <li value="1">Select <span class="UIelement">Correlations…</span> in the table drop-down menu or in the column drop-down menu, depending on whether you want to see aggregate values for selected columns or all columns in the table. The <span class="UIelement">Correlation and Quick Aggregates</span> modal window is displayed. For more information about displaying the <span class="UIelement">Correlation and Quick Aggregates</span> modal window, see <a href="L_Correlation.htm" class="MCXref xref">Determining correlation between two values</a>.</li>
+                                            <li value="2">Click the <span class="UIelement">Quick Aggregate</span> vertical tab. The modal window displays the values resulting from common aggregate functions for all numeric columns.</li>
                                         </ol>
                                         <h2><a name="Calculat"></a>Calculating aggregate values for a selected column</h2>
                                         <p>If you are only interested in viewing aggregate values for a single column, follow these steps:</p>
                                         <ol>
                                             <li value="1">Right click the header for the column. In the drop-down menu, select <span class="UIelement">Profile…</span>.</li>
-                                            <li value="2">In the <span class="UIelement">Profile</span> modal window, the <span class="UIelement">Aggregate Summary</span> section displays the values resulting from common aggregate functions for the column.</li>
+                                            <li value="2">In the <span class="UIelement">Profile</span> modal window, if the <span class="UIelement">Aggregate Summary</span> section does not display the aggregate values, click Generate. displays the values resulting from common aggregate functions for the column.</li>
                                         </ol>
                                         <p>If you are interested in calculating one particular aggregate value in a selected column or if you plan to use the aggregate value as input for other functions, follow these steps:</p>
                                         <ol>
@@ -347,8 +350,9 @@
                                                             <li value="4">If the panel calls for the resultant column name, type the name without preceding it with the dollar sign ($).</li>
                                                             <li value="5">To avoid mistakes when typing a column name as an operand, place the insertion point in the argument field, move your mouse to the active table and click anywhere in the desired column. The column's name is automatically entered in the operand field.</li>
                                                             <li value="6">If an operand accepts a column name, it also accepts an aggregate name that you created when you calculated the aggregate value for a column. </li>
-                                                            <li value="7">If necessary,  click <img src="../Resources/Images/XD_assets/xi-show.png" /> in the panel to bring the specified table into focus. You can then scroll the table to make the desired column visible.</li>
-                                                            <li value="8">You can undo any typing with the undo key or key combination that you normally use in your browser.</li>
+                                                            <li value="7">When typing a decimal number for an operand, do not start with the decimal point. For example, type 0.5 instead of .5.</li>
+                                                            <li value="8">If necessary,  click <img src="../Resources/Images/XD_assets/xd-show.png" /> in the panel to bring the specified table into focus. You can then scroll the table to make the desired column visible.</li>
+                                                            <li value="9">You can undo any typing with the undo key or key combination that you normally use in your browser.</li>
                                                         </ul>
                                                     </div>
                                                 </div>
@@ -374,8 +378,8 @@
                                         <p>If you use the <span class="UIelement">New Resultant Aggregate Name</span> field in the <span class="UIelement">AGGREGATE</span>&#160;panel, the value is saved under the aggregate name. If you want to use one of the saved aggregate values as input to a function, you can choose the value from a list of saved aggregate values. </p>
                                         <p>Follow these steps to display the saved aggregate values:</p>
                                         <ol>
-                                            <li value="1">Click <img src="../Resources/Images/XD_assets/xi-worksheet.png" alt="" title="" /> to display the <span class="UIelement">Worksheets</span> panel.</li>
-                                            <li value="2">In the <span class="UIelement">Worksheets</span> pane, click  <img src="../Resources/Images/XD_assets/xi-tables-list.png" /> to display a list of tables.</li>
+                                            <li value="1">Click <img src="../Resources/Images/XD_assets/xd-worksheet.png" alt="" title="" /> to display the <span class="UIelement">Worksheets</span> panel.</li>
+                                            <li value="2">In the <span class="UIelement">Worksheets</span> pane, click  <img src="../Resources/Images/XD_assets/xd-tables-list.png" /> to display a list of tables.</li>
                                             <li value="3">Click <span class="UIelement">Aggregates</span>&#160;to display a list of saved aggregate values. In the following example, the aggregate named minArrivalTime is displayed with its value (1). <p><img src="../Resources/Images/XD_screenshots/table-list-aggregates.png" /></p></li>
                                         </ol>
                                         <p>&#160;</p>

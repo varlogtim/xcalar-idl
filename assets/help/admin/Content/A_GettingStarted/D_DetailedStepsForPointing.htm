@@ -149,11 +149,15 @@
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/C_UDFTasks.htm">Using user-defined functions (UDFs)</a>
                                                 </li>
+                                                <li><a href="../C_AdvancedTasks/C1_PointWithVisualParser.htm">Using a visual parser to create a UDF</a>
+                                                </li>
                                                 <li><a href="../C_AdvancedTasks/D_FunctionBar.htm">Using the function or search bar</a>
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/E_CreateBatchDataflow.htm">Understanding and creating batch dataflows</a>
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/F_UseBatchDataflow.htm">Using batch dataflows</a>
+                                                </li>
+                                                <li><a href="../C_AdvancedTasks/F1_ScheduleBatchDataflow.htm">Scheduling batch dataflows</a>
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/G_ExportTable.htm">Exporting a table</a>
                                                 </li>
@@ -186,6 +190,8 @@
                                                 <li><a href="../D_Reference/G_ColumnOptions.htm">Column options</a>
                                                 </li>
                                                 <li><a href="../D_Reference/H_CellOptions.htm">Cell options</a>
+                                                </li>
+                                                <li><a href="../D_Reference/H1_UdfExamples.htm">User-defined function (UDF) examples</a>
                                                 </li>
                                                 <li><a href="../D_Reference/I_MapFunctions.htm">Map functions</a>
                                                 </li>
@@ -321,16 +327,16 @@
                                         <p>Follow these steps to create a workbook:</p>
                                         <ol>
                                             <li value="1">
-                                                <p>The <span class="UIelement">Workbook Browser</span> is automatically displayed after you log in to <span class="GeneralProductName">Xcalar Design</span> for the first time. At other times, you can display or dismiss the <span class="UIelement">Workbook Browser</span> by clicking <img src="../Resources/Images/XD_assets/xi-workbook-browser.png" /> in the upper left corner of the window. In the <span class="UIelement">Workbook Browser</span>, enter the workbook name and click <span class="UIelement">CREATE&#160;WORKBOOK</span> on the <span class="UIelement">New Workbook</span> card.</p>
+                                                <p>The <span class="UIelement">Workbook Browser</span> is automatically displayed after you log in to <span class="GeneralProductName">Xcalar Design</span> for the first time. At other times, you can display or dismiss the <span class="UIelement">Workbook Browser</span> by clicking <img src="../Resources/Images/XD_assets/xd-workbook-browser.png" /> in the upper left corner of the window. In the <span class="UIelement">Workbook Browser</span>, enter the workbook name and click <span class="UIelement">CREATE&#160;WORKBOOK</span> on the <span class="UIelement">New Workbook</span> card.</p>
                                                 <p>After the workbook is created,  it contains one worksheet named <span class="UIelement">Sheet 1</span>. </p>
                                             </li>
-                                            <li value="2">The newly created workbook is inactive. To activate it, click <img src="../Resources/Images/XD_assets/xi-activate-workbook.png" />, which is the first icon on the menu when you hover over the workbook card. (An active workbook is the one you can work on, and you can have only one active workbook at a time.)</li>
+                                            <li value="2">The newly created workbook is inactive. To activate it, click <img src="../Resources/Images/XD_assets/xd-activate-workbook.png" />, which is the first icon on the menu when you hover over the workbook card. (An active workbook is the one you can work on, and you can have only one active workbook at a time.)</li>
                                         </ol>
                                         <p>For more information about the <span class="UIelement">Workbook Browser</span>, see <a href="../D_Reference/B_WkbkBrowser.htm" class="MCXref xref">Workbook Browser</a>.</p>
                                         <h2><a name="Prerequi"></a>Prerequisites for pointing to data</h2>
                                         <p>Make sure that your data source meets the following prerequisites before pointing <span class="GeneralProductName">Xcalar Design</span> to it:</p>
                                         <ul>
-                                            <li value="1">Pointing to a data source means telling <span class="GeneralProductName">Xcalar Design</span> to derive metadata from one or multiple files containing raw data. These files must be accessible to <span class="GeneralProductName3short">XDP</span> via the NFS&#160;or HDFS&#160;protocol. </li>
+                                            <li value="1">Pointing to a data source means telling <span class="GeneralProductName">Xcalar Design</span> to derive metadata from one or multiple files containing raw data. These files must be accessible to <span class="GeneralProductName3short">XDP</span> via the NFS, HDFS,&#160;or file protocol. </li>
                                             <li value="2">The data source can be a file or a directory. If you point to a directory, <span class="GeneralProductName">Xcalar Design</span> points to data in all files in the directory. You can also point to subdirectories recursively. Make sure that all files being pointed to are in the same format and have the same schema. Otherwise, the result might be unpredictable.</li>
                                             <li value="3">
                                                 <p>Unicode is supported for both delimiter-separated values and JSON that is UTF-8 encoded. UTF-16 or other encoding systems are not supported without user-defined functions (UDFs).</p>
@@ -344,6 +350,8 @@
                                                 </ul>
                                             </li>
                                         </ul>
+                                        <h2><a name="Understa"></a>Understanding the protocols for pointing to data</h2>
+                                        <p>To point to data residing on storage shared by all nodes, select the file&#160;or HDFS protocol (denoted  by <span class="UIelement">file:///</span> and <span class="UIelement">hdfs://</span>, respectively, in <span class="GeneralProductName">Xcalar Design</span>). <span class="GeneralCompanyNameShort">Xcalar</span> will distribute the processing of source files across all the nodes. For example, if you use the file protocol to point to a directory named /data/flightData, which is on shared storage, all the nodes share the processing of files in /data/flightData to create the dataset.</p>
                                         <h2>Determining whether data source has illegal characters in field names</h2>
                                         <p>Before you proceed, determine whether the data source contains field names with illegal characters. If there are illegal characters, you can still point to the data source but you must use a user-defined function (UDF) provided by <span class="GeneralCompanyNameShort">Xcalar</span> to replace these characters. (Information about using UDFs is available later in this section.)&#160;If you do not use the UDF when pointing to your data, you might see unexpected query results. </p>
                                         <p>The following characters are not allowed in field names:</p>
@@ -359,19 +367,20 @@
                                             <li value="9">comma (,)</li>
                                             <li value="10">period (.)</li>
                                         </ul>
-                                        <h2><a name="Before"></a>Before using a streaming UDF</h2>
-                                        <p>A UDF for parsing data when <span class="GeneralProductName">Xcalar Design</span> points to the data is called a streaming UDF. If you  use a streaming UDF, be aware that after <span class="GeneralProductName">Xcalar Design</span> points to the data, the table columns are ordered differently than the columns in the data source. If the columns do not have headers, you might not be able to determine the meaning of each column based on its position. <span class="GeneralCompanyNameShort">Xcalar</span> recommends that before using a streaming UDF, you add column headers if they do not already exist in the source file.&#160;</p>
-                                        <div class="Example"><span class="label">Example</span>:&#160;Your data source is an Excel file with ID numbers in its first column. If the file does not have headers, after you parse the file with a streaming UDF, it might be difficult to determine which column is for ID&#160;numbers because the column is no longer the first column in the table displayed in <span class="GeneralProductName">Xcalar Design</span>. If, before parsing, you create a header row as the first row of the Excel file, and assign a name to the first column (for example, ID), then you can easily locate the column in <span class="GeneralProductName">Xcalar Design</span>.</div>
+                                        <h2><a name="Before"></a>Preparing column headers</h2>
+                                        <p><span class="GeneralCompanyNameShort">Xcalar</span> recommends that you create column headers for your source data if they do not currently exist. The headers improve readability of the tables created by <span class="GeneralProductName">Xcalar Design</span>. </p>
+                                        <p>In addition, if you  use a streaming UDF, be aware that after <span class="GeneralProductName">Xcalar Design</span> points to the data, the table columns are ordered differently than the columns in the data source. (A UDF for parsing data when <span class="GeneralProductName">Xcalar Design</span> points to the data is called a streaming UDF.) If the columns do not have headers, you might not be able to determine the meaning of each column based on its position. </p>
+                                        <div class="Example"><span class="label">Example</span>:&#160;Your data source is an Excel file with ID numbers in its first column. When you point to it, <span class="GeneralProductName">Xcalar Design</span> invokes a UDF&#160;to parse the data. If the file does not have headers, it might be difficult to determine which column is for ID&#160;numbers because the column is no longer the first column in the table displayed in <span class="GeneralProductName">Xcalar Design</span>. If, before parsing, you create a header row as the first row of the Excel file, and assign a name to the first column (for example, ID), then you can easily locate the column in <span class="GeneralProductName">Xcalar Design</span>.</div>
                                         <h2><a name="Creating2"></a><a name="pointToDataSource" class="ForCSH"></a>Pointing to your data source</h2>
                                         <p>Follow these steps to point to your data source:</p>
                                         <ol>
                                             <li value="1">
-                                                <p>Click <img src="../Resources/Images/XD_assets/xi-datastores.png" /> (<span class="UIelement">Data Stores</span> icon). Its location is shown in the following screenshot:</p>
+                                                <p>Click <img src="../Resources/Images/XD_assets/xd-datastores.png" /> (<span class="UIelement">Data Stores</span> icon). Its location is shown in the following screenshot:</p>
                                                 <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/datastores-icon-in-menu.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="863" data-mc-height="565" src="../Resources/Images/XD_screenshots/datastores-icon-in-menu_thumb_0_150.png" style="mc-thumbnail: popup;" tabindex="" /></a>
                                                 </p>
                                             </li>
                                             <li value="2">
-                                                <p>In the <span class="UIelement">Point To New Data Source</span> window, select the protocol for accessing the data source. The protocol can be NFS&#160;or HDFS. The following screen illustrates the <span class="UIelement">Point To New Data Source</span> window.</p>
+                                                <p>In the <span class="UIelement">Point To New Data Source</span> window, select the protocol for accessing the data source. The protocol can be NFS, HDFS, or file. (The file protocol can be disabled by the cluster administrator through a cluster configuration parameter.) The following screen illustrates the <span class="UIelement">Point To New Data Source</span> window.</p>
                                                 <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/point-to-new-dataset.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="896" data-mc-height="310" src="../Resources/Images/XD_screenshots/point-to-new-dataset_thumb_0_150.png" tabindex="" /></a>
                                                 </p>
                                             </li>
@@ -394,13 +403,24 @@
                                                     </li>
                                                 </ul>
                                             </li>
-                                            <li value="4">Click <span class="UIelement">NEXT</span>.</li>
+                                            <li value="4">
+                                                <p>Click <span class="UIelement">NEXT</span>. The top portion of the <span class="UIelement">Point To New Data Source</span> window displays a preview of the source data in a tabular format. </p>
+                                                <p>If the data source is a directory, the records in the preview are from the first file in the directory. </p>
+                                                <p>You can position your mouse on a column header and drag it to resize each column. You can also use your mouse to scroll the rows.</p>
+                                            </li>
                                             <li value="5">
-                                                <p>(Optional)&#160;After you select the data source, you can specify values for the advanced options as described in <a href="#About" class="MCXref xref selected">About advanced options</a>. The following screenshot shows the location of the options. In most cases, you can skip the advanced options and go on to the next step.</p>
+                                                <p>(Optional) If you point to a directory and you want to preview records from other files in the directory, follow these steps:</p>
+                                                <ol style="list-style-type: lower-alpha;">
+                                                    <li value="1">Click <span class="UIelement">Change</span> to display the <span class="UIelement">Select File to Preview</span> modal window.</li>
+                                                    <li value="2">Select the file to preview.</li>
+                                                    <li value="3">Click <span class="UIelement">PREVIEW</span>.</li>
+                                                </ol>
+                                            </li>
+                                            <li value="6">
+                                                <p>(Optional)&#160;Specify values for the advanced options as described in <a href="#About" class="MCXref xref selected">About advanced options</a>. The following screenshot shows the location of the options. In most cases, you can skip the advanced options and go on to the next step.</p>
                                                 <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/advanced-options.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="674" data-mc-height="440" src="../Resources/Images/XD_screenshots/advanced-options_thumb_0_150.png" tabindex="" /></a>
                                                 </p>
                                             </li>
-                                            <li value="6"><span class="GeneralProductName">Xcalar Design</span> displays a preview of the records in the data source in a tabular format. This preview enables you to verify that you have selected the intended data source file. You can position your mouse on a column header and drag it to resize each column. You can also use your mouse to scroll the rows.</li>
                                             <li value="7">
                                                 <p>In the <span class="UIelement">Dataset Reference Name</span> field,  accept the suggested name or type the desired name. The name cannot be changed later. The dataset reference enables you to create tables from the dataset after you successfully point to your data source.  For more information about dataset references, see <a href="../B_CommonTasks/A_ManageDatasetRef.htm" class="MCXref xref">Managing dataset references</a>.</p>
                                                 <div class="MCDropDown MCDropDown_Open dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the  naming conventions:</a></span>
@@ -415,13 +435,13 @@
                                                 </div>
                                             </li>
                                             <li value="8">
-                                                <p>If you want <span class="GeneralProductName">Xcalar Design</span> to invoke a streaming user-defined function (UDF) when parsing the data in the data source, select <span class="UIelement">Parse Data With UDF</span> and then specify the module name and function name. </p>
+                                                <p>If you want <span class="GeneralProductName">Xcalar Design</span> to invoke a streaming UDF when parsing the data in the data source, select <span class="UIelement">Parse Data With UDF</span> and then specify the module name and function name. </p>
                                                 <p> You can preview the results of the streaming UDF by clicking <span class="UIelement">REFRESH&#160;PREVIEW</span>. If you see unexpected results, you can select another UDF&#160;or no UDFs.</p>
-                                                <p>For more information about UDFs, see <a href="../C_AdvancedTasks/B_UDFUnderstand.htm" class="MCXref xref">Understanding user-defined functions (UDFs)</a> and <a href="../C_AdvancedTasks/C_UDFTasks.htm" class="MCXref xref">Using user-defined functions (UDFs)</a>. If no UDFs are needed for parsing the data, skip to the next step.</p>
+                                                <p>For more information about UDFs, see <a href="../C_AdvancedTasks/B_UDFUnderstand.htm" class="MCXref xref">Understanding UDFs</a> and <a href="../C_AdvancedTasks/C_UDFTasks.htm" class="MCXref xref">Using UDFs</a>. If no UDFs are needed for parsing the data, skip to the next step.</p>
                                                 <div class="Note"><span class="label">IMPORTANT</span>:&#160;Parsing a data source with a streaming UDF is required if your data source contains illegal characters. For a list of these characters, see <a href="#Prerequi" class="MCXref xref selected">Prerequisites for pointing to data</a>.</div>
                                             </li>
                                             <li value="9">
-                                                <p>The fields in the rest of the <span class="UIelement">Point to New Data Source</span> window tell <span class="GeneralProductName">Xcalar Design</span> about the data format and layout. <span class="GeneralProductName">Xcalar Design</span> automatically detects the format and layout of the data source, but you can override the default values. :</p>
+                                                <p>The fields in the rest of the <span class="UIelement">Point to New Data Source</span> window tell <span class="GeneralProductName">Xcalar Design</span> about the data format and layout. <span class="GeneralProductName">Xcalar Design</span> automatically detects the format and layout of the data source, but you can override the default values. </p>
                                                 <div class="Note"><span class="label">TIP:</span>&#160;After you enter values in these fields, if you want to see the values recommended by <span class="GeneralProductName">Xcalar Design</span> again, click <span class="UIelement">REDETECT</span>.</div>
                                                 <p>The following table describes the fields.</p>
                                                 <table class="TableStyle-SimpleTable" style="mc-table-style: url('../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;" cellspacing="0">
@@ -478,6 +498,7 @@
                                                         </tr>
                                                     </tbody>
                                                 </table>
+                                                <div class="Note"><span class="label">IMPORTANT</span>:&#160;After you change a value in this step, click <span class="UIelement">REFRESH&#160;PREVIEW</span> to display a preview that reflects your change. This helps verify whether the change creates the desired table format. For example, if you enter an incorrect field or record delimiter, your data will not be arranged in columns appropriately. In addition, such error might cause the number of fields or the size of a record to exceed the <span class="GeneralCompanyNameShort">Xcalar</span> limit. When you point to the data using the erroneous setting, a message is displayed, indicating that the attempt to point to data fails.</div>
                                             </li>
                                             <li value="10">
                                                 <p>Follow one of these two steps:</p>
@@ -520,7 +541,7 @@
                                                 <div class="Example"><span class="label">EXAMPLE:</span>&#160;Suppose you use the Monitor to change the default dataset size to 20 GB. Each time you point to a new data source, the <span class="UIelement">Custom size</span> field automatically shows the default you set (20 GB). To override this default, simply enter the desired value. For example, to be able to point to a data source that is a 30-GB file, you must enter 30 GB or a greater value.</div>
                                             </li>
                                         </ul>
-                                        <h2>What to do next</h2>
+                                        <h2>Next step</h2>
                                         <p>Follow one of these steps:</p>
                                         <ul>
                                             <li value="1">Create a table (if a table is not yet created) as described in <a href="../B_CommonTasks/B_CreateTable.htm" class="MCXref xref">Creating a table</a>.</li>

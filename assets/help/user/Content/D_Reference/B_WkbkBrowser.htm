@@ -148,11 +148,15 @@
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/C_UDFTasks.htm">Using user-defined functions (UDFs)</a>
                                                 </li>
+                                                <li><a href="../C_AdvancedTasks/C1_PointWithVisualParser.htm">Using a visual parser to create a UDF</a>
+                                                </li>
                                                 <li><a href="../C_AdvancedTasks/D_FunctionBar.htm">Using the function or search bar</a>
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/E_CreateBatchDataflow.htm">Understanding and creating batch dataflows</a>
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/F_UseBatchDataflow.htm">Using batch dataflows</a>
+                                                </li>
+                                                <li><a href="../C_AdvancedTasks/F1_ScheduleBatchDataflow.htm">Scheduling batch dataflows</a>
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/G_ExportTable.htm">Exporting a table</a>
                                                 </li>
@@ -183,6 +187,8 @@
                                                 <li><a href="G_ColumnOptions.htm">Column options</a>
                                                 </li>
                                                 <li><a href="H_CellOptions.htm">Cell options</a>
+                                                </li>
+                                                <li><a href="H1_UdfExamples.htm">User-defined function (UDF) examples</a>
                                                 </li>
                                                 <li><a href="I_MapFunctions.htm">Map functions</a>
                                                 </li>
@@ -284,6 +290,8 @@
                                                     </li>
                                                     <li><a href="H_CellOptions.htm">Cell options</a>
                                                     </li>
+                                                    <li><a href="H1_UdfExamples.htm">User-defined function (UDF) examples</a>
+                                                    </li>
                                                     <li><a href="I_MapFunctions.htm">Map functions</a>
                                                     </li>
                                                     <li><a href="J_ExcelComparison.htm">Excel-equivalent functions</a>
@@ -300,7 +308,7 @@
                                     </div>
                                     <div class="bodyProxyNarrow">
                                         <h1>Workbook Browser</h1>
-                                        <p>Clicking the <span class="UIelement">Workbook</span> icon in the upper left corner of the <span class="GeneralProductName">Xcalar Design</span> window opens the <span class="UIelement">Workbook Browser</span>. You can create a workbook as described in <a href="../A_GettingStarted/D_DetailedStepsForPointing.htm#Creating" class="MCXref xref">Creating a workbook as your workspace</a>. The following sample screen shows the buttons in the <span class="UIelement">Workbook Browser</span> for these tasks:</p>
+                                        <p>Clicking the <span class="UIelement">Workbook</span> icon in the upper left corner of the <span class="GeneralProductName">Xcalar Design</span> window opens the <span class="UIelement">Workbook Browser</span>. You can create a workbook as described in <a href="../A_GettingStarted/D_DetailedStepsForPointing.htm#Creating" class="MCXref xref">Creating a workbook as your workspace</a>. The following sample screen shows the icons in the <span class="UIelement">Workbook Browser</span> for these tasks:</p>
                                         <ul>
                                             <li value="1">Activating a workbook</li>
                                             <li value="2">Editing the workbook name</li>
@@ -309,9 +317,15 @@
                                         </ul>
                                         <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/workbook-browser.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1166" data-mc-height="565" src="../Resources/Images/XD_screenshots/workbook-browser_thumb_0_150.png" tabindex="" /></a>
                                         </p>
-                                        <h2>About activating a workbook</h2>
+                                        <div class="Note"><span class="label">NOTE</span>:&#160;You can delete a workbook only if it is inactive. For an active workbook, a deactivation icon  instead of a deletion icon is displayed. If you want to delete a currently active workbook, deactivate it first.</div>
+                                        <h2>Understanding workbook activation</h2>
                                         <p>Upon creation, a workbook is inactive. You must activate the workbook before you can use it as your workspace.</p>
                                         <p>After you log out and log in again to <span class="GeneralProductName">Xcalar Design</span>, the workbook that was active before you logged out remains active. However, if the Xcalar cluster is powered off and then powered on again, none of the workbooks are active and you must activate one of the workbooks in the <span class="UIelement">Workbook Browser</span>.</p>
+                                        <h2>Understanding workbook deactivation</h2>
+                                        <p>You do not need to manually deactivate one workbook to activate another. For example, if workbook1 is active but you want to switch to workbook2, simply click the play icon for workbook2. This deactivates workbook1 automatically and activates workbook2.</p>
+                                        <p>If you have an active workbook that you want to delete and you do not want to switch to another workbook, deactivate it and then click the deletion icon. </p>
+                                        <p>When deactivating a workbook, <span class="GeneralProductName3short">XDP</span> releases memory used by the workbook's datasets and tables. When you re-activate the workbook, <span class="GeneralProductName3short">XDP</span> re-creates the dataset references and active tables, which might take a while especially if the tables were created with complex operations. Therefore, before you deactivate a workbook, be aware that re-activating it in the future might not be instantaneous. </p>
+                                        <div class="Note"><span class="label">NOTE</span>:&#160; <span class="GeneralProductName3short">XDP</span> cannot deactivate a workbook if the workbook has an operation in progress. Wait until the operation is finished before you switch from this workbook or click the deactivation icon for this workbook.</div>
                                         <h2>Effects of deleting a workbook</h2>
                                         <p>The following list describes the effects of deleting a workbook:</p>
                                         <ul>

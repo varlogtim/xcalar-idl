@@ -514,7 +514,7 @@ div.MCBreadcrumbsBox_0
 .MCDropDown_Open .MCDropDownHotSpot_.MCHotSpotImage
 {
 	background-position: left;
-	background-image: url('xi-minus-circle-outline.png');
+	background-image: url('xd-minus-circle-outline.png');
 	padding-left: 5px;
 	padding-right: 0;
 }
@@ -522,7 +522,7 @@ div.MCBreadcrumbsBox_0
 .MCDropDown_Closed .MCDropDownHotSpot_.MCHotSpotImage
 {
 	background-position: left;
-	background-image: url('xi-plus-circle-outline.png');
+	background-image: url('xd-plus-circle-outline.png');
 	padding-left: 5px;
 	padding-right: 0;
 }

@@ -148,11 +148,15 @@
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/C_UDFTasks.htm">Using user-defined functions (UDFs)</a>
                                                 </li>
+                                                <li><a href="../C_AdvancedTasks/C1_PointWithVisualParser.htm">Using a visual parser to create a UDF</a>
+                                                </li>
                                                 <li><a href="../C_AdvancedTasks/D_FunctionBar.htm">Using the function or search bar</a>
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/E_CreateBatchDataflow.htm">Understanding and creating batch dataflows</a>
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/F_UseBatchDataflow.htm">Using batch dataflows</a>
+                                                </li>
+                                                <li><a href="../C_AdvancedTasks/F1_ScheduleBatchDataflow.htm">Scheduling batch dataflows</a>
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/G_ExportTable.htm">Exporting a table</a>
                                                 </li>
@@ -183,6 +187,8 @@
                                                 <li><a href="../D_Reference/G_ColumnOptions.htm">Column options</a>
                                                 </li>
                                                 <li><a href="../D_Reference/H_CellOptions.htm">Cell options</a>
+                                                </li>
+                                                <li><a href="../D_Reference/H1_UdfExamples.htm">User-defined function (UDF) examples</a>
                                                 </li>
                                                 <li><a href="../D_Reference/I_MapFunctions.htm">Map functions</a>
                                                 </li>
@@ -315,11 +321,12 @@
                                         <h2>Viewing the tables list</h2>
                                         <p>To display the tables list, follow these steps:</p>
                                         <ol>
-                                            <li value="1">Click <img src="../Resources/Images/XD_assets/xi-worksheet.png" /> (Worksheet icon).</li>
+                                            <li value="1">Click <img src="../Resources/Images/XD_assets/xd-worksheet.png" /> (Worksheet icon).</li>
                                             <li value="2">
-                                                <p>In the <span class="UIelement">Worksheet</span> panel, click <img src="../Resources/Images/XD_assets/xi-tables-list.png" /> to display the <span class="UIelement">Tables</span> panel to display the names of all tables on the worksheet. The tables are organized by their status.</p>
+                                                <p>In the <span class="UIelement">Worksheet</span> panel, click <img src="../Resources/Images/XD_assets/xd-tables-list.png" /> to display the <span class="UIelement">Tables</span> panel to display the names of all tables on the worksheet. The tables are organized by their status.</p>
                                             </li>
                                         </ol>
+                                        <div class="Note"><span class="label">TIP</span>:&#160;In the tables list, you can click any active table name to move the focus to the table in the worksheet.</div>
                                         <h2>Active table</h2>
                                         <p>An active table is a table being displayed on a worksheet. You can perform operations on a column in an active table. You can also perform operations on multiple active tables, for example, by joining them.</p>
                                         <div class="Note"><span class="label">NOTE</span>:&#160;The table you are currently interacting with has a blue background for the table title. Other tables in the worksheet have a gray background for the table title, but these tables are also active tables. </div>
@@ -337,14 +344,14 @@
                                         <p>A temporary table can be created when you undo an operation either through the <span class="UIelement">Undo</span> button or the <span class="UIelement">Revert to this table</span> option in a dataflow graph. <span class="GeneralProductName">Xcalar Design</span> does not drop the table resulting from the operation; instead, it categorizes the table as a temporary table. </p>
                                         <div class="Example"><span class="label">Example</span>:&#160;Suppose you change a data type for a column in <span class="UIelement">airlines#pe8</span> and the resultant table is named <span class="UIelement">airlines#pe9</span>. If you undo the data type change, airlines#pe8 becomes the active table again, but <span class="UIelement">airlines#pe9</span> is not dropped. Instead, <span class="UIelement">airlines#pe9</span> is kept as a temporary table.</div>
                                         <p>A temporary table can be added back to the worksheet to become an active table again.</p>
-                                        <div class="Note"><span class="label">NOTE</span>: Remember to click <img src="../Resources/Images/XD_assets/xi-refresh-temp-tables.png" /> in the <span class="UIelement">Tables</span> panel to refresh the temporary tables list after you run an operation or undo an operation. It ensures that the  most up-to-date list is displayed. </div>
+                                        <div class="Note"><span class="label">NOTE</span>: Remember to click <img src="../Resources/Images/XD_assets/xd-refresh-temp-tables.png" /> in the <span class="UIelement">Tables</span> panel to refresh the temporary tables list after you run an operation or undo an operation. It ensures that the  most up-to-date list is displayed. </div>
                                         <div class="Note"><span class="label">NOTE</span>:&#160;The temporary table created by clicking the <span class="UIelement">Undo</span> button is dropped automatically if you perform other operations after undoing. The temporary tables created by reverting are kept until you drop them. For more information about undoing an operation, see <a href="F_UndoRedo.htm" class="MCXref xref">Undoing and redoing an operation</a>.</div>
                                         <h2>Hiding a table</h2>
                                         <p>You can only hide an active table.&#160;You cannot hide a temporary table. Follow one of these steps to hide a table:</p>
                                         <ul>
                                             <li value="1">Right click the title bar for an active table to display a menu. Then select <span class="UIelement">Hide Table</span>.</li>
                                             <li value="2">Right click a table icon in the dataflow for the table. In the menu, select <span class="UIelement">Hide Table</span>.</li>
-                                            <li value="3">In the <span class="UIelement">Tables</span> panel, display the active tables.&#160;Select a table from the list and then click <img src="../Resources/Images/XD_assets/xi-archive-table.png" />. The following screenshot illustrates how to hide tables in the <span class="UIelement">Tables</span> panel: </li>
+                                            <li value="3">In the <span class="UIelement">Tables</span> panel, display the active tables.&#160;Select a table from the list and then click <img src="../Resources/Images/XD_assets/xd-archive-table.png" />. The following screenshot illustrates how to hide tables in the <span class="UIelement">Tables</span> panel: </li>
                                         </ul>
                                         <p>
                                             <img src="../Resources/Images/XD_screenshots/tables-list-for-archive.png" />
@@ -359,7 +366,7 @@
                                                 <p>Select the table that you want to change to an active table.&#160;You can select multiple tables from one list.</p>
                                                 <div class="Example"><span class="label">TIP:</span> The temporary table list might be long. To quickly locate the temporary table, type the complete or partial table name in the <span class="UIelement">Filter Temporary Tables</span> field to limit the list to only tables with a matching name.</div>
                                             </li>
-                                            <li value="3">Click <img src="../Resources/Images/XD_assets/xi-tables-list-add-to-worksheet.png" />. </li>
+                                            <li value="3">Click <img src="../Resources/Images/XD_assets/xd-tables-list-add-to-worksheet.png" />. </li>
                                         </ol>
                                         <p>The following screenshot illustrates how to put a temporary table on the worksheet.</p>
                                         <p>
