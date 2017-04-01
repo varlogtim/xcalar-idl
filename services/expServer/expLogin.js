@@ -98,6 +98,10 @@ function loginAuthentication(credArray, res) {
                 var searchFilter = config.searchFilter;
                 var activeDir = (config.activeDir === 'true');
                 var useTLS = (config.useTLS === 'true');
+                var adUserGroup = ("adUserGroup" in config) ?
+                    config.adUserGroup:"Xce User";
+                var adAdminGroup = ("adAdminGroup" in config) ?
+                    config.adAdminGroup:"Xce Admin";
                 var client = ldap.createClient({
                     url: client_url,
                     timeout: 10000,
@@ -158,7 +162,8 @@ function loginAuthentication(credArray, res) {
                     var deferred2 = jQuery.Deferred();
                     search.on('searchEntry', function(entry) {
                         console.log('Searching entries.....');
-                        writeEntry(entry, currLogin, activeDir);
+                        writeEntry(entry, currLogin, activeDir,
+                                   adUserGroup, adAdminGroup);
                     });
 
                     search.on('error', function(error) {
@@ -205,7 +210,7 @@ function loginAuthentication(credArray, res) {
     });
 }
 
-function writeEntry(entry, loginId, activeDir) {
+function writeEntry(entry, loginId, activeDir, adUserGroup, adAdminGroup) {
     if (entry.object) {
         var entryObject = entry.object;
         var user = users.get(loginId);
@@ -216,11 +221,11 @@ function writeEntry(entry, loginId, activeDir) {
             user.setEmployeeType("user");
             user.setIsADUser(false);
             entryObject.memberOf.forEach(function(element, index, array) {
-                var admin_re = /^CN=Xce\sAdmin*/;
+                var admin_re = new RegExp("^CN=" + adAdminGroup + "*");
                 if (admin_re.test(element)) {
                     user.setEmployeeType("administrator");
                 }
-                var user_re = /^CN=Xce\sUser*/;
+                var user_re = new RegExp("^CN=" + adUserGroup + "*");
                 if (user_re.test(element)) {
                     user.setIsADUser(true);
                 }
