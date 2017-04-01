@@ -196,10 +196,8 @@ describe("Workbook Test", function() {
             var name = xcHelper.randName("testModified");
             var $box = $workbookPanel.find(".workbookBox").eq(0);
             var $input = $box.find(".workbookName");
-
             $box.find(".modify").click();
-            $input.val(name).trigger(fakeEvent.enter);
-
+            $input.focus().val(name).trigger(fakeEvent.enter);
             var checkFunc = function() {
                 return Object.keys(fakeMap).length > 0;
             };

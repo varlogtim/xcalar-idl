@@ -578,15 +578,15 @@ describe("DSParser Test", function() {
             };
 
             $card.find(".dataPreview").scrollTop(scrollHeight);
+            if (!ifvisible.now()) {
+                $card.find(".dataPreview").scroll();
+            }
 
             var checkFunc = function() {
                 return previewCalled;
             };
 
-            UnitTest.timeoutPromise(1)
-            .then(function() {
-                return UnitTest.testFinish(checkFunc);
-            })
+            UnitTest.testFinish(checkFunc)
             .then(function() {
                 expect(previewCalled).to.be.true;
                 expect($("#parserRowInput").val()).not.to.equal(0);

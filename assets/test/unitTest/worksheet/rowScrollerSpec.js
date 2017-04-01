@@ -170,11 +170,13 @@ describe("RowScroller Test", function() {
     	var $scrollBar;
     	var $tbodyWrap;
     	var table;
+        var cachedAddRows;
 
     	before(function(){
     		$scrollBar = $("#xcTableWrap-" + tableId).find(".tableScrollBar");
     		$tbodyWrap = $("#xcTbodyWrap-" + tableId);
     		table = gTables[tableId];
+            cachedAddRows = RowManager.addRows;
     	});
 
     	it("scrolling on scrollbar should work", function(done) {
@@ -238,18 +240,24 @@ describe("RowScroller Test", function() {
     			});
     		});
     	});
+
+        after(function() {
+            RowManager.addRows = cachedAddRows;
+        });
     });
 
     describe("table scrolling", function() {
     	var $scrollBar;
     	var $tbodyWrap;
     	var table;
+        var cachedAddRows;
 
     	before(function(){
     		$scrollBar = $("#xcTableWrap-" + tableId).find(".tableScrollBar");
     		$tbodyWrap = $("#xcTbodyWrap-" + tableId);
     		table = gTables[tableId];
     		$table.removeClass('autoScroll');
+            cachedAddRows = RowManager.addRows;
     	});
     	it("scrolling down should work", function(done) {
     		var addRowsCalled = false;
@@ -318,6 +326,10 @@ describe("RowScroller Test", function() {
 				done();
 			});
     	});
+
+        after(function() {
+            RowManager.addRows = cachedAddRows;
+        });
     });
 
     after(function(done) {

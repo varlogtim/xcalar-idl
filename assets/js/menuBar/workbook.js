@@ -681,7 +681,7 @@ window.Workbook = (function($, Workbook) {
                                 '<input type="text" class="workbookName ' +
                                  'tooltipOverflow"' +
                                 ' value="' + workbookName + '"' +
-                               
+
                                 ' spellcheck="false"/>' +
                             '</div>' +
                             '<div class="infoSection topInfo">' +
@@ -809,6 +809,6 @@ window.Workbook = (function($, Workbook) {
 
         return objs;
     }
-   
+
     return (Workbook);
 }(jQuery, {}));

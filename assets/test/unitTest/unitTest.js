@@ -87,6 +87,28 @@ window.UnitTest = (function(UnitTest, $) {
             $('#xc').toggleClass('large');
         });
 
+        var prevPct = null;
+        window.mochaPct = 0;
+        consolePct();
+
+        function consolePct() {
+            setTimeout(function() {
+                if (!ifvisible.now()) {
+                    if (prevPct === window.mochaPct) {
+                        console.info("Test is still " + window.mochaPct + "% completed");
+                    } else {
+                        console.info(window.mochaPct + "% completed");
+                    }
+                }
+                prevPct = window.mochaPct;
+                if (window.mochaPct === 100) {
+                    console.info("TEST FINISHED");
+                } else {
+                    consolePct();
+                }
+            }, 10000);
+        }
+
         // Uncomment this to add button to increase blanket size.
 
         // $('#toggleCoverageSize').click(function() {
