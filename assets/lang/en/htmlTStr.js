@@ -665,6 +665,7 @@ module.exports = {
         "parameters": "Parameters",
         "outputLocation" : "Output Location",
         "noRun": "Not run yet",
+        "cronHint": "This mode allows you to specify the schedule as a cron string. It follows the standard cron syntax. You can simulate the run times for the cron schedule by clicking the simulate button. Once you have a string that you are satisfied with, click Save to apply it to the batched dataflow."
     },
 
     "exportView": {
