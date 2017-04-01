@@ -974,7 +974,6 @@ window.ExportView = (function($, ExportView) {
             }
         } else if (options.format === DfFormatTypeT.DfFormatSql) {
             options.sqlArgs = {};
-
             // XX are there sql specific arguments?
         } else {
             options.error = true;

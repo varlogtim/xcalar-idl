@@ -851,9 +851,9 @@ function XcalarExport(tableName, exportName, targetName, numColumns,
                                                     options.csvArgs.recordDelim;
                     specInput.sfInput.formatArgs.csv.quoteDelim = gDefaultQDelim;
                 } else if (options.format === DfFormatTypeT.DfFormatSql) {
-                    exportName += ".sql";
-                    specInput.sfInput.fileName = exportName;
+                    specInput.sfInput.fileName = exportName + ".sql";
                     specInput.sfInput.formatArgs.sql = new ExInitExportSQLArgsT();
+                    // specInput.sfInput.formatArgs.sql.tableName = exportName;
                     specInput.sfInput.formatArgs.sql.tableName = exportName;
                     specInput.sfInput.formatArgs.sql.createTable = true;
                     if (options.createRule === ExExportCreateRuleT.ExExportCreateOnly) {
@@ -917,11 +917,17 @@ function XcalarExport(tableName, exportName, targetName, numColumns,
                                 options.createRule, keepOrder, numColumns,
                                 columns, options.handleName);
 
-        var def2 = XcalarGetQuery(workItem);
-        def2.then(function(query) {
-            Transaction.startSubQuery(txId, 'Export', options.handleName,
-                                      query);
-        });
+        var def2;
+        if (target.type === ExTargetTypeT.ExTargetSFType &&
+            options.format === DfFormatTypeT.DfFormatCsv) {
+            def2 = XcalarGetQuery(workItem);
+            def2.then(function(query) {
+                Transaction.startSubQuery(txId, 'Export', options.handleName,
+                                          query);
+            });
+        } else {
+            def2 = jQuery.Deferred().resolve("N/A");
+        }
 
         jQuery.when(def1, def2)
         .then(function(ret1, ret2) {
