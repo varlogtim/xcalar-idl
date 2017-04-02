@@ -17,51 +17,51 @@ window.MonitorLog = (function(MonitorLog, $) {
     };
 
     function addListeners() {
-        $logCard.find('.recentLogsGroup').find('.xc-input')
-        .on('keydown', function(event) {
+        $logCard.find(".recentLogsGroup").find(".xc-input")
+        .on("keydown", function(event) {
             if (event.which === keyCode.Enter) {
                 getRecentLogs();
             }
         });
-        $logCard.find('.getRecentLogs').click(function() {
+        $logCard.find(".getRecentLogs").click(function() {
             getRecentLogs();
         });
 
-        $logCard.find('.removeSessGroup').find('.xc-input')
-        .on('keydown', function(event) {
+        $logCard.find(".removeSessGroup").find(".xc-input")
+        .on("keydown", function(event) {
             if (event.which === keyCode.Enter) {
                 removeSessionFiles();
             }
         });
-        $logCard.find('.removeSessionFiles').click(function() {
+        $logCard.find(".removeSessionFiles").click(function() {
             removeSessionFiles();
         });
 
-        $logCard.find('.streamBtns').on('click', '.btn', function() {
-            if ($(this).parent().hasClass('xc-disabled')) {
+        $logCard.find(".streamBtns").on("click", ".btn", function() {
+            if ($(this).parent().hasClass("xc-disabled")) {
                 return;
             }
-            if ($(this).hasClass('stopStream')) {
+            if ($(this).hasClass("stopStream")) {
                 stopMonitorLog();
             } else {
                 startMonitorLog();
             }
         });
 
-        $logCard.find('.clear').click(function() {
+        $logCard.find(".clear").click(function() {
             clearLogs();
         });
     }
 
     function getRecentLogs() {
-        var $recentLogsGroup = $logCard.find('.recentLogsGroup');
-        var $input = $recentLogsGroup.find('.xc-input');
+        var $recentLogsGroup = $logCard.find(".recentLogsGroup");
+        var $input = $recentLogsGroup.find(".xc-input");
         var val = $input.val().trim();
         $input.blur();
 
         var isValid = xcHelper.validate([
             {
-                "$ele": $input // check if it's empty
+                "$ele": $input // check if it"s empty
             },
             {
                 "$ele": $input,
@@ -76,7 +76,7 @@ window.MonitorLog = (function(MonitorLog, $) {
         }
         val = parseInt(val);
 
-        $recentLogsGroup.addClass('xc-disabled');
+        $recentLogsGroup.addClass("xc-disabled");
 
         XFTSupportTools.getRecentLogs(val)
         .then(function(ret) {
@@ -106,21 +106,21 @@ window.MonitorLog = (function(MonitorLog, $) {
             }
         })
         .always(function() {
-            $recentLogsGroup.removeClass('xc-disabled');
+            $recentLogsGroup.removeClass("xc-disabled");
             $input.blur();
-            $('.tooltip').hide();
+            $(".tooltip").hide();
         });
     }
 
     function removeSessionFiles() {
-        var $inputGroup = $logCard.find('.removeSessGroup');
-        var $input = $inputGroup.find('.xc-input');
+        var $inputGroup = $logCard.find(".removeSessGroup");
+        var $input = $inputGroup.find(".xc-input");
         var val = $input.val().trim();
         $input.blur();
 
         var isValid = xcHelper.validate([
             {
-                "$ele": $input // check if it's empty
+                "$ele": $input // check if it"s empty
             }
         ]);
 
@@ -128,7 +128,7 @@ window.MonitorLog = (function(MonitorLog, $) {
             return;
         }
 
-        $inputGroup.addClass('xc-disabled');
+        $inputGroup.addClass("xc-disabled");
 
         XFTSupportTools.removeSessionFiles(val)
         .then(function() {
@@ -147,61 +147,62 @@ window.MonitorLog = (function(MonitorLog, $) {
             Alert.error(MonitorTStr.RemoveSessionFail, msg);
         })
         .always(function() {
-            $inputGroup.removeClass('xc-disabled');
+            $inputGroup.removeClass("xc-disabled");
         });
     }
 
     function startMonitorLog() {
-        var $streamBtns = $logCard.find('.streamBtns');
-        $streamBtns.addClass('xc-disabled');
+        var $streamBtns = $logCard.find(".streamBtns");
+        $streamBtns.addClass("xc-disabled");
 
         XFTSupportTools.monitorLogs(function(err) {
-            // $streamBtns.removeClass('xc-disabled streaming');
-
+            $streamBtns.removeClass('xc-disabled streaming');
             var msg;
-            if (err) {
-                // the error status is not set by
-                // server, it may due to other reasons
-                if (err.logs) {
-                    // unexpect erro shos up
-                    if (err.unexpectedError) {
-                        msg = (err.logs === "error")? ErrTStr.Unknown : err.logs;
-                        $streamBtns.removeClass('xc-disabled streaming');
-                        Alert.error(MonitorTStr.StartStreamFail, msg);
-                    } else {
-                        // the reason for why all the nodes are success or
-                        // fail is known and defined.
-                        $streamBtns.removeClass('xc-disabled').addClass('streaming');
-                        appendLog(err.logs);
-                    }
+            if (err && err.logs) {
+                // unexpected error showed up
+                if (err.unexpectedError) {
+                    msg = (err.logs === "error")? ErrTStr.Unknown : err.logs;
+                    // $streamBtns.removeClass("xc-disabled streaming");
+                    Alert.error(MonitorTStr.StartStreamFail, msg);
+                } else {
+                    // XXX This doesn't make sense. If they are all successful,
+                    // then why are they in the errorHandler? There must be
+                    // errors. If that is the case, then why we adding the
+                    // streaming class?
+
+                    // the reason for why all the nodes are success or
+                    // fail is known and defined.
+                    // $streamBtns.removeClass("xc-disabled")
+                    //            .addClass("streaming");
+                    appendLog(err.logs);
                 }
             } else {
                 msg = ErrTStr.Unknown;
-                $streamBtns.removeClass('xc-disabled streaming');
+                // $streamBtns.removeClass("xc-disabled streaming");
                 Alert.error(MonitorTStr.StartStreamFail, msg);
             }
         }, function(ret) {
-            $streamBtns.removeClass('xc-disabled').addClass('streaming');
+            $streamBtns.removeClass("xc-disabled").addClass("streaming");
             appendLog(ret.logs);
         });
     }
 
     function stopMonitorLog() {
-        var $streamBtns = $logCard.find('.streamBtns');
-        // var $btn = $logCard.find('.stopStream');
-        $streamBtns.removeClass('xc-disabled streaming');
+        var $streamBtns = $logCard.find(".streamBtns");
+        // var $btn = $logCard.find(".stopStream");
+        $streamBtns.removeClass("xc-disabled streaming");
 
         XFTSupportTools.stopMonitorLogs();
     }
 
     function appendLog(msg) {
         var row = '<div class="msgRow"></div>';
-        var $content = $logCard.find('.content');
+        var $content = $logCard.find(".content");
         var scrollHeight = $content[0].scrollHeight;
         var curScrollTop = $content.scrollTop();
         var contentHeight = $content.height();
-        $logCard.find('.content').append(row);
-        $logCard.find('.content').find('.msgRow').last()
+        $logCard.find(".content").append(row);
+        $logCard.find(".content").find(".msgRow").last()
                 .html(splitLogByHost(msg));
         if (curScrollTop + contentHeight + 30 > scrollHeight) {
             $content.scrollTop($content[0].scrollHeight);
@@ -217,9 +218,9 @@ window.MonitorLog = (function(MonitorLog, $) {
                 continue;
             } else {
                 var color = "color" + colorId;
-                out += "<div class='" + color + "'>"
-                        + "Host:" + allNodes[i]
-                        + "</div>";
+                out += "<div class='" + color + "'>" +
+                       "    Host:" + allNodes[i] +
+                       "</div>";
                 colorId++;
                 if (colorId >= colorNum) {
                     colorId -= colorNum;
@@ -230,7 +231,7 @@ window.MonitorLog = (function(MonitorLog, $) {
     }
 
     function clearLogs() {
-        $logCard.find('.content').empty();
+        $logCard.find(".content").empty();
     }
 
     return (MonitorLog);

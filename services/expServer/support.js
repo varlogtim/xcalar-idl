@@ -1,5 +1,4 @@
 var cp = require("child_process");
-var lineReader = require("readline");
 var fs = require("fs");
 var os = require("os");
 var path = require("path");
@@ -45,19 +44,20 @@ var tailUsers = new Map();
 function readHostsFromFile(hostFile) {
     var deferred = jQuery.Deferred();
     var hosts = [];
-    var rl = lineReader.createInterface({
-        input: fs.createReadStream(hostFile)
-    });
-    rl.on('line', function(line) {
-        hosts.push(line);
-    });
 
-    rl.on('error', function(err) {
-        return deferred.reject(err);
-    });
-
-    rl.on('close', function() {
-        return deferred.resolve(hosts);
+    fs.readFile(hostFile, "utf8", function(err, hostData) {
+        if (err) {
+            return deferred.reject(err);
+        }
+        var tempHosts = hostData.split("\n");
+        for (var i = 0; i < tempHosts.length; i++) {
+            var host = tempHosts[i].trim();
+            if (host.length > 1) {
+                hosts.push(host);
+            }
+        }
+        console.log(hosts);
+        deferred.resolve(hosts);
     });
     return deferred.promise();
 }
@@ -92,7 +92,7 @@ function masterExecuteAction(action, slaveUrl, content) {
                 // No matter what error happens, the master
                 // should return return a 404 uniformly
                 "status": httpStatus.NotFound,
-                "logs": "Fails to read the message! " + err.message
+                "logs": JSON.stringify(err)
             };
             deferred.reject(retMsg);
         });
@@ -110,9 +110,9 @@ function masterExecuteAction(action, slaveUrl, content) {
                 "status": httpStatus.OK,
                 "logs": logs
             };
-            if (slaveUrl === "/logs/slave" && action === "GET"
-                && content.isMonitoring === "true") {
-                retMsg["updatedLastMonitorMap"] = generateLastMonitorMap(results);
+            if (slaveUrl === "/logs/slave" && action === "GET" &&
+                content.isMonitoring === "true") {
+                retMsg.updatedLastMonitorMap = generateLastMonitorMap(results);
             }
             deferred.resolve(retMsg);
         })
@@ -124,9 +124,9 @@ function masterExecuteAction(action, slaveUrl, content) {
                 "status": httpStatus.NotFound,
                 "logs": logs
             };
-            if (slaveUrl === "/logs/slave" && action === "GET"
-                && content.isMonitoring === "true") {
-                retMsg["updatedLastMonitorMap"] = generateLastMonitorMap(results);
+            if (slaveUrl === "/logs/slave" && action === "GET" &&
+                content.isMonitoring === "true") {
+                retMsg.updatedLastMonitorMap = generateLastMonitorMap(results);
             }
             deferred.reject(retMsg);
         });
@@ -155,12 +155,12 @@ function slaveExecuteAction(action, slaveUrl, content) {
                 hasLogFile(logPath)
                 .then(function() {
                     if (content.isMonitoring === "true") {
-                        tail.monitorLog(Number(content["lastMonitor"]))
+                        tail.monitorLog(Number(content.lastMonitor))
                         .always(function(message) {
                             deferredOut.resolve(message);
                         });
                     } else {
-                        tail.tailLog(Number(content["requireLineNum"]))
+                        tail.tailLog(Number(content.requireLineNum))
                         .always(function(message) {
                             deferredOut.resolve(message);
                         });
@@ -168,12 +168,12 @@ function slaveExecuteAction(action, slaveUrl, content) {
                 })
                 .fail(function() {
                     if (content.isMonitoring === "true") {
-                        tail.monitorJournal(content["lastMonitor"])
+                        tail.monitorJournal(content.lastMonitor)
                         .always(function(message) {
                             deferredOut.resolve(message);
                         });
                     } else {
-                        tail.tailJournal(Number(content["requireLineNum"]))
+                        tail.tailJournal(Number(content.requireLineNum))
                         .always(function(message) {
                             deferredOut.resolve(message);
                         });
@@ -210,11 +210,12 @@ function sendCommandToSlaves(action, slaveUrl, content, hosts) {
     }
 
     function postRequest(hostName) {
+        var postData;
         if (content) {
-            var postData = JSON.stringify(content);
+            postData = JSON.stringify(content);
         } else {
             // content can not be empty
-            var postData = "{}";
+            postData = "{}";
         }
 
         var options = {
@@ -299,12 +300,11 @@ function generateLogs(action, slaveUrl, results) {
         for (var key in results) {
             var resSlave = results[key];
             str = str + "Host: " + key + "\n" +
-                  "Return Status: " +
-                  resSlave["status"] + "\n";
-            if (resSlave["logs"]) {
-                str = str + "Logs:\n" + resSlave["logs"] + "\n\n";
-            } else if (resSlave["error"]) {
-                str = str + "Error:\n" + resSlave["error"] + "\n\n";
+                  "Return Status: " + resSlave.status + "\n";
+            if (resSlave.logs) {
+                str = str + "Logs:\n" + resSlave.logs + "\n\n";
+            } else if (resSlave.error) {
+                str = str + "Error:\n" + resSlave.error + "\n\n";
             }
         }
     }
@@ -469,27 +469,31 @@ function executeCommand(command) {
 function isComplete(command, data) {
     switch(command) {
         case "service xcalar start" :
-            if ((data.indexOf('Mgmtd running') !== -1)
-            || (data.indexOf('Mgmtd already running') !== -1)) {
+            if ((data.indexOf('Mgmtd running') !== -1) ||
+                (data.indexOf('Mgmtd already running') !== -1)) {
                 return true;
             } else {
                 return false;
             }
+            break;
         case "service xcalar stop" :
-            if ((data.indexOf('Xcalar is not running') !== -1)
-            || (data.indexOf('Stopping Xcalar') !== -1)
-            || (data.indexOf('Stopping remaining Xcalar processes') !== -1)) {
+            if ((data.indexOf('Xcalar is not running') !== -1) ||
+                (data.indexOf('Stopping Xcalar') !== -1) ||
+                (data.indexOf('Stopping remaining Xcalar processes') !== -1)) {
                 return true;
             } else {
                 return false;
             }
+            break;
         case "service xcalar restart" :
             if (data.indexOf('Mgmtd running') !== -1) {
                 return true;
             } else {
                 return false;
             }
-        default : return true;
+            break;
+        default :
+            return true;
     }
 }
 // Other commands

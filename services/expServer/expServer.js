@@ -27,6 +27,7 @@ require("jsdom").env("", function(err, window) {
         }
         var s3 = new AWS.S3();
     } catch(error) {
+        console.log(error);
         console.log("Fail to set up AWS!");
     }
 
@@ -776,6 +777,10 @@ require("jsdom").env("", function(err, window) {
     }
 
     app.post("/downloadExtension", function(req, res) {
+        if (!s3) {
+            return res.jsonp({status: Status.Error,
+                              logs: "s3 package not setup correctly!"});
+        }
         var download = function(appName, version) {
             var deferred = jQuery.Deferred();
             var params = {
@@ -1053,7 +1058,11 @@ require("jsdom").env("", function(err, window) {
         login.loginAuthentication(credArray, res);
     });
 
-    app.post("/listPackage", function(req, res){
+    app.post("/listPackage", function(req, res) {
+        if (!s3) {
+            return res.jsonp({status: Status.Error,
+                              logs: "s3 package not setup correctly!"});
+        }
         var fetchAllApps = function() {
             var deferredOnFetch = jQuery.Deferred();
 
