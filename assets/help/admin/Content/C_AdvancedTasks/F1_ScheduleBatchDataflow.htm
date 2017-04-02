@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___Top_Navigation" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Advanced tasks">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta charset="utf-8" />
+        <meta name="description" content="" />
+        <meta name="author" content="" /><title>Scheduling batch dataflows</title>
+        <link href="../../Skins/Default/Stylesheets/Slideshow.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../../Skins/Default/Stylesheets/TextEffects.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../../Skins/Default/Stylesheets/Topic.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../../Skins/Default/Stylesheets/Components/Styles.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../../Skins/Default/Stylesheets/Components/Tablet.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../../Skins/Default/Stylesheets/Components/Mobile.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../../Skins/Fluid/Stylesheets/foundation.5.5.0.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../../Skins/Fluid/Stylesheets/Styles.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../../Skins/Fluid/Stylesheets/Tablet.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../../Skins/Fluid/Stylesheets/Mobile.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../Resources/Stylesheets/MainStyles.css" rel="stylesheet" />
+        <link href="../Fonts/open-sans.regular.ttf" rel="stylesheet" />
+        <link href="../Fonts/OpenSans-Semibold.ttf" rel="stylesheet" />
+        <link href="../Fonts/OpenSans-Light.ttf" rel="stylesheet" />
+        <link href="../Fonts/OpenSans-Bold.ttf" rel="stylesheet" />
+        <style>/*&lt;meta /&gt;*/
+
+.button.previous-topic-button
+{
+	-pie-background: url('../../Skins/Default/Stylesheets/Images/navigate-previous.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.button.next-topic-button
+{
+	-pie-background: url('../../Skins/Default/Stylesheets/Images/navigate-next.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.button.topic-ratings-button
+{
+	-pie-background: transparent url('../../Skins/Default/Stylesheets/Images/star-full.png') no-repeat center center;
+}
+
+.button.separator-button
+{
+	-pie-background: linear-gradient(#ffffff, #ececec);
+}
+
+.button.edit-user-profile-button
+{
+	-pie-background: url('../../Skins/Default/Stylesheets/Images/edit-profile.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.button.print-button
+{
+	-pie-background: url('../../Skins/Default/Stylesheets/Images/printer.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.needs-pie
+{
+	behavior: url('../../Resources/Scripts/PIE-no-motw.htc');
+}
+
+</style>
+        <script src="../../Resources/Scripts/custom.modernizr.js">
+        </script>
+        <script src="../../Resources/Scripts/jquery.min.js">
+        </script>
+        <script src="../../Resources/Scripts/require.min.js">
+        </script>
+        <script src="../../Resources/Scripts/require.config.js">
+        </script>
+        <script src="../../Resources/Scripts/foundation.5.5.0_custom.js">
+        </script>
+        <script src="../../Resources/Scripts/foundation.offcanvas.js">
+        </script>
+        <script src="../../Resources/Scripts/plugins.min.js">
+        </script>
+        <script src="../../Resources/Scripts/MadCapAll.js">
+        </script>
+        <script src="../../Skins/Default/Scripts/TopicToolBar.js">
+        </script>
+    </head>
+    <body>
+        <div class="foundation-wrap">
+            <div class="off-canvas-wrap" data-offcanvas="">
+                <section class="inner-wrap">
+                    <nav class="tab-bar" data-mc-ignore="true">
+                        <section class="middle tab-bar-section outer-row clearfix">
+                            <div class="relative clearfix"><a class="logo" href="../Home.htm" alt="Logo"></a>
+                                <div class="navigation-wrapper">
+                                    <ul class="navigation clearfix">
+                                        <li class="has-children"><a href="../A_GettingStarted/GettingStarted.htm">Getting started</a>
+                                            <ul class="sub-menu">
+                                                <li><a href="../A_GettingStarted/A_Requirements.htm">Requirements for Xcalar Design</a>
+                                                </li>
+                                                <li><a href="../A_GettingStarted/B_BasicConcepts.htm">Basic Xcalar concepts</a>
+                                                </li>
+                                                <li><a href="../A_GettingStarted/B1_PreviewSteps.htm">Steps for Xcalar Cloud Preview</a>
+                                                </li>
+                                                <li><a href="../A_GettingStarted/C_EasySteps.htm">Easy steps for Xcalar 1.0 (with default settings)</a>
+                                                </li>
+                                                <li><a href="../A_GettingStarted/D_DetailedStepsForPointing.htm">Detailed steps for Xcalar 1.0 (with custom settings)</a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                        <li class="has-children"><a href="../B_CommonTasks/CommonTasks.htm">Common tasks</a>
+                                            <ul class="sub-menu">
+                                                <li><a href="../B_CommonTasks/A_ManageDatasetRef.htm">Managing dataset references</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/B_CreateTable.htm">Creating a table</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/C_AddColumns.htm">Adding columns from a dataset to a table</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/D_ChangeDataType.htm">Changing the data type for a column</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/E_CountOccurrencesOfValues.htm">Counting occurrences of unique values in a column</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/E1_SortAndQuartile.htm">Sorting a column and finding quartiles</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/F_UndoRedo.htm">Undoing and redoing an operation</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/G_FilterValue.htm">Filtering in a table column</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/H_ErroneousRows.htm">Creating a table with erroneous rows only</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/I_JoinTables.htm">Joining tables</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/J_GroupBy.htm">Grouping data in a table</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/K_Map.htm">Using the Map function to create new values</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/L_Correlation.htm">Determining correlation between two values</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/M_QuickAggregates.htm">Determining aggregate values</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/N_ChangeTableStatus.htm">Understanding and changing a table status</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/O_ManageWorksheet.htm">Managing worksheets</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/P_UnderstandFNF.htm">Working with a table containing FNF</a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                        <li class="has-children"><a href="AdvancedTasks.htm">Advanced tasks</a>
+                                            <ul class="sub-menu">
+                                                <li><a href="A_Extensions.htm">Using extensions</a>
+                                                </li>
+                                                <li><a href="B_UDFUnderstand.htm">Understanding user-defined functions (UDFs)</a>
+                                                </li>
+                                                <li><a href="C_UDFTasks.htm">Using user-defined functions (UDFs)</a>
+                                                </li>
+                                                <li><a href="C1_PointWithVisualParser.htm">Using a visual parser to create a UDF</a>
+                                                </li>
+                                                <li><a href="D_FunctionBar.htm">Using the function or search bar</a>
+                                                </li>
+                                                <li><a href="E_CreateBatchDataflow.htm">Understanding and creating batch dataflows</a>
+                                                </li>
+                                                <li><a href="F_UseBatchDataflow.htm">Using batch dataflows</a>
+                                                </li>
+                                                <li><a href="#" class="selected">Scheduling batch dataflows</a>
+                                                </li>
+                                                <li><a href="G_ExportTable.htm">Exporting a table</a>
+                                                </li>
+                                                <li><a href="H_Parameterization.htm">Parameterizing queries</a>
+                                                </li>
+                                                <li><a href="I_UnderstandMemoryUse.htm">Understanding memory usage</a>
+                                                </li>
+                                                <li><a href="J_OptimizeMemory.htm">Optimizing memory usage</a>
+                                                </li>
+                                                <li><a href="K_Monitor.htm">Using the Monitor</a>
+                                                </li>
+                                                <li><a href="L_UseSetup.htm">Using Setup (XDP administrators only)</a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                        <li class="has-children"><a href="../D_Reference/Reference.htm">Reference</a>
+                                            <ul class="sub-menu">
+                                                <li><a href="../D_Reference/A_InsightWindow.htm">Xcalar Design window</a>
+                                                </li>
+                                                <li><a href="../D_Reference/B_WkbkBrowser.htm">Workbook Browser</a>
+                                                </li>
+                                                <li><a href="../D_Reference/C_WorksheetWindow.htm">Worksheet window with tables</a>
+                                                </li>
+                                                <li><a href="../D_Reference/D_DataBrowser.htm">Data Browser</a>
+                                                </li>
+                                                <li><a href="../D_Reference/E_DataflowGraph.htm">Dataflow graph</a>
+                                                </li>
+                                                <li><a href="../D_Reference/F_Table_options.htm">Table options</a>
+                                                </li>
+                                                <li><a href="../D_Reference/G_ColumnOptions.htm">Column options</a>
+                                                </li>
+                                                <li><a href="../D_Reference/H_CellOptions.htm">Cell options</a>
+                                                </li>
+                                                <li><a href="../D_Reference/H1_UdfExamples.htm">User-defined function (UDF) examples</a>
+                                                </li>
+                                                <li><a href="../D_Reference/I_MapFunctions.htm">Map functions</a>
+                                                </li>
+                                                <li><a href="../D_Reference/J_ExcelComparison.htm">Excel-equivalent functions</a>
+                                                </li>
+                                                <li><a href="../D_Reference/K_SASComparison.htm">SAS-equivalent functions</a>
+                                                </li>
+                                                <li><a href="../D_Reference/L_Glossary.htm">Glossary</a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </div><a class="menu-icon right-off-canvas-toggle" href="#"><span></span></a>
+                            </div>
+                        </section>
+                        <div class="nav-search row outer-row">
+                            <form class="search" action="#">
+                                <div class="search-bar search-bar-container needs-pie">
+                                    <input class="search-field needs-pie" type="search" placeholder="Search" />
+                                    <div class="search-filter-wrapper">
+                                        <div class="search-filter">
+                                            <div class="search-filter-content">
+                                                <ul>
+                                                    <li>All Files</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="search-submit-wrapper" dir="ltr">
+                                        <div class="search-submit" title="Search">
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </nav>
+                    <aside class="right-off-canvas-menu" data-mc-ignore="true">
+                        <ul class="off-canvas-list" data-mc-back-link="Back" data-mc-css-tree-node-expanded="has-submenu" data-mc-css-tree-node-collapsed="has-submenu" data-mc-css-sub-menu="right-submenu" data-mc-include-indicator="False" data-mc-include-icon="False" data-mc-include-parent-link="True" data-mc-include-back="True" data-mc-defer-expand-event="True" data-mc-expand-event="click.fndtn.offcanvas" data-mc-toc="True">
+                        </ul>
+                    </aside>
+                    <section class="main-section">
+                        <div class="row outer-row" data-mc-content-body="True">
+                            <div id="contentBody">
+                                <div class="row collapse">
+                                    <div class="sideContent">
+                                        <div class="clearfix">
+                                            <div class="buttons popup-container clearfix topicToolbarProxy _Skins_TopicToolBar mc-component">
+                                                <div class="button-group-container-left">
+                                                    <button class="button needs-pie previous-topic-button" title="Navigate previous">
+                                                        <img src="../../Skins/Default/Stylesheets/Images/transparent.gif" alt="previous topic" />
+                                                    </button>
+                                                    <button class="button needs-pie next-topic-button" title="Navigate next">
+                                                        <img src="../../Skins/Default/Stylesheets/Images/transparent.gif" alt="next topic" />
+                                                    </button>
+                                                    <div class="button-group star-buttons loading feedback-topic-required">
+                                                        <div class="button star-button topic-ratings-empty-button" data-state1-class="topic-ratings-empty-button" data-state2-class="topic-ratings-button" title="Click a star to rate this topic" data-state1-title="Click a star to rate this topic" data-state2-title="Click a star to rate this topic">
+                                                            <img src="../../Skins/Default/Stylesheets/Images/transparent.gif" alt="topic rating" />
+                                                        </div>
+                                                        <div class="button star-button topic-ratings-empty-button" data-state1-class="topic-ratings-empty-button" data-state2-class="topic-ratings-button" title="Click a star to rate this topic" data-state1-title="Click a star to rate this topic" data-state2-title="Click a star to rate this topic">
+                                                            <img src="../../Skins/Default/Stylesheets/Images/transparent.gif" alt="topic rating" />
+                                                        </div>
+                                                        <div class="button star-button topic-ratings-empty-button" data-state1-class="topic-ratings-empty-button" data-state2-class="topic-ratings-button" title="Click a star to rate this topic" data-state1-title="Click a star to rate this topic" data-state2-title="Click a star to rate this topic">
+                                                            <img src="../../Skins/Default/Stylesheets/Images/transparent.gif" alt="topic rating" />
+                                                        </div>
+                                                        <div class="button star-button topic-ratings-empty-button" data-state1-class="topic-ratings-empty-button" data-state2-class="topic-ratings-button" title="Click a star to rate this topic" data-state1-title="Click a star to rate this topic" data-state2-title="Click a star to rate this topic">
+                                                            <img src="../../Skins/Default/Stylesheets/Images/transparent.gif" alt="topic rating" />
+                                                        </div>
+                                                        <div class="button star-button topic-ratings-empty-button" data-state1-class="topic-ratings-empty-button" data-state2-class="topic-ratings-button" title="Click a star to rate this topic" data-state1-title="Click a star to rate this topic" data-state2-title="Click a star to rate this topic">
+                                                            <img src="../../Skins/Default/Stylesheets/Images/transparent.gif" alt="topic rating" />
+                                                        </div>
+                                                    </div>
+                                                    <div class="button-separator">
+                                                    </div>
+                                                    <button class="button feedback-required login-button" id="normalLoginBtn" data-state1-class="login-button" data-state2-class="edit-user-profile-button" title="Login" data-state1-title="Login">
+                                                        <img src="../../Skins/Default/Stylesheets/Images/transparent.gif" alt="login" />
+                                                    </button>
+                                                    <button class="button needs-pie print-button" title="Print">
+                                                        <img src="../../Skins/Default/Stylesheets/Images/transparent.gif" alt="print" />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <ul class="menu _Skins_SideMenu mc-component">
+                                            <li class="has-children"><a href="AdvancedTasks.htm">Advanced tasks</a>
+                                                <ul class="sub-menu">
+                                                    <li><a href="A_Extensions.htm">Using extensions</a>
+                                                    </li>
+                                                    <li><a href="B_UDFUnderstand.htm">Understanding user-defined functions (UDFs)</a>
+                                                    </li>
+                                                    <li><a href="C_UDFTasks.htm">Using user-defined functions (UDFs)</a>
+                                                    </li>
+                                                    <li><a href="C1_PointWithVisualParser.htm">Using a visual parser to create a UDF</a>
+                                                    </li>
+                                                    <li><a href="D_FunctionBar.htm">Using the function or search bar</a>
+                                                    </li>
+                                                    <li><a href="E_CreateBatchDataflow.htm">Understanding and creating batch dataflows</a>
+                                                    </li>
+                                                    <li><a href="F_UseBatchDataflow.htm">Using batch dataflows</a>
+                                                    </li>
+                                                    <li><a href="#" class="selected">Scheduling batch dataflows</a>
+                                                    </li>
+                                                    <li><a href="G_ExportTable.htm">Exporting a table</a>
+                                                    </li>
+                                                    <li><a href="H_Parameterization.htm">Parameterizing queries</a>
+                                                    </li>
+                                                    <li><a href="I_UnderstandMemoryUse.htm">Understanding memory usage</a>
+                                                    </li>
+                                                    <li><a href="J_OptimizeMemory.htm">Optimizing memory usage</a>
+                                                    </li>
+                                                    <li><a href="K_Monitor.htm">Using the Monitor</a>
+                                                    </li>
+                                                    <li><a href="L_UseSetup.htm">Using Setup (XDP administrators only)</a>
+                                                    </li>
+                                                </ul>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <div class="MCBreadcrumbsBox_0"><span class="MCBreadcrumbsPrefix">You are here: </span><a class="MCBreadcrumbsLink" href="AdvancedTasks.htm">Advanced tasks</a><span class="MCBreadcrumbsDivider"> &gt; </span><span class="MCBreadcrumbs">Scheduling batch dataflows</span>
+                                    </div>
+                                    <div class="bodyProxyNarrow">
+                                        <h1><a name="Creating"></a>Scheduling batch dataflows</h1>
+                                        <p>After you create a batch dataflow, you can run the dataflow at regular intervals. (This feature is not available in <span class="GeneralProductTrialVersion">Xcalar Cloud Preview</span>.)</p>
+                                        <div class="Note"><span class="label">NOTE</span>:&#160; When you manually run a batch dataflow, the result can be an exported file or table. However, running a batch dataflow automatically based on a schedule  can only result in an exported file.</div>
+                                        <p>Preparing a batch dataflow to run on schedule involve two steps, which are parameterizing the export file name and creating a schedule.</p>
+                                        <h2><a name="Paramete"></a>Parameterizing the export file name</h2>
+                                        <p>You must parameterize the export file name so that repeated runs of the batch dataflow do not overwrite the previous version of the export file. If <span class="GeneralProductName">Xcalar Design</span> detects that an export file of the same name already exists, the batch dataflow fails to run. </p>
+                                        <p>Follow these steps to parameterize the export file name:</p>
+                                        <ol>
+                                            <li value="1">In the dataflow list, click the name of the batch dataflow to display it.</li>
+                                            <li value="2">Right click the export file icon (last icon) of the batch dataflow to display a pop-up menu.</li>
+                                            <li value="3">Click Create <span class="UIelement">Parameterized Query</span> in the pop-up menu.</li>
+                                            <li value="4">
+                                                <p>If the <span class="UIelement">Export As</span> field is not filled in, click the <span class="UIelement">Default value</span> button to automatically add the default export file name in the field as shown in the following screenshot.</p>
+                                                <p>
+                                                    <img src="../Resources/Images/XD_screenshots/export-file-name-copy.png" />
+                                                </p>
+                                            </li>
+                                            <li value="5">
+                                                <p>In the <span class="UIelement">Parameterize Query</span> window, click and drag the <span class="UIelement">N</span> parameter to the file name shown in the <span class="UIelement">Export As</span> field. This parameter is a system parameter. By default, its value starts at 0 and is incremented by 1 each time the query is run.</p>
+                                                <div class="Example"><span class="label">EXAMPLE</span>: If the export file name is export-airlines#XS366.csv, you can drag the <span class="state">N</span> parameter to the name so that the name becomes export-airlines&lt;N&gt;#XS366.csv. Running the batch dataflow the first time creates a file named export-airlines0#XS366.csv, running it the second time creates export-airlines1#XS366.csv, and so on.</div>
+                                            </li>
+                                            <li value="6">Click <span class="UIelement">SAVE</span>.</li>
+                                        </ol>
+                                        <p>For more information about parameterization, see <a href="H_Parameterization.htm" class="MCXref xref">Parameterizing queries</a>.</p>
+                                        <h2><a name="Specifying" class="ForCSH"></a>Specifying a schedule</h2>
+                                        <p>Follow these steps to create a schedule for a batch dataflow:</p>
+                                        <ol>
+                                            <li value="1">
+                                                <p>In the dataflow list, click <img src="../Resources/Images/XD_assets/xd-schedules.png" /> for the selected batch dataflow  as illustrated in the following screenshot.</p>
+                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/batch-dataflow-schedule-icon.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1268" data-mc-height="673" src="../Resources/Images/XD_screenshots/batch-dataflow-schedule-icon_thumb_0_150.png" tabindex="" /></a>
+                                                </p>
+                                            </li>
+                                            <li value="2">
+                                                <p>You can specify a schedule in either simple mode as described in this step or in advanced mode as described in step 3. (Advanced mode is recommended only for users familiar with the cron utility on UNIX systems.)</p>
+                                                <p>Specify the following information in the <span class="UIelement">Create New Schedule</span> panel. See the screenshot following the list for more information about how to specify the information.</p>
+                                                <ul>
+                                                    <li value="1">The start time through a calendar and a 12-hour clock, which determines the first time the batch dataflow will be run. The time specified is based on the server time, not your browser time. The time specified must be in the future. </li>
+                                                    <li value="2">How often the batch dataflow is run.</li>
+                                                </ul>
+                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/batch-dataflow-scheduling.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1174" data-mc-height="745" src="../Resources/Images/XD_screenshots/batch-dataflow-scheduling_thumb_0_150.png" tabindex="" /></a>
+                                                </p>
+                                                <p>Go to step 4.</p>
+                                            </li>
+                                            <li value="3">
+                                                <p>To specify a schedule in advanced mode, enter a cron expression in the <span class="UIelement">Schedule</span> field. Then click <span class="UIelement">SIMULATE</span>. The <span class="UIelement">Last Run</span> and <span class="UIelement">Next Run</span> fields display the times when two consecutive runs can take place. These times help you visualize the interval between any two runs if the batch dataflow is executed according to your schedule.</p>
+                                                <div class="Note"><span class="label">IMPORTANT</span>:&#160;The cron expression in this window allows only asterisk, digit, forward slash, comma, and hyphen. Do not use other characters even though they are valid  on other UNIX&#160;systems. </div>
+                                                <p>In the following example, the batch dataflow runs every minute, every day, starting at 4 p.m. until 4:59 p.m. </p>
+                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/batch-dataflow-schedule-advanced.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1170" data-mc-height="742" src="../Resources/Images/XD_screenshots/batch-dataflow-schedule-advanced_thumb_0_150.png" tabindex="" /></a>
+                                                </p>
+                                            </li>
+                                            <li value="4">Click <span class="UIelement">SAVE</span>. This schedule is now associated with the batch dataflow.</li>
+                                        </ol>
+                                        <div class="Note"><span class="label">NOTE</span>:&#160;After you create a schedule, you cannot modify it. If you want to apply a different schedule to the batch dataflow, delete the schedule and create a new one.</div>
+                                        <div class="Note"><span class="label">IMPORTANT</span>:&#160;The batch dataflow can run only if the export file name is parameterized. If you have not parameterized the name already, follow the instructions in <a href="#Paramete" class="MCXref xref selected">Parameterizing the export file name</a>.</div>
+                                        <h2>Deleting a batch dataflow schedule</h2>
+                                        <p>Follow these steps to delete a batch dataflow schedule:</p>
+                                        <ol>
+                                            <li value="1">
+                                                <p>In the dataflow list, click <img src="../Resources/Images/XD_assets/xd-schedules.png" /> for the selected batch dataflow. </p>
+                                            </li>
+                                            <li value="2">
+                                                <p>Click the Delete icon as shown in the following screenshot.</p>
+                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/batch-dataflow-schedule-delete.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1108" data-mc-height="774" src="../Resources/Images/XD_screenshots/batch-dataflow-schedule-delete_thumb_0_150.png" tabindex="" /></a>
+                                                </p>
+                                            </li>
+                                            <li value="3">When the confirmation message is displayed, click <span class="state">CONFIRM</span>.</li>
+                                        </ol>
+                                    </div>
+                                    <p><a href="#Top" class="selected">Go to top</a>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </section><a class="exit-off-canvas"></a>
+                </section>
+            </div>
+            <script>/* <![CDATA[ */$(document).foundation();/* ]]> */</script>
+        </div>
+    </body>
+</html>

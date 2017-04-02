@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___Top_Navigation" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Advanced tasks">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta charset="utf-8" />
+        <meta name="description" content="" />
+        <meta name="author" content="" /><title>Using a visual parser to create a UDF</title>
+        <link href="../../Skins/Default/Stylesheets/Slideshow.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../../Skins/Default/Stylesheets/TextEffects.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../../Skins/Default/Stylesheets/Topic.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../../Skins/Default/Stylesheets/Components/Styles.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../../Skins/Default/Stylesheets/Components/Tablet.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../../Skins/Default/Stylesheets/Components/Mobile.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../../Skins/Fluid/Stylesheets/foundation.5.5.0.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../../Skins/Fluid/Stylesheets/Styles.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../../Skins/Fluid/Stylesheets/Tablet.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../../Skins/Fluid/Stylesheets/Mobile.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../Resources/Stylesheets/MainStyles.css" rel="stylesheet" />
+        <link href="../Fonts/open-sans.regular.ttf" rel="stylesheet" />
+        <link href="../Fonts/OpenSans-Semibold.ttf" rel="stylesheet" />
+        <link href="../Fonts/OpenSans-Light.ttf" rel="stylesheet" />
+        <link href="../Fonts/OpenSans-Bold.ttf" rel="stylesheet" />
+        <style>/*&lt;meta /&gt;*/
+
+.button.previous-topic-button
+{
+	-pie-background: url('../../Skins/Default/Stylesheets/Images/navigate-previous.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.button.next-topic-button
+{
+	-pie-background: url('../../Skins/Default/Stylesheets/Images/navigate-next.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.button.topic-ratings-button
+{
+	-pie-background: transparent url('../../Skins/Default/Stylesheets/Images/star-full.png') no-repeat center center;
+}
+
+.button.separator-button
+{
+	-pie-background: linear-gradient(#ffffff, #ececec);
+}
+
+.button.edit-user-profile-button
+{
+	-pie-background: url('../../Skins/Default/Stylesheets/Images/edit-profile.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.button.print-button
+{
+	-pie-background: url('../../Skins/Default/Stylesheets/Images/printer.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.needs-pie
+{
+	behavior: url('../../Resources/Scripts/PIE-no-motw.htc');
+}
+
+</style>
+        <script src="../../Resources/Scripts/custom.modernizr.js">
+        </script>
+        <script src="../../Resources/Scripts/jquery.min.js">
+        </script>
+        <script src="../../Resources/Scripts/require.min.js">
+        </script>
+        <script src="../../Resources/Scripts/require.config.js">
+        </script>
+        <script src="../../Resources/Scripts/foundation.5.5.0_custom.js">
+        </script>
+        <script src="../../Resources/Scripts/foundation.offcanvas.js">
+        </script>
+        <script src="../../Resources/Scripts/plugins.min.js">
+        </script>
+        <script src="../../Resources/Scripts/MadCapAll.js">
+        </script>
+        <script src="../../Skins/Default/Scripts/TopicToolBar.js">
+        </script>
+    </head>
+    <body>
+        <div class="foundation-wrap">
+            <div class="off-canvas-wrap" data-offcanvas="">
+                <section class="inner-wrap">
+                    <nav class="tab-bar" data-mc-ignore="true">
+                        <section class="middle tab-bar-section outer-row clearfix">
+                            <div class="relative clearfix"><a class="logo" href="../Home.htm" alt="Logo"></a>
+                                <div class="navigation-wrapper">
+                                    <ul class="navigation clearfix">
+                                        <li class="has-children"><a href="../A_GettingStarted/GettingStarted.htm">Getting started</a>
+                                            <ul class="sub-menu">
+                                                <li><a href="../A_GettingStarted/A_Requirements.htm">Requirements for Xcalar Design</a>
+                                                </li>
+                                                <li><a href="../A_GettingStarted/B_BasicConcepts.htm">Basic Xcalar concepts</a>
+                                                </li>
+                                                <li><a href="../A_GettingStarted/B1_PreviewSteps.htm">Steps for Xcalar Cloud Preview</a>
+                                                </li>
+                                                <li><a href="../A_GettingStarted/C_EasySteps.htm">Easy steps for Xcalar 1.0 (with default settings)</a>
+                                                </li>
+                                                <li><a href="../A_GettingStarted/D_DetailedStepsForPointing.htm">Detailed steps for Xcalar 1.0 (with custom settings)</a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                        <li class="has-children"><a href="../B_CommonTasks/CommonTasks.htm">Common tasks</a>
+                                            <ul class="sub-menu">
+                                                <li><a href="../B_CommonTasks/A_ManageDatasetRef.htm">Managing dataset references</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/B_CreateTable.htm">Creating a table</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/C_AddColumns.htm">Adding columns from a dataset to a table</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/D_ChangeDataType.htm">Changing the data type for a column</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/E_CountOccurrencesOfValues.htm">Counting occurrences of unique values in a column</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/E1_SortAndQuartile.htm">Sorting a column and finding quartiles</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/F_UndoRedo.htm">Undoing and redoing an operation</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/G_FilterValue.htm">Filtering in a table column</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/H_ErroneousRows.htm">Creating a table with erroneous rows only</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/I_JoinTables.htm">Joining tables</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/J_GroupBy.htm">Grouping data in a table</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/K_Map.htm">Using the Map function to create new values</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/L_Correlation.htm">Determining correlation between two values</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/M_QuickAggregates.htm">Determining aggregate values</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/N_ChangeTableStatus.htm">Understanding and changing a table status</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/O_ManageWorksheet.htm">Managing worksheets</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/P_UnderstandFNF.htm">Working with a table containing FNF</a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                        <li class="has-children"><a href="AdvancedTasks.htm">Advanced tasks</a>
+                                            <ul class="sub-menu">
+                                                <li><a href="A_Extensions.htm">Using extensions</a>
+                                                </li>
+                                                <li><a href="B_UDFUnderstand.htm">Understanding user-defined functions (UDFs)</a>
+                                                </li>
+                                                <li><a href="C_UDFTasks.htm">Using user-defined functions (UDFs)</a>
+                                                </li>
+                                                <li><a href="#" class="selected">Using a visual parser to create a UDF</a>
+                                                </li>
+                                                <li><a href="D_FunctionBar.htm">Using the function or search bar</a>
+                                                </li>
+                                                <li><a href="E_CreateBatchDataflow.htm">Understanding and creating batch dataflows</a>
+                                                </li>
+                                                <li><a href="F_UseBatchDataflow.htm">Using batch dataflows</a>
+                                                </li>
+                                                <li><a href="F1_ScheduleBatchDataflow.htm">Scheduling batch dataflows</a>
+                                                </li>
+                                                <li><a href="G_ExportTable.htm">Exporting a table</a>
+                                                </li>
+                                                <li><a href="H_Parameterization.htm">Parameterizing queries</a>
+                                                </li>
+                                                <li><a href="I_UnderstandMemoryUse.htm">Understanding memory usage</a>
+                                                </li>
+                                                <li><a href="J_OptimizeMemory.htm">Optimizing memory usage</a>
+                                                </li>
+                                                <li><a href="K_Monitor.htm">Using the Monitor</a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                        <li class="has-children"><a href="../D_Reference/Reference.htm">Reference</a>
+                                            <ul class="sub-menu">
+                                                <li><a href="../D_Reference/A_InsightWindow.htm">Xcalar Design window</a>
+                                                </li>
+                                                <li><a href="../D_Reference/B_WkbkBrowser.htm">Workbook Browser</a>
+                                                </li>
+                                                <li><a href="../D_Reference/C_WorksheetWindow.htm">Worksheet window with tables</a>
+                                                </li>
+                                                <li><a href="../D_Reference/D_DataBrowser.htm">Data Browser</a>
+                                                </li>
+                                                <li><a href="../D_Reference/E_DataflowGraph.htm">Dataflow graph</a>
+                                                </li>
+                                                <li><a href="../D_Reference/F_Table_options.htm">Table options</a>
+                                                </li>
+                                                <li><a href="../D_Reference/G_ColumnOptions.htm">Column options</a>
+                                                </li>
+                                                <li><a href="../D_Reference/H_CellOptions.htm">Cell options</a>
+                                                </li>
+                                                <li><a href="../D_Reference/H1_UdfExamples.htm">User-defined function (UDF) examples</a>
+                                                </li>
+                                                <li><a href="../D_Reference/I_MapFunctions.htm">Map functions</a>
+                                                </li>
+                                                <li><a href="../D_Reference/J_ExcelComparison.htm">Excel-equivalent functions</a>
+                                                </li>
+                                                <li><a href="../D_Reference/K_SASComparison.htm">SAS-equivalent functions</a>
+                                                </li>
+                                                <li><a href="../D_Reference/L_Glossary.htm">Glossary</a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </div><a class="menu-icon right-off-canvas-toggle" href="#"><span></span></a>
+                            </div>
+                        </section>
+                        <div class="nav-search row outer-row">
+                            <form class="search" action="#">
+                                <div class="search-bar search-bar-container needs-pie">
+                                    <input class="search-field needs-pie" type="search" placeholder="Search" />
+                                    <div class="search-filter-wrapper">
+                                        <div class="search-filter">
+                                            <div class="search-filter-content">
+                                                <ul>
+                                                    <li>All Files</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="search-submit-wrapper" dir="ltr">
+                                        <div class="search-submit" title="Search">
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </nav>
+                    <aside class="right-off-canvas-menu" data-mc-ignore="true">
+                        <ul class="off-canvas-list" data-mc-back-link="Back" data-mc-css-tree-node-expanded="has-submenu" data-mc-css-tree-node-collapsed="has-submenu" data-mc-css-sub-menu="right-submenu" data-mc-include-indicator="False" data-mc-include-icon="False" data-mc-include-parent-link="True" data-mc-include-back="True" data-mc-defer-expand-event="True" data-mc-expand-event="click.fndtn.offcanvas" data-mc-toc="True">
+                        </ul>
+                    </aside>
+                    <section class="main-section">
+                        <div class="row outer-row" data-mc-content-body="True">
+                            <div id="contentBody">
+                                <div class="row collapse">
+                                    <div class="sideContent">
+                                        <div class="clearfix">
+                                            <div class="buttons popup-container clearfix topicToolbarProxy _Skins_TopicToolBar mc-component">
+                                                <div class="button-group-container-left">
+                                                    <button class="button needs-pie previous-topic-button" title="Navigate previous">
+                                                        <img src="../../Skins/Default/Stylesheets/Images/transparent.gif" alt="previous topic" />
+                                                    </button>
+                                                    <button class="button needs-pie next-topic-button" title="Navigate next">
+                                                        <img src="../../Skins/Default/Stylesheets/Images/transparent.gif" alt="next topic" />
+                                                    </button>
+                                                    <div class="button-group star-buttons loading feedback-topic-required">
+                                                        <div class="button star-button topic-ratings-empty-button" data-state1-class="topic-ratings-empty-button" data-state2-class="topic-ratings-button" title="Click a star to rate this topic" data-state1-title="Click a star to rate this topic" data-state2-title="Click a star to rate this topic">
+                                                            <img src="../../Skins/Default/Stylesheets/Images/transparent.gif" alt="topic rating" />
+                                                        </div>
+                                                        <div class="button star-button topic-ratings-empty-button" data-state1-class="topic-ratings-empty-button" data-state2-class="topic-ratings-button" title="Click a star to rate this topic" data-state1-title="Click a star to rate this topic" data-state2-title="Click a star to rate this topic">
+                                                            <img src="../../Skins/Default/Stylesheets/Images/transparent.gif" alt="topic rating" />
+                                                        </div>
+                                                        <div class="button star-button topic-ratings-empty-button" data-state1-class="topic-ratings-empty-button" data-state2-class="topic-ratings-button" title="Click a star to rate this topic" data-state1-title="Click a star to rate this topic" data-state2-title="Click a star to rate this topic">
+                                                            <img src="../../Skins/Default/Stylesheets/Images/transparent.gif" alt="topic rating" />
+                                                        </div>
+                                                        <div class="button star-button topic-ratings-empty-button" data-state1-class="topic-ratings-empty-button" data-state2-class="topic-ratings-button" title="Click a star to rate this topic" data-state1-title="Click a star to rate this topic" data-state2-title="Click a star to rate this topic">
+                                                            <img src="../../Skins/Default/Stylesheets/Images/transparent.gif" alt="topic rating" />
+                                                        </div>
+                                                        <div class="button star-button topic-ratings-empty-button" data-state1-class="topic-ratings-empty-button" data-state2-class="topic-ratings-button" title="Click a star to rate this topic" data-state1-title="Click a star to rate this topic" data-state2-title="Click a star to rate this topic">
+                                                            <img src="../../Skins/Default/Stylesheets/Images/transparent.gif" alt="topic rating" />
+                                                        </div>
+                                                    </div>
+                                                    <div class="button-separator">
+                                                    </div>
+                                                    <button class="button feedback-required login-button" id="normalLoginBtn" data-state1-class="login-button" data-state2-class="edit-user-profile-button" title="Login" data-state1-title="Login">
+                                                        <img src="../../Skins/Default/Stylesheets/Images/transparent.gif" alt="login" />
+                                                    </button>
+                                                    <button class="button needs-pie print-button" title="Print">
+                                                        <img src="../../Skins/Default/Stylesheets/Images/transparent.gif" alt="print" />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <ul class="menu _Skins_SideMenu mc-component">
+                                            <li class="has-children"><a href="AdvancedTasks.htm">Advanced tasks</a>
+                                                <ul class="sub-menu">
+                                                    <li><a href="A_Extensions.htm">Using extensions</a>
+                                                    </li>
+                                                    <li><a href="B_UDFUnderstand.htm">Understanding user-defined functions (UDFs)</a>
+                                                    </li>
+                                                    <li><a href="C_UDFTasks.htm">Using user-defined functions (UDFs)</a>
+                                                    </li>
+                                                    <li><a href="#" class="selected">Using a visual parser to create a UDF</a>
+                                                    </li>
+                                                    <li><a href="D_FunctionBar.htm">Using the function or search bar</a>
+                                                    </li>
+                                                    <li><a href="E_CreateBatchDataflow.htm">Understanding and creating batch dataflows</a>
+                                                    </li>
+                                                    <li><a href="F_UseBatchDataflow.htm">Using batch dataflows</a>
+                                                    </li>
+                                                    <li><a href="F1_ScheduleBatchDataflow.htm">Scheduling batch dataflows</a>
+                                                    </li>
+                                                    <li><a href="G_ExportTable.htm">Exporting a table</a>
+                                                    </li>
+                                                    <li><a href="H_Parameterization.htm">Parameterizing queries</a>
+                                                    </li>
+                                                    <li><a href="I_UnderstandMemoryUse.htm">Understanding memory usage</a>
+                                                    </li>
+                                                    <li><a href="J_OptimizeMemory.htm">Optimizing memory usage</a>
+                                                    </li>
+                                                    <li><a href="K_Monitor.htm">Using the Monitor</a>
+                                                    </li>
+                                                </ul>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <div class="MCBreadcrumbsBox_0"><span class="MCBreadcrumbsPrefix">You are here: </span><a class="MCBreadcrumbsLink" href="AdvancedTasks.htm">Advanced tasks</a><span class="MCBreadcrumbsDivider"> &gt; </span><span class="MCBreadcrumbs">Using a visual parser to create a UDF</span>
+                                    </div>
+                                    <div class="bodyProxyNarrow">
+                                        <h1><a name="Using" class="ForCSH"></a>Using a visual parser to create a UDF</h1>
+                                        <p>When you use <span class="GeneralProductName">Xcalar Design</span> to point to a data source,  the Previewing section of the <span class="UIelement">Point To New Data Source</span> window might not present the data in your desired tabular format. For the data to be arranged in columns that you can easily read and manipulate later, you must  run a streaming UDF when pointing to the data. If the UDF&#160;already exists, simply click the check box for <span class="UIelement">Parse Data With UDF</span> and select the appropriate UDF as described in <a href="../A_GettingStarted/D_DetailedStepsForPointing.htm#Creating2" class="MCXref xref">Pointing to your data source</a>. </p>
+                                        <p>If the needed UDF does not exist, create one as described in <a href="C_UDFTasks.htm" class="MCXref xref">Using UDFs</a>. Alternatively, follow the instructions in this section to have <span class="GeneralProductName">Xcalar Design</span> generate a UDF for you.</p>
+                                        <h2>Understanding the visual parser</h2>
+                                        <p>If the UDF&#160;for parsing data does not exist, you must create one appropriate to the data source. Typically, when you add a UDF to <span class="GeneralProductName3short">XDP</span>, you use the UDF editor in <span class="GeneralProductName">Xcalar Design</span>, or write it on your computer and upload it. But to create a streaming UDF, you can use a point-and-click mechanism in the <span class="UIelement">Point To New Data Source</span> window. A UDF&#160;created in this manner is called a visual parser because you can see the keys being added to the parser. This method enables you to create a UDF&#160;with no knowledge of the Python language. <span class="GeneralProductName">Xcalar Design</span> automatically writes the UDF for you.</p>
+                                        <p>Visual parsers are available only to data files in JSON, XML, or plain text format.</p>
+                                        <div class="Note"><span class="label">NOTE</span>:&#160;The visual parser for a text file does not create a UDF. The main purpose of using a visual parser for a text file is to examine the contents of the entire source file.</div>
+                                        <h2>Using a visual parser</h2>
+                                        <p>Follow these steps to create UDF&#160;with a visual parser:</p>
+                                        <ol>
+                                            <li value="1">
+                                                <p>To start the visual parser, click <span class="UIelement">ADVANCED&#160;USUAL&#160;PARSER</span> in the <span class="UIelement">Point To New Data Source</span> window. The <span class="UIelement">Data Source Parser</span> window is displayed. The left side of the window enables you to preview the contents of the source file with line numbers. The right side of the window depends on the source file format.</p>
+                                                <p>The following screenshot shows a sample JSON&#160;file for a visual parser.</p>
+                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/visual-parser1.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1194" data-mc-height="521" src="../Resources/Images/XD_screenshots/visual-parser1_thumb_0_150.png" tabindex="" /></a>
+                                                </p>
+                                                <p>For a JSON&#160;file, the <span class="UIelement">Preview Mode</span> window provides a consolidated JSON&#160;schema, which describes the structure of all JSON&#160;strings  in the source file. For each string, you can see how objects are nested, the data type for each value, and so on. </p>
+                                                <p>For an XML file, the <span class="UIelement">Preview Mode</span> window shows the XML schema, which describes the structure of the file.</p>
+                                                <p>For a text file, the <span class="UIelement">Record Delimiter</span> window is displayed instead of <span class="UIelement">Preview Mode</span>.</p>
+                                            </li>
+                                            <li value="2">
+                                                <p>This step is only for a text file. Go to step 3 if the file is a JSON&#160;or XML&#160;file.</p>
+                                                <p>In the <span class="UIelement">Record Delimiter</span> window, type the character for separating the records or accept the default, which is the newline character. Then go to step 5.</p>
+                                            </li>
+                                            <li value="3">
+                                                <p>Select the keys for the visual parser. Each key  become one or more records in the <span class="GeneralProductName">Xcalar Design</span> table. </p>
+                                                <p>For a JSON&#160;file, a key can be one of the following:</p>
+                                                <ul>
+                                                    <li value="1">an array</li>
+                                                    <li value="2">an object value in an array. (Array values of other types are ignored by the parser.)</li>
+                                                    <li value="3">an object</li>
+                                                </ul>
+                                                <p>For an XML&#160;file, a key is an XML element.</p>
+                                                <p>To select a key, follow these steps:</p>
+                                                <ol style="list-style-type: lower-alpha;">
+                                                    <li value="1">
+                                                        <p>For an XML file, in the main Previewing window, double click the opening or closing tag.</p>
+                                                        <p>For a JSON&#160;file, in the main Previewing window, double click an opening brace or bracket to select an object or array, respectively. Double-clicking any name within the braces or brackets (or the closing brace or bracket) achieve the same effect. Suppose your file contains the following array:</p>
+                                                        <p class="sampleCode">"Quote": [</p>
+                                                        <p class="sampleCode">{</p>
+                                                        <p class="sampleCode"> "Currency": "USD",</p>
+                                                        <p class="sampleCode"> "MeasureType": "Percentage",</p>
+                                                        <p class="sampleCode"> "Value": "0.01000000"</p>
+                                                        <p class="sampleCode">},</p>
+                                                        <p class="sampleCode">{</p>
+                                                        <p class="sampleCode"> "Currency": "USD",</p>
+                                                        <p class="sampleCode"> "MeasureType": "ExecutedSpread",</p>
+                                                        <p class="sampleCode"> "Value": "73.375"</p>
+                                                        <p class="sampleCode">}</p>
+                                                        <p class="sampleCode">],</p>
+                                                        <p>The following list illustrates how to select various keys in the sample JSON&#160;string:</p>
+                                                        <ul>
+                                                            <li value="1">To select the first object of the Quote array as a key, double click the first occurrence of Currency, MeasureType, or Value. You can also double click the opening or closing brace for the object.</li>
+                                                            <li value="2">To select the second object of the Quote array as a key, double click the second occurrence of Currency, MeasureType, or Value. You can also double click the opening or closing brace for the object.</li>
+                                                            <li value="3">To select the Quote array as a key, double click the opening or closing square bracket for the Quote array.</li>
+                                                        </ul>
+                                                    </li>
+                                                    <li value="2">
+                                                        <p>In the pop-up menu displayed after you double click a name, you can select whether the full or partial path is used for identifying the selected key.  The following screenshot shows the pop-up menu after you double click an array value in a JSON&#160;file.</p>
+                                                        <p>
+                                                            <img src="../Resources/Images/XD_screenshots/visual-parser2.png" />
+                                                        </p>
+                                                        <p>In this example, if you select Full, the complete path to the Quote array is used.  If you select Partial, the names of the objects nesting the Quote array are ignored. The selection of full or partial path enables you to distinguish values of fields or tags that have the same name but are nested differently.</p>
+                                                    </li>
+                                                </ol>
+                                            </li>
+                                            <li value="4">
+                                                <p>Verify in the <span class="UIelement">Selected Keys</span> window that the keys are correct. To remove a key, click the trash can icon for the key. The following screenshot is an example of the <span class="UIelement">Selected Keys</span> window:</p>
+                                                <p>
+                                                    <img src="../Resources/Images/XD_screenshots/visual-parser3.png" />
+                                                </p>
+                                            </li>
+                                            <li value="5">Click <span class="UIelement">NEXT</span> in the <span class="UIelement">Data Source Parser</span> window. If the source file is a text file, the <span class="UIelement">Point to New Data Source</span> window is displayed. Go to step 8. If your file is a JSON&#160;or XML&#160;file, go to the next step.</li>
+                                            <li value="6">A message is displayed asking whether you want to submit the visual parser, which means submitting the information to <span class="GeneralProductName">Xcalar Design</span> for it to generate the streaming UDF. Click <span class="UIelement">CONFIRM</span> if you want to generate the UDF. If you want to return to the <span class="UIelement">Data Source Parser</span> window to make changes, click <span class="UIelement">CANCEL</span>.</li>
+                                            <li value="7">
+                                                <p>After <span class="GeneralProductName">Xcalar Design</span> generates the UDF, it displays the&#160;<span class="UIelement">Point to New Data Source</span> window. This time the check box for <span class="UIelement">Parse Data With UDF</span> and the newly created UDF are selected automatically as shown in the following partial screenshot. When you point to the data source, this UDF will be executed to parse the data.</p>
+                                                <p>Also, this UDF is saved just like other UDFs. You can view it in the <span class="UIelement">User Defined Function</span> panel.</p>
+                                                <p>
+                                                    <img src="../Resources/Images/XD_screenshots/visual-parser4.png" />
+                                                </p>
+                                            </li>
+                                            <li value="8">
+                                                <p>In the same window, a table preview is provided as usual. Based on the preview, you can determine how to specify values for other options in this window. </p>
+                                                <p>After you finish specifying the values in this window, create the dataset reference or a table as desired.</p>
+                                            </li>
+                                        </ol>
+                                        <h2>Understanding the table created by a visual parser</h2>
+                                        <p>A table created by a visual parser contains columns that provide information about the visual parser as explained in the following list:</p>
+                                        <ul>
+                                            <li value="1">The <span class="UIelement">xcPath</span> column shows the path to the object that is displayed as a record in the table. </li>
+                                            <li value="2">The <span class="UIelement">xcMethod</span> column indicates whether the path to the object is a full path or a partial path.</li>
+                                        </ul>
+                                        <p>The following screenshot illustrates a table with one record containing an object named Quote. The full path to the Quote object is used to create this table.</p>
+                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/visual-parser-full-path.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1001" data-mc-height="234" src="../Resources/Images/XD_screenshots/visual-parser-full-path_thumb_0_150.png" tabindex="" /></a>
+                                        </p>
+                                    </div>
+                                    <p><a href="#Top" class="selected">Go to top</a>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </section><a class="exit-off-canvas"></a>
+                </section>
+            </div>
+            <script>/* <![CDATA[ */$(document).foundation();/* ]]> */</script>
+        </div>
+    </body>
+</html>
