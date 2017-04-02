@@ -1,6 +1,5 @@
 window.MonitorLog = (function(MonitorLog, $) {
     var $logCard;
-    var colorId = 0;
     var colorNum = 8;
 
     MonitorLog.setup = function() {
@@ -170,10 +169,13 @@ window.MonitorLog = (function(MonitorLog, $) {
                     // errors. If that is the case, then why we adding the
                     // streaming class?
 
+                    // The way that this part is handled is not very clean,
+                    // and rather hard to understand. Recommend redesigning
+
                     // the reason for why all the nodes are success or
                     // fail is known and defined.
-                    // $streamBtns.removeClass("xc-disabled")
-                    //            .addClass("streaming");
+                    $streamBtns.removeClass("xc-disabled")
+                               .addClass("streaming");
                     appendLog(err.logs);
                 }
             } else {
@@ -210,6 +212,7 @@ window.MonitorLog = (function(MonitorLog, $) {
     }
 
     function splitLogByHost(logs) {
+        var colorId = 0;
         var out = "";
         var allNodes = logs.split("Host:");
         for (var i = 0; i < allNodes.length; i++) {
