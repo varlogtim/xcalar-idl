@@ -276,7 +276,7 @@ window.DFCard = (function($, DFCard) {
                 var name = $(row).find(".paramName").html();
                 if (paramName === name) {
                     isNameConflict = true;
-                    return false; // exist loop
+                    return false; // exit loop
                 }
             });
 
@@ -1233,6 +1233,7 @@ window.DFCard = (function($, DFCard) {
         DFCard.__testOnly__.startStatusCheck = startStatusCheck;
         DFCard.__testOnly__.endStatusCheck = endStatusCheck;
         DFCard.__testOnly__.addParamToRetina = addParamToRetina;
+        DFCard.__testOnly__.showExportCols = showExportCols;
     }
     /* End Of Unit Test Only */
 

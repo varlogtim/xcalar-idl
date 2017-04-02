@@ -17,7 +17,7 @@ describe('DFCard Test', function() {
         });
     });
 
-    it("Should sumbit form", function(done) {
+    it("Should submit form", function(done) {
         DFCreateView.show($("#dagWrap-" + tableId));
 
         var $newNameInput = $('#newDFNameInput');
@@ -49,7 +49,7 @@ describe('DFCard Test', function() {
         });
     });
 
-        // XXX need comprehensive test, currently just has test for certain bugs
+    // XXX need comprehensive test, currently just has test for certain bugs
     describe("dfcard menu", function() {
         before(function(){
             $("#dfgMenu .groupName").filter(function() {
@@ -77,6 +77,111 @@ describe('DFCard Test', function() {
             expect($menu.find("li.createParamQuery:visible").length).to.equal(0);
 
             XVM.getLicenseMode = cachedFn;
+        });
+
+        it("show export cols should work", function() {
+            expect($("#exportColPopup").is(":visible")).to.be.false;
+            var $menu = $('#dfgViz').find('.dagDropDown');
+            $dfWrap.find(".export .dagTableIcon").click();
+            $menu.find("li.showExportCols").trigger(fakeEvent.mouseup);
+            expect($("#exportColPopup").is(":visible")).to.be.true;
+            expect($("#exportColPopup").text().indexOf("user_id")).to.be.gt(-1);
+        });
+    });
+
+    describe("parameter popup", function() {
+        var $tab;
+        before(function() {
+            $tab = $(".retTabSection").find(".retTab");
+        });
+
+        it("popup should open and close", function() {
+            $tab.trigger(fakeEvent.mousedown);
+            expect($tab.hasClass("active")).to.be.true;
+            expect($tab.find(".retPopUp").is(":visible")).to.be.true;
+
+            $tab.trigger(fakeEvent.mousedown);
+
+            expect($tab.hasClass("active")).to.be.false;
+            expect($tab.find(".retPopUp").is(":visible")).to.be.false;
+        });
+
+        it("popup should not close when clicking inside of it", function() {
+            $tab.trigger(fakeEvent.mousedown);
+            expect($tab.find(".retPopUp").is(":visible")).to.be.true;
+            $tab.find(".retPopup").trigger(fakeEvent.mouseddown);
+            expect($tab.find(".retPopUp").is(":visible")).to.be.true;
+        });
+
+        it("popup should close when clicking on dfcard", function() {
+            expect($tab.find(".retPopUp").is(":visible")).to.be.true;
+            $(document).trigger(fakeEvent.mousedown);
+            expect($tab.find(".retPopUp").is(":visible")).to.be.true;
+            $("#dfgViz").trigger(fakeEvent.mousedown);
+            expect($tab.find(".retPopUp").is(":visible")).to.be.false;
+        });
+
+        it("empty param submission should validate", function() {
+            $tab.find(".newParam").val("");
+            $tab.find(".newParam").trigger(fakeEvent.enterKeyup);
+            UnitTest.hasStatusBoxWithError("Please fill out this field.");
+        });
+
+        it("invalid param character submission should validate", function() {
+            $tab.find(".newParam").val("te?st");
+            $tab.find(".newParam").trigger(fakeEvent.enterKeyup);
+            UnitTest.hasStatusBoxWithError("Please input a valid name with no special characters or spaces.");
+        });
+
+        it("duplicate param name should validate", function() {
+            $("#retLists").find(".row").eq(0).removeClass("unfilled").find(".paramName").text("test");
+            $tab.find(".newParam").val("test");
+            $tab.find(".newParam").trigger(fakeEvent.enterKeyup);
+            UnitTest.hasStatusBoxWithError('Parameter "test" already exists, please choose another name.');
+            $("#retLists").find(".row").eq(0).addClass("unfilled").find(".paramName").text("");
+        });
+
+        it("system param name should validate", function() {
+            $tab.find(".newParam").val("N");
+            $tab.find(".newParam").trigger(fakeEvent.enterKeyup);
+            UnitTest.hasStatusBoxWithError('Parameter "N" is a system parameter, please choose another name.');
+        });
+
+        it("valid param should work", function() {
+            expect($("#retLists").find(".row").eq(0).hasClass("unfilled")).to.be.true;
+            expect($("#retLists").find(".row").eq(0).text()).to.be.equal("");
+            var df = DF.getDataflow(testDfName);
+            expect(df.parameters.length).to.equal(0);
+
+            $tab.find(".newParam").val("test");
+            $tab.find(".newParam").trigger(fakeEvent.enterKeyup);
+
+            expect($("#retLists").find(".row").eq(0).hasClass("unfilled")).to.be.false;
+            expect($("#retLists").find(".row").eq(0).text()).to.be.equal("test");
+            expect(df.parameters.length).to.equal(1);
+            expect(df.parameters[0]).to.equal("test");
+        });
+
+        it("param delete should work", function() {
+            var df = DF.getDataflow(testDfName);
+            expect(df.paramMap.hasOwnProperty("test")).to.be.true;
+            expect(df.parameters.length).to.equal(1);
+            expect($("#retLists").find(".row").eq(0).hasClass("unfilled")).to.be.false;
+            expect($("#retLists").find(".row").eq(0).text()).to.be.equal("test");
+
+            $("#retLists").find(".paramDelete").eq(0).click();
+            expect(df.parameters.length).to.equal(0);
+            expect(df.paramMap.hasOwnProperty("test")).to.be.false;
+            expect($("#retLists").find(".row").eq(0).hasClass("unfilled")).to.be.true;
+            expect($("#retLists").find(".row").eq(0).text()).to.be.equal("");
+        });
+
+        it("adding parameter when rows are filled should work", function() {
+            expect($("#retLists").find(".row").length).to.equal(7);
+            $("#retLists").find(".row").removeClass("unfilled");
+            DFCard.__testOnly__.addParamToRetina("name", "val");
+            expect($("#retLists").find(".row").length).to.equal(8);
+            $("#retLists").find(".row").last().remove();
         });
     });
 
@@ -109,14 +214,17 @@ describe('DFCard Test', function() {
 
         // using real xcalarquerystate
         it('dag table statuses should update when executing retina', function(done) {
-            // make this the active df
-            $("#dfgMenu .groupName").filter(function() {
+             $("#dfgMenu .groupName").filter(function() {
                 return $(this).text() === testDfName;
             }).closest('.dataFlowGroup').click();
+
+            $dfWrap = $('#dfgViz .dagWrap[data-dataflowname="' + testDfName + '"]');
+
 
             DFParamModal.show($dfWrap.find('.dagTable').last());
             $("#dfgParameterModal").find('.editableTable input.editableParamDiv')
                                    .val(testDfName + Date.now() + '.csv');
+
             DFParamModal.__testOnly__.storeRetina()
             .then(function() {
                 DFCard.__testOnly__.runDF(testDfName)
@@ -146,7 +254,6 @@ describe('DFCard Test', function() {
 
             expect(passed).to.be.false;
             expect(DFCard.__testOnly__.retinasInProgress[testDfName]).to.be.undefined;
-            console.warn(Date.now());
             DFCard.__testOnly__.startStatusCheck(testDfName);
             expect(DFCard.__testOnly__.retinasInProgress[testDfName]).to.be.true;
             expect(passed).to.be.false;
@@ -154,7 +261,6 @@ describe('DFCard Test', function() {
 
             // wait for xcalarquerystate to be called
             setTimeout(function() {
-                console.warn(Date.now());
                 if (count !== 1) {
                     DFCard.__testOnly__.endStatusCheck(testDfName, true);
                 }

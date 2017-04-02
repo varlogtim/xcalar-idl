@@ -893,7 +893,6 @@ window.DFParamModal = (function($, DFParamModal){
             var paramValue;
             var paramQuery;
             // var paramInput = new XcalarApiParamInputT();
-
             switch (operation) {
                 case ("filter"):
                     paramType = XcalarApisT.XcalarApiFilter;
