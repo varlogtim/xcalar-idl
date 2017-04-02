@@ -1225,7 +1225,7 @@ window.TestSuite = (function($, TestSuite) {
             assert($(".barArea .xlabel:contains('153')").length > 0);
             assert($(".barArea .xlabel:contains('272')").length > 0);
             $("#profileModal .genAgg").click();
-            return checkExists("#profileModal .infoSection .min:contains(1)", 30000);
+            return checkExists("#profileModal .genAgg:not(:visible)", 30000);
          })
          .then(function() {
              assert($(".infoSection .min").eq(0).text() ===
