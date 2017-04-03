@@ -220,7 +220,13 @@ function writeEntry(entry, loginId, activeDir, adUserGroup, adAdminGroup) {
         if (activeDir) {
             user.setEmployeeType("user");
             user.setIsADUser(false);
-            entryObject.memberOf.forEach(function(element, index, array) {
+            // For normal user, memberOf is a String
+            if (typeof(entryObject.memberOf) === "string") {
+                entryObject.memberOf = [entryObject.memberOf];
+            }
+            var array = entryObject.memberOf;
+            for (var i = 0; i < array.length; i++) {
+                var element =  array[i];
                 var admin_re = new RegExp("^CN=" + adAdminGroup + "*");
                 if (admin_re.test(element)) {
                     user.setEmployeeType("administrator");
@@ -229,7 +235,7 @@ function writeEntry(entry, loginId, activeDir, adUserGroup, adAdminGroup) {
                 if (user_re.test(element)) {
                     user.setIsADUser(true);
                 }
-            });
+            }
         } else {
             user.setEmployeeType(entryObject.employeeType);
         }
