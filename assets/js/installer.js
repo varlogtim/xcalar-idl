@@ -132,15 +132,15 @@ window.Installer = (function(Installer, $) {
                 switch (radioOption) {
                     case ("install"):
                         // install
-                        $("#choiceForm .btn.next").removeClass("unclickable");
+                        $("#choiceForm .btn.next").removeClass("btn-disabled");
                         break;
                     case ("uninstall"):
                         // uninstall
-                        $("#choiceForm .btn.next").addClass("unclickable");
+                        $("#choiceForm .btn.next").addClass("btn-disabled");
                         break;
                     case ("upgrade"):
                         // upgrade
-                        $("#choiceForm .btn.next").addClass("unclickable");
+                        $("#choiceForm .btn.next").addClass("btn-disabled");
                         break;
                 }
                 break;
