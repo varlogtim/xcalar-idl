@@ -850,7 +850,7 @@ window.DSPreview = (function($, DSPreview) {
 
         if (format === "raw" &&
             $genLineNumCheckBox.find(".checkbox").hasClass("checked")) {
-            udfModule = "genlinenumber";
+            udfModule = "default";
             if (loadArgs.useHeader()) {
                 udfFunc = "genLineNumberWithHeader";
             } else {
