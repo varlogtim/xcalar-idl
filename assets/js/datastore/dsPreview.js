@@ -2202,7 +2202,7 @@ window.DSPreview = (function($, DSPreview) {
                     if (strLen > colStrLimit) {
                         hiddenStrLen++;
                     } else {
-                        html += d;
+                        html += xcHelper.escapeHTMLSepcialChar(d);
                     }
 
                     strLen++;
@@ -2228,7 +2228,9 @@ window.DSPreview = (function($, DSPreview) {
                     cellClass += " has-specialChar";
                 }
 
-                html += '<span class="' + cellClass + '">' + d + '</span>';
+                html += '<span class="' + cellClass + '">' +
+                            xcHelper.escapeHTMLSepcialChar(d) +
+                        '</span>';
             }
             var lenDiff = data.length - dataLen;
             if (lenDiff > 0) {
