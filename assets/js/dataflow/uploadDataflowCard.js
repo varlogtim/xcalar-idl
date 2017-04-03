@@ -34,7 +34,7 @@ window.UploadDataflowCard = (function($, UploadDataflowCard) {
                 xcConsole.error(error);
                 StatusBox.show(ErrTStr.RetinaFailed, $card.find(".confirm"),
                                false, {"side": "left"});
-                deferred.reject();
+                deferred.reject(error);
             });
         };
         // XXX this should really be read as data URL
@@ -46,6 +46,7 @@ window.UploadDataflowCard = (function($, UploadDataflowCard) {
     }
 
     function submitForm() {
+        var deferred = jQuery.Deferred();
         var retName = $dfName.val().trim();
         var valid = xcHelper.checkNamePattern("dataflow", "check", retName);
         if (!valid) {
@@ -72,13 +73,16 @@ window.UploadDataflowCard = (function($, UploadDataflowCard) {
 
             closeCard();
             // Click on the newly uploaded dataflow
-            $(".groupName:contains('" + retName +"')").closest(".dataFlowGroup")
-                                                      .click();
-
+            $(".groupName:contains('" + retName + "')").closest(".dataFlowGroup")
+                                                        .click();
+            deferred.resolve();
         })
+        .fail(deferred.reject)
         .always(function() {
             unlockCard();
         });
+
+        return deferred.promise();
     }
 
     function addCardEvents() {
@@ -170,6 +174,7 @@ window.UploadDataflowCard = (function($, UploadDataflowCard) {
     if (window.unitTestMode) {
         UploadDataflowCard.__testOnly__ = {};
         UploadDataflowCard.__testOnly__.changeFilePath = changeFilePath;
+        UploadDataflowCard.__testOnly__.submitForm = submitForm;
     }
     /* End Of Unit Test Only */
 
