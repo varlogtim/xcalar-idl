@@ -3915,14 +3915,6 @@ xcalarDemoFileDelete = runEntity.xcalarDemoFileDelete = function(thriftHandle, f
     return (deferred.promise());
 };
 
-XcalarApiListSchedTaskWorkItem = runEntity.xcalarApiListSchedTaskWorkItem = function(paramName, paramValue) {
-    var workItem = new WorkItem();
-    workItem.input = new XcalarApiListSchedTaskInputT();
-
-    // NOOP
-    return ("NOT_IMPLEMENTED");
-};
-
 XcalarApiLicenseUpdateWorkItem = runEntity.xcalarApiLicenseUpdateWorkItem = function(paramName, paramValue) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiLicenseUpdateInputT();
@@ -3934,14 +3926,6 @@ XcalarApiLicenseUpdateWorkItem = runEntity.xcalarApiLicenseUpdateWorkItem = func
 XcalarApiDagTableNameWorkItem = runEntity.xcalarApiDagTableNameWorkItem = function(paramName, paramValue) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiDagTableNameInputT();
-
-    // NOOP
-    return ("NOT_IMPLEMENTED");
-};
-
-XcalarApiSchedTaskWorkItem = runEntity.xcalarApiSchedTaskWorkItem = function(paramName, paramValue) {
-    var workItem = new WorkItem();
-    workItem.input = new XcalarApiSchedTaskInputT();
 
     // NOOP
     return ("NOT_IMPLEMENTED");

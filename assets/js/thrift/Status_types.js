@@ -562,7 +562,12 @@ StatusT = {
   'StatusDhtInUse' : 553,
   'StatusTooManyResultSets' : 554,
   'StatusRetinaAlreadyExists' : 555,
-  'StatusRetinaInUse' : 556
+  'StatusRetinaInUse' : 556,
+  'StatusCompressFailed' : 557,
+  'StatusDeCompressFailed' : 558,
+  'StatusQrQueryNameInvalid' : 559,
+  'StatusQrQueryAlreadyDeleted' : 560,
+  'StatusQrQueryInUse' : 561
 };
 StatusTStr = {0 : 'Success',
 1 : 'Operation not permitted',
@@ -1120,5 +1125,10 @@ StatusTStr = {0 : 'Success',
 553 : 'The DHT is currently in use',
 554 : 'Number of result sets exceeded table meta limit',
 555 : 'The retina already exists',
-556 : 'The retina is currently in use'
+556 : 'The retina is currently in use',
+557 : 'Failed to compress buffer',
+558 : 'Failed to decompress buffer',
+559 : 'The query name is invalid',
+560 : 'The query has already already deleted',
+561 : 'The query is currently in use'
 };

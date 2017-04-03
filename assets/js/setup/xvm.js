@@ -1,8 +1,8 @@
 // XVM = Xcalar Version Manager
 window.XVM = (function(XVM) {
     var majorVersion = "1";
-    var minorVersion = "0";
-    var revisionVersion = "4";
+    var minorVersion = "1";
+    var revisionVersion = "0";
     var thriftInterfaceVersion = "18";
     var fullVersion = majorVersion + "." + minorVersion + "." +
                         revisionVersion + "." +
