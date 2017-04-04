@@ -299,7 +299,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
                     rightYMaxUnit = xcHelper.sizeTranslator(allStats[i].sumTot,
                                                         true)[1];
                 }
-                
+
                 xVal = xcHelper.sizeTranslator(xVal, true, rightYMaxUnit)[0];
             }
             datasets[i].push(xVal);

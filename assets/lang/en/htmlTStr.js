@@ -413,7 +413,8 @@ module.exports = {
         "UTotal": "User Total",
         "VIEWOUTPUT": "VIEW OUTPUT",
         "VirtualNode": "Virtual Node",
-        "SupportTools": "Support Tools"
+        "SupportTools": "Support Tools",
+        "XDB": "XDB"
     },
 
     "supportTicket": {

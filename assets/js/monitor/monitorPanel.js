@@ -53,6 +53,13 @@ window.MonitorPanel = (function($, MonitorPanel) {
             var $donutSection = $(this).closest(".donutSection");
             $donutSection.toggleClass("xdbMode");
             $monitorPanel.find(".graphSection").toggleClass("xdbMode");
+            if ($donutSection.hasClass("xdbMode")) {
+                $monitorPanel.find(".graphSwitches .row").eq(1).find(".text")
+                             .text(MonitorTStr.XDB);
+            } else {
+                $monitorPanel.find(".graphSwitches .row").eq(1).find(".text")
+                             .text(MonitorTStr.RAM);
+            }
         });
     };
 
@@ -196,7 +203,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
                     .innerRadius(outerSmallRadius)
                     .outerRadius(outerSmallRadius - (donutThickness - 3));
         for (var i = 0; i < numDonuts; i++) {
-            
+
             if (i === 2) {
                 svg = makeSvg("#donut" + i, diameter + (donutThickness * 2), outerDonutRadius);
                 drawPath(svg, pie, outerArc);
@@ -204,7 +211,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
                 svg = makeSvg("#donut" + i, diameter, radius);
                 drawPath(svg, pie, arc);
             }
-            
+
         }
 
         function makeSvg (selector, diam, rad) {
