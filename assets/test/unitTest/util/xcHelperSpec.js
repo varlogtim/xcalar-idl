@@ -2068,6 +2068,20 @@ describe('xcHelper Test', function() {
         expect(res).to.equal("a-b");
     });
 
+    it("xcHelper.parseUserStr should work", function() {
+        var res = xcHelper.parseUserStr('"test" = someFunc ');
+        expect(res).to.equal("someFunc");
+
+        res = xcHelper.parseUserStr('"te=st" = someFunc');
+        expect(res).to.equal("someFunc");
+
+        res = xcHelper.parseUserStr('"te\\"st" = someFunc');
+        expect(res).to.equal("someFunc");
+
+        res = xcHelper.parseUserStr('"test" =someFunc');
+        expect(res).to.equal("someFunc");
+    });
+
     it('xcHelper.getColNameMap', function() {
         var progCol1 = ColManager.newCol({
             "backName": "Test",

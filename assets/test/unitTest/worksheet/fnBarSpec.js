@@ -293,6 +293,34 @@ describe('FnBar Test', function() {
 
     describe('Function bar operations test', function() {
         describe("Filter test", function() {
+            it("invalid operator should be detected", function(done) {
+                $table.find('th.col1 .dragArea').mousedown();
+                var cachedFunc = ColManager.execCol;
+                var execCalled = false;
+                ColManager.execCol = function() {
+                    execCalled = true;
+                    return PromiseHelper.resolve();
+                };
+
+                editor.setValue('= fakeFilter(eq(' + prefix + gPrefixSign +
+                    'average_stars, 4.5))');
+
+                FnBar.__testOnly__.functionBarEnter()
+                .then(function() {
+                    expect('failed').to.equal('should succeed');
+                    done("failed");
+                })
+                .fail(function() {
+                    expect(execCalled).to.be.false;
+                    // there's a delay before statusbox shows
+                    setTimeout(function() {
+                        UnitTest.hasStatusBoxWithError("Invalid Operator: fakeFilter.Valid operators are: pull, map, filter.");
+                        ColManager.execCol = cachedFunc;
+                        done();
+                    }, 1);
+                });
+            });
+
             it('successful filter should work', function(done) {
                 $table.find('th.col1 .dragArea').mousedown();
                 var cachedFunc = ColManager.execCol;

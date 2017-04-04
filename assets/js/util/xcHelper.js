@@ -438,6 +438,31 @@ window.xcHelper = (function($, xcHelper) {
         return prefix;
     };
 
+    // must be in a "name" = function(args) format
+    // will return the function(args) portion
+    xcHelper.parseUserStr = function(userStr) {
+        // search for the index of first = that's not in quotes
+        var inQuotes = false;
+        var index = 0;
+        for (var i = 0; i < userStr.length; i++) {
+            if (userStr[i] === "\\") {
+                i++;
+                continue;
+            }
+            if (!inQuotes) {
+                if (userStr[i] === '"') {
+                    inQuotes = true;
+                } else if (userStr[i] === "=") {
+                    index = i + 1;
+                    break;
+                }
+            } else if (userStr[i] === '"') {
+                inQuotes = false;
+            }
+        }
+        return userStr.substring(index).trim();
+    };
+
     // get unique column name
     xcHelper.getUniqColName = function(tableId, colName, onlyCheckPulledCol) {
         if (colName == null) {

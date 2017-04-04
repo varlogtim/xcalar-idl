@@ -281,7 +281,7 @@ window.FnBar = (function(FnBar, $) {
             if (userStr.trim() === "") {
                 userStr = "= ";
             } else {
-                userStr = userStr.substring(userStr.indexOf('='));
+                userStr = "= " + xcHelper.parseUserStr(userStr);
             }
             editor.setValue(userStr);
             $fnBar.addClass('active').removeClass('disabled');
@@ -375,7 +375,7 @@ window.FnBar = (function(FnBar, $) {
                         list.push({
                             text: suggestedMainOperators[i] + "()",
                             displayText: suggestedMainOperators[i],
-                            hint: autcompleteSelect,
+                            hint: autocompleteSelect,
                             render: renderMainOpLi,
                             className: "operator mainOperator"
                         });
@@ -393,7 +393,7 @@ window.FnBar = (function(FnBar, $) {
                         list.push({
                             text: suggestedMainOperators[i] + "()",
                             displayText: suggestedMainOperators[i],
-                            hint: autcompleteSelect,
+                            hint: autocompleteSelect,
                             render: renderMainOpLi,
                             className: "operator mainOperator"
                         });
@@ -469,7 +469,7 @@ window.FnBar = (function(FnBar, $) {
                         template: mapFunc.template,
                         templateTwo: mapFunc.templateTwo,
                         argDescs: mapFunc.modArgDescs,
-                        hint: autcompleteSelect,
+                        hint: autocompleteSelect,
                         render: renderOpLi,
                         className: "operator"
                     });
@@ -478,7 +478,7 @@ window.FnBar = (function(FnBar, $) {
         });
 
 
-        function autcompleteSelect(cm, data, completion) {
+        function autocompleteSelect(cm, data, completion) {
             var text = completion.templateTwo || completion.text;
             cm.replaceRange(text, data.from, data.to, "complete");
             // var firstStartIndex;
@@ -571,8 +571,8 @@ window.FnBar = (function(FnBar, $) {
             return;
         }
         var colNum = xcHelper.parseColNum($colInput);
-        
-        
+
+
         var tableCol = table.tableCols[colNum - 1];
 
         tableCol.userStr = "\"" + tableCol.getFrontColName() + "\"" + " = " +
@@ -688,12 +688,12 @@ window.FnBar = (function(FnBar, $) {
                     return deferred.promise();
                 }
             }
-           
+
             // prevent doing a map on an existing column
             if (operation === "map" && !tableCol.isNewCol) {
                 var alertTitle = FnBarTStr.NewColTitle;
                 var alertMsg = FnBarTStr.NewColMsg;
-                
+
                 var confirmFunc = function() {
                     tableCol.userStr = oldUsrStr;
                     ColManager.addNewCol(colNum, tableId, ColDir.Left, {
@@ -820,7 +820,7 @@ window.FnBar = (function(FnBar, $) {
             }
         });
     }
-                    
+
 
     // will return false if column names detected and colName is not found
     // among them. Otherwise, will return true
@@ -856,7 +856,7 @@ window.FnBar = (function(FnBar, $) {
     }
 
     function getOperationFromFuncStr(funcStr) {
-        var operation = funcStr.substring(funcStr.indexOf("=") + 1).trim();
+        var operation = xcHelper.parseUserStr(funcStr);
         operation = operation.substr(0, operation.indexOf("(")).trim();
         return (operation);
     }

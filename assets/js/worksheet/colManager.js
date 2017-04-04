@@ -790,8 +790,7 @@ window.ColManager = (function($, ColManager) {
                 break;
             case ("map"):
                 var fieldName = table.tableCols[colNum - 1].name;
-                var mapString = usrStr.substring(usrStr.indexOf("=" + 1))
-                                      .trim();
+                var mapString = xcHelper.parseUserStr(usrStr);
                 mapString = mapString.substring(mapString.indexOf("(") + 1,
                                                 mapString.lastIndexOf(")"));
 
@@ -805,8 +804,7 @@ window.ColManager = (function($, ColManager) {
                 });
                 break;
             case ("filter"):
-                var fltString = usrStr.substring(usrStr.indexOf("=" + 1))
-                                      .trim();
+                var fltString = xcHelper.parseUserStr(usrStr);
                 fltString = fltString.substring(fltString.indexOf("(") + 1,
                                                 fltString.lastIndexOf(")"));
 
