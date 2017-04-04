@@ -486,7 +486,7 @@ window.AggModal = (function($, AggModal) {
         var dupCols = [];
         var total = $corr.find(".cell").length;
         var cellCount = 0;
-        updateRunProgress(cellCount, total);
+        updateRunProgress(cellCount, total, true);
         // First we need to determine if this is a dataset-table
         // or just a regular table
 
@@ -520,7 +520,7 @@ window.AggModal = (function($, AggModal) {
                     cellCount += applyCorrResult(col, dupColNum, 1, []);
                 }
             }
-            updateRunProgress(cellCount, total);
+            updateRunProgress(cellCount, total, true);
 
             // XXX now agg on child of array is not supported
             if (!aggCol.isChildOfArray) {
@@ -555,7 +555,7 @@ window.AggModal = (function($, AggModal) {
                     var promise = runCorr(tableId, sub, row, col, dups, txId);
                     promise.then(function(numDone) {
                         cellCount += numDone;
-                        updateRunProgress(cellCount, total);
+                        updateRunProgress(cellCount, total, true);
                     });
                     promises.push(promise);
                 }
@@ -578,7 +578,12 @@ window.AggModal = (function($, AggModal) {
         return deferred.promise();
     }
 
-    function updateRunProgress(curr, total) {
+    function updateRunProgress(curr, total, isCorr) {
+        // do not update number display if not in the correct view
+        if ((isCorr && $("#aggTab").hasClass("active")) ||
+            (!isCorr && !$("#aggTab").hasClass("active")) ) {
+            return;
+        }
         $aggModal.find(".progressValue").text(curr + "/" + total);
     }
 
@@ -589,7 +594,7 @@ window.AggModal = (function($, AggModal) {
         var funLen = aggFunctions.length;
         var total = $quickAgg.find(".cell").length;
         var cellCount = 0;
-        updateRunProgress(cellCount, total);
+        updateRunProgress(cellCount, total, false);
         // First we need to determine if this is a dataset-table
         // or just a regular table
         var dupCols = [];
@@ -623,7 +628,7 @@ window.AggModal = (function($, AggModal) {
                                             dups, txId);
                         promise.then(function(numDone) {
                             cellCount += numDone;
-                            updateRunProgress(cellCount, total);
+                            updateRunProgress(cellCount, total, false);
                         });
                         promises.push(promise);
                     }
