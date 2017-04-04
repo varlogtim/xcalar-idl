@@ -364,8 +364,8 @@ window.UnitTest = (function(UnitTest, $) {
             var $div = $(this);
             var $children = $div.find("> .bl-cl");
             var title = $children.eq(0).text();
-            var perCentage = $children.eq(1).text();
-            var cover = $children.eq(2).text().split("%")[0].trim();
+            var perCentage = $children.eq(1).text().split("%")[0].trim();
+            var cover = $children.eq(2).text();
             // pass limit or not
             var isSuccess = $div.hasClass("bl-success");
             res += title + "\t" + cover + "\t" + perCentage + "\t" +

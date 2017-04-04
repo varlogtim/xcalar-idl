@@ -1,4 +1,4 @@
-window.XFTSupportTools = (function(XFTSupportTools) {
+window.XFTSupportTools = (function(XFTSupportTools, $) {
     var monitorIntervalId;
     var lastReturnSucc = true;
     var timeout = 50000;
@@ -7,8 +7,10 @@ window.XFTSupportTools = (function(XFTSupportTools) {
     XFTSupportTools.getRecentLogs = function(requireLineNum) {
         var action = "GET";
         var url = "/logs";
-        var content = {"requireLineNum": requireLineNum,
-            "isMonitoring": false};
+        var content = {
+            "requireLineNum": requireLineNum,
+            "isMonitoring": false
+        };
         return sendRequest(action, url, content);
     };
 
@@ -23,8 +25,10 @@ window.XFTSupportTools = (function(XFTSupportTools) {
                 lastReturnSucc = false;
                 var action = "GET";
                 var url = "/logs";
-                var content = {"lastMonitorMap": JSON.stringify(lastMonitorMap),
-                    "isMonitoring": true};
+                var content = {
+                    "lastMonitorMap": JSON.stringify(lastMonitorMap),
+                    "isMonitoring": true
+                };
                 sendRequest(action, url, content)
                 .then(function(ret) {
                     console.info(ret);
@@ -132,14 +136,14 @@ window.XFTSupportTools = (function(XFTSupportTools) {
             "url": xcHelper.getAppUrl() + url,
             "cache": false,
             "timeout": timeout,
-            success: function(data, textStatus, xhr) {
+            success: function(data) {
                 // If this request will be sent to all slave nodes
                 // success state means that all slave nodes return 200
                 // to master node
                 if (data.logs) {
                     data.logs = atob(data.logs);
                 }
-                console.log(data.logs);
+                // console.log(data.logs);
                 deferred.resolve(data);
             },
             error: function(xhr) {
@@ -164,7 +168,7 @@ window.XFTSupportTools = (function(XFTSupportTools) {
                         "unexpectedError": true
                     };
                 }
-                console.log(data.logs);
+                // console.log(data.logs);
                 deferred.reject(data);
             }
         });
@@ -177,5 +181,15 @@ window.XFTSupportTools = (function(XFTSupportTools) {
         }
     }
 
+    /* Unit Test Only */
+    if (window.unitTestMode) {
+        XFTSupportTools.__testOnly__ = {};
+        XFTSupportTools.__testOnly__.sendRequest = sendRequest;
+        XFTSupportTools.__testOnly__.getMonitorMap = function() {
+            return lastMonitorMap;
+        };
+    }
+    /* End Of Unit Test Only */
+
     return (XFTSupportTools);
-}({}));
+}({}, jQuery));
