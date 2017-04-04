@@ -103,6 +103,9 @@ window.UnitTest = (function(UnitTest, $) {
                 prevPct = window.mochaPct;
                 if (window.mochaPct === 100) {
                     console.info("TEST FINISHED");
+                    if (String(mocha.options.grep) === "/Mocha Setup Test|.*/") {
+                        UnitTest.getCoverage();
+                    }
                 } else {
                     consolePct();
                 }
@@ -353,6 +356,23 @@ window.UnitTest = (function(UnitTest, $) {
         .fail(deferred.resolve);
 
         return deferred.promise();
+    };
+
+    UnitTest.getCoverage = function() {
+        var res = "";
+        $("#blanket-main").find(".blanket:not(.bl-title)").each(function() {
+            var $div = $(this);
+            var $children = $div.find("> .bl-cl");
+            var title = $children.eq(0).text();
+            var perCentage = $children.eq(1).text();
+            var cover = $children.eq(2).text().split("%")[0].trim();
+            // pass limit or not
+            var isSuccess = $div.hasClass("bl-success");
+            res += title + "\t" + cover + "\t" + perCentage + "\t" +
+                   isSuccess + "\n";
+        });
+        xcHelper.downloadAsFile("unitTestReport", res);
+        return res;
     };
 
     return (UnitTest);

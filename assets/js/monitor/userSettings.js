@@ -78,6 +78,9 @@ window.UserSettings = (function($, UserSettings) {
             })
             .fail(function(error) {
                 console.error("Commit User Info failed", error);
+                if (showSuccess) {
+                    xcHelper.showFail(FailTStr.SaveSettings);
+                }
                 deferred.reject(error);
             });
         } else {
@@ -126,9 +129,9 @@ window.UserSettings = (function($, UserSettings) {
         KVStore.logChange();
     };
 
-    UserSettings.clear = function() {
-        userPrefs = new UserPref();
-    };
+    // UserSettings.clear = function() {
+    //     userPrefs = new UserPref();
+    // };
 
     function setup() {
         userPrefs = new UserPref();
@@ -194,24 +197,24 @@ window.UserSettings = (function($, UserSettings) {
     }
 
     function addEventListeners() {
-        $('#showDataColBox').click(function() {
+        $("#showDataColBox").click(function() {
             var $checkbox = $(this);
-            $checkbox.toggleClass('checked');
+            $checkbox.toggleClass("checked");
             if ($checkbox.hasClass("checked")) {
-                UserSettings.setPref('hideDataCol', false, true);
+                UserSettings.setPref("hideDataCol", false, true);
             } else {
-                UserSettings.setPref('hideDataCol', true, true);
+                UserSettings.setPref("hideDataCol", true, true);
             }
         });
 
-        $('#skipSplashBox').click(function() {
+        $("#skipSplashBox").click(function() {
             var $checkbox = $(this);
-            $checkbox.toggleClass('checked');
+            $checkbox.toggleClass("checked");
             if ($checkbox.hasClass("checked")) {
-                UserSettings.setPref('skipSplash', true, true);
+                UserSettings.setPref("skipSplash", true, true);
                 xcLocalStorage.setItem("noSplashLogin", true);
             } else {
-                UserSettings.setPref('skipSplash', false, true);
+                UserSettings.setPref("skipSplash", false, true);
                 xcLocalStorage.setItem("noSplashLogin", false);
             }
         });
@@ -267,13 +270,13 @@ window.UserSettings = (function($, UserSettings) {
     }
 
     function updateDsPreviewLimitInput() {
-        var $dsSampleLimit = $('#monitorDsSampleInput');
+        var $dsSampleLimit = $("#monitorDsSampleInput");
         var size = getDsSampleLimitValue();
         var error = DataStore.checkSampleSize(size);
         if (error != null) {
             StatusBox.show(error, $dsSampleLimit, false);
 
-            var dsSampleLimit = UserSettings.getPref('DsDefaultSampleSize');
+            var dsSampleLimit = UserSettings.getPref("DsDefaultSampleSize");
             setDsSampleLimitValue(dsSampleLimit);
         } else {
             UserSettings.setPref("DsDefaultSampleSize", size, true);

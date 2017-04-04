@@ -199,7 +199,8 @@ describe("Workbook Test", function() {
             $box.find(".modify").click();
             $input.focus().val(name).trigger(fakeEvent.enter);
             var checkFunc = function() {
-                return Object.keys(fakeMap).length > 0;
+                var $title = $box.find(".subHeading");
+                return ($title.attr("data-original-title") === name);
             };
 
             UnitTest.testFinish(checkFunc)

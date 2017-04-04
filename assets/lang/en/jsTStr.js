@@ -375,7 +375,8 @@ SuccessTStr = {
 
 FailTStr = {
     "Profile": "Saving Profile Image Failed.",
-    "ProfileStats": "Generate Statistics Failed."
+    "ProfileStats": "Generate Statistics Failed.",
+    "SaveSettings": "Saving Settings Failed.",
 };
 
 ThriftTStr = {

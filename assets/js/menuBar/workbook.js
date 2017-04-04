@@ -242,7 +242,7 @@ window.Workbook = (function($, Workbook) {
             } else {
                 WorkbookManager.switchWKBK(workbookId)
                 .fail(function(error) {
-                    StatusBox.show(error.error, $workbookBox);
+                    handleError(error, $workbookBox);
                 });
             }
         });
@@ -302,8 +302,9 @@ window.Workbook = (function($, Workbook) {
             .then(function($fauxCard, newId) {
                 replaceLoadingCard($fauxCard, newId);
             })
-            .fail(function(error) {
-                StatusBox.show(error.error, $dupButton);
+            .fail(function($fauxCard, error) {
+                handleError(error, $dupButton);
+                removeWorkbookBox($fauxCard);
             })
             .always(function() {
                 $dupButton.removeClass('inActive');
@@ -372,7 +373,7 @@ window.Workbook = (function($, Workbook) {
                         $workbookBox.addClass("edit");
                         var newName = $lastFocusedInput.val();
                         $lastFocusedInput.blur();
-                        var workbookId = $workbookBox.attr('data-workbook-id');
+                        var workbookId = $workbookBox.attr("data-workbook-id");
                         var oldWorkbookName = WorkbookManager
                                                        .getWorkbook(workbookId)
                                                        .name;
@@ -382,16 +383,7 @@ window.Workbook = (function($, Workbook) {
                             updateWorkbookInfo($workbookBox, newWorkbookId);
                         })
                         .fail(function(error) {
-                            var errorText = error;
-                            if (typeof error === "object" &&
-                                error.error != null)
-                            {
-                                errorText = error.error;
-                            } else {
-                                errorText = JSON.stringify(error);
-                            }
-
-                            StatusBox.show(errorText, $workbookBox);
+                            handleError(error, $workbookBox);
                             $workbookBox.find(".subHeading input")
                                         .val(oldWorkbookName);
                         })
@@ -400,7 +392,7 @@ window.Workbook = (function($, Workbook) {
                             var name = $workbookBox.find(".subHeading input")
                                                     .val();
                             $workbookBox.find(".subHeading")
-                                        .attr('data-original-title', name);
+                                        .attr("data-original-title", name);
                         });
                         $workbookBox.find(".subHeading input")
                                     .removeClass("active");
@@ -500,18 +492,9 @@ window.Workbook = (function($, Workbook) {
             $newWorkbookInput.val('');
             $lastFocusedInput = '';
         })
-        .fail(function() {
-            // multiple errors may be returned
-            var error = WKBKTStr.CreateErr;
-            for (var i = 0; i < arguments.length; i++) {
-                if (typeof arguments[i] === "object" &&
-                    typeof arguments[i].error === "string") {
-                    error = arguments[i].error;
-                    break;
-                }
-            }
-            StatusBox.show(error, $newWorkbookInput);
-
+        .fail(function($fauxCard, error) {
+            handleError(error || WKBKTStr.CreateErr, $newWorkbookInput);
+            removeWorkbookBox($fauxCard);
             $lastFocusedInput = $newWorkbookInput;
             $newWorkbookInput.focus();
         })
@@ -585,14 +568,31 @@ window.Workbook = (function($, Workbook) {
         var workbookId = $workbookBox.attr("data-workbook-id");
         WorkbookManager.deleteWKBK(workbookId)
         .then(function() {
-            $workbookBox.addClass('removing');
-            setTimeout(function() {
-                $workbookBox.remove();
-            }, 600);
+            removeWorkbookBox($workbookBox);
         })
         .fail(function(error) {
-            StatusBox.show(error.error, $workbookBox);
+            handleError(error, $workbookBox);
         });
+    }
+
+    function removeWorkbookBox($workbookBox) {
+        $workbookBox.addClass("removing");
+        setTimeout(function() {
+            $workbookBox.remove();
+        }, 600);
+    }
+
+    function handleError(error, $ele) {
+        var errorText;
+        if (typeof error === "object" && error.error != null) {
+            errorText = error.error;
+        } else if (typeof error === "string") {
+            errorText = error;
+        } else {
+            errorText = JSON.stringify(error);
+        }
+
+        StatusBox.show(errorText, $ele);
     }
 
     function deactiveWorkbookHelper($workbookBox) {
@@ -606,7 +606,7 @@ window.Workbook = (function($, Workbook) {
             $("#container").addClass("noWorkbook");
         })
         .fail(function(error) {
-            StatusBox.show(error.error, $workbookBox);
+            handleError(error, $workbookBox);
         });
     }
 
