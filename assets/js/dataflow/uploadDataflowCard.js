@@ -53,6 +53,12 @@ window.UploadDataflowCard = (function($, UploadDataflowCard) {
             StatusBox.show(ErrTStr.DFNameIllegal, $dfName);
             return;
         }
+        var limit = 1024 * 1024; // 1M
+        if (file.size > limit) {
+            Alert.error(DSTStr.UploadLimit, DFTStr.UploadLimitMsg);
+            return;
+        }
+
         lockCard();
         XcalarListRetinas()
         .then(function(ret) {

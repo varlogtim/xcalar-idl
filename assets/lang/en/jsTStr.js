@@ -667,7 +667,8 @@ DFTStr = {
     'RunDoneMsg': 'Successfully ran dataflow!',
     'RunFail': 'Run DF Failed',
     'Running': 'Running batch dataflow',
-    'UpdateParamFail': 'Update Parameters Failed'
+    'UpdateParamFail': 'Update Parameters Failed',
+    'UploadLimitMsg': 'Cannot upload dataflow that is over 1MB.'
 };
 
 DSTStr = {
