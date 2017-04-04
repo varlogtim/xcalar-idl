@@ -200,7 +200,8 @@ window.DSCart = (function($, DSCart) {
         var dsObj = DS.getDSObj(cartId);
         var sortByLineNum = false;
         var numSteps = 1;
-        if (dsObj.moduleName === "genlinenumber") {
+        if (dsObj.moduleName === "default" &&
+            dsObj.funcName.indexOf("genLineNumber") === 0) {
             sortByLineNum = true;
             endTableName = srcName + Authentication.getHashId();
             numSteps++;
