@@ -1111,7 +1111,7 @@ function XcalarIndexFromTable(srcTablename, key, tablename, ordering,
     return (deferred.promise());
 }
 
-function XcalarDeleteTable(tableName, txId) {
+function XcalarDeleteTable(tableName, txId, isRetry) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
@@ -1140,11 +1140,41 @@ function XcalarDeleteTable(tableName, txId) {
     })
     .fail(function(error1, error2) {
         Transaction.checkAndSetCanceled(txId);
-        var thriftError = thriftLog("XcalarDeleteTable", error1, error2);
-        deferred.reject(thriftError);
+
+        if (!isRetry && error1 === StatusT.StatusDgNodeInUse) {
+            forceDeleteTable(tableName, txId)
+            .then(deferred.resolve)
+            .fail(deferred.reject);
+        } else {
+            var thriftError = thriftLog("XcalarDeleteTable", error1, error2);
+            deferred.reject(thriftError);
+        }
     });
 
-    return (deferred.promise());
+    return deferred.promise();
+}
+
+function forceDeleteTable(tableName, txId) {
+    var deferred = jQuery.Deferred();
+    XcalarGetTableMeta(tableName)
+    .then(function(res) {
+        if (res && res.resultSetIds) {
+            var promises = [];
+            res.resultSetIds.forEach(function(resultSetId) {
+                var def = XcalarSetFree(resultSetId);
+                promises.push(def);
+            });
+            return PromiseHelper.when.apply(this, promises);
+        }
+    })
+    .then(function() {
+        // it must be a retry case
+        return XcalarDeleteTable(tableName, txId, true);
+    })
+    .then(deferred.resolve)
+    .fail(deferred.reject);
+
+    return deferred.promise();
 }
 
 function XcalarRenameTable(oldTableName, newTableName, txId) {
@@ -1343,16 +1373,14 @@ function XcalarGetTableMeta(tableName) {
         var isPrecise = false; // Set to true if you are collecting stats from
                                // the backend about xdb pages and hashslots.
         xcalarGetTableMeta(tHandle, tableName, isPrecise)
-        .then(function(metaOutput) {
-            deferred.resolve(metaOutput);
-        })
+        .then(deferred.resolve)
         .fail(function(error) {
             var thriftError = thriftLog("XcalarGetTableMeta", error);
             SQL.errorLog("Get Table Meta", null, null, thriftError);
             deferred.reject(thriftError);
         });
     }
-    return (deferred.promise());
+    return deferred.promise();
 }
 
 // Not being called. We just use make result set's output
@@ -2286,7 +2314,7 @@ function queryStateErrorStatusHandler(error, statusesToIgnore) {
 }
 
 
-function XcalarQueryCheck(queryName, txId) {
+function XcalarQueryCheck(queryName) {
     function getDagNodeStatuses(dagOutput) {
         var nodeStatuses = {};
         for (var i = 0; i < dagOutput.length; i++) {
@@ -3665,7 +3693,7 @@ function XcalarAppReap(name, appGroupId) {
         if (typeof error === "object" && error.errStr) {
             try {
                 outError = JSON.parse(error.errStr)[0][0];
-            } catch(e) {
+            } catch (e) {
                 outError = error;
             }
         } else {
