@@ -1148,6 +1148,15 @@
         function GenSettings<%= v %>(userConfigParms, options) {
             var self = _super.call(this, userConfigParms, options);
             <%= addVersion %>
+
+            // XXX this is only for version 2!!!
+            if (<%= checkFunc %>(options)) {
+                if (self.baseSettings &&
+                    self.baseSettings.hasOwnProperty("skipSplash")) {
+                    delete self.baseSettings.skipSplash;
+                }
+            }
+
             return self;
         }
 

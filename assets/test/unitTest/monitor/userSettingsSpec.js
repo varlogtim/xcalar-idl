@@ -185,17 +185,6 @@ describe("User Setting Test", function() {
             expect(UserSettings.getPref("hideDataCol")).to.equal(hideDataCol);
         });
 
-        it("should toggle skip splash box", function() {
-            var skipSplash = UserSettings.getPref("skipSplash");
-            var $btn = $("#skipSplashBox");
-            // case 1
-            $btn.click();
-            expect(UserSettings.getPref("skipSplash")).to.equal(!skipSplash);
-            // case 2
-            $btn.click();
-            expect(UserSettings.getPref("skipSplash")).to.equal(skipSplash);
-        });
-
         it("should change ds sample size", function() {
             var oldSize = UserSettings.getPref("DsDefaultSampleSize");
             var $input = $("#monitorDsSampleInput .size");

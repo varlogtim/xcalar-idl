@@ -61,6 +61,15 @@ window.Shortcuts = (function($, Shortcuts) {
         toggleAutoLoginMenu(turnOn);
     };
 
+    Shortcuts.toggleSplash = function(turnOn) {
+        if (turnOn) {
+            xcLocalStorage.setItem("noSplashLogin", false);
+        } else {
+            xcLocalStorage.setItem("noSplashLogin", true);
+        }
+        toggleMenu(".splash", turnOn);
+    };
+
     Shortcuts.toggleVerbose = function(turnOn) {
         if (turnOn) {
             $('#shortcutSubMenu').find('.verboseOff').show();
@@ -126,6 +135,7 @@ window.Shortcuts = (function($, Shortcuts) {
     };
 
     Shortcuts.setup = function(fullSetup) {
+        var turnOnSplash;
         shortcutsOn = true;
 
         if (xcLocalStorage.getItem("autoLogin") === "true") {
@@ -158,15 +168,22 @@ window.Shortcuts = (function($, Shortcuts) {
             gEnableJoinKeyCheck = false;
         }
 
+        if (xcLocalStorage.getItem("noSplashLogin") === "true") {
+            turnOnSplash = false;
+        } else {
+            turnOnSplash = true;
+        }
+
         if (fullSetup) {
             dsForm();
             createMainMenu();
         }
-        
+
         Shortcuts.toggleVerbose(verbose);
         Shortcuts.toggleAdmin(gAdmin);
         Shortcuts.toggleJoinKey(gEnableJoinKeyCheck);
         Shortcuts.toggleDebug(window.debugOn);
+        Shortcuts.toggleSplash(turnOnSplash);
     };
 
     Shortcuts.remove = function () {
@@ -357,7 +374,6 @@ window.Shortcuts = (function($, Shortcuts) {
     }
 
     function createMainMenu() {
-
         var menu =
         '<div id="shortcutMenu" class="menu" data-submenu="shortcutSubMenu">' +
             '<ul>' +
@@ -367,8 +383,10 @@ window.Shortcuts = (function($, Shortcuts) {
                 '<li class="globals parentMenu" data-submenu="globals">Global Flags ...</li>' +
                 '<li class="archiveAllTables">Archive All Tables</li>' +
                 '<li class="deleteAllTables">Delete All Tables</li>' +
-                '<li class="autoLoginOff">Turn Off AutoLogin</li>' +
-                '<li class="autoLoginOn">Turn On AutoLogin</li>' +
+                '<li class="splash off">Turn Off Splash</li>' +
+                '<li class="splash on">Turn On Splash</li>' +
+                '<li class="autoLogin off">Turn Off AutoLogin</li>' +
+                '<li class="autoLogin on">Turn On AutoLogin</li>' +
                 '<li class="shortcutsOff">Turn Off Shortcuts</li>' +
             '</ul>' +
         '</div>';
@@ -436,12 +454,20 @@ window.Shortcuts = (function($, Shortcuts) {
             Shortcuts.off();
         });
 
-        $menu.on('mouseup', '.autoLoginOff', function() {
+        $menu.on('mouseup', '.autoLogin.off', function() {
             Shortcuts.toggleAutoLogin();
         });
 
-        $menu.on('mouseup', '.autoLoginOn', function() {
+        $menu.on('mouseup', '.autoLogin.on', function() {
             Shortcuts.toggleAutoLogin(true);
+        });
+
+        $menu.on('mouseup', '.splash.off', function() {
+            Shortcuts.toggleSplash();
+        });
+
+        $menu.on('mouseup', '.splash.on', function() {
+            Shortcuts.toggleSplash(true);
         });
 
         $subMenu.on('mouseup', '.verboseOff', function() {
@@ -502,12 +528,18 @@ window.Shortcuts = (function($, Shortcuts) {
     }
 
     function toggleAutoLoginMenu(turnOn) {
+        return toggleMenu(".autoLogin", turnOn);
+    }
+
+    function toggleMenu(selector, turnOn) {
+        var onSelector = selector + ".on";
+        var offSelector = selector + ".off";
         if (turnOn) {
-            $('#shortcutMenu').find('.autoLoginOff').show();
-            $('#shortcutMenu').find('.autoLoginOn').hide();
+            $('#shortcutMenu').find(offSelector).show();
+            $('#shortcutMenu').find(onSelector).hide();
         } else {
-            $('#shortcutMenu').find('.autoLoginOff').hide();
-            $('#shortcutMenu').find('.autoLoginOn').show();
+            $('#shortcutMenu').find(offSelector).hide();
+            $('#shortcutMenu').find(onSelector).show();
         }
     }
 

@@ -207,18 +207,6 @@ window.UserSettings = (function($, UserSettings) {
             }
         });
 
-        $("#skipSplashBox").click(function() {
-            var $checkbox = $(this);
-            $checkbox.toggleClass("checked");
-            if ($checkbox.hasClass("checked")) {
-                UserSettings.setPref("skipSplash", true, true);
-                xcLocalStorage.setItem("noSplashLogin", true);
-            } else {
-                UserSettings.setPref("skipSplash", false, true);
-                xcLocalStorage.setItem("noSplashLogin", false);
-            }
-        });
-
         $("#enableFileBox").click(function() {
             var $checkbox = $(this);
             $checkbox.toggleClass('checked');
@@ -289,7 +277,6 @@ window.UserSettings = (function($, UserSettings) {
 
     function restoreSettingsPanel() {
         var hideDataCol = UserSettings.getPref("hideDataCol");
-        var skipSplash = UserSettings.getPref("skipSplash");
         var showFile = UserSettings.getPref("fileEnabled");
         var graphInterval = UserSettings.getPref("monitorGraphInterval");
         var commitInterval = UserSettings.getPref("commitInterval");
@@ -297,9 +284,6 @@ window.UserSettings = (function($, UserSettings) {
 
         if (!hideDataCol) {
             $("#showDataColBox").addClass("checked");
-        }
-        if (skipSplash) {
-            $("#skipSplashBox").addClass("checked");
         }
         if (showFile) {
             $("#enableFileBox").addClass("checked");

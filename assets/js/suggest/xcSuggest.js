@@ -625,9 +625,12 @@ window.xcSuggest = (function($, xcSuggest) {
                 // should not be header
                 return false;
             } else if (text === "" || text == null) {
-                // ds may have case to have empty header
-                score -= 100;
-
+                // // ds may have case to have empty header
+                // score -= 100;
+                // Newly change to not promote when has empty row
+                // because excel with empty header will {"": "val"},
+                // which is invalid
+                return false;
             }
         }
 
