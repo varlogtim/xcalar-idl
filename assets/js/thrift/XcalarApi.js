@@ -1469,6 +1469,7 @@ xcalarJoin = runEntity.xcalarJoin = function(thriftHandle, leftTableName, rightT
                                       joinTableName, joinType,
                                       leftRenameMap, rightRenameMap,
                                       collisionCheck);
+
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
         var joinOutput = result.output.outputResult.joinOutput;

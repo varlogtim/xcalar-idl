@@ -2007,7 +2007,7 @@ function XcalarJoin(left, right, dst, joinType, leftRename, rightRename, txId) {
     if (tHandle == null) {
         return PromiseHelper.resolve(null);
     }
-    var coll = false;
+    var coll = true;
 
     var deferred = jQuery.Deferred();
     if (Transaction.checkAndSetCanceled(txId)) {
