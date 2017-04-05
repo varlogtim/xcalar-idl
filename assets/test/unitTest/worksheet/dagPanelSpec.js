@@ -609,6 +609,32 @@ describe('Dag Panel Test', function() {
                 });
             });
 
+            describe("datastore icon", function() {
+                 it('menu should open', function() {
+                    smallTable.$dagWrap.find('.dagImage').last()
+                    .find('.dagTable .dataStoreIcon').eq(0).click();
+
+                    expect($menu.is(":visible")).to.be.true;
+                    expect($menu.find('li:visible').length).to.equal(1);
+                    expect($menu.find('li.dataStoreInfo').is(":visible")).to.be.true;
+                });
+
+
+                it('showSchema li should work', function() {
+                    expect($("#dagSchema:visible").length).to.equal(0);
+                    $menu.find('.dataStoreInfo').trigger(fakeEvent.mouseup);
+                    expect($("#dagSchema:visible").length).to.equal(1);
+                    expect($("#dagSchema").hasClass("loadInfo")).to.be.true;
+
+                    var text = $("#dagSchema .content").text()
+                    expect(text.indexOf('"numEntries": 1000')).to.be.gt(-1);
+                    expect(text.indexOf('"size": "384KB"')).to.be.gt(-1);
+                    expect(text.indexOf('"udf": ""')).to.be.gt(-1);
+                    expect(text.indexOf('"csv":')).to.equal(-1);
+                    expect(text.indexOf('"format": "json"')).to.be.gt(-1);
+                });
+            });
+
             after(function() {
                 // close menu
                 $(document).mousedown().click();

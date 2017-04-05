@@ -643,7 +643,7 @@ SchedTStr = {
     "detail": "Schedule Detail",
     "revert": "REVERT",
     "simFail": "Simulation Fail!",
-    "noParam": "None parameter is defined!",
+    "noParam": "No parameters are defined!",
     "unknown": "Unknown!",
     "failServerTime": "Failed to get Server Time!"
 };

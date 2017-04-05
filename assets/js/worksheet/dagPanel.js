@@ -388,7 +388,7 @@ window.DagPanel = (function($, DagPanel) {
         xcMenu.add($menu);
         dagTableDropDownActions($menu);
 
-        $dagPanel.on('click', '.dagTable:not(.dataStore)', function(event) {
+        $dagPanel.on('click', '.dagTable', function(event) {
             $('.menu').hide().removeClass('leftColMenu');
             xcMenu.removeKeyboardNavigation();
             $('#dagSchema').hide();
@@ -398,7 +398,7 @@ window.DagPanel = (function($, DagPanel) {
                 return;
             }
 
-            var tableName = $.trim($dagTable.find('.tableTitle').text());
+            var tableName = $dagTable.find('.tableTitle').text().trim();
             var tableId = $dagTable.data('id');
             var table = gTables[tableId];
             var tableLocked = false;
@@ -422,6 +422,12 @@ window.DagPanel = (function($, DagPanel) {
             $menu.find('.deleteTable').removeClass('hidden');
             $menu.find("li.unavailable").removeClass("unavailable");
             $menu.find(".deleteTableDescendants").addClass("unavailable");
+
+            if ($dagTable.hasClass("dataStore")) {
+                $menu.addClass("dataStoreMode");
+            } else {
+                $menu.removeClass("dataStoreMode");
+            }
 
             // if active table, hide "addTable" and show "focusTable"
             $('#activeTablesList').find('.tableInfo').each(function() {
@@ -495,13 +501,13 @@ window.DagPanel = (function($, DagPanel) {
             }
 
             if (tableNoDelete) {
-                $menu.find('.removeNoDelete').show();
-                $menu.find('.addNoDelete').hide();
+                $menu.find('.removeNoDelete').removeClass("hidden");
+                $menu.find('.addNoDelete').addClass("hidden");
                 $menu.find("li.deleteTable").addClass("unavailable");
             } else {
                 // $lis get unavailable class removed at the top of function
-                $menu.find('.removeNoDelete').hide();
-                $menu.find('.addNoDelete').show();
+                $menu.find('.removeNoDelete').addClass("hidden");
+                $menu.find('.addNoDelete').removeClass("hidden");
             }
 
             positionAndShowDagTableDropdown($dagTable, $menu, $(event.target));
@@ -518,8 +524,7 @@ window.DagPanel = (function($, DagPanel) {
             var $target = $(e.target);
             var $dagWrap = $target.closest('.dagWrap');
 
-            $target = $(e.target).closest('.dagTable:not(.dataStore) ' +
-                                         '.dagTableIcon');
+            $target = $(e.target).closest('.dagTable');
             if ($target.length) {
                 $target.trigger('click');
                 return false;
@@ -891,6 +896,13 @@ window.DagPanel = (function($, DagPanel) {
     }
 
     function dagTableDropDownActions($menu) {
+        $menu.find('.dataStoreInfo').mouseup(function(event) {
+            if (event.which !== 1) {
+                return;
+            }
+            Dag.showDataStoreInfo($menu.data('tableelement'));
+        });
+
         $menu.find('.addTable').mouseup(function(event) {
             if (event.which !== 1) {
                 return;
@@ -1540,7 +1552,8 @@ window.Dag = (function($, Dag) {
             height: 0,
             width: 0,
             condensedWidth: 0,
-            groups: {}
+            groups: {},
+            datasets: {}
         };
 
         var numNodes = nodeArray.length;
@@ -1584,7 +1597,8 @@ window.Dag = (function($, Dag) {
             nodes: dagInfo,
             depth: dagDepth,
             groups: storedInfo.groups,
-            condensedWidth: width
+            condensedWidth: width,
+            datasets: storedInfo.datasets
         };
         $container.data('allDagInfo', allDagInfo);
     };
@@ -1987,10 +2001,77 @@ window.Dag = (function($, Dag) {
         dagPanelLeft = $('#dagPanelContainer').offset().left || 65;
     };
 
+    Dag.showDataStoreInfo = function($dagTable) {
+        var tableId = $dagTable.data('id');
+        var $schema = $('#dagSchema');
+        $schema.addClass("loadInfo");
+        var tableName = $dagTable.data("tablename");
+        var schemaId = Math.floor(Math.random() * 100000);
+        $schema.data("id", schemaId);
+
+        $schema.find('.tableName').text(tableName);
+        $schema.find('.numCols').text("");
+        var datasets = $dagTable.closest(".dagWrap").data().allDagInfo.datasets;
+        var loadInfo = datasets[tableName].loadInfo;
+        if (loadInfo.format !== "csv") {
+            delete loadInfo.loadArgs.csv;
+        }
+
+        loadInfo.name = tableName;
+
+        if (loadInfo.numEntries == null || loadInfo.size == null) {
+            var dsObj = DS.getDSObj(tableName);
+            loadInfo.numEntries = dsObj.getNumEntries();
+            loadInfo.size = dsObj.getSize();
+        }
+        if (loadInfo.numEntries == null || loadInfo.size == null) {
+            // XXX todo, this may be cached in DSOBj, and if not we can
+            // cache it here
+            XcalarGetDatasetMeta(tableName)
+            .then(function(res) {
+                // check if current schema
+                if (!$schema.hasClass("loadInfo") ||
+                    $schema.data("id") !== schemaId) {
+                    return;
+                }
+                if (res != null && res.metas != null) {
+                    var metas = res.metas;
+                    var size = 0;
+                    var numRows = 0;
+                    // sum up size from all nodes
+                    for (var i = 0, len = metas.length; i < len; i++) {
+                        size += metas[i].size;
+                        numRows += metas[i].numRows;
+                    }
+                    loadInfo.numEntries = numRows;
+                    loadInfo.size = xcHelper.sizeTranslator(size);
+                    var html = JSON.stringify(loadInfo, null, 2);
+                    $schema.find(".content").html(html);
+                }
+            });
+        }
+
+        var html = JSON.stringify(loadInfo, null, 2);
+
+        $schema.find(".content").html(html);
+        $schema.show();
+        $('.tooltip').hide();
+
+        $(document).on('mousedown.hideDagSchema', function(event) {
+            if ($(event.target).closest('#dagSchema').length === 0 &&
+                $(event.target).closest('#dagScrollBarWrap').length === 0) {
+                hideSchema();
+            }
+        });
+
+        positionSchemaPopup($dagTable);
+    };
+
     Dag.showSchema = function($dagTable) {
         var tableId = $dagTable.data('id');
         var table = gTables[tableId];
         var $schema = $('#dagSchema');
+        $schema.removeClass("loadInfo");
         var tableName;
         var numCols;
         var numRows = "Unknown";
@@ -2015,7 +2096,7 @@ window.Dag = (function($, Dag) {
                                    .text('[' + (numCols - 1) + ']');
         $schema.find('.rowCount .value').text(numRows);
 
-        var html = '';
+        var html = "<ul>";
 
         for (var i = 0; i < numCols; i++) {
             if (numCols === 1) {
@@ -2046,10 +2127,24 @@ window.Dag = (function($, Dag) {
         if (numCols === 1) {
             html += '<span class="noFields">No fields present</span>';
         }
+        html += "</ul>";
 
-        $schema.find('ul').html(html);
+        $schema.find(".content").html(html);
         $schema.show();
+        $('.tooltip').hide();
 
+        $(document).on('mousedown.hideDagSchema', function(event) {
+            if ($(event.target).closest('#dagSchema').length === 0 &&
+                $(event.target).closest('#dagScrollBarWrap').length === 0) {
+                hideSchema();
+            }
+        });
+
+        positionSchemaPopup($dagTable);
+    };
+
+    function positionSchemaPopup($dagTable) {
+        var $schema = $('#dagSchema');
         var height = $schema.outerHeight();
         var topMargin = 3;
         var leftMargin = dagPanelLeft + 30;
@@ -2099,15 +2194,7 @@ window.Dag = (function($, Dag) {
         if (menuBottom > dagPanelBottom) {
             $schema.css('top', '-=' + ($schema.height() + 35));
         }
-        $('.tooltip').hide();
-
-        $(document).on('mousedown.hideDagSchema', function(event) {
-            if ($(event.target).closest('#dagSchema').length === 0 &&
-                $(event.target).closest('#dagScrollBarWrap').length === 0) {
-                hideSchema();
-            }
-        });
-    };
+    }
 
     Dag.makeTableNoDelete = function(tableId) {
         var $dagTables = $("#dagPanel").find('.dagTable[data-id="' +
@@ -3046,7 +3133,7 @@ window.Dag = (function($, Dag) {
 
         var oneTable = drawDagTable(dagNode, dagArray, parentChildMap, index,
                                     coor, isHidden, isPrevHidden,
-                                    group, storedInfo.groups, options);
+                                    group, storedInfo, options);
 
         var newHtml = accumulatedDrawings + oneTable;
 
@@ -3057,9 +3144,10 @@ window.Dag = (function($, Dag) {
     }
 
     function drawDagTable(dagNode, dagArray, parentChildMap, index, coor,
-                          isHidden, isPrevHidden, group, groups, options) {
+                          isHidden, isPrevHidden, group, storedInfo, options) {
         var dagOrigin = drawDagOperation(dagNode, dagArray, parentChildMap,
                                          index);
+
 
         var top = Math.round(coor.y * dagTableOuterHeight);
         var right = Math.round(coor.x * dagTableWidth);
@@ -3117,6 +3205,7 @@ window.Dag = (function($, Dag) {
             } else {
                 dsText = "Dataset ";
                 icon = '<i class="icon xi_data"></i>';
+                storedInfo.datasets[tableName] = dagInfo;
             }
 
             html += '<div class="dagTable dataStore ' + state +
@@ -3127,7 +3216,11 @@ window.Dag = (function($, Dag) {
                         'data-type="dataStore" ' +
                         'data-id="' + id + '" ' +
                         'data-url="' + encodeURI(url) + '">' +
-                            '<div class="dataStoreIcon"></div>' +
+                            '<div class="dataStoreIcon" ' +
+                            'data-toggle="tooltip" ' +
+                            'data-placement="top" ' +
+                            'data-container="body" ' +
+                            'title="' + CommonTxtTstr.ClickToOpts + '"></div>' +
                             icon +
                             '<span class="tableTitle" ' +
                             'data-toggle="tooltip" ' +
@@ -3158,39 +3251,13 @@ window.Dag = (function($, Dag) {
                         'data-tablename="' + tableName + '" ' +
                         'data-index="' + index + '" ' +
                         'data-id="' + tableId + '">' +
-                        '<div class="dagTableIcon ' + icv + '" ' +
-                        'data-toggle="tooltip" ' +
-                        'data-placement="top" ' +
-                        'data-container="body" ' +
-                        'title="' + tooltipTxt + '"' +
-                        '></div>' +
-                        '<i class="icon xi-generate-sub"></i>'+
-                        '<i class="icon xi-table-2"></i>'+
-                        '<span class="tableTitle exportFileName" ' +
-                            'data-toggle="tooltip" ' +
-                            'data-placement="bottom" ' +
-                            'data-container="body" ' +
-                            'title="' + tableName + '">' +
-                            tableName +
-                        '</span>' +
-                        '<span class="tableTitle exportTableName" ' +
-                            'data-toggle="tooltip" ' +
-                            'data-placement="bottom" ' +
-                            'data-container="body" ' +
-                            'title="' + tableName + '">' +
-                            tableName +
-                        '</span>';
-            } else {
-                html += '<div class="dagTable typeTable ' + state + '" ' +
-                            'data-tablename="' + tableName + '" ' +
-                            'data-index="' + index + '" ' +
-                            'data-id="' + tableId + '">' +
                             '<div class="dagTableIcon ' + icv + '" ' +
                             'data-toggle="tooltip" ' +
                             'data-placement="top" ' +
                             'data-container="body" ' +
                             'title="' + tooltipTxt + '"' +
                             '></div>' +
+                            '<i class="icon xi-generate-sub"></i>'+
                             '<i class="icon xi-table-2"></i>'+
                             '<span class="tableTitle exportFileName" ' +
                                 'data-toggle="tooltip" ' +
@@ -3198,7 +3265,33 @@ window.Dag = (function($, Dag) {
                                 'data-container="body" ' +
                                 'title="' + tableName + '">' +
                                 tableName +
+                            '</span>' +
+                            '<span class="tableTitle exportTableName" ' +
+                                'data-toggle="tooltip" ' +
+                                'data-placement="bottom" ' +
+                                'data-container="body" ' +
+                                'title="' + tableName + '">' +
+                                tableName +
                             '</span>';
+            } else {
+                html += '<div class="dagTable typeTable ' + state + '" ' +
+                            'data-tablename="' + tableName + '" ' +
+                            'data-index="' + index + '" ' +
+                            'data-id="' + tableId + '">' +
+                                '<div class="dagTableIcon ' + icv + '" ' +
+                                'data-toggle="tooltip" ' +
+                                'data-placement="top" ' +
+                                'data-container="body" ' +
+                                'title="' + tooltipTxt + '"' +
+                                '></div>' +
+                                '<i class="icon xi-table-2"></i>'+
+                                '<span class="tableTitle exportFileName" ' +
+                                    'data-toggle="tooltip" ' +
+                                    'data-placement="bottom" ' +
+                                    'data-container="body" ' +
+                                    'title="' + tableName + '">' +
+                                    tableName +
+                                '</span>';
             }
 
         }
@@ -3236,7 +3329,7 @@ window.Dag = (function($, Dag) {
             for (var i = 0; i < groupLength; i++) {
                 groupCopy.push(group[i]);
             }
-            groups[condensedId] = {
+            storedInfo.groups[condensedId] = {
                 "collapsed": true,
                 "group": groupCopy
             };
@@ -3459,6 +3552,19 @@ window.Dag = (function($, Dag) {
                 break;
             case ('loadInput'):
                 info.url = value.dataset.url;
+                var loadInfo = value;
+                info.loadInfo = loadInfo;
+                loadInfo.url = value.dataset.url;
+                loadInfo.format = DfFormatTypeTStr[value.dataset.formatType];
+                loadInfo.name = value.dataset.name;
+                if (loadInfo.loadArgs) {
+                    loadInfo.loadArgs.udf = value.loadArgs.udfLoadArgs
+                                                    .fullyQualifiedFnName;
+                    delete loadInfo.loadArgs.udfLoadArgs;
+                }
+
+                delete loadInfo.dataset;
+                delete loadInfo.dagNodeId;
                 break;
             case ('filterInput'):
                 var filterStr = value.filterStr;

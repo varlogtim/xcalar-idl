@@ -142,10 +142,6 @@ html.firefox, html.microsoft {
         }
     }
 
-    .dagTable.dataStore {
-        cursor: default;
-    }
-
     // menu
     .rightClickDropDown {
         .unsavable, .cannotExpand {
@@ -280,8 +276,10 @@ html.firefox, html.microsoft {
         .icon {
             color: @color-bg-btn-hover-blue;
         }
+        .dataStoreIcon {
+            background-color: @color-bg-btn-hover-blue;
+        }
         .dagTableIcon {
-
             &.icv ~ .icon {
                 color: @color-bg-red-hover;
             }
@@ -768,11 +766,26 @@ html.firefox, html.microsoft {
     max-width: 300px;
     cursor: default;
 
+    &.loadInfo {
+        max-width: 500px;
+        .background, .rowCount, .heading {
+            display: none;
+        }
+        .content {
+            white-space: pre;
+            max-width: 500px;
+            max-height: 500px;
+            overflow: auto;
+            font-family: @font-code;
+            padding: 10px;
+        }
+    }
+
     .title {
         display: block;
         text-align: center;
         font-size: 13px;
-        color: white;
+        color: @color-white;
         line-height: 22px;
         height: 24px;
         .textOverflow;
@@ -856,7 +869,7 @@ html.firefox, html.microsoft {
             .textOverflow;
 
             &:first-child {
-                text-indent: 21px;
+                text-indent: 22px;
                 color: @color-font-select-blue;
             }
 
@@ -963,5 +976,16 @@ html.firefox, html.microsoft {
     z-index: 101;
     li.hidden {
         display: none;
+    }
+    .dataStoreInfo {
+        display: none;
+    }
+    &.dataStoreMode {
+        li {
+            display: none;
+        }
+        .dataStoreInfo {
+            display: list-item;
+        }
     }
 }
