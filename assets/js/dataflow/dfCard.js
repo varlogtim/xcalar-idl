@@ -113,7 +113,7 @@ window.DFCard = (function($, DFCard) {
                     $df.trigger('click');
                 }
             }
-            if (!activeFound) {
+            if (!activeFound && !$("#dataflowTab").hasClass("firstTouch")) {
                 DFCard.focusFirstDF();
             }
         }
