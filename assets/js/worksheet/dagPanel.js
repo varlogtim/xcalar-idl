@@ -1997,6 +1997,7 @@ window.Dag = (function($, Dag) {
         if (gTables && tableId in gTables) {
             if (gTables[tableId].resultSetCount > -1) {
                 numRows = gTables[tableId].resultSetCount;
+                numRows = xcHelper.numToStr(numRows);
             }
         }
         $schema.find('.tableName').text(tableName);
