@@ -101,7 +101,7 @@ window.xcFunction = (function($, xcFunction) {
         var aggInfo = Aggregates.getAgg(tableId, backColName, aggrOp);
         if (aggInfo != null && (!aggName || aggName[0] !== gAggVarPrefix)) {
             var alertMsg = xcHelper.replaceMsg(AggTStr.AggMsg, {
-                "val": aggInfo.value
+                "val": xcHelper.numToStr(aggInfo.value)
             });
             Alert.show({
                 "title": title,
