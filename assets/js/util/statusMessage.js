@@ -31,7 +31,8 @@ window.StatusMessage = (function($, StatusMessage) {
         $statusText.on("click", ".menuIcon", function() {
             xcHelper.dropdownOpen($(this), $statusMenu, {
                 "floating": true,
-                "toggle": true
+                "toggle": true,
+                "offsetY": -6
             });
         });
 
@@ -195,9 +196,13 @@ window.StatusMessage = (function($, StatusMessage) {
                     if (ws) {
                         $("#pageStatusMenu").html(WSManager.getWSLists(true));
                         panelName = "Worksheet: " + WSManager.getWSName(ws) +
-                                    '<div class="menuIcon xc-action clickable">' +
-                                        '<i class="icon xi-arrow-up fa-7"></i>' +
-                                        '<i class="icon xi-arrow-down fa-7"></i>' +
+                                    '<div class="menuIcon xc-action clickable" ' +
+                                    'data-toggle="tooltip" ' +
+                                    'data-placement="top" ' +
+                                    'data-container="body" ' +
+                                    'data-original-title="' +
+                                        TooltipTStr.ViewAllWS + '">' +
+                                        '<i class="icon xi-list-view"></i>' +
                                     '</div>';
                     } else {
                         panelName = "Worksheet";

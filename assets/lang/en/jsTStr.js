@@ -94,6 +94,7 @@ TooltipTStr = {
     "PointDemo": "Add File / Create Dataset Ref",
     "NotInDemoMode": "Feature not available in cloud preview",
     "KeyExists": "Key Already Exists",
+    "ViewAllWS": "View all worksheets",
 
     // Sync with htmlTStr
     "IcvGenerating": "Erroneous rows(ER) table is generating",
