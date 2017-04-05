@@ -76,6 +76,14 @@
     }
 }
 
+#monitor-extension {
+    .flex-direction(column);
+
+    &.active {
+        .flex-display !important;
+    }
+}
+
 #extension-upload {
     .size(@width: 100%, @height: 260px);
 
@@ -121,6 +129,10 @@
 }
 
 #extensionInstallPanel {
+    .flex(0 1 auto);
+    .flex-display;
+    .flex-direction(column);
+
     &.admin {
         .install {
             display: block !important;
@@ -220,11 +232,16 @@
     }
 
     .category {
-        overflow-x: hidden;
-        overflow-y: auto;
+        .flex(0 1 auto);
+        .flex-display;
+        .flex-direction(column);
 
         .items {
             padding: 0;
+            .flex(0 1 auto);
+            overflow-x: hidden;
+            overflow-y: auto;
+            position: relative; // for item scroll position
         }
 
         .item {
