@@ -1152,7 +1152,7 @@ require("jsdom").env("", function(err, window) {
     app.post('/getTimezoneOffset', function(req, res) {
         var timezoneOffset = new Date().getTimezoneOffset();
         console.log("Server timezone offset: " + timezoneOffset);
-        res.send(timezoneOffset);
+        res.send({"offset": timezoneOffset});
     });
 
     function getOperatingSystem() {

@@ -435,7 +435,12 @@ window.Scheduler = (function(Scheduler, $) {
             "async": false,
             "url": xcHelper.getAppUrl() + "/getTimezoneOffset",
             success: function(retMsg) {
-                res = Number(retMsg);
+                if (typeof retMsg === "object" && retMsg.offset != null) {
+                    res = Number(retMsg.offset);
+                } else {
+                    // XXX a temp fix if cannot get offset
+                    res = 420;
+                }
             },
             error: function(error) {
                 console.log(error);
