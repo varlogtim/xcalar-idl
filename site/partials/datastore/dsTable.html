@@ -14,48 +14,56 @@
     <div class="titleSection">
       <header id="dsInfo-title" class="title">airlines</header>
     </div>
-    <div class="infoSection">
-      <div class="contentSection">
-        <span><%= dicts.dsTable.CreatedBy %>:</span>
-        <span id="dsInfo-author">John Smith</span>
-        <span class="divider">|</span>
-        <span class="divider">|</span>
-        <span><%= dicts.dsTable.Records %>:</span>
-        <span id="dsInfo-records">70,817</span>
-        <span class="divider">|</span>
-        <span><%= dicts.common.Size %>:</span>
-        <span id="dsInfo-size">43MB</span>
-      </div>
-      <div class="contentSection">
-        <span><%= dicts.ds.Format %>:</span>
-        <span id="dsInfo-format">CSV</span>
-        <span class="divider">|</span>
-        <span><%= dicts.dsTable.Path %>:</span>
-        <span id="dsInfo-path" class="tooltipOverflow" data-placement="left" data-container="body">nfs:///netstore/datasets/flight/airlines/airlines.csv</span>
-      </div>
-    </div>
-    <!-- buttons -->
-    <div id="dsColsBtn" class="buttonSection" data-introstep="w3-selectAll">
-      <div class="buttonGroup">
-        <div class="hint" title="<%= dicts.dsTable.SelectLaterHint %>" data-toggle="tooltip" data-container="body">
-          <i class="icon xi-help fa-12"></i>
+
+    <div class="infoSection flexContainer">
+      <!-- left part -->
+      <div class="flexWrap flex-left">
+        <div class="contentSection">
+          <span><%= dicts.dsTable.CreatedBy %>:</span>
+          <span id="dsInfo-author">John Smith</span>
+          <span class="divider">|</span>
+          <span class="divider">|</span>
+          <span><%= dicts.dsTable.Records %>:</span>
+          <span id="dsInfo-records">70,817</span>
+          <span class="divider">|</span>
+          <span><%= dicts.common.Size %>:</span>
+          <span id="dsInfo-size">43MB</span>
         </div>
-        <div id="noDScols" class="noCols xc-action">
-          <i class="icon xi-select-later"></i>
-          <span><%= dicts.dsTable.SelectLater %></span>
+        <div class="contentSection">
+          <span><%= dicts.ds.Format %>:</span>
+          <span id="dsInfo-format">CSV</span>
+          <span class="divider">|</span>
+          <span><%= dicts.dsTable.Path %>:</span>
+          <span id="dsInfo-path" class="tooltipOverflow" data-placement="left" data-container="body">nfs:///netstore/datasets/flight/airlines/airlines.csv</span>
         </div>
       </div>
-      <div class="buttonGroup">
-        <div id="clearDsCols" class="clear xc-action">
-           <i class="icon xi-select-none"></i>
-          <span><%= dicts.common.ClearAll %></span>
-        </div>
-        <div class="divider"></div>
-        <div id="selectDSCols" class="selectAll xc-action">
-          <i class="icon xi-select-all"></i>
-          <span><%= dicts.common.SelectAll %></span>
+      <!-- right part -->
+      <div class="flexWrap flex-right">
+        <!-- buttons -->
+        <div id="dsColsBtn" class="buttonSection" data-introstep="w3-selectAll">
+          <div class="buttonGroup">
+            <div class="hint" title="<%= dicts.dsTable.SelectLaterHint %>" data-toggle="tooltip" data-container="body">
+              <i class="icon xi-help fa-12"></i>
+            </div>
+            <div id="noDScols" class="noCols xc-action">
+              <i class="icon xi-select-later"></i>
+              <span><%= dicts.dsTable.SelectLater %></span>
+            </div>
+          </div>
+          <div class="buttonGroup">
+            <div id="clearDsCols" class="clear xc-action">
+               <i class="icon xi-select-none"></i>
+              <span><%= dicts.common.ClearAll %></span>
+            </div>
+            <div class="divider"></div>
+            <div id="selectDSCols" class="selectAll xc-action">
+              <i class="icon xi-select-all"></i>
+              <span><%= dicts.common.SelectAll %></span>
+            </div>
+          </div>
         </div>
       </div>
+      <!-- end right part -->
     </div>
   </div>
   <% } else { %>
@@ -65,47 +73,54 @@
         <%= dicts.ds.Datasets %>
       </header>
     </div>
-    <div class="infoSection">
-      <div class="contentSection">
-        <span><%= dicts.dsTable.CreatedBy %>:</span>
-        <span id="dsInfo-author"></span>
-        <span class="divider">|</span>
-        <span><%= dicts.dsTable.Records %>:</span>
-        <span id="dsInfo-records">N/A</span>
-        <span class="divider">|</span>
-        <span><%= dicts.common.Size %>:</span>
-        <span id="dsInfo-size">N/A</span>
-      </div>
-      <div class="contentSection">
-        <span><%= dicts.ds.Format %>:</span>
-        <span id="dsInfo-format"></span>
-        <span class="divider">|</span>
-        <span><%= dicts.dsTable.Path %>:</span>
-        <span id="dsInfo-path" class="tooltipOverflow" data-placement="left" data-container="body">N/A</span>
-      </div>
-    </div>
-    <!-- buttons -->
-    <div id="dsColsBtn" class="buttonSection">
-      <div class="buttonGroup">
-        <div class="hint" title="<%= dicts.dsTable.SelectLaterHint %>" data-toggle="tooltip" data-container="body">
-          <i class="icon xi-help fa-12"></i>
+    <div class="infoSection flexContainer">
+      <!-- left part -->
+      <div class="flexWrap flex-left">
+        <div class="contentSection">
+          <span><%= dicts.dsTable.CreatedBy %>:</span>
+          <span id="dsInfo-author"></span>
+          <span class="divider">|</span>
+          <span><%= dicts.dsTable.Records %>:</span>
+          <span id="dsInfo-records">N/A</span>
+          <span class="divider">|</span>
+          <span><%= dicts.common.Size %>:</span>
+          <span id="dsInfo-size">N/A</span>
         </div>
-        <div id="noDScols" class="noCols xc-action">
-          <i class="icon xi-select-later"></i>
-          <span><%= dicts.dsTable.SelectLater %></span>
+        <div class="contentSection">
+          <span><%= dicts.ds.Format %>:</span>
+          <span id="dsInfo-format"></span>
+          <span class="divider">|</span>
+          <span><%= dicts.dsTable.Path %>:</span>
+          <span id="dsInfo-path" class="tooltipOverflow" data-placement="left" data-container="body">N/A</span>
         </div>
       </div>
-      <div class="buttonGroup">
-        <div id="clearDsCols" class="clear xc-action">
-           <i class="icon xi-select-none"></i>
-          <span><%= dicts.common.ClearAll %></span>
-        </div>
-        <div class="divider"></div>
-        <div id="selectDSCols" class="selectAll xc-action">
-          <i class="icon xi-select-all"></i>
-          <span><%= dicts.common.SelectAll %></span>
+      <!-- right part -->
+      <div class="flexWrap flex-right">
+        <!-- buttons -->
+        <div id="dsColsBtn" class="buttonSection">
+          <div class="buttonGroup">
+            <div class="hint" title="<%= dicts.dsTable.SelectLaterHint %>" data-toggle="tooltip" data-container="body">
+              <i class="icon xi-help fa-12"></i>
+            </div>
+            <div id="noDScols" class="noCols xc-action">
+              <i class="icon xi-select-later"></i>
+              <span><%= dicts.dsTable.SelectLater %></span>
+            </div>
+          </div>
+          <div class="buttonGroup">
+            <div id="clearDsCols" class="clear xc-action">
+               <i class="icon xi-select-none"></i>
+              <span><%= dicts.common.ClearAll %></span>
+            </div>
+            <div class="divider"></div>
+            <div id="selectDSCols" class="selectAll xc-action">
+              <i class="icon xi-select-all"></i>
+              <span><%= dicts.common.SelectAll %></span>
+            </div>
+          </div>
         </div>
       </div>
+      <!-- end right part -->
     </div>
   </div>
   <% } %>

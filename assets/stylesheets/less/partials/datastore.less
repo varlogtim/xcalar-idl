@@ -122,7 +122,7 @@
     }
 
     .cardTopMain {
-        .size(@height: 116px);
+        // .size(@height: 116px);
         padding: 15px;
 
         .titleSection {
@@ -139,34 +139,40 @@
             }
         }
 
-        .infoSection {
-            .size(@width: ~"calc(100% - 190px)");
-            float: left;
-            .text-selection;
+        .flexContainer {
+            .flex-wrap(wrap);
 
-            .contentSection {
-                .size(@height: 20px);
-                font-size: 14px;
-                margin-top: 10px;
-                .textOverflowOneLine;
-
-                &:last-child {
-                    .flex-display;
-                    > span {
-                        margin-right: 4px;
-                    }
-                }
+            .flex-left {
+                .size(@max-width: 100%);
+                .flex(1 1 auto);
             }
-            #dsInfo-path {
-                .flex(0 1 auto);
-                .textOverflowOneLine;
+
+            .flex-right {
+                .flex(1 1 190px);
             }
         }
 
-        .buttonSection {
-            .size(@width: 190px);
-            float: right;
+        .contentSection {
+            .text-selection;
+            .size(@height: 20px);
+            font-size: 14px;
+            margin-top: 10px;
+            .textOverflowOneLine;
 
+            &:last-child {
+                .flex-display;
+                > span {
+                    margin-right: 4px;
+                }
+            }
+        }
+
+        #dsInfo-path {
+            .flex(0 1 auto);
+            .textOverflowOneLine;
+        }
+
+        .buttonSection {
             .buttonGroup {
                 .size(@height: 20px);
                 margin-top: 10px;
@@ -185,15 +191,23 @@
                     margin-left: 5px;
                 }
 
+                #noDScols {
+                    .size(@max-width: ~"calc(100% - 20px)");
+                }
+
                 .xc-action {
+                    .size(@max-width: ~"calc(50% - 11px)");
+
                     i, span {
                         display: inline-block;
                         float: left;
                     }
 
                     span {
+                        .size(@max-width: ~"calc(100% - 25px)");
                         line-height: 20px;
                         margin-left: 5px;
+                        .textOverflowOneLine;
                     }
                 }
 
