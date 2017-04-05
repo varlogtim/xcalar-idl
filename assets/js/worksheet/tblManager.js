@@ -312,9 +312,8 @@ window.TblManager = (function($, TblManager) {
     TblManager.archiveTable = function(tableId, options) {
         options = options || {};
         var del = options.del || false;
-        var delayTableRemoval = options.delayTableRemoval || false;
         // var tempHide = options.tempHide || false;
-        if (delayTableRemoval) {
+        if (options.delayTableRemoval) {
             $("#xcTableWrap-" + tableId).addClass('tableToRemove');
             $("#dagWrap-" + tableId).addClass('dagWrapToRemove');
         } else {
@@ -491,7 +490,7 @@ window.TblManager = (function($, TblManager) {
         }
 
         tables = tables.filter(function(tableIdOrName) {
-            return vefiryTableType(tableIdOrName, tableType);
+            return verifyTableType(tableIdOrName, tableType);
         });
 
         var splitTables = splitDroppableTables(tables, tableType);
@@ -614,7 +613,7 @@ window.TblManager = (function($, TblManager) {
         table.removeNoDelete();
     };
 
-    function vefiryTableType(tableIdOrName, expectTableType) {
+    function verifyTableType(tableIdOrName, expectTableType) {
         var currentTableType = null;
         var tableId = null;
 
@@ -2615,11 +2614,13 @@ window.TblManager = (function($, TblManager) {
         return {deleteable: deleteables, noDelete: nonDeletables};
     }
 
+    // for deleting active or archived tables
     function delTableHelper(tableId, tableType, txId) {
         var deferred = jQuery.Deferred();
 
         var table = gTables[tableId];
         var tableName = table.getName();
+        xcHelper.lockTable(tableId);
 
         // Free the result set pointer that is still pointing to it
         table.freeResultset()
@@ -2646,7 +2647,10 @@ window.TblManager = (function($, TblManager) {
             removeTableMeta(tableName);
             deferred.resolve();
         })
-        .fail(deferred.reject);
+        .fail(function(error) {
+            xcHelper.unlockTable(tableId);
+            deferred.reject(error);
+        });
 
         return deferred.promise();
     }
@@ -2755,7 +2759,7 @@ window.TblManager = (function($, TblManager) {
     /* Unit Test Only */
     if (window.unitTestMode) {
         TblManager.__testOnly__ = {};
-        TblManager.__testOnly__.vefiryTableType = vefiryTableType;
+        TblManager.__testOnly__.vefiryTableType = verifyTableType;
     }
     /* End Of Unit Test Only */
 

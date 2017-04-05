@@ -741,6 +741,11 @@ html.edge {
             width: 150px;
             opacity: 0.8;
             .transform(translateX(-50%));
+
+            &.noCancel {
+                pointer-events: none;
+            }
+
             .iconPart {
                 margin-left: auto;
                 margin-right: auto;

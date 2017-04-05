@@ -1417,6 +1417,7 @@ window.xcHelper = (function($, xcHelper) {
         return true;
     };
 
+    // if no txId, will not be made cancelable
     xcHelper.lockTable = function(tableId, txId) {
         // lock worksheet as well
         xcAssert((tableId != null), "Invalid Parameters!");
@@ -1441,6 +1442,9 @@ window.xcHelper = (function($, xcHelper) {
                     '<i class="icon xi-close"></i>' +
                   '</div>' +
                 '</div>');
+            if (txId == null) {
+                $lockedIcon.addClass("noCancel");
+            }
             $tableWrap.addClass('tableLocked').append($lockedIcon);
             var iconHeight = $lockedIcon.height();
             var tableHeight = $tableWrap.find('.xcTbodyWrap').height();
@@ -1472,7 +1476,9 @@ window.xcHelper = (function($, xcHelper) {
         $dagTables.addClass("locked");
         if (!gTables[tableId].isNoDelete()) {
             // if noDelete, they would already have a lock
-            $dagTables.append(lockHTML);
+            if (!$dagTables.find(".lockIcon").length) {
+                $dagTables.append(lockHTML);
+            }
         }
 
         gTables[tableId].lock();
