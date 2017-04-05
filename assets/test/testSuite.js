@@ -808,11 +808,18 @@ window.TestSuite = (function($, TestSuite) {
                         .trigger(fakeEvent.click);
                 $section.find(".functionsMenu li:contains('ymd:ymd')")
                         .trigger(fakeEvent.click);
+                // Code below assumes only 1 fatPtr. If more than one, please
+                // augment check accordingly
+                var fatPtrPrefix = gTables[tableId].backTableMeta.valueAttrs
+                                                   .filter(function(element) {
+                                       return (element.type ==
+                                               DfFieldTypeT.DfFatptr);
+                                       })[0].name;
 
                 var $args = $section.find(".arg");
-                $args.eq(0).val(gColPrefix + "Year");
-                $args.eq(1).val(gColPrefix + "Month");
-                $args.eq(2).val(gColPrefix + "DayofMonth");
+                $args.eq(0).val(gColPrefix + fatPtrPrefix + "::Year");
+                $args.eq(1).val(gColPrefix + fatPtrPrefix + "::Month");
+                $args.eq(2).val(gColPrefix + fatPtrPrefix + "::DayofMonth");
                 $args.eq(3).val("YearMonthDay");
 
                 $("#operationsView .submit").click();
