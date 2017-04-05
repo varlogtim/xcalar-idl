@@ -314,13 +314,19 @@ function generateLogs(action, slaveUrl, results) {
 // Handle Xcalar Services
 function xcalarStart() {
     console.log("Enter Xcalar Start");
-    var command = 'service xcalar start';
+    // only support root user
+    // var command = 'service xcalar start';
+    // support non-root user
+    var command = "/opt/xcalar/bin/xcalarctl start";
     return executeCommand(command);
 }
 
 function xcalarStop() {
     console.log("Enter Xcalar Stop");
-    var command = 'service xcalar stop';
+    // only support root user
+    // var command = 'service xcalar stop';
+    // support non-root user
+    var command = "/opt/xcalar/bin/xcalarctl stop";
     return executeCommand(command);
 }
 
@@ -332,7 +338,10 @@ function getOperatingSystem() {
 
 function xcalarStatus() {
     console.log("Enter Xcalar Status");
-    var command = 'service xcalar status';
+    // only support root user
+    // var command = 'service xcalar status';
+    // support non-root user
+    var command = "/opt/xcalar/bin/xcalarctl status";
     return executeCommand(command);
 }
 
