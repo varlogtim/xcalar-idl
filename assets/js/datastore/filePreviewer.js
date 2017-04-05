@@ -156,7 +156,8 @@ window.FilePreviewer = (function(FilePreviewer, $) {
     }
 
     function showPreview(base64Data, blockSize) {
-        var buffer = atob(base64Data);
+        // var buffer = atob(base64Data);
+        var buffer = Base64.decode(base64Data);
         var codeHtml = "";
         var charHtml = "";
 

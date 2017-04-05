@@ -479,7 +479,8 @@ function XcalarPreview(url, fileNamePattern, isRecur, numBytesRequested, offset)
         var retStruct;
         try {
             retStruct = JSON.parse(ret.outputJson);
-            var decoded = atob(retStruct.base64Data);
+            var decoded = Base64.decode(retStruct.base64Data);
+            // var decoded = atob(retStruct.base64Data);
             retStruct.buffer = decoded;
             deferred.resolve(retStruct);
         } catch (error) {
