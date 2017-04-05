@@ -2730,7 +2730,8 @@ window.Profile = (function($, Profile, d3) {
     }
 
     function isTypeNumber(type) {
-        return (type === "integer" || type === "float");
+        // boolean is also a num in backend
+        return (type === "integer" || type === "float" || type === "boolean");
     }
 
     function isModalVisible(curStatsCol) {
