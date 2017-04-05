@@ -1548,8 +1548,9 @@ window.Profile = (function($, Profile, d3) {
         if (num == null) {
             console.warn("cannot format empty or null value");
             return "";
-        } else if (isNaN(num) ||
-                   (typeof(num) === "string" && num.trim().length === 0)) {
+        } else if (typeof(num) === "string") {
+            return "\"" + num + "\"";
+        } else if (isNaN(num)) {
             return num;
         } else if (isLogScale) {
             if (num <= 1 && num >= -1) {
