@@ -481,12 +481,15 @@ window.DSPreview = (function($, DSPreview) {
         } else {
             $udfFuncList.parent().tooltip("destroy");
             $udfFuncList.removeClass("disabled")
-                .find("input").val("")
-                .end()
-                .find(".list li").addClass("hidden")
-                .filter(function() {
-                    return $(this).data("module") === module;
-                }).removeClass("hidden");
+                        .find("input").val("");
+
+            var $funcLis = $udfFuncList.find(".list li").addClass("hidden")
+                            .filter(function() {
+                                return $(this).data("module") === module;
+                            }).removeClass("hidden");
+            if ($funcLis.length === 1) {
+                selectUDFFunc($funcLis.eq(0).text());
+            }
         }
     }
 
