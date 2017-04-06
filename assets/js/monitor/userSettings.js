@@ -18,6 +18,7 @@ window.UserSettings = (function($, UserSettings) {
         restoreMainTabs();
 
         var dsInfo = userInfos.getDSInfo();
+
         var atStartup = true;
         DS.restore(dsInfo, atStartup)
         .then(function() {
@@ -42,32 +43,55 @@ window.UserSettings = (function($, UserSettings) {
         }
 
         userPrefs.update();
-        var shouldCommit = hasDSChange || userPrefChangeCheck();
+        var userPrefHasChange = userPrefChangeCheck();
+        var shouldCommit = hasDSChange || userPrefHasChange;
         if (shouldCommit) {
             userInfos.update();
 
-            var kvKey;
-            var kvScope;
-            var info;
+            // If regular user, we will only commit userInfos with gUserKey.
+            // If admin or xcSupport, we may commit userInfos/gUserKey
+            // if there's a ds folder change, or we may commit genSettings
+            // if there's a settings change, or both
 
-            if (gXcSupport) {
-                kvKey = KVStore.gSettingsKey;
-                kvScope = gKVScope.GLOB;
-                genSettings.updateXcSettings(UserSettings.getPref('general'));
-                info = genSettings.getAdminAndXcSettings();
-            } else if (Admin.isAdmin()) {
-                kvKey = KVStore.gSettingsKey;
-                kvScope = gKVScope.GLOB;
-                genSettings.updateAdminSettings(
-                                        UserSettings.getPref('general'));
-                info = genSettings.getAdminAndXcSettings();
+            var dsPromise;
+            var userPrefPromise;
+            if (hasDSChange) {
+                dsPromise = KVStore.put(KVStore.gUserKey,
+                                        JSON.stringify(userInfos), true,
+                                        gKVScope.USER);
             } else {
-                kvKey = KVStore.gUserKey;
-                kvScope = gKVScope.USER;
-                info = userInfos;
+                dsPromise = PromiseHelper.resolve();
             }
 
-            KVStore.put(kvKey, JSON.stringify(info), true, kvScope)
+            if (userPrefHasChange) {
+                if (gXcSupport) {
+                    genSettings.updateXcSettings(UserSettings
+                                                 .getPref('general'));
+                    userPrefPromise = KVStore.put(KVStore.gSettingsKey,
+                            JSON.stringify(genSettings.getAdminAndXcSettings()),
+                                true, gKVScope.GLOB);
+                } else if (Admin.isAdmin()) {
+                    genSettings.updateAdminSettings(
+                                            UserSettings.getPref('general'));
+                    userPrefPromise = KVStore.put(KVStore.gSettingsKey,
+                            JSON.stringify(genSettings.getAdminAndXcSettings()),
+                                true, gKVScope.GLOB);
+                } else if (!hasDSChange) {
+                    userPrefPromise = KVStore.put(KVStore.gUserKey,
+                                    JSON.stringify(userInfos),true,
+                                    gKVScope.USER);
+                } else {
+                    // if has dsChange, dsPromise will take care of it
+                    userPrefPromise = PromiseHelper.resolve();
+                }
+            } else {
+                userPrefPromise = PromiseHelper.resolve();
+            }
+
+            dsPromise
+            .then(function() {
+               return userPrefPromise;
+            })
             .then(function() {
                 hasDSChange = false;
                 saveLastPrefs();
@@ -84,7 +108,6 @@ window.UserSettings = (function($, UserSettings) {
                 deferred.reject(error);
             });
         } else {
-            // when no need to commit
             if (showSuccess) {
                 xcHelper.showSuccess(SuccessTStr.SaveSettings);
             }
@@ -129,10 +152,6 @@ window.UserSettings = (function($, UserSettings) {
         KVStore.logChange();
     };
 
-    // UserSettings.clear = function() {
-    //     userPrefs = new UserPref();
-    // };
-
     function setup() {
         userPrefs = new UserPref();
         hasDSChange = false;
@@ -142,19 +161,6 @@ window.UserSettings = (function($, UserSettings) {
             $("#monitorDsSampleInput").find("li:contains(TB)").hide();
         }
     }
-
-    // not used but may be in the future
-    // function getUserConfigParams(params) {
-    //     var numParams = params.numParams;
-    //     params = params.parameter;
-    //     var paramsObj = {};
-    //     for (var i = 0; i < numParams; i++) {
-    //         if (params[i].paramName === "DsDefaultSampleSize") {
-    //             paramsObj[params[i].paramName] = parseInt(params[i].paramValue);
-    //         }
-    //     }
-    //     return paramsObj;
-    // }
 
     function saveLastPrefs() {
         cachedPrefs = xcHelper.deepCopy(userPrefs);
@@ -171,7 +177,6 @@ window.UserSettings = (function($, UserSettings) {
 
             return false;
         }
-
         for (var key in userPrefs) {
             if (cachedPrefs[key] == null && userPrefs[key] == null) {
                 continue;

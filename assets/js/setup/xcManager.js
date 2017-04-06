@@ -639,6 +639,7 @@ window.xcManager = (function(xcManager, $) {
         $("#autoSaveBtn").click(function() {
             var $btn = $(this);
             xcHelper.disableSubmit($btn);
+            xcHelper.disableSubmit($("#userSettingsSave"));
 
             KVStore.commit()
             .then(function() {
@@ -649,6 +650,7 @@ window.xcManager = (function(xcManager, $) {
             })
             .always(function() {
                 xcHelper.enableSubmit($btn);
+                xcHelper.enableSubmit($("#userSettingsSave"));
             });
         });
 

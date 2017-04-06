@@ -1517,11 +1517,20 @@ window.xcHelper = (function($, xcHelper) {
     };
 
     xcHelper.disableSubmit = function($submitBtn) {
-        $submitBtn.prop('disabled', true);
+        if ($submitBtn.is("button")) {
+            $submitBtn.prop('disabled', true);
+        } else {
+            $submitBtn.addClass("xc-disabled");
+        }
     };
 
     xcHelper.enableSubmit = function($submitBtn) {
         $submitBtn.prop('disabled', false);
+        if ($submitBtn.is("button")) {
+            $submitBtn.prop('disabled', false);
+        } else {
+            $submitBtn.removeClass("xc-disabled");
+        }
     };
 
     // inserts text into an input field and adds commas

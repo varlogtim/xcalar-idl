@@ -127,14 +127,14 @@ describe("User Setting Test", function() {
             });
         });
 
-        it("should commit in XcSupport case", function(done) {
+        it("should commit dsChange in XcSupport case", function(done) {
             UserSettings.logDSChange();
 
             var oldCache = gXcSupport;
             gXcSupport = true;
             UserSettings.commit()
             .then(function() {
-                expect(testKey).to.equal(KVStore.gSettingsKey);
+                expect(testKey).to.equal(KVStore.gUserKey);
                 done();
             })
             .fail(function() {
@@ -145,8 +145,52 @@ describe("User Setting Test", function() {
             });
         });
 
+        it("should commit prefChange in XcSupport case", function(done) {
+            // cause a change in user prefs
+            $("#dataViewBtn").toggleClass("listView");
+
+            var oldCache = gXcSupport;
+            gXcSupport = true;
+
+            UserSettings.commit()
+            .then(function() {
+                expect(testKey).to.equal(KVStore.gSettingsKey);
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                gXcSupport = oldCache;
+               // do not change list view back until other test are done
+            });
+        });
+
         it("should commit admin settings", function(done) {
             UserSettings.logDSChange();
+
+            var oldFunc = Admin.isAdmin;
+            Admin.isAdmin = function() {
+                return true;
+            };
+
+            UserSettings.commit()
+            .then(function() {
+                expect(testKey).to.equal(KVStore.gUserKey);
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                Admin.isAdmin = oldFunc;
+            });
+        });
+
+        it("should commit prefChange in Admin case", function(done) {
+            // cause a change in user prefs, we're actually changing it back
+            // since this is toggled a 2nd time
+            $("#dataViewBtn").toggleClass("listView");
 
             var oldFunc = Admin.isAdmin;
             Admin.isAdmin = function() {
