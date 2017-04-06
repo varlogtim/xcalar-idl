@@ -3662,7 +3662,8 @@ window.OperationsView = (function($, OperationsView) {
             value = "\"" + value + "\"";
             // stringify puts in too many slashes
         } else if (shouldBeNumber) {
-            if (value.indexOf(".") === 0) {
+            var tempValue = "" + value; // Force string to provide indexOf
+            if (tempValue.indexOf(".") === 0) {
                 value = "0" + value;
             }
         } else {
