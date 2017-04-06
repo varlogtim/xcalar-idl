@@ -1770,19 +1770,18 @@ window.JoinView = (function($, JoinView) {
         $el.focus();
     }
 
-    function getColInputs(tableId, backColName) {
-        var col = gTables[tableId].getColByBackName(backColName);
+    function getColInputs(tableId, frontColName) {
+        var col = gTables[tableId].getColByFrontName(frontColName);
         if (!col) {
             return null;
         }
+        var backColName = col.getBackColName();
         var type = col.getType();
-        var frontColName = col.getFrontColName();
-
         var colNum = gTables[tableId].getColNumByBackName(backColName);
         var data = gTables[tableId].getColContents(colNum);
         var requiredInfo = {
             'type': type,
-            'name': frontColName,
+            'name': col.getFrontColName(), // without prefix
             'data': data,
             'uniqueIdentifier': backColName, // Only IDs chosen result,
             'tableId': tableId
@@ -1798,7 +1797,7 @@ window.JoinView = (function($, JoinView) {
         for (var i = 0; i < suggCols.length; i++) {
             if (!suggCols[i].isDATACol()) {
                 var result = getColInputs(suggTableId,
-                    suggCols[i].getBackColName());
+                    suggCols[i].getFrontColName(true));
                 if (result !== null) {
                     destInfo.push(result);
                 }
@@ -1813,7 +1812,9 @@ window.JoinView = (function($, JoinView) {
 
     function suggestJoinKey(tableId, val, $inputToFill, suggTableId) {
         var inputs = getJoinKeyInputs(tableId, val, suggTableId);
-
+        if (inputs.srcColInfo == null) {
+            return JoinKeySuggestion.KeyNotFound;
+        }
         var suggestion = xcSuggest.suggestJoinKey(inputs);
         // NOTE: Heuristic score on range of all ints,
         // but ML score on range of -100 to 0;

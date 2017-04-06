@@ -457,6 +457,7 @@ describe('JoinView Test', function() {
         });
 
         it ('smart suggest on self join col should work', function() {
+            $("#joinRightTableList").find(".arg").val(tableName);
             $joinForm.find('.leftClause').val(colName).change();
             $joinForm.find('.rightClause').val("").change();
             expect($joinForm.find('.rightClause').val()).to.equal("");

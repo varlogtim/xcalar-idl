@@ -945,7 +945,7 @@ describe("Persistent Constructor Test", function() {
         });
 
         it("Table should get col info", function() {
-            var progCol =  new ProgCol({
+            var progCol = new ProgCol({
                 "name": "testCol",
                 "backName": "prefix::backTestCol",
                 "isNewCol": false,
@@ -968,20 +968,58 @@ describe("Persistent Constructor Test", function() {
             expect(table.getCol(1).getFrontColName()).to.be.equal("testCol");
             expect(table.getCol(3)).to.be.null;
 
-            expect(table.getColNumByBackName("prefix::backTestCol"))
-            .to.equal(1);
-            expect(table.getColNumByBackName("errorCol")).to.equal(-1);
-
-            expect(table.getColByBackName("prefix::backTestCol")
-            .getFrontColName()).to.equal("testCol");
-            expect(table.getColByBackName("errorCol")).to.be.null;
-
             expect(table.getColByFrontName("prefix::testCol").getBackColName())
             .to.equal("prefix::backTestCol");
             expect(table.getColByFrontName("errorCol")).to.be.null;
 
             expect(table.hasColWithBackName("prefix::backTestCol")).to.be.true;
             expect(table.hasColWithBackName("errorCol")).to.be.false;
+        });
+
+        it("should getColNumByBackName", function() {
+            var progCol1 = new ProgCol({
+                "name": "testCol",
+                "backName": "prefix::backTestCol",
+                "isNewCol": false,
+                "func": {
+                    "name": "pull"
+                }
+            });
+
+            var dataCol = ColManager.newDATACol();
+            var table = new TableMeta({
+                "tableName": "test#a1",
+                "tableId": "a1",
+                "tableCols": [progCol1, dataCol],
+                "isLocked": false
+            });
+
+            expect(table.getColNumByBackName("prefix::backTestCol"))
+            .to.equal(1);
+            expect(table.getColNumByBackName("errorCol")).to.equal(-1);
+        });
+
+        it("should getColByBackName", function() {
+            var progCol1 = new ProgCol({
+                "name": "testCol",
+                "backName": "prefix::backTestCol",
+                "isNewCol": false,
+                "func": {
+                    "name": "pull"
+                }
+            });
+
+            var dataCol = ColManager.newDATACol();
+            var table = new TableMeta({
+                "tableName": "test#a1",
+                "tableId": "a1",
+                "tableCols": [progCol1, dataCol],
+                "isLocked": false
+            });
+
+            expect(table.getColByBackName("prefix::backTestCol")
+            .getFrontColName()).to.equal("testCol");
+            expect(table.getColByBackName("errorCol")).to.be.null;
         });
 
         it("Should check if has column", function() {

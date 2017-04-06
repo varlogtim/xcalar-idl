@@ -54,7 +54,7 @@ window.UploadDataflowCard = (function($, UploadDataflowCard) {
             return;
         }
         var limit = 1024 * 1024; // 1M
-        if (file.size > limit) {
+        if (file && file.size > limit) {
             Alert.error(DSTStr.UploadLimit, DFTStr.UploadLimitMsg);
             return;
         }
