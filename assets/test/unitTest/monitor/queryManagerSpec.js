@@ -71,7 +71,7 @@ describe('QueryManager Test', function() {
             expect($queryDetail.find(".progressBar").width()).to.equal(0);
             expect($queryDetail.find(".querySteps").text()).to.equal("");
             expect($queryDetail.find(".operationSection .content").text()).to.equal("");
-            
+
             var $queryLi = $queryList.find(".xc-query").last();
             expect($queryList.find(".hint.xc-hidden").length).to.equal(1);
             expect($queryList.find(".xc-query").length).to.equal(queryListLen + 1);

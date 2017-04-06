@@ -1116,6 +1116,11 @@ function XcalarDeleteTable(tableName, txId, isRetry) {
     var def1 = xcalarDeleteDagNodes(tHandle, tableName,
                                     SourceTypeT.SrcTable);
     var def2 = XcalarGetQuery(workItem);
+
+    def2.then(function(query) {
+        Transaction.startSubQuery(txId, 'drop table', tableName, query);
+    });
+
     jQuery.when(def1, def2)
     .then(function(ret1, ret2) {
         if (Transaction.checkAndSetCanceled(txId)) {

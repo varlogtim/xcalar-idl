@@ -27,7 +27,7 @@ XcalarApiServiceClient.prototype.recv_queueWorkAsync = function() {
   var fname = ret.fname;
   var mtype = ret.mtype;
   var rseqid = ret.rseqid;
-  
+
   if (mtype == Thrift.MessageType.EXCEPTION) {
     var x = new Thrift.TApplicationException();
     x.read(this.input);

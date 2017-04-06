@@ -2972,7 +2972,6 @@ var XcSubQuery = (function() {
     */
     function XcSubQuery(options) {
         options = options || {};
-
         this.name = options.name;
         this.time = options.time;
         this.query = options.query;
@@ -3026,12 +3025,14 @@ var XcSubQuery = (function() {
         check: function() {
             var self = this;
             var deferred = jQuery.Deferred();
-            if (!self.dstTable) {
+            if (!self.dstTable || self.name.indexOf("drop") === 0) {
                 // XXX This happens if the call is a "drop"
                 // Since we don't have a dstDag call, we will just return 50%
                 deferred.resolve(50);
-                xcHelper.assert(self.name === "drop", "Unexpected operation!");
+                xcAssert(self.name.indexOf("drop") === 0,
+                         "Unexpected operation! " + self.name);
             } else {
+
                 XcalarGetOpStats(self.dstTable)
                 .then(function(ret) {
                     var stats = ret.opDetails;

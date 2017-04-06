@@ -379,7 +379,7 @@ module.exports = {
         "PhysicalNode": "Physical Node",
         "QUERIES": "QUERIES",
         "Queries": "Queries",
-        "QueryHint": "No query added",
+        "QueryHint": "No queries added",
         "RAM": "RAM",
         "RecentQueries": "Recent Queries",
         "ReleaseMem": "Release Memory",

@@ -43,7 +43,7 @@ window.Transaction = (function(Transaction, $) {
                 exportName: options.exportName,
                 srcTables: getSrcTables(options.sql)
             };
-            
+
             QueryManager.addQuery(curId, operation, queryOptions);
         }
 

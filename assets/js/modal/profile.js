@@ -280,28 +280,11 @@ window.Profile = (function($, Profile, d3) {
         // update front col name
         statsCol.frontColName = progCol.getFrontColName(true);
 
-        var sql = {
-            "operation": SQLOps.Profile,
-            "tableName": table.getName(),
-            "tableId": tableId,
-            "colNum": colNum,
-            "colName": colName,
-            "id": statsCol.getId()
-        };
-        var txId = Transaction.start({
-            "msg": StatusMessageTStr.Profile + " " + colName,
-            "operation": SQLOps.Profile,
-            "sql": sql
-        });
-
         showProfile();
         $modal.attr("data-state", "pending");
-        generateProfile(table, txId)
+        generateProfile(table)
         .then(function() {
             $modal.attr("data-state", "finished");
-            Transaction.done(txId, {
-                "noNotification": true
-            });
             deferred.resolve();
         })
         .fail(function(error) {
@@ -453,7 +436,7 @@ window.Profile = (function($, Profile, d3) {
         resetRowsInfo();
     }
 
-    function generateProfile(table, txId) {
+    function generateProfile(table) {
         var deferred = jQuery.Deferred();
         var promises = [];
         var curStatsCol = statsCol;
@@ -475,7 +458,7 @@ window.Profile = (function($, Profile, d3) {
                     curStatsCol.groupByInfo.isComplete = false;
                     curStatsCol.groupByInfo.buckets[bucketNum] = {};
 
-                    runGroupby(table, curStatsCol, bucketNum, txId)
+                    runGroupby(table, curStatsCol, bucketNum)
                     .then(innerDeferred.resolve)
                     .fail(innerDeferred.reject);
                 } else {
@@ -483,13 +466,13 @@ window.Profile = (function($, Profile, d3) {
                 }
             })
             .fail(function(error) {
-                failureHandler(curStatsCol, error, txId);
+                failureHandler(curStatsCol, error);
                 innerDeferred.reject(error);
             });
 
             promises.push(innerDeferred.promise());
         } else if (curStatsCol.groupByInfo.isComplete !== "running") {
-            promises.push(runGroupby(table, curStatsCol, bucketNum, txId));
+            promises.push(runGroupby(table, curStatsCol, bucketNum));
         }
 
         PromiseHelper.when.apply(window, promises)
@@ -993,7 +976,7 @@ window.Profile = (function($, Profile, d3) {
         }
     }
 
-    function runGroupby(table, curStatsCol, curBucketNum, txId) {
+    function runGroupby(table, curStatsCol, curBucketNum) {
         var deferred  = jQuery.Deferred();
         if (curBucketNum !== 0) {
             return deferred.reject("Invalid bucket num").promise();
@@ -1007,6 +990,22 @@ window.Profile = (function($, Profile, d3) {
         var tableToDelete;
 
         curStatsCol.groupByInfo.isComplete = "running";
+
+        var sql = {
+            "operation": SQLOps.Profile,
+            "tableName": table.getName(),
+            "tableId": table.getId(),
+            "colNum": curColNum,
+            "colName": colName,
+            "id": statsCol.getId()
+        };
+
+        var txId = Transaction.start({
+            "msg": StatusMessageTStr.Profile + " " + colName,
+            "operation": SQLOps.Profile,
+            "sql": sql,
+            "steps": -1
+        });
 
         XIApi.index(txId, colName, tableName)
         .then(function(indexedTableName, hasIndexed) {
@@ -1080,7 +1079,12 @@ window.Profile = (function($, Profile, d3) {
                 return refreshGroupbyInfo(curStatsCol);
             }
         })
-        .then(deferred.resolve)
+        .then(function() {
+            Transaction.done(txId, {
+                "noNotification": true
+            });
+            deferred.resolve.apply(null, arguments);
+        })
         .fail(function(error) {
             failureHandler(curStatsCol, error, txId);
             deferred.reject(error);

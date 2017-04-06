@@ -58,7 +58,7 @@ window.QueryManager = (function(QueryManager, $) {
             "startTime": CommonTxtTstr.NA,
             "elapsed": CommonTxtTstr.NA,
         }, id, QueryStatus.Run, true);
-    
+
         if (type === "xcQuery") {
             runXcQuery(id, mainQuery, subQueries);
         } else {
@@ -264,8 +264,10 @@ window.QueryManager = (function(QueryManager, $) {
         if (!mainQuery.subQueries[currStep]) {
             if (currStep === 0 && prevState === QueryStateT.qrNotStarted) {
                 deferred.resolve();
+            } else if (mainQuery.subQueries[currStep - 1]) {
+                // previous subquery finished but currStep hasn't started
+                deferred.resolve();
             } else {
-                console.warn('step vs query mismatch');
                 deferred.reject('step vs query mismatch');
             }
             return deferred.promise();
@@ -489,7 +491,7 @@ window.QueryManager = (function(QueryManager, $) {
         });
     }
 
-    function checkCycle(fn, id, adjustTime) {
+    function checkCycle(callback, id, adjustTime) {
         clearIntervalHelper(id);
 
         var intTime = checkInterval;
@@ -499,11 +501,11 @@ window.QueryManager = (function(QueryManager, $) {
 
         queryCheckList[id] = setTimeout(function() {
             var startTime = Date.now();
-            fn()
+            callback()
             .then(function() {
                 if (queryCheckList[id] != null) {
                     var elapsedTime = Date.now() - startTime;
-                    checkCycle(fn, id, elapsedTime);
+                    checkCycle(callback, id, elapsedTime);
                 }
             });
         }, intTime);
@@ -520,7 +522,7 @@ window.QueryManager = (function(QueryManager, $) {
             var elapsedTime = Date.now() - startTime;
             checkCycle(check, id, elapsedTime);
         });
-        
+
         function check() {
             var deferred = jQuery.Deferred();
 
@@ -603,7 +605,7 @@ window.QueryManager = (function(QueryManager, $) {
 
         var mainQuery = queryLists[id];
         var firstQueryPos = getFirstQueryPos(mainQuery);
-        
+
         var startTime = Date.now();
         check()
         .then(function() {
@@ -775,19 +777,21 @@ window.QueryManager = (function(QueryManager, $) {
                                    ';</div>';
                 }
             }
+        } else if (!query && !blank) {
+            queryString = '<div class="queryRow"></div>';
         } else {
             queryString = '<div class="queryRow">' + query + '</div>';
         }
-        if (query || blank) {
-            $queryDetail.find(".operationSection .content").html(queryString);
-        }
+
+        $queryDetail.find(".operationSection .content").html(queryString);
     }
 
     // updates the status text in the main card
     function updateStatusDetail(info, id, status, reset) {
         if (id != null) {
             // do not update detail if not focused on this query bar
-            if (!$queryList.find('.query[data-id="' + id + '"]').hasClass('active')) {
+            if (!$queryList.find('.query[data-id="' + id + '"]')
+                           .hasClass('active')) {
                 return;
             }
         }
@@ -924,6 +928,12 @@ window.QueryManager = (function(QueryManager, $) {
                 return PromiseHelper.reject();
             }
             var mainQuery = queryLists[id];
+            if (mainQuery.state === QueryStatus.Cancel ||
+                mainQuery.state === QueryStatus.Done) {
+                clearIntervalHelper(id);
+                return PromiseHelper.reject();
+            }
+
             var currStep = mainQuery.currStep;
             // check for edge case where percentage is old
             // and mainQuery already incremented to the next step
@@ -1249,7 +1259,7 @@ window.QueryManager = (function(QueryManager, $) {
             }
 
             if (gTables[tableId]) {
-               
+
                 if (gTables[tableId].status === TableType.Active) {
                     $('#workspaceTab').click();
                     wsId = WSManager.getWSFromTable(tableId);
@@ -1280,7 +1290,7 @@ window.QueryManager = (function(QueryManager, $) {
                     wsId = WSManager.getActiveWS();
                     WSManager.moveInactiveTable(tableId, wsId, tableType);
                 }
-                
+
             } else {
                 XcalarGetTables(tableName)
                 .then(function(ret) {
@@ -1336,7 +1346,7 @@ window.QueryManager = (function(QueryManager, $) {
             } else {
                 mainQuery.outputTableState = 'deleted';
             }
-            
+
             $('#monitor-inspect').addClass('btn-disabled');
             $queryDetail.find('.outputSection').find('.text')
                                                .text(CommonTxtTstr.NA);
@@ -1513,7 +1523,7 @@ window.QueryManager = (function(QueryManager, $) {
         } else if (state === QueryStateT.qrNotStarted && mainQuery.srcTables) {
             srcTables = mainQuery.srcTables;
         }
-        
+
         var tableId;
         for (var i = 0; i < srcTables.length; i++) {
             tableId = xcHelper.getTableId(srcTables[i]);
