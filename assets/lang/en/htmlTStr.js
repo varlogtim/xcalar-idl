@@ -80,8 +80,8 @@ module.exports = {
     },
 
     "paths": {
-        "tableau"       : "assets/htmlFiles/tableau.html",
-        "helpUserDocs"  : "assets/help/user/Content/Home.htm",
+        "tableau": "assets/htmlFiles/tableau.html",
+        "helpUserDocs": "assets/help/user/Content/Home.htm"
     },
 
     "statistics": {
@@ -91,7 +91,7 @@ module.exports = {
         "Med": "Med",
         "Min": "Min",
         "SD": "SD",
-        "Sum": "Sum",
+        "Sum": "Sum"
     },
 
     "status": {
@@ -248,7 +248,7 @@ module.exports = {
         "ProfileSortDec": "Descending by occurrence",
         "ProfileSortAsc": "Ascending alphabetically by label",
         "ProfileSortDesc": "Descending alphabetically by label",
-        "ChooseUdfModule": 'Please choose a module first' // used in jststr
+        "ChooseUdfModule": "Please choose a module first" // used in jststr
     },
 
     "workspaceBar": {
@@ -299,7 +299,7 @@ module.exports = {
         "create": "Created On",
         "EC": "Establishing Connection",
         "adminText": "This is what Xcalar Design looks like to",
-        "adminClose": "Return to administrator account",
+        "adminClose": "Return to administrator account"
     },
 
     "admin": {
@@ -330,12 +330,9 @@ module.exports = {
         "archive": "Hide Tables",
         "filterOrphan": "Filter Temporary Tables",
         "ActiveTableInstr": "To add a table to the worksheet, point to a dataset in the <b>Data Stores</b> panel and select this dataset to add as a table in the current worksheet.",
-        "HideTableInstr": "To hide a table, right click the title bar for an " +
-                          "active table to display a menu. Then select " +
-                          "<b>Hide Table</b>.",
+        "HideTableInstr": "To hide a table, right click the title bar for an active table to display a menu. Then select <b>Hide Table</b>.",
 
-        "TempTableInstr": "This section contains tables that are " +
-                          "no longer active after an operation is performed.",
+        "TempTableInstr": "This section contains tables that are no longer active after an operation is performed.",
         "ConstTableInstr": "This section contains named aggregate values created through a table column's <b>Aggregate</b> operation."
     },
 
@@ -575,11 +572,8 @@ module.exports = {
     },
 
     "aggModal": {
-        'CorrAggTitle' : 'Correlation and Quick Aggregates',
-        'CorrAggInstr' : 'Viewing correlation coefficients for every pair of '+
-                     'numerical columns. To view common aggregate functions '+
-                     'on all numerical columns, please click on the vertical '+
-                     'tab.',
+        "CorrAggTitle" : "Correlation and Quick Aggregates",
+        "CorrAggInstr" : "Viewing correlation coefficients for every pair of numerical columns. To view common aggregate functions on all numerical columns, please click on the vertical tab.",
         "CorrTitle": "Correlation",
         "header": "Quick Aggregates",
         "TableName": "Table Name",
@@ -930,12 +924,8 @@ module.exports = {
         "installWizard": "INSTALL WIZARD",
         "uninstallWizard": "UNINSTALL WIZARD",
         "upgradeWizard": "UPGRADE WIZARD",
-        "installWizardContent": "The setup will install Xcalar on your " +
-                                "computer.",
-        "upgradeWizardContent": "Upgrade to a newer version of Xcalar. The " +
-                                "option to upgrade is only available when an " +
-                                "existing version exists and your Xcalar" +
-                                " cluster is powered off.",
+        "installWizardContent": "The setup will install Xcalar on your computer.",
+        "upgradeWizardContent": "Upgrade to a newer version of Xcalar. The option to upgrade is only available when an existing version exists and your Xcalar cluster is powered off.",
         "uninstallWizardContent": "Remove Xcalar from your machine."
     }
 }
