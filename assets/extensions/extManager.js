@@ -62,14 +62,19 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             // Success case
             data = response;
             // Returns a promise
-            return XcalarUploadPython(pyModName, data);
+            // only upload non-empty python
+            if (data != null) {
+                return XcalarUploadPython(pyModName, data);
+            }
         },
         function(error, status, xhr) {
             // Fail case
             console.error("Python file not found!");
         })
         .then(function() {
-            UDF.storePython(pyModName, data);
+            if (data != null) {
+                UDF.storePython(pyModName, data);
+            }
             innerDef.resolve();
         })
         .fail(function() {
