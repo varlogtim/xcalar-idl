@@ -1,4 +1,5 @@
 lang = "en";
+landCode = (lang === "en") ? "en-US" : "zh-CN";
 fs = require('fs');
 _ = require('underscore');
 dicts = require('../../assets/lang/' + lang + '/htmlTStr.js');
