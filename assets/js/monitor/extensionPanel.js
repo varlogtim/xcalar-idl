@@ -384,8 +384,10 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
                         '<span class="name textOverflowOneLine">' +
                             extName +
                         '</span>' +
-                        '<i class="delete icon xi-trash fa-15 xc-action"></i>' +
-                        '<div class="xc-switch switch ' + status + '">' +
+                        '<i class="adminOnly delete icon xi-trash fa-15 ' +
+                        'xc-action"></i>' +
+                        '<div class="adminOnly xc-switch switch ' + status +
+                        '">' +
                             '<div class="slider"></div>' +
                         '</div>';
         }

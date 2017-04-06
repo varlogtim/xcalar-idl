@@ -11,10 +11,6 @@ window.UploadExtensionCard = (function($, UploadExtensionCard) {
         $extPath = $card.find(".path");
         $browserBtn = $card.find(".browse");
         addCardEvents();
-
-        if (!Admin.isAdmin()) {
-            $("#uploadExtension").addClass("xc-hidden");
-        }
     };
 
     function submitForm() {

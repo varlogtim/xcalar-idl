@@ -1,3 +1,17 @@
+#monitorMenu .extension {
+    .iconSection {
+        position: absolute;
+        width: 100%;
+        z-index: 1;
+    }
+    .titleSection {
+        height: 42px;
+        header {
+            .position(relative, @top: 7px);
+        }
+    }
+}
+
 #extension-lists {
     &.refreshing {
         opacity: @opacity-disabled;
