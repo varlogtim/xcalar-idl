@@ -33,7 +33,6 @@ module.exports = {
         "DontShow": "Don't show again",
         "Exit": "Exit",
         "File": "File",
-        "Func": "Function",
         "Header": "Header",
         "Help": "Help",
         "Generate": "Generate",
