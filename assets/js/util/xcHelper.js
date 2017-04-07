@@ -1492,6 +1492,7 @@ window.xcHelper = (function($, xcHelper) {
         var table = gTables[tableId];
         if (!table) {
             // case if table was deleted before unlock is called;
+            SQL.unlockUndoRedo();
             return;
         }
         table.unlock();

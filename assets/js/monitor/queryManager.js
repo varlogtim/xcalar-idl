@@ -1527,9 +1527,7 @@ window.QueryManager = (function(QueryManager, $) {
         var tableId;
         for (var i = 0; i < srcTables.length; i++) {
             tableId = xcHelper.getTableId(srcTables[i]);
-            if (gTables[tableId]) {
-                xcHelper.unlockTable(tableId);
-            }
+            xcHelper.unlockTable(tableId);
         }
     }
 
