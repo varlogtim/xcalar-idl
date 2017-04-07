@@ -220,7 +220,7 @@ ErrTStr = {
     'LongFileName': 'File Name is too long, please use less than 255 chars.',
     'LargeFile': 'File is too large. Please break into smaller files(<10MB).',
     'NoSupportOp': 'This operation is not supported.',
-    'PreservedName': 'This name is preserved, please use another name.',
+    'PreservedName': 'This name is reserved, please use another name.',
     'InvalidWin': 'Cannot window an unsorted table',
     'InvalidQuery': 'Query Failed',
     'InvalidRegEx': 'Invalid regular expression (Please check your syntax)',
