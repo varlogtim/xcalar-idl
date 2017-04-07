@@ -10,6 +10,7 @@ StatusMessageTStr = {
     'LoadingDataset' : 'Pointing to Data Source',
     'LoadingTables': 'Loading Tables',
     'LoadFailed' : 'Point to data source failed',
+    'DSFetchFailed': 'Dataset preview failed',
     'CreatingTable' : 'Creating table',
     'TableCreationFailed' : 'Table creation failed',
     'Join' : 'Joining tables',

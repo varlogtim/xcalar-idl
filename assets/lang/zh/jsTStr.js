@@ -10,6 +10,7 @@ StatusMessageTStr = {
 'LoadingDataset': '加载数据源',
 'LoadingTables': '加载表',
 'LoadFailed': '无法加载数据源',
+'DSFetchFailed': '无法预览数据集引用',
 'CreatingTable': '创建表',
 'TableCreationFailed': '无法创建表',
 'Join': '连接表',

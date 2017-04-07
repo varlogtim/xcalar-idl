@@ -119,7 +119,7 @@ window.DSTable = (function($, DSTable) {
                 errorMsg = ErrTStr.Unknown;
             }
 
-            setupViewAfterError(errorMsg);
+            setupViewAfterError(errorMsg, true);
             deferred.reject(error);
         });
 
@@ -149,13 +149,16 @@ window.DSTable = (function($, DSTable) {
         $("#dsColsBtn").removeClass("xc-hidden");
     }
 
-    function setupViewAfterError(error) {
+    function setupViewAfterError(error, isFetchError) {
         if (typeof error === "object") {
             error = JSON.stringify(error);
         }
-        error = StatusMessageTStr.LoadFailed + ". " + error;
         // backend might return this: "<string>"
         error = xcHelper.escapeHTMLSepcialChar(error);
+        var startError = isFetchError
+                         ? StatusMessageTStr.DSFetchFailed
+                         : StatusMessageTStr.LoadFailed;
+        error = startError + ". " + error;
 
         $tableWrap.html("");
         $("#dsColsBtn").addClass("xc-hidden");
