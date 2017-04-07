@@ -427,7 +427,9 @@ ScrollTStr = {
 };
 
 OpFormTStr = {
-    'NewColName': 'New column name for the group by resultant column'
+    'NewColName': 'New column name for the group by resultant column',
+    'CMD': 'Command Preview',
+    'Descript': 'Description'
 };
 
 
@@ -646,6 +648,7 @@ DFTStr = {
     "AdvancedOpts": "Advanced Export Options",
     "Default": "Export to file system",
     "DelDF": "Permanently Delete Dataflow",
+    "DelDF2": "Delete dataflow",
     "DelDFMsg": "Are you sure you want to permanently delete " +
                      "this dataflow? This action cannot be undone.",
     "DFTitle": "DATAFLOW",
@@ -669,7 +672,9 @@ DFTStr = {
     'RunFail': 'Run DF Failed',
     'Running': 'Running batch dataflow',
     'UpdateParamFail': 'Update Parameters Failed',
-    'UploadLimitMsg': 'Cannot upload dataflow that is over 1MB.'
+    'UploadLimitMsg': 'Cannot upload dataflow that is over 1MB.',
+    'DownloadDF': 'Download dataflow',
+    'AddSched': 'Add Schedule to dataflow'
 };
 
 DSTStr = {

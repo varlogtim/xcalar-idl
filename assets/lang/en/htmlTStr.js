@@ -280,6 +280,7 @@ module.exports = {
         "Help": "Help",
         "HelpSupport": "HELP & SUPPORT",
         "HelpTopics": "Help Topics",
+        "SearchRes": "Search Results",
         "Find": "Find",
         "noRes": "There are no help results",
         "useSearch": "Search for a topic or",
@@ -367,6 +368,8 @@ module.exports = {
         "memThreshold": "MEMORY UTILIZATION THRESHOLD",
         "Monitor": "Monitor",
         "Monitors": "Monitors",
+        "Statistics": "Statistics",
+        "DisplaySettings": "Display Settings",
         "NETWORK": "NETWORK",
         "NewVal": "New Value", // in jststr
         "NRecv": "Bytes Recv",
@@ -576,6 +579,7 @@ module.exports = {
         "CorrTitle": "Correlation",
         "header": "Quick Aggregates",
         "TableName": "Table Name",
+        "Progress": "Progress",
         "BackToProfile": "Back To Profile"
     },
 

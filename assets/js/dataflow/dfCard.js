@@ -852,16 +852,16 @@ window.DFCard = (function($, DFCard) {
                     '</div>' +
                     '<span class="groupName">' + dataflow + '</span>' +
                     '<i class="icon xi-trash deleteDataflow" ' +
-                        'title="Delete dataflow" data-toggle="tooltip" ' +
+                        'title="' + DFTStr.DelDF2 + '" data-toggle="tooltip" ' +
                         'data-placement="top" data-container="body">' +
                     '</i>' +
                     '<i class="icon xi-download downloadDataflow" ' +
-                        'title="Download dataflow" ' +
+                        'title="' + DFTStr.DownloadDF + '" ' +
                         'data-toggle="tooltip" data-placement="top" ' +
                         'data-container="body">' +
                     '</i>' +
                     '<i class="icon ' + icon + ' addScheduleToDataflow" ' +
-                        'title="Add Schedule to dataflow" ' +
+                        'title="' + DFTStr.AddSched + '" ' +
                         'data-toggle="tooltip" data-placement="top" ' +
                         'data-container="body">' +
                     '</i>' +

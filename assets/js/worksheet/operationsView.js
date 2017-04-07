@@ -1600,11 +1600,12 @@ window.OperationsView = (function($, OperationsView) {
         $rows.show().filter(":gt(" + (numArgs - 1) + ")").hide();
 
         var despText = operObj.fnDesc || "N/A";
-        $argsGroup.find('.descriptionText').html('<b>Description:</b> ' +
-                                                 despText);
+        $argsGroup.find('.descriptionText').html('<b>' + OpFormTStr.Descript +
+                                                 ':</b> ' + despText);
         if (operatorName !== "aggregate") {
             $operationsView.find('.strPreview')
-                           .html('<b>Command Preview:</b> <br>' + strPreview);
+                           .html('<b>' + OpFormTStr.CMD + ':</b> <br>' +
+                                 strPreview);
         }
 
         formHelper.refreshTabbing();

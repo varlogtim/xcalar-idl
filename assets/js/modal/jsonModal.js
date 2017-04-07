@@ -292,7 +292,7 @@ window.JSONModal = (function($, JSONModal) {
             if ($jsonArea.find('.jsonWrap').length === 1) {
                 var $compareIcons = $jsonArea.find('.compareIcon')
                                           .addClass('single');
-                var title = "Select another data cell from a table to compare";
+                var title = JsonModalTStr.SelectOther;
                 var $compareIcon;
 
                 $compareIcons.each(function() {

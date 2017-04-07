@@ -5,24 +5,24 @@ StatusMessageTStr = {
 'Error': '遇到错误',
 'Canceling': '取消',
 'CancelSuccess': '取消成功',
-'CancelFail': '取消失败',
+'CancelFail': '无法取消',
 'Loading': '加载',
 'LoadingDataset': '加载数据源',
 'LoadingTables': '加载表',
-'LoadFailed': '加载数据源失败',
+'LoadFailed': '无法加载数据源',
 'CreatingTable': '创建表',
-'TableCreationFailed': '创建表失败',
-'Join': '连接工作表',
-'JoinFailed': '连接工作表失败',
+'TableCreationFailed': '无法创建表',
+'Join': '连接表',
+'JoinFailed': '无法连接表',
 'JoinFailedAlt': '连接',
-'DeleteTable': '删除工作表',
-'DeleteTableFailed': '删除工作表失败',
-'DeleteConstFailed': '删除聚合失败',
-'PartialDeleteTableFail': '部分工作表未能成功删除',
-'PartialDeleteConstFail': '部分聚合未能成功删除',
+'DeleteTable': '删除表',
+'DeleteTableFailed': '无法删除表',
+'DeleteConstFailed': '无法删除聚合',
+'PartialDeleteTableFail': '部分表无法删除',
+'PartialDeleteConstFail': '部分聚合无法删除',
 'CouldNotDelete': '不支持删除操作',
-'NotDeletedList': '下列工作表不支持删除操作',
-'ExportTable': '导出工作表',
+'NotDeletedList': '下列表不支持删除操作',
+'ExportTable': '导出表',
 'ExportFailed': '导出失败',
 'Aggregate': '执行聚合操作',
 'AggregateFailed': '聚合操作失败',
@@ -48,7 +48,7 @@ StatusMessageTStr = {
 'ExtFailed': '执行扩展失败',
 'StoredProc': '执行存储操作',
 'StoredProcFailed': '执行存储操作失败',
-'SettingExtensions': '设置扩展',
+'SettingExtensions': '加载插件',
 'ActionSuccess': '操作成功！',
 'ActionFailed': '操作失败！'
 };
@@ -76,8 +76,8 @@ TooltipTStr = {
 'CopyLog': '将sql日志复制到剪贴板上',
 'GenTicket': '生成服务支持券',
 'ColPrefix': '列将添加前缀，以唯一标识表中的列。前缀默认自动生成。',
-'ToGridView': '点击此处，切换至网格视图',
-'ToListView': '点击此处，切换至列表视图',
+'ToGridView': '网格视图',
+'ToListView': '列表视图',
 'ClickCollapse': '点击此处, 折叠表',
 'CollapsedTable': '表已折叠',
 'SelectAllColumns': '选择所有列',
@@ -166,7 +166,7 @@ ErrTStr = {
 'NoSpecialCharInParam': '参数括号中不允许使用特殊字符或空格。',
 'UnclosedParamBracket': '检测到未关闭的参数括号。',
 'NoEmptyList': '请在下拉列表中选取一个选项',
-'NoEmptyFn': '没有可供上传的方程。',
+'NoEmptyFn': '无法上传空函数。',
 'NoEmptyOrCheck': '请填写此字段或者选中该复选框保留空值。',
 'NameInUse': '该名称已被使用，请选择其他名称。',
 'DSNameConfilct': '具有相同名称的数据集参考已经存在，请选取其他名称。',
@@ -217,8 +217,8 @@ ErrTStr = {
 'LargeImgTab': '打开图像失败',
 'LargeImgText': '图像已超过浏览器所允许的最大大小',
 'DFNoExpand': '数据流图已达到浏览器所允许的最大大小',
-'InvalidExt': '无效扩展',
-'InvalidExtParam': '无效的扩展参数',
+'InvalidExt': '无效插件',
+'InvalidExtParam': '无效的插件参数',
 'InvalidOpNewColumn': '无法在新列上执行此操作。',
 'SuggestProject': '请减少列数并重试。',
 'UserCanceled': '用户已取消',
@@ -372,7 +372,9 @@ ScrollTStr = {
 'BookMark': '行<row>'
 };
 OpFormTStr = {
-'NewColName': '按列生成的列的新列名称'
+'NewColName': '按列生成的列的新列名称',
+'CMD': '操作预览',
+'Descript': '描述'
 };
 AggTStr = {
 'selected': '被选中',
@@ -383,10 +385,10 @@ AggTStr = {
 'AggTopInstr': '查看<which> 数值列的聚合函数。查看 <which2>的数值列的相关系数，请单击垂直选项卡。',
 'NoSupport': '不支持',
 'DivByZeroExplain': '只有一个不同的值',
-'NoCorr': '没有相关类型号列',
-'NoAgg': '没有用于快速聚合的类型号列',
+'NoCorr': '无数字类型的列可用于相关性计算',
+'NoAgg': '无数字类型的列可用于聚合',
 'AggTitle': '聚合：<op>',
-'AggInstr': '这是列"<col>" 应用聚合操作<op>的结果\r\n。',
+'AggInstr': '这是列"<col>" 聚合操作<op>的结果\r\n。',
 'AggMsg': '{"value"：<val>}'
 };
 IndexTStr = {
@@ -431,17 +433,17 @@ ExportTStr = {
 'LocalFS': '文件系统'
 };
 ProfileTStr = {
-'Instr': '鼠标悬停在Bar上查看详情。使用滚动条和输入框查看更多数据。',
-'LoadInstr': '请等待数据准备，您可以关闭模​​式并稍后查看。',
-'InvalidBucket': 'Bucket大小无效',
-'Info': '列的配置文件：<b><col></b>, type: <b><type></b>。'
+'Instr': '鼠标悬停在直方图上查看详情。使用滚动条和输入框查看更多数据。',
+'LoadInstr': '数据加载中，请稍等，您可以关闭该弹出窗口并稍后查看。',
+'InvalidBucket': '无效的分段范围',
+'Info': '列信息：<b><col></b>, type: <b><type></b>。'
 };
 WKBKTStr = {
-'NoWkbk': '没有可供用户使用的工作簿',
-'NoMeta': '没有元',
-'Location': '工作簿浏览器',
-'NewWKBK': '新的工作簿',
-'NewWKBKInstr': '通过创建一个新的工作簿开始使用xcalar Design。给您的新工作簿一个名称，然后单击创建工作簿按钮。创建工作簿后，将鼠标悬停在其上，然后单击播放按钮开始使用新的工作簿。或者，从xcalar Design 的一个教程开始，以了解更多。',
+'NoWkbk': '未建立工作簿',
+'NoMeta': '数据缺失',
+'Location': '工作簿',
+'NewWKBK': '新建工作簿',
+'NewWKBKInstr': '通过新建一个工作簿开始使用xcalar Design。给您的新工作簿一个名称，然后单击创建工作簿按钮。创建工作簿后，将鼠标悬停在其上，然后单击播放按钮开始使用新的工作簿。或者，从xcalar Design 的一个教程开始，以了解更多。',
 'CurWKBKInstr': '继续使用当前活动的工作簿，将其悬停在蓝色背景的卡上，然后单击播放按钮。您可以通过将鼠标悬停在其他工作簿上，然后单击播放按钮来切换到另一个工作簿。创建任何工作簿的副本，将鼠标悬停在工作簿卡上，然后单击重复按钮。',
 'NoOldWKBK': '无法恢复旧工作簿',
 'NoOldWKBKInstr': '如果您在重新登录后仍然看到错误，请复制您的日志并重新启动服务器。',
@@ -541,7 +543,7 @@ DFTStr = {
 "DownloadErr": '下载失败',
 "ExportTo": '导出为',
 "FindTable": '导出表<table>至工作表中',
-"Import": '导出为xcalar表',
+"Import": '导出为Xcalar表',
 "NoFileExt": '导出文件名必须有一个扩展名',
 "PointTo": '文件路径',
 'AddParamHint': '请先在数据流面板中创建参数。',
@@ -558,7 +560,10 @@ DFTStr = {
 'RunFail': '运行df失败',
 'Running': '运行批量数据流',
 'UpdateParamFail': '更新参数失败',
-'UploadLimitMsg': '无法上传超过大小超过1mb的数据流。'
+'UploadLimitMsg': '无法上传超过大小超过1mb的数据流。',
+'AddSched': '创建调度器',
+'DownloadDF': '下载数据流',
+"DelDF2": "删除数据流"
 };
 DSTStr = {
 'UnknownUser': '未知用户',
@@ -584,7 +589,7 @@ DSTStr = {
 'FileOversize': '文件夹中的文件太多，无法读取，请直接用url加载',
 'InvalidHDFS': '无效的hdfs路径，有效格式为：hostname / pathtofile',
 'Excel': 'EXCEL',
-'Home': '主页',
+'Home': 'Home',
 'InvalidUpload': '无效上传',
 'OneFileUpload': '一次只能上传一个文件。',
 'InvalidFileName': '无效的文件名',
@@ -658,14 +663,14 @@ WSTStr = {
 };
 UDFTStr = {
 "UDF": '执行',
-"Edit": '编辑udf',
-"Del": '删除udf',
-"Download": '下载udf',
-"DelTitle": '删除udf',
-"DelMsg": '您确定要删除udf模块吗？',
-"DelFail": 'delete udf failed',
+"Edit": '编辑',
+"Del": '删除',
+"Download": '下载',
+"DelTitle": '删除UDF',
+"DelMsg": '您确定要删除UDF模块吗？',
+"DelFail": '删除UDF失败',
 "NameHint": '模块名称（小写）',
-"AppName": 'xpu应用程序名称（小写）'
+"AppName": 'XPU应用程序名称（小写）'
 };
 TblTStr = {
 'Create': '创建表',
@@ -693,37 +698,37 @@ ColTStr = {
 SideBarTStr = {
 'SendToWS': '发送到工作表',
 'WSTOSend': '工作表发送',
-'NoSheet': '没有表',
-'NoSheetTableInstr': '您有不在任何工作表的表，请选择这些表的工作表！',
-'PopBack': 'Dock',
-'PopOut': 'Undock',
-'WalkThroughUA': '演练不可用',
+'NoSheet': '无表',
+'NoSheetTableInstr': '您有不在任何工作表的表，请选择要发送至的工作表！',
+'PopBack': '默认位置',
+'PopOut': '弹出',
+'WalkThroughUA': '无法浏览教程',
 'DelTablesMsg': '您确定要删除所选表格吗？',
 'SelectTable': '选择表格',
 'DupUDF': '复制模块',
-'DupUDFMsg': 'python模块已经存在（模块名称不区分大小写），是否要将其替换为该模块？',
+'DupUDFMsg': 'Python模块已经存在（模块名称不区分大小写），是否要将其替换为该模块？',
 'UpoladUDF': '上传成功',
-'UploadUDFMsg': '您的python脚本已成功上传！',
+'UploadUDFMsg': '您的Python脚本已成功上传！',
 'SyntaxError': '语法错误',
 'UploadError': '上传错误',
-'DownloadError': '下载udf失败',
-'DownoladMsg': 'udf为空',
-'OverwriteErr': '不能覆盖默认的udf',
+'DownloadError': '下载UDF失败',
+'DownoladMsg': 'UDF为空',
+'OverwriteErr': '不能覆盖默认的UDF',
 'DropConsts': '删除聚合',
 'DropConstsMsg': '您确定要删除所选的聚合吗？',
-'UDFError': '<reason> found in line <line>中找到'
+'UDFError': '<reason> 在 <line>中找到'
 };
 ExtTStr = {
 "Author": '作者',
-"Report": '报错',
+"Report": '报告错误',
 "Version": '版本',
-"extName": '扩展名',
+"extName": '插件名',
 "Install": '安装',
 "Installed": '安装',
 "More": '查看更多',
 "Less": '隐藏细节',
-"XcCategory": 'xcalar extensions',
-'extListFail': '无法获得安装的扩展列表'
+"XcCategory": 'Xcalar Extensions',
+'extListFail': '无法获得安装的插件列表'
 };
 DaysTStr = {
 'Sunday': '星期日',
@@ -736,7 +741,7 @@ DaysTStr = {
 'Today': '今天',
 'Yesterday': '昨天',
 'LastWeek': '上个星期',
-'Older': '以前'
+'Older': '更早'
 };
 OpModalTStr = {
 'EmptyHint': '选择允许空字段',
@@ -756,29 +761,29 @@ OpModalTStr = {
 };
 JsonModalTStr = {
 'Compare': '点击选择进行比较',
-'DeselectAll': '取消选择所有字段',
+'DeselectAll': '清空',
 'Duplicate': '复制此面板',
 'FieldsPull': '提取字段',
 'FieldsSelected': '选定项目的领域',
 'MultiSelectMode': '多选模式',
 'Original': '原始的',
 'OriginalTip': '查看原始数据字段',
-'ProjectMode': '项目模式',
-'PullAll': '提取所有字段',
+'ProjectMode': '投影模式',
+'PullAll': '提取所有列',
 'RemoveCol': '删除此面板',
 'SeeAll': '查看全部',
-'SelectAll': '选择所有字段',
+'SelectAll': '全选',
 'SelectionMode': '单选模式',
-'SelectOther': '从表中选择另一个数据单元进行比较',
+'SelectOther': '选择另一个单元格进行比较',
 'SortAsc': '升序排序',
 'SortDesc': '降序排序',
 'SubmitProjection': '投影',
-'SubmitPull': '提取字段',
-'ToggleMode': '模式切换',
+'SubmitPull': '提取列',
+'ToggleMode': '切换模式',
 'ViewAll': '查看全部',
-'ViewAllTip': '查看所有字段',
-'XcOriginated': 'xcalar起源于',
-'XcOriginatedTip': '查看xcalar生成的字段'
+'ViewAllTip': '查看所有列',
+'XcOriginated': 'Xcalar起源于',
+'XcOriginatedTip': '查看Xcalar生成的列'
 };
 SQLTStr = {
 "AddNewCol": '添加新列',
