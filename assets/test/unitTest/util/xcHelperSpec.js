@@ -2312,21 +2312,28 @@ describe('xcHelper Test', function() {
                 expect($table.length).to.equal(1);
                 expect($table.find('td').length).to.equal(8);
 
+                var cells = []
+                cells.push({isMixed: true, isUndefined: true, type:"undefined"});
 
                 $table.find("td").eq(2).append(hightlightBox);
-                expect(fn(tableId)).to.be.false;
+                expect(fn("mixed", cells)).to.be.false;
+
+                cells.push({isMixed: true, type: "integer"});
 
                 $table.find("td").eq(0).append(hightlightBox);
-                expect(fn(tableId)).to.be.true;
+                expect(fn("mixed", cells)).to.be.true;
 
+                cells.shift();
+                cells.push({isMixed: true, type: "integer"});
                 $table.find("td").eq(2).find(".highlightBox").remove();
                 $table.find("td").eq(4).append(hightlightBox);
-                expect(fn(tableId)).to.be.false;
+                console.log(cells);
+                expect(fn("mixed", cells)).to.be.false;
 
-                $table.find(".highlightBox").remove();
-
+                cells = [];
+                cells.push({isMixed: true, type: "object"})
                 $table.find("td").eq(6).append(hightlightBox);
-                expect(fn(tableId)).to.be.true;
+                expect(fn("mixed", cells)).to.be.true;
 
                 $table.find(".highlightBox").remove();
 

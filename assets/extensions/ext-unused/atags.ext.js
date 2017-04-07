@@ -20,18 +20,18 @@ window.UExtATags = (function(UExtATags, $) {
                 if (event.which !== 1 || $li.hasClass('unavailable')) {
                     Alert.error("Cannot Follow Link",
                                 "Option not available for selected cells");
-                    $highlightBoxes.remove();
+                    TblManager.unHighlightCells();
                     return;
                 }
 
                 if ($highlightBoxes.length !== 1) {
                     Alert.error("More than 1 cell",
                     "MultiCell not allowed. Pay Jerene $5 for this feature.");
-                    $highlightBoxes.remove();
+                    TblManager.unHighlightCells();
                     return;
                 }
 
-                $highlightBoxes.remove();
+                TblManager.unHighlightCells();
                 var $td = $highlightBoxes.eq(0).closest("td");
                 var colVal = $td.find('.originalData').text();
                 if (colVal == null || colVal === "") {

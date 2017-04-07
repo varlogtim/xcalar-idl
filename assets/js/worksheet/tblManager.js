@@ -1,5 +1,4 @@
 window.TblManager = (function($, TblManager) {
-
     /**
         This function takes in an array of newTable names to be added,
         an array of tableCols, worksheet that newTables will add to and an array
@@ -326,6 +325,8 @@ window.TblManager = (function($, TblManager) {
             table.freeResultset();
             table.beArchived();
             table.updateTimeStamp();
+            delete table.scrollMeta;
+            delete table.highlightedCells;
             // WSManager.archiveTable(tableId, tempHide);
             WSManager.changeTableStatus(tableId, TableType.Archived);
             TableList.moveTable(tableId);
@@ -1183,15 +1184,6 @@ window.TblManager = (function($, TblManager) {
             return;
         }
 
-        var border = 5;
-        var width = $td.outerWidth() - border;
-        var height = $td.outerHeight();
-        var left = $td.position().left;
-        var top = $td.position().top;
-        var styling = 'width:' + width + 'px;' +
-                      'height:' + height + 'px;' +
-                      'left:' + left + 'px;' +
-                      'top:' + top + 'px;';
         var divClass;
         if (options.jsonModal) {
             divClass = "jsonModalHighlightBox";
@@ -1207,18 +1199,117 @@ window.TblManager = (function($, TblManager) {
             divClass += " noShiftKey";
         }
 
+        var border = 5;
+        var width = $td.outerWidth() - border;
+        var height = $td.outerHeight();
+        var styling = 'width:' + width + 'px;' +
+                      'height:' + height + 'px;';
+        // can't rely on width/height 100% because of IE
+
         var $highlightBox = $('<div class="' + divClass + '" ' +
                                 'style="' + styling + '" data-count="1">' +
                             '</div>');
 
         $highlightBox.data("rowNum", rowNum)
-                     .data("colNum", colNum);
+                     .data("colNum", colNum)
+                     .data("tableId", tableId);
 
         $td.append($highlightBox);
+        $td.addClass("highlightedCell");
+        if (!options.jsonModal) {
+            var cells = gTables[tableId].highlightedCells;
+            if (cells[rowNum] == null) {
+                cells[rowNum] = {};
+            }
+            var cellInfo = {
+                colNum: colNum,
+                rowNum: rowNum,
+                isUndefined: $td.find(".undefined").length > 0,
+                val: $td.find(".originalData").text(),
+                isNull: $td.find(".null").length > 0,
+                isBlank: $td.find(".blank").length > 0
+            };
+            var $header = $("#xcTable-" + tableId)
+                                        .find("th.col" + colNum + " .header");
+            if ($header.hasClass("type-mixed")) {
+                cellInfo.isMixed = true;
+                cellInfo.type = ColManager.getCellType($td, tableId);
+            }
+
+            cells[rowNum][colNum] = cellInfo;
+        }
+    };
+
+    TblManager.rehighlightCells = function(tableId) {
+        var table = gTables[tableId];
+        var $table = $("#xcTable-" + tableId);
+        var lastRow = table.currentRowNumber - 1;
+        var firstRow = lastRow - ($table.find("tbody tr").length  - 1);
+        for (var row in table.highlightedCells) {
+            row = parseInt(row);
+            if (row <= lastRow && row >= firstRow) {
+                for (var colNum in table.highlightedCells[row]) {
+                    var $td = $table.find(".row" + row + " .col" + colNum);
+                    if (!$td.hasClass("highlightedCell")) {
+                        TblManager.highlightCell($td, tableId, row, colNum);
+                    }
+                }
+            }
+        }
+    };
+
+    // if no tableId is passed in, will unhighlight all cells in any table
+    TblManager.unHighlightCells = function(tableId) {
+        if (tableId != null) {
+            $("#xcTable-" + tableId).find(".highlightedCell")
+                                    .removeClass(".highlightedCell")
+                                    .find(".highlightBox").remove();
+            gTables[tableId].highlightedCells = {};
+            return;
+        }
+
+        var $highlightBoxs = $(".highlightBox");
+        if (!$highlightBoxs.length) {
+            if (gTables[gActiveTableId] &&
+                !$.isEmptyObject(gTables[gActiveTableId].highlightedCells)) {
+                // some highlight boxes may not be visible if scrolled
+                gTables[gActiveTableId].highlightedCells = {};
+            } else {
+                return;
+            }
+        }
+        var tIds = {};
+
+        $highlightBoxs.each(function() {
+            tIds[$(this).data("tableId")] = true;
+        });
+
+        $(".highlightedCell").removeClass("highlightedCell");
+        $highlightBoxs.remove();
+
+        for (var tId in tIds) {
+            gTables[tId].highlightedCells = {};
+        }
     };
 
     function unHighlightCell($td) {
+        if (!$td.hasClass("highlightedCell")) {
+            return;
+        }
+        $td.removeClass("highlightedCell");
         $td.find(".highlightBox").remove();
+        var tableId = xcHelper.parseTableId($td.closest(".xcTable"));
+        var colNum = xcHelper.parseColNum($td);
+        var rowNum = xcHelper.parseRowNum($td.closest("tr"));
+        var pageNum = Math.floor(rowNum / gNumEntriesPerPage);
+        var cells = gTables[tableId].highlightedCells;
+
+        if (cells[rowNum]) {
+            delete cells[rowNum][colNum];
+            if ($.isEmptyObject(cells[rowNum])) {
+                delete cells[rowNum];
+            }
+        }
     }
 
     TblManager.highlightColumn = function($el, keepOthersSelected) {
@@ -1897,9 +1988,8 @@ window.TblManager = (function($, TblManager) {
                 $xcTableWrap.hasClass("tableLocked")) {
                 return;
             } else {
-                gActiveTableId = tableId;
                 var focusDag;
-                if (oldId !== gActiveTableId) {
+                if (oldId !== tableId) {
                     focusDag = true;
                 }
                 TblFunc.focusTable(tableId, focusDag);
@@ -1958,6 +2048,8 @@ window.TblManager = (function($, TblManager) {
         var $thead = $table.find('thead tr');
         var $tbody = $table.find("tbody");
         var lastSelectedCell;
+
+        gTables[tableId].highlightedCells = {};
 
         // listeners on thead
         $thead.on("mousedown", ".flexContainer, .dragArea", function(event) {
@@ -2261,6 +2353,7 @@ window.TblManager = (function($, TblManager) {
         $tbody.on("mousedown", "td", function(event) {
             var $td = $(this);
             var $el = $td.children('.clickable');
+            var $otherBoxes;
 
             if ($table.closest('.columnPicker').length ||
                 $("#mainFrame").hasClass("modalOpen"))
@@ -2275,7 +2368,7 @@ window.TblManager = (function($, TblManager) {
             if ($td.hasClass('jsonElement')) {
                 $('.menu').hide();
                 xcMenu.removeKeyboardNavigation();
-                $('.highlightBox').remove();
+                TblManager.unHighlightCells();
                 return;
             }
 
@@ -2288,10 +2381,21 @@ window.TblManager = (function($, TblManager) {
 
             var $highlightBoxs = $(".highlightBox");
 
-            // remove highlights of other tables
-            $highlightBoxs.filter(function() {
-                return (!$(this).hasClass(tableId));
-            }).remove();
+            var otherTIds = {};
+            $highlightBoxs.each(function() {
+                var cellTId = $(this).data("tableId");
+                if (cellTId !== tableId) {
+                    otherTIds[cellTId] = true;
+                    $(this).closest("td").removeClass("highlightedCell");
+                    $(this).remove();
+                }
+            });
+
+            for (var tId in otherTIds) {
+                gTables[tId].highlightedCells = {};
+            }
+
+            $highlightBoxs = $(".highlightBox");
 
             if (isSystemMac && event.metaKey ||
                 !isSystemMac && event.ctrlKey)
@@ -2314,9 +2418,12 @@ window.TblManager = (function($, TblManager) {
                         multiSelection();
                     } else {
                         // re-hightlight shift key cell
-                        $highlightBoxs.filter(function() {
-                            return $(this).hasClass("shiftKey");
-                        }).remove();
+
+                        $highlightBoxs.each(function() {
+                            if ($(this).hasClass("shiftKey")) {
+                                unHighlightCell($(this));
+                            }
+                        });
 
                         var $curTable  = $td.closest(".xcTable");
                         var baseRowNum = $lastNoShiftCell.data("rowNum");
@@ -2327,7 +2434,7 @@ window.TblManager = (function($, TblManager) {
                         for (var r = minIndex; r <= maxIndex; r++) {
                             var $cell = $curTable.find(".row" + r + " .col" + colNum);
                             // in case double added hightlight to same cell
-                            $cell.find(".highlightBox").remove();
+                            unHighlightCell($cell);
 
                             if (r === baseRowNum) {
                                 TblManager.highlightCell($cell, tableId,
@@ -2360,11 +2467,13 @@ window.TblManager = (function($, TblManager) {
                 if ($highlightBoxs.length === 1 &&
                     $td.find('.highlightBox').length > 0)
                 {
-                    // deselect
-                    unHighlightCell($td);
-                    isUnSelect = true;
+                    if ($("#cellMenu").is(":visible")) {
+                        // deselect
+                        unHighlightCell($td);
+                        isUnSelect = true;
+                    }
                 } else {
-                    $highlightBoxs.remove();
+                    TblManager.unHighlightCells();
                     TblManager.highlightCell($td, tableId, rowNum, colNum);
                 }
             }
@@ -2375,9 +2484,11 @@ window.TblManager = (function($, TblManager) {
                             .removeClass("noShiftKey");
 
                 if ($td.find('.highlightBox').length > 0) {
-                    // deselect
-                    unHighlightCell($td);
-                    isUnSelect = true;
+                    if ($("#cellMenu").is(":visible")) {
+                        // deselect
+                        unHighlightCell($td);
+                        isUnSelect = true;
+                    }
                 } else {
                     TblManager.highlightCell($td, tableId, rowNum, colNum);
                 }
@@ -2410,7 +2521,7 @@ window.TblManager = (function($, TblManager) {
 
             if ($td.find(".highlightBox").length === 0) {
                 // same as singleSelection()
-                $(".highlightBox").remove();
+                TblManager.unHighlightCells();
                 TblManager.highlightCell($td, tableId, rowNum, colNum);
             }
 
@@ -2741,18 +2852,18 @@ window.TblManager = (function($, TblManager) {
     function isMultiColumn() {
         var lastColNum;
         var multiCol = false;
+        var tId = gActiveTableId;
 
-        $(".highlightBox").each(function() {
-            var colNum = $(this).data("colNum");
-
-            if (lastColNum == null) {
-                lastColNum = colNum;
-            } else if (lastColNum !== colNum) {
-                multiCol = true;
-                return false;
+        for (var row in gTables[tId].highlightedCells) {
+            for (var colNum in gTables[tId].highlightedCells[row]) {
+                if (lastColNum == null) {
+                    lastColNum = colNum;
+                } else if (lastColNum !== colNum) {
+                    multiCol = true;
+                    break;
+                }
             }
-        });
-
+        }
         return (multiCol);
     }
 

@@ -305,7 +305,7 @@ describe("TableManager Test", function() {
                 done();
             })
             .fail(function() {
-                throw "error case"; 
+                throw "error case";
             });
         });
 
@@ -898,6 +898,30 @@ describe("TableManager Test", function() {
                 assert.isTrue($menu.is(":visible"));
                 $("#mainFrame").mousedown();
                 assert.isFalse($menu.is(":visible"));
+            });
+
+            it("mousedown on td should highlight and store info", function() {
+                $("#container").mousedown(); // remove any highlighted tds
+                expect($(".highlightedCell").length).to.equal(0);
+                for (var tId in gTables) {
+                    if (gTables[tId].highlightedCells &&
+                        !$.isEmptyObject(gTables[tId].highlightedCells)) {
+                        expect("highlighted cells found").to.equal("no cells");
+                    }
+                }
+
+                var $td = $tbody.find(".row0 td.col1");
+                $td.trigger(fakeEvent.mousedown);
+
+                expect($(".highlightedCell").length).to.equal(1);
+                expect($td.hasClass("highlightedCell")).to.be.true;
+                expect($td.find(".highlightBox").length).to.equal(1);
+                expect(gTables[tableId].highlightedCells[0][1]).to.be.an.object;
+
+                $("#container").mousedown(); // remove any highlighted tds
+                expect($.isEmptyObject(gTables[tableId].highlightedCells)).to.be.true;
+                expect($(".highlightedCell").length).to.equal(0);
+                expect($(".highlightBox").length).to.equal(0);
             });
         });
 

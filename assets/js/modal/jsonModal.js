@@ -129,7 +129,7 @@ window.JSONModal = (function($, JSONModal) {
 
         if (!isModalOpen) {
             $(".tooltip").hide();
-            $(".xcTable").find(".highlightBox").remove();
+            TblManager.unHighlightCells();
             $searchInput.val("");
             modalHelper.setup({"open": function() {
                 // json modal use its own opener
@@ -247,7 +247,7 @@ window.JSONModal = (function($, JSONModal) {
             var colNum = $jsonWrap.data('colnum');
             var tableId = $jsonWrap.data('tableid');
             var rowExists = $('#xcTable-' + tableId).find('.row' + rowNum).length === 1;
-           
+
             if (!rowExists) {
                 // the table is scrolled past the selected row, so we just
                 // take the jsonData from the first visibile row
@@ -266,7 +266,7 @@ window.JSONModal = (function($, JSONModal) {
             var jsonWrapData = $jsonWrap.data();
 
             // remove highlightbox if no other jsonwraps depend on it
-           
+
             var id = jsonWrapData.tableid + jsonWrapData.rownum +
                      jsonWrapData.colnum;
             refCounts[id]--;
@@ -275,6 +275,7 @@ window.JSONModal = (function($, JSONModal) {
                                     .find('.row' + jsonWrapData.rownum)
                                     .find('td.col' + jsonWrapData.colnum)
                                     .find('.jsonModalHighlightBox');
+                $highlightBox.closest("td").removeClass("highlightedCell");
                 $highlightBox.remove();
                 delete refCounts[id];
             }
@@ -379,7 +380,7 @@ window.JSONModal = (function($, JSONModal) {
         if ($tab.hasClass('active')) {
             return;
         }
-       
+
         var isImmediate = $tab.hasClass('immediates');
         var isSeeAll = $tab.hasClass('seeAll');
         var $jsonWrap = $tab.closest('.jsonWrap');
@@ -571,7 +572,7 @@ window.JSONModal = (function($, JSONModal) {
             if (!$el.hasClass('keySelected')) {
                 toSelect = true;
             }
-            
+
             if (event.shiftKey && $lastKeySelected) {
                 var $els = $jsonWrap.find('jKey, .arrayEl');
                 var $cboxes = $jsonWrap.find('.jsonCheckbox');
@@ -751,7 +752,7 @@ window.JSONModal = (function($, JSONModal) {
         } else {
             $groups = $jsonModal.find('.prettyJson');
         }
-       
+
         $groups.each(function() {
             var $group = $(this);
             $group.find('.mainKey').sort(sortList).prependTo(
@@ -893,7 +894,7 @@ window.JSONModal = (function($, JSONModal) {
         if ($jsonText) {
             $jsonText.find('.highlightedText').contents().unwrap();
         }
-        
+
         if (focus) {
             $searchInput.focus();
         }
@@ -917,9 +918,10 @@ window.JSONModal = (function($, JSONModal) {
             // json modal use its own closer
             $('.modalHighlighted').removeClass('modalHighlighted');
             $('.jsonModalHighlightBox').remove();
+            $(".highlightedCell").removeClass("highlightedCell");
             refCounts = {};
             toggleModal(null, true, 200);
-            
+
             $modalBg.removeClass('light');
             if ($('.modalContainer:visible:not(#aboutModal)').length < 2) {
                 $modalBg.hide();
@@ -1132,7 +1134,7 @@ window.JSONModal = (function($, JSONModal) {
             } else {
                 prettyJson += getJsonHtmlForNonDataCol(jsonObj, isArray);
             }
-           
+
             if (isArray) {
                 prettyJson += "]";
             } else {
@@ -1147,7 +1149,7 @@ window.JSONModal = (function($, JSONModal) {
             var colNum = xcHelper.parseColNum($jsonTd);
             location = gTables[tableId].getCol(colNum).getBackColName();
         }
-        
+
         $jsonArea.append(getJsonWrapHtml(prettyJson, location, rowNum));
         if (isDataCol) {
             setPrefixTabs(groups);
@@ -1200,7 +1202,7 @@ window.JSONModal = (function($, JSONModal) {
                          '</div>';
             }
         }
-        
+
         prettyJson += immediatesGroup;
         if (prefixFound) {
             prettyJson += prefixedGroup + '</div>';
@@ -1508,7 +1510,7 @@ window.JSONModal = (function($, JSONModal) {
         $jsonWrap.find('.multiSelectModeBar .numColsSelected')
                  .data('numTotalFields', numTotalFields)
                  .text('0/' + numTotalFields + ' ' + JsonModalTStr.FieldsPull);
-       
+
     }
 
     // location  is either a tablename if datacol, or column name
@@ -1732,7 +1734,7 @@ window.JSONModal = (function($, JSONModal) {
                     shortTimer = 0;
                     longTimer = 0;
                 }
-                
+
                 $modalBg.addClass('light').fadeIn(longTimer);
                 setTimeout(function() {
                     $jsonModal.fadeIn(shortTimer);
@@ -1945,7 +1947,7 @@ window.JSONModal = (function($, JSONModal) {
         var tableId = $jsonWrap.data('tableid');
         var colNum = $jsonWrap.data('colnum');
         var rowExists = $('#xcTable-' + tableId).find('.row' + rowNum).length === 1;
-       
+
         if (!rowExists) {
             // the table is scrolled past the selected row, so we just
             // take the jsonData from the first visibile row
@@ -2045,7 +2047,7 @@ window.JSONModal = (function($, JSONModal) {
                 if ($checkbox.length && !$checkbox.hasClass('checked')) {
                     selectJsonKey($checkbox.siblings('.jKey'), {});
                 }
-                
+
             } else if (!prefixSelected) {
                 togglePrefixProject($jsonWrap.find('.prefixCheckbox'));
                 prefixSelected = true;

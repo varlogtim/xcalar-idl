@@ -362,7 +362,11 @@ window.TblFunc = (function(TblFunc, $) {
         if ($("#xcTableWrap-" + tableId).hasClass("tableLocked")) {
             return;
         }
-        // var alreadyFocused = gActiveTableId === tableId;
+
+        var alreadyFocused = gActiveTableId === tableId;
+        if (!alreadyFocused) {
+            TblManager.unHighlightCells(gActiveTableId);
+        }
         var wsNum = WSManager.getActiveWS();
         $('.xcTableWrap.worksheet-' + wsNum).find('.tableTitle')
                                             .removeClass('tblTitleSelected');

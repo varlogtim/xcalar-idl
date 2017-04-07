@@ -713,52 +713,46 @@ window.TblMenu = (function(TblMenu, $) {
             var $header = $table.find("th.col" + colNum + " .header");
 
             var colName = gTables[tableId].tableCols[colNum - 1].getBackColName();
-            var $highlightBoxs = $table.find(".highlightBox");
 
             var notValid = false;
             var uniqueVals = {};
             var isExist = false;
             var colVal;
 
-            $highlightBoxs.each(function() {
-                var $td = $(this).closest("td");
-
-                if ($td.find(".undefined").length > 0) {
-                    // FNF case
+            var cells = gTables[tableId].highlightedCells;
+            for (var row in cells) {
+                var cellInfo = cells[row][colNum];
+                if (cellInfo.isUndefined) {
                     isExist = true;
-                    return true; // continue to next iteration
+                    continue;
                 }
+                colVal = cellInfo.val;
 
                 if ($header.hasClass("type-integer")) {
-                    colVal = $td.find('.originalData').text();
                     if (colVal == null || colVal === "") {
                         isExist = true;
-                        return true; // continue to next iteration
+                        continue; // continue to next iteration
                     }
                     colVal = parseInt(colVal);
                 } else if ($header.hasClass("type-float")) {
-                    colVal = $td.find('.originalData').text();
                     if (colVal == null || colVal === "") {
                         isExist = true;
-                        return true; // continue to next iteration
+                        continue; // continue to next iteration
                     }
                     colVal = parseFloat(colVal);
                 } else if ($header.hasClass("type-string")) {
                     // colVal = colVal + ""; // if it's number, change to string
                     // XXX for string, text is more reliable
                     // since data-val might be messed up
-                    colVal = $td.find('.originalData').text();
                     colVal = JSON.stringify(colVal);
                 } else if ($header.hasClass("type-boolean")) {
-                    colVal = $td.find('.originalData').text();
                     if (colVal === "true") {
                         colVal = true;
                     } else {
                         colVal = false;
                     }
                 } else if ($header.hasClass("type-mixed")) {
-                    colVal = $td.find('.originalData').text();
-                    var type = ColManager.getCellType($td, tableId);
+                    var type = cellInfo.type;
                     if (type === ColumnType.string) {
                         colVal = JSON.stringify(colVal);
                     } else if (type === ColumnType.integer ||
@@ -773,15 +767,15 @@ window.TblMenu = (function(TblMenu, $) {
                     } else {
                         // should not be filtering anything else in mixed col
                         notValid = true;
-                        return false;
+                        break;
                     }
                 } else {
                     notValid = true;
-                    return false;
+                    break;
                 }
 
                 uniqueVals[colVal] = true;
-            });
+            }
 
             if (!notValid) {
                 var operator = $li.hasClass("tdFilter") ? FltOp.Filter :
@@ -794,7 +788,7 @@ window.TblMenu = (function(TblMenu, $) {
                 }
             }
 
-            $highlightBoxs.remove();
+            TblManager.unHighlightCells();
         });
 
         $cellMenu.on('mouseup', '.tdJsonModal', function(event) {
@@ -812,7 +806,7 @@ window.TblMenu = (function(TblMenu, $) {
                 // if showing modal due to truncated text, treat it as a string
                 colType = ColumnType.string;
             }
-
+            TblManager.unHighlightCells();
             JSONModal.show($td, {type: colType});
         });
 
@@ -825,7 +819,7 @@ window.TblMenu = (function(TblMenu, $) {
             var rowNum = $cellMenu.data('rowNum');
             var colNum = $cellMenu.data('colNum');
 
-            $(".xcTable").find(".highlightBox").remove();
+            TblManager.unHighlightCells();
             setTimeout(function() {
                 ColManager.unnest(tableId, colNum, rowNum);
             }, 0);
@@ -837,19 +831,24 @@ window.TblMenu = (function(TblMenu, $) {
                 return;
             }
             var tableId = $cellMenu.data('tableId');
-            var $highlightBoxs = $("#xcTable-" + tableId).find(".highlightBox");
+            var cells = [];
+            for (var row in gTables[tableId].highlightedCells) {
+                for (var col in gTables[tableId].highlightedCells[row]) {
+                    var cellInfo = gTables[tableId].highlightedCells[row][col];
+                    cells.push(cellInfo);
+                }
+            }
+
             var valArray = [];
             var colVal;
-            var cells = sortHighlightCells($highlightBoxs);
+            sortHighlightCells(cells);
             for (var i = 0, len = cells.length; i < len; i++) {
-                colVal = cells[i].siblings(".originalData").text();
-
-                valArray.push(colVal);
+                valArray.push(cells[i].val);
             }
 
             copyToClipboard(valArray);
             xcHelper.showSuccess(SuccessTStr.CopyToClipboard);
-            $highlightBoxs.remove();
+            TblManager.unHighlightCells();
         });
 
         // multiple columns
@@ -994,19 +993,13 @@ window.TblMenu = (function(TblMenu, $) {
         $hiddenInput.remove();
     }
 
-    function sortHighlightCells($highlightBoxes) {
-        var cells = [];
-
-        $highlightBoxes.each(function() {
-            cells.push($(this));
-        });
-
-        cells.sort(function($a, $b) {
+    function sortHighlightCells(cells) {
+        cells.sort(function(a, b) {
             // first sort by colNum, then sort by rowNum if in same col
-            var res = $a.data("colNum") - $b.data("colNum");
+            var res = a.colNum - b.colNum;
 
             if (res === 0) {
-                res = $a.data("rowNum") - $b.data("rowNum");
+                res = a.rowNum - b.rowNum;
             }
 
             return (res);

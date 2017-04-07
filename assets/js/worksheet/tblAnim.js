@@ -564,7 +564,7 @@ window.TblAnim = (function($, TblAnim) {
         $('body').addClass('tooltipOff').append(cursorStyle);
         $tableWrap.addClass("checkingColDrag");
 
-        $('.highlightBox').remove();
+        TblManager.unHighlightCells();
 
         $(document).on('mousemove.checkColDrag', checkColDrag);
         $(document).on('mouseup.endColDrag', endColDrag);

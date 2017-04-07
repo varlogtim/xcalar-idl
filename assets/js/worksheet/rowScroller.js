@@ -300,6 +300,7 @@ window.RowScroller = (function($, RowScroller) {
             var topRowNum = xcHelper.parseRowNum(firstRow);
             var info;
             var numRowsToAdd;
+            var fetched = false;
 
             // gets this class from RowManager.addRows
             scrolling = $table.hasClass('scrolling');
@@ -326,6 +327,7 @@ window.RowScroller = (function($, RowScroller) {
                             "currentFirstRow": topRowNum
                         };
 
+                        fetched = true;
                         RowManager.addRows(rowNumber, numRowsToAdd,
                                             RowDirection.Top, info)
                         .then(deferred.resolve)
@@ -351,6 +353,7 @@ window.RowScroller = (function($, RowScroller) {
                         "tableId": tableId,
                         "currentFirstRow": topRowNum
                     };
+                    fetched = true;
                     RowManager.addRows(table.currentRowNumber, numRowsToAdd,
                              RowDirection.Bottom, info)
                     .then(deferred.resolve)
@@ -364,11 +367,16 @@ window.RowScroller = (function($, RowScroller) {
 
             deferred
             .always(function() {
-                if ($table.find('.jsonElement.modalHighlighted').length) {
-                    JSONModal.rehighlightTds($table);
+                if (fetched) {
+                    if ($table.find('.jsonElement.modalHighlighted').length) {
+                        JSONModal.rehighlightTds($table);
+                    }
+                    if (!$.isEmptyObject(table.highlightedCells)) {
+                        TblManager.rehighlightCells(tableId);
+                    }
                 }
-                var rowScrollerMove = true;
-                RowScroller.genFirstVisibleRowNum(rowScrollerMove);
+
+                RowScroller.genFirstVisibleRowNum();
             });
         });
 
@@ -384,7 +392,6 @@ window.RowScroller = (function($, RowScroller) {
         function clearElements() {
             $(".menu:visible").hide();
             xcMenu.removeKeyboardNavigation();
-            $('.highlightBox').remove();
         }
     }
 

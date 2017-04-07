@@ -3306,7 +3306,7 @@ window.xcHelper = (function($, xcHelper) {
                 } else {
                     xcHelper.enableMenuItem($("#tableMenu .deleteTable"));
                 }
-                $('.highlightBox').remove();
+                TblManager.unHighlightCells();
                 break;
             case ('colMenu'):
                 // case that should close column menu
@@ -3323,7 +3323,7 @@ window.xcHelper = (function($, xcHelper) {
                     $menu.data('columns', []);
                 }
                 $subMenu.find('.sort').removeClass('unavailable');
-                $('.highlightBox').remove();
+                TblManager.unHighlightCells();
                 break;
             case ('cellMenu'):
                 // case that should close column menu
@@ -3333,7 +3333,7 @@ window.xcHelper = (function($, xcHelper) {
                 updateTdDropdown($dropdownIcon, $menu, tableId, options);
                 break;
             default:
-                $('.highlightBox').remove();
+                TblManager.unHighlightCells();
                 break;
         }
     }
@@ -3369,15 +3369,30 @@ window.xcHelper = (function($, xcHelper) {
         var isChildOfArray = tableCol.isChildOfArray();
         // allow fnfs but not array elements, multi-type, or anything but
         // valid types
+        var notAllowed = $div.find('.null, .blank').length;
+
+        var cellCount = 0;
+        var isMultiCell = false;
+        var cells = [];
+        for (var row in gTables[tableId].highlightedCells) {
+            for (var col in gTables[tableId].highlightedCells[row]) {
+                cellCount++;
+                if (cellCount > 1) {
+                    isMultiCell = true;
+                }
+                var cell = gTables[tableId].highlightedCells[row][col];
+                cells.push(cell);
+                if (cell.isNull || cell.isBlank) {
+                    notAllowed = true;
+                }
+            }
+        }
 
         var filterTypes = ["string", "float", "integer", "boolean", "mixed"];
         var shouldNotFilter = options.isMultiCol || isChildOfArray ||
                             filterTypes.indexOf(columnType) === -1 ||
-                            isInvalidMixed(tableId, columnType, options);
-        var notAllowed = $div.find('.null, .blank').length;
+                            isInvalidMixed(columnType, cells);
 
-        var isMultiCell = $("#xcTable-" + tableId).find(".highlightBox")
-                                                  .length > 1;
         var $tdFilter  = $menu.find(".tdFilter");
         var $tdExclude = $menu.find(".tdExclude");
 
@@ -3419,19 +3434,28 @@ window.xcHelper = (function($, xcHelper) {
     // used for deciding if cell can be filtered
     // returns true if cell is mixed and not an object or array
     // assumes cells from only 1 column are highlighted
-    function isInvalidMixed(tableId) {
+    function isInvalidMixed(columnType, cells) {
         var filterTypes = ["string", "float", "integer", "boolean", "undefined"];
-        var $highlightBoxes = $("#xcTable-" + tableId).find(".highlightBox");
         var type;
-        var $td;
         var invalidFound = false;
         var typeFound;
-        $highlightBoxes.each(function() {
-            $td = $(this).closest('td');
-            type = ColManager.getCellType($td, tableId);
+
+        for (var i = 0; i < cells.length; i++) {
+            var cell = cells[i];
+            if (cell.isMixed) {
+                type = cell.type;
+            } else if (cell.isUndefined) {
+                type = "undefined";
+            } else if (cell.isNull) {
+                type = "null";
+            } else if (cell.isBlank) {
+                type = "blank";
+            } else {
+                type = columnType;
+            }
             if (filterTypes.indexOf(type) === -1) {
                 invalidFound = true;
-                return false;
+                break;
             }
             if (!typeFound) {
                 typeFound = type;
@@ -3440,9 +3464,9 @@ window.xcHelper = (function($, xcHelper) {
                 // XXX we won't need to do this check
                 // (disallow filtering mixed cell types) once GUI-7071 is fixed
                 invalidFound = true;
-                return false;
+                break;
             }
-        });
+        }
 
         return invalidFound;
     }
@@ -3458,11 +3482,14 @@ window.xcHelper = (function($, xcHelper) {
         $jsonModalLi.addClass('hidden'); // examine
         var isMixedObj = false;
         var isTruncated = false;
+        if (isMultiCell) {
+            $menu.data('istruncatedtext', false);
+            return;
+        }
 
         if ((columnType === "object" || columnType === "array") &&
             !notAllowed) {
-            if ($div.text().trim() !== "" && !isMultiCell &&
-                    !$div.find('.undefined').length) {
+            if ($div.text().trim() !== "" && !$div.find('.undefined').length) {
                 // when  only one cell is selected
                 $jsonModalLi.removeClass("hidden");
 
@@ -3479,8 +3506,7 @@ window.xcHelper = (function($, xcHelper) {
 
             if (columnType === "mixed" && !notAllowed) {
                 var text = $div.text().trim();
-                if (text !== "" && !isMultiCell &&
-                    !$div.find('.undefined').length) {
+                if (text !== "" && !$div.find('.undefined').length) {
                     // when only one cell is selected
 
                     var mixedVal;

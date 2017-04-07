@@ -752,7 +752,6 @@ window.xcManager = (function(xcManager, $) {
                 }
 
                 xcMenu.removeKeyboardNavigation();
-                $(".highlightBox").remove();
                 // table head's dropdown has position issue if not hide
                 $('.xcTheadWrap').find('.dropdownBox')
                                  .addClass('dropdownBoxHidden');
@@ -799,7 +798,10 @@ window.xcManager = (function(xcManager, $) {
             if (!clickable && $target.closest('.dropdownBox').length === 0) {
                 $('.menu').hide();
                 xcMenu.removeKeyboardNavigation();
-                $('.highlightBox').remove();
+
+                if ($target.attr('id') !== 'mainFrame') {
+                    TblManager.unHighlightCells();
+                }
             }
 
             if (!$('#workspacePanel').hasClass('active')) {
@@ -1099,7 +1101,7 @@ window.xcManager = (function(xcManager, $) {
                 event.preventDefault();
                 $('.menu').hide();
                 xcMenu.removeKeyboardNavigation();
-                $('.highlightBox').remove();
+                TblManager.unHighlightCells();
 
                 if (event.which === keyCode.Z) {
                     $('#undo').click();
