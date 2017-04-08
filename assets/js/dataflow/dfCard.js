@@ -55,22 +55,24 @@ window.DFCard = (function($, DFCard) {
         setupDagDropdown();
         setupRetinaTab();
         $createScheduleView.hide();
-        $scheduleDetailView.hide();
+        // $scheduleDetailView.hide();
     };
 
     DFCard.addDFToList = function(dataflowName) {
-        // var dataflows = DF.getAllDataflows();
         var html = getDFListItemHtml(dataflowName);
 
         $dfMenu.find('.listSection').append(html);
-        var numDfs = DF.getNumDataflows()
+        var numDfs = DF.getNumDataflows();
         $dfMenu.find('.numGroups').text(numDfs);
         if (numDfs === 1) {
             DFCard.focusFirstDF();
         }
     };
 
-    DFCard.refreshDFList = function() {
+    DFCard.refreshDFList = function(clear, noFocus) {
+        if (clear) {
+            $dfCard.find('.cardMain').empty();
+        }
         var dataflows = DF.getAllDataflows();
         var $activeGroup = $dfMenu.find('.listBox.selected');
         var activeGroupName;
@@ -78,17 +80,8 @@ window.DFCard = (function($, DFCard) {
         if ($activeGroup.length) {
             activeGroupName = $activeGroup.find('.groupName').text();
         }
-        var html = "";
-        var numGroups = 0;
-        for (var dataflow in dataflows) {
-            numGroups++;
-            html += getDFListItemHtml(dataflow);
-        }
 
-        $dfMenu.find('.listSection').html(html);
-        $dfMenu.find('.numGroups').text(numGroups);
-
-        if (numGroups === 0) {
+        if ($.isEmptyObject(dataflows)) {
             var hint = '<div class="hint no-selection">' +
                         '<i class="icon xi-warning"></i>' +
                         '<div class="text">' +
@@ -99,23 +92,36 @@ window.DFCard = (function($, DFCard) {
                        '</div>';
             $dfCard.find('.cardMain').html(hint);
             $dfCard.find('.leftSection .title').text("");
-        } else {
-            // must find it again because we refreshed the list
-            var activeFound = false;
-            if (activeGroupName) {
-                var $df = $dfMenu.find('.listBox').filter(function() {
-                    return ($(this).find('.groupName').text() ===
-                            activeGroupName);
-                }).closest('.listBox');
+            $dfMenu.find('.numGroups').text(0);
+            return;
+        }
+        var html = "";
+        var numFlows = 0;
+        for (var dfName in dataflows) {
+            html += getDFListItemHtml(dfName);
+            numFlows++;
+        }
 
-                if ($df.length) {
-                    activeFound = true;
-                    $df.trigger('click');
-                }
+        $dfMenu.find('.listSection').html(html);
+        $dfMenu.find('.numGroups').text(numFlows);
+        if (noFocus) {
+            return;
+        }
+        // must find it again because we refreshed the list
+        var activeFound = false;
+        if (activeGroupName) {
+            var $df = $dfMenu.find('.listBox').filter(function() {
+                return ($(this).find('.groupName').text() ===
+                        activeGroupName);
+            }).closest('.listBox');
+
+            if ($df.length) {
+                activeFound = true;
+                $df.trigger('click');
             }
-            if (!activeFound && !$("#dataflowTab").hasClass("firstTouch")) {
-                DFCard.focusFirstDF();
-            }
+        }
+        if (!activeFound && !$("#dataflowTab").hasClass("firstTouch")) {
+            DFCard.focusFirstDF();
         }
     };
 
@@ -124,18 +130,12 @@ window.DFCard = (function($, DFCard) {
         $dfMenu.find('.listWrap').filter(function() {
             return ($(this).find('.groupName').text() === dfName);
         }).remove();
-        // var dataflows = DF.getAllDataflows();
-        $dfMenu.find('.numGroups').text(DF.getNumDataflows());
+
         DFCard.refreshDFList();
-        DFCard.focusFirstDF();
     };
 
     DFCard.getCurrentDF = function() {
         return (currentDataflow);
-    };
-
-    DFCard.clearDFImages = function() {
-        $dfCard.find('.cardMain').empty();
     };
 
     DFCard.updateRetinaTab = function(retName) {
@@ -222,6 +222,9 @@ window.DFCard = (function($, DFCard) {
                 return showLicenseTooltip(this);
             }
             event.stopPropagation();
+            if (!$dfCard.find('.cardMain').find(".dagWrap:visible").length) {
+                return;
+            }
             var $tab = $(this);
             if ($tab.hasClass('active')) {
                 // close it tab
@@ -328,10 +331,7 @@ window.DFCard = (function($, DFCard) {
                     return;
                 }
                 if (ephMetaInfos) {
-                    DF.restore(ephMetaInfos.getDFMeta())
-                    .then(function() {
-                        DF.initialize();
-                    });
+                    DF.refresh(ephMetaInfos.getDFMeta());
                 }
             })
             .always(function() {
@@ -345,6 +345,8 @@ window.DFCard = (function($, DFCard) {
             if ($dataflowLi.hasClass('selected')) {
                 return;
             }
+            $listSection.find('.listBox').removeClass('selected');
+            $dataflowLi.addClass('selected');
 
             var dataflowName = $dataflowLi.find('.groupName').text();
             currentDataflow = dataflowName;
@@ -352,33 +354,28 @@ window.DFCard = (function($, DFCard) {
 
             $("#dataflowView .dagWrap").addClass('xc-hidden');
 
+            var df = DF.getDataflow(dataflowName);
+            var promise;
             var $dagWrap = getDagWrap(dataflowName);
-            if (!$dagWrap.length) {
-                // first time creating image
-                drawDF(dataflowName);
+            if ($.isEmptyObject(df.retinaNodes) && !$dagWrap.length) {
+                promise = DF.updateDF(dataflowName);
+                $retTabSection.find(".retTab").removeClass("active");
+                var html = '<div class="dagWrap clearfix" '+
+                           'data-dataflowName="' + dataflowName + '"></div>';
+                $dfCard.find(".cardMain").append(html);
                 $dagWrap = getDagWrap(dataflowName);
-                $dagWrap.removeClass("xc-hidden");
-                var width = $dagWrap.find('canvas').attr('width');
-                $dagWrap.find('.dagImageWrap').scrollLeft(width);
-                if (XVM.getLicenseMode() === XcalarMode.Demo) {
-                    var $name = $dagWrap.find(".dagTable.export .exportTableName");
-                    var exportName = xcHelper.getTableName($name.text());
-                    var $option = $dagWrap.find(".advancedOpts [data-option='import']");
-                    $option.click();
-                    $option.find("input").val(exportName);
-                    $name.text(exportName);
-                    xcTooltip.changeText($name, exportName);
-                }
+                xcHelper.showRefreshIcon($dagWrap, false, promise);
             } else {
-                $dagWrap.removeClass("xc-hidden");
+                promise = PromiseHelper.resolve();
+                $dagWrap = getDagWrap(dataflowName);
+                if (!$dagWrap.length) {
+                    var html = '<div class="dagWrap clearfix" '+
+                           'data-dataflowName="' + dataflowName + '"></div>';
+                    $dfCard.find(".cardMain").append(html);
+                }
             }
+            $dagWrap.removeClass("xc-hidden");
 
-            DFCard.updateRetinaTab(dataflowName);
-
-            enableDagTooltips();
-
-            $listSection.find('.listBox').removeClass('selected');
-            $dataflowLi.addClass('selected');
 
             // If it already has a schedule, show schedule
             Scheduler.setDataFlowName(dataflowName);
@@ -387,7 +384,43 @@ window.DFCard = (function($, DFCard) {
             } else {
                 Scheduler.hideScheduleDetailView();
             }
-            $scheduleDetailView.show();
+
+            promise
+            .then(function() {
+                var $dagWrap = getDagWrap(dataflowName);
+                if ($.isEmptyObject(df.retinaNodes) || !$dagWrap.length) {
+                    return; // may have gotten cleared
+                }
+                if (!$dagWrap.find(".dagImage").length) {
+                    // first time creating image
+                    drawDF(dataflowName);
+                    $dagWrap = getDagWrap(dataflowName);
+                    $dagWrap.removeClass("xc-hidden");
+                    var width = $dagWrap.find('canvas').attr('width');
+                    $dagWrap.find('.dagImageWrap').scrollLeft(width);
+                    if (XVM.getLicenseMode() === XcalarMode.Demo &&
+                        dataflowName === currentDataflow) {
+                        var $name = $dagWrap.find(".dagTable.export .exportTableName");
+                        var exportName = xcHelper.getTableName($name.text());
+                        var $option = $dagWrap.find(".advancedOpts [data-option='import']");
+                        $option.click();
+                        $option.find("input").val(exportName);
+                        $name.text(exportName);
+                        xcTooltip.changeText($name, exportName);
+                    }
+                }
+
+                if (dataflowName === currentDataflow) {
+                    $dagWrap.removeClass("xc-hidden");
+                    DFCard.updateRetinaTab(dataflowName);
+                    enableDagTooltips();
+                } else {
+                    $dagWrap.addClass("xc-hidden");
+                }
+            })
+            .fail(function() {
+               console.error(arguments);
+            });
         });
 
         $listSection.on('click', '.downloadDataflow', function() {
@@ -413,7 +446,6 @@ window.DFCard = (function($, DFCard) {
             var groupName = $(this).siblings('.groupName').text();
             Scheduler.setDataFlowName(groupName);
             Scheduler.showScheduleDetailView();
-            $scheduleDetailView.show();
         });
 
         $('#uploadDataflowButton').click(function() {
@@ -494,6 +526,7 @@ window.DFCard = (function($, DFCard) {
     }
 
     function drawDF(dataflowName) {
+        var deferred = jQuery.Deferred();
         var html =
         '<div class="dagWrap clearfix" '+
             'data-dataflowName="' + dataflowName + '">' +
@@ -546,6 +579,8 @@ window.DFCard = (function($, DFCard) {
         '</div>';
 
         $dfCard.find('.cardMain').children('.hint').remove();
+        var $dagWrap = getDagWrap(dataflowName);
+        $dagWrap.remove();
         $dfCard.find('.cardMain').append(html);
 
         if (XVM.getLicenseMode() === XcalarMode.Demo) {
@@ -555,10 +590,16 @@ window.DFCard = (function($, DFCard) {
         }
 
         var nodes = DF.getDataflow(dataflowName).retinaNodes;
-        var $dagWrap = getDagWrap(dataflowName);
+        $dagWrap = getDagWrap(dataflowName);
         Dag.createDagImage(nodes, $dagWrap);
 
-        applyDeltaTagsToDag(dataflowName, $dagWrap);
+        var promise = applyDeltaTagsToDag(dataflowName, $dagWrap);
+
+        xcHelper.showRefreshIcon($dagWrap, false, promise);
+        promise
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+
         Dag.addDagEventListeners($dagWrap);
         xcHelper.optionButtonEvent($dfCard.find(".advancedOpts"),
             function(selOption, $selRadioButton) {
@@ -581,9 +622,12 @@ window.DFCard = (function($, DFCard) {
             $dagWrap.find('.parameterizable:not(.export)')
                     .addClass('noDropdown');
         }
+
+        return deferred.promise();
     }
 
     function applyDeltaTagsToDag(dataflowName, $wrap) {
+        var deferred = jQuery.Deferred();
         // This function adds the different tags between a regular dag
         // and a retina dag. For example, it colors parameterized nodes.
         // It also adds extra classes to the dag that is needed for parameteri-
@@ -635,7 +679,6 @@ window.DFCard = (function($, DFCard) {
         // Attach styling to all nodes that have a dropdown
         $dfCard.find(selector).addClass("parameterizable");
 
-        // var retinaName = dataflowName;
         for (var nodeId in dataflow.parameterizedNodes) {
             var $tableNode = dataflow.colorNodes(nodeId);
             var type = dataflow.parameterizedNodes[nodeId]
@@ -649,9 +692,10 @@ window.DFCard = (function($, DFCard) {
         var ignoreNoExist = true;
 
         getAndUpdateRetinaStatuses(dataflowName, ignoreNoExist)
-        .then(function() {
-            xcHelper.showRefreshIcon($wrap);
-        });
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+
+        return deferred.promise();
     }
 
     function enableDagTooltips() {
@@ -799,9 +843,6 @@ window.DFCard = (function($, DFCard) {
         $popup.show();
 
         var width = $popup.outerWidth();
-        // var height = $popup.outerHeight();
-        // var dagPanelLeft = $('#dagPanelContainer').offset().left;
-
         var top = $dagTable[0].getBoundingClientRect().bottom - 100;
         var left = $dagTable[0].getBoundingClientRect().left - width - 20;
 
@@ -837,10 +878,10 @@ window.DFCard = (function($, DFCard) {
         $(document).off('.hideExportColPopup');
     }
 
-    function getDFListItemHtml(dataflow) {
+    function getDFListItemHtml(dfName) {
         var html = "";
         var icon = "";
-        if (DF.hasSchedule(dataflow)) {
+        if (DF.hasSchedule(dfName)) {
             icon = "xi-menu-scheduler";
         } else {
             icon = "xi-menu-add-scheduler";
@@ -850,7 +891,7 @@ window.DFCard = (function($, DFCard) {
                     '<div class="iconWrap">' +
                       '<i class="icon xi-dataflowgroup"></i>' +
                     '</div>' +
-                    '<span class="groupName">' + dataflow + '</span>' +
+                    '<span class="groupName">' + dfName + '</span>' +
                     '<i class="icon xi-trash deleteDataflow" ' +
                         'title="' + DFTStr.DelDF2 + '" data-toggle="tooltip" ' +
                         'data-placement="top" data-container="body">' +

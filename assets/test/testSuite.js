@@ -1361,6 +1361,11 @@ window.TestSuite = (function($, TestSuite) {
         .then(function() {
             // focus on that dfg
             $(selector).click();
+            selector = '.dagWrap[data-dataflowname="' + dfgName +
+                        '"] .dagImage';
+            return checkExists(selector);
+        })
+        .then(function() {
             TestSuite.pass(deferred, testName, currentTestNumber);
         })
         .fail(function(error) {

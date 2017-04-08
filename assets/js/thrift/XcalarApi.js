@@ -2107,8 +2107,10 @@ xcalarListExportTargetsWorkItem = runEntity.xcalarListExportTargetsWorkItem = fu
 
 xcalarListExportTargets = runEntity.xcalarListExportTargets = function(thriftHandle, typePattern, namePattern) {
     var deferred = jQuery.Deferred();
-    console.log("xcalarListExportTargets(typePattern = " + typePattern +
+    if (verbose) {
+        console.log("xcalarListExportTargets(typePattern = " + typePattern +
                 ", namePattern = " + namePattern + ")");
+    }
 
     var workItem = xcalarListExportTargetsWorkItem(typePattern, namePattern);
 
