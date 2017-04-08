@@ -595,7 +595,7 @@ window.DagPanel = (function($, DagPanel) {
                     "msg": ErrTStr.LargeImgText,
                     "isAlert": true
                 });
-                $dagWrap.find('.dagImage').addClass('unsavable');
+                $dagWrap.addClass('unsavable');
                 deferred.reject(ErrTStr.LargeImgText);
             } else {
                 var newTab = window.open(lnk);
@@ -710,7 +710,7 @@ window.DagPanel = (function($, DagPanel) {
                 "msg": ErrTStr.LargeImgText,
                 "isAlert": true
             });
-            $(canvas).closest('.dagImage').addClass('unsavable');
+            $(canvas).closest('.dagWrap').addClass('unsavable');
             return false;
         }
 
@@ -766,7 +766,7 @@ window.DagPanel = (function($, DagPanel) {
         var dagId = $menu.data('dagid');
         var $dagWrap = $('#dagWrap-' + dagId);
         var $dagImage = $dagWrap.find('.dagImage');
-        if ($dagImage.hasClass('unsavable')) {
+        if ($dagWrap.hasClass('unsavable') || $dagWrap.hasClass("tooLarge")) {
             $menu.find('.saveImage, .newTabImage').hide();
             $menu.find('.unsavable').show();
         } else {
@@ -1551,6 +1551,7 @@ window.Dag = (function($, Dag) {
 
         var dagInfo = Dag.getParentChildDagMap(nodeArray);
         var dagDepth = getDagDepth(dagInfo);
+
         var condensed = dagDepth > condenseLimit;
         var dagOptions = {condensed: condensed};
         var isPrevHidden = false; // is parent node in a collapsed state
@@ -1563,12 +1564,21 @@ window.Dag = (function($, Dag) {
         var height = storedInfo.height * dagTableOuterHeight + 30;
         var width = storedInfo.condensedWidth * dagTableWidth - 150;
 
-        dagImageHtml = '<div class="dagImageWrap"><div class="dagImage" ' +
+        if (height > canvasLimit || width > canvasLimit ||
+            (height * width > canvasAreaLimit)) {
+            dagImageHtml = '<div class="largeMsg">' + DFTStr.TooLarge + '</div>';
+            $container.addClass('tooLarge');
+        } else {
+            dagImageHtml = '<div class="dagImageWrap"><div class="dagImage" ' +
                         'style="height: ' + height + 'px;width: ' + width +
                         'px;">' + dagImageHtml + '</div></div>';
+        }
+
         $container.append(dagImageHtml);
 
-        drawAllLines($container, dagInfo, numNodes, width, options);
+        if (!$container.hasClass('tooLarge')) {
+            drawAllLines($container, dagInfo, numNodes, width, options);
+        }
 
         var allDagInfo = {
             nodes: dagInfo,
@@ -2618,7 +2628,7 @@ window.Dag = (function($, Dag) {
             if (!$expandIcon.hasClass('expanded')) {
                 var canExpand = checkCanExpand(group, depth, index, $dagWrap);
                 if (!canExpand) {
-                    $dagWrap.find('.dagImage').addClass('unsavable');
+                    $dagWrap.addClass('unsavable');
                     $('.tooltip').hide();
                     StatusBox.show(ErrTStr.DFNoExpand, $expandIcon, false,
                                     {type: "info"}) ;
@@ -3717,16 +3727,17 @@ window.Dag = (function($, Dag) {
 
         ctx.stroke();
 
+
         if (options.savable) {
-            // if more than 700 nodes, do not make savable, too much lag
+            // if more than 1000 nodes, do not make savable, too much lag
             // also canvas limit is 32,767 pixels height  or width
             var canvasWidth = $(canvas).width();
             var canvasHeight = $(canvas).height();
 
-            if (numNodes > 700 || canvasWidth > canvasLimit ||
+            if (numNodes > 1000 || canvasWidth > canvasLimit ||
                 canvasHeight > canvasLimit || (canvasWidth * canvasHeight) >
                 canvasAreaLimit) {
-                $dagImage.addClass('unsavable');
+                $dagImage.closest(".dagWrap").addClass('unsavable');
             }
         }
     }

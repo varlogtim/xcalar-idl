@@ -675,7 +675,8 @@ DFTStr = {
     'UpdateParamFail': 'Update Parameters Failed',
     'UploadLimitMsg': 'Cannot upload dataflow that is over 1MB.',
     'DownloadDF': 'Download dataflow',
-    'AddSched': 'Add Schedule to dataflow'
+    'AddSched': 'Add Schedule to dataflow',
+    'TooLarge': 'Dataflow image exceeds viewable limit.'
 };
 
 DSTStr = {
