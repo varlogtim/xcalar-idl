@@ -690,7 +690,8 @@ function XcalarAddLocalFSExportTarget(targetName, path, txId) {
     target.hdr.type = ExTargetTypeT.ExTargetSFType;
     target.specificInput = new ExAddTargetSpecificInputT();
     target.specificInput.sfInput = new ExAddTargetSFInputT();
-    target.specificInput.sfInput.url = path;
+    target.specificInput.sfInput.url = "/" + path;
+
 
     var def1 = xcalarAddExportTarget(tHandle, target);
     // var def2 = XcalarGetQuery(workItem);
