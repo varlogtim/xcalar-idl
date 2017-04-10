@@ -1244,7 +1244,7 @@ window.Profile = (function($, Profile, d3) {
                 .attr("width", chartWidth)
                 .attr("height", chartHeight + 2)
                 .style("position", "relative")
-                .style("left", left)
+                .style("left", left + "px")
                 .style("overflow", "visible")
             .append("g")
                 .attr("class", "barChart")
