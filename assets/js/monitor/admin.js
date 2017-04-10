@@ -2,6 +2,7 @@ window.Admin = (function($, Admin) {
     // xx may need to separate UserList module from Admin
     var userListKey = "gUserListKey"; // constant
     var userList = [];
+    var loggedInUsers = {};
     var searchHelper;
     var $menuPanel; // $('#monitorMenu-setup');
     var $userList; // $menuPanel.find('.userList');
@@ -215,11 +216,37 @@ window.Admin = (function($, Admin) {
             html += '<li class="userLi">' +
                         '<i class="icon xi-user fa-12"></i>' +
                         '<span class="text">' + userList[i] + '</span>' +
+                        '<span class="status"' +
+                        ' data-toggle="tooltip"' +
+                        ' data-container="body"' +
+                        ' data-placement="top"' +
+                        ' data-title="' + TooltipTStr.LoggedIn + '">' +
+                        '</span>' +
                     '</li>';
         }
 
         $userList.find('ul').html(html);
     }
+
+    function updateLoggedInUsersList() {
+        $userList.find(".userLi").each(function() {
+            var $li = $(this);
+            var name = $(this).find(".text").text();
+            if (loggedInUsers.hasOwnProperty(name)) {
+                $li.addClass("loggedIn");
+            } else {
+                $li.removeClass("loggedIn");
+            }
+        });
+    }
+
+    Admin.updateLoggedInUsers = function(users) {
+        if (!Admin.isAdmin()) {
+            return;
+        }
+        loggedInUsers = users;
+        updateLoggedInUsersList();
+    };
 
     function refreshUserList() {
         KVStore.get(userListKey, gKVScope.GLOB)
@@ -230,6 +257,7 @@ window.Admin = (function($, Admin) {
                 parseStrIntoUserList(value);
             }
             setupUserListMenu();
+            updateLoggedInUsersList();
         });
     }
 

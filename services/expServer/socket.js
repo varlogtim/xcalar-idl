@@ -4,7 +4,6 @@ module.exports = function(server) {
     var users = {};
 
     io.sockets.on("connection", function(socket) {
-        console.log("connected")
         /*  kinds of emit to use:
          *  1. socket.emit: emit to itself
          *  2. io.sockets.emit: emit to all
@@ -19,6 +18,7 @@ module.exports = function(server) {
                 users[userName] = 1;
             }
             callback();
+            io.sockets.emit("system-allUsers", users);
         });
 
         socket.on("disconnect", function() {
@@ -28,6 +28,7 @@ module.exports = function(server) {
                 if (users[userName] <= 0) {
                     delete users[userName];
                 }
+                io.sockets.emit("system-allUsers", users);
             }
         });
     });

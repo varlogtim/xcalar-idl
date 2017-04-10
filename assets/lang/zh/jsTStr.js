@@ -94,6 +94,7 @@ TooltipTStr = {
 "NotInDemoMode": '该功能在云预览中不可用',
 "KeyExists": '键已经存在',
 "ViewAllWS": '查看所有工作表',
+"LoggedIn": '已登录',
 "IcvGenerating": '正在生成完整性约束冲突异常表',
 "IcvRestriction": '完整性约束冲突异常表仅适用于映射和分组',
 "IcvSourceDropped": '后代表被移除，完整性约束冲突异常表不可被创建',

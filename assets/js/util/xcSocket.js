@@ -44,6 +44,10 @@ window.XcSocket = (function(XcSocket, $) {
                 Support.forceLogout();
             }
         });
+
+        socket.on("system-allUsers", function(users) {
+            Admin.updateLoggedInUsers(users);
+        });
     }
 
     /* Unit Test Only */

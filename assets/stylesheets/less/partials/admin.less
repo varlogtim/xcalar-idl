@@ -199,6 +199,34 @@
         .flex(1 1 auto);
         margin-top: 10px;
 
+        .userLi {
+            .status {
+                display: none;
+            }
+
+            .text {
+                .textOverflowOneLine;
+                .size(@max-width: ~"calc(100% - 25px)");
+            }
+
+            &.loggedIn {
+                padding-right: 15px;
+
+                .status {
+                    display: inline-block;
+                    float: right;
+                    .size(10px, 10px);
+                    .rounded(10px);
+                    .vertical-align;
+                    background-color: @color-bg-apple-green;
+                }
+
+                .text {
+                    .size(@max-width: ~"calc(100% - 45px)");
+                }
+            }
+        }
+
         .refreshUserList {
             .position(absolute, @top: -2px, @right: 15px);
             .size(25px, 25px);
