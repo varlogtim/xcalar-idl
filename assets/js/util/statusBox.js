@@ -89,7 +89,7 @@ window.StatusBox = (function($, StatusBox){
         } else {
             $statusBox.find('.message').text(text);
         }
-       
+
         if (side === 'top') {
             left = (bound.left + ($target.outerWidth() / 2) -
                     (statusBoxWidth / 2)) + offsetX;
@@ -149,8 +149,9 @@ window.StatusBox = (function($, StatusBox){
     function hideStatusBox(event) {
         if (event.data && event.data.target) {
             var id = $(event.target).attr('id');
+
             if (id === "statusBoxClose" ||
-                id !== event.data.target.attr('id') ||
+                !$(event.target).is(event.data.target) ||
                 event.type === "keydown")
             {
                 $doc.off('mousedown', hideStatusBox);

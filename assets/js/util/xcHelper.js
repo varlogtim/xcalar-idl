@@ -1493,6 +1493,10 @@ window.xcHelper = (function($, xcHelper) {
         if (!table) {
             // case if table was deleted before unlock is called;
             SQL.unlockUndoRedo();
+            var $dagTables = $('#dagPanel').find('.dagTable[data-id="' +
+                                                tableId + '"]');
+            $dagTables.removeClass('locked');
+            $dagTables.find('.lockIcon').remove();
             return;
         }
         table.unlock();

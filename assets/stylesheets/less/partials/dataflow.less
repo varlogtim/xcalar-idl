@@ -409,8 +409,13 @@
                 &.typeTable .icon {
                     color: @color-bg-gold !important;
                 }
-                &[data-advancedOpts="default"] .dagTableIcon {
-                    background: @color-bg-gold;
+                &[data-advancedOpts="default"] {
+                    .dagTableIcon {
+                        background: @color-bg-gold;
+                    }
+                    i.icon.xi-generate-sub {
+                        color: @color-white !important;
+                    }
                 }
             }
             &.Cleaned, &.Dropped, &.Ready {
@@ -457,6 +462,15 @@
                 }
                 &[data-advancedOpts="default"] .dagTableIcon {
                     background: @color-error-border;
+                }
+            }
+
+            &[data-advancedOpts="import"] {
+                &.export.dagTable {
+
+                    &> .xi-table-2, &:hover > .xi-table-2 {
+                        color: @color-bg-select-blue !important;
+                    }
                 }
             }
         }
@@ -535,6 +549,8 @@
             background-color: @color-bg-white-seven;
             li {
                 &> div {
+                    cursor: default;
+
                     &:first-child {
                         // color: @color-font-select-blue;
                         color: @color-font-darkGray;

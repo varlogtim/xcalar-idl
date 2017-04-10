@@ -1218,7 +1218,8 @@ window.DFCard = (function($, DFCard) {
         var isValid = xcHelper.tableNameInputChecker($input, {
             "onErr": function() {
                 $input.closest(".advancedOpts").addClass("active");
-            }
+            },
+            side: "left"
         });
         return isValid;
     }
