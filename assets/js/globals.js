@@ -87,6 +87,7 @@ var gEnableIndexStyle = false;
 var gAdmin = false; // if admin user
 var gXcSupport = false; // if xcalar support user
 var gEnableLocalFiles = false;
+var gDemoMemory = false;
 
 // Shut up the console logs
 var verbose = false;
