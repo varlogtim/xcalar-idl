@@ -356,8 +356,7 @@ window.TblMenu = (function(TblMenu, $) {
                     return false;
                 }
 
-                if (ColManager.checkColName($input, tableId, colNum))
-                {
+                if (ColManager.checkColName($input, tableId, colNum)) {
                     return false;
                 }
 

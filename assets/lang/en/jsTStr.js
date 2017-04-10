@@ -416,6 +416,7 @@ FnBarTStr = {
                     'in this operation. Do you want to continue?',
     'NewColTitle': 'New Column Required',
     'NewColMsg': 'Please create a new column to perform a map.',
+    'PullExists': 'This column has already been pulled.',
     // with replace
     'InvalidNumParens': 'Your function string should take the form ' +
                         'of <operation>(op(arg1, arg2, ...))'
@@ -822,7 +823,7 @@ ColTStr = {
     'SplitColWarn': 'Many Columns will generate',
     'RenameSpecialChar': 'Invalid name. Ensure name contains only ' +
                          'alphanumeric, -, _ and space. It must start with ' +
-                         'an alphabet.',
+                         'a letter.',
     'RenameStartNum': 'Invalid name, cannot begin with a number.',
     'ImmediateClash': 'Invalid name, name already exists in at least one ' +
                       'DATA cell',

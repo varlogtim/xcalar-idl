@@ -91,7 +91,8 @@ window.FnBar = (function(FnBar, $) {
         });
 
         editor.on("focus", function() {
-            if (initialTableId && initialTableId !== gActiveTableId) {
+            if (initialTableId && initialTableId !== gActiveTableId ||
+                $.isEmptyObject(colNamesCache)) {
                 resetColNamesCache(gActiveTableId);
             }
             initialTableId = gActiveTableId;
@@ -401,6 +402,10 @@ window.FnBar = (function(FnBar, $) {
                     }
                 }
             } else {
+                var op = getOperationFromFuncStr(fullVal);
+                if (op === "pull") {
+                    return;
+                }
                 curWord = curWord.toLowerCase();
                 // search columnNames
                 for (var name in colNamesCache) {
@@ -416,35 +421,30 @@ window.FnBar = (function(FnBar, $) {
                     }
                 }
 
-                if (getOperationFromFuncStr(fullVal) !== "pull") {
-                    // search xdfMap
-                    for (var xdfFn in xdfMap) {
-                        seachMapFunction(xdfFn, xdfMap[xdfFn]);
-                    }
+                // search xdfMap
+                for (var xdfFn in xdfMap) {
+                    seachMapFunction(xdfFn, xdfMap[xdfFn]);
+                }
 
-                    // search udfMap
-                    for (var udfFn in udfMap) {
-                        seachMapFunction(udfFn, udfMap[udfFn]);
-                    }
+                // search udfMap
+                for (var udfFn in udfMap) {
+                    seachMapFunction(udfFn, udfMap[udfFn]);
+                }
 
-                    // search aggMap
-                    for (var agg in aggMap) {
-                        if (agg.indexOf(curWord) !== -1 &&
-                            !seen.hasOwnProperty(agg)) {
-                            list.push({
-                                text: agg,
-                                displayText: agg,
-                                render: renderList,
-                                className: "colName"
-                            });
-                        }
+                // search aggMap
+                for (var agg in aggMap) {
+                    if (agg.indexOf(curWord) !== -1 &&
+                        !seen.hasOwnProperty(agg)) {
+                        list.push({
+                            text: agg,
+                            displayText: agg,
+                            render: renderList,
+                            className: "colName"
+                        });
                     }
                 }
             }
-            // clearTimeout(timer1);
-            // timer1 = setTimeout(function(){
-            //
-            // }, 2000);
+
             list.sort(function(a, b) {
                 return a.displayText.length - b.displayText.length;
             });
@@ -572,8 +572,11 @@ window.FnBar = (function(FnBar, $) {
         }
         var colNum = xcHelper.parseColNum($colInput);
 
-
         var tableCol = table.tableCols[colNum - 1];
+
+        if (tableCol.isEmptyCol()) {
+            return;
+        }
 
         tableCol.userStr = "\"" + tableCol.getFrontColName() + "\"" + " = " +
                             fnBarVal;
@@ -728,7 +731,7 @@ window.FnBar = (function(FnBar, $) {
 
                 // show alert if column in string does not match selected col
                 if (!tableCol.isEmptyCol() &&
-                    !checkForSelectedColName(fnBarVal, colName)) {
+                    !checkForSelectedColName(operation, fnBarVal, colName)) {
                     var alertTitle = AlertTStr.CONFIRMATION;
                     var alertMsg = xcHelper.replaceMsg(FnBarTStr.DiffColumn, {
                         colName: colName
@@ -736,7 +739,13 @@ window.FnBar = (function(FnBar, $) {
                     showConfirmAlert($colInput, alertTitle, alertMsg, cursor,
                                      confirmFunc);
                     deferred.reject();
+                } else if (checkDuplicatePull(tableId, colNum, operation,
+                    fnBarVal)) {
+                    duplicatePullHandler();
+                    deferred.reject();
+                    return deferred.promise();
                 } else {
+
                     // no errors, submit the function
                     confirmFunc()
                     .then(deferred.resolve)
@@ -788,6 +797,15 @@ window.FnBar = (function(FnBar, $) {
         }, 0);
     }
 
+    function duplicatePullHandler() {
+        setTimeout(function() {
+            StatusBox.show(FnBarTStr.PullExists, $fnBar.prev().prev(), null, {
+                "offsetX": 70,
+                "side": "bottom"
+            });
+        }, 0);
+    }
+
     function showConfirmAlert($colInput, alertTitle, alertMsg, cursor, confirm,
                              btnOption) {
         var btns;
@@ -821,11 +839,25 @@ window.FnBar = (function(FnBar, $) {
         });
     }
 
+    function checkDuplicatePull(tableId, colNum, op, funcStr) {
+        if (op !== "pull") {
+            return false;
+        }
+        var func = {args: []};
+        ColManager.parseFuncString(funcStr, func);
+        var name = "";
+        if (func.args[0] && func.args[0].args) {
+            name = func.args[0].args[0];
+        }
+
+        var exists = ColManager.checkDuplicateName(tableId, colNum, name);
+        return exists;
+    }
+
 
     // will return false if column names detected and colName is not found
     // among them. Otherwise, will return true
-    function checkForSelectedColName(funcStr, colName) {
-        var op = getOperationFromFuncStr(funcStr);
+    function checkForSelectedColName(op, funcStr, colName) {
         if (op === "pull") {
             return true; // ignore check for pull
         }

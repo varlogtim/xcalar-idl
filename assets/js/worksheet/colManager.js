@@ -556,7 +556,7 @@ window.ColManager = (function($, ColManager) {
             } else {
                 newWidth = options.prevWidth;
             }
-            $th.width(newWidth);
+            $th.outerWidth(newWidth);
             curCol.setWidth(newWidth);
         } else {
             $th.find('.editable').removeClass('editable');
@@ -747,7 +747,6 @@ window.ColManager = (function($, ColManager) {
                 progCol.parseFunc();
                 if ((!args || !args.undo) && !parsePullColArgs(progCol) ) {
                     console.error("Arg parsing failed");
-                    progCol.func = xcHelper.deepCopy(origFunc);
                     deferred.reject("Arg parsing failed");
                     break;
                 }
@@ -837,38 +836,20 @@ window.ColManager = (function($, ColManager) {
     ColManager.checkColName = function($colInput, tableId, colNum) {
         var columnName = $colInput.val().trim();
         var isInvalid = false;
-        var error = ErrTStr.ColumnConflict;
+        var error;
         var table = gTables[tableId];
         xcTooltip.hideAll();
 
         var nameErr = xcHelper.validateColName(columnName);
         if (nameErr != null) {
             error = nameErr;
-            isInvalid = true;
         } else if (table.getImmediateNames().includes(columnName)) {
             error = ColTStr.ImmediateClash;
-            isInvalid = true;
-        } else {
-            var numCols = table.getNumCols();
-            for (var curColNum = 1; curColNum <= numCols; curColNum++) {
-                if (colNum != null && colNum === curColNum) {
-                    continue;
-                }
-
-                var progCol = table.getCol(curColNum);
-                // check both backend name and front name
-                if (progCol.getFrontColName() === columnName ||
-                    (!progCol.isDATACol() &&
-                     progCol.getBackColName() === columnName))
-                {
-                    error = ErrTStr.ColumnConflict;
-                    isInvalid = true;
-                    break;
-                }
-            }
+        } else if (ColManager.checkDuplicateName(tableId, colNum, columnName)) {
+            error = ErrTStr.ColumnConflict;
         }
 
-        if (isInvalid) {
+        if (error) {
             var $toolTipTarget = $colInput.parent();
             xcTooltip.transient($toolTipTarget, {
                 "title": error,
@@ -888,7 +869,29 @@ window.ColManager = (function($, ColManager) {
             clearTimeout(timeout);
         }
 
-        return isInvalid;
+        return (error != null);
+    };
+
+    ColManager.checkDuplicateName = function(tableId, colNum, colName) {
+        var table = gTables[tableId];
+        var numCols = table.getNumCols();
+        var exists = false;
+        for (var curColNum = 1; curColNum <= numCols; curColNum++) {
+            if (colNum != null && colNum === curColNum) {
+                continue;
+            }
+
+            var progCol = table.getCol(curColNum);
+            // check both backend name and front name
+            if (progCol.getFrontColName(true) === colName ||
+                (!progCol.isDATACol() &&
+                 progCol.getBackColName() === colName))
+            {
+                exists = true;
+                break;
+            }
+        }
+        return exists;
     };
 
     ColManager.minimizeCols = function(colNums, tableId) {

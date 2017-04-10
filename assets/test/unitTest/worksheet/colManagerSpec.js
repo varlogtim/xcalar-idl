@@ -590,6 +590,7 @@ describe('ColManager Test', function() {
             var $input = $target.find("input");
             var table = gTables[tableId];
             var firstColName = table.getCol(1).getFrontColName();
+            var fullColName = table.getCol(1).getFrontColName(true);
             var testCases = [{
                 // error case with invalid char
                 "val": "test^test",
@@ -603,14 +604,13 @@ describe('ColManager Test', function() {
                 "val": "0test",
                 "inValid": true
             },{
-                // error case with duplicate name
+                // error case with duplicate name but no prefix
                 "val": firstColName,
-                "inValid": true
+                "inValid": false
             },{
-                // no error with case with duplicate name
-                "val": firstColName,
-                "inValid": false,
-                "colNum": 1
+                // error case with duplicate name
+                "val": fullColName,
+                "inValid": true
             },{
                 // no error with valid name
                 "val": "test123",
@@ -627,6 +627,32 @@ describe('ColManager Test', function() {
 
             $(".tooltip.error").tooltip("destroy");
             $target.remove();
+        });
+
+        it("checkDuplicateName should work", function() {
+            var table = gTables[tableId];
+            var firstColName = table.getCol(1).getFrontColName();
+            var fullColName = table.getCol(1).getFrontColName(true);
+
+            var testCases = [{
+                // error case with duplicate name
+                "val": fullColName,
+                "inValid": true,
+                "colNum": 2
+            },{
+                // no error with case with duplicate name
+                "val": fullColName,
+                "inValid": false,
+                "colNum": 1
+            }];
+
+            testCases.forEach(function(testCase) {
+                var colNum = testCase.colNum;
+                var val = testCase.val;
+                var res = ColManager.checkDuplicateName(tableId, colNum, val);
+                var inValid = testCase.inValid;
+                expect(res).to.equal(inValid);
+            });
         });
 
         it("Should hide and maximize column", function(done) {

@@ -51,7 +51,8 @@ describe('FnBar Test', function() {
 
         describe("fnBar events should work correctly.", function() {
 
-            it("fnBar keyDown should do nothing unless enter key.", function() {
+            it("fnBar keyDown should do nothing unless enter key.", function(done) {
+                var $statusBox = $("#statusBox");
                 $table.find('th.col2 .dragArea').mousedown();
                 editor.setValue("= pull(" + prefix + gPrefixSign + "elite)");
                 var curCont = $table.find("td.col2").eq(0).text();
@@ -59,10 +60,15 @@ describe('FnBar Test', function() {
                 signalKeyDown(50); // Not enter
                 curCont = $table.find("td.col2").eq(0).text();
                 expect(curCont.startsWith("[")).to.be.false;
+                expect($statusBox.is(":visible")).to.be.false;
 
                 signalKeyDown(keyCode.Enter); // enter
                 curCont = $table.find("td.col2").eq(0).text();
-                expect(curCont.startsWith("[")).to.be.true;
+                expect(curCont.startsWith("[")).to.be.false;
+                setTimeout(function() {
+                   UnitTest.hasStatusBoxWithError(FnBarTStr.PullExists);
+                   done();
+               }, 1);
             });
             it("fnBar keyDown malformed input throws correctly.", function(done) {
                 editor.setValue("= pull(beepboop");
