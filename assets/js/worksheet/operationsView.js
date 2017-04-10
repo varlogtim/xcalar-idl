@@ -2493,7 +2493,11 @@ window.OperationsView = (function($, OperationsView) {
                 // check new col name
                 var numArgs = $activeOpSection.find('.arg:visible').length;
                 $nameInput = $activeOpSection.find('.arg:visible').eq(numArgs - 1);
-                isPassing = !ColManager.checkColName($nameInput, tableId);
+                var checkOpts = {
+                    strictDuplicates: true
+                };
+                isPassing = !ColManager.checkColName($nameInput, tableId, null,
+                                                    checkOpts);
 
                 // check new table name if join option is not checked
                 if (isPassing && !$activeOpSection.find('.keepTable .checkbox')
@@ -4076,7 +4080,7 @@ window.OperationsView = (function($, OperationsView) {
         $btn.parent().prev().find('.inputWrap').last().after(html);
         $btn.parent().prev().find('.inputWrap').last().find('input').focus();
         formHelper.refreshTabbing();
-        
+
         var $ul = $btn.parent().prev().find('.inputWrap').last().find(".list");
         addSuggestListForExtraArg($ul);
     }
@@ -4085,13 +4089,13 @@ window.OperationsView = (function($, OperationsView) {
         var $allGroups = $activeOpSection.find('.group');
         var groupIndex = $allGroups.index($ul.closest('.group'));
         var argIndex = $ul.closest('.group').find('.list.hint').index($ul);
-        
+
         var scroller = new MenuHelper($ul, {
             scrollerOnly: true,
             bounds: '#operationsView',
             bottomPadding: 5
         });
-        
+
         suggestLists[groupIndex].splice(argIndex, 0, scroller);
         $ul.removeClass('new');
     }
@@ -4340,7 +4344,7 @@ window.OperationsView = (function($, OperationsView) {
         // metadata
         OperationsView.__testOnly__.aggNames = aggNames;
         OperationsView.__testOnly__.colNames = colNamesCache;
-       
+
     }
     /* End Of Unit Test Only */
 

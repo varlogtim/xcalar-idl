@@ -833,7 +833,10 @@ window.ColManager = (function($, ColManager) {
         return deferred.promise();
     };
 
-    ColManager.checkColName = function($colInput, tableId, colNum) {
+    // options:
+    // strictDuplicates: if true, prefix:col1 and col1 (derived) will be flagged
+    // as a duplicate
+    ColManager.checkColName = function($colInput, tableId, colNum, options) {
         var columnName = $colInput.val().trim();
         var isInvalid = false;
         var error;
@@ -845,7 +848,8 @@ window.ColManager = (function($, ColManager) {
             error = nameErr;
         } else if (table.getImmediateNames().includes(columnName)) {
             error = ColTStr.ImmediateClash;
-        } else if (ColManager.checkDuplicateName(tableId, colNum, columnName)) {
+        } else if (ColManager.checkDuplicateName(tableId, colNum, columnName,
+                                                 options)) {
             error = ErrTStr.ColumnConflict;
         }
 
@@ -872,7 +876,12 @@ window.ColManager = (function($, ColManager) {
         return (error != null);
     };
 
-    ColManager.checkDuplicateName = function(tableId, colNum, colName) {
+    // options:
+    // strictDuplicates: if true, prefix:col1 and col1 (derived) will be flagged
+    // as a duplicate
+    ColManager.checkDuplicateName = function(tableId, colNum, colName, options)
+    {
+        options = options || {};
         var table = gTables[tableId];
         var numCols = table.getNumCols();
         var exists = false;
@@ -883,7 +892,8 @@ window.ColManager = (function($, ColManager) {
 
             var progCol = table.getCol(curColNum);
             // check both backend name and front name
-            if (progCol.getFrontColName(true) === colName ||
+            var incPrefix = !options.strictDuplicates;
+            if (progCol.getFrontColName(incPrefix) === colName ||
                 (!progCol.isDATACol() &&
                  progCol.getBackColName() === colName))
             {
