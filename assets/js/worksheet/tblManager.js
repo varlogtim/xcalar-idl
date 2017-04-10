@@ -2854,6 +2854,9 @@ window.TblManager = (function($, TblManager) {
         var lastColNum;
         var multiCol = false;
         var tId = gActiveTableId;
+        if (!gTables[tId]) {
+            return false;
+        }
 
         for (var row in gTables[tId].highlightedCells) {
             for (var colNum in gTables[tId].highlightedCells[row]) {

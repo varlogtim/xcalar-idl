@@ -364,7 +364,7 @@ window.TblFunc = (function(TblFunc, $) {
         }
 
         var alreadyFocused = gActiveTableId === tableId;
-        if (!alreadyFocused) {
+        if (!alreadyFocused && gActiveTableId) {
             TblManager.unHighlightCells(gActiveTableId);
         }
         var wsNum = WSManager.getActiveWS();
