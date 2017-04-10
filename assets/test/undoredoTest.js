@@ -160,6 +160,12 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
             strData = strData.replace(re, '"pointArgs":{"name":"' + yelpName +
                                         '"');
 
+            re = new RegExp("testyelp::", "g");
+            strData = strData.replace(re, yelpName + "::");
+
+            re = new RegExp("testyelp##", "g");
+            strData = strData.replace(re, yelpName);
+
             data = JSON.parse(strData);
             deferred.resolve(data);
         })
@@ -315,8 +321,9 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
                     }
                 }
             }
-            console.log('undo ' + step + ' passing');
+
             stepInfo.push(info);
+            console.log('undo ' + step + ' passing', stepInfo[step].lastAction);
         }
 
         SQL.undo()
@@ -472,7 +479,8 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
                     "change data type",
                     "GroupBy",
                     "Join",
-                    "RenameTable"];
+                    "RenameTable",
+                    "Join"]; // keep tables self join
 
     // the following icv map needs to be tested and integrated into testLogs.json
     // currently, we lack an overall function that does this kind of map

@@ -450,14 +450,14 @@
             ],
             "lJoinInfo": {
                 "colNums": [2],
-                "pulledColumns": [],
+                "pulledColumns": ["review_count"],
                 "rename": [],
                 "tableId": "0S8",
                 "tablePos": 1
             },
             "rJoinInfo": {
                 "colNums": [11],
-                "pulledColumns": [],
+                "pulledColumns": ["testyelp::review_count"],
                 "rename": [],
                 "tableId": "0S7",
                 "tablePos": 0
@@ -494,6 +494,97 @@
         },
         "cli": "rename node  joined#0S10  newrename#0S10;",
         "timestamp": 1478561444979
+    },
+
+    {
+      "title": "Join",
+      "options": {
+        "operation": "join",
+        "lTableName": "newrename#0S10",
+        "lColNums": [
+          1
+        ],
+        "lJoinInfo": {
+          "tableId": "0S10",
+          "colNums": [
+            1
+          ],
+          "pulledColumns": [
+            "review_count",
+            "testyelp::review_count"
+          ],
+          "rename": [
+            {
+              "orig": "review_count_count7",
+              "new": "review_count_count7_413",
+              "type": 0
+            },
+            {
+              "orig": "review_count_add2",
+              "new": "review_count_add2_413",
+              "type": 0
+            },
+            {
+              "orig": "one-split-1",
+              "new": "one-split-1_413",
+              "type": 0
+            },
+            {
+              "orig": "one-split-2",
+              "new": "one-split-2_413",
+              "type": 0
+            },
+            {
+              "orig": "review_count_add2_string",
+              "new": "review_count_add2_string_413",
+              "type": 0
+            }
+          ],
+          "tablePos": 0
+        },
+        "rTableName": "newrename#0S10",
+        "rColNums": [
+          1
+        ],
+        "rJoinInfo": {
+          "tableId": "0S10",
+          "colNums": [
+            1
+          ],
+          "pulledColumns": [
+            "review_count",
+            "testyelp::review_count"
+          ],
+          "rename": [
+            {
+              "orig": "review_count",
+              "new": "review_count1",
+              "type": 0
+            },
+            {
+              "orig": "testyelp##",
+              "new": "testyelp1234",
+              "type": 13
+            }
+          ],
+          "tablePos": 0
+        },
+        "newTableName": "keepJoin#0S12",
+        "joinStr": "Inner Join",
+        "worksheet": "h9",
+        "options": {
+          "keepTables": true,
+          "formOpenTime": 1491862111960
+        },
+        "htmlExclude": [
+          "lJoinInfo",
+          "rJoinInfo",
+          "worksheet",
+          "options"
+        ]
+      },
+      "cli": "join --leftTable \"newrename#0S10\" --rightTable \"newrename#0S10\" --joinType innerJoin  --joinTable \"keepJoin#0S12\" --collisionCheck --leftRenameMap review_count_count7:review_count_count7_413:1&review_count_add2:review_count_add2_413:1&one-split-1:one-split-1_413:1&one-split-2:one-split-2_413:1&review_count_add2_string:review_count_add2_string_413:1 --rightRenameMap review_count:review_count1:1&testyelp9835:testyelp98351:0;",
+      "timestamp": 1491862144625
     }
 ],
 

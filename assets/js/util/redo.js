@@ -69,7 +69,8 @@ window.Redo = (function($, Redo) {
     redoFuncs[SQLOps.Join] = function(options) {
         var deferred = jQuery.Deferred();
         var tablesToReplace = [];
-        if (!options.keepTables) {
+        var joinOptions = options.options || {};
+        if (!joinOptions.keepTables) {
             tablesToReplace = [options.lTableName, options.rTableName];
         }
         TblManager.refreshTable([options.newTableName], null,
