@@ -818,6 +818,8 @@ window.WSManager = (function($, WSManager) {
                 console.error("Not find the table!");
                 return (null);
             }
+        } else if (ws.lockedTables.indexOf(tableId) > -1) {
+            WSManager.unlockTable(tableId);
         }
 
         tables.splice(tableIndex, 1);
@@ -992,6 +994,9 @@ window.WSManager = (function($, WSManager) {
         var ws = worksheetGroup.get(wsId);
         if (ws && ws.lockedTables.length > 0) {
             var tableIndex = ws.lockedTables.indexOf(tableId);
+            if (tableIndex === -1) {
+                return;
+            }
             ws.lockedTables.splice(tableIndex, 1);
             if (ws.lockedTables.length === 0) {
                 $('#worksheetTab-' + wsId).removeClass('locked');

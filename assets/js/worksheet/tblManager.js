@@ -2756,6 +2756,7 @@ window.TblManager = (function($, TblManager) {
             }
 
             removeTableMeta(tableName);
+            xcHelper.unlockTable(tableId);
             deferred.resolve();
         })
         .fail(function(error) {
