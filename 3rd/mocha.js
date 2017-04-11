@@ -2518,7 +2518,7 @@ function HTML(runner) {
         pre.style.display = pre.style.display === 'none' ? 'block' : 'none';
       });
 
-      var pre = fragment('<pre><code>%e</code></pre>', utils.clean(test.body));
+      var pre = fragment('<pre><code>%e</code></pre>', utils.clean(test.body || test.err.stack));
       el.appendChild(pre);
       pre.style.display = 'none';
     }

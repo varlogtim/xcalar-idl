@@ -1,17 +1,22 @@
 describe("Schedule related Test", function() {
+    before(function() {
+        // go to the tab;
+        $("#dataflowTab").click();
+    });
+
     describe("Time related function Test", timeRelatedFunctionTest);
-    describe.skip("View related function Test", viewRelatedFunctionTest);
+    describe("View related function Test", viewRelatedFunctionTest);
 });
 
 
 function timeRelatedFunctionTest() {
-    var $scheduleForm;
     var $timeInput;
     var $timePicker;
+    var $scheduleDetail;
 
     before(function() {
-        $scheduleForm = $("#scheduleDetail");
-        $timeInput = $scheduleForm.find(".timeSection .time");
+        $scheduleDetail = $("#scheduleDetail");
+        $timeInput = $scheduleDetail.find(".timeSection .time");
         $timePicker = $("#modScheduler-timePicker");
     });
 
@@ -117,70 +122,70 @@ function timeRelatedFunctionTest() {
         $timeInput.val("00 : 00 AM");
 
         date.setHours(0);
-        showTimeHelper(date, false, false, $scheduleForm);
+        showTimeHelper(date, false, false);
         expect($timePickerInput.find(".hour").val()).to.equal("12");
         expect($timePickerInput.find(".minute").val()).to.equal("00");
         expect($timePickerInput.find(".ampm").text()).to.equal("AM");
         expect($timeInput.val()).to.equal("12 : 00 AM");
 
         date.setHours(11);
-        showTimeHelper(date, false, false, $scheduleForm);
+        showTimeHelper(date, false, false);
         expect($timePickerInput.find(".hour").val()).to.equal("11");
         expect($timePickerInput.find(".minute").val()).to.equal("00");
         expect($timePickerInput.find(".ampm").text()).to.equal("AM");
         expect($timeInput.val()).to.equal("11 : 00 AM");
 
         date.setHours(12);
-        showTimeHelper(date, false, false, $scheduleForm);
+        showTimeHelper(date, false, false);
         expect($timePickerInput.find(".hour").val()).to.equal("12");
         expect($timePickerInput.find(".minute").val()).to.equal("00");
         expect($timePickerInput.find(".ampm").text()).to.equal("PM");
         expect($timeInput.val()).to.equal("12 : 00 PM");
 
         date.setHours(13);
-        showTimeHelper(date, false, false, $scheduleForm);
+        showTimeHelper(date, false, false);
         expect($timePickerInput.find(".hour").val()).to.equal("01");
         expect($timePickerInput.find(".minute").val()).to.equal("00");
         expect($timePickerInput.find(".ampm").text()).to.equal("PM");
         expect($timeInput.val()).to.equal("01 : 00 PM");
 
         date.setMinutes(0);
-        showTimeHelper(date, false, false, $scheduleForm);
+        showTimeHelper(date, false, false);
         expect($timePickerInput.find(".hour").val()).to.equal("01");
         expect($timePickerInput.find(".minute").val()).to.equal("00");
         expect($timePickerInput.find(".ampm").text()).to.equal("PM");
         expect($timeInput.val()).to.equal("01 : 00 PM");
 
         date.setMinutes(9);
-        showTimeHelper(date, false, false, $scheduleForm);
+        showTimeHelper(date, false, false);
         expect($timePickerInput.find(".hour").val()).to.equal("01");
         expect($timePickerInput.find(".minute").val()).to.equal("09");
         expect($timePickerInput.find(".ampm").text()).to.equal("PM");
         expect($timeInput.val()).to.equal("01 : 09 PM");
 
         date.setMinutes(10);
-        showTimeHelper(date, false, false, $scheduleForm);
+        showTimeHelper(date, false, false);
         expect($timePickerInput.find(".hour").val()).to.equal("01");
         expect($timePickerInput.find(".minute").val()).to.equal("10");
         expect($timePickerInput.find(".ampm").text()).to.equal("PM");
         expect($timeInput.val()).to.equal("01 : 10 PM");
 
         date.setMinutes(11);
-        showTimeHelper(date, false, false, $scheduleForm);
+        showTimeHelper(date, false, false);
         expect($timePickerInput.find(".hour").val()).to.equal("01");
         expect($timePickerInput.find(".minute").val()).to.equal("11");
         expect($timePickerInput.find(".ampm").text()).to.equal("PM");
         expect($timeInput.val()).to.equal("01 : 11 PM");
 
         date.setMinutes(12);
-        showTimeHelper(date, true, true, $scheduleForm);
+        showTimeHelper(date, true, true);
         expect($timePickerInput.find(".hour").val()).to.equal("01");
         expect($timePickerInput.find(".minute").val()).to.equal("11");
         expect($timePickerInput.find(".ampm").text()).to.equal("PM");
         expect($timeInput.val()).to.equal("01 : 12 PM");
 
         date.setMinutes(12);
-        showTimeHelper(date, true, false, $scheduleForm);
+        showTimeHelper(date, true, false);
         expect($timePickerInput.find(".hour").val()).to.equal("01");
         expect($timePickerInput.find(".minute").val()).to.equal("12");
         expect($timePickerInput.find(".ampm").text()).to.equal("PM");
@@ -188,7 +193,7 @@ function timeRelatedFunctionTest() {
 
         date.setHours(14);
         date.setMinutes(13);
-        showTimeHelper(date, false, true, $scheduleForm);
+        showTimeHelper(date, false, true);
         expect($timePickerInput.find(".hour").val()).to.equal("02");
         expect($timePickerInput.find(".minute").val()).to.equal("12");
         expect($timePickerInput.find(".ampm").text()).to.equal("PM");
@@ -271,7 +276,7 @@ function timeRelatedFunctionTest() {
 
         type = "hour";
         val = 12;
-        $scheduleForm.find(".inputSection .ampm").text("AM");
+        $scheduleDetail.find(".inputSection .ampm").text("AM");
         inputTime(type, val);
         expect($timeInput.val()).to.equal("12 : 59 AM");
 
@@ -421,7 +426,7 @@ function timeRelatedFunctionTest() {
         triggerInput($hour, "");
         expect($timeInput.val()).to.equal("12 : 59 PM");
 
-        $scheduleForm.find(".inputSection .ampm").text("AM");
+        $scheduleDetail.find(".inputSection .ampm").text("AM");
         triggerInput($hour, 12);
         expect($timeInput.val()).to.equal("12 : 59 AM");
     });
@@ -432,22 +437,19 @@ function timeRelatedFunctionTest() {
 }
 
 function viewRelatedFunctionTest() {
-    var $scheduleDetail;
-    var $scheduleForm;
-    var $modScheduleForm;
-    var $scheduleInfos;
-    var $tab;
-    var date;
-    var dateText;
-    var timeText;
     var oldGetRetinaFunc;
     var oldDeleteRetinaFunc;
+    var dfName;
+    var $scheduleDetail;
+    var dateText;
 
     before(function() {
+        $scheduleDetail = $("#scheduleDetail");
+        dfName = "df1";
         Scheduler.hideScheduleDetailView();
-        Scheduler.hideNewScheduleFormView();
         oldGetRetinaFunc = XcalarGetRetina;
         oldDeleteRetinaFunc = XcalarDeleteRetina;
+        UnitTest.onMinMode();
 
         XcalarGetRetina = function() {
             var fakeRetInfo = {
@@ -460,7 +462,7 @@ function viewRelatedFunctionTest() {
                         }],
                     },
                     "retinaDesc": {
-                        "retinaName": "df1"
+                        "retinaName": dfName
                     }
                 }
             };
@@ -470,295 +472,86 @@ function viewRelatedFunctionTest() {
         XcalarDeleteRetina = function() {
             return PromiseHelper.resolve();
         };
-    });
 
-    beforeEach(function() {
-        $scheduleDetail = $("#scheduleDetail");
-        $scheduleForm = $("#scheduleForm");
-        $modScheduleForm = $("#modifyScheduleForm");
-        $scheduleInfos = $("#scheduleInfos");
-        $tab = $("#dataflowTab");
-
-        DF.addDataflow("df1", new Dataflow("df1"), null, {
+        DF.addDataflow(dfName, new Dataflow(dfName), null, {
             "isUpload": true,
             "noClick": true
         });
-        Scheduler.setDataFlowName("df1");
 
-        date = new Date();
+        Scheduler.setDataFlowName(dfName);
+
+        var date = new Date();
         date.setDate(date.getDate() + 1);
         date.setHours(23);
         date.setMinutes(13);
+
         dateText = (date.getMonth() + 1) + "/" +
                     date.getDate() + "/" + date.getFullYear();
-        timeText = "11 : 13 PM";
-        DF.addScheduleToDataflow("df1", {
+        var timeText = "11 : 13 PM";
+        DF.addScheduleToDataflow(dfName, {
             "startTime": date.getTime(), // The time to start the next run
             "dateText": dateText,
             "timeText": timeText,
             "repeat": "hourly",
-            "recur": 10,
             "modified": date.getTime(),
             "created": date.getTime()
         });
     });
 
-    it("Should show new schedule form correctly", function() {
-        $tab.click();
-        $scheduleForm.show();
+    it("should show schedule form correctly", function() {
         Scheduler.showScheduleDetailView();
-        assert.isTrue($scheduleForm.is(":visible"));
+        assert.isTrue($scheduleDetail.is(":visible"));
     });
 
-    it("Should hide New Schedule Form", function() {
-        Scheduler.showScheduleDetailView();
-        assert.isTrue($scheduleForm.is(":visible"));
-        Scheduler.hideNewScheduleFormView();
-        assert.isFalse($scheduleForm.is(":visible"));
+    it("should hide Schedule Form", function() {
+        Scheduler.hideScheduleDetailView();
+        assert.isFalse($scheduleDetail.is(":visible"));
     });
 
     it("Should show schedule detail view correctly", function() {
-        $newScheduleTime = $scheduleForm.find(".timeSection .time");
-        $inputSection = $scheduleForm.find(".timePicker .inputSection");
-        $scheduleDetail.show();
-        assert.isFalse($scheduleDetail.is(":visible"));
-        assert.isFalse($scheduleInfos.is(":visible"));
-        assert.isFalse($modScheduleForm.is(":visible"));
         Scheduler.showScheduleDetailView();
-        assert.isTrue($scheduleDetail.is(":visible"));
+
+        var $scheduleInfos = $("#scheduleInfos");
         assert.isTrue($scheduleInfos.is(":visible"));
-        assert.isTrue($modScheduleForm.is(":visible"));
+
         if (!isBrowserMicrosoft) {
             assert.equal($scheduleInfos.find(".created .text").text(),
                     dateText + " 11:13 PM");
             assert.equal($scheduleInfos.find(".modified .text").text(),
                     dateText + " 11:13 PM");
         }
-        
-        assert.equal($scheduleInfos.find(".frequency .text").text(), "hourly");
-        assert.equal($scheduleInfos.find(".recur .text").text(), "10");
-        assert.equal($scheduleInfos.find(".lastRunInfo .text").text(), "N/A");
     });
 
-    it("Should hide Schedule Detail View correctly", function() {
-        Scheduler.showScheduleDetailView();
-        assert.isTrue($scheduleDetail.is(":visible"));
-        assert.isTrue($scheduleInfos.is(":visible"));
-        assert.isTrue($modScheduleForm.is(":visible"));
-        Scheduler.hideScheduleDetailView();
-        assert.isFalse($scheduleDetail.is(":visible"));
-        assert.isFalse($scheduleInfos.is(":visible"));
-        assert.isFalse($modScheduleForm.is(":visible"));
-    });
+    // it("Should toggle schedule detail Tabs", function() {
+    //     var $tabArea = $("#scheduleDetail .tabArea");
+    //     var $defaultTab = $tabArea.find(".default");
+    //     var $dfgTab = $tabArea.find(".dfg");
 
-    it("Should reset create New Schedule Form", function() {
-        Scheduler.__testOnly__.resetCreateNewScheduleForm();
-        assert.isFalse($scheduleForm.is(":visible"));
-        var $timeSection = $scheduleForm.find(".timeSection");
-        var $recurInput = $scheduleForm.find(".recurSection input");
+    //     expect($defaultTab.hasClass("active")).to.be.true;
+    //     assert.isTrue($("#scheduleSettings").is(":visible"));
+    //     assert.isFalse($("#scheduleResults").is(":visible"));
 
-        assert.equal($timeSection.find(".date").val(), "");
-        assert.equal($timeSection.find(".time").val(), "");
-        assert.equal($recurInput.val(), "");
-    });
+    //     $dfgTab.click();
+    //     expect($dfgTab.hasClass("active")).to.be.true;
+    //     expect($defaultTab.hasClass("active")).to.be.false;
+    //     assert.isFalse($("#scheduleSettings").is(":visible"));
+    //     assert.isTrue($("#scheduleResults").is(":visible"));
 
-    it("Should reset Modified Schedule Form", function() {
-        $modScheduleTime = $modScheduleForm.find(".timeSection .time");
-        $inputSection = $modScheduleForm.find(".timePicker .inputSection");
+    //     $defaultTab.click();
 
-        var date2 = new Date();
-        date2.setDate(date2.getDate() + 2);
-        date2.setHours(14);
-        date2.setMinutes(22);
-        var dateText2 = (date2.getMonth() + 1) + "/" +
-                        date2.getDate() + "/" + date2.getFullYear();
-        var timeText2 = "02 : 22 PM";
-        var $timeSection = $modScheduleForm.find(".timeSection");
-        var $recurInput = $modScheduleForm.find(".recurSection input");
+    // });
 
-        assert.equal($timeSection.find(".date").val(), dateText);
-        assert.equal($timeSection.find(".time").val(), timeText);
-        assert.equal($recurInput.val(), 10);
-
-        var schedule = new SchedObj({
-            "startTime": date2.getTime(), // The time to start the next run
-            "dateText": dateText2,
-            "timeText": timeText2,
-            "repeat": "hourly",
-            "recur": 4,
-            "modified": date2.getTime(),
-            "created": date2.getTime()
-        });
-        Scheduler.__testOnly__.resetModifiedScheduleForm(schedule);
-
-        assert.equal($timeSection.find(".date").val(), dateText2);
-        assert.equal($timeSection.find(".time").val(), timeText2);
-        assert.equal($recurInput.val(), 4);
-    });
-
-    it("Should save schedule form", function() {
-        var $scheduleDate  = $scheduleForm.find(".timeSection .date");
-        var $scheduleTime  = $scheduleForm.find(".timeSection .time");
-        var $freqSection = $scheduleForm.find(".frequencySection");
-        var $scheduleRecur = $scheduleForm.find(".recurSection input");
-
-        var date2 = new Date();
-        date2.setDate(date2.getDate() + 2);
-        date2.setHours(14);
-        date2.setMinutes(22);
-        var dateText2 = (date2.getMonth() + 1) + "/" +
-                        date2.getDate() + "/" + date2.getFullYear();
-        var timeText2 = "02 : 22 PM";
-
-        $scheduleRecur.val(4);
-        $scheduleDate.val(dateText2);
-        $scheduleTime.val("02 : 22 PM");
-        $scheduleTime.data("date", date2);
-        $freqSection.find(".radioButton[data-option=biweekly]").click();
-
-        var dataflow = DF.getDataflow("df1");
-        expect(dataflow.schedule.dateText).to.equal(dateText);
-        expect(dataflow.schedule.timeText).to.equal(timeText);
-        expect(dataflow.schedule.repeat).to.equal("hourly");
-        expect(dataflow.schedule.recur).to.equal(10);
-
-        DF.removeScheduleFromDataflow("df1");
-        Scheduler.__testOnly__.saveScheduleForm($scheduleForm, "df1");
-
-        expect(dataflow.schedule.dateText).to.equal(dateText2);
-        expect(dataflow.schedule.timeText).to.equal(timeText2);
-        expect(dataflow.schedule.repeat).to.equal("biweekly");
-        expect(dataflow.schedule.recur).to.equal(4);
-    });
-
-    it("Should fill in schedule detail", function() {
-        var date2 = new Date("1/23/2017");
-        date2.setHours(20);
-        date2.setMinutes(30);
-        var schedule = new SchedObj({
-            "startTime": date2.getTime(), // The time to start the next run
-            "dateText": "1/23/2017",
-            "timeText": "08 : 30 PM",
-            "repeat": "monthly",
-            "recur": 7,
-            "modified": date2.getTime(),
-            "created": date2.getTime()
-        });
-        Scheduler.__testOnly__.fillInScheduleDetail(schedule);
-        var $scheduleInfos = $("#scheduleInfos");
-        if (!isBrowserMicrosoft) {
-            assert.equal($scheduleInfos.find(".created .text").text(),
-                        "1/23/2017 8:30 PM");
-            assert.equal($scheduleInfos.find(".modified .text").text(),
-                        "1/23/2017 8:30 PM");
-        }
-        
-        assert.equal($scheduleInfos.find(".frequency .text").text(), "monthly");
-        assert.equal($scheduleInfos.find(".recur .text").text(), "7");
-        assert.equal($scheduleInfos.find(".lastRunInfo .text").text(), "N/A");
-    });
-
-    it("Should toggle schedule detail Tabs", function() {
-        var $scheduleInfos = $("#scheduleInfos");
-        var $defaultTab = $scheduleInfos.find(".default");
-        var $dfgTab = $scheduleInfos.find(".dfg");
-
-        Scheduler.showScheduleDetailView();
-        Scheduler.__testOnly__.schedDetailTabs();
-        $defaultTab.click();
-        assert.isTrue($scheduleDetail.is(":visible"));
-        assert.isTrue($modScheduleForm.is(":visible"));
-        $dfgTab.click();
-        assert.isTrue($scheduleDetail.is(":visible"));
-        assert.isFalse($modScheduleForm.is(":visible"));
-    });
-
-    it("Should close new schedule form correctly", function() {
-        $scheduleForm.removeClass("xc-hidden");
-        $scheduleForm.show();
-        assert.isTrue($scheduleForm.is(":visible"));
-        $scheduleForm.find(".close").click();
-        assert.isFalse($scheduleForm.is(":visible"));
-    });
-
-    it("Should close schedule detail form correctly", function() {
-        $scheduleDetail.removeClass("xc-hidden");
-        $scheduleDetail.show();
-        assert.isTrue($scheduleDetail.is(":visible"));
-        $scheduleDetail.find(".close").click();
-        assert.isFalse($scheduleDetail.is(":visible"));
-    });
-
-    it("Should save new schedule form by button", function() {
-        var $scheduleDate  = $scheduleForm.find(".timeSection .date");
-        var $scheduleTime  = $scheduleForm.find(".timeSection .time");
-        var $freqSection = $scheduleForm.find(".frequencySection");
-        var $scheduleRecur = $scheduleForm.find(".recurSection input");
-
-        var date2 = new Date();
-        date2.setDate(date2.getDate() + 2);
-        date2.setHours(14);
-        date2.setMinutes(22);
-        var dateText2 = (date2.getMonth() + 1) + "/" +
-                        date2.getDate() + "/" + date2.getFullYear();
-        var timeText2 = "02 : 22 PM";
-
-        $scheduleRecur.val(4);
-        $scheduleDate.val(dateText2);
-        $scheduleTime.val("02 : 22 PM");
-        $scheduleTime.data("date", date2);
-        $freqSection.find(".radioButton[data-option=biweekly]").click();
-
-        var dataflow = DF.getDataflow("df1");
-        expect(dataflow.schedule.dateText).to.equal(dateText);
-        expect(dataflow.schedule.timeText).to.equal(timeText);
-        expect(dataflow.schedule.repeat).to.equal("hourly");
-        expect(dataflow.schedule.recur).to.equal(10);
-
-        DF.removeScheduleFromDataflow("df1");
-
-        $("#modScheduleForm-save").click();
-        assert.isFalse($scheduleForm.is(":visible"));
-        assert.isTrue($scheduleInfos.is(":visible"));
-        assert.isTrue($modScheduleForm.is(":visible"));
-        assert.isTrue($scheduleDetail.is(":visible"));
-
-        expect(dataflow.schedule.dateText).to.equal(dateText2);
-        expect(dataflow.schedule.timeText).to.equal(timeText2);
-        expect(dataflow.schedule.repeat).to.equal("biweekly");
-        expect(dataflow.schedule.recur).to.equal(4);
-    });
-
-    it("Should save mod schedule form by button", function() {
-        Scheduler.showScheduleDetailView();
-        $modScheduleForm.find(".frequencySection")
-        .find(".radioButton[data-option=daily]").click();
-        $("#modScheduleForm-save").click();
-        var dataflow = DF.getDataflow("df1");
-        expect(dataflow.schedule.repeat).to.equal("daily");
-    });
-
-    it("Should cancel mod schedule form by button", function() {
-        $modScheduleForm.find(".frequencySection")
-        .find(".radioButton[data-option=daily]").click();
-        $("#modScheduleForm-cancel").click();
-        var dataflow = DF.getDataflow("df1");
-        expect(dataflow.schedule.repeat).to.equal("hourly");
-    });
-
-    it("Should cancel new schedule form by button", function() {
-        $("#modScheduleForm-cancel").click();
-        assert.isFalse($scheduleForm.is(":visible"));
-        assert.isFalse($modScheduleForm.is(":visible"));
-        assert.isFalse($scheduleDetail.is(":visible"));
-    });
-
-    afterEach(function() {
-        DF.removeDataflow("df1");
-    });
+    // it("should delete schedule", function() {
+    //     $("#modScheduleForm-delete").click();
+    //     UnitTest.hasAlertWithTitle(SchedTStr.DelSched, {"confirm": true});
+    //     assert.isFalse($scheduleDetail.is(":visible"));
+    // });
 
     after(function() {
+        DF.removeDataflow("df1");
+
         XcalarGetRetina = oldGetRetinaFunc;
         XcalarDeleteRetina = oldDeleteRetinaFunc;
+        UnitTest.offMinMode();
     });
 }

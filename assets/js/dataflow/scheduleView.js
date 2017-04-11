@@ -291,7 +291,7 @@ window.Scheduler = (function(Scheduler, $) {
         }
     }
 
-    function newScheduleIcon (dataflowName) {
+    function newScheduleIcon(dataflowName) {
         $span = $("#dfgMenu span").filter(function() {
             return ($(this).text() === dataflowName);
         });
@@ -300,7 +300,7 @@ window.Scheduler = (function(Scheduler, $) {
         $addScheduleIcon.addClass('xi-menu-add-scheduler');
     }
 
-    function existScheduleIcon (dataflowName) {
+    function existScheduleIcon(dataflowName) {
         $span = $("#dfgMenu span").filter(function() {
             return ($(this).text() === dataflowName);
         });
@@ -309,7 +309,7 @@ window.Scheduler = (function(Scheduler, $) {
         $addScheduleIcon.removeClass('xi-menu-add-scheduler');
     }
 
-    function showScheduleSettings () {
+    function showScheduleSettings() {
         var schedule = DF.getSchedule(currentDataFlowName);
         var $scheduleInfos = $("#scheduleInfos");
         var $timeSection = $modScheduleForm.find(".timeSection");
