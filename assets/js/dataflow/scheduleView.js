@@ -352,15 +352,12 @@ window.Scheduler = (function(Scheduler, $) {
         // cron
         text = (schedule && schedule.premadeCronString) ?
             schedule.premadeCronString : "";
-        $('#modifyScheduleForm #cronScheduler').val(text);
+        $('#cronScheduler').val(text);
         // title
-        text = schedule ? SchedTStr.detail : "Create New Schedule";
+        text = schedule ? SchedTStr.detail : SchedTStr.NewSched;
         $("#scheduleDetail").find(".cardHeader")
         .find(".title").text(text);
-        // Only support create and delete, not support update now
-        // text = schedule ? SchedTStr.revert : AlertTStr.CANCEL;
-        text = AlertTStr.CANCEL;
-        $("#modScheduleForm-cancel").text(text);
+
         if (schedule) {
             $("#scheduleDetail").addClass("withSchedule")
             .removeClass("withoutSchedule");

@@ -627,6 +627,7 @@ MonitorTStr = {
 
 SchedTStr = {
     'SelectSched': 'Select a schedule',
+    'NewSched': 'Create New Schedule',
     'NoScheds': 'No available schedules',
     'AddSchedFail': 'Add schedule failed',
     'UpdateFail': 'Update Schedule Failed',
