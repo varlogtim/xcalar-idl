@@ -1292,42 +1292,43 @@ window.TestSuite = (function($, TestSuite) {
         });
     }
 
+    // XXX this is obsolote and need to be rewritten
     function schedTest(deferred, testName, currentTestNumber) {
-        // Create a schedule
-        $("#dataflowTab").click();
-        var $subTab = $("#schedulesButton");
-        if (!$subTab.hasClass("active")) {
-            $subTab.click();
-        }
+        // // Create a schedule
+        // $("#dataflowTab").click();
+        // var $subTab = $("#schedulesButton");
+        // if (!$subTab.hasClass("active")) {
+        //     $subTab.click();
+        // }
 
-        // on schedule form
-        schedName = "testSched" + randInt(); // globals in the module
+        // // on schedule form
+        // schedName = "testSched" + randInt(); // globals in the module
 
-        $("#addSchedule").click();
+        // $("#addSchedule").click();
 
-        var $form = $("#newScheduleForm");
-        $form.find(".name").val(schedName).blur()
-            .end()
-            .find(".datePickerPart input").focus().focus().click()
-            .end()
-            .find(".timePickerPart input").focus().focus().click()
-            .end()
-            .find(".freq1 .radioButton:eq(0)").click()
-            .end()
-            .find(".recurSection input").val(1);
-        $("#newScheduleForm-save").click();
+        // var $form = $("#newScheduleForm");
+        // $form.find(".name").val(schedName).blur()
+        //     .end()
+        //     .find(".datePickerPart input").focus().focus().click()
+        //     .end()
+        //     .find(".timePickerPart input").focus().focus().click()
+        //     .end()
+        //     .find(".freq1 .radioButton:eq(0)").click()
+        //     .end()
+        //     .find(".recurSection input").val(1);
+        // $("#newScheduleForm-save").click();
 
-        checkExists("#scheduleLists .scheduleName:contains('" + schedName + "')")
-        .then(function() {
-            $("#modScheduleForm-edit").click();
-            $("#scheduleDetail").find(".freq1 .radioButton:eq(1)").click();
-            $("#modScheduleForm-save").click();
-            assert($("#scheduleInfos .scheduleInfo.frequency .text").text() === "hourly");
-            TestSuite.pass(deferred, testName, currentTestNumber);
-        })
-        .fail(function(error) {
-            TestSuite.fail(deferred, testName, currentTestNumber, error);
-        });
+        // checkExists("#scheduleLists .scheduleName:contains('" + schedName + "')")
+        // .then(function() {
+        //     $("#modScheduleForm-edit").click();
+        //     $("#scheduleDetail").find(".freq1 .radioButton:eq(1)").click();
+        //     $("#modScheduleForm-save").click();
+        //     assert($("#scheduleInfos .scheduleInfo.frequency .text").text() === "hourly");
+        //     TestSuite.pass(deferred, testName, currentTestNumber);
+        // })
+        // .fail(function(error) {
+        //     TestSuite.fail(deferred, testName, currentTestNumber, error);
+        // });
     }
 
     function dfgTest(deferred, testName, currentTestNumber) {

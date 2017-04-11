@@ -3,7 +3,6 @@ window.Scheduler = (function(Scheduler, $) {
     var $scheduleDetail;   // $("#scheduleDetail");
     var $scheduleSettings; // $("#scheduleSettings");
     var $modScheduleForm;  // $('#modifyScheduleForm');
-    var $datePicker;
     var $timePicker;
     var $dateInput;
     var $timeInput;
@@ -30,7 +29,6 @@ window.Scheduler = (function(Scheduler, $) {
         $scheduleSettings = $("#scheduleSettings");
         $scheduleResults = $("#scheduleResults");
         $modScheduleForm = $('#modifyScheduleForm');
-        $datePicker = $("#modScheduler-datePicker");
         $timePicker = $("#modScheduler-timePicker");
         $dateInput = $modScheduleForm.find(".timeSection .date");
         $timeInput = $modScheduleForm.find(".timeSection .time");
@@ -700,7 +698,6 @@ window.Scheduler = (function(Scheduler, $) {
     }
 
     function toggleTimePicker(display) {
-        var $timePicker = $modScheduleForm.find('.timePicker');
         if (!display) {
             $(document).off(".timePicker");
             $timePicker.fadeOut(200);
@@ -797,10 +794,8 @@ window.Scheduler = (function(Scheduler, $) {
         if (isNaN(val) || !Number.isInteger(val)) {
             return;
         }
-        var $timePicker = $modScheduleForm.find('.timePicker');
 
         var date = $timePicker.data("date");
-
         switch (type) {
             case "minute":
                 if (val < 0 || val > 59) {
@@ -868,12 +863,10 @@ window.Scheduler = (function(Scheduler, $) {
             $timePicker.find(".inputSection .minute").val(minutes);
         }
         $timePicker.find(".inputSection .ampm").text(ampm);
-
         $timePicker.data("date", date);
 
         var timeStr = hours + " : " + minutes + " " + ampm;
         $timeInput.val(timeStr);
-        $modScheduleForm.find(".timeSection .time").val(timeStr);
     }
 
     function getNextRunTime(schedule) {

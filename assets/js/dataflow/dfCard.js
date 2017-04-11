@@ -1,7 +1,5 @@
 window.DFCard = (function($, DFCard) {
     var $dfView;       // $('#dataflowView');
-    var $createScheduleView; // $('#newScheduleForm');
-    var $scheduleDetailView; // $('#scheduleDetail');
     var $dfCard;       // $('#dfgViz');
     var $dfMenu;       // $('#dfgMenu').find('.dfgList');
     var $listSection;   // $dfMenu.find('.listSection');
@@ -32,8 +30,6 @@ window.DFCard = (function($, DFCard) {
 
     DFCard.setup = function() {
         $dfView = $('#dataflowView');
-        $createScheduleView = $('#newScheduleForm');
-        $scheduleDetailView = $('#scheduleDetail');
         $dfCard = $('#dfgViz');
         $dfMenu = $('#dfgMenu').find('.dfgList');
         $listSection = $dfMenu.find('.listSection');
@@ -54,8 +50,6 @@ window.DFCard = (function($, DFCard) {
         addListeners();
         setupDagDropdown();
         setupRetinaTab();
-        $createScheduleView.hide();
-        // $scheduleDetailView.hide();
     };
 
     DFCard.addDFToList = function(dataflowName) {
@@ -283,20 +277,16 @@ window.DFCard = (function($, DFCard) {
                 }
             });
 
+            var text;
             if (isNameConflict) {
-                var text = xcHelper.replaceMsg(ErrWRepTStr.ParamConflict, {
+                text = xcHelper.replaceMsg(ErrWRepTStr.ParamConflict, {
                     "name": paramName
                 });
                 StatusBox.show(text, $input);
                 return;
             }
-
-            var isSystemParam = false;
             if (systemParams.hasOwnProperty(paramName)) {
-                isSystemParam = true;
-            }
-            if (isSystemParam) {
-                var text = xcHelper.replaceMsg(ErrWRepTStr.SystemParamConflict, {
+                text = xcHelper.replaceMsg(ErrWRepTStr.SystemParamConflict, {
                     "name": paramName
                 });
                 StatusBox.show(text, $input);
@@ -356,11 +346,12 @@ window.DFCard = (function($, DFCard) {
 
             var df = DF.getDataflow(dataflowName);
             var promise;
+            var html;
             var $dagWrap = getDagWrap(dataflowName);
             if ($.isEmptyObject(df.retinaNodes) && !$dagWrap.length) {
                 promise = DF.updateDF(dataflowName);
                 $retTabSection.find(".retTab").removeClass("active");
-                var html = '<div class="dagWrap clearfix" '+
+                html = '<div class="dagWrap clearfix" '+
                            'data-dataflowName="' + dataflowName + '"></div>';
                 $dfCard.find(".cardMain").append(html);
                 $dagWrap = getDagWrap(dataflowName);
@@ -369,7 +360,7 @@ window.DFCard = (function($, DFCard) {
                 promise = PromiseHelper.resolve();
                 $dagWrap = getDagWrap(dataflowName);
                 if (!$dagWrap.length) {
-                    var html = '<div class="dagWrap clearfix" '+
+                    html = '<div class="dagWrap clearfix" '+
                            'data-dataflowName="' + dataflowName + '"></div>';
                     $dfCard.find(".cardMain").append(html);
                 }
@@ -419,7 +410,7 @@ window.DFCard = (function($, DFCard) {
                 }
             })
             .fail(function() {
-               console.error(arguments);
+                console.error(arguments);
             });
         });
 

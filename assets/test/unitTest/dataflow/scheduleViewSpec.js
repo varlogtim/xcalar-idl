@@ -1,17 +1,21 @@
-describe.skip("Schedule related Test", function() {
+describe("Schedule related Test", function() {
     describe("Time related function Test", timeRelatedFunctionTest);
-    describe("View related function Test", viewRelatedFunctionTest);
+    describe.skip("View related function Test", viewRelatedFunctionTest);
 });
 
 
 function timeRelatedFunctionTest() {
-    var $newScheduleForm;
+    var $scheduleForm;
+    var $timeInput;
+    var $timePicker;
 
     before(function() {
-        $newScheduleForm = $("#newScheduleForm");
+        $scheduleForm = $("#scheduleDetail");
+        $timeInput = $scheduleForm.find(".timeSection .time");
+        $timePicker = $("#modScheduler-timePicker");
     });
 
-    it("Should get next Run time", function() {
+    it("getNextRunTime should work", function() {
         var futureTime = new Date();
         var previousTime = new Date();
 
@@ -27,8 +31,7 @@ function timeRelatedFunctionTest() {
             "dateText": futureDateText,
             "timeText": "11 : 13 PM",
             "repeat": "hourly",
-            "freq": 5,
-            "recur": 10
+            "freq": 5
         };
 
         // StartTime at the future, nothing has been changed
@@ -103,405 +106,334 @@ function timeRelatedFunctionTest() {
         }
     });
 
-    it("Should get repeat period", function() {
-        var date = new Date();
-        // StartTime at the future, nothing has been changed
-        var options = {
-            "startTime": date.getTime(),
-            "dateText": "11/08/2016",
-            "timeText": "11 : 13 PM",
-            "repeat": "minute",
-            "freq": 5,
-            "recur": 10
-        };
-        var schedule = new SchedObj(options);
-        var period = Scheduler.__testOnly__.getRepeatPeriod(schedule);
-        expect(period).to.equal(60);
-
-        options.repeat = "hourly";
-        schedule = new SchedObj(options);
-        period = Scheduler.__testOnly__.getRepeatPeriod(schedule);
-        expect(period).to.equal(3600);
-
-        options.repeat = "daily";
-        schedule = new SchedObj(options);
-        period = Scheduler.__testOnly__.getRepeatPeriod(schedule);
-        expect(period).to.equal(24 * 3600);
-
-        options.repeat = "weekly";
-        schedule = new SchedObj(options);
-        period = Scheduler.__testOnly__.getRepeatPeriod(schedule);
-        expect(period).to.equal(7 * 24 * 3600);
-
-        options.repeat = "biweekly";
-        schedule = new SchedObj(options);
-        period = Scheduler.__testOnly__.getRepeatPeriod(schedule);
-        expect(period).to.equal(14 * 24 * 3600);
-
-        options.repeat = "monthly";
-        schedule = new SchedObj(options);
-        try {
-            period = Scheduler.__testOnly__.getRepeatPeriod(schedule);
-        } catch (errorStr) {
-            expect(errorStr).to.equal("Not support yet!");
-        }
-
-        options.repeat = "***";
-        schedule = new SchedObj(options);
-        try {
-            period = Scheduler.__testOnly__.getRepeatPeriod(schedule);
-        } catch (errorStr) {
-            expect(errorStr).to.equal("Invalid option!");
-        }
-    });
-
-    it("Should show Time Helper", function() {
+    it("showTimeHelper should work", function() {
         var showTimeHelper = Scheduler.__testOnly__.showTimeHelper;
-
-        $newScheduleTime = $newScheduleForm.find(".timeSection .time");
-        $inputSection = $newScheduleForm.find(".timePicker .inputSection");
+        var $timePickerInput = $timePicker.find(".inputSection");
         var date = new Date();
+
         date.setHours(0);
         date.setMinutes(0);
-        $newScheduleTime.data("date", date);
-        $newScheduleTime.val("00 : 00 AM");
+        $timePicker.data("date", date);
+        $timeInput.val("00 : 00 AM");
 
         date.setHours(0);
-        showTimeHelper(date, false, false, $newScheduleForm);
-        expect($inputSection.find(".hour").val()).to.equal("12");
-        expect($inputSection.find(".minute").val()).to.equal("00");
-        expect($inputSection.find(".ampm").text()).to.equal("AM");
-        expect($newScheduleTime.val()).to.equal("12 : 00 AM");
+        showTimeHelper(date, false, false, $scheduleForm);
+        expect($timePickerInput.find(".hour").val()).to.equal("12");
+        expect($timePickerInput.find(".minute").val()).to.equal("00");
+        expect($timePickerInput.find(".ampm").text()).to.equal("AM");
+        expect($timeInput.val()).to.equal("12 : 00 AM");
 
         date.setHours(11);
-        showTimeHelper(date, false, false, $newScheduleForm);
-        expect($inputSection.find(".hour").val()).to.equal("11");
-        expect($inputSection.find(".minute").val()).to.equal("00");
-        expect($inputSection.find(".ampm").text()).to.equal("AM");
-        expect($newScheduleTime.val()).to.equal("11 : 00 AM");
+        showTimeHelper(date, false, false, $scheduleForm);
+        expect($timePickerInput.find(".hour").val()).to.equal("11");
+        expect($timePickerInput.find(".minute").val()).to.equal("00");
+        expect($timePickerInput.find(".ampm").text()).to.equal("AM");
+        expect($timeInput.val()).to.equal("11 : 00 AM");
 
         date.setHours(12);
-        showTimeHelper(date, false, false, $newScheduleForm);
-        expect($inputSection.find(".hour").val()).to.equal("12");
-        expect($inputSection.find(".minute").val()).to.equal("00");
-        expect($inputSection.find(".ampm").text()).to.equal("PM");
-        expect($newScheduleTime.val()).to.equal("12 : 00 PM");
+        showTimeHelper(date, false, false, $scheduleForm);
+        expect($timePickerInput.find(".hour").val()).to.equal("12");
+        expect($timePickerInput.find(".minute").val()).to.equal("00");
+        expect($timePickerInput.find(".ampm").text()).to.equal("PM");
+        expect($timeInput.val()).to.equal("12 : 00 PM");
 
         date.setHours(13);
-        showTimeHelper(date, false, false, $newScheduleForm);
-        expect($inputSection.find(".hour").val()).to.equal("01");
-        expect($inputSection.find(".minute").val()).to.equal("00");
-        expect($inputSection.find(".ampm").text()).to.equal("PM");
-        expect($newScheduleTime.val()).to.equal("01 : 00 PM");
+        showTimeHelper(date, false, false, $scheduleForm);
+        expect($timePickerInput.find(".hour").val()).to.equal("01");
+        expect($timePickerInput.find(".minute").val()).to.equal("00");
+        expect($timePickerInput.find(".ampm").text()).to.equal("PM");
+        expect($timeInput.val()).to.equal("01 : 00 PM");
 
         date.setMinutes(0);
-        showTimeHelper(date, false, false, $newScheduleForm);
-        expect($inputSection.find(".hour").val()).to.equal("01");
-        expect($inputSection.find(".minute").val()).to.equal("00");
-        expect($inputSection.find(".ampm").text()).to.equal("PM");
-        expect($newScheduleTime.val()).to.equal("01 : 00 PM");
+        showTimeHelper(date, false, false, $scheduleForm);
+        expect($timePickerInput.find(".hour").val()).to.equal("01");
+        expect($timePickerInput.find(".minute").val()).to.equal("00");
+        expect($timePickerInput.find(".ampm").text()).to.equal("PM");
+        expect($timeInput.val()).to.equal("01 : 00 PM");
 
         date.setMinutes(9);
-        showTimeHelper(date, false, false, $newScheduleForm);
-        expect($inputSection.find(".hour").val()).to.equal("01");
-        expect($inputSection.find(".minute").val()).to.equal("09");
-        expect($inputSection.find(".ampm").text()).to.equal("PM");
-        expect($newScheduleTime.val()).to.equal("01 : 09 PM");
+        showTimeHelper(date, false, false, $scheduleForm);
+        expect($timePickerInput.find(".hour").val()).to.equal("01");
+        expect($timePickerInput.find(".minute").val()).to.equal("09");
+        expect($timePickerInput.find(".ampm").text()).to.equal("PM");
+        expect($timeInput.val()).to.equal("01 : 09 PM");
 
         date.setMinutes(10);
-        showTimeHelper(date, false, false, $newScheduleForm);
-        expect($inputSection.find(".hour").val()).to.equal("01");
-        expect($inputSection.find(".minute").val()).to.equal("10");
-        expect($inputSection.find(".ampm").text()).to.equal("PM");
-        expect($newScheduleTime.val()).to.equal("01 : 10 PM");
+        showTimeHelper(date, false, false, $scheduleForm);
+        expect($timePickerInput.find(".hour").val()).to.equal("01");
+        expect($timePickerInput.find(".minute").val()).to.equal("10");
+        expect($timePickerInput.find(".ampm").text()).to.equal("PM");
+        expect($timeInput.val()).to.equal("01 : 10 PM");
 
         date.setMinutes(11);
-        showTimeHelper(date, false, false, $newScheduleForm);
-        expect($inputSection.find(".hour").val()).to.equal("01");
-        expect($inputSection.find(".minute").val()).to.equal("11");
-        expect($inputSection.find(".ampm").text()).to.equal("PM");
-        expect($newScheduleTime.val()).to.equal("01 : 11 PM");
+        showTimeHelper(date, false, false, $scheduleForm);
+        expect($timePickerInput.find(".hour").val()).to.equal("01");
+        expect($timePickerInput.find(".minute").val()).to.equal("11");
+        expect($timePickerInput.find(".ampm").text()).to.equal("PM");
+        expect($timeInput.val()).to.equal("01 : 11 PM");
 
         date.setMinutes(12);
-        showTimeHelper(date, true, true, $newScheduleForm);
-        expect($inputSection.find(".hour").val()).to.equal("01");
-        expect($inputSection.find(".minute").val()).to.equal("11");
-        expect($inputSection.find(".ampm").text()).to.equal("PM");
-        expect($newScheduleTime.val()).to.equal("01 : 12 PM");
+        showTimeHelper(date, true, true, $scheduleForm);
+        expect($timePickerInput.find(".hour").val()).to.equal("01");
+        expect($timePickerInput.find(".minute").val()).to.equal("11");
+        expect($timePickerInput.find(".ampm").text()).to.equal("PM");
+        expect($timeInput.val()).to.equal("01 : 12 PM");
 
         date.setMinutes(12);
-        showTimeHelper(date, true, false, $newScheduleForm);
-        expect($inputSection.find(".hour").val()).to.equal("01");
-        expect($inputSection.find(".minute").val()).to.equal("12");
-        expect($inputSection.find(".ampm").text()).to.equal("PM");
-        expect($newScheduleTime.val()).to.equal("01 : 12 PM");
+        showTimeHelper(date, true, false, $scheduleForm);
+        expect($timePickerInput.find(".hour").val()).to.equal("01");
+        expect($timePickerInput.find(".minute").val()).to.equal("12");
+        expect($timePickerInput.find(".ampm").text()).to.equal("PM");
+        expect($timeInput.val()).to.equal("01 : 12 PM");
 
         date.setHours(14);
         date.setMinutes(13);
-        showTimeHelper(date, false, true, $newScheduleForm);
-        expect($inputSection.find(".hour").val()).to.equal("02");
-        expect($inputSection.find(".minute").val()).to.equal("12");
-        expect($inputSection.find(".ampm").text()).to.equal("PM");
-        expect($newScheduleTime.val()).to.equal("02 : 13 PM");
+        showTimeHelper(date, false, true, $scheduleForm);
+        expect($timePickerInput.find(".hour").val()).to.equal("02");
+        expect($timePickerInput.find(".minute").val()).to.equal("12");
+        expect($timePickerInput.find(".ampm").text()).to.equal("PM");
+        expect($timeInput.val()).to.equal("02 : 13 PM");
     });
 
-    it("Should be able to input time", function() {
-        $newScheduleTime = $newScheduleForm.find(".timeSection .time");
-        var date = $newScheduleTime.data("date");
+    it("inputTime should work", function() {
+        var date = $timePicker.data("date");
         date.setHours(23);
         date.setMinutes(11);
-        $newScheduleTime.val("11 : 11 PM");
+        $timeInput.val("11 : 11 PM");
 
-        var type = "minute";
-        var val = -1;
-        Scheduler.__testOnly__.inputTime(type, val, $newScheduleForm);
-        expect($newScheduleTime.val()).to.equal("11 : 11 PM");
+        var inputTime = Scheduler.__testOnly__.inputTime;
+        var tests = [{
+            "type": "minute",
+            "val": -1,
+            "expect": "11 : 11 PM"
+        }, {
+            "type": "minute",
+            "val": "fdsajfldsa;jfdl;sa",
+            "expect": "11 : 11 PM"
+        }, {
+            "type": "minute",
+            "val": 0,
+            "expect": "11 : 00 PM"
+        }, {
+            "type": "minute",
+            "val": 1,
+            "expect": "11 : 01 PM"
+        }, {
+            "type": "minute",
+            "val": 59,
+            "expect": "11 : 59 PM"
+        }, {
+            "type": "hour",
+            "val": 60,
+            "expect": "11 : 59 PM"
+        }, {
+            "type": "hour",
+            "val": -1,
+            "expect": "11 : 59 PM"
+        }, {
+            "type": "hour",
+            "val": "fdsajfldsa;jfdl;sa",
+            "expect": "11 : 59 PM"
+        }, {
+            "type": "hour",
+            "val": 0,
+            "expect": "11 : 59 PM"
+        }, {
+            "type": "hour",
+            "val": 1,
+            "expect": "01 : 59 PM"
+        }, {
+            "type": "hour",
+            "val": 12,
+            "expect": "12 : 59 PM"
+        }, {
+            "type": "hour",
+            "val": 13,
+            "expect": "12 : 59 PM"
+        }, {
+            "type": "hour",
+            "val": 6.5,
+            "expect": "12 : 59 PM"
+        }, {
+            "type": "hour",
+            "val": null,
+            "expect": "12 : 59 PM"
+        }, {
+            "type": "hour",
+            "val": "",
+            "expect": "12 : 59 PM"
+        }];
 
-        type = "minute";
-        val = "fdsajfldsa;jfdl;sa";
-        Scheduler.__testOnly__.inputTime(type, val, $newScheduleForm);
-        expect($newScheduleTime.val()).to.equal("11 : 11 PM");
-
-        type = "minute";
-        val = 0;
-        Scheduler.__testOnly__.inputTime(type, val, $newScheduleForm);
-        expect($newScheduleTime.val()).to.equal("11 : 00 PM");
-
-        type = "minute";
-        val = 1;
-        Scheduler.__testOnly__.inputTime(type, val, $newScheduleForm);
-        expect($newScheduleTime.val()).to.equal("11 : 01 PM");
-
-        type = "minute";
-        val = 59;
-        Scheduler.__testOnly__.inputTime(type, val, $newScheduleForm);
-        expect($newScheduleTime.val()).to.equal("11 : 59 PM");
-
-        type = "hour";
-        val = 60;
-        Scheduler.__testOnly__.inputTime(type, val, $newScheduleForm);
-        expect($newScheduleTime.val()).to.equal("11 : 59 PM");
-
-        type = "hour";
-        val = -1;
-        Scheduler.__testOnly__.inputTime(type, val, $newScheduleForm);
-        expect($newScheduleTime.val()).to.equal("11 : 59 PM");
-
-        type = "hour";
-        val = "fdsajfldsa;jfdl;sa";
-        Scheduler.__testOnly__.inputTime(type, val, $newScheduleForm);
-        expect($newScheduleTime.val()).to.equal("11 : 59 PM");
-
-        type = "hour";
-        val = 0;
-        Scheduler.__testOnly__.inputTime(type, val, $newScheduleForm);
-        expect($newScheduleTime.val()).to.equal("11 : 59 PM");
-
-        type = "hour";
-        val = 1;
-        Scheduler.__testOnly__.inputTime(type, val, $newScheduleForm);
-        expect($newScheduleTime.val()).to.equal("01 : 59 PM");
-
-        type = "hour";
-        val = 12;
-        Scheduler.__testOnly__.inputTime(type, val, $newScheduleForm);
-        expect($newScheduleTime.val()).to.equal("12 : 59 PM");
-
-        type = "hour";
-        val = 13;
-        Scheduler.__testOnly__.inputTime(type, val, $newScheduleForm);
-        expect($newScheduleTime.val()).to.equal("12 : 59 PM");
-
-        type = "hour";
-        val = 6.5;
-        Scheduler.__testOnly__.inputTime(type, val, $newScheduleForm);
-        expect($newScheduleTime.val()).to.equal("12 : 59 PM");
-
-        type = "hour";
-        val = null;
-        Scheduler.__testOnly__.inputTime(type, val, $newScheduleForm);
-        expect($newScheduleTime.val()).to.equal("12 : 59 PM");
-
-        type = "hour";
-        val = "";
-        Scheduler.__testOnly__.inputTime(type, val, $newScheduleForm);
-        expect($newScheduleTime.val()).to.equal("12 : 59 PM");
+        tests.forEach(function(test) {
+            inputTime(test.type, test.val);
+            expect($timeInput.val()).to.equal(test.expect);
+        });
 
         type = "hour";
         val = 12;
-        $newScheduleForm.find(".inputSection .ampm").text("AM");
-        Scheduler.__testOnly__.inputTime(type, val, $newScheduleForm);
-        expect($newScheduleTime.val()).to.equal("12 : 59 AM");
+        $scheduleForm.find(".inputSection .ampm").text("AM");
+        inputTime(type, val);
+        expect($timeInput.val()).to.equal("12 : 59 AM");
 
         type = "day";
         try {
-            Scheduler.__testOnly__.inputTime(type, val, $newScheduleForm);
+            inputTime(type, val);
         } catch (error) {
             throw "error case";
         }
-        expect($newScheduleTime.val()).to.equal("12 : 59 AM");
+        expect($timeInput.val()).to.equal("12 : 59 AM");
     });
 
-    it("Should be able to change time", function() {
-        $newScheduleTime = $newScheduleForm.find(".timeSection .time");
-        var date = $newScheduleTime.data("date");
+    it("changeTime should work", function() {
+        var date = $timePicker.data("date");
         date.setHours(23);
         date.setMinutes(11);
-        $newScheduleTime.val("11 : 11 PM");
+        $timeInput.val("11 : 11 PM");
 
-        var type = "ampm";
-        Scheduler.__testOnly__.changeTime(type, true, $newScheduleForm);
-        expect($newScheduleTime.val()).to.equal("11 : 11 AM");
+        var tests = [{
+            "type": "ampm",
+            "isIncrease": true,
+            "expect": "11 : 11 AM"
+        }, {
+            "type": "ampm",
+            "isIncrease": true,
+            "expect": "11 : 11 PM"
+        }, {
+            "type": "ampm",
+            "isIncrease": true,
+            "expect": "11 : 11 AM"
+        }, {
+            "type": "ampm",
+            "isIncrease": true,
+            "expect": "11 : 11 PM"
+        }, {
+            "type": "minute",
+            "isIncrease": true,
+            "expect": "11 : 12 PM"
+        }, {
+            "type": "minute",
+            "isIncrease": false,
+            "expect": "11 : 11 PM"
+        }, {
+            "type": "hour",
+            "isIncrease": true,
+            "expect": "12 : 11 PM"
+        }, {
+            "type": "hour",
+            "isIncrease": false,
+            "expect": "11 : 11 PM"
+        }, {
+            "type": "***",
+            "isIncrease": false,
+            "expect": "11 : 11 PM"
+        }];
 
-        type = "ampm";
-        Scheduler.__testOnly__.changeTime(type, true, $newScheduleForm);
-        expect($newScheduleTime.val()).to.equal("11 : 11 PM");
-
-        type = "ampm";
-        Scheduler.__testOnly__.changeTime(type, true, $newScheduleForm);
-        expect($newScheduleTime.val()).to.equal("11 : 11 AM");
-
-        type = "ampm";
-        Scheduler.__testOnly__.changeTime(type, true, $newScheduleForm);
-        expect($newScheduleTime.val()).to.equal("11 : 11 PM");
-
-        type = "minute";
-        Scheduler.__testOnly__.changeTime(type, true, $newScheduleForm);
-        expect($newScheduleTime.val()).to.equal("11 : 12 PM");
-
-        type = "minute";
-        Scheduler.__testOnly__.changeTime(type, false, $newScheduleForm);
-        expect($newScheduleTime.val()).to.equal("11 : 11 PM");
-
-        type = "hour";
-        Scheduler.__testOnly__.changeTime(type, true, $newScheduleForm);
-        expect($newScheduleTime.val()).to.equal("12 : 11 PM");
-
-        type = "hour";
-        Scheduler.__testOnly__.changeTime(type, false, $newScheduleForm);
-        expect($newScheduleTime.val()).to.equal("11 : 11 PM");
-
-        type = "***";
-        Scheduler.__testOnly__.changeTime(type, false, $newScheduleForm);
-        expect($newScheduleTime.val()).to.equal("11 : 11 PM");
+        tests.forEach(function(test) {
+            Scheduler.__testOnly__.changeTime(test.type, test.isIncrease);
+            expect($timeInput.val()).to.equal(test.expect);
+        });
     });
 
-    it("Should be able to use time picker click", function() {
-        var $newTimePicker = $("#newScheduler-timePicker");
+    it("Should click time picker to change time", function() {
+        var date = $timePicker.data("date");
+        var $ampm = $timePicker.find(".btn.increase.ampm");
 
-        $newScheduleTime = $newScheduleForm.find(".timeSection .time");
-        var date = $newScheduleTime.data("date");
         date.setHours(23);
         date.setMinutes(11);
-        $newScheduleTime.val("11 : 11 PM");
+        $timeInput.val("11 : 11 PM");
 
-        $newTimePicker.removeClass("hour");
-        $newTimePicker.removeClass("minute");
+        $ampm.click();
+        expect($timeInput.val()).to.equal("11 : 11 AM");
 
-        $newTimePicker.find(".btn.increase.ampm").click();
-        expect($newScheduleTime.val()).to.equal("11 : 11 AM");
+        $ampm.click();
+        expect($timeInput.val()).to.equal("11 : 11 PM");
 
-        $newTimePicker.find(".btn.increase.ampm").click();
-        expect($newScheduleTime.val()).to.equal("11 : 11 PM");
+        $ampm.click();
+        expect($timeInput.val()).to.equal("11 : 11 AM");
 
-        $newTimePicker.find(".btn.increase.ampm").click();
-        expect($newScheduleTime.val()).to.equal("11 : 11 AM");
+        $ampm.click();
+        expect($timeInput.val()).to.equal("11 : 11 PM");
 
-        $newTimePicker.find(".btn.increase.ampm").click();
-        expect($newScheduleTime.val()).to.equal("11 : 11 PM");
+        $timePicker.find(".btn.increase.minute").click();
+        expect($timeInput.val()).to.equal("11 : 12 PM");
 
-        $newTimePicker.find(".btn.increase.minute").click();
-        expect($newScheduleTime.val()).to.equal("11 : 12 PM");
+        $timePicker.find(".btn.decrease.minute").click();
+        expect($timeInput.val()).to.equal("11 : 11 PM");
 
-        $newTimePicker.find(".btn.decrease.minute").click();
-        expect($newScheduleTime.val()).to.equal("11 : 11 PM");
+        $timePicker.find(".btn.increase.hour").click();
+        expect($timeInput.val()).to.equal("12 : 11 PM");
 
-        $newTimePicker.find(".btn.increase.hour").click();
-        expect($newScheduleTime.val()).to.equal("12 : 11 PM");
-
-        $newTimePicker.find(".btn.decrease.hour").click();
-        expect($newScheduleTime.val()).to.equal("11 : 11 PM");
+        $timePicker.find(".btn.decrease.hour").click();
+        expect($timeInput.val()).to.equal("11 : 11 PM");
     });
 
-    it("Should be able to use time picker input", function() {
-        var $newTimePicker = $("#newScheduler-timePicker");
+    it("Should input on time picker", function() {
+        var date = $timePicker.data("date");
+        var $minute = $timePicker.find("input.minute");
+        var $hour = $timePicker.find("input.hour");
 
-        $newScheduleTime = $newScheduleForm.find(".timeSection .time");
-        var date = $newScheduleTime.data("date");
         date.setHours(23);
         date.setMinutes(11);
-        $newScheduleTime.val("11 : 11 PM");
+        $timeInput.val("11 : 11 PM");
 
-        $newTimePicker.find("input.minute").val(-1);
-        $newTimePicker.find("input.minute").trigger("input");
-        expect($newScheduleTime.val()).to.equal("11 : 11 PM");
+        triggerInput($minute, -1);
+        expect($timeInput.val()).to.equal("11 : 11 PM");
 
-        $newTimePicker.find("input.minute").val("fdsajfldsa;jfdl;sa");
-        $newTimePicker.find("input.minute").trigger("input");
-        expect($newScheduleTime.val()).to.equal("11 : 11 PM");
+        triggerInput($minute, "fdsajfldsa;jfdl;sa");
+        expect($timeInput.val()).to.equal("11 : 11 PM");
 
-        $newTimePicker.find("input.minute").val(0);
-        $newTimePicker.find("input.minute").trigger("input");
-        expect($newScheduleTime.val()).to.equal("11 : 00 PM");
+        triggerInput($minute, 0);
+        expect($timeInput.val()).to.equal("11 : 00 PM");
 
-        $newTimePicker.find("input.minute").val(1);
-        $newTimePicker.find("input.minute").trigger("input");
-        expect($newScheduleTime.val()).to.equal("11 : 01 PM");
+        triggerInput($minute, 1);
+        expect($timeInput.val()).to.equal("11 : 01 PM");
 
-        $newTimePicker.find("input.minute").val(59);
-        $newTimePicker.find("input.minute").trigger("input");
-        expect($newScheduleTime.val()).to.equal("11 : 59 PM");
+        triggerInput($minute, 59);
+        expect($timeInput.val()).to.equal("11 : 59 PM");
 
-        $newTimePicker.find("input.hour").val(60);
-        $newTimePicker.find("input.hour").trigger("input");
-        expect($newScheduleTime.val()).to.equal("11 : 59 PM");
+        triggerInput($hour, 60);
+        expect($timeInput.val()).to.equal("11 : 59 PM");
 
-        $newTimePicker.find("input.hour").val(-1);
-        $newTimePicker.find("input.hour").trigger("input");
-        expect($newScheduleTime.val()).to.equal("11 : 59 PM");
+        triggerInput($hour, -1);
+        expect($timeInput.val()).to.equal("11 : 59 PM");
 
-        $newTimePicker.find("input.hour").val("fdsajfldsa;jfdl;sa");
-        $newTimePicker.find("input.hour").trigger("input");
-        expect($newScheduleTime.val()).to.equal("11 : 59 PM");
+        triggerInput($hour, "fdsajfldsa;jfdl;sa");
+        expect($timeInput.val()).to.equal("11 : 59 PM");
 
-        $newTimePicker.find("input.hour").val(0);
-        $newTimePicker.find("input.hour").trigger("input");
-        expect($newScheduleTime.val()).to.equal("11 : 59 PM");
+        triggerInput($hour, 0);
+        expect($timeInput.val()).to.equal("11 : 59 PM");
 
-        $newTimePicker.find("input.hour").val(1);
-        $newTimePicker.find("input.hour").trigger("input");
-        expect($newScheduleTime.val()).to.equal("01 : 59 PM");
+        triggerInput($hour, 1);
+        expect($timeInput.val()).to.equal("01 : 59 PM");
 
-        $newTimePicker.find("input.hour").val(12);
-        $newTimePicker.find("input.hour").trigger("input");
-        expect($newScheduleTime.val()).to.equal("12 : 59 PM");
+        triggerInput($hour, 12);
+        expect($timeInput.val()).to.equal("12 : 59 PM");
 
-        $newTimePicker.find("input.hour").val(13);
-        $newTimePicker.find("input.hour").trigger("input");
-        expect($newScheduleTime.val()).to.equal("12 : 59 PM");
+        triggerInput($hour, 13);
+        expect($timeInput.val()).to.equal("12 : 59 PM");
 
-        $newTimePicker.find("input.hour").val(6.5);
-        $newTimePicker.find("input.hour").trigger("input");
-        expect($newScheduleTime.val()).to.equal("12 : 59 PM");
+        triggerInput($hour, 6.5);
+        expect($timeInput.val()).to.equal("12 : 59 PM");
 
-        $newTimePicker.find("input.hour").val(null);
-        $newTimePicker.find("input.hour").trigger("input");
-        expect($newScheduleTime.val()).to.equal("12 : 59 PM");
+        triggerInput($hour, null);
+        expect($timeInput.val()).to.equal("12 : 59 PM");
 
-        $newTimePicker.find("input.hour").val("");
-        $newTimePicker.find("input.hour").trigger("input");
-        expect($newScheduleTime.val()).to.equal("12 : 59 PM");
+        triggerInput($hour, "");
+        expect($timeInput.val()).to.equal("12 : 59 PM");
 
-        $newScheduleForm.find(".inputSection .ampm").text("AM");
-        $newTimePicker.find("input.hour").val(12);
-        $newTimePicker.find("input.hour").trigger("input");
-        expect($newScheduleTime.val()).to.equal("12 : 59 AM");
+        $scheduleForm.find(".inputSection .ampm").text("AM");
+        triggerInput($hour, 12);
+        expect($timeInput.val()).to.equal("12 : 59 AM");
     });
+
+    function triggerInput($input, val) {
+        $input.val(val).focus().trigger("input");
+    }
 }
 
 function viewRelatedFunctionTest() {
     var $scheduleDetail;
-    var $newScheduleForm;
+    var $scheduleForm;
     var $modScheduleForm;
     var $scheduleInfos;
     var $tab;
@@ -542,7 +474,7 @@ function viewRelatedFunctionTest() {
 
     beforeEach(function() {
         $scheduleDetail = $("#scheduleDetail");
-        $newScheduleForm = $("#newScheduleForm");
+        $scheduleForm = $("#scheduleForm");
         $modScheduleForm = $("#modifyScheduleForm");
         $scheduleInfos = $("#scheduleInfos");
         $tab = $("#dataflowTab");
@@ -573,21 +505,21 @@ function viewRelatedFunctionTest() {
 
     it("Should show new schedule form correctly", function() {
         $tab.click();
-        $newScheduleForm.show();
-        Scheduler.showNewScheduleFormView();
-        assert.isTrue($newScheduleForm.is(":visible"));
+        $scheduleForm.show();
+        Scheduler.showScheduleDetailView();
+        assert.isTrue($scheduleForm.is(":visible"));
     });
 
     it("Should hide New Schedule Form", function() {
-        Scheduler.showNewScheduleFormView();
-        assert.isTrue($newScheduleForm.is(":visible"));
+        Scheduler.showScheduleDetailView();
+        assert.isTrue($scheduleForm.is(":visible"));
         Scheduler.hideNewScheduleFormView();
-        assert.isFalse($newScheduleForm.is(":visible"));
+        assert.isFalse($scheduleForm.is(":visible"));
     });
 
     it("Should show schedule detail view correctly", function() {
-        $newScheduleTime = $newScheduleForm.find(".timeSection .time");
-        $inputSection = $newScheduleForm.find(".timePicker .inputSection");
+        $newScheduleTime = $scheduleForm.find(".timeSection .time");
+        $inputSection = $scheduleForm.find(".timePicker .inputSection");
         $scheduleDetail.show();
         assert.isFalse($scheduleDetail.is(":visible"));
         assert.isFalse($scheduleInfos.is(":visible"));
@@ -621,9 +553,9 @@ function viewRelatedFunctionTest() {
 
     it("Should reset create New Schedule Form", function() {
         Scheduler.__testOnly__.resetCreateNewScheduleForm();
-        assert.isFalse($newScheduleForm.is(":visible"));
-        var $timeSection = $newScheduleForm.find(".timeSection");
-        var $recurInput = $newScheduleForm.find(".recurSection input");
+        assert.isFalse($scheduleForm.is(":visible"));
+        var $timeSection = $scheduleForm.find(".timeSection");
+        var $recurInput = $scheduleForm.find(".recurSection input");
 
         assert.equal($timeSection.find(".date").val(), "");
         assert.equal($timeSection.find(".time").val(), "");
@@ -665,10 +597,10 @@ function viewRelatedFunctionTest() {
     });
 
     it("Should save schedule form", function() {
-        var $scheduleDate  = $newScheduleForm.find(".timeSection .date");
-        var $scheduleTime  = $newScheduleForm.find(".timeSection .time");
-        var $freqSection = $newScheduleForm.find(".frequencySection");
-        var $scheduleRecur = $newScheduleForm.find(".recurSection input");
+        var $scheduleDate  = $scheduleForm.find(".timeSection .date");
+        var $scheduleTime  = $scheduleForm.find(".timeSection .time");
+        var $freqSection = $scheduleForm.find(".frequencySection");
+        var $scheduleRecur = $scheduleForm.find(".recurSection input");
 
         var date2 = new Date();
         date2.setDate(date2.getDate() + 2);
@@ -691,7 +623,7 @@ function viewRelatedFunctionTest() {
         expect(dataflow.schedule.recur).to.equal(10);
 
         DF.removeScheduleFromDataflow("df1");
-        Scheduler.__testOnly__.saveScheduleForm($newScheduleForm, "df1");
+        Scheduler.__testOnly__.saveScheduleForm($scheduleForm, "df1");
 
         expect(dataflow.schedule.dateText).to.equal(dateText2);
         expect(dataflow.schedule.timeText).to.equal(timeText2);
@@ -742,11 +674,11 @@ function viewRelatedFunctionTest() {
     });
 
     it("Should close new schedule form correctly", function() {
-        $newScheduleForm.removeClass("xc-hidden");
-        $newScheduleForm.show();
-        assert.isTrue($newScheduleForm.is(":visible"));
-        $newScheduleForm.find(".close").click();
-        assert.isFalse($newScheduleForm.is(":visible"));
+        $scheduleForm.removeClass("xc-hidden");
+        $scheduleForm.show();
+        assert.isTrue($scheduleForm.is(":visible"));
+        $scheduleForm.find(".close").click();
+        assert.isFalse($scheduleForm.is(":visible"));
     });
 
     it("Should close schedule detail form correctly", function() {
@@ -758,10 +690,10 @@ function viewRelatedFunctionTest() {
     });
 
     it("Should save new schedule form by button", function() {
-        var $scheduleDate  = $newScheduleForm.find(".timeSection .date");
-        var $scheduleTime  = $newScheduleForm.find(".timeSection .time");
-        var $freqSection = $newScheduleForm.find(".frequencySection");
-        var $scheduleRecur = $newScheduleForm.find(".recurSection input");
+        var $scheduleDate  = $scheduleForm.find(".timeSection .date");
+        var $scheduleTime  = $scheduleForm.find(".timeSection .time");
+        var $freqSection = $scheduleForm.find(".frequencySection");
+        var $scheduleRecur = $scheduleForm.find(".recurSection input");
 
         var date2 = new Date();
         date2.setDate(date2.getDate() + 2);
@@ -785,8 +717,8 @@ function viewRelatedFunctionTest() {
 
         DF.removeScheduleFromDataflow("df1");
 
-        $("#newScheduleForm-save").click();
-        assert.isFalse($newScheduleForm.is(":visible"));
+        $("#modScheduleForm-save").click();
+        assert.isFalse($scheduleForm.is(":visible"));
         assert.isTrue($scheduleInfos.is(":visible"));
         assert.isTrue($modScheduleForm.is(":visible"));
         assert.isTrue($scheduleDetail.is(":visible"));
@@ -815,8 +747,8 @@ function viewRelatedFunctionTest() {
     });
 
     it("Should cancel new schedule form by button", function() {
-        $("#newScheduleForm-cancel").click();
-        assert.isFalse($newScheduleForm.is(":visible"));
+        $("#modScheduleForm-cancel").click();
+        assert.isFalse($scheduleForm.is(":visible"));
         assert.isFalse($modScheduleForm.is(":visible"));
         assert.isFalse($scheduleDetail.is(":visible"));
     });
