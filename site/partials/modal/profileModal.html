@@ -90,8 +90,21 @@
         <label class="loadHidden highlight"><%= dicts.common.of %></label>
         <label for="profile-rowInput" class="max-range loadHidden highlight"></label>
       </div>
+      <!-- decimal section -->
+      <div class="decimalInput selectInput loadDisabled">
+        <div class="text"><%= dicts.profile.Decimal %></div>
+        <input class="no-selection" type="text" disabled>
+        <div class="control">
+          <div class="more xc-action action">
+            <i class="icon fa-7 xi-arrow-up"></i>
+          </div>
+          <div class="less xc-action action">
+            <i class="icon fa-7 xi-arrow-down"></i>
+          </div>
+        </div>
+      </div>
       <!-- info section -->
-      <div class="disaplyInput loadDisabled">
+      <div class="displayInput selectInput loadDisabled">
         <div class="text"><%= dicts.profile.Showing %></div>
         <input class="numRows no-selection" type="number" disabled>
         <div class="control">

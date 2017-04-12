@@ -827,7 +827,8 @@ module.exports = {
         "filterPlural": "Filter these values",
         "exclude": "Exclude",
         "LAUNCH": "LAUNCH",
-        "Corr": "Launch Correlation Calculator"
+        "Corr": "Launch Correlation Calculator",
+        "Decimal": "Decimal Places"
     },
 
     "workbook": {

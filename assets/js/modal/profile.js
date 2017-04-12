@@ -54,6 +54,7 @@ window.Profile = (function($, Profile, d3) {
     var totalRows = 0;
     var groupByData = [];
     var bucketNum = 0;
+    var decimalNum = -1;
     var order = sortMap.origin;
     var statsCol = null;
     var percentageLabel = false;
@@ -188,9 +189,8 @@ window.Profile = (function($, Profile, d3) {
             }
         });
 
-        // event on disaplyInput
-        var $disaplyInput = $modal.find(".disaplyInput");
-        $disaplyInput.on("click", ".action", function() {
+        // event on displayInput
+        $modal.find(".displayInput").on("click", ".action", function() {
             var diff = 10;
             var newRowsToFetch;
 
@@ -203,6 +203,17 @@ window.Profile = (function($, Profile, d3) {
             }
 
             updateRowsToFetch(newRowsToFetch);
+        });
+
+        // event on decimalInput
+        $modal.find(".decimalInput").on("click", ".action", function() {
+            if ($(this).hasClass("more")) {
+                decimalNum++;
+            } else {
+                decimalNum--;
+            }
+
+            updateDecimalInput(decimalNum);
         });
 
         $("#profile-filterOption").on("mousedown", ".option", function(event) {
@@ -279,8 +290,6 @@ window.Profile = (function($, Profile, d3) {
 
         // update front col name
         statsCol.frontColName = progCol.getFrontColName(true);
-        // get decimal (not persist to kvStore)
-        // statsCol.decimal = progCol.getDecimal();
 
         showProfile();
         $modal.attr("data-state", "pending");
@@ -436,6 +445,7 @@ window.Profile = (function($, Profile, d3) {
         numRowsToFetch = defaultRowsToFetch;
         toggleFilterOption(true);
         resetRowsInfo();
+        resetDecimalInput();
     }
 
     function generateProfile(table) {
@@ -503,6 +513,7 @@ window.Profile = (function($, Profile, d3) {
 
         modalHelper.setup();
 
+        resetDecimalInput();
         refreshProfile();
         setupScrollBar();
         $("#modalBackground").on("mouseover.profileModal", function() {
@@ -1423,12 +1434,11 @@ window.Profile = (function($, Profile, d3) {
         function getXAxis(d) {
             var isLogScale = (tableInfo.bucketSize < 0);
             var num = getNumInScale(d[xName], isLogScale);
-            var decimal = statsCol.decimal;
-            var name = formatNumber(num, isLogScale, decimal);
+            var name = formatNumber(num, isLogScale, decimalNum);
             if (!noBucket && !noSort && d.type !== "nullVal") {
                 num = d[xName] + Math.abs(tableInfo.bucketSize);
                 num = getNumInScale(num, isLogScale);
-                var upperBound = formatNumber(num, isLogScale, decimal);
+                var upperBound = formatNumber(num, isLogScale, decimalNum);
                 name = name + "-" + upperBound;
             }
 
@@ -1490,19 +1500,19 @@ window.Profile = (function($, Profile, d3) {
             var title;
             var isLogScale = (tableInfo.bucketSize < 0);
             var lowerBound = getNumInScale(d[xName], isLogScale);
-            var decimal = statsCol.decimal;
 
             if (noBucket || d.type === "nullVal") {
                 // xName is the backColName, may differenet with frontColName
                 title = "Value: " +
-                        formatNumber(lowerBound, isLogScale, decimal) + "<br>";
+                        formatNumber(lowerBound, isLogScale, decimalNum) +
+                        "<br>";
             } else {
                 var upperBound = d[xName] + Math.abs(tableInfo.bucketSize);
                 upperBound = getNumInScale(upperBound, isLogScale);
                 title = "Value: [" +
-                        formatNumber(lowerBound, isLogScale, decimal) +
+                        formatNumber(lowerBound, isLogScale, decimalNum) +
                         ", " +
-                        formatNumber(upperBound, isLogScale, decimal) +
+                        formatNumber(upperBound, isLogScale, decimalNum) +
                         ")<br>";
             }
 
@@ -1852,11 +1862,11 @@ window.Profile = (function($, Profile, d3) {
     }
 
     function resetRowsInfo() {
-        var $disaplyInput = $modal.find(".disaplyInput");
+        var $displayInput = $modal.find(".displayInput");
         var $activeRange = $rangeSection.find(".radioButton.active");
         var rowsToShow;
-        var $moreBtn = $disaplyInput.find(".more").removeClass("xc-disabled");
-        var $lessBtn = $disaplyInput.find(".less").removeClass("xc-disabled");
+        var $moreBtn = $displayInput.find(".more").removeClass("xc-disabled");
+        var $lessBtn = $displayInput.find(".less").removeClass("xc-disabled");
 
         if ($activeRange.data("option") === "fitAll" ||
             totalRows <= minRowsToFetch)
@@ -1881,7 +1891,34 @@ window.Profile = (function($, Profile, d3) {
             rowsToShow = numRowsToFetch;
         }
 
-        $disaplyInput.find(".numRows").val(rowsToShow);
+        $displayInput.find(".numRows").val(rowsToShow);
+    }
+
+    function resetDecimalInput() {
+        decimalNum = -1;
+        updateDecimalInput(decimalNum, true);
+    }
+
+    function updateDecimalInput(decimal, isReset) {
+        var decimalLimit = 5; // XXX hard coded
+        var $decimalInput = $modal.find(".decimalInput");
+        var $moreBtn = $decimalInput.find(".more").removeClass("xc-disabled");
+        var $lessBtn = $decimalInput.find(".less").removeClass("xc-disabled");
+        var $input = $decimalInput.find("input");
+
+        if (decimal < 0) {
+            $lessBtn.addClass("xc-disabled");
+            $input.val("N/A");
+        } else {
+            $input.val(decimal);
+            if (decimal >= decimalLimit) {
+                $moreBtn.addClass("xc-disabled");
+            }
+        }
+
+        if (!isReset) {
+            buildGroupGraphs(statsCol);
+        }
     }
 
     function resetRowInput() {

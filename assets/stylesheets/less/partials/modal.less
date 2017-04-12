@@ -1958,6 +1958,10 @@ html.microsoft {
                 display: none;
             }
         }
+
+        .decimalInput {
+            display: none !important;
+        }
     }
 
     .modalTopMain {
@@ -2076,6 +2080,7 @@ html.microsoft {
             padding: 5px 20px;
             .size(@height: 40px);
             background-color: @color-bg-white-eight;
+            .flex-display;
 
             > div {
                 .size(@height: 30px);
@@ -2084,8 +2089,7 @@ html.microsoft {
             }
 
             .rowInput {
-                .size(@width: ~"calc(100% - 210px)");
-                float: left;
+                .flex(1 0 200px);
                 .input-box(@w: auto, @h: 20px);
 
                 input {
@@ -2099,20 +2103,34 @@ html.microsoft {
                 }
             }
 
-            .disaplyInput {
-                .size(@width: 200px);
-                float: right;
+            .selectInput {
+                .flex(1 1 200px);
+                .flex-display;
 
                 > div, > input {
                     display: inline-block;
                     float: left;
                 }
 
+                &.decimalInput {
+                    .justify-content(center);
+
+                    input {
+                        .size(@width: 35px);
+                        padding: 0;
+                        text-align: center;
+                    }
+                }
+
+                &.displayInput {
+                    .justify-content(flex-end);
+                }
+
                 .input-box(@w: 50px, @h: 20px);
 
                 input {
                     border: 1px solid @color-border-softBlue;
-                    margin-left: 10px;
+                    margin-left: 5px;
                     .vertical-align;
                     background-color: @color-white;
                 }

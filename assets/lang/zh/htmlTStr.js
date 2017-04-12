@@ -694,7 +694,8 @@ module.exports = {
         "filterSingle": "过滤该值",
         "header": "数据概况",
         "orig": "初始",
-        "results": "结果"
+        "results": "结果",
+        "Decimal": "小数位"
     },
     "query": {
         "Canceled": "取消",
