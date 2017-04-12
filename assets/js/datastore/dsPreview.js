@@ -1279,7 +1279,7 @@ window.DSPreview = (function($, DSPreview) {
             return PromiseHelper.reject("Error Case!");
         }
 
-        var urlToPreview = loadArgs.getPreviewFile() || loadURL;
+        var urlToPreview = getURLToPreview();
         var $loadHiddenSection = $previeWrap.find(".loadHidden")
                                             .addClass("hidden");
         var $waitSection = $previeWrap.find(".waitSection")
@@ -1354,6 +1354,22 @@ window.DSPreview = (function($, DSPreview) {
         });
 
         return deferred.promise();
+    }
+
+    function getURLToPreview() {
+        var url;
+        var loadURL = loadArgs.getPath();
+        var advanceArgs = advanceOption.getArgs();
+
+        if (advanceArgs != null &&
+            (advanceArgs.isRecur || advanceArgs.isRegex))
+        {
+            // should use the whole url
+            url = loadURL;
+        } else {
+            url = loadArgs.getPreviewFile() || loadURL;
+        }
+        return url;
     }
 
     function setDefaultDSName(loadURL) {
