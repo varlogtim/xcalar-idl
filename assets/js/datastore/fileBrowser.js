@@ -745,11 +745,7 @@ window.FileBrowser = (function($, FileBrowser) {
         try {
             var regEx = null;
             if (searchKey != null) {
-                // backend use re.match, so if you do "xlsx",
-                // it's in backend it actually do "^xlsx"
-                searchKey = (searchKey.startsWith("^"))
-                            ? searchKey
-                            : "^" + searchKey;
+                searchKey = xcHelper.prefixRegExKey(searchKey);
                 regEx = new RegExp(searchKey);
             }
             var grid = getFocusGrid();

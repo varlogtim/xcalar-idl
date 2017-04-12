@@ -950,6 +950,12 @@ window.DSPreview = (function($, DSPreview) {
             return null;
         }
 
+        // validate advanced args
+        var advanceArgs = advanceOption.getArgs();
+        if (advanceArgs == null) {
+            return null;
+        }
+
         // special case: special json:
         if (format === formatMap.JSON && detectArgs.isSpecialJSON === true) {
             // if user specified udf, then use the udf.

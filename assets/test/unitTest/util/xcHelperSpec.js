@@ -120,6 +120,14 @@ describe('xcHelper Test', function() {
         expect(res).to.equal("mixed");
     });
 
+    it("xcHelper.prefixRegExKey should work", function() {
+        var res = xcHelper.prefixRegExKey("test");
+        expect(res).to.equal("^test");
+        // case 2
+        res = xcHelper.prefixRegExKey("^test2");
+        expect(res).to.equal("^test2");
+    });
+
     it("xcHelper.getTextWidth should work", function() {
         var res = xcHelper.getTextWidth(null, "test", {
             "defaultHeaderStyle": true

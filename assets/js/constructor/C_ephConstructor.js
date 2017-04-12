@@ -31,7 +31,7 @@ XcMap.prototype = {
 };
 
 function Mutex(key, scope) {
-    if (!key || !(typeof(key) == "string")) {
+    if (!key || !(typeof(key) === "string")) {
         console.log("No/Illegal mutex key, generating a random one.");
         key = xcHelper.randName("mutex", 5);
     }
@@ -291,6 +291,16 @@ DSFormAdvanceOption.prototype = {
         var isRegex = $pattern.find(".regex .checkbox").hasClass("checked");
         if (pattern === "") {
             pattern = null;
+        }
+
+        if (pattern != null && isRegex) {
+            try {
+                var searchKey = xcHelper.prefixRegExKey(pattern);
+                new RegExp(searchKey);
+            } catch (e) {
+                StatusBox.show(ErrTStr.InvalidRegEx, $pattern.find("input"));
+                return null;
+            }
         }
 
         return {

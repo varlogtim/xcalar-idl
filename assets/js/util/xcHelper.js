@@ -152,6 +152,15 @@ window.xcHelper = (function($, xcHelper) {
         return (type);
     };
 
+    xcHelper.prefixRegExKey = function(searchKey) {
+        // backend use re.match, so if you do "xlsx",
+        // it's in backend it actually do "^xlsx"
+        searchKey = (searchKey.startsWith("^"))
+                    ? searchKey
+                    : "^" + searchKey;
+        return searchKey;
+    };
+
     /*
      * options:
      *  defaultHeaderStyle: when set true, use the default table header style
