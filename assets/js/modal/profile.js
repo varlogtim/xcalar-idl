@@ -279,6 +279,8 @@ window.Profile = (function($, Profile, d3) {
 
         // update front col name
         statsCol.frontColName = progCol.getFrontColName(true);
+        // get decimal (not persist to kvStore)
+        // statsCol.decimal = progCol.getDecimal();
 
         showProfile();
         $modal.attr("data-state", "pending");
@@ -1421,11 +1423,12 @@ window.Profile = (function($, Profile, d3) {
         function getXAxis(d) {
             var isLogScale = (tableInfo.bucketSize < 0);
             var num = getNumInScale(d[xName], isLogScale);
-            var name = formatNumber(num, isLogScale);
+            var decimal = statsCol.decimal;
+            var name = formatNumber(num, isLogScale, decimal);
             if (!noBucket && !noSort && d.type !== "nullVal") {
                 num = d[xName] + Math.abs(tableInfo.bucketSize);
                 num = getNumInScale(num, isLogScale);
-                var upperBound = formatNumber(num, isLogScale);
+                var upperBound = formatNumber(num, isLogScale, decimal);
                 name = name + "-" + upperBound;
             }
 
@@ -1487,16 +1490,19 @@ window.Profile = (function($, Profile, d3) {
             var title;
             var isLogScale = (tableInfo.bucketSize < 0);
             var lowerBound = getNumInScale(d[xName], isLogScale);
+            var decimal = statsCol.decimal;
 
             if (noBucket || d.type === "nullVal") {
                 // xName is the backColName, may differenet with frontColName
                 title = "Value: " +
-                        formatNumber(lowerBound, isLogScale) + "<br>";
+                        formatNumber(lowerBound, isLogScale, decimal) + "<br>";
             } else {
                 var upperBound = d[xName] + Math.abs(tableInfo.bucketSize);
                 upperBound = getNumInScale(upperBound, isLogScale);
-                title = "Value: [" + formatNumber(lowerBound, isLogScale) +
-                        ", " + formatNumber(upperBound, isLogScale) +
+                title = "Value: [" +
+                        formatNumber(lowerBound, isLogScale, decimal) +
+                        ", " +
+                        formatNumber(upperBound, isLogScale, decimal) +
                         ")<br>";
             }
 
@@ -1548,7 +1554,7 @@ window.Profile = (function($, Profile, d3) {
         }
     }
 
-    function formatNumber(num, isLogScale) {
+    function formatNumber(num, isLogScale, decimal) {
         if (num == null) {
             console.warn("cannot format empty or null value");
             return "";
@@ -1562,6 +1568,8 @@ window.Profile = (function($, Profile, d3) {
             } else {
                 return num.toExponential();
             }
+        } else if (decimal != null && decimal > -1) {
+            return num.toFixed(decimal);
         }
         // if not speify maximumFractionDigits, 168711.0001 will be 168,711
         return xcHelper.numToStr(num, 5);
