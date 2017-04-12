@@ -84,6 +84,20 @@ window.Shortcuts = (function($, Shortcuts) {
         }
     };
 
+    Shortcuts.toggleThriftTimeChecker = function(turnOn) {
+        if (turnOn) {
+            $('#shortcutSubMenu').find('.thriftCheckOff').show();
+            $('#shortcutSubMenu').find('.thriftCheckOn').hide();
+            xcLocalStorage.setItem("thriftCheck", "true");
+            gThriftTimeCheck = true;
+        } else {
+            $('#shortcutSubMenu').find('.thriftCheckOff').hide();
+            $('#shortcutSubMenu').find('.thriftCheckOn').show();
+            xcLocalStorage.removeItem("thriftCheck");
+            gThriftTimeCheck = false;
+        }
+    };
+
     Shortcuts.toggleDebug = function(turnOn) {
         if (turnOn) {
             $('#shortcutSubMenu').find('.debugOff').show();
@@ -156,6 +170,12 @@ window.Shortcuts = (function($, Shortcuts) {
             verbose = false;
         }
 
+        if (xcLocalStorage.getItem("thriftCheck") === "true") {
+            gThriftTimeCheck = true;
+        } else {
+            gThriftTimeCheck = false;
+        }
+
         if (xcLocalStorage.getItem("admin") === "true") {
             gAdmin = true;
         } else {
@@ -180,6 +200,7 @@ window.Shortcuts = (function($, Shortcuts) {
         }
 
         Shortcuts.toggleVerbose(verbose);
+        Shortcuts.toggleThriftTimeChecker(gThriftTimeCheck);
         Shortcuts.toggleAdmin(gAdmin);
         Shortcuts.toggleJoinKey(gEnableJoinKeyCheck);
         Shortcuts.toggleDebug(window.debugOn);
@@ -215,7 +236,7 @@ window.Shortcuts = (function($, Shortcuts) {
                 var num = Math.ceil(Math.random() * 1000);
                 var wbName = "WB" + num;
                 $('.newWorkbookBox input').val(wbName);
-                $('.newWorkbookBox button').click(); 
+                $('.newWorkbookBox button').click();
                 clearInterval(wbInterval);
 
                 activeWorkbook(wbName)
@@ -416,6 +437,8 @@ window.Shortcuts = (function($, Shortcuts) {
                         '<li class="adminOff">Turn off admin mode</li>' +
                         '<li class="debugOn">Turn on debug mode</li>' +
                         '<li class="debugOff">Turn off debug mode</li>' +
+                        '<li class="thriftCheckOff">Turn off gThriftTimeCheck</li>' +
+                        '<li class="thriftCheckOn">Turn on gThriftTimeCheck</li>' +
                     '</ul>' +
                 '</div>';
 
@@ -476,6 +499,14 @@ window.Shortcuts = (function($, Shortcuts) {
 
         $subMenu.on('mouseup', '.verboseOn', function() {
             Shortcuts.toggleVerbose(true);
+        });
+
+        $subMenu.on('mouseup', '.thriftCheckOff', function() {
+            Shortcuts.toggleThriftTimeChecker();
+        });
+
+        $subMenu.on('mouseup', '.thriftCheckOn', function() {
+            Shortcuts.toggleThriftTimeChecker(true);
         });
 
         $subMenu.on('mouseup', '.debugOff', function() {
@@ -692,17 +723,6 @@ window.Shortcuts = (function($, Shortcuts) {
 
         return (deferred.promise());
     }
-
-// var orderint = setInterval(function() {
-//     for (var table in gTables) {
-//         if (gTables[table].ordering === 11) {
-//             console.log('wrong ordering');
-//             debugger;
-//             clearInterval(orderint);
-//         }
-//     }
-// }, 2000);
-
 
 return (Shortcuts);
 
