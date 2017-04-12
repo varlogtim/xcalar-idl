@@ -71,7 +71,6 @@ window.QueryManager = (function(QueryManager, $) {
     QueryManager.addSubQuery = function(id, name, dstTable, query, queryName,
                                        options) {
         if (!queryLists[id] || Transaction.checkCanceled(id)) {
-            // console.log("QueryHasBeenCancelled");
             return;
         }
         var mainQuery = queryLists[id];
@@ -232,7 +231,7 @@ window.QueryManager = (function(QueryManager, $) {
         var mainQuery = queryLists[id];
         if (mainQuery == null) {
             // error case
-            console.warn('invalid query');
+            console.warn('invalid query', 'transaction id: ' + id);
             deferred.reject('invalid query');
             return deferred.promise();
         } else if (mainQuery.state === QueryStatus.Done) {
@@ -367,36 +366,28 @@ window.QueryManager = (function(QueryManager, $) {
         QueryManager.removeQuery(id);
     };
 
-    QueryManager.check = function(forceStop, doNotAnimate) {
-        if (forceStop || !$("#monitor-queries").hasClass("active") ||
-            !$('#monitorTab').hasClass('active')) {
-            for (var id in queryCheckList) {
-                clearIntervalHelper(id);
+    QueryManager.check = function(doNotAnimate) {
+        // check queries
+        for (var xcQuery in queryLists) {
+            var query = queryLists[xcQuery];
+            if (query.type === "restored") {
+                continue;
             }
-        } else {
-            // check queries
-            for (var xcQuery in queryLists) {
-                var query = queryLists[xcQuery];
-                if (query.type === "restored") {
-                    continue;
-                }
-                if (query.state !== QueryStatus.Done &&
-                    query.state !== QueryStatus.Cancel) {
-                    if (query.type === "xcFunction") {
-                        for (var i = 0; i < query.subQueries.length; i++) {
-                            if (query.subQueries[i].state !== QueryStatus.Done) {
-                                if (query.subQueries[i].queryName) {
-                                    outerQueryCheck(query.getId(), doNotAnimate);
-                                } else {
-                                    subQueryCheck(query.subQueries[i],
-                                                  doNotAnimate);
-                                }
-                                break;
+            if (query.state !== QueryStatus.Done &&
+                query.state !== QueryStatus.Cancel) {
+                if (query.type === "xcFunction") {
+                    for (var i = 0; i < query.subQueries.length; i++) {
+                        if (query.subQueries[i].state !== QueryStatus.Done) {
+                            if (query.subQueries[i].queryName) {
+                                outerQueryCheck(query.getId(), doNotAnimate);
+                            } else {
+                                subQueryCheck(query.subQueries[i]);
                             }
+                            break;
                         }
-                    } else {
-                        mainQueryCheck(query.getId(), doNotAnimate);
                     }
+                } else {
+                    mainQueryCheck(query.getId(), doNotAnimate);
                 }
             }
         }
@@ -598,9 +589,6 @@ window.QueryManager = (function(QueryManager, $) {
         if (!queryLists[id]) {
             console.error("error case");
             return;
-        } else if (!$("#monitor-queries").hasClass("active") ||
-                    !$('#monitorTab').hasClass('active')) {
-            return;
         }
 
         var mainQuery = queryLists[id];
@@ -631,8 +619,7 @@ window.QueryManager = (function(QueryManager, $) {
                         if (mainQuery.subQueries[mainQuery.currStep].queryName) {
                             outerQueryCheck(id, doNotAnimate);
                         } else {
-                            subQueryCheck(mainQuery.subQueries[mainQuery.currStep],
-                                          doNotAnimate);
+                            subQueryCheck(mainQuery.subQueries[mainQuery.currStep]);
                         }
                     }
                     deferred.reject();
@@ -664,9 +651,12 @@ window.QueryManager = (function(QueryManager, $) {
     function incrementStep(mainQuery) {
         mainQuery.currStep++;
 
-        var queryText = mainQuery.getQuery();
         var id = mainQuery.getId();
-        updateQueryTextDisplay(queryText);
+        var $query = $queryList.find('.query[data-id="' + id + '"]');
+
+        if ($query.hasClass('active')) {
+            updateQueryTextDisplay(mainQuery.getQuery());
+        }
 
         if (mainQuery.numSteps !== -1 &&
             mainQuery.currStep >= mainQuery.numSteps) {
@@ -747,7 +737,7 @@ window.QueryManager = (function(QueryManager, $) {
                     .removeClass(QueryStatus.RM)
                     .addClass(state);
         if (state === QueryStatus.Run) {
-            QueryManager.check(false, true);
+            QueryManager.check(true);
             // we need to update the extraProgressBar even if we don't
             // have status data otherwise we'll have the progressBar of the
             // previous query
@@ -887,21 +877,19 @@ window.QueryManager = (function(QueryManager, $) {
         }
     }
 
-    function subQueryCheck(subQuery, doNotAnimate) {
+    function subQueryCheck(subQuery) {
         var id = subQuery.getId();
         if (!queryLists[id]) {
             console.error("error case");
             return;
         } else if (!$("#monitor-queries").hasClass("active") ||
                     !$('#monitorTab').hasClass('active')) {
-            // don't show if not on panel
             if (subQuery.getName() === "index from DS") {
                 DSCart.addQuery(queryLists[id]);
             }
-            return;
         }
         // only stop animation the first time, do not persist it
-        doNotAnimate = false;
+        var doNotAnimate = false;
 
         var startTime = Date.now();
         subQueryCheckHelper(subQuery, id, subQuery.index, doNotAnimate)
@@ -976,6 +964,9 @@ window.QueryManager = (function(QueryManager, $) {
             }
             return;
         }
+        if ($query.hasClass("done")) {
+            return;
+        }
         var mainQuery = queryLists[id];
         var currStep = mainQuery.currStep;
         var numSteps = mainQuery.numSteps;
@@ -994,14 +985,12 @@ window.QueryManager = (function(QueryManager, $) {
         }
 
         var newClass = null;
-        progress = Math.max(progress, 0);
-        progress = Math.min(progress, 100);
+        progress = Math.min(Math.max(progress, 0), 100);
         if (progress >= 100 && ((numSteps > 0 && currStep >= numSteps) ||
             (mainQuery.state === QueryStatus.Done))) {
             progress = "100%";
             newClass = "done";
             $query.find('.cancelIcon').addClass('disabled');
-
         } else if (isError) {
             progress = progress + "%";
             newClass = QueryStatus.Error;
@@ -1012,42 +1001,45 @@ window.QueryManager = (function(QueryManager, $) {
             progress = progress + "%";
         }
 
+        var $lockIcon = $('.lockedTableIcon[data-txid="' + id + '"]');
+        var progressCircles = [];
+        if ($lockIcon.length) {
+            $lockIcon.each(function() {
+                progressCircles.push($(this).data("progresscircle"));
+            });
+        }
+
         // set width to 0 if new step is started unless it's past the last step
         if (parseInt($progressBar.data('step')) !== currStep &&
             currStep !== numSteps) {
-            $progressBar.stop().width(0).data('step', currStep);
-            if ($extraProgressBar != null) {
-                $extraProgressBar.stop().width(0);
-            }
-        }
+            $progressBar.data('step', currStep);
+            if (!$query.hasClass("done")) {
+                $progressBar.stop().width(0).data('step', currStep);
 
-        function progressBarContinuation() {
-            if (newClass != null) {
-                $query.removeClass("processing").addClass(newClass);
-                if (newClass === "done") {
-                    $query.find('.querySteps').text('completed');
-                    clearIntervalHelper(id);
+                for (var i = 0; i < progressCircles.length; i++) {
+                    progressCircles[i].update(0, 0);
                 }
-            }
-        }
-
-        function extraProgressBarContinuation() {
-            if (newClass != null && $query.hasClass("active")) {
-                $queryDetail.find(".query").removeClass("processing")
-                            .addClass(newClass);
+                if ($extraProgressBar != null) {
+                    $extraProgressBar.stop().width(0);
+                }
             }
         }
 
         // .stop() stops any previous animation;
         if (isCanceled) {
             $progressBar.stop().width(progress);
+            for (var i = 0; i < progressCircles.length; i++) {
+                progressCircles[i].update(parseInt(progress), 0);
+            }
         } else {
             $progressBar.stop().animate({"width": progress}, checkInterval,
                                         "linear", progressBarContinuation);
+            for (var i = 0; i < progressCircles.length; i++) {
+                progressCircles[i].update(parseInt(progress), checkInterval);
+            }
         }
-        if (doNotAnimate) {
-            progressBarContinuation();
-        }
+
+        progressBarContinuation();
 
         if ($extraProgressBar != null) {
             if (doNotAnimate) {
@@ -1074,6 +1066,23 @@ window.QueryManager = (function(QueryManager, $) {
         }
 
         updateQueryStepsDisplay(mainQuery, $query, newClass, $extraStepText);
+
+        function progressBarContinuation() {
+            if (newClass != null) {
+                $query.removeClass("processing").addClass(newClass);
+                if (newClass === "done") {
+                    $query.find('.querySteps').text('completed');
+                    clearIntervalHelper(id);
+                }
+            }
+        }
+
+        function extraProgressBarContinuation() {
+            if (newClass != null && $query.hasClass("active")) {
+                $queryDetail.find(".query").removeClass("processing")
+                            .addClass(newClass);
+            }
+        }
     }
 
     function updateQueryStepsDisplay(mainQuery, $query, newClass,
@@ -1164,6 +1173,7 @@ window.QueryManager = (function(QueryManager, $) {
                     $queryList.find(".checkbox").removeClass("checked");
                 } else {
                     $querySideBar.addClass("bulkOptionsOpen");
+                    $queryList.find(".checkbox").addClass("checked");
                     $(".tooltip").hide();
                 }
             }

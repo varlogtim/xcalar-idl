@@ -93,7 +93,7 @@ describe('QueryManager Test', function() {
             var name = "map";
             var dstTable = "destTable";
             var query = 'map --eval "wordCount(fakeCol)" ' +
-            '--srctable "srcTable" --fieldName "newFakeCol" --dsttable "destTable";';
+            '--srctable "srcTable#ab12" --fieldName "newFakeCol" --dsttable "destTable";';
 
             QueryManager.addSubQuery(2, name, dstTable, query); // wrong ID
             expect(queryObj.subQueries.length).to.equal(0);
@@ -119,7 +119,7 @@ describe('QueryManager Test', function() {
             };
 
             var query = 'map --eval "wordCount(fakeCol)" ' +
-            '--srctable "srcTable" --fieldName "newFakeCol" --dsttable "destTable";';
+            '--srctable "srcTable#ab12" --fieldName "newFakeCol" --dsttable "destTable";';
 
             queryObj.currStep = 1;
             QueryManager.addSubQuery(1, 'mapQuery', 'dstTable2', query, 'queryName');
@@ -280,17 +280,17 @@ describe('QueryManager Test', function() {
             $("#monitorMenu-query").find(".bulkOptionsSection .deleteIcon").click();
             expect($("#monitorMenu-query").find(".bulkOptions").is(":visible")).to.be.true;
             expect($("#monitorMenu-query").find(".checkbox:visible").length).to.be.gt(1);
-            expect($("#monitorMenu-query").find(".checkbox.checked").length).to.equal(0);
+            var numChecked = $("#monitorMenu-query").find(".checkbox.checked").length
+            expect(numChecked).to.be.gt(1);
 
             $("#monitorMenu-query").find(".checkbox").eq(0).click();
-            expect($("#monitorMenu-query").find(".checkbox.checked").length).to.equal(1);
+            expect($("#monitorMenu-query").find(".checkbox.checked").length).to.be.lt(numChecked);
 
             $("#monitorMenu-query").find(".checkbox").eq(0).click();
-            expect($("#monitorMenu-query").find(".checkbox.checked").length).to.equal(0);
+            expect($("#monitorMenu-query").find(".checkbox.checked").length).to.equal(numChecked);
         });
 
         it("select and clear all should work", function() {
-            expect($("#monitorMenu-query").find(".checkbox.checked").length).to.equal(0);
             $("#monitorMenu-query").find("li.selectAll").click();
 
             var numChecked = $("#monitorMenu-query").find(".checkbox.checked").length;

@@ -780,13 +780,16 @@ html.edge {
                     top: 15px;
                     left: 45px;
                     font-size: 60px;
-                    color: white;
+                    color: @color-white;
                     opacity: 0.8;
                     &.xi-close {
                         top: 20px;
                         left: 50px;
                         font-size: 50px;
                         display: none;
+                    }
+                    &.xi-clock {
+                        clip: rect(13px, 46px, 44px, 19px); // clip to hide outer circle
                     }
                 }
                 &:hover {
@@ -804,6 +807,21 @@ html.edge {
                     }
                     .xi-clock {
                         display: none;
+                    }
+                    .progress {
+                        display: none;
+                    }
+                }
+            }
+
+            .progress {
+                .size(64px, 64px);
+                opacity: 0.8;
+                .position(absolute, @top: 13px, @left: 43px);
+                path {
+                    fill: transparent;
+                    &:first-child {
+                        fill: @color-white;
                     }
                 }
             }

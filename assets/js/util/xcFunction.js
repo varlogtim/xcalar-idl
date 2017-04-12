@@ -503,6 +503,15 @@ window.xcFunction = (function($, xcFunction) {
             // index(optional), groupby
             steps = 2;
         }
+        if (isJoin) {
+            if (groupByCols.length > 1) {
+                // concat L, concat R, index L,  index R, join
+                steps += 5;
+            } else { // one groupByCol, indexed groupby table will exists already
+                // index, join
+                steps += 2;
+            }
+        }
 
         var sql = {
             "operation": SQLOps.GroupBy,

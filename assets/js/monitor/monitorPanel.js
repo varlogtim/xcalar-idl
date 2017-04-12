@@ -65,14 +65,12 @@ window.MonitorPanel = (function($, MonitorPanel) {
 
     MonitorPanel.active = function() {
         MonitorGraph.start();
-        QueryManager.check();
         QueryManager.scrollToFocused();
         graphIsActive = true;
     };
 
     MonitorPanel.inActive = function() {
         MonitorGraph.clear();
-        QueryManager.check(true);
         graphIsActive = false;
     };
 
@@ -165,8 +163,6 @@ window.MonitorPanel = (function($, MonitorPanel) {
                     break;
             }
             $monitorPanel.find('.topBar .title:not(.wkbkTitle)').text(title);
-
-            QueryManager.check();
         });
     }
 

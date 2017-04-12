@@ -1430,9 +1430,12 @@ window.xcHelper = (function($, xcHelper) {
             $tableWrap.length !== 0 &&
             !$tableWrap.hasClass('tableLocked'))
         {
+            var iconNum = $('.lockedTableIcon[data-txid="' + txId +
+                            '"] .progress').length;
             // tableWrap may not exist during multijoin on self
             var $lockedIcon = $(
-                '<div class="lockedTableIcon" data-txid="' + txId +'">' +
+                '<div class="lockedTableIcon" data-txid="' + txId +
+                '" data-iconnum="' + iconNum + '">' +
                   '<div class="iconPart" data-toggle="tooltip" ' +
                     'data-original-title="Cancel Operation" ' +
                     'data-placement="top" data-container="body">' +
@@ -1440,12 +1443,16 @@ window.xcHelper = (function($, xcHelper) {
                     '<div class="rightPart"></div>' +
                     '<i class="icon xi-clock"></i>' +
                     '<i class="icon xi-close"></i>' +
+                    '<div class="progress"></div>' +
                   '</div>' +
                 '</div>');
             if (txId == null) {
                 $lockedIcon.addClass("noCancel");
             }
             $tableWrap.addClass('tableLocked').append($lockedIcon);
+
+            var progressCircle = new ProgressCircle(txId, iconNum);
+            $lockedIcon.data("progresscircle", progressCircle);
             var iconHeight = $lockedIcon.height();
             var tableHeight = $tableWrap.find('.xcTbodyWrap').height();
             var tbodyHeight = $tableWrap.find('tbody').height() + 1;

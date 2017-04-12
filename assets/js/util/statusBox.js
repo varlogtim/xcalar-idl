@@ -23,6 +23,10 @@ window.StatusBox = (function($, StatusBox){
         $doc = $(document);
         options = options || {};
         var msgType = options.type || "error";
+        if (!$target.length) {
+            // XXX this shouldn't happen but it has before
+            return;
+        }
 
         // focus moves scrollbar position so focus first before we get
         // the position of the input

@@ -171,11 +171,19 @@ window.TblManager = (function($, TblManager) {
             }
         }
 
+
+
         oldTableIds.forEach(function(oldTableId) {
             if (!tablesToRemove.includes(oldTableId)) {
                 // if oldTableId alredy exists (like self join)
                 // not add again
                 tablesToRemove.push(oldTableId);
+                var progressCircle = $("#xcTableWrap-" + oldTableId)
+                                        .find(".lockedTableIcon")
+                                        .data("progresscircle");
+                if (progressCircle) {
+                    progressCircle.done();
+                }
             }
         });
     }

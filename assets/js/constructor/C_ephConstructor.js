@@ -3036,8 +3036,13 @@ var XcSubQuery = (function() {
                 XcalarGetOpStats(self.dstTable)
                 .then(function(ret) {
                     var stats = ret.opDetails;
-                    deferred.resolve(parseFloat((100 * (stats.numWorkCompleted /
-                                            stats.numWorkTotal)).toFixed(2)));
+                    var pct = stats.numWorkCompleted / stats.numWorkTotal;
+                    if (isNaN(pct)) {
+                        pct = 0;
+                    } else {
+                        pct = parseFloat((100 * pct).toFixed(2));
+                    }
+                    deferred.resolve(pct);
                 })
                 .fail(function(error) {
                     console.error(error);
@@ -3091,3 +3096,91 @@ var ScollTableChecker = (function() {
     return ScollTableChecker;
 }());
 /* End of ScollTableChecker */
+
+/* Progress circle for locked tables */
+var ProgressCircle = function(txId, iconNum) {
+    this.txId = txId;
+    this.iconNum = iconNum;
+    this.__reset();
+    this.status = "inProgress";
+    this.progress = 0;
+};
+
+ProgressCircle.prototype = {
+    update: function(pct, duration) {
+        if (this.status === "done") {
+            return;
+        }
+        if (isNaN(pct)) {
+            pct = 0;
+        }
+        pct = Math.max(Math.min(pct, 100), 0);
+        var prevPct = this.prevPct;
+        this.prevPct = pct;
+
+        if (prevPct > pct) {
+            this.__reset();
+        } else if (prevPct === pct) {
+            // let the animation continue/finish
+            return;
+        }
+
+        var svg = this.svg;
+        var pie = this.pie;
+        var arc = this.arc;
+        var paths = svg.selectAll("path").data(pie([pct, 100 - pct]));
+
+        if (duration == null) {
+            duration = 2000;
+        }
+
+        paths.transition()
+            .ease("linear")
+            .duration(duration)
+            .attrTween("d", arcTween);
+
+        function arcTween(a) {
+            var i = d3.interpolate(this._current, a);
+            this._current = i(0);
+            return (function(t) {
+                return (arc(i(t)));
+            });
+        }
+    },
+    __reset: function() {
+        var radius = 32;
+        var diam = radius * 2;
+        var thick = 7;
+        $('.lockedTableIcon[data-txid="' + this.txId + '"][data-iconnum="' +
+            this.iconNum + '"] .progress').empty();
+        var arc = d3.svg.arc()
+                    .innerRadius(radius - thick)
+                    .outerRadius(radius);
+        var pie = d3.layout.pie().sort(null);
+        var svg = d3.select('.lockedTableIcon[data-txid="' + this.txId +
+                            '"][data-iconnum="' + this.iconNum + '"] .progress')
+                    .append("svg")
+                    .attr({"width": diam, "height": diam})
+                    .append("g")
+                    .attr("transform", "translate(" + radius + ", " +
+                            radius + ")");
+        svg.selectAll("path")
+            .data(pie([0, 100]))
+            .enter()
+            .append("path")
+            .attr("d", arc)
+            .each(function(d) {
+                this._current = d;
+            });
+
+        this.svg = svg;
+        this.pie = pie;
+        this.arc = arc;
+        this.prevPct = 0;
+    },
+    done: function() {
+        this.status = "completing";
+        this.update(100, 500);
+        this.status = "done";
+    }
+};
