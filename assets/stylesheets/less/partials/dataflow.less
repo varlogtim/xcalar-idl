@@ -336,6 +336,13 @@
             z-index: 2; // otherwise canvas lines will be in front
         }
 
+        .dagWrap {
+            &.deleting {
+                pointer-events: none;
+                opacity: @opacity-disabled;
+            }
+        }
+
         .dagTable {
             z-index: 1;
             cursor: auto;

@@ -155,19 +155,27 @@ window.DF = (function($, DF) {
 
     DF.removeDataflow = function(dataflowName) {
         var deferred = jQuery.Deferred();
+        var hasRemoveSched = false;
+
         DF.removeScheduleFromDataflow(dataflowName)
         .then(function() {
+            hasRemoveSched = true;
             return XcalarDeleteRetina(dataflowName);
         })
         .then(function() {
-            return resolveDelete();
+            resolveDelete();
+            deferred.resolve();
         })
-        .then(deferred.resolve)
         .fail(function(error) {
-            if (error && error.status === StatusT.StatusRetinaNotFound) {
-                resolveDelete()
-                .then(deferred.resolve);
+            if (typeof error === "object" &&
+                error.status === StatusT.StatusRetinaNotFound)
+            {
+                resolveDelete();
+                deferred.resolve();
             } else {
+                if (hasRemoveSched) {
+                    KVStore.commit();
+                }
                 deferred.reject(error);
             }
         });
@@ -175,15 +183,8 @@ window.DF = (function($, DF) {
         return deferred.promise();
 
         function resolveDelete() {
-            var innerDeferred = jQuery.Deferred();
-
             delete dataflows[dataflowName];
-            DFCard.deleteDF(dataflowName);
-
-            KVStore.commit()
-            .always(innerDeferred.resolve);
-
-            return innerDeferred.promise();
+            KVStore.commit();
         }
     };
 
@@ -229,24 +230,22 @@ window.DF = (function($, DF) {
     };
 
     DF.removeScheduleFromDataflow = function(dataflowName) {
-        var deferred = jQuery.Deferred();
         var dataflow = dataflows[dataflowName];
-        if (dataflow) {
-            dataflow.schedule = null;
-            XcalarDeleteSched(dataflowName)
-            .then(function() {
-                KVStore.commit();
-                deferred.resolve();
-            })
-            .fail(function() {
-                KVStore.commit();
-                deferred.reject();
+        if (!dataflow) {
+            var error = xcHelper.replaceMsg(DFTStr.NoTExists, {
+                "df": dataflowName
             });
-        } else {
-            console.warn("No such dataflow exist!");
-            KVStore.commit();
-            deferred.resolve();
+            return PromiseHelper.reject(error);
         }
+
+        var deferred = jQuery.Deferred();
+        XcalarDeleteSched(dataflowName)
+        .then(function() {
+            dataflow.schedule = null;
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
         return deferred.promise();
     };
 

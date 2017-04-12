@@ -420,12 +420,16 @@
         }
     }
 
-    .dataFlowGroup, .scheduleLists {
+    .dataFlowGroup {
         width: 100%;
         &:hover {
             .listBox, .subList li {
                 opacity: @opacity-hover;
             }
+        }
+        &.deleting {
+            pointer-events: none;
+            opacity: @opacity-disabled;
         }
     }
 

@@ -63,6 +63,13 @@ window.DFCard = (function($, DFCard) {
         }
     };
 
+    DFCard.getDFList = function(dataflowName) {
+        var $list = $dfMenu.find(".listWrap").filter(function() {
+            return ($(this).find(".groupName").text() === dataflowName);
+        });
+        return $list;
+    };
+
     DFCard.refreshDFList = function(clear, noFocus) {
         if (clear) {
             $dfCard.find('.cardMain').empty();
@@ -117,15 +124,6 @@ window.DFCard = (function($, DFCard) {
         if (!activeFound && !$("#dataflowTab").hasClass("firstTouch")) {
             DFCard.focusFirstDF();
         }
-    };
-
-    DFCard.deleteDF = function(dfName) {
-        $dfCard.find('.dagWrap[data-dataflowName="' + dfName + '"]').remove();
-        $dfMenu.find('.listWrap').filter(function() {
-            return ($(this).find('.groupName').text() === dfName);
-        }).remove();
-
-        DFCard.refreshDFList();
     };
 
     DFCard.getCurrentDF = function() {
@@ -216,7 +214,11 @@ window.DFCard = (function($, DFCard) {
                 return showLicenseTooltip(this);
             }
             event.stopPropagation();
-            if (!$dfCard.find('.cardMain').find(".dagWrap:visible").length) {
+            var $dagWrap = $dfCard.find('.cardMain').find(".dagWrap:visible");
+            if (!$dagWrap.length) {
+                return;
+            }
+            if ($dagWrap.hasClass("deleting")) {
                 return;
             }
             var $tab = $(this);
@@ -415,19 +417,18 @@ window.DFCard = (function($, DFCard) {
         });
 
         $listSection.on('click', '.downloadDataflow', function() {
-            var retName = $(this).siblings('.groupName').text();
-            Support.downloadLRQ(retName);
+            var dfName = $(this).siblings('.groupName').text();
+            Support.downloadLRQ(dfName);
             // XXX: Show something when the download has started
         });
 
         $listSection.on('click', '.deleteDataflow', function() {
-            var retName = $(this).siblings('.groupName').text();
+            var dfName = $(this).siblings('.groupName').text();
             Alert.show({
                 'title': DFTStr.DelDF,
                 'msg': DFTStr.DelDFMsg,
                 'onConfirm': function() {
-                    deleteDataflow(retName);
-                    Scheduler.hideScheduleDetailView();
+                    deleteDataflow(dfName);
                 }
             });
         });
@@ -501,15 +502,32 @@ window.DFCard = (function($, DFCard) {
         });
     }
 
-    function deleteDataflow(retName) {
+    function deleteDataflow(dfName) {
         var deferred = jQuery.Deferred();
-        DF.removeDataflow(retName)
+        var $card = $dfCard.find('.dagWrap[data-dataflowName="' + dfName + '"]');
+        var $list = DFCard.getDFList(dfName);
+
+        Scheduler.hideScheduleDetailView();
+
+        $card.addClass("deleting");
+        $list.addClass("deleting");
+
+        DF.removeDataflow(dfName)
         .then(function() {
+            var inFocus = $list.find(".listInfo").hasClass("selected");
+            // show success msg first and the do clean
             xcHelper.showSuccess(SuccessTStr.RmDF);
+            $card.remove();
+            $list.remove();
+            if (inFocus) {
+                DFCard.refreshDFList();
+            }
             deferred.resolve();
         })
         .fail(function(error) {
-            xcHelper.showFail();
+            xcHelper.showFail(FailTStr.RmDF);
+            $card.removeClass("deleting");
+            $list.removeClass("deleting");
             deferred.reject(error);
         });
 

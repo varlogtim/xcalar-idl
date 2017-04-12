@@ -322,6 +322,7 @@ SuccessTStr = {
 "Target": '目标添加！',
 "RetrieveLogs": '记录检索！',
 "RmDF": '删除批量数据流成功！',
+"RmSched": "删除调度器成功！",
 "RmSession": '会话文件被删除！',
 "UpdateLicense": '许可证成功更新，新的许可证将在下次重新启动后生效。',
 "Upload": '上传成功！',
@@ -337,6 +338,8 @@ FailTStr = {
 "Profile": '保存数据剖面图图像失败。',
 "ProfileStats": '生成统计失败。',
 "SaveSettings": '保存设置失败。'
+"RmDF": "删除批量数据流失败。",
+"RmSched": "删除调度器失败"
 };
 ThriftTStr = {
 'CCNBEErr': '连接错误',

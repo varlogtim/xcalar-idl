@@ -172,9 +172,7 @@ window.Scheduler = (function(Scheduler, $) {
                 'title': SchedTStr.DelSched,
                 'msg': SchedTStr.DelSchedMsg,
                 'onConfirm': function() {
-                    DF.removeScheduleFromDataflow(currentDataFlowName);
-                    Scheduler.hideScheduleDetailView();
-                    newScheduleIcon(currentDataFlowName);
+                    removeSchedule(currentDataFlowName);
                 }
             });
         });
@@ -270,6 +268,7 @@ window.Scheduler = (function(Scheduler, $) {
         } else {
             unlockCard();
         }
+        $scheduleDetail.removeClass("locked");
     };
 
     Scheduler.hideScheduleDetailView = function () {
@@ -291,22 +290,46 @@ window.Scheduler = (function(Scheduler, $) {
         }
     }
 
-    function newScheduleIcon(dataflowName) {
-        $span = $("#dfgMenu span").filter(function() {
-            return ($(this).text() === dataflowName);
+    function removeSchedule(dataflowName) {
+        var deferred = jQuery.Deferred();
+        var $list = DFCard.getDFList(dataflowName);
+        var $addSched = $list.find(".addScheduleToDataflow");
+
+        xcHelper.disableSubmit($addSched);
+        $scheduleDetail.addClass("locked");
+
+        DF.removeScheduleFromDataflow(dataflowName)
+        .then(function() {
+            xcHelper.showSuccess(SuccessTStr.RmSched);
+            $addSched.removeClass("xi-menu-scheduler")
+                     .addClass("xi-menu-add-scheduler");
+
+            if (dataflowName === currentDataFlowName) {
+                Scheduler.hideScheduleDetailView();
+            }
+
+            KVStore.commit();
+            deferred.resolve();
+        })
+        .fail(function(error) {
+            xcHelper.showFail(FailTStr.RmSched);
+            if (dataflowName === currentDataFlowName) {
+                $scheduleDetail.removeClass("locked");
+            }
+            deferred.reject(error);
+        })
+        .always(function() {
+            xcHelper.enableSubmit($addSched);
         });
-        $addScheduleIcon = $span.siblings('.addScheduleToDataflow');
-        $addScheduleIcon.removeClass('xi-menu-scheduler');
-        $addScheduleIcon.addClass('xi-menu-add-scheduler');
+
+        return deferred.promise();
     }
 
     function existScheduleIcon(dataflowName) {
-        $span = $("#dfgMenu span").filter(function() {
-            return ($(this).text() === dataflowName);
-        });
-        $addScheduleIcon = $span.siblings('.addScheduleToDataflow');
-        $addScheduleIcon.addClass('xi-menu-scheduler');
-        $addScheduleIcon.removeClass('xi-menu-add-scheduler');
+        var $list = DFCard.getDFList(dataflowName);
+        $list.find(".addScheduleToDataflow")
+             .addClass("xi-menu-scheduler")
+             .removeClass("xi-menu-add-scheduler");
     }
 
     function showScheduleSettings() {

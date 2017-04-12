@@ -363,7 +363,8 @@ SuccessTStr = {
     "SubmitTicket": "Ticket Submitted!",
     "Target": "Target Added!",
     "RetrieveLogs": "Logs Retrieved!",
-    "RmDF": "Remove Batched DF Successful!",
+    "RmDF": "Batched DF Successfully Removed!",
+    "RmSched": "Schedule Successfully Deleted!",
     "RmSession": "Session Files Removed!",
     "UpdateLicense": "License Successfully Updated. New license will take effect after next cluster restart.",
     "Upload": "Upload Successful!",
@@ -380,6 +381,8 @@ FailTStr = {
     "Profile": "Saving Profile Image Failed.",
     "ProfileStats": "Generate Statistics Failed.",
     "SaveSettings": "Saving Settings Failed.",
+    "RmDF": "Remove Batched DF Failed.",
+    "RmSched": "Delete Schedule Failed.!"
 };
 
 ThriftTStr = {
@@ -679,7 +682,8 @@ DFTStr = {
     'UploadLimitMsg': 'Cannot upload dataflow that is over 1MB.',
     'DownloadDF': 'Download dataflow',
     'AddSched': 'Add Schedule to dataflow',
-    'TooLarge': 'Dataflow image exceeds viewable limit.'
+    'TooLarge': 'Dataflow image exceeds viewable limit.',
+    'NoTExists': 'Dataflow <df> doesn\'t exist'
 };
 
 DSTStr = {
