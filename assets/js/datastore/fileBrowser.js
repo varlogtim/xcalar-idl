@@ -206,7 +206,7 @@ window.FileBrowser = (function($, FileBrowser) {
                 if (key === keyCode.Enter) {
                     var $grid = $container.find('.grid-unit.active');
                     if ($grid.length > 0) {
-                        // this is the case that user input nfs:///var/tmp,
+                        // this is the case that user input file:///var/tmp,
                         // it focus on tmp and then press enter
                         $grid.trigger("dblclick");
                     }
@@ -464,7 +464,7 @@ window.FileBrowser = (function($, FileBrowser) {
     }
 
     function getShortPath(path) {
-        // for example: nfs:///var/ will return var/
+        // for example: file:///var/ will return var/
         return path.split(defaultPath)[1];
     }
 

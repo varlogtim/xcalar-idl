@@ -110,7 +110,7 @@ describe("Dataset Form Test", function() {
 
         it("Should allow browse valid path", function() {
             var paths = [{
-                "protocol": "nfs:///",
+                "protocol": "file:///",
                 "path": ""
             },{
                 "protocol": "hdfs://",

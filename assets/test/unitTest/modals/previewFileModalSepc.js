@@ -59,7 +59,7 @@ describe("PreviewFileModal Test", function() {
             var options = {
                 "pattern": "test"
             };
-            PreviewFileModal.show("nfs:///test1", options)
+            PreviewFileModal.show("file:///test1", options)
             .then(function() {
                 assert.isTrue($modal.is(":visible"));
                 expect($modal.hasClass("parseMode")).to.be.false;
@@ -102,10 +102,10 @@ describe("PreviewFileModal Test", function() {
             };
 
             var options = {
-                "previewFile": "nfs:///folder/test2",
+                "previewFile": "file:///folder/test2",
                 "isParseMode": true
             };
-            PreviewFileModal.show("nfs:///folder", options)
+            PreviewFileModal.show("file:///folder", options)
             .then(function() {
                 assert.isTrue($modal.is(":visible"));
                 expect($modal.hasClass("parseMode")).to.be.true;
@@ -156,7 +156,7 @@ describe("PreviewFileModal Test", function() {
         });
 
         it("Should show modal with seach bar closed", function(done) {
-            PreviewFileModal.show("nfs:///test1")
+            PreviewFileModal.show("file:///test1")
             .then(function() {
                 assert.isTrue($modal.is(":visible"));
                 expect($searchBar.hasClass("closed")).to.be.true;

@@ -552,7 +552,7 @@ describe("DSParser Test", function() {
         });
 
         it("should show parser", function(done) {
-            var url = "nfs:///netstore/datasets/dsParser/Sample_JSON_-_Ugly.json";
+            var url = "file:///netstore/datasets/dsParser/Sample_JSON_-_Ugly.json";
             DSParser.show(url)
             .then(function() {
                 assert.isTrue($card.is(":visible"));

@@ -2249,7 +2249,7 @@ function XcalarGenRowNum(srcTableName, dstTableName, newFieldName, txId) {
 function XcalarQuery(queryName, queryString, txId) {
     // XXX Now only have a simple output
     /* some test case :
-        "load --url nfs:///var/tmp/gdelt --format csv --name test"
+        "load --url file:///var/tmp/gdelt --format csv --name test"
         "filter yelpUsers 'regex(user_id,\"--O\")'"
 
     */

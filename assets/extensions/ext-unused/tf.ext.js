@@ -346,7 +346,7 @@ window.UExtTF = (function(UExtTF) {
             var prefix;
 
             if (isGlobalVisible) {
-                prefix = "nfs://";
+                prefix = "file://";
             }
             else {
                 prefix = "file://";

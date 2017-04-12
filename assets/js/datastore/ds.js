@@ -482,7 +482,6 @@ window.DS = (function ($, DS) {
             // for dataset, use it's full name as id
             options.id = options.id || options.fullName;
         }
-
         var dsObj = new DSObj(options);
         dsObj.addToParent();
         var $ds = options.uneditable ? $(getUneditableDSHTML(dsObj)) :
@@ -939,7 +938,7 @@ window.DS = (function ($, DS) {
 
                     obj = $.extend(obj, {
                         "format": format,
-                        "path": ds.url,
+                        "path": ds.url.replace("nfs:///", FileProtocol.nfs),
                         "unlistable": !ds.isListable
                     });
 
