@@ -2030,8 +2030,7 @@ window.Dag = (function($, Dag) {
             XcalarGetDatasetMeta(tableName)
             .then(function(res) {
                 // check if current schema
-                if (!$schema.hasClass("loadInfo") ||
-                    $schema.data("id") !== schemaId) {
+                if ($schema.data("id") !== schemaId) {
                     return;
                 }
                 if (res != null && res.metas != null) {
@@ -2074,9 +2073,11 @@ window.Dag = (function($, Dag) {
         $schema.removeClass("loadInfo");
         var tableName;
         var numCols;
-        var numRows = "Unknown";
+        var numRows = CommonTxtTstr.Unknown;
         $schema.data('tableid', tableId);
         $schema.data('$dagTable', $dagTable);
+        var schemaId = Math.floor(Math.random() * 100000);
+        $schema.data("id", schemaId);
         if (!table) {
             tableName = $dagTable.find('.tableTitle').text();
             numCols = 1;
@@ -2085,11 +2086,17 @@ window.Dag = (function($, Dag) {
             numCols = table.tableCols.length;
         }
 
-        if (gTables && tableId in gTables) {
-            if (gTables[tableId].resultSetCount > -1) {
-                numRows = gTables[tableId].resultSetCount;
+        if (table) {
+            if (table.resultSetCount > -1) {
+                numRows = table.resultSetCount;
                 numRows = xcHelper.numToStr(numRows);
+            } else {
+                numRows = "...";
+                getSchemaNumRows($schema, schemaId, tableName, table);
             }
+        } else {
+            numRows = "...";
+            getSchemaNumRows($schema, schemaId, tableName);
         }
         $schema.find('.tableName').text(tableName);
         $schema.find('.numCols').attr('title', CommonTxtTstr.NumCol)
@@ -2125,7 +2132,7 @@ window.Dag = (function($, Dag) {
                     '</li>';
         }
         if (numCols === 1) {
-            html += '<span class="noFields">No fields present</span>';
+            html += '<span class="noFields">' + DFTStr.NoFields + '</span>';
         }
         html += "</ul>";
 
@@ -2142,6 +2149,30 @@ window.Dag = (function($, Dag) {
 
         positionSchemaPopup($dagTable);
     };
+
+    function getSchemaNumRows($schema, schemaId, tableName, table) {
+        XcalarGetTableMeta(tableName)
+        .then(function(meta) {
+            if ($schema.data("id") !== schemaId) {
+                return;
+            }
+            if (meta != null && meta.metas != null) {
+                var metas = meta.metas;
+                var numRows = 0;
+                // sum up size from all nodes
+                for (var i = 0, len = metas.length; i < len; i++) {
+                    numRows += metas[i].numRows;
+                }
+                if (table) {
+                    table.resultSetCount = numRows;
+                }
+            }
+            $schema.find('.rowCount .value').text(numRows);
+        })
+        .fail(function() {
+            $schema.find('.rowCount .value').text(CommonTxtTstr.Unknown);
+        });
+    }
 
     function positionSchemaPopup($dagTable) {
         var $schema = $('#dagSchema');
