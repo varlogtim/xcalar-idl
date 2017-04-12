@@ -749,6 +749,7 @@ DSTStr = {
 };
 
 DSFormTStr = {
+    'Pattern': 'Pattern',
     'InvalidDelim': 'Invalid delimiter.',
     'InvalidQuote': 'Cannot have more than 1 quote character',
     'NoParseJSON': 'Cannot parse data as json',

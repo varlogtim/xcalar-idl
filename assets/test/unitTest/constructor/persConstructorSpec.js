@@ -1845,7 +1845,7 @@ describe("Persistent Constructor Test", function() {
                 "fullName": "testFullName",
                 "parentId": DSObjTerm.homeParentId,
                 "uneditable": false,
-                "path": "nfs:///netstore/datasets/gdelt/",
+                "path": "file:///netstore/datasets/gdelt/",
                 "format": "CSV",
                 "pattern": "abc.csv",
                 "numEntries": 1000
@@ -1925,11 +1925,11 @@ describe("Persistent Constructor Test", function() {
                 "id": "testId",
                 "name": "testName",
                 "parentId": DSObjTerm.homeParentId,
-                "path": "nfs:///netstore/datasets/gdelt/"
+                "path": "file:///netstore/datasets/gdelt/"
             });
 
             expect(dsObj.getPath())
-            .to.equal("nfs:///netstore/datasets/gdelt/");
+            .to.equal("file:///netstore/datasets/gdelt/");
         });
 
         it("Should get path with pattern", function() {
@@ -1937,12 +1937,12 @@ describe("Persistent Constructor Test", function() {
                 "id": "testId",
                 "name": "testName",
                 "parentId": DSObjTerm.homeParentId,
-                "path": "nfs:///netstore/datasets/gdelt/",
+                "path": "file:///netstore/datasets/gdelt/",
                 "pattern": "abc.csv"
             });
 
             expect(dsObj.getPathWithPattern())
-            .to.equal("nfs:///netstore/datasets/gdelt/abc.csv");
+            .to.equal("file:///netstore/datasets/gdelt/ | Pattern: abc.csv");
         });
 
         it("Should get num entries", function() {
@@ -2031,7 +2031,7 @@ describe("Persistent Constructor Test", function() {
                 "fullName": "testFullName",
                 "parentId": DSObjTerm.homeParentId,
                 "uneditable": false,
-                "path": "nfs:///netstore/datasets/gdelt/",
+                "path": "file:///netstore/datasets/gdelt/",
                 "format": "CSV",
                 "numEntries": 1000,
                 "isRegex": true
@@ -2039,7 +2039,7 @@ describe("Persistent Constructor Test", function() {
 
             var res = dsObj.getPointArgs();
             expect(res).to.be.an("array");
-            expect(res[0]).to.equal("nfs:///netstore/datasets/gdelt/");
+            expect(res[0]).to.equal("file:///netstore/datasets/gdelt/");
             expect(res[1]).to.equal("CSV");
             expect(res[2]).to.equal("testFullName");
             expect(res[12]).to.equal("re:test");
@@ -2053,7 +2053,7 @@ describe("Persistent Constructor Test", function() {
                 "fullName": "testFullName",
                 "parentId": DSObjTerm.homeParentId,
                 "uneditable": false,
-                "path": "nfs:///netstore/datasets/gdelt/",
+                "path": "file:///netstore/datasets/gdelt/",
                 "format": "CSV",
                 "numEntries": 1000,
                 "isRegEx": false
@@ -2061,7 +2061,7 @@ describe("Persistent Constructor Test", function() {
 
             res = dsObj.getPointArgs();
             expect(res).to.be.an("array");
-            expect(res[0]).to.equal("nfs:///netstore/datasets/gdelt/");
+            expect(res[0]).to.equal("file:///netstore/datasets/gdelt/");
             expect(res[1]).to.equal("CSV");
             expect(res[2]).to.equal("testFullName");
             expect(res[12]).to.equal("test");

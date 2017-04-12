@@ -627,6 +627,7 @@ DSTStr = {
 'DelUploadMsg': '您确定要删除<filename>吗？'
 };
 DSFormTStr = {
+'Pattern': '模式',
 'InvalidDelim': '无效分隔符。',
 'InvalidQuote': '不能有超过1个引号',
 'NoParseJSON': '无法将数据解析为json',

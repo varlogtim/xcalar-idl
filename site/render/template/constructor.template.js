@@ -1703,8 +1703,13 @@
             getPathWithPattern: function() {
                 var path = this.path;
                 if (this.pattern) {
-                    // XXX not sure if it's right
-                    path += this.pattern;
+                    path += " | " + DSFormTStr.Pattern + ": ";
+                    var pattern = this.pattern;
+                    if (this.isRegex) {
+                        pattern = "re:" + pattern;
+                    }
+
+                    path += pattern;
                 }
 
                 return path;
