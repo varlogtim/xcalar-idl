@@ -1500,7 +1500,7 @@ describe("Persistent Constructor Test", function() {
             XcalarGetTableMeta = function() {
                 return PromiseHelper.resolve({
                     "keyAttr": {
-                        "name": "recordNum",
+                        "name": "xcalarRecordNum",
                         "type": 5,
                         "valueArrayIndex": -1
                     },
@@ -1521,7 +1521,7 @@ describe("Persistent Constructor Test", function() {
             .then(function() {
                 expect(table.backTableMeta).to.exists;
                 expect(table.ordering).to.equal(1);
-                expect(table.keyName).to.equal("recordNum");
+                expect(table.keyName).to.equal("xcalarRecordNum");
                 var col = table.getColByBackName("prefix::backTestCol");
                 expect(col).not.to.be.null;
                 expect(col.getType()).to.equal(ColumnType.boolean);

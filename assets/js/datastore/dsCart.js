@@ -254,7 +254,7 @@ window.DSCart = (function($, DSCart) {
             "steps": numSteps
         });
 
-        XcalarIndexFromDataset(dsName, "recordNum", startTableName, prefix, txId)
+        XcalarIndexFromDataset(dsName, "xcalarRecordNum", startTableName, prefix, txId)
         .then(function() {
             if (sortByLineNum) {
                 return XcalarIndexFromTable(startTableName, "lineNumber", endTableName,

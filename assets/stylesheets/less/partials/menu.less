@@ -630,7 +630,7 @@
     }
 
     &.type-object, &.type-newColumn,
-    &.recordNum, &.childOfArray, &.type-array {
+    &.childOfArray, &.type-array {
         .sort, .aggregate, .groupby, .filter, .joinList, .map, .operations,
         .profile, .corrAgg
         {
@@ -665,8 +665,7 @@
         }
     }
 
-    &.type-object, &.type-array, &.type-undefined, &.type-newColumn,
-    &.recordNum {
+    &.type-object, &.type-array, &.type-undefined, &.type-newColumn {
         .changeDataType, .hPartition, .format, .roundToFixed, .extensions {
             display: none;
         }

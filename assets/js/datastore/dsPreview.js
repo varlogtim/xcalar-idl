@@ -1596,7 +1596,7 @@ window.DSPreview = (function($, DSPreview) {
             for (var i = 0, len = data.length; i < len; i++) {
                 var value = data[i].value;
                 var row = $.parseJSON(value);
-                delete row.recordNum;
+                delete row.xcalarRecordNum;
                 rows.push(row);
             }
 

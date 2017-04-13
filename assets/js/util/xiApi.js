@@ -154,7 +154,7 @@ window.XIApi = (function(XIApi, $) {
             prefix = getNewPrefix(prefix);
         }
 
-        XcalarIndexFromDataset(dsName, "recordNum", newTableName, prefix,
+        XcalarIndexFromDataset(dsName, "xcalarRecordNum", newTableName, prefix,
                                txId)
         .then(function() {
             deferred.resolve(newTableName, prefix);

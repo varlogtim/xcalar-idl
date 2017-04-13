@@ -46,7 +46,7 @@
     "DATA"],
     "worksheet":"h8",
     "htmlExclude":["worksheet"]},
-    "cli":"index --key \"recordNum\" --dataset \".XcalarDS.undoTestUser.schedule1555\" --dsttable \"schedule1555#yz0\";",
+    "cli":"index --key \"xcalarRecordNum\" --dataset \".XcalarDS.undoTestUser.schedule1555\" --dsttable \"schedule1555#yz0\";",
     "timestamp":1460667879974},
 
     {"title":"Create Table",
@@ -63,7 +63,7 @@
     "DATA"],
     "worksheet":"h8",
     "htmlExclude":["worksheet"]},
-    "cli":"index --key \"recordNum\" --dataset \".XcalarDS.undoTestUser.schedule1555\" --dsttable \"schedule15551#yz1\";",
+    "cli":"index --key \"xcalarRecordNum\" --dataset \".XcalarDS.undoTestUser.schedule1555\" --dsttable \"schedule15551#yz1\";",
     "timestamp":1460667882013},
 
     {"title":"Create Table",
@@ -80,7 +80,7 @@
     "DATA"],
     "worksheet":"h8",
     "htmlExclude":["worksheet"]},
-    "cli":"index --key \"recordNum\" --dataset \".XcalarDS.undoTestUser.schedule1555\" --dsttable \"schedule15552#yz2\";",
+    "cli":"index --key \"xcalarRecordNum\" --dataset \".XcalarDS.undoTestUser.schedule1555\" --dsttable \"schedule15552#yz2\";",
     "timestamp":1460667884075},
 
     {"title":"Change Table Order",
@@ -245,7 +245,7 @@
     "DATA"],
     "worksheet":"k6",
     "htmlExclude":["worksheet"]},
-    "cli":"index --key \"recordNum\" --dataset \".XcalarDS.undoTestUser.schedule1555\" --dsttable \"schedule15553#yz5\";",
+    "cli":"index --key \"xcalarRecordNum\" --dataset \".XcalarDS.undoTestUser.schedule1555\" --dsttable \"schedule15553#yz5\";",
     "timestamp":1460668775064},
 
     {"title":"Create Table",
@@ -262,7 +262,7 @@
     "DATA"],
     "worksheet":"i9",
     "htmlExclude":["worksheet"]},
-    "cli":"index --key \"recordNum\" --dataset \".XcalarDS.undoTestUser.schedule1555\" --dsttable \"schedule15554#yz6\";",
+    "cli":"index --key \"xcalarRecordNum\" --dataset \".XcalarDS.undoTestUser.schedule1555\" --dsttable \"schedule15554#yz6\";",
     "timestamp":1460668784288},
 
     {"title":"Create Table",
@@ -279,7 +279,7 @@
     "DATA"],
     "worksheet":"i9",
     "htmlExclude":["worksheet"]},
-    "cli":"index --key \"recordNum\" --dataset \".XcalarDS.undoTestUser.schedule1555\" --dsttable \"schedule15555#yz7\";",
+    "cli":"index --key \"xcalarRecordNum\" --dataset \".XcalarDS.undoTestUser.schedule1555\" --dsttable \"schedule15555#yz7\";",
     "timestamp":1460668816974},
 
     {"title":"Move Table to worksheet",
@@ -361,7 +361,7 @@
     "DATA"],
     "worksheet":"e8",
     "htmlExclude":["worksheet"]},
-    "cli":"index --key \"recordNum\" --dataset \".XcalarDS.undoTestUser.testyelp\" --dsttable \"testyelp#ja0\";",
+    "cli":"index --key \"xcalarRecordNum\" --dataset \".XcalarDS.undoTestUser.testyelp\" --dsttable \"testyelp#ja0\";",
     "timestamp":1460517134558},
 
     {"title":"Sort",
@@ -639,7 +639,7 @@
     "DATA"],
     "worksheet":"y4",
     "htmlExclude":["worksheet"]},
-    "cli":"index --key \"recordNum\" --dataset \".XcalarDS.undoTestUser.testyelp\" --dsttable \"testyelp#dU0\";",
+    "cli":"index --key \"xcalarRecordNum\" --dataset \".XcalarDS.undoTestUser.testyelp\" --dsttable \"testyelp#dU0\";",
     "timestamp":1460602528771},
 
     {"title":"Add New Column",

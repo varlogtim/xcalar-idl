@@ -1553,7 +1553,6 @@ window.ColManager = (function($, ColManager) {
                 .removeClass("type-array")
                 .removeClass("type-undefined")
                 .removeClass("type-boolean")
-                .removeClass("recordNum")
                 .removeClass("childOfArray")
                 .addClass("type-" + colType);
 
