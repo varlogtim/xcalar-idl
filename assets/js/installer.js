@@ -9,16 +9,22 @@ window.Installer = (function(Installer, $) {
         "credentials": {} // Either password or sshKey
     };
 
-    var Status = {
+    var installStatus = {
         "Error": -1,
-        "Unknown": 0,
-        "Ok": 1,
-        "Done": 2,
-        "Running": 3
-    };
+        "Running": 1,
+        "Done": 2
+    }
 
     var intervalTimer;
-    var statusApi;
+    var licenseCheckingApi = "/xdp/license/verification";
+    var installationStatusApi = "/xdp/installation/status";
+    var installationStartApi = "/xdp/installation/start";
+    var installationFinishApi = "/xdp/installation/finish";
+    var installationCancelApi = "/xdp/installation/cancel";
+    var ldapInstallApi = "/ldap/installation";
+    var ldapConfigApi = "/ldap/config";
+
+    // var statusApi;
     var checkInterval = 2000; // How often to check for status
 
     var $forms = $("form");
@@ -67,7 +73,7 @@ window.Installer = (function(Installer, $) {
         });
 
         $(".buttonSection").on("click", "input.servers", function() {
-            step2Helper();
+            step3Helper();
         });
 
         $(".buttonSection").on("click", "input.clear", function() {
@@ -96,11 +102,10 @@ window.Installer = (function(Installer, $) {
         });
 
         // Set up step's listeners
-        setUpStep0();
         setUpStep1();
         setUpStep2();
         setUpStep3();
-
+        setUpStep4();
         ErrorMessage.setup();
     };
 
@@ -237,34 +242,52 @@ window.Installer = (function(Installer, $) {
         }
     }
 
-    function sendViaHttps(action, arrayToSend, successCB, failureCB) {
+    // The hint is the first parameter, while the return JSON object is the second parameter
+    function sendViaHttps(action, url, arrayToSend) {
+        var deferred = jQuery.Deferred();
         try {
             jQuery.ajax({
-                method: "POST",
-                url: document.location.origin + "/install/" + action,
-                data: JSON.stringify(arrayToSend),
+                method: action,
+                url: document.location.origin + "/install" + url,
+                data: arrayToSend,
                 contentType: "application/json",
-                success: successCB,
-                error: failureCB
+                success: function(ret) {
+                    deferred.resolve("Request is handled successfully", ret);
+                },
+                error: function(ret, textStatus, xhr) {
+                    if (xhr.responseJSON) {
+                        // under this case, server sent the response and set
+                        // the status code
+                        deferred.reject("Return Status Error", xhr.responseJSON);
+                    } else {
+                        // under this case, the error status is not set by
+                        // server, it may due to other reasons
+                        deferred.reject("Connection Error" +
+                            "Connection to server cannot be established. " +
+                            "Please contact Xcalar Support.");
+                    }
+                }
             });
         } catch (e) {
             // XXX Handle the different statuses and display relevant
             // error messages
+            deferred.reject("Ajax Error");
         }
-    }
-
-    function setUpStep0() {
-        $(".licenseKey").focus();
+        return deferred.promise();
     }
 
     function setUpStep1() {
+        $(".licenseKey").focus();
     }
 
-    function setUpStep3() {
+    function setUpStep2() {
+    }
+
+    function setUpStep4() {
 
     }
 
-    function step2Helper() {
+    function step3Helper() {
         numServers = $("#numServers").val();
         var html = "";
         var i;
@@ -292,11 +315,11 @@ window.Installer = (function(Installer, $) {
         $("#serversButton").addClass("hidden");
     }
 
-    function setUpStep2() {
+    function setUpStep3() {
         $("#numServers").on("keyup", function(e) {
             var keyCode = e.which;
             if (keyCode === 13) {
-                step2Helper();
+                step3Helper();
             }
         });
 
@@ -375,9 +398,9 @@ window.Installer = (function(Installer, $) {
             return (deferred.promise());
         }
 
-        verifyKey(finalKey)
-        .then(function(retStruct) {
-            if (retStruct.verified) {
+        checkLicense(finalKey)
+        .then(function(hints, ret) {
+            if (ret.verified) {
                 deferred.resolve();
             } else {
                 deferred.reject("Invalid server license key", "The license key that " +
@@ -385,16 +408,17 @@ window.Installer = (function(Installer, $) {
                                 "the key and try again");
             }
         })
-        .fail(function() {
-            console.error("Connection Error");
+        .fail(function(hints, ret) {
             deferred.reject("Connection Error", "Connection with the " +
                             "authentication server cannot be established.");
         });
         return (deferred.promise());
     }
+    function checkLicense(license) {
+        return sendViaHttps("GET", licenseCheckingApi, {"licenseKey": license});
+    }
 
     function validateNfs() {
-
         var deferred = jQuery.Deferred();
         var nfsOption = $(".nfsOption.radioButton.active").data("option");
         if (nfsOption === "xcalarNfs") {
@@ -634,7 +658,7 @@ window.Installer = (function(Installer, $) {
             args[1] = "Error";
         }
         $error = $(".error").eq(curStepId);
-        $error.find("span").eq(0).html(args[0]+"<br>");
+        $error.find("span").eq(0).html(args[0] + "<br>");
         $error.find("span").eq(1).html(args[1]);
         $error.show();
     }
@@ -662,24 +686,6 @@ window.Installer = (function(Installer, $) {
               '</span>' +
             '</div>' +
         '</div>');
-    }
-
-    function verifyKey(key) {
-        var deferred = jQuery.Deferred();
-        // Make async call here
-
-        checkLicense(key)
-        .then(function(ret) {
-            if (ret === Status.Ok) {
-                deferred.resolve({"verified": true});
-            } else {
-                deferred.resolve({"verified": false});
-            }
-        })
-        .fail(function() {
-            deferred.reject();
-        });
-        return deferred.promise();
     }
 
     function addMovingDots($ele) {
@@ -721,9 +727,9 @@ window.Installer = (function(Installer, $) {
         $(".row .curStatus").text("Installing...");
         $("input.back").hide();
         $("input.cancel").removeClass("hidden");
-        sendCommand("runInstaller")
+        sendViaHttps("POST", installationStartApi, JSON.stringify(finalStruct))
         .then(function() {
-            return (getStatus("checkStatus"));
+            return (getStatus());
         })
         .then(function() {
             $(".curStatus").each(function(a, b) {
@@ -778,38 +784,29 @@ window.Installer = (function(Installer, $) {
             return $(b).val();
         });
 
+        var struct;
         if ($(".ldapParams:not(.hidden)").hasClass("xcalarLdapOptions")) {
-            var struct = {
+            struct = {
                 "domainName": values[0],
                 "password": values[1],
                 "companyName": values[3]
             };
 
             console.log(struct);
-            sendViaHttps("installLdap", struct, function(ret) {
-                if (ret.status === Status.Ok) {
-                    deferred.resolve(Status.Ok);
-                } else {
-                    var errMsg = "";
-                    if (ret && ret.reason) {
-                        errMsg = ret.reason;
-                    } else {
-                        errMsg = Status.Error;
-                    }
-                    deferred.reject("Return Status Error", errMsg);
-                }
+            sendViaHttps("POST", ldapInstallApi, JSON.stringify(struct))
+            .then(function(hints, data) {
                 $("#ldapForm").removeClass("disabled");
-            }, function(ret, textStatus, xhr) {
-                console.error(arguments);
+                deferred.resolve(httpStatus.OK);
+            })
+            .fail(function(hints, data) {
                 $("#ldapForm").removeClass("disabled");
-                deferred.reject("Ajax Error", xhr);
+                deferred.reject(data);
             });
-
         } else {
             var adOption = $(".AD.radioButton.active").data("option");
             var tlsOption = $(".useTLS.radioButton.active").data("option");
 
-            var struct = {
+            struct = {
                 "ldap_uri": values[0],
                 "userDN": values[1],
                 "searchFilter": values[2],
@@ -819,96 +816,41 @@ window.Installer = (function(Installer, $) {
             };
 
             console.log(struct);
-            sendViaHttps("writeConfig", struct, function(ret) {
-                if (ret.status === Status.Ok) {
-                    deferred.resolve(Status.Ok);
-                } else {
-                    deferred.reject("Return Status Error", Status.Error);
-                }
+            sendViaHttps("PUT", ldapConfigApi, JSON.stringify(struct))
+            .then(function(hints, data) {
                 $("#ldapForm").removeClass("disabled");
-            }, function(ret, textStatus, xhr) {
+                deferred.resolve(httpStatus.OK);
+            })
+            .fail(function(hints, data) {
                 $("#ldapForm").removeClass("disabled");
-                deferred.reject("Ajax Error", xhr);
+                deferred.reject(data);
             });
         }
-
         return deferred.promise();
     }
 
-    function checkLicense(license) {
-        var deferred = jQuery.Deferred();
-        sendViaHttps("checkLicense", {"licenseKey": license}, function(ret) {
-            if (ret.status === Status.Ok) {
-                deferred.resolve(Status.Ok);
-            } else {
-                deferred.resolve(Status.Error);
-            }
-        }, function(ret, textStatus, xhr) {
-            deferred.reject();
-        });
-        return deferred.promise();
-    }
-
-    function sendCommand(api) {
-        var deferred = jQuery.Deferred();
-        sendViaHttps(api, finalStruct, function(ret) {
-            if (ret.status === Status.Ok) {
-                deferred.resolve();
-            } else {
-                if (ret && ret.errorLog) {
-                    console.log(ret.errorLog);
-                }
-                deferred.reject(ret);
-            }
-        }, function(ret, textStatus, xhr) {
-            console.error(arguments);
-            deferred.reject("Connection Error",
-                            "Connection to server cannot be established. " +
-                            "Please contact Xcalar Support.");
-        });
-        return deferred.promise();
-    }
-
-    function getStatus(api) {
+    function getStatus() {
         var deferred = jQuery.Deferred();
 
         if (intervalTimer) {
             clearInterval(intervalTimer);
         }
-        statusApi = api;
 
         intervalTimer = setInterval(function() {
-            var struct;
             if (cancel) {
-                /**
-                // Handle not being able to cancel
-                struct = new ApiStruct(Api.cancelInstall, finalStruct);
-                sendViaHttps(struct, function(ret) {
-                    if (ret.status === Status.Ok) {
-                        deferred.resolve();
-                    } else {
-                        deferred.reject(ret);
-                    }
-                }, function(ret, textStatus, xhr) {
-                    console.error(arguments);
-                    deferred.reject("Connection Error",
-                                    "Connection to server cannot be " +
-                                    "established. " +
-                                    "Please contact Xcalar Support.");
-                });
-                */
-                deferred.reject("Cancelled", "Installation cancelled");
+                // deferred.reject("Cancelled", "Installation cancelled");
                 cancel = false;
                 $("input.cancel").val("CANCEL");
                 clearInterval(intervalTimer);
-
+                deferred.reject("Cancelled", "Installation cancelled");
             } else {
-                sendViaHttps(statusApi, finalStruct, function(ret) {
-                    if (ret.status === Status.Done) {
+                sendViaHttps("GET", installationStatusApi, finalStruct)
+                .then(function(hints, ret) {
+                    if (ret.curStepStatus === installStatus.Done) {
                         done = true;
                         clearInterval(intervalTimer);
                         deferred.resolve();
-                    } else if (ret.status === Status.Error) {
+                    } else if (ret.curStepStatus === installStatus.Error) {
                         if (ret.errorLog) {
                             console.log(ret.errorLog);
                         }
@@ -920,9 +862,9 @@ window.Installer = (function(Installer, $) {
                         // prior to the success being acked
                         updateStatus(ret.retVal);
                     }
-                }, function(ret, textStatus, xhr) {
+                })
+                .fail(function(hints, data) {
                     clearInterval(intervalTimer);
-                    console.error(arguments);
                     deferred.reject("Connection Error",
                                     "Connection to server cannot be " +
                                     "established. " +
@@ -958,7 +900,6 @@ window.Installer = (function(Installer, $) {
         $(".successSection").show();
         $("form:visible .btn.clear").hide();
     }
-
     return (Installer);
 }({}, jQuery));
 

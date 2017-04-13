@@ -79,6 +79,12 @@ require("jsdom").env("", function(err, window) {
         "credentials": {} // Either password or sshKey
     };
 
+    var installStatus = {
+        "Error": -1,
+        "Done": 2,
+        "Running": 1
+    };
+
     var curStep = {};
 
     var getNodeRegex = /\[([0-9]+)\]/;
@@ -105,7 +111,7 @@ require("jsdom").env("", function(err, window) {
                            credentialLocation, isPassword,
                            username, port, nfsOption) {
         var execString = " -h " + hostnameLocation;
-        execString+= " -l " + username;
+        execString += " -l " + username;
         if (hasPrivHosts) {
             execString += " --priv-hosts-file " + privHostnameLocation;
         }
@@ -161,10 +167,11 @@ require("jsdom").env("", function(err, window) {
         return execString;
     }
 
-    function sendStatusArray(finalStruct, res) {
+    function createStatusArray(credArray) {
+        var deferred = jQuery.Deferred();
         var ackArray = [];
         // Check global array that has been populated by prev step
-        for (var i = 0; i<finalStruct.hostnames.length; i++) {
+        for (var i = 0; i<credArray.hostnames.length; i++) {
             if (curStep.nodesCompletedCurrent[i] === true) {
                 ackArray.push(curStep.stepString + " (Done)");
             } else if (curStep.nodesCompletedCurrent[i] === false) {
@@ -173,20 +180,25 @@ require("jsdom").env("", function(err, window) {
                 ackArray.push(curStep.stepString + " (Executing)");
             }
         }
-
-        if (curStep.status !== Status.Ok) {
-            support.masterExecuteAction("POST", "/installationLogs/slave", {isHTTP: true})
+        var retMsg;
+        if (curStep.curStepStatus === installStatus.Error) {
+            support.masterExecuteAction("GET", "/installationLogs/slave", {isHTTP: true})
             .always(function(message) {
-                res.send({"status": curStep.status,
-                    "retVal": ackArray,
-                    "errorLog": errorLog,
-                    "installationLogs": message.logs});
+                retMsg = {"status": httpStatus.OK,
+                          "curStepStatus": curStep.curStepStatus,
+                          "retVal": ackArray,
+                          "errorLog": errorLog,
+                          "installationLogs": message.logs};
+                deferred.reject(retMsg);
             });
         } else {
-            res.send({"status": curStep.status,
-                "retVal": ackArray});
+            retMsg = {"status": httpStatus.OK,
+                      "curStepStatus": curStep.curStepStatus,
+                      "retVal": ackArray};
+            deferred.resolve(retMsg);
         }
         console.log("Success: send status array");
+        return deferred.promise();
     }
 
     function stdOutCallback(dataBlock) {
@@ -221,37 +233,153 @@ require("jsdom").env("", function(err, window) {
         errorLog += dataBlock + "\n";
     }
 
-    app.post('/checkLicense', function(req, res) {
-        console.log("Checking License");
-        var credArray = req.body;
-
+    function checkLicense(credArray) {
+        var deferredOut = jQuery.Deferred();
         var fileLocation = licenseLocation;
         fs.writeFile(fileLocation, credArray.licenseKey, function(err) {
             if (err) {
-                console.log(err);
-                res.send({"status": Status.Error});
+                var retMsg = {"status": httpStatus.InternalServerError};
+                deferredOut.reject(retMsg);
                 return;
             }
             var out = exec(scriptDir + '/01-* --license-file ' + fileLocation);
-
             out.stdout.on('data', function(data) {
+                console.log(data);
                 if (data.indexOf("SUCCESS") > -1) {
-                    res.send({"status": Status.Ok});
+                    var retMsg = {"status": httpStatus.OK, "verified": true};
                     console.log("Success: Checking License");
+                    deferredOut.resolve(retMsg);
                 } else if (data.indexOf("FAILURE") > -1) {
-                    res.send({"status": Status.Error});
+                    var retMsg = {"status": httpStatus.OK, "verified": false};
                     console.log("Error: Checking License");
+                    deferredOut.reject(retMsg);
                 }
             });
         });
+        return deferredOut.promise();
+    }
+
+    app.get('/xdp/license/verification', function(req, res) {
+        console.log("Checking License");
+        var credArray = req.query;
+        console.log(credArray);
+        checkLicense(credArray)
+        .always(function(message) {
+            res.status(message.status).send(message);
+        });
     });
 
-    app.post("/runInstaller", function(req, res) {
+    app.get("/xdp/installation/status", function(req, res) {
+        console.log("Check Status");
+        var credArray = req.query;
+        console.log(credArray);
+        createStatusArray(credArray)
+        .always(function(message) {
+            res.status(message.status).send(message);
+        });
+    });
+
+    app.post("/xdp/installation/start", function(req, res) {
         console.log("Executing Installer");
         var credArray = req.body;
+        console.log(credArray);
+        installXcalar(credArray);
+        // Immediately ack after starting
+        res.send({"status": httpStatus.OK});
+        console.log("Immediately acking runInstaller");
+    });
 
-        // Write files to /config and chmod
+    app.post("/xdp/installation/finish", function(req, res) {
+        console.log("Complete Installation");
+        completeInstallation()
+        .always(function(message) {
+            res.status(message.status).send(message);
+        });
+    });
 
+    app.post("/xdp/installation/cancel", function(req, res) {
+        console.log("Cancel install");
+        res.send({"status": httpStatus.OK});
+    });
+
+    app.post("/ldap/installation", function(req, res) {
+        console.log("Installing Ldap");
+        var credArray = req.body;
+        console.log(credArray);
+        installLdap(credArray.domainName,
+                            credArray.password,
+                            credArray.companyName)
+        .always(function(message) {
+            res.status(message.status).send(message);
+        });
+    });
+
+    app.put("/ldap/config", function(req, res) {
+        console.log("Writing Ldap configurations");
+        console.log(req.body);
+        writeLdapConfig(req.body)
+        .always(function(message) {
+            res.status(message.status).send(message);
+        });
+    });
+
+    function installLdap(domainName, password, companyName) {
+        var deferredOut = jQuery.Deferred();
+        var execString = scriptDir + "/ldap-install.sh ";
+        execString += cliArguments; // Add all the previous stuff
+        execString += genLdapExecString(domainName, password,companyName);
+        console.log(execString);
+        out = exec(execString);
+
+        var replied = false;
+        out.stdout.on('data', function(data) {
+            console.log(data);
+        });
+        var errorMessage = "ERROR: ";
+        out.stderr.on('data', function(data) {
+            errorMessage += data;
+            console.log("ERROR: " + data);
+        });
+
+        out.on('close', function(code) {
+            // Exit code. When we fail, we return non 0
+            if (code) {
+                console.log("Oh noes!");
+                if (!replied) {
+                    retMsg = {"status": httpStatus.InternalServerError,
+                              "logs": errorMessage};
+                    deferredOut.reject(retMsg);
+                }
+            } else {
+                copyFiles()
+                .always(function(message) {
+                    deferredOut.resolve(message);
+                });
+            }
+        });
+        return deferredOut.promise();
+    }
+
+    function writeLdapConfig(credArray) {
+        var deferredOut = jQuery.Deferred();
+        var file = "/config/ldapConfig.json";
+        try {
+            fs.writeFileSync(file, JSON.stringify(credArray, null, 4));
+            copyFiles()
+            .always(function(message) {
+                deferredOut.resolve(message);
+            });
+        } catch (err) {
+            console.log(err);
+            var retMsg = {"status": httpStatus.InternalServerError,
+                "logs": JSON.stringify(err)};
+            deferredOut.reject(retMsg);
+        }
+        return deferredOut.promise();
+    }
+
+    function installXcalar(credArray) {
+        // // Write files to /config and chmod
         var isPassword = true;
         var hostArray = credArray.hostnames;
         var hasPrivHosts = false;
@@ -344,33 +472,18 @@ require("jsdom").env("", function(err, window) {
                     console.log("Oh noes!");
                     console.log("execString: " + execString);
                     console.log("stderr: " + errorLog);
-                    curStep.status = Status.Error;
+                    curStep.curStepStatus = installStatus.Error;
                 } else {
-                    curStep.status = Status.Done;
+                    curStep.curStepStatus = installStatus.Done;
                 }
             });
         })
         .fail(function(err) {
+            console.log("Fail to install Xcalar !!!");
             console.log(err);
-            curStep.status = Status.Error;
+            curStep.curStepStatus = installStatus.Error;
         });
-        // Immediately ack after starting
-        res.send({"status": Status.Ok});
-        console.log("Immediately acking runInstaller");
-    });
-
-    app.post("/checkStatus", function(req, res) {
-        console.log("Check Status");
-        var credArray = req.body;
-        var finalStruct = credArray;
-        sendStatusArray(finalStruct, res);
-    });
-
-    app.post("/cancelInstall", function(req, res) {
-        console.log("Cancel install");
-        var credArray = req.body;
-        res.send({"status": Status.Ok});
-    });
+    }
 
     // Single node commands
     app.delete("/sessionFiles", function(req, res) {
@@ -533,15 +646,16 @@ require("jsdom").env("", function(err, window) {
         });
     });
 
-    app.post("/installationLogs/slave", function(req, res) {
+    app.get("/installationLogs/slave", function(req, res) {
         console.log("Fetch Installation Logs as Slave");
-        support.slaveExecuteAction("POST", "/installationLogs/slave", req.body)
+        support.slaveExecuteAction("GET", "/installationLogs/slave")
         .always(function(message) {
             res.status(message.status).send(message);
         });
     });
 
-    function copyFiles(res) {
+    function copyFiles() {
+        var deferredOut = jQuery.Deferred();
         var execString = scriptDir + "/deploy-shared-config.sh ";
         execString += cliArguments;
         console.log(execString);
@@ -557,88 +671,16 @@ require("jsdom").env("", function(err, window) {
         out.on('close', function(code) {
             if (code) {
                 console.log("Copy failed");
-                res.send({"status": Status.Error,
-                    "reason": errorMessage});
+                var retMsg = {"status": httpStatus.InternalServerError,
+                              "reason": errorMessage};
+                deferredOut.reject(retMsg);
             } else {
-                res.send({"status": Status.Ok});
+                var retMsg = {"status": httpStatus.OK};
+                deferredOut.resolve(retMsg);
             }
         });
+        return deferredOut.promise();
     }
-
-    app.post("/writeConfig", function(req, res) {
-        console.log("Writing Ldap configurations");
-        var credArray = req.body;
-        var file = "/config/ldapConfig.json";
-        try {
-            fs.writeFile(file, JSON.stringify(credArray, null, 4), function(err) {
-                if (err) {
-                    console.log(err);
-                    res.send({"status": Status.Error,
-                        "reason": JSON.stringify(err)});
-                    return;
-                }
-                copyFiles(res);
-            });
-        } catch (err) {
-            console.log(err);
-            res.send({"status": Status.Error,
-                "reason": JSON.stringify(err)});
-        }
-    });
-
-    app.post("/installLdap", function(req, res) {
-        console.log("Installing Ldap");
-        var credArray = req.body;
-
-        var execString = scriptDir + "/ldap-install.sh ";
-        execString += cliArguments; // Add all the previous stuff
-
-        execString += genLdapExecString(credArray.domainName,
-                                        credArray.password,
-                                        credArray.companyName);
-        console.log(execString);
-        out = exec(execString);
-
-        var replied = false;
-        out.stdout.on('data', function(data) {
-            console.log(data);
-        });
-        var errorMessage = "ERROR: ";
-        out.stderr.on('data', function(data) {
-            errorMessage += data;
-            console.log("ERROR: " + data);
-        });
-
-        out.on('close', function(code) {
-            // Exit code. When we fail, we return non 0
-            if (code) {
-                console.log("Oh noes!");
-                if (!replied) {
-                    res.send({"status": Status.Error,
-                        "reason": errorMessage});
-                }
-            } else {
-                copyFiles(res);
-            }
-        });
-    });
-
-    app.post("/completeInstallation", function(req, res) {
-        console.log("Complete Installation");
-        var execString = scriptDir + "/04-start.sh";
-        execString += cliArguments;
-
-        out = exec(execString);
-        out.on('close', function(code) {
-            if (code) {
-                console.log("Oh Noes");
-                res.send({"status": Status.Error});
-            } else {
-                res.send({"status": Status.Ok});
-            }
-        });
-    });
-
     // End of installer calls
 
     // Start of marketplace calls
