@@ -273,7 +273,6 @@ window.MainMenu = (function($, MainMenu) {
                 break;
             case ("dataflowTab"):
                 $('#dataflowPanel').addClass("active");
-                DataflowPanel.active();
                 if ($curTab.hasClass('firstTouch')) {
                     $curTab.removeClass('firstTouch');
                     DFCard.focusFirstDF();
@@ -315,8 +314,6 @@ window.MainMenu = (function($, MainMenu) {
                 $activeCompSwitch.attr('data-original-title',
                                         TooltipTStr.OpenQG);
             }
-        } else if (lastTabId === "dataflowTab") {
-            DataflowPanel.inActive();
         }
 
         StatusMessage.updateLocation();

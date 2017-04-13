@@ -642,10 +642,12 @@ SchedTStr = {
                  "this schedule? This action cannot be undone.",
     "detail": "Schedule Detail",
     "revert": "REVERT",
-    "simFail": "Simulation Fail!",
-    "noParam": "No parameters are defined!",
-    "unknown": "Unknown!",
-    "failServerTime": "Failed to get Server Time!"
+    "simFail": "Simulation Fail",
+    "noParam": "No parameters are defined",
+    "unknown": "Unknown",
+    "failServerTime": "Failed to get server time",
+    "Notrun": "Not run yet",
+    "Success": "Success"
 };
 
 DFTStr = {

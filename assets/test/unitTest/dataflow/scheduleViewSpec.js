@@ -446,7 +446,7 @@ function viewRelatedFunctionTest() {
     before(function() {
         $scheduleDetail = $("#scheduleDetail");
         dfName = "df1";
-        Scheduler.hideScheduleDetailView();
+        Scheduler.hide();
         oldGetRetinaFunc = XcalarGetRetina;
         oldDeleteRetinaFunc = XcalarDeleteRetina;
         UnitTest.onMinMode();
@@ -478,8 +478,6 @@ function viewRelatedFunctionTest() {
             "noClick": true
         });
 
-        Scheduler.setDataFlowName(dfName);
-
         var date = new Date();
         date.setDate(date.getDate() + 1);
         date.setHours(23);
@@ -499,18 +497,17 @@ function viewRelatedFunctionTest() {
     });
 
     it("should show schedule form correctly", function() {
-        Scheduler.showScheduleDetailView();
+        Scheduler.show(dfName);
         assert.isTrue($scheduleDetail.is(":visible"));
     });
 
     it("should hide Schedule Form", function() {
-        Scheduler.hideScheduleDetailView();
+        Scheduler.hide();
         assert.isFalse($scheduleDetail.is(":visible"));
     });
 
     it("Should show schedule detail view correctly", function() {
-        Scheduler.showScheduleDetailView();
-
+        Scheduler.show(dfName);
         var $scheduleInfos = $("#scheduleInfos");
         assert.isTrue($scheduleInfos.is(":visible"));
 

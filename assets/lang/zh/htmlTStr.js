@@ -755,7 +755,13 @@ module.exports = {
         "startTime": "开始时间",
         "status": "状态",
         "val": "值",
-        "weekly": "每周"
+        "weekly": "每周",
+        "SchedInfo": "调度器",
+        "RunInfo": "运行结果",
+        "ServerTime": "服务器时间",
+        "SimpleMode": "基本模式",
+        "AdvancedMode": "高级模式",
+        "SIMULATE": "模拟",
     },
     "smartCast": {
         "NoCast": "没有找到需要更改类型的列",

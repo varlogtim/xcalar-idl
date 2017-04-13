@@ -627,7 +627,12 @@ module.exports = {
         "recur": "Repeat Time",
         "lastRun": "Last Run",
         "nextRun": "Next Run",
-
+        "SchedInfo": "Schedule information",
+        "RunInfo": "Run information",
+        "ServerTime": "Server Time",
+        "SimpleMode": "Simple Mode",
+        "AdvancedMode": "Advanced Mode",
+        "SIMULATE": "SIMULATE",
         // add a schedule
         "AddInstr": "Select a schedule to add to the dataflow. Or you can also create a new schedule.",
         "AttachedSched": "Attached schedules",
@@ -636,7 +641,6 @@ module.exports = {
 
         // tab
         "sched": "Schedule",
-
 
         "SchedTitle": "SCHEDULER/DATAFLOWS",
         "DFG": "DATAFLOW GRP",

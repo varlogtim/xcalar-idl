@@ -733,10 +733,6 @@
                             border-left: none;
                         }
                     }
-                    &.inActive {
-                        pointer-events: none;
-                        opacity: @opacity-unhover;
-                    }
                 }
 
                 &.timePickerPart {
@@ -901,6 +897,7 @@
         @rowHeight: 30px;
         background-color: @color-bg-white-seven;
         border-right: 1px solid @color-border-white-two;
+
         .titleSection {
             padding-right: 11px;
             border: 1px solid @color-border-white-two;
@@ -950,6 +947,19 @@
         height: 100%;
     }
 
+    #scheduleResults, #modScheduleForm-refresh {
+        display: none;
+    }
+
+    &.detail {
+        #scheduleSettings, #modScheduleForm-cancel, #modScheduleForm-save {
+            display: none;
+        }
+        #scheduleResults, #modScheduleForm-refresh {
+            display: block;
+        }
+    }
+
     #scheduleInfos {
         display: inline-block;
         float: left;
@@ -965,7 +975,7 @@
             .textOverflowOneLine;
             width: ~"calc(100% - 70px)";
         }
-        #scheduleHeadingWrapper {
+        .scheduleHeading {
             width: 100%;
             height: 40px;
             padding: 0px 40px 0px 40px;
@@ -1009,15 +1019,7 @@
             width: 100%;
             position: absolute;
             overflow: hidden;
-            .scheduleLocked {
-                position: absolute;
-                z-index: 2;
-                width: 100%;
-                height: 100%;
-                background-color: @color-white;
-                opacity: 0.3;
-                overflow: hidden;
-            }
+
             .upperArea, .lowerArea {
                 padding: 0px 40px 0px 40px;
                 overflow: hidden;
@@ -1071,8 +1073,10 @@
                             .errorInfo {
                                 position: absolute;
                                 margin-top: 45px;
-                                width: 50%;
-                                overflow: hidden;
+                                margin-left: 80px;
+                                .size(@width: ~"calc(50% - 80px)");
+                                color: @color-text-error;
+                                .textOverflowOneLine;
                             }
                             .scheduleLabel {
                                 width: 80px;
@@ -1156,8 +1160,24 @@
         }
         #scheduleResults {
             padding: 0px 40px 0px 40px;
-            height: ~"calc(100% - 40px)";
-            width: 100%;
+            .size(@width: 100%, @height: ~"calc(100% - 40px)");
+
+            &.loading {
+                .loadSection {
+                    display: block;
+                }
+            }
+
+            .loadSection {
+                display: none;
+                .size(@width: 100%, @height: 100%);
+                .position(absolute);
+
+                .animatedEllipsisWrapper {
+                    .size(@width: 100px, @height: 20px);
+                    .center-align;
+                }
+            }
         }
         .xi-trash {
             font-size: 18px;
@@ -1254,22 +1274,17 @@
     }
     .tabArea {
         @tabSize: 40px;
-        width: @tabSize;
-        height: 100%;
+        .size(@width: @tabSize, @height: 100%);
         background-color: @color-bg-white-three;
         border-right: 1px solid @color-border-pinkish-grey2;
         display: inline-block;
         float: left;
         .tab {
-            width: 100%;
-            height: @tabSize;
+            .size(@width: 100%, @height: @tabSize);
             border-bottom: 1px solid @color-border-pinkish-grey2;
             text-align: center;
             float: left;
-
-            .icon {
-                cursor: pointer;
-            }
+            cursor: pointer;
 
             .iconWrap {
                 background-color: @color-bg-select-blue;
@@ -1385,20 +1400,27 @@
 #scheduleDetail {
     &.withSchedule {
         #modScheduleForm-save, #modScheduleForm-cancel {
-            .btn-disabled;
-        }
-        .scheduleLocked {
-            display: block;
-        }
-    }
-    &.withoutSchedule {
-        .scheduleLocked {
             display: none;
         }
 
-        #modScheduleForm-delete {
+        .scheduleForm {
             opacity: @opacity-disabled;
             pointer-events: none;
+        }
+    }
+    &.withoutSchedule {
+        .tabArea .tab {
+            &.default {
+                border-bottom-width: 1px;
+            }
+
+            &.detail {
+                display: none;
+            }
+        }
+
+        #modScheduleForm-delete {
+            display: none;
         }
     }
     #scheduleSettings {

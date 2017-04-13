@@ -1,0 +1,270 @@
+<!-- Schedule -->
+<div id="scheduleDetail" class="xc-hidden cardContainer">
+  <header class="cardHeader">
+    <div class="title"></div>
+    <div class="close">
+      <i class="icon xi-close fa-15"></i>
+    </div>
+  </header>
+  <!-- <div id="scheduleInfos" class="cardTopMain"> -->
+  <div class="mainArea cardMain">
+  <div class="cardLocked"></div>
+    <div class="tabArea">
+      <div class="tab default active">
+        <div class="iconWrap">
+          <i class="icon xi-info-rectangle" title="" data-toggle="tooltip" data-placement="top" data-container="body" data-original-title="<%= dicts.sched.SchedInfo %>"></i>
+        </div>
+      </div>
+      <div class="tab detail">
+        <div class="iconWrap">
+          <i class="icon xi-dataflowgroup" title="" data-toggle="tooltip" data-placement="top" data-container="body" data-original-title="<%= dicts.sched.RunInfo %>"></i>
+        </div>
+      </div>
+      <!-- using last tab as placeholder -->
+      <div class="tab xc-disabled"></div>
+    </div>
+    <div id="scheduleInfos">
+      <div class="scheduleHeading">
+        <div class="heading-wrapper">
+          <h2 class="heading textOverflow"></h2>
+        </div>
+        <div class="column serverTimeColumn">
+          <div class="scheduleInfo serverTime row">
+            <span class="name"><%= dicts.sched.ServerTime %></span>
+            <span class="text"></span>
+          </div>
+        </div>
+      </div>
+      <div id="scheduleSettings" class="scheduleInfoSection">
+        <div class="upperArea">
+          <div class="defaultSection">
+            <div class="infoSection clearfix">
+              <div class="group">
+                <div class="column">
+                  <div class="scheduleInfo created row">
+                    <span class="name"><%= dicts.sched.created %></span>
+                    <span class="text"></span>
+                  </div>
+                </div>
+                <div class="column">
+                  <div class="scheduleInfo modified row">
+                    <span class="name"><%= dicts.sched.modified %></span>
+                    <span class="text"></span>
+                  </div>
+                </div>
+                <div class="column">
+                  <div class="scheduleInfo nextRunInfo row">
+                    <span class="name"><%= dicts.sched.nextRun %></span>
+                    <span class="text">N/A</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="tabs">
+              <div class="tab simpleModeTab active">
+                <span class="text"><%= dicts.sched.SimpleMode %></span>
+              </div>
+              <div class="tab advancedModeTab">
+                <span class="text"><%= dicts.sched.AdvancedMode %></span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="border">
+          <div class="left-border"></div>
+          <div class="middle-left-border"></div>
+          <div class="middle-right-border"></div>
+          <div class="right-border"></div>
+        </div>
+        <div class="lowerArea">
+          <div id="modifyScheduleForm" class="scheduleForm">
+            <div class="formWrap simpleMode">
+              <div class="timeSection">
+                <div class="label"><%= dicts.sched.startTime %>:</div>
+                <div class="timeWrapper">
+                  <div class="datePickerPart">
+                    <div class="input-wrap">
+                      <input class="date" type="text" spellcheck="false">
+                    </div>
+                    <div class="icon-wrap">
+                      <i class="xi-schedules icon"></i>
+                    </div>
+                  </div>
+                  <div class="timePickerPart">
+                    <div class="input-wrap">
+                      <input class="time timePickerBox" type="text" spellcheck="false">
+                    </div>
+                    <div class="icon-wrap">
+                      <i class="xi-clock icon"></i>
+                    </div>
+                    <!-- Timepicker -->
+                    <div id="modScheduler-timePicker" class="timePicker">
+                      <div class="textSection">
+                        <span class="text"><%= dicts.sched.hour %></span>
+                        <span class="text"><%= dicts.sched.min %></span>
+                      </div>
+                      <div class="buttonSection">
+                        <button class="btn increase hour">
+                          <div class="bar"></div>
+                          <div class="bar vertical"></div>
+                        </button>
+                        <button class="btn increase minute">
+                          <div class="bar"></div>
+                          <div class="bar vertical"></div>
+                        </button>
+                        <button class="btn increase ampm">
+                          <div class="bar"></div>
+                          <div class="bar vertical"></div>
+                        </button>
+                      </div>
+                      <div class="inputSection">
+                        <input class="hour" type="number" spellcheck="false">
+                        <input class="minute" type="number" spellcheck="false">
+                        <span class="ampm">PM</span>
+                      </div>
+                      <div class="buttonSection">
+                        <button class="btn decrease hour">
+                          <div class="bar"></div>
+                        </button>
+                        <button class="btn decrease minute">
+                          <div class="bar"></div>
+                        </button>
+                        <button class="btn decrease ampm">
+                          <div class="bar"></div>
+                        </button>
+                      </div>
+                    </div>
+                    <!-- End Timepicker -->
+                  </div>
+                </div>
+              </div>
+              <!-- frequency section -->
+              <div class="frequencySection">
+                <!-- part1 -->
+                <div class="freq1">
+                  <div class="label"><%= dicts.sched.freq %>:</div>
+                  <div class="radioButtonGroup center">
+                    <div class="radioButton active" data-option="minute">
+                      <div class="radio">
+                        <i class="icon xi-radio-selected"></i>
+                        <i class="icon xi-radio-empty"></i>
+                      </div>
+                      <div class="label"><%= dicts.sched.perMin %></div>
+                    </div>
+                    <div class="radioButton" data-option="hourly">
+                      <div class="radio">
+                        <i class="icon xi-radio-selected"></i>
+                        <i class="icon xi-radio-empty"></i>
+                      </div>
+                      <div class="label"><%= dicts.sched.hourly %></div>
+                    </div>
+                    <div class="radioButton" data-option="daily">
+                      <div class="radio">
+                        <i class="icon xi-radio-selected"></i>
+                        <i class="icon xi-radio-empty"></i>
+                      </div>
+                      <div class="label"><%= dicts.sched.daily %></div>
+                    </div>
+                    <div class="radioButton" data-option="weekly">
+                      <div class="radio">
+                        <i class="icon xi-radio-selected"></i>
+                        <i class="icon xi-radio-empty"></i>
+                      </div>
+                      <div class="label"><%= dicts.sched.weekly %></div>
+                    </div>
+                    <div class="radioButton" data-option="biweekly">
+                      <div class="radio">
+                        <i class="icon xi-radio-selected"></i>
+                        <i class="icon xi-radio-empty"></i>
+                      </div>
+                      <div class="label"><%= dicts.sched.biweekly %></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="formWrap advancedMode">
+              <div class="instruction">
+                <i class="icon xi-info-circle"></i>
+                <div class="text">
+                  <span><%= dicts.sched.cronHint %></span>
+                </div>
+              </div>
+              <div class="scheduleSection">
+                <div class="leftArea">
+                  <div class="scheduleLabel"><%= dicts.sched.sched %>:</div>
+                  <div class="input-wrap">
+                    <input id="cronScheduler" spellcheck="false">
+                    <button id="modScheduleForm-simulate" type="button" class="btn confirm"><%= dicts.sched.SIMULATE %></button>
+                  </div>
+                  <div class="errorInfo"></div>
+                </div>
+                <div class="rightArea">
+                  <div class="column">
+                    <div class="scheduleInfo simulateLast row">
+                      <span class="name">
+                        <%= dicts.sched.lastRun %>
+                      </span>
+                      <span class="text"></span>
+                    </div>
+                    <div class="scheduleInfo simulateNext row">
+                      <span class="name">
+                        <%= dicts.sched.nextRun %>
+                      </span>
+                      <span class="text"></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="scheduleResults" class="scheduleInfoSection">
+        <div class="loadSection">
+            include "../../util/animatedEllipsis.html"
+        </div>
+        <div id="scheduleTable" class="contentSection">
+          <section class="titleSection">
+            <div class="titleWrapper clearfix">
+              <div class="title time"><%= dicts.sched.runtime %></div>
+              <div class="title last"><%= dicts.sched.parameters %></div>
+              <div class="title status"><%= dicts.sched.status %></div>
+              <div class="title outputLocation"><%= dicts.sched.outputLocation %></div>
+            </div>
+          </section>
+          <section class="mainSection">
+              <div class="content timeContent"><%= dicts.sched.noRun %></div>
+              <div class="content lastContent"><%= dicts.sched.noRun %></div>
+              <div class="content statusContent"><%= dicts.sched.noRun %></div>
+              <div class="content outputLocationContent"><%= dicts.sched.noRun %></div>
+          </section>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="cardBottom">
+    <div class="tabArea"></div>
+    <div class="buttonArea">
+      <button id="modScheduleForm-save" type="button" class="btn confirm"><%= dicts.common.SAVE %></button>
+      <button id="modScheduleForm-cancel" type="button" class="btn btn-cancel cancel"><%= dicts.common.CLEAR %></button>
+      <button id="modScheduleForm-delete" type="button" class="btn confirm">
+        <div class="trash">
+          <i class="icon xi-trash"></i>
+        </div>
+        <div class="trash-info">
+          <%= dicts.common.DELETE %>
+        </div>
+      </button>
+      <button id="modScheduleForm-refresh" type="button" class="btn confirm">
+        <div class="refresh">
+          <i class="icon xi-refresh"></i>
+        </div>
+        <div class="refresh-info">
+          <%= dicts.common.REFRESH %>
+        </div>
+      </button>
+    </div>
+  </div>
+</div>

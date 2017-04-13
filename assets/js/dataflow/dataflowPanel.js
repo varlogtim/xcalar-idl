@@ -10,13 +10,5 @@ window.DataflowPanel = (function($, DataflowPanel) {
         DFCard.initialize();
     };
 
-    DataflowPanel.active = function() {
-        Scheduler.displayServerTime();
-    };
-
-    DataflowPanel.inActive = function() {
-        Scheduler.clearServerTime();
-    };
-
     return (DataflowPanel);
 }(jQuery, {}));

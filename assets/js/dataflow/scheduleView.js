@@ -1,16 +1,15 @@
 window.Scheduler = (function(Scheduler, $) {
-    var $dfgView;          // $("#dataflowView");
     var $scheduleDetail;   // $("#scheduleDetail");
     var $scheduleSettings; // $("#scheduleSettings");
     var $modScheduleForm;  // $('#modifyScheduleForm');
     var $timePicker;
     var $dateInput;
     var $timeInput;
-    var $tabs;
 
     var serverTimeZoneOffset;
     var currentDataFlowName;
     var displayServerTimeCycle;
+    var outputLocation;
 
     // constant
     var scheduleFreq = {
@@ -24,7 +23,6 @@ window.Scheduler = (function(Scheduler, $) {
     };
 
     Scheduler.setup = function() {
-        $dfgView = $("#dataflowView");
         $scheduleDetail = $("#scheduleDetail");
         $scheduleSettings = $("#scheduleSettings");
         $scheduleResults = $("#scheduleResults");
@@ -32,11 +30,10 @@ window.Scheduler = (function(Scheduler, $) {
         $timePicker = $("#modScheduler-timePicker");
         $dateInput = $modScheduleForm.find(".timeSection .date");
         $timeInput = $modScheduleForm.find(".timeSection .time");
-        $tabs = $('#scheduleDetail .tabArea .tab');
 
         // Card
-        $scheduleDetail.find('.close').on('click', function() {
-            $scheduleDetail.addClass('xc-hidden');
+        $scheduleDetail.find(".close").on("click", function() {
+            Scheduler.hide();
         });
 
         // Simple Mode
@@ -79,7 +76,7 @@ window.Scheduler = (function(Scheduler, $) {
                     $(this).closest(".datePickerPart").removeClass("active");
                 }
 
-                if (!$("#modifyScheduleForm .simpleMode").is(":visible")) {
+                if (isSimpleMode()) {
                     if (!isValid) {
                         showScheduleSettings();
                         $scheduleSettings.find(".datePickerPart")
@@ -135,43 +132,33 @@ window.Scheduler = (function(Scheduler, $) {
         });
 
         // frequent section event
-        var $freqSection = $dfgView.find(".frequencySection");
-        xcHelper.optionButtonEvent($freqSection, function() {
-            var $datepickerPart = $scheduleSettings.find(".datePickerPart");
-            $datepickerPart.removeClass("inActive");
-        });
+        var $freqSection = $modScheduleForm.find(".frequencySection");
+        xcHelper.optionButtonEvent($freqSection);
 
         // advanced Mode
         $("#modScheduleForm-simulate").click(function() {
-            var cronString = $('#cronScheduler').val().trim();
-            var retMsg = simulateCron(cronString);
-            if (retMsg.isValid) {
-                setSimulationInfos(retMsg.lastRun, retMsg.nextRun, retMsg.error);
-            } else {
-                var errorHint = SchedTStr.simFail;
-                setSimulationInfos(errorHint, errorHint, retMsg.error);
-            }
+            validateCron();
         });
 
         // Toggling between simple/advanced Mode
-        $("#scheduleSettings .simpleModeTab").click(function() {
-            $("#scheduleSettings").addClass("showSimpleMode")
-            .removeClass("showAdvancedMode");
-            $("#scheduleDetail .icon-wrap").removeClass("active");
+        $scheduleSettings.on("click", ".simpleModeTab", function() {
+            $scheduleSettings.addClass("showSimpleMode")
+                             .removeClass("showAdvancedMode");
+            // $("#scheduleDetail .icon-wrap").removeClass("active");
         });
 
-        $("#scheduleSettings .advancedModeTab").click(function() {
-            $("#scheduleSettings").addClass("showAdvancedMode")
-            .removeClass("showSimpleMode");
+        $scheduleSettings.on("click", ".advancedModeTab", function() {
+            $scheduleSettings.addClass("showAdvancedMode")
+                             .removeClass("showSimpleMode");
         });
 
         // Card bottom
         $("#modScheduleForm-delete").click(function() {
             $(this).blur();
             Alert.show({
-                'title': SchedTStr.DelSched,
-                'msg': SchedTStr.DelSchedMsg,
-                'onConfirm': function() {
+                "title": SchedTStr.DelSched,
+                "msg": SchedTStr.DelSchedMsg,
+                "onConfirm": function() {
                     removeSchedule(currentDataFlowName);
                 }
             });
@@ -180,7 +167,7 @@ window.Scheduler = (function(Scheduler, $) {
         $("#modScheduleForm-save").click(function() {
             $(this).blur();
             if (saveScheduleForm(currentDataFlowName)) {
-                Scheduler.showScheduleDetailView();
+                Scheduler.show(currentDataFlowName);
             }
         });
 
@@ -190,47 +177,42 @@ window.Scheduler = (function(Scheduler, $) {
         });
 
         $("#modScheduleForm-refresh").click(function() {
+            $(this).blur();
             showScheduleResult();
         });
 
         // schedule Tabs
-        $tabs.click(function() {
+        $scheduleDetail.on("click", ".tabArea .tab", function() {
             var $tab = $(this);
-            if ($tab.hasClass('active')) {
+            if ($tab.hasClass("active")) {
                 return;
             }
-            $tabs.removeClass('active');
-            var index = $tab.index();
-            $tab.addClass('active');
-
-            if (index === 0) {
-                showScheduleSettings();
-            } else {
-                showScheduleResult();
-            }
-            $("#modScheduleForm-refresh").hide();
-            if (index === 1) {
-                $("#modScheduleForm-refresh").show();
-            }
-            $scheduleDetail.find('.scheduleInfoSection').hide();
-            $scheduleDetail.find('.scheduleInfoSection').eq(index).show();
+            switchTab($tab.index());
         });
 
-        // Get Timezone
-        serverTimeZoneOffset = getServerTimezoneOffset();
+        getServerTimezoneOffset();
     };
 
-    Scheduler.displayServerTime = function(){
-        clearInterval(displayServerTimeCycle);
-        displayServerTimeCycle = setInterval(showServerTime, 1000);
+    Scheduler.show = function(dataflowName) {
+        currentDataFlowName = dataflowName;
+
+        $scheduleDetail.removeClass("xc-hidden")
+                       .removeClass("locked");
+        $scheduleDetail.find(".scheduleHeading .heading").text(dataflowName);
+        // show schedule settings as default
+        switchTab(0);
+        if (XVM.getLicenseMode() === XcalarMode.Mod) {
+            lockCard();
+        } else {
+            unlockCard();
+        }
+        displayServerTimeInterval();
     };
 
-    Scheduler.clearServerTime = function() {
-        clearInterval(displayServerTimeCycle);
-    };
-
-    Scheduler.setDataFlowName = function(groupName) {
-        currentDataFlowName = groupName;
+    Scheduler.hide = function() {
+        currentDataFlowName = null;
+        $scheduleDetail.addClass("xc-hidden");
+        clearServerTimeInterval();
     };
 
     function lockCard() {
@@ -241,53 +223,41 @@ window.Scheduler = (function(Scheduler, $) {
         $scheduleDetail.find(".cardLocked").hide();
     }
 
-    Scheduler.showScheduleDetailView = function () {
-        showScheduleSettings();
-        showScheduleResult();
-        $scheduleDetail.find("#scheduleHeadingWrapper .heading")
-        .text(currentDataFlowName);
-        $scheduleDetail.removeClass("xc-hidden");
-        $modScheduleForm.removeClass("xc-hidden");
-        // show schedule settings as default
-        var index = $('#scheduleDetail .tabArea .tab.active').index();
-        $scheduleDetail.find('.scheduleInfoSection').hide();
-        $scheduleDetail.find('.scheduleInfoSection').eq(index).show();
-        // $tabs.eq(index).click();
-        if (index !== 1) {
-            $("#modScheduleForm-refresh").hide();
+    function switchTab(index) {
+        var $tabs = $scheduleDetail.find(".tabArea .tab");
+        $tabs.removeClass("active");
+        $tabs.eq(index).addClass("active");
+        if (index === 0) {
+            $scheduleDetail.removeClass("detail");
+            showScheduleSettings();
         } else {
-            $("#modScheduleForm-refresh").show();
+            $scheduleDetail.addClass("detail");
+            showScheduleResult();
         }
-        // show simple Mode as default
-        if ((!$scheduleSettings.hasClass("showSimpleMode")) &&
-        (!$scheduleSettings.hasClass("showAdvancedMode"))) {
-            $scheduleSettings.addClass("showSimpleMode");
-        }
-        if (XVM.getLicenseMode() === XcalarMode.Mod) {
-            lockCard();
-        } else {
-            unlockCard();
-        }
-        $scheduleDetail.removeClass("locked");
-    };
-
-    Scheduler.hideScheduleDetailView = function () {
-        $scheduleDetail.addClass("xc-hidden");
-    };
+    }
 
     function showServerTime() {
-        if (serverTimeZoneOffset) {
+        var $serverTime = $scheduleDetail.find(".serverTime .text");
+        if (serverTimeZoneOffset == null) {
+            $serverTime.addClass("fail").text(SchedTStr.failServerTime);
+        } else {
             var now = new Date();
             var transferedTime = timeZoneTransfer(now, serverTimeZoneOffset);
             var serverTimeStr = getTime(transferedTime);
-            $("#scheduleDetail .serverTime .text")
-            .removeClass("fail")
-            .text(serverTimeStr);
-        } else {
-            $("#scheduleDetail .serverTime .text")
-            .addClass("fail")
-            .text(SchedTStr.failServerTime);
+            $serverTime.removeClass("fail").text(serverTimeStr);
         }
+    }
+
+    function displayServerTimeInterval() {
+        var time = 1000 * 60; // 1 minute
+        clearServerTimeInterval();
+        showServerTime();
+        displayServerTimeCycle = setInterval(showServerTime, time);
+    }
+
+    function clearServerTimeInterval() {
+        clearInterval(displayServerTimeCycle);
+        displayServerTimeCycle = null;
     }
 
     function removeSchedule(dataflowName) {
@@ -305,7 +275,7 @@ window.Scheduler = (function(Scheduler, $) {
                      .addClass("xi-menu-add-scheduler");
 
             if (dataflowName === currentDataFlowName) {
-                Scheduler.hideScheduleDetailView();
+                Scheduler.hide();
             }
 
             KVStore.commit();
@@ -334,170 +304,210 @@ window.Scheduler = (function(Scheduler, $) {
 
     function showScheduleSettings() {
         var schedule = DF.getSchedule(currentDataFlowName);
-        var $scheduleInfos = $("#scheduleInfos");
+        var tmpSchedObj = schedule || {};
+
         var $timeSection = $modScheduleForm.find(".timeSection");
         var $freqSection = $modScheduleForm.find(".frequencySection");
-        var text;
-        var $checkBox;
 
         // Update the schedule detail card
         // Created
-        text = (schedule && getTime(schedule.created)) ?
-            getTime(schedule.created) : "N/A";
-        $scheduleInfos.find(".created .text").text(text);
+        var created = getTime(tmpSchedObj.created) || "N/A";
+        $scheduleSettings.find(".created .text").text(created);
+
         // Last modified
-        text = (schedule && getTime(schedule.modified)) ?
-            getTime(schedule.modified) : "N/A";
-        $scheduleInfos.find(".modified .text").text(text);
-        // Next run
+        var modified = getTime(tmpSchedObj.modified) || "N/A";
+        $scheduleSettings.find(".modified .text").text(modified);
+
+        // Next run (update use schedule, not scheObj)
         getNextRunTime(schedule);
-        text = (schedule && getTime(schedule.startTime)) ?
-            getTime(schedule.startTime) : "N/A";
-        $scheduleInfos.find(".nextRunInfo .text").text(text);
+        var startTime = getTime(tmpSchedObj.startTime) || "N/A";
+        $scheduleSettings.find(".nextRunInfo .text").text(startTime);
+
         // date picker input
-        text = (schedule && schedule.dateText) ? schedule.dateText: "";
-        $timeSection.find(".date").val(text);
+        var dateText = tmpSchedObj.dateText || "";
+        $timeSection.find(".date").val(dateText);
+
         // time picker input
-        text = (schedule && schedule.timeText) ? schedule.timeText: "";
-        $timeSection.find(".time").val(text);
-        // frequency input
-        text = (schedule && schedule.repeat) ? schedule.repeat: "N/A";
-        if (text === "N/A") {
+        var timeText = tmpSchedObj.timeText || "";
+        $timeSection.find(".time").val(timeText);
+
+        // frequency
+        if (tmpSchedObj.repeat) {
             $freqSection.find(".radioButton.active").removeClass("active");
-            $checkBox = $freqSection
-            .find('.radioButton[data-option="minute"]');
-            $checkBox.click();
+            $freqSection.find('.radioButton[data-option="minute"]').click();
         } else {
-            $checkBox = $freqSection.find('.radioButton[data-option="'+
-                text + '"]');
-            $checkBox.click();
+            $freqSection.find('.radioButton[data-option="' +
+                             tmpSchedObj.repeat + '"]').click();
         }
+
         // cron
-        text = (schedule && schedule.premadeCronString) ?
-            schedule.premadeCronString : "";
-        $('#cronScheduler').val(text);
+        var cronString = tmpSchedObj.premadeCronString || "";
+        $("#cronScheduler").val(cronString);
+
         // title
-        text = schedule ? SchedTStr.detail : SchedTStr.NewSched;
-        $("#scheduleDetail").find(".cardHeader")
-        .find(".title").text(text);
+        var title = schedule ? SchedTStr.detail : SchedTStr.NewSched;
+        $scheduleDetail.find(".cardHeader .title").text(title);
 
         if (schedule) {
-            $("#scheduleDetail").addClass("withSchedule")
-            .removeClass("withoutSchedule");
+            $scheduleDetail.addClass("withSchedule")
+                           .removeClass("withoutSchedule");
             if (schedule.premadeCronString) {
-                $("#scheduleSettings .advancedModeTab").click();
+                switchMode(true);
             } else {
-                $("#scheduleSettings .simpleModeTab").click();
+                switchMode();
                 setSimulationInfos();
             }
         } else {
-            $("#scheduleDetail").removeClass("withSchedule")
-            .addClass("withoutSchedule");
+            $scheduleDetail.removeClass("withSchedule")
+                           .addClass("withoutSchedule");
+            switchMode();
             setSimulationInfos();
         }
-        $timeSection.find(".datePickerPart").removeClass("inActive");
     }
 
-    function setSimulationInfos(last, next, error) {
-        var lastRun = last ? last : "";
-        var nextRun = next ? next : "";
-        var errorInfo = error ? error : "";
-        $("#modifyScheduleForm .errorInfo").text(errorInfo);
-        $("#modifyScheduleForm .simulateLast .text").text(lastRun);
-        $("#modifyScheduleForm .simulateNext .text").text(nextRun);
+    function switchMode(toAdvanceMode) {
+        if (toAdvanceMode) {
+            $scheduleSettings.find(".advancedModeTab").click();
+        } else {
+            $scheduleSettings.find(".simpleModeTab").click();
+        }
+    }
+
+    function setSimulationInfos(options) {
+        options = options || {};
+        var lastRun = options.lastRun || "";
+        var nextRun = options.nextRun || "";
+        var error = options.error || "";
+        $modScheduleForm.find(".errorInfo").text(error);
+        $modScheduleForm.find(".simulateLast .text").text(lastRun);
+        $modScheduleForm.find(".simulateNext .text").text(nextRun);
+    }
+
+    function validateCron(showErrBox) {
+        var $cronScheduler = $("#cronScheduler");
+        var cronString = $cronScheduler.val().trim();
+
+        if (!cronString) {
+            setSimulationInfos();
+            StatusBox.show(ErrTStr.NoEmpty, $cronScheduler);
+            return null;
+        }
+
+        var res = simulateCron(cronString);
+        setSimulationInfos(res);
+        if (res.isValid) {
+            return cronString;
+        } else {
+            if (showErrBox) {
+                StatusBox.show(ErrTStr.InvalidField, $cronScheduler);
+            }
+            return null;
+        }
     }
 
     function simulateCron(cronString) {
+        if (serverTimeZoneOffset == null) {
+            return {
+                "isValid": false,
+                "lastRun": SchedTStr.simFail,
+                "nextRun": SchedTStr.simFail,
+                "error": SchedTStr.failServerTime
+            };
+        }
+
         var options = {
-            currentDate: timeZoneTransfer(new Date(), serverTimeZoneOffset)
+            "currentDate": timeZoneTransfer(new Date(), serverTimeZoneOffset)
         };
-        var retMsg;
+        var res;
         try {
             var interval = CronParser.parseExpression(cronString, options);
             var next1 = interval.next();
             var lastRun = getTime(next1);
             var next2 = interval.next();
             var nextRun = getTime(next2);
-            retMsg = {"isValid": true, "lastRun": lastRun, "nextRun": nextRun};
+            res = {
+                "isValid": true,
+                "lastRun": lastRun,
+                "nextRun": nextRun,
+                "cronString": cronString
+            };
         } catch (err) {
-            retMsg = {"isValid": false, "lastRun": "Simulation Fail!",
-                "nextRun": "Simulation Fail!", "error": err.message};
+            res = {
+                "isValid": false,
+                "lastRun": SchedTStr.simFail,
+                "nextRun": SchedTStr.simFail,
+                "error": err.message
+            };
         }
-        return retMsg;
+        return res;
     }
 
     // dateStr: with the format of 3/1/2017
     // timeStr: with the format of 02 : 51 PM
     // completeTimeStr: with the format of 3/1/2017 02:51 PM
     function getDate(dateStr, timeStr) {
-        var completeTimeStr = getCompleteTimeStr(dateStr, timeStr);
+        var completeTimeStr = dateStr + " " +timeStr.replace(" ", "");
         return new Date(completeTimeStr);
     }
-    function getCompleteTimeStr(dateStr, timeStr) {
-        return dateStr + ' ' + timeStr.replace(' ', '').replace(' ', '');
-    }
-    function timeZoneTransfer(localDate, serverTimezoneOffset) {
+
+    function timeZoneTransfer(localDate, timeZoneOffSet) {
         // UTC time == localTime + localTimezoneOffset * 60000
-        //          == serverTime + serverTimezoneOffset * 60000
+        //          == serverTime + timeZoneOffSet * 60000
         var localTime = localDate.getTime();
         var localTimezoneOffset = new Date().getTimezoneOffset();
-        var serverTime = localTime
-                + (localTimezoneOffset - serverTimezoneOffset) * 60000;
+        var serverTime = localTime +
+                         (localTimezoneOffset - timeZoneOffSet) * 60000;
         return serverTime;
     }
+
     function getServerTimezoneOffset() {
-        var res;
         $.ajax({
             "type": "POST",
             "contentType": "application/json",
             "async": false,
             "url": xcHelper.getAppUrl() + "/getTimezoneOffset",
             success: function(retMsg) {
+                var res;
                 if (typeof retMsg === "object" && retMsg.offset != null) {
                     res = Number(retMsg.offset);
                 } else {
                     // XXX a temp fix if cannot get offset
                     res = 420;
                 }
+                serverTimeZoneOffset = res;
             },
             error: function(error) {
                 console.log(error);
                 // everytime is based on server time, res should not have
                 // default value, this is a bug
-                // res = undefined;
-                res = 420;
+                serverTimeZoneOffset = 420;
             }
         });
-        return res;
+    }
+
+    function isSimpleMode() {
+        return $scheduleSettings.hasClass("showSimpleMode");
     }
 
     function saveScheduleForm(dataflowName) {
         var isValid;
         var currentTime;
-        if ($("#modifyScheduleForm .simpleMode").is(":visible")) {
+        if (isSimpleMode()) {
             // Simple mode
             var options;
 
-            isValid = xcHelper.validate([
-                {
-                    "$ele": $dateInput,
-                    "text": ErrTStr.NoEmpty,
-                    "check": function() {
-                        var $div = $dateInput.closest(".datePickerPart");
-                        if ($div.hasClass("inActive")) {
-                            return false;
-                        } else {
-                            var date = $dateInput.val();
-                            // return ($dateInput.val() === "");
-                            if (date !== "") {
-                                return !testDate(date);
-                            } else {
-                                return true;
-                            }
-                        }
+            isValid = xcHelper.validate([{
+                "$ele": $dateInput,
+                "text": ErrTStr.NoEmpty,
+                "check": function() {
+                    var date = $dateInput.val();
+                    if (date !== "") {
+                        return !testDate(date);
+                    } else {
+                        return true;
                     }
                 }
-            ]);
+            }]);
 
             if (!isValid) {
                 return false;
@@ -509,11 +519,13 @@ window.Scheduler = (function(Scheduler, $) {
             .find('input.minute');
             if ($("#modScheduler-timePicker").is(":visible")) {
                 if ($hourInput.val() > 12 || $hourInput.val() < 1) {
-                    StatusBox.show(ErrTStr.SchedHourWrong, $hourInput, false,
-                                   {"side": "left"});
+                    StatusBox.show(ErrTStr.SchedHourWrong, $hourInput, false, {
+                        "side": "left"
+                    });
                 } else if ($minInput.val() > 59 || $minInput.val() < 0) {
-                    StatusBox.show(ErrTStr.SchedMinWrong, $minInput, false,
-                                    {"side": "right"});
+                    StatusBox.show(ErrTStr.SchedMinWrong, $minInput, false, {
+                        "side": "right"
+                    });
                 }
                 return false;
             }
@@ -531,11 +543,16 @@ window.Scheduler = (function(Scheduler, $) {
             var startTime = d.getTime();
             // Everything should use servertime, transfer the current time
             // to server time
+            if (serverTimeZoneOffset == null) {
+                StatusBox.show(SchedTStr.failServerTime, $timeInput);
+                return false;
+            }
+
             currentTime = timeZoneTransfer(new Date(), serverTimeZoneOffset);
 
             if (startTime < currentTime) {
                 StatusBox.show(ErrTStr.TimeExpire, $timeInput);
-                return;
+                return false;
             }
 
             options = {
@@ -554,31 +571,14 @@ window.Scheduler = (function(Scheduler, $) {
 
         } else {
             // Advanced mode, is considered starting immediately
-            var $cronScheduler = $('#cronScheduler');
-            var cronString = $cronScheduler.val().trim();
-            isValid = xcHelper.validate([
-                {
-                    "$ele": $cronScheduler,
-                    "text": ErrTStr.NoEmpty,
-                    "check": function() {
-                        if ($cronScheduler.val().trim() === "") {
-                            return true;
-                        } else {
-                            var ret = simulateCron(cronString);
-                            if (!ret.isValid) {
-                                $("#modifyScheduleForm .errorInfo")
-                                .text(ret.error);
-                                return true;
-                            } else {
-                                $("#modifyScheduleForm .errorInfo")
-                                .text("");
-                            }
-                        }
-                    }
-                }
-            ]);
+            var cronString = validateCron(true);
+            if (cronString == null) {
+                // invalid case
+                return false;
+            }
 
-            if (!isValid) {
+            if (serverTimeZoneOffset == null) {
+                StatusBox.show(SchedTStr.failServerTime, $("#cronScheduler"));
                 return false;
             }
 
@@ -604,67 +604,89 @@ window.Scheduler = (function(Scheduler, $) {
     }
 
     function showScheduleResult() {
-        var runTimeStr = "";
-        var parameterStr = "";
-        var statusStr = "";
-        var outputStr = "";
-        var html = "";
-        html += getOneRecordHtml(runTimeStr, parameterStr,
-         statusStr, outputStr);
-        $("#scheduleTable .mainSection").html(html);
+        if ($scheduleResults.hasClass("loading") &&
+            $scheduleResults.data("df") === currentDataFlowName) {
+            console.info("still loading old schedule info");
+            return PromiseHelper.resolve();
+        }
+        // other case, will restart and ingore old fetching result
 
-        getOutputStr()
-        .then(function(outputLocation) {
-            outputStr = outputLocation;
+        var deferred = jQuery.Deferred();
+        var $section = $("#scheduleTable .mainSection");
+        var $refreshBtn = $("#modScheduleForm-refresh");
+        var outputStr = "";
+        var html = getOneRecordHtml("", "", "", "");
+
+        $section.html(html);
+
+        $refreshBtn.addClass("xc-disabled");
+
+        var dataflowName = currentDataFlowName;
+        $scheduleResults.addClass("loading").data("df", dataflowName);
+
+        getOutputLocation()
+        .then(function(res) {
+            outputStr = res;
             return XcalarListSchedules(currentDataFlowName);
         })
         .then(function(data) {
+            if (dataflowName !== currentDataFlowName) {
+                return;
+            }
+
             var scheduleInfo = data[0];
             html = "";
-            if (scheduleInfo) {
-                var scheduleResults = scheduleInfo.scheduleResults;
-                for (var i = 0; i < scheduleResults.length; i++) {
-                    var currResult = scheduleResults[i];
-                    runTimeStr = getTime(currResult.endTime);
-                    parameterStr = getParameterStr(currResult.parameters);
-                    statusStr = "Success";
+
+            if (scheduleInfo && scheduleInfo.scheduleResults.length) {
+                scheduleInfo.scheduleResults.forEach(function(res) {
+                    var runTimeStr = getTime(res.endTime);
+                    var parameterStr = getParameterStr(res.parameters);
+                    var statusStr = SchedTStr.Success;
                     html += getOneRecordHtml(runTimeStr, parameterStr,
-                     statusStr, outputStr);
-                }
+                                             statusStr, outputStr);
+                });
+            } else {
+                html = getOneRecordHtml(SchedTStr.Notrun, SchedTStr.Notrun,
+                                        SchedTStr.Notrun, SchedTStr.Notrun);
             }
-            runTimeStr = "Not run yet";
-            parameterStr = "Not run yet";
-            statusStr = "Not run yet";
-            outputStr = "Not run yet";
-            html += getOneRecordHtml(runTimeStr, parameterStr,
-             statusStr, outputStr);
-            $("#scheduleTable .mainSection").html(html);
+
+            $section.html(html);
+            deferred.resolve();
         })
         .fail(function(error) {
-            console.log(error);
-            runTimeStr = "";
-            parameterStr = "";
-            statusStr = "";
-            outputStr = "";
-            html += getOneRecordHtml(runTimeStr, parameterStr,
-             statusStr, outputStr);
-            $("#scheduleTable .mainSection").html(html);
+            if (dataflowName !== currentDataFlowName) {
+                return;
+            }
+
+            html = getOneRecordHtml("", "", "", "");
+            $section.html(html);
+            deferred.reject(error);
+        })
+        .always(function() {
+            $refreshBtn.removeClass("xc-disabled");
+            $scheduleResults.removeClass("loading");
+
+            if (dataflowName === currentDataFlowName) {
+                $scheduleResults.removeData("df");
+            }
         });
+
+        return deferred.promise();
     }
 
     function getOneRecordHtml(runTimeStr, timeTakenStr, statusStr, outputStr) {
-        var record = '<div class="content timeContent">'
-            + runTimeStr
-            + '</div>'
-            + '<div class="content lastContent">'
-            + timeTakenStr
-            + '</div>'
-            + '<div class="content statusContent">'
-            + statusStr
-            + '</div>'
-            + '<div class="content outputLocationContent">'
-            + outputStr
-            + '</div>';
+        var record = '<div class="content timeContent">' +
+                        runTimeStr +
+                    '</div>' +
+                    '<div class="content lastContent">' +
+                        timeTakenStr +
+                    '</div>' +
+                    '<div class="content statusContent">' +
+                        statusStr +
+                    '</div>' +
+                    '<div class="content outputLocationContent">' +
+                        outputStr +
+                    '</div>';
         return record;
     }
 
@@ -672,8 +694,8 @@ window.Scheduler = (function(Scheduler, $) {
         var str = "";
         for (var i = 0; i < paramArray.length; i++) {
             var currParam = paramArray[i];
-            str += currParam.parameterName + ":"
-                + currParam.parameterValue + ", ";
+            str += currParam.parameterName + ":" +
+                   currParam.parameterValue + ", ";
         }
         if (str.length === 0) {
             str = SchedTStr.noParam;
@@ -683,26 +705,28 @@ window.Scheduler = (function(Scheduler, $) {
         return str;
     }
 
-    function getOutputStr() {
-        var deferred = $.Deferred();
-        var str = "";
-        XcalarListExportTargets('*','*')
+    function getOutputLocation() {
+        if (outputLocation != null) {
+            return PromiseHelper.resolve(outputLocation);
+        }
+
+        var deferred = jQuery.Deferred();
+        XcalarListExportTargets("*", "*")
         .then(function(data) {
+            var res;
             if (data && data.targets && data.targets[0].specificInput &&
                     data.targets[0].specificInput.sfInput &&
                     data.targets[0].specificInput.sfInput.url) {
-                str = data.targets[0].specificInput.sfInput.url;
-                deferred.resolve(str);
+                res = data.targets[0].specificInput.sfInput.url;
+                outputLocation = res;
+                deferred.resolve(res);
             } else {
-                str = SchedTStr.unknown;
-                deferred.reject(str);
+                deferred.reject(SchedTStr.unknown);
             }
         })
-        .fail(function(error) {
-            console.log(error);
-            deferred.reject(error);
-        });
-        return deferred.promise(str);
+        .fail(deferred.reject);
+
+        return deferred.promise();
     }
     function getTime(time) {
         if (time == null) {
@@ -711,8 +735,10 @@ window.Scheduler = (function(Scheduler, $) {
 
         var d = new Date(time);
         var t = xcHelper.getDate("/", d) + " " +
-                d.toLocaleTimeString(navigator.language,
-                                    {hour: "2-digit", minute: "2-digit"});
+                d.toLocaleTimeString(navigator.language, {
+                    "hour": "2-digit",
+                    "minute": "2-digit"
+                });
 
         return t;
     }
@@ -752,7 +778,7 @@ window.Scheduler = (function(Scheduler, $) {
         .on("focusout", function() {
             var $hourInput = $('.timePicker:visible').find('input.hour');
             var $minInput = $('.timePicker:visible').find('input.minute');
-            if ($("#modifyScheduleForm .simpleMode").is(":visible")) {
+            if (isSimpleMode()) {
                 if ($hourInput.val() > 12 || $hourInput.val() < 1) {
                     StatusBox.show(ErrTStr.SchedHourWrong, $hourInput, false,
                                    {"side": "left"});
@@ -861,8 +887,9 @@ window.Scheduler = (function(Scheduler, $) {
         var month = date.getMonth();
         var year = date.getFullYear();
 
-        return Number(inputDay) === day && (Number(inputMonth) - 1) === month
-            && Number(inputYear) === year;
+        return Number(inputDay) === day &&
+               (Number(inputMonth) - 1) === month &&
+               Number(inputYear) === year;
     }
 
     function showTimeHelper(date, noHourRest, noMinReset) {

@@ -369,13 +369,10 @@ window.DFCard = (function($, DFCard) {
             }
             $dagWrap.removeClass("xc-hidden");
 
-
-            // If it already has a schedule, show schedule
-            Scheduler.setDataFlowName(dataflowName);
             if (DF.hasSchedule(dataflowName)) {
-                Scheduler.showScheduleDetailView();
+                Scheduler.show(dataflowName);
             } else {
-                Scheduler.hideScheduleDetailView();
+                Scheduler.hide();
             }
 
             promise
@@ -435,9 +432,8 @@ window.DFCard = (function($, DFCard) {
 
         $listSection.on('click', '.addScheduleToDataflow', function() {
             // doesn't have schedule, show schedule
-            var groupName = $(this).siblings('.groupName').text();
-            Scheduler.setDataFlowName(groupName);
-            Scheduler.showScheduleDetailView();
+            var dfName = $(this).siblings('.groupName').text();
+            Scheduler.show(dfName);
         });
 
         $('#uploadDataflowButton').click(function() {
@@ -507,7 +503,7 @@ window.DFCard = (function($, DFCard) {
         var $card = $dfCard.find('.dagWrap[data-dataflowName="' + dfName + '"]');
         var $list = DFCard.getDFList(dfName);
 
-        Scheduler.hideScheduleDetailView();
+        Scheduler.hide();
 
         $card.addClass("deleting");
         $list.addClass("deleting");
