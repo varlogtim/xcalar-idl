@@ -2304,7 +2304,7 @@ window.xcHelper = (function($, xcHelper) {
      *         append: boolean, if true, will append text rather than replace
      */
     xcHelper.fillInputFromCell = function ($target, $input, prefix, options) {
-        if ($target == null || $input == null) {
+        if ($target == null || $input == null || !$input.is(":visible")) {
             // if user tries to select column without focusing on input
             return;
         }

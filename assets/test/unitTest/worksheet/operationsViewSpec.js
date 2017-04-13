@@ -967,9 +967,6 @@ describe('OperationsView Test', function() {
         });
 
         describe('column pickers should work', function() {
-            it('should have 2 column picker inputs', function() {
-                expect($operationsView.find('.xi_select-column:visible')).to.have.lengthOf(2);
-            });
             it ('input should fill from column header', function() {
                 $argInputs.eq(0).focus().trigger('focus').val(""); // focus & trigger to make sure
                 expect($argInputs.eq(0).val()).to.equal("");

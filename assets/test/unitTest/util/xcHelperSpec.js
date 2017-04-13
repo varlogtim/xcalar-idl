@@ -1980,8 +1980,10 @@ describe('xcHelper Test', function() {
                     '</div>');
 
         var $input = $('<input class="argument" type="text">');
+        $("body").append($input);
         xcHelper.fillInputFromCell($header.find(".test"), $input, gColPrefix);
         expect($input.val()).to.equal(gColPrefix + "test");
+
         // case 2
         var $table = $('<table>' +
                         '<td class="col1">' +
@@ -1991,23 +1993,30 @@ describe('xcHelper Test', function() {
                         '</td>' +
                     '</table>');
 
-        $input = $('<input class="argument" type="text">');
         xcHelper.fillInputFromCell($table.find(".test"), $input, gColPrefix);
         expect($input.val()).to.equal(gColPrefix + "t2");
+        $input.remove();
         // case 3
         $input = $('<input>');
+        $("body").append($input);
         xcHelper.fillInputFromCell($header.find(".test"), $input, gColPrefix);
         expect($input.val()).to.equal("");
+        $input.remove();
         // case 4
         $input = $('<input class="argument">');
+        $("body").append($input);
         xcHelper.fillInputFromCell($header.find(".test"), $input, gColPrefix);
         expect($input.val()).to.equal("");
+        $input.remove();
         // case 5
-        $input = $('<div class="colNameSection">' +
+        var $container = $('<div class="colNameSection">' +
                     '<input class="argument" type="text">' +
-                    '</div>').find('input');
+                    '</div>');
+        $input = $container.find("input");
+        $("body").append($container);
         xcHelper.fillInputFromCell($header.find(".test"), $input, gColPrefix);
         expect($input.val()).to.equal("");
+        $container.remove();
     });
 
     it ('xcHelper.hasValidColPrefix(str) should work', function() {
