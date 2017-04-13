@@ -560,10 +560,6 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             $lastInputFocused = $(this);
         });
 
-        $extArgs.on("click", ".picker", function() {
-            $(this).siblings("input").focus();
-        });
-
         // select entire text on double click, if we don't do this, double click
         // won't select the $ sign that preceeds a column name
         $extArgs.on('dblclick', 'input', function() {
@@ -1002,9 +998,6 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                             ' value="' + inputVal + '"' +
                             ' placeholder="' + placeholder + '"' +
                             ' spellcheck="false">' +
-                            '<div class="picker xc-action">' +
-                                '<i class="icon fa-13 xi_select-column"></i>' +
-                            '</div>' +
                             '<div class="list hint">' +
                                 '<ul></ul>' +
                                 '<div class="scrollArea top">' +

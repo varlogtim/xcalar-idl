@@ -522,7 +522,7 @@ describe('OperationsView Test', function() {
 
                         expect($("#statusBox .message").text()).to.equal("Please fill out this field or keep it empty by checking the checkbox.");
                         expect($("#statusBox").is(":visible")).to.be.true;
-                        
+
                         StatusBox.forceHide();
                         submitCount++;
                         deferred.resolve();
@@ -530,16 +530,6 @@ describe('OperationsView Test', function() {
                     }, timeout * 2);
                     return deferred.promise();
                 }
-            });
-
-            it('argIconWrap click should focus on sibling input', function() {
-                var $arg = $operationsView.find(".arg").eq(0);
-                var $argIcon = $arg.siblings(".argIconWrap");
-
-                $arg.blur();
-                expect($(document.activeElement).is($arg)).to.be.false;
-                $argIcon.click();
-                expect($(document.activeElement).is($arg)).to.be.true;
             });
 
             it('empty option checkboxes should work', function() {
@@ -558,7 +548,7 @@ describe('OperationsView Test', function() {
                 expect($row.find(".inputWrap").hasClass("semiHidden")).to.be.true;
                 expect($input.val()).to.equal("");
                 expect($row.find(".cast").hasClass("semiHidden")).to.be.true;
-                
+
                 $checkbox.click();
 
                 expect($checkbox.hasClass("checked")).to.be.false;
@@ -608,7 +598,7 @@ describe('OperationsView Test', function() {
                 expect($operationsView.find(".columnsWrap").is(":visible")).to.be.false;
                 $incSampleBox.click();
                 expect($operationsView.find(".columnsWrap").is(":visible")).to.be.true;
-                
+
                 var $cols = $operationsView.find(".cols li");
                 expect($cols.length).to.equal(12);
                 expect($cols.find(".checkbox.checked").length).to.equal(0);
@@ -654,7 +644,7 @@ describe('OperationsView Test', function() {
                     expect(options.icvMode).to.be.false;
                     expect(options.isIncSample).to.be.false;
                     expect(options.isJoin).to.be.false;
-   
+
                     gbCalled = true;
                     return PromiseHelper.resolve();
                 };
@@ -790,7 +780,7 @@ describe('OperationsView Test', function() {
                     done();
                 }, 500);
             });
-            
+
             it('2 selected columns should produce 2 group on inputs', function(done) {
                 OperationsView.show(tableId, [1, 2], 'group by')
                 .then(function() {
@@ -1022,7 +1012,7 @@ describe('OperationsView Test', function() {
                 expect($operationsView.hasClass('xc-hidden')).to.equal(true);
                 // argsSection should stil be open even when operationsView is closed
                 expect($operationsView.find('.map .argsSection').hasClass('inactive')).to.equal(false);
-                
+
 
                 $argInputs.eq(0).focus().trigger('focus').val(""); // focus & trigger to make sure
                 expect($argInputs.eq(0).val()).to.equal("");
@@ -1165,7 +1155,7 @@ describe('OperationsView Test', function() {
             $functionsInput.trigger(fakeEvent.mousedown);
             $functionsInput.val('invalidFunction').change();
             expect($('#statusBox:visible').length).to.equal(0);
-            
+
             // trigger change via submit button to see if status box error shows
             StatusBox.forceHide();
             expect($('#statusBox:visible').length).to.equal(0);
@@ -1645,7 +1635,7 @@ describe('OperationsView Test', function() {
                 expect($descriptions.eq(1).text()).to.equal("index:");
                 expect($descriptions.eq(2).text()).to.equal("delim:");
                 expect($descriptions.eq(3).text()).to.equal("New Resultant Column Name:");
-                
+
             });
 
             it('should focus on first empty input', function() {
@@ -1817,7 +1807,7 @@ describe('OperationsView Test', function() {
                     $argInputs.eq(argNum).val(args[i].str).trigger(fakeEvent.input);
                     var previewStr = $strPreview.find('.descArgs').text();
                 }
-                
+
                 var promise = function() {
                     var innerDeferred = jQuery.Deferred();
                     setTimeout(function() {
@@ -1827,7 +1817,7 @@ describe('OperationsView Test', function() {
                     }, 250);
                     return innerDeferred.promise();
                 };
-             
+
                 promise()
                 .then(function() {
                     return submitForm();
@@ -1849,7 +1839,7 @@ describe('OperationsView Test', function() {
                     newCellText = $tableWrap.find('.row15 .col1 .originalData').text();
                     expect(newCellText).to.equal(options.transform(orgCellText));
                     var sqlCli = SQL.viewLastAction(true).cli;
-                   
+
                     expect(sqlCli).to.contain(JSON.stringify(expectedCliMapStr));
                     SQL.undo()
                     .always(function() {

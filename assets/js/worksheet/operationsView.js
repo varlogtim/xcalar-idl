@@ -428,19 +428,6 @@ window.OperationsView = (function($, OperationsView) {
             }
         }, '.arg');
 
-        $operationsView.on('click', '.argIconWrap', function() {
-            var $input = $(this).siblings('input');
-            $input.focus();
-            $lastInputFocused = $input;
-        });
-
-        $operationsView.on('mousedown', '.argIconWrap', function(event) {
-            if ($(this).siblings(".arg").is(":focus")) {
-                event.preventDefault(); // prevents input from blurring
-                event.stopPropagation();
-            }
-        });
-
         $operationsView.on('dblclick', 'input', function() {
             this.setSelectionRange(0, this.value.length);
         });
@@ -3992,9 +3979,6 @@ window.OperationsView = (function($, OperationsView) {
                       '<input class="arg" type="text" tabindex="10" ' +
                         'spellcheck="false" data-typeid="-1" ' +
                         'data-casted="false" data-casttype="null">' +
-                      '<div class="argIconWrap btn btn-small">' +
-                        '<i class="icon xi_select-column"></i>' +
-                      '</div>' +
                       '<div class="list hint new">' +
                         '<ul></ul>' +
                         '<div class="scrollArea top">' +
@@ -4112,9 +4096,6 @@ window.OperationsView = (function($, OperationsView) {
                           '<input class="arg ' + inputClass +
                           '" type="text" tabindex="10" ' +
                             'spellcheck="false" data-typeid="-1">' +
-                          '<div class="argIconWrap btn btn-small">' +
-                            '<i class="icon xi_select-column"></i>' +
-                          '</div>' +
                           '<div class="list hint new">' +
                            '<ul></ul>' +
                             '<div class="scrollArea top">' +

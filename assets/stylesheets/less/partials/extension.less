@@ -627,13 +627,6 @@
                     &:focus {
                         opacity: @opacity-hover;
                     }
-
-                    &.type-column {
-                        .size(@width: ~"calc(100% - 30px)", @height: 30px);
-                        ~ .picker {
-                            display: inline-block;
-                        }
-                    }
                 }
 
                 .argDropdown {
@@ -645,6 +638,10 @@
                     background-color: transparent;
                     float: none;
 
+                    .list {
+                        width: 100%;
+                    }
+
                     li {
                         &:hover {
                             background-color: transparent;
@@ -652,17 +649,6 @@
                         &.highlighted {
                             background-color: @color-selectedCell-light;
                         }
-                    }
-                }
-
-                .picker {
-                    display: none;
-                    float: right;
-                    .size(30px, 30px);
-                    background-color: @color-bg-select-blue;
-
-                    .icon {
-                        .center-align;
                     }
                 }
             }

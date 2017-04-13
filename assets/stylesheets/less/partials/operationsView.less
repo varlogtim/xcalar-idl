@@ -173,7 +173,7 @@
 
     .advancedSection {
         margin-top: 10px;
-        
+
         &.inactive {
             display: none;
         }
@@ -357,7 +357,7 @@
             padding-top: 4px;
             padding-bottom: 10px;
 
-            .subHeading, .descriptionText, .description, .argIconWrap, .minGroup  {
+            .subHeading, .descriptionText, .description, .minGroup  {
                 display: none;
             }
             + .addArgWrap {
@@ -383,7 +383,7 @@
 
             .functionsList {
                 // width: 25% !important;
-                background-color: transparent !important; 
+                background-color: transparent !important;
                 float: left !important;
                 display: inline-block;
                 width: auto;
@@ -582,32 +582,9 @@
             background-color: transparent;
 
             .arg {
-                height: @listHeight;
-                width: ~"calc(100% - 26px)";
+                .size(100%, @listHeight);
                 padding-left: @commonMargin;
                 font-size: @standardFontSize;
-                float: left;
-                // border: 1px solid @color-border-pinkish-grey2;
-                border-width: 1px 0px 1px 0px;
-            }
-            .argIconWrap {
-                float: left;
-                .size(@listHeight, @listHeight);
-                line-height: @listHeight;
-
-                .icon {
-                    font-size: 12px;
-                    line-height: @listHeight + 2px;
-                }
-            }
-
-            &.colNameSection {
-                .arg {
-                    width: 100%;
-                }
-                .argIconWrap {
-                    display: none;
-                }
             }
         }
 
@@ -753,10 +730,10 @@
             }
 
             &.hint {
-                .size (@width: ~"calc(100% - @{listHeight})");
+                .size (@width: 100%);
                 position: absolute;
                 top: @listHeight !important;
-                left: 0px !important; 
+                left: 0px !important;
                 text-transform: none;
             }
             li {
@@ -791,9 +768,6 @@
                 z-index: 11;
                 top: 26px;
             }
-        }
-        &.checkboxSection .argIconWrap {
-            display: none;
         }
     }
 
@@ -1485,7 +1459,7 @@
 
     #exportColumns {
         // need to remove JS for this input
-        // 
+        //
         // visibility: hidden;
         // height: 0px;
         display: none;
@@ -1576,7 +1550,7 @@
             padding-bottom: 10px;
         }
     }
-    
+
     .subHeading .label {
         .size(@width: 100%);
     }
@@ -1626,7 +1600,7 @@
                 width: ~"calc(100% - 80px)";
                 float: left;
                 display: inline-block;
-                
+
                 .clearfix;
                 .radioButton {
                     display: inline-block;
@@ -1637,7 +1611,7 @@
                     &:first-child {
                         width: 90px;
                     }
-                    
+
                 }
                 .label {
                     padding-left: 0px;
@@ -1736,7 +1710,7 @@
                     }
                 }
             }
-        } 
+        }
         .csvHidden {
             display: none !important;
         }
@@ -1906,7 +1880,7 @@
 
             &.float {
                 .float {
-                   color: @color-font-gray36; 
+                   color: @color-font-gray36;
                 }
             }
 
