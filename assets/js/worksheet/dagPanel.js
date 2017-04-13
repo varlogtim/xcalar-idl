@@ -1654,12 +1654,10 @@ window.Dag = (function($, Dag) {
 
         $dags.removeClass('Ready')
              .addClass('Dropped');
-        $dags.find('.dagTableIcon ').attr({
-            "data-toggle": "tooltip",
-            "data-placement": "top",
-            "data-container": "body",
-            "data-original-title": xcHelper.replaceMsg(TooltipTStr.DroppedTable,
-                                                       {"tablename": tableName})
+        var text = xcHelper.replaceMsg(TooltipTStr.DroppedTable,
+                                        {"tablename": tableName});
+        $dags.find(".dagTableIcon").each(function() {
+            xcTooltip.changeText($(this), text);
         });
     };
 
