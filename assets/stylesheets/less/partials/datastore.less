@@ -119,11 +119,24 @@
 
     .cardContainer {
         .size(100%, 100%);
+        .flex-display;
+        .flex-direction(column);
+    }
+
+    .cardInstruction {
+        .flex(0 0 auto);
+        height: auto;
+        max-height: 72px;
+        padding-right: 0px;
+        .text {
+            padding-right: 20px;
+        }
     }
 
     .cardTopMain {
         // .size(@height: 116px);
         padding: 15px;
+        .flex(0 0 auto);
 
         .titleSection {
             .size(@height: 25px);
@@ -223,6 +236,8 @@
     .cardMain {
         .size(@width: 100%, @height: ~"calc(100% - 208px)");
         padding: 0;
+        .flex(0 1 auto);
+        overflow: hidden;
     }
 }
 
