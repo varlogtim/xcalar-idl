@@ -363,6 +363,11 @@ AlertTStr = {
 'CANCEL': '取消',
 'CONFIRMATION': '确认'
 };
+ErrorMessageTStr = {
+'title': '错误',
+'instrUp': '发生了错误！',
+'instrDown': "请参考如下错误信息。"
+};
 FnBarTStr = {
 'NewCol': '请指定新列名称，然后按Enter键。',
 'InvalidOpParen': '操作必须在操作符名称和参数前面加上括号。',

@@ -26,7 +26,7 @@ require("jsdom").env("", function(err, window) {
             AWS.config.loadFromPath(guiDir + "/services/expServer/awsReadConfig.json");
         }
         var s3 = new AWS.S3();
-    } catch(error) {
+    } catch (error) {
         console.log(error);
         console.log("Fail to set up AWS!");
     }
@@ -175,9 +175,13 @@ require("jsdom").env("", function(err, window) {
         }
 
         if (curStep.status !== Status.Ok) {
-            res.send({"status": curStep.status,
-                "retVal": ackArray,
-                "errorLog": errorLog});
+            support.masterExecuteAction("POST", "/installationLogs/slave", {isHTTP: true})
+            .always(function(message) {
+                res.send({"status": curStep.status,
+                    "retVal": ackArray,
+                    "errorLog": errorLog,
+                    "installationLogs": message.logs});
+            });
         } else {
             res.send({"status": curStep.status,
                 "retVal": ackArray});
@@ -220,8 +224,6 @@ require("jsdom").env("", function(err, window) {
     app.post('/checkLicense', function(req, res) {
         console.log("Checking License");
         var credArray = req.body;
-        var hasError = false;
-        var errors = [];
 
         var fileLocation = licenseLocation;
         fs.writeFile(fileLocation, credArray.licenseKey, function(err) {
@@ -247,8 +249,6 @@ require("jsdom").env("", function(err, window) {
     app.post("/runInstaller", function(req, res) {
         console.log("Executing Installer");
         var credArray = req.body;
-        var hasError = false;
-        var errors = [];
 
         // Write files to /config and chmod
 
@@ -362,8 +362,6 @@ require("jsdom").env("", function(err, window) {
     app.post("/checkStatus", function(req, res) {
         console.log("Check Status");
         var credArray = req.body;
-        var hasError = false;
-        var errors = [];
         var finalStruct = credArray;
         sendStatusArray(finalStruct, res);
     });
@@ -371,8 +369,6 @@ require("jsdom").env("", function(err, window) {
     app.post("/cancelInstall", function(req, res) {
         console.log("Cancel install");
         var credArray = req.body;
-        var hasError = false;
-        var errors = [];
         res.send({"status": Status.Ok});
     });
 
@@ -537,6 +533,14 @@ require("jsdom").env("", function(err, window) {
         });
     });
 
+    app.post("/installationLogs/slave", function(req, res) {
+        console.log("Fetch Installation Logs as Slave");
+        support.slaveExecuteAction("POST", "/installationLogs/slave", req.body)
+        .always(function(message) {
+            res.status(message.status).send(message);
+        });
+    });
+
     function copyFiles(res) {
         var execString = scriptDir + "/deploy-shared-config.sh ";
         execString += cliArguments;
@@ -570,7 +574,7 @@ require("jsdom").env("", function(err, window) {
                 if (err) {
                     console.log(err);
                     res.send({"status": Status.Error,
-                              "reason": JSON.stringify(err)});
+                        "reason": JSON.stringify(err)});
                     return;
                 }
                 copyFiles(res);
@@ -578,7 +582,7 @@ require("jsdom").env("", function(err, window) {
         } catch (err) {
             console.log(err);
             res.send({"status": Status.Error,
-                      "reason": JSON.stringify(err)});
+                "reason": JSON.stringify(err)});
         }
     });
 

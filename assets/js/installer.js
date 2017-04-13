@@ -101,6 +101,7 @@ window.Installer = (function(Installer, $) {
         setUpStep2();
         setUpStep3();
 
+        ErrorMessage.setup();
     };
 
     Installer.showStep = function(stepNum) {
@@ -535,11 +536,25 @@ window.Installer = (function(Installer, $) {
             $("form").eq(2).find(".next").val("NEXT").removeClass("inactive");
             deferred.resolve();
         })
-        .fail(function() {
+        .fail(function(arg1, arg2) {
+            var options = {};
+            options.errorCode = arg2.status;
+            options.description = "Unknown";
+            options.errorMessage = arg2.errorLog;
+            options.installationLogs = arg2.installationLogs;
+            ErrorMessage.show(options);
             deferred.reject.apply({}, arguments);
         });
 
-
+        function getInstallationLog() {
+            var innerDeferred = jQuery.Deferred();
+            sendViaHttps("installationLogs", {isHTTP: true}, function(ret) {
+                innerDeferred.resolve(ret.logs);
+            }, function(ret, textStatus, xhr) {
+                innerDeferred.reject("Ajax error");
+            });
+            return innerDeferred.promise();
+        }
         return deferred.promise();
     }
 
@@ -829,7 +844,6 @@ window.Installer = (function(Installer, $) {
                 deferred.resolve(Status.Error);
             }
         }, function(ret, textStatus, xhr) {
-            console.error(arguments);
             deferred.reject();
         });
         return deferred.promise();
@@ -899,8 +913,7 @@ window.Installer = (function(Installer, $) {
                             console.log(ret.errorLog);
                         }
                         clearInterval(intervalTimer);
-                        deferred.reject("Status Error",
-                                        JSON.stringify(ret.retVal));
+                        deferred.reject("Status Error", ret);
                     }
                     if (!done) {
                         // In case we have one last outstanding status check

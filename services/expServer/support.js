@@ -181,6 +181,8 @@ function slaveExecuteAction(action, slaveUrl, content) {
                 });
                 return deferredOut.promise();
             }
+        case "/installationLogs/slave":
+            return readInstallerLog();
         default:
             console.log("Should not be here!");
     }
@@ -476,7 +478,7 @@ function executeCommand(command) {
 }
 
 function isComplete(command, data) {
-    switch(command) {
+    switch (command) {
         case "service xcalar start" :
             if ((data.indexOf('Mgmtd running') !== -1) ||
                 (data.indexOf('Mgmtd already running') !== -1)) {
@@ -627,6 +629,22 @@ function generateLastMonitorMap(results) {
         }
     }
     return lastMonitorMap;
+}
+
+function readInstallerLog() {
+    var deferred = jQuery.Deferred();
+    var installLog = "";
+    fs.readFile('/tmp/xcalar/installer.log', 'utf8', function(err, data) {
+        if (err) {
+            retMsg = {"status": httpStatus.InternalServerError,
+                      "error": err};
+            deferred.reject(retMsg);
+        }
+        retMsg = {"status": httpStatus.OK,
+                  "logs": data};
+        deferred.resolve(retMsg);
+    });
+    return deferred.promise();
 }
 
 exports.getXlrRoot = getXlrRoot;

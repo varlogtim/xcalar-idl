@@ -9,6 +9,7 @@
     <link href="assets/stylesheets/css/installer.css" rel="stylesheet" type="text/css">
   </head>
   <body>
+    <div id="installerBackground"></div>
     <div id="logo" class="xc-logo">
       <div class="innerShadow"></div>
       <i class="icon xd-logo-bw"></i>
@@ -387,10 +388,14 @@
         </div>
       </div>
     </div>
+    include "partials/modal/errorMessageModal.html"
     <script src="3rd/bower_components/jquery/dist/jquery.min.js"></script>
-    <script src="3rd/bower_components/caret/jquery.caret.js" type="text/javascript"></script>
+    <script src="3rd/jquery-ui.js" charset="utf-8"></script>
+    <script src="3rd/jquery.caret-master/src/jquery.caret.js" type="text/javascript"></script>
+    <script src="assets/lang/en/jsTStr.js" type="text/javascript"></script>
     <script src="assets/js/installer.js"></script>
     <script src="assets/js/globalEnums.js"></script>
+    <script src="assets/js/errorMessage.js"></script>
   </body>
 </html>
 
