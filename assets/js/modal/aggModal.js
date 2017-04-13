@@ -375,9 +375,8 @@ window.AggModal = (function($, AggModal) {
                 } else {
                     wholeTable += cell +
                                     '<div class="spinner">' +
-                                        '<div class="bounce1"></div>' +
-                                        '<div class="bounce2"></div>' +
-                                        '<div class="bounce3"></div>' +
+                                        '<img class="loadingBar" src="' +
+                                        paths.loadBarIcon + '">' +
                                     '</div>';
                 }
                 wholeTable += "</div>";
@@ -777,7 +776,7 @@ window.AggModal = (function($, AggModal) {
                         (isNumeric ? value.toFixed(3) : value) +
                     '</span>';
         $cells = getCorrCell(row, col);
-        cellCount += updataCorrCell($cells, html);
+        cellCount += updateCorrCell($cells, html);
 
         if (isNumeric) {
             value = parseFloat(value);
@@ -813,7 +812,7 @@ window.AggModal = (function($, AggModal) {
 
             if (newCol > newRow) {
                 $cells = getCorrCell(newRow, newCol);
-                cellCount += updataCorrCell($cells, html);
+                cellCount += updateCorrCell($cells, html);
 
                 if (isNumeric) {
                     $cells[0].css("background-color", bg);
@@ -828,7 +827,7 @@ window.AggModal = (function($, AggModal) {
             for (var i = 0, len = allRows.length; i < len; i++) {
                 newRow = allRows[i];
                 $cells = getCorrCell(newRow, colNum);
-                cellCount += updataCorrCell($cells, html);
+                cellCount += updateCorrCell($cells, html);
 
                 if (isNumeric) {
                     $cells[0].css("background-color", bg);
@@ -840,7 +839,7 @@ window.AggModal = (function($, AggModal) {
         return cellCount;
     }
 
-    function updataCorrCell($cells, html) {
+    function updateCorrCell($cells, html) {
         var cellCount = 0;
         if ($cells[0].length) {
             $cells[0].html(html);

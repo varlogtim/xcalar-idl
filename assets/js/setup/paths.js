@@ -17,6 +17,7 @@ var paths = {
     expandIcon: 'assets/images/dfgIcons/expand.png',
     roundedRect: 'assets/images/dfgIcons/rounded-rect.png',
     waitIcon: 'assets/images/waiting-1.gif',
+    loadBarIcon: "assets/images/loading-bar.gif",
     XCExt: 'assets/images/extension/logo-xc.png',
     CustomExt: 'assets/images/extension/logo-custom.png',
     tableauExt: 'assets/images/extension/logo-tableau.png',
