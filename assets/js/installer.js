@@ -22,7 +22,7 @@ window.Installer = (function(Installer, $) {
     var checkInterval = 2000; // How often to check for status
 
     var $forms = $("form");
-    var lastStep = 3; // Last step of form
+    var lastStep = 4; // Last step of form
     var numServers = 4;
     var cancel = false;
     var done = false;
@@ -595,6 +595,8 @@ window.Installer = (function(Installer, $) {
             case (2):
                 break;
             case (3):
+                break;
+            case (4):
                 writeConfigFile()
                 .then(finalize)
                 .fail(function() {
