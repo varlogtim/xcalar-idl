@@ -1096,10 +1096,8 @@ window.DFCard = (function($, DFCard) {
         xcTooltip.refresh($btn);
         canceledRuns[retName] = true;
 
-        XcalarQueryCancel(retName)
-        .then(function() {
-            deferred.resolve(arguments);
-        })
+        XcalarQueryCancel(retName, null, true)
+        .then(deferred.resolve)
         .fail(function(error) {
             delete canceledRuns[retName];
             if ($btn.hasClass('running')) {

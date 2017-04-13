@@ -549,8 +549,10 @@ window.QueryManager = (function(QueryManager, $) {
                 }
             })
             .fail(function(error) {
-                console.error("Check failed", error);
-                updateQueryBar(id, null, error, false, doNotAnimate);
+                if (!error || error.status !== StatusT.StatusQrQueryNotExist) {
+                    console.error("Check failed", error);
+                    updateQueryBar(id, null, error, false, doNotAnimate);
+                }
                 clearIntervalHelper(id);
                 deferred.reject();
             });
@@ -623,7 +625,6 @@ window.QueryManager = (function(QueryManager, $) {
                         }
                     }
                     deferred.reject();
-                    return;
                 } else if (state === QueryStateT.qrError ||
                            state === QueryStateT.qrCancelled) {
                     clearIntervalHelper(id);
@@ -638,8 +639,10 @@ window.QueryManager = (function(QueryManager, $) {
                 }
             })
             .fail(function(error) {
-                console.error("Check failed", error, queryName);
-                updateQueryBar(id, null, error, false, doNotAnimate);
+                if (!error || error.status !== StatusT.StatusQrQueryNotExist) {
+                    console.error("Check failed", error, queryName);
+                    updateQueryBar(id, null, error, false, doNotAnimate);
+                }
                 clearIntervalHelper(id);
                 deferred.reject();
             });

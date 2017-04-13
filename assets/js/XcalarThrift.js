@@ -2284,6 +2284,7 @@ function XcalarQuery(queryName, queryString, txId) {
     return (deferred.promise());
 }
 
+// for queries or retinas
 function XcalarQueryState(queryName, statusesToIgnore) {
     if (tHandle == null) {
         return PromiseHelper.resolve(null);
@@ -2317,15 +2318,14 @@ function queryStateErrorStatusHandler(error, statusesToIgnore) {
     return (thriftError);
 }
 
-
-function XcalarQueryCheck(queryName) {
+// used to check when a query finishes or when a queryCancel finishes
+function XcalarQueryCheck(queryName, canceling) {
     function getDagNodeStatuses(dagOutput) {
         var nodeStatuses = {};
         for (var i = 0; i < dagOutput.length; i++) {
             var tableName = dagOutput[i].name.name;
-            if (tableName.indexOf(".XcalarDS.") > -1) {
-                tableName = tableName.substring(
-                                               tableName.indexOf(".XcalarDS."));
+            if (tableName.indexOf(gDSPrefix) > -1) {
+                tableName = tableName.substring(tableName.indexOf(gDSPrefix));
             }
             var state = dagOutput[i].state;
             nodeStatuses[tableName] = DgDagStateTStr[state];
@@ -2341,8 +2341,10 @@ function XcalarQueryCheck(queryName) {
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
-
-    var checkTime = 1000; // 1s per check
+    var checkTime = 1000;// 1s per check
+    if (canceling) {
+        checkTime = 2000;
+    }
     cycle();
 
     function cycle() {
@@ -2351,18 +2353,30 @@ function XcalarQueryCheck(queryName) {
             .then(function(queryStateOutput) {
                 var nodeStatuses =
                         getDagNodeStatuses(queryStateOutput.queryGraph.node);
-                console.log(nodeStatuses);
                 var state = queryStateOutput.queryState;
                 if (state === QueryStateT.qrFinished ||
                     state === QueryStateT.qrCancelled) {
-                    deferred.resolve(queryStateOutput);
+                    // clean up query when done
+                    XcalarQueryDelete(queryName)
+                    .always(function() {
+                        deferred.resolve(queryStateOutput);
+                    });
                 } else if (state === QueryStateT.qrError) {
-                    deferred.reject(queryStateOutput.queryStatus);
+                    // clean up query when done
+                    XcalarQueryDelete(queryName)
+                    .always(function() {
+                        deferred.reject(queryStateOutput.queryStatus);
+                    });
                 } else {
                     cycle();
                 }
             })
-            .fail(deferred.reject);
+            .fail(function() {
+                if (canceling) {
+                    XcalarQueryDelete(queryName);
+                }
+                deferred.reject.apply(this, arguments);
+            });
         }, checkTime);
     }
 
@@ -2419,7 +2433,11 @@ function XcalarQueryCancel(queryName, statusesToIgnore) {
     }
 
     xcalarQueryCancel(tHandle, queryName)
-    .then(deferred.resolve)
+    .then(function() {
+        // will delete query when done checking
+        XcalarQueryCheck(queryName, 2000);
+        deferred.resolve.apply(this, arguments);
+    })
     .fail(function(error) {
         var thriftError = queryErrorStatusHandler(error, statusesToIgnore,
                                                   "Query");
@@ -2429,7 +2447,7 @@ function XcalarQueryCancel(queryName, statusesToIgnore) {
     return (deferred.promise());
 }
 
-function XcalarQueryDelete(qName) {
+function XcalarQueryDelete(queryName) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
@@ -2442,8 +2460,8 @@ function XcalarQueryDelete(qName) {
     xcalarQueryDelete(tHandle, queryName)
     .then(deferred.resolve)
     .fail(function(error) {
-        var thriftError = thriftLog("XcalarQueryDelete" + qName, error);
-        SQL.errorLog("Xcalar Query Delete " + qName, null, null, thriftError);
+        var thriftError = thriftLog("XcalarQueryDelete" + queryName, error);
+        SQL.errorLog("Xcalar Query Delete " + queryName, null, null, thriftError);
         deferred.reject(thriftError);
     });
 
@@ -2725,11 +2743,12 @@ function XcalarExecuteRetina(retName, params, options, txId) {
     var def1 = xcalarExecuteRetina(tHandle, retName, params, activeSession,
                                    newTableName);
     var def2 = jQuery.Deferred().resolve().promise();
+
     // var def2 = xcalarGetQuery(workItem);
     jQuery.when(def1, def2)
     .then(function(ret1, ret2) {
-        // Transaction.log(txId, ret2);
         deferred.resolve(ret1);
+        // Transaction.log(txId, ret2);
     })
     .fail(function(error1, error2) {
         var thriftError = thriftLog("XcalarExecuteRetina", error1, error2);
