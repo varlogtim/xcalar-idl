@@ -3449,7 +3449,7 @@ window.xcHelper = (function($, xcHelper) {
         }
 
         toggleUnnestandJsonOptions($menu, $div, columnType, isMultiCell,
-                                    notAllowed, options);
+                                    notAllowed, options, tableId);
     }
 
     // used for deciding if cell can be filtered
@@ -3492,8 +3492,8 @@ window.xcHelper = (function($, xcHelper) {
         return invalidFound;
     }
 
-    function toggleUnnestandJsonOptions($menu, $div, columnType,
-                                        isMultiCell, notAllowed, options) {
+    function toggleUnnestandJsonOptions($menu, $div, columnType, isMultiCell,
+                                        notAllowed, options, tableId) {
         if (!$div.hasClass('originalData')) {
             $div = $div.siblings('.originalData');
         }
@@ -3545,10 +3545,69 @@ window.xcHelper = (function($, xcHelper) {
                 }
             }
         }
+        checkIfAlreadyUnnested($unnestLi, tableId, options);
         if (isTruncated && !isMixedObj) {
             $menu.data('istruncatedtext', true);
         } else {
             $menu.data('istruncatedtext', false);
+        }
+    }
+
+    function checkIfAlreadyUnnested($unnestLi, tableId, options) {
+        if ($unnestLi.hasClass("hidden")) {
+            return;
+        }
+        var rowNum = options.rowNum
+        var colNum = options.colNum
+        var table = gTables[tableId];
+        var progCol = table.getCol(colNum);
+        var $table = $('#xcTable-' + tableId);
+        var $jsonTd = $table.find('.row' + rowNum).find('td.col' + colNum);
+        var jsonTd = parseRowJSON($jsonTd.find('.originalData').text());
+        var isArray = (progCol.getType() === ColumnType.array);
+        var openSymbol = "";
+        var closingSymbol = "";
+        var unnestColName = progCol.getBackColName();
+
+        if (isArray) {
+            openSymbol = "[";
+            closingSymbol = "]";
+        } else {
+            openSymbol = ".";
+        }
+
+        var notExists = false;
+        for (var tdKey in jsonTd) {
+            if (!checkColExists(tdKey)) {
+                notExists = true;
+                break;
+            }
+        }
+        if (notExists) {
+            xcTooltip.changeText($unnestLi, "", true);
+            $unnestLi.removeClass("unavailable");
+        } else {
+            xcTooltip.changeText($unnestLi, "all columns pulled");
+            $unnestLi.addClass("unavailable");
+        }
+
+        // only escaping if column names not passed into parseUnnestTd
+        function checkColExists(colName) {
+            var escapedColName = xcHelper.escapeColName(colName);
+            escapedColName = unnestColName + openSymbol +
+                            escapedColName + closingSymbol;
+            return table.hasColWithBackName(escapedColName);
+        }
+
+        function parseRowJSON(jsonStr) {
+            var value;
+            try {
+                value = JSON.parse(jsonStr);
+            } catch (err) {
+                value = {};
+            }
+
+            return value;
         }
     }
 

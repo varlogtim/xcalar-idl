@@ -2378,7 +2378,7 @@ describe('xcHelper Test', function() {
                 var multiCell = false;
                 var notAllowed = $div.find('.null, .blank').length;
                 var columnType = "mixed";
-                var options;
+                var options = {rowNum:1, colNum:1};
 
                 // initial state
                 // expect($menu.is(":visible")).to.be.true;
@@ -2386,76 +2386,76 @@ describe('xcHelper Test', function() {
                 expect($jsonModalLi.length).to.equal(1);
 
                 $div.html("string");
-                fn($menu, $div, columnType, multiCell, notAllowed, options);
+                fn($menu, $div, columnType, multiCell, notAllowed, options, tableId);
                 expect($unnestLi.hasClass('hidden')).to.be.true;
                 expect($jsonModalLi.hasClass('hidden')).to.be.true;
 
                 $div.html('{"a":"b"}');
-                fn($menu, $div, columnType, multiCell, notAllowed, options);
+                fn($menu, $div, columnType, multiCell, notAllowed, options, tableId);
                 expect($unnestLi.hasClass('hidden')).to.be.false;
                 expect($jsonModalLi.hasClass('hidden')).to.be.false;
 
                 // test notAllowed, multiCell, and undefined with object val
 
                 notAllowed = true;
-                fn($menu, $div, columnType, multiCell, notAllowed, options);
+                fn($menu, $div, columnType, multiCell, notAllowed, options, tableId);
                 expect($unnestLi.hasClass('hidden')).to.be.true;
                 expect($jsonModalLi.hasClass('hidden')).to.be.true;
 
                 notAllowed = false;
-                fn($menu, $div, columnType, multiCell, notAllowed, options);
+                fn($menu, $div, columnType, multiCell, notAllowed, options, tableId);
                 expect($unnestLi.hasClass('hidden')).to.be.false;
                 expect($jsonModalLi.hasClass('hidden')).to.be.false;
 
                 multiCell = true;
-                fn($menu, $div, columnType, multiCell, notAllowed, options);
+                fn($menu, $div, columnType, multiCell, notAllowed, options, tableId);
                 expect($unnestLi.hasClass('hidden')).to.be.true;
                 expect($jsonModalLi.hasClass('hidden')).to.be.true;
 
                 multiCell = false;
-                fn($menu, $div, columnType, multiCell, notAllowed, options);
+                fn($menu, $div, columnType, multiCell, notAllowed, options, tableId);
                 expect($unnestLi.hasClass('hidden')).to.be.false;
                 expect($jsonModalLi.hasClass('hidden')).to.be.false;
 
                 $div.append('<div class="undefined"></div>');
-                fn($menu, $div, columnType, multiCell, notAllowed, options);
+                fn($menu, $div, columnType, multiCell, notAllowed, options, tableId);
                 expect($unnestLi.hasClass('hidden')).to.be.true;
                 expect($jsonModalLi.hasClass('hidden')).to.be.true;
 
                 $div.find('.undefined').remove();
-                fn($menu, $div, columnType, multiCell, notAllowed, options);
+                fn($menu, $div, columnType, multiCell, notAllowed, options, tableId);
                 expect($unnestLi.hasClass('hidden')).to.be.false;
                 expect($jsonModalLi.hasClass('hidden')).to.be.false;
 
                 notAllowed = true;
                 multiCell = true;
                 $div.append('<div class="undefined"></div>');
-                fn($menu, $div, columnType, multiCell, notAllowed, options);
+                fn($menu, $div, columnType, multiCell, notAllowed, options, tableId);
                 expect($unnestLi.hasClass('hidden')).to.be.true;
                 expect($jsonModalLi.hasClass('hidden')).to.be.true;
 
                 notAllowed = false;
                 multiCell = false;
                 $div.find('.undefined').remove();
-                fn($menu, $div, columnType, multiCell, notAllowed, options);
+                fn($menu, $div, columnType, multiCell, notAllowed, options, tableId);
                 expect($unnestLi.hasClass('hidden')).to.be.false;
                 expect($jsonModalLi.hasClass('hidden')).to.be.false;
 
 
                 // test array
                 $div.html('["a","b"]');
-                fn($menu, $div, columnType, multiCell, notAllowed, options);
+                fn($menu, $div, columnType, multiCell, notAllowed, options, tableId);
                 expect($unnestLi.hasClass('hidden')).to.be.false;
                 expect($jsonModalLi.hasClass('hidden')).to.be.false;
 
                 $div.html('["a", invalid]');
-                fn($menu, $div, columnType, multiCell, notAllowed, options);
+                fn($menu, $div, columnType, multiCell, notAllowed, options, tableId);
                 expect($unnestLi.hasClass('hidden')).to.be.true;
                 expect($jsonModalLi.hasClass('hidden')).to.be.true;
 
                 $div.parent().addClass('truncated');
                 $div.html('["a", invalid]');
-                fn($menu, $div, columnType, multiCell, notAllowed, options);
+                fn($menu, $div, columnType, multiCell, notAllowed, options, tableId);
                 expect($unnestLi.hasClass('hidden')).to.be.true;
                 expect($jsonModalLi.hasClass('hidden')).to.be.false;
                 $div.parent().removeClass('truncated');

@@ -810,7 +810,8 @@ window.TblMenu = (function(TblMenu, $) {
         });
 
         $cellMenu.on('mouseup', '.tdUnnest', function(event) {
-            if (event.which !== 1) {
+            var $li = $(this);
+            if (event.which !== 1 || $li.hasClass("unavailable")) {
                 return;
             }
 
