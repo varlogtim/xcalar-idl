@@ -1368,7 +1368,7 @@ window.DSPreview = (function($, DSPreview) {
         var advanceArgs = advanceOption.getArgs();
 
         if (!fromChangeFile && advanceArgs != null &&
-            (advanceArgs.isRecur || advanceArgs.isRegex))
+            (advanceArgs.isRecur || advanceArgs.pattern))
         {
             // should use the whole url
             url = loadURL;
