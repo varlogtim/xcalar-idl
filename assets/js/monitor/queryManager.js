@@ -231,8 +231,8 @@ window.QueryManager = (function(QueryManager, $) {
         var mainQuery = queryLists[id];
         if (mainQuery == null) {
             // error case
-            console.warn('invalid query', 'transaction id: ' + id);
-            deferred.reject('invalid query');
+            console.warn('invalid operation', 'transaction id: ' + id);
+            deferred.reject('invalid operation');
             return deferred.promise();
         } else if (mainQuery.state === QueryStatus.Done) {
             console.warn('operation is done, cannot cancel');
@@ -267,7 +267,7 @@ window.QueryManager = (function(QueryManager, $) {
                 // previous subquery finished but currStep hasn't started
                 deferred.resolve();
             } else {
-                deferred.reject('step vs query mismatch');
+                deferred.reject('step vs operation mismatch');
             }
             return deferred.promise();
         }
@@ -280,7 +280,7 @@ window.QueryManager = (function(QueryManager, $) {
             // complete, unlike cancelOp. Xc4921
             XcalarQueryCancel(mainQuery.subQueries[currStep].queryName, [])
             .then(function(ret) {
-                console.info('query cancel submitted', ret);
+                console.info('operation cancel submitted', ret);
                 deferred.resolve();
             })
             .fail(deferred.reject); // errors being handled inside XcalarCancelOp
@@ -289,7 +289,7 @@ window.QueryManager = (function(QueryManager, $) {
             XcalarCancelOp(mainQuery.subQueries[currStep].dstTable,
                            statusesToIgnore)
             .then(function(ret) {
-                console.info('cancel submitted', ret);
+                console.info('coperation submitted', ret);
                 deferred.resolve();
             })
             .fail(deferred.reject); // errors being handled inside XcalarCancelOp

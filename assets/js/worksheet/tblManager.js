@@ -2676,7 +2676,12 @@ window.TblManager = (function($, TblManager) {
                                 '" title="raw data" disabled>' +
                         '</div>' +
                         '<div class="flexWrap flex-right">' +
-                            '<div class="dropdownBox">' +
+                            '<div class="dropdownBox" ' +
+                                'data-toggle="tooltip" ' +
+                                'data-placement="bottom" ' +
+                                'data-container="body" ' +
+                                'title="' + TooltipTStr.ViewColumnOptions +
+                                '">' +
                                 '<div class="innerBox"></div>' +
                             '</div>' +
                         '</div>' +
