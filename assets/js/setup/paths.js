@@ -27,5 +27,6 @@ var paths = {
     helpUserSearch: 'assets/help/user/Content/SearchInsight.htm#search-',
     helpAdminGuide: 'assets/help/admin/Content/Home.htm',
     helpAdminContent: 'assets/help/admin/Content/',
-    helpAdminSearch: 'assets/help/admin/Content/SearchInsight.htm#search-'
+    helpAdminSearch: 'assets/help/admin/Content/SearchInsight.htm#search-',
+    favicon: "assets/images/favicon.ico"
 };

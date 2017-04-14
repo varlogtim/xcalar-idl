@@ -7,6 +7,7 @@ window.xcManager = (function(xcManager, $) {
         var deferred = jQuery.Deferred();
         gMinModeOn = true; // startup use min mode;
         $("body").addClass("xc-setup");
+        $("#favicon").attr("href", paths.favicon);
 
         setupUserArea();
         Compatible.check();
@@ -637,9 +638,7 @@ window.xcManager = (function(xcManager, $) {
         });
 
         $("#autoSaveBtn").click(function() {
-            var $btn = $(this);
-            xcHelper.disableSubmit($btn);
-            xcHelper.disableSubmit($("#userSettingsSave"));
+            $(this).blur();
 
             KVStore.commit()
             .then(function() {
@@ -647,10 +646,6 @@ window.xcManager = (function(xcManager, $) {
             })
             .fail(function(error) {
                 Alert.error(AlertTStr.Error, error);
-            })
-            .always(function() {
-                xcHelper.enableSubmit($btn);
-                xcHelper.enableSubmit($("#userSettingsSave"));
             });
         });
 

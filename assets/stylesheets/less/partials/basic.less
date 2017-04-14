@@ -456,6 +456,30 @@ body {
             margin-left: 5px;
             font-style: italic;
             cursor: pointer;
+
+            .saving {
+                display: none;
+            }
+
+            &.unsave:before {
+                content: "*";
+            }
+
+            &.saving {
+                .saving {
+                    display: inline;
+                }
+
+                .default {
+                    display: none;
+                }
+
+                &:before {
+                    content: "";
+                }
+
+                opacity: 0.8 !important;
+            }
         }
     }
 

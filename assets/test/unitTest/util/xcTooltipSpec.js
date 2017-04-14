@@ -2,12 +2,12 @@ describe('xcTooltip Test', function() {
     var $ele = $('<div id="unitTest-tooltipTest"></div>');
 
     before(function() {
-        $("#workspaceDate").after($ele);
+        $("#viewLocation").after($ele);
     });
 
     it('Should add tooltip', function() {
         xcTooltip.add($ele, {
-            "container": "#workspaceDate",
+            "container": "#viewLocation",
             "placement": "bottom"
         });
 
@@ -15,7 +15,7 @@ describe('xcTooltip Test', function() {
         expect($ele.attr("title")).to.equal("");
         expect($ele.attr("data-original-title")).to.equal("");
         expect($ele.attr("data-toggle")).to.equal("tooltip");
-        expect($ele.attr("data-container")).to.equal("#workspaceDate");
+        expect($ele.attr("data-container")).to.equal("#viewLocation");
         expect($ele.attr("data-placement")).to.equal("bottom");
 
         // test 2

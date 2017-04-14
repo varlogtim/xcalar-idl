@@ -7,24 +7,16 @@
         <%= dicts.isTutor ? dicts.tutor.wkbk : "" %>
       </span>
     </div>
-    <div id="workspaceDate" class="workspaceArea">
-      <span><%= dicts.statusBar.create %>: </span>
-      <span class="date">
-        <%= dicts.isTutor ? dicts.tutor.wkbkDate : "" %>
-      </span>
-    </div>
     <div class="workspaceArea">
-      <span><%= dicts.statusBar.save %>:</span>
-      <span id="autoSavedInfo">
-        <%= dicts.isTutor ? dicts.tutor.wkbkSaveDate : "" %>
-      </span>
       <% if (dicts.tutor.name == "workbookTut") { %>
       <span id="autoSaveBtn" data-introstep="w1-save">
-        <%= dicts.common.SaveWKBK %>
+        <span class="default"><%= dicts.common.Save %></span>
+        <span class="default"><%= dicts.common.Saving %>...</span>
       </span>
       <% } else { %>
-      <span id="autoSaveBtn">
-        <%= dicts.common.SaveWKBK %>
+      <span id="autoSaveBtn" data-toggle="tooltip" data-placement="top" data-container="body">
+        <span class="default"><%= dicts.common.Save %></span>
+        <span class="saving"><%= dicts.common.Saving %>...</span>
       </span>
       <% } %>
     </div>

@@ -254,7 +254,8 @@ module.exports = {
         "Rename": "重命名",
         "SAVE": "保存",
         "SAVEEXIT": "保存并退出",
-        "SaveWKBK": "保存",
+        "Save": "保存",
+        "Saving": "保存",
         "SearchKeyWord": "搜索关键词",
         "SelectAll": "全选",
         "Service": "服务",
@@ -785,9 +786,7 @@ module.exports = {
     "statusBar": {
         "EC": "正在建立连接",
         "adminClose": "返回管理员帐户",
-        "adminText": "这就是Xcalar Design",
-        "create": "创建于",
-        "save": "最后保存时间"
+        "adminText": "这就是Xcalar Design"
     },
     "supportTicket": {
         "Comments": "注释",

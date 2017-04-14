@@ -62,7 +62,8 @@ module.exports = {
         "REVERT": "REVERT",
         "SAVE": "SAVE",
         "SAVEEXIT": "SAVE & EXIT",
-        "SaveWKBK": "Save",
+        "Save": "Save",
+        "Saving": "Saving",
         "SearchKeyWord": "Search keyword",
         "seconds": "seconds",
         "SelectAll": "Select All",
@@ -295,8 +296,6 @@ module.exports = {
     },
 
     "statusBar": {
-        "save": "Last Saved On",
-        "create": "Created On",
         "EC": "Establishing Connection",
         "adminText": "This is what Xcalar Design looks like to",
         "adminClose": "Return to administrator account"

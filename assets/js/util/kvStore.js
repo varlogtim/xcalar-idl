@@ -102,6 +102,13 @@ window.KVStore = (function($, KVStore) {
 
     KVStore.commit = function(atStartUp) {
         var deferred = jQuery.Deferred();
+        var $autoSaveBtn = $("#autoSaveBtn");
+        var $userSettingsSave = $("#userSettingsSave");
+
+        $autoSaveBtn.addClass("saving");
+        xcHelper.disableSubmit($autoSaveBtn);
+        xcHelper.disableSubmit($userSettingsSave);
+
         metaInfos.update();
         ephMetaInfos.update();
 
@@ -138,6 +145,9 @@ window.KVStore = (function($, KVStore) {
         })
         .always(function() {
             Support.heartbeatCheck();
+            $autoSaveBtn.removeClass("saving");
+            xcHelper.enableSubmit($autoSaveBtn);
+            xcHelper.enableSubmit($userSettingsSave);
         });
 
         return deferred.promise();
@@ -149,17 +159,20 @@ window.KVStore = (function($, KVStore) {
 
     KVStore.logChange = function() {
         isUnCommit = true;
+        document.title = "* Xcalar";
+        $("#autoSaveBtn").addClass("unsave");
     };
 
     KVStore.logSave = function(updateInfo) {
         isUnCommit = false;
+        document.title = "Xcalar";
+        $("#autoSaveBtn").removeClass("unsave");
 
         if (!updateInfo) {
             return;
         }
 
         var name = "N/A";
-        var created = "N/A";
         var modified = "N/A";
         var activeWKBKId = WorkbookManager.getActiveWKBK();
 
@@ -167,15 +180,14 @@ window.KVStore = (function($, KVStore) {
             var workbook = WorkbookManager.getWorkbooks()[activeWKBKId];
             if (workbook != null) {
                 name = workbook.name;
-                created = xcHelper.getDate("-", null, workbook.created);
                 modified = xcHelper.getDate("-", null, workbook.modified) +
                            " " + xcHelper.getTime(null, workbook.modified);
             }
         }
 
         $("#worksheetInfo .wkbkName").text(name);
-        $("#workspaceDate .date").text(created);
-        $("#autoSavedInfo").text(modified);
+        modified = TooltipTStr.SavedOn + ": " + modified;
+        xcTooltip.changeText($("#autoSaveBtn"), modified);
     };
 
     KVStore.restore = function() {

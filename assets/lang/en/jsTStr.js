@@ -97,6 +97,7 @@ TooltipTStr = {
     "KeyExists": "Key Already Exists",
     "ViewAllWS": "View all worksheets",
     "LoggedIn": "Logged In",
+    "SavedOn": "Last saved on",
 
     // Sync with htmlTStr
     "IcvGenerating": "Erroneous rows(ER) table is generating",
