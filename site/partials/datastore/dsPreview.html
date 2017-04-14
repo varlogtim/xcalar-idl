@@ -262,7 +262,7 @@
       <!-- buttons -->
       <div class="buttonSection">
         <button title="<%= dicts.dsForm.CreateTableHint %>" data-toggle="tooltip" data-container="body" type="button" class="btn confirm createTable xc-hidden"><%= dicts.dsForm.CREATETABLE %></button>
-        <button title="<%= dicts.dsForm.CreateRefHint %>" data-toggle="tooltip" data-container="body" type="button" class="btn confirm" <%= (dicts.tutor.name == 'datastoreTut1' || dicts.tutor.name == 'datastoreTut1Demo') ? 'data-introstep="w2-dsConfirm"' : '' %> ><%= dicts.dsForm.CREATEREF %></button>
+        <button type="button" class="btn confirm" <%= (dicts.tutor.name == 'datastoreTut1' || dicts.tutor.name == 'datastoreTut1Demo') ? 'data-introstep="w2-dsConfirm"' : '' %> ><%= dicts.dsForm.CREATEDS %></button>
         <button type="button" class="btn btn-cancel cancel"><%= dicts.common.BACK %></button>
       </div>
     </form>

@@ -92,7 +92,7 @@ TooltipTStr = {
     'ParamValNoChange': 'This parameter value cannot be changed',
     'DeleteFile': 'Delete file',
     'CancelUpload': 'Cancel upload',
-    "PointDemo": "Add File / Create Dataset Ref",
+    "PointDemo": "Add File / Create Dataset",
     "NotInDemoMode": "Feature not available in cloud preview",
     "KeyExists": "Key Already Exists",
     "ViewAllWS": "View all worksheets",
@@ -116,7 +116,7 @@ TooltipTStr = {
     'NoUndo': 'Last operation is "<op>", cannot undo',
     'Redo': 'Redo: <op>',
     'LowMemInTable': 'Warning! Cluster is low on memory for tables. Click this button to drop tables.',
-    'LowMemInDS': 'Warning! Cluster is low on memory for datasets. Click this button to delete dataset references.',
+    'LowMemInDS': 'Warning! Cluster is low on memory for datasets. Click this button to delete datasets.',
     'LowMemByOthers': 'Other users in the cluster have exceeded the optimum memory allocated for tables. Please contact an administrator.'
 };
 
@@ -183,9 +183,9 @@ ErrTStr = {
     'NoEmptyOrCheck': 'Please fill out this field ' +
                         'or keep it empty by checking the checkbox.',
     'NameInUse': 'Name is in use, please choose another name.',
-    'DSNameConfilct': 'Dataset reference with the same name already exits. ' +
+    'DSNameConfilct': 'Dataset with the same name already exits. ' +
                         'please choose another name.',
-    'DSStartsWithLetter': 'Dataset reference name should start with letter.',
+    'DSStartsWithLetter': 'Dataset name should start with letter.',
     'PrefixStartsWithLetter': 'Prefix should start with letter.',
     'TableConflict': 'A table with the same name already exists, ' +
                         'please choose another name.',
@@ -336,7 +336,7 @@ TipsTStr = {
     'DataType': 'Data Type',
     'LineMarker': 'Click row number to add bookmark',
     'JSONEle': 'Double-click to view, then click on key names to pull columns',
-    'DragGrid': 'You can drag dataset refs or folders around to reorder',
+    'DragGrid': 'You can drag datasets or folders around to reorder',
     'DSTable': 'Click table header to add/remove columns to/from ' +
         'data cart. Click on column headings to further modify the column.',
     'DSCart': 'Datacart area, you can add columns from datasets into your ' +
@@ -701,15 +701,14 @@ DSTStr = {
     'IN': 'DATASTORE/IN',
     'OUT': 'DATASTORE/OUT',
     'Export': 'EXPORT FORM',
-    'DelDS': 'Delete Dataset Reference',
-    'DelDSFail': 'Delete Dataset Reference Failed',
+    'DelDS': 'Delete Dataset',
+    'DelDSFail': 'Delete Dataset Failed',
     'NewFolder': 'New Folder',
     'NoNewFolder': 'Cannot Create Folder',
     'NoNewFolderMsg': 'This folder is uneditable, cannot create a new folder here',
     'NotFindDS': 'Cannot find the dataset',
     'DelFolder': 'Delete Folder',
-    'DelFolderInstr': 'Please remove all the dataset references in the ' +
-                      'folder first.',
+    'DelFolderInstr': 'Please remove all the datasets in the folder first.',
     'DelFolderMsg': 'Unable to delete non-empty folders. Please ensure\r\n' +
                     ' that all datasets have been removed from folders prior' +
                     ' to deletion.',
@@ -743,10 +742,9 @@ DSTStr = {
     'Unlistable': 'Dataset is marked for deletion',
 
     // With replace
-    'DelDSConfirm': 'Are you sure you want to delete dataset reference <ds>?',
+    'DelDSConfirm': 'Are you sure you want to delete dataset <ds>?',
     'DelUneditable': 'This <ds> is uneditable, cannot delete',
-    'CancelPointMsg': 'Are you sure you want to cancel pointing dataset ' +
-                      'reference <ds> ?',
+    'CancelPointMsg': 'Are you sure you want to cancel pointing dataset <ds> ?',
     'LoadErr': 'Error: <error>, Error File: <file>',
     'TableName': 'Table Name',
     'ColPrefix': 'Column Prefix',
@@ -767,7 +765,7 @@ DSFormTStr = {
     'NoFile': 'File not found, please go back to select a valid file/folder.',
     'CreateWarn': 'Too Many Columns To Create',
     'CreateWarnMsg': 'Creating a table with too many columns from a dataset ' +
-                'reference may be slow, are you sure you want to continue?',
+                'may be slow, are you sure you want to continue?',
     'NoQuoteWarn': 'No Quote Character',
     'NoQuoteWarnMsg': 'You have not selected a quoting character for your ' +
                       'dataset. Are you sure you want to continue?'

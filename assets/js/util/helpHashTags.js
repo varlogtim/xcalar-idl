@@ -35,7 +35,7 @@ var helpHashTags = [
   }, 
   {
     "url": "../help/user/Content/B_CommonTasks/A_ManageDatasetRef.htm", 
-    "title": "Managing dataset references"
+    "title": "Managing datasets"
   }, 
   {
     "url": "../help/user/Content/D_Reference/A_InsightWindow.htm", 
@@ -410,7 +410,7 @@ var adminHelpHashTags = [
   }, 
   {
     "url": "../help/admin/Content/B_CommonTasks/A_ManageDatasetRef.htm", 
-    "title": "Managing dataset references"
+    "title": "Managing datasets"
   }, 
   {
     "url": "../help/admin/Content/CompanyInfo.htm", 

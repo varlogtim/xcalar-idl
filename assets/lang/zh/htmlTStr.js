@@ -315,7 +315,7 @@ module.exports = {
         "DATACART": "创建新表",
         "DATASET": "数据集",
         "DSIn": "数据仓库/导入",
-        "Datasets": "数据集引用",
+        "Datasets": "数据集",
         "Format": "格式",
         "IN": "导入",
         "In": "导入",
@@ -326,13 +326,13 @@ module.exports = {
         "Retry": "重试",
         "RetryLimit": "请设置数据集大小限制，然后重试。",
         "RetryPoint": "请修改数据导入参数（例如，调整数据集大小限制，然后重试",
-        "TableInstr": "从数据集引用创建表，请选择列，选择工作表，修改表名，然后单击“创建新表”按钮。您也可以单击“稍后选择列”按钮。您也可以在创建表之后再选择列。",
+        "TableInstr": "从数据集创建表，请选择列，选择工作表，修改表名，然后单击“创建新表”按钮。您也可以单击“稍后选择列”按钮。您也可以在创建表之后再选择列。",
         "in": "导入",
         "out": "导出"
     },
     "dsCart": {
         "CLEARALL": "删除所有列",
-        "NoCartInstr": "要在新建表的时候选择列，请选择左侧的数据集引用，然后单击中间您感兴趣的列名。",
+        "NoCartInstr": "要在新建表的时候选择列，请选择左侧的数据集，然后单击中间您感兴趣的列名。",
         "SelectWS": "选择工作表",
         "Title": "创建新表",
         "CONFIRM": "创建新表",
@@ -354,12 +354,11 @@ module.exports = {
         "windowsAuth": "使用Windows身份验证"
     },
     "dsForm": {
-        "CREATEREF": "仅创建引用",
+        "CREATEDS": "创建数据集",
         "CREATETABLE": "创建表",
-        "CreateRefHint": "创建数据集引用",
-        "CreateTableHint": "创建数据集引用并自动生成表",
+        "CreateTableHint": "创建数据集并自动生成表",
         "CustomizedSize": "自定义大小",
-        "DSName": "数据集引用名称",
+        "DSName": "数据集名称",
         "EntireFileSize": "整个文件/文件夹",
         "FieldDelim": "列分隔符",
         "Format": "格式",
@@ -414,7 +413,7 @@ module.exports = {
         "SelectLaterHint": "创建一个表，而不选择任何列"
     },
     "dsUploader": {
-        "AddFile": "添加文件/创建数据集引用",
+        "AddFile": "添加文件/创建数据集",
         "AddFileDesc": "要添加文件，请将文件从计算机拖放到此窗口，或单击“浏览”按钮。",
         "DropHere": "请将文件拖放至此处"
     },
@@ -422,7 +421,7 @@ module.exports = {
         "Back": "后退",
         "Forward": "前进",
         "addFolderBtn": "新建文件夹",
-        "delDSBtn": "删除文件夹或数据集引用"
+        "delDSBtn": "删除文件夹或数据集"
     },
     "exportView": {
         "AppendExisting": "添加记录至重名文件",

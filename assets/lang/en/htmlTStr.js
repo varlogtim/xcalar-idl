@@ -433,7 +433,7 @@ module.exports = {
 
     "ds": {
         "Point": "Point To New Data Source",
-        "Datasets": "Dataset Refs",
+        "Datasets": "Datasets",
         "DATASET": "DATASET",
         "DSIn": "DATASTORE/IN",
         "DATACART": "CREATE NEW TABLE",
@@ -448,7 +448,7 @@ module.exports = {
         "Retry": "Retry",
         "RetryPoint": "Please try to point to data with different parameters(for example, a larger dataset size)",
         "RetryLimit": "Please set the dataset size limit and try again.",
-        "TableInstr": "To create a table from dataset reference, select columns, choose a worksheet, modify the table name and then click \"CREATE NEW TABLE\" button. You can also click the \"Select Columns Later\" button and pull out columns after the table is created."
+        "TableInstr": "To create a table from dataset, select columns, choose a worksheet, modify the table name and then click \"CREATE NEW TABLE\" button. You can also click the \"Select Columns Later\" button and pull out columns after the table is created."
     },
 
 // keep in sync with the FileProtocol in enums.js
@@ -462,7 +462,7 @@ module.exports = {
         "Back": "Click to go back",
         "Forward": "Click to go forward",
         "addFolderBtn": "Add New Folder",
-        "delDSBtn": "Delete folder or dataset reference"
+        "delDSBtn": "Delete folder or dataset"
     },
 
     "dsParser": {
@@ -477,14 +477,14 @@ module.exports = {
 
     "dsUploader": {
         "DropHere": "Drop Files Here",
-        "AddFile": "Add File / Create Dataset Reference",
+        "AddFile": "Add File / Create Dataset",
         "AddFileDesc": "To add a file, drag and drop files from your computer into this window or click Browse."
     },
 
     "dsForm": {
         "PathInstr": "Select data source protocol, then browse to choose a data source or fill in the data source path and click the \"NEXT\" button.",
         "filePath": "Data Source Path",
-        "DSName": "Dataset Reference Name",
+        "DSName": "Dataset Name",
         "fileNameTitle": "A valid name with no special characters",
         "FieldDelim": "Field Delimiter",
         "LineDelim": "Record Delimiter",
@@ -498,11 +498,10 @@ module.exports = {
         "Quoting": "Quoting Character",
         "SkipRows": "Skip Rows",
         "SkipRowsHint": "Skip the number of rows for each files in the data source",
-        "CREATEREF": "CREATE REF ONLY",
+        "CREATEDS": "CREATE DATASET",
         "CREATETABLE": "CREATE TABLE",
         "Refresh": "REFRESH PREVIEW",
-        "CreateRefHint": "Create a reference of the dataset",
-        "CreateTableHint": "Create a reference of the dataset and create a table from the reference",
+        "CreateTableHint": "Create a dataset and create a table from the dataset",
         "REDETECT": "REDETECT FORMAT",
         "Minimize": "Toggle minimization of the form",
         "EntireFileSize": "Entire file/folder",
@@ -545,7 +544,7 @@ module.exports = {
         "SelectWS": "Select Worksheet",
         "CLEARALL": "REMOVE ALL COLUMNS",
         "CONFIRM": "CREATE NEW TABLE",
-        "NoCartInstr": "To pull a column by default inside the new table, select a dataset reference on the left and click on the column names that you are interested in inside the center panel."
+        "NoCartInstr": "To pull a column by default inside the new table, select a dataset on the left and click on the column names that you are interested in inside the center panel."
     },
 
     "dsPreview": {
