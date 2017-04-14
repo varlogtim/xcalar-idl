@@ -63,7 +63,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             data = response;
             // Returns a promise
             // only upload non-empty python
-            if (data != null) {
+            if (!isEmptyPython(data)) {
                 return XcalarUploadPython(pyModName, data);
             }
         },
@@ -72,7 +72,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             console.error("Python file not found!");
         })
         .then(function() {
-            if (data != null) {
+            if (!isEmptyPython(data)) {
                 UDF.storePython(pyModName, data);
             }
             innerDef.resolve();
@@ -83,7 +83,11 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             removeExt(extName);
             innerDef.reject();
         });
-        return (innerDef.promise());
+        return innerDef.promise();
+    }
+
+    function isEmptyPython(data) {
+        return (data == null || data === "");
     }
 
     function setupPart2() {
