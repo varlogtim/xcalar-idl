@@ -188,7 +188,7 @@ window.DSPreview = (function($, DSPreview) {
 
     DSPreview.changePreviewFile = function(path, noDetect) {
         loadArgs.setPreviewFile(path);
-        refreshPreview(noDetect);
+        refreshPreview(noDetect, true);
     };
 
     DSPreview.update = function(listXdfsObj) {
@@ -1257,7 +1257,7 @@ window.DSPreview = (function($, DSPreview) {
         return deferred.promise();
     }
 
-    function previewData(udfModule, udfFunc, noDetect) {
+    function previewData(udfModule, udfFunc, noDetect, fromChangeFile) {
         var deferred = jQuery.Deferred();
 
         var loadURL = loadArgs.getPath();
@@ -1285,7 +1285,7 @@ window.DSPreview = (function($, DSPreview) {
             return PromiseHelper.reject("Error Case!");
         }
 
-        var urlToPreview = getURLToPreview();
+        var urlToPreview = getURLToPreview(fromChangeFile);
         var $loadHiddenSection = $previeWrap.find(".loadHidden")
                                             .addClass("hidden");
         var $waitSection = $previeWrap.find(".waitSection")
@@ -1362,12 +1362,12 @@ window.DSPreview = (function($, DSPreview) {
         return deferred.promise();
     }
 
-    function getURLToPreview() {
+    function getURLToPreview(fromChangeFile) {
         var url;
         var loadURL = loadArgs.getPath();
         var advanceArgs = advanceOption.getArgs();
 
-        if (advanceArgs != null &&
+        if (!fromChangeFile && advanceArgs != null &&
             (advanceArgs.isRecur || advanceArgs.isRegex))
         {
             // should use the whole url
@@ -1646,7 +1646,7 @@ window.DSPreview = (function($, DSPreview) {
         }
     }
 
-    function refreshPreview(noDetect) {
+    function refreshPreview(noDetect, fromChangeFile) {
         var res = validateForm();
         if (res == null) {
             return;
@@ -1665,7 +1665,7 @@ window.DSPreview = (function($, DSPreview) {
 
         clearPreviewTable()
         .then(function() {
-            return previewData(udfModule, udfFunc, noDetect);
+            return previewData(udfModule, udfFunc, noDetect, fromChangeFile);
         })
         .fail(errorHandler);
     }
