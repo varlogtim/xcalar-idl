@@ -50,7 +50,7 @@ var WalkThroughTStr = {
         // If step's name is not here, it will not get played!
         '_order': ['w3-dsIcon', 'w3-dsInfo', 'w3-dataType', 'w3-addCol',
                    'w3-selectAll', 'w3-selectedCol', 'w3-newTableName',
-                   'w3-clearCart', 'w3-createTable', 'w3-selectWorksheet',
+                   'w3-createTable', 'w3-selectWorksheet',
                    'w3-createFolder', 'w3-folder', 'w3-deleteFolder',
                    'w3-changeView'],
         'w3-dsIcon': 'This icon represents a dataset once a dataset reference has been created. By clicking on the icon, you will be able to see its corresponding data on the right side (As in this example).',
@@ -60,7 +60,6 @@ var WalkThroughTStr = {
         'w3-selectAll': 'You can choose to select or deselect all of the columns in the dataset, or you can select the columns later.',
         'w3-selectedCol': 'These are all the selected columns. Deselect a column by clicking on the trash icon beside the column name.',
         'w3-newTableName': 'This is the name of the soon-to-be created table containing all the selected columns. Click on the existing name to make changes.',
-        'w3-clearCart': 'Clicking this button will clear the data cart of columns previously selected.',
         'w3-createTable': 'Clicking this button will create the tables using the selected columns and add them to the worksheet that you have selected above.',
         'w3-selectWorksheet': 'Click on the dropdown to select a different worksheet to send the newly created table to.',
         'w3-createFolder': 'In order to organize your datasets, you can create new folders by clicking this icon.',

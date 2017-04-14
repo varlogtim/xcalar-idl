@@ -448,7 +448,7 @@ module.exports = {
         "Retry": "Retry",
         "RetryPoint": "Please try to point to data with different parameters(for example, a larger dataset size)",
         "RetryLimit": "Please set the dataset size limit and try again.",
-        "TableInstr": "To create a table from dataset reference, select columns, choose a worksheet, modify the table name and then click \"SEND TO WORKSHEET\" button. You can also click the \"Select Columns Later\" button and pull out columns after the table is created."
+        "TableInstr": "To create a table from dataset reference, select columns, choose a worksheet, modify the table name and then click \"CREATE NEW TABLE\" button. You can also click the \"Select Columns Later\" button and pull out columns after the table is created."
     },
 
 // keep in sync with the FileProtocol in enums.js
@@ -503,7 +503,7 @@ module.exports = {
         "Refresh": "REFRESH PREVIEW",
         "CreateRefHint": "Create a reference of the dataset",
         "CreateTableHint": "Create a reference of the dataset and create a table from the reference",
-        "REDETECT": "REDETECT",
+        "REDETECT": "REDETECT FORMAT",
         "Minimize": "Toggle minimization of the form",
         "EntireFileSize": "Entire file/folder",
         "CustomizedSize": "Custom size",
@@ -543,9 +543,8 @@ module.exports = {
     "dsCart": {
         "Title": "Create New Table",
         "SelectWS": "Select Worksheet",
-        "SendTo": "Send To",
-        "SENDTOWS": "SEND TO WORKSHEET",
         "CLEARALL": "REMOVE ALL COLUMNS",
+        "CONFIRM": "CREATE NEW TABLE",
         "NoCartInstr": "To pull a column by default inside the new table, select a dataset reference on the left and click on the column names that you are interested in inside the center panel."
     },
 

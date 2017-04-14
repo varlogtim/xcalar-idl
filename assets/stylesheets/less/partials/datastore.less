@@ -504,7 +504,7 @@ table.datasetTable {
     }
 
     @height-title: 40px;
-    @height-button: 140px;
+    @height-button: 130px;
     @height-main: @height-title + @height-button;
 
     .titleSection {
@@ -519,39 +519,30 @@ table.datasetTable {
         background-color: @color-bg-white-nine;
         padding: 15px 20px;
 
-        .dropDownWrap {
-            .size(@width: 100%, @height: 30px);
+        .title {
+            .font(@line-height: 30px);
+        }
+
+        .dropDownList {
+            .styleDropDownList(@w: 100%, @h: 30px);
             margin-bottom: 10px;
 
-            > div {
-                float: left;
-            }
+            li {
+                .icon {
+                    font-size: 14px;
+                    line-height: 30px;
+                }
 
-            .title {
-                .size(@width: 65px);
-                .font(@line-height: 30px);
-            }
-
-            .dropDownList {
-                .styleDropDownList(@w: ~"calc(100% - 65px)", @h: 30px);
-
-                li {
+                &:hover {
                     .icon {
-                        font-size: 14px;
-                        line-height: 30px;
-                    }
-
-                    &:hover {
-                        .icon {
-                            background-color: @color-selectedCell-light;
-                        }
+                        background-color: @color-selectedCell-light;
                     }
                 }
+            }
 
-                li.new {
-                    color: @color-font-gray36;
-                    border-bottom: 1px solid @color-border-pinkish-grey2;
-                }
+            li.new {
+                color: @color-font-gray36;
+                border-bottom: 1px solid @color-border-pinkish-grey2;
             }
         }
 
@@ -1845,7 +1836,7 @@ table.datasetTable {
     }
 
     .btn.fixed {
-        .size(@width: 175px);
+        .size(@width: 180px);
         .position(absolute, @right: 20px);
         padding-right: 5px;
 

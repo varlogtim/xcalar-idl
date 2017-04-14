@@ -44,13 +44,6 @@ window.DSCart = (function($, DSCart) {
             });
         });
 
-        // clear cart
-        $("#dataCart-clear").click(function() {
-            $(this).blur();
-            var dsId = DSTable.getId();
-            DSCart.removeCart(dsId);
-        });
-
         // click on data cart item to focus on the related column
         $cartArea.on("click", ".colName", function() {
             var $li = $(this).closest("li");
@@ -153,7 +146,10 @@ window.DSCart = (function($, DSCart) {
     };
 
     DSCart.refresh = function() {
-        var li = '<li class="new" data-ws="xc-new">' + WSTStr.NewWS + '</li>' +
+        var li =
+                '<li class="new" data-ws="xc-new">' +
+                    WSTStr.NewWS +
+                '</li>' +
                 WSManager.getWSLists(true);
         // auto select active worksheet
         $("#dataCartWSMenu").html(li)

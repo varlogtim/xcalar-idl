@@ -599,7 +599,7 @@ MonitorTStr = {
     "CurVal": "Current Value",
     "NewVal": "New Value",
     'ClusterStatus': 'Cluster Status',
-    'Ext': 'Extension',
+    'Ext': 'Extensions',
     'GetLogsFail': 'Could not get logs',
     'GetStatusFail': 'Could not get status',
     'Monitor': 'Monitor',

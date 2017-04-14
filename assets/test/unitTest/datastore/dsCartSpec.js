@@ -399,17 +399,6 @@ describe("DSCart Test", function() {
             expect($dsTableView.hasClass("fullSize")).to.equal(isFullSize);
         });
 
-        it("Should clear cart by click dataCart-clear btn", function() {
-            $("#dataCart-clear").click();
-            var $cart = DSCart.getCartElement(dsId);
-            expect($cart.length).to.equal(0);
-
-            // restore back
-            $("#selectDSCols").click();
-            $cart = DSCart.getCartElement(dsId);
-            expect($cart.length).to.equal(1);
-        });
-
         it("Should focus on column when click", function() {
             var $cart = DSCart.getCartElement(dsId);
             var $li = $cart.find("li").eq(0);

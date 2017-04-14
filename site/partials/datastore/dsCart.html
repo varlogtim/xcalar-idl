@@ -16,40 +16,26 @@
   </div>
   <div class="buttonSection">
     <!-- worksheet list -->
-    <div class="dropDownWrap" <%= (dicts.tutor.name == 'datastoreTut2') ? 'data-introstep="w3-selectWorksheet"' : '' %> >
-      <div class="title"><%= dicts.dsCart.SendTo %>:</div>
-      <div id="dataCartWSList" class="dropDownList">
-        <% if (dicts.tutor.name == "datastoreTut2") { %>
-        <input class="text" type="text" value="Sheet 1" spellcheck="false" placeholder="<%= dicts.dsCart.SelectWS %>" disabled>
-        <% } else { %>
-        <input class="text" type="text" value="" spellcheck="false" placeholder="<%= dicts.dsCart.SelectWS %>" disabled>
-        <% }%>
-        <div class="iconWrapper">
-          <i class="icon xi-arrow-down"></i>
-        </div>
-        <ul id="dataCartWSMenu" class="xc-worksheetList list">
-          <li class="new">New WS</li>
-          <li name="test">test</li>
-        </ul>
+    <div class="title"><%= dicts.dsCart.SelectWS %>:</div>
+    <div id="dataCartWSList" class="dropDownList" <%= (dicts.tutor.name == 'datastoreTut2') ? 'data-introstep="w3-selectWorksheet"' : '' %>>
+      <% if (dicts.tutor.name == "datastoreTut2") { %>
+      <input class="text" type="text" value="Sheet 1" spellcheck="false" disabled>
+      <% } else { %>
+      <input class="text" type="text" value="" spellcheck="false" disabled>
+      <% }%>
+      <div class="iconWrapper">
+        <i class="icon xi-arrow-down"></i>
       </div>
+      <ul id="dataCartWSMenu" class="xc-worksheetList list"></ul>
     </div>
     <!-- buttons -->
     <% if (dicts.tutor.name !== "datastoreTut2") { %>
     <button id="dataCart-submit" class="btn btn-large iconBtn">
-      <i class="icon xi-back-to-worksheet"></i><%= dicts.dsCart.SENDTOWS %>
+      <i class="icon xi-back-to-worksheet"></i><%= dicts.dsCart.CONFIRM %>
     </button>
     <% } else { %>
     <button id="dataCart-submit" class="btn btn-large iconBtn" data-introstep="w3-createTable" data-introposition="left">
-      <i class="icon xi-back-to-worksheet"></i><%= dicts.dsCart.SENDTOWS %>
-    </button>
-    <% }%>
-    <% if (dicts.tutor.name !== "datastoreTut2") { %>
-    <button id="dataCart-clear" class="btn btn-large iconBtn btn-clear">
-      <i class="icon xi-trash"></i><%= dicts.dsCart.CLEARALL %>
-    </button>
-    <% } else { %>
-    <button id="dataCart-clear" class="btn btn-large iconBtn btn-clear" data-introstep="w3-clearCart" data-introposition="left">
-      <i class="icon xi-trash"></i><%= dicts.dsCart.CLEARALL %>
+      <i class="icon xi-back-to-worksheet"></i><%= dicts.dsCart.CONFIRM %>
     </button>
     <% }%>
     <!-- end buttons -->
