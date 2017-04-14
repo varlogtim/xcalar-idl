@@ -23,6 +23,10 @@ window.TableList = (function($, TableList) {
             var $sections = $tableListSections.find(".tableListSection").hide();
             $sections.eq(index).show();
             focusedListNum = null;
+            if (index === 3 && $tab.hasClass("firstTouch")) {
+                $tab.removeClass("firstTouch");
+                TableList.refreshConstantList(true);
+            }
         });
 
         // toggle table list box
@@ -187,7 +191,7 @@ window.TableList = (function($, TableList) {
                     $section.addClass("sortedByDate").removeClass("sortedByName");
                 }
             }
-            
+
             var isActive = false;
             if ($section.is("#activeTableListSection")) {
                 isActive = true;
@@ -290,7 +294,7 @@ window.TableList = (function($, TableList) {
 
         generateOrphanList(gOrphanTables);
 
-        return generateConstList();
+        return generateConstList(true);
     };
 
     TableList.clear = function() {
@@ -340,7 +344,7 @@ window.TableList = (function($, TableList) {
                 }
             });
         }
-        
+
 
         $activeTableListSection.find(".submit").addClass("xc-hidden")
                         .end()
@@ -770,7 +774,7 @@ window.TableList = (function($, TableList) {
     TableList.refreshConstantList = function(waitIcon) {
         var deferred = jQuery.Deferred();
         var promise = generateConstList();
-        
+
         focusedListNum = null;
         clearAll($('#constantsListSection'));
 
@@ -1054,7 +1058,7 @@ window.TableList = (function($, TableList) {
                                   .before(totalHtml);
                     }
                 }
-                
+
             }
         }
         // set hiddenWS class to tables belonging to hidden worksheets
@@ -1105,26 +1109,31 @@ window.TableList = (function($, TableList) {
         }
     }
 
-    function generateConstList() {
+    function generateConstList(firstTime) {
         var deferred = jQuery.Deferred();
+        var frontConsts = Aggregates.getAggs();
+        var backConstsList = [];
+        var allConsts = [];
+        var aggConst;
+        var backConstsMap = {};
         XcalarGetConstants('*')
         .then(function(backConsts) {
-            var frontConsts = Aggregates.getAggs();
-            var backConstsList = [];
-            var allConsts = [];
-            var aggConst;
-            var backConstsMap = {};
-            
+            var promises = [];
+
             for (var i = 0; i < backConsts.length; i++) {
                 aggConst = backConsts[i];
                 if (!frontConsts[aggConst.name]) {
-                    aggConst.backColName = null;
-                    aggConst.dagName = aggConst.name;
-                    aggConst.aggName = aggConst.name;
-                    aggConst.op = null;
-                    aggConst.tableId = null;
-                    aggConst.value = null;
-                    backConstsList.push(aggConst);
+                    if (firstTime) {
+                        aggConst.backColName = null;
+                        aggConst.dagName = aggConst.name;
+                        aggConst.aggName = aggConst.name;
+                        aggConst.op = null;
+                        aggConst.tableId = null;
+                        aggConst.value = null;
+                        backConstsList.push(aggConst);
+                    } else {
+                        promises.push(XcalarGetDag(aggConst.name));
+                    }
                 }
                 backConstsMap[aggConst.name] = true;
             }
@@ -1137,7 +1146,28 @@ window.TableList = (function($, TableList) {
                 }
             }
 
+            return PromiseHelper.when.apply(null, promises);
+        })
+        .then(function() {
+            var rets = arguments;
+            var node;
+            if (!firstTime && rets[0] != null) {
+                for (var i = 0; i < rets.length; i++) {
+                    node = rets[i].node[0];
+                    aggConst.backColName = null;
+                    aggConst.dagName = node.name.name;
+                    aggConst.aggName =  node.name.name;
+                    aggConst.op = node.input.aggregateInput.evalStr;
+                    aggConst.tableName = node.input.aggregateInput
+                                                    .srcTable.tableName;
+                    aggConst.value = null;
+                    aggConst.backOnly = true;
+                    backConstsList.push(aggConst);
+                }
+            }
+
             backConstsList.sort(sortConst);
+
             for (var name in frontConsts) {
                 allConsts.push(frontConsts[name]);
             }
@@ -1154,12 +1184,18 @@ window.TableList = (function($, TableList) {
                 var op;
                 var value;
                 if (aggConst.op) {
-                    op = aggConst.op + "(" + aggConst.backColName + ")";
+                    if (aggConst.backOnly) {
+                        op = aggConst.op;
+                    } else {
+                        op = aggConst.op + "(" + aggConst.backColName + ")";
+                    }
                 } else {
                     op = CommonTxtTstr.NA;
                 }
                 if (aggConst.tableId && gTables[aggConst.tableId]) {
                     tableName = gTables[aggConst.tableId].tableName;
+                } else if (aggConst.tableName) {
+                    tableName = aggConst.tableName;
                 } else {
                     tableName = CommonTxtTstr.NA;
                 }
@@ -1506,7 +1542,7 @@ window.TableList = (function($, TableList) {
             animation = true;
         }
 
-        
+
         xcHelper.centerFocusedColumn(tableId, colNum, animation);
     }
 

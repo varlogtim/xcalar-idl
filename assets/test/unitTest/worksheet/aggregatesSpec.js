@@ -165,13 +165,20 @@ describe("Aggregates Test", function() {
         });
 
         it("aggregate should show on agg list in menu panel", function(done) {
-            setTimeout(function() {
-                Alert.forceClose();
-                var listItem = $("#constantList")
-                                .find('li.tableInfo[data-id="namedAgg"]');
-                expect(listItem.length).to.equal(1);
-                done();
-            }, 500);
+                UnitTest.testFinish(function() {
+                    return $("#constantList")
+                                .find('li.tableInfo[data-id="namedAgg"]')
+                                    .length > 0;
+                })
+                .then(function() {
+                    setTimeout(function() {
+                        Alert.forceClose();
+                        var listItem = $("#constantList")
+                                    .find('li.tableInfo[data-id="namedAgg"]');
+                        expect(listItem.length).to.equal(1);
+                        done();
+                    }, 200);
+                });
         });
 
         it("aggregates deleteAggs should work", function(done) {
