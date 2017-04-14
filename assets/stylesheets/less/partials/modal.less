@@ -2483,12 +2483,7 @@ html.microsoft {
                 .size(@height: 50%);
 
                 .label {
-                    .size(@width: 55px);
                     text-transform: capitalize;
-                }
-
-                .text {
-                    .size(@width: ~"calc(100% - 55px)");
                 }
 
                 .info {
@@ -2510,14 +2505,6 @@ html.microsoft {
 
             &.statsInfo {
                 .size(@height: ~"calc(50% - 50px)");
-
-                .label {
-                    .size(@width: 36px);
-                }
-
-                .text {
-                    .size(@width: ~"calc(100% - 40px)");
-                }
 
                 .instruction {
                     .flex(0 1 50px);
@@ -2586,6 +2573,7 @@ html.microsoft {
 
                 .label {
                     .font(@weight: 400);
+                    .size(@width: 55px);
                     position: absolute;
                     bottom: 0px;
                 }
@@ -2594,6 +2582,7 @@ html.microsoft {
                     position: absolute;
                     bottom: 0px;
                     left: 80px;
+                    .size(@width: ~"calc(100% - 85px)");
                     .font(@color: @color-font-select-blue);
                     .textOverflow;
 

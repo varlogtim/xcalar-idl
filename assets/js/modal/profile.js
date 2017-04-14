@@ -474,6 +474,7 @@ window.Profile = (function($, Profile, d3) {
                     .then(innerDeferred.resolve)
                     .fail(innerDeferred.reject);
                 } else {
+                    refreshGroupbyInfo(curStatsCol);
                     innerDeferred.resolve();
                 }
             })
@@ -541,14 +542,10 @@ window.Profile = (function($, Profile, d3) {
 
         refreshAggInfo(aggKeys, statsCol, true);
         refreshStatsInfo(statsCol);
-
-        return refreshGroupbyInfo(statsCol);
+        resetGroupbySection();
     }
 
-    function refreshGroupbyInfo(curStatsCol, resetRefresh) {
-        var deferred = jQuery.Deferred();
-        // This function never deferred.reject
-
+    function resetGroupbySection(resetRefresh) {
         $modal.addClass("loading");
 
         var $loadHiddens = $modal.find(".loadHidden");
@@ -564,6 +561,15 @@ window.Profile = (function($, Profile, d3) {
         $modal.removeClass("allNull");
         $loadDisables.addClass("disabled");
         $errorSection.addClass("hidden").find(".text").text("");
+    }
+
+    function refreshGroupbyInfo(curStatsCol, resetRefresh) {
+        var deferred = jQuery.Deferred();
+        var $loadHiddens = $modal.find(".loadHidden");
+        var $loadDisables = $modal.find(".loadDisabled");
+
+        // This function never deferred.reject
+        resetGroupbySection(resetRefresh);
 
         // update groupby info
         if (curStatsCol.groupByInfo.isComplete === true) {
