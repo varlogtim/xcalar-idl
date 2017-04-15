@@ -698,6 +698,11 @@ input {
     &[type=number] {
         -moz-appearance: textfield;
     }
+    &::-ms-clear {
+        // hides IE's close icon in inputs
+        width : 0;
+        height: 0;
+    }
 }
 
 .icon {
@@ -948,7 +953,7 @@ input {
         color: @color-font-darkGray;
         .font(@size: 12px, @line-height: 16px);
         white-space: normal;
-        word-break: break-word;
+        word-wrap: break-word;
     }
 
     // specific styling for fnbar error

@@ -70,7 +70,7 @@ window.xcTooltip = (function(xcTooltip, $) {
         var timer = null;
         if (delay != null) {
             timer = setTimeout(function() {
-                if (document.contains($element[0])) {
+                if (document.body.contains($element[0])) {
                     $element.tooltip("destroy");
                 } else {
                     $tooltip.remove();

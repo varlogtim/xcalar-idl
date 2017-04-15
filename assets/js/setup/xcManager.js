@@ -965,7 +965,10 @@ window.xcManager = (function(xcManager, $) {
 
             // if debugOn, xcConsole.log will show it's own error
             // if no stack, then it's a custom error, don't show message
-            if (!window.debugOn && stack) {
+            if (!window.debugOn && stack &&
+                !(isBrowserIE && (msg === "Unspecified error." ||
+                    (stack[1] && stack[1].indexOf("__BROWSERTOOLS") > -1)))) {
+
                 var promise = SQL.commitErrors();
 
                 Alert.error(ErrTStr.RefreshBrowser, ErrTStr.RefreshBrowserDesc, {

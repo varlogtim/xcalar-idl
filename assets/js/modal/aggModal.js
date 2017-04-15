@@ -373,11 +373,8 @@ window.AggModal = (function($, AggModal) {
                     // XXX now agg on child of array is not supported
                     wholeTable += cell + AggTStr.NoSupport;
                 } else {
-                    wholeTable += cell +
-                                    '<div class="spinner">' +
-                                        '<img class="loadingBar" src="' +
-                                        paths.loadBarIcon + '">' +
-                                    '</div>';
+                    wholeTable += cell + '<img class="loadingBar" src="' +
+                                        paths.loadBarIcon + '">';
                 }
                 wholeTable += "</div>";
             }

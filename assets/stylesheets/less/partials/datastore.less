@@ -154,14 +154,17 @@
 
         .flexContainer {
             .flex-wrap(wrap);
+            overflow: hidden; // for IE
 
             .flex-left {
                 .size(@max-width: 100%);
                 .flex(1 1 auto);
+                overflow: hidden; // for IE
             }
 
             .flex-right {
                 .flex(1 1 190px);
+                min-width: 190px; // for IE
             }
         }
 
