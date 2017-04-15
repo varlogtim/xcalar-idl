@@ -5,6 +5,7 @@ window.KVStore = (function($, KVStore) {
     var isUnCommit = false;
     var metaInfos;
     var ephMetaInfos; // Ephemeral meta
+    var commitCnt = 0;
     // keys: gStorageKey, gEphStorageKey, gLogKey, gErrKey, gUserKey,
     // gSettingsKey
     KVStore.setup = function(keys) {
@@ -104,6 +105,9 @@ window.KVStore = (function($, KVStore) {
         var deferred = jQuery.Deferred();
         var $autoSaveBtn = $("#autoSaveBtn");
         var $userSettingsSave = $("#userSettingsSave");
+        var currentCnt = commitCnt;
+
+        commitCnt++;
 
         $autoSaveBtn.addClass("saving");
         xcHelper.disableSubmit($autoSaveBtn);
@@ -144,10 +148,15 @@ window.KVStore = (function($, KVStore) {
             deferred.reject(error);
         })
         .always(function() {
-            Support.heartbeatCheck();
-            $autoSaveBtn.removeClass("saving");
-            xcHelper.enableSubmit($autoSaveBtn);
-            xcHelper.enableSubmit($userSettingsSave);
+            // when there is no other commits
+            if (currentCnt === commitCnt - 1) {
+                Support.heartbeatCheck();
+                $autoSaveBtn.removeClass("saving");
+                xcHelper.enableSubmit($autoSaveBtn);
+                xcHelper.enableSubmit($userSettingsSave);
+            } else {
+                console.info("not the latest commit");
+            }
         });
 
         return deferred.promise();
