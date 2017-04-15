@@ -162,14 +162,14 @@ describe("xcManager", function() {
             AboutModal.show = oldFunc;
         });
 
-        it("should mouseup signout button to sign out", function() {
+        it("should mouseup logout button to sign out", function() {
             var oldFunc = xcManager.unload;
             var test = false;
             xcManager.unload = function() { test = true; };
             // normal moouseup not work
-            $("#signout").mouseup();
+            $("#logout").mouseup();
             expect(test).to.be.false;
-            $("#signout").trigger(fakeEvent.mouseup);
+            $("#logout").trigger(fakeEvent.mouseup);
             expect(test).to.be.true;
 
             xcManager.unload = oldFunc;

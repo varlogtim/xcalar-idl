@@ -110,7 +110,7 @@ module.exports = {
         "user": "User",
         "tutorUser": "John Smith",
         "unknown": "Unknown",
-        "SignOut": "Sign out",
+        "LogOut": "Log out",
         "About": "About",
         "Help": "Help",
         "HelpDocs": "Help docs"
@@ -914,8 +914,7 @@ module.exports = {
         "confirmPassword": "Confirm Password",
         "IAgree": "I aggree to the",
         "terms": "Terms & Conditions",
-        "alreadyAccount": "Already have an account?",
-        "signin": "Sign in"
+        "alreadyAccount": "Already have an account?"
     },
 
     "installer": {

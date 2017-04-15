@@ -392,7 +392,7 @@ window.xcManager = (function(xcManager, $) {
 
         $("#userName").text(username);
 
-        $("#signout").mouseup(function(event) {
+        $("#logout").mouseup(function(event) {
             if (event.which !== 1) {
                 return;
             }
