@@ -699,8 +699,8 @@ DFTStr = {
 DSTStr = {
     'UnknownUser': 'Unknown User',
     'DS': 'DATASET',
-    'IN': 'DATASTORE/DATASETS',
-    'OUT': 'DATASTORE/EXPORT TARGETS',
+    'IN': 'DATASETS',
+    'OUT': 'EXPORT TARGETS',
     'Export': 'EXPORT FORM',
     'DelDS': 'Delete Dataset',
     'DelDSFail': 'Delete Dataset Failed',

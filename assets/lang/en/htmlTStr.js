@@ -76,7 +76,8 @@ module.exports = {
         "Type": "Type",
         "URL": "URL",
         "UserName": "User name",
-        "Val": "Value"
+        "Val": "Value",
+        "InBeta": "In Beta"
     },
 
     "paths": {
@@ -434,7 +435,7 @@ module.exports = {
         "Point": "Point To New Data Source",
         "Datasets": "Datasets",
         "DATASET": "DATASET",
-        "DSIn": "DATASTORE/DATASETS",
+        "DSIn": "DATASETS",
         "DATACART": "CREATE NEW TABLE",
         "Format": "Format",
         "Protocol": "Data Source Protocol",
@@ -463,8 +464,8 @@ module.exports = {
         "PreviewMode": "Preview Mode",
         "SelectedKeys": "Selected Keys",
         "SelectFormat": "Select format",
-        "Full": "Full",
-        "Partial": "Partial",
+        "Full": "Full Path",
+        "Partial": "Partial Path",
         "SkipToLine": "Skip to line"
     },
 
@@ -536,7 +537,7 @@ module.exports = {
         "Title": "Create New Table",
         "SelectWS": "Select Worksheet",
         "CLEARALL": "REMOVE ALL COLUMNS",
-        "CONFIRM": "CREATE NEW TABLE",
+        "CONFIRM": "CREATE TABLE",
         "NoCartInstr": "To pull a column by default inside the new table, select a dataset on the left and click on the column names that you are interested in inside the center panel."
     },
 

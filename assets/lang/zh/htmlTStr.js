@@ -19,7 +19,7 @@ module.exports = {
         "ChangeType": "更改数据类型",
         "CollapseDF": "收缩表",
         "CreateDF": "创建批量数据流",
-        "CreateParamQuery": "创建参数化查询",
+        "CreateParamQuery": "创建参数化操作",
         "CreateTarget": "新建导出目标",
         "Del": "删除",
         "DelCol": "删除列",
@@ -270,7 +270,8 @@ module.exports = {
         "Val": "值",
         "XD": "Xcalar Design",
         "of": "的",
-        "seconds": "秒"
+        "seconds": "秒",
+        "InBeta": "测试版本"
     },
     "dataflow": {
         "DataflowTitle": "批量数据流",
@@ -303,19 +304,19 @@ module.exports = {
     },
     "dfgParam": {
         "currParamList": "当前参数列表",
-        "editParam": "参数化查询",
+        "editParam": "参数化操作",
         "empty": "空值",
-        "instr": "要将此查询转换为参数化查询，请单击\"添加新的参数化查询\"按钮，然后将参数拖放到相应的位置。",
+        "instr": "要将此操作转换为参数化操作，请单击\"添加新的参数化操作\"按钮，然后将参数拖放到相应的位置。",
         "param": "参数",
-        "query": "当前查询",
+        "query": "当前操作",
         "systemParamList": "系统参数表",
-        "title": "参数化查询",
+        "title": "参数化操作",
         "val": "值"
     },
     "ds": {
         "DATACART": "创建新表",
         "DATASET": "数据集",
-        "DSIn": "数据仓库/数据集",
+        "DSIn": "数据集",
         "Datasets": "数据集",
         "Format": "格式",
         "Point": "新数据源",
@@ -330,7 +331,7 @@ module.exports = {
         "NoCartInstr": "要在新建表的时候选择列，请选择左侧的数据集，然后单击中间您感兴趣的列名。",
         "SelectWS": "选择工作表",
         "Title": "创建新表",
-        "CONFIRM": "创建新表",
+        "CONFIRM": "创建表",
     },
     "dsExport": {
         "AddConnector": "添加新的连接器",
