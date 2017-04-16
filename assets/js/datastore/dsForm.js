@@ -25,6 +25,9 @@ window.DSForm = (function($, DSForm) {
         $("#importDataButton").click(function() {
             $(this).blur();
             DSForm.show();
+            xcTooltip.transient($("#filePath"), {
+                "title": TooltipTStr.Focused
+            }, 800);
         });
     };
 

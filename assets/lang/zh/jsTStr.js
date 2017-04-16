@@ -56,6 +56,7 @@ StatusMessageTStr = {
 TooltipTStr = {
 'ComingSoon': '尚未发布，敬请期待',
 'FocusColumn': '聚焦当前列',
+'Focused': '聚焦',
 'ChooseUdfModule': '请先选择一个用户自定义模块',
 'ChooseColToExport': '请选择您要导出的列',
 'SelectCol': '请先选择一列！',

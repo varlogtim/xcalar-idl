@@ -41,7 +41,7 @@ window.XcSocket = (function(XcSocket, $) {
         socket.on("userExisted", function(user) {
             console.log(user, "exists");
             if (user === Support.getUser()) {
-                Support.forceLogout();
+                xcManager.forceLogout();
             }
         });
 

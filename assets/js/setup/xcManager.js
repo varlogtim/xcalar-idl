@@ -289,6 +289,11 @@ window.xcManager = (function(xcManager, $) {
         }
     };
 
+    xcManager.forceLogout = function() {
+        xcManager.removeUnloadPrompt();
+        logoutRedirect();
+    };
+
     xcManager.removeUnloadPrompt = function() {
         window.onbeforeunload = function() {}; // Do not enable prompt
         window.onunload = function() {}; // do not call unload again

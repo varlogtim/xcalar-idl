@@ -54,7 +54,7 @@ $(document).ready(function() {
                         }
                         submit();
                     } else if (ret.status === Status.Error) {
-                        alert('Incorrect Password. Please try again.');
+                        alert('Incorrect username or password. Please try again.');
                         console.log('return error', data, ret);
                         isSubmitDisabled = false;
                     } else {

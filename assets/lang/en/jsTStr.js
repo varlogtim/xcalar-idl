@@ -57,6 +57,7 @@ StatusMessageTStr = {
 
 TooltipTStr = {
     'ComingSoon': 'Coming Soon',
+    'Focused': 'Focused',
     'FocusColumn': 'Focused Column',
     'ChooseUdfModule': 'Please choose a module first', // used in htmltstr
     'ChooseColToExport': 'Please select the columns you want to export',
