@@ -433,7 +433,7 @@ window.TblFunc = (function(TblFunc, $) {
         var $rightTable;
         var moveScrollBar = !noScrollBar;
         var $allTables = $('.xcTableWrap:not(".inActive")');
-        if (isBrowserMicrosoft || isBrowserSafari) {
+        if ((isBrowserMicrosoft || isBrowserSafari) && !moveScrollBar) {
             return;
         }
 
@@ -463,7 +463,8 @@ window.TblFunc = (function(TblFunc, $) {
             mainMenuOffset = 0;
         }
 
-        if ($targetTable && $targetTable.length > 0) {
+        if (!(isBrowserMicrosoft || isBrowserSafari) &&
+            $targetTable && $targetTable.length > 0) {
             var $idCol =  $targetTable.find('.idSpan');
             var cellWidth = $idCol.outerWidth();
             var scrollLeft;
@@ -504,7 +505,7 @@ window.TblFunc = (function(TblFunc, $) {
             }
         }
 
-        if (moveScrollBar) {
+        if (moveScrollBar && !datasetPreview) {
             if (!$rightTable || !$rightTable.length) {
                 $rightTable = $allTables.last();
                 if (!$rightTable.length) {

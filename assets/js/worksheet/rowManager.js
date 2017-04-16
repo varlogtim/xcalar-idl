@@ -153,6 +153,7 @@ window.RowManager = (function($, RowManager) {
                 removeRows(info, numRowsToAdd, direction);
             }
         }
+
     }
 
     function tableCleanup(info) {
@@ -220,7 +221,22 @@ window.RowManager = (function($, RowManager) {
         }
 
         if (direction === RowDirection.Bottom) {
+            var tableId = info.tableId;
+            var $xcTbodyWrap = $("#xcTbodyWrap-" + tableId);
+            var distFromBottom = $xcTbodyWrap[0].scrollHeight -
+                          $xcTbodyWrap.scrollTop() - $xcTbodyWrap.outerHeight();
+            var scrollTop = $xcTbodyWrap.scrollTop();
+
             info.$table.find("tbody tr").slice(0, numRowsToRemove).remove();
+
+            var newScrollTop = $xcTbodyWrap.scrollTop();
+            var newDist = $xcTbodyWrap[0].scrollHeight -
+                          $xcTbodyWrap.scrollTop() - $xcTbodyWrap.outerHeight();
+            if (distFromBottom > newDist) {
+                // this doesn't happen in chrome
+                newScrollTop -= (distFromBottom - newDist);
+                $xcTbodyWrap.scrollTop(newScrollTop);
+            }
         } else {
             info.$table.find("tbody tr").slice(gMaxEntriesPerPage).remove();
         }
@@ -365,7 +381,6 @@ window.RowManager = (function($, RowManager) {
         var tBodyHTML = "";
         var dataColNum = table.getColNumByBackName('DATA') - 1;
         var tdClass = "";
-        var oldTableHeight;
 
         for (var row = 0; row < numRowsToAdd; row++) {
             var rowNum = row + startIndex;
@@ -401,22 +416,19 @@ window.RowManager = (function($, RowManager) {
             tBodyHTML += '</tr>';
         }
         var $rows = $(tBodyHTML);
+        var oldTableHeight = $table.height();
         if (direction === RowDirection.Top) {
-            oldTableHeight = $table.height();
             $table.find('tbody').prepend($rows);
-
         } else {
             $table.find('tbody').append($rows);
         }
 
         TblManager.adjustRowHeights($rows, startIndex, tableId);
 
-        var $xcTbodyWrap = $('#xcTbodyWrap-' + tableId);
-
         if (direction === RowDirection.Top) {
-            var newTableHeight = $table.height();
-            var heightDiff = newTableHeight - oldTableHeight;
+            var heightDiff = $table.height() - oldTableHeight;
             var scrollTop = Math.max(1, heightDiff);
+            var $xcTbodyWrap = $('#xcTbodyWrap-' + tableId);
             $xcTbodyWrap.scrollTop(scrollTop);
         }
         TblFunc.moveFirstColumn();

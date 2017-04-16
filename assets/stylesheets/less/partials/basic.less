@@ -29,6 +29,11 @@ h2 {
 }
 
 /* ========== Main ========== */
+html {
+    /* Disables pinch zooming in IE or else we see scrollbars on the window*/
+    -ms-content-zooming: none;
+}
+
 body {
     -webkit-font-smoothing: antialiased;
     .nomargin-padding;
@@ -325,9 +330,6 @@ body {
         #statusBar {
             margin-left: @width-fullMenu;
             width: ~"calc(100% - @{width-fullMenu})";
-            .workspaceArea:first-child {
-                display: none;
-            }
         }
         #watermark {
             left: @menuWidth + 75px;
