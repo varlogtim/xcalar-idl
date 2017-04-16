@@ -70,7 +70,7 @@ describe("DSObj Test", function() {
             expect(ds.getPath()).to.equal("testPath");
             expect(ds.isEditable()).to.be.true;
             var dsId = ds.getId();
-            DS.__testOnly__.removeDS(DS.getGrid(dsId));
+            DS.__testOnly__.removeDS(dsId);
             expect(DS.getDSObj(dsId)).to.be.null;
         });
 
@@ -238,7 +238,7 @@ describe("DSObj Test", function() {
             assert.isFalse($("#alertModal").is(":visible"));
 
             DS.goToDir(DSObjTerm.homeDirId);
-            DS.__testOnly__.removeDS(DS.getGrid(id));
+            DS.__testOnly__.removeDS(id);
         });
 
         it("Should get testFolder from id", function() {

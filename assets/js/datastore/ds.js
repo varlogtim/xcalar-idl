@@ -371,7 +371,7 @@ window.DS = (function ($, DS) {
                 "msg": msg,
                 "onConfirm": callback
             });
-        } else if (removeDS($grid) === true) {
+        } else if (removeFolderRecursive(dsId) === true) {
             UserSettings.logDSChange();
         }
     };
@@ -616,19 +616,18 @@ window.DS = (function ($, DS) {
         }
 
         function handlePointError(error) {
+            var dsId = dsObj.getId();
             if (error === StatusTStr[StatusT.StatusCanceled] ||
                 error.status === StatusT.StatusCanceled) {
-                removeDS($grid);
+                removeDS(dsId);
                 if ($grid.hasClass("active")) {
                     focusOnForm();
                 }
             } else if ($grid.hasClass("active")) {
                 dsObj.setError(error);
-
-                var dsId = dsObj.getId();
                 cacheErrorDS(dsId, dsObj);
                 DSTable.showError(dsId, error);
-                removeDS($grid);
+                removeDS(dsId);
             }
         }
     }
@@ -689,7 +688,7 @@ window.DS = (function ($, DS) {
                 DSTable.clear();
             }
             // remove ds obj
-            removeDS($grid);
+            removeDS(dsId);
             if (!noDeFocus) {
                 focusOnForm();
             }
@@ -705,7 +704,7 @@ window.DS = (function ($, DS) {
 
             var noAlert = false;
             if (forceRemove) {
-                removeDS($grid);
+                removeDS(dsId);
             } else if (failToShow) {
                 $grid.show();
                 noAlert = true;
@@ -747,9 +746,7 @@ window.DS = (function ($, DS) {
         return deferred.promise();
     }
 
-    // Helper function to remove ds
-    function removeDS($grid) {
-        var dsId = $grid.data("dsid");
+    function removeFolderRecursive(dsId) {
         var dsObj = DS.getDSObj(dsId);
 
         if (dsObj.beFolderWithDS()) {
@@ -763,15 +760,34 @@ window.DS = (function ($, DS) {
             });
 
             return false;
-        } else {
-            dsObj.removeFromParent();
-            // delete ds
-            delete dsLookUpTable[dsId];
-            $grid.remove();
-            DataStore.update();
-
-            return true;
         }
+
+        var stack = dsObj.eles;
+        while (stack.length !== 0) {
+            var childDsObj = stack.pop();
+            stack = stack.concat(childDsObj.eles);
+            removeDS(childDsObj.getId());
+        }
+
+        removeDS(dsId);
+
+        return true;
+    }
+
+    // Helper function to remove ds
+    function removeDS(dsId) {
+        var dsObj = DS.getDSObj(dsId);
+
+        dsObj.removeFromParent();
+        removeDSMeta(dsId);
+        DataStore.update();
+    }
+
+    function removeDSMeta(dsId) {
+        var $grid = DS.getGrid(dsId);
+        // delete ds
+        delete dsLookUpTable[dsId];
+        $grid.remove();
     }
 
     // Refresh dataset/folder display in gridView area

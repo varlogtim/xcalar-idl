@@ -1795,7 +1795,7 @@
             },
 
             beFolderWithDS: function() {
-                return this.isFolder && this.eles.length > 0;
+                return this.isFolder && this.totalChildren > 0;
             },
 
             isEditable: function() {

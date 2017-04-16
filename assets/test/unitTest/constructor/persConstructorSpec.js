@@ -1982,7 +1982,7 @@ describe("Persistent Constructor Test", function() {
                 "isFolder": true,
             });
 
-            dsObj1.eles.push("test");
+            dsObj1.totalChildren = 1;
 
             var dsObj2 = new DSObj({
                 "id": "testId",
@@ -1998,9 +1998,19 @@ describe("Persistent Constructor Test", function() {
                 "isFolder": false,
             });
 
+            var dsObj4 = new DSObj({
+                "id": "testId",
+                "name": "testName",
+                "parentId": DSObjTerm.homeParentId,
+                "isFolder": true,
+            });
+            dsObj4.totalChildren = 0;
+            dsObj4.eles.push("test");
+
             expect(dsObj1.beFolderWithDS()).to.be.true;
             expect(dsObj2.beFolderWithDS()).to.be.false;
             expect(dsObj3.beFolderWithDS()).to.be.false;
+            expect(dsObj4.beFolderWithDS()).to.be.false;
         });
 
         it("Should know if is editable", function() {
