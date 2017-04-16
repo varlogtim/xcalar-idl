@@ -131,7 +131,7 @@ module.exports = {
         "CPCell": "Copy to clipboard",
         "CPColNames": "Copy column names",
         "CreateDF": "Create batch dataflow",
-        "CreateParamQuery": "Create parameterized query",
+        "CreateParamQuery": "Create parameterized operation",
         "CreateTarget": "Create new target",
         "Del": "Delete",
         "DelCol": "Delete column",
@@ -787,12 +787,12 @@ module.exports = {
     },
 
     "dfgParam": {
-        "title": "Parameterize Query",
-        "instr": "To convert this query into a parameterized query, please click the add new parameterized query button and drag and drop the parameters into their appropriate places.",
-        "query": "Current Query",
+        "title": "Parameterize Operation",
+        "instr": "To convert this operation into a parameterized operation, please click the add new parameterized operation button and drag and drop the parameters into their appropriate places.",
+        "query": "Current Operation",
         "currParamList": "Current Parameter List",
         "systemParamList": "System Parameter List",
-        "editParam": "Parameterized Query",
+        "editParam": "Parameterized Operation",
         "param": "Parameter",
         "val": "Value",
         "empty": "No Value"
