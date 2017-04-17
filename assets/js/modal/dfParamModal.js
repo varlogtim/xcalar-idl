@@ -242,7 +242,7 @@ window.DFParamModal = (function($, DFParamModal){
                 $list.find('ul').html(html);
 
                 var $input = $list.find("input.editableParamDiv");
-                var func = $.trim(input.val());
+                var func = $.trim($input.val());
                 updateNumArgs(func);
 
                 deferred.resolve();
