@@ -17,8 +17,7 @@ window.TblFunc = (function(TblFunc, $) {
     */
     TblFunc.autosizeCol = function($th, options) {
         options = options || {};
-
-        var colNum = xcHelper.parseColNum($th);
+        var colNum = $th.index();
         var $table = $th.closest(".dataTable");
         var table = null;
 
@@ -72,18 +71,18 @@ window.TblFunc = (function(TblFunc, $) {
      *  fitAll,
      *  datastore: if it's datastore table
      */
-    TblFunc.getWidestTdWidth = function(el, options) {
+    TblFunc.getWidestTdWidth = function($el, options) {
         options = options || {};
 
         var includeHeader = options.includeHeader || false;
         var fitAll = options.fitAll || false;
-        var id = xcHelper.parseColNum(el);
-        var $table = el.closest('.dataTable');
+        var colNum = $el.index();
+        var $table = $el.closest('.dataTable');
         var largestWidth = 0;
         var longestText = 0;
         var textLength;
         var padding = 10;
-        var $largestTd = $table.find('tbody tr:first td:eq(' + id + ')');
+        var $largestTd = $table.find('tbody tr:first td:eq(' + colNum + ')');
         var headerWidth = 0;
         var prefixWidth = 0;
 
@@ -93,13 +92,13 @@ window.TblFunc = (function(TblFunc, $) {
                 extraPadding += 4;
             }
             var $th;
-            if ($table.find('.col' + id + ' .dataCol').length === 1) {
-                $th = $table.find('.col' + id + ' .dataCol');
+            if ($table.find('.col' + colNum + ' .dataCol').length === 1) {
+                $th = $table.find('.col' + colNum + ' .dataCol');
             } else {
-                $th = $table.find('.col' + id + ' .editableHead');
+                $th = $table.find('.col' + colNum + ' .editableHead');
             }
             if (!$th.length) {
-                $th = $table.find('th.col' + id);
+                $th = $el;
                 extraPadding -= 40;
             }
 
@@ -121,7 +120,7 @@ window.TblFunc = (function(TblFunc, $) {
         // we're going to take advantage of monospaced font
         //and assume text length has an exact correlation to text width
         $table.find('tbody tr').each(function() {
-            var $td = $(this).children(':eq(' + (id) + ')');
+            var $td = $(this).children(':eq(' + colNum + ')');
             if (options.datastore) {
                 textLength = $.trim($td.text()).length;
             } else {
