@@ -198,6 +198,7 @@ window.xcManager = (function(xcManager, $) {
                 "noCancel": true
             });
         } else if (isNotNullObj &&
+                   error.status != null &&
                    error.status === StatusT.StatusSessionNotFound)
         {
             locationText = WKBKTStr.NoOldWKBK;
@@ -216,6 +217,7 @@ window.xcManager = (function(xcManager, $) {
                 "hideButtons": ['copySql']
             });
         } else if (isNotNullObj &&
+                   error.status != null &&
                    error.status === StatusT.StatusSessionUsrActiveElsewhere)
         {
             locationText = ThriftTStr.SessionElsewhere;
