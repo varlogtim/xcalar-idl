@@ -49,7 +49,7 @@ describe("xcManager", function() {
 
         it("should hanlde active else where error", function() {
             handleSetupFail({
-                "status": StatusT.StatusSessionUsrActiveElsewhere
+                "status": StatusT.StatusSessionUsrAlreadyExists
             });
             expect(title).to.equal(ThriftTStr.SessionElsewhere);
             expect($("#viewLocation").text().includes(ThriftTStr.SessionElsewhere))

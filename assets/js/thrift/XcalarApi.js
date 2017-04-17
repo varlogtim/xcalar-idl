@@ -1469,7 +1469,6 @@ xcalarJoin = runEntity.xcalarJoin = function(thriftHandle, leftTableName, rightT
                                       joinTableName, joinType,
                                       leftRenameMap, rightRenameMap,
                                       collisionCheck);
-
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
         var joinOutput = result.output.outputResult.joinOutput;
@@ -2107,10 +2106,8 @@ xcalarListExportTargetsWorkItem = runEntity.xcalarListExportTargetsWorkItem = fu
 
 xcalarListExportTargets = runEntity.xcalarListExportTargets = function(thriftHandle, typePattern, namePattern) {
     var deferred = jQuery.Deferred();
-    if (verbose) {
-        console.log("xcalarListExportTargets(typePattern = " + typePattern +
+    console.log("xcalarListExportTargets(typePattern = " + typePattern +
                 ", namePattern = " + namePattern + ")");
-    }
 
     var workItem = xcalarListExportTargetsWorkItem(typePattern, namePattern);
 

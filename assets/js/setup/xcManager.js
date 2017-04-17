@@ -218,7 +218,7 @@ window.xcManager = (function(xcManager, $) {
             });
         } else if (isNotNullObj &&
                    error.status != null &&
-                   error.status === StatusT.StatusSessionUsrActiveElsewhere)
+                   error.status === StatusT.StatusSessionUsrAlreadyExists)
         {
             locationText = ThriftTStr.SessionElsewhere;
             var errorMsg = error.error + '\n' + ThriftTStr.LogInDifferent;

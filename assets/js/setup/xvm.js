@@ -115,7 +115,7 @@ window.XVM = (function(XVM) {
             }
         })
         .fail(function(ret) {
-            if (ret && ret.status === StatusT.StatusSessionUsrActiveElsewhere) {
+            if (ret && ret.status === StatusT.StatusSessionUsrAlreadyExists) {
                 deferred.reject(ret);
             } else {
                 deferred.reject({error: ThriftTStr.CCNBE});

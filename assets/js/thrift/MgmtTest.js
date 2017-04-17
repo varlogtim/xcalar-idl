@@ -419,8 +419,8 @@ PromiseHelper = (function(PromiseHelper, $) {
         xcalarGetConfigParams(thriftHandle)
         .then(function(result) {
             var getConfigParamsOutput = result;
+            test.assert(getConfigParamsOutput.numParams > 0);
             console.log("Number of parameters #", getConfigParamsOutput.numParams);
-            test.assert(getConfigParamsOutput.numParams > 10);
             for (var ii = 0; ii < getConfigParamsOutput.numParams; ii++) {
                 console.log(
                     "Name: " + getConfigParamsOutput.parameter[ii].paramName +
@@ -441,32 +441,92 @@ PromiseHelper = (function(PromiseHelper, $) {
         })
         .fail(function(reason) {
             test.fail(StatusTStr[reason]);
-        })
+        });
     }
 
     function testSetConfigParam(test) {
-        var paramName = "Minidump";
-        var paramValue = "true";
-
-        xcalarSetConfigParam(thriftHandle, paramName, paramValue)
-        .then(function(result) {
-            return  xcalarGetConfigParams(thriftHandle)
-        })
+        xcalarGetConfigParams(thriftHandle)
         .then(function(result) {
             var getConfigParamsOutput = result;
+            var paramName = "Minidump";
+            var paramValueNew = "true";
+            var paramValueOld = "true";
+            var found = "false";
+
+            // toggle param value.
+            test.assert(getConfigParamsOutput.numParams > 0);
             for (var ii = 0; ii < getConfigParamsOutput.numParams; ii++) {
                 if (getConfigParamsOutput.parameter[ii].paramName == paramName) {
-                    // Hidden parameter should be visible once it is changed
-                    // from its default value.
-                    test.assert(getConfigParamsOutput.parameter[ii].visible == true);
-                    test.pass();
+                    paramValueOld = getConfigParamsOutput.parameter[ii].paramValue;
+                    found = "true";
+                    break;
                 }
             }
-            test.fail("Minidump not returned from getConfigParams()");
+            test.assert(found == "true");
+
+            if (paramValueOld == "true") {
+                paramValueNew = "false";
+            } else {
+                test.assert(paramValueOld == "false");
+                paramValueNew = "true";
+            }
+
+            // Set new param value
+            xcalarSetConfigParam(thriftHandle, paramName, paramValueNew)
+            .then(function(result) {
+                xcalarGetConfigParams(thriftHandle)
+                .then(function(result) {
+                    getConfigParamsOutput = result;
+                    found = "false";
+                    test.assert(getConfigParamsOutput.numParams > 0);
+                    for (var ii = 0; ii < getConfigParamsOutput.numParams; ii++) {
+                        if (getConfigParamsOutput.parameter[ii].paramName == paramName) {
+                            // Hidden parameter should be visible once it is changed
+                            // from its default value.
+                            console.log(
+                                "Set new value for Param Name: " + getConfigParamsOutput.parameter[ii].paramName +
+                                ", Value: " + getConfigParamsOutput.parameter[ii].paramValue +
+                                ", Visible: " + getConfigParamsOutput.parameter[ii].visible +
+                                ", Changeable: " + getConfigParamsOutput.parameter[ii].changeable +
+                                ", Restart: " + getConfigParamsOutput.parameter[ii].restartRequired +
+                                ", Default: " + getConfigParamsOutput.parameter[ii].defaultValue);
+                             test.assert(getConfigParamsOutput.parameter[ii].visible == true);
+                             test.assert(getConfigParamsOutput.parameter[ii].paramValue == paramValueNew);
+                             found = "true";
+                             break;
+                        }
+                    }
+                    test.assert(found == "true");
+
+                    // Reset to old param value
+                    xcalarSetConfigParam(thriftHandle, paramName, paramValueOld)
+                    .then(function(result) {
+                        xcalarGetConfigParams(thriftHandle)
+                        .then(function(result) {
+                            getConfigParamsOutput = result;
+                            test.assert(getConfigParamsOutput.numParams > 0);
+                            for (var ii = 0; ii < getConfigParamsOutput.numParams; ii++) {
+                                if (getConfigParamsOutput.parameter[ii].paramName == paramName) {
+                                    console.log(
+                                        "Reset new value for Param Name: " + getConfigParamsOutput.parameter[ii].paramName +
+                                        ", Value: " + getConfigParamsOutput.parameter[ii].paramValue +
+                                        ", Visible: " + getConfigParamsOutput.parameter[ii].visible +
+                                        ", Changeable: " + getConfigParamsOutput.parameter[ii].changeable +
+                                        ", Restart: " + getConfigParamsOutput.parameter[ii].restartRequired +
+                                        ", Default: " + getConfigParamsOutput.parameter[ii].defaultValue);
+                                    test.assert(getConfigParamsOutput.parameter[ii].visible == false);
+                                    test.assert(getConfigParamsOutput.parameter[ii].paramValue == paramValueOld);
+                                    test.pass();
+                                }
+                            }
+                        })
+                    })
+                })
+            })
         })
         .fail(function(reason) {
             test.fail(StatusTStr[reason]);
-        })
+        });
     }
 
     function testApps(test) {
@@ -1768,7 +1828,7 @@ PromiseHelper = (function(PromiseHelper, $) {
     }
 
     function testGetDagOnAggr(test) {
-        var query = "index --key recordNum --dataset " + origDataset +
+        var query = "index --key xcalarRecordNum --dataset " + origDataset +
                     " --dsttable yelpUsers#js0;" +
                     "aggregate --srctable yelpUsers#js0 --dsttable " +
                     "yelpUsers-aggregate#js1 --eval \"count(review_count)\"";
@@ -2514,6 +2574,9 @@ PromiseHelper = (function(PromiseHelper, $) {
                     .fail(function(status) {
                         test.fail(StatusTStr[status])
                     });
+                } else if (reason == StatusT.StatusQrQueryInUse) {
+                    console.log("Retina did not get the chance to run.  Trying again");
+                    retinaAndCancel(listExportTargetsOutput);
                 } else {
                     test.fail("ExecuteRetina failed with reason: " + StatusTStr[reason]);
                 }
