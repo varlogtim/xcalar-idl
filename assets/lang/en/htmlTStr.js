@@ -466,7 +466,8 @@ module.exports = {
         "SelectFormat": "Select format",
         "Full": "Full Path",
         "Partial": "Partial Path",
-        "SkipToLine": "Skip to line"
+        "SkipToLine": "Skip to line",
+        "ViewInText": "View data in plain text format"
     },
 
     "dsUploader": {

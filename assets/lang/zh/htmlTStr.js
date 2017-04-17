@@ -391,7 +391,8 @@ module.exports = {
         "PreviewMode": "预览模式",
         "SelectFormat": "选择格式",
         "SelectedKeys": "选择的键",
-        "SkipToLine": "跳到"
+        "SkipToLine": "跳到",
+        "ViewInText": "用plain text格式浏览数据"
     },
     "dsPreview": {
         "ApplyHighlight": "应用高亮字符作为分隔符",

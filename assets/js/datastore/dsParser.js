@@ -58,6 +58,10 @@ window.DSParser = (function($, DSParser) {
             xcTooltip.auto(this);
         });
 
+        $parserCard.on("click", ".errorSection.suggest", function() {
+            $formatList.find('li[name="text"]').trigger(fakeEvent.mouseup);
+        });
+
         setupBoxes();
         setupMenu();
         setupRowInput();
@@ -1378,7 +1382,7 @@ window.DSParser = (function($, DSParser) {
         if (typeof error === "object") {
             error = JSON.stringify(error);
         }
-        $parserCard.find(".errorSection").text(error);
+        $parserCard.find(".errorSection.error").text(error);
     }
 
     function detectFormat(url) {

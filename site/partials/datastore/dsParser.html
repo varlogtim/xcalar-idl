@@ -39,7 +39,10 @@
     <button class="btn confirm xc-confirm"><%= dicts.common.NEXT %></button>
   </div>
   <div class="cardMain">
-    <div class="errorSection xc-errorView"></div>
+    <div class="errorSection error xc-errorView"></div>
+    <div class="errorSection suggest xc-errorView">
+      <%= dicts.dsParser.ViewInText %>
+    </div>
     <div class="loadSection xc-loadView">
       include "../../util/animatedEllipsis.html"
     </div>
