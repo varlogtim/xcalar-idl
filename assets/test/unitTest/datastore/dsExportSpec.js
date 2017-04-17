@@ -37,7 +37,7 @@ describe("DSExport Test", function() {
                 expect(targ).to.have.all.keys("hdr", "specificInput");
                 expect(targ.hdr.name).to.equal(testTargetName);
                 expect(targ.hdr.type).to.equal(ExTargetTypeT.ExTargetSFType);
-                expect(targ.specificInput.sfInput.url).to.equal("url");
+                expect(targ.specificInput.sfInput.url).to.equal("/url");
                 return XcalarRemoveExportTarget(testTargetName,
                                                 ExTargetTypeT.ExTargetSFType);
             })
@@ -54,7 +54,7 @@ describe("DSExport Test", function() {
                 expect(targ).to.have.all.keys("hdr", "specificInput");
                 expect(targ.hdr.name).to.equal(testTargetName);
                 expect(targ.hdr.type).to.equal(ExTargetTypeT.ExTargetUDFType);
-                expect(targ.specificInput.udfInput.url).to.equal("url");
+                expect(targ.specificInput.udfInput.url).to.equal("/url");
                 expect(targ.specificInput.udfInput.appName).to.equal("a:b");
                 return XcalarRemoveExportTarget(testTargetName,
                                                 ExTargetTypeT.ExTargetUDFType);
@@ -93,7 +93,7 @@ describe("DSExport Test", function() {
                 expect($form.find(".udfFuncListWrap").css("pointer-events"))
                 .to.equal("auto");
             }
-            
+
             $form.find(".udfFuncName").val("test");
             expect($form.find(".udfFuncName").val()).to.equal("test");
             expect($form.find(".placeholderRow:visible").length).to.equal(0);
