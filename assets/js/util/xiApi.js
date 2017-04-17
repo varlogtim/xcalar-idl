@@ -788,6 +788,11 @@ window.XIApi = (function(XIApi, $) {
             // when it's self join or globally enabled
             deferred1 = handleJoinKey(lColName, lTableName, txId, true);
             deferred2 = handleJoinKey(rColName, rTableName, txId, false);
+        } else if (lTableName === rTableName && lColName === rColName) {
+            // when it's self join
+            var defs = selfJoinIndex(lColName, lTableName, txId);
+            deferred1 = defs[0];
+            deferred2 = defs[1];
         } else {
             deferred1 = checkTableIndex(lColName, lTableName, txId);
             deferred2 = checkTableIndex(rColName, rTableName, txId);
@@ -808,6 +813,23 @@ window.XIApi = (function(XIApi, $) {
         return deferred.promise();
     }
 
+    function selfJoinIndex(colName, tableName, txId) {
+        var deferred1 = jQuery.Deferred();
+        var deferred2 = jQuery.Deferred();
+
+        checkTableIndex(colName, tableName, txId)
+        .then(function() {
+            deferred1.resolve.apply(this, arguments);
+            deferred2.resolve.apply(this, arguments);
+        })
+        .fail(function() {
+            deferred1.reject.apply(this, arguments);
+            deferred2.reject.apply(this, arguments);
+        });
+
+        return [deferred1.promise(), deferred2.promise()];
+    }
+
     function checkIfNeedIndex(colToIndex, tableName, tableKey, txId) {
         var deferred = jQuery.Deferred();
         var shouldIndex = false;
@@ -823,6 +845,22 @@ window.XIApi = (function(XIApi, $) {
                         if (tableKey != null && parentKey !== tableKey) {
                             // if current is sorted, the parent should also
                             // index on the tableKey to remove "KNF"
+                            // var fltTable = getNewTableName(tableName,
+                            //                               ".fltParent", true);
+
+                            // XXX this is correct This is correct, but there are some backend issues with excluding FNFs for now 7071, 7622
+                            // So for now, we will have to use the old method in trunk. But for the demo, since we are not sorting, we will not run into this :) Also there are no FNFs
+                            // var fltStr = "exists(" + tableKey + ")";
+                            // XIApi.filter(txId, fltStr, unsorted, fltTable)
+                            // .then(function(tblAfterFlt) {
+                            //     // must index
+                            //     shouldIndex = true;
+                            //     tempTables.push(tblAfterFlt);
+                            //     deferred.resolve(shouldIndex, tblAfterFlt,
+                            //                      tempTables);
+                            // })
+                            // .fail(deferred.reject);
+
                             var indexTable = getNewTableName(tableName,
                                                           ".indexParent", true);
                             XcalarIndexFromTable(unsorted, tableKey, indexTable,
@@ -982,6 +1020,7 @@ window.XIApi = (function(XIApi, $) {
         var deferred = jQuery.Deferred();
         var tableId = xcHelper.getTableId(tableName);
         var tableCols = null;
+        var progCol;
 
         if (tableId == null || !gTables.hasOwnProperty(tableId)) {
             // in case we have no meta of the table
@@ -989,6 +1028,21 @@ window.XIApi = (function(XIApi, $) {
         } else {
             var table = gTables[tableId];
             tableCols = table.tableCols;
+            progCol = table.getColByBackName(colName);
+
+            if (progCol != null && progCol.indexTable != null) {
+                // XXX Note: here the assume is if index table has meta,
+                // it should exists
+                // more reliable might be use XcalarGetTables to check, but it's
+                // async
+                console.log("has cahced of index table", progCol.indexTable);
+                var indexTableId = xcHelper.getTableId(progCol.indexTable);
+                if (gTables.hasOwnProperty(indexTableId)) {
+                    return PromiseHelper.resolve(progCol.indexTable, true, []);
+                } else {
+                    delete progCol.indexTable;
+                }
+            }
         }
 
         XIApi.checkOrder(tableName)
@@ -1009,6 +1063,9 @@ window.XIApi = (function(XIApi, $) {
                         tempTables.push(newTableName);
                         TblManager.setOrphanTableMeta(newTableName, tableCols);
                     }
+                    if (progCol != null) {
+                        progCol.indexTable = newTableName;
+                    }
                     deferred.resolve(newTableName, shouldIndex, tempTables);
                 })
                 .fail(function(error) {
@@ -1028,12 +1085,13 @@ window.XIApi = (function(XIApi, $) {
         return deferred.promise();
     }
 
-    function checkMultiGroupByIndex(groupByCols, tableName, txId) {
+    function concatGroupByCols(txId, tableName, groupByCols) {
+        if (groupByCols.length <= 1) {
+            return PromiseHelper.resolve(groupByCols[0], tableName, []);
+        }
+
         var deferred = jQuery.Deferred();
 
-        // From Jerene:
-        // 1. merge multi columns into one using concat xdf
-        // 2. sort this merged column
         var tableId = xcHelper.getTableId(tableName);
         var tableCols = null;
 
@@ -1045,31 +1103,13 @@ window.XIApi = (function(XIApi, $) {
             tableCols = table.tableCols;
         }
 
-        var mapTableName = getNewTableName(tableName);
-        var indexedTableName;
-
         var mapStr = xcHelper.getMultiJoinMapString(groupByCols);
         var groupByField = xcHelper.randName("multiGroupBy");
-        var tempTables = [];
 
-        XcalarMap(groupByField, mapStr, tableName, mapTableName, txId)
-        .then(function() {
-            // add mapped table meta
-            TblManager.setOrphanTableMeta(mapTableName, tableCols);
-            tempTables.push(mapTableName);
-
-            // index the mapped table
-            indexedTableName = getNewTableName(mapTableName);
-            return XcalarIndexFromTable(mapTableName, groupByField,
-                                        indexedTableName,
-                                        XcalarOrderingT.XcalarOrderingUnordered,
-                                        txId);
-        })
-        .then(function() {
-            // add indexed table meta
-            TblManager.setOrphanTableMeta(indexedTableName, tableCols);
-            tempTables.push(indexedTableName);
-            deferred.resolve(indexedTableName, groupByField, tempTables);
+        XIApi.map(txId, mapStr, tableName, groupByField)
+        .then(function(tableAfterMap) {
+            TblManager.setOrphanTableMeta(tableAfterMap, tableCols);
+            deferred.resolve(groupByField, tableAfterMap, [tableAfterMap]);
         })
         .fail(deferred.reject);
 
@@ -1206,19 +1246,27 @@ window.XIApi = (function(XIApi, $) {
     }
 
     function getGroupbyIndexedTable(txId, tableName, groupByCols) {
-        if (groupByCols.length > 1) {
-            // multiGroupBy should first do a map and then index
-            return checkMultiGroupByIndex(groupByCols, tableName, txId);
-        } else {
-            // single groupBy, check index
-            var deferred = jQuery.Deferred();
-            checkTableIndex(groupByCols[0], tableName, txId)
-            .then(function(resTable, shouldIndex, tempTables) {
-                deferred.resolve(resTable, groupByCols[0], tempTables);
-            })
-            .fail(deferred.reject);
-            return deferred.promise();
-        }
+        // From Jerene:
+        // 1. merge multi columns into one using concat xdf
+        // 2. sort this merged column
+        var deferred = jQuery.Deferred();
+        var groupByField;
+        var tempTables = [];
+
+        concatGroupByCols(txId, tableName, groupByCols)
+        .then(function(resCol, resTable, resTempTables) {
+            tempTables = resTempTables || [];
+            groupByField = resCol;
+
+            return checkTableIndex(resCol, resTable, txId);
+        })
+        .then(function(indexedTable, shouldIndex, temIndexTables) {
+            tempTables = tempTables.concat(temIndexTables);
+            deferred.resolve(indexedTable,groupByField, tempTables);
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
     }
 
     function getFinalGroupByCols(tableName, groupByCols, newColName,

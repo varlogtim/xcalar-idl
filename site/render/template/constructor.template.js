@@ -851,6 +851,9 @@
 
             if (<%= checkFunc %>(options)) {
                 self.func = new ColFunc<%= v %>(options.func);
+                if (options.indexTable != null) {
+                    self.indexTable = options.indexTable;
+                }
             }
             return self;
         }
