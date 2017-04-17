@@ -260,20 +260,17 @@ window.Support = (function(Support, $) {
     };
 
     Support.checkConnection = function() {
-        // if we get this status, there may not be a connection to the backend
-        // if xcalargetversion doesn't work then it's very probably that
-        // there is no connection so alert.
-        var connectionCheck = true;
-        var deferred = jQuery.Deferred();
+        checkConnection()
+        .fail(function() {
+            var error = {"error": ThriftTStr.CCNBE};
+            var id = Alert.error(ThriftTStr.CCNBEErr, error, {
+                "lockScreen": true,
+                "noLogout": true
+            });
+            SQL.backup();
 
-        XcalarGetVersion(connectionCheck)
-        .then(deferred.resolve)
-        .fail(function(error) {
-            checkConnection();
-            deferred.reject(error);
+            checkConnectionTrigger(10, id);
         });
-
-        return deferred.promise();
     };
 
     Support.checkStats = function(stats) {
@@ -437,17 +434,48 @@ window.Support = (function(Support, $) {
     }
 
     function checkConnection() {
+        // if we get this status, there may not be a connection to the backend
+        // if xcalargetversion doesn't work then it's very probably that
+        // there is no connection so alert.
+        var connectionCheck = true;
+        return XcalarGetVersion(connectionCheck);
+    }
+
+    function checkConnectionTrigger(cnt, alertId) {
+        var interval = 1000; // 1s/update
+        var mod = Math.floor(connectionCheckInterval / interval);
+        cnt = cnt % mod;
+
+        var shouldCheck = (cnt === 0);
+        var timeRemain = (connectionCheckInterval - cnt * interval) / 1000;
+        var msg = AlertTStr.NoConnect + " ";
+
+        msg += shouldCheck
+                ? AlertTStr.Connecting
+                : xcHelper.replaceMsg(AlertTStr.TryConnect, {
+                    "second": timeRemain
+                });
+
+        Alert.updateMsg(alertId, msg);
+
         clearTimeout(connectionCheckTimer);
 
         connectionCheckTimer = setTimeout(function() {
-            // if fail, continue to another check
-            Support.checkConnection()
-            .then(function() {
-                clearTimeout(connectionCheckTimer);
-                // reload browser if connection back
-                location.reload();
-            });
-        }, connectionCheckInterval);
+            if (shouldCheck) {
+                // if fail, continue to another check
+                checkConnection()
+                .then(function() {
+                    clearTimeout(connectionCheckTimer);
+                    // reload browser if connection back
+                    location.reload();
+                })
+                .fail(function() {
+                    checkConnectionTrigger(cnt + 1, alertId);
+                });
+            } else {
+                checkConnectionTrigger(cnt + 1, alertId);
+            }
+        }, interval);
     }
 
     function autoSave() {

@@ -409,7 +409,10 @@ AlertTStr = {
     'NoExt': 'Unknown Extension',
     'CLOSE': 'CLOSE',
     'CANCEL': 'CANCEL',
-    'CONFIRMATION': 'CONFIRMATION'
+    'CONFIRMATION': 'CONFIRMATION',
+    'NoConnect': 'Not connected.',
+    'Connecting': 'Connecting...',
+    'TryConnect': 'Connecting in <second>s.'
 };
 
 ErrorMessageTStr = {

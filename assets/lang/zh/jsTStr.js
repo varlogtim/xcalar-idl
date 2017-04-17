@@ -363,7 +363,10 @@ AlertTStr = {
 'NoExt': '未知扩展',
 'CLOSE': '关闭',
 'CANCEL': '取消',
-'CONFIRMATION': '确认'
+'CONFIRMATION': '确认',
+'NoConnect': '无法连接。',
+'Connecting': '连接中...',
+'TryConnect': '<second>秒后重新连接。'
 };
 ErrorMessageTStr = {
 'title': '错误',

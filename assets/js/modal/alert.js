@@ -37,6 +37,10 @@ window.Alert = (function($, Alert){
     };
 
     Alert.show = function(options) {
+        // add id
+        var id = xcHelper.randName("alert");
+        $modal.data("id", id);
+
         options = options || {};
        /* options includes:
             title: title of the alert
@@ -62,20 +66,24 @@ window.Alert = (function($, Alert){
             focusOnConfirm: boolean, if true then set focus on confirm button,
             highZIndex: boolean, if true then will set z-index above locked
                         background modal
+            noLogout: remove log out button when  set true
         */
+        if (options.noLogout) {
+            $modal.find(".btn.logout").remove();
+        }
+
         if ($modal.hasClass('locked')) {
             // this handle the case that some modal failure handler
             // may close the modal and it will hide modalBackground
             $modalBg.show();
             $modalBg.addClass('locked');
             // alert modal is already opened and locked due to connection error
-            return;
+            return id;
         } else if ($('#container').hasClass('supportOnly') &&
             options.lockScreen) {
             // do not show any more modals that lock the screen
-            return;
+            return id;
         }
-
 
         // call it here because alert.show() may be called when another alert is visible
         clean();
@@ -118,6 +126,8 @@ window.Alert = (function($, Alert){
                 });
             });
         }
+
+        return id;
     };
 
     Alert.error = function(title, error, options) {
@@ -140,7 +150,7 @@ window.Alert = (function($, Alert){
             "isAlert": true
         };
         alertOptions = $.extend(options, alertOptions);
-        Alert.show(alertOptions);
+        return Alert.show(alertOptions);
     };
 
     Alert.forceClose = function(keepBg) {
@@ -165,11 +175,20 @@ window.Alert = (function($, Alert){
         return val;
     };
 
+    Alert.updateMsg = function(id, msg) {
+        if (id == null || $modal.data("id") !== id) {
+            console.error("wrong alert id!");
+            return;
+        }
+        $("#alertContent .text").text(msg);
+    };
+
     function closeAlertModal($modalContainer) {
         modalHelper.clear({"close": function() {
             // alert modal has its own closer
             return closeHelper($modalContainer);
         }});
+        $modal.removeData("id");
     }
 
     function closeHelper($modalContainer) {
@@ -349,9 +368,13 @@ window.Alert = (function($, Alert){
 
             if (options.expired) {
                 $btnSection.prepend($logoutBtn);
+            } else if (options.disconnect) {
+                $btnSection.prepend($adminSupportBtn, $copySqlBtn, $supportBtn);
             } else if (options.logout) {
                 $btnSection.prepend($adminSupportBtn, $logoutBtn, $copySqlBtn,
                                     $supportBtn);
+            } else if (options.noLogout) {
+                $btnSection.prepend($adminSupportBtn, $copySqlBtn, $supportBtn);
             } else {
                 $btnSection.prepend($adminSupportBtn, $copySqlBtn, $logoutBtn,
                                     $supportBtn);

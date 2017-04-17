@@ -91,16 +91,7 @@ function thriftLog() {
         var alertError;
 
         if (status === StatusT.StatusOk) {
-            Support.checkConnection()
-            .fail(function() {
-                console.warn('Checked XcalarGetVersion and did not return ' +
-                              'a successful response');
-                alertError = {"error": ThriftTStr.CCNBE};
-                Alert.error(ThriftTStr.CCNBEErr, alertError, {
-                    "lockScreen": true
-                });
-                SQL.backup();
-            });
+            Support.checkConnection();
             return thriftError;
         } else {
             // XXX We might need to include connection status 502 (Proxy error)

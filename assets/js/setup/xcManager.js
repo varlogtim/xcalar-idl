@@ -148,6 +148,7 @@ window.xcManager = (function(xcManager, $) {
     function handleSetupFail(error, firstTimeUser) {
         var locationText = StatusMessageTStr.Error;
         var isNotNullObj = error && (typeof error === "object");
+
         if (error === WKBKTStr.NoWkbk){
             // when it's new workbook
             $("#initialLoadScreen").hide();
@@ -242,6 +243,7 @@ window.xcManager = (function(xcManager, $) {
                     title = ThriftTStr.UpdateErr;
                 } else if (error.error.includes("Connection")) {
                     title = ThriftTStr.CCNBEErr;
+                    errorStruct.noLogout = true;
                 } else {
                     title = ThriftTStr.SetupErr;
                 }

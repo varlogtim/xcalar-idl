@@ -256,8 +256,7 @@ describe("DSCart Test", function() {
         after(function() {
             DSCart.clear();
             DSCart.restore(previousCart);
-            var $ds = DS.getGrid(fakeDSObj.getId());
-            DS.__testOnly__.removeDS($ds);
+            DS.__testOnly__.removeDS(fakeDSObj.getId());
         });
     });
 
