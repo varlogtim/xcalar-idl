@@ -154,7 +154,9 @@ window.DSParser = (function($, DSParser) {
     }
 
     function resetScrolling() {
+        var scrollTop;
         $dataPreview.on("mousedown.dsparser", function() {
+            scrollTop = $dataPreview.scrollTop();
             isMouseDown = true;
         });
 
@@ -164,11 +166,13 @@ window.DSParser = (function($, DSParser) {
 
         $(document).on("mouseup.dsparser", function() {
             if (isMouseDown) {
-                checkIfScrolled($dataPreview, previewMeta);
+                if ($dataPreview.scrollTop() !== scrollTop) {
+                    checkIfScrolled($dataPreview, previewMeta, false, true);
+                }
                 isMouseDown = false;
             } else if (isBoxMouseDown) {
                 if (previewMeta) {
-                    checkIfScrolled($miniPreview, previewMeta.meta);
+                    checkIfScrolled($miniPreview, previewMeta.meta, false, true);
                 }
                 isBoxMouseDown = false;
             }
@@ -245,8 +249,28 @@ window.DSParser = (function($, DSParser) {
         var $menu = $("#parserMenu");
         xcMenu.add($menu);
 
-        $dataPreview.mouseup(function(event) {
+        var onScrollbar = false;
+        $dataPreview.mousedown(function(event) {
+            var x = event.offsetX;
+            if (x > $dataPreview.width() - gScrollbarWidth) {
+                // clicking on scrollbar
+                onScrollbar = true;
+                xcHelper.removeSelectionRange();
+                return;
+            } else {
+                onScrollbar = false;
+            }
+        })
 
+        $dataPreview.mouseup(function(event) {
+            var x = event.offsetX;
+            if ((x > ($dataPreview.width() - gScrollbarWidth)) || onScrollbar) {
+                // clicking on scrollbar
+                xcHelper.removeSelectionRange();
+                onScrollbar = false;
+                return;
+            }
+            onScrollbar = false;
             // timeout because deselecting may not take effect until after
             // mouse up
             setTimeout(function() {
@@ -266,12 +290,15 @@ window.DSParser = (function($, DSParser) {
                     $menu.removeData("start");
                     $menu.removeData("end");
                     $menu.removeData("line");
+                    $menu.removeData("totaloffset");
                 } else {
                     $menu.find("li").removeClass("unavailable");
                     $menu.data("tag", res.tag);
                     $menu.data("start", res.start);
                     $menu.data("end", res.end);
                     $menu.data("line", res.line);
+                    $menu.data("totaloffset",
+                                previewMeta.lineLengths[previewMeta.startPage]);
                 }
 
                 xcHelper.dropdownOpen($target, $menu, {
@@ -299,7 +326,9 @@ window.DSParser = (function($, DSParser) {
             var bufferOffset = $menu.data("end");
             var start = $menu.data("start");
             var line = $menu.data("line");
-            populateKey(tag, type, start, bufferOffset, line);
+            var totalOffset = $menu.data("totaloffset");
+
+            populateKey(tag, type, start, bufferOffset, line, totalOffset);
         });
     }
 
@@ -362,14 +391,25 @@ window.DSParser = (function($, DSParser) {
         if (val === 1) {
             padding = 0;
         }
-        var newScrollTop = val * lineHeight + padding;
+        var actualScrollTop = val * lineHeight + padding; // without scaling
+        var newScrollTop = ((page * previewMeta.pageHeight) /
+            previewMeta.scale) + ((val % linesPerPage) * lineHeight) + padding;
+
         var numPages = 1;
 
+        // if the end and start of 2 different pages are visible, fetch 2 pages
         if (Math.floor((val + numVisibleLines) / linesPerPage) !== page) {
-            numPages++;
+            numPages = 2;
         }
 
         if (checkIfNeedContent(page, numPages)) {
+            previewMeta.base = actualScrollTop - (actualScrollTop / previewMeta.scale);
+            if (previewMeta.scale > 1) {
+                previewMeta.offset = page * previewMeta.pageHeight;
+            } else {
+                previewMeta.offset = 0;
+            }
+
             previewContent(page, numPages, newScrollTop)
             .then(deferred.resolve)
             .fail(deferred.reject);
@@ -489,6 +529,7 @@ window.DSParser = (function($, DSParser) {
         }
 
         var scrollTop = Math.max(0, $preview.scrollTop() - paddingTop);
+        scrollTop = scrollTop + meta.offset - (meta.offset / meta.scale);
 
         if (up) {
             var startPage = Math.floor(scrollTop / meta.pageHeight);
@@ -507,14 +548,25 @@ window.DSParser = (function($, DSParser) {
     // called after pressing mousedown on scrollbar, scrolling and releasing
     // also called at a timeout after a scrollevent to check if new content is
     // needed
-    function checkIfScrolled($preview, meta, forRowNum) {
+    function checkIfScrolled($preview, meta, forRowNum, mouseup) {
         if (!previewMeta || !previewMeta.meta) {
             return; // scroll may be triggered when refreshing with new data
         }
         var scrollTop = Math.max(0, $preview.scrollTop() - paddingTop);
+
+        if (mouseup || isMouseDown) {
+            scrollTop *= meta.scale;
+        } else {
+            scrollTop = scrollTop + meta.offset - (meta.offset / meta.scale);
+        }
+
+        var maxPage = meta.numPages - 1;
         var topPage = Math.floor(scrollTop / meta.pageHeight);
+        topPage = Math.min(maxPage, Math.max(0, topPage));
+
         var botPage = Math.floor((scrollTop + $preview[0].offsetHeight) /
                                  meta.pageHeight);
+        botPage = Math.min(maxPage, Math.max(0, botPage));
 
         if (meta.startPage === topPage &&
             meta.endPage === botPage) {
@@ -530,13 +582,25 @@ window.DSParser = (function($, DSParser) {
             } else {
                 numPages = 2;
             }
+
             if (forRowNum) {
                 updateRowNumCol(topPage, numPages, meta);
             } else {
+
+                if (mouseup) {
+                    updateRowNumCol(topPage, numPages, meta);
+                    var actualScrollTop = scrollTop;
+                    scrollTop /= meta.scale;
+                    if (meta.scale > 1) {
+                        meta.offset = topPage * meta.pageHeight;
+                    } else {
+                        meta.offset = 0;
+                    }
+                }
                 if (meta.meta) {
-                    previewContent(topPage, numPages, $preview.scrollTop());
+                    previewContent(topPage, numPages, scrollTop);
                 } else {
-                    showPreviewMode(topPage, numPages, $preview.scrollTop());
+                    showPreviewMode(topPage, numPages, scrollTop);
                 }
             }
         }
@@ -658,6 +722,8 @@ window.DSParser = (function($, DSParser) {
         meta.parsedPath = isText ? curUrl : parseNoProtocolPath(meta.tmpPath);
         meta.lineHeight = lineHeight;
         meta.pageHeight = lineHeight * linesPerPage;
+        meta.scale = 1; // in case preview height exceeds maximum div height
+        meta.offset = 0; // in case preview height exceeds maximum div height
 
         if (meta.meta && !isText) {
             setPreviewMeta(meta.meta, true);
@@ -832,6 +898,7 @@ window.DSParser = (function($, DSParser) {
             $content.append($page);
         }
 
+        setScrollHeight($content, meta);
         adjustSizer($preview, meta);
 
         var padding;
@@ -840,13 +907,14 @@ window.DSParser = (function($, DSParser) {
         } else {
             padding = paddingTop;
         }
+
         if (scrollTop != null) {
             $preview.scrollTop(scrollTop);
         } else {
-            $preview.scrollTop(meta.startPage * meta.pageHeight + padding);
+            var top = (meta.startPage * meta.pageHeight + padding) / meta.scale;
+            $preview.scrollTop(top);
         }
 
-        setScrollHeight($content, meta);
         if (meta.meta) {
             updateRowInput();
         }
@@ -972,8 +1040,17 @@ window.DSParser = (function($, DSParser) {
         } else {
             $miniPreview.css("margin-left", width);
         }
+        var sizerHeight = pageNum * meta.pageHeight;
 
-        $rowNumCol.find(".rowSizer").height(pageNum * meta.pageHeight);
+        if (isMouseDown) {
+            sizerHeight /= meta.scale;
+        } else {
+            sizerHeight = (meta.offset / meta.scale) +
+                          (sizerHeight - meta.offset);
+        }
+
+        $rowNumCol.find(".rowSizer").height(sizerHeight);
+
         if (scrollTop != null) {
             $rowNumCol.scrollTop(scrollTop);
         }
@@ -1156,9 +1233,8 @@ window.DSParser = (function($, DSParser) {
         };
     }
 
-    function populateKey(tag, type, start, bufferOffset, line) {
-        var keyOffset = bufferOffset +
-                        previewMeta.lineLengths[previewMeta.startPage];
+    function populateKey(tag, type, start, bufferOffset, line, totalOffset) {
+        var keyOffset = bufferOffset + totalOffset;
         for (var i = 0, len = keys.length; i < len; i++) {
             if (keys[i].offset === keyOffset && keys[i].type === type) {
                 // when key alreay exists
@@ -1181,7 +1257,7 @@ window.DSParser = (function($, DSParser) {
             "type": type,
             "offset": keyOffset,
             "line": line,
-            "start": start + previewMeta.lineLengths[previewMeta.startPage],
+            "start": start + totalOffset
         });
         addKeyItem(displayKey, type);
     }
@@ -1514,6 +1590,12 @@ window.DSParser = (function($, DSParser) {
         var scrollHeight = Math.max((meta.lineHeight * numRows) +
                                     (paddingTop + paddingBottom),
                                     $content.height());
+        var scale = 1;
+        if (scrollHeight > gMaxDivHeight) {
+            scale = scrollHeight / gMaxDivHeight;
+            scrollHeight = gMaxDivHeight;
+        }
+        meta.scale = scale;
 
         $content.parent().height(scrollHeight);
         if (meta.meta) {
@@ -1544,7 +1626,7 @@ window.DSParser = (function($, DSParser) {
             }
         }
         var $content = $preview.find(".content");
-        var scrollTop = $preview.scrollTop();
+        var cachedScrollTop = $preview.scrollTop();
         var $page = $(getPageHtml(pageNum));
         var pretty = shouldPrettyPrint(meta);
 
@@ -1577,8 +1659,12 @@ window.DSParser = (function($, DSParser) {
             }
         }
 
-        adjustSizer($preview, meta);
-        $preview.scrollTop(scrollTop);
+        adjustSizer($preview, meta, true);
+
+        var curScrollTop = $preview.scrollTop();
+        if (curScrollTop !== cachedScrollTop) {
+            $preview.scrollTop(cachedScrollTop);
+        }
         if (meta.meta) {
             $parserCard.removeClass("fetchingRows");
         } else {
@@ -1674,8 +1760,17 @@ window.DSParser = (function($, DSParser) {
         return $lines;
     }
 
-    function adjustSizer($preview, meta) {
-        $preview.find(".sizer").height(meta.startPage * meta.pageHeight);
+    function adjustSizer($preview, meta, keepScale) {
+        var sizerHeight = meta.startPage * meta.pageHeight;
+        var cached = sizerHeight;
+        if (keepScale) {
+            sizerHeight = (meta.offset / meta.scale) +
+                          (sizerHeight - meta.offset);
+        } else {
+            sizerHeight /= meta.scale;
+        }
+
+        $preview.find(".sizer").height(sizerHeight);
     }
 
     function validateSubmit() {
@@ -1781,8 +1876,23 @@ window.DSParser = (function($, DSParser) {
     }
 
     function getScrollLineNum() {
-        var lineNum = Math.floor(($dataPreview.scrollTop() - paddingTop) /
-                                  lineHeight) + 1;
+        var scale;
+        var base;
+        var offset;
+        if (!previewMeta) {
+            scale = 1;
+            offset = 0;
+        } else {
+            scale = previewMeta.scale;
+            offset = previewMeta.offset;
+        }
+        var scrollTop = $dataPreview.scrollTop();
+        if (isMouseDown) {
+            scrollTop *= scale;
+        } else {
+            scrollTop += offset - (offset / scale);
+        }
+        var lineNum = Math.floor((scrollTop - paddingTop) / lineHeight) + 1;
         return Math.max(1, lineNum);
     }
 

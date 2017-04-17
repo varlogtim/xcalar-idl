@@ -785,9 +785,11 @@ describe("DSParser Test", function() {
         var $menu = $("#parserMenu");
         $menu.data("tag", tag);
         $menu.data("end", end);
+        $menu.data("totaloffset", 0);
 
         $menu.find(".full").click();
         $menu.removeData("tag");
         $menu.removeData("end");
+        $menu.removeData("totaloffset");
     }
 });

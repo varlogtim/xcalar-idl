@@ -337,6 +337,7 @@ window.Compatible = (function($, Compatible) {
             $("body").append('<div id="maxDivHeight"></div>');
             var $div = $("#maxDivHeight");
             var height = findHeight(curHeight);
+            height = Math.max(curHeight, Math.floor(height * .99)); // 1% buffer
             $("#maxDivHeight").remove();
 
             return height;

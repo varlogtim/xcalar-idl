@@ -301,46 +301,37 @@ window.RowScroller = (function($, RowScroller) {
             var fetched = false;
 
             // gets this class from RowManager.addRows
-            scrolling = $table.hasClass('scrolling');
-            if (firstRow.length === 0) {
+            if ($table.hasClass("scrolling") || firstRow.length === 0) {
                 deferred.resolve();
             } else if (scrollTop === 0 && !firstRow.hasClass('row0')) {
                 // scrolling to top
-                if (!scrolling) {
+                numRowsToAdd = Math.min(gNumEntriesPerPage, topRowNum,
+                                        table.resultSetMax);
 
-                    // var initialTop = firstRow.offset().top;
-                    numRowsToAdd = Math.min(gNumEntriesPerPage, topRowNum,
-                                            table.resultSetMax);
+                var rowNumber = topRowNum - numRowsToAdd;
+                if (rowNumber < table.resultSetMax) {
+                    var lastRowToDisplay = table.currentRowNumber -
+                                           numRowsToAdd;
 
-                    var rowNumber = topRowNum - numRowsToAdd;
-                    if (rowNumber < table.resultSetMax) {
-                        var lastRowToDisplay = table.currentRowNumber -
-                                               numRowsToAdd;
+                    info = {
+                        "targetRow": rowNumber,
+                        "lastRowToDisplay": lastRowToDisplay,
+                        "bulk": false,
+                        "tableId": tableId,
+                        "currentFirstRow": topRowNum
+                    };
 
-                        info = {
-                            "targetRow": rowNumber,
-                            "lastRowToDisplay": lastRowToDisplay,
-                            "bulk": false,
-                            "tableId": tableId,
-                            "currentFirstRow": topRowNum
-                        };
-
-                        fetched = true;
-                        RowManager.addRows(rowNumber, numRowsToAdd,
-                                            RowDirection.Top, info)
-                        .then(deferred.resolve)
-                        .fail(deferred.reject);
-                    } else {
-                        deferred.resolve();
-                    }
-
+                    fetched = true;
+                    RowManager.addRows(rowNumber, numRowsToAdd,
+                                        RowDirection.Top, info)
+                    .then(deferred.resolve)
+                    .fail(deferred.reject);
                 } else {
                     deferred.resolve();
                 }
             } else if (isScrollBarAtBottom()) {
                 // scrolling to bottom
-                if (!scrolling && (table.currentRowNumber < table.resultSetMax))
-                {
+                if (table.currentRowNumber < table.resultSetMax) {
                     numRowsToAdd = Math.min(gNumEntriesPerPage,
                                     table.resultSetMax -
                                     table.currentRowNumber);
