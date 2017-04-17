@@ -291,6 +291,7 @@ window.Compatible = (function($, Compatible) {
     function featureCheck() {
         window.hasFlash = flashBlockDetect() === 0;
         window.gMaxDivHeight = getMaxDivHeight();
+        window.gScrollbarWidth = getScrollbarWidth();
 
         function flashBlockDetect(callbackMethod){
             var return_value = 0;
@@ -369,6 +370,31 @@ window.Compatible = (function($, Compatible) {
                     return getMaxHeight(mid, maxHeight);
                 }
             }
+        }
+
+        function getScrollbarWidth() {
+            var outer = document.createElement("div");
+            outer.style.visibility = "hidden";
+            outer.style.width = "100px";
+            outer.style.msOverflowStyle = "scrollbar"; // needed for WinJS apps
+
+            document.body.appendChild(outer);
+
+            var widthNoScroll = outer.offsetWidth;
+            // force scrollbars
+            outer.style.overflow = "scroll";
+
+            // add innerdiv
+            var inner = document.createElement("div");
+            inner.style.width = "100%";
+            outer.appendChild(inner);
+
+            var widthWithScroll = inner.offsetWidth;
+
+            // remove divs
+            outer.parentNode.removeChild(outer);
+
+            return Math.max(8, widthNoScroll - widthWithScroll);
         }
     }
 

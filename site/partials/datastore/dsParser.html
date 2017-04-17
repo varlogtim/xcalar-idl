@@ -27,13 +27,11 @@
       </div>
     </div>
     <div class="divider"></div>
-    <div class="topSection">
-      <div class="rowInputArea">
-        <label for="parserRowInput"><%= dicts.dsParser.SkipToLine %></label>
-        <!-- only allow integer -->
-        <input id="parserRowInput" type="number" min="0" step="1" data-val="0" value="0" spellcheck="false">
-        <label class="totalRows" for="parserRowInput"></label>
-      </div>
+    <div class="topSection rowInputArea">
+      <label for="parserRowInput"><%= dicts.dsParser.SkipToLine %></label>
+      <!-- only allow integer -->
+      <input id="parserRowInput" type="number" min="0" step="1" data-val="0" value="0" spellcheck="false">
+      <label class="totalRows" for="parserRowInput"></label>
     </div>
     <div class="divider"></div>
     <button class="btn confirm xc-confirm"><%= dicts.common.NEXT %></button>

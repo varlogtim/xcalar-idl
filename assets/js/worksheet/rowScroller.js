@@ -165,6 +165,7 @@ window.RowScroller = (function($, RowScroller) {
         scrollMeta.isTableScrolling = false;
         scrollMeta.isBarScrolling = false;
         RowScroller.setSizerHeight(tableId);
+        $scrollBar.width(gScrollbarWidth + 1);
         var visibleRows = Math.min(gMaxEntriesPerPage, table.resultSetCount);
 
         $scrollBar.scroll(function(event) {

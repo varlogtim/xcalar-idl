@@ -177,6 +177,7 @@ window.DSParser = (function($, DSParser) {
 
     function setupBoxes() {
         var $boxes = $parserCard.find(".parserBox");
+        $boxes.css("margin-right", gScrollbarWidth);
 
         $boxes.mousedown(function() {
             $(this).css({"z-index": 1});
@@ -187,9 +188,10 @@ window.DSParser = (function($, DSParser) {
             var $box = $(this).closest(".parserBox");
             $box.removeClass("minimized");
             if ($box.hasClass("maximized")) {
-                $box.removeClass("maximized");
+                $box.removeClass("maximized").css("margin-right",
+                                                  gScrollbarWidth);
             } else {
-                $box.addClass("maximized");
+                $box.addClass("maximized").css("margin-right", 0);
                 if ($box.is("#previewModeBox") && previewMeta) {
                     checkIfScrolled($miniPreview, previewMeta.meta);
                 }
@@ -556,6 +558,19 @@ window.DSParser = (function($, DSParser) {
         $parserCard.removeClass("error");
         if (newContent) {
             $parserCard.addClass("loading");
+            var $box = $("#previewModeBox");
+            var $delimBox = $("#delimitersBox");
+            var $plainTextBox = $("#plainTextBox");
+            var format = getFormat();
+            if (format === "PLAIN TEXT") {
+                $box.addClass("xc-hidden");
+                $delimBox.addClass("xc-hidden");
+                $plainTextBox.removeClass("xc-hidden");
+            } else {
+                $box.removeClass("xc-hidden");
+                $delimBox.removeClass("xc-hidden");
+                $plainTextBox.addClass("xc-hidden");
+            }
         } else {
             $parserCard.addClass("fetchingRows");
         }
