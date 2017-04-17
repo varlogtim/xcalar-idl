@@ -192,7 +192,7 @@ window.DFParamModal = (function($, DFParamModal){
                     var func = $li.text();
                     var $input = $list.find("input.editableParamDiv");
 
-                    if (func === $input.val().trim()) {
+                    if (func === $.trim($input.val())) {
                         return;
                     }
 
@@ -220,7 +220,7 @@ window.DFParamModal = (function($, DFParamModal){
             dropdownHelper.setupListeners();
 
             $list.find("input").change(function() {
-                var func = $(this).val().trim();
+                var func = $.trim($(this).val());
                 updateNumArgs(func);
             });
 
@@ -242,7 +242,7 @@ window.DFParamModal = (function($, DFParamModal){
                 $list.find('ul').html(html);
 
                 var $input = $list.find("input.editableParamDiv");
-                var func = $input.val().trim();
+                var func = $.trim(input.val());
                 updateNumArgs(func);
 
                 deferred.resolve();
@@ -486,7 +486,7 @@ window.DFParamModal = (function($, DFParamModal){
     }
 
     function suggest($input) {
-        var value = $input.val().trim().toLowerCase();
+        var value = $.trim($input.val()).toLowerCase();
         var $list = $input.siblings('.list');
         if ($list.length === 0) {
             // when no list to suggest
@@ -750,7 +750,7 @@ window.DFParamModal = (function($, DFParamModal){
         // check for empty param values
         $editableDivs.each(function() {
             var $div = $(this);
-            if (!$div.hasClass("allowEmpty") && $div.val().trim() === "") {
+            if (!$div.hasClass("allowEmpty") && $.trim($div.val()) === "") {
                 isValid = false;
                 StatusBox.show(ErrTStr.NoEmpty, $div);
                 return false;
@@ -767,7 +767,7 @@ window.DFParamModal = (function($, DFParamModal){
         $paramLists.find(".row:not(.unfilled)").each(function() {
             var $row = $(this);
             var name = $row.find(".paramName").text();
-            var val = $row.find(".paramVal").val().trim();
+            var val = $.trim($row.find(".paramVal").val());
             var check = $row.find(".checkbox").hasClass("checked");
 
             if ($row.hasClass("currParams")) {
@@ -845,16 +845,16 @@ window.DFParamModal = (function($, DFParamModal){
                 case ("filter"):
                     paramType = XcalarApisT.XcalarApiFilter;
                     if ($oldVals.length === 1) {
-                        paramValue = $oldVals.eq(0).text().trim();
+                        paramValue = $.trim($oldVals.eq(0).text());
                         paramQuery = [paramValue];
                     } else {
-                        var filterText = $oldVals.eq(1).text().trim();
-                        var str1 = $oldVals.eq(0).text().trim();
+                        var filterText = $.trim($oldVals.eq(1).text());
+                        var str1 = $.trim($oldVals.eq(0).text());
                         var additionalArgs = "";
                         var arg;
                         paramQuery = [str1, filterText];
                         for (var i = 2; i < $oldVals.length; i++) {
-                            arg = $oldVals.eq(i).text().trim();
+                            arg = $.trim($oldVals.eq(i).text());
                             additionalArgs += arg + ",";
                             paramQuery.push(arg);
                         }
@@ -869,12 +869,12 @@ window.DFParamModal = (function($, DFParamModal){
                     break;
                 case ("dataStore"):
                     paramType = XcalarApisT.XcalarApiBulkLoad;
-                    paramValue = $oldVals.eq(0).text().trim();
+                    paramValue = $.trim($oldVals.eq(0).text());
                     paramQuery = [paramValue];
                     break;
                 case ("export"):
                     paramType = XcalarApisT.XcalarApiExport;
-                    paramValue = $oldVals.eq(0).text().trim();
+                    paramValue = $.trim($oldVals.eq(0).text());
                     paramQuery = [paramValue];
                     break;
             }
@@ -897,11 +897,11 @@ window.DFParamModal = (function($, DFParamModal){
                 case ("filter"):
                     paramType = XcalarApisT.XcalarApiFilter;
                     if ($editableDivs.length === 1) {
-                        paramValue = $editableDivs.eq(0).val().trim();
+                        paramValue = $.trim($editableDivs.eq(0).val());
                         paramQuery = [paramValue];
                     } else {
-                        var filterText = $editableDivs.eq(1).val().trim();
-                        var str1 = $editableDivs.eq(0).val().trim();
+                        var filterText = $.trim($editableDivs.eq(1).val());
+                        var str1 = $.trim($editableDivs.eq(0).val());
                         var filterExists = checkIfValidFilter(filterText,
                                                               $editableDivs.eq(1),
                                                               params);
@@ -915,7 +915,7 @@ window.DFParamModal = (function($, DFParamModal){
                         var arg;
                         paramQuery = [str1, filterText];
                         for (var i = 2; i < $editableDivs.length; i++) {
-                            arg = $editableDivs.eq(i).val().trim();
+                            arg = $.trim($editableDivs.eq(i).val());
                             additionalArgs += arg + ",";
                             paramQuery.push(arg);
                         }
@@ -934,14 +934,14 @@ window.DFParamModal = (function($, DFParamModal){
                     break;
                 case ("load"):
                     paramType = XcalarApisT.XcalarApiBulkLoad;
-                    paramValue = $editableDivs.eq(0).val().trim();
+                    paramValue = $.trim($editableDivs.eq(0).val());
                     // paramInput.paramLoad = new XcalarApiParamLoadT();
                     // paramInput.paramLoad.datasetUrl = str;
                     paramQuery = [paramValue];
                     break;
                 case ("export"):
                     paramType = XcalarApisT.XcalarApiExport;
-                    paramValue = $editableDivs.eq(0).val().trim();
+                    paramValue = $.trim($editableDivs.eq(0).val());
                     paramQuery = [paramValue];
                     break;
                 default:
