@@ -41,6 +41,7 @@ window.UExtBizRules = (function(UExtBizRules) {
             var briTable = args.briTable;
             var cols = briTable.tableCols;
             var argCol;
+
             for (var i = 0; i<cols.length; i++) {
                 var colName = (cols[i].name.replace(/\s/g, "")).toLowerCase();
                 if (colName.indexOf("argumentnames") > -1) {
@@ -53,6 +54,8 @@ window.UExtBizRules = (function(UExtBizRules) {
             }
 
             var numRules = -1;
+            var briModuleName = userIdName.toLowerCase().replace(/[^a-zA-Z0-9]/g,
+                                                               '');
             ext.getNumRows(briTable.getName())
             .then(function(numRows) {
                 if (numRows > 1000) {
@@ -238,14 +241,15 @@ window.UExtBizRules = (function(UExtBizRules) {
                 ruleLookupTemplate = ruleLookupTemplate.replace(/<DESC>/g,
                                                                 ruleDescString);
                 udfString += ruleLookupTemplate;
-                return XcalarUploadPython("bri_" + userIdName, udfString);
+
+                return XcalarUploadPython("bri_" + briModuleName, udfString);
             })
             .then(function() {
                 Alert.show({title: "Business Rules Inventory",
                             msg: "Please select the target table " +
-                            " and apply the map operation bri_" + userIdName +
+                            " and apply the map operation bri_" + briModuleName+
                             ":business_rules_inventory.",
-                            instr: "User Defined Module bri_" + userIdName +
+                            instr: "User Defined Module bri_" + briModuleName +
                                  " uploaded successfully.",
                             isAlert: true});
                 deferred.resolve();
