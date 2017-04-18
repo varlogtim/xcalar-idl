@@ -12,6 +12,7 @@
  *      mode: nothing, ten or hundred - ds size
  *      type: string, type of test "undoredo", "testsuite"
  *      subType: string, subtype of undoredo test
+ *      whichTest: demo (filterOnly demo instead of testSuite)
  * example:
  *  http://localhost:8888/testSuite.html?test=y&delay=2000&user=test&clean=y&close=y
  *  http://localhost:8080/undoredoTest.html?test=y&user=someone&type=undoredo&subType=frontEnd
@@ -22,13 +23,13 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
 
     TestSuiteSetup.setup = function() {
         var params = getSearchParameters();
-        var user = params["user"];
+        var user = params.user;
         if (user == null) {
             hasUser = false;
         } else {
            autoLogin(user);
         }
-        var testType = params["type"];
+        var testType = params.type;
         if (testType === "undoredo") {
             window.unitTestMode = true;
         }
@@ -39,8 +40,8 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
         xcLocalStorage.removeItem("autoLogin");
 
         var params = getSearchParameters();
-        var runTest = hasUser && parseBooleanParam(params["test"]);
-        var testType = params["type"];
+        var runTest = hasUser && parseBooleanParam(params.test);
+        var testType = params.type;
         var toTest = xcSessionStorage.getItem(testSuiteKey);
 
         if (toTest) {
@@ -112,7 +113,7 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
                 var num = Math.ceil(Math.random() * 1000);
                 var wbName = "WB" + num;
                 $('.newWorkbookBox input').val(wbName);
-                $('.newWorkbookBox button').click(); 
+                $('.newWorkbookBox button').click();
                 clearInterval(wbInterval);
 
                 activeWorkbook(wbName)
@@ -153,62 +154,71 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
 
     function autoRunTestSuite() {
         var params = getSearchParameters();
-        var delay = Number(params["timeout"]);
+        var delay = Number(params.timeout);
 
         if (isNaN(delay)) {
             delay = 0;
         }
-        var clean = parseBooleanParam(params["clean"]);
-        var animation = parseBooleanParam(params["animation"]);
-        var noPopup = parseBooleanParam(params["noPopup"]);
-        var mode = params["mode"];
+        var clean = parseBooleanParam(params.clean);
+        var animation = parseBooleanParam(params.animation);
+        var noPopup = parseBooleanParam(params.noPopup);
+        var mode = params.mode;
+        var whichTest = params.whichTest;
 
         // console.log("delay", delay, "clean", clean, "animation", animation)
         setTimeout(function() {
-            TestSuite.run(animation, clean, noPopup, mode)
+            var deferred = jQuery.Deferred();
+            if (whichTest == "demo") {
+                deferred = DemoTestSuite.run();
+            } else {
+                deferred = TestSuite.run(animation, clean, noPopup, mode);
+            }
+            deferred
             .then(function(res) {
                 console.info(res);
                 reportResults(res);
             })
             .fail(function() {
-                console.log("fail")
-            })
+                console.log("fail");
+            });
         }, delay);
     }
 
     function autoRunUndoTest() {
         // sample param ?user=someone&test=y&type=undoredo&subType=frontEnd
         var params = getSearchParameters();
-        var delay = Number(params["timeout"]);
-        var operationType = params['subType'];
+        var delay = Number(params.timeout);
+        var operationType = params.subType;
 
         if (isNaN(delay)) {
             delay = 0;
         }
-     
+
         setTimeout(function() {
             UndoRedoTest.run(operationType)
             .always(function() {
-               // undotest should be handling end cases 
+               // undotest should be handling end cases
             });
         }, delay);
     }
 
     function reportResults(res) {
         var params = getSearchParameters();
-        var close = params["close"];
-        var id = Number(params["id"]);
+        var close = params.close;
+        var id = Number(params.id);
         if (isNaN(id)) {
             id = 0;
         }
 
-        window.opener.reportResults(id, res);
-        if (close) {
-            if (close === "force") {
-                window.close();
-            } else {
-                if (res.fail === 0) {
+        if (window.opener) {
+            window.opener.reportResults(id, res);
+            if (close) {
+                if (close === "force") {
                     window.close();
+                } else {
+                    if (res.fail === 0) {
+                        window.close();
+                    }
                 }
             }
         }

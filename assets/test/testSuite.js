@@ -1661,3 +1661,12 @@ window.TestSuite = (function($, TestSuite) {
 
     return (TestSuite);
 }(jQuery, {}));
+
+window.DemoTestSuite = (function($, DemoTestSuite) {
+    DemoTestSuite.run = function() {
+        console.log("Not yet implemented");
+        return jQuery.Deferred().resolve();
+    };
+    // TODO Implement me!
+    return (DemoTestSuite);
+}(jQuery, {}));
