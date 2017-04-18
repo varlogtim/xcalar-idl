@@ -2,12 +2,12 @@ describe('xcTooltip Test', function() {
     var $ele = $('<div id="unitTest-tooltipTest"></div>');
 
     before(function() {
-        $("#viewLocation").after($ele);
+        $("#rowInput").after($ele);
     });
 
     it('Should add tooltip', function() {
         xcTooltip.add($ele, {
-            "container": "#viewLocation",
+            "container": "#rowInput",
             "placement": "bottom"
         });
 
@@ -15,7 +15,7 @@ describe('xcTooltip Test', function() {
         expect($ele.attr("title")).to.equal("");
         expect($ele.attr("data-original-title")).to.equal("");
         expect($ele.attr("data-toggle")).to.equal("tooltip");
-        expect($ele.attr("data-container")).to.equal("#viewLocation");
+        expect($ele.attr("data-container")).to.equal("#rowInput");
         expect($ele.attr("data-placement")).to.equal("bottom");
 
         // test 2
@@ -42,6 +42,7 @@ describe('xcTooltip Test', function() {
 
     it('Should show transient in', function(done) {
         // test 1
+        $ele.focus();
         var timer = xcTooltip.transient($ele, {
             "title": "test2"
         });
@@ -49,6 +50,7 @@ describe('xcTooltip Test', function() {
         expect($(".tooltip:visible").length).not.to.equal(0);
 
         // test 2
+        $ele.focus();
         timer = xcTooltip.transient($ele, {
             "title": "test3"
         }, 100);
@@ -62,6 +64,7 @@ describe('xcTooltip Test', function() {
     });
 
     it('Should auto tooltip', function() {
+        $ele.focus();
         xcTooltip.add($ele, {
             "title": "test"
         });

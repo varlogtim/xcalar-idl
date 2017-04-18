@@ -222,7 +222,7 @@ window.TableList = (function($, TableList) {
                 }
             }
 
-            WSManager.getHiddenWSList();
+            wsheets = WSManager.getHiddenWSList();
             for (var i = 0; i < wsheets.length; i++) {
                 ws = WSManager.getWSById(wsheets[i]);
                 if (isActive) {
