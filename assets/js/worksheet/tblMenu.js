@@ -840,7 +840,6 @@ window.TblMenu = (function(TblMenu, $) {
             }
 
             var valArray = [];
-            var colVal;
             sortHighlightCells(cells);
             for (var i = 0, len = cells.length; i < len; i++) {
                 valArray.push(cells[i].val);

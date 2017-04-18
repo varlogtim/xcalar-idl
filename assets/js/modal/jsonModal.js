@@ -14,7 +14,6 @@ window.JSONModal = (function($, JSONModal) {
     var isSaveModeOff = false;
     var refCounts = {}; // to track clicked json tds
     var $lastKeySelected;
-    var $cachedTd;
     var modes = {
         single: 'single',
         multiple: 'multiple',
@@ -124,7 +123,6 @@ window.JSONModal = (function($, JSONModal) {
             $jsonModal.removeClass('singleView');
         } else {
             $jsonModal.addClass('singleView');
-            $cachedTd = $jsonTd;
         }
 
         if (!isModalOpen) {
@@ -179,7 +177,7 @@ window.JSONModal = (function($, JSONModal) {
                 scrollMatchIntoView($match);
             },
             "toggleSlider": searchText,
-            "onInput": function(val) {
+            "onInput": function() {
                 searchText();
             }
         });
@@ -574,7 +572,7 @@ window.JSONModal = (function($, JSONModal) {
             }
 
             if (event.shiftKey && $lastKeySelected) {
-                var $els = $jsonWrap.find('jKey, .arrayEl');
+                // var $els = $jsonWrap.find('jKey, .arrayEl');
                 var $cboxes = $jsonWrap.find('.jsonCheckbox');
                 var $els = $();
                 $cboxes.each(function() {
@@ -949,7 +947,6 @@ window.JSONModal = (function($, JSONModal) {
         comparisonObjs = {};
         $jsonText = null;
         $lastKeySelected = null;
-        $cachedTd = null;
     }
 
     // if mode isn't provided, will default to single "select mode" if a single
@@ -1962,12 +1959,8 @@ window.JSONModal = (function($, JSONModal) {
         }, 0);
     }
 
-    function getSelectedCols($jsonWrap, tableId, colNum) {
+    function getSelectedCols($jsonWrap) {
         var colNames = [];
-        var baseName = "";
-        if (!isDataCol) {
-            baseName = gTables[tableId].getCol(colNum).getBackColName();
-        }
         $jsonWrap.find('.keySelected').each(function() {
             var $el = $(this);
             var nameInfo = createJsonSelectionExpression($el);

@@ -43,9 +43,8 @@ window.Concurrency = (function($, Concurrency) {
         }
         var s ="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         var lockString = Array.apply(null, Array(88)).map(function() {
-                            return s.charAt(Math.floor(
-                                            Math.random() * s.length));
-                        }).join('');
+            return s.charAt(Math.floor(Math.random() * s.length));
+        }).join('');
         var backoff = backoffBasis;
         var deferred = jQuery.Deferred();
 

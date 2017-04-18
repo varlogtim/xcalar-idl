@@ -86,7 +86,7 @@ window.RowManager = (function($, RowManager) {
                 if (info.bulk) {
                     addTempRows(info.tableId, startIndex, 1, direction);
                 }
-                cleanupMissingRows(info, startIndex, direction);
+                cleanupMissingRows(info, startIndex);
             } else {
                 if (!info.bulk && rowToPrependTo != null) {
                     rowToPrependTo -= numRowsLacking;
@@ -161,7 +161,6 @@ window.RowManager = (function($, RowManager) {
                                     .addClass("empty");
         var $xcTbodyWrap = $('#xcTbodyWrap-' + info.tableId);
         var scrollTop = $xcTbodyWrap.scrollTop();
-        var prevScrollTop = scrollTop;
         if (scrollTop < 2) {
             // leave some space for scrolling up
             scrollTop = 2;
@@ -201,7 +200,6 @@ window.RowManager = (function($, RowManager) {
                               numRowsStillNeeded, info) {
         var newStartIndex;
         var table = gTables[info.tableId];
-        var $table = info.$table;
         if (position < table.resultSetCount) {
             newStartIndex = Math.min(position, table.resultSetCount);
             numRowsToFetch = Math.min(numRowsStillNeeded,
@@ -225,7 +223,6 @@ window.RowManager = (function($, RowManager) {
             var $xcTbodyWrap = $("#xcTbodyWrap-" + tableId);
             var distFromBottom = $xcTbodyWrap[0].scrollHeight -
                           $xcTbodyWrap.scrollTop() - $xcTbodyWrap.outerHeight();
-            var scrollTop = $xcTbodyWrap.scrollTop();
 
             info.$table.find("tbody tr").slice(0, numRowsToRemove).remove();
 
@@ -434,7 +431,7 @@ window.RowManager = (function($, RowManager) {
         TblFunc.moveFirstColumn();
     }
 
-    function cleanupMissingRows(info, rowPosition, direction) {
+    function cleanupMissingRows(info, rowPosition) {
         if (!info.missingRows) {
             info.missingRows = [];
         }

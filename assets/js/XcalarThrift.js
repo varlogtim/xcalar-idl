@@ -455,6 +455,10 @@ function XcalarPreview(url, fileNamePattern, isRecur, numBytesRequested, offset)
         return (deferred.promise());
     }
 
+    if (fileNamePattern == null) {
+        fileNamePattern = "";
+    }
+
     xcalarPreview(tHandle, url, fileNamePattern, isRecur,
                     numBytesRequested, offset)
     .then(function(ret) {

@@ -1252,7 +1252,7 @@ window.TblManager = (function($, TblManager) {
         var table = gTables[tableId];
         var $table = $("#xcTable-" + tableId);
         var lastRow = table.currentRowNumber - 1;
-        var firstRow = lastRow - ($table.find("tbody tr").length  - 1);
+        var firstRow = lastRow - ($table.find("tbody tr").length - 1);
         for (var row in table.highlightedCells) {
             row = parseInt(row);
             if (row <= lastRow && row >= firstRow) {
@@ -1309,7 +1309,6 @@ window.TblManager = (function($, TblManager) {
         var tableId = xcHelper.parseTableId($td.closest(".xcTable"));
         var colNum = xcHelper.parseColNum($td);
         var rowNum = xcHelper.parseRowNum($td.closest("tr"));
-        var pageNum = Math.floor(rowNum / gNumEntriesPerPage);
         var cells = gTables[tableId].highlightedCells;
 
         if (cells[rowNum]) {
@@ -1428,7 +1427,6 @@ window.TblManager = (function($, TblManager) {
         }
 
         if (noDeleteTables.length) {
-            var list = "";
             var tableName;
             for (var i = 0; i < noDeleteTables.length; i++) {
                 if (gTables[noDeleteTables[i]]) {
@@ -1702,7 +1700,7 @@ window.TblManager = (function($, TblManager) {
         })
         .fail(function(error) {
             if (!initialTableBuilt) {
-                 console.error("startBuildTable fails!", error);
+                console.error("startBuildTable fails!", error);
                 deferred.reject(error);
             } else {
                 afterBuild();
@@ -2361,7 +2359,6 @@ window.TblManager = (function($, TblManager) {
         $tbody.on("mousedown", "td", function(event) {
             var $td = $(this);
             var $el = $td.children('.clickable');
-            var $otherBoxes;
 
             if ($table.closest('.columnPicker').length ||
                 $("#mainFrame").hasClass("modalOpen"))

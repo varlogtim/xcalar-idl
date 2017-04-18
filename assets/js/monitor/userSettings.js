@@ -90,7 +90,7 @@ window.UserSettings = (function($, UserSettings) {
 
             dsPromise
             .then(function() {
-               return userPrefPromise;
+                return userPrefPromise;
             })
             .then(function() {
                 hasDSChange = false;

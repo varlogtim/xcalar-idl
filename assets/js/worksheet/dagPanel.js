@@ -770,7 +770,6 @@ window.DagPanel = (function($, DagPanel) {
 
         var dagId = $menu.data('dagid');
         var $dagWrap = $('#dagWrap-' + dagId);
-        var $dagImage = $dagWrap.find('.dagImage');
         if ($dagWrap.hasClass('unsavable') || $dagWrap.hasClass("tooLarge")) {
             $menu.find('.saveImage, .newTabImage').hide();
             $menu.find('.unsavable').show();
@@ -1214,7 +1213,7 @@ window.DagPanel = (function($, DagPanel) {
                 break;
         }
 
-        return  deferred.promise();
+        return deferred.promise();
 
         function postOperation(txId) {
             var newCols = [];
@@ -2000,7 +1999,6 @@ window.Dag = (function($, Dag) {
     };
 
     Dag.showDataStoreInfo = function($dagTable) {
-        var tableId = $dagTable.data('id');
         var $schema = $('#dagSchema');
         $schema.addClass("loadInfo");
         var tableName = $dagTable.data("tablename");

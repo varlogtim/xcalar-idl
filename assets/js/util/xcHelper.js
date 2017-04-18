@@ -1506,11 +1506,12 @@ window.xcHelper = (function($, xcHelper) {
         xcAssert((tableId != null), "Invalid Parameters!");
 
         var table = gTables[tableId];
+        var $dagTables = $('#dagPanel').find('.dagTable[data-id="' +
+                                            tableId + '"]');
+
         if (!table) {
             // case if table was deleted before unlock is called;
             SQL.unlockUndoRedo();
-            var $dagTables = $('#dagPanel').find('.dagTable[data-id="' +
-                                                tableId + '"]');
             $dagTables.removeClass('locked');
             $dagTables.find('.lockIcon').remove();
             return;
@@ -1526,8 +1527,6 @@ window.xcHelper = (function($, xcHelper) {
             var $tbody = $tableWrap.find('.xcTbodyWrap');
             $tbody.off('scroll.preventScrolling');
         }
-        var $dagTables = $('#dagPanel').find('.dagTable[data-id="' + tableId +
-                                            '"]');
         $dagTables.removeClass('locked');
         if (!table.isNoDelete()) {
             // if noDelete, they still need the lock
@@ -3557,8 +3556,8 @@ window.xcHelper = (function($, xcHelper) {
         if ($unnestLi.hasClass("hidden")) {
             return;
         }
-        var rowNum = options.rowNum
-        var colNum = options.colNum
+        var rowNum = options.rowNum;
+        var colNum = options.colNum;
         var table = gTables[tableId];
         var progCol = table.getCol(colNum);
         var $table = $('#xcTable-' + tableId);

@@ -208,8 +208,10 @@ window.TableList = (function($, TableList) {
             var wsheets = WSManager.getWSList();
             var tables = [];
             var wsTables;
+            var ws;
+
             for (var i = 0; i < wsheets.length; i++) {
-                var ws = WSManager.getWSById(wsheets[i]);
+                ws = WSManager.getWSById(wsheets[i]);
                 if (isActive) {
                     wsTables = ws.tables;
                 } else {
@@ -219,10 +221,10 @@ window.TableList = (function($, TableList) {
                     tables.push(gTables[wsTables[j]]);
                 }
             }
-            var wsheets = WSManager.getHiddenWSList();
-            var wsTables;
+
+            WSManager.getHiddenWSList();
             for (var i = 0; i < wsheets.length; i++) {
-                var ws = WSManager.getWSById(wsheets[i]);
+                ws = WSManager.getWSById(wsheets[i]);
                 if (isActive) {
                     wsTables = ws.tempHiddenTables;
                 } else {
@@ -1156,7 +1158,7 @@ window.TableList = (function($, TableList) {
                     node = rets[i].node[0];
                     aggConst.backColName = null;
                     aggConst.dagName = node.name.name;
-                    aggConst.aggName =  node.name.name;
+                    aggConst.aggName = node.name.name;
                     aggConst.op = node.input.aggregateInput.evalStr;
                     aggConst.tableName = node.input.aggregateInput
                                                     .srcTable.tableName;

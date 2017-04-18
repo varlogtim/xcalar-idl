@@ -1014,7 +1014,7 @@ window.DFParamModal = (function($, DFParamModal){
                                  .find('input.editableParamDiv').val();
 
         for (var i = 0; i < params.length; i++) {
-            var regex = new RegExp("<" + params[i].name  + ">", "g");
+            var regex = new RegExp("<" + params[i].name + ">", "g");
             val = val.replace(regex, params[i].val);
         }
         var index = val.indexOf(".");

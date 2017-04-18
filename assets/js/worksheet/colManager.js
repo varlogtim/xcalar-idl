@@ -838,7 +838,6 @@ window.ColManager = (function($, ColManager) {
     // as a duplicate
     ColManager.checkColName = function($colInput, tableId, colNum, options) {
         var columnName = $colInput.val().trim();
-        var isInvalid = false;
         var error;
         var table = gTables[tableId];
         xcTooltip.hideAll();

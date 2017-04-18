@@ -1,6 +1,5 @@
 window.RowScroller = (function($, RowScroller) {
     var $rowInput;        // $("#rowInput");
-    var rowInfo = {};
 
     RowScroller.setup = function() {
         $rowInput = $("#rowInput");
@@ -154,7 +153,6 @@ window.RowScroller = (function($, RowScroller) {
     function setupScrollbar(tableId) {
         var $scrollBar = $("#xcTableWrap-" + tableId).find(".tableScrollBar");
         var table = gTables[tableId];
-        var numRows = table.resultSetCount;
         var isMouseDown = false;
         var $table = $("#xcTable-" + tableId);
 
@@ -168,7 +166,7 @@ window.RowScroller = (function($, RowScroller) {
         $scrollBar.width(gScrollbarWidth + 1);
         var visibleRows = Math.min(gMaxEntriesPerPage, table.resultSetCount);
 
-        $scrollBar.scroll(function(event) {
+        $scrollBar.scroll(function() {
             if (isMouseDown) {
                 return;
             }
@@ -249,7 +247,6 @@ window.RowScroller = (function($, RowScroller) {
     function infScrolling(tableId) {
         var scrolling = false;
         var $xcTbodyWrap = $('#xcTbodyWrap-' + tableId);
-        var updateRangeTimer;
         var needsFocusing = true;
         var focusTimer;
         var table = gTables[tableId];
@@ -407,7 +404,7 @@ window.RowScroller = (function($, RowScroller) {
         RowScroller.addBookmark(bookmarks, tableId);
     };
 
-    RowScroller.update = function(tableId) {
+    RowScroller.update = function() {
         var $numPages = $("#numPages");
         var table = gTables[gActiveTableId];
         var inputWidth = 50;
@@ -480,7 +477,6 @@ window.RowScroller = (function($, RowScroller) {
     RowScroller.genFirstVisibleRowNum = function() {
         var firstRowNum = getFirstVisibleRowNum();
         if (firstRowNum !== null) {
-            var activeTableId = gActiveTableId;
             $('#rowInput').val(firstRowNum).data('val', firstRowNum);
         }
     };
@@ -553,11 +549,11 @@ window.RowScroller = (function($, RowScroller) {
         return null;
     };
 
-    function parseBookmarkNum(el) {
-        var classNames = el.attr('class');
-        var index = classNames.indexOf('bkmkRow') + 'bkmkRow'.length;
-        return parseInt(classNames.substring(index)) + 1;
-    }
+    // function parseBookmarkNum(el) {
+    //     var classNames = el.attr('class');
+    //     var index = classNames.indexOf('bkmkRow') + 'bkmkRow'.length;
+    //     return parseInt(classNames.substring(index)) + 1;
+    // }
 
     function positionScrollbar(row, tableId, adjustTableScroller) {
         var canScroll = true;

@@ -820,7 +820,7 @@ SearchBar.prototype = {
             callback();
         }
     },
-    toggleSlider: function(callback) {
+    toggleSlider: function() {
         var searchBar = this;
         if (!searchBar.isSlider) {
             return;

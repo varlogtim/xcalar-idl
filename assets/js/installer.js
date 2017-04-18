@@ -13,14 +13,14 @@ window.Installer = (function(Installer, $) {
         "Error": -1,
         "Running": 1,
         "Done": 2
-    }
+    };
 
     var intervalTimer;
     var licenseCheckingApi = "/xdp/license/verification";
     var installationStatusApi = "/xdp/installation/status";
     var installationStartApi = "/xdp/installation/start";
-    var installationFinishApi = "/xdp/installation/finish";
-    var installationCancelApi = "/xdp/installation/cancel";
+    // var installationFinishApi = "/xdp/installation/finish";
+    // var installationCancelApi = "/xdp/installation/cancel";
     var ldapInstallApi = "/ldap/installation";
     var ldapConfigApi = "/ldap/config";
 
@@ -408,7 +408,7 @@ window.Installer = (function(Installer, $) {
                                 "the key and try again");
             }
         })
-        .fail(function(hints, ret) {
+        .fail(function() {
             deferred.reject("Connection Error", "Connection with the " +
                             "authentication server cannot be established.");
         });
@@ -570,15 +570,15 @@ window.Installer = (function(Installer, $) {
             deferred.reject.apply({}, arguments);
         });
 
-        function getInstallationLog() {
-            var innerDeferred = jQuery.Deferred();
-            sendViaHttps("installationLogs", {isHTTP: true}, function(ret) {
-                innerDeferred.resolve(ret.logs);
-            }, function(ret, textStatus, xhr) {
-                innerDeferred.reject("Ajax error");
-            });
-            return innerDeferred.promise();
-        }
+        // function getInstallationLog() {
+        //     var innerDeferred = jQuery.Deferred();
+        //     sendViaHttps("installationLogs", {isHTTP: true}, function(ret) {
+        //         innerDeferred.resolve(ret.logs);
+        //     }, function(ret, textStatus, xhr) {
+        //         innerDeferred.reject("Ajax error");
+        //     });
+        //     return innerDeferred.promise();
+        // }
         return deferred.promise();
     }
 
@@ -663,8 +663,7 @@ window.Installer = (function(Installer, $) {
         $error.show();
     }
 
-    function hostnameHtml(id) {
-        // Currently no longer using id
+    function hostnameHtml() {
         return ('<div class="row">' +
             '<div class="leftCol hostname">' +
               '<div class="publicName">' +
@@ -794,7 +793,7 @@ window.Installer = (function(Installer, $) {
 
             console.log(struct);
             sendViaHttps("POST", ldapInstallApi, JSON.stringify(struct))
-            .then(function(hints, data) {
+            .then(function() {
                 $("#ldapForm").removeClass("disabled");
                 deferred.resolve(httpStatus.OK);
             })
@@ -817,7 +816,7 @@ window.Installer = (function(Installer, $) {
 
             console.log(struct);
             sendViaHttps("PUT", ldapConfigApi, JSON.stringify(struct))
-            .then(function(hints, data) {
+            .then(function() {
                 $("#ldapForm").removeClass("disabled");
                 deferred.resolve(httpStatus.OK);
             })
@@ -863,7 +862,7 @@ window.Installer = (function(Installer, $) {
                         updateStatus(ret.retVal);
                     }
                 })
-                .fail(function(hints, data) {
+                .fail(function() {
                     clearInterval(intervalTimer);
                     deferred.reject("Connection Error",
                                     "Connection to server cannot be " +
