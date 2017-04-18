@@ -1666,6 +1666,8 @@ window.DemoTestSuite = (function($, DemoTestSuite) {
     DemoTestSuite.run = function(isOneTime) {
         addOrphanTable()
         .then(function() {
+            pullCols();
+
             if (isOneTime) {
                 filterTable();
             } else {
@@ -1695,6 +1697,14 @@ window.DemoTestSuite = (function($, DemoTestSuite) {
         .fail(deferred.reject);
 
         return deferred.promise();
+    }
+
+    function pullCols() {
+        var $table = $(".xcTableWrap").eq(0);
+        var tableId = $table.data("id");
+        // if no col, will return 1 (include DATA col), so colNum = 1
+        var colNum = gTables[tableId].getNumCols();
+        ColManager.unnest(tableId, colNum, 0);
     }
 
     function filterTrigger() {
