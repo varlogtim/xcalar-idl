@@ -802,6 +802,12 @@ window.DFParamModal = (function($, DFParamModal){
             return deferred.promise();
         }
 
+        if (hasInvalidExportSuffix(params)) {
+            StatusBox.show(DFTStr.NoFileExt, $editableDivs.eq(0));
+            deferred.reject();
+            return deferred.promise();
+        }
+
         var retName = $dfgParamModal.data("dfg");
         var dfg = DF.getDataflow(retName);
         var dagNodeId = $dfgParamModal.data("id");
@@ -995,6 +1001,28 @@ window.DFParamModal = (function($, DFParamModal){
         }).length;
 
         return (filterExists);
+    }
+
+    // returns true if doesn't have .extension
+    function hasInvalidExportSuffix(params) {
+        var type = $iconTrigger.data('type');
+        if (type !== "export") {
+            return false;
+        }
+        $dfgParamModal.find(".editableTable");
+        var val =  $dfgParamModal.find(".editableTable")
+                                 .find('input.editableParamDiv').val();
+
+        for (var i = 0; i < params.length; i++) {
+            var regex = new RegExp("<" + params[i].name  + ">", "g");
+            val = val.replace(regex, params[i].val);
+        }
+        var index = val.indexOf(".");
+        if (index === -1 || index === (val.length - 1)) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     function getParameterInputHTML(inputNum, extraClass, options) {

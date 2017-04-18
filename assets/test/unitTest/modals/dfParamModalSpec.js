@@ -56,7 +56,7 @@ describe("DFParamModal Test", function() {
 		DFParamModal.show = cachedFn;
 	});
 
-	describe("initial state test from export", function() {
+	describe("initial state test from export and submit fail test", function() {
 		before(function(done) {
 			DFParamModal.show($dfWrap.find(".dagTable.export"))
 			.then(function() {
@@ -74,6 +74,107 @@ describe("DFParamModal Test", function() {
 			expect($modal.find("input").eq(0).val()).to.equal("");
 			expect($modal.find("input").length).to.equal(8);
 		});
+
+		describe("export submit with invalid file name", function() {
+			it("no extension should fail", function(done) {
+				$modal.find('.editableParamQuery input').eq(0).val("abc");
+				DFParamModal.__testOnly__.storeRetina()
+	            .then(function() {
+	            	done("failed");
+	            })
+	            .fail(function(){
+	            	UnitTest.hasStatusBoxWithError("Export file name must have an extension.");
+	            	done();
+	            });
+			});
+
+			it("no extension should fail", function(done) {
+				$modal.find('.editableParamQuery input').eq(0).val("abc.");
+				DFParamModal.__testOnly__.storeRetina()
+	            .then(function() {
+	            	done("failed");
+	            })
+	            .fail(function(){
+	            	UnitTest.hasStatusBoxWithError("Export file name must have an extension.");
+	            	done();
+	            });
+			});
+
+			it("extension in input", function(done) {
+				var cachedFn = XcalarUpdateRetina;
+				var called = false;
+				XcalarUpdateRetina = function() {
+					called = true;
+					return PromiseHelper.reject();
+				};
+
+				$modal.find('.editableParamQuery input').eq(0).val("abc.a");
+
+				DFParamModal.__testOnly__.storeRetina()
+	            .then(function() {
+	            	done("failed");
+	            })
+	            .fail(function(){
+	            	expect(called).to.be.true;
+	            	Alert.forceClose();
+	            	XcalarUpdateRetina = cachedFn;
+	            	done();
+	            });
+			});
+
+			it("no extension in param should not work", function(done) {
+				var cachedFn = XcalarUpdateRetina;
+				var called = false;
+				XcalarUpdateRetina = function() {
+					called = true;
+					return PromiseHelper.reject();
+				};
+
+				$modal.find('.editableParamQuery input').eq(0).val("ab<test>c");
+				$modal.find('.paramName').eq(0).text("test");
+				$modal.find('.paramVal').eq(0).val("csv");
+				$modal.find(".row").eq(0).removeClass("unfilled")
+												  .addClass("currParams");
+
+				DFParamModal.__testOnly__.storeRetina()
+	            .then(function() {
+	            	done("failed");
+	            })
+	            .fail(function(){
+	            	expect(called).to.be.false;
+	            	UnitTest.hasStatusBoxWithError("Export file name must have an extension.");
+	            	XcalarUpdateRetina = cachedFn;
+	            	done();
+	            });
+			});
+
+			it("extension in param should work", function(done) {
+				var cachedFn = XcalarUpdateRetina;
+				var called = false;
+				XcalarUpdateRetina = function() {
+					called = true;
+					return PromiseHelper.reject();
+				};
+
+				$modal.find('.editableParamQuery input').eq(0).val("ab<test>c");
+				$modal.find('.paramName').eq(0).text("test");
+				$modal.find('.paramVal').eq(0).val(".csv");
+				$modal.find(".row").eq(0).removeClass("unfilled")
+												  .addClass("currParams");
+
+				DFParamModal.__testOnly__.storeRetina()
+	            .then(function() {
+	            	done("failed");
+	            })
+	            .fail(function(){
+	            	expect(called).to.be.true;
+	            	Alert.forceClose();
+	            	XcalarUpdateRetina = cachedFn;
+	            	done();
+	            });
+			});
+		});
+
 
 		after(function() {
 			DFParamModal.__testOnly__.closeDFParamModal();

@@ -676,7 +676,7 @@ DFTStr = {
     "ExportTo": "Export As",
     "FindTable": "The final table <table> is in the worksheet",
     "Import": "Export as a Xcalar table",
-    "NoFileExt": "Export file name must have an extension",
+    "NoFileExt": "Export file name must have an extension.",
     "PointTo": "File Path",
     'AddParamHint': 'Please create parameters in the Dataflow Panel first.',
     'Cancel': 'Cancel batch dataflow',
