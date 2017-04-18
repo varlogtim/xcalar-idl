@@ -371,11 +371,16 @@ describe("DSPreview Test", function() {
                 return;
             };
             // case 1
-            DSPreview.backFromParser("test", "udf");
+            DSPreview.backFromParser("test", {
+                "moduleName": "udf"
+            });
             var useUDF = DSPreview.__testOnly__.isUseUDF();
             expect(useUDF).to.be.true;
             // case 2
-            DSPreview.backFromParser("test", "udf", ",");
+            DSPreview.backFromParser("test", {
+                "moduleName": "udf",
+                "delimiter": ","
+            });
             expect(loadArgs.getLineDelim()).to.be.equal(",");
 
             DSPreview.changePreviewFile = oldFunc;

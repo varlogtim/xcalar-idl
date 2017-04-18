@@ -130,7 +130,7 @@ window.DSPreview = (function($, DSPreview) {
         });
 
         $("#preview-parser").click(function() {
-            if ($("#preview-file").hasClass("xc-hidden")) {
+            if (isPreviewSingleFile()) {
                 DSParser.show(loadArgs.getPath());
             } else {
                 previewFileSelect(true);
@@ -201,7 +201,19 @@ window.DSPreview = (function($, DSPreview) {
         });
     };
 
-    DSPreview.backFromParser = function(curUrl, moduleName, delimiter) {
+    /*
+     * options:
+     *  moduleName: udf module to apply
+     *  delimieter: line delimiter (for plain text mode)
+     */
+    DSPreview.backFromParser = function(curUrl, options) {
+        options = options || {};
+        var moduleName = options.moduleName;
+        var delimiter = options.delimiter;
+
+        // After plain text mode in AVP,
+        // instead of redetecting, we should change to text,
+        // no field delim, no quote char and add row num
         var noDetect = false;
         if (delimiter == null) {
             cleanTempParser();
@@ -211,6 +223,11 @@ window.DSPreview = (function($, DSPreview) {
         } else {
             applyLineDelim(delimiter);
             noDetect = true;
+            toggleFormat("TEXT");
+            applyQuote("");
+            if (isPreviewSingleFile()) {
+                toggleGenLineNum(true);
+            }
         }
 
         DSForm.switchView(DSForm.View.Preview);
@@ -688,24 +705,24 @@ window.DSPreview = (function($, DSPreview) {
             colLen = $previewTable.find("th:not(.rowNumHead)").length;
         }
 
-        function noQuoteAlertHelper() {
-            if (quote.length === 1) {
-                return PromiseHelper.resolve();
-            }
+        // function noQuoteAlertHelper() {
+        //     if (quote.length === 1) {
+        //         return PromiseHelper.resolve();
+        //     }
 
-            var innerDeferred = jQuery.Deferred();
-            Alert.show({
-                "title": DSFormTStr.NoQuoteWarn,
-                "msg": DSFormTStr.NoQuoteWarnMsg,
-                "onConfirm": innerDeferred.resolve,
-                "onCancel": function() {
-                    xcHelper.enableSubmit($form.find('.confirm'));
-                    innerDeferred.reject();
-                }
-            });
+        //     var innerDeferred = jQuery.Deferred();
+        //     Alert.show({
+        //         "title": DSFormTStr.NoQuoteWarn,
+        //         "msg": DSFormTStr.NoQuoteWarnMsg,
+        //         "onConfirm": innerDeferred.resolve,
+        //         "onCancel": function() {
+        //             xcHelper.enableSubmit($form.find('.confirm'));
+        //             innerDeferred.reject();
+        //         }
+        //     });
 
-            return innerDeferred.promise();
-        }
+        //     return innerDeferred.promise();
+        // }
 
         function tooManyColAlertHelper() {
             if (colLen < gMaxColToPull) {
@@ -730,8 +747,7 @@ window.DSPreview = (function($, DSPreview) {
         // enableSubmit is done during the next showing of the form
         // If the form isn't shown, there's no way it can be submitted
         // anyway
-        noQuoteAlertHelper()
-        .then(tooManyColAlertHelper)
+        tooManyColAlertHelper()
         .then(function() {
             var pointArgs = {
                 "name": dsName,
@@ -1147,8 +1163,7 @@ window.DSPreview = (function($, DSPreview) {
 
         var $lineDelim = $("#lineDelim").parent().removeClass("xc-hidden");
         var $fieldDelim = $("#fieldDelim").parent().removeClass("xc-hidden");
-        var $genLineNums = $("#genLineNumbersCheckbox").parent()
-                                                      .addClass("xc-hidden");
+        var $genLineNums = $genLineNumCheckBox.parent().addClass("xc-hidden");
         var $udfArgs = $("#udfArgs").removeClass("xc-hidden");
         var $headerRow = $headerCheckBox.parent().removeClass("xc-hidden");
         var $quoteRow = $quote.closest(".row").removeClass("xc-hidden");
@@ -1184,7 +1199,7 @@ window.DSPreview = (function($, DSPreview) {
 
                 toggleGenLineNum(false);
                 loadArgs.setFieldDelim("");
-                if ($("#preview-file").hasClass("xc-hidden")) {
+                if (isPreviewSingleFile()) {
                     $genLineNums.removeClass("xc-hidden");
                 }
                 break;
@@ -1213,6 +1228,10 @@ window.DSPreview = (function($, DSPreview) {
         }
 
         loadArgs.setFormat(formatMap[format]);
+    }
+
+    function isPreviewSingleFile() {
+        return $("#preview-file").hasClass("xc-hidden");
     }
 
     function clearPreviewTable() {

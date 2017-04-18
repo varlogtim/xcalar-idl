@@ -1457,16 +1457,19 @@ window.DSParser = (function($, DSParser) {
     function submitForm() {
         if (!validateSubmit()) {
             return PromiseHelper.reject("invalid submit");
+        } else if (getFormat() === "PLAIN TEXT") {
+            var $lineText = $("#plainTextBox input");
+            var lineDelim = xcHelper.delimiterTranslate($lineText);
+            DSPreview.backFromParser(curUrl, {
+                "delimiter": lineDelim
+            });
+            cleanupCard();
+            return PromiseHelper.resolve();
         }
+
         var deferred = jQuery.Deferred();
         var promise = deferred.promise();
         var udfName;
-        var format = getFormat();
-        var lineDelim;
-        if (format === "PLAIN TEXT") {
-            var $lineText = $("#plainTextBox input");
-            lineDelim = xcHelper.delimiterTranslate($lineText);
-        }
 
         alertHelper()
         .then(function() {
@@ -1475,23 +1478,16 @@ window.DSParser = (function($, DSParser) {
             return parseHelper();
         })
         .then(function(udfStr) {
-            if (lineDelim != null) {
-                return PromiseHelper.resolve();
-            } else {
-                udfName = xcHelper.randName(xcHelper.getTempUDFPrefix() +
-                                            "_vp_");
-                return XcalarUploadPython(udfName, udfStr);
-            }
+            udfName = xcHelper.randName(xcHelper.getTempUDFPrefix() + "_vp_");
+            return XcalarUploadPython(udfName, udfStr);
         })
         .then(function() {
-            if (lineDelim != null) {
-                return PromiseHelper.resolve();
-            } else {
-                return PromiseHelper.alwaysResolve(UDF.refresh());
-            }
+            return PromiseHelper.alwaysResolve(UDF.refresh());
         })
         .then(function() {
-            DSPreview.backFromParser(curUrl, udfName, lineDelim);
+            DSPreview.backFromParser(curUrl, {
+                "moduleName": udfName
+            });
             deferred.resolve();
         })
         .fail(function(error) {
@@ -1715,9 +1711,6 @@ window.DSParser = (function($, DSParser) {
     }
 
     function alertHelper() {
-        if (getFormat() === "PLAIN TEXT") {
-            return PromiseHelper.resolve();
-        }
         var deferred = jQuery.Deferred();
         Alert.show({
             "title": DSParserTStr.Submit,
@@ -1737,8 +1730,6 @@ window.DSParser = (function($, DSParser) {
             app = xmlApp;
         } else if (format === "JSON") {
             app = jsonApp;
-        } else if (format === "PLAIN TEXT") {
-            return PromiseHelper.resolve();
         } else {
             return PromiseHelper.reject({"error": DSParserTStr.NotSupport});
         }
