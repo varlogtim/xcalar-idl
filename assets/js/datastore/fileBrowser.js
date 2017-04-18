@@ -287,6 +287,9 @@ window.FileBrowser = (function($, FileBrowser) {
         protocol = changeProtocol(protocol);
         path = getPathWithProtocol(protocol, path);
 
+        var paths = parsePath(path);
+        setPath(getShortPath(paths[paths.length - 1]));
+
         retrievePaths(path)
         .then(function() {
             measureDSIconHeight();
