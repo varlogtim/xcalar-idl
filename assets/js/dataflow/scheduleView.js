@@ -611,7 +611,7 @@ window.Scheduler = (function(Scheduler, $) {
         }
         // other case, will restart and ingore old fetching result
 
-        var deferredOut = jQuery.Deferred();
+        var deferred = jQuery.Deferred();
         var $section = $("#scheduleTable .mainSection");
         var $refreshBtn = $("#modScheduleForm-refresh");
         var outputStr = "";
@@ -641,41 +641,17 @@ window.Scheduler = (function(Scheduler, $) {
                 scheduleInfo.scheduleResults.forEach(function(res) {
                     var runTimeStr = getTime(res.endTime);
                     var parameterStr = getParameterStr(res.parameters);
-
-                    function getScheduleStatus() {
-                        var deferred = jQuery.Deferred();
-                        var statusStr;
-                        XcalarQueryState(currentDataFlowName, false)
-                        .then(function(retInfo) {
-                            var nodes = retInfo.queryGraph.node;
-                            state = DgDagStateTStr[nodes[nodes.length - 1].state];
-                            if (state != "Error") {
-                                var statusStr = SchedTStr.Success;
-                            } else {
-                                var statusStr = SchedTStr.Failed;
-                            }
-                            deferred.resolve(statusStr);
-                        })
-                        .fail(function(retInfo) {
-                            var statusStr = SchedTStr.Failed;
-                            deferred.reject(statusStr);
-                        });
-                        return deferred.promise();
-                    }
-                    getScheduleStatus()
-                    .always(function(statusStr) {
-                        html += getOneRecordHtml(runTimeStr, parameterStr,
-                                                 statusStr, outputStr);
-                        $section.html(html);
-                        deferredOut.resolve();
-                    });
+                    var statusStr = StatusTStr[res.status];
+                    html += getOneRecordHtml(runTimeStr, parameterStr,
+                                             statusStr, outputStr);
                 });
             } else {
                 html = getOneRecordHtml(SchedTStr.Notrun, SchedTStr.Notrun,
                                         SchedTStr.Notrun, SchedTStr.Notrun);
-                $section.html(html);
-                deferredOut.resolve();
             }
+
+            $section.html(html);
+            deferred.resolve();
         })
         .fail(function(error) {
             if (dataflowName !== currentDataFlowName) {
@@ -684,7 +660,7 @@ window.Scheduler = (function(Scheduler, $) {
 
             html = getOneRecordHtml("", "", "", "");
             $section.html(html);
-            deferredOut.reject(error);
+            deferred.reject(error);
         })
         .always(function() {
             $refreshBtn.removeClass("xc-disabled");
@@ -695,7 +671,7 @@ window.Scheduler = (function(Scheduler, $) {
             }
         });
 
-        return deferredOut.promise();
+        return deferred.promise();
     }
 
     function getOneRecordHtml(runTimeStr, timeTakenStr, statusStr, outputStr) {

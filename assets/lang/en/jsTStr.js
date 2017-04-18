@@ -658,8 +658,7 @@ SchedTStr = {
     "unknown": "Unknown",
     "failServerTime": "Failed to get server time",
     "Notrun": "Not run yet",
-    "Success": "Success",
-    "Failed": "Failed"
+    "Success": "Success"
 };
 
 DFTStr = {

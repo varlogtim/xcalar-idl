@@ -548,8 +548,7 @@ SchedTStr = {
 "failServerTime": '无法获得服务器时间',
 'NewSched': '新建调度器',
 "Notrun": "未运行",
-"Success": "成功",
-"Failed": "失败"
+"Success": "成功"
 };
 DFTStr = {
 "CannotCreate": '无法创建批量数据流',
