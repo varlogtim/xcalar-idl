@@ -569,16 +569,6 @@ window.Installer = (function(Installer, $) {
             ErrorMessage.show(options);
             deferred.reject.apply({}, arguments);
         });
-
-        // function getInstallationLog() {
-        //     var innerDeferred = jQuery.Deferred();
-        //     sendViaHttps("installationLogs", {isHTTP: true}, function(ret) {
-        //         innerDeferred.resolve(ret.logs);
-        //     }, function(ret, textStatus, xhr) {
-        //         innerDeferred.reject("Ajax error");
-        //     });
-        //     return innerDeferred.promise();
-        // }
         return deferred.promise();
     }
 
