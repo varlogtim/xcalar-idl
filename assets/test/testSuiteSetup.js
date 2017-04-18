@@ -16,6 +16,7 @@
  * example:
  *  http://localhost:8888/testSuite.html?test=y&delay=2000&user=test&clean=y&close=y
  *  http://localhost:8080/undoredoTest.html?test=y&user=someone&type=undoredo&subType=frontEnd
+ *  http://localhost:8080/testSuite.html?type=testSuite&test=y&noPopup=y&whichTest=demo&user=someone
  */
 window.TestSuiteSetup = (function(TestSuiteSetup) {
     var testSuiteKey = "autoTestsuite";
@@ -95,13 +96,26 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
     }
 
     function autoCreateWorkbook() {
+        var params = getSearchParameters();
+        var whichTest = params.whichTest;
         var activeWorksheet = WSManager.getActiveWS();
         if (activeWorksheet != null) {
+            if (whichTest === "demo") {
+                xcSessionStorage.setItem(testSuiteKey, "true");
+                console.log("run test")
+                return autoRunTestSuite();
+            }
+
             console.warn("This user is used to test before");
             Workbook.show(true);
         }
 
-        xcSessionStorage.setItem(testSuiteKey, "true");
+        if (whichTest === "demo") {
+            var wkbks = WorkbookManager.getWorkbooks();
+            var wkbkName = Object.keys(wkbks);
+            return activeWorkbook(wkbkName);
+        }
+
         return creatWorkbook();
     }
 

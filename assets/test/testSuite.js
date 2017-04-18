@@ -1663,10 +1663,79 @@ window.TestSuite = (function($, TestSuite) {
 }(jQuery, {}));
 
 window.DemoTestSuite = (function($, DemoTestSuite) {
-    DemoTestSuite.run = function() {
-        console.log("Not yet implemented");
-        return jQuery.Deferred().resolve();
+    DemoTestSuite.run = function(isOneTime) {
+        addOrphanTable()
+        .then(function() {
+            if (isOneTime) {
+                filterTable();
+            } else {
+                filterTrigger();
+            }
+        });
+
+        return PromiseHelper.resolve();
     };
-    // TODO Implement me!
+
+    function addOrphanTable() {
+        var deferred = jQuery.Deferred();
+        // open tab
+        $("#workspaceTab .mainTab").click();
+        $("#tableListSectionTabs .tableListSectionTab").eq(2).click();
+
+        TableList.refreshOrphanList()
+        .then(function() {
+            $("#orphanedTableListSection .selectAll").click();
+            return TableList.activeTables(TableType.Orphan);
+        })
+        .then(function() {
+            // close tab
+            $("#workspaceTab .mainTab").click();
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    function filterTrigger() {
+        // random num between [1,2,3,4,5]s
+        var time = Math.floor(Math.random() * 5 + 1) * 1000;
+        setTimeout(function() {
+            filterTable()
+            .then(filterTrigger);
+        }, time);
+    }
+
+    function filterTable() {
+        var deferred = jQuery.Deferred();
+        var $table = $(".xcTableWrap").eq(0);
+        var tableId = $table.data("id");
+        var table = gTables[tableId];
+        var tableName = table.getName();
+        var colNum = 1;
+        var progCol = table.getCol(colNum);
+        var colName = progCol.getBackColName();
+        var colType = progCol.getType();
+        var val = $table.find(".row0 .col1 .originalData").text();
+        if (progCol.isNumberCol()) {
+            val = Number(val);
+        } else {
+            val = "\"" + val + "\"";
+        }
+
+        var uniqueVals = {};
+        uniqueVals[val] = true;
+        var fltOptions = xcHelper.getFilterOptions(FltOp.Exclude, colName, uniqueVals);
+
+        xcFunction.filter(colNum, tableId, fltOptions)
+        .then(function() {
+            return TblManager.deleteTables([tableName], TableType.Orphan, true);
+        })
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
     return (DemoTestSuite);
 }(jQuery, {}));
