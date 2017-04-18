@@ -900,6 +900,21 @@ table.datasetTable {
         }
     }
 
+    &.errorMode {
+        .cardTopMain {
+            pointer-events: none;
+            button {
+                opacity: @opacity-disabled;
+            }
+        }
+
+        .cardBottom {
+            .confirm {
+                .btn-disabled;
+            }
+        }
+    }
+
     &.unsortable {
         #fileBrowserSort {
             cursor: not-allowed;

@@ -504,7 +504,7 @@ window.FileBrowser = (function($, FileBrowser) {
         document.getElementById("innerFileBrowserContainer").innerHTML = "";
 
         $(document).off(".fileBrowser");
-        $fileBrowser.removeClass("loadMode");
+        $fileBrowser.removeClass("loadMode errorMode");
         fileBrowserId = null;
 
         FilePreviewer.close();
@@ -550,7 +550,7 @@ window.FileBrowser = (function($, FileBrowser) {
         $innerContainer.html(html);
         $innerContainer.height(getScrollHeight());
         $container.removeClass('manyFiles');
-        $fileBrowser.removeClass('unsortable');
+        $fileBrowser.removeClass('unsortable').addClass("errorMode");
     }
 
     function parsePath(path) {
