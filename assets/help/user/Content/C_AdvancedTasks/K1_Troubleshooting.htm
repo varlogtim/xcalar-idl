@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___Top_Navigation" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Advanced tasks">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta charset="utf-8" />
+        <meta name="description" content="" />
+        <meta name="author" content="" /><title>Troubleshooting</title>
+        <link href="../../Skins/Default/Stylesheets/Slideshow.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../../Skins/Default/Stylesheets/TextEffects.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../../Skins/Default/Stylesheets/Topic.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../../Skins/Default/Stylesheets/Components/Styles.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../../Skins/Default/Stylesheets/Components/Tablet.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../../Skins/Default/Stylesheets/Components/Mobile.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../../Skins/Fluid/Stylesheets/foundation.5.5.0.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../../Skins/Fluid/Stylesheets/Styles.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../../Skins/Fluid/Stylesheets/Tablet.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../../Skins/Fluid/Stylesheets/Mobile.css" rel="stylesheet" data-mc-generated="True" />
+        <link href="../Resources/Stylesheets/MainStyles.css" rel="stylesheet" />
+        <link href="../Fonts/open-sans.regular.ttf" rel="stylesheet" />
+        <link href="../Fonts/OpenSans-Semibold.ttf" rel="stylesheet" />
+        <link href="../Fonts/OpenSans-Light.ttf" rel="stylesheet" />
+        <link href="../Fonts/OpenSans-Bold.ttf" rel="stylesheet" />
+        <style>/*&lt;meta /&gt;*/
+
+.button.previous-topic-button
+{
+	-pie-background: url('../../Skins/Default/Stylesheets/Images/navigate-previous.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.button.next-topic-button
+{
+	-pie-background: url('../../Skins/Default/Stylesheets/Images/navigate-next.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.button.topic-ratings-button
+{
+	-pie-background: transparent url('../../Skins/Default/Stylesheets/Images/star-full.png') no-repeat center center;
+}
+
+.button.separator-button
+{
+	-pie-background: linear-gradient(#ffffff, #ececec);
+}
+
+.button.edit-user-profile-button
+{
+	-pie-background: url('../../Skins/Default/Stylesheets/Images/edit-profile.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.button.print-button
+{
+	-pie-background: url('../../Skins/Default/Stylesheets/Images/printer.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.needs-pie
+{
+	behavior: url('../../Resources/Scripts/PIE-no-motw.htc');
+}
+
+</style>
+        <script src="../../Resources/Scripts/custom.modernizr.js">
+        </script>
+        <script src="../../Resources/Scripts/jquery.min.js">
+        </script>
+        <script src="../../Resources/Scripts/require.min.js">
+        </script>
+        <script src="../../Resources/Scripts/require.config.js">
+        </script>
+        <script src="../../Resources/Scripts/foundation.5.5.0_custom.js">
+        </script>
+        <script src="../../Resources/Scripts/foundation.offcanvas.js">
+        </script>
+        <script src="../../Resources/Scripts/plugins.min.js">
+        </script>
+        <script src="../../Resources/Scripts/MadCapAll.js">
+        </script>
+        <script src="../../Skins/Default/Scripts/TopicToolBar.js">
+        </script>
+    </head>
+    <body>
+        <div class="foundation-wrap">
+            <div class="off-canvas-wrap" data-offcanvas="">
+                <section class="inner-wrap">
+                    <nav class="tab-bar" data-mc-ignore="true">
+                        <section class="middle tab-bar-section outer-row clearfix">
+                            <div class="relative clearfix"><a class="logo" href="../Home.htm" alt="Logo"></a>
+                                <div class="navigation-wrapper">
+                                    <ul class="navigation clearfix">
+                                        <li class="has-children"><a href="../A_GettingStarted/GettingStarted.htm">Getting started</a>
+                                            <ul class="sub-menu">
+                                                <li><a href="../A_GettingStarted/A_Requirements.htm">Requirements for Xcalar Design</a>
+                                                </li>
+                                                <li><a href="../A_GettingStarted/B_BasicConcepts.htm">Basic Xcalar concepts</a>
+                                                </li>
+                                                <li><a href="../A_GettingStarted/B1_PreviewSteps.htm">Steps for Xcalar Cloud Preview</a>
+                                                </li>
+                                                <li><a href="../A_GettingStarted/B2_PrepareDataSource.htm">Preparing the data source</a>
+                                                </li>
+                                                <li><a href="../A_GettingStarted/C_EasySteps.htm">Easy steps for Xcalar 1.0 (with default settings)</a>
+                                                </li>
+                                                <li><a href="../A_GettingStarted/D_DetailedStepsForPointing.htm">Detailed steps for Xcalar 1.0 (with custom settings)</a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                        <li class="has-children"><a href="../B_CommonTasks/CommonTasks.htm">Common tasks</a>
+                                            <ul class="sub-menu">
+                                                <li><a href="../B_CommonTasks/A_ManageDatasetRef.htm">Managing dataset references</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/B_CreateTable.htm">Creating a table</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/C_AddColumns.htm">Adding columns from a dataset to a table</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/D_ChangeDataType.htm">Changing the data type for a column</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/E_CountOccurrencesOfValues.htm">Counting occurrences of unique values in a column</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/E1_SortAndQuartile.htm">Sorting a column and finding quartiles</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/F_UndoRedo.htm">Undoing and redoing an operation</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/G_FilterValue.htm">Filtering in a table column</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/H_ErroneousRows.htm">Creating a table with erroneous rows only</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/I_JoinTables.htm">Joining tables</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/J_GroupBy.htm">Grouping data in a table</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/K_Map.htm">Using the Map function to create new values</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/L_Correlation.htm">Determining correlation between two values</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/M_QuickAggregates.htm">Determining aggregate values</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/N_ChangeTableStatus.htm">Understanding and changing a table status</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/O_ManageWorksheet.htm">Managing worksheets</a>
+                                                </li>
+                                                <li><a href="../B_CommonTasks/P_UnderstandFNF.htm">Working with a table containing FNF</a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                        <li class="has-children"><a href="AdvancedTasks.htm">Advanced tasks</a>
+                                            <ul class="sub-menu">
+                                                <li><a href="A_Extensions.htm">Using extensions</a>
+                                                </li>
+                                                <li><a href="B_UDFUnderstand.htm">Understanding user-defined functions (UDFs)</a>
+                                                </li>
+                                                <li><a href="C_UDFTasks.htm">Using user-defined functions (UDFs)</a>
+                                                </li>
+                                                <li><a href="C1_PointWithVisualParser.htm">Using a visual parser to create a UDF</a>
+                                                </li>
+                                                <li><a href="D_FunctionBar.htm">Using the function or search bar</a>
+                                                </li>
+                                                <li><a href="E_CreateBatchDataflow.htm">Understanding and creating batch dataflows</a>
+                                                </li>
+                                                <li><a href="F_UseBatchDataflow.htm">Using batch dataflows</a>
+                                                </li>
+                                                <li><a href="F1_ScheduleBatchDataflow.htm">Scheduling batch dataflows</a>
+                                                </li>
+                                                <li><a href="G_ExportTable.htm">Exporting a table</a>
+                                                </li>
+                                                <li><a href="H_Parameterization.htm">Parameterizing queries</a>
+                                                </li>
+                                                <li><a href="I_UnderstandMemoryUse.htm">Understanding memory usage</a>
+                                                </li>
+                                                <li><a href="J_OptimizeMemory.htm">Optimizing memory usage</a>
+                                                </li>
+                                                <li><a href="K_Monitor.htm">Using the Monitor</a>
+                                                </li>
+                                                <li><a href="#" class="selected">Troubleshooting</a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                        <li class="has-children"><a href="../D_Reference/Reference.htm">Reference</a>
+                                            <ul class="sub-menu">
+                                                <li><a href="../D_Reference/A_InsightWindow.htm">Xcalar Design window</a>
+                                                </li>
+                                                <li><a href="../D_Reference/B_WkbkBrowser.htm">Workbook Browser</a>
+                                                </li>
+                                                <li><a href="../D_Reference/C_WorksheetWindow.htm">Worksheet window with tables</a>
+                                                </li>
+                                                <li><a href="../D_Reference/D_DataBrowser.htm">Data Browser</a>
+                                                </li>
+                                                <li><a href="../D_Reference/E_DataflowGraph.htm">Dataflow graph</a>
+                                                </li>
+                                                <li><a href="../D_Reference/F_Table_options.htm">Table options</a>
+                                                </li>
+                                                <li><a href="../D_Reference/G_ColumnOptions.htm">Column options</a>
+                                                </li>
+                                                <li><a href="../D_Reference/H_CellOptions.htm">Cell options</a>
+                                                </li>
+                                                <li><a href="../D_Reference/H1_UdfExamples.htm">User-defined function (UDF) examples</a>
+                                                </li>
+                                                <li><a href="../D_Reference/I_MapFunctions.htm">Map functions</a>
+                                                </li>
+                                                <li><a href="../D_Reference/J_ExcelComparison.htm">Excel-equivalent functions</a>
+                                                </li>
+                                                <li><a href="../D_Reference/K_SASComparison.htm">SAS-equivalent functions</a>
+                                                </li>
+                                                <li><a href="../D_Reference/L_Glossary.htm">Glossary</a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </div><a class="menu-icon right-off-canvas-toggle" href="#"><span></span></a>
+                            </div>
+                        </section>
+                        <div class="nav-search row outer-row">
+                            <form class="search" action="#">
+                                <div class="search-bar search-bar-container needs-pie">
+                                    <input class="search-field needs-pie" type="search" placeholder="Search" />
+                                    <div class="search-filter-wrapper">
+                                        <div class="search-filter">
+                                            <div class="search-filter-content">
+                                                <ul>
+                                                    <li>All Files</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="search-submit-wrapper" dir="ltr">
+                                        <div class="search-submit" title="Search">
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </nav>
+                    <aside class="right-off-canvas-menu" data-mc-ignore="true">
+                        <ul class="off-canvas-list" data-mc-back-link="Back" data-mc-css-tree-node-expanded="has-submenu" data-mc-css-tree-node-collapsed="has-submenu" data-mc-css-sub-menu="right-submenu" data-mc-include-indicator="False" data-mc-include-icon="False" data-mc-include-parent-link="True" data-mc-include-back="True" data-mc-defer-expand-event="True" data-mc-expand-event="click.fndtn.offcanvas" data-mc-toc="True">
+                        </ul>
+                    </aside>
+                    <section class="main-section">
+                        <div class="row outer-row" data-mc-content-body="True">
+                            <div id="contentBody">
+                                <div class="row collapse">
+                                    <div class="sideContent">
+                                        <div class="clearfix">
+                                            <div class="buttons popup-container clearfix topicToolbarProxy _Skins_TopicToolBar mc-component">
+                                                <div class="button-group-container-left">
+                                                    <button class="button needs-pie previous-topic-button" title="Navigate previous">
+                                                        <img src="../../Skins/Default/Stylesheets/Images/transparent.gif" alt="previous topic" />
+                                                    </button>
+                                                    <button class="button needs-pie next-topic-button" title="Navigate next">
+                                                        <img src="../../Skins/Default/Stylesheets/Images/transparent.gif" alt="next topic" />
+                                                    </button>
+                                                    <div class="button-group star-buttons loading feedback-topic-required">
+                                                        <div class="button star-button topic-ratings-empty-button" data-state1-class="topic-ratings-empty-button" data-state2-class="topic-ratings-button" title="Click a star to rate this topic" data-state1-title="Click a star to rate this topic" data-state2-title="Click a star to rate this topic">
+                                                            <img src="../../Skins/Default/Stylesheets/Images/transparent.gif" alt="topic rating" />
+                                                        </div>
+                                                        <div class="button star-button topic-ratings-empty-button" data-state1-class="topic-ratings-empty-button" data-state2-class="topic-ratings-button" title="Click a star to rate this topic" data-state1-title="Click a star to rate this topic" data-state2-title="Click a star to rate this topic">
+                                                            <img src="../../Skins/Default/Stylesheets/Images/transparent.gif" alt="topic rating" />
+                                                        </div>
+                                                        <div class="button star-button topic-ratings-empty-button" data-state1-class="topic-ratings-empty-button" data-state2-class="topic-ratings-button" title="Click a star to rate this topic" data-state1-title="Click a star to rate this topic" data-state2-title="Click a star to rate this topic">
+                                                            <img src="../../Skins/Default/Stylesheets/Images/transparent.gif" alt="topic rating" />
+                                                        </div>
+                                                        <div class="button star-button topic-ratings-empty-button" data-state1-class="topic-ratings-empty-button" data-state2-class="topic-ratings-button" title="Click a star to rate this topic" data-state1-title="Click a star to rate this topic" data-state2-title="Click a star to rate this topic">
+                                                            <img src="../../Skins/Default/Stylesheets/Images/transparent.gif" alt="topic rating" />
+                                                        </div>
+                                                        <div class="button star-button topic-ratings-empty-button" data-state1-class="topic-ratings-empty-button" data-state2-class="topic-ratings-button" title="Click a star to rate this topic" data-state1-title="Click a star to rate this topic" data-state2-title="Click a star to rate this topic">
+                                                            <img src="../../Skins/Default/Stylesheets/Images/transparent.gif" alt="topic rating" />
+                                                        </div>
+                                                    </div>
+                                                    <div class="button-separator">
+                                                    </div>
+                                                    <button class="button feedback-required login-button" id="normalLoginBtn" data-state1-class="login-button" data-state2-class="edit-user-profile-button" title="Login" data-state1-title="Login">
+                                                        <img src="../../Skins/Default/Stylesheets/Images/transparent.gif" alt="login" />
+                                                    </button>
+                                                    <button class="button needs-pie print-button" title="Print">
+                                                        <img src="../../Skins/Default/Stylesheets/Images/transparent.gif" alt="print" />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <ul class="menu _Skins_SideMenu mc-component">
+                                            <li class="has-children"><a href="AdvancedTasks.htm">Advanced tasks</a>
+                                                <ul class="sub-menu">
+                                                    <li><a href="A_Extensions.htm">Using extensions</a>
+                                                    </li>
+                                                    <li><a href="B_UDFUnderstand.htm">Understanding user-defined functions (UDFs)</a>
+                                                    </li>
+                                                    <li><a href="C_UDFTasks.htm">Using user-defined functions (UDFs)</a>
+                                                    </li>
+                                                    <li><a href="C1_PointWithVisualParser.htm">Using a visual parser to create a UDF</a>
+                                                    </li>
+                                                    <li><a href="D_FunctionBar.htm">Using the function or search bar</a>
+                                                    </li>
+                                                    <li><a href="E_CreateBatchDataflow.htm">Understanding and creating batch dataflows</a>
+                                                    </li>
+                                                    <li><a href="F_UseBatchDataflow.htm">Using batch dataflows</a>
+                                                    </li>
+                                                    <li><a href="F1_ScheduleBatchDataflow.htm">Scheduling batch dataflows</a>
+                                                    </li>
+                                                    <li><a href="G_ExportTable.htm">Exporting a table</a>
+                                                    </li>
+                                                    <li><a href="H_Parameterization.htm">Parameterizing queries</a>
+                                                    </li>
+                                                    <li><a href="I_UnderstandMemoryUse.htm">Understanding memory usage</a>
+                                                    </li>
+                                                    <li><a href="J_OptimizeMemory.htm">Optimizing memory usage</a>
+                                                    </li>
+                                                    <li><a href="K_Monitor.htm">Using the Monitor</a>
+                                                    </li>
+                                                    <li><a href="#" class="selected">Troubleshooting</a>
+                                                    </li>
+                                                </ul>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <div class="MCBreadcrumbsBox_0"><span class="MCBreadcrumbsPrefix">You are here: </span><a class="MCBreadcrumbsLink" href="AdvancedTasks.htm">Advanced tasks</a><span class="MCBreadcrumbsDivider"> &gt; </span><span class="MCBreadcrumbs">Troubleshooting</span>
+                                    </div>
+                                    <div class="bodyProxyNarrow">
+                                        <h1>Troubleshooting</h1>
+                                        <p>This section describes how to resolve problems that you might encounter when using <span class="GeneralProductName">Xcalar Design</span>. </p>
+                                        <h2>Workbook activation</h2>
+                                        <p>When you try to activate a workbook that you worked on previously, the following error message is displayed:</p>
+                                        <p class="sampleCode">Failed to execute user-defined function/application</p>
+                                        <p>The following list explains the possible causes for the error:</p>
+                                        <ul>
+                                            <li value="1">One or more UDFs used to create tables in the workbook have been renamed or removed.</li>
+                                            <li value="2">One or more data source files pointed to by <span class="GeneralCompanyNameShort">Xcalar</span> have been renamed or removed.</li>
+                                        </ul>
+                                        <p>Changes to UDFs or data source files do not cause an error if the cluster has been running continuously. However, if the cluster is restarted after the changes are made, <span class="GeneralProductName">Xcalar Design</span> cannot locate the UDFs or data source files to re-create the tables in the workbook. As a result, you cannot re-activate the workbook.</p>
+                                        <h4>Solution</h4>
+                                        <p>Restore the UDFs and data source files  to their original location under the same name.&#160;Then re-activate the workbook.</p>
+                                        <h2>Pointing to a new data source</h2>
+                                        <h3>Fields in data source not appearing</h3>
+                                        <p>When pointing to a CSV&#160;or text file, fields in the data source do not show up as fields in the dataset created by <span class="GeneralProductName">Xcalar Design</span>. For example, you expect to see four fields in the dataset but only one column is displayed in the dataset preview.</p>
+                                        <p>This problem happens if a character used literally in the source file is interpreted by <span class="GeneralProductName">Xcalar Design</span> as the quoting character for denoting a string.</p>
+                                        <h4>Solution</h4>
+                                        <p>In  the <span class="UIelement">Point To New Data Source</span> window, leave the <span class="UIelement">Quoting Character</span> field empty.</p>
+                                        <h3>Dataset creation failure</h3>
+                                        <p>After you click <span class="UIelement">CREATE&#160;REF&#160;ONLY</span>&#160;or <span class="UIelement">CREATE&#160;TABLE</span>&#160;in  the <span class="UIelement">Point To New Data Source</span> window, the following error message appears:</p>
+                                        <p>
+                                            <img src="../Resources/Images/XD_err_msgs/point-to-data-source-error.png" />
+                                        </p>
+                                        <p>The following list describes the possible causes for this error:</p>
+                                        <ul>
+                                            <li value="1">Dataset size specified is too small compared to the size of the data source. For example, if you try to point to a 2-GB file but you specify a 1 GB dataset size.</li>
+                                            <li value="2">An inappropriate field delimiter is specified. This might cause a record to exceed the maximum length.</li>
+                                            <li value="3">The first row being promoted to the header exceeds the 255-character limit.</li>
+                                        </ul>
+                                        <h4>Solution</h4>
+                                        <p>Follow these steps to point to the data source again:</p>
+                                        <ol>
+                                            <li value="1">
+                                                <p>Click <span class="UIelement">CLOSE</span>&#160;in the modal window to go to the <span class="UIelement">Dataset Preview</span> window.</p>
+                                                <p>The <span class="UIelement">Dataset Preview</span> window shows the error messages similar to the following if the specified dataset size is too small:</p>
+                                                <p class="CLIoutput">Point to data source failed. Error: ['Traceback (most recent call last):\n', ' File "xcalar_udf_d5b1bd366b3f65c9", line 861, in main\n', ' File "xcalar_udf_d5b1bd366b3f65c9", line 588, in loadMaster\n', ' File "xcalar_udf_d5b1bd366b3f65c9", line 846, in sampleFiles\n', 'ValueError: Sample size 10240 is less than the smallest file size 8647786\n'], Error File:</p>
+                                                <p class="CLIoutput">Please try to point to data with different parameters(for example, a larger dataset size)</p>
+                                                <p>The <span class="UIelement">Dataset Preview</span> window shows the error messages similar to the following if an incorrect field delimiter is specified, which results in records exceeding the maximum length:</p>
+                                                <p class="CLIoutput">Point to data source failed. Error: failed to parse data from file, Error File: /datasets/airlines.csv</p>
+                                                <p class="CLIoutput">Please try to point to data with different parameters(for example, a larger dataset size)</p>
+                                            </li>
+                                            <li value="2">Click <span class="UIelement">Retry</span> in the <span class="UIelement">Dataset Preview</span> window. </li>
+                                            <li value="3">In the <span class="UIelement">Point To New Data Source</span> window, verify the settings in various fields and make appropriate changes. For example, under <span class="UIelement">Advanced Options</span>, specify a dataset size that is at least the same size as the data source file or select <span class="UIelement">Entire file/folder</span>.</li>
+                                            <li value="4">Create the dataset reference only or both the dataset reference and table as desired.</li>
+                                        </ol>
+                                        <h3>Dataset creation failure</h3>
+                                        <p>After you click <span class="UIelement">CREATE&#160;REF&#160;ONLY</span>&#160;or <span class="UIelement">CREATE&#160;TABLE</span>&#160;in  the <span class="UIelement">Point To New Data Source</span> window, the following error message appears:</p>
+                                        <p>
+                                            <img src="../Resources/Images/XD_err_msgs/point-to-data-source-failed.png" />
+                                        </p>
+                                        <p>This error is typically caused by an inappropriate record delimiter, which results in a large number of fields exceeding the maximum allowed.</p>
+                                        <h4>Solution</h4>
+                                        <p>Follow these steps to point to the data source again:</p>
+                                        <ol>
+                                            <li value="1">
+                                                <p>Click <span class="UIelement">CLOSE</span>&#160;in the modal window to go to the <span class="UIelement">Dataset Preview</span> window.</p>
+                                                <p>The <span class="UIelement">Dataset Preview</span> window shows error messages similar to the following:</p>
+                                                <p class="CLIoutput">Point to data source failed. Error: max num fields exceeded, max: 4096, position 18397, Error File: /datasets/airlines.csv</p>
+                                                <p class="CLIoutput">Please try to point to data with different parameters(for example, a larger dataset size)</p>
+                                            </li>
+                                            <li value="2">Click <span class="UIelement">Retry</span> in the <span class="UIelement">Dataset Preview</span> window. </li>
+                                            <li value="3">In the <span class="UIelement">Point To New Data Source</span> window, enter the appropriate character string for the record delimiter. </li>
+                                            <li value="4">Create the dataset reference only or both the dataset reference and table as desired.</li>
+                                        </ol>
+                                        <h2>Visual parser</h2>
+                                        <p>In  the <span class="UIelement">Point To New Data Source</span> window, after you click <span class="UIelement">ADVANCED&#160;VISUAL&#160;PARSER</span>, <span class="GeneralProductName">Xcalar Design</span> displays error messages similar to the ones in the following screenshot:</p>
+                                        <p>
+                                            <img src="../Resources/Images/XD_err_msgs/visual-parser-json-error.png" />
+                                        </p>
+                                        <p>The error is caused by an illegal character or structure in the source file. In this sample JSON&#160;file, a closing brace is missing.</p>
+                                        <h4>Solution</h4>
+                                        <p>Fix all the syntax errors in the source file before trying to use the visual parser.</p>
+                                        <h2>Batch dataflow scheduler</h2>
+                                        <p>Batch dataflow does not run even after a schedule has been successfully added. </p>
+                                        <p>This problem might have been caused by the lack of parameterization of the export file name. <span class="GeneralProductName">Xcalar Design</span> cannot export the result of the batch dataflow if you have not parameterized the export file.</p>
+                                        <h4>Solution</h4>
+                                        <p>Create a parameterized query from the last icon in the batch dataflow graph. Then parameterize the export file name before re-running the schedule.</p>
+                                        <h2>Out of memory</h2>
+                                        <p>When you try to export a table or execute an operation, the following error appears:</p>
+                                        <p class="CLIoutput">Out of resources(XdbPages)</p>
+                                        <p>Exporting a table or executing a database operation requires the use of memory. This error happens when the cluster does not have sufficient memory to perform the export or execute the operation.</p>
+                                        <h4>Solution</h4>
+                                        <p>Drop tables or remove datasets that you no longer need.&#160;Pay attention to the status icon (the one next to the user icon in the upper right corner of the <span class="GeneralProductName">Xcalar Design</span> screen). If the icon is yellow or red, hover over the icon to determine whether the low memory is due to too many tables or datasets. If the icon is green, meaning the memory level is normal, you reduce the chances of seeing this error.</p>
+                                        <h2><span class="GeneralProductName">Xcalar Design</span> crash</h2>
+                                        <p>Under rare circumstances, <span class="GeneralProductName">Xcalar Design</span> might crash. The following <span class="UIelement">REFRESH&#160;BROWSER</span>&#160;message is displayed:</p>
+                                        <p>
+                                            <img src="../Resources/Images/XD_err_msgs/XD-crash-err-msg.png" />
+                                        </p>
+                                        <h4>Solution</h4>
+                                        <p>You can click one of the buttons in the modal window as described in this list:</p>
+                                        <ul>
+                                            <li value="1">Click <span class="UIelement">Refresh</span> to return to <span class="GeneralProductName">Xcalar Design</span>.</li>
+                                            <li value="2">Generate a  ticket for <span class="GeneralCompanyNameShort">Xcalar</span> technical support. This has the same effect as generating a support ticket through <span class="UIelement">Monitor</span> &gt; <span class="UIelement">System</span> in the <span class="GeneralProductName">Xcalar Design</span> window.</li>
+                                            <li value="3">Copy log to save log messages to the clipboard.</li>
+                                        </ul>
+                                        <h2>Evaluation string</h2>
+                                        <p>When you try to execute an operation such as filtering multiple values in a column, the following error message appears:</p>
+                                        <p class="CLIoutput">Eval string too long</p>
+                                        <p>This error happens when the evaluation string created by the operation exceeds the  4,096-character limit. (The evaluation string is the same as the one that you would enter in the function bar to run the operation.&#160;The total number of characters entered in the function bar must be under this limit.)</p>
+                                        <h4>Solution</h4>
+                                        <p>To shorten the evaluation string, split the operation into several operations. For example, you can filter one set of values first. Then in the resultant table, filter another set of values.</p>
+                                        <h2>Dataset reference</h2>
+                                        <p>When you try to delete a dataset reference, the following error message appears:</p>
+                                        <p>
+                                            <img src="../Resources/Images/XD_err_msgs/dataset-ref-deletion-failed.png" />
+                                        </p>
+                                        <p>This error happens if your workbook contains a table (whether hidden, temporary, or active) or a saved aggregate that uses the dataset.</p>
+                                        <h4>Solution</h4>
+                                        <p>If you no longer need the table or aggregate that uses the dataset, drop the table or aggregate. Then delete the dataset reference again.</p>
+                                    </div>
+                                    <p><a href="#Top" class="selected">Go to top</a>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </section><a class="exit-off-canvas"></a>
+                </section>
+            </div>
+            <script>/* <![CDATA[ */$(document).foundation();/* ]]> */</script>
+        </div>
+    </body>
+</html>

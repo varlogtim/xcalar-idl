@@ -97,6 +97,8 @@
                                                 </li>
                                                 <li><a href="../A_GettingStarted/B1_PreviewSteps.htm">Steps for Xcalar Cloud Preview</a>
                                                 </li>
+                                                <li><a href="../A_GettingStarted/B2_PrepareDataSource.htm">Preparing the data source</a>
+                                                </li>
                                                 <li><a href="../A_GettingStarted/C_EasySteps.htm">Easy steps for Xcalar 1.0 (with default settings)</a>
                                                 </li>
                                                 <li><a href="../A_GettingStarted/D_DetailedStepsForPointing.htm">Detailed steps for Xcalar 1.0 (with custom settings)</a>
@@ -168,6 +170,8 @@
                                                 <li><a href="J_OptimizeMemory.htm">Optimizing memory usage</a>
                                                 </li>
                                                 <li><a href="K_Monitor.htm">Using the Monitor</a>
+                                                </li>
+                                                <li><a href="K1_Troubleshooting.htm">Troubleshooting</a>
                                                 </li>
                                                 <li><a href="L_UseSetup.htm">Using Setup (XDP administrators only)</a>
                                                 </li>
@@ -303,6 +307,8 @@
                                                     </li>
                                                     <li><a href="K_Monitor.htm">Using the Monitor</a>
                                                     </li>
+                                                    <li><a href="K1_Troubleshooting.htm">Troubleshooting</a>
+                                                    </li>
                                                     <li><a href="L_UseSetup.htm">Using Setup (XDP administrators only)</a>
                                                     </li>
                                                 </ul>
@@ -342,7 +348,7 @@
                                             <img src="../Resources/Images/XD_screenshots/extensions-manage.png" />
                                         </p>
                                         <h2>Invoking an extension</h2>
-                                        <p>You can invoke an extension from the column drop-down menu or from the <span class="UIelement">My Extensions</span> panel.</p>
+                                        <p>You can invoke an extension from the column drop-down menu or from the <span class="UIelement">My Extensions</span> panel. Some extensions cannot be directly invokable; instead, they provide you with buttons in the <span class="GeneralProductName">Xcalar Design</span> user interface. Consult your <span class="GeneralCompanyNameShort">Xcalar</span> administrator about how the various extensions work.</p>
                                         <p>Follow these steps to invoke an extension from the column drop-down menu:</p>
                                         <ol>
                                             <li value="1">Right click the header of a column on which you want to execute the extension.</li>
@@ -543,7 +549,7 @@
                                         <p>In this new table, the Timestamp and Data_read columns are renamed with orig_ prepended. The table is sorted by timestamp. The new column, lead_1_Data_read, contains the orig_Data_read value in the following row. This new column enables you to analyze the changes of data read over time. For example, to find out how much the data amount changes between two timestamps, invoke the subtraction function in the Map operation by entering the following in the function bar:</p>
                                         <p class="userInput">map(sub(lead_1_Data_read, orig_Data_read))</p>
                                         <h2>Estimate Join Size</h2>
-                                        <p>This extension estimates the size of a table created by a Join operation. The estimate gives you the minimum, maximum, and expected number of rows in the new table. </p>
+                                        <p>This extension estimates the size of a table created by a Join operation. The estimate gives you the minimum, maximum, and expected number of rows in the new table. The <span class="UIelement">Estimate join size</span> check box in the <span class="UIelement">JOIN</span> panel, if selected, executes this extension.</p>
                                         <p>Follow these steps to estimate the size of the table created by a Join operation:</p>
                                         <ol>
                                             <li value="1">In the <span class="UIelement">My Extensions</span> panel, select <span class="UIelement">Estimate Join Size</span>.</li>

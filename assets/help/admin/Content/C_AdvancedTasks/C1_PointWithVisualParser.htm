@@ -60,6 +60,7 @@
 }
 
 </style>
+        <link href="../Resources/TableStyles/SimpleTable.css" rel="stylesheet" />
         <script src="../../Resources/Scripts/custom.modernizr.js">
         </script>
         <script src="../../Resources/Scripts/jquery.min.js">
@@ -95,6 +96,8 @@
                                                 <li><a href="../A_GettingStarted/B_BasicConcepts.htm">Basic Xcalar concepts</a>
                                                 </li>
                                                 <li><a href="../A_GettingStarted/B1_PreviewSteps.htm">Steps for Xcalar Cloud Preview</a>
+                                                </li>
+                                                <li><a href="../A_GettingStarted/B2_PrepareDataSource.htm">Preparing the data source</a>
                                                 </li>
                                                 <li><a href="../A_GettingStarted/C_EasySteps.htm">Easy steps for Xcalar 1.0 (with default settings)</a>
                                                 </li>
@@ -167,6 +170,8 @@
                                                 <li><a href="J_OptimizeMemory.htm">Optimizing memory usage</a>
                                                 </li>
                                                 <li><a href="K_Monitor.htm">Using the Monitor</a>
+                                                </li>
+                                                <li><a href="K1_Troubleshooting.htm">Troubleshooting</a>
                                                 </li>
                                                 <li><a href="L_UseSetup.htm">Using Setup (XDP administrators only)</a>
                                                 </li>
@@ -302,6 +307,8 @@
                                                     </li>
                                                     <li><a href="K_Monitor.htm">Using the Monitor</a>
                                                     </li>
+                                                    <li><a href="K1_Troubleshooting.htm">Troubleshooting</a>
+                                                    </li>
                                                     <li><a href="L_UseSetup.htm">Using Setup (XDP administrators only)</a>
                                                     </li>
                                                 </ul>
@@ -312,29 +319,59 @@
                                     </div>
                                     <div class="bodyProxyNarrow">
                                         <h1><a name="Using" class="ForCSH"></a>Using a visual parser to create a UDF</h1>
-                                        <p>When you use <span class="GeneralProductName">Xcalar Design</span> to point to a data source,  the Previewing section of the <span class="UIelement">Point To New Data Source</span> window might not present the data in your desired tabular format. For the data to be arranged in columns that you can easily read and manipulate later, you must  run a streaming UDF when pointing to the data. If the UDF&#160;already exists, simply click the check box for <span class="UIelement">Parse Data With UDF</span> and select the appropriate UDF as described in <a href="../A_GettingStarted/D_DetailedStepsForPointing.htm#Creating2" class="MCXref xref">Pointing to your data source</a>. </p>
+                                        <p>When you use <span class="GeneralProductName">Xcalar Design</span> to point to a data source,  the Previewing section of the <span class="UIelement">Point To New Data Source</span> window might not present the data in your desired tabular format. For the data to be arranged in records that you can easily read and manipulate later, you must  run a streaming UDF when pointing to the data. If the UDF&#160;already exists, simply click the check box for <span class="UIelement">Parse Data With UDF</span> and select the appropriate UDF as described in <a href="../A_GettingStarted/D_DetailedStepsForPointing.htm#Creating2" class="MCXref xref">Pointing to your data source</a>. </p>
                                         <p>If the needed UDF does not exist, create one as described in <a href="C_UDFTasks.htm" class="MCXref xref">Using UDFs</a>. Alternatively, follow the instructions in this section to have <span class="GeneralProductName">Xcalar Design</span> generate a UDF for you.</p>
                                         <h2>Understanding the visual parser</h2>
-                                        <p>If the UDF&#160;for parsing data does not exist, you must create one appropriate to the data source. Typically, when you add a UDF to <span class="GeneralProductName3short">XDP</span>, you use the UDF editor in <span class="GeneralProductName">Xcalar Design</span>, or write it on your computer and upload it. But to create a streaming UDF, you can use a point-and-click mechanism in the <span class="UIelement">Point To New Data Source</span> window. A UDF&#160;created in this manner is called a visual parser because you can see the keys being added to the parser. This method enables you to create a UDF&#160;with no knowledge of the Python language. <span class="GeneralProductName">Xcalar Design</span> automatically writes the UDF for you.</p>
-                                        <p>Visual parsers are available only to data files in JSON, XML, or plain text format.</p>
-                                        <div class="Note"><span class="label">NOTE</span>:&#160;The visual parser for a text file does not create a UDF. The main purpose of using a visual parser for a text file is to examine the contents of the entire source file.</div>
+                                        <p>If the UDF&#160;for parsing data does not exist, you must create one appropriate to the data source. Typically, when you add a UDF to <span class="GeneralProductName3short">XDP</span>, you use the UDF editor in <span class="GeneralProductName">Xcalar Design</span>, or write it on your computer and upload it. To create a streaming UDF, you have the option of using a point-and-click mechanism offered in the <span class="UIelement">Point To New Data Source</span> window. The method is called a visual parser because as you can visually add keys, a UDF parser is generated in the background.  This method enables you to create a UDF&#160;with no knowledge of the Python language. <span class="GeneralProductName">Xcalar Design</span> automatically writes the UDF for you.</p>
+                                        <p>Visual parsers are currently available only to data files in JSON, XML, or plain text format.</p>
+                                        <div class="Note"><span class="label">NOTE</span>:&#160;The visual parser for a text file does not create a UDF. The main purpose of using a visual parser for a text file is to examine the contents of the entire source file. This is particularly useful for large files because they are harder to browse elsewhere in <span class="GeneralProductName">Xcalar Design</span>.</div>
                                         <h2>Using a visual parser</h2>
-                                        <p>Follow these steps to create UDF&#160;with a visual parser:</p>
+                                        <p>Follow these steps to create a UDF&#160;with a visual parser:</p>
                                         <ol>
                                             <li value="1">
-                                                <p>To start the visual parser, click <span class="UIelement">ADVANCED&#160;USUAL&#160;PARSER</span> in the <span class="UIelement">Point To New Data Source</span> window. The <span class="UIelement">Data Source Parser</span> window is displayed. The left side of the window enables you to preview the contents of the source file with line numbers. The right side of the window depends on the source file format.</p>
+                                                <p>To start the visual parser, click <span class="UIelement">ADVANCED&#160;USUAL&#160;PARSER</span> in the <span class="UIelement">Point To New Data Source</span> window. </p>
+                                                <p>If the data source is a file, go to step 3.</p>
+                                            </li>
+                                            <li value="2">
+                                                <p>If the data source is a directory, the <span class="UIelement">Select File To Parse</span> modal window is displayed. For JSON&#160;and XML files, select the file that contains the most keys. This enables you to choose all the keys in the visual parser that are necessary for creating the desired records. </p>
+                                                <p>After making the selection, click <span class="UIelement">PARSE</span>. </p>
+                                            </li>
+                                            <li value="3">
+                                                <p>The <span class="UIelement">Data Source Parser</span> window is displayed. The left side of the window enables you to preview the contents of the source file with added newlines, line numbers, and indentation. The right side of the window depends on the source file format.</p>
                                                 <p>The following screenshot shows a sample JSON&#160;file for a visual parser.</p>
                                                 <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/visual-parser1.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1194" data-mc-height="521" src="../Resources/Images/XD_screenshots/visual-parser1_thumb_0_150.png" tabindex="" /></a>
                                                 </p>
-                                                <p>For a JSON&#160;file, the <span class="UIelement">Preview Mode</span> window provides a consolidated JSON&#160;schema, which describes the structure of all JSON&#160;strings  in the source file. For each string, you can see how objects are nested, the data type for each value, and so on. </p>
-                                                <p>For an XML file, the <span class="UIelement">Preview Mode</span> window shows the XML schema, which describes the structure of the file.</p>
-                                                <p>For a text file, the <span class="UIelement">Record Delimiter</span> window is displayed instead of <span class="UIelement">Preview Mode</span>.</p>
+                                                <p>The following table describes  the <span class="UIelement">Preview Mode</span> window for each file format.</p>
+                                                <table class="TableStyle-SimpleTable" style="mc-table-style: url('../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;" cellspacing="0">
+                                                    <col class="TableStyle-SimpleTable-Column-Column1" />
+                                                    <col class="TableStyle-SimpleTable-Column-Column2" />
+                                                    <thead>
+                                                        <tr class="TableStyle-SimpleTable-Head-Header1">
+                                                            <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">File format</th>
+                                                            <th class="TableStyle-SimpleTable-HeadD-Column2-Header1">Preview Mode window contents</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">JSON</td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">A consolidated JSON&#160;schema, which describes the structure of all JSON&#160;strings  in the source file. For each string, you can see how objects are nested, the data type for each value, and so on.</td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">XML</td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">An XML schema, which describes the structure of the file.</td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                            <td class="TableStyle-SimpleTable-BodyB-Column1-Body1">Text</td>
+                                                            <td class="TableStyle-SimpleTable-BodyA-Column2-Body1">Not applicable. The <span class="UIelement">Record Delimiter</span> window is displayed instead of <span class="UIelement">Preview Mode</span>.</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
                                             </li>
-                                            <li value="2">
-                                                <p>This step is only for a text file. Go to step 3 if the file is a JSON&#160;or XML&#160;file.</p>
-                                                <p>In the <span class="UIelement">Record Delimiter</span> window, type the character for separating the records or accept the default, which is the newline character. Then go to step 5.</p>
+                                            <li value="4">
+                                                <p>This step is only for a text file. Go to step 5 if the file is a JSON&#160;or XML&#160;file.</p>
+                                                <p>In the <span class="UIelement">Record Delimiter</span> window, type the character for separating the records or accept the default, which is the newline character. (This is the same character that you would type in the <span class="UIelement">Record Delimiter</span> field of the <span class="UIelement">Point to New Data Source</span> window.) Then go to step 6.</p>
                                             </li>
-                                            <li value="3">
+                                            <li value="5">
                                                 <p>Select the keys for the visual parser. Each key  become one or more records in the <span class="GeneralProductName">Xcalar Design</span> table. </p>
                                                 <p>For a JSON&#160;file, a key can be one of the following:</p>
                                                 <ul>
@@ -346,61 +383,114 @@
                                                 <p>To select a key, follow these steps:</p>
                                                 <ol style="list-style-type: lower-alpha;">
                                                     <li value="1">
-                                                        <p>For an XML file, in the main Previewing window, double click the opening or closing tag.</p>
-                                                        <p>For a JSON&#160;file, in the main Previewing window, double click an opening brace or bracket to select an object or array, respectively. Double-clicking any name within the braces or brackets (or the closing brace or bracket) achieve the same effect. Suppose your file contains the following array:</p>
-                                                        <p class="sampleCode">"Quote": [</p>
-                                                        <p class="sampleCode">{</p>
-                                                        <p class="sampleCode"> "Currency": "USD",</p>
-                                                        <p class="sampleCode"> "MeasureType": "Percentage",</p>
-                                                        <p class="sampleCode"> "Value": "0.01000000"</p>
-                                                        <p class="sampleCode">},</p>
-                                                        <p class="sampleCode">{</p>
-                                                        <p class="sampleCode"> "Currency": "USD",</p>
-                                                        <p class="sampleCode"> "MeasureType": "ExecutedSpread",</p>
-                                                        <p class="sampleCode"> "Value": "73.375"</p>
-                                                        <p class="sampleCode">}</p>
-                                                        <p class="sampleCode">],</p>
-                                                        <p>The following list illustrates how to select various keys in the sample JSON&#160;string:</p>
-                                                        <ul>
-                                                            <li value="1">To select the first object of the Quote array as a key, double click the first occurrence of Currency, MeasureType, or Value. You can also double click the opening or closing brace for the object.</li>
-                                                            <li value="2">To select the second object of the Quote array as a key, double click the second occurrence of Currency, MeasureType, or Value. You can also double click the opening or closing brace for the object.</li>
-                                                            <li value="3">To select the Quote array as a key, double click the opening or closing square bracket for the Quote array.</li>
-                                                        </ul>
+                                                        <p>For an XML file, in the main Previewing window, double click or highlight the opening or closing tag.</p>
+                                                        <p>For a JSON&#160;file, in the main Previewing window, double click an opening brace or bracket to select an object or array, respectively. Double-clicking any name within the braces or brackets (or the closing brace or bracket) achieve the same effect. Suppose the window shows that your file contains the following array:</p>
+                                                        <p class="sampleCode">3 &#160;&#160;"Quote": [</p>
+                                                        <p class="sampleCode">4&#160;&#160;&#160;&#160;&#160;{</p>
+                                                        <p class="sampleCode"> 5&#160;&#160;&#160;&#160;&#160;&#160;&#160;"Currency": "USD",</p>
+                                                        <p class="sampleCode">6&#160;&#160;&#160;&#160;&#160;&#160;&#160; "MeasureType": "Percentage",</p>
+                                                        <p class="sampleCode">7&#160;&#160;&#160;&#160;&#160;&#160; &#160;"Value": "0.1234567"</p>
+                                                        <p class="sampleCode">8&#160;&#160;&#160;&#160;&#160;},</p>
+                                                        <p class="sampleCode">9&#160;&#160;&#160;&#160;&#160;{</p>
+                                                        <p class="sampleCode">10&#160;&#160; &#160;&#160;&#160;&#160;"Currency": "USD",</p>
+                                                        <p class="sampleCode">11&#160;&#160;&#160;&#160;&#160;&#160;"MeasureType": "ExecutedSpread",</p>
+                                                        <p class="sampleCode">12&#160;&#160;&#160;&#160;&#160;&#160; "Value": "12.345"</p>
+                                                        <p class="sampleCode">13&#160;&#160;&#160;&#160;}</p>
+                                                        <p class="sampleCode">14&#160;&#160;&#160;],</p>
+                                                        <p>The following table illustrates how to select various keys in the sample JSON&#160;string:</p>
+                                                        <table class="TableStyle-SimpleTable" style="mc-table-style: url('../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;" cellspacing="0">
+                                                            <col class="TableStyle-SimpleTable-Column-Column1" />
+                                                            <col class="TableStyle-SimpleTable-Column-Column2" />
+                                                            <thead>
+                                                                <tr class="TableStyle-SimpleTable-Head-Header1">
+                                                                    <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">To select…</th>
+                                                                    <th class="TableStyle-SimpleTable-HeadD-Column2-Header1">Do this…</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">First object of the Quote array</td>
+                                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">
+                                                                        <p>Double click Currency, MeasureType, or Value on line 5, 6, or 7.</p>
+                                                                        <p>You can also double click or highlight the opening or closing brace  on line 4 or 8.</p>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Second object of the Quote array</td>
+                                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">
+                                                                        <p>Double click Currency, MeasureType, or Value on line 10, 11, or 12. </p>
+                                                                        <p>You can also double click the opening or closing brace on line 9 or 13.</p>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                                    <td class="TableStyle-SimpleTable-BodyB-Column1-Body1">The Quote array</td>
+                                                                    <td class="TableStyle-SimpleTable-BodyA-Column2-Body1">Double click the opening or closing square bracket on line 3 or 14.</td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
                                                     </li>
                                                     <li value="2">
                                                         <p>In the pop-up menu displayed after you double click a name, you can select whether the full or partial path is used for identifying the selected key.  The following screenshot shows the pop-up menu after you double click an array value in a JSON&#160;file.</p>
                                                         <p>
                                                             <img src="../Resources/Images/XD_screenshots/visual-parser2.png" />
                                                         </p>
-                                                        <p>In this example, if you select Full, the complete path to the Quote array is used.  If you select Partial, the names of the objects nesting the Quote array are ignored. The selection of full or partial path enables you to distinguish values of fields or tags that have the same name but are nested differently.</p>
+                                                        <p>In this example, if you select <span class="UIelement">Full</span>, the complete path to the Quote array is used. The path to the array is as follows:</p>
+                                                        <p>aaaaaaagya:Message.Transaction.Quote</p>
+                                                        <p> If you select <span class="UIelement">Partial</span>, the names of the objects nesting the Quote array are ignored. The path to the array is as follows:</p>
+                                                        <p>Quote</p>
+                                                        <p>Being able to select a full or partial path means you can distinguish values of fields or tags that have the same name but are nested differently.</p>
                                                     </li>
                                                 </ol>
                                             </li>
-                                            <li value="4">
+                                            <li value="6">
                                                 <p>Verify in the <span class="UIelement">Selected Keys</span> window that the keys are correct. To remove a key, click the trash can icon for the key. The following screenshot is an example of the <span class="UIelement">Selected Keys</span> window:</p>
                                                 <p>
                                                     <img src="../Resources/Images/XD_screenshots/visual-parser3.png" />
                                                 </p>
                                             </li>
-                                            <li value="5">Click <span class="UIelement">NEXT</span> in the <span class="UIelement">Data Source Parser</span> window. If the source file is a text file, the <span class="UIelement">Point to New Data Source</span> window is displayed. Go to step 8. If your file is a JSON&#160;or XML&#160;file, go to the next step.</li>
-                                            <li value="6">A message is displayed asking whether you want to submit the visual parser, which means submitting the information to <span class="GeneralProductName">Xcalar Design</span> for it to generate the streaming UDF. Click <span class="UIelement">CONFIRM</span> if you want to generate the UDF. If you want to return to the <span class="UIelement">Data Source Parser</span> window to make changes, click <span class="UIelement">CANCEL</span>.</li>
-                                            <li value="7">
+                                            <li value="7">Click <span class="UIelement">NEXT</span> in the <span class="UIelement">Data Source Parser</span> window. If the source file is a text file, the <span class="UIelement">Point to New Data Source</span> window is displayed. Go to step 8. If your file is a JSON&#160;or XML&#160;file, go to the next step.</li>
+                                            <li value="8">
+                                                <p>A message is displayed asking whether you want to submit the visual parser, which means submitting the information to <span class="GeneralProductName">Xcalar Design</span> for it to generate the streaming UDF. Click <span class="UIelement">CONFIRM</span> if you want to generate the UDF. If you want to return to the <span class="UIelement">Data Source Parser</span> window to make changes, click <span class="UIelement">CANCEL</span>.</p>
+                                                <div class="Note"><span class="label">NOTE</span>: If the data source is a directory, the <span class="UIelement">Preview Mode</span> might not include some JSON&#160;strings or XML&#160;tags that you want for creating records. This is because the file you selected for parsing does not contain the desired strings or tags.&#160;To include keys that are not selectable in the Previewing window, additional steps are necessary as described in <a href="#Adding" class="MCXref xref selected">Adding keys not selectable in the file shown in the visual parser</a>.</div>
+                                            </li>
+                                            <li value="9">
                                                 <p>After <span class="GeneralProductName">Xcalar Design</span> generates the UDF, it displays the&#160;<span class="UIelement">Point to New Data Source</span> window. This time the check box for <span class="UIelement">Parse Data With UDF</span> and the newly created UDF are selected automatically as shown in the following partial screenshot. When you point to the data source, this UDF will be executed to parse the data.</p>
                                                 <p>Also, this UDF is saved just like other UDFs. You can view it in the <span class="UIelement">User Defined Function</span> panel.</p>
                                                 <p>
                                                     <img src="../Resources/Images/XD_screenshots/visual-parser4.png" />
                                                 </p>
                                             </li>
-                                            <li value="8">
-                                                <p>In the same window, a table preview is provided as usual. Based on the preview, you can determine how to specify values for other options in this window. </p>
-                                                <p>After you finish specifying the values in this window, create the dataset reference or a table as desired.</p>
+                                            <li value="10">
+                                                <p>In the same window, a table preview is provided as usual. Based on the preview, you can determine how to specify values for other options in this window. Click <span class="UIelement">REFRESH&#160;PREVIEW</span> to see how your specified values affect the way data is arranged in the table. You can also click <span class="UIelement">ADVANCED&#160;VISUAL&#160;PARSER</span> to return to the parser.</p>
+                                                <p>If the table in the preview is satisfactory, create the dataset reference only or create both the dataset reference and a table as desired.</p>
                                             </li>
+                                        </ol>
+                                        <h2><a name="Adding"></a>Adding keys not selectable in the file shown in the visual parser</h2>
+                                        <div class="Note"><span class="label">IMPORTANT</span>:&#160;This section is for advanced users who are familiar with the source files and Python. If you introduce errors when editing the UDF, your data source cannot to be parsed correctly.</div>
+                                        <p><span class="GeneralProductName">Xcalar Design</span> allows you to point to a directory. The files in the directory might contain different JSON&#160;strings or XML&#160;tags. The <span class="UIelement">Preview Mode</span> window of the visual parser only reflects the strings or tags of the file you selected for parsing. To select a JSON&#160;object or an XML tag in another file, you need to edit the UDF&#160;manually. </p>
+                                        <p>Follow these steps to add a key to the UDF&#160;created by the visual parser:</p>
+                                        <ol>
+                                            <li value="1">After you submit the visual parser, the <span class="UIelement">Point to New Data Source</span> window displays the name of the UDF in the <span class="UIelement">Parse Data With UDF</span> field. This is the UDF to which you need to add the desired key.</li>
+                                            <li value="2">Open the <span class="UIelement">User Defined Function</span> panel and click the <span class="UIelement">Manager</span> tab to list the UDFs. Locate the UDF created by the visual parser and click the <span class="UIelement">Edit</span> icon for the UDF.</li>
+                                            <li value="3">
+                                                <p>Use the UDF&#160;editor to add the desired key.&#160;The following partial screenshot shows how to use the UDF&#160;editor to add an XML&#160;tag  as a full path (/html/head/meta"):</p>
+                                                <p>
+                                                    <img src="../Resources/Images/XD_screenshots/visual-parser-add-key-manually.png" />
+                                                </p>
+                                            </li>
+                                            <li value="4">Click <span class="UIelement">ADD&#160;UDF</span>. </li>
+                                            <li value="5">When the <span class="UIelement">DUPLICATE&#160;MODULE</span> modal window is displayed, click <span class="UIelement">CONFIRM</span>. This overwrites the original contents of the UDF. Now you have a UDF with the desired keys for generating records.</li>
+                                            <li value="6">In the <span class="UIelement">Point to New Data Source</span> window, click <span class="UIelement">REFRESH&#160;PREVIEW</span> to see the table with the edited UDF. Then create the dataset reference only or create both the dataset reference and a table as desired.</li>
                                         </ol>
                                         <h2>Understanding the table created by a visual parser</h2>
                                         <p>A table created by a visual parser contains columns that provide information about the visual parser as explained in the following list:</p>
                                         <ul>
                                             <li value="1">The <span class="UIelement">xcPath</span> column shows the path to the object that is displayed as a record in the table. </li>
                                             <li value="2">The <span class="UIelement">xcMethod</span> column indicates whether the path to the object is a full path or a partial path.</li>
+                                            <li value="3">
+                                                <p>If an error occurs when the UDF&#160;processes the data, the xcParserError column is created. The value in this column is True, and the value in the xcPath column is the path to the key causing the error. One row is created to indicate that the path causes at least one error. The table does not indicate the number of errors or the location of the error in the source file.</p>
+                                                <div class="Example"><span class="label">EXAMPLE</span>:&#160;A key you selected is supposed to result in four records in the table. However, while the first two records contain correct values, the third and fourth records cannot be parsed due to errors. <span class="GeneralProductName">Xcalar Design</span> displays one row in the table for these erroneous records, in which xcParserError shows True, and the xcPath shows the path to the key. </div>
+                                            </li>
                                         </ul>
                                         <p>The following screenshot illustrates a table with one record containing an object named Quote. The full path to the Quote object is used to create this table.</p>
                                         <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/visual-parser-full-path.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1001" data-mc-height="234" src="../Resources/Images/XD_screenshots/visual-parser-full-path_thumb_0_150.png" tabindex="" /></a>
