@@ -120,9 +120,7 @@ window.Support = (function(Support, $) {
         isCheckingMem = true;
 
         refreshTables()
-        .then(function() {
-            return xcHelper.getMemUsage();
-        })
+        .then(xcHelper.getMemUsage)
         .then(detectMemoryUsage)
         .then(deferred.resolve)
         .fail(deferred.reject)
@@ -142,11 +140,15 @@ window.Support = (function(Support, $) {
         }
 
         function detectMemoryUsage(nodes) {
+            var shouldAlert;
+            var highestMemUsage = 0;
             jQuery.each(nodes, function(index, nodeInfo) {
-                var shouldAlert;
                 if (nodeInfo.Mlocked && nodeInfo.Mlocked.xdb_pages) {
                     var tableInfo = nodeInfo.Mlocked.xdb_pages;
                     var tableUsage = tableInfo.used / tableInfo.total;
+                    if (tableUsage > highestMemUsage) {
+                        highestMemUsage = tableUsage;
+                    }
                     shouldAlert = handleMemoryUsage(tableUsage, true);
                     if (shouldAlert) {
                         // stop looping
@@ -169,6 +171,12 @@ window.Support = (function(Support, $) {
                     console.error("no ds mem info");
                 }
             });
+
+            if (!shouldAlert) {
+                var txt = TooltipTStr.SystemGood + "<br>" + CommonTxtTstr.Usage +
+                            ": " + Math.round(100 * highestMemUsage) + "%";
+                xcTooltip.changeText($("#memoryAlert"), txt);
+            }
         }
 
         function handleMemoryUsage(memoryUsage, isTable) {

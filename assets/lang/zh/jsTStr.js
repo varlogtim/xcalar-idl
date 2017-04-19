@@ -151,7 +151,8 @@ CommonTxtTstr = {
 'NoUndone': '此操作无法撤消',
 'InvalidSize': '无效大小',
 'Uploading': '上传',
-'Upgrading': '升级'
+'Upgrading': '升级',
+'Usage': 'Usage'
 };
 ErrTStr = {
 'Error': '错误',

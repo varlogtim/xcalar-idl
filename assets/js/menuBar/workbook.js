@@ -116,6 +116,24 @@ window.Workbook = (function($, Workbook) {
         $newWorkbookInput.val(name).select();
     };
 
+    Workbook.goToMonitor = function() {
+        $('#container').addClass('monitorMode');
+        $('#mainMenu').addClass('noAnim');
+        $('#container').addClass('noMenuAnim');
+
+        if (!MonitorPanel.isGraphActive()) {
+            wasMonitorActive = false;
+            MonitorPanel.active();
+        } else {
+            wasMonitorActive = true;
+        }
+
+        setTimeout(function() {
+            $('#mainMenu').removeClass('noAnim');
+            $('#container').removeClass('noMenuAnim');
+        }, 200);
+    };
+
     function resetWorkbook() {
         // $workbookPanel.find(".active").removeClass("active");
         $newWorkbookInput.val("").focus();
@@ -163,21 +181,7 @@ window.Workbook = (function($, Workbook) {
         // go to monitor panel
         $workbookTopbar.find('.monitorBtn, .monitorLink').click(function(e) {
             e.preventDefault(); // prevent monitor link from actually navigating
-            $('#container').addClass('monitorMode');
-            $('#mainMenu').addClass('noAnim');
-            $('#container').addClass('noMenuAnim');
-
-            if (!MonitorPanel.isGraphActive()) {
-                wasMonitorActive = false;
-                MonitorPanel.active();
-            } else {
-                wasMonitorActive = true;
-            }
-
-            setTimeout(function() {
-                $('#mainMenu').removeClass('noAnim');
-                $('#container').removeClass('noMenuAnim');
-            }, 200);
+            Workbook.goToMonitor();
         });
 
         // from monitor to workbook panel

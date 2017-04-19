@@ -57,7 +57,7 @@ window.MainMenu = (function($, MainMenu) {
         openMenu($menuBar.find(".topMenuBarTab.active"), noAnim);
     };
 
-    MainMenu.openPanel = function(panelId) {
+    MainMenu.openPanel = function(panelId, subTabId) {
         var $tab;
         switch (panelId) {
             case ('workspacePanel'):
@@ -76,8 +76,16 @@ window.MainMenu = (function($, MainMenu) {
                 break;
         }
         if ($tab) {
-            lastTabId = $menuBar.find(".topMenuBarTab.active").attr('id');
-            panelSwitchingHandler($tab, lastTabId);
+            if (!$tab.hasClass("active")) {
+                $tab.click();
+            }
+
+            if (subTabId &&  $tab.find("#" + subTabId).length) {
+                var $subTab =  $tab.find("#" + subTabId);
+                if (!$subTab.hasClass("active")) {
+                    $subTab.click();
+                }
+            }
         }
     };
 

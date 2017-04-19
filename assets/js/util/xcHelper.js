@@ -3050,12 +3050,21 @@ window.xcHelper = (function($, xcHelper) {
 
         XcalarAppExecute("Mem", true, "/etc/xcalar/default.cfg")
         .then(function(ret) {
+            var passed = false;
+            var parsedRes;
+            var err;
             try {
                 var res = JSON.parse(ret.outStr);
-                var parsedRes = res.map(parser);
-                deferred.resolve(parsedRes);
+                parsedRes = res.map(parser);
+                passed = true;
             } catch (error) {
-                deferred.reject(error);
+                err = error;
+                console.log(error);
+            }
+            if (passed) {
+                deferred.resolve(parsedRes);
+            } else {
+                deferred.reject(err);
             }
         })
         .fail(deferred.reject);

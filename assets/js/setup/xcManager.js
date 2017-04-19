@@ -80,6 +80,9 @@ window.xcManager = (function(xcManager, $) {
             XVM.alertLicenseExpire();
             // start socket
             XcSocket.init();
+
+            // get initial memory usage
+            Support.memoryCheck();
             // start heartbeat check
             Support.heartbeatCheck();
             deferred.resolve();
@@ -411,10 +414,16 @@ window.xcManager = (function(xcManager, $) {
 
     function setupMemoryAlert() {
         $("#memoryAlert").click(function() {
+            if ($("#container").hasClass("noWorkbook")) {
+                Workbook.goToMonitor();
+                return;
+            }
             if (!$(this).hasClass("yellow") && !$(this).hasClass("red")) {
+                MainMenu.openPanel("monitorPanel", "systemButton");
                 return false;
             }
             if ($(this).hasClass("tableAlert")) {
+                MainMenu.openPanel("monitorPanel", "systemButton");
                 DeleteTableModal.show();
             } else {
                 // go to datastore panel
