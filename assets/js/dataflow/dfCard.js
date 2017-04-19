@@ -94,6 +94,7 @@ window.DFCard = (function($, DFCard) {
             $dfCard.find('.cardMain').html(hint);
             $dfCard.find('.leftSection .title').text("");
             $dfMenu.find('.numGroups').text(0);
+            $dfMenu.find('.listSection').html("");
             return;
         }
         var html = "";
@@ -102,7 +103,6 @@ window.DFCard = (function($, DFCard) {
             html += getDFListItemHtml(dfName);
             numFlows++;
         }
-
         $dfMenu.find('.listSection').html(html);
         $dfMenu.find('.numGroups').text(numFlows);
         if (noFocus) {
