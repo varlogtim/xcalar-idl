@@ -390,6 +390,7 @@ module.exports = {
         "SETUP": "SETUP",
         "Setup": "Setup",
         "showDataCol": "SHOW DATA COLUMN ON NEW TABLE CREATION",
+        "enableCreateTable": "ENABLE CREATE TABLE DIRECLY FROM DATASET",
         "StartTime": "Start Time",
         "StartNode": "Start Cluster",
         "Status": "Status",

@@ -212,6 +212,13 @@ window.UserSettings = (function($, UserSettings) {
             }
         });
 
+        $("#enableCreateTable").click(function() {
+            var $checkbox = $(this);
+            var toEnable = !($checkbox.hasClass("checked"));
+            setEnableCreateTable(toEnable);
+            UserSettings.setPref("enableCreateTable", toEnable, true);
+        });
+
         $("#enableFileBox").click(function() {
             var $checkbox = $(this);
             $checkbox.toggleClass('checked');
@@ -280,12 +287,25 @@ window.UserSettings = (function($, UserSettings) {
         }
     }
 
+    function setEnableCreateTable(enable) {
+        var $checkbox = $("#enableCreateTable");
+        var $btn = $("#importDataForm .confirm.createTable");
+        if (enable) {
+            $checkbox.addClass("checked");
+            $btn.removeClass("xc-hidden");
+        } else {
+            $checkbox.removeClass("checked");
+            $btn.addClass("xc-hidden");
+        }
+    }
+
     function restoreSettingsPanel() {
         var hideDataCol = UserSettings.getPref("hideDataCol");
         var showFile = UserSettings.getPref("fileEnabled");
         var graphInterval = UserSettings.getPref("monitorGraphInterval");
         var commitInterval = UserSettings.getPref("commitInterval");
         var dsSampleLimit = UserSettings.getPref("DsDefaultSampleSize");
+        var enableCreateTable = UserSettings.getPref("enableCreateTable");
 
         if (!hideDataCol) {
             $("#showDataColBox").addClass("checked");
@@ -299,6 +319,7 @@ window.UserSettings = (function($, UserSettings) {
         monIntervalSlider.setSliderValue(graphInterval);
         commitIntervalSlider.setSliderValue(commitInterval);
         setDsSampleLimitValue(dsSampleLimit);
+        setEnableCreateTable(enableCreateTable);
     }
 
     function getDsSampleLimitValue() {
