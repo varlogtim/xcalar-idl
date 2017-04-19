@@ -2,13 +2,10 @@ describe('Dag Panel Test', function() {
     var $dagPanel;
     var testDs;
 
-    var topLevelTables;
-
     var aggTable;
     var largeTable;
     var groupTable;
     var smallTable;
-    var joinTable;
 
     var aggName;
 
@@ -82,19 +79,6 @@ describe('Dag Panel Test', function() {
             "ancestorNames": [],
             "$dagWrap": undefined,
         };
-        joinTable = {
-            "prefix": undefined,
-            "tableName": undefined,
-            "tableId": undefined,
-            "ancestorIds": [],
-            "ancestorNames": [],
-            "$dagWrap": undefined,
-        };
-
-        topLevelTables = [smallTable, aggTable, largeTable, groupTable];
-                          // joinTable];
-
-
 
         // Test table layout:
         // dag: ds --load from ds--> table --reduce--> $table
@@ -367,8 +351,6 @@ describe('Dag Panel Test', function() {
         });
 
         it('maximizing dag should work', function(done) {
-            var rowScrollCheck = false;
-
             // open panel
             $switch.click();
 
@@ -399,7 +381,6 @@ describe('Dag Panel Test', function() {
 
     describe("dag panel resizing", function() {
         it("should resize", function() {
-            var elem = $("#dagPanel");
             var $bar = $("#dagPanel").find(".ui-resizable-n").eq(0);
             var pageX = $bar.offset().left;
             var pageY = $bar.offset().top;
@@ -610,7 +591,7 @@ describe('Dag Panel Test', function() {
             });
 
             describe("datastore icon", function() {
-                 it('menu should open', function() {
+                it('menu should open', function() {
                     smallTable.$dagWrap.find('.dagImage').last()
                     .find('.dagTable .dataStoreIcon').eq(0).click();
 
@@ -619,14 +600,13 @@ describe('Dag Panel Test', function() {
                     expect($menu.find('li.dataStoreInfo').is(":visible")).to.be.true;
                 });
 
-
                 it('showSchema li should work', function() {
                     expect($("#dagSchema:visible").length).to.equal(0);
                     $menu.find('.dataStoreInfo').trigger(fakeEvent.mouseup);
                     expect($("#dagSchema:visible").length).to.equal(1);
                     expect($("#dagSchema").hasClass("loadInfo")).to.be.true;
 
-                    var text = $("#dagSchema .content").text()
+                    var text = $("#dagSchema .content").text();
                     expect(text.indexOf('"numEntries": 1000')).to.be.gt(-1);
                     expect(text.indexOf('"size": "384KB"')).to.be.gt(-1);
                     expect(text.indexOf('"udf": ""')).to.be.gt(-1);
@@ -644,16 +624,13 @@ describe('Dag Panel Test', function() {
 
     describe('dag panel right click menu', function() {
         var $menu;
-        var $dagWrap; // This section, $dagWrap is smallTable.$dagWrap;
         before(function() {
-            $dagWrap = smallTable.$dagWrap;
             $menu = $dagPanel.find('.rightClickDropDown');
         });
-////////////////////////////////////////////////////////////////////////////////
+
         it('menu should open', function() {
             expect($menu.is(":visible")).to.be.false;
             smallTable.$dagWrap.contextmenu();
-            // $dagWrap.find('.dagImageWrap').last().contextmenu();
             expect($menu.is(":visible")).to.be.true;
             expect($menu.find('li:visible').length).to.equal(3);
         });
@@ -1066,10 +1043,10 @@ describe('Dag Panel Test', function() {
 
                 UnitTest.timeoutPromise(1000)
                 .then(function() {
-                   return UnitTest.testFinish(function() {
+                    return UnitTest.testFinish(function() {
                         return $(".dagTableIcon.icv").length > 0 &&
                                 $(".dagWrap.selected").length > 0;
-                   });
+                    });
                 })
                 .then(function() {
                     $icvDagWrap = $(".dagWrap.selected");
@@ -1260,7 +1237,7 @@ describe('Dag Panel Test', function() {
         if ($('#dfgPanelSwitch').hasClass('active')) {
             $('#dfgPanelSwitch').click();
         }
-        var isSuccess = 0;
+
         timeOutPromise(500)
         .then(function() {
             return PromiseHelper.alwaysResolve(Aggregates.deleteAggs([aggName]));

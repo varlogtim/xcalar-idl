@@ -368,7 +368,7 @@ describe('RowManager Test', function() {
                 UnitTest.hasAlertWithTitle("Could not display rows");
                 XcalarSetAbsolute = cachedFn;
                 done();
-            })
+            });
         });
 
         it("GetNextPage Fail should work", function(done) {
@@ -398,7 +398,7 @@ describe('RowManager Test', function() {
                 UnitTest.hasAlertWithTitle("Could not display rows");
                 XcalarGetNextPage = cachedFn;
                 done();
-            })
+            });
         });
     });
 

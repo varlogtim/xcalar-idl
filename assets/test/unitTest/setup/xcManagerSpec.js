@@ -201,13 +201,13 @@ describe("xcManager", function() {
             expect($("#datastoreMenu").hasClass("active")).to.be.true;
             // close menu
             $("#datastoreMenu .minimizeBtn").click();
-            $("#memoryAlert").removeClass("yellow")
+            $("#memoryAlert").removeClass("yellow");
         });
     });
 
     describe("Mouse Wheel Reimplement Test", function() {
         var reImplementMouseWheel;
-        var $e
+        var $e;
 
         before(function() {
             reImplementMouseWheel = xcManager.__testOnly__.reImplementMouseWheel;

@@ -319,7 +319,7 @@ describe("TableManager Test", function() {
 
             TblManager.deleteTables([tableId, tableId2], TableType.Active)
             .then(function() {
-                throw "error case"
+                done("fail");
             })
             .fail(function() {
                 expect(deleteCalled).to.be.true;

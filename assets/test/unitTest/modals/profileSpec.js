@@ -345,7 +345,7 @@ describe("Profile Test", function() {
 
         it("Should range bucket", function(done) {
             var $range = $dropdown.find('li[name="range"]');
-            $range.trigger(fakeEvent.mouseup)
+            $range.trigger(fakeEvent.mouseup);
             expect($dropdown.find("input").val()).to.equal("Range");
 
 
@@ -368,7 +368,7 @@ describe("Profile Test", function() {
 
         it("Should fit all", function(done) {
             var $fitAll = $dropdown.find('li[name="fitAll"]');
-            $fitAll.trigger(fakeEvent.mouseup)
+            $fitAll.trigger(fakeEvent.mouseup);
             expect($modal.attr("data-state")).to.equal("pending");
 
             var checkFunc = function() {
@@ -387,7 +387,7 @@ describe("Profile Test", function() {
 
         it("Should back to single bucket", function(done) {
             var $single = $dropdown.find('li[name="single"]');
-            $single.trigger(fakeEvent.mouseup)
+            $single.trigger(fakeEvent.mouseup);
             expect($modal.attr("data-state")).to.equal("pending");
 
             var checkFunc = function() {

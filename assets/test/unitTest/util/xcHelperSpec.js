@@ -2329,8 +2329,12 @@ describe('xcHelper Test', function() {
                 expect($table.length).to.equal(1);
                 expect($table.find('td').length).to.equal(8);
 
-                var cells = []
-                cells.push({isMixed: true, isUndefined: true, type:"undefined"});
+                var cells = [];
+                cells.push({
+                    isMixed: true,
+                    isUndefined: true,
+                    type: "undefined"
+                });
 
                 $table.find("td").eq(2).append(hightlightBox);
                 expect(fn("mixed", cells)).to.be.false;
@@ -2348,7 +2352,7 @@ describe('xcHelper Test', function() {
                 expect(fn("mixed", cells)).to.be.false;
 
                 cells = [];
-                cells.push({isMixed: true, type: "object"})
+                cells.push({isMixed: true, type: "object"});
                 $table.find("td").eq(6).append(hightlightBox);
                 expect(fn("mixed", cells)).to.be.true;
 
@@ -2387,7 +2391,7 @@ describe('xcHelper Test', function() {
                 var multiCell = false;
                 var notAllowed = $div.find('.null, .blank').length;
                 var columnType = "mixed";
-                var options = {rowNum:1, colNum:1};
+                var options = {rowNum: 1, colNum: 1};
 
                 // initial state
                 // expect($menu.is(":visible")).to.be.true;

@@ -66,9 +66,9 @@ describe('FnBar Test', function() {
                 curCont = $table.find("td.col2").eq(0).text();
                 expect(curCont.startsWith("[")).to.be.false;
                 setTimeout(function() {
-                   UnitTest.hasStatusBoxWithError(FnBarTStr.PullExists);
-                   done();
-               }, 1);
+                    UnitTest.hasStatusBoxWithError(FnBarTStr.PullExists);
+                    done();
+                }, 1);
             });
             it("fnBar keyDown malformed input throws correctly.", function(done) {
                 editor.setValue("= pull(beepboop");

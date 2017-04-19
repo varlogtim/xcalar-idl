@@ -109,22 +109,23 @@ describe('JoinView Test', function() {
 
     describe('functions test', function() {
         it('deactivateClauseSection should work', function() {
-            var $input = $joinForm.find(".joinClause").find(".arg").eq(1)
+            var $input = $joinForm.find(".joinClause").find(".arg").eq(1);
             $input.removeClass("inActive");
             JoinView.__testOnly__.deactivateClauseSection(1);
             expect($input.hasClass("inActive"));
         });
 
         it("autoResolveCollisions should work", function() {
-            var lOut =  [];
-            var rOut = [{"orig":"test","new":"test1","type":13}]
+            var lOut = [];
+            var rOut = [{"orig": "test", "new": "test1", "type": 13}];
             JoinView.__testOnly__.autoResolveCollisions(["test"], 100,
                 DfFieldTypeT.DfFatptr, ["testa"], ["test"], lOut, rOut);
             expect(lOut.length).to.equal(1);
             expect(lOut[0].new).to.equal("test_100");
-            
-            var lOut = [{"orig":"test","new":"test1","type":13}]
-            var rOut =  [];
+
+            // case 2
+            lOut = [{"orig": "test", "new": "test1", "type": 13}];
+            rOut = [];
             JoinView.__testOnly__.autoResolveCollisions(["test"], 100,
                 DfFieldTypeT.DfFatptr, ["test"], ["testa"], lOut, rOut);
             expect(rOut.length).to.equal(1);

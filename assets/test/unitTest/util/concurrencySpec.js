@@ -53,8 +53,7 @@ describe("Concurrency Test", function() {
             });
         });
 
-        it("Bogus call to test other keysetifequal return codes",
-            function(done) {
+        it("Bogus call to test other keysetifequal return codes", function(done) {
             var uninited = new Mutex("notInited");
             Concurrency.lock(uninited.key) // This is deliberate
             .then(function() {
@@ -110,7 +109,7 @@ describe("Concurrency Test", function() {
 
         it("Should not get lock after it's been locked", function(done) {
             Concurrency.lock(mutex, 1000)
-            .then(function(ls) {
+            .then(function() {
                 throw "Should not get lock!";
             })
             .fail(function(errorMessage) {
@@ -191,8 +190,7 @@ describe("Concurrency Test", function() {
             });
         });
 
-        it("Should still be able to unlock even though it's unlocked",
-            function(done) {
+        it("Should still unlock even though it's unlocked", function(done) {
             Concurrency.unlock(mutex, lockString)
             .then(function() {
                 lockString = undefined;

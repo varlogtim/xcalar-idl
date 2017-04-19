@@ -631,7 +631,6 @@ describe('ColManager Test', function() {
 
         it("checkDuplicateName should work", function() {
             var table = gTables[tableId];
-            var firstColName = table.getCol(1).getFrontColName();
             var fullColName = table.getCol(1).getFrontColName(true);
 
             var testCases = [{

@@ -391,8 +391,9 @@ describe("Ephemeral Constructor Test", function() {
                 var text = $(this).text();
                 if (text.indexOf(val) > -1) {
                     text = text.replace(regex, function(match) {
-                       return ('<span class="highlightedText">' + match +
-                        '</span>');
+                        return ('<span class="highlightedText">' +
+                                    match +
+                                '</span>');
                     });
                     $(this).html(text);
                 }

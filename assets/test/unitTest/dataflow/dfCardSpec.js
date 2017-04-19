@@ -214,7 +214,7 @@ describe('DFCard Test', function() {
 
         // using real xcalarquerystate
         it('dag table statuses should update when executing retina', function(done) {
-             $("#dfgMenu .groupName").filter(function() {
+            $("#dfgMenu .groupName").filter(function() {
                 return $(this).text() === testDfName;
             }).closest('.dataFlowGroup').click();
 

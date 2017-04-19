@@ -429,7 +429,7 @@ describe('ExportView Test', function() {
                 expect(validTypes.length).to.equal(4);
 
                 fnCalled = true;
-                return {invalid: true, reason:'notFound', name: 'badColumn'};
+                return {invalid: true, reason: 'notFound', name: 'badColumn'};
             };
 
             ExportView.__testOnly__.submitForm()
@@ -456,7 +456,7 @@ describe('ExportView Test', function() {
                 expect(validTypes.length).to.equal(4);
 
                 fnCalled = true;
-                return {invalid: true, reason:'tableNotFound'};
+                return {invalid: true, reason: 'tableNotFound'};
             };
 
             ExportView.__testOnly__.submitForm()
@@ -483,7 +483,12 @@ describe('ExportView Test', function() {
                 expect(validTypes.length).to.equal(4);
 
                 fnCalled = true;
-                return {invalid: true, reason:'type', name: 'badColumn', type: 'array'};
+                return {
+                    invalid: true,
+                    reason: 'type',
+                    name: 'badColumn',
+                    type: 'array'
+                };
             };
 
             ExportView.__testOnly__.submitForm()

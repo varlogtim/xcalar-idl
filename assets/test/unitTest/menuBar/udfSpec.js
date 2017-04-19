@@ -203,7 +203,7 @@ describe("UDF Test", function() {
             })
             .fail(function() {
                 done("fail");
-            })
+            });
         });
 
         it("UDF.clear should work", function() {

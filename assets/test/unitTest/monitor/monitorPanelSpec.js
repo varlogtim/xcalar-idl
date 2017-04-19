@@ -1,33 +1,53 @@
 describe("Monitor Panel Test", function() {
-	var $monitorPanel;
-	before(function() {
-		$monitorPanel = $("#monitor-system");
-		$("#monitorTab").find(".mainTab");
-		$("#systemButton").click();
-	});
+    var $mainTabCache;
+    var $monitorPanel;
 
-	describe("toggling xdb and ram", function() {
-		it("clicking on donut should toggle xdb and ram", function() {
-			expect($monitorPanel.find(".donutSection").eq(1).hasClass("xdbMode")).to.be.false;
-			expect($("#donutStats2").is(":visible")).to.be.false;
-			expect($("#donutStats1").is(":visible")).to.be.true;
-			expect($monitorPanel.find(".graphSwitches .row").eq(1).find(".text").text()).to.equal("RAM");
+    before(function() {
+        $mainTabCache = $(".topMenuBarTab.active");
+        $monitorPanel = $("#monitor-system");
+        // $("#monitorTab").find(".mainTab");
+        $("#systemButton").click();
+    });
 
-			// to xdb mode
-			$monitorPanel.find(".ramDonut .donut").eq(0).click();
+    describe("toggling xdb and ram", function() {
+        it("clicking on donut should toggle xdb and ram", function() {
+            var isxdbMode = $monitorPanel.find(".donutSection")
+                                         .eq(1).hasClass("xdbMode");
+            expect(isxdbMode).to.be.false;
+            expect($("#donutStats2").is(":visible")).to.be.false;
+            expect($("#donutStats1").is(":visible")).to.be.true;
+            var text = $monitorPanel.find(".graphSwitches .row").eq(1)
+                                    .find(".text").text();
+            expect(text).to.equal("RAM");
 
-			expect($monitorPanel.find(".donutSection").eq(1).hasClass("xdbMode")).to.be.true;
-			expect($("#donutStats2").is(":visible")).to.be.true;
-			expect($("#donutStats1").is(":visible")).to.be.false;
-			expect($monitorPanel.find(".graphSwitches .row").eq(1).find(".text").text()).to.equal("XDB");
+            // to xdb mode
+            $monitorPanel.find(".ramDonut .donut").eq(0).click();
 
-			// to ram mode
-			$monitorPanel.find(".ramDonut .donut").eq(0).click();
+            isxdbMode = $monitorPanel.find(".donutSection")
+                                     .eq(1).hasClass("xdbMode");
+            expect(isxdbMode).to.be.true;
+            expect($("#donutStats2").is(":visible")).to.be.true;
+            expect($("#donutStats1").is(":visible")).to.be.false;
+            text = $monitorPanel.find(".graphSwitches .row").eq(1)
+                                    .find(".text").text();
+            expect(text).to.equal("XDB");
 
-			expect($monitorPanel.find(".donutSection").eq(1).hasClass("xdbMode")).to.be.false;
-			expect($("#donutStats2").is(":visible")).to.be.false;
-			expect($("#donutStats1").is(":visible")).to.be.true;
-			expect($monitorPanel.find(".graphSwitches .row").eq(1).find(".text").text()).to.equal("RAM");
-		});
-	});
+            // to ram mode
+            $monitorPanel.find(".ramDonut .donut").eq(0).click();
+
+            isxdbMode = $monitorPanel.find(".donutSection")
+                                     .eq(1).hasClass("xdbMode");
+            expect(isxdbMode).to.be.false;
+            expect($("#donutStats2").is(":visible")).to.be.false;
+            expect($("#donutStats1").is(":visible")).to.be.true;
+
+            text = $monitorPanel.find(".graphSwitches .row").eq(1)
+                                    .find(".text").text();
+            expect(text).to.equal("RAM");
+        });
+    });
+
+    after(function() {
+        $mainTabCache.click();
+    });
 });

@@ -603,7 +603,7 @@ describe("DSParser Test", function() {
         it("fetchRows() should work", function(done) {
             var previewCalled = false;
             var cached = XcalarPreview;
-            XcalarPreview = function(url, fileNamePattern, isRecur, numBytes, offset) {
+            XcalarPreview = function(url, fileNamePattern, isRecur, numBytes) {
                 previewCalled = true;
                 expect(numBytes).to.equal(100);
                 return PromiseHelper.reject();
@@ -717,7 +717,7 @@ describe("DSParser Test", function() {
 
         it("plain text line delim should work", function() {
             var $input = $("#plainTextBox").find("input");
-            var $lis = $("#plainTextBox").find(".dropDownList").find("li")
+            var $lis = $("#plainTextBox").find(".dropDownList").find("li");
             $lis.eq(1).trigger(fakeEvent.mouseup);
             expect($input.val()).to.equal("Null");
 
@@ -728,7 +728,7 @@ describe("DSParser Test", function() {
         it("mousedown selecting text should open menu", function(done) {
             var cached = xcHelper.dropdownOpen;
             var opened = false;
-            xcHelper.dropdownOpen = function($target, $menu) {
+            xcHelper.dropdownOpen = function() {
                 opened = true;
             };
 
@@ -747,8 +747,8 @@ describe("DSParser Test", function() {
                     '</span><span class="line">              }' +
                     '</span></span>';
 
-            $("#dsParser .previewContent").html(html);
-                 // select { on 3rd line of page1
+                $("#dsParser .previewContent").html(html);
+                // select { on 3rd line of page1
                 var range = document.createRange();
                 range.setStart($("#dsParser .page[data-page='1']").find(".line")[2].childNodes[0], 14);
                 range.setEnd($("#dsParser .page[data-page='1']").find(".line")[2].childNodes[0], 15);

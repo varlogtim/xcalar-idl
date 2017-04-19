@@ -196,7 +196,7 @@ describe('DFCreateView', function() {
                 expect(df.name).to.equal(testDfName);
             })
             .fail(function() {
-                done("fail")
+                done("fail");
             })
             .always(function() {
                 // wait for submit inner always

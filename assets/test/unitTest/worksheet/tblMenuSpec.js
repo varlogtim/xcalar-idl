@@ -11,7 +11,6 @@ describe('TableMenu Test', function() {
     var $colSubMenu;
     var $cellMenu;
     var rightMouseup;
-    var oldTableId;
 
     before(function(done) {
         UnitTest.onMinMode();
@@ -23,7 +22,6 @@ describe('TableMenu Test', function() {
             tableName = tName;
             prefix = tPrefix;
             tableId = xcHelper.getTableId(tableName);
-            oldTableId = tableId;
 
             xcFunction.sort(10, tableId, SortDirection.Forward)
             .then(function(tName) {

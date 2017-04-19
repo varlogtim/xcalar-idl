@@ -5,7 +5,6 @@ describe('JsonModal Test', function() {
     var $jsonModal;
     var tableId;
     var $table;
-    var oldTableId;
 
     before(function(done) {
         UnitTest.onMinMode();
@@ -17,7 +16,6 @@ describe('JsonModal Test', function() {
             prefix = tPrefix;
             $jsonModal = $('#jsonModal');
             tableId = xcHelper.getTableId(tableName);
-            oldTableId = tableId;
 
             xcFunction.sort(10, tableId, SortDirection.Forward)
             .then(function(tName) {
@@ -814,6 +812,6 @@ describe('JsonModal Test', function() {
                 UnitTest.offMinMode();
                 done();
             });
-        })
+        });
     });
 });
