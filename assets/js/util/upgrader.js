@@ -163,12 +163,19 @@ window.Upgrader = (function(Upgrader, $) {
 
         KVStore.getAndParse(wkbkKey, gKVScope.WKBK)
         .then(function(oldWkbks) {
+            var passed = false;
+            var err;
             try {
                 userCache.wkbks = WorkbookManager.upgrade(oldWkbks);
-                deferred.resolve();
+                passed = true;
             } catch (error) {
                 console.error(error.stack);
-                deferred.reject(error);
+                err = error;
+            }
+            if (passed) {
+                deferred.resolve();
+            } else {
+                deferred.reject(err);
             }
         })
         .fail(deferred.reject);
@@ -246,11 +253,19 @@ window.Upgrader = (function(Upgrader, $) {
 
         KVStore.getAndParse(key, scope)
         .then(function(meta) {
+            var passed = false;
+            var newMeta;
+            var err;
             try {
-                var newMeta = KVStore.upgrade(meta, consctorName);
-                deferred.resolve(newMeta);
+                newMeta = KVStore.upgrade(meta, consctorName);
+                passed = true;
             } catch (error) {
                 console.error(error.stack || error);
+                err = false;
+            }
+            if (passed) {
+                deferred.resolve(newMeta);
+            } else {
                 deferred.reject(error);
             }
         })

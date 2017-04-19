@@ -61,6 +61,8 @@ window.XVM = (function(XVM) {
         PromiseHelper
         .when(def1, def2)
         .then(function(licKey, result) {
+            var passed = false;
+            var err;
             try {
                 var versionNum = result.apiVersionSignatureShort;
                 backendVersion = result.version;
@@ -97,21 +99,25 @@ window.XVM = (function(XVM) {
                       XcalarApiVersionT.XcalarApiVersionSignature);
                     console.log("Frontend's thrift version is: " + versionNum);
                     console.log("Frontend's git SHA is: " + gGitVersion);
-                    deferred.reject({"error": ThriftTStr.Update});
+                    err = {"error": ThriftTStr.Update};
                 } else if (licKey.expired) {
                     console.log(licKey);
                     var error = xcHelper.replaceMsg(ErrTStr.LicenseExpire, {
                         "date": licenseKey
                     });
-                    deferred.reject({"error": error});
-
+                    err = {"error": error};
                 } else {
-                    deferred.resolve();
+                    passed = true;
                 }
             } catch (error) {
                 // code may go here if thrift changes
+                err = {error: ThriftTStr.Update};
                 console.error(error);
-                deferred.reject({error: ThriftTStr.Update});
+            }
+            if (passed) {
+                deferred.resolve();
+            } else {
+                deferred.reject(err);
             }
         })
         .fail(function(ret) {

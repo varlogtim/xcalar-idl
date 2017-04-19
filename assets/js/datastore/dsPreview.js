@@ -1593,14 +1593,20 @@ window.DSPreview = (function($, DSPreview) {
                 deferred.resolve(null);
                 return;
             }
-
+            var passed;
+            var buffer;
             try {
                 var rows = parseRows(result);
-                var buffer = JSON.stringify(rows);
+                buffer = JSON.stringify(rows);
                 setPreviewFile(urlToPreview, disablePreview);
-                deferred.resolve(buffer);
+                passed = true;
             } catch (err) {
                 console.error(err.stack);
+            }
+
+            if (passed) {
+                deferred.resolve(buffer);
+            } else {
                 deferred.reject({"error": DSTStr.NoParse});
             }
         })

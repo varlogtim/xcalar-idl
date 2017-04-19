@@ -1168,7 +1168,7 @@ window.Profile = (function($, Profile, d3) {
         XcalarFetchData(resultSetId, rowPosition, rowsToFetch, totalRows, [])
         .then(function(data) {
             var numRows = Math.min(rowsToFetch, data.length);
-
+            var failed = false;
             for (var i = 0; i < numRows; i++) {
                 try {
                     var value = $.parseJSON(data[i].value);
@@ -1176,7 +1176,11 @@ window.Profile = (function($, Profile, d3) {
                     groupByData.push(value);
                 } catch (error) {
                     console.error(error, data[i].value);
-                    deferred.reject(error);
+                    failed = true;
+                    err = error;
+                }
+                if (failed) {
+                    deferred.reject(err);
                     return;
                 }
             }

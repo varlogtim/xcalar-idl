@@ -317,13 +317,20 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
             "url": url + "/getAvailableExtension",
             "success": function(data) {
                 // {status: Status.Ok, extensionsAvailable: ["bizRules", "dev"]}
+                var passed = false;
+                var err;
                 try {
                     getInstalledExtListHTML(data.extensionsAvailable);
-                    deferred.resolve();
+                    passed = true;
                 } catch (error) {
                     console.error(error);
                     handleExtListError();
-                    deferred.reject(error);
+                    err = error;
+                }
+                if (passed) {
+                    deferred.resolve();
+                } else {
+                    deferred.reject(err);
                 }
             },
             "error": function(error) {

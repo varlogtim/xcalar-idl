@@ -51,11 +51,19 @@ window.XIApi = (function(XIApi, $) {
         .then(function(value, dstDagName) {
             deleteHelper(dstDagName)
             .always(function() {
+                var passed = false;
+                var val;
+                var err;
                 try {
-                    var val = JSON.parse(value);
-                    deferred.resolve(val.Value, dstAggName, toDelete);
+                    val = JSON.parse(value);
+                    passed = true;
                 } catch (error) {
-                    deferred.reject({"error": error});
+                    err = error;
+                }
+                if (passed) {
+                    deferred.resolve(val.Value, dstAggName, toDelete);
+                } else {
+                    deferred.reject({"error": err});
                 }
             });
         })
@@ -588,14 +596,19 @@ window.XIApi = (function(XIApi, $) {
         XIApi.fetchData(tableName, startRowNum, rowsToFetch)
         .then(function(data) {
             var result = [];
-
+            var failed = false;
+            var err;
             for (var i = 0, len = data.length; i < len; i++) {
                 try {
                     var row = JSON.parse(data[i]);
                     result.push(row[colName]);
                 } catch (error) {
                     console.error(error, data[i]);
-                    deferred.reject(error);
+                    err = error;
+                    failed = true;
+                }
+                if (failed) {
+                    deferred.reject(err);
                     return;
                 }
             }
@@ -1246,7 +1259,7 @@ window.XIApi = (function(XIApi, $) {
                         }
                     }
                 }
-                
+
                 newCols.push(tableCols[colNum]);
             }
 
@@ -1272,7 +1285,7 @@ window.XIApi = (function(XIApi, $) {
                 escapedName = xcHelper.escapeColName(backColName);
                 // backend returns escaped dots so we must escape again
                 escapedName = xcHelper.escapeColName(escapedName);
-                
+
                 // with no sample, group col is immediates
                 escapedName = xcHelper.parsePrefixColName(escapedName).name;
                 var colName = progCol.name || backColName;

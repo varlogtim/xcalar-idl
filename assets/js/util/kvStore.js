@@ -40,12 +40,20 @@ window.KVStore = (function($, KVStore) {
         .then(function(value) {
             // "" can not be JSO.parse
             if (value != null && value.value != null && value.value !== "") {
+                var passed = false;
+                var error;
                 try {
                     value = JSON.parse(value.value);
-                    deferred.resolve(value);
+                    passed = true;
                 } catch (err) {
                     console.error(err, value, key);
-                    deferred.reject(err);
+                    error = err;
+                }
+
+                if (passed) {
+                    deferred.resolve(value);
+                } else {
+                    deferred.reject(error);
                 }
             } else {
                 deferred.resolve(null);
