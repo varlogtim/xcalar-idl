@@ -152,7 +152,7 @@ CommonTxtTstr = {
 'InvalidSize': '无效大小',
 'Uploading': '上传',
 'Upgrading': '升级',
-'Usage': 'Usage'
+'Usage': '使用率'
 };
 ErrTStr = {
 'Error': '错误',
@@ -748,7 +748,8 @@ ExtTStr = {
 "More": '查看更多',
 "Less": '隐藏细节',
 "XcCategory": 'Xcalar Extensions',
-'extListFail': '无法获得安装的插件列表'
+'extListFail': '无法获得安装的插件列表',
+"InvalidTableName": "无效的表名，请使用插件提供的api创建表名"
 };
 DaysTStr = {
 'Sunday': '星期日',

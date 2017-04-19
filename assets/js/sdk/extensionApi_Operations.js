@@ -10,7 +10,7 @@ if (window.XcSDK.Extension == null) {
 window.XcSDK.Extension.prototype = (function() {
     var prototype = {
         // api for operations
-        "filter": function(fltStr, tableName, newTableName) {
+        filter: function(fltStr, tableName, newTableName) {
             var deferred = jQuery.Deferred();
             var self = this;
             var txId = self.txId;
@@ -25,17 +25,17 @@ window.XcSDK.Extension.prototype = (function() {
             return deferred.promise();
         },
         // dstAggName is optional and can be left blank (will autogenerate)
-        "aggregate": function(aggOp, colName, tableName, dstAggName) {
+        aggregate: function(aggOp, colName, tableName, dstAggName) {
             var txId = this.txId;
             return XIApi.aggregate(txId, aggOp, colName, tableName, dstAggName);
         },
          // dstAggName is optional and can be left blank (will autogenerate)
-        "aggregateWithEvalStr": function(evalStr, tableName, dstAggName) {
+        aggregateWithEvalStr: function(evalStr, tableName, dstAggName) {
             var txId = this.txId;
             return XIApi.aggregateWithEvalStr(txId, evalStr, tableName, dstAggName);
         },
 
-        "load": function(dsArgs, formatArgs, dsName) {
+        load: function(dsArgs, formatArgs, dsName) {
             // Important: dsName gets transformed. This promise returns new name.
             // If following this by an indexFromDataset, be sure to use
             // the transformed name.
@@ -59,7 +59,7 @@ window.XcSDK.Extension.prototype = (function() {
             return deferred.promise();
         },
 
-        "index": function(colToIndex, tableName) {
+        index: function(colToIndex, tableName) {
             var deferred = jQuery.Deferred();
             var self = this;
             var txId = self.txId;
@@ -74,7 +74,7 @@ window.XcSDK.Extension.prototype = (function() {
             return deferred.promise();
         },
 
-        "indexFromDataset": function(datasetName, newTableName, prefix) {
+        indexFromDataset: function(datasetName, newTableName, prefix) {
             var self = this;
             var txId = self.txId;
 
@@ -84,7 +84,7 @@ window.XcSDK.Extension.prototype = (function() {
                                           prefix);
         },
 
-        "sort": function(order, colName, tableName, newTableName) {
+        sort: function(order, colName, tableName, newTableName) {
             var deferred = jQuery.Deferred();
             var self = this;
             var txId = self.txId;
@@ -99,7 +99,7 @@ window.XcSDK.Extension.prototype = (function() {
             return deferred.promise();
         },
 
-        "sortAscending": function(colName, tableName, newTableName) {
+        sortAscending: function(colName, tableName, newTableName) {
             var deferred = jQuery.Deferred();
             var self = this;
             var txId = self.txId;
@@ -114,7 +114,7 @@ window.XcSDK.Extension.prototype = (function() {
             return deferred.promise();
         },
 
-        "sortDescending": function(colName, tableName, newTableName) {
+        sortDescending: function(colName, tableName, newTableName) {
             var deferred = jQuery.Deferred();
             var self = this;
             var txId = self.txId;
@@ -129,7 +129,7 @@ window.XcSDK.Extension.prototype = (function() {
             return deferred.promise();
         },
 
-        "map": function(mapStr, tableName, newColName, newTableName) {
+        map: function(mapStr, tableName, newColName, newTableName) {
             var deferred = jQuery.Deferred();
             var self = this;
             var txId = self.txId;
@@ -171,7 +171,7 @@ window.XcSDK.Extension.prototype = (function() {
                 newTableName: string, final table's name, optional
                 clean: boolean, remove intermediate table if set true
         */
-        "join": function(joinType, lTableInfo, rTableInfo, options) {
+        join: function(joinType, lTableInfo, rTableInfo, options) {
             var deferred = jQuery.Deferred();
             var self = this;
             var txId = self.txId;
@@ -186,7 +186,7 @@ window.XcSDK.Extension.prototype = (function() {
             return deferred.promise();
         },
 
-        "getJoinRenameMap": function(oldName, newName, isPrefix) {
+        getJoinRenameMap: function(oldName, newName, isPrefix) {
             var type = isPrefix
                        ? DfFieldTypeT.DfFatptr
                        : DfFieldTypeT.DfUnknown;
@@ -204,9 +204,7 @@ window.XcSDK.Extension.prototype = (function() {
          *  newTableName: string, dst table name, optional
          *  clean: true/false, if set true, will remove intermediate tables
          */
-        "groupBy": function(operator, groupByCols, aggColName,
-                            tableName, newColName, options)
-        {
+        groupBy: function(operator, groupByCols, aggColName, tableName, newColName, options) {
             var deferred = jQuery.Deferred();
             var self = this;
             var txId = self.txId;
@@ -229,7 +227,7 @@ window.XcSDK.Extension.prototype = (function() {
             tableName: table's name
             newTableName(optional): new table's name
         */
-        "project": function(columns, tableName, newTableName) {
+        project: function(columns, tableName, newTableName) {
             var deferred = jQuery.Deferred();
             var self = this;
             var txId = self.txId;
@@ -244,7 +242,10 @@ window.XcSDK.Extension.prototype = (function() {
             return deferred.promise();
         },
 
-        "query": function(queryStr) {
+        query: function(queryStr) {
+            if (!this.__checkDstTableNameInQuery(queryStr)) {
+                return PromiseHelper.reject(ExtTStr.InvalidTableName);
+            }
             var txId = this.txId;
             var queryName = this.tableNameRoot + "_ext_query";
             // in case of query name conflict
@@ -252,7 +253,20 @@ window.XcSDK.Extension.prototype = (function() {
             return XIApi.query(txId, queryName, queryStr);
         },
 
-        "genRowNum": function(tableName, newColName, newTableName) {
+        __checkDstTableNameInQuery: function(queryStr) {
+            var hashTag = Authentication.getInfo().hashTag;
+            // check --dsttable pattern
+            var re1 = new RegExp("--dsttable", "g");
+            // check --dsttable name#hastTagIdCount pattern
+            var re2 = new RegExp("--dsttable \\w+#" + hashTag + "\\d+", "g");
+
+            var res1 = queryStr.match(re1);
+            var res2 = queryStr.match(re2);
+            // the two patterns should match in length
+            return (res1.length === res2.length);
+        },
+
+        genRowNum: function(tableName, newColName, newTableName) {
             var deferred = jQuery.Deferred();
             var self = this;
             var txId = self.txId;
@@ -267,45 +281,45 @@ window.XcSDK.Extension.prototype = (function() {
             return deferred.promise();
         },
 
-        "getNumRows": function(tableName) {
+        getNumRows: function(tableName) {
             return XIApi.getNumRows(tableName);
         },
 
         // Row numbers start at 1
-        "fetchData": function(tableName, startRowNum, rowsToFetch) {
+        fetchData: function(tableName, startRowNum, rowsToFetch) {
             return XIApi.fetchData(tableName, startRowNum, rowsToFetch);
         },
 
-        "fetchDataAndParse": function(tableName, startRowNum, rowsToFetch) {
+        fetchDataAndParse: function(tableName, startRowNum, rowsToFetch) {
             return XIApi.fetchDataAndParse(tableName, startRowNum, rowsToFetch);
         },
 
-        "fetchColumnData": function(colName, tableName, startRowNum, rowsToFetch) {
+        fetchColumnData: function(colName, tableName, startRowNum, rowsToFetch) {
             return XIApi.fetchColumnData(colName, tableName, startRowNum, rowsToFetch);
         },
 
-        "appSet": function(name, hostType, duty, execStr) {
+        appSet: function(name, hostType, duty, execStr) {
             var self = this;
             var txId = self.txId;
 
             return XIApi.appSet(txId, name, hostType, duty, execStr);
         },
 
-        "appRun": function(name, isGlobal, inStr) {
+        appRun: function(name, isGlobal, inStr) {
             var self = this;
             var txId = self.txId;
 
             return XIApi.appRun(txId, name, isGlobal, inStr);
         },
 
-        "appReap": function(name, appGroupId) {
+        appReap: function(name, appGroupId) {
             var self = this;
             var txId = self.txId;
 
             return XIApi.appReap(txId, name, appGroupId);
         },
 
-        "appExecute": function(name, isGlobal, inStr) {
+        appExecute: function(name, isGlobal, inStr) {
             var self = this;
             var txId = self.txId;
 
@@ -313,7 +327,7 @@ window.XcSDK.Extension.prototype = (function() {
         },
 
         // private function
-        "_addMeta": function(srcTable, dstTable, dstCols, options) {
+        _addMeta: function(srcTable, dstTable, dstCols, options) {
             // XXX options is later used to customize tableCols
             options = options || {};
             var srcTableId = xcHelper.getTableId(srcTable);

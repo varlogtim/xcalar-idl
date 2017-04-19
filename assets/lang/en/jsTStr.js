@@ -895,7 +895,8 @@ ExtTStr = {
     "More": "VIEW MORE",
     "Less": "HIDE DETAIL",
     "XcCategory": "Xcalar Extensions",
-    'extListFail': "Failed to get installed extensions list"
+    "extListFail": "Failed to get installed extensions list",
+    "InvalidTableName": "Invalid table name, please use extension api to create a valid name"
 };
 
 DaysTStr = {
