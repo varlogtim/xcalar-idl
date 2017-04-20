@@ -2026,6 +2026,7 @@ window.TblManager = (function($, TblManager) {
 
         // bookmark
         $trs.find('.idSpan').click(function() {
+            return; // disabled
             var tableId = xcHelper.parseTableId($(this).closest('table'));
             var table = gTables[tableId];
             if (table.resultSetCount === 0) {

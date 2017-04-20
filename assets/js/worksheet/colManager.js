@@ -1135,11 +1135,7 @@ window.ColManager = (function($, ColManager) {
 
             // Line Marker Column
             tBodyHTML += '<div class="idWrap">' +
-                            '<span class="idSpan"' +
-                            ' data-toggle="tooltip"' +
-                            ' data-placement="bottom"' +
-                            ' data-container="body"' +
-                            ' data-original-title="' + idTitle + '">' +
+                            '<span class="idSpan">' +
                                 (rowNum + 1) +
                             '</span>' +
                             '<div class="rowGrab"></div>' +

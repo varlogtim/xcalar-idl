@@ -210,15 +210,6 @@ html.edge {
         }
     }
 
-    tbody tr.dragging {
-        td:first-child:not(.rowBookmarked) .idSpan {
-            background-color: @color-silver !important;
-        }
-        td:first-child .idSpan {
-            border-right-color: @color-text-placeholder !important;
-        }
-    }
-
     .idSpan {
         .position(relative);
         .size(@width: ~"calc(100% + 10px)", @height: 100%);
@@ -229,7 +220,6 @@ html.edge {
         .justify-content (center);
         .align-items (center);
         z-index: @z-index-firstColumn;
-        pointer-events: none !important; // disabling bookmarking
 
         &::after {
             content: "";
