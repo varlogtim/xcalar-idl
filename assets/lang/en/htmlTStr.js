@@ -344,7 +344,6 @@ module.exports = {
 
     "monitor": {
         "AutoRefresh": "Auto Refresh",
-        "AutoSupport": "Auto Support Settings",
         "Config": "Configuration",
         "ConfigParam": "Configure Parameters",
         "ConfigParamName": "Config Parameter Name", // in jststr
@@ -384,7 +383,6 @@ module.exports = {
         "ReleaseMem": "Release Memory",
         "RemainTime": "Remaining Time",
         "RestartNode": "Restart Cluster",
-        "SAMPLE": "SAMPLE",
         "SETTINGS": "SETTINGS",
         "Settings": "Settings",
         "SETUP": "SETUP",
@@ -395,10 +393,6 @@ module.exports = {
         "StartNode": "Start Cluster",
         "Status": "Status",
         "StopNode": "Stop Cluster",
-        "SubGen": "Support Bundle Generating",
-        "SubGened": "Support Bundle Generated",
-        "SubGenFail": "Support Bundle Generation Failed",
-        "SubInstr": "Please check your backend for a .tar.gz.file.",
         "SYS": "SYSTEM",
         "Syst": "System",
         "TotalTime": "Total Time",
@@ -435,10 +429,7 @@ module.exports = {
     "ds": {
         "Point": "Point To New Data Source",
         "Datasets": "Datasets",
-        "DATASET": "DATASET",
         "DSIn": "DATASETS",
-        "DATACART": "CREATE NEW TABLE",
-        "Format": "Format",
         "Protocol": "Data Source Protocol",
         "Retry": "Retry",
         "RetryPoint": "Please try to point to data with different parameters(for example, a larger dataset size)",
@@ -538,7 +529,6 @@ module.exports = {
     "dsCart": {
         "Title": "Create New Table",
         "SelectWS": "Select Worksheet",
-        "CLEARALL": "REMOVE ALL COLUMNS",
         "CONFIRM": "CREATE TABLE",
         "NoCartInstr": "To pull a column by default inside the new table, select a dataset on the left and click on the column names that you are interested in inside the center panel."
     },
@@ -601,10 +591,6 @@ module.exports = {
     },
 
     "sched": {
-        // create new schedule
-        "CreateNew": "Create a new schedule",
-        "schedInstr": "Select the start time for your schedule, how frequently to run it, and the number of runs, then click save.",
-        "schedName": "Schedule Name",
         "startTime": "Start Time",
         "freq": "Frequency",
         "perMin": "Every Minute",
@@ -612,13 +598,11 @@ module.exports = {
         "daily": "Daily",
         "weekly": "Weekly",
         "biweekly": "Biweekly",
-        "numRun": "Number of Runs",
 
         // schedule detail
         "schedDetail": "Schedule Detail",
         "created": "Created",
         "modified": "Last modified",
-        "recur": "Repeat Time",
         "lastRun": "Last Run",
         "nextRun": "Next Run",
         "SchedInfo": "Schedule information",
@@ -627,35 +611,13 @@ module.exports = {
         "SimpleMode": "Simple Mode",
         "AdvancedMode": "Advanced Mode",
         "SIMULATE": "SIMULATE",
-        // add a schedule
-        "AddInstr": "Select a schedule to add to the dataflow. Or you can also create a new schedule.",
-        "AttachedSched": "Attached schedules",
-        "SelectSched": "Select a schedule",
-        "CreateNewBtn": "create new schedule",
 
         // tab
         "sched": "Schedule",
 
-        "SchedTitle": "SCHEDULER/DATAFLOWS",
-        "DFG": "DATAFLOW GRP",
-        "SCHEDS": "SCHEDULES",
-        "DETAIL": "DETAIL",
-        "dfgs": "Dataflows",
-        "params": "Parameters",
-        "inputNewParam": "Input New Parameter",
-        "newParam": "CREATE NEW PARAMETER",
-        "param": "Parameter",
-        "val": "Value",
-        "action": "Action",
-        "scheds": "Schedules",
-        "newSched": "Create New Schedule",
         "status": "Status",
-        "modifySched": "MODIFY SCHEDULE",
         "hour": "Hour",
         "min": "Minute",
-        "numRunHint": "How many times to run this",
-        "Add": "Add Schedule",
-        "dfgName": "Dataflow Name",
         "runtime": "Run Time",
         "parameters": "Parameters",
         "outputLocation": "Output Location",
@@ -786,7 +748,6 @@ module.exports = {
         "and": "and",
         "colsToKeep": "Columns to keep",
         "incSampleTip": "Picks a sample record for each row and populates the values that are not involved in the group by operation with data from this record"
-
     },
 
     "dfgParam": {

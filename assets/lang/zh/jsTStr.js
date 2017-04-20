@@ -532,7 +532,6 @@ MonitorTStr = {
 'SwitchUserMsg': '您确定要使用xcalar作为<username>吗？'
 };
 SchedTStr = {
-'SelectSched': '选择一个时间表',
 'NoScheds': '没有可用的时间表',
 'AddSchedFail': '添加计划失败',
 'UpdateFail': '更新计划失败',
