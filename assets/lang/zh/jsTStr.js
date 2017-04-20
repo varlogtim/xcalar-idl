@@ -548,7 +548,10 @@ SchedTStr = {
 "failServerTime": '无法获得服务器时间',
 'NewSched': '新建调度器',
 "Notrun": "未运行",
-"Success": "成功"
+"Success": "成功",
+"NoExportParam": "The export location is not properly parameterized and " +
+                        "may be overwritten in subsequent runs." +
+                        " Do you want to continue?"
 };
 DFTStr = {
 "CannotCreate": '无法创建批量数据流',

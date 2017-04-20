@@ -166,10 +166,50 @@ window.Scheduler = (function(Scheduler, $) {
 
         $("#modScheduleForm-save").click(function() {
             $(this).blur();
-            if (saveScheduleForm(currentDataFlowName)) {
-                Scheduler.show(currentDataFlowName);
-            }
+            checkExportFileName(currentDataFlowName)
+            .then(function() {
+                if (saveScheduleForm(currentDataFlowName)) {
+                    Scheduler.show(currentDataFlowName);
+                }
+            })
+            .fail(function() {
+                // not a fail, just a decline to proceed with save
+            });
+
         });
+
+        // alert if export name does not contain system parameter
+        function checkExportFileName(dataflowName) {
+            var deferred = jQuery.Deferred();
+            var dfObj = DF.getDataflow(dataflowName);
+            var exportInfo = dfObj.retinaNodes[0].input.exportInput;
+            var fileName = exportInfo.meta.specificInput.sfInput.fileName;
+            var sysParamFound = false;
+            for (var paramName in systemParams) {
+                var sysParam = "<" + paramName + ">";
+                if (fileName.indexOf(sysParam) > -1) {
+                    sysParamFound = true;
+                    break;
+                }
+            }
+
+            if (!sysParamFound) {
+                Alert.show({
+                    title: AlertTStr.Title,
+                    msg: SchedTStr.NoExportParam,
+                    onConfirm: function() {
+                        deferred.resolve();
+                    },
+                    onCancel: function() {
+                        deferred.reject();
+                    }
+                });
+            } else {
+                deferred.resolve();
+            }
+
+            return deferred.promise();
+        }
 
         $("#modScheduleForm-cancel").click(function() {
             $(this).blur();
@@ -492,6 +532,7 @@ window.Scheduler = (function(Scheduler, $) {
     function saveScheduleForm(dataflowName) {
         var isValid;
         var currentTime;
+
         if (isSimpleMode()) {
             // Simple mode
             var options;

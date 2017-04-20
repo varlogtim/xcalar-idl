@@ -6,6 +6,7 @@ describe("Schedule related Test", function() {
 
     describe("Time related function Test", timeRelatedFunctionTest);
     describe("View related function Test", viewRelatedFunctionTest);
+    describe("Form Submit Test", formSubmitTest);
 });
 
 
@@ -545,10 +546,31 @@ function viewRelatedFunctionTest() {
     // });
 
     after(function() {
-        DF.removeDataflow("df1");
 
         XcalarGetRetina = oldGetRetinaFunc;
         XcalarDeleteRetina = oldDeleteRetinaFunc;
         UnitTest.offMinMode();
+    });
+}
+
+function formSubmitTest() {
+    // TODO need to test for valid parameterized export name
+    it("unparamaterized export file name should show alert", function() {
+        var dfObj = DF.getDataflow("df1");
+        dfObj.retinaNodes[0].input = {
+            "exportInput": {meta: {
+                specificInput: {
+                    sfInput: {
+                        fileName:"fakeFileName"
+                    }
+                }
+            }}
+        };
+        $("#modScheduleForm-save").click();
+        UnitTest.hasAlertWithText(SchedTStr.NoExportParam);
+    });
+
+    after(function() {
+        DF.removeDataflow("df1");
     });
 }
