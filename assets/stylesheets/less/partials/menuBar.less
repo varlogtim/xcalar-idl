@@ -876,11 +876,18 @@ ul.CodeMirror-hints {
     .dropDownList {
         .styleDropDownList(~"calc(100% - 75px)", 30px);
 
-        input {
+        .text {
+            width: 100%;
             border: 1px solid @color-border-select-blue;
+            cursor: text;
+
+            &:focus {
+                outline: none;
+            }
         }
 
         .list {
+            .size(@width: 100%);
             box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.2);
 
             li {
@@ -889,7 +896,7 @@ ul.CodeMirror-hints {
                 color: @color-white;
                 text-transform: lowercase;
 
-                &:hover, &.hover {
+                &.hover, &.highlighted {
                     background-color: @color-bg-light-navy;
                 }
 

@@ -18,6 +18,7 @@ window.UDF = (function($, UDF) {
 
     UDF.setup = function() {
         setupUDF();
+        setupTemplateList();
     };
 
     UDF.initialize = function() {
@@ -196,14 +197,6 @@ window.UDF = (function($, UDF) {
             readUDFFromFile(file, moduleName);
         });
 
-        /* Template dropdown list */
-        new MenuHelper($("#udf-fnList"), {
-            "onSelect": selectUDFFuncList,
-            "container": "#udfSection",
-            "bounds": "#udfSection",
-            "bottomPadding": 2
-        }).setupListeners();
-
         new MenuHelper($("#udf-uploadType"), {
             "onSelect": selectTypeList,
             "container": "#udfSection",
@@ -211,46 +204,6 @@ window.UDF = (function($, UDF) {
             "bottomPadding": 2
         }).setupListeners();
         /* end of function input section */
-
-        function selectUDFFuncList($li) {
-            $li.parent().find("li").removeClass("selected");
-            $li.addClass("selected");
-
-            var moduleName = $li.text();
-            var $fnListInput = $("#udf-fnList input");
-            var $fnName = $("#udf-fnName");
-
-            StatusBox.forceHide();
-            $fnListInput.val(moduleName);
-
-            if ($li.attr("name") === "blank") {
-                $fnName.val("");
-                editor.setValue(udfDefault);
-            } else {
-                // auto-fill moduleName
-                $fnName.val(moduleName);
-
-                getEntireUDF(moduleName)
-                .then(fillUDFFunc)
-                .fail(function(error) {
-                    fillUDFFunc("#" + error);
-                });
-            }
-
-            function fillUDFFunc(funcStr) {
-                if ($fnListInput.val() !== moduleName) {
-                    // check if diff list item was selected during
-                    // the async call
-                    return;
-                }
-
-                if (funcStr == null) {
-                    funcStr = "#" + SideBarTStr.DownloadMsg;
-                }
-
-                editor.setValue(funcStr);
-            }
-        }
 
         function selectTypeList($li) {
             $li.closest(".dropDownList").find(".iconWrapper .icon").remove();
@@ -355,6 +308,124 @@ window.UDF = (function($, UDF) {
         /* end of udf manager section */
     }
 
+    function setupTemplateList() {
+        /* Template dropdown list */
+        var $template = $("#udf-fnList");
+        var $input = $template.find("input");
+
+        var menuHelper = new MenuHelper($template, {
+            "onSelect": selectUDFFuncList,
+            "container": "#udfSection",
+            "bounds": "#udfSection",
+            "bottomPadding": 2
+        });
+        menuHelper.setupListeners();
+
+        $("#udf-fnMenu").on("mousedown", "li", function() {
+            return false;
+        });
+
+        $input.on("input", function() {
+            var text = $input.val().trim();
+            filterUDFFuncList(text);
+
+            if (!$template.hasClass("open")) {
+                // show the list
+                menuHelper.toggleList($template);
+            }
+        });
+
+        $input.on("blur", function() {
+            var text = $input.val().trim();
+            var moduleName = $input.data("module");
+            if (moduleName !== text) {
+                $input.val(moduleName);
+            }
+        });
+
+        $input.on("keydown", function(event) {
+            if (event.which === keyCode.Enter) {
+                var module = $input.val().trim();
+                inputUDFFuncList(module);
+                menuHelper.hideDropdowns();
+            } else if (event.which === keyCode.Up ||
+                       event.which === keyCode.Down) {
+                $("#udf-fnMenu").find("li.hover").removeClass("hover");
+                xcHelper.listHighlight($input, event, false);
+            }
+        });
+
+        function inputUDFFuncList(module) {
+            var $li = $("#udf-fnMenu").find("li").filter(function() {
+                return ($(this).text() === module);
+            });
+
+            if ($li.length === 0) {
+                StatusBox.show(UDFTStr.NoTemplate, $input);
+            } else {
+                selectUDFFuncList($li);
+            }
+        }
+    }
+
+    function filterUDFFuncList(searchKey) {
+        var $lis = $("#udf-fnMenu").find("li");
+        if (!searchKey) {
+            $lis.removeClass("xc-hidden");
+        }
+
+        searchKey = searchKey.toLowerCase();
+
+        $lis.each(function() {
+            var $li = $(this);
+            if ($li.text().toLowerCase().includes(searchKey)) {
+                $li.removeClass("xc-hidden");
+            } else {
+                $li.addClass("xc-hidden");
+            }
+        });
+    }
+
+    function selectUDFFuncList($li) {
+        $li.parent().find("li").removeClass("selected");
+        $li.addClass("selected");
+
+        var moduleName = $li.text();
+        var $fnListInput = $("#udf-fnList input");
+        var $fnName = $("#udf-fnName");
+
+        StatusBox.forceHide();
+        $fnListInput.val(moduleName).data("module", moduleName);
+
+        if ($li.attr("name") === "blank") {
+            $fnName.val("");
+            editor.setValue(udfDefault);
+        } else {
+            // auto-fill moduleName
+            $fnName.val(moduleName);
+
+            getEntireUDF(moduleName)
+            .then(fillUDFFunc)
+            .fail(function(error) {
+                fillUDFFunc("#" + error);
+            });
+        }
+
+        function fillUDFFunc(funcStr) {
+            if ($fnListInput.val() !== moduleName) {
+                // check if diff list item was selected during
+                // the async call
+                return;
+            }
+
+            if (funcStr == null) {
+                funcStr = "#" + SideBarTStr.DownloadMsg;
+            }
+
+            editor.setValue(funcStr);
+        }
+    }
+
     function setupAutocomplete(editor) {
         var keysToIgnore = [keyCode.Left, keyCode.Right, keyCode.Down,
                             keyCode.Up, keyCode.Tab, keyCode.Enter];
@@ -431,7 +502,7 @@ window.UDF = (function($, UDF) {
         $blankFunc.after(html);
 
         if (!hasSelectedModule) {
-            $input.val("");
+            $input.val("").removeData("module");
             $blankFunc.trigger(fakeEvent.mouseup);
         }
     }
@@ -523,7 +594,7 @@ window.UDF = (function($, UDF) {
 
         reader.readAsText(file);
         $("#udf-fnName").val(moduleName);
-        $("#udf-fnList input").val("");
+        $("#udf-fnList input").val("").removeData("module");
     }
 
     function downloadUDF(moduleName) {

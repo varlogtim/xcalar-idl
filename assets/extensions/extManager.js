@@ -617,7 +617,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         });
 
         $extArgs.on('keydown', '.hintDropdown input', function(event) {
-            inputSuggest.listHighlight(event, formHelper);
+            inputSuggest.listHighlight(event);
         });
 
         $extArgs.on("input", ".argument.type-column", function() {
