@@ -438,9 +438,6 @@ FnBarTStr = {
 };
 
 ScrollTStr = {
-    'Title': 'scroll to a row',
-
-    // with replace
     'BookMark': 'Row <row>'
 };
 
@@ -449,7 +446,6 @@ OpFormTStr = {
     'CMD': 'Command Preview',
     'Descript': 'Description'
 };
-
 
 AggTStr = {
     'selected': 'the selected',
@@ -642,17 +638,10 @@ MonitorTStr = {
 
 SchedTStr = {
     'NewSched': 'Create New Schedule',
-    'NoScheds': 'No available schedules',
-    'AddSchedFail': 'Add schedule failed',
-    'UpdateFail': 'Update Schedule Failed',
-    'NotScheduled': 'not scheduled',
-    'Scheduled': 'scheduled',
-    "SchedTitle": "SCHEDULER/SCHEDULES",
     'DelSched': "Permanently Delete Schedule",
     'DelSchedMsg': "Are you sure you want to permanently delete " +
                  "this schedule? This action cannot be undone.",
     "detail": "Schedule Detail",
-    "revert": "REVERT",
     "simFail": "Simulation Fail",
     "noParam": "No parameters are defined",
     "unknown": "Unknown",

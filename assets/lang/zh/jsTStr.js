@@ -384,7 +384,6 @@ FnBarTStr = {
 'InvalidNumParens': '您的函数字符串应采用<operation>（op（arg1，arg2，...））的形式'
 };
 ScrollTStr = {
-'Title': '滚动到一行',
 'BookMark': '行<row>'
 };
 OpFormTStr = {
@@ -495,9 +494,9 @@ WKBKTStr = {
 };
 
 MonitorTStr = {
-"ConfigParamName": 'config参数名',
+"ConfigParamName": '配置参数名称',
 "CurVal": '当前值',
-"NewVal": '新价值',
+"NewVal": '新值',
 'ClusterStatus': '集群状态',
 'Ext': '扩展',
 'GetLogsFail': '无法获取日志',
@@ -524,24 +523,17 @@ MonitorTStr = {
 'StopStreamFail': '错误',
 'SupportTools': '支持工具',
 'System': '系统',
-'UseXcalarAs': '使用xcalar作为',
+'UseXcalarAs': '使用Xcalar作为',
 'XDB': 'DB',
 'ParamConfigFailMsg': '无法将参数<b><name></b> 设置成 <b><value></b>。',
 'DefaultWithVal': '恢复为默认值：<value>',
 'NodeConfirmMsg': '您确定要打开集群吗？',
-'SwitchUserMsg': '您确定要使用xcalar作为<username>吗？'
+'SwitchUserMsg': '您确定要以<username>登录Xcalar吗？'
 };
 SchedTStr = {
-'NoScheds': '没有可用的时间表',
-'AddSchedFail': '添加计划失败',
-'UpdateFail': '更新计划失败',
-'NotScheduled': '未定义时间表',
-'Scheduled': '已定义时间表',
-"SchedTitle": 'SCHEDULER/SCHEDULES',
-'DelSched': '永久删除时间表',
-'DelSchedMsg': '您确定要永久删除这个时间表吗？此操作无法撤销。',
-"detail": '时间表详情',
-"revert": '还原',
+'DelSched': '永久删除调度器',
+'DelSchedMsg': '您确定要永久删除调度器吗？此操作无法撤销。',
+"detail": '调度器详情',
 "simFail": '模拟失败！',
 "noParam": '无参数',
 "unknown": '未知',
@@ -751,7 +743,7 @@ ExtTStr = {
 "Less": '隐藏细节',
 "XcCategory": 'Xcalar Extensions',
 'extListFail': '无法获得安装的插件列表',
-"InvalidTableName": "无效的表名，请使用插件提供的api创建表名"
+"InvalidTableName": "无效的表名，请使用插件提供的api生成表名"
 };
 DaysTStr = {
 'Sunday': '星期日',
@@ -809,36 +801,36 @@ JsonModalTStr = {
 'XcOriginatedTip': '查看Xcalar生成的列'
 };
 SQLTStr = {
-"AddNewCol": '添加新列',
-"AddWS": '创建工作表',
-"BookmarkRow": '标记行',
-"ChangeFormat": '格式转换',
-"DelCol": '删除列',
-"DelWS": '删除工作表',
-"HideCol": '隐藏列',
-"HideTable": '隐藏表',
-"HideWS": '隐藏工作表',
-"MarkPrefix": '标记前缀',
-"MaximizeCols": '最大化列',
-"MaximizeTable": '最大化表',
-"MinimizeCols": '最小化列',
-"MinimizeTable": '最小化表',
-"MoveInactiveTableToWS": '将未激活表移动到工作表',
-"MoveTableToWS": '将表移动到工作表',
-"PullCol": '提取单列',
-"PullCols": '提取多列',
-"RemoveBookmark": '删除行标记',
-"RenameCol": '重命名列',
-"RenameWS": '重命名工作表',
-"ReorderCol": '改变列顺序',
-"ReorderTable": '改变表顺序',
-"ReorderWS": '重新排序工作表',
-"ResizeCol": '调整列大小',
-"ResizeCols": '调整列大小',
-"ResizeRow": '调整行',
-"RevertTable": '还原表',
-"RoundToFixed": '保留小数点后位数',
-"SortTableCols": '排序表列',
-"TextAlign": '文字对齐',
-"UnHideWS": '取消隐藏工作表'
+    "AddNewCol": "Add New Column",
+    "AddWS": "Create Worksheet",
+    "BookmarkRow": "Bookmark Row",
+    "ChangeFormat": "Change Format",
+    "DelCol": "Delete Column",
+    "DelWS": "Delete Worksheet",
+    "HideCol": "Hide Column",
+    "HideTable": "Hide Table",
+    "HideWS": "Hide Worksheet",
+    "MarkPrefix": "Mark Prefix",
+    "MaximizeCols": "Maximize Columns",
+    "MaximizeTable": "Maximize Table",
+    "MinimizeCols": "Minimize Columns",
+    "MinimizeTable": "Minimize Table",
+    "MoveInactiveTableToWS": "Move Inactive Table To Worksheet",
+    "MoveTableToWS": "Move Table To Worksheet",
+    "PullCol": "Pull Column",
+    "PullCols": "Pull Columns",
+    "RemoveBookmark": "Remove Bookmark",
+    "RenameCol": "Rename Column",
+    "RenameWS": "Rename Worksheet",
+    "ReorderCol": "Change Column Order",
+    "ReorderTable": "Change Table Order",
+    "ReorderWS": "Reorder Worksheet",
+    "ResizeCol": "Resize Column",
+    "ResizeCols": "Resize Columns",
+    "ResizeRow": "Resize Row",
+    "RevertTable": "Revert Table",
+    "RoundToFixed": "Round To Fixed",
+    "SortTableCols": "Sort Table Columns",
+    "TextAlign": "Text Align",
+    "UnHideWS": "Unhide Worksheet"
 };
