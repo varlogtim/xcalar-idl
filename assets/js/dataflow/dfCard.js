@@ -213,6 +213,7 @@ window.DFCard = (function($, DFCard) {
             if (xdpMode === XcalarMode.Mod) {
                 return showLicenseTooltip(this);
             }
+            $('.menu').hide();
             event.stopPropagation();
             var $dagWrap = $dfCard.find('.cardMain').find(".dagWrap:visible");
             if (!$dagWrap.length) {
