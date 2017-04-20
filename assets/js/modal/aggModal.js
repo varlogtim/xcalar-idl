@@ -207,14 +207,17 @@ window.AggModal = (function($, AggModal) {
     };
 
     function showAggModal(tableName, mode, hasSelectedCols) {
+        var which;
+        var which2;
+        var instr;
+
         if (mode === "aggTab") {
             // when it's quick aggregation
             $("#aggTab").addClass("active")
                     .siblings().removeClass("active");
             $quickAgg.show();
             $corr.hide();
-            var which;
-            var which2;
+
             if (hasSelectedCols) {
                 which = AggTStr.selected;
                 which2 = AggTStr.somePairs;
@@ -222,8 +225,10 @@ window.AggModal = (function($, AggModal) {
                 which = AggTStr.all;
                 which2 = AggTStr.everyPair;
             }
-            var instr = xcHelper.replaceMsg(AggTStr.AggTopInstr,
-                                        {which: which, which2: which2});
+            instr = xcHelper.replaceMsg(AggTStr.AggTopInstr, {
+                "which": which,
+                "which2": which2
+            });
             $aggModal.find(".modalInstruction .text").text(instr);
         } else if (mode === "corrTab") {
             // when it's correlation
@@ -231,8 +236,7 @@ window.AggModal = (function($, AggModal) {
                     .siblings().removeClass("active");
             $quickAgg.hide();
             $corr.show();
-            var which;
-            var which2;
+
             if (hasSelectedCols) {
                 which = AggTStr.somePairs;
                 which2 = AggTStr.selected;
@@ -240,8 +244,10 @@ window.AggModal = (function($, AggModal) {
                 which = AggTStr.everyPair;
                 which2 = AggTStr.all;
             }
-            var instr = xcHelper.replaceMsg(AggTStr.CorrInstr,
-                                            {which: which, which2: which2});
+            instr = xcHelper.replaceMsg(AggTStr.CorrInstr, {
+                "which": which,
+                "which2": which2
+            });
             $aggModal.find(".modalInstruction .text").text(instr);
         } else {
             // error case
@@ -404,6 +410,25 @@ window.AggModal = (function($, AggModal) {
         $corr.find(".headerContainer").html(getColLabelHTML(colLabels));
         $corr.find(".labelContainer").html(getRowLabelHTML(rowLabels));
         $corr.find(".aggContainer").html(wholeTable);
+        setupResize();
+    }
+
+    function setupResize() {
+        var $header = $corr.find(".headerContainer");
+        var $padding = $header.find(".padding");
+        var $eles = $header.find(".blankSpace")
+                    .add($corr.find(".tableContainer .labelContainer"));
+
+        $padding.resizable({
+            "handles": "e, w",
+            "minWidth": 120,
+            "resize": function(event, ui) {
+                var width = ui.size.width;
+                width = Math.min(width, $header.width() * 0.5);
+                $eles.css("flex", "0 0 " + width + "px");
+                $padding.width(width);
+            }
+        });
     }
 
     function getRowLabelHTML(operations) {
