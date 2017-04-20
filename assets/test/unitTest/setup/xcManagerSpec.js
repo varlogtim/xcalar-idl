@@ -1,4 +1,4 @@
-describe("xcManager", function() {
+describe("xcManager Test", function() {
     describe("Setup Fail Hanlder Test", function() {
         var handleSetupFail;
         var oldAlert;
@@ -173,11 +173,6 @@ describe("xcManager", function() {
             expect(test).to.be.true;
 
             xcManager.unload = oldFunc;
-        });
-
-        it("should not trigger meomryAlert", function() {
-            $("#memoryAlert").click();
-            expect($("#mainMenu").hasClass("open")).to.be.false;
         });
 
         it("should trigger meomryAlert with table", function() {

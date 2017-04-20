@@ -2906,6 +2906,10 @@ DSFileUpload.prototype = {
     },
     cancel: function() {
         var self = this;
+        if (self.status === "started") {
+            // hasn't begun streaming yet, ok to delete
+            XcalarDemoFileDelete(self.name);
+        }
         self.status = 'canceled';
         self.chunks = [];
         // cannot call delete during an append so _stream checks for

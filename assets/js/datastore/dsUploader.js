@@ -11,6 +11,7 @@ window.DSUploader = (function($, DSUploader) {
     var sortKey = defaultSortKey;
     var cachedEvent;
     var numMaxUploads = 2; // number of simultaneous uploads
+    var firstTime = true;
 
     DSUploader.initialize = function() {
         dsUploaderEnabled = (XVM.getLicenseMode() === XcalarMode.Demo);
@@ -40,7 +41,7 @@ window.DSUploader = (function($, DSUploader) {
         }
         var deferred = jQuery.Deferred();
         var promises = [];
-        
+
         for (var i = 0; i < pendingUploads.length; i++) {
             promises.push(XcalarDemoFileDelete(pendingUploads[i]));
         }
@@ -65,6 +66,17 @@ window.DSUploader = (function($, DSUploader) {
             deferred.resolve();
             return deferred.promise();
         }
+        if (firstTime) {
+            firstTime = false;
+
+            // need to initialize first worker for IE otherwise first upload
+            // doesn't work even if we wait forever
+            if (isBrowserIE) {
+                var firstWorker = new Worker(paths.dsUploadWorker);
+                firstWorker.postMessage("xcInitForIE");
+                firstWorker = undefined;
+            }
+        }
 
         var promise =  XcalarListFiles("demo:///", false);
 
@@ -84,6 +96,7 @@ window.DSUploader = (function($, DSUploader) {
 
             deferred.resolve();
         })
+        .fail(deferred.reject)
         .always(function() {
             $uploaderMain.find('.refresh').removeClass('xc-disabled');
         });
@@ -317,8 +330,7 @@ window.DSUploader = (function($, DSUploader) {
 
     function loadFile(file, name, event) {
         var folderFound = false;
-
-        if (event && event.dataTransfer.items &&
+        if (event && event.dataTransfer && event.dataTransfer.items &&
             event.dataTransfer.items.length)
         {
             [].forEach.call(event.dataTransfer.items, function(item) {
@@ -334,7 +346,9 @@ window.DSUploader = (function($, DSUploader) {
             showAlert('invalidFolder');
         } else {
             var size = file.size;
-            var mtime = Math.round(file.lastModified / 1000); // remove milliseconds
+            // IE doesn't have file.lastModified but does have lastModifiedDate
+            var mtime = Date.parse(file.lastModifiedDate);
+            mtime = Math.round(parseInt(mtime) / 1000); // remove milliseconds
             var fileObj = {name: name,
                            attr: {size: size, mtime: mtime},
                            status: "inProgress",
@@ -378,7 +392,6 @@ window.DSUploader = (function($, DSUploader) {
         var $icon = getDSIcon(name);
         $icon.removeClass('isCreating');
         commit();
-
         dsUploadWorker.postMessage(file);
 
         dsUploadWorker.onmessage = function(ret) {
@@ -436,7 +449,7 @@ window.DSUploader = (function($, DSUploader) {
     }
 
     function cancelUpload($icon) {
-        var name =  decodeURI($icon.data("name"));
+        var name = decodeURI($icon.data("name"));
         Alert.show({
             "title": DSTStr.CancelUpload,
             "msg": DSTStr.CancelUploadDesc,
@@ -494,7 +507,7 @@ window.DSUploader = (function($, DSUploader) {
                 Alert.error(DSTStr.CouldNotDelete, err);
                 $icon.removeClass("isDeleting");
             }
-            
+
             deferred.reject();
         });
 

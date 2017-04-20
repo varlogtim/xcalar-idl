@@ -28,7 +28,12 @@ window.UploadExtensionCard = (function($, UploadExtensionCard) {
 
         reader.readAsBinaryString(file);
         reader.onload = function(event) {
-            var entireString = event.target.result;
+            var entireString;
+            if (event) {
+                entireString = event.target.result;
+            } else {
+                content = this.content;
+            }
             var base64Str = btoa(entireString);
 
             uploadExt(base64Str)

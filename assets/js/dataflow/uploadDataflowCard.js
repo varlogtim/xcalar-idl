@@ -22,7 +22,13 @@ window.UploadDataflowCard = (function($, UploadDataflowCard) {
         var deferred = jQuery.Deferred();
 
         reader.onload = function(event) {
-            var entireString = event.target.result;
+            var entireString;
+            if (event) {
+                entireString = event.target.result;
+            } else {
+                entireString  = this.content;
+            }
+
             XcalarImportRetina(moduleName,
                                $card.find(".checkbox").hasClass("checked"),
                                entireString)
