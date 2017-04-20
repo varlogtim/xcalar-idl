@@ -20,6 +20,12 @@ window.XcSocket = (function(XcSocket, $) {
         return connected;
     };
 
+    XcSocket.sendMessage = function(msg) {
+        socket.emit(msg, Support.getUser(), function() {
+            console.log("Send " + msg + " to all clients");
+        });
+    };
+
     function getExpServerUrl(host) {
         var port = "12124"; // XXX this is hard coded now
         if (/.*:\/\/.*:.*/.test(host)) {
@@ -47,6 +53,11 @@ window.XcSocket = (function(XcSocket, $) {
 
         socket.on("system-allUsers", function(users) {
             Admin.updateLoggedInUsers(users);
+        });
+
+        socket.on("refreshDataflow", function() {
+            DataflowPanel.hasNewChange();
+            DataflowPanel.refresh();
         });
     }
 

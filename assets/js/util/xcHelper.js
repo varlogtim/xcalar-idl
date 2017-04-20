@@ -3320,6 +3320,13 @@ window.xcHelper = (function($, xcHelper) {
         }
     };
 
+    xcHelper.sendSocketMessage = function(args) {
+        KVStore.commit()
+        .always(function() {
+            XcSocket.sendMessage(args);
+        });
+    };
+
     /*
     options: {
         mouseCoors: {x: float, y: float},

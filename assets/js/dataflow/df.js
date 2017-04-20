@@ -144,7 +144,7 @@ window.DF = (function($, DF) {
             }
             // XXX TODO add sql
             DFCard.addDFToList(dataflowName);
-            KVStore.commit();
+            xcHelper.sendSocketMessage("refreshDataflow");
             deferred.resolve();
         })
         .fail(function(error) {
@@ -166,6 +166,7 @@ window.DF = (function($, DF) {
         })
         .then(function() {
             resolveDelete();
+            xcHelper.sendSocketMessage("refreshDataflow");
             deferred.resolve();
         })
         .fail(function(error) {
@@ -209,7 +210,7 @@ window.DF = (function($, DF) {
                 XcalarCreateSched(dataflowName, dataflowName,
                     substitutions, options, timingInfo)
                 .then(function() {
-                    KVStore.commit();
+                    xcHelper.sendSocketMessage("refreshDataflow");
                 });
             } else {
                 var schedule = dataflow.schedule;
@@ -222,7 +223,7 @@ window.DF = (function($, DF) {
                     XcalarCreateSched(dataflowName, dataflowName,
                         substitutions, options, timingInfo)
                     .then(function() {
-                        KVStore.commit();
+                        xcHelper.sendSocketMessage("refreshDataflow");
                     });
                 });
             }
@@ -244,6 +245,7 @@ window.DF = (function($, DF) {
         XcalarDeleteSched(dataflowName)
         .then(function() {
             dataflow.schedule = null;
+            xcHelper.sendSocketMessage("refreshDataflow");
             deferred.resolve();
         })
         .fail(deferred.reject);

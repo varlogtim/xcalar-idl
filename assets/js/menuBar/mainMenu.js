@@ -80,7 +80,7 @@ window.MainMenu = (function($, MainMenu) {
                 $tab.click();
             }
 
-            if (subTabId &&  $tab.find("#" + subTabId).length) {
+            if (subTabId && $tab.find("#" + subTabId).length) {
                 var $subTab =  $tab.find("#" + subTabId);
                 if (!$subTab.hasClass("active")) {
                     $subTab.click();
@@ -281,6 +281,7 @@ window.MainMenu = (function($, MainMenu) {
                 break;
             case ("dataflowTab"):
                 $('#dataflowPanel').addClass("active");
+                DataflowPanel.refresh();
                 if ($curTab.hasClass('firstTouch')) {
                     $curTab.removeClass('firstTouch');
                     DFCard.focusFirstDF();

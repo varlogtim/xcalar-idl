@@ -31,5 +31,9 @@ module.exports = function(server) {
                 io.sockets.emit("system-allUsers", users);
             }
         });
+
+        socket.on("refreshDataflow", function() {
+            socket.broadcast.emit("refreshDataflow");
+        });
     });
-}
+};

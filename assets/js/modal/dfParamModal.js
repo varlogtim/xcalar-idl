@@ -829,9 +829,9 @@ window.DFParamModal = (function($, DFParamModal){
                 dfg.updateParameterizedNode(dagNodeId, curParamInfo);
             }
 
-            KVStore.commit();
             closeDFParamModal();
             // show success message??
+            xcHelper.sendSocketMessage("refreshDataflow");
             deferred.resolve();
         })
         .fail(function(error) {
