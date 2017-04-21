@@ -3078,10 +3078,16 @@ xcalarApiSessionList = runEntity.xcalarApiSessionList = function(thriftHandle, p
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
         var sessionListOutput = result.output.outputResult.sessionListOutput;
+        var status = result.output.hdr.status;
 
         if (result.jobStatus != StatusT.StatusOk) {
             deferred.reject(result.jobStatus);
         }
+
+        if (status != StatusT.StatusOk && status != StatusT.StatusSessionNotFound) {
+            deferred.reject(status);
+        }
+
         deferred.resolve(sessionListOutput);
     })
     .fail(function(error) {

@@ -574,7 +574,8 @@ StatusT = {
   'StatusXdbNotResident' : 565,
   'StatusSessionAlreadyInact' : 566,
   'StatusSessionUsrAlreadyDeleted' : 567,
-  'StatusSessionUsrNotExist' : 568
+  'StatusSessionUsrNotExist' : 568,
+  'StatusNoShutdownPrivilege' : 569
 };
 StatusTStr = {0 : 'Success',
 1 : 'Operation not permitted',
@@ -1144,5 +1145,6 @@ StatusTStr = {0 : 'Success',
 565 : 'XDB unexpectedly not resident',
 566 : 'Session already inactivated',
 567 : 'Session user already deleted',
-568 : 'Session user does not exist'
+568 : 'Session user does not exist',
+569 : 'Insufficient privilege to shutdown cluster'
 };
