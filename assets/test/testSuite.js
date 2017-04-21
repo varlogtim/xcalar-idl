@@ -525,7 +525,9 @@ window.TestSuite = (function($, TestSuite) {
 
         checkExists(getFinishDSIcon(dsName))
         .then(function() {
-            $grid.find(".gridIcon").click();
+            if (!$grid.hasClass("active")) {
+                $grid.find(".gridIcon").click();
+            }
             return checkExists('#dsTable[data-dsid="' + dsId + '"]');
         })
         .then(function() {
@@ -593,6 +595,10 @@ window.TestSuite = (function($, TestSuite) {
             $("#importDataForm .buttonSection .confirm:not(.createTable)").click();
 
             var dsIcon = getDSIcon(dsName);
+            return checkExists(dsIcon);
+        })
+        .then(function() {
+            var dsIcon = getFinishDSIcon(dsName);
             return checkExists(dsIcon);
         })
         .then(function() {
