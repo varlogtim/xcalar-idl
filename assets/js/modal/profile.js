@@ -1443,12 +1443,12 @@ window.Profile = (function($, Profile, d3) {
 
         function getXAxis(d) {
             var isLogScale = (tableInfo.bucketSize < 0);
-            var num = getNumInScale(d[xName], isLogScale);
-            var name = formatNumber(num, isLogScale, decimalNum);
+            var lowerBound = getLowerBound(d[xName], tableInfo.bucketSize);
+            var name = formatNumber(lowerBound, isLogScale, decimalNum);
+
             if (!noBucket && !noSort && d.type !== "nullVal") {
-                num = d[xName] + Math.abs(tableInfo.bucketSize);
-                num = getNumInScale(num, isLogScale);
-                var upperBound = formatNumber(num, isLogScale, decimalNum);
+                var upperBound = getUpperBound(d[xName], tableInfo.bucketSize);
+                upperBound = formatNumber(upperBound, isLogScale, decimalNum);
                 name = name + "-" + upperBound;
             }
 
@@ -1464,20 +1464,6 @@ window.Profile = (function($, Profile, d3) {
             obj[xName] = data[dataLen - 1][xName] +
                          Math.abs(tableInfo.bucketSize);
             return getXAxis(obj);
-        }
-
-        function getNumInScale(num, isLogScale) {
-            if (!isLogScale) {
-                return num;
-            }
-            // log scale;
-            if (num === 0) {
-                return 0;
-            }
-
-            var absNum = Math.abs(num);
-            absNum = Math.pow(10, absNum - 1);
-            return (num > 0) ? absNum : -absNum;
         }
 
         function getLabel(d) {
@@ -1509,7 +1495,7 @@ window.Profile = (function($, Profile, d3) {
             // may have better way
             var title;
             var isLogScale = (tableInfo.bucketSize < 0);
-            var lowerBound = getNumInScale(d[xName], isLogScale);
+            var lowerBound = getLowerBound(d[xName], tableInfo.bucketSize);
 
             if (noBucket || d.type === "nullVal") {
                 // xName is the backColName, may differenet with frontColName
@@ -1517,8 +1503,7 @@ window.Profile = (function($, Profile, d3) {
                         formatNumber(lowerBound, isLogScale, decimalNum) +
                         "<br>";
             } else {
-                var upperBound = d[xName] + Math.abs(tableInfo.bucketSize);
-                upperBound = getNumInScale(upperBound, isLogScale);
+                var upperBound = getUpperBound(d[xName], tableInfo.bucketSize);
                 title = "Value: [" +
                         formatNumber(lowerBound, isLogScale, decimalNum) +
                         ", " +
@@ -1549,6 +1534,30 @@ window.Profile = (function($, Profile, d3) {
 
             return "barArea";
         }
+    }
+
+    function getNumInScale(num, isLogScale) {
+        if (!isLogScale) {
+            return num;
+        }
+        // log scale;
+        if (num === 0) {
+            return 0;
+        }
+
+        var absNum = Math.abs(num);
+        absNum = Math.pow(10, absNum - 1);
+        return (num > 0) ? absNum : -absNum;
+    }
+
+    function getLowerBound(num, bucketSize) {
+        var isLogScale = (bucketSize < 0);
+        return getNumInScale(num, isLogScale);
+    }
+
+    function getUpperBound(num, bucketSize) {
+        var isLogScale = (bucketSize < 0);
+        return getNumInScale(num + Math.abs(bucketSize), isLogScale);
     }
 
     function getChart() {
@@ -2120,22 +2129,6 @@ window.Profile = (function($, Profile, d3) {
     }
 
     // UDF for log scale bucketing
-    // import math
-
-    // def logBuckets(n):
-    //     if n == 0:
-    //         return 0
-    //     abs_n = abs(n)
-    //     if abs_n <= 1:
-    //         # this represents -1 to 1
-    //         res = 1
-    //     else:
-    //         res = math.ceil(math.log(abs_n, 10)) + 1
-    //     if n < 0:
-    //         return -1 * int(res)
-    //     else:
-    //         return int(res)
-
     function bucketData(newBucketNum, curStatsCol, isFitAll) {
         if (newBucketNum === bucketNum) {
             return;
@@ -2653,19 +2646,23 @@ window.Profile = (function($, Profile, d3) {
 
         var str = "";
         var len = colVals.length;
+        var lowerBound;
+        var upperBound;
         var i;
 
         if (operator === FltOp.Filter) {
             if (len > 0) {
                 for (i = 0; i < len - 1; i++) {
-                    str += "or(and(ge(" + colName + ", " + colVals[i] + "), " +
-                                  "lt(" + colName + ", " +
-                                    (colVals[i] + bucketSize) + ")), ";
+                    lowerBound = getLowerBound(colVals[i], bucketSize);
+                    upperBound = getUpperBound(colVals[i], bucketSize);
+                    str += "or(and(ge(" + colName + ", " + lowerBound + "), " +
+                                  "lt(" + colName + ", " + upperBound + ")), ";
                 }
 
-                str += "and(ge(" + colName + ", " + colVals[i] + "), " +
-                           "lt(" + colName + ", " +
-                            (colVals[i] + bucketSize) + ")";
+                lowerBound = getLowerBound(colVals[i], bucketSize);
+                upperBound = getUpperBound(colVals[i], bucketSize);
+                str += "and(ge(" + colName + ", " + lowerBound + "), " +
+                           "lt(" + colName + ", " + upperBound + ")";
 
                 for (i = 0; i < len; i++) {
                     str += ")";
@@ -2674,14 +2671,16 @@ window.Profile = (function($, Profile, d3) {
         } else if (operator === FltOp.Exclude){
             if (len > 0) {
                 for (i = 0; i < len - 1; i++) {
-                    str += "and(or(lt(" + colName + ", " + colVals[i] + "), " +
-                                    "ge(" + colName + ", " +
-                                    (colVals[i] + bucketSize) + ")), ";
+                    lowerBound = getLowerBound(colVals[i], bucketSize);
+                    upperBound = getUpperBound(colVals[i], bucketSize);
+                    str += "and(or(lt(" + colName + ", " + lowerBound + "), " +
+                                  "ge(" + colName + ", " + upperBound + ")), ";
                 }
 
-                str += "or(lt(" + colName + ", " + colVals[i] + "), " +
-                          "ge(" + colName + ", " +
-                            (colVals[i] + bucketSize) + ")";
+                lowerBound = getLowerBound(colVals[i], bucketSize);
+                upperBound = getUpperBound(colVals[i], bucketSize);
+                str += "or(lt(" + colName + ", " + lowerBound + "), " +
+                          "ge(" + colName + ", " + upperBound + ")";
 
                 for (i = 0; i < len; i++) {
                     str += ")";
@@ -2709,7 +2708,7 @@ window.Profile = (function($, Profile, d3) {
     function getNumFltOpt(operator, colName, uniqueVals, isExist, bucketSize) {
         // this suit for numbers that are unsorted by count
         var min = Number.MAX_VALUE;
-        var max = Number.MIN_VALUE;
+        var max = -Number.MAX_VALUE;
         var str = "";
         var count = 0;
 
@@ -2717,8 +2716,10 @@ window.Profile = (function($, Profile, d3) {
 
         for (var val in uniqueVals) {
             var num = Number(val);
-            min = Math.min(num, min);
-            max = Math.max(num + bucketSize, max);
+            var lowerBound = getLowerBound(num, bucketSize);
+            var upperBound = getUpperBound(num, bucketSize);
+            min = Math.min(lowerBound, min);
+            max = Math.max(upperBound, max);
             count++;
         }
 
