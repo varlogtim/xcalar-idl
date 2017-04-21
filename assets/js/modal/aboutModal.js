@@ -26,7 +26,7 @@ window.AboutModal = (function($, AboutModal) {
         // gGitVersion is populated in prodBuilds
         var frontVersion = XVM.getVersion() + "-" + gGitVersion;
         var backVersionParts = XVM.getBackendVersion().split("-");
-        var backVersion = backVersionParts[0] + "-" +
+        var backVersion = backVersionParts[1] + "-" +
                           backVersionParts[backVersionParts.length - 1];
         var thriftVersion = XVM.getSHA().substring(0, 8);
         // Both backend and front end must
