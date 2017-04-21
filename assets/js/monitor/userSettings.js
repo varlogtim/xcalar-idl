@@ -219,6 +219,22 @@ window.UserSettings = (function($, UserSettings) {
             UserSettings.setPref("enableCreateTable", toEnable, true);
         });
 
+        $("#hideXcUDF").click(function() {
+            var $checkbox = $(this);
+            $checkbox.toggleClass("checked");
+            if ($checkbox.hasClass("checked")) {
+                UserSettings.setPref("hideXcUDF", true, true);
+                UDF.toggleXcUDFs(true);
+                DSPreview.toggleXcUDFs(true);
+                DSExport.toggleXcUDFs(true);
+            } else {
+                UserSettings.setPref("hideXcUDF", false, true);
+                UDF.toggleXcUDFs(false);
+                DSPreview.toggleXcUDFs(false);
+                DSExport.toggleXcUDFs(false);
+            }
+        });
+
         $("#enableFileBox").click(function() {
             var $checkbox = $(this);
             $checkbox.toggleClass('checked');
@@ -306,10 +322,16 @@ window.UserSettings = (function($, UserSettings) {
         var commitInterval = UserSettings.getPref("commitInterval");
         var dsSampleLimit = UserSettings.getPref("DsDefaultSampleSize");
         var enableCreateTable = UserSettings.getPref("enableCreateTable");
+        var hideXcUDF = UserSettings.getPref("hideXcUDF");
 
         if (!hideDataCol) {
             $("#showDataColBox").addClass("checked");
         }
+
+        if (hideXcUDF) {
+            $("#hideXcUDF").addClass("checked");
+        }
+
         if (showFile) {
             $("#enableFileBox").addClass("checked");
         } else {

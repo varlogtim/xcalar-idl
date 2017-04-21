@@ -197,8 +197,18 @@ window.DSPreview = (function($, DSPreview) {
 
         listUDFSection(listXdfsObj)
         .always(function() {
-            seletUDF(moduleName, funcName);
+            selectUDF(moduleName, funcName);
         });
+    };
+
+    DSPreview.toggleXcUDFs = function(hide) {
+        if (hide) {
+            $udfModuleList.find("li").filter(function() {
+                return $(this).text().indexOf("_xcalar") === 0;
+            }).addClass("xcUDF");
+        } else {
+            $udfModuleList.find("li").removeClass("xcUDF");
+        }
     };
 
     /*
@@ -219,7 +229,7 @@ window.DSPreview = (function($, DSPreview) {
             cleanTempParser();
             tempParserUDF = moduleName;
             toggleUDF(true);
-            seletUDF(moduleName, "parser");
+            selectUDF(moduleName, "parser");
         } else {
             applyLineDelim(delimiter);
             noDetect = true;
@@ -466,7 +476,7 @@ window.DSPreview = (function($, DSPreview) {
         }
     }
 
-    function seletUDF(moduleName, funcName) {
+    function selectUDF(moduleName, funcName) {
         if (validateUDFModule(moduleName)) {
             selectUDFModule(moduleName);
             if (!validateUDFFunc(moduleName, funcName)) {

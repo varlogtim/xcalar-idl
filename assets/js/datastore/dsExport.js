@@ -174,6 +174,16 @@ window.DSExport = (function($, DSExport) {
         $udfFuncList.find('ul').html(udfObj.fnLis);
     };
 
+    DSExport.toggleXcUDFs = function(hide) {
+        if (hide) {
+            $udfModuleList.find("li").filter(function() {
+                return $(this).text().indexOf("_xcalar") === 0;
+            }).addClass("xcUDF");
+        } else {
+            $udfModuleList.find("li").removeClass("xcUDF");
+        }
+    };
+
     DSExport.getTargets = function() {
         return exportTargets;
     };

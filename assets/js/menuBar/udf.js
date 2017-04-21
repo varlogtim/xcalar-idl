@@ -69,6 +69,20 @@ window.UDF = (function($, UDF) {
         return XcalarListXdfs("*", "User*");
     };
 
+    UDF.toggleXcUDFs = function(hide) {
+        if (hide) {
+            $("#udf-fnMenu").find("li").filter(function() {
+                return $(this).text().indexOf("_xcalar") === 0;
+            }).addClass("xcUDF");
+            $("#udf-manager").find(".udf").filter(function() {
+                return $(this).find(".text").text().indexOf("_xcalar") === 0;
+            }).closest(".udf").addClass("xcUDF");
+        } else {
+            $("#udf-fnMenu").find("li").removeClass("xcUDF");
+            $("#udf-manager").find(".udf").removeClass("xcUDF");
+        }
+    };
+
     function initializeUDFList(isSetup) {
         var deferred = jQuery.Deferred();
 
@@ -484,9 +498,16 @@ window.UDF = (function($, UDF) {
         var selectedModule = $input.val();
         var hasSelectedModule = false;
         var html = "";
+        var hideXcUDF = UserSettings.getPref("hideXcUDF");
+        var liClass = "";
         for (var i = 0, len = moduleNames.length; i < len; i++) {
             var module = moduleNames[i];
-            html += '<li class="tooltipOverflow"' +
+            if (hideXcUDF && module.indexOf("_xcalar") === 0) {
+                liClass = " xcUDF";
+            } else {
+                liClass = "";
+            }
+            html += '<li class="tooltipOverflow' + liClass + '"' +
                     ' data-toggle="tooltip"' +
                     ' data-container="body"' +
                     ' data-placement="top"' +
@@ -512,12 +533,19 @@ window.UDF = (function($, UDF) {
         var len = moduleNames.length;
         var html = "";
 
+        var hideXcUDF = UserSettings.getPref("hideXcUDF");
+        var liClass = "";
+
         for (var i = 0; i < len; i++) {
             var moduleName = moduleNames[i];
             var udfClass = "udf";
 
             if (!isEditableUDF(moduleName)) {
                 udfClass += " uneditable";
+            }
+
+            if (hideXcUDF && moduleName.indexOf("_xcalar") === 0) {
+                udfClass += " xcUDF";
             }
 
             html +=

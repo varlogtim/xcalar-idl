@@ -2924,6 +2924,8 @@ window.xcHelper = (function($, xcHelper) {
 
         var moduleLi = "";
         var fnLi = "";
+        var hideXcUDF = UserSettings.getPref("hideXcUDF");
+        var liClass = "";
         for (i = 0; i < len; i++) {
             var udf = modules[i].split(":");
             var moduleName = udf[0];
@@ -2931,7 +2933,13 @@ window.xcHelper = (function($, xcHelper) {
 
             if (!moduleMap.hasOwnProperty(moduleName)) {
                 moduleMap[moduleName] = true;
-                moduleLi += "<li>" + moduleName + "</li>";
+                if (hideXcUDF && moduleName.indexOf("_xcalar") === 0) {
+                    liClass = "xcUDF";
+                } else {
+                    liClass = "";
+                }
+                moduleLi += '<li class="' + liClass + '">' + moduleName +
+                            "</li>";
             }
 
             fnLi += '<li data-module="' + moduleName + '">' +
