@@ -42,13 +42,16 @@ window.Scheduler = (function(Scheduler, $) {
             "dateFormat": "m/d/yy",
             "dayNamesMin": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
             "minDate": 0,
+            "timezone": "utc",
             "beforeShow": function() {
                 if ($dateInput.val() === "") {
-                    $dateInput.datepicker("setDate", new Date());
+                    var date = new Date();
+                    var str = date.getUTCMonth() + "/" + date.getUTCDate() + "/" + date.getUTCFullYear();
+                    $dateInput.datepicker("setDate", str);
                 }
                 var $el = $("#ui-datepicker-div");
                 $el.addClass("schedulerDatePicker")
-                    .appendTo($scheduleSettings.find(".datePickerPart"));
+                   .appendTo($scheduleSettings.find(".datePickerPart"));
             }
         });
 
@@ -229,7 +232,6 @@ window.Scheduler = (function(Scheduler, $) {
             }
             switchTab($tab.index());
         });
-
         getServerTimezoneOffset();
     };
 
@@ -282,8 +284,7 @@ window.Scheduler = (function(Scheduler, $) {
             $serverTime.addClass("fail").text(SchedTStr.failServerTime);
         } else {
             var now = new Date();
-            var transferedTime = timeZoneTransfer(now, serverTimeZoneOffset);
-            var serverTimeStr = getTime(transferedTime);
+            var serverTimeStr = getTime(now.getTime(), now.getTimezoneOffset());
             $serverTime.removeClass("fail").text(serverTimeStr);
         }
     }
@@ -351,16 +352,16 @@ window.Scheduler = (function(Scheduler, $) {
 
         // Update the schedule detail card
         // Created
-        var created = getTime(tmpSchedObj.created) || "N/A";
+        var created = getTime(tmpSchedObj.created, serverTimeZoneOffset) || "N/A";
         $scheduleSettings.find(".created .text").text(created);
 
         // Last modified
-        var modified = getTime(tmpSchedObj.modified) || "N/A";
+        var modified = getTime(tmpSchedObj.modified, serverTimeZoneOffset) || "N/A";
         $scheduleSettings.find(".modified .text").text(modified);
 
         // Next run (update use schedule, not scheObj)
         getNextRunTime(schedule);
-        var startTime = getTime(tmpSchedObj.startTime) || "N/A";
+        var startTime = getTime(tmpSchedObj.startTime, serverTimeZoneOffset) || "N/A";
         $scheduleSettings.find(".nextRunInfo .text").text(startTime);
 
         // date picker input
@@ -456,15 +457,15 @@ window.Scheduler = (function(Scheduler, $) {
         }
 
         var options = {
-            "currentDate": timeZoneTransfer(new Date(), serverTimeZoneOffset)
+            "currentDate": new Date().getTime()
         };
         var res;
         try {
             var interval = CronParser.parseExpression(cronString, options);
             var next1 = interval.next();
-            var lastRun = getTime(next1);
+            var lastRun = getTime(next1.getTime(), new Date().getTimezoneOffset());
             var next2 = interval.next();
-            var nextRun = getTime(next2);
+            var nextRun = getTime(next2.getTime(), new Date().getTimezoneOffset());
             res = {
                 "isValid": true,
                 "lastRun": lastRun,
@@ -484,12 +485,33 @@ window.Scheduler = (function(Scheduler, $) {
 
     // dateStr: with the format of 3/1/2017
     // timeStr: with the format of 02 : 51 PM
-    // completeTimeStr: with the format of 3/1/2017 02:51 PM
+    // completeTimeStr: with the format of 3/1/2017 02:51 PM UTC+0
     function getDate(dateStr, timeStr) {
-        var completeTimeStr = dateStr + " " +timeStr.replace(" ", "");
+        var completeTimeStr = dateStr + " " + timeStr.replace(" ", "") + " UTC";
         return new Date(completeTimeStr);
     }
 
+    // display the time
+    // without timezoneOffset
+    function getTime(time, timezoneOffSet) {
+        if (time == null) {
+            return null;
+        }
+        if (timezoneOffSet !== undefined) {
+            time = time + timezoneOffSet * 60000;
+        }
+
+        var d = new Date(time);
+        var t = xcHelper.getDate("/", d) + " " +
+                d.toLocaleTimeString(navigator.language, {
+                    "hour": "2-digit",
+                    "minute": "2-digit"
+                }) + " UTC";
+
+        return t;
+    }
+
+    // From local date to server time
     function timeZoneTransfer(localDate, timeZoneOffSet) {
         // UTC time == localTime + localTimezoneOffset * 60000
         //          == serverTime + timeZoneOffSet * 60000
@@ -498,6 +520,13 @@ window.Scheduler = (function(Scheduler, $) {
         var serverTime = localTime +
                          (localTimezoneOffset - timeZoneOffSet) * 60000;
         return serverTime;
+    }
+    // Keep, in case needed in future
+    function timeTransfer(time, timezoneOffset, targetTimezoneOffset) {
+        return time + (timezoneOffset - targetTimezoneOffset) * 60000;
+    }
+    function toUTC0(time, timezoneOffset) {
+        return timeTransfer(time, timezoneOffset, 0);
     }
 
     function getServerTimezoneOffset() {
@@ -524,7 +553,6 @@ window.Scheduler = (function(Scheduler, $) {
             }
         });
     }
-
     function isSimpleMode() {
         return $scheduleSettings.hasClass("showSimpleMode");
     }
@@ -579,9 +607,7 @@ window.Scheduler = (function(Scheduler, $) {
             if (repeat === undefined) {
                 repeat = "minute";  // default choice
             }
-            var d = getDate(dateStr, timeStr);
-
-            var startTime = d.getTime();
+            var startTime = timeZoneTransfer(getDate(dateStr, timeStr), serverTimeZoneOffset);
             // Everything should use servertime, transfer the current time
             // to server time
             if (serverTimeZoneOffset == null) {
@@ -680,7 +706,7 @@ window.Scheduler = (function(Scheduler, $) {
 
             if (scheduleInfo && scheduleInfo.scheduleResults.length) {
                 scheduleInfo.scheduleResults.forEach(function(res) {
-                    var runTimeStr = getTime(res.endTime);
+                    var runTimeStr = getTime(res.endTime, serverTimeZoneOffset);
                     var parameterStr = getParameterStr(res.parameters);
                     var statusStr = StatusTStr[res.status];
                     html += getOneRecordHtml(runTimeStr, parameterStr,
@@ -769,20 +795,6 @@ window.Scheduler = (function(Scheduler, $) {
 
         return deferred.promise();
     }
-    function getTime(time) {
-        if (time == null) {
-            return null;
-        }
-
-        var d = new Date(time);
-        var t = xcHelper.getDate("/", d) + " " +
-                d.toLocaleTimeString(navigator.language, {
-                    "hour": "2-digit",
-                    "minute": "2-digit"
-                });
-
-        return t;
-    }
 
     function toggleTimePicker(display) {
         if (!display) {
@@ -839,31 +851,32 @@ window.Scheduler = (function(Scheduler, $) {
         var ampm = $modScheduleForm.find(".inputSection .ampm").text();
         var date = $modScheduleForm.find('.timePicker').data("date");
         var hour = date.getHours();
+        var hour = date.getUTCHours();
         var diff;
 
         switch (type) {
             case "ampm":
                 if (ampm === "AM") {
                     // toggle to PM, add 12 hours
-                    date.setHours(hour + 12);
+                    date.setUTCHours(hour + 12);
                 } else {
-                    date.setHours(hour - 12);
+                    date.setUTCHours(hour - 12);
                 }
                 break;
             case "minute":
                 diff = isIncrease ? 1 : -1;
-                date.setMinutes(date.getMinutes() + diff);
+                date.setUTCMinutes(date.getUTCMinutes() + diff);
                 // keep the same hour
-                date.setHours(hour);
+                date.setUTCHours(hour);
                 break;
             case "hour":
                 diff = isIncrease ? 1 : -1;
                 if (isIncrease && (hour + diff) % 12 === 0 ||
                     !isIncrease && hour % 12 === 0) {
                     // when there is am/pm change, keep the old am/pm
-                    date.setHours((hour + diff + 12) % 24);
+                    date.setUTCHours((hour + diff + 12) % 24);
                 } else {
-                    date.setHours(hour + diff);
+                    date.setUTCHours(hour + diff);
                 }
                 break;
             default:
@@ -888,7 +901,7 @@ window.Scheduler = (function(Scheduler, $) {
                 if (val < 0 || val > 59) {
                     return;
                 }
-                date.setMinutes(val);
+                date.setUTCMinutes(val);
                 showTimeHelper(date, false, true);
                 break;
             case "hour":
@@ -903,7 +916,7 @@ window.Scheduler = (function(Scheduler, $) {
                 } else if (ampm === "PM" && val !== 12) {
                     val += 12;
                 }
-                date.setHours(val);
+                date.setUTCHours(val);
                 showTimeHelper(date, true, false);
                 break;
             default:
@@ -924,9 +937,9 @@ window.Scheduler = (function(Scheduler, $) {
         if (date === "Invalid Date") {
             return false;
         }
-        var day = date.getDate();
-        var month = date.getMonth();
-        var year = date.getFullYear();
+        var day = date.getUTCDate();
+        var month = date.getUTCMonth();
+        var year = date.getUTCFullYear();
 
         return Number(inputDay) === day &&
                (Number(inputMonth) - 1) === month &&
@@ -934,8 +947,8 @@ window.Scheduler = (function(Scheduler, $) {
     }
 
     function showTimeHelper(date, noHourRest, noMinReset) {
-        var hours = date.getHours();
-        var minutes = date.getMinutes();
+        var hours = date.getUTCHours();
+        var minutes = date.getUTCMinutes();
         var ampm = hours >= 12 ? "PM" : "AM";
 
         hours = hours % 12;

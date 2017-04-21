@@ -609,7 +609,7 @@ module.exports = {
         "nextRun": "Next Run",
         "SchedInfo": "Schedule information",
         "RunInfo": "Run information",
-        "ServerTime": "Server Time",
+        "CurrentTime": "Current Time",
         "SimpleMode": "Simple Mode",
         "AdvancedMode": "Advanced Mode",
         "SIMULATE": "SIMULATE",

@@ -718,7 +718,7 @@ module.exports = {
         "weekly": "每周",
         "SchedInfo": "调度器",
         "RunInfo": "运行结果",
-        "ServerTime": "服务器时间",
+        "CurrentTime": "当前时间",
         "SimpleMode": "基本模式",
         "AdvancedMode": "高级模式",
         "SIMULATE": "模拟",

@@ -647,9 +647,9 @@ SchedTStr = {
     "failServerTime": "Failed to get server time",
     "Notrun": "Not run yet",
     "Success": "Success",
-    "NoExportParam": "The export location is not properly parameterized and " +
-                        "may be overwritten in subsequent runs." +
-                        " Do you want to continue?"
+    "NoExportParam": "The export location is not properly parameterized and" +
+                     " subsequent runs will fail unless the export folder is " +
+                     "manually moved after every run. Do you want to continue?"
 };
 
 DFTStr = {
