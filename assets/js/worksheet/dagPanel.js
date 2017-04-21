@@ -1331,7 +1331,8 @@ window.DagPanel = (function($, DagPanel) {
                 };
                 var txId = Transaction.start({
                     "operation": SQLOps.DeleteTable,
-                    "sql": sql
+                    "sql": sql,
+                    "steps": 1
                 });
 
                 XIApi.deleteTable(txId, tableName)

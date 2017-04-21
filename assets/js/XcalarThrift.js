@@ -2734,18 +2734,25 @@ function XcalarExecuteRetina(retName, params, options, txId) {
     var activeSession = options.activeSession || false;
     var newTableName = options.newTableName || "";
 
-    // var workItem = xcalarExecuteRetinaWorkItem(retName, params);
+    var workItem = xcalarExecuteRetinaWorkItem(retName, params, activeSession, newTableName);
     var def1 = xcalarExecuteRetina(tHandle, retName, params, activeSession,
                                    newTableName);
-    var def2 = jQuery.Deferred().resolve().promise();
+    var def2 = XcalarGetQuery(workItem);
+    def2.then(function(query) {
+        Transaction.startSubQuery(txId, 'executeRetina', retName, query);
+    });
 
-    // var def2 = xcalarGetQuery(workItem);
     jQuery.when(def1, def2)
     .then(function(ret1, ret2) {
-        deferred.resolve(ret1);
-        // Transaction.log(txId, ret2);
+        if (Transaction.checkAndSetCanceled(txId)) {
+            deferred.reject(StatusTStr[StatusT.StatusCanceled]);
+        } else {
+            Transaction.log(txId, ret2, retName);
+            deferred.resolve(ret1);
+        }
     })
     .fail(function(error1, error2) {
+        Transaction.checkAndSetCanceled(txId);
         var thriftError = thriftLog("XcalarExecuteRetina", error1, error2);
         deferred.reject(thriftError);
     });

@@ -79,7 +79,8 @@ window.Aggregates = (function(Aggregates, $) {
         };
         var txId = Transaction.start({
             "operation": SQLOps.DeleteAgg,
-            "sql": sql
+            "sql": sql,
+            "steps": -1
         });
 
         for (var i = 0; i < aggNames.length; i++) {

@@ -1259,7 +1259,8 @@ window.DSPreview = (function($, DSPreview) {
             };
             var txId = Transaction.start({
                 "operation": SQLOps.DestroyPreviewDS,
-                "sql": sql
+                "sql": sql,
+                "steps": -1
             });
 
             XcalarDestroyDataset(dsName, txId)
@@ -1331,7 +1332,8 @@ window.DSPreview = (function($, DSPreview) {
 
         var txId = Transaction.start({
             "operation": SQLOps.PreviewDS,
-            "sql": sql
+            "sql": sql,
+            "steps": 1
         });
 
         setURL(loadURL, pattern);

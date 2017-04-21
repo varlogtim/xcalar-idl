@@ -2455,8 +2455,6 @@
                         return this.outputTableName;
                     }
                     if (!subQueries.length) {
-                        console.warn("no subQueries were added to the mainQuery:",
-                                     this.name);
                         return null;
                     } else {
                         var lastSubQuery = subQueries[subQueries.length - 1];

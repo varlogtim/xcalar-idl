@@ -2976,8 +2976,11 @@ var XcSubQuery = (function() {
                 deferred.resolve(50);
                 xcAssert(self.name.indexOf("drop") === 0,
                          "Unexpected operation! " + self.name);
+            } else if (self.name === "executeRetina") {
+                var pct = parseFloat((100 * DFCard.getPct(self.dstTable))
+                                    .toFixed(2));
+                deferred.resolve(pct);
             } else {
-
                 XcalarGetOpStats(self.dstTable)
                 .then(function(ret) {
                     var stats = ret.opDetails;

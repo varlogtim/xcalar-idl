@@ -154,6 +154,15 @@ window.DFCard = (function($, DFCard) {
         $dfMenu.find('.listBox').eq(0).trigger('click');
     };
 
+    DFCard.getPct = function(dfName) {
+        var $dagWrap = getDagWrap(dfName);
+        if ($dagWrap.data("pct")) {
+            return $dagWrap.data("pct");
+        } else {
+            return 0;
+        }
+    };
+
     function addParamToRetina(name, val) {
         var $row = $retLists.find(".unfilled:first");
 
@@ -453,7 +462,8 @@ window.DFCard = (function($, DFCard) {
                 return;
             }
             if ($btn.hasClass('running')) {
-                cancelDF(retName, $btn);
+                var txId = $btn.closest(".dagWrap").data("txid");
+                DFCard.cancelDF(retName, txId);
             } else {
                 $btn.addClass("running");
                 xcTooltip.changeText($btn, DFTStr.Cancel);
@@ -940,20 +950,29 @@ window.DFCard = (function($, DFCard) {
             return PromiseHelper.reject();
         }
 
+        var txId = Transaction.start({
+            "operation": SQLOps.Retina,
+            "sql": SQLOps.Retina,
+            "steps": -1
+        });
+        var $dagWrap = getDagWrap(retName);
+        $dagWrap.data("txid", txId);
+
         var passedCheckBeforeRunDFG = false;
         checkBeforeRunDFG(advancedOpts.activeSession)
         .then(function() {
             passedCheckBeforeRunDFG = true;
             var promise = XcalarExecuteRetina(retName, paramsArray,
-                                              advancedOpts);
+                                              advancedOpts, txId);
             startStatusCheck(retName);
 
             return promise;
         })
         .then(function() {
-            endStatusCheck(retName, passedCheckBeforeRunDFG);
+            endStatusCheck(retName, passedCheckBeforeRunDFG, true);
             if (advancedOpts.activeSession) {
-                return projectAfterRunDFG(advancedOpts.newTableName, exportInfo);
+                return projectAfterRunDFG(advancedOpts.newTableName, exportInfo,
+                                          txId);
             }
         })
         .then(function(finalTable) {
@@ -964,7 +983,10 @@ window.DFCard = (function($, DFCard) {
                 });
             }
 
-            /// XXX TODO: add sql
+            Transaction.done(txId, {
+                "noSql": true
+            });
+
             Alert.show({
                 "title": DFTStr.RunDone,
                 "msg": msg,
@@ -988,6 +1010,11 @@ window.DFCard = (function($, DFCard) {
                 Alert.error(DFTStr.RunFail, error);
             }
 
+            Transaction.fail(txId, {
+                "error": error,
+                "noAlert": true
+            });
+
             deferred.reject(error);
         });
 
@@ -1009,6 +1036,7 @@ window.DFCard = (function($, DFCard) {
         var createdState = DgDagStateTStr[DgDagStateTStr.DgDagStateCreated];
         $dagWrap.find('.dagTable').removeClass(dagStateClasses)
                                   .addClass(createdState);
+        $dagWrap.data("pct", 0);
         statusCheckInterval(retName, true);
     }
 
@@ -1026,7 +1054,7 @@ window.DFCard = (function($, DFCard) {
                 // retina is finished, no more checking
                 return;
             }
-            getAndUpdateRetinaStatuses(retName)
+            getAndUpdateRetinaStatuses(retName, false)
             .always(function() {
                 statusCheckInterval(retName);
             });
@@ -1034,7 +1062,7 @@ window.DFCard = (function($, DFCard) {
         }, checkTime);
     }
 
-    function getAndUpdateRetinaStatuses(retName, ignoreNoExist) {
+    function getAndUpdateRetinaStatuses(retName, ignoreNoExist, isComplete) {
         var deferred = jQuery.Deferred();
         var statusesToIgnore;
         if (ignoreNoExist) {
@@ -1043,7 +1071,7 @@ window.DFCard = (function($, DFCard) {
 
         XcalarQueryState(retName, statusesToIgnore)
         .then(function(retInfo) {
-            updateRetinaColors(retName, retInfo);
+            updateRetinaPctAndColors(retName, retInfo, isComplete);
             deferred.resolve();
         })
         .fail(deferred.reject);
@@ -1051,18 +1079,31 @@ window.DFCard = (function($, DFCard) {
         return deferred.promise();
     }
 
-    function updateRetinaColors(retName, retInfo) {
+    function updateRetinaPctAndColors(retName, retInfo, isComplete) {
         var $dagWrap = getDagWrap(retName);
         var nodes = retInfo.queryGraph.node;
         var tableName;
         var state;
+        var numCompleted = 0;
         for (var i = 0; i < nodes.length; i++) {
             tableName = getTableNameFromStatus(nodes[i]);
             state = DgDagStateTStr[nodes[i].state];
             $dagWrap.find('.dagTable[data-tablename="' + tableName + '"]')
                     .removeClass(dagStateClasses)
                     .addClass(state);
+            if (nodes[i].state === DgDagStateT.DgDagStateReady) {
+                numCompleted++;
+            }
         }
+        var pct;
+        if (isComplete) {
+            pct = 1;
+        } else {
+            var numItems = nodes.length + 1; // +1 for the export operation
+            pct = numCompleted / numItems;
+        }
+
+        $dagWrap.data("pct", pct);
     }
 
     function getTableNameFromStatus(node) {
@@ -1077,7 +1118,7 @@ window.DFCard = (function($, DFCard) {
         return (name);
     }
 
-    function endStatusCheck(retName, updateStatus) {
+    function endStatusCheck(retName, updateStatus, isComplete) {
         if (!retinasInProgress[retName]) {
             return;
         }
@@ -1085,17 +1126,21 @@ window.DFCard = (function($, DFCard) {
         delete retinasInProgress[retName];
 
         if (updateStatus) {
-            getAndUpdateRetinaStatuses(retName);
+            getAndUpdateRetinaStatuses(retName, false, isComplete);
         }
     }
 
-    function cancelDF(retName, $btn) {
+    DFCard.cancelDF = function(retName, txId) {
         var deferred = jQuery.Deferred();
 
+        var $dagWrap = getDagWrap(retName);
+        var $btn = $dagWrap.find(".runNowBtn");
         $btn.addClass('canceling');
         xcTooltip.changeText($btn, StatusMessageTStr.Canceling);
         xcTooltip.refresh($btn);
         canceledRuns[retName] = true;
+
+        QueryManager.cancelQuery(txId);
 
         XcalarQueryCancel(retName, null, true)
         .then(deferred.resolve)
@@ -1160,11 +1205,8 @@ window.DFCard = (function($, DFCard) {
         };
     }
 
-    function projectAfterRunDFG(tableName, exportInfo) {
+    function projectAfterRunDFG(tableName, exportInfo, txId) {
         var deferred = jQuery.Deferred();
-        var txId = Transaction.start({
-            "operation": "Run DF",
-        });
         var worksheet = WSManager.getActiveWS();
         var metaCols = [];
         if (exportInfo.meta && exportInfo.meta.columns) {
@@ -1193,18 +1235,9 @@ window.DFCard = (function($, DFCard) {
             return XIApi.deleteTable(txId, tableName, true);
         })
         .then(function() {
-            Transaction.done(txId, {
-                "noSql": true
-            });
             deferred.resolve(dstTableName);
         })
-        .fail(function(error) {
-            Transaction.fail(txId, {
-                "error": error,
-                "noAlert": true
-            });
-            deferred.reject(error);
-        });
+        .fail(deferred.reject);
 
         return deferred.promise();
     }

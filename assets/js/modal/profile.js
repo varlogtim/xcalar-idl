@@ -746,7 +746,8 @@ window.Profile = (function($, Profile, d3) {
         };
         var txId = Transaction.start({
             "operation": SQLOps.ProfileAgg,
-            "sql": sql
+            "sql": sql,
+            "steps": ((aggKeys.length - 1) * 2)
         });
 
         // show ellipsis as progressing
@@ -811,7 +812,8 @@ window.Profile = (function($, Profile, d3) {
         };
         var txId = Transaction.start({
             "operation": SQLOps.ProfileStats,
-            "sql": sql
+            "sql": sql,
+            "steps": 1
         });
 
         refreshStatsInfo(curStatsCol, true);
@@ -1980,7 +1982,8 @@ window.Profile = (function($, Profile, d3) {
         };
         var txId = Transaction.start({
             "operation": SQLOps.ProfileSort,
-            "sql": sql
+            "sql": sql,
+            "steps": -1
         });
 
         runSort(newOrder, curStatsCol, txId)
@@ -2147,7 +2150,8 @@ window.Profile = (function($, Profile, d3) {
         };
         var txId = Transaction.start({
             "operation": SQLOps.ProfileBucketing,
-            "sql": sql
+            "sql": sql,
+            "steps": -1
         });
 
         var bucketSizePromise = isFitAll

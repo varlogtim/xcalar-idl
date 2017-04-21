@@ -267,6 +267,7 @@ var SQLOps = {
     DestroyDS: "destroyDataSet",
     ExportTable: "exportTable",
     Query: "xcalarQuery",
+    Retina: "runBatchDataflow",
     // XI operation
     AddNewCol: "addNewCol",
     HideCol: "hideCol",

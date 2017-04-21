@@ -131,7 +131,8 @@ window.AggModal = (function($, AggModal) {
         };
         var txId = Transaction.start({
             "operation": SQLOps.QuickAgg,
-            "sql": sql
+            "sql": sql,
+            "steps": -1
         });
 
         $quickAgg.attr("data-state", "pending");
@@ -183,7 +184,8 @@ window.AggModal = (function($, AggModal) {
         };
         var txId = Transaction.start({
             "operation": SQLOps.Corr,
-            "sql": sql
+            "sql": sql,
+            "steps": -1
         });
 
         $corr.attr("data-state", "pending");

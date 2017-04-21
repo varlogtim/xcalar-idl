@@ -5,6 +5,10 @@ window.QueryManager = (function(QueryManager, $) {
     var queryCheckList = {}; // setTimeout timers
     var canceledQueries = {}; // for canceled queries that have been deleted
                               // but the operation has not returned yet
+    var hiddenQueryTypes = [SQLOps.ProfileSort, SQLOps.ProfileBucketing,
+                           SQLOps.ProfileAgg, SQLOps.ProfileStats,
+                           SQLOps.RenameTable, SQLOps.RenameOrphanTable,
+                           SQLOps.QuickAgg, SQLOps.Corr, SQLOps.PreviewDS];
 
     // constant
     var checkInterval = 2000; // check query every 2s
@@ -309,6 +313,17 @@ window.QueryManager = (function(QueryManager, $) {
         DS.cancel($grid);
         // DS.cancel preps the DsObj and icon and
         // eventually calls QueryManager.cancelQuery
+    };
+
+    QueryManager.cancelDF = function(id) {
+        var mainQuery = queryLists[id];
+        if (!mainQuery) {
+            return;
+        }
+        if (mainQuery.subQueries[0]) {
+            var retName = mainQuery.subQueries[0].dstTable;
+            DFCard.cancelDF(retName, id);
+        }
     };
 
     // this gets called after cancel is successful. It cleans up and updates
@@ -669,7 +684,7 @@ window.QueryManager = (function(QueryManager, $) {
     }
 
     function focusOnQuery($target) {
-        if ($target.hasClass("active")) {
+        if ($target.hasClass("active") || $target.hasClass("hiddenType")) {
             return;
         }
 
@@ -1199,9 +1214,15 @@ window.QueryManager = (function(QueryManager, $) {
                 QueryManager.removeQuery(id, true);
             } else if ($clickTarget.hasClass('cancelIcon')) {
                 var mainQuery = queryLists[id];
+                var qName;
+                if (mainQuery) {
+                    qName = mainQuery.name;
+                }
                 // special handling for canceling pointToDS
-                if (mainQuery && mainQuery.name === SQLOps.DSPoint) {
+                if (qName === SQLOps.DSPoint) {
                     QueryManager.cancelDS(id);
+                } else if (qName === SQLOps.Retina) {
+                    QueryManager.cancelDF(id);
                 } else {
                     QueryManager.cancelQuery(id);
                 }
@@ -1393,6 +1414,7 @@ window.QueryManager = (function(QueryManager, $) {
         }
     }
 
+    // used for saving query info for browser refresh
     // put minimal query properties into an array and order by query start time
     function getAbbrQueries() {
         var queryObjs = [];
@@ -1405,7 +1427,6 @@ window.QueryManager = (function(QueryManager, $) {
             queryObj = queryLists[id];
             if (queryObj.state === QueryStatus.Done ||
                 queryObj.state === QueryStatus.Cancel) {
-
                 abbrQueryObj = {
                     "sqlNum": queryObj.sqlNum,
                     "time": queryObj.time,
@@ -1414,7 +1435,8 @@ window.QueryManager = (function(QueryManager, $) {
                     "outputTableState": queryObj.getOutputTableState(),
                     "state": queryObj.state
                 };
-                if (queryObj.state === QueryStatus.Cancel) {
+                if (queryObj.sqlNum === null ||
+                    queryObj.state === QueryStatus.Cancel) {
                     abbrQueryObj.name = queryObj.name;
                     abbrQueryObj.queryStr = queryObj.getQuery();
                 }
@@ -1461,9 +1483,10 @@ window.QueryManager = (function(QueryManager, $) {
         var time = xcQuery.getTime();
         var date = getQueryTime(time);
         var cancelClass = xcQuery.cancelable ? "" : " disabled";
-        var statusClass;
+        var statusClass = "";
         var pct;
         var step = "";
+        var name = xcQuery.getName();
         if (restored) {
             statusClass = xcQuery.state;
             if (xcQuery.state === QueryStatus.Done) {
@@ -1478,6 +1501,9 @@ window.QueryManager = (function(QueryManager, $) {
             pct = 0;
             step = "";
         }
+        if (hiddenQueryTypes.indexOf(name) > -1) {
+            statusClass += " hiddenType";
+        }
         var html =
             '<div class="xc-query query no-selection ' + statusClass +
             '" data-id="' + id + '">' +
@@ -1488,7 +1514,7 @@ window.QueryManager = (function(QueryManager, $) {
                         '<i class="icon queryIcon done xi-success"></i>' +
                     '</div>' +
                     '<div class="middlePart name">' +
-                        xcQuery.getName() +
+                        name +
                     '</div>' +
                     '<div class="rightPart">' +
                         '<i class="icon xi-trash xc-action deleteIcon" ' +

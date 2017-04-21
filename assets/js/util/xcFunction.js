@@ -867,7 +867,8 @@ window.xcFunction = (function($, xcFunction) {
         };
         var txId = Transaction.start({
             "operation": SQLOps.RenameTable,
-            "sql": sql
+            "sql": sql,
+            "steps": 1
         });
 
         // not lock table is the operation is short

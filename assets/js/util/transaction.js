@@ -78,17 +78,20 @@ window.Transaction = (function(Transaction, $) {
 
         // add sql
         var willCommit = !options.noCommit;
-        if (!options.noSql) {
-
+        var queryNum;
+        if (options.noSql) {
+            queryNum = null;
+        } else {
             var cli = txLog.getCli();
             // if has new sql, use the new one, otherwise, use the cached one
             var sql = options.sql || txLog.getSQL();
             var title = options.title || txLog.getOperation();
             title = xcHelper.capitalize(title);
             SQL.add(title, sql, cli, willCommit);
+            queryNum = SQL.getCursor();
         }
 
-        QueryManager.queryDone(txId, SQL.getCursor());
+        QueryManager.queryDone(txId, queryNum);
 
         // remove transaction
         removeTX(txId);

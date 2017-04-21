@@ -296,11 +296,11 @@ window.Shortcuts = (function($, Shortcuts) {
                 switch (val) {
                     case ("za"):
                         file = "yelpUsers";
-                        filePath = "yelp/user/";
+                        filePath = "yelp/user/yelp_academic_dataset_user_fixed.json";
                         break;
                     case ("zb"):
                         file = "yelpReviews";
-                        filePath = "yelp/reviews/";
+                        filePath = "yelp/reviews/yelp_academic_dataset_review_fixed.json";
                         break;
                     case ("zc"):
                         file = "gdelt";
@@ -312,24 +312,19 @@ window.Shortcuts = (function($, Shortcuts) {
                         break;
                     case ("ze"):
                         file = "classes";
-                        filePath = "indexJoin/classes/";
+                        filePath = "indexJoin/classes/classes.json";
                         break;
                     case ("zf"):
                         file = "schedule";
-                        filePath = "indexJoin/schedule/";
+                        filePath = "indexJoin/schedule/schedule.json";
                         break;
                     case ("zg"):
                         file = "students";
-                        filePath = "indexJoin/students/";
+                        filePath = "indexJoin/students/students.json";
                         break;
                     case ("zh"):
                         file = "teachers";
-                        filePath = "indexJoin/teachers/";
-                        break;
-                    case ("zi"):
-                        file = "jsonGen";
-                        filePath = "var/temp/jsonGen/";
-                        filePathGiven = true;
+                        filePath = "indexJoin/teachers/teachers.json";
                         break;
                     default:
                         break;

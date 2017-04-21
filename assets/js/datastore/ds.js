@@ -673,7 +673,8 @@ window.DS = (function ($, DS) {
         };
         var txId = Transaction.start({
             "operation": SQLOps.DestroyDS,
-            "sql": sql
+            "sql": sql,
+            "steps": 1
         });
 
         dsObj.release()
@@ -889,7 +890,8 @@ window.DS = (function ($, DS) {
                 };
                 var txId = Transaction.start({
                     "operation": SQLOps.DestroyPreviewDS,
-                    "sql": sql
+                    "sql": sql,
+                    "steps": 1
                 });
 
                 destroyDataset(dsName, txId)
