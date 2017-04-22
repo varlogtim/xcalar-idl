@@ -1114,9 +1114,7 @@ window.Profile = (function($, Profile, d3) {
 
     function sortGroupby(srcTable, colName, finalTable, txId) {
         var deferred = jQuery.Deferred();
-        // both "a\.b" and "a.b" will become "a\.b" after groupby
-        var sortCol = xcHelper.unescapeColName(colName);
-        sortCol = xcHelper.escapeColName(sortCol);
+        var sortCol = parseColName(colName);
 
         XcalarIndexFromTable(srcTable, sortCol, finalTable,
                             XcalarOrderingT.XcalarOrderingAscending, txId)
@@ -1225,9 +1223,7 @@ window.Profile = (function($, Profile, d3) {
         var tableInfo = curStatsCol.groupByInfo.buckets[bucketNum];
         var noBucket  = (bucketNum === 0) ? 1 : 0;
         var noSort    = (order === sortMap.origin);
-        // both "a\.b" and "a.b" will become "a\.b" after groupby
-        var xName = xcHelper.unescapeColName(tableInfo.colName);
-        xName = xcHelper.escapeColName(xName);
+        var xName = parseColName(tableInfo.colName);
         var yName = noBucket ? statsColName : bucketColName;
 
         var $section = $modal.find(".groubyInfoSection");
@@ -2052,9 +2048,8 @@ window.Profile = (function($, Profile, d3) {
         var colName;
 
         if (sortOrder === sortMap.ztoa) {
-            colName = tableInfo.colName;
             // need to escape
-            colName = xcHelper.escapeColName(colName);
+            colName = parseColName(tableInfo.colName);
         } else {
             colName = (bucketNum === 0) ? statsColName : bucketColName;
         }
@@ -2248,10 +2243,7 @@ window.Profile = (function($, Profile, d3) {
         var groupbyTable;
         var finalTable;
 
-        var colName = curStatsCol.colName;
-        // both "a\.b" and "a.b" will become "a\.b" after groupby
-        colName = xcHelper.unescapeColName(colName);
-        colName = xcHelper.escapeColName(colName);
+        var colName = parseColName(curStatsCol.colName);
         colName = xcHelper.parsePrefixColName(colName).name;
         var mapCol = xcHelper.randName("bucketMap", 4);
 
@@ -2565,12 +2557,19 @@ window.Profile = (function($, Profile, d3) {
         }
     }
 
+    function parseColName(colName) {
+        // both "a\.b" and "a.b" will become "a\.b" after groupby
+        var colName = xcHelper.unescapeColName(colName);
+        colName = xcHelper.escapeColName(colName);
+        return colName;
+    }
+
     function filterSelectedValues(operator) {
         var noBucket = (bucketNum === 0) ? 1 : 0;
         var noSort = (order === sortMap.origin);
         var tableInfo = statsCol.groupByInfo.buckets[bucketNum];
         var bucketSize = tableInfo.bucketSize;
-        var xName = tableInfo.colName;
+        var xName = parseColName(tableInfo.colName);
         var uniqueVals = {};
         var isExist = false;
 
