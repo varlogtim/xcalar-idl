@@ -147,6 +147,8 @@ describe("File Browser Test", function() {
 
             changeProtocol("file:///");
             expect($defaultPath.text()).to.equal("file:///");
+            changeProtocol(FileProtocol.s3);
+            expect($defaultPath.text()).to.equal("s3://");
             changeProtocol(prevSource);
             expect($defaultPath.text()).to.equal(prevSource);
         });

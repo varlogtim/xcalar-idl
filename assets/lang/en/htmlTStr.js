@@ -442,7 +442,8 @@ module.exports = {
     "FileProtocol": {
         "nfs": "file:///",
         "hdfs": "hdfs://",
-        "file": "file:///"
+        "file": "file:///",
+        "s3": "s3://"
     },
 
     "dsView": {
