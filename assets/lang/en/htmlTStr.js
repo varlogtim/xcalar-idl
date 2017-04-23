@@ -428,7 +428,7 @@ module.exports = {
     },
 
     "ds": {
-        "Point": "Point To New Data Source",
+        "Point": "Point To Data Source",
         "Datasets": "Datasets",
         "DSIn": "DATASETS",
         "Protocol": "Data Source Protocol",

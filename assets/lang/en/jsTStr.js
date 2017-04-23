@@ -396,8 +396,7 @@ ThriftTStr = {
     'SetupErr': 'Setup Failed',
     'ListFileErr': 'List Files Failed',
     'SessionElsewhere': 'Different Node Detected',
-    'LogInDifferent': 'Please login as a different user. ' +
-                      'One user can only be logged in at one location.'
+    'LogInDifferent': 'Please login from the node where you first logged in.'
 };
 
 AlertTStr = {
