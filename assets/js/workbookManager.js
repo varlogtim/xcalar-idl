@@ -256,7 +256,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
             return deferred.promise();
         }
 
-        // should stop check since seesion is released
+        // should stop check since session is released
         Support.stopHeartbeatCheck();
 
         // to switch workbook, should release all ref count first

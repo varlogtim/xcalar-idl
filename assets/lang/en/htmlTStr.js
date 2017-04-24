@@ -454,7 +454,7 @@ module.exports = {
     },
 
     "dsParser": {
-        "ParserTitle": "Data Source Parser",
+        "ParserTitle": "Visual Parser",
         "PreviewMode": "Preview Mode",
         "SelectedKeys": "Selected Keys",
         "SelectFormat": "Select format",
@@ -495,7 +495,7 @@ module.exports = {
         "Minimize": "Toggle minimization of the form",
         "EntireFileSize": "Entire file/folder",
         "CustomizedSize": "Custom size",
-        "PARSER": "ADVANCED VISUAL PARSER"
+        "PARSER": "VISUAL PARSER"
     },
 
     "fileBrowser": {
