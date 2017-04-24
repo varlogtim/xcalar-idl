@@ -230,6 +230,9 @@ window.DSTable = (function($, DSTable) {
         var numEntries = dsObj.getNumEntries();
         var $path = $("#dsInfo-path");
 
+        // XXX temp fix
+        path = path.replace("nfs:///", FileProtocol.nfs);
+
         $path.text(path);
         xcTooltip.changeText($path, path);
         xcTooltip.enable($path);
@@ -242,12 +245,14 @@ window.DSTable = (function($, DSTable) {
             $("#dsInfo-size").text(size);
         });
 
-        // $("#dsInfo-format").text(dsObj.getDisplayFormat() || CommonTxtTstr.NA);
-        getDSFormat(dsObj, isLoading)
-        .then(function(format) {
-            format = format || CommonTxtTstr.NA;
-            $("#dsInfo-format").text(format);
-        });
+        // getDSFormat(dsObj, isLoading)
+        // .then(function(format) {
+        //     format = format || CommonTxtTstr.NA;
+        //     $("#dsInfo-format").text(format);
+        // });
+
+        var format = dsObj.getFormat() || CommonTxtTstr.NA;
+        $("#dsInfo-format").text(format);
 
         if (typeof numEntries === "number") {
             numEntries = xcHelper.numToStr(numEntries);
@@ -273,13 +278,15 @@ window.DSTable = (function($, DSTable) {
         }
     }
 
-    function getDSFormat(dsObj, isLoading) {
-        if (isLoading) {
-            return PromiseHelper.resolve(dsObj.getFormat());
-        } else {
-            return dsObj.getDisplayFormat();
-        }
-    }
+    // XXX not work as if it's other user's ds and no index on it
+    // XcalarGetDag on ds not working
+    // function getDSFormat(dsObj, isLoading) {
+    //     if (isLoading) {
+    //         return PromiseHelper.resolve(dsObj.getFormat());
+    //     } else {
+    //         return dsObj.getDisplayFormat();
+    //     }
+    // }
 
     function getMemoryTakenSize(dsObj) {
         // XXX issue here is memory taken size is a little
