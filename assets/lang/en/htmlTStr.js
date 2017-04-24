@@ -106,7 +106,7 @@ module.exports = {
         "wb": "Workbooks",
         "ws": "Worksheets",
         "monitor": "Monitor",
-        "ds": "Data Stores",
+        "ds": "Datasets",
         "exts": "Extensions",
         "user": "User",
         "tutorUser": "John Smith",
