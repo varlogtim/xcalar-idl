@@ -226,7 +226,6 @@ window.DSTable = (function($, DSTable) {
 
     function updateTableInfo(dsObj, isLoading) {
         var dsName = dsObj.getName();
-        var format = dsObj.getFormat() || CommonTxtTstr.NA;
         var path = dsObj.getPathWithPattern() || CommonTxtTstr.NA;
         var numEntries = dsObj.getNumEntries();
         var $path = $("#dsInfo-path");
@@ -243,6 +242,13 @@ window.DSTable = (function($, DSTable) {
             $("#dsInfo-size").text(size);
         });
 
+        // $("#dsInfo-format").text(dsObj.getDisplayFormat() || CommonTxtTstr.NA);
+        getDSFormat(dsObj, isLoading)
+        .then(function(format) {
+            format = format || CommonTxtTstr.NA;
+            $("#dsInfo-format").text(format);
+        });
+
         if (typeof numEntries === "number") {
             numEntries = xcHelper.numToStr(numEntries);
         } else {
@@ -250,7 +256,6 @@ window.DSTable = (function($, DSTable) {
         }
 
         $("#dsInfo-records").text(numEntries);
-        $("#dsInfo-format").text(format);
 
         totalRows = parseInt(numEntries.replace(/\,/g, ""));
     }
@@ -265,6 +270,14 @@ window.DSTable = (function($, DSTable) {
             return PromiseHelper.resolve(size);
         } else {
             return getMemoryTakenSize(dsObj);
+        }
+    }
+
+    function getDSFormat(dsObj, isLoading) {
+        if (isLoading) {
+            return PromiseHelper.resolve(dsObj.getFormat());
+        } else {
+            return dsObj.getDisplayFormat();
         }
     }
 

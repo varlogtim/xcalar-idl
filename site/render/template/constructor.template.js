@@ -1657,10 +1657,21 @@
             isRegex: (boolean) path is using regEx or not;
             headers: (array, optional) XXX temp fix to preserve CSV header order
             error: (string, optional) ds's error
+
+        * new attrs:
+            displayFormat (string) displayed format in ds table(Excel...)
         */
         function DSObj<%= v %>(options) {
             var self = _super.call(this, options);
             <%= addVersion %>
+
+            // XXX this is only for version 2!!!
+            if (<%= checkFunc %>(options)) {
+                if (options.displayFormat) {
+                    self.displayFormat = options.displayFormat;
+                }
+            }
+
             return self;
         }
 
@@ -1697,6 +1708,38 @@
 
             getFormat: function() {
                 return this.format;
+            },
+
+            getDisplayFormat: function() {
+                var self = this;
+                if (self.displayFormat != null) {
+                    return PromiseHelper.resolve(self.displayFormat);
+                }
+
+                var deferred = jQuery.Deferred();
+                var dsName = parseDS(self.fullName);
+                XcalarGetDag(dsName)
+                .then(function(res) {
+                    try {
+                        var udf = res.node[0].input.loadInput.loadArgs
+                                  .udfLoadArgs.fullyQualifiedFnName;
+                        if (udf === "default:openExcel") {
+                            self.displayFormat = "Excel";
+                        } else {
+                            self.displayFormat = self.format;
+                        }
+                        deferred.resolve(self.displayFormat);
+                    } catch (e) {
+                        console.error(e);
+                        deferred.resolve(self.format);
+                    }
+                })
+                .fail(function(error) {
+                    console.error(error);
+                    deferred.resolve(self.format);
+                });
+
+                return deferred.promise();
             },
 
             getPath: function() {

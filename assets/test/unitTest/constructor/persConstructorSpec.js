@@ -2119,6 +2119,139 @@ describe("Persistent Constructor Test", function() {
             });
         });
 
+        it("getDisplayFormat should get Excel format", function(done) {
+            var dsObj = new DSObj({
+                "id": "testId",
+                "name": "testName",
+                "fullName": "testFullName",
+                "parentId": DSObjTerm.homeParentId
+            });
+
+            var oldFunc = XcalarGetDag;
+            XcalarGetDag = function() {
+                return PromiseHelper.resolve({
+                    "node": [{
+                        "input": {
+                            "loadInput": {
+                                "loadArgs": {
+                                    "udfLoadArgs": {
+                                        "fullyQualifiedFnName": "default:openExcel"
+                                    }
+                                }
+                            }
+                        }
+                    }]
+                });
+            };
+
+            dsObj.getDisplayFormat()
+            .then(function(format) {
+                expect(format).to.equal("Excel");
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                XcalarGetDag = oldFunc;
+            });
+        });
+
+        it("getDisplayFormat should get CSV format", function(done) {
+            var dsObj = new DSObj({
+                "id": "testId",
+                "name": "testName",
+                "fullName": "testFullName",
+                "parentId": DSObjTerm.homeParentId,
+                "format": "CSV"
+            });
+
+            var oldFunc = XcalarGetDag;
+            XcalarGetDag = function() {
+                return PromiseHelper.resolve({
+                    "node": [{
+                        "input": {
+                            "loadInput": {
+                                "loadArgs": {
+                                    "udfLoadArgs": {
+                                        "fullyQualifiedFnName": "test"
+                                    }
+                                }
+                            }
+                        }
+                    }]
+                });
+            };
+
+            dsObj.getDisplayFormat()
+            .then(function(format) {
+                expect(format).to.equal("CSV");
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                XcalarGetDag = oldFunc;
+            });
+        });
+
+        it("getDisplayFormat should handle cannot parse case", function(done) {
+            var dsObj = new DSObj({
+                "id": "testId",
+                "name": "testName",
+                "fullName": "testFullName",
+                "parentId": DSObjTerm.homeParentId,
+                "format": "JSON"
+            });
+
+            var oldFunc = XcalarGetDag;
+            XcalarGetDag = function() {
+                return PromiseHelper.resolve({
+                    "node": ["cannot parse case"]
+                });
+            };
+
+            dsObj.getDisplayFormat()
+            .then(function(format) {
+                expect(format).to.equal("JSON");
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                XcalarGetDag = oldFunc;
+            });
+        });
+
+        it("getDisplayFormat should handle error case", function(done) {
+            var dsObj = new DSObj({
+                "id": "testId",
+                "name": "testName",
+                "fullName": "testFullName",
+                "parentId": DSObjTerm.homeParentId,
+                "format": "JSON"
+            });
+
+            var oldFunc = XcalarGetDag;
+            XcalarGetDag = function() {
+                return PromiseHelper.reject("test error");
+            };
+
+            dsObj.getDisplayFormat()
+            .then(function(format) {
+                expect(format).to.equal("JSON");
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                XcalarGetDag = oldFunc;
+            });
+        });
+
         it("Should get and set error", function() {
             // case 1
             var dsObj = new DSObj({"parentId": DSObjTerm.homeParentId});

@@ -255,7 +255,8 @@ ErrTStr = {
 'WorkbookExists': '具有相同名称的工作簿<workbookName>已经存在，请选取其他名称。',
 'InvalidColumn': '列名无效：<name>',
 'LicenseExpire': '您的Xcalar许可证到期时间为 \"<date>\"',
-'ExtNotFound': '扩展名<module>::<fn>未找到。'
+'ExtNotFound': '扩展名<module>::<fn>未找到。',
+'NoEmptyMustRevert': '请填写该栏. 如果您想使用默认值, 请点击"默认值"按钮.'
 };
 ErrWRepTStr = {
 'FolderConflict': '具有相同名称的文件夹<name>已经存在，请选取其他名称。',
@@ -352,7 +353,7 @@ ThriftTStr = {
 'SetupErr': '安装失败',
 'ListFileErr': '列表文件失败',
 'SessionElsewhere': '检测到不同的节点',
-'LogInDifferent': '请以不同的用户身份登录。一个用户只能在一个位置登录。'
+'LogInDifferent': '请从您首次登录的节点登录。'
 };
 AlertTStr = {
 'Title': '警告',

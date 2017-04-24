@@ -2222,6 +2222,21 @@ window.Profile = (function($, Profile, d3) {
         }
     }
 
+    /*
+    import math
+
+    def logBuckets(n):
+        if n == 0:
+            return 0
+        elif n < 0:
+            res = math.ceil(math.log(abs(n), 10)) + 1
+            return -1 * int(res)
+        else:
+            # to fix the inaccuracy of decimal, example, log(1000, 10) = 2.9999999999999996
+            res = math.floor(math.log(n, 10) + 0.0000000001) + 1
+            return int(res)
+    */
+
     function runBucketing(newBucketNum, curStatsCol, txId) {
         var deferred = jQuery.Deferred();
         var buckets = curStatsCol.groupByInfo.buckets;
@@ -2563,7 +2578,7 @@ window.Profile = (function($, Profile, d3) {
 
     function parseColName(colName) {
         // both "a\.b" and "a.b" will become "a\.b" after groupby
-        var colName = xcHelper.unescapeColName(colName);
+        colName = xcHelper.unescapeColName(colName);
         colName = xcHelper.escapeColName(colName);
         return colName;
     }

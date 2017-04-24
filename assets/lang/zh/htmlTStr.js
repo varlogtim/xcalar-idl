@@ -316,7 +316,7 @@ module.exports = {
     "ds": {
         "DSIn": "数据集",
         "Datasets": "数据集",
-        "Point": "新数据源",
+        "Point": "数据源",
         "Protocol": "数据源协议",
         "Retry": "重试",
         "RetryLimit": "请设置数据集大小限制，然后重试。",
