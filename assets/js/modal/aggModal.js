@@ -416,14 +416,16 @@ window.AggModal = (function($, AggModal) {
     }
 
     function setupResize() {
+        var defaultWidth = 120;
         var $header = $corr.find(".headerContainer");
         var $padding = $header.find(".padding");
         var $eles = $header.find(".blankSpace")
                     .add($corr.find(".tableContainer .labelContainer"));
+        $eles.css("flex", "0 0 " + defaultWidth + "px");
 
         $padding.resizable({
             "handles": "e, w",
-            "minWidth": 120,
+            "minWidth": defaultWidth,
             "resize": function(event, ui) {
                 var width = ui.size.width;
                 width = Math.min(width, $header.width() * 0.5);
