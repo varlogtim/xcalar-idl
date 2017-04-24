@@ -72,6 +72,7 @@ describe("DSExport Test", function() {
         it("reset should work", function() {
             $nameInput.val("test");
             expect($nameInput.val()).to.equal("test");
+            /**
             // select UDF
             $targetTypeList.find("li").eq(1).trigger(fakeEvent.mouseup);
             expect($targetInput.val()).to.equal("UDF");
@@ -97,7 +98,12 @@ describe("DSExport Test", function() {
             $form.find(".udfFuncName").val("test");
             expect($form.find(".udfFuncName").val()).to.equal("test");
             expect($form.find(".placeholderRow:visible").length).to.equal(0);
-
+            */
+            $targetTypeList.find("li").eq(0).trigger(fakeEvent.mouseup);
+            expect($targetInput.val()).to.equal("File System");
+            expect($targetInput.data("value")).to.equal("LocalFilesystem");
+            // Remove the section above and uncomment the test when udf on
+            // export is enabled
             // reset the form
             DSExport.__testOnly__.resetForm();
 
@@ -136,6 +142,7 @@ describe("DSExport Test", function() {
             .to.be.false;
 
             // open menu
+            /**
             $targetTypeList.trigger(fakeEvent.click);
             expect($fileFormatMenu.is(":visible")).to.be.true;
             expect($targetTypeList.find("li").eq(1).text()).to.equal("UDF");
@@ -146,6 +153,7 @@ describe("DSExport Test", function() {
             expect($("#exportURL").closest(".formRow").hasClass("active"))
             .to.be.true;
             expect($form.find(".udfSelectorRow").hasClass("active")).to.be.true;
+            */
         });
 
         it("udf dropdowns should work", function() {
@@ -251,6 +259,7 @@ describe("DSExport Test", function() {
             });
         });
 
+        /**
         describe("blank udf module/function", function() {
             it("blank udf module/func should produce error", function(done) {
                 StatusBox.forceHide();
@@ -271,6 +280,7 @@ describe("DSExport Test", function() {
                 StatusBox.forceHide();
             });
         });
+        */
     });
 
     describe("successful form submit", function() {
@@ -429,12 +439,12 @@ describe("DSExport Test", function() {
             expect($nameInput.val()).to.equal("test");
 
             // select UDF
-            $targetTypeList.find("li").eq(1).trigger(fakeEvent.mouseup);
-            expect($targetInput.val()).to.equal("UDF");
+            $targetTypeList.find("li").eq(0).trigger(fakeEvent.mouseup);
+            expect($targetInput.val()).to.equal("File System");
 
             $("#createExportButton").click();
             expect($nameInput.val()).to.equal("test");
-            expect($targetInput.val()).to.equal("UDF");
+            expect($targetInput.val()).to.equal("File System");
         });
 
         it("grid icon should show details", function(done) {
