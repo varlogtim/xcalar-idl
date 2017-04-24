@@ -117,83 +117,83 @@ function timeRelatedFunctionTest() {
         var $timePickerInput = $timePicker.find(".inputSection");
         var date = new Date();
 
-        date.setHours(0);
-        date.setMinutes(0);
+        date.setUTCHours(0);
+        date.setUTCMinutes(0);
         $timePicker.data("date", date);
         $timeInput.val("00 : 00 AM");
 
-        date.setHours(0);
+        date.setUTCHours(0);
         showTimeHelper(date, false, false);
         expect($timePickerInput.find(".hour").val()).to.equal("12");
         expect($timePickerInput.find(".minute").val()).to.equal("00");
         expect($timePickerInput.find(".ampm").text()).to.equal("AM");
         expect($timeInput.val()).to.equal("12 : 00 AM");
 
-        date.setHours(11);
+        date.setUTCHours(11);
         showTimeHelper(date, false, false);
         expect($timePickerInput.find(".hour").val()).to.equal("11");
         expect($timePickerInput.find(".minute").val()).to.equal("00");
         expect($timePickerInput.find(".ampm").text()).to.equal("AM");
         expect($timeInput.val()).to.equal("11 : 00 AM");
 
-        date.setHours(12);
+        date.setUTCHours(12);
         showTimeHelper(date, false, false);
         expect($timePickerInput.find(".hour").val()).to.equal("12");
         expect($timePickerInput.find(".minute").val()).to.equal("00");
         expect($timePickerInput.find(".ampm").text()).to.equal("PM");
         expect($timeInput.val()).to.equal("12 : 00 PM");
 
-        date.setHours(13);
+        date.setUTCHours(13);
         showTimeHelper(date, false, false);
         expect($timePickerInput.find(".hour").val()).to.equal("01");
         expect($timePickerInput.find(".minute").val()).to.equal("00");
         expect($timePickerInput.find(".ampm").text()).to.equal("PM");
         expect($timeInput.val()).to.equal("01 : 00 PM");
 
-        date.setMinutes(0);
+        date.setUTCMinutes(0);
         showTimeHelper(date, false, false);
         expect($timePickerInput.find(".hour").val()).to.equal("01");
         expect($timePickerInput.find(".minute").val()).to.equal("00");
         expect($timePickerInput.find(".ampm").text()).to.equal("PM");
         expect($timeInput.val()).to.equal("01 : 00 PM");
 
-        date.setMinutes(9);
+        date.setUTCMinutes(9);
         showTimeHelper(date, false, false);
         expect($timePickerInput.find(".hour").val()).to.equal("01");
         expect($timePickerInput.find(".minute").val()).to.equal("09");
         expect($timePickerInput.find(".ampm").text()).to.equal("PM");
         expect($timeInput.val()).to.equal("01 : 09 PM");
 
-        date.setMinutes(10);
+        date.setUTCMinutes(10);
         showTimeHelper(date, false, false);
         expect($timePickerInput.find(".hour").val()).to.equal("01");
         expect($timePickerInput.find(".minute").val()).to.equal("10");
         expect($timePickerInput.find(".ampm").text()).to.equal("PM");
         expect($timeInput.val()).to.equal("01 : 10 PM");
 
-        date.setMinutes(11);
+        date.setUTCMinutes(11);
         showTimeHelper(date, false, false);
         expect($timePickerInput.find(".hour").val()).to.equal("01");
         expect($timePickerInput.find(".minute").val()).to.equal("11");
         expect($timePickerInput.find(".ampm").text()).to.equal("PM");
         expect($timeInput.val()).to.equal("01 : 11 PM");
 
-        date.setMinutes(12);
+        date.setUTCMinutes(12);
         showTimeHelper(date, true, true);
         expect($timePickerInput.find(".hour").val()).to.equal("01");
         expect($timePickerInput.find(".minute").val()).to.equal("11");
         expect($timePickerInput.find(".ampm").text()).to.equal("PM");
         expect($timeInput.val()).to.equal("01 : 12 PM");
 
-        date.setMinutes(12);
+        date.setUTCMinutes(12);
         showTimeHelper(date, true, false);
         expect($timePickerInput.find(".hour").val()).to.equal("01");
         expect($timePickerInput.find(".minute").val()).to.equal("12");
         expect($timePickerInput.find(".ampm").text()).to.equal("PM");
         expect($timeInput.val()).to.equal("01 : 12 PM");
 
-        date.setHours(14);
-        date.setMinutes(13);
+        date.setUTCHours(14);
+        date.setUTCMinutes(13);
         showTimeHelper(date, false, true);
         expect($timePickerInput.find(".hour").val()).to.equal("02");
         expect($timePickerInput.find(".minute").val()).to.equal("12");
@@ -203,8 +203,8 @@ function timeRelatedFunctionTest() {
 
     it("inputTime should work", function() {
         var date = $timePicker.data("date");
-        date.setHours(23);
-        date.setMinutes(11);
+        date.setUTCHours(23);
+        date.setUTCMinutes(11);
         $timeInput.val("11 : 11 PM");
 
         var inputTime = Scheduler.__testOnly__.inputTime;
@@ -292,8 +292,8 @@ function timeRelatedFunctionTest() {
 
     it("changeTime should work", function() {
         var date = $timePicker.data("date");
-        date.setHours(23);
-        date.setMinutes(11);
+        date.setUTCHours(23);
+        date.setUTCMinutes(11);
         $timeInput.val("11 : 11 PM");
 
         var tests = [{
@@ -344,8 +344,8 @@ function timeRelatedFunctionTest() {
         var date = $timePicker.data("date");
         var $ampm = $timePicker.find(".btn.increase.ampm");
 
-        date.setHours(23);
-        date.setMinutes(11);
+        date.setUTCHours(23);
+        date.setUTCMinutes(11);
         $timeInput.val("11 : 11 PM");
 
         $ampm.click();
@@ -378,8 +378,8 @@ function timeRelatedFunctionTest() {
         var $minute = $timePicker.find("input.minute");
         var $hour = $timePicker.find("input.hour");
 
-        date.setHours(23);
-        date.setMinutes(11);
+        date.setUTCHours(23);
+        date.setUTCMinutes(11);
         $timeInput.val("11 : 11 PM");
 
         triggerInput($minute, -1);
@@ -480,12 +480,12 @@ function viewRelatedFunctionTest() {
         });
 
         var date = new Date();
-        date.setDate(date.getDate() + 1);
-        date.setHours(23);
-        date.setMinutes(13);
+        date.setUTCDate(date.getUTCDate() + 1);
+        date.setUTCHours(23);
+        date.setUTCMinutes(13);
 
-        dateText = (date.getMonth() + 1) + "/" +
-                    date.getDate() + "/" + date.getFullYear();
+        dateText = (date.getUTCMonth() + 1) + "/" +
+                    date.getUTCDate() + "/" + date.getUTCFullYear();
         var timeText = "11 : 13 PM";
         DF.addScheduleToDataflow(dfName, {
             "startTime": date.getTime(), // The time to start the next run
@@ -514,9 +514,9 @@ function viewRelatedFunctionTest() {
 
         if (!isBrowserMicrosoft) {
             assert.equal($scheduleInfos.find(".created .text").text(),
-                    dateText + " 11:13 PM");
+                    dateText + " 11:13 PM UTC");
             assert.equal($scheduleInfos.find(".modified .text").text(),
-                    dateText + " 11:13 PM");
+                    dateText + " 11:13 PM UTC");
         }
     });
 
@@ -561,7 +561,7 @@ function formSubmitTest() {
             "exportInput": {meta: {
                 specificInput: {
                     sfInput: {
-                        fileName:"fakeFileName"
+                        fileName: "fakeFileName"
                     }
                 }
             }}
