@@ -752,7 +752,7 @@ window.DFParamModal = (function($, DFParamModal){
             var $div = $(this);
             if (!$div.hasClass("allowEmpty") && $.trim($div.val()) === "") {
                 isValid = false;
-                StatusBox.show(ErrTStr.NoEmpty, $div);
+                StatusBox.show(ErrTStr.NoEmptyMustRevert, $div);
                 return false;
             }
         });

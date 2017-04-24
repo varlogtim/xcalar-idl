@@ -275,6 +275,8 @@ ErrTStr = {
     'RefreshBrowser': 'Refresh  Browser',
     'RefreshBrowserDesc': 'We have detected an issue that requires a refresh.\nPlease refresh your browser now. Your work will be recovered to the last consistent state.',
     'BundleFailed': 'Submit Bundle Failed',
+    'NoEmptyMustRevert': 'Please fill out this field. If you want to use the ' +
+                       'original value, please click the "Default value" icon.',
 
     // With replace
     'WorkbookExists': 'A workbook named <workbookName> already exists. Please' +
