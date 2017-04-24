@@ -169,50 +169,14 @@ window.Scheduler = (function(Scheduler, $) {
 
         $("#modScheduleForm-save").click(function() {
             $(this).blur();
-            checkExportFileName(currentDataFlowName)
+            saveScheduleForm(currentDataFlowName)
             .then(function() {
-                if (saveScheduleForm(currentDataFlowName)) {
-                    Scheduler.show(currentDataFlowName);
-                }
+                Scheduler.show(currentDataFlowName);
             })
             .fail(function() {
-                // not a fail, just a decline to proceed with save
+                // declined to proceed with save or invalid schedule, handled
             });
-
         });
-
-        // alert if export name does not contain system parameter
-        function checkExportFileName(dataflowName) {
-            var deferred = jQuery.Deferred();
-            var dfObj = DF.getDataflow(dataflowName);
-            var exportInfo = dfObj.retinaNodes[0].input.exportInput;
-            var fileName = exportInfo.meta.specificInput.sfInput.fileName;
-            var sysParamFound = false;
-            for (var paramName in systemParams) {
-                var sysParam = "<" + paramName + ">";
-                if (fileName.indexOf(sysParam) > -1) {
-                    sysParamFound = true;
-                    break;
-                }
-            }
-
-            if (!sysParamFound) {
-                Alert.show({
-                    title: AlertTStr.Title,
-                    msg: SchedTStr.NoExportParam,
-                    onConfirm: function() {
-                        deferred.resolve();
-                    },
-                    onCancel: function() {
-                        deferred.reject();
-                    }
-                });
-            } else {
-                deferred.resolve();
-            }
-
-            return deferred.promise();
-        }
 
         $("#modScheduleForm-cancel").click(function() {
             $(this).blur();
@@ -558,12 +522,13 @@ window.Scheduler = (function(Scheduler, $) {
     }
 
     function saveScheduleForm(dataflowName) {
+        var deferred = jQuery.Deferred();
         var isValid;
         var currentTime;
+        var options;
 
         if (isSimpleMode()) {
             // Simple mode
-            var options;
 
             isValid = xcHelper.validate([{
                 "$ele": $dateInput,
@@ -579,7 +544,7 @@ window.Scheduler = (function(Scheduler, $) {
             }]);
 
             if (!isValid) {
-                return false;
+                return PromiseHelper.reject();
             }
 
             var $hourInput = $('#modifyScheduleForm .timePicker:visible')
@@ -596,7 +561,7 @@ window.Scheduler = (function(Scheduler, $) {
                         "side": "right"
                     });
                 }
-                return false;
+                return PromiseHelper.reject();
             }
 
             var dateStr = $dateInput.val().trim();
@@ -612,14 +577,14 @@ window.Scheduler = (function(Scheduler, $) {
             // to server time
             if (serverTimeZoneOffset == null) {
                 StatusBox.show(SchedTStr.failServerTime, $timeInput);
-                return false;
+                return PromiseHelper.reject();
             }
 
             currentTime = timeZoneTransfer(new Date(), serverTimeZoneOffset);
 
             if (startTime < currentTime) {
                 StatusBox.show(ErrTStr.TimeExpire, $timeInput);
-                return false;
+                return PromiseHelper.reject();
             }
 
             options = {
@@ -634,19 +599,17 @@ window.Scheduler = (function(Scheduler, $) {
                 "usePremadeCronString": false,
                 "premadeCronString": ""
             };
-            setSimulationInfos();
-
         } else {
             // Advanced mode, is considered starting immediately
             var cronString = validateCron(true);
             if (cronString == null) {
                 // invalid case
-                return false;
+                return PromiseHelper.reject();
             }
 
             if (serverTimeZoneOffset == null) {
                 StatusBox.show(SchedTStr.failServerTime, $("#cronScheduler"));
-                return false;
+                return PromiseHelper.reject();
             }
 
             currentTime = timeZoneTransfer(new Date(), serverTimeZoneOffset);
@@ -664,10 +627,56 @@ window.Scheduler = (function(Scheduler, $) {
             };
         }
 
-        DF.addScheduleToDataflow(dataflowName, options);
-        xcHelper.showSuccess(SuccessTStr.Sched);
-        existScheduleIcon(dataflowName);
-        return true;
+        checkExportFileName(currentDataFlowName)
+        .then(function() {
+            if (isSimpleMode()) {
+                setSimulationInfos();
+            }
+
+            DF.addScheduleToDataflow(dataflowName, options);
+            xcHelper.showSuccess(SuccessTStr.Sched);
+            existScheduleIcon(dataflowName);
+
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+
+        return deferred.promise();
+    }
+
+
+    // alert if export name does not contain system parameter
+    function checkExportFileName(dataflowName) {
+        var deferred = jQuery.Deferred();
+        var dfObj = DF.getDataflow(dataflowName);
+        var exportInfo = dfObj.retinaNodes[0].input.exportInput;
+        var fileName = exportInfo.meta.specificInput.sfInput.fileName;
+        var sysParamFound = false;
+        for (var paramName in systemParams) {
+            var sysParam = "<" + paramName + ">";
+            if (fileName.indexOf(sysParam) > -1) {
+                sysParamFound = true;
+                break;
+            }
+        }
+
+        if (!sysParamFound) {
+            Alert.show({
+                title: AlertTStr.Title,
+                msg: SchedTStr.NoExportParam,
+                onConfirm: function() {
+                    deferred.resolve();
+                },
+                onCancel: function() {
+                    deferred.reject();
+                }
+            });
+        } else {
+            deferred.resolve();
+        }
+
+        return deferred.promise();
     }
 
     function showScheduleResult() {
