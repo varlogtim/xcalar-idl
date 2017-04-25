@@ -12,6 +12,7 @@ window.Support = (function(Support, $) {
     var numNodes;
     var statsMap = null;
     var isCheckingMem = false;
+    var heartbeatLock = 0;
     // constant
     var defaultCommitFlag = "commit-default";
 
@@ -225,6 +226,11 @@ window.Support = (function(Support, $) {
     };
 
     Support.heartbeatCheck = function() {
+        if (WorkbookManager.getActiveWKBK() == null) {
+            console.info("no active workbook, not check");
+            return;
+        }
+
         var isChecking = false;
         commitCheckInterval = (UserSettings.getPref('commitInterval') * 1000) ||
                              commitCheckInterval;
@@ -265,6 +271,21 @@ window.Support = (function(Support, $) {
     Support.stopHeartbeatCheck = function() {
         clearInterval(commitCheckTimer);
         commitCheckTimer = null;
+        heartbeatLock++;
+    };
+
+    Support.restartHeartbeatCheck = function() {
+        if (heartbeatLock === 0) {
+            console.error("wrong trigger, must combine with stopHeartbeatCheck");
+            return;
+        }
+        heartbeatLock--;
+        if (heartbeatLock > 0) {
+            console.info("hear beat is locked");
+            return;
+        }
+
+        return Support.heartbeatCheck();
     };
 
     Support.checkConnection = function() {

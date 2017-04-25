@@ -280,9 +280,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
             console.error("Switch Workbook Fails", error);
             $("#initialLoadScreen").hide();
             // restart if fails
-            if (activeWKBKId != null) {
-                Support.heartbeatCheck();
-            }
+            Support.restartHeartbeatCheck();
             deferred.reject(error);
         });
 
@@ -391,14 +389,10 @@ window.WorkbookManager = (function($, WorkbookManager) {
             return PromiseHelper.alwaysResolve(promise);
         })
         .then(deferred.resolve)
-        .fail(function(error) {
-            if (activeWKBKId != null) {
-                Support.heartbeatCheck();
-            }
-            deferred.reject(error);
-        })
+        .fail(deferred.reject)
         .always(function() {
             $("#initialLoadScreen").hide();
+            Support.restartHeartbeatCheck();
         });
 
         return deferred.promise();
@@ -462,9 +456,10 @@ window.WorkbookManager = (function($, WorkbookManager) {
             // when no active workbook
             promise = PromiseHelper.resolve();
         } else {
-            Support.stopHeartbeatCheck();
             promise = KVStore.commit();
         }
+
+        Support.stopHeartbeatCheck();
 
         promise
         .then(function() {
@@ -506,9 +501,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
         })
         .fail(deferred.reject)
         .always(function() {
-            if (activeWKBKId != null) {
-                Support.heartbeatCheck();
-            }
+            Support.restartHeartbeatCheck();
         });
 
         return deferred.promise();
@@ -572,9 +565,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
         .then(deferred.resolve)
         .fail(deferred.reject)
         .always(function() {
-            if (activeWKBKId != null) {
-                Support.heartbeatCheck();
-            }
+            Support.restartHeartbeatCheck();
         });
 
         return deferred.promise();

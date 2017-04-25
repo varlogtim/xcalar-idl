@@ -140,7 +140,7 @@ module.exports = {
     "UDF": {
         "ADD": "添加UDF",
         "App": "XPU应用",
-        "BlankFunc": "空白模板",
+        "BlankFunc": "新模块",
         "Browse": "浏览文件",
         "Editor": "编辑",
         "Func": "函数",
@@ -149,8 +149,8 @@ module.exports = {
         "Module": "模块",
         "MyUDF": "我的UDFs",
         "NameHint": "模块名称（英文小写）",
-        "SelectTemplate": "选择模板",
-        "Template": "模板",
+        "SelectTemplate": "选择模块",
+        "Template": "修改",
         "Udf": "UDF"
     },
     "about": {
