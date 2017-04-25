@@ -206,6 +206,10 @@ window.DSTable = (function($, DSTable) {
             scrollBarPadding = 10;
         } else if (resizeCols) {
             sizeColumns();
+            // after resize, need another check
+            if ($dsTable.width() > $dsTableContainer.parent().width()) {
+                scrollBarPadding = 10;
+            }
         }
         $dsTableContainer.height(tableHeight + scrollBarPadding);
     };
