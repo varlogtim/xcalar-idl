@@ -3433,15 +3433,15 @@ window.Dag = (function($, Dag) {
             originHTML += '<div class="actionType dropdownBox ' + operation +
                         '" style="top:' + 0 + 'px;" ' +
                         'data-type="' + operation + '" ' +
-                        'data-info="' + info.text.replace(/"/g, "'") + '" ' +
-                        'data-column="' + info.column.replace(/"/g, "'") +
+                        'data-info="' + info.text.replace(/"/g, "&quot;") + '" ' +
+                        'data-column="' + info.column.replace(/"/g, "&quot;") +
                                         '" ' +
                         'data-table="' + resultTableName + '"' +
                         'data-id="' + info.id + '" ' +
                         'data-toggle="tooltip" ' +
                         'data-placement="top" ' +
                         'data-container="body" ' +
-                        'title="' + info.tooltip.replace(/"/g, "'") + '">' +
+                        'title="' + info.tooltip.replace(/"/g, "&quot;") + '">' +
                             '<div class="actionTypeWrap" >' +
                                 '<div class="dagIcon ' + operation + ' ' +
                                     info.type + '">' +
