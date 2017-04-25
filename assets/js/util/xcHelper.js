@@ -3280,18 +3280,11 @@ window.xcHelper = (function($, xcHelper) {
         var index;
         if ($highlightedLi.length !== 0) {
             // When a li is highlighted
-            var highlightIndex = $highlightedLi.index();
-            $lis.each(function() {
-                var liIndex = $(this).index();
-                if (highlightIndex === liIndex) {
-                    index = liIndex;
-                    return (false);
-                }
-            });
+            var highlightIndex = $lis.index($highlightedLi);
 
             $highlightedLi.removeClass('highlighted');
 
-            var newIndex = (index + direction + numLis) % numLis;
+            var newIndex = (highlightIndex + direction + numLis) % numLis;
             $highlightedLi = $lis.eq(newIndex);
         } else {
             index = (direction === -1) ? (numLis - 1) : 0;

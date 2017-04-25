@@ -411,6 +411,8 @@ window.UDF = (function($, UDF) {
         StatusBox.forceHide();
         $fnListInput.val(moduleName).data("module", moduleName);
 
+        xcTooltip.changeText($fnListInput, moduleName);
+
         if ($li.attr("name") === "blank") {
             $fnName.val("");
             editor.setValue(udfDefault);

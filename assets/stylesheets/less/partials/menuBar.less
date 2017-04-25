@@ -877,7 +877,7 @@ ul.CodeMirror-hints {
         .styleDropDownList(~"calc(100% - 75px)", 30px);
 
         .text {
-            width: 100%;
+            width: ~"calc(100% - 30px)";
             border: 1px solid @color-border-select-blue;
             cursor: text;
 
@@ -944,8 +944,6 @@ ul.CodeMirror-hints {
         .size(@width: 100%);
         .position(relative);
         overflow: hidden;
-        padding-right: 10px;
-        margin-bottom: 5px;
 
         .editArea {
             .size(100%, inherit);

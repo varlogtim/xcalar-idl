@@ -112,7 +112,10 @@
               <div class="template">
                 <div class="title"><%= dicts.UDF.Template %>:</div>
                 <div id="udf-fnList" class="dropDownList">
-                  <input class="text" spellcheck="false" placeholder="<%= dicts.UDF.SelectTemplate %>">
+                  <input class="text" spellcheck="false" placeholder="<%= dicts.UDF.SelectTemplate %>" data-toggle="tooltip" data-container="body" data-placement="top">
+                  <div class="iconWrapper">
+                    <i class="icon xi-arrow-down"></i>
+                  </div>
                   <div id="udf-fnMenu" class="list">
                     <ul>
                       <li name="blank"><%= dicts.UDF.BlankFunc %></li>

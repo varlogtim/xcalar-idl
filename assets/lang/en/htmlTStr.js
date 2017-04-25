@@ -260,7 +260,7 @@ module.exports = {
         "ADD": "ADD UDF",
         "App": "XPU App",
         "Browse": "Browse File",
-        "BlankFunc": "Blank Function",
+        "BlankFunc": "New Module",
         "Editor": "Editor",
         "Func": "UDF Function",
         "Header": "User Defined Function",
@@ -268,8 +268,8 @@ module.exports = {
         "MyUDF": "My UDFs",
         "Module": "UDF Module",
         "NameHint": "Module name (lowercase)",
-        "SelectTemplate": "Select Template",
-        "Template": "Template",
+        "SelectTemplate": "Select Module",
+        "Template": "Modify",
         "Udf": "UDF"
     },
 
