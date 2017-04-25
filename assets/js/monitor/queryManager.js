@@ -982,7 +982,7 @@ window.QueryManager = (function(QueryManager, $) {
             }
             return;
         }
-        if ($query.hasClass("done")) {
+        if ($query.hasClass("done") && !doNotAnimate) {
             return;
         }
         var mainQuery = queryLists[id];
