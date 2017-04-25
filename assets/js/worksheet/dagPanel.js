@@ -397,6 +397,10 @@ window.DagPanel = (function($, DagPanel) {
                 // if dag does not have ready state, don't show dropdown
                 return;
             }
+            if ($dagTable.closest(".fromRetina").length &&
+                $dagTable.hasClass("dataStore")) {
+                return;
+            }
 
             var tableName = $dagTable.find('.tableTitle').text().trim();
             var tableId = $dagTable.data('id');
@@ -1996,7 +2000,25 @@ window.Dag = (function($, Dag) {
             $(document).mousedown(closeDagHighlight);
         });
 
+        $dagSchema.find(".close").click(function() {
+            hideSchema();
+        });
+
         dagPanelLeft = $('#dagPanelContainer').offset().left || 65;
+
+        $dagSchema.draggable({
+            handle: '#dagSchemaTitle',
+            cursor: '-webkit-grabbing',
+            containment: "window"
+        });
+
+        $dagSchema.resizable({
+            handles: "n, e, s, w, se",
+            minHeight: 300,
+            minWidth: 300,
+            containment: "document"
+        });
+
     };
 
     Dag.showDataStoreInfo = function($dagTable) {
@@ -2012,6 +2034,17 @@ window.Dag = (function($, Dag) {
         var loadInfo = datasets[tableName].loadInfo;
         if (loadInfo.format !== "csv") {
             delete loadInfo.loadArgs.csv;
+        }
+        if (loadInfo.loadArgs && loadInfo.loadArgs.csv) {
+            loadInfo.loadArgs.csv.recordDelim =
+                    loadInfo.loadArgs.csv.recordDelim
+                    .replace(/\t/g, "\\t").replace(/\n/g, "\\n");
+            loadInfo.loadArgs.csv.quoteDelim =
+                    loadInfo.loadArgs.csv.quoteDelim
+                    .replace(/\t/g, "\\t").replace(/\n/g, "\\n");
+            loadInfo.loadArgs.csv.fieldDelim =
+                    loadInfo.loadArgs.csv.fieldDelim
+                    .replace(/\t/g, "\\t").replace(/\n/g, "\\n");
         }
 
         loadInfo.name = tableName;
@@ -2041,15 +2074,15 @@ window.Dag = (function($, Dag) {
                     }
                     loadInfo.numEntries = numRows;
                     loadInfo.size = xcHelper.sizeTranslator(size);
-                    var html = JSON.stringify(loadInfo, null, 2);
+                    var html = prettify(loadInfo);
                     $schema.find(".content").html(html);
                 }
             });
         }
 
-        var html = JSON.stringify(loadInfo, null, 2);
+        var html = prettify(loadInfo);
 
-        $schema.find(".content").html(html);
+        $schema.find(".content").addClass("prettyJson").html(html);
         $schema.show();
         $('.tooltip').hide();
 
@@ -2063,6 +2096,12 @@ window.Dag = (function($, Dag) {
         positionSchemaPopup($dagTable);
     };
 
+    function prettify(loadInfo) {
+        var html = xcHelper.prettifyJson(loadInfo);
+        html = "{\n" + html + "}";
+        return html;
+    }
+
     Dag.showSchema = function($dagTable) {
         var tableId = $dagTable.data('id');
         var table = gTables[tableId];
@@ -2075,6 +2114,7 @@ window.Dag = (function($, Dag) {
         $schema.data('$dagTable', $dagTable);
         var schemaId = Math.floor(Math.random() * 100000);
         $schema.data("id", schemaId);
+        $schema.find(".content").removeClass("prettyJson");
         if (!table) {
             tableName = $dagTable.find('.tableTitle').text();
             numCols = 1;
@@ -2173,33 +2213,31 @@ window.Dag = (function($, Dag) {
 
     function positionSchemaPopup($dagTable) {
         var $schema = $('#dagSchema');
-        var height = $schema.outerHeight();
+
         var topMargin = 3;
-        var leftMargin = dagPanelLeft + 30;
         var top = $dagTable[0].getBoundingClientRect().top + topMargin;
-        var left = $dagTable[0].getBoundingClientRect().left - leftMargin;
+        var left = $dagTable[0].getBoundingClientRect().left - 30;
         var menuWidth = 0;
         if (MainMenu.isMenuOpen()) {
             menuWidth = 285;
         }
-
-        if (window.isBrowserIE) {
-            left += leftMargin;
-        } else {
-            left -= menuWidth;
+        var defaultWidth = 300;
+        var defaultHeight = 266;
+        if ($schema.hasClass("loadInfo")) {
+            defaultWidth = 500;
+            defaultHeight = 530;
         }
+
+        $schema.css("width", "auto");
+        var width = $schema.outerWidth();
+        $schema.width(Math.min(defaultWidth, width));
+
+        $schema.css("height", "auto");
+        var height = $schema.outerHeight();
+        $schema.height(Math.min(defaultHeight, height));
 
         left = Math.max(2, left);
         top = Math.max(2, top - height); // at least 2px from the top
-
-        // hack needed as of 9/26/2016
-        if (!window.isBrowserIE) {
-            // if dagpanel is open halfway we have to change the top position
-            // of colmenu
-            if ($('#dagPanel').hasClass('midway')) {
-                top -= $('#dagPanel').offset().top;
-            }
-        }
 
         $schema.css({'top': top, 'left': left});
 

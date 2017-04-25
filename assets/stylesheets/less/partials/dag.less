@@ -343,6 +343,12 @@ html.firefox, html.microsoft {
             opacity: @opacity-disabled;
             cursor: default;
         }
+        .dagTable.dataStore {
+            cursor: default;
+            .dataStoreIcon {
+                pointer-events: none;
+            }
+        }
     }
 
     &.unsavable, &.tooLarge {
@@ -764,21 +770,33 @@ html.firefox, html.microsoft {
     box-shadow: 0px 1px 2px 1px rgba(0, 0, 0, 0.3);
     cursor: auto;
     .noSelection;
-    max-width: 300px;
     cursor: default;
 
+
+
     &.loadInfo {
-        max-width: 500px;
         .background, .rowCount, .heading {
             display: none;
         }
+        .title {
+            .cursor-move();
+        }
         .content {
             white-space: pre;
-            max-width: 500px;
-            max-height: 500px;
+            height: ~"calc(100% - 24px)";
+            width: 100%;
             overflow: auto;
             font-family: @font-code;
             padding: 10px;
+
+            > .jsonBlock {
+                margin-left: 14px;
+            }
+        }
+    }
+    &:not(.loadInfo) {
+        .ui-resizable-handle {
+            display: none !important;
         }
     }
 
@@ -794,8 +812,27 @@ html.firefox, html.microsoft {
         font-weight: 600;
         background-color: @color-bg-select-blue;
         padding: 0 4px;
-        .flex-display;
-        .justify-content(center);
+
+
+        .titleContentWrap {
+            .flex-display;
+            .justify-content(center);
+            margin: 0 24px;
+        }
+
+        .close {
+            position: absolute;
+            right: 0px;
+            top: 0px;
+            width: 24px;
+            height: 24px;
+            text-align: center;
+            line-height: 24px;
+            cursor: pointer;
+            .icon {
+                font-size: 12px;
+            }
+        }
 
         > span {
             display: block;

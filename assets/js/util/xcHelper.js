@@ -1983,13 +1983,16 @@ window.xcHelper = (function($, xcHelper) {
         return error;
     };
 
-    xcHelper.escapeHTMLSepcialChar = function(str) {
+    xcHelper.escapeHTMLSepcialChar = function(str, ignoreTab) {
         // esacpe & to &amp;, so text &quot; will not become " in html
         // escape < & > so external html doesn't get injected
-        return str.replace(/\&/g, "&amp;")
-                  .replace(/\</g, "&lt;")
-                  .replace(/\>/g, "&gt;")
-                  .replace(/\\t/g, "&emsp;");
+        str = str.replace(/\&/g, "&amp;")
+                      .replace(/\</g, "&lt;")
+                      .replace(/\>/g, "&gt;");
+        if (!ignoreTab) {
+            str = str.replace(/\\t/g, "&emsp;");
+        }
+        return str;
     };
 
     xcHelper.escapeRegExp = function(str) {
@@ -2221,12 +2224,16 @@ window.xcHelper = (function($, xcHelper) {
         return (true);
     };
 
-    xcHelper.delimiterTranslate = function($input) {
+    xcHelper.delimiterTranslate = function($input, val) {
         if ($input.hasClass("nullVal")) {
             return "";
         }
-
-        var delimiter = $input.val();
+        var delimiter;
+        if ($input.length) {
+            delimiter = $input.val();
+        } else {
+            delimiter = val;
+        }
         // this change " to \", otherwise cannot use json parse
         for (var i = 0; i < delimiter.length; i++) {
             if (delimiter[i] === "\"" &&
@@ -3114,6 +3121,135 @@ window.xcHelper = (function($, xcHelper) {
         // when cannot find any error
         console.error("cannot find error in", args);
         return null;
+    };
+
+    xcHelper.prettifyJson = function(obj, indent, mainKey, options, isArrayEl) {
+
+        return prettify(obj, indent, mainKey, options, isArrayEl);
+
+        function prettify(obj, indent, mainKey, options, isArrayEl) {
+            if (typeof obj !== "object") {
+                return (JSON.stringify(obj));
+            }
+
+            var result = "";
+            indent = indent || 0;
+            options = options || {};
+            options.inArray = options.inArray || 0;
+
+            for (var key in obj) {
+                if (!obj.hasOwnProperty(key)) {
+                    continue;
+                }
+                var value = obj[key];
+                key = xcHelper.escapeHTMLSepcialChar(key);
+                var dataKey = key.replace(/\"/g, "&quot;"); // replace " with &quot;
+                var arrayElClass = isArrayEl ? " arrayEl" : "";
+                switch (typeof value) {
+                    case ('string'):
+                        value = xcHelper.escapeHTMLSepcialChar(value, true);
+                        value = '"<span class="jString text ' + arrayElClass +
+                                '">' + value + '</span>"';
+                        break;
+                    case ('number'):
+                        value = '<span class="jNum text ' + arrayElClass +
+                                '">' + value + '</span>';
+                        break;
+                    case ('boolean'):
+                        value = '<span class="jBool text ' + arrayElClass +
+                                '">' + value + '</span>';
+                        break;
+                    case ('object'):
+                        // divs are used in css selectors so careful with changing
+                        if (value == null) {
+                            value = '<span class="jNull text ' + arrayElClass +
+                                    '">' + value + '</span>';
+                        } else if (value.constructor === Array) {
+                            ++options.inArray;
+                            var emptyArray = "";
+                            if (value.length === 0) {
+                                emptyArray = " emptyArray";
+                            }
+                            value =
+                            '[<div class="jArray ' + emptyArray + '" ' +
+                                '>' +
+                                prettify(value, indent + 1, null, options, true) +
+                            '</div>' + getIndent(indent) + ']';
+                        } else {
+                            var object = prettify(value, indent + 1, null,
+                                        {checkboxes: options.checkboxes});
+                            var emptyObj = "";
+                            if (object === "") {
+                                emptyObj = " emptyObj";
+                            }
+                            value = '{<div class="jObj' + emptyObj + '">' + object +
+                                    '</div>' + getIndent(indent) + '}';
+                        }
+
+                        break;
+                    default:
+                        value = '<span class="jUndf text">' + value + '</span>';
+                        break;
+                }
+
+                if (options.inArray) {
+                    value += ",";
+                    result += '<div class="jsonBlock jInfo arrayVal' +
+                                '" data-key="' + dataKey + '">' +
+                                getCheckbox(indent, options) + getIndent(indent) + value +
+                            '</div>';
+                } else {
+                    var classNames = "";
+                    value = value.replace(/,$/, "");
+
+                    if (mainKey) {
+                        classNames = " mainKey";
+                    }
+                    result += '<div class="jsonBlock jInfo objVal' + classNames +
+                          '" data-key="' + dataKey + '">' +
+                            getCheckbox(indent, options) + getIndent(indent) +
+                            '"<span class="jKey text">' + dataKey + '</span>": ' +
+                            value + ',' +
+                        '</div>';
+                }
+            }
+
+            --options.inArray;
+
+            if (options.comparison) {
+                // removes last comma unless inside div
+                return (result.replace(/\, $/, "").replace(/\,$/, ""));
+            } else {
+                // .replace used to remove comma if last value in object
+                return (result.replace(/\,<\/div>$/, "</div>").replace(/\, $/, "")
+                                                              .replace(/\,$/, ""));
+
+            }
+        }
+
+        function getIndent(num) {
+            var singleIndent = "&nbsp;&nbsp;";
+            var totalIndent = "";
+            for (var i = 0; i < num; i++) {
+                totalIndent += singleIndent;
+            }
+            return (totalIndent);
+        }
+
+        function getCheckbox(indent, options) {
+            if (!options.checkboxes) {
+                return "";
+            }
+            var originalLeft = -19;
+            var left = originalLeft + (16.8 * indent);
+            var html = '<div class="checkbox jsonCheckbox" style="left: ' + left +
+                        'px;">' +
+                '<i class="icon xi-ckbox-empty fa-11"></i>' +
+                '<i class="icon xi-ckbox-selected fa-11"></i>' +
+            '</div>';
+            return html;
+        }
+
     };
 
     xcHelper.listHighlight = function($input, event, isArgInput) {

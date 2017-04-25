@@ -1172,8 +1172,10 @@ window.JSONModal = (function($, JSONModal) {
                   'Prefixed Fields' +
                 '</h3>';
         for (var i = 0; i < groups.length; i++) {
-            var tempJson = prettifyJson(groups[i].objs, null, checkboxes, {
-                "inArray": isArray
+            var tempJson = xcHelper.prettifyJson(groups[i].objs, null,
+                checkboxes, {
+                "inArray": isArray,
+                checkboxes: true
             });
             tempJson = '<div class="jObject">' +
                         tempJson +
@@ -1210,8 +1212,9 @@ window.JSONModal = (function($, JSONModal) {
     }
 
     function getJsonHtmlForNonDataCol(jsonObj, isArray) {
-        var prettyJson = prettifyJson(jsonObj, null , true, {
-            inArray: isArray
+        var prettyJson = xcHelper.prettifyJson(jsonObj, null , true, {
+            inArray: isArray,
+            checkboxes: true
         }, isArray);
         prettyJson = '<div class="jObject">' + prettyJson + '</div>';
         return prettyJson;
@@ -1460,7 +1463,7 @@ window.JSONModal = (function($, JSONModal) {
                     html += '<div class="unmatched">';
                 }
                 for (var k = 0; k < arrLen; k++) {
-                    html += prettifyJson(jsons[obj][matchType][k], 0, null,
+                    html += xcHelper.prettifyJson(jsons[obj][matchType][k], 0, null,
                                          {comparison: true});
                 }
                 html += '</div>';
@@ -1752,122 +1755,6 @@ window.JSONModal = (function($, JSONModal) {
                 });
             }
         }
-    }
-
-    function prettifyJson(obj, indent, mainKey, options, isArrayEl) {
-        if (typeof obj !== "object") {
-            return (JSON.stringify(obj));
-        }
-
-        var result = "";
-        indent = indent || 0;
-        options = options || {};
-        options.inArray = options.inArray || 0;
-
-        for (var key in obj) {
-            var value = obj[key];
-            key = xcHelper.escapeHTMLSepcialChar(key);
-            var dataKey = key.replace(/\"/g, "&quot;"); // replace " with &quot;
-            var arrayElClass = isArrayEl ? " arrayEl" : "";
-            switch (typeof value) {
-                case ('string'):
-                    value = xcHelper.escapeHTMLSepcialChar(value);
-                    value = '"<span class="jString text ' + arrayElClass +
-                            '">' + value + '</span>"';
-                    break;
-                case ('number'):
-                    value = '<span class="jNum text ' + arrayElClass +
-                            '">' + value + '</span>';
-                    break;
-                case ('boolean'):
-                    value = '<span class="jBool text ' + arrayElClass +
-                            '">' + value + '</span>';
-                    break;
-                case ('object'):
-                    // divs are used in css selectors so careful with changing
-                    if (value == null) {
-                        value = '<span class="jNull text ' + arrayElClass +
-                                '">' + value + '</span>';
-                    } else if (value.constructor === Array) {
-                        ++options.inArray;
-                        var emptyArray = "";
-                        if (value.length === 0) {
-                            emptyArray = " emptyArray";
-                        }
-                        value =
-                        '[<div class="jArray ' + emptyArray + '" ' +
-                            '>' +
-                            prettifyJson(value, indent + 1, null, options, true) +
-                        '</div>' + getIndent(indent) + ']';
-                    } else {
-                        var object = prettifyJson(value, indent + 1);
-                        var emptyObj = "";
-                        if (object === "") {
-                            emptyObj = " emptyObj";
-                        }
-                        value = '{<div class="jObj' + emptyObj + '">' + object +
-                                '</div>' + getIndent(indent) + '}';
-                    }
-
-                    break;
-                default:
-                    value = '<span class="jUndf text">' + value + '</span>';
-                    break;
-            }
-
-            if (options.inArray) {
-                value += ",";
-                result += '<div class="jsonBlock jInfo arrayVal' +
-                            '" data-key="' + dataKey + '">' +
-                            getCheckbox(indent) + getIndent(indent) + value +
-                        '</div>';
-            } else {
-                var classNames = "";
-                value = value.replace(/,$/, "");
-
-                if (mainKey) {
-                    classNames = " mainKey";
-                }
-                result += '<div class="jsonBlock jInfo objVal' + classNames +
-                      '" data-key="' + dataKey + '">' +
-                        getCheckbox(indent) + getIndent(indent) +
-                        '"<span class="jKey text">' + dataKey + '</span>": ' +
-                        value + ',' +
-                    '</div>';
-            }
-        }
-
-        --options.inArray;
-
-        if (options.comparison) {
-            // removes last comma unless inside div
-            return (result.replace(/\, $/, "").replace(/\,$/, ""));
-        } else {
-            // .replace used to remove comma if last value in object
-            return (result.replace(/\,<\/div>$/, "</div>").replace(/\, $/, "")
-                                                          .replace(/\,$/, ""));
-
-        }
-    }
-
-    function getIndent(num) {
-        var singleIndent = "&nbsp;&nbsp;";
-        var totalIndent = "";
-        for (var i = 0; i < num; i++) {
-            totalIndent += singleIndent;
-        }
-        return (totalIndent);
-    }
-
-    function getCheckbox(indent) {
-        var originalLeft = -19;
-        var left = originalLeft + (16.8 * indent);
-        var html = '<div class="checkbox jsonCheckbox" style="left: ' + left +
-                    'px;">' +
-            '<i class="icon xi-ckbox-empty fa-11"></i>' +
-            '<i class="icon xi-ckbox-selected fa-11"></i>' +
-        '</div>';
-        return html;
     }
 
     function createJsonSelectionExpression($el) {

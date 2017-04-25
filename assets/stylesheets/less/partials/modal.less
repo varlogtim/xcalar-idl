@@ -388,33 +388,6 @@
                         display: none;
                     }
                 }
-
-                // .jArray  {
-                //     > .jString, > .jNum, > .jBool, > .jNull , > .jUndf {
-                //         cursor: default;
-                //         &:hover {
-                //             background-color: transparent;
-                //             box-shadow: none;
-                //         }
-                //     }
-                // }
-                // .jKey {
-                //     // pointer-events: none;
-                //     // cursor: default;
-                //     &:hover {
-                //         background-color: transparent;
-                //         box-shadow: none;
-                //     }
-                // }
-
-                // .jObject > .jArray > .jsonBlock > .jKey {
-                //     cursor: pointer;
-                //     pointer-events: auto;
-                //     &:hover {
-                //         background-color: #dff8ff;
-                //         box-shadow: 0px 0px 1px @color-table-borderBlue;
-                //     }
-                // }
             }
 
             .optionsBar {
@@ -3370,5 +3343,47 @@ html.microsoft {
         font-size: 14px;
         font-family: @font-code;
         .text-selection;
+    }
+}
+
+.prettyJson {
+    color: @color-json-default;
+    .text-selection;
+
+    .jsonBlock {
+        display:block;
+        margin-bottom: 1px;
+        position: relative; // for inner checkbox positioning
+    }
+
+    .jKey {
+        color: @color-json-key;
+        padding: 0px 1px;
+        margin: 0px -1px;
+        display: inline-block;
+        .rounded;
+    }
+
+    .jArray, .jObj {
+        display: inline;
+    }
+
+    .jString {
+        color: @color-json-string;
+        white-space: pre-wrap;
+        word-break: break-all;
+    }
+
+    .jNum, .jBool, .jNull , .jUndf {
+        color: @color-json-num;
+        word-break: break-all;
+    }
+    .jNull, .jUndf {
+        font-style: italic;
+    }
+    .arrayVal > .jString {
+        color: @color-json-array;
+        white-space: nowrap;
+        word-break: break-all;
     }
 }
