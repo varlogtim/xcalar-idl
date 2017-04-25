@@ -216,14 +216,14 @@ describe("Profile Test", function() {
         });
 
         it("Should display more rows", function(done) {
-            var $disaplyInput = $modal.find(".disaplyInput");
-            var numRows = Number($disaplyInput.find(".numRows").val());
+            var $displayInput = $modal.find(".displayInput");
+            var numRows = Number($displayInput.find(".numRows").val());
             expect(numRows).to.equal(20);
 
-            $modal.find(".disaplyInput .more").click();
+            $modal.find(".displayInput .more").click();
             waitForFetch()
             .then(function() {
-                var numRows = Number($disaplyInput.find(".numRows").val());
+                var numRows = Number($displayInput.find(".numRows").val());
                 expect(numRows).to.equal(30);
                 done();
             })
@@ -233,12 +233,12 @@ describe("Profile Test", function() {
         });
 
         it("Should display less rows", function(done) {
-            var $disaplyInput = $modal.find(".disaplyInput");
-            $modal.find(".disaplyInput .less").click();
+            var $displayInput = $modal.find(".displayInput");
+            $modal.find(".displayInput .less").click();
 
             waitForFetch()
             .then(function() {
-                var numRows = Number($disaplyInput.find(".numRows").val());
+                var numRows = Number($displayInput.find(".numRows").val());
                 expect(numRows).to.equal(20);
                 done();
             })

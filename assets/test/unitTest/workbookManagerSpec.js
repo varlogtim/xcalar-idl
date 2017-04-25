@@ -485,9 +485,6 @@ describe("WorkbookManager Test", function() {
             })
             .fail(function() {
                 done("fail");
-            })
-            .always(function() {
-                Support.heartbeatCheck();
             });
         });
 

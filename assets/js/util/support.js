@@ -272,6 +272,7 @@ window.Support = (function(Support, $) {
         clearInterval(commitCheckTimer);
         commitCheckTimer = null;
         heartbeatLock++;
+        // console.log("lock to", heartbeatLock);
     };
 
     Support.restartHeartbeatCheck = function() {
@@ -280,8 +281,9 @@ window.Support = (function(Support, $) {
             return;
         }
         heartbeatLock--;
+        // console.log("unlock to", heartbeatLock);
         if (heartbeatLock > 0) {
-            console.info("hear beat is locked");
+            console.info("heart beat is locked");
             return;
         }
 

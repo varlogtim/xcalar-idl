@@ -232,7 +232,7 @@ describe("SQL Test", function() {
         });
 
         after(function() {
-            Support.heartbeatCheck();
+            Support.restartHeartbeatCheck();
         });
     });
 
@@ -352,7 +352,7 @@ describe("SQL Test", function() {
             .always(function() {
                 Undo.run = oldUndo;
                 Redo.run = oldRedo;
-                Support.heartbeatCheck();
+                Support.restartHeartbeatCheck();
             });
         });
     });

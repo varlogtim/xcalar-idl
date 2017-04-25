@@ -156,9 +156,9 @@ window.KVStore = (function($, KVStore) {
             deferred.reject(error);
         })
         .always(function() {
+            Support.restartHeartbeatCheck();
             // when there is no other commits
             if (currentCnt === commitCnt - 1) {
-                Support.restartHeartbeatCheck();
                 $autoSaveBtn.removeClass("saving");
                 xcHelper.enableSubmit($autoSaveBtn);
                 xcHelper.enableSubmit($userSettingsSave);

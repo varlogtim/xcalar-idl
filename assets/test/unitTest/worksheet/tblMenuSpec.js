@@ -1292,15 +1292,30 @@ describe('TableMenu Test', function() {
                 called = true;
             };
 
+            var checkFunc = function() {
+                return called === true;
+            };
+
             $cellMenu.find('.tdUnnest').trigger(rightMouseup);
             expect(called).to.be.false;
 
             $cellMenu.find('.tdUnnest').trigger(fakeEvent.mouseup);
-            setTimeout(function() {
-                expect(called).to.be.true;
-                ColManager.unnest = cachedFunc;
+            UnitTest.testFinish(checkFunc)
+            .then(function() {
                 done();
-            }, 10);
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                ColManager.unnest = cachedFunc;
+            });
+
+            // setTimeout(function() {
+            //     expect(called).to.be.true;
+            //     ColManager.unnest = cachedFunc;
+            //     done();
+            // }, 10);
         });
     });
 
