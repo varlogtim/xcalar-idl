@@ -79,7 +79,7 @@ window.Scheduler = (function(Scheduler, $) {
                     $(this).closest(".datePickerPart").removeClass("active");
                 }
 
-                if (isSimpleMode()) {
+                if (!isSimpleMode()) {
                     if (!isValid) {
                         showScheduleSettings();
                         $scheduleSettings.find(".datePickerPart")
