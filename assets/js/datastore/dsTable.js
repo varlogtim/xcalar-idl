@@ -198,19 +198,26 @@ window.DSTable = (function($, DSTable) {
 
     DSTable.refresh = function(resizeCols) {
         // size tableWrapper so borders fit table size
+        // As user can maunally resize to have/not have scrollbar
+        // we always need the scrollBarpadding
         var $dsTable = $("#dsTable");
         var tableHeight = $dsTable.height();
-        var scrollBarPadding = 0;
+        var scrollBarPadding = 10;
         $tableWrap.width($dsTable.width());
-        if ($dsTable.width() > $dsTableContainer.parent().width()) {
-            scrollBarPadding = 10;
-        } else if (resizeCols) {
+        // if ($dsTable.width() > $dsTableContainer.parent().width()) {
+        //     scrollBarPadding = 10;
+        // } else if (resizeCols) {
+        //     sizeColumns();
+        //     // after resize, need another check
+        //     if ($dsTable.width() > $dsTableContainer.parent().width()) {
+        //         scrollBarPadding = 10;
+        //     }
+        // }
+
+        if (resizeCols) {
             sizeColumns();
-            // after resize, need another check
-            if ($dsTable.width() > $dsTableContainer.parent().width()) {
-                scrollBarPadding = 10;
-            }
         }
+
         $dsTableContainer.height(tableHeight + scrollBarPadding);
     };
 
