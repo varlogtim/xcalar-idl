@@ -69,7 +69,6 @@ window.KVStore = (function($, KVStore) {
 
     KVStore.put = function(key, value, persist, scope) {
         var deferred = jQuery.Deferred();
-
         Support.commitCheck()
         .then(function() {
             return XcalarKeyPut(key, value, persist, scope);

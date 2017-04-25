@@ -279,9 +279,10 @@ window.WorkbookManager = (function($, WorkbookManager) {
         .fail(function(error) {
             console.error("Switch Workbook Fails", error);
             $("#initialLoadScreen").hide();
-            // restart if fails
-            Support.restartHeartbeatCheck();
             deferred.reject(error);
+        })
+        .always(function() {
+            Support.restartHeartbeatCheck();
         });
 
         return deferred.promise();

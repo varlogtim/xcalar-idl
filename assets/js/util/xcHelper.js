@@ -1,5 +1,7 @@
 window.xcHelper = (function($, xcHelper) {
     xcHelper.reload = function() {
+        // in case heart beat check is trigger to break anything
+        Support.heartbeatCheck = function() {};
         location.reload();
     };
 

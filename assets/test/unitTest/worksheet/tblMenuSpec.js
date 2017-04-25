@@ -1281,12 +1281,15 @@ describe('TableMenu Test', function() {
         });
 
         it('tdUnnest', function(done) {
-            $table.find('td.col12').eq(0).trigger(fakeEvent.mousedown);
+            var colName = xcHelper.getPrefixColName(prefix, "votes");
+            var colNum = gTables[tableId].getColNumByBackName(colName);
+
+            $table.find('td.col' + colNum).eq(0).trigger(fakeEvent.mousedown);
             var cachedFunc = ColManager.unnest;
             var called = false;
             ColManager.unnest = function(tId, colNum, rowNum) {
                 expect(tId).to.equal(tableId);
-                expect(colNum).to.equal(12);
+                expect(colNum).to.equal(colNum);
                 expect(rowNum).to.equal(0);
 
                 called = true;

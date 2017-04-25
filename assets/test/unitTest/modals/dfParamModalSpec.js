@@ -376,7 +376,7 @@ describe("DFParamModal Test", function() {
                 done("failed");
             })
             .fail(function(){
-                UnitTest.hasStatusBoxWithError("Please fill out this field.");
+                UnitTest.hasStatusBoxWithError(ErrTStr.NoEmptyMustRevert);
                 done();
             });
         });
