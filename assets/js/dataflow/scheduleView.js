@@ -46,7 +46,8 @@ window.Scheduler = (function(Scheduler, $) {
             "beforeShow": function() {
                 if ($dateInput.val() === "") {
                     var date = new Date();
-                    var str = date.getUTCMonth() + "/" + date.getUTCDate() + "/" + date.getUTCFullYear();
+                    var str = (date.getUTCMonth() + 1) + "/" + date.getUTCDate()
+                              + "/" + date.getUTCFullYear();
                     $dateInput.datepicker("setDate", str);
                 }
                 var $el = $("#ui-datepicker-div");
@@ -942,7 +943,7 @@ window.Scheduler = (function(Scheduler, $) {
         var inputDay = template[2];
         var inputMonth = template[1];
         var inputYear = template[3];
-        var date = new Date(str);
+        var date = new Date(str + " UTC");
         if (date === "Invalid Date") {
             return false;
         }
