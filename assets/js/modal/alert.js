@@ -89,7 +89,10 @@ window.Alert = (function($, Alert){
         clean();
         configAlertModal(options);
 
-        var extraOptions = {keepFnBar: options.keepFnBar};
+        var extraOptions = {
+            "keepFnBar": options.keepFnBar,
+            "noResize": true
+        };
         if (options.lockScreen) {
             extraOptions = {"noEsc": true};
             $modalBg.addClass('locked');

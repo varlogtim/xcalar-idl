@@ -126,6 +126,7 @@ window.DSParser = (function($, DSParser) {
         Alert.show({
             "msg": DSParserTStr.FileSizeWarn,
             "hideButtons": ["cancel"],
+            "isAlert": true,
             "buttons": [{
                 className: "btn-cancel",
                 name: DSParserTStr.Proceed,
@@ -137,7 +138,8 @@ window.DSParser = (function($, DSParser) {
                 func: function() {
                     deferred.reject();
                 }
-            }]
+            }],
+            "onCancel": function() { deferred.reject() }
         });
 
         return deferred.promise();

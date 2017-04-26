@@ -653,7 +653,7 @@ DSParserTStr = {
 "Submit": '提交可视化数据解析器',
 "SubmitMsg": '您确定要提交可视化数据解析器吗？',
 "NoKey": '没有键被选中',
-"FileSizeWarn": "您的文件超过500MB， 可视化数据解析器需要较长时间解析数据。请将文件分成小份，或者直接使用streaming UDF从Xcalar读取",
+"FileSizeWarn": "您的文件超过500MB， 可视化数据解析器需要较长时间解析数据。请将文件分成小份，或者直接使用streaming UDF读取",
 "Proceed": "继续"
 };
 DSExportTStr = {
