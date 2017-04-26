@@ -488,19 +488,25 @@ window.Admin = (function($, Admin) {
             "msg": msg,
             "onConfirm": function() {
                 $("#initialLoadScreen").show();
-                KVStore.commit()
-                .then(function() {
+                if (WorkbookManager.getActiveWKBK() != null) {
+                    KVStore.commit()
+                    .then(function() {
+                        deferred.resolve();
+                    })
+                    .fail(function(err) {
+                        console.log(err);
+                        deferred.resolve();
+                    });
+                } else {
+                    // the first time to use Xcalar and the backend is down
+                    // No workbook, KVStore.commit() will report an error
                     deferred.resolve();
-                })
-                .fail(function(err) {
-                    deferred.resolve();
-                });
+                }
             },
             "onCancel": function() {
                 deferred.reject('canceled');
             }
         });
-
         return deferred.promise();
     }
 

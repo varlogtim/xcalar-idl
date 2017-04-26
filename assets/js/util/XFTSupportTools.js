@@ -1,7 +1,9 @@
 window.XFTSupportTools = (function(XFTSupportTools, $) {
     var monitorIntervalId;
     var lastReturnSucc = true;
-    var timeout = 50000;
+    var expendFactor = 1.2;
+    var timeoutBase = 300000;
+    var timeout = timeoutBase * expendFactor * expendFactor * 2;
     var lastMonitorMap = {};
 
     XFTSupportTools.getRecentLogs = function(requireLineNum) {

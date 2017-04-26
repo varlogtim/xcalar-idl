@@ -28,8 +28,7 @@ var bufferSize = 1024 * 1024;
 var gMaxLogs = 500;
 
 // timeout for waiting the command to be executed
-var timeoutBase = 30000;
-var timeout = 30000;
+var timeout = 300000;
 // XI need to wait for the master node response, master node need
 // to wait for all slave node responses, slave node need to wait
 // for execution to stop. The higher layer should wait longer.
@@ -37,7 +36,7 @@ var expendFactor = 1.2;
 // the timeout may change due to the network speed
 var networkFactor = 5;
 // for monitorRecentLogs(), do not want to wait to long
-var monitorFactor = 0.05;
+var monitorFactor = 0.005;
 var tailUsers = new Map();
 
 // Get all the Hosts from file
@@ -60,22 +59,6 @@ function readHostsFromFile(hostFile) {
         deferred.resolve(hosts);
     });
     return deferred.promise();
-}
-
-function setTimeOut(time, res) {
-    var deferred = jQuery.Deferred();
-    if (time >= timeoutBase && time <= timeoutBase * networkFactor) {
-        timeout = time;
-        res.send({"status": Status.Ok,
-                  "logs": "Set new timeout " + time +
-                          " successfully!"});
-        deferred.resolve();
-    } else {
-        res.send({"status": Status.Error,
-                  "logs": "Please Enter timeout between " + timeoutBase +
-                          " and " + timeoutBase * networkFactor});
-        deferred.reject();
-    }
 }
 
 function masterExecuteAction(action, slaveUrl, content) {
@@ -479,25 +462,16 @@ function executeCommand(command) {
 
 function isComplete(command, data) {
     switch (command) {
-        case "service xcalar start" :
-            if ((data.indexOf('Mgmtd running') !== -1) ||
-                (data.indexOf('Mgmtd already running') !== -1)) {
+        case "/opt/xcalar/bin/xcalarctl start" :
+            if ((data.indexOf('xcmonitor started') !== -1) ||
+                (data.indexOf('xcmonitor already running') !== -1)) {
                 return true;
             } else {
                 return false;
             }
             break;
-        case "service xcalar stop" :
-            if ((data.indexOf('Xcalar is not running') !== -1) ||
-                (data.indexOf('Stopping Xcalar') !== -1) ||
-                (data.indexOf('Stopping remaining Xcalar processes') !== -1)) {
-                return true;
-            } else {
-                return false;
-            }
-            break;
-        case "service xcalar restart" :
-            if (data.indexOf('Mgmtd running') !== -1) {
+        case "/opt/xcalar/bin/xcalarctl stop" :
+            if (data.indexOf('Stopping remaining Xcalar processes') !== -1) {
                 return true;
             } else {
                 return false;
