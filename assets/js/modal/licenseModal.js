@@ -4,25 +4,8 @@ window.LicenseModal = (function($, LicenseModal) {
 
     LicenseModal.setup = function() {
         $modal = $("#licenseModal");
-        var minWidth = 350;
-        var minHeight = 220;
-
         modalHelper = new ModalHelper($modal, {
-            "minWidth": minWidth,
-            "minHeight": minHeight
-        });
-
-        $modal.resizable({
-            "handles": "e, w",
-            "minHeight": minHeight,
-            "minWidth": minWidth,
-            "containment": "document"
-        });
-
-        $modal.draggable({
-            "handle": ".modalHeader",
-            "cursor": "-webkit-grabbing",
-            "containment": "window"
+            "noResize": true
         });
 
         $modal.on("click", ".close, .cancel", closeModal);

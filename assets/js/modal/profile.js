@@ -67,29 +67,9 @@ window.Profile = (function($, Profile, d3) {
         $rangeInput = $("#profile-range");
         $skipInput = $("#profile-rowInput");
 
-        // constant
-        var minHeight = 425;
-        var minWidth  = 750;
-
         modalHelper = new ModalHelper($modal, {
-            "minHeight": minHeight,
-            "minWidth": minWidth,
             "resizeCallback": resizeChart,
             "noEnter": true
-        });
-
-        $modal.resizable({
-            "handles": "n, e, s, w, se",
-            "minHeight": minHeight,
-            "minWidth": minWidth,
-            "containment": "document",
-            "resize": resizeChart
-        });
-
-        $modal.draggable({
-            "handle": ".modalHeader",
-            "cursor": "-webkit-grabbing",
-            "containment": "window"
         });
 
         $modal.on("click", ".close", function() {

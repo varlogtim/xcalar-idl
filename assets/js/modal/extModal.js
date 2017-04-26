@@ -1,58 +1,29 @@
 window.ExtModal = (function($, ExtModal){
-    var $extModal;   // $("#extModal")
-    var $btnSection; // $("#extActions")
-
+    var modalHelper;
     /**
         Options currently has one option only. onClose which should
         be a function decl.
     */
     ExtModal.setup = function() {
-        $extModal = $("#extModal");
-        $btnSection = $("#extActions");
+        var $extModal = $("#extModal");
 
-        $extModal.draggable({
-            "handle": ".modalHeader",
-            "cursor": "-webkit-grabbing",
-            "containment": "window"
+        modalHelper = new ModalHelper($extModal, {
+            "center": {"verticalQuartile": true},
+            "noBackground": true
         });
 
-        $extModal.resizable({
-            "handles": "n, e, s, w, se",
-            "minHeight": 700,
-            "minWidth": 700,
-            "containment": "document"
-        });
-
-        $extModal.on("click", ".close, .cancel", function(event) {
-            event.stopPropagation();
-
+        $extModal.on("click", ".close, .cancel", function() {
             closeExtModal();
         });
     };
 
     ExtModal.show = function() {
-        // Note that alert Modal's center position
-        // is different from other modal, need this handle
-        var $window = $(window);
-        var winHeight = $window.height();
-        var winWidth = $window.width();
-        var modalWidth = $extModal.width();
-        var modalHeight = $extModal.height();
-
-        var left = ((winWidth - modalWidth) / 2);
-        var top = ((winHeight - modalHeight) / 4);
-
-        $extModal.css({
-            "left": left,
-            "top": top
-        });
-
-        $extModal.show();
+        modalHelper.setup();
     };
 
     function closeExtModal() {
-        $btnSection.find(".funcBtn").remove();
-        $extModal.hide();
+        $("#extActions").find(".funcBtn").remove();
+        modalHelper.clear();
     }
 
     return (ExtModal);

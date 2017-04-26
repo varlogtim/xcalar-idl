@@ -14,26 +14,7 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
         $modalBg = $("#modalBackground");
         reset();
 
-        var minWidth = 520;
-        var minHeight = 500;
-
-        modalHelper = new ModalHelper($modal, {
-            "minWidth": minWidth,
-            "minHeight": minHeight
-        });
-
-        $modal.resizable({
-            "handles": "n, e, s, w, se",
-            "minHeight": minHeight,
-            "minWidth": minWidth,
-            "containment": "document"
-        });
-
-        $modal.draggable({
-            "handle": ".modalHeader",
-            "cursor": "-webkit-grabbing",
-            "containment": "window"
-        });
+        modalHelper = new ModalHelper($modal);
 
         $modal.on("click", ".close, .cancel", closeModal);
 
@@ -200,7 +181,7 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
 
         var errors;
         PromiseHelper.when(orphanDef, archivedDef, activeDef)
-        .then(function(res1, res2, res3) {
+        .then(function() {
             errors = arguments;
             xcHelper.showRefreshIcon($modal);
         })

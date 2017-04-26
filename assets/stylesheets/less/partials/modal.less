@@ -1085,7 +1085,7 @@
 
 /* Quick Aggregate Modal */
 #aggModal {
-    .size(@width: 920px, @height: 650px, @min-height: ~"650px !important");
+    .size(@width: 920px, @height: 650px, @min-width: 500px, @min-height: 650px);
 
     .modalInstruction {
         .icon {
@@ -1415,7 +1415,7 @@ html.microsoft {
 /* End Of Join Modal */
 /* Extension Modal */
 #extModal {
-    .size(@width: 900px, @height: 700px);
+    .size(@width: 900px, @height: 700px, @min-width: 700px, @min-height: 700px);
     bottom: auto;
     z-index: 100;
     .modalHeader {
@@ -1479,7 +1479,7 @@ html.microsoft {
     @checkboxHeight: 36px;
     @instrHeight: 60px;
     @modalBaseHeight: 167px;
-    .size(@width: 500px, @height: auto, @min-width: 500px, @min-height: @modalBaseHeight);
+    .size(@width: 500px, @height: @modalBaseHeight);
     bottom: auto;
     z-index: 100;
     box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.2);
@@ -1669,7 +1669,7 @@ html.microsoft {
 
 /* Delete Table Modal */
 #deleteTableModal {
-    .size(@width: 600px, @height: 608px);
+    .size(@width: 600px, @height: 608px, @min-width: 520px, @min-height: 500px);
     z-index: @z-index-locked + 1;
 
     .hint {
@@ -1826,7 +1826,7 @@ html.microsoft {
 
 /* Profile Modal */
 #profileModal {
-    .size(@width: 1000px, @height: 600px);
+    .size(@width: 1000px, @height: 600px, @min-width: 750px, @min-height: 425px);
 
      @width-stats: 180px;
 
@@ -2571,7 +2571,7 @@ html.microsoft {
 /* End Of Profile Modal */
 
 #dfgParameterModal {
-    .size(@width: 920px, @height: 670px);
+    .size(@width: 920px, @height: 670px, @min-width: 800px, @min-height: 425px);
 
     .modalTopMain {
         .size(@width: 100%, @height: ~"calc(100% - 152px)");
@@ -2916,7 +2916,7 @@ html.microsoft {
 }
 
 #licenseModal {
-    .size(@width: 400px, @height: 220px);
+    .size(@width: 400px, @height: 220px, @min-width: 350px, @min-height: 220px);
     .modalInstruction {
         .text {
             height: 20px;
@@ -3002,7 +3002,7 @@ html.microsoft {
     }
 
     .flex-direction(column);
-    .size(500px, 400px);
+    .size(@width: 500px, @height: 400px, @min-width: 400px, @min-height: 400px);
 
     .modalHeader {
         text-align: left;

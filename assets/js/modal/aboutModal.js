@@ -10,12 +10,6 @@ window.AboutModal = (function($, AboutModal) {
             "center": {"verticalQuartile": true}
         });
 
-        $modal.draggable({
-            "handle": ".modalHeader",
-            "cursor": "-webkit-grabbing",
-            "containment": "window"
-        });
-
         $modal.on("click", ".close", closeModal);
     };
 

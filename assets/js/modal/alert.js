@@ -11,21 +11,8 @@ window.Alert = (function($, Alert){
         $btnSection = $("#alertActions");
 
         modalHelper = new ModalHelper($modal, {
-            "noResize": true,
-            "center": {"verticalQuartile": true}
-        });
-
-        $modal.draggable({
-            "handle": ".modalHeader",
-            "cursor": "-webkit-grabbing",
-            "containment": "window"
-        });
-
-        $modal.resizable({
-            "handles": "n, e, s, w, se",
-            "minHeight": 167,
-            "minWidth": 500,
-            "containment": "document"
+            "center": {"verticalQuartile": true},
+            "sizeToDefault": true
         });
 
         var alertList = new MenuHelper($modal.find(".dropDownList"), {
@@ -90,13 +77,11 @@ window.Alert = (function($, Alert){
         configAlertModal(options);
 
         var extraOptions = {
-            "keepFnBar": options.keepFnBar,
-            "noResize": true
+            "keepFnBar": options.keepFnBar
         };
         if (options.lockScreen) {
             extraOptions = {"noEsc": true};
             $modalBg.addClass('locked');
-            // $modal.draggable("disable");
             $("#container").addClass('locked');
             // should not show initial screen
             $("#initialLoadScreen").hide();
@@ -108,11 +93,6 @@ window.Alert = (function($, Alert){
             $modal.removeClass('highZindex');
         }
 
-        // resize modal back to it's smallest width and height
-        var minWidth = $modal.css('min-width');
-        var minHeight = $modal.css('min-height');
-        $modal.width(minWidth);
-        $modal.height(minHeight);
         modalHelper.setup(extraOptions);
 
         if ($modal.find("button:visible").length > 3) {

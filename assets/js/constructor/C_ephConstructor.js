@@ -848,15 +848,26 @@ SearchBar.prototype = {
 function ModalHelper($modal, options) {
     /* options include:
      * noResize: if set true, will not reszie the modal
+     * sizeToDefault: if set true, will set to initial width and height when open
      * noCenter: if set true, will not center the modal
      * noTabFocus: if set true, press tab will use browser's default behavior
      * noEsc: if set true, no event listener on key esc,
      * noEnter: if set true, no event listener on key enter,
      * noBackground: if set true, no darkened modal background
      */
+    options = options || {};
     this.$modal = $modal;
-    this.options = options || {};
+    this.options = options;
     this.id = $modal.attr("id");
+    this.defaultWidth = $modal.width();
+    this.defaultHeight = $modal.height();
+    this.minWidth = options.minWidth ||
+                    parseFloat($modal.css("min-width")) ||
+                    this.defaultWidth;
+    this.minHeight = options.minHeight ||
+                     parseFloat($modal.css("min-height")) ||
+                     this.defaultHeight;
+
     this.__init();
     return this;
 }
@@ -900,6 +911,25 @@ ModalHelper.prototype = {
                 }
             });
         }
+
+        // draggable
+        $modal.draggable({
+            "handle": ".modalHeader",
+            "cursor": "-webkit-grabbing",
+            "containment": "window"
+        });
+
+        // resizable
+        if (!options.noResize) {
+            $modal.resizable({
+                "handles": "n, e, s, w, se",
+                "minHeight": self.minHeight,
+                "minWidth": self.minWidth,
+                "containment": "document",
+                "resize": options.resizeCallback || null,
+            });
+        }
+
     },
 
     setup: function(extraOptions) {
@@ -911,35 +941,18 @@ ModalHelper.prototype = {
         $("body").addClass("no-selection");
         xcHelper.removeSelectionRange();
         // hide tooltip when open the modal
-        $(".tooltip").hide();
+        xcTooltip.hideAll();
 
         if (!options.keepFnBar) {
             FnBar.clear();
             $(".selectedCell").removeClass("selectedCell");
         }
 
-        if (!options.noResize) {
-            // resize modal
-            var winWidth  = $(window).width();
-            var winHeight = $(window).height();
-            var minWidth  = options.minWidth || 0;
-            var minHeight = options.minHeight || 0;
-            var width  = $modal.width();
-            var height = $modal.height();
-
-            if (width > winWidth - 10) {
-                width = Math.max(winWidth - 40, minWidth);
-            }
-
-            if (height > winHeight - 10) {
-                height = Math.max(winHeight - 40, minHeight);
-            }
-
-            $modal.width(width).height(height);
-            $modal.css({
-                "minHeight": minHeight,
-                "minWidth": minWidth
-            });
+        // resize modal
+        if (options.sizeToDefault) {
+            self.__resizeToDefault();
+        } else {
+            self.__resizeToFitScreen();
         }
 
         // center modal
@@ -1027,6 +1040,37 @@ ModalHelper.prototype = {
         return deferred.promise();
     },
 
+    // resize modal back to it's default width and height
+    __resizeToDefault: function() {
+        var $modal = this.$modal;
+        $modal.width(this.defaultWidth);
+        $modal.height(this.defaultHeight);
+    },
+
+    __resizeToFitScreen: function() {
+        var $modal = this.$modal;
+        var winWidth = $(window).width();
+        var winHeight = $(window).height();
+        var minWidth = this.minWidth;
+        var minHeight = this.minHeight;
+        var width = $modal.width();
+        var height = $modal.height();
+
+        if (width > winWidth - 10) {
+            width = Math.max(winWidth - 40, minWidth);
+        }
+
+        if (height > winHeight - 10) {
+            height = Math.max(winHeight - 40, minHeight);
+        }
+
+        $modal.width(width).height(height);
+        $modal.css({
+            "minHeight": minHeight,
+            "minWidth": minWidth
+        });
+    },
+
     checkBtnFocus: function() {
         // check if any button is on focus
         return (this.$modal.find(".btn:focus").length > 0);
@@ -1051,7 +1095,7 @@ ModalHelper.prototype = {
         $(document).off("keydown.xcModal" + this.id);
         $(document).off("keydown.xcModalTabbing" + this.id);
         $modal.find(".focusable").off(".xcModal")
-                                  .removeClass("focusable");
+                                 .removeClass("focusable");
         this.enableSubmit();
         if (numModalsOpen < 2) {
             $("body").removeClass("no-selection");

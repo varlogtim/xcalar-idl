@@ -7,27 +7,8 @@ window.SupTicketModal = (function($, SupTicketModal) {
     SupTicketModal.setup = function() {
         $modal = $("#supTicketModal");
         $issueList = $modal.find('.issueList');
-        var minWidth = 400;
-        var minHeight = 400;
 
-        modalHelper = new ModalHelper($modal, {
-            "minWidth": minWidth,
-            "minHeight": minHeight
-        });
-
-        $modal.resizable({
-            "handles": "n, e, s, w, se",
-            "minHeight": minHeight,
-            "minWidth": minWidth,
-            "containment": "document"
-        });
-
-        $modal.draggable({
-            "handle": ".modalHeader",
-            "cursor": "-webkit-grabbing",
-            "containment": "window"
-        });
-
+        modalHelper = new ModalHelper($modal);
         $modal.on("click", ".close, .cancel", closeModal);
 
         setupListeners();

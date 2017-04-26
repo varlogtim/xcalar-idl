@@ -32,34 +32,11 @@ window.DFParamModal = (function($, DFParamModal){
 
     DFParamModal.setup = function() {
         // constant
-        var minHeight = 425;
-        var minWidth  = 800;
-
         $dfgParamModal = $("#dfgParameterModal");
         $paramLists = $("#dagModleParamList");
         $editableRow = $dfgParamModal.find(".editableRow");
         modalHelper = new ModalHelper($dfgParamModal, {
-            "minHeight": minHeight,
-            "minWidth": minWidth,
             resizeCallback: function() {
-                var tableW = $paramLists.closest(".tableContainer").width();
-                $paramLists.width(tableW);
-            }
-        });
-
-        $dfgParamModal.draggable({
-            "handle": ".modalHeader",
-            "cursor": "-webkit-grabbing",
-            "containment": "window"
-        });
-
-        $dfgParamModal.resizable({
-            "handles": "n, e, s, w, se",
-            "minHeight": minHeight,
-            "minWidth": minWidth,
-            "containment": "document",
-            "resize": function() {
-                // need a fixed width to fix the scroll bar
                 var tableW = $paramLists.closest(".tableContainer").width();
                 $paramLists.width(tableW);
             }
@@ -112,12 +89,6 @@ window.DFParamModal = (function($, DFParamModal){
             if ($target.closest('.dropDownList').length === 0) {
                 $dfgParamModal.find('.list').hide();
             }
-        });
-
-        $dfgParamModal.draggable({
-            handle: '.modalHeader',
-            containment: 'window',
-            cursor: '-webkit-grabbing'
         });
     };
 
@@ -229,7 +200,7 @@ window.DFParamModal = (function($, DFParamModal){
                 var numXdfs = ret.numXdfs;
                 var html = "";
                 var fnNames = [];
-                var fns = ret.fnDescs;
+                // var fns = ret.fnDescs;
                 for (var i = 0; i < numXdfs; i++) {
                     fnNames.push(ret.fnDescs[i].fnName);
                     filterFnMap[ret.fnDescs[i].fnName] = ret.fnDescs[i].numArgs;

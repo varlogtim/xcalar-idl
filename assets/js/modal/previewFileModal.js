@@ -6,27 +6,7 @@ window.PreviewFileModal = (function(PreviewFileModal, $) {
 
     PreviewFileModal.setup = function() {
         $modal = $("#previewFileModal");
-
-        var minWidth = 680;
-        var minHeight = 400;
-
-        modalHelper = new ModalHelper($modal, {
-            "minWidth": minWidth,
-            "minHeight": minHeight
-        });
-
-        $modal.resizable({
-            "handles": "n, e, s, w, se",
-            "minHeight": minHeight,
-            "minWidth": minWidth,
-            "containment": "document"
-        });
-
-        $modal.draggable({
-            "handle": ".modalHeader",
-            "cursor": "-webkit-grabbing",
-            "containment": "window"
-        });
+        modalHelper = new ModalHelper($modal);
 
         $modal.on("mouseenter", ".tooltipOverflow", function() {
             xcTooltip.auto(this);

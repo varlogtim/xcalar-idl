@@ -33,19 +33,15 @@ window.JSONModal = (function($, JSONModal) {
         $counter = $('#jsonSearch').find('.counter');
 
         var minHeight = 300;
-        var minWidth  = 300;
+        var minWidth = 300;
 
+        // use it's own resize function
         modalHelper = new ModalHelper($jsonModal, {
             "minHeight": minHeight,
             "minWidth": minWidth,
+            "noResize": true,
             "noTabFocus": true,
             "noEsc": true
-        });
-
-        $jsonModal.draggable({
-            handle: '.jsonDragArea',
-            cursor: '-webkit-grabbing',
-            containment: "window"
         });
 
         $('#jsonModal .closeJsonModal').click(function() {
@@ -54,7 +50,7 @@ window.JSONModal = (function($, JSONModal) {
             }
         });
 
-        $('#modalBackground').click(function() {
+        $modalBg.click(function() {
             if (!isDataCol && $('#jsonModal').css('display') === 'block') {
                 closeJSONModal();
             }
@@ -129,10 +125,13 @@ window.JSONModal = (function($, JSONModal) {
             $(".tooltip").hide();
             TblManager.unHighlightCells();
             $searchInput.val("");
-            modalHelper.setup({"open": function() {
-                // json modal use its own opener
-                return PromiseHelper.resolve();
-            }});
+
+            modalHelper.setup({
+                "open": function() {
+                    // json modal use its own opener
+                    return PromiseHelper.resolve();
+                }
+            });
             jsonModalDocumentEvent();
         }
 
@@ -1173,9 +1172,9 @@ window.JSONModal = (function($, JSONModal) {
                 '</h3>';
         for (var i = 0; i < groups.length; i++) {
             var tempJson = xcHelper.prettifyJson(groups[i].objs, null,
-                checkboxes, {
+            checkboxes, {
                 "inArray": isArray,
-                checkboxes: true
+                "checkboxes": true
             });
             tempJson = '<div class="jObject">' +
                         tempJson +

@@ -33,25 +33,8 @@ window.AggModal = (function($, AggModal) {
         aggOpMap[AggrOp.Max] = 3;
         aggOpMap[AggrOp.Count] = 4;
 
-        var minWidth  = 580;
-        var minHeight = 300;
-
         modalHelper = new ModalHelper($aggModal, {
-            "minWidth": minWidth,
-            "minHeight": minHeight
-        });
-
-        $aggModal.resizable({
-            "handles": "n, e, s, w, se",
-            "minHeight": minHeight,
-            "minWidth": minWidth,
-            "containment": "document"
-        });
-
-        $aggModal.draggable({
-            "handle": ".modalHeader",
-            "cursor": "-webkit-grabbing",
-            "containment": "window"
+            "sizeToDefault": true
         });
 
         $aggModal.on("click", ".close", function() {
@@ -916,8 +899,7 @@ window.AggModal = (function($, AggModal) {
 
     function closeAggModal() {
         modalHelper.clear();
-        $aggModal.removeClass('profileMode');
-        $aggModal.width(920).height(670);
+        $aggModal.removeClass("profileMode");
         cachedTableId = null;
         cachedVertColNums = null;
         cachedHorColNums = null;
