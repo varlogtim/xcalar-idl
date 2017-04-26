@@ -222,7 +222,7 @@ window.MonitorLog = (function(MonitorLog, $) {
             } else {
                 var color = "color" + colorId;
                 out += "<div class='" + color + "'>" +
-                       "    Host:" + allNodes[i] +
+                       "Host:" + allNodes[i] +
                        "</div>";
                 colorId++;
                 if (colorId >= colorNum) {
