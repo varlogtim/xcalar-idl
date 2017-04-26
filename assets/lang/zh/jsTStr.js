@@ -649,10 +649,12 @@ DSFormTStr = {
 };
 DSParserTStr = {
 "NotSupport": '不支持解析此数据格式',
-"Fail": '提交视觉解析器失败',
-"Submit": '提交视觉解析器',
-"SubmitMsg": '您确定要提交视觉解析器吗？',
-"NoKey": '没有键被选中'
+"Fail": '提交可视化数据解析器失败',
+"Submit": '提交可视化数据解析器',
+"SubmitMsg": '您确定要提交可视化数据解析器吗？',
+"NoKey": '没有键被选中',
+"FileSizeWarn": "您的文件超过500MB， 可视化数据解析器需要较长时间解析数据。请将文件分成小份，或者直接使用streaming UDF从Xcalar读取",
+"Proceed": "继续"
 };
 DSExportTStr = {
 'ExportFail': '无法添加导出目标',

@@ -68,14 +68,80 @@ window.DSParser = (function($, DSParser) {
         setupInfScroll($dataPreview);
         setupInfScroll($miniPreview);
         setupKeyBox();
-
     };
 
     DSParser.show = function(url) {
-        DSForm.switchView(DSForm.View.Parser);
-        resetView(url);
-        return refreshView();
+        var deferred = jQuery.Deferred();
+        var $btn = $("#preview-parser");
+        xcHelper.disableSubmit($btn);
+
+        checkFileSize(url)
+        .then(function() {
+            DSForm.switchView(DSForm.View.Parser);
+            resetView(url);
+            return refreshView();
+        })
+        .then(deferred.resolve)
+        .fail(deferred.reject)
+        .always(function() {
+            xcHelper.enableSubmit($btn);
+        });
+
+        return deferred.promise();
     };
+
+    function checkFileSize(url) {
+        var deferred = jQuery.Deferred();
+
+        XcalarListFiles(url)
+        .then(function(res) {
+            try {
+                var size = res.files[0].attr.size;
+                alertFileSize(size)
+                .then(deferred.resolve)
+                .fail(deferred.reject);
+
+            } catch (e) {
+                console.error("check size fails", e);
+                // if cannot get the size, then skip it
+                deferred.resolve();
+            }
+        })
+        .fail(function(error) {
+            console.error("check size fails", error);
+            // if cannot get the size, then skip it
+            deferred.resolve();
+        });
+
+        return deferred.promise();
+    }
+
+    function alertFileSize(size) {
+        var sizeLimit = 500 * 1024 * 1024; // 500MB;
+        if (size <= sizeLimit) {
+            return PromiseHelper.resolve();
+        }
+
+        var deferred = jQuery.Deferred();
+        Alert.show({
+            "msg": DSParserTStr.FileSizeWarn,
+            "hideButtons": ["cancel"],
+            "buttons": [{
+                className: "btn-cancel",
+                name: DSParserTStr.Proceed,
+                func: function() {
+                    deferred.resolve();
+                }
+            }, {
+                name: AlertTStr.CLOSE,
+                func: function() {
+                    deferred.reject();
+                }
+            }]
+        });
+
+        return deferred.promise();
+    }
 
     function refreshView(noDetect) {
         var promise = previewContent(0, 1, null, noDetect);
@@ -247,7 +313,7 @@ window.DSParser = (function($, DSParser) {
             } else {
                 onScrollbar = false;
             }
-        })
+        });
 
         $dataPreview.mouseup(function(event) {
             var x = event.offsetX;
@@ -573,10 +639,9 @@ window.DSParser = (function($, DSParser) {
             if (forRowNum) {
                 updateRowNumCol(topPage, numPages, meta);
             } else {
-
                 if (mouseup) {
                     updateRowNumCol(topPage, numPages, meta);
-                    var actualScrollTop = scrollTop;
+                    // var actualScrollTop = scrollTop;
                     scrollTop /= meta.scale;
                     if (meta.scale > 1) {
                         meta.offset = topPage * meta.pageHeight;
@@ -1541,7 +1606,11 @@ window.DSParser = (function($, DSParser) {
             return parseHelper();
         })
         .then(function(udfStr) {
-            udfName = xcHelper.randName(xcHelper.getTempUDFPrefix() + "_vp_");
+            var d = new Date();
+            udfName = xcHelper.getTempUDFPrefix() + "_vp_" +
+                      d.getDate() + "_" + (d.getMonth() + 1) + "_" +
+                      d.getFullYear() + "_" + d.getHours() + "_" +
+                      d.getMinutes() + "_" + d.getSeconds();
             return XcalarUploadPython(udfName, udfStr);
         })
         .then(function() {
@@ -1749,7 +1818,7 @@ window.DSParser = (function($, DSParser) {
 
     function adjustSizer($preview, meta, keepScale) {
         var sizerHeight = meta.startPage * meta.pageHeight;
-        var cached = sizerHeight;
+        // var cached = sizerHeight;
         if (keepScale) {
             sizerHeight = (meta.offset / meta.scale) +
                           (sizerHeight - meta.offset);
@@ -1864,7 +1933,7 @@ window.DSParser = (function($, DSParser) {
 
     function getScrollLineNum() {
         var scale;
-        var base;
+        // var base;
         var offset;
         if (!previewMeta) {
             scale = 1;

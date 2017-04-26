@@ -240,15 +240,16 @@ window.PreviewFileModal = (function(PreviewFileModal, $) {
 
     function submitForm() {
         var path = $modal.find(".radioButton.active").data("path");
-        if ($modal.hasClass("parseMode")) {
+        var isParseMode = $modal.hasClass("parseMode");
+        closeModal();
+
+        if (isParseMode) {
             // parse mode
             DSParser.show(path);
         } else {
             // preview mode
             DSPreview.changePreviewFile(path);
         }
-
-        closeModal();
     }
 
     function closeModal() {

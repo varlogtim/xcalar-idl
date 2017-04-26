@@ -774,7 +774,9 @@ DSParserTStr = {
     "Fail": "Submit Visual Parser Failed",
     "Submit": "Submit Visual Parser",
     "SubmitMsg": "Are you sure you want to submit the visual parser?",
-    "NoKey": "No keys are selected"
+    "NoKey": "No keys are selected",
+    "FileSizeWarn": "Your file size is greater than 500MB, the recommended maximum. The visual parser will take very long to run. Please break your file into well formatted chunks, or read it directly into Xcalar using a streaming UDF",
+    "Proceed": "Proceed (slow)"
 };
 
 DSExportTStr = {
