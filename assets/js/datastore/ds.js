@@ -600,7 +600,7 @@ window.DS = (function ($, DS) {
 
             Transaction.fail(txId, {
                 "failMsg": StatusMessageTStr.LoadFailed,
-                "error": error
+                "error": displayError
             });
 
             deferred.reject(error);

@@ -650,14 +650,16 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
         } else {
             Transaction.checkAndSetCanceled(txId);
             var loadError = null;
-            if (error1 && typeof(error1) === "object" &&
-                error1.length === 2) {
+            if (error1 && typeof(error1) === "object" && error1.length === 2) {
                 // This has a valid error struct that we can use
-                var errorStruct = error1[1];
-                if (errorStruct.errorString || errorStruct.errorFile) {
-                    loadError = xcHelper.replaceMsg(DSTStr.LoadErr, {
-                        "error": errorStruct.errorString,
-                        "file": errorStruct.errorFile
+                console.error("error in point", error1[1]);
+                loadError = xcHelper.replaceMsg(DSTStr.LoadErr, {
+                    "error": parseLoadError(error1[1])
+                });
+
+                if (error1[1].errorFile) {
+                    loadError += " " + xcHelper.replaceMsg(DSTStr.LoadErrFile, {
+                        "file": error1[1].errorFile
                     });
                 }
             }
@@ -666,7 +668,35 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
         }
     });
 
-    return (deferred.promise());
+    return deferred.promise();
+
+
+    function parseLoadError(error) {
+        var res = error;
+        try {
+            res = error.errorString;
+            // check  if has XcalarException
+            var match = res.match(/XcalarException:(.+)/);
+            if (match && match.length >= 2) {
+                res = parseInt(match[1].trim());
+                if (StatusTStr[res] != null) {
+                    return StatusTStr[res];
+                }
+            }
+
+            // check if has ValueError
+            match = res.match(/ValueError:(.+)/);
+            if (match && match.length >= 2) {
+                res = match[1].trim();
+                res = res.split("\\n")[0]; // strip ending unuseful chars
+                return res;
+            }
+        } catch (e) {
+            console.error("parse error", e);
+        }
+
+        return res;
+    }
 }
 
 function XcalarAddLocalFSExportTarget(targetName, path, txId) {
