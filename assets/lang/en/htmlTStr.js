@@ -789,7 +789,8 @@ module.exports = {
         "exclude": "Exclude",
         "LAUNCH": "LAUNCH",
         "Corr": "Launch Correlation Calculator",
-        "Decimal": "Decimal Places"
+        "Decimal": "Decimal Places",
+        "download": "Download Profile As PNG"
     },
 
     "workbook": {

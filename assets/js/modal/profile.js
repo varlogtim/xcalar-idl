@@ -211,6 +211,10 @@ window.Profile = (function($, Profile, d3) {
             }
         });
 
+        $("#profile-download").click(function() {
+            downloadProfileAsPNG();
+        });
+
         setupRangeSection();
         setupStatsSection();
     };
@@ -286,29 +290,6 @@ window.Profile = (function($, Profile, d3) {
 
         return (deferred.promise());
     };
-
-    Profile.draw = function() {
-        var node = $modal.get(0);
-        domtoimage.toPng(node, {
-            "width": $modal.width(),
-            "height": $modal.height(),
-            "style": {
-                "left": 0,
-                "top": 0
-            }
-        })
-        .then(function(dataUrl) {
-            var download = document.createElement("a");
-            download.href = dataUrl;
-            download.download = "profile.png";
-            download.click();
-            xcHelper.showSuccess(SuccessTStr.Profile);
-        })
-        .catch(function (error) {
-            console.error(error);
-            xcHelper.showFail(FailTStr.Profile);
-        });
-    }
 
     function setupRangeSection() {
         //set up dropdown for worksheet list
@@ -2824,6 +2805,29 @@ window.Profile = (function($, Profile, d3) {
 
             resetGroupbyInfo();
         }
+    }
+
+    function downloadProfileAsPNG() {
+        var node = $modal.get(0);
+        domtoimage.toPng(node, {
+            "width": $modal.width(),
+            "height": $modal.height(),
+            "style": {
+                "left": 0,
+                "top": 0
+            }
+        })
+        .then(function(dataUrl) {
+            var download = document.createElement("a");
+            download.href = dataUrl;
+            download.download = "profile.png";
+            download.click();
+            xcHelper.showSuccess(SuccessTStr.Profile);
+        })
+        .catch(function (error) {
+            console.error(error);
+            xcHelper.showFail(FailTStr.Profile);
+        });
     }
 
     /* Unit Test Only */
