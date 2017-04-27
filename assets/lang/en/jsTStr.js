@@ -445,7 +445,8 @@ ScrollTStr = {
 OpFormTStr = {
     'NewColName': 'New column name for the group by resultant column',
     'CMD': 'Command Preview',
-    'Descript': 'Description'
+    'Descript': 'Description',
+    'FieldToGroup': 'Fields to group on'
 };
 
 AggTStr = {

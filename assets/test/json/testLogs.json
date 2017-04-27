@@ -426,12 +426,14 @@
 
     {"title":"GroupBy",
     "options":{"operation":"groupBy",
-    "operator":"count",
+    "args": [{
+        "operator":"count",
+        "aggColName":"review_count",
+        "newColName":"review_count_count7"
+    }],
     "tableName":"testyelp#ja7",
     "tableId":"ja7",
     "groupByCols":["review_count"],
-    "aggCol":"review_count",
-    "newColName":"review_count_count7",
     "newTableName":"testyelp-GB#ja9",
     "options": {"dstTableName": "testyelp-GB",
                 "icvMode": false,

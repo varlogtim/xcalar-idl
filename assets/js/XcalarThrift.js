@@ -1095,12 +1095,14 @@ function XcalarIndexFromTable(srcTablename, key, tablename, ordering,
     } else {
         promise = getUnsortedTableName(srcTablename);
     }
+
     promise
     .then(function(unsortedSrcTablename) {
         if (Transaction.checkAndSetCanceled(txId)) {
             return (deferred.reject(StatusTStr[StatusT.StatusCanceled])
                             .promise());
         }
+
         var workItem = xcalarIndexTableWorkItem(unsortedSrcTablename, tablename,
                                                 key, dhtName, ordering);
 

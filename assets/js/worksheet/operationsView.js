@@ -24,7 +24,6 @@ window.OperationsView = (function($, OperationsView) {
     var isOpen = false;
     var allowInputChange = true;
     var functionsListScrollers = [];
-    var gbFunctionsListScroller;
     var aggFunctionsListScroller;
     var tableId;
     var formHelper;
@@ -83,7 +82,7 @@ window.OperationsView = (function($, OperationsView) {
         });
 
         $operationsView.on('click', '.closeGroup', function() {
-            removeFilterGroup($(this).closest('.group'));
+            removeGroup($(this).closest('.group'));
             if ($operationsView.find(".filter .group").length < 2) {
                 $operationsView.find(".andOrToggle").hide();
             }
@@ -216,11 +215,9 @@ window.OperationsView = (function($, OperationsView) {
                                            .prependTo($list.children('ul'))
                                            .show();
                     var fnInputNum = parseInt($input.data('fninputnum'));
-                    if (operatorName === "filter") {
+                    if (operatorName === "filter" || operatorName === "group by") {
                         functionsListScrollers[fnInputNum]
                                     .showOrHideScrollers();
-                    } else if (operatorName === "group by") {
-                        gbFunctionsListScroller.showOrHideScrollers();
                     } else {
                         aggFunctionsListScroller.showOrHideScrollers();
                     }
@@ -305,12 +302,10 @@ window.OperationsView = (function($, OperationsView) {
                                    .show();
             $list.siblings('input').focus();
 
-            if (operatorName === "filter") {
+            if (operatorName === "filter" || operatorName === "group by") {
                 var fnInputNum = parseInt($list.siblings('input')
                                                .data('fninputnum'));
                 functionsListScrollers[fnInputNum].showOrHideScrollers();
-            } else if (operatorName === "group by") {
-                gbFunctionsListScroller.showOrHideScrollers();
             } else {
                 aggFunctionsListScroller.showOrHideScrollers();
             }
@@ -449,9 +444,17 @@ window.OperationsView = (function($, OperationsView) {
             updateStrPreview(noHighlight, andOrSwitch);
         });
 
-        // static button
-        $operationsView.find('.addGroupArg').click(function() {
-            addGroupOnArg();
+        // adds field to group on input
+        $operationsView.on("click", ".addGroupArg", function() {
+             var $allGroups = $activeOpSection.find(".group");
+            var $group = $(this).closest(".group");
+            var groupIndex = $allGroups.index($group);
+            addGroupOnArg(groupIndex);
+        });
+
+         // add filter arguments button
+        $operationsView.find('.addGBGroup').click(function() {
+            addGroupbyGroup();
         });
 
         // dynamic button
@@ -494,8 +497,8 @@ window.OperationsView = (function($, OperationsView) {
 
                 // show or hide new table name input if join back option is
                 // selected
-                var $newTableNameRow = $checkbox.closest('.group')
-                                                .find('.newTableNameRow');
+                var $newTableNameRow = $activeOpSection
+                                            .find('.newTableNameRow');
                 var $keepTableBox = $checkbox.closest('.gbCheckboxes')
                                              .find('.keepTable .checkbox');
                 if ($keepTableBox.hasClass('checked')) {
@@ -555,22 +558,9 @@ window.OperationsView = (function($, OperationsView) {
             xcHelper.centerFocusedTable(tableId, true);
         });
 
-        // should only have 1 initially...
-        var functionsListScroller = new MenuHelper($('.filter .functionsList'), {
-            scrollerOnly: true,
-            bounds: '#operationsView',
-            bottomPadding: 5
-        });
 
-        functionsListScrollers.push(functionsListScroller);
-
-        gbFunctionsListScroller = new MenuHelper($('.groupby .functionsList'), {
-            scrollerOnly: true,
-            bounds: '#operationsView',
-            bottomPadding: 5
-        });
-
-        aggFunctionsListScroller = new MenuHelper($('.aggregate .functionsList'), {
+        aggFunctionsListScroller = new MenuHelper(
+            $('.aggregate .functionsList'), {
             scrollerOnly: true,
             bounds: '#operationsView',
             bottomPadding: 5
@@ -751,7 +741,7 @@ window.OperationsView = (function($, OperationsView) {
                                     .addClass('modalHighlighted');
         }
 
-        operationsViewShowListeners();
+        operationsViewShowListeners(options.restore);
 
         // used for css class
         var opNameNoSpace = operatorName.replace(/ /g, "");
@@ -826,7 +816,7 @@ window.OperationsView = (function($, OperationsView) {
     }
 
     // listeners added whenever operation view opens
-    function operationsViewShowListeners() {
+    function operationsViewShowListeners(restoring) {
         $('.xcTable').on('mousedown', '.header, td.clickable',
                           keepInputFocused);
 
@@ -864,6 +854,23 @@ window.OperationsView = (function($, OperationsView) {
                 }
             }
         });
+
+        if (!restoring &&
+            (operatorName === "filter" || operatorName === "group by")) {
+            var $list;
+            if (operatorName === "filter") {
+                $list = $('.filter .functionsList');
+            } else {
+                $list = $('.groupby .functionsList');
+            }
+            var functionsListScroller = new MenuHelper($list, {
+                scrollerOnly: true,
+                bounds: '#operationsView',
+                bottomPadding: 5
+            });
+
+            functionsListScrollers = [functionsListScroller];
+        }
     }
 
     // functions that get called after list udfs is called during op view show
@@ -930,7 +937,7 @@ window.OperationsView = (function($, OperationsView) {
         for (var i = 1; i < colNums.length; i++) {
             var progCol = gTables[tableId].getCol(colNums[i]);
             if (!progCol.isNewCol) {
-                addGroupOnArg();
+                addGroupOnArg(0);
                 var name = progCol.getFrontColName(true);
                 $activeOpSection.find('.gbOnArg').last().val(gColPrefix + name);
             }
@@ -983,7 +990,6 @@ window.OperationsView = (function($, OperationsView) {
                 var $input = $list.siblings(".text");
                 var type   = $li.text();
                 var casted;
-                // var castedType;
 
                 $input.val(type);
                 if (type === "default") {
@@ -1266,12 +1272,10 @@ window.OperationsView = (function($, OperationsView) {
 
         $visibleLis.sort(sortHTML).prependTo($list.find('ul'));
 
-        if (operatorName === "filter") {
+        if (operatorName === "filter" || operatorName === "group by") {
             var fnInputNum = parseInt($list.siblings('input')
                                            .data('fninputnum'));
             functionsListScrollers[fnInputNum].showOrHideScrollers();
-        } else if (operatorName === "group by") {
-            gbFunctionsListScroller.showOrHideScrollers();
         } else {
             aggFunctionsListScroller.showOrHideScrollers();
         }
@@ -1354,9 +1358,9 @@ window.OperationsView = (function($, OperationsView) {
 
         $argsGroup.find('.genFunctionsMenu').data('category', 'null');
         $argsGroup.find('.argsSection').last().addClass('inactive');
-        $argsGroup.find('.gbCheckboxes').addClass('inactive');
-        $argsGroup.find('.icvMode').addClass('inactive');
-        $argsGroup.find(".advancedSection").addClass("inactive");
+        $activeOpSection.find('.gbCheckboxes').addClass('inactive');
+        $activeOpSection.find('.icvMode').addClass('inactive');
+        $activeOpSection.find(".advancedSection").addClass("inactive");
         $argsGroup.find('.descriptionText').empty();
         $argsGroup.find('.functionsInput').data('value', "");
         $activeOpSection.find('.newTableNameRow').addClass('inactive');
@@ -1394,7 +1398,7 @@ window.OperationsView = (function($, OperationsView) {
             groupNum = groupNum || 0;
             $target = $activeOpSection.find('.group').eq(groupNum)
                                       .find('input').eq(inputNum);
-            if ($target.val().trim() === "") {
+            if ($.trim($target.val()) === "") {
                 text = ErrTStr.NoEmpty;
             }
         }
@@ -1528,11 +1532,12 @@ window.OperationsView = (function($, OperationsView) {
         var $argsSection = $argsGroup.find('.argsSection').last();
         $argsSection.removeClass('inactive');
         $argsSection.empty();
+        $argsSection.data("fnname", operObj.fnName);
 
-        $argsGroup.find(".advancedSection").removeClass("inactive");
-        $argsGroup.find('.icvMode').removeClass('inactive');
-        $argsGroup.find('.gbCheckboxes').removeClass('inactive');
-        $argsGroup.find('.newTableNameRow').removeClass('inactive');
+        $activeOpSection.find(".advancedSection").removeClass("inactive");
+        $activeOpSection.find('.icvMode').removeClass('inactive');
+        $activeOpSection.find('.gbCheckboxes').removeClass('inactive');
+        $activeOpSection.find('.newTableNameRow').removeClass('inactive');
 
 
         var defaultValue; // to autofill first arg
@@ -1589,7 +1594,18 @@ window.OperationsView = (function($, OperationsView) {
         var despText = operObj.fnDesc || "N/A";
         $argsGroup.find('.descriptionText').html('<b>' + OpFormTStr.Descript +
                                                  ':</b> ' + despText);
-        if (operatorName !== "aggregate") {
+        if (operatorName === "group by") {
+            var $strPreview = $operationsView.find('.strPreview');
+            if ($strPreview.text() === "") {
+                var initialText = '<b class="prevTitle">' + OpFormTStr.CMD +
+                                   ':<br></b>' +
+                                   '<span class="aggColSection"></span>' +
+                                   'GROUP BY (' +
+                         '<span class="groupByCols"></span>);';
+                $strPreview.html(initialText);
+            }
+            $strPreview.find(".aggColSection").append(strPreview);
+        } else if (operatorName !== "aggregate") {
             $operationsView.find('.strPreview')
                            .html('<b>' + OpFormTStr.CMD + ':</b> <br>' +
                                  strPreview);
@@ -1616,7 +1632,7 @@ window.OperationsView = (function($, OperationsView) {
         $argsSection.append(argsHtml);
         addCastDropDownListener();
         suggestLists[groupIndex] = [];
-        if (operatorName === "group by") {
+        if (operatorName === "group by" && groupIndex === 0) {
             $activeOpSection.find('.hint').addClass('new');
         }
         $activeOpSection.find('.list.hint.new').each(function() {
@@ -1676,7 +1692,7 @@ window.OperationsView = (function($, OperationsView) {
             if (description.indexOf("*") === 0 &&
                 description.indexOf("**") === -1) {
                 $rows.eq(i).after(
-                    '<div class="addArgWrap">' +
+                    '<div class="addArgWrap addArgWrapLarge">' +
                         '<button class="btn addArg addMapArg">' +
                           '<i class="icon xi-plus"></i>' +
                           '<span class="text">ADD ANOTHER ARGUMENT</span>' +
@@ -1732,7 +1748,7 @@ window.OperationsView = (function($, OperationsView) {
     }
 
     function groupbyArgumentsSetup(numArgs, operObj, $rows) {
-        var description = 'Fields to group on';
+        var description = OpFormTStr.FieldToGroup;
         var $gbOnRow = $rows.eq(0);
         $gbOnRow.find('.arg').focus();
 
@@ -1751,14 +1767,12 @@ window.OperationsView = (function($, OperationsView) {
                         .end()
                         .find('.description').text(description);
 
-        var strPreview = operObj.fnName + '(' +
+
+        var strPreview = '<span class="aggColStrWrap">' + operObj.fnName + '(' +
                         '<span class="aggCols">' +
                             $rows.eq(1).find(".arg").val() +
                         '</span>' +
-                        '), GROUP BY ' +
-                        '<span class="groupByCols"></span>' +
-                    '</p>';
-
+                        '), </span>';
         return (strPreview);
     }
 
@@ -1920,7 +1934,6 @@ window.OperationsView = (function($, OperationsView) {
                 var $row = $input.closest('.row');
                 var arg = $input.val().trim();
                 var parsedType = parseType(typeIds[i]);
-                // var noArgsChecked = $row.find('.noArg.checked').length > 0;
                 var emptyStrChecked = $row.find('.emptyStr.checked').length > 0;
                 if (emptyStrChecked && arg === "") {
                     quotesNeeded.push(true);
@@ -2058,18 +2071,29 @@ window.OperationsView = (function($, OperationsView) {
                 }
             }
         } else if (operatorName === "group by") {
-            var aggColOldText = $description.find(".aggCols").text();
+
             $inputs = $activeOpSection.find('.arg:visible');
-            if ($activeOpSection.find('.argsSection').last()
-                                                     .hasClass('inactive')) {
+            var $activeArgs = $activeOpSection.find(".group").filter(function() {
+                return !$(this).find(".argsSection").last().hasClass("inactive");
+            });
+            if (!$activeArgs.length) {
                 $operationsView.find('.strPreview').empty();
                 return;
             }
-            var aggColNewText = $activeOpSection.find('.argsSection').last()
+
+            var $groups = $activeOpSection.find(".group").filter(function() {
+                return (!$(this).find('.argsSection.inactive').length);
+            });
+
+            var aggColNewText = [];
+            $groups.each(function(groupNum) {
+                var aggCol = $(this).find('.argsSection').last()
                                             .find('.arg').eq(0).val().trim();
-            // var aggColNewText = $inputs.eq(0).val().trim();
-            aggColNewText = parseAggPrefixes(aggColNewText);
-            aggColNewText = parseColPrefixes(aggColNewText);
+                aggCol = parseAggPrefixes(aggCol);
+                aggCol = parseColPrefixes(aggCol);
+                aggColNewText.push(aggCol);
+            });
+
             var gbColOldText = $description.find(".groupByCols").text();
             var gbColNewText = "";
             var $args = $activeOpSection.find('.groupOnSection').find('.arg');
@@ -2081,21 +2105,40 @@ window.OperationsView = (function($, OperationsView) {
             if (gbColNewText) {
                 gbColNewText = gbColNewText.slice(2);
             }
-            // var gbColNewText = $inputs.eq(1).val().trim();
+
             gbColNewText = parseAggPrefixes(gbColNewText);
             gbColNewText = parseColPrefixes(gbColNewText);
 
             if (noHighlight) {
-                aggColNewText = wrapText(aggColNewText);
-                $description.find(".aggCols").html(aggColNewText);
+                var html = "";
+                $groups.each(function(groupNum) {
+                    var fnName = $(this).find(".argsSection").last()
+                                                            .data("fnname");
+                    html += '<span class="aggColStrWrap">' +fnName + '(<span class="aggCols">' +
+                                    wrapText(aggColNewText[groupNum]) +
+                                    '</span>), </span>';
+                });
+
+                $description.find(".aggColSection").html(html);
 
                 gbColNewText = wrapText(gbColNewText);
                 $description.find(".groupByCols").html(gbColNewText);
             } else {
-                var $aggColWrap = $description.find(".aggCols");
+                var $aggColWrap = $description.find(".aggColSection");
                 var $aggColSpans = $aggColWrap.find('span.char');
-                modifyDescText(aggColOldText, aggColNewText, $aggColWrap,
+
+                 $groups.each(function(groupNum) {
+                    var $aggColWrap = $description.find(".aggCols").eq(groupNum);
+                    var $aggColSpans = $aggColWrap.find('span.char');
+                    var aggColOldText = $aggColWrap.text();
+
+                    modifyDescText(aggColOldText, aggColNewText[groupNum], $aggColWrap,
                                 $aggColSpans);
+                });
+
+
+                // modifyDescText(aggColOldText, aggColNewText, $aggColWrap,
+                //                 $aggColSpans);
 
                 var $gbColWrap = $description.find(".groupByCols");
                 var $gbColSpans = $gbColWrap.find('span.char');
@@ -2305,14 +2348,16 @@ window.OperationsView = (function($, OperationsView) {
                             $activeOpSection.find('.tableList'));
             return deferred.reject().promise();
         }
+        var $groups = $activeOpSection.find('.group');
 
         // check if function name is valid (not checking arguments)
-        $activeOpSection.find('.group').each(function(groupNum) {
+        $groups.each(function(groupNum) {
             if (!isOperationValid(groupNum)) {
                 var inputNum = 0;
                 if (operatorName === "group by") {
-                    var $fnInput = $activeOpSection.find('.functionsInput');
-                    inputNum = $activeOpSection.find('input').index($fnInput);
+                    var $group = $activeOpSection.find(".group").eq(groupNum)
+                    var $fnInput = $group.find('.functionsInput');
+                    inputNum = $group.find('input').index($fnInput);
                 }
                 showErrorMessage(inputNum, groupNum);
                 isPassing = false;
@@ -2332,8 +2377,6 @@ window.OperationsView = (function($, OperationsView) {
         }
 
         var multipleArgSets = [];
-
-        var $groups = $activeOpSection.find('.group');
         var args = [];
         // get colType first
         $groups.each(function(i) {
@@ -2391,7 +2434,7 @@ window.OperationsView = (function($, OperationsView) {
                 isPassing = true;
                 break;
             case ('group by'):
-                isPassing = groupByCheck(args);
+                isPassing = groupByCheck(args, hasMultipleSets);
                 break;
             case ('map'):
                 isPassing = true;
@@ -2431,7 +2474,17 @@ window.OperationsView = (function($, OperationsView) {
                                      andOr);
                     break;
                 case ('group by'):
-                    promise = groupBy(func, args, colTypeInfos);
+                    if (!hasMultipleSets) {
+                        args = [args];
+                        colTypeInfos = [colTypeInfos];
+                    }
+                    var funcs = [];
+                    $activeOpSection.find(".group").each(function() {
+                        var fName = $(this).find(".argsSection").last()
+                                                            .data("fnname");
+                        funcs.push(fName);
+                    })
+                    promise = groupBy(funcs, args, colTypeInfos);
                     break;
                 case ('map'):
                     promise = map(funcLower, args, colTypeInfos);
@@ -2478,20 +2531,33 @@ window.OperationsView = (function($, OperationsView) {
                 break;
             case ('group by'):
                 // check new col name
-                var numArgs = $activeOpSection.find('.arg:visible').length;
-                $nameInput = $activeOpSection.find('.arg:visible').eq(numArgs - 1);
-                var checkOpts = {
-                    strictDuplicates: true
-                };
-                isPassing = !ColManager.checkColName($nameInput, tableId, null,
+                $activeOpSection.find(".group").each(function() {
+                    var $group = $(this);
+                    var numArgs = $group.find('.arg:visible').length;
+                    $nameInput = $group.find('.arg:visible').eq(numArgs - 1);
+                    var checkOpts = {
+                        strictDuplicates: true
+                    };
+
+                    isPassing = !ColManager.checkColName($nameInput, tableId, null,
                                                     checkOpts);
+                    if (isPassing && !$activeOpSection.find('.keepTable .checkbox')
+                                    .hasClass('checked')) {
+                        isPassing = xcHelper.tableNameInputChecker(
+                                        $activeOpSection.find('.newTableName'));
+                    }
+                    if (!isPassing) {
+                        return false;
+                    } else if (checkColNameUsedInInputs($nameInput.val(), $nameInput)) {
+                        isPassing = false;
+                        var text = ErrTStr.NameInUse;
+                        statusBoxShowHelper(text, $nameInput);
+                        return false;
+                    }
+                });
 
                 // check new table name if join option is not checked
-                if (isPassing && !$activeOpSection.find('.keepTable .checkbox')
-                                    .hasClass('checked')) {
-                    isPassing = xcHelper.tableNameInputChecker(
-                                    $activeOpSection.find('.newTableName'));
-                }
+
                 if (isPassing) {
                     deferred.resolve();
                 } else {
@@ -2574,12 +2640,11 @@ window.OperationsView = (function($, OperationsView) {
         $group.find('.arg:visible').each(function(inputNum) {
             var $input = $(this);
             // Edge case. GUI-1929
-            // var origLength = $input.val().length;
+
             var $row = $input.closest('.row');
             var noArgsChecked = $row.find('.noArg.checked').length > 0;
             var emptyStrChecked = $row.find('.emptyStr.checked').length > 0;
 
-            // var arg = $input.val().trim();
             var arg = $input.val();
             var trimmedArg = arg.trim();
             // empty field and empty field is allowed
@@ -2802,7 +2867,6 @@ window.OperationsView = (function($, OperationsView) {
     function getProperCastOptions(allColTypes) {
         var inputColTypes;
         var requiredTypes;
-        // var filteredTypes;
         var inputNum;
         var castTypes;
         for (var i = 0; i < allColTypes.length; i++) {
@@ -2959,7 +3023,6 @@ window.OperationsView = (function($, OperationsView) {
     function filter(operator, args, colTypeInfos, hasMultipleSets, andOr) {
         var deferred = jQuery.Deferred();
         var filterColNum;
-        // var colName;
         var firstArg;
         if (hasMultipleSets) {
             firstArg = args[0][0];
@@ -2999,31 +3062,51 @@ window.OperationsView = (function($, OperationsView) {
         return gTables[tableId].getColNumByBackName(backColName);
     }
 
-    function groupBy(operator, args, colTypeInfos) {
+    function groupBy(operators, args, colTypeInfos) {
         // Current groupBy args has at least 3 arguments:
         // 1. agg col
         // 2. grouby col(cols)
         // 3. new col name
+
         var deferred = jQuery.Deferred();
-        var numArgs = args.length;
-        var groupByColIndex = numArgs - 2;
-        var aggCol = args[groupByColIndex];
-
         colTypeInfos = colTypeInfos || [];
-        jQuery.each(colTypeInfos, function(index, colInfo) {
-            if (colInfo.argNum === groupByColIndex) {
-                aggCol = xcHelper.castStrHelper(aggCol, colInfo.type);
-                // stop looping
-                return false;
-            }
-        });
-
+        var gbArgs = [];
         var groupByCols = [];
-        for (var i = 0; i < groupByColIndex; i++) {
-            groupByCols.push(args[i].trim());
+        var aggColIndex = args[0].length - 2;
+        for (var i = 0; i < aggColIndex; i++) {
+            groupByCols.push(args[0][i].trim());
         }
 
-        var newColName = args[numArgs - 1];
+        var operatorsFound = {};
+        for (var i = 0; i < args.length; i++) {
+
+
+            var numArgs = args[i].length;
+            var aggColIndex = numArgs - 2;
+            var aggCol = args[i][aggColIndex];
+
+            // avoid duplicate operator-aggCol pairs
+            if (operatorsFound[operators[i] + aggCol]) {
+                continue;
+            }
+            operatorsFound[operators[i] + aggCol] = true;
+
+            colTypeInfo = colTypeInfos[i] || [];
+            jQuery.each(colTypeInfo, function(index, colInfo) {
+                if (colInfo.argNum === aggColIndex) {
+                    aggCol = xcHelper.castStrHelper(aggCol, colInfo.type);
+                    // stop looping
+                    return false;
+                }
+            });
+
+            gbArgs.push({
+                operator: operators[i],
+                aggColName: aggCol,
+                newColName: args[i][numArgs - 1]
+            });
+        }
+
         var isIncSample = $activeOpSection.find('.incSample .checkbox')
                                     .hasClass('checked');
         var isJoin = $activeOpSection.find('.keepTable .checkbox')
@@ -3059,8 +3142,7 @@ window.OperationsView = (function($, OperationsView) {
         }
 
         var startTime = Date.now();
-        xcFunction.groupBy(operator, tableId, groupByCols, aggCol,
-                            newColName, options)
+        xcFunction.groupBy(tableId, gbArgs, groupByCols, options)
         .then(deferred.resolve)
         .fail(function(error) {
             submissionFailHandler(startTime, error);
@@ -3069,40 +3151,51 @@ window.OperationsView = (function($, OperationsView) {
         return deferred.promise();
     }
 
-    function groupByCheck(args) {
-        var numArgs = args.length;
-        var groupbyColName = args[numArgs - 2];
-        // var groupbyColName = args[0];
-        var singleArg = true;
-
-        var $groupByInput = $activeOpSection.find('.argsSection').last()
-                                            .find('.arg').eq(0);
-        var isGroupbyColNameValid;
-        if (!hasFuncFormat(groupbyColName)) {
-            isGroupbyColNameValid = checkValidColNames($groupByInput,
-                                                    groupbyColName, singleArg);
-        } else {
-            isGroupbyColNameValid = true;
+    function groupByCheck(args, hasMultipleGroups) {
+        if (!hasMultipleGroups) {
+            args = [args];
         }
+        var isValid = true;
+        $activeOpSection.find(".group").each(function(groupNum) {
+            var numArgs = args[groupNum].length;
+            var groupbyColName = args[groupNum][numArgs - 2];
+            var singleArg = true;
 
-        if (!isGroupbyColNameValid) {
-            return (false);
-        } else {
-            var indexedColNames;
-            var $input;
-            var areIndexedColNamesValid = false;
-            for (var i = 0; i < numArgs - 2; i++) {
-                indexedColNames = args[i];
-                $input = $activeOpSection.find('.gbOnArg').eq(i);
-                areIndexedColNamesValid = checkValidColNames($input,
-                                                        indexedColNames);
-                if (!areIndexedColNamesValid) {
-                    break;
-                }
+            var $groupByInput = $activeOpSection.find(".group").eq(groupNum)
+                                                .find('.argsSection').last()
+                                                .find('.arg').eq(0);
+            var isGroupbyColNameValid;
+            if (!hasFuncFormat(groupbyColName)) {
+                isGroupbyColNameValid = checkValidColNames($groupByInput,
+                                                        groupbyColName, singleArg);
+            } else {
+                isGroupbyColNameValid = true;
             }
 
-            return areIndexedColNamesValid;
-        }
+            if (!isGroupbyColNameValid) {
+                isValid = false;
+                return false;
+            } else  if (groupNum === 0) {
+                var indexedColNames;
+                var $input;
+                var areIndexedColNamesValid = false;
+                for (var i = 0; i < numArgs - 2; i++) {
+                    indexedColNames = args[groupNum][i];
+                    $input = $activeOpSection.find('.gbOnArg').eq(i);
+                    areIndexedColNamesValid = checkValidColNames($input,
+                                                            indexedColNames);
+                    if (!areIndexedColNamesValid) {
+                        break;
+                    }
+                }
+                if (!areIndexedColNamesValid) {
+                    isValid = false;
+                    return false;
+                }
+            }
+        });
+
+        return isValid;
     }
 
     function map(operator, args, colTypeInfos) {
@@ -3225,13 +3318,13 @@ window.OperationsView = (function($, OperationsView) {
 
         // loop throguh groups
         for (var i = 0; i < argGroups.length; i++) {
-            var funcName;
+            var fName;
             if (operatorName === "filter") {
-                funcName = $activeOpSection.find('.group').eq(i)
+                fName = $activeOpSection.find('.group').eq(i)
                                             .find('.functionsInput').val()
                                             .trim();
             } else {
-                funcName = operator;
+                fName = operator;
             }
 
             if (i > 0) {
@@ -3243,7 +3336,7 @@ window.OperationsView = (function($, OperationsView) {
                 }
                 str += andOr + "(";
             }
-            str += funcName + "(";
+            str += fName + "(";
 
             var numNonBlankArgs = 0;
             // loop through arguments within a group
@@ -3747,7 +3840,8 @@ window.OperationsView = (function($, OperationsView) {
         var newName = name;
 
         var tries = 0;
-        while (tries < limit && table.hasCol(newName, "")) {
+        while (tries < limit && (table.hasCol(newName, "") ||
+            checkColNameUsedInInputs(newName))) {
             tries++;
             newName = name + tries;
         }
@@ -3757,6 +3851,22 @@ window.OperationsView = (function($, OperationsView) {
         }
 
         return newName;
+    }
+    function checkColNameUsedInInputs(name, $inputToIgnore) {
+        name = xcHelper.stripeColName(name);
+        var $inputs = $activeOpSection.find(".colNameRow").find("input");
+        var dupFound = false;
+        $inputs.each(function() {
+            if ($inputToIgnore && $(this).is($inputToIgnore)) {
+                return;
+            }
+            var val = $(this).val();
+            if (val === name) {
+                dupFound = true;
+                return false;
+            }
+        });
+        return dupFound;
     }
 
     function listHighlightListener(event) {
@@ -3951,17 +4061,21 @@ window.OperationsView = (function($, OperationsView) {
             $activeOpSection.find(".selectAllCols")
                             .removeClass('checked');
             focusedColListNum = null;
-        }
-        // clear string preview
-        $operationsView.find('.strPreview').empty();
-
-        if (operatorName === "filter") {
             $activeOpSection.find('.group').each(function(i) {
                 if (i !== 0) {
-                    removeFilterGroup($(this), true);
+                    removeGroup($(this), true);
+                }
+            });
+        } else if (operatorName === "filter") {
+            $activeOpSection.find('.group').each(function(i) {
+                if (i !== 0) {
+                    removeGroup($(this), true);
                 }
             });
         }
+
+        // clear string preview
+        $operationsView.find('.strPreview').empty();
 
         // empty list scrollers and associated suggest lists
         suggestLists = [[]];
@@ -4049,14 +4163,78 @@ window.OperationsView = (function($, OperationsView) {
         formHelper.refreshTabbing();
     }
 
-    function addGroupOnArg() {
+    function addGroupOnArg(index) {
         var html = getArgInputHtml();
-        $activeOpSection.find('.gbOnRow').append(html);
-        $activeOpSection.find('.gbOnArg').last().focus();
+        var $group = $activeOpSection.find(".group").eq(index);
+        $group.find('.gbOnRow').append(html);
+        $group.find('.gbOnArg').last().focus();
         formHelper.refreshTabbing();
 
-        var $ul = $activeOpSection.find('.gbOnArg').last().siblings(".list");
+        var $ul = $group.find('.gbOnArg').last().siblings(".list");
         addSuggestListForExtraArg($ul);
+    }
+
+    function getGroupbyGroupHtml(index) {
+        var html =
+        '<div class="group groupbyGroup">' +
+            '<div class="catFuncHeadings clearfix subHeading">' +
+              '<div class="groupbyFnTitle">' +
+                'Function to apply to group:</div>' +
+              '<div class="altFnTitle">Function to apply to group</div>' +
+              '<i class="icon xi-close closeGroup"></i>' +
+            '</div>' +
+            '<div class="dropDownList firstList functionsList" ' +
+                'data-fnlistnum="' + index + '">' +
+              '<input class="text inputable autocomplete functionsInput" ' +
+                    'data-fninputnum="' + index + '" tabindex="10" ' +
+                    'spellcheck="false"  required>' +
+              '<div class="iconWrapper dropdown">' +
+                '<i class="icon xi-arrow-down"></i>' +
+              '</div>' +
+              '<div class="list genFunctionsMenu">' +
+                '<ul data-fnmenunum="' + index + '">' +
+                '</ul>' +
+                '<div class="scrollArea top">' +
+                  '<div class="arrow"></div>' +
+                '</div>' +
+                '<div class="scrollArea bottom">' +
+                  '<div class="arrow"></div>' +
+                '</div>' +
+              '</div>' +
+            '</div>' +
+            '<div class="descriptionText"></div>' +
+            '<div class="argsSection inactive">' +
+            '</div>' +
+        '</div>';
+      return html;
+    }
+
+    function addGroupbyGroup() {
+        var newGroupIndex = $activeOpSection.find('.group').length;
+        $activeOpSection.find('.group').last()
+                        .after(getGroupbyGroupHtml(newGroupIndex));
+        populateFunctionsListUl(newGroupIndex);
+        // fillInputPlaceholder();
+        var functionsListScroller = new MenuHelper(
+            $('.functionsList[data-fnlistnum="' + newGroupIndex + '"]'),
+            {
+                scrollerOnly: true,
+                bounds: '#operationsView',
+                bottomPadding: 5
+            }
+        );
+
+        functionsListScrollers.push(functionsListScroller);
+        suggestLists.push([]);// array of groups, groups has array of inputs
+        scrollToBottom();
+        // $activeOpSection.find('.group').last().find('.functionsInput').focus();
+        formHelper.refreshTabbing();
+        if ($operationsView.find(".strPreview .aggColSection").length) {
+            $operationsView.find(".strPreview .aggColSection").append('<span class="aggColStrWrap"></span>');
+        } else {
+            $operationsView.find(".strPreview").append('<span class="aggColStrWrap"></span>');
+        }
+
     }
 
     function addMapArg($btn) {
@@ -4209,7 +4387,7 @@ window.OperationsView = (function($, OperationsView) {
         }
     }
 
-    function removeFilterGroup($group, all) {
+    function removeGroup($group, all) {
         var index = $activeOpSection.find('.group').index($group);
         $group.remove();
         if (!all) {
@@ -4222,9 +4400,9 @@ window.OperationsView = (function($, OperationsView) {
         }
         functionsListScrollers.splice(index, 1);
         suggestLists.splice(index, 1);
+        $operationsView.find(".aggColStrWrap").last().remove();
         checkIfStringReplaceNeeded();
     }
-
     // used to disable inputs while UDFS load
     function disableInputs() {
         $operationsView.find('.strPreview, .submit, .opSection')
@@ -4310,7 +4488,7 @@ window.OperationsView = (function($, OperationsView) {
         OperationsView.__testOnly__.isNumberInQuotes = isNumberInQuotes;
         OperationsView.__testOnly__.checkAggregateNameValidity = checkAggregateNameValidity;
         OperationsView.__testOnly__.addFilterGroup = addFilterGroup;
-        OperationsView.__testOnly__.removeFilterGroup = removeFilterGroup;
+        OperationsView.__testOnly__.removeFilterGroup = removeGroup;
         OperationsView.__testOnly__.submitForm = submitForm;
         OperationsView.__testOnly__.getMatchingAggNames = getMatchingAggNames;
         OperationsView.__testOnly__.getMatchingColNames = getMatchingColNames;

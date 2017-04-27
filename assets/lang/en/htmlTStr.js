@@ -738,6 +738,7 @@ module.exports = {
         "filterFunc": "Filter Function",
         "noFunc": "No Function Chosen",
         "additional": "Additional Conditions",
+        "additionalGB": "Apply Additional Functions",
         "fieldsToGroup": "Fields to group on",
         "AddAnotherColumn": "ADD ANOTHER COLUMN",
         "funcToGroup": "Function to apply to group",

@@ -218,9 +218,13 @@ describe('Dag Panel Test', function() {
                                largePrefix + gPrefixSign + "yelping_since"];
             var aggCol = largePrefix + gPrefixSign + "four";
             var newColName = "four_count";
+            var gbArgs = [{
+                operator: operator,
+                aggColName: aggCol,
+                newColName: newColName
+            }]
 
-            return xcFunction.groupBy(operator, tId, groupByCols, aggCol,
-                                      newColName, {});
+            return xcFunction.groupBy(tId, gbArgs, groupByCols, {});
         })
         .then(function(ret) {
             groupTableName = ret;

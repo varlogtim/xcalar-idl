@@ -303,6 +303,9 @@
         padding-top: 20px;
         .auto-selection;
 
+        .strPreviewGroup {
+            display: block;
+        }
 
         .aggCols, .groupByCols, .descArgs {
             color: @color-font-select-blue;
@@ -795,8 +798,22 @@
     }
 
     .groupby {
+        .catFuncHeadings {
+            position: relative;
+            .xi-close { // for closing group
+                .position(absolute, @top: 0px, @right: 0px);
+                .size(24px, 20px);
+                text-align: center;
+                line-height: 20px;
+                margin-right: 0px;
+            }
+        }
         .groupbyFnTitle {
             width: 100%;
+        }
+        .group + .group {
+            padding-top: 6px;
+            margin-top: 10px;
         }
         .argsSection {
             .colNameRow:nth-child(3), .colNameRow:nth-child(4) {
@@ -814,6 +831,10 @@
                     }
                 }
             }
+        }
+        .addArgWrapSmall {
+            padding-top: 10px;
+            padding-bottom: 10px;
         }
         .newTableNameRow {
             margin-top: 6px;
@@ -905,22 +926,28 @@
                 margin-right: 5px;
             }
         }
+
+        .extra .xi-cancel {
+            z-index: 0 !important;
+        }
     }
 
     .groupby, .map {
-        .addArgWrap {
+        .addArgWrapLarge {
             padding-left: 0px;
             margin-top: 15px;
-        }
-        .addArg {
-            width: 260px;
-            height:  36px;
-            display: block;
-            margin: 0 auto;
-            .text {
-                font-size: 14px;
+
+            .addArg {
+                width: 260px;
+                height:  36px;
+                display: block;
+                margin: 0 auto;
+                .text {
+                    font-size: 14px;
+                }
             }
         }
+
         .extra {
             position: relative;
             margin-top: 10px;
@@ -937,7 +964,6 @@
                 &:hover {
                     opacity: @opacity-hover;
                 }
-
             }
 
             input {

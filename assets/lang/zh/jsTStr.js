@@ -390,7 +390,8 @@ ScrollTStr = {
 OpFormTStr = {
 'NewColName': '按列生成的列的新列名称',
 'CMD': '操作预览',
-'Descript': '描述'
+'Descript': '描述',
+'FieldToGroup': 'Fields to group on'
 };
 AggTStr = {
 'selected': '被选中',

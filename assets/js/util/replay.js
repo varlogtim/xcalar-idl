@@ -314,7 +314,7 @@ window.Replay = (function($, Replay) {
         if (authInfo.idCount < idCount + diff) {
             var curId = authInfo.hashTag + (authInfo.idCount - diff);
             console.info("update id count to", idCount + diff);
-            
+
             authInfo.idCount = idCount + diff;
             return curId;
         } else {
@@ -400,8 +400,7 @@ window.Replay = (function($, Replay) {
                                 "mapString", "mapOptions"];
         argsMap[SQLOps.Join] = ["joinStr", "lJoinInfo", "rJoinInfo",
                                 "newTableName", "options"];
-        argsMap[SQLOps.GroupBy] = ["operator", "tableId", "groupByCols",
-                                    "aggCol", "newColName", "options"];
+        argsMap[SQLOps.GroupBy] = ["tableId", "args", "groupByCols", "options"];
         argsMap[SQLOps.Project] = ["colNames", "tableId"];
         argsMap[SQLOps.RenameTable] = ["tableId", "newTableName"];
         argsMap[SQLOps.HideTable] = ["tableId"];

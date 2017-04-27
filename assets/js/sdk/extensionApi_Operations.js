@@ -210,9 +210,12 @@ window.XcSDK.Extension.prototype = (function() {
             var txId = self.txId;
             options = options || {};
             options.icvMode = false;
-
-            XIApi.groupBy(txId, operator, groupByCols, aggColName,
-                           tableName, newColName, options)
+            var gbArgs = [{
+                operator: operator,
+                aggColName: aggColName,
+                newColName: newColName
+            }];
+            XIApi.groupBy(txId, gbArgs, groupByCols, tableName, options)
             .then(function(dstTable, dstCols) {
                 self._addMeta(tableName, dstTable, dstCols);
                 deferred.resolve(dstTable, dstCols);

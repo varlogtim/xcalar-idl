@@ -368,6 +368,8 @@ window.XIApi = (function(XIApi, $) {
     };
 
     /*
+     * gbArgs: an array of objects with operator, aggColName, and newColName
+     *         properties - for multi group by operations
      * options:
      *  isIncSample: true/false, include sample or not,
      *               not specified is equal to false
@@ -377,12 +379,11 @@ window.XIApi = (function(XIApi, $) {
      *  newTableName: string, dst table name, optional
      *  clean: true/false, if set true, will remove intermediate tables
      */
-    XIApi.groupBy = function(txId, operator, groupByCols, aggColName,
-                             tableName, newColName, options)
-    {
-        if (txId == null || operator == null || groupByCols == null ||
-            aggColName == null || tableName == null ||
-            newColName == null || aggColName.length < 1)
+
+    XIApi.groupBy = function(txId, gbArgs, groupByCols, tableName, options) {
+        if (txId == null || gbArgs == null || groupByCols == null ||
+            tableName == null || gbArgs[0].newColName == null ||
+            gbArgs[0].aggColName.length < 1 || gbArgs[0].operator == null)
         {
             return PromiseHelper.reject("Invalid args in groupby");
         }
@@ -391,7 +392,7 @@ window.XIApi = (function(XIApi, $) {
         var isIncSample = options.isIncSample || false;
         var sampleCols = options.sampleCols || [];
         var icvMode = options.icvMode || false;
-        var newTableName = options.newTableName || null;
+        var finalTableName = options.newTableName || null;
         var clean = options.clean || false;
 
         if (!(groupByCols instanceof Array)) {
@@ -409,10 +410,10 @@ window.XIApi = (function(XIApi, $) {
         var indexedColName;
         var finalTable;
         var isMultiGroupby = (groupByCols.length > 1);
-        var finalCols = getFinalGroupByCols(tableName, groupByCols,
-                                            newColName, isIncSample,
-                                            sampleCols);
 
+        var finalCols = getFinalGroupByCols(tableName, groupByCols, gbArgs,
+                                            isIncSample, sampleCols);
+        // tableName is the original table name that started xiApi.groupby
         getGroupbyIndexedTable(txId, tableName, groupByCols)
         .then(function(resTable, resCol, tempTablesInIndex) {
             // table name may have changed after sort!
@@ -421,21 +422,44 @@ window.XIApi = (function(XIApi, $) {
             tempTables = tempTables.concat(tempTablesInIndex);
 
             // get name from src table
-            if (newTableName == null) {
-                newTableName = getNewTableName(tableName, "-GB");
+            if (finalTableName == null) {
+                finalTableName = getNewTableName(tableName, "-GB");
             }
-            return XcalarGroupBy(operator, newColName, aggColName,
-                                indexedTable, newTableName,
-                                isIncSample, icvMode, txId);
+            var promises = [];
+            var gbTableName = finalTableName;
+            var sample = isIncSample;
+            for (var i = 0; i < gbArgs.length; i++) {
+                if (gbArgs.length > 1) {
+                    gbTableName = getNewTableName(finalTableName);
+                }
+                if (i > 0) {
+                    // only do sample on first groupby
+                    sample = false;
+                }
+                promises.push(XcalarGroupBy(gbArgs[i].operator,
+                    gbArgs[i].newColName, gbArgs[i].aggColName,
+                    indexedTable, gbTableName, sample, icvMode, txId));
+            }
+            return PromiseHelper.when.apply(window, promises);
         })
         .then(function() {
+            var args = arguments;
+            if (!isIncSample) {
+                indexedColName = xcHelper.parsePrefixColName(indexedColName)
+                                         .name;
+            }
+
+            return groupByJoinHelper(txId, indexedColName, finalTableName,
+                                    gbArgs, args);
+        })
+        .then(function(retTableName) {
+            finalTableName = retTableName;
             if (isMultiGroupby && !isIncSample) {
                 // multi group by should extract column from groupby table
-                return extractColFromMap(tableName, newTableName, groupByCols,
-                                         indexedColName, finalCols,
-                                         isIncSample, txId);
+                return extractColFromMap(tableName, finalTableName, groupByCols,
+                                         indexedColName, finalCols, txId);
             } else {
-                return PromiseHelper.resolve(newTableName, []);
+                return PromiseHelper.resolve(finalTableName, []);
             }
         })
         .then(function(resTable, tempTablesInMap) {
@@ -1257,7 +1281,6 @@ window.XIApi = (function(XIApi, $) {
         .then(function(resCol, resTable, resTempTables) {
             tempTables = resTempTables || [];
             groupByField = resCol;
-
             return checkTableIndex(resCol, resTable, txId);
         })
         .then(function(indexedTable, shouldIndex, temIndexTables) {
@@ -1269,7 +1292,7 @@ window.XIApi = (function(XIApi, $) {
         return deferred.promise();
     }
 
-    function getFinalGroupByCols(tableName, groupByCols, newColName,
+    function getFinalGroupByCols(tableName, groupByCols, gbArgs,
                                  isIncSample, sampleCols) {
         var dataCol = ColManager.newDATACol();
         var tableId = xcHelper.getTableId(tableName);
@@ -1283,12 +1306,19 @@ window.XIApi = (function(XIApi, $) {
         var table = gTables[tableId];
         var tableCols = table.tableCols;
 
+        var escapedNames = [];
+        var newProgCols = [];
+        var numNewCols = gbArgs.length;
+
+        for (var i = 0; i < numNewCols; i++) {
+            escapedNames.push(gbArgs[i].newColName);
+            newProgCols.push(ColManager.newPullCol(gbArgs[i].newColName, gbArgs[i].newColName));
+
+        }
+
         // xx kinda crazy but the backend returns a lot of \ slashes
-        // var escapedName = xcHelper.escapeColName(newColName.replace(/\./g, "\\."));
-        var escapedName = newColName;
         // front name of a.b turns into a\.b in the backend and then
         // we need to escape the \ and . in a\.b to access it so it becomes a\\\.b
-        var newProgCol = ColManager.newPullCol(newColName, escapedName);
         var numGroupByCols = groupByCols.length;
         var finalCols;
 
@@ -1301,7 +1331,9 @@ window.XIApi = (function(XIApi, $) {
                 if (!newProgColPosFound) {
                     for (var j = 0; j < numGroupByCols; j++) {
                         if (backCol === groupByCols[j]) {
-                            newCols.push(newProgCol);
+                            for (var k = 0; k < numNewCols; k++) {
+                                newCols.push(newProgCols[k]);
+                            }
                             newProgColPosFound = true;
                             break;
                         }
@@ -1312,7 +1344,9 @@ window.XIApi = (function(XIApi, $) {
             }
 
             if (!newProgColPosFound) {
-                newCols.unshift(newProgCol);
+                for (var i = 0; i < numNewCols; i++) {
+                    newCols.unshift(newProgCols[i]);
+                }
             }
             // Note that if include sample,
             // a.b should not be escaped to a\.b
@@ -1320,7 +1354,11 @@ window.XIApi = (function(XIApi, $) {
             newCols.push(tableCols[dataColNum]);
             finalCols = xcHelper.deepCopy(newCols);
         } else {
-            finalCols = [newProgCol];
+            finalCols = [];
+            for (var i = 0; i < newProgCols.length; i++) {
+                finalCols.push(newProgCols[i]);
+            }
+            // finalCols = [newProgCol];
             // Pull out each individual groupByCols
             for (var i = 0; i < numGroupByCols; i++) {
                 var backColName = groupByCols[i];
@@ -1338,7 +1376,7 @@ window.XIApi = (function(XIApi, $) {
                 escapedName = xcHelper.parsePrefixColName(escapedName).name;
                 var colName = progCol.name || backColName;
 
-                finalCols[1 + i] = ColManager.newCol({
+                finalCols[numNewCols + i] = ColManager.newCol({
                     "backName": escapedName,
                     "name": progCol.name || colName,
                     "type": progCol.type || null,
@@ -1352,28 +1390,78 @@ window.XIApi = (function(XIApi, $) {
                 });
             }
 
-            finalCols[1 + numGroupByCols] = dataCol;
+            finalCols[numNewCols + numGroupByCols] = dataCol;
         }
-
         return finalCols;
     }
 
+    function groupByJoinHelper(txId, indexedColName, finalTableName, gbArgs,
+                                args) {
+        var deferred = jQuery.Deferred();
+        if (gbArgs.length < 2) {
+            return PromiseHelper.resolve(finalTableName);
+        }
+
+        var parsedIndexedColName = xcHelper.parsePrefixColName(
+                                    indexedColName).name;
+        // the 2nd, 3rd etc group by table doesn't use isIncSample
+        // so we need the parsedColName
+
+        var promises = [];
+        var lCols = [indexedColName];
+        var rCols = [parsedIndexedColName];
+        finalTableName = args[0].tableName;
+
+        for (var i = 1; i < gbArgs.length; i++) {
+            lTableInfo = {
+                "tableName": finalTableName,
+                "columns": lCols
+            };
+
+            newName = xcHelper.randName(parsedIndexedColName + "_GB", 3);
+            renameMap = xcHelper.getJoinRenameMap(parsedIndexedColName,
+                                                  newName);
+
+            rTableInfo = {
+                "tableName": args[i].tableName,
+                "columns": rCols,
+                "rename": [renameMap]
+            };
+
+            finalTableName = getNewTableName(finalTableName);
+            joinOptions = {
+                newTableName: finalTableName
+            };
+            promises.push(XIApi.join.bind(null, txId,
+            JoinOperatorT.InnerJoin, lTableInfo, rTableInfo, joinOptions));
+        }
+
+        // TODO: instead of a chain of joining to the previous table, we can do
+        // A-B -> AB, C-D -> CD, then AB-CD -> ABCD
+        PromiseHelper.chain(promises)
+        .then(function() {
+            deferred.resolve(finalTableName);
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
     function extractColFromMap(srcTableName, groupbyTableName, groupByCols,
-                               indexedColName, finalTableCols,
-                               isIncSample, txId)
+                               indexedColName, finalTableCols, txId)
     {
         var deferred = jQuery.Deferred();
 
         var numGroupByCols = groupByCols.length;
-        var scrTableId = xcHelper.getTableId(srcTableName);
+        var srcTableId = xcHelper.getTableId(srcTableName);
         var groupByColTypes = [];
 
-        if (scrTableId == null || !gTables.hasOwnProperty(scrTableId)) {
+        if (srcTableId == null || !gTables.hasOwnProperty(srcTableId)) {
             // in case we have no meta of the table
             console.warn("cannot find the table");
             groupByColTypes = new Array(numGroupByCols);
         } else {
-            var srcTable = gTables[scrTableId];
+            var srcTable = gTables[srcTableId];
             for (var i = 0; i < numGroupByCols; i++) {
                 var progCol = srcTable.getColByBackName(groupByCols[i]);
                 if (progCol != null) {
@@ -1387,7 +1475,7 @@ window.XIApi = (function(XIApi, $) {
 
         // XXX Jerene: Okay this is really dumb, but we have to keep mapping
         var mapStrStarter = "cut(" + indexedColName + ", ";
-        var tableCols = extractColGetColHelper(finalTableCols, 0, isIncSample);
+        var tableCols = extractColGetColHelper(finalTableCols, 0);
 
         TblManager.setOrphanTableMeta(groupbyTableName, tableCols);
 
@@ -1409,7 +1497,7 @@ window.XIApi = (function(XIApi, $) {
 
             var newTableName = getNewTableName(currTableName);
             var isLastTable = (i === groupByCols.length - 1);
-            tableCols = extractColGetColHelper(finalTableCols, i + 1, isIncSample);
+            tableCols = extractColGetColHelper(finalTableCols, i + 1);
 
             var parsedName = xcHelper.parsePrefixColName(groupByCols[i]).name;
             var args = {
@@ -1434,12 +1522,8 @@ window.XIApi = (function(XIApi, $) {
         return deferred.promise();
     }
 
-    function extractColGetColHelper(tableCols, index, isIncSample) {
+    function extractColGetColHelper(tableCols, index) {
         var newCols = xcHelper.deepCopy(tableCols);
-        if (isIncSample) {
-            return newCols;
-        }
-
         newCols.splice(index + 1, newCols.length - index - 2);
         // Note that after splice, newCols.length changes
 

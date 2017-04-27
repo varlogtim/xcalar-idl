@@ -141,8 +141,7 @@
     <!-- START GROUP BY OPSECTION -->
     <div class="groupby opSection xc-hidden">
       <p class="instructions"><%= dicts.opsView.groupbyInstr %></p>
-      <div class="group groupbyGroup">
-        <div class="tableListSection clearfix">
+      <div class="tableListSection clearfix">
           <div class="subHeading clearfix">
             <span class="text"><%= dicts.common.Table %>:</span>
             <div class="iconWrap focusTable">
@@ -166,7 +165,8 @@
               </div>
             </div>
           </div>
-        </div>
+      </div>
+      <div class="group groupbyGroup">
         <div class="argsSection groupOnSection">
           <div class="row gbOnRow clearfix">
             <div class="description"><%= dicts.opsView.fieldsToGroup %>:</div>
@@ -186,7 +186,7 @@
             </div>
           </div>
           <div class="btnWrap">
-            <div class="addArgWrap">
+            <div class="addArgWrap addArgWrapLarge">
               <button class="btn addArg addGroupArg">
                 <i class="icon xi-plus"></i>
                 <span class="text"><%= dicts.opsView.AddAnotherColumn %></span>
@@ -218,63 +218,68 @@
         <div class="descriptionText"></div>
         <div class="argsSection inactive">
         </div>
-        <div class="row clearfix newTableNameRow inactive">
-          <div class="description"><%= dicts.opsView.newTableName %>:</div>
-          <input class="focusable newTableName" type="textbox" spellcheck="false" >
-        </div>
-        <div class="advancedSection collapsed">
-          <div class="advancedTitle minimized subHeading clearfix">
-            <div>
-              <i class="icon xi-plus-circle-outline advancedIcon minimized" data-container="body" data-toggle="tooltip" title="<%= dicts.TooltipTStr.ToggleAdvanced %>"></i>
-              <i class="icon xi-minus-circle-outline advancedIcon minimized" data-container="body" data-toggle="tooltip" title="<%= dicts.TooltipTStr.ToggleAdvanced %>"></i>
-              <span class="text"><%= dicts.common.AdvancedOpts %></span>
-            </div>
+      </div>
+      <div class="addArgWrap addArgWrapSmall">
+        <button class="btn btn-small addArg addGBGroup">
+          <i class="icon xi-plus"></i>
+        </button>
+        <span class="text"><%= dicts.opsView.additionalGB %></span>
+      </div>
+      <div class="row clearfix newTableNameRow inactive">
+        <div class="description"><%= dicts.opsView.newTableName %>:</div>
+        <input class="focusable newTableName" type="textbox" spellcheck="false" >
+      </div>
+      <div class="advancedSection collapsed">
+        <div class="advancedTitle minimized subHeading clearfix">
+          <div>
+            <i class="icon xi-plus-circle-outline advancedIcon minimized" data-container="body" data-toggle="tooltip" title="<%= dicts.TooltipTStr.ToggleAdvanced %>"></i>
+            <i class="icon xi-minus-circle-outline advancedIcon minimized" data-container="body" data-toggle="tooltip" title="<%= dicts.TooltipTStr.ToggleAdvanced %>"></i>
+            <span class="text"><%= dicts.common.AdvancedOpts %></span>
           </div>
-          <div class="optionsSection">
-            <div class="icvContainer">
-              <div class="icvMode checkboxSection">
-                <div class="text"><%= dicts.opsView.erroneousRows %></div>
-                <div class="checkbox">
-                  <i class="icon xi-ckbox-empty fa-11"></i>
-                  <i class="icon xi-ckbox-selected fa-11"></i>
-                </div>
-              </div>
-            </div>
-            <div class="gbCheckboxes clearfix">
-              <div class="keepTable checkboxSection clearfix">
-                <div class="text"><%= dicts.opsView.joinBack %></div>
-                <div class="checkbox">
-                  <i class="icon xi-ckbox-empty fa-11"></i>
-                  <i class="icon xi-ckbox-selected fa-11"></i>
-                </div>
-              </div>
-              <div class="incSample checkboxSection clearfix">
-                <div class="text"><%= dicts.opsView.includeSample %>
-                  <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-original-title="<%= dicts.opsView.incSampleTip %>"></i></div>
-                <div class="checkbox">
-                  <i class="icon xi-ckbox-empty fa-11"></i>
-                  <i class="icon xi-ckbox-selected fa-11"></i>
-               </div>
-              </div>
-            </div>
-            <div class="groupByColumnsSection xc-hidden">
-              <div class="subHeading clearfix">
-                <div class="label"><%= dicts.opsView.colsToKeep %>:</div>
-              </div>
-              <div class="checkboxWrap selectAllWrap">
-                <div class="checkbox selectAllCols">
-                  <i class="icon xi-ckbox-empty fa-13"></i>
-                  <i class="icon xi-ckbox-selected fa-13"></i>
-                </div>
-                <div class="text"><%= dicts.common.SelectAll %></div>
-              </div>
-              <div class="columnsWrap clearfix">
-                <ul class="cols"></ul>
+        </div>
+        <div class="optionsSection">
+          <div class="icvContainer">
+            <div class="icvMode checkboxSection">
+              <div class="text"><%= dicts.opsView.erroneousRows %></div>
+              <div class="checkbox">
+                <i class="icon xi-ckbox-empty fa-11"></i>
+                <i class="icon xi-ckbox-selected fa-11"></i>
               </div>
             </div>
           </div>
+          <div class="gbCheckboxes clearfix">
+            <div class="keepTable checkboxSection clearfix">
+              <div class="text"><%= dicts.opsView.joinBack %></div>
+              <div class="checkbox">
+                <i class="icon xi-ckbox-empty fa-11"></i>
+                <i class="icon xi-ckbox-selected fa-11"></i>
+              </div>
+            </div>
+            <div class="incSample checkboxSection clearfix">
+              <div class="text"><%= dicts.opsView.includeSample %>
+                <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-original-title="<%= dicts.opsView.incSampleTip %>"></i></div>
+              <div class="checkbox">
+                <i class="icon xi-ckbox-empty fa-11"></i>
+                <i class="icon xi-ckbox-selected fa-11"></i>
+             </div>
+            </div>
+          </div>
+          <div class="groupByColumnsSection xc-hidden">
+            <div class="subHeading clearfix">
+              <div class="label"><%= dicts.opsView.colsToKeep %>:</div>
+            </div>
+            <div class="checkboxWrap selectAllWrap">
+              <div class="checkbox selectAllCols">
+                <i class="icon xi-ckbox-empty fa-13"></i>
+                <i class="icon xi-ckbox-selected fa-13"></i>
+              </div>
+              <div class="text"><%= dicts.common.SelectAll %></div>
+            </div>
+            <div class="columnsWrap clearfix">
+              <ul class="cols"></ul>
+            </div>
+          </div>
         </div>
-
       </div>
       <!-- END GROUPBYGROUP GROUP -->
     </div>

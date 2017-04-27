@@ -468,13 +468,13 @@ window.xcFunction = (function($, xcFunction) {
         return deferred.promise();
     };
 
-    xcFunction.groupBy = function(operator, tableId, groupByCols, aggCol,
-                                   newColName, options)
-    {
+    // gbArgs is array of {operator, aggCol, newColName} objects
+    xcFunction.groupBy = function(tableId, gbArgs, groupByCols, options) {
         // Validation
         if (tableId == null ||
             groupByCols.length < 1 ||
-            aggCol.length < 1)
+            gbArgs.length < 1 ||
+            gbArgs[0].aggColName.length < 1)
         {
             return PromiseHelper.reject("Invalid Parameters!");
         }
@@ -486,16 +486,14 @@ window.xcFunction = (function($, xcFunction) {
         var isJoin = options.isJoin || false;
 
         var tableName = gTables[tableId].getName();
-        var dstTableName = options.dstTableName || null;
-        if (dstTableName != null) {
-            dstTableName += Authentication.getHashId();
-        }
+
         var finalTableName;
         var finalTableCols;
 
         // current workshhet index
         var curWS = WSManager.getWSFromTable(tableId);
         var steps;
+        // XXX figure out num steps with multiple group bys
         if (groupByCols.length > 1) {
             // concat, index(optional), groupby, [cuts]
             steps = 3 + groupByCols.length;
@@ -512,21 +510,22 @@ window.xcFunction = (function($, xcFunction) {
                 steps += 2;
             }
         }
+        if (gbArgs.length > 1) {
+            steps = -1;
+        }
 
         var sql = {
             "operation": SQLOps.GroupBy,
-            "operator": operator,
+            "args": gbArgs,
             "tableName": tableName,
             "tableId": tableId,
             "groupByCols": groupByCols,
-            "aggCol": aggCol,
-            "newColName": newColName,
             "options": options,
             "htmlExclude": ["options"]
         };
 
         var txId = Transaction.start({
-            "msg": StatusMessageTStr.GroupBy + " " + operator,
+            "msg": StatusMessageTStr.GroupBy,
             "operation": SQLOps.GroupBy,
             "steps": steps,
             "sql": sql
@@ -536,6 +535,12 @@ window.xcFunction = (function($, xcFunction) {
 
         var focusOnTable = false;
         var scrollChecker = new ScollTableChecker();
+
+        var dstTableName = options.dstTableName || null;
+
+        if (dstTableName != null) {
+            dstTableName += Authentication.getHashId();
+        }
         var groupByOpts = {
             "newTableName": dstTableName,
             "isIncSample": isIncSample,
@@ -543,8 +548,7 @@ window.xcFunction = (function($, xcFunction) {
             "icvMode": options.icvMode
         };
 
-        XIApi.groupBy(txId, operator, groupByCols, aggCol,
-                      tableName, newColName, groupByOpts)
+        XIApi.groupBy(txId, gbArgs, groupByCols, tableName, groupByOpts)
         .then(function(nTableName, nTableCols) {
             if (isJoin) {
                 var dataColNum = gTables[tableId].getColNumByBackName("DATA");
@@ -563,8 +567,12 @@ window.xcFunction = (function($, xcFunction) {
             var tablesToReplace = null;
 
             if (isJoin) {
+                var colsToSelect = [];
+                for (var i = 0; i < gbArgs.length; i++) {
+                    colsToSelect.push(i + 1);
+                }
+                tableOptions.selectCol = colsToSelect;
                 tablesToReplace = [tableName];
-                tableOptions.selectCol = 1;
             }
 
             return TblManager.refreshTable([finalTableName], finalTableCols,
@@ -595,6 +603,8 @@ window.xcFunction = (function($, xcFunction) {
             deferred.reject(error);
         });
 
+        // TODO when multi-groupby we cant use the unsplit table instead of
+        // splitting and then concatting again
         function groupByJoinHelper(nTable, nCols, dataColNum, isIncSample) {
             var innerDeferred = jQuery.Deferred();
 
@@ -659,7 +669,10 @@ window.xcFunction = (function($, xcFunction) {
                 joinTableCols.splice(dataColNum - 1, 0,
                         joinTableCols.splice(joinTableCols.length - 1, 1)[0]);
                 // put the groupBy column in front
-                joinTableCols.unshift(nCols[0]);
+                for (var i = 0; i < gbArgs.length; i++) {
+                    joinTableCols.unshift(nCols[i]);
+                }
+
                 innerDeferred.resolve(jonTable, joinTableCols);
             })
             .fail(innerDeferred.reject);

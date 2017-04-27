@@ -12,7 +12,8 @@ window.TblManager = (function($, TblManager) {
                             from the datastores panel
         -afterStartup: boolean, default is true. Set to false if tables are
                       being added during page load
-        -selectCol: number. column to be highlighted when table is ready
+        -selectCol: number or array of numbers. column to be highlighted when
+                    table is ready
         -isUndo: boolean, default is false. Set to true if this table is being
                   created from an undo operation,
         -position: int, used to place a table in a certain spot if not replacing
@@ -128,7 +129,7 @@ window.TblManager = (function($, TblManager) {
             });
         })
         .fail(function(error) {
-            console.error("set gTables fails!", error);
+            console.error("set gTables fails!", error, newTableName);
             if (worksheet != null) {
                 WSManager.removeTable(newTableId);
             }
@@ -194,7 +195,8 @@ window.TblManager = (function($, TblManager) {
 
         Possible Options:
         afterStartup: boolean to indicate if the table is added after page load
-        selectCol: number. column to be highlighted when table is ready
+        selectCol: number or array of numbers. column to be highlighted when
+                    table is ready
     */
     TblManager.parallelConstruct = function(tableId, tablesToRemove, options) {
         options = options || {};
@@ -1489,7 +1491,8 @@ window.TblManager = (function($, TblManager) {
         Possible Options:
         -afterStartup: boolean to indicate if these tables are added after
                       page load
-        -selectCol: number, column to be selected once new table is ready
+        -selectCol: number or array of numbers, column to be selected once new
+                    table is ready
         -isUndo: boolean, default is false. If true, we are adding this table
                 through an undo,
         -replacingDest: string, where to send old tables that are being replaced
@@ -1637,7 +1640,8 @@ window.TblManager = (function($, TblManager) {
     /*
         Start the process of building table
         Possible Options:
-        selectCol: number. column to be highlighted when table is ready
+        selectCol: number or array of numbers. column to be highlighted when
+                    table is ready
     */
     function startBuildTable(tableId, tablesToRemove, options) {
         var deferred = jQuery.Deferred();
@@ -1740,7 +1744,8 @@ window.TblManager = (function($, TblManager) {
 
     /*
         Possible Options:
-        selectCol: number. column to be highlighted when table is ready
+        selectCol: number or array of numbers. column to be highlighted when
+                    table is ready
     */
     function buildInitialTable(tableId, jsonData, options) {
         generateTableShell(tableId);

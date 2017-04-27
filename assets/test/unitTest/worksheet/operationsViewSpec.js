@@ -633,14 +633,13 @@ describe('OperationsView Test', function() {
 
             it('group by should work', function(done) {
                 var gbCalled = false;
-                xcFunction.groupBy = function(operator, tId, groupByCols, aggCol,
-                                   newColName, options) {
-                    expect(operator).to.equal("count");
+                xcFunction.groupBy = function(tId, gbArgs, groupByCols, options) {
+                    expect(gbArgs[0].operator).to.equal("count");
                     expect(tId).to.equal(tableId);
                     expect(groupByCols.length).to.equal(1);
                     expect(groupByCols[0]).to.equal("a");
-                    expect(aggCol).to.equal("b");
-                    expect(newColName).to.equal("c");
+                    expect(gbArgs[0].aggColName).to.equal("b");
+                    expect(gbArgs[0].newColName).to.equal("c");
                     expect(options.icvMode).to.be.false;
                     expect(options.isIncSample).to.be.false;
                     expect(options.isJoin).to.be.false;
@@ -649,7 +648,7 @@ describe('OperationsView Test', function() {
                     return PromiseHelper.resolve();
                 };
 
-                OperationsView.__testOnly__.groupBy("count", ["a", "b", "c"], [])
+                OperationsView.__testOnly__.groupBy(["count"], [["a", "b", "c"]], [])
                 .then(function() {
                     expect(gbCalled).to.be.true;
                     done();

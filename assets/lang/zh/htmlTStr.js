@@ -622,6 +622,7 @@ module.exports = {
         "DescripFunc": "函数说明",
         "EmptyHint": "选择允许该行为空",
         "additional": "添加过滤条件",
+        "additionalGB": "Apply Additional Functions",
         "aggFunc": "聚合函数",
         "aggInstr": "选择一个函数, 例如sum, 输入相应参数。列名应以$为前缀，例如$column1。如选择聚合名，则应以^为前缀。",
         "and": "and",
