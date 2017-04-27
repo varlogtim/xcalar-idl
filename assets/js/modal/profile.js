@@ -99,7 +99,7 @@ window.Profile = (function($, Profile, d3) {
             resetTooltip();
         });
 
-        var $groupbySection = $modal.find(".groubyInfoSection");
+        var $groupbySection = $modal.find(".groupbyInfoSection");
 
         $groupbySection.on("click", ".bar-extra, .bar, .xlabel", function(event) {
             if (event.which !== 1) {
@@ -463,10 +463,16 @@ window.Profile = (function($, Profile, d3) {
     }
 
     function showProfile() {
+        $modal.removeClass("type-number")
+              .removeClass("type-boolean")
+              .removeClass("type-string");
+
         if (isTypeNumber(statsCol.type)) {
             $modal.addClass("type-number");
-        } else {
-            $modal.removeClass("type-number");
+        } else if (isTypeBoolean(statsCol.type)) {
+            $modal.addClass("type-boolean");
+        } else if (isTypeString(statsCol.type)) {
+            $modal.addClass("type-string");
         }
 
         // hide scroll bar first
@@ -679,7 +685,7 @@ window.Profile = (function($, Profile, d3) {
     }
 
     function checkAgg(curStatsCol) {
-        var isNum = isTypeNumber(curStatsCol.type);
+        var isStr = isTypeString(curStatsCol.type);
         aggKeys.forEach(function(aggkey) {
             if (aggkey === "count") {
                 if (curStatsCol.aggInfo[aggkey] == null &&
@@ -689,7 +695,7 @@ window.Profile = (function($, Profile, d3) {
                     curStatsCol.aggInfo[aggkey] = count;
                     refreshAggInfo(aggkey, curStatsCol);
                 }
-            } else if (!isNum) {
+            } else if (isStr) {
                 curStatsCol.aggInfo[aggkey] = "--";
                 refreshAggInfo(aggkey, curStatsCol);
             }
@@ -1189,7 +1195,7 @@ window.Profile = (function($, Profile, d3) {
         var xName = parseColName(tableInfo.colName);
         var yName = noBucket ? statsColName : bucketColName;
 
-        var $section = $modal.find(".groubyInfoSection");
+        var $section = $modal.find(".groupbyInfoSection");
         var data = groupByData;
         var dataLen = data.length;
 
@@ -1548,6 +1554,8 @@ window.Profile = (function($, Profile, d3) {
             return "";
         } else if (typeof(num) === "string") {
             return "\"" + num + "\"";
+        } else if (typeof(num) === "boolean") {
+            return num;
         } else if (isNaN(num)) {
             return num;
         } else if (isLogScale) {
@@ -1776,7 +1784,7 @@ window.Profile = (function($, Profile, d3) {
     }
 
     function setArrows(rowNum, fetchingData) {
-        var $groupbySection = $modal.find(".groubyInfoSection");
+        var $groupbySection = $modal.find(".groupbyInfoSection");
         var $leftArrow = $groupbySection.find(".left-arrow");
         var $rightArrow = $groupbySection.find(".right-arrow");
 
@@ -2770,7 +2778,15 @@ window.Profile = (function($, Profile, d3) {
 
     function isTypeNumber(type) {
         // boolean is also a num in backend
-        return (type === "integer" || type === "float" || type === "boolean");
+        return (type === "integer" || type === "float");
+    }
+
+    function isTypeBoolean(type) {
+        return (type === "boolean");
+    }
+
+    function isTypeString(type) {
+        return (type === "string");
     }
 
     function isModalVisible(curStatsCol) {
@@ -2799,7 +2815,7 @@ window.Profile = (function($, Profile, d3) {
             $modal.find(".loadHidden").removeClass("hidden")
                                     .removeClass("disabled");
             $modal.find(".loadDisabled").removeClass("disabled");
-            $modal.find(".groubyInfoSection").addClass("hidden");
+            $modal.find(".groupbyInfoSection").addClass("hidden");
             $modal.find(".errorSection").removeClass("hidden")
                 .find(".text").text(error);
 
