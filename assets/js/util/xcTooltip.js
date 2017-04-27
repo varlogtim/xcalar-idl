@@ -18,7 +18,7 @@ window.xcTooltip = (function(xcTooltip, $) {
 
         // element's delay attribute will take precedence - unique for xcalar
         $("body").on("mouseenter", '[data-toggle="tooltip"]', function() {
-            $(".tooltip").hide();
+            xcTooltip.hideAll();
         });
     };
 

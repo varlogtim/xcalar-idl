@@ -785,7 +785,7 @@ describe("DSObj Test", function() {
     });
 
     after(function() {
-        $(".tooltip").hide(); // toggle list view test may have tooltip
+        xcTooltip.hideAll(); // toggle list view test may have tooltip
         $mainTabCache.click();
         UnitTest.offMinMode();
     });

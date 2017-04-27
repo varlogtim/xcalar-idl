@@ -57,7 +57,7 @@ window.Tips = (function($, Tips) {
 
     // main function to show tips
     function showTips() {
-        $(".tooltip").hide();
+        xcTooltip.hideAll();
 
         if ($("#modalBackground").is(":visible")) {
             // when any modal is on

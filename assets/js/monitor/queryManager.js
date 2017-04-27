@@ -1192,7 +1192,7 @@ window.QueryManager = (function(QueryManager, $) {
                 } else {
                     $querySideBar.addClass("bulkOptionsOpen");
                     $queryList.find(".checkbox").addClass("checked");
-                    $(".tooltip").hide();
+                    xcTooltip.hideAll();
                 }
             }
         });

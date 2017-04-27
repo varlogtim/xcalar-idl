@@ -387,32 +387,6 @@ describe("Worksheet Test", function() {
             expect(worksheet.tables.length).to.equal(1);
         });
 
-        it("should archive table", function() {
-            expect(worksheet.archivedTables.length).to.equal(0);
-            WSManager.archiveTable(tableId);
-            expect(worksheet.archivedTables.length).to.equal(1);
-
-        });
-
-        it("Should active table", function() {
-            expect(worksheet.tables.length).to.equal(0);
-            WSManager.activeTable(tableId);
-            expect(worksheet.tables.length).to.equal(1);
-        });
-
-        it("Should archive table to temp hidden", function() {
-            expect(worksheet.tempHiddenTables.length).to.equal(0);
-            WSManager.archiveTable(tableId, true);
-
-            expect(worksheet.tempHiddenTables.length).to.equal(1);
-            expect(worksheet.tables.length).to.equal(0);
-
-            // replace back
-            WSManager.replaceTable(tableId);
-            expect(worksheet.tempHiddenTables.length).to.equal(0);
-            expect(worksheet.tables.length).to.equal(1);
-        });
-
         it("Should change table status", function() {
             // invalid case
             WSManager.changeTableStatus("errorId");

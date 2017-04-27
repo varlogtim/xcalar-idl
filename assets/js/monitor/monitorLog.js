@@ -107,7 +107,7 @@ window.MonitorLog = (function(MonitorLog, $) {
         .always(function() {
             $recentLogsGroup.removeClass("xc-disabled");
             $input.blur();
-            $(".tooltip").hide();
+            xcTooltip.hideAll();
         });
     }
 

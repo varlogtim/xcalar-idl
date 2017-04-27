@@ -122,7 +122,7 @@ window.JSONModal = (function($, JSONModal) {
         }
 
         if (!isModalOpen) {
-            $(".tooltip").hide();
+            xcTooltip.hideAll();
             TblManager.unHighlightCells();
             $searchInput.val("");
 

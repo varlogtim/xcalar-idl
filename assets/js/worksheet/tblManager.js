@@ -335,7 +335,6 @@ window.TblManager = (function($, TblManager) {
             table.updateTimeStamp();
             delete table.scrollMeta;
             delete table.highlightedCells;
-            // WSManager.archiveTable(tableId, tempHide);
             WSManager.changeTableStatus(tableId, TableType.Archived);
             TableList.moveTable(tableId);
         } else {
@@ -2202,7 +2201,7 @@ window.TblManager = (function($, TblManager) {
             var table = gTables[tableId];
             var progCol = table.tableCols[colNum - 1];
 
-            $(".tooltip").hide();
+            xcTooltip.hideAll();
             resetColMenuInputs($el);
 
             options.colNum = colNum;
@@ -2382,7 +2381,7 @@ window.TblManager = (function($, TblManager) {
             var rowNum = xcHelper.parseRowNum($td.closest("tr"));
             var isUnSelect = false;
 
-            $(".tooltip").hide();
+            xcTooltip.hideAll();
             resetColMenuInputs($el);
 
             var $highlightBoxs = $(".highlightBox");
@@ -2522,7 +2521,7 @@ window.TblManager = (function($, TblManager) {
             var colNum = xcHelper.parseColNum($td);
             var rowNum = xcHelper.parseRowNum($td.closest("tr"));
 
-            $(".tooltip").hide();
+            xcTooltip.hideAll();
             resetColMenuInputs($el);
 
             if ($td.find(".highlightBox").length === 0) {

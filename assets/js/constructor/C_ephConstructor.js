@@ -1641,7 +1641,7 @@ FormHelper.prototype = {
         $("body").addClass("no-selection");
         xcHelper.removeSelectionRange();
         // hide tooltip when open the form
-        $(".tooltip").hide();
+        xcTooltip.hideAll();
         $(".selectedCell").removeClass("selectedCell");
         FnBar.clear();
 

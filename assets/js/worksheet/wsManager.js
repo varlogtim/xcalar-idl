@@ -46,16 +46,20 @@ window.WSManager = (function($, WSManager) {
         noSheetTables = sheetInfos.noSheetTables || [];
 
         var oldWorksheetLookup = sheetInfos.wsInfos || {};
+        wsOrder.forEach(function(worksheetId) {
+            var worksheet = oldWorksheetLookup[worksheetId];
+            restoreWSInfo(worksheet);
+            delete oldWorksheetLookup[worksheetId];
+        });
+
+        hiddenWS.forEach(function(worksheetId) {
+            var worksheet = oldWorksheetLookup[worksheetId];
+            restoreWSInfo(worksheet);
+            delete oldWorksheetLookup[worksheetId];
+        });
 
         for (var worksheetId in oldWorksheetLookup) {
-            var worksheet = oldWorksheetLookup[worksheetId];
-            cacheWorksheetInfo(worksheet);
-            for (var key in WSTableType) {
-                var tableType = WSTableType[key];
-                worksheet[tableType].forEach(function(tableId) {
-                    tableIdToWSIdMap[tableId] = worksheet.getId();
-                });
-            }
+            console.warn(worksheetId, "is not in active or hidden list");
         }
 
         var oldActiveWS = sheetInfos.activeWS;
@@ -66,6 +70,16 @@ window.WSManager = (function($, WSManager) {
         initializeWorksheet();
         initializeHiddenWorksheets();
     };
+
+    function restoreWSInfo(worksheet) {
+        cacheWorksheetInfo(worksheet);
+        for (var key in WSTableType) {
+            var tableType = WSTableType[key];
+            worksheet[tableType].forEach(function(tableId) {
+                tableIdToWSIdMap[tableId] = worksheet.getId();
+            });
+        }
+    }
 
     // Clear all data in WSManager
     WSManager.clear = function() {
@@ -311,7 +325,7 @@ window.WSManager = (function($, WSManager) {
             "worksheetId": wsId,
             "worksheetName": ws.name,
             "worksheetIndex": index,
-            "htmlExclude": ['worksheetIndex']
+            "htmlExclude": ["worksheetIndex"]
         });
     };
 
@@ -321,7 +335,7 @@ window.WSManager = (function($, WSManager) {
             wsIds = [wsIds];
         }
 
-        $(".tooltip").hide();
+        xcTooltip.hideAll();
         var wsNames = [];
         var curWSId;
         var hiddenWSOrder = [];
@@ -423,33 +437,6 @@ window.WSManager = (function($, WSManager) {
         var t = tables[srcIndex];
         tables.splice(srcIndex, 1);
         tables.splice(desIndex, 0, t);
-    };
-
-    // For archive table use
-    WSManager.archiveTable = function(tableId, tempHide) {
-        var wsId = tableIdToWSIdMap[tableId];
-        var ws = worksheetGroup.get(wsId);
-
-        var srcTables = ws.tables;
-        var desTables;
-        if (tempHide) {
-            desTables = ws.tempHiddenTables;
-        } else {
-            desTables = ws.archivedTables;
-        }
-
-        toggleTableArchive(tableId, srcTables, desTables);
-    };
-
-    // For inArchive table use
-    WSManager.activeTable = function(tableId) {
-        var wsId = tableIdToWSIdMap[tableId];
-        var ws = worksheetGroup.get(wsId);
-
-        var srcTables = ws.archivedTables;
-        var desTables = ws.tables;
-
-        toggleTableArchive(tableId, srcTables, desTables);
     };
 
     // relative to only tables in it's worksheet, not other worksheets
@@ -615,9 +602,8 @@ window.WSManager = (function($, WSManager) {
         });
     };
 
-    // XXX Cheng: I think WSManager.activeTable, WSManager,archiveTable
-    // and WSManager.replaceTable can be generalized into this function
-    // will refactor in 1.1
+    // XXX Cheng: I think WSManager.replaceTable can be generalized
+    // into this function, will refactor in 1.1
     //
     // changes table status and moves it to the proper worksheet category
     // newStatus: string, TableType.Active, TableType.Archived, TableType.Orphan
@@ -731,19 +717,6 @@ window.WSManager = (function($, WSManager) {
 
                 sql.oldWorksheetId = oldWSId;
                 sql.oldWorksheetName = worksheetGroup.get(oldWSId).name;
-
-                // var wsName = newWS.name;
-                // refresh right side bar
-                // $("#inactiveTablesList .tableInfo").each(function() {
-                //     var $li = $(this);
-                //     if ($li.data("id") === tableId) {
-                //         var $worksheetInfo = $li.find(".worksheetInfo");
-
-                //         $worksheetInfo.removeClass("worksheet-" + oldWSId)
-                //                         .addClass("worksheet-" + newWSId);
-                //         $worksheetInfo.text(wsName);
-                //     }
-                // });
 
                 innerDeferrd.resolve();
             } else {
@@ -1082,7 +1055,7 @@ window.WSManager = (function($, WSManager) {
         });
 
         var $section = $("#worksheetListSection");
-        $("#worksheetListSection").on("click", ".listInfo", function() {
+        $section.on("click", ".listInfo", function() {
             $(this).closest(".listWrap").toggleClass("active");
         });
 
@@ -1546,6 +1519,8 @@ window.WSManager = (function($, WSManager) {
             }
             TableList.refreshOrphanList();
         });
+
+        return deferred.promise();
     }
 
     function deleteTableFailHandler(errors) {
@@ -1680,12 +1655,6 @@ window.WSManager = (function($, WSManager) {
 
         return html;
     }
-
-    /* Unit Test Only */
-    if (window.unitTestMode) {
-        WSManager.__testOnly__ = {};
-    }
-    /* End Of Unit Test Only */
 
     return (WSManager);
 }(jQuery, {}));
