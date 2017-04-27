@@ -647,7 +647,10 @@ window.xcFunction = (function($, xcFunction) {
                 "rename": rRenam
             };
 
-            XIApi.join(txId, joinType, lTableInfo, rTableInfo, jonTable)
+            var joinOpts = {
+                "newTableName": jonTable
+            };
+            XIApi.join(txId, joinType, lTableInfo, rTableInfo, joinOpts)
             .then(function(jonTable, joinTableCols) {
                 // remove the duplicated columns that were joined
                 joinTableCols.splice(joinTableCols.length -
