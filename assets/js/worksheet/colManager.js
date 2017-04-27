@@ -450,7 +450,7 @@ window.ColManager = (function($, ColManager) {
 
             var curTableName = newTableNames[index - 1];
             var newTableName = newTableNames[index];
-            var fieldName = newFieldNames[index];
+            var fieldName = xcHelper.stripeColName(newFieldNames[index]);
             var newTableId = xcHelper.getTableId(newTableName);
 
             XIApi.map(txId, mapString, curTableName, fieldName, newTableName)
