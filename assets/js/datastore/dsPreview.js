@@ -1291,18 +1291,26 @@ window.DSPreview = (function($, DSPreview) {
         var deferred = jQuery.Deferred();
 
         var loadURL = loadArgs.getPath();
-        var advanceArgs = advanceOption.getArgs();
-
         var dsName = $("#dsForm-dsName").val();
         if (!dsName) {
             dsName = setDefaultDSName(loadURL);
         }
 
-        var isRecur = advanceArgs.isRecur;
-        var isRegex = advanceArgs.isRegex;
-        var pattern = xcHelper.getFileNamePattern(advanceArgs.pattern, isRegex);
+        var advanceArgs = advanceOption.getArgs();
+        var isRecur = false;
+        var isRegex = false;
+        var pattern = null;
+        var previewSize = null;
 
-        var previewSize = advanceArgs.previewSize;
+        if (advanceArgs != null) {
+            isRecur = advanceArgs.isRecur;
+            isRegex = advanceArgs.isRegex;
+            pattern = xcHelper.getFileNamePattern(advanceArgs.pattern, isRegex);
+            previewSize = advanceArgs.previewSize;
+        } else {
+            console.error("error case");
+        }
+
         var hasUDF = false;
 
         if (udfModule && udfFunc) {
@@ -1458,9 +1466,17 @@ window.DSPreview = (function($, DSPreview) {
         var loadURL = loadArgs.getPath();
         var previewFile = $("#preview-file").find(".text").text();
         var advanceArgs = advanceOption.getArgs();
-        var isRecur = advanceArgs.isRecur;
-        var isRegex = advanceArgs.isRegex;
-        var pattern = xcHelper.getFileNamePattern(advanceArgs.pattern, isRegex);
+        var isRecur = false;
+        var isRegex = false;
+        var pattern = null;
+
+        if (advanceArgs != null) {
+            isRecur = advanceArgs.isRecur;
+            isRegex = advanceArgs.isRegex;
+            pattern = xcHelper.getFileNamePattern(advanceArgs.pattern, isRegex);
+        } else {
+            console.error("error case");
+        }
 
         PreviewFileModal.show(loadURL, {
             "previewFile": previewFile,
