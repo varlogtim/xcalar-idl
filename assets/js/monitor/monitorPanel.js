@@ -116,7 +116,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
                 return;
             }
             $monitorPanel.find(".monitorSection.active").removeClass("active");
-            var title = MonitorTStr.Monitor + '/';
+            var title = MonitorTStr.Monitor + ': ';
             var $menu = $("#monitorMenu");
             $menu.find(".menuSection").addClass("xc-hidden");
             var $extSearch = $("#extension-search").addClass("xc-hidden");
