@@ -79,6 +79,9 @@ window.ColManager = (function($, ColManager) {
         var tableWidth = $table.closest('.xcTableWrap').width();
         var progCols = [];
         var noAnimate = options.noAnimate || false;
+        if (colNums.length > 8) {
+            noAnimate = true;
+        }
 
         // check if only 1 column and is an empty column so we call this
         // a "delete" instead of a "hide"
@@ -913,6 +916,10 @@ window.ColManager = (function($, ColManager) {
         var tableWidth = $table.width();
         var promises = [];
         var animOpt = {"width": gHiddenColumnWidth};
+        var noAnim = false;
+        if (colNums.length > 8) { // too much lag if multile columns
+            noAnim = true;
+        }
 
         colNums.forEach(function(colNum) {
             var progCol = table.getCol(colNum);
@@ -928,7 +935,7 @@ window.ColManager = (function($, ColManager) {
             xcTooltip.changeText($th.find(".dropdownBox"), columnName);
 
             var $cells = $table.find("th.col" + colNum + ",td.col" + colNum);
-            if (!gMinModeOn) {
+            if (!gMinModeOn && !noAnim) {
                 var innerDeferred = jQuery.Deferred();
 
                 $cells.addClass("animating");
@@ -945,7 +952,7 @@ window.ColManager = (function($, ColManager) {
             }
         });
 
-        if (!gMinModeOn) {
+        if (!gMinModeOn && !noAnim) {
             TblFunc.moveTableTitlesAnimated(tableId, tableWidth, widthDiff, 250);
         }
 
@@ -976,6 +983,9 @@ window.ColManager = (function($, ColManager) {
         var widthDiff = 0;
         var colNames = [];
         var promises = [];
+        if (colNums.length > 8) { // too much lag if multile columns
+            noAnim = true;
+        }
 
         colNums.forEach(function(colNum) {
             var progCol = table.getCol(colNum);

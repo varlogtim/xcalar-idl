@@ -59,6 +59,10 @@ html.edge {
     table-layout: fixed;
     cursor: default;
 
+    .animating { // on th and tds
+        pointer-events: none;
+    }
+
     thead {
         background-color: @color-table-header-gray;
         box-shadow: inset 0px -1px 0 0 rgba(0, 0, 0, 0.2);
