@@ -139,7 +139,7 @@ window.DSParser = (function($, DSParser) {
                     deferred.reject();
                 }
             }],
-            "onCancel": function() { deferred.reject() }
+            "onCancel": function() { deferred.reject(); }
         });
 
         return deferred.promise();
@@ -977,10 +977,7 @@ window.DSParser = (function($, DSParser) {
     function handlePreviewModeError(error) {
         var $box = $("#previewModeBox");
         $box.addClass("error");
-        if (typeof error === "object") {
-            error = JSON.stringify(error);
-        }
-        $box.find(".boxBody .content").text(error);
+        $box.find(".boxBody .content").text(xcHelper.parseError(error));
     }
 
     function beautifier(url) {
@@ -1524,9 +1521,7 @@ window.DSParser = (function($, DSParser) {
 
     function handleError(error) {
         $parserCard.removeClass("loading fetchingRows").addClass("error");
-        if (typeof error === "object") {
-            error = JSON.stringify(error);
-        }
+        error = xcHelper.parseError(error);
         $parserCard.find(".errorSection.error").text(error);
     }
 

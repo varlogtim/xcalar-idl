@@ -150,9 +150,7 @@ window.DSTable = (function($, DSTable) {
     }
 
     function setupViewAfterError(error, isFetchError) {
-        if (typeof error === "object") {
-            error = JSON.stringify(error);
-        }
+        error = xcHelper.parseError(error);
         // backend might return this: "<string>"
         error = xcHelper.escapeHTMLSepcialChar(error);
         var startError = isFetchError

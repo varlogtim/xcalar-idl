@@ -21,6 +21,13 @@ describe('xcHelper Test', function() {
         expect(res).to.equal("id");
     });
 
+    it("xcHelper.parseError should work", function() {
+        var obj = {"test": "a"};
+        expect(xcHelper.parseError(obj)).to.equal(JSON.stringify(obj));
+        // case 2
+        expect(xcHelper.parseError("test")).to.equal("test");
+    });
+
     it('xcHelper.parseRowNum should work', function() {
         // case 1
         var $el = $('<div class="row1"></div>');

@@ -212,9 +212,7 @@ window.PreviewFileModal = (function(PreviewFileModal, $) {
 
     function handleError(error) {
         $modal.removeClass("loading").addClass("error");
-        if (typeof error === "object") {
-            error = JSON.stringify(error);
-        }
+        error = xcHelper.parseError(error);
         $modal.find(".errorSection").text(error);
     }
 

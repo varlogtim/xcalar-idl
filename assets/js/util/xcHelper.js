@@ -27,6 +27,13 @@ window.xcHelper = (function($, xcHelper) {
         }
     };
 
+    xcHelper.parseError = function(error) {
+        if (typeof error === "object") {
+            error = JSON.stringify(error);
+        }
+        return error;
+    };
+
     xcHelper.parseRowNum = function($tr) {
         var keyword = "row";
         var classNames = $tr.attr("class");

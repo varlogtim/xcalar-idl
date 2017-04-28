@@ -423,7 +423,7 @@ window.UDF = (function($, UDF) {
             getEntireUDF(moduleName)
             .then(fillUDFFunc)
             .fail(function(error) {
-                fillUDFFunc("#" + error);
+                fillUDFFunc("#" + xcHelper.parseError(error));
             });
         }
 
@@ -536,8 +536,6 @@ window.UDF = (function($, UDF) {
         var html = "";
 
         var hideXcUDF = UserSettings.getPref("hideXcUDF");
-        var liClass = "";
-
         for (var i = 0; i < len; i++) {
             var moduleName = moduleNames[i];
             var udfClass = "udf";
