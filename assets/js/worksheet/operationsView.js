@@ -1601,7 +1601,7 @@ window.OperationsView = (function($, OperationsView) {
                                    ':<br></b>' +
                                    '<span class="aggColSection"></span>' +
                                    'GROUP BY (' +
-                         '<span class="groupByCols"></span>);';
+                         '<span class="groupByCols"></span>)';
                 $strPreview.html(initialText);
             }
             $strPreview.find(".aggColSection").append(strPreview);

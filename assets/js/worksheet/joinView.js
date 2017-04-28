@@ -531,7 +531,7 @@ window.JoinView = (function($, JoinView) {
         xcTooltip.add($subHeading.find('.tooltipWrap'), {
             "title": tooltipTitle
         });
-        
+
         $joinView.find('.joinClause').each(function() {
             var $input = $(this).find('.arg').eq(index);
             if ($input.length) {
@@ -1879,7 +1879,6 @@ window.JoinView = (function($, JoinView) {
                 previewText += leftColText + ' = ' + rightColText;
             }
         }
-        previewText += ";";
         $joinView.find('.joinPreview').html(previewText);
     }
 
