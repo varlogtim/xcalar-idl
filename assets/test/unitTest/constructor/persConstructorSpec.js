@@ -781,7 +781,7 @@ describe("Persistent Constructor Test", function() {
     });
 
     describe("Table Constructor Test", function() {
-        it("Should have 19 attributes", function() {
+        it("Should have 20 attributes", function() {
             var table = new TableMeta({
                 "tableName": "test#a1",
                 "tableId": "a1",
@@ -789,7 +789,7 @@ describe("Persistent Constructor Test", function() {
             });
 
             expect(table).to.be.an.instanceof(TableMeta);
-            expect(Object.keys(table).length).to.equal(19);
+            expect(Object.keys(table).length).to.equal(20);
             expect(table).have.property("version").and
             .to.equal(currentVersion);
             expect(table).have.property("tableName").and
@@ -828,6 +828,8 @@ describe("Persistent Constructor Test", function() {
             .to.be.equal(-1);
             expect(table).have.property("numPages").and
             .to.be.equal(-1);
+            expect(table).have.property("indexTables").and
+            .to.be.an("object");
         });
 
         it("TableMeta Constructor should handle error case", function() {
@@ -1682,6 +1684,21 @@ describe("Persistent Constructor Test", function() {
             expect(table.getColContents(2)).to.equal(null);
 
             $("#xcTable-" + tableId).remove();
+        });
+
+        it("should check indexTables tables", function() {
+            var table = new TableMeta({
+                "tableName": "test#a1",
+                "tableId": "a1"
+            });
+
+            expect(table.getIndexTable("testCol")).to.be.undefined;
+
+            table.setIndexTable("testCol", "testTable");
+            expect(table.getIndexTable("testCol")).to.equal("testTable");
+
+            table.removeIndexTable("testCol");
+            expect(table.getIndexTable("testCol")).to.be.undefined;
         });
     });
 

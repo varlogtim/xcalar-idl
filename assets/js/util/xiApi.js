@@ -1044,27 +1044,27 @@ window.XIApi = (function(XIApi, $) {
         var deferred = jQuery.Deferred();
         var tableId = xcHelper.getTableId(tableName);
         var tableCols = null;
-        var progCol;
+        var table = null;
 
         if (tableId == null || !gTables.hasOwnProperty(tableId)) {
             // in case we have no meta of the table
             console.warn("cannot find the table");
         } else {
-            var table = gTables[tableId];
+            table = gTables[tableId];
             tableCols = table.tableCols;
-            progCol = table.getColByBackName(colName);
-
-            if (progCol != null && progCol.indexTable != null) {
+            var indexTable = table.getIndexTable(colName);
+            if (indexTable != null) {
                 // XXX Note: here the assume is if index table has meta,
                 // it should exists
                 // more reliable might be use XcalarGetTables to check, but it's
                 // async
-                console.log("has cahced of index table", progCol.indexTable);
-                var indexTableId = xcHelper.getTableId(progCol.indexTable);
+                var indexTableId = xcHelper.getTableId(indexTable);
                 if (gTables.hasOwnProperty(indexTableId)) {
-                    return PromiseHelper.resolve(progCol.indexTable, true, []);
+                    console.log("has cahced of index table", indexTable);
+                    return PromiseHelper.resolve(indexTable, true, []);
                 } else {
-                    delete progCol.indexTable;
+                    console.log("cahced index table", indexTable, "not exists");
+                    table.removeIndexTable(colName);
                 }
             }
         }
@@ -1087,9 +1087,10 @@ window.XIApi = (function(XIApi, $) {
                         tempTables.push(newTableName);
                         TblManager.setOrphanTableMeta(newTableName, tableCols);
                     }
-                    if (progCol != null) {
-                        progCol.indexTable = newTableName;
+                    if (table != null) {
+                        table.setIndexTable(colName, newTableName);
                     }
+
                     deferred.resolve(newTableName, shouldIndex, tempTables);
                 })
                 .fail(function(error) {

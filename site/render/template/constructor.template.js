@@ -300,6 +300,8 @@
             resultSetMax: (integer, not persist) last row able to fetch
             numPages: (integer, not persist) num of pages
             backTableMeta: (obj, not persist) backTableMeta
+         * new attr:
+            indexTables: (obj) cache column's indexed table
         */
         function TableMeta<%= v %>(options) {
             options = options || {};
@@ -310,6 +312,7 @@
             if (<%= checkFunc %>(options)) {
                 self.tableCols = TableMeta<%= v %>.restoreProgCol(options.tableCols,
                                                             version);
+                self.indexTables = options.indexTables || {};
             }
 
             return self;
@@ -344,6 +347,18 @@
 
             hasLock: function() {
                 return this.isLocked;
+            },
+
+            getIndexTable: function(colName) {
+                return this.indexTables[colName];
+            },
+
+            setIndexTable: function(colName, indexTable) {
+                this.indexTables[colName] = indexTable;
+            },
+
+            removeIndexTable: function(colName) {
+                delete this.indexTables[colName];
             },
 
             addNoDelete: function() {
@@ -851,9 +866,6 @@
 
             if (<%= checkFunc %>(options)) {
                 self.func = new ColFunc<%= v %>(options.func);
-                if (options.indexTable != null) {
-                    self.indexTable = options.indexTable;
-                }
             }
             return self;
         }
