@@ -23,7 +23,7 @@ window.DataStore = (function($, DataStore) {
     };
 
     DataStore.checkSampleSize = function(previewSize) {
-        if (XVM.getLicenseMode() === XcalarMode.Mod){
+        if (XVM.getLicenseMode() === XcalarMode.Mod) {
             if (previewSize <= gMaxSampleSize) {
                 return null;
             } else {

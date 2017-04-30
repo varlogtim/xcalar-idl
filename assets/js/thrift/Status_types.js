@@ -575,7 +575,8 @@ StatusT = {
   'StatusSessionAlreadyInact' : 566,
   'StatusSessionUsrAlreadyDeleted' : 567,
   'StatusSessionUsrNotExist' : 568,
-  'StatusNoShutdownPrivilege' : 569
+  'StatusNoShutdownPrivilege' : 569,
+  'StatusSerializationListEmpty' : 570
 };
 StatusTStr = {0 : 'Success',
 1 : 'Operation not permitted',
@@ -1146,5 +1147,6 @@ StatusTStr = {0 : 'Success',
 566 : 'Session already inactivated',
 567 : 'Session user already deleted',
 568 : 'Session user does not exist',
-569 : 'Insufficient privilege to shutdown cluster'
+569 : 'Insufficient privilege to shutdown cluster',
+570 : 'Nothing available to serialize'
 };

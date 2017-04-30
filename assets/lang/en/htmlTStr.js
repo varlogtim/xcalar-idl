@@ -355,7 +355,7 @@ module.exports = {
         "ElaspedTime": "Elapsed Time",
         "enableFile": "Enable file://",
         "GeneralSettings": "General Settings",
-        "GenSub": "Generate Support Ticket",
+        "GenSub": "Generate Support Bundle",
         "graphInterval": "MONITOR GRAPH INTERVAL",
         "commitInterval": "AUTOSAVE INTERVAL",
         "GTotal": "Global Total",

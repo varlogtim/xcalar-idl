@@ -2723,10 +2723,27 @@ function XcalarUpdateRetina(retName, dagNodeId, paramType, paramValue, txId) {
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
     }
 
+    var paramStruct = {};
+    switch (paramType) {
+        case (XcalarApisT.XcalarApiBulkLoad):
+            paramStruct = new XcalarApiParamLoadT();
+            paramStruct.datasetUrl = paramValue;
+            // XXX Handle name pattern
+            break;
+        case (XcalarApisT.XcalarApiFilter):
+            paramStruct = new XcalarApiParamFilterT();
+            paramStruct.filterStr = paramValue;
+            break;
+        case (XcalarApisT.XcalarApiExport):
+            paramStruct = new XcalarApiParamExportT();
+            paramStruct.fileName = paramValue;
+            break;
+    }
+
     // var workItem = xcalarUpdateRetinaWorkItem(retName, dagNodeId,
     //                                           paramType, paramValue);
     var def1 = xcalarUpdateRetina(tHandle, retName, dagNodeId, paramType,
-                                  paramValue);
+                                  paramStruct);
     var def2 = jQuery.Deferred().resolve().promise();
     // var def2 = xcalarGetQuery(workItem);
     jQuery.when(def1, def2)

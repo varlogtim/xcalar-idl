@@ -2392,21 +2392,15 @@ xcalarUpdateRetinaWorkItem = runEntity.xcalarUpdateRetinaWorkItem = function(ret
     switch (paramType) {
     case XcalarApisT.XcalarApiBulkLoad:
         workItem.input.updateRetinaInput.paramInput.paramInputArgs.paramLoad =
-                                         new XcalarApiParamLoadT();
-        workItem.input.updateRetinaInput.paramInput.paramInputArgs.paramLoad.datasetUrl =
-                                         paramValue;
+            paramValue;
         break;
     case XcalarApisT.XcalarApiFilter:
         workItem.input.updateRetinaInput.paramInput.paramInputArgs.paramFilter =
-                                         new XcalarApiParamFilterT();
-        workItem.input.updateRetinaInput.paramInput.paramInputArgs.paramFilter.filterStr =
-                                         paramValue;
+            paramValue;
         break;
     case XcalarApisT.XcalarApiExport:
         workItem.input.updateRetinaInput.paramInput.paramInputArgs.paramExport =
-                                         new XcalarApiParamExportT();
-        workItem.input.updateRetinaInput.paramInput.paramInputArgs.paramExport.fileName =
-                                         paramValue;
+            paramValue;
         break;
     }
     return (workItem);

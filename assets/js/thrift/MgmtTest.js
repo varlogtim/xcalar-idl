@@ -189,10 +189,10 @@ PromiseHelper = (function(PromiseHelper, $) {
     var retinaName;
     var retinaFilterDagNodeId;
     var retinaFilterParamType;
-    var retinaFilterParamStr;
+    var retinaFilterParam;
     var retinaExportDagNodeId;
     var retinaExportParamType;
-    var retinaExportParamStr;
+    var retinaExportParam;
     var paramInput;
     var retinaImportName;
 
@@ -2409,7 +2409,7 @@ PromiseHelper = (function(PromiseHelper, $) {
                         if (iter == 2) {
                             test.assert(
                                 exportInput.meta.specificInput.sfInput.fileName
-                                === retinaExportParamStr, undefined,
+                                === retinaExportParam.fileName, undefined,
                             "exportFileName does not match parameterized string"
                             );
                         }
@@ -2427,7 +2427,7 @@ PromiseHelper = (function(PromiseHelper, $) {
                     if (iter == 2) {
                         test.assert(getRetinaOutput.retina.retinaDag.node[ii].
                                     input.filterInput.filterStr ===
-                                    retinaFilterParamStr, undefined,
+                                    retinaFilterParam.filterStr, undefined,
                                "FilterStr does not match parameterized string");
                     }
 
@@ -2458,16 +2458,17 @@ PromiseHelper = (function(PromiseHelper, $) {
     }
 
     function testUpdateRetina(test) {
+
         xcalarUpdateRetina(thriftHandle, retinaName,
                            retinaFilterDagNodeId,
                            retinaFilterParamType,
-                           retinaFilterParamStr)
+                           retinaFilterParam)
         .then(function(status) {
             printResult(status);
             return (xcalarUpdateRetina(thriftHandle, retinaName,
                                        retinaExportDagNodeId,
                                        retinaExportParamType,
-                                       retinaExportParamStr));
+                                       retinaExportParam));
         })
         .then(function(status) {
             test.pass();
@@ -2496,7 +2497,7 @@ PromiseHelper = (function(PromiseHelper, $) {
             }
 
             var fullPath = exportTarget.specificInput.sfInput.url + "/" +
-                           retinaExportParamStr;
+                           retinaExportParam.fileName;
 
             // Take the .csv off
             fullPath = fullPath.slice(0, -".csv".length);
@@ -2542,7 +2543,7 @@ PromiseHelper = (function(PromiseHelper, $) {
             }
 
             var fullPath = exportTarget.specificInput.sfInput.url + "/" +
-                           retinaExportParamStr;
+                           retinaExportParam.fileName;
 
             // Take the .csv off
             fullPath = fullPath.slice(0, -".csv".length);
@@ -3781,9 +3782,11 @@ PromiseHelper = (function(PromiseHelper, $) {
     retinaName            = "";
     retinaFilterDagNodeId = 0;
     retinaFilterParamType = XcalarApisT.XcalarApiFilter;
-    retinaFilterParamStr  = "gt(votes.funny, <foo>)";
+    retinaFilterParam  = new XcalarApiParamFilterT();
+    retinaFilterParam.filterStr = "gt(votes.funny, <foo>)";
     retinaExportParamType = XcalarApisT.XcalarApiExport;
-    retinaExportParamStr  = "retinaDstFile.csv";
+    retinaExportParam = new XcalarApiParamExportT();
+    retinaExportParam.fileName  = "retinaDstFile.csv";
 
     // Format
     // addTestCase(testFn, testName, timeout, TestCaseEnabled, Witness)

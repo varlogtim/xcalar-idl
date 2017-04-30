@@ -4662,9 +4662,13 @@ XcalarApiParameterT.prototype.write = function(output) {
 
 XcalarApiParamLoadT = function(args) {
   this.datasetUrl = null;
+  this.namePattern = null;
   if (args) {
     if (args.datasetUrl !== undefined) {
       this.datasetUrl = args.datasetUrl;
+    }
+    if (args.namePattern !== undefined) {
+      this.namePattern = args.namePattern;
     }
   }
 };
@@ -4689,9 +4693,13 @@ XcalarApiParamLoadT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
-      case 0:
+      case 2:
+      if (ftype == Thrift.Type.STRING) {
+        this.namePattern = input.readString().value;
+      } else {
         input.skip(ftype);
-        break;
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -4706,6 +4714,11 @@ XcalarApiParamLoadT.prototype.write = function(output) {
   if (this.datasetUrl !== null && this.datasetUrl !== undefined) {
     output.writeFieldBegin('datasetUrl', Thrift.Type.STRING, 1);
     output.writeString(this.datasetUrl);
+    output.writeFieldEnd();
+  }
+  if (this.namePattern !== null && this.namePattern !== undefined) {
+    output.writeFieldBegin('namePattern', Thrift.Type.STRING, 2);
+    output.writeString(this.namePattern);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
