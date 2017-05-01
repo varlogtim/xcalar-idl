@@ -789,6 +789,8 @@ window.TestSuite = (function($, TestSuite) {
             })
             .then(function(found) {
                 if (found) {
+                    // remove to make sure the check is after upload is done
+                    $("#udf-manager .udf .text:contains(ymd)").remove();
                     $("#alertActions .confirm").click();
                 }
                 return checkExists("#udf-manager .udf .text:contains(ymd)");

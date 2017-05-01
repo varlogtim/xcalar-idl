@@ -1,4 +1,6 @@
 window.XIApi = (function(XIApi, $) {
+    var aggOps = null;
+
     XIApi.filter = function(txId, fltStr, tableName, newTableName) {
         if (txId == null || fltStr == null || tableName == null) {
             return PromiseHelper.reject("Invalid args in filter");
@@ -19,6 +21,78 @@ window.XIApi = (function(XIApi, $) {
         return deferred.promise();
     };
 
+    XIApi.genAggStr = function(fieldName, op) {
+        var deferred = jQuery.Deferred();
+        if (op && op.length) {
+            op = op.slice(0, 1).toLowerCase() + op.slice(1);
+        }
+
+        getAggOps()
+        .then(function(aggs) {
+            var evalStr = "";
+            if (!aggs.hasOwnProperty(op)) {
+                deferred.resolve(evalStr);
+                return;
+            }
+
+            evalStr += op + "(" + fieldName + ")";
+            deferred.resolve(evalStr);
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    };
+
+    function getAggOps() {
+        if (aggOps != null) {
+            return PromiseHelper.resolve(aggOps);
+        }
+
+        var deferred = jQuery.Deferred();
+        var index = FunctionCategoryT.FunctionCategoryAggregate;
+        var category = FunctionCategoryTStr[index];
+        XcalarListXdfs("*", category)
+        .then(function(res) {
+            aggOps = parseAggOps(res);
+            deferred.resolve(aggOps);
+        })
+        .fail(function(error) {
+            console.error("get category error", error);
+            aggOps = getLocalAggOps();
+            // still resolve
+            deferred.resolve(aggOps);
+        });
+
+        return deferred.promise();
+    }
+
+    function parseAggOps(aggXdfs) {
+        var res = {};
+        try {
+            var funcs = aggXdfs.fnDescs;
+            funcs.forEach(function(func) {
+                res[func.fnName] = true;
+            });
+        } catch (e) {
+            console.error("get category error", e);
+            res = getLocalAggOps();
+        }
+        return res;
+    }
+
+    function getLocalAggOps() {
+        var res = {};
+        for (var key in AggrOp) {
+            var op = AggrOp[key];
+            if (op && op.length) {
+                op = op.slice(0, 1).toLowerCase() + op.slice(1);
+            }
+            res[op] = true;
+        }
+
+        return res;
+    }
+
     // dstAggName is optional and can be left blank (will autogenerate)
     // and new agg table will be deleted
     XIApi.aggregate = function(txId, aggOp, colName, tableName, dstAggName) {
@@ -27,8 +101,18 @@ window.XIApi = (function(XIApi, $) {
         {
             return PromiseHelper.reject("Invalid args in aggregate");
         }
-        var evalStr = generateAggregateString(colName, aggOp);
-        return XIApi.aggregateWithEvalStr(txId, evalStr, tableName, dstAggName);
+
+        var deferred = jQuery.Deferred();
+
+        XIApi.genAggStr(colName, aggOp)
+        .then(function(evalStr) {
+            return XIApi.aggregateWithEvalStr(txId, evalStr,
+                                             tableName, dstAggName);
+        })
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+
+        return deferred.promise();
     };
 
     // dstAggName is optional and can be left blank (will autogenerate)

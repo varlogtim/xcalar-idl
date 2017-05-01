@@ -1947,49 +1947,6 @@ function XcalarMap(newFieldName, evalStr, srcTablename, dstTablename,
     return deferred.promise();
 }
 
-function generateAggregateString(fieldName, op) {
-    var evalStr = "";
-    if (op && op.length) {
-        op = op.slice(0, 1).toUpperCase() + op.slice(1);
-    }
-    switch (op) {
-        case (AggrOp.Max):
-            evalStr += "max(";
-            break;
-        case (AggrOp.Min):
-            evalStr += "min(";
-            break;
-        case (AggrOp.Avg):
-            evalStr += "avg(";
-            break;
-        case (AggrOp.Count):
-            evalStr += "count(";
-            break;
-        case (AggrOp.Sum):
-            evalStr += "sum(";
-            break;
-        // The following functions are not being called yet! GUI-1155
-        case (AggrOp.MaxInteger): // Feel free to change these
-            evalStr += "maxInteger(";
-            break;
-        case (AggrOp.MinInteger):
-            evalStr += "minInteger(";
-            break;
-        case (AggrOp.SumInteger):
-            evalStr += "sumInteger(";
-            break;
-        case (AggrOp.ListAgg):
-            evalStr += "listAgg(";
-            break;
-        default:
-            console.error("bug!:" + op);
-    }
-
-    evalStr += fieldName;
-    evalStr += ")";
-    return (evalStr);
-}
-
 function XcalarAggregate(evalStr, dstAggName, srcTablename, txId) {
     if (tHandle == null) {
         return PromiseHelper.resolve(null);
@@ -2147,20 +2104,24 @@ function XcalarGroupByWithInput(txId, inputStruct) {
 
 function XcalarGroupBy(operator, newColName, oldColName, tableName,
                        newTableName, incSample, icvMode, txId) {
-    var deferred = jQuery.Deferred();
     if (Transaction.checkAndSetCanceled(txId)) {
-        return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
+        return PromiseHelper.reject(StatusTStr[StatusT.StatusCanceled]);
     }
 
-    var evalStr = generateAggregateString(oldColName, operator);
-    if (evalStr === "") {
-        deferred.reject("Wrong operator! " + operator);
-        return (deferred.promise());
-    } else if (evalStr.length > XcalarApisConstantsT.XcalarApiMaxEvalStringLen) {
-        deferred.reject(thriftLog("XcalarGroupBy", "Eval string too long"));
-        return (deferred.promise());
-    }
-    getUnsortedTableName(tableName)
+    var deferred = jQuery.Deferred();
+    var evalStr;
+
+    XIApi.genAggStr(oldColName, operator)
+    .then(function(res) {
+        evalStr = res;
+        if (evalStr === "") {
+            return PromiseHelper.reject("Wrong operator! " + operator);
+        } else if (evalStr.length > XcalarApisConstantsT.XcalarApiMaxEvalStringLen) {
+            return PromiseHelper.reject("Eval string too long");
+        }
+
+        return getUnsortedTableName(tableName);
+    })
     .then(function(unsortedTableName) {
         if (Transaction.checkAndSetCanceled(txId)) {
             return (deferred.reject(StatusTStr[StatusT.StatusCanceled])
