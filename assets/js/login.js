@@ -19,6 +19,11 @@ $(document).ready(function() {
         showSplashScreen();
     }
 
+    var lastUsername = xcLocalStorage.getItem("lastUsername");
+    if (lastUsername && lastUsername.length) {
+        $("#loginNameBox").val(lastUsername);
+    }
+
     $("#loginForm").submit(function(event) {
         // prevents form from having it's default action
         event.preventDefault();
@@ -90,6 +95,7 @@ $(document).ready(function() {
 
             xcSessionStorage.setItem("xcalar-username", username);
             xcSessionStorage.setItem("xcalar-fullUsername", fullUsername);
+            xcLocalStorage.setItem("lastUsername", fullUsername);
             // XXX this redirect is only for temporary use
             window.location = paths.indexAbsolute;
         }
@@ -137,7 +143,7 @@ $(document).ready(function() {
         setTimeout(function() {
             $("#splashContainer").fadeOut(1000);
         }, animTime);
-       
+
         setTimeout(function() {
             $("#loginContainer").fadeIn(1000);
             $("#logo").fadeIn(1000);
