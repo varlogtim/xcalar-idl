@@ -1771,15 +1771,18 @@ window.Dag = (function($, Dag) {
 
             var tableImage = new Image();
             var tableGrayImage = new Image();
+            var tableRedImage = new Image();
             var dbImage = new Image();
             var expandImage = new Image();
             tableImage.src = paths.dTable;
             tableGrayImage.src = paths.dTableGray;
+            tableRedImage.src = paths.dTableRed;
             dbImage.src = paths.dbDiamond;
             expandImage.src = paths.expandIcon;
 
             PromiseHelper.when.apply(window, [loadImage(tableImage),
                                     loadImage(tableGrayImage),
+                                    loadImage(tableRedImage),
                                     loadImage(dbImage), loadImage(expandImage)])
             .then(function() {
                 $dagWrap.find('.dagTable').each(function() {
@@ -1790,6 +1793,7 @@ window.Dag = (function($, Dag) {
                                           $dagTable.position().left);
                         drawDagTableToCanvas($dagTable, ctx, top, left,
                                              tableImage, tableGrayImage,
+                                             tableRedImage,
                                              dbImage);
                     }
                 });
@@ -2592,7 +2596,7 @@ window.Dag = (function($, Dag) {
     }
 
     function drawDagTableToCanvas($dagTable, ctx, top, left, tImage, tGrayImage,
-                                  dImage) {
+                                  tRedImage, dImage) {
         left += 35;
         top += 50;
         var iconLeft = left;
@@ -2608,7 +2612,9 @@ window.Dag = (function($, Dag) {
             maxWidth = 120;
             x = left - 42;
         } else {
-            if (gShowDroppedTablesImage && $dagTable.hasClass('Dropped')) {
+            if ($dagTable.find(".icv").length) {
+                tableImage = tRedImage;
+            } else if (gShowDroppedTablesImage && $dagTable.hasClass('Dropped')) {
                 tableImage = tGrayImage;
             } else {
                 tableImage = tImage;
