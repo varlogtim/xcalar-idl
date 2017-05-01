@@ -17,7 +17,6 @@ window.DataStore = (function($, DataStore) {
             gMaxSampleSize = xcHelper.textToBytesTranslator("10GB");
         }
 
-        DSTable.initialize();
         DSPreview.initialize();
         DSUploader.initialize();
     };

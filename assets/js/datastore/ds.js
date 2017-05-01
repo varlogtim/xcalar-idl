@@ -81,6 +81,10 @@ window.DS = (function ($, DS) {
         return errorDSSet[dsId] || null;
     };
 
+    DS.removeErrorDSObj = function(dsId) {
+        delete errorDSSet[dsId];
+    };
+
     // Get grid element(folder/datasets) by dsId
     DS.getGrid = function(dsId) {
         if (dsId == null) {
@@ -247,26 +251,6 @@ window.DS = (function ($, DS) {
         };
 
         return pointToHelper(dsObj, createTable, sql);
-    };
-
-    DS.reload = function(dsId, previewSize) {
-        var dsObj = DS.getErrorDSObj(dsId);
-        if (dsObj == null) {
-            return PromiseHelper.reject("no dsobj!");
-        }
-
-        // recreate dsObj
-        dsObj = createDS(dsObj);
-        delete errorDSSet[dsId];
-        var sql = {
-            "operation": SQLOps.DSPoint,
-            "dsName": dsObj.getName(),
-            "previewSize": previewSize,
-            "isRetry": true
-        };
-
-        dsObj.setPreviewSize(previewSize);
-        return pointToHelper(dsObj, null, sql, true);
     };
 
     // Rename dsObj

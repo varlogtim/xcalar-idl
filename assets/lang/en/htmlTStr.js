@@ -433,7 +433,7 @@ module.exports = {
         "DSIn": "DATASETS",
         "Protocol": "Data Source Protocol",
         "Retry": "Retry",
-        "RetryPoint": "Please try to point to data with different parameters(for example, a larger dataset size)",
+        "RetryPoint": "Please try to point to data with different parameters (for example, a larger dataset size)",
         "RetryLimit": "Please set the dataset size limit and try again.",
         "TableInstr": "To create a table from dataset, select columns, choose a worksheet, modify the table name and then click \"CREATE NEW TABLE\" button. You can also click the \"Select Columns Later\" button and pull out columns after the table is created."
     },

@@ -9,7 +9,6 @@ window.DSTable = (function($, DSTable) {
     var totalRows = 0;
     var previousColSelected; // used for shift clicking columns
     var lastDSToSample; // used to track the last table to samle in async call
-    var advanceOption;
     var defaultColWidth = 130;
 
     // constant
@@ -18,15 +17,7 @@ window.DSTable = (function($, DSTable) {
     DSTable.setup = function() {
         $dsTableContainer = $("#dsTableContainer");
         $tableWrap = $("#dsTableWrap");
-        var $advanceOption = $dsTableContainer.find(".advanceOption");
-        advanceOption = new DSFormAdvanceOption($advanceOption,
-                                                "#dsTableContainer");
-
         setupSampleTable();
-    };
-
-    DSTable.initialize = function() {
-        advanceOption.setMode();
     };
 
     DSTable.showError = function(dsId, error) {
@@ -165,10 +156,14 @@ window.DSTable = (function($, DSTable) {
 
         var $errorSection = $dsTableContainer.find(".errorSection");
         $errorSection.find(".error").html(error);
-        // XXX this part is confusing as we cannot tell
-        // if the error is because of size limit or other reason
-        // so hide it for now
-        $errorSection.find(".limit, .or").addClass("xc-hidden");
+
+        var dsId = $dsTableContainer.data("id");
+        var dsObj = DS.getDSObj(dsId);
+        if (dsObj != null && dsObj.getUser() === Support.getUser()) {
+            $errorSection.find(".suggest").removeClass("xc-hidden");
+        } else {
+            $errorSection.find(".suggest").addClass("xc-hidden");
+        }
     }
 
     DSTable.hide = function() {
@@ -438,11 +433,7 @@ window.DSTable = (function($, DSTable) {
                 return;
             }
 
-            if ($(this).hasClass("limit")) {
-                reloadDS(dsId);
-            } else {
-                rePointDS(dsId);
-            }
+            rePointDS(dsId);
         });
 
         $dsTableView.on('mouseenter', '.tooltipOverflow', function() {
@@ -644,20 +635,15 @@ window.DSTable = (function($, DSTable) {
         $("#dsTable").find("td:not(.lineMarker)").addClass("selectedCol");
     }
 
-    function reloadDS(dsId) {
-        var advancedArgs = advanceOption.getArgs();
-        if (advancedArgs == null) {
-            // invalid case
-            return;
-        }
-
-        var previewSize = advancedArgs.previewSize;
-        return DS.reload(dsId, previewSize);
-    }
-
     function rePointDS(dsId) {
         // maybe it's a succes point but ds table has error
-        var dsObj = DS.getErrorDSObj(dsId) || DS.getDSObj(dsId);
+        var dsObj = DS.getErrorDSObj(dsId);
+        if (dsObj != null) {
+            DS.removeErrorDSObj(dsId);
+        } else {
+            dsObj = DS.getDSObj(dsId);
+        }
+
         if (!dsObj) {
             Alert.error(DSTStr.NotFindDS);
             return;

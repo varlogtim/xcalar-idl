@@ -473,19 +473,8 @@ window.Replay = (function($, Replay) {
     replayFuncs = {};
 
     replayFuncs[SQLOps.DSPoint] = function(options) {
-        if (options.isRetry) {
-            var $grid = DS.getGridByName(options.dsName);
-            var dsId = $grid.data("dsid");
-
-            if (dsId == null) {
-                return PromiseHelper.reject("wrong args");
-            }
-
-            return DS.reload(dsId, options.previewSize);
-        } else {
-            var args = getArgs(options);
-            return DS.point.apply(window, args);
-        }
+        var args = getArgs(options);
+        return DS.point.apply(window, args);
     };
 
     replayFuncs[SQLOps.IndexDS] = function(options) {
