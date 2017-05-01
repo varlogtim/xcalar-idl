@@ -2006,6 +2006,23 @@ table.datasetTable {
                 &.disabled {
                     pointer-events: none;
                 }
+
+                input {
+                    cursor: text;
+
+                    &:focus {
+                        border: 1px solid @color-border-select-blue;
+                        outline: none;
+                    }
+                }
+
+                .list {
+                    li {
+                        &.hover, &.highlighted {
+                            background-color: @color-selectedCell-light;
+                        }
+                    }
+                }
             }
 
             .hidden {

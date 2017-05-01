@@ -2575,6 +2575,109 @@ InputSuggest.prototype = {
     }
 };
 
+function InputDropdownHint($dropdown, options) {
+    this.$dropdown = $dropdown;
+    this.options = options || {};
+    this.__init();
+    return this;
+}
+
+InputDropdownHint.prototype = {
+    __init: function() {
+        var self = this;
+        var $dropdown = self.$dropdown;
+        var options = self.options;
+        var menuHelper = options.menuHelper;
+
+        menuHelper.setupListeners();
+
+        var $input = $dropdown.find("> input");
+        var $lists = $dropdown.find("> .list");
+        // this is to prevent the trigger of blur on mosuedown of li
+        $lists.on("mousedown", "li", function() {
+            return false;
+        });
+
+        $dropdown.on("click", ".iconWrapper", function() {
+            // when it's goint to open
+            if (!$dropdown.hasClass("open")) {
+                $input.focus();
+            }
+        });
+
+        $input.on("input", function() {
+            var text = $input.val().trim();
+            self.__filterInput(text);
+            if (!$dropdown.hasClass("open")) {
+                // show the list
+                menuHelper.toggleList($dropdown);
+            }
+        });
+
+        $input.on("blur", function() {
+            var text = $input.val().trim();
+            var oldVal = $input.data("val");
+            if (oldVal !== text) {
+                $input.val(oldVal);
+            }
+            // when the dropdown is closed
+            if (!$dropdown.hasClass("open")) {
+                $dropdown.find("li").removeClass("xc-hidden");
+            }
+        });
+
+        $input.on("keydown", function(event) {
+            if (event.which === keyCode.Enter) {
+                var val = $input.val().trim();
+                if (typeof options.onEnter === "function") {
+                    options.onEnter(val, $input);
+                }
+                menuHelper.hideDropdowns();
+            } else if (event.which === keyCode.Up ||
+                       event.which === keyCode.Down) {
+                $lists.find("li.hover").removeClass("hover");
+                xcHelper.listHighlight($input, event, false);
+            }
+        });
+    },
+
+    __filterInput: function(searchKey) {
+        var $dropdown = this.$dropdown;
+        var $lis = $dropdown.find("li");
+
+        if (!searchKey) {
+            $lis.removeClass("xc-hidden");
+        }
+
+        searchKey = searchKey.toLowerCase();
+
+        $lis.each(function() {
+            var $li = $(this);
+            if (!$li.is(":visible")) {
+                // skip it
+                return;
+            }
+
+            if ($li.text().toLowerCase().includes(searchKey)) {
+                $li.removeClass("xc-hidden");
+            } else {
+                $li.addClass("xc-hidden");
+            }
+        });
+    },
+
+    setInput: function(val) {
+        var $input = this.$dropdown.find("> input");
+        $input.val(val).data("val", val);
+    },
+
+    clearInput: function() {
+        var $input = this.$dropdown.find("> input");
+        $input.val("").removeData("val");
+    }
+};
+
+
 /* Extension Panel */
 function ExtItem(options) {
     options = options || {};

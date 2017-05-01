@@ -17,6 +17,8 @@ window.DSPreview = (function($, DSPreview) {
 
     var $udfModuleList; // $("#udfArgs-moduleList")
     var $udfFuncList;   // $("#udfArgs-funcList")
+    var udfModuleHint;
+    var udfFuncHint;
 
     var $headerCheckBox; // $("#promoteHeaderCheckbox") promote header checkbox
     var $genLineNumCheckBox; // $("#genLineNumbersCheckbox");
@@ -268,38 +270,6 @@ window.DSPreview = (function($, DSPreview) {
             refreshPreview(true);
         });
 
-        // udf checkbox
-        $("#udfCheckbox").on("click", function() {
-            var $checkbox = $(this).find(".checkbox");
-
-            if ($checkbox.hasClass("checked")) {
-                // uncheck box
-                toggleUDF(false);
-            } else {
-                // check the box
-                toggleUDF(true);
-            }
-        });
-
-        // dropdown list for udf modules and function names
-        new MenuHelper($udfModuleList, {
-            "onSelect": function($li) {
-                var module = $li.text();
-                selectUDFModule(module);
-            },
-            "container": "#importDataForm-content",
-            "bounds": "#importDataForm-content"
-        }).setupListeners();
-
-        new MenuHelper($udfFuncList, {
-            "onSelect": function($li) {
-                var func = $li.text();
-                selectUDFFunc(func);
-            },
-            "container": "#importDataForm-content",
-            "bounds": "#importDataForm-content"
-        }).setupListeners();
-
         // set up format dropdownlist
         new MenuHelper($("#fileFormat"), {
             "onSelect": function($li) {
@@ -408,6 +378,52 @@ window.DSPreview = (function($, DSPreview) {
             var toCreateTable = $submitBtn.hasClass("createTable");
             submitForm(toCreateTable);
         });
+
+        setupUDFSection();
+    }
+
+    function setupUDFSection() {
+         // udf checkbox
+        $("#udfCheckbox").on("click", function() {
+            var $checkbox = $(this).find(".checkbox");
+
+            if ($checkbox.hasClass("checked")) {
+                // uncheck box
+                toggleUDF(false);
+            } else {
+                // check the box
+                toggleUDF(true);
+            }
+        });
+
+        // dropdown list for udf modules and function names
+        var moduleMenuHelper = new MenuHelper($udfModuleList, {
+            "onSelect": function($li) {
+                var module = $li.text();
+                selectUDFModule(module);
+            },
+            "container": "#importDataForm-content",
+            "bounds": "#importDataForm-content"
+        });
+
+        var funcMenuHelper = new MenuHelper($udfFuncList, {
+            "onSelect": function($li) {
+                var func = $li.text();
+                selectUDFFunc(func);
+            },
+            "container": "#importDataForm-content",
+            "bounds": "#importDataForm-content"
+        });
+
+        udfModuleHint = new InputDropdownHint($udfModuleList, {
+            "menuHelper": moduleMenuHelper,
+            "onEnter": selectUDFModule
+        });
+
+        udfFuncHint = new InputDropdownHint($udfFuncList, {
+            "menuHelper": funcMenuHelper,
+            "onEnter": selectUDFFunc
+        });
     }
 
     function listUDFSection(listXdfsObj) {
@@ -495,11 +511,13 @@ window.DSPreview = (function($, DSPreview) {
             module = "";
         }
 
-        $udfModuleList.find("input").val(module);
+        udfModuleHint.setInput(module);
 
         if (module === "") {
             $udfFuncList.addClass("disabled")
-                    .find("input").val("");
+                    .find("input").attr("disabled", "disabled");
+            udfFuncHint.clearInput();
+
             $udfFuncList.parent().tooltip({
                 "title": TooltipTStr.ChooseUdfModule,
                 "placement": "top",
@@ -508,7 +526,8 @@ window.DSPreview = (function($, DSPreview) {
         } else {
             $udfFuncList.parent().tooltip("destroy");
             $udfFuncList.removeClass("disabled")
-                        .find("input").val("");
+                        .find("input").removeAttr("disabled");
+            udfFuncHint.clearInput();
 
             var $funcLis = $udfFuncList.find(".list li").addClass("hidden")
                             .filter(function() {
@@ -524,8 +543,7 @@ window.DSPreview = (function($, DSPreview) {
         if (func == null) {
             func = "";
         }
-
-        $udfFuncList.find("input").val(func);
+        udfFuncHint.setInput(func);
     }
 
     function toggleUDF(usUDF) {

@@ -3,6 +3,7 @@ window.UDF = (function($, UDF) {
     var editor;
     var storedUDF = {};
     var udfWidgets = [];
+    var dropdownHint;
 
     // constant
     var udfDefault = "# PLEASE TAKE NOTE: \n\n" +
@@ -325,79 +326,29 @@ window.UDF = (function($, UDF) {
     function setupTemplateList() {
         /* Template dropdown list */
         var $template = $("#udf-fnList");
-        var $input = $template.find("input");
-
         var menuHelper = new MenuHelper($template, {
             "onSelect": selectUDFFuncList,
             "container": "#udfSection",
             "bounds": "#udfSection",
             "bottomPadding": 2
         });
-        menuHelper.setupListeners();
 
-        $("#udf-fnMenu").on("mousedown", "li", function() {
-            return false;
+        dropdownHint = new InputDropdownHint($template, {
+            "menuHelper": menuHelper,
+            "onEnter": inputUDFFuncList
         });
-
-        $input.on("input", function() {
-            var text = $input.val().trim();
-            filterUDFFuncList(text);
-
-            if (!$template.hasClass("open")) {
-                // show the list
-                menuHelper.toggleList($template);
-            }
-        });
-
-        $input.on("blur", function() {
-            var text = $input.val().trim();
-            var moduleName = $input.data("module");
-            if (moduleName !== text) {
-                $input.val(moduleName);
-            }
-        });
-
-        $input.on("keydown", function(event) {
-            if (event.which === keyCode.Enter) {
-                var module = $input.val().trim();
-                inputUDFFuncList(module);
-                menuHelper.hideDropdowns();
-            } else if (event.which === keyCode.Up ||
-                       event.which === keyCode.Down) {
-                $("#udf-fnMenu").find("li.hover").removeClass("hover");
-                xcHelper.listHighlight($input, event, false);
-            }
-        });
-
-        function inputUDFFuncList(module) {
-            var $li = $("#udf-fnMenu").find("li").filter(function() {
-                return ($(this).text() === module);
-            });
-
-            if ($li.length === 0) {
-                StatusBox.show(UDFTStr.NoTemplate, $input);
-            } else {
-                selectUDFFuncList($li);
-            }
-        }
     }
 
-    function filterUDFFuncList(searchKey) {
-        var $lis = $("#udf-fnMenu").find("li");
-        if (!searchKey) {
-            $lis.removeClass("xc-hidden");
-        }
-
-        searchKey = searchKey.toLowerCase();
-
-        $lis.each(function() {
-            var $li = $(this);
-            if ($li.text().toLowerCase().includes(searchKey)) {
-                $li.removeClass("xc-hidden");
-            } else {
-                $li.addClass("xc-hidden");
-            }
+    function inputUDFFuncList(module) {
+        var $li = $("#udf-fnMenu").find("li").filter(function() {
+            return ($(this).text() === module);
         });
+
+        if ($li.length === 0) {
+            StatusBox.show(UDFTStr.NoTemplate, $input);
+        } else {
+            selectUDFFuncList($li);
+        }
     }
 
     function selectUDFFuncList($li) {
@@ -409,7 +360,7 @@ window.UDF = (function($, UDF) {
         var $fnName = $("#udf-fnName");
 
         StatusBox.forceHide();
-        $fnListInput.val(moduleName).data("module", moduleName);
+        dropdownHint.setInput(moduleName);
 
         xcTooltip.changeText($fnListInput, moduleName);
 
@@ -525,7 +476,7 @@ window.UDF = (function($, UDF) {
         $blankFunc.after(html);
 
         if (!hasSelectedModule) {
-            $input.val("").removeData("module");
+            dropdownHint.clearInput();
             $blankFunc.trigger(fakeEvent.mouseup);
         }
     }
@@ -622,7 +573,7 @@ window.UDF = (function($, UDF) {
 
         reader.readAsText(file);
         $("#udf-fnName").val(moduleName);
-        $("#udf-fnList input").val("").removeData("module");
+        dropdownHint.clearInput();
     }
 
     function downloadUDF(moduleName) {

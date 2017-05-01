@@ -1042,8 +1042,8 @@ describe("Ephemeral Constructor Test", function() {
                 expect(oldY).to.be.below(newY);
                 done();
             });
-
         });
+
         after(function(done) {
             $("#colMenu li").filter(function(idx, elt) {
                 return $(elt).text().startsWith("RandElt");
@@ -1054,6 +1054,102 @@ describe("Ephemeral Constructor Test", function() {
                 UnitTest.offMinMode();
                 done();
             });
+        });
+    });
+
+
+    describe("InputDropdownHint Constructor Test", function() {
+        var $dropdown;
+        var $input;
+        var menuHelper;
+        var select;
+        var dropdownHint;
+
+        before(function() {
+            var dropdown =
+                '<div id="test-dropdown" class="dropDownList">' +
+                    '<input class="text">' +
+                    '<div class="iconWrapper"></div>' +
+                    '<div class="list">' +
+                        '<ul>' +
+                            '<li>aa</li>' +
+                            '<li>bb</li>' +
+                        '</ul>' +
+                    '</div>' +
+                '</div>';
+
+            $dropdown = $(dropdown).appendTo("body");
+            $input = $dropdown.find("input");
+
+            menuHelper = new MenuHelper($dropdown, {
+                "onSelect": function() { select = 0; },
+                "container": "body",
+                "bounds": "body"
+            });
+        });
+
+        it("Should have 2 attrs", function() {
+            dropdownHint = new InputDropdownHint($dropdown, {
+                "menuHelper": menuHelper,
+                "onEnter": function() { select = 1; }
+            });
+
+            expect(dropdownHint).to.be.an.instanceof(InputDropdownHint);
+            expect(Object.keys(dropdownHint).length).to.equal(2);
+            expect(dropdownHint.$dropdown).to.equal($dropdown);
+            expect(dropdownHint.options).to.be.an("object");
+        });
+
+        it("should set input", function() {
+            dropdownHint.setInput("test");
+            expect($input.val()).to.equal("test");
+            expect($input.data("val")).to.equal("test");
+        });
+
+        it("should clear input", function() {
+            dropdownHint.clearInput();
+            expect($input.val()).to.equal("");
+            expect($input.data("val")).to.be.undefined;
+        });
+
+        it("should open menu", function() {
+            $dropdown.find(".iconWrapper").click();
+            expect($dropdown.hasClass("open")).to.be.true;
+        });
+
+        it("should input to filter", function() {
+            $input.val("a").trigger("input");
+
+            var $li = $dropdown.find("li:not(.xc-hidden)");
+            expect($li.length).to.equal(1);
+            expect($li.text()).to.equal("aa");
+
+            // case 2
+            $input.val("").trigger("input");
+            $li = $dropdown.find("li:not(.xc-hidden)");
+            expect($li.length).to.equal(2);
+        });
+
+        it("should keydown to highlight list", function() {
+            var event = $.Event("keydown", {"which": keyCode.Down});
+            $input.trigger(event);
+            expect($dropdown.find("li.highlighted").length).to.equal(1);
+        });
+
+        it("should keyenter to apply onEnter", function() {
+            var event = $.Event("keydown", {"which": keyCode.Enter});
+            $input.trigger(event);
+            expect(select).to.equal(1);
+        });
+
+        it("should blur to old val", function() {
+            dropdownHint.setInput("test");
+            $input.val("a").blur();
+            expect($input.val()).to.equal("test");
+        });
+
+        after(function() {
+            $dropdown.remove();
         });
     });
 

@@ -2931,12 +2931,20 @@ window.xcHelper = (function($, xcHelper) {
         var udfs = listXdfsObj.fnDescs;
         var moduleMap = {};
         var modules = [];
+        var privateModules = [];
 
-        for (i = 0; i < len; i++) {
-            modules.push(udfs[i].fnName);
-        }
+        udfs.forEach(function(udf) {
+            var fnName = udf.fnName;
+            if (fnName.startsWith("_")) {
+                privateModules.push(fnName);
+            } else {
+                modules.push(fnName);
+            }
+        });
 
         modules.sort();
+        privateModules.sort();
+        modules = modules.concat(privateModules);
 
         var moduleLi = "";
         var fnLi = "";
