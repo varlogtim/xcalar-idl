@@ -639,7 +639,8 @@ window.TblManager = (function($, TblManager) {
             currentTableType = TableType.Orphan;
         }
 
-        if (currentTableType === expectTableType) {
+        if (currentTableType === expectTableType || (currentTableType ===
+            TableType.Undone && expectTableType === TableType.Orphan)) {
             return true;
         } else {
             console.warn("Table", tableIdOrName, "'s' type mismatch",
@@ -2807,6 +2808,7 @@ window.TblManager = (function($, TblManager) {
 
         XcalarDeleteTable(tableName)
         .then(function() {
+            TableList.removeTable(tableName, TableType.Orphan);
             removeTableMeta(tableName);
             deferred.resolve();
         })

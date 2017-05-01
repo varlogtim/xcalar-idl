@@ -100,6 +100,7 @@ TooltipTStr = {
     "LoggedIn": "Logged In",
     "SavedOn": "Last saved on",
 
+
     // Sync with htmlTStr
     "IcvGenerating": "Erroneous rows(ER) table is generating",
     "IcvRestriction": "Erroneous rows(ER) table only available for Map and Group By",
@@ -111,6 +112,8 @@ TooltipTStr = {
     "SystemGood": "All Systems Good",
 
     // with replace
+    'UndoTableTip': "Table <name> is in an undo state and cannot be directly " +
+                                "added to a worksheet.",
     'CollapsedTables': '<number> tables are collapsed',
     'DroppedTable': 'Table \'<tablename>\' has been dropped',
     'NoExport': 'Cannot export column of type <type>',

@@ -118,7 +118,9 @@ window.TableList = (function($, TableList) {
         });
 
         $tableListSections.on("mouseenter", ".tableName", function(){
-            xcTooltip.auto(this);
+            if (!$(this).closest("." + TableType.Undone).length) {
+                xcTooltip.auto(this);
+            }
         });
 
         $tableListSections.on("mouseenter", ".constName", function(){
@@ -279,8 +281,7 @@ window.TableList = (function($, TableList) {
             var table = gTables[tableId];
             var tableType = table.getType();
             if (tableType === TableType.Orphan ||
-                tableType === TableType.Trash ||
-                tableType === TableType.Undone) {
+                tableType === TableType.Trash) {
                 continue;
             }
 
@@ -415,6 +416,7 @@ window.TableList = (function($, TableList) {
         return deferred.promise();
     };
 
+    // adding or deleting tables from different lists
     TableList.tableBulkAction = function(action, tableType, wsId) {
         var deferred = jQuery.Deferred();
         var validAction = ["add", "delete"];
@@ -469,6 +471,13 @@ window.TableList = (function($, TableList) {
 
                 tables.push(tableIdOrName);
             } else if (action === "add") {
+                var tableId = $(ele).data("id");
+                var table = gTables[tableId];
+                // no adding back undone tables
+                if (table && table.getType() === TableType.Undone) {
+                    return;
+                }
+
                 promises.push((function() {
                     var innerDeferred = jQuery.Deferred();
 
@@ -640,6 +649,7 @@ window.TableList = (function($, TableList) {
                 var tableType = table.getType();
                 if (tableType !== TableType.Orphan &&
                     tableType !== TableType.Trash &&
+                    tableType !== TableType.Undone &&
                     tableMap.hasOwnProperty(tableName))
                 {
                     delete tableMap[tableName];
@@ -1078,8 +1088,17 @@ window.TableList = (function($, TableList) {
                 numTables--;
                 continue;
             }
+            var liClass = "";
             var tableId = xcHelper.getTableId(tableName);
-            html += '<li class="clearfix tableInfo" ' +
+            var tableNameTip = tableName;
+            if (gTables[tableId] &&
+                gTables[tableId].getType() === TableType.Undone) {
+                liClass += TableType.Undone;
+                tableNameTip = xcHelper.replaceMsg(TooltipTStr.UndoTableTip, {
+                    "name": tableName
+                });
+            }
+            html += '<li class="clearfix tableInfo ' + liClass + '" ' +
                     'data-id="' + tableId + '"' +
                     'data-tablename="' + tableName + '">' +
                         '<div class="tableListBox xc-expand-list">' +
@@ -1091,7 +1110,7 @@ window.TableList = (function($, TableList) {
                                 '<i class="icon xi-ckbox-empty fa-18"></i>' +
                                 '<i class="icon xi-tick fa-11"></i>' +
                             '</span>' +
-                            '<span data-original-title="' + tableName + '" ' +
+                            '<span data-original-title="' + tableNameTip + '" ' +
                                 'data-toggle="tooltip" ' +
                                 'data-placement="top" data-container="body" ' +
                                 'class="tableName textOverflow">' +
