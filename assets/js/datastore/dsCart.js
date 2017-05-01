@@ -35,8 +35,11 @@ window.DSCart = (function($, DSCart) {
 
             var cart = filterCarts(dsId);
             var worksheet = $cartList.data("ws");
-            tooManyColAlertHelper(cart)
-            .then(function() {
+            tooManyColAlertHelper(cart, worksheet)
+            .then(function(ws) {
+                if (ws) {
+                    worksheet = ws;
+                }
                 DSCart.createTable(cart, worksheet);
             })
             .fail(function() {
@@ -925,29 +928,66 @@ window.DSCart = (function($, DSCart) {
         return true;
     }
 
-    function tooManyColAlertHelper(cart) {
+    function tooManyColAlertHelper(cart, worksheet) {
         if (cart == null || !checkCartArgs(cart)) {
             return PromiseHelper.reject("Wrong args");
         }
+        var tooManyWSCols = false;
         if (cart.items.length < gMaxColToPull) {
-            return PromiseHelper.resolve();
+            var wsCols = 0;
+            var tableIds = WSManager.getWSById(worksheet).tables;
+            for (var i = 0; i < tableIds.length; i++) {
+                wsCols += gTables[tableIds[i]].getNumCols();
+            }
+            if (cart.items.length + wsCols > gMaxColToPull) {
+                tooManyWSCols = true;
+            } else {
+                return PromiseHelper.resolve();
+            }
         }
 
         var deferred = jQuery.Deferred();
         var $btn = $("#dataCart-submit");
         xcHelper.disableSubmit($btn);
-        Alert.show({
-            "title": DSFormTStr.CreateWarn,
-            "msg": DSFormTStr.CreateWarnMsg,
-            "onConfirm": function() {
-                xcHelper.enableSubmit($btn);
-                deferred.resolve();
-            },
-            "onCancel": function() {
-                xcHelper.enableSubmit($btn);
-                deferred.reject();
-            }
-        });
+
+        if (tooManyWSCols) {
+            Alert.show({
+                "title": DSFormTStr.CreateWarn,
+                "msg": DSFormTStr.WSColsMsg,
+                "onCancel": function() {
+                    xcHelper.enableSubmit($btn);
+                    deferred.reject();
+                },
+                "buttons": [
+                    {   name: CommonTxtTstr.Ignore.toUpperCase(),
+                        func: function() {
+                            xcHelper.enableSubmit($btn);
+                            deferred.resolve();
+                        }
+                    },
+                    {   name: WSTStr.NewWS.toUpperCase(),
+                        func: function() {
+                            xcHelper.enableSubmit($btn);
+                            deferred.resolve("xc-new");
+                        },
+                        className: "larger"
+                    }
+                ]
+            });
+        } else {
+            Alert.show({
+                "title": DSFormTStr.CreateWarn,
+                "msg": DSFormTStr.CreateWarnMsg,
+                "onConfirm": function() {
+                    xcHelper.enableSubmit($btn);
+                    deferred.resolve();
+                },
+                "onCancel": function() {
+                    xcHelper.enableSubmit($btn);
+                    deferred.reject();
+                }
+            });
+        }
 
         return deferred.promise();
     }

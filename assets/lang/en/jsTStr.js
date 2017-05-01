@@ -141,6 +141,7 @@ CommonTxtTstr = {
     'GenTicket': 'Generate Ticket',
     'HoldToDrag': 'Click and hold to drag',
     'ClickSelect': 'Click to select',
+    'Ignore': 'Ignore',
     'Immediates': 'Derived Field',
     'InP': 'In progress',
     'LeaveWarn': 'You are leaving Xcalar',
@@ -769,6 +770,8 @@ DSFormTStr = {
     'CreateWarn': 'Too Many Columns To Create',
     'CreateWarnMsg': 'Creating a table with too many columns from a dataset ' +
                 'may be slow, are you sure you want to continue?',
+    'WSColsMsg': 'Adding too many columns to the current worksheet may be slow. ' +
+                'Would you like to create a new worksheet for this table?',
     'NoQuoteWarn': 'No Quote Character',
     'NoQuoteWarnMsg': 'You have not selected a quoting character for your ' +
                       'dataset. Are you sure you want to continue?'

@@ -131,6 +131,7 @@ CommonTxtTstr = {
 'GenTicket': '生成服务支持券',
 'HoldToDrag': '点击并按住拖动',
 'ClickSelect': '单击选择',
+'Ignore': 'Ignore',
 'Immediates': '派生列',
 'InP': '进行中',
 'LeaveWarn': '您要退出xcalar吗',
@@ -646,6 +647,8 @@ DSFormTStr = {
 'NoFile': '找不到文件，请返回选择一个有效的文件/文件夹。',
 'CreateWarn': '太多的列要创建',
 'CreateWarnMsg': '创建一个数据集太多列的表可能很慢，您确定要继续吗？',
+'WSColsMsg': 'Adding too many columns to the current worksheet may be slow. ' +
+                'Would you like to create a new worksheet for this table?',
 'NoQuoteWarn': '没有引用字符',
 'NoQuoteWarnMsg': '您没有为数据集选择引用字符。您确定您要继续吗？'
 };
