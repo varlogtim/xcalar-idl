@@ -234,21 +234,77 @@ body {
     cursor: progress;
     background-color: rgba(0, 0, 0, 0.15);
 
-    .dialog .animatedEllipsisWrapper {
-        .size(@width: 130px, @height: 100%);
-        .horizontal-align;
+    .waitBox {
+        .size(400px, 270px);
+        .center-align;
+        top: 38%;
+        background-color: @color-white;
+        box-shadow: 0px 1px 4px 0px rgba(0, 0, 0, 0.3);
+        pointer-events: none;
 
-        .text {
-            .font(@size: 15px, @color: @color-white, @weight: bold, @line-height: 75px);
+        .top {
+            height: ~"calc(100% - 120px)";
+            background-color: @color-bg-select-blue;
+            .font(@size: 40px, @color: @color-white, @weight: 500);
+            text-align: center;
+        }
+        .bottom {
+            height: 120px;
+            .font(@size: 18px, @weight: 300, @color: @color-font-greyish-brown);
+            .flex-display;
+            .justify-content(center);
+            .align-items(center);
         }
 
-        .animatedEllipsis {
-            > div {
-                .font(@size: 15px, @color: @color-white, @weight: bold, @line-height: 75px);
-                margin-left: 1px;
+        .waitIcon {
+            font-size: 66px;
+            margin-top: 16px;
+            margin-left: 16px;
+        }
+
+        .progressWrap {
+            width: 246px;
+            height: 5px;
+            background-color: rgba(255, 255, 255, 0.35);
+            margin: 0 auto;
+        }
+        .progressBar {
+            height: 100%;
+            width: 60%; // XXX fake %, should be 0
+            background-color: @color-white;
+        }
+
+        .steps, .progressWrap {
+            display: none; // XXX temporary
+        }
+
+        .animatedEllipsisWrapper {
+            .size(@width: 130px);
+            margin-left: 15px;
+
+            .animatedEllipsis {
+                animation: ellipsisLarge 2s steps(4, end) infinite;
+                -webkit-animation: ellipsisLarge 2s steps(4, end) infinite;
+                > div {
+                    font-weight: 400;
+                    margin-left: -1px;
+                }
+            }
+        }
+
+        @-webkit-keyframes ellipsisLarge {
+            to {
+                width: 34px;
+            }
+        }
+
+        @keyframes ellipsisLarge {
+            to {
+                width: 34px;
             }
         }
     }
+
 }
 
 #formWaitingBG {
@@ -1110,10 +1166,8 @@ input {
 /* End Of Status Box */
 
 #successMessageWrap {
-    left: 50%;
-    top: 0px;
+    .position(absolute, @top: 0px, @left: 50%);
     .transform(translateX(-50%));
-    position: absolute;
     z-index: @z-index-locked + 3;
     font-weight: bold;
     height: ~"calc(50% + 55px)";

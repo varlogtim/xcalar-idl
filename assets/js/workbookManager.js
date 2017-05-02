@@ -1060,6 +1060,16 @@ window.WorkbookManager = (function($, WorkbookManager) {
         Workbook.hide(true);
     }
 
+    // XXX placeholder, need progress from backend
+    function updateProgressBar(stepsComp, stepsTotal) {
+        $("#initialLoadScreen").find(".numSteps").text(stepsComp + "/" +
+                                                        stepsTotal);
+        var pct = Math.round(100 * stepsComp / stepsTotal) + "%";
+        $("#initialLoadScreen").find(".progressBar")
+                              .animate({"width": pct}, 2000, "linear",
+                                function(){});
+    }
+
     /* Unit Test Only */
     if (window.unitTestMode) {
         WorkbookManager.__testOnly__ = {};

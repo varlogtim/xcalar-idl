@@ -213,6 +213,7 @@ module.exports = {
         "ColRenameInstr": "您选择的列有重名。请重命名。",
         "ColRenames": "重命名",
         "ComeSoon": "功能即将开放",
+        "CompleteExc": "complete!",
         "Comma": "逗号",
         "DELETE": "删除",
         "DS": "数据集",
@@ -750,7 +751,9 @@ module.exports = {
         "FAILED": "失败",
         "SUCCESS": "成功",
         "actionFailed": "您的操作失败了！",
-        "actionSuccess": "您的操作成功了！"
+        "actionSuccess": "您的操作成功了！",
+        "FAILED": "FAILED",
+        "INPROGRESS": "IN PROGRESS"
     },
     "statusBar": {
         "EC": "正在建立连接",

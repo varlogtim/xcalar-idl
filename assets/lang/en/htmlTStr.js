@@ -17,6 +17,7 @@ module.exports = {
         "ColRenames": "Column Renames",
         "ColRenameInstr": "The columns that you have selected have duplicates. Please rename either or both of the offending columns.",
         "ComeSoon": "Coming Soon",
+        "CompleteExc": "complete!",
         "Comma": "Comma",
         "CONFIRM": "CONFIRM",
         "CONFIRMRESTART": "CONFIRM & RESTART",
@@ -99,7 +100,8 @@ module.exports = {
         "actionSuccess": "Your action was successful!",
         "SUCCESS": "SUCCESS",
         "actionFailed": "Your action failed!",
-        "FAILED": "FAILED"
+        "FAILED": "FAILED",
+        "INPROGRESS": "IN PROGRESS"
     },
 
     "menuBar": {
