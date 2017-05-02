@@ -896,7 +896,7 @@ module.exports = {
                                 "option to upgrade is only available when an " +
                                 "existing version exists and your Xcalar" +
                                 " cluster is powered off.",
-        "uninstallWizardContent": "Uinstall Xcalar from your cluster.",
+        "uninstallWizardContent": "Uninstall Xcalar from your cluster.",
         "title": "Error",
         "instrUp": "An error has occured.",
         "instrDown": "Please review the following error(s).",
