@@ -66,7 +66,9 @@ window.QueryManager = (function(QueryManager, $) {
         if (type === "xcQuery") {
             runXcQuery(id, mainQuery, subQueries);
         } else {
-            updateQueryTextDisplay("");
+            if (hiddenQueryTypes.indexOf(name) === -1) {
+                updateQueryTextDisplay("");
+            }
         }
     };
 
