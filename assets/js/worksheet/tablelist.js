@@ -387,7 +387,9 @@ window.TableList = (function($, TableList) {
         }
     };
 
-    TableList.activeTables = function(tableType, noSheetTables, wsToSent) {
+
+    TableList.activeTables = function(tableType, noSheetTables, wsToSent,
+                                      destWS) {
         var deferred = jQuery.Deferred();
         var sql = {
             "operation": SQLOps.ActiveTables,
@@ -401,9 +403,12 @@ window.TableList = (function($, TableList) {
             sql.wsToSent = wsToSent;
         }
 
-        TableList.tableBulkAction("add", tableType)
-        .then(function(tableNames) {
+        TableList.tableBulkAction("add", tableType, null, destWS)
+        .then(function(tableNames, ws) {
             sql.tableNames = tableNames;
+            if (ws) {
+                sql.ws = ws;
+            }
             SQL.add(TblTStr.Active, sql);
 
             deferred.resolve();
@@ -417,7 +422,7 @@ window.TableList = (function($, TableList) {
     };
 
     // adding or deleting tables from different lists
-    TableList.tableBulkAction = function(action, tableType, wsId) {
+    TableList.tableBulkAction = function(action, tableType, wsId, destWS) {
         var deferred = jQuery.Deferred();
         var validAction = ["add", "delete"];
 
@@ -506,12 +511,12 @@ window.TableList = (function($, TableList) {
                     tables.push(tableName);
 
                     if (tableType === TableType.Orphan) {
-                        addOrphanedTable(tableName, wsId)
-                        .then(function(){
+                        addOrphanedTable(tableName, destWS)
+                        .then(function(ws){
                             doneHandler($li, tableName);
                             var tableIndex = gOrphanTables.indexOf(tableName);
                             gOrphanTables.splice(tableIndex, 1);
-                            innerDeferred.resolve();
+                            innerDeferred.resolve(ws);
                         })
                         .fail(function(error) {
                             failHandler($li, tableName, error);
@@ -540,7 +545,7 @@ window.TableList = (function($, TableList) {
 
         if (action === "add") {
             PromiseHelper.chain(promises)
-            .then(function() {
+            .then(function(ws) {
                 // anything faile to alert
                 if (failures.length > 0) {
                     deferred.reject(failures.join("\n"));
@@ -548,7 +553,7 @@ window.TableList = (function($, TableList) {
                     if (tableType !== TableType.WSHidden) {
                         focusOnLastTable(tables);
                     }
-                    deferred.resolve(tables);
+                    deferred.resolve(tables, ws);
                 }
             });
         } else if (action === "delete") {
@@ -808,7 +813,7 @@ window.TableList = (function($, TableList) {
         focusedListNum = null;
     }
 
-    function addOrphanedTable(tableName, wsId) {
+    function addOrphanedTable(tableName, destWS) {
         var deferred = jQuery.Deferred();
 
         var tableId = xcHelper.getTableId(tableName);
@@ -823,16 +828,16 @@ window.TableList = (function($, TableList) {
             } else {
                 var oldWS = WSManager.getWSFromTable(tableId);
                 if (oldWS) {
-                    worksheet = oldWS;
+                    if (destWS) {
+                        worksheet = destWS;
+                    }
                     WSManager.removeTable(tableId);
-                } else if (wsId) {
-                    worksheet = wsId;
                 }
             }
 
             TblManager.refreshTable([tableName], null, [], worksheet, null)
             .then(function() {
-                deferred.resolve(tableName);
+                deferred.resolve(worksheet);
             })
             .fail(deferred.reject);
 
@@ -847,7 +852,7 @@ window.TableList = (function($, TableList) {
                                                 [], worksheet, null);
             })
             .then(function() {
-                deferred.resolve(tableName);
+                deferred.resolve(worksheet);
             })
             .fail(deferred.reject);
 
@@ -1577,18 +1582,9 @@ window.TableList = (function($, TableList) {
             tableIsInActiveWS = checkIfTablesInActiveWS(tableNames);
         }
         if (tableIsInActiveWS) {
-            var $mainFrame = $('#mainFrame');
-            // XX temporary fix to find last table
             var $lastTable = $('.xcTableWrap:not(.inActive)').last();
-
             if ($lastTable.length > 0) {
-                var leftPos = $lastTable.position().left +
-                                $mainFrame.scrollLeft();
-                var tableId = xcHelper.parseTableId($lastTable);
-                $mainFrame.animate({scrollLeft: leftPos}, 500).promise()
-                .then(function(){
-                    TblFunc.focusTable(tableId);
-                });
+                xcHelper.centerFocusedTable($lastTable.data("id"), true);
             }
         }
     }

@@ -303,7 +303,7 @@ window.Redo = (function($, Redo) {
             });
 
             return TableList.activeTables(tableType, options.noSheetTables,
-                                            options.wsToSent);
+                                            options.wsToSent, options.ws);
         })
         .then(function() {
             deferred.resolve();
