@@ -1914,6 +1914,9 @@ window.xcHelper = (function($, xcHelper) {
             case "prefix":
                 namePattern = /^[a-zA-Z0-9_-]{1,31}$/;
                 break;
+            case "udf":
+                namePattern = /^[a-z_]+[a-zA-Z0-9_-]+$/;
+                break;
             default:
                 namePattern = /^[a-zA-Z0-9_-]+$/;
                 antiNamePattern = /[^a-zA-Z0-9_-]/;

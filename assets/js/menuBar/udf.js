@@ -242,39 +242,14 @@ window.UDF = (function($, UDF) {
 
         $("#udf-fnUpload").click(function() {
             $(this).blur();
-            var $fnName = $("#udf-fnName");
-            var fileName = $fnName.val();
-            var options = {"side": "top", "offsetY": -2};
-            if (fileName === "") {
-                StatusBox.show(ErrTStr.NoEmpty, $fnName, true, options);
-                return;
-            } else if (fileName.length >
-                XcalarApisConstantsT.XcalarApiMaxUdfModuleNameLen) {
-                StatusBox.show(ErrTStr.LongFileName, $fnName, true, options);
-                return;
-            }
-            // Get code written and call thrift call to upload
-            var entireString = editor.getValue();
-            if (entireString.trim() === "" ||
-                entireString.trim() === udfDefault.trim())
-            {
-                StatusBox.show(ErrTStr.NoEmptyFn,
-                                $('#udf-fnSection .CodeMirror'), false,
-                                options);
-                return;
-            } else if (entireString.trim().length >
-                       XcalarApisConstantsT.XcalarApiMaxUdfSourceLen) {
-                StatusBox.show(ErrTStr.LargeFile,
-                                $("#udf-fnSection .CodeMirror"), false,
-                                options);
+            var moduleName = validateUDFName();
+            if (moduleName == null) {
                 return;
             }
 
-            var moduleName;
-            if (fileName.indexOf(".") >= 0) {
-                moduleName = fileName.substring(0, fileName.indexOf("."));
-            } else {
-                moduleName = fileName;
+            var entireString = validateUDFStr();
+            if (entireString == null) {
+                return;
             }
 
             // Temporarily disabled due to not allowing users to upload apps
@@ -283,7 +258,6 @@ window.UDF = (function($, UDF) {
             //       $("#udf-uploadType .iconWrapper .icon")
             //       .attr("data-uploadType"));
             upload(moduleName, entireString, "UDF");
-
         });
         /* end of upload udf section */
 
@@ -628,6 +602,46 @@ window.UDF = (function($, UDF) {
 
             xcHelper.showSuccess(SuccessTStr.DelUDF);
         }
+    }
+
+    function validateUDFName() {
+        var $fnName = $("#udf-fnName");
+        var moduleName = $fnName.val().trim().toLowerCase();
+        var options = {"side": "top", "offsetY": -2};
+
+        if (moduleName === "") {
+            StatusBox.show(ErrTStr.NoEmpty, $fnName, true, options);
+            return null;
+        } else if (!xcHelper.checkNamePattern("udf", "check", moduleName)) {
+            StatusBox.show(UDFTStr.InValidName, $fnName, true, options);
+            return null;
+        } else if (moduleName.length >
+                   XcalarApisConstantsT.XcalarApiMaxUdfModuleNameLen)
+        {
+            StatusBox.show(ErrTStr.LongFileName, $fnName, true, options);
+            return null;
+        }
+
+        return moduleName;
+    }
+
+    function validateUDFStr() {
+        // Get code written and call thrift call to upload
+        var entireString = editor.getValue();
+        var $editor = $("#udf-fnSection .CodeMirror");
+        var options = {"side": "top", "offsetY": -2};
+
+        if (entireString.trim() === "" ||
+            entireString.trim() === udfDefault.trim())
+        {
+            StatusBox.show(ErrTStr.NoEmptyFn, $editor, false, options);
+            return null;
+        } else if (entireString.trim().length >
+                   XcalarApisConstantsT.XcalarApiMaxUdfSourceLen) {
+            StatusBox.show(ErrTStr.LargeFile, $editor, false, options);
+            return null;
+        }
+        return entireString;
     }
 
     function upload(moduleName, entireString, type) {

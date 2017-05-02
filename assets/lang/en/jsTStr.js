@@ -825,7 +825,8 @@ UDFTStr = {
     // Must be kept consistent with htmlTStr.UDF
     "NameHint": "Module name (lowercase)",
     "AppName": "XPU App name (lowercase)",
-    "NoTemplate": "Cannot find the module"
+    "NoTemplate": "Cannot find the module",
+    "InValidName": "Module name should start with a letter or underscore and contain only letters, digits, hyphens(-) or underscores(_)"
 };
 
 TblTStr = {

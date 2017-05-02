@@ -693,7 +693,8 @@ UDFTStr = {
 "DelFail": '删除UDF失败',
 "NameHint": '模块名称（小写）',
 "AppName": 'XPU应用程序名称（小写）',
-"NoTemplate": "无法找到模快"
+"NoTemplate": "无法找到模快",
+"InValidName": "模块名应以字母或下划线开头, 仅包含字母，数字，连字符（ - ）或下划线（_）"
 };
 TblTStr = {
 'Create': '创建表',

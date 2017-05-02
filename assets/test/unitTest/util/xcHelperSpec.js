@@ -1205,37 +1205,80 @@ describe('xcHelper Test', function() {
     });
 
     it('xcHelper.checkNamePattern should work', function() {
-        // case 1
-        var res = xcHelper.checkNamePattern("dataset", "fix", "a(F-_&$38", "0");
-        expect(res).to.equal("a0F-_0038");
-        // case 2
-        res = xcHelper.checkNamePattern("folder", "fix", "a(F-_ &$38)", "0");
-        expect(res).to.equal("a(F00 0038)");
-        // case 3
-        res = xcHelper.checkNamePattern("param", "fix", "a(F-_ &$38)", "");
-        expect(res).to.equal("aF38");
-        // case 4
-        res = xcHelper.checkNamePattern("prefix", "check", "a(F-_ &$38)");
-        expect(res).to.be.false;
-        // case 5
-        res = xcHelper.checkNamePattern("prefix", "check", "");
-        expect(res).to.be.false;
-        // case 6
-        res = xcHelper.checkNamePattern("prefix", "check",
-                                        "a012345678901234567890123456789a");
-        expect(res).to.be.false;
-        // case 7
-        res = xcHelper.checkNamePattern("prefix", "check",
-                                        "a01234568901234567890123456789a");
-        expect(res).to.be.true;
-        // case 8
+        var testCases = [{
+            "category": "dataset",
+            "action": "fix",
+            "name": "a(F-_&$38",
+            "replace": "0",
+            "expect": "a0F-_0038"
+        }, {
+            "category": "folder",
+            "action": "fix",
+            "name": "a(F-_ &$38)",
+            "replace": "0",
+            "expect": "a(F00 0038)"
+        }, {
+            "category": "param",
+            "action": "fix",
+            "name": "a(F-_ &$38)",
+            "replace": "",
+            "expect": "aF38"
+        }, {
+            "category": "prefix",
+            "action": "check",
+            "name": "a(F-_ &$38)",
+            "expect": false
+        }, {
+            "category": "prefix",
+            "action": "check",
+            "name": "",
+            "expect": false
+        }, {
+            "category": "prefix",
+            "action": "check",
+            "name": "a012345678901234567890123456789a",
+            "expect": false
+        }, {
+            "category": "prefix",
+            "action": "check",
+            "name": "a01234568901234567890123456789a",
+            "expect": true
+        }, {
+            "category": "udf",
+            "action": "check",
+            "name": "9ab",
+            "expect": false
+        }, {
+            "category": "udf",
+            "action": "check",
+            "name": "-ab",
+            "expect": false
+        }, {
+            "category": "udf",
+            "action": "check",
+            "name": "_ab9-c.",
+            "expect": false
+        }, {
+            "category": "udf",
+            "action": "check",
+            "name": "_ab9-c",
+            "expect": true
+        }];
+
+        testCases.forEach(function(test) {
+            console.log(test)
+            var res = xcHelper.checkNamePattern(test.category, test.action,
+                                                test.name, test.replace);
+            expect(res).to.equal(test.expect);
+        });
+
         function regexEqual(x, y) {
             return (x instanceof RegExp) && (y instanceof RegExp) &&
                    (x.source === y.source) && (x.global === y.global) &&
                    (x.ignoreCase === y.ignoreCase) &&
                    (x.multiline === y.multiline);
         }
-        res = xcHelper.checkNamePattern("doesNotExit", "get");
+        var res = xcHelper.checkNamePattern("doesNotExit", "get");
         expect(regexEqual(res, /^[a-zA-Z0-9_-]+$/)).to.be.true;
     });
 
