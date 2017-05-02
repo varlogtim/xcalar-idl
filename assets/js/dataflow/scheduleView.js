@@ -476,6 +476,25 @@ window.Scheduler = (function(Scheduler, $) {
         return t;
     }
 
+    function getTimeToSecond(time, timezoneOffSet) {
+        if (time == null) {
+            return null;
+        }
+        if (timezoneOffSet !== undefined) {
+            time = time + timezoneOffSet * 60000;
+        }
+
+        var d = new Date(time);
+        var t = xcHelper.getDate("/", d) + " " +
+                d.toLocaleTimeString(navigator.language, {
+                    "hour": "2-digit",
+                    "minute": "2-digit",
+                    "second": "2-digit"
+                }) + " UTC";
+
+        return t;
+    }
+
     // From local date to server time
     function timeZoneTransfer(localDate, timeZoneOffSet) {
         // UTC time == localTime + localTimezoneOffset * 60000
@@ -716,7 +735,11 @@ window.Scheduler = (function(Scheduler, $) {
 
             if (scheduleInfo && scheduleInfo.scheduleResults.length) {
                 scheduleInfo.scheduleResults.forEach(function(res) {
-                    var runTimeStr = getTime(res.endTime, serverTimeZoneOffset);
+                    var startTime = "Start Time: " +
+                        getTimeToSecond(res.startTime, serverTimeZoneOffset);
+                    var endTime = "End Time: " +
+                        getTimeToSecond(res.endTime, serverTimeZoneOffset);
+                    var runTimeStr = startTime + "<br>" + endTime;
                     var parameterStr = getParameterStr(res.parameters);
                     var statusStr = StatusTStr[res.status];
                     html += getOneRecordHtml(runTimeStr, parameterStr,
@@ -752,7 +775,10 @@ window.Scheduler = (function(Scheduler, $) {
     }
 
     function getOneRecordHtml(runTimeStr, timeTakenStr, statusStr, outputStr) {
-        var record = '<div class="content timeContent">' +
+        var record ='<div class="row' +
+                    ((runTimeStr === SchedTStr.Notrun || runTimeStr === "") ?
+                    ' noRun' : '')+ '">' +
+                    '<div class="content timeContent">' +
                         runTimeStr +
                     '</div>' +
                     '<div class="content lastContent">' +
@@ -763,6 +789,7 @@ window.Scheduler = (function(Scheduler, $) {
                     '</div>' +
                     '<div class="content outputLocationContent">' +
                         outputStr +
+                    '</div>'+
                     '</div>';
         return record;
     }

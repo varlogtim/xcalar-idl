@@ -895,7 +895,7 @@
 
     #scheduleTable {
         @rowHeight: 30px;
-        background-color: @color-bg-white-seven;
+        background-color: @color-bg-white-three;
         border-right: 1px solid @color-border-white-two;
 
         .titleSection {
@@ -903,6 +903,9 @@
             border: 1px solid @color-border-white-two;
             border-left: none;
             border-right: none;
+            .row {
+                height: @rowHeight;
+            }
         }
         .mainSection {
             max-height: 300px;
@@ -912,19 +915,50 @@
             border-top: none;
             border-bottom: 1px solid @color-border-white-two;
             line-height: 0px;
+            .row {
+                height: @rowHeight * 2;
+            }
         }
 
         .content, .title, .grid-unit > div {
-            width: 25%;
             border-left: 1px solid @color-border-white-two;
             display: inline-block;
             float: left;
-            height: @rowHeight;
-            line-5: @rowHeight;
+            height: 100%;
             text-align: center;
             vertical-align: bottom;
             line-height: 30px;
+            white-space: pre;
+            &.title {
+                height: @rowHeight;
+                text-align: center;
+            }
             .textOverflowOneLine;
+        }
+        .row {
+            width: 100%;
+            &:nth-child(odd) {
+               background-color: @color-bg-white-seven;
+            }
+            .timeContent, .time {
+                width: 264px;
+            }
+            .lastContent, .statusContent, .last, .status {
+                width: ~"calc(33% - 88px)";
+            }
+            .outputLocationContent, .outputLocation {
+                width: ~"calc(34% - 88px)";
+            }
+            .timeContent {
+                text-align: right;
+                padding-right: 10px;
+            }
+            &.noRun {
+                height: @rowHeight;
+                .timeContent {
+                    text-align: center;
+                }
+            }
         }
     }
 }

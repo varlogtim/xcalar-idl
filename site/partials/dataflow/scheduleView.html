@@ -228,17 +228,21 @@
         <div id="scheduleTable" class="contentSection">
           <section class="titleSection">
             <div class="titleWrapper clearfix">
-              <div class="title time"><%= dicts.sched.runtime %></div>
-              <div class="title last"><%= dicts.sched.parameters %></div>
-              <div class="title status"><%= dicts.sched.status %></div>
-              <div class="title outputLocation"><%= dicts.sched.outputLocation %></div>
+              <div class="row">
+                <div class="title time"><%= dicts.sched.runtime %></div>
+                <div class="title last"><%= dicts.sched.parameters %></div>
+                <div class="title status"><%= dicts.sched.status %></div>
+                <div class="title outputLocation"><%= dicts.sched.outputLocation %></div>
+              </div>
             </div>
           </section>
           <section class="mainSection">
-              <div class="content timeContent"><%= dicts.sched.noRun %></div>
-              <div class="content lastContent"><%= dicts.sched.noRun %></div>
-              <div class="content statusContent"><%= dicts.sched.noRun %></div>
-              <div class="content outputLocationContent"><%= dicts.sched.noRun %></div>
+              <div class="row">
+                <div class="content timeContent"><%= dicts.sched.noRun %></div>
+                <div class="content lastContent"><%= dicts.sched.noRun %></div>
+                <div class="content statusContent"><%= dicts.sched.noRun %></div>
+                <div class="content outputLocationContent"><%= dicts.sched.noRun %></div>
+              </div>
           </section>
         </div>
       </div>
