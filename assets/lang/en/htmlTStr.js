@@ -412,7 +412,7 @@ module.exports = {
     },
 
     "supportTicket": {
-        "GenSupTicket": "Generate Support Ticket",
+        "GenSupTicket": "Generate Support Bundle",
         "GenSupInstr": "Please fill out the form below.",
         "TypeIssue": "Type of issue",
         "Comments": "Comments",
@@ -880,7 +880,7 @@ module.exports = {
         "confirmEmail": "Confirm Email",
         "passwordLower": "Password",
         "confirmPassword": "Confirm Password",
-        "IAgree": "I aggree to the",
+        "IAgree": "I agree to the",
         "terms": "Terms & Conditions",
         "alreadyAccount": "Already have an account?"
     },
@@ -896,13 +896,13 @@ module.exports = {
                                 "option to upgrade is only available when an " +
                                 "existing version exists and your Xcalar" +
                                 " cluster is powered off.",
-        "uninstallWizardContent": "Remove Xcalar from your machine.",
+        "uninstallWizardContent": "Uinstall Xcalar from your cluster.",
         "title": "Error",
         "instrUp": "An error has occured.",
         "instrDown": "Please review the following error(s).",
         "errorCode": "Error Code:",
         "description": "Description:",
         "errorMessage": "Error Message:",
-        "showHide": "Show/Hide error log/source error"
+        "showHide": "Show/Hide error log"
     }
 };
