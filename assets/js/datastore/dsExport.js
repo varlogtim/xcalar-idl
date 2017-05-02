@@ -295,7 +295,8 @@ window.DSExport = (function($, DSExport) {
         } else {
             $('#exportURL-edit').closest('.formatSpecificRow')
                            .addClass('active');
-            $('#exportURL-edit').val(FileProtocol.nfs + formatArg);
+            $('#exportURL-edit').val(FileProtocol.nfs.substring(0,
+                FileProtocol.nfs.length - 1) + formatArg);
         }
         if (type === "UDF") {
             $editForm.find('.udfSelectorRow').addClass('active');
