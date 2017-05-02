@@ -30,6 +30,10 @@ window.DFParamModal = (function($, DFParamModal){
             '</div>' +
         '</div>';
 
+    var crt;
+    var cover = document.createElement('div');
+    cover.innerHTML = '<div class="cover"></div>';
+
     DFParamModal.setup = function() {
         // constant
         $dfgParamModal = $("#dfgParameterModal");
@@ -133,7 +137,6 @@ window.DFParamModal = (function($, DFParamModal){
         }
         $dfgParamModal.find('.draggableParams.systemParams').removeClass("hint")
                             .html(draggableInputs);
-
         fillUpRows();
         populateSavedFields(id, dfName);
 
@@ -231,9 +234,27 @@ window.DFParamModal = (function($, DFParamModal){
     };
 
     DFParamModal.paramDragStart = function(event) {
+        // duplicate the current parameter and set the opacity to be low
+        crt = event.target.cloneNode(true);
+        crt.style.opacity = 0.5;
+        crt.style.position = "absolute";
+        if ($(event.target).closest(".draggableParams").hasClass("currParams")) {
+            document.getElementsByClassName("currParams")[0].appendChild(crt);
+            document.getElementsByClassName("currParams")[0].appendChild(cover);
+        } else {
+            document.getElementsByClassName("systemParams")[0].appendChild(crt);
+            document.getElementsByClassName("systemParams")[0].appendChild(cover);
+        }
+        // Used cover to cover the duplicated element
+        var top = $(crt).position().top;
+        var left = $(crt).position().left;
+        $("#dfgParameterModal .cover").css({'top': top, 'left': left,
+            'position': "absolute", 'width': $(crt).width() * 2,
+            'height': $(crt).height() * 2});
         event.dataTransfer.effectAllowed = "copyMove";
         event.dataTransfer.dropEffect = "copy";
         event.dataTransfer.setData("text", event.target.id);
+        event.dataTransfer.setDragImage(crt, 0, 0);
         event.stopPropagation();
         var $origin = $(event.target).parent();
         var origin;
@@ -277,6 +298,13 @@ window.DFParamModal = (function($, DFParamModal){
     };
 
     DFParamModal.paramDragEnd = function (event) {
+        if ($(event.target).closest(".draggableParams").hasClass("currParams")) {
+            document.getElementsByClassName("currParams")[0].removeChild(crt);
+            document.getElementsByClassName("currParams")[0].removeChild(cover);
+        } else {
+            document.getElementsByClassName("systemParams")[0].removeChild(crt);
+            document.getElementsByClassName("systemParams")[0].removeChild(cover);
+        }
         event.stopPropagation();
         $editableRow.data('copying', false);
         $dfgParamModal.find('.dummyWrap').hide();
