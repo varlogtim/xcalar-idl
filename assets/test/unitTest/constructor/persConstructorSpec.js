@@ -2701,7 +2701,7 @@ describe("Persistent Constructor Test", function() {
             }
         });
 
-        it("Should have 9 attributes", function() {
+        it("Should have 10 attributes", function() {
             var wkbk = new WKBK({
                 "name": "test",
                 "id": "testId",
@@ -2709,10 +2709,11 @@ describe("Persistent Constructor Test", function() {
                 "curUser": "testUser",
                 "created": 1234,
                 "modified": 2234,
-                "numWorksheets": 12
+                "numWorksheets": 12,
+                "resource": true
             });
 
-            expect(Object.keys(wkbk).length).to.equal(9);
+            expect(Object.keys(wkbk).length).to.equal(10);
             expect(wkbk).to.have.property("version")
             .and.to.equal(currentVersion);
             expect(wkbk).to.have.property("name")
@@ -2731,6 +2732,8 @@ describe("Persistent Constructor Test", function() {
             .and.to.equal(2234);
             expect(wkbk).to.have.property("numWorksheets")
             .and.to.equal(12);
+            expect(wkbk).to.have.property("resource")
+            .and.to.be.true;
         });
 
         it("WKBK Basic function should work", function() {
@@ -2758,6 +2761,10 @@ describe("Persistent Constructor Test", function() {
 
             wkbk.update();
             expect(wkbk.getModifyTime()).not.to.equal(2234);
+
+            expect(wkbk.hasResource()).to.be.false;
+            wkbk.setResource(true);
+            expect(wkbk.hasResource()).to.be.true;
         });
     });
 

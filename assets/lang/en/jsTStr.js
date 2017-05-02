@@ -599,7 +599,10 @@ WKBKTStr = {
     'DeleteMsg': 'Are you sure you want to delete the workbook?',
     'Deactivate': 'Deactivate Workbook',
     'DeactivateMsg': 'Are you sure you want to deactivate the workbook?',
-    'DeactivateErr': 'Error occurred when deactivating workbook'
+    'DeactivateErr': 'Error occurred when deactivating workbook',
+    'Pause': 'Pause Workbook',
+    'PauseMsg': 'Are you sure you want to pause the workbook?',
+    'PauseErr': 'Error occurred when pausing workbook'
 };
 
 MonitorTStr = {

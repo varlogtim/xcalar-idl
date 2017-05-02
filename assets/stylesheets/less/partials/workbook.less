@@ -355,13 +355,6 @@
                     border-color: transparent;
                 }
             }
-            .delete {
-                pointer-events: none;
-                display: none !important;
-            }
-            .deactivate {
-                display: block;
-            }
         }
 
         &.noMeta {
@@ -470,49 +463,43 @@
             .textOverflowOneLine;
         }
 
-        .deactivate {
-            display: none;
-        }
-
         .rightBar {
             background-color: @color-bg-white-three;
             overflow: hidden;
             width: @tabHeight;
-            .tab {
-                background-color: @color-bg-select-blue;
-                .size(100%, 25%);
-                border-top: 1px solid @color-bg-dusk-blue;
-                border-left: 1px solid @color-bg-dusk-blue;
-                display: block;
+        }
 
-                .transform(translateX(100%));
-                .transition(0.2s transform);
-                // temp fix for Safari
-                -webkit-transition: -webkit-transform 0.2s;
+        .tab {
+            background-color: @color-bg-select-blue;
+            .size(100%, 25%);
+            border-top: 1px solid @color-bg-dusk-blue;
+            border-left: 1px solid @color-bg-dusk-blue;
+            display: block;
 
-                &:hover {
-                    .icon {
-                        opacity: @opacity-hover;
-                    }
-                }
+            .transform(translateX(100%));
+            .transition(0.2s transform);
+            // temp fix for Safari
+            -webkit-transition: -webkit-transform 0.2s;
 
-                &:nth-child(1) {
-                    .transition-delay(0.20s);
-                    border-top-width: 0px;
+            &:hover {
+                .icon {
+                    opacity: @opacity-hover;
                 }
-                &:nth-child(2) {
-                    .transition-delay(0.15s);
-                }
+            }
 
-                &:nth-child(3) {
-                    .transition-delay(0.10s);
-                }
-                &:nth-child(4) {
-                    .transition-delay(0.05s);
-                }
-                &:nth-child(5) {
-                    .transition-delay(0.05s);
-                }
+            &:nth-child(1) {
+                .transition-delay(0.20s);
+                border-top-width: 0px;
+            }
+            &:nth-child(2) {
+                .transition-delay(0.15s);
+            }
+
+            &:nth-child(3) {
+                .transition-delay(0.10s);
+            }
+            &:nth-child(4) {
+                .transition-delay(0.05s);
             }
 
             .icon {
@@ -543,12 +530,7 @@
                 &:nth-child(4) {
                     .transition-delay(0.20s);
                 }
-                &:nth-child(5) {
-                    .transition-delay(0.20s);
-                }
             }
         }
-
-
     }
 }

@@ -332,6 +332,29 @@ window.Workbook = (function($, Workbook) {
             $(".tooltip").remove();
         });
 
+        // pause button
+        $workbookSection.on("click", ".pause", function() {
+            clearActives();
+            var $workbookBox = $(this).closest(".workbookBox");
+            // Alert.show({
+            //     "title": WKBKTStr.Pause,
+            //     "msg": WKBKTStr.PauseMsg,
+            //     "onConfirm": function() {
+            //         pauseWorkbook($workbookBox);
+            //     }
+            // });
+            // XXX GUI-8242 temp use old code
+            Alert.show({
+                "title": WKBKTStr.Deactivate,
+                "msg": WKBKTStr.DeactivateMsg,
+                "onConfirm": function() {
+                    pauseWorkbook($workbookBox);
+                }
+            });
+
+            $(".tooltip").remove();
+        });
+
         // deactivate button
         $workbookSection.on("click", ".deactivate", function() {
             clearActives();
@@ -340,7 +363,7 @@ window.Workbook = (function($, Workbook) {
                 "title": WKBKTStr.Deactivate,
                 "msg": WKBKTStr.DeactivateMsg,
                 "onConfirm": function() {
-                    deactiveWorkbookHelper($workbookBox);
+                    deactiveWorkbook($workbookBox);
                 }
             });
 
@@ -423,22 +446,23 @@ window.Workbook = (function($, Workbook) {
         $workbookBox.find(".modifiedTime").text(modified);
     }
 
+    function updateWorkbookInfoWithReplace($card, workbookId) {
+        var workbook = WorkbookManager.getWorkbook(workbookId);
+        var $updateCard = $(createWorkbookCard(workbook));
+        $card.replaceWith($updateCard);
+    }
+
     function getWorkbookInfo(isForceMode) {
         var $welcomeMsg = $welcomeCard.find(".description");
         var $welcomeUser = $welcomeCard.find(".heading .username");
         var user = Support.getUser();
         $welcomeUser.text(user);
-        // var html;
 
         if (isForceMode) {
             // forceMode does not have any workbook info
             $welcomeMsg.text(WKBKTStr.NewWKBKInstr);
             return;
         }
-
-        // var workbooks = WorkbookManager.getWorkbooks();
-        // var activeWKBKId = WorkbookManager.getActiveWKBK();
-        // var workbook = workbooks[activeWKBKId];
         $welcomeMsg.text(WKBKTStr.CurWKBKInstr);
     }
 
@@ -553,10 +577,6 @@ window.Workbook = (function($, Workbook) {
 
     function replaceLoadingCard($card, workbookId) {
         var classes = ['loading'];
-        // Get activeness
-        if (WorkbookManager.getActiveWKBK() === workbookId) {
-            classes.push('active');
-        }
         var workbook = WorkbookManager.getWorkbook(workbookId);
         var $updateCard = $(createWorkbookCard(workbook, classes));
         $card.replaceWith($updateCard);
@@ -599,15 +619,24 @@ window.Workbook = (function($, Workbook) {
         StatusBox.show(errorText, $ele);
     }
 
-    function deactiveWorkbookHelper($workbookBox) {
+    function pauseWorkbook($workbookBox) {
+        var workbookId = $workbookBox.attr("data-workbook-id");
+        WorkbookManager.pause(workbookId)
+        .then(function() {
+            updateWorkbookInfoWithReplace($workbookBox, workbookId);
+            $("#container").addClass("noWorkbook");
+        })
+        .fail(function(error) {
+            handleError(error, $workbookBox);
+        });
+    }
+
+    function deactiveWorkbook($workbookBox) {
         var workbookId = $workbookBox.attr("data-workbook-id");
 
         WorkbookManager.deactivate(workbookId)
         .then(function() {
-            $workbookBox.removeClass("active");
-            updateWorkbookInfo($workbookBox, workbookId);
-            $workbookBox.find(".isActive").text(WKBKTStr.Inactive);
-            $("#container").addClass("noWorkbook");
+            updateWorkbookInfoWithReplace($workbookBox, workbookId);
         })
         .fail(function(error) {
             handleError(error, $workbookBox);
@@ -642,13 +671,52 @@ window.Workbook = (function($, Workbook) {
         }
         var activateTooltip;
         var isActive;
+        var stopTab = "";
 
-        if (extraClasses.includes("active")) {
+        if (workbookId === WorkbookManager.getActiveWKBK()) {
+            extraClasses.push("active");
             isActive = WKBKTStr.Active;
             activateTooltip = WKBKTStr.ReturnWKBK;
+            // pause button
+            // stopTab =
+            //     '<div class="tab btn btn-small pause"' +
+            //     ' data-toggle="tooltip" data-container="body"' +
+            //     ' data-placement="auto right"' +
+            //     ' title="' + WKBKTStr.Pause + '">' +
+            //         '<i class="icon xi-pause-circle"></i>' +
+            //     '</div>';
+            // XXX GUI-8242 temp use old code
+            stopTab =
+                '<div class="tab btn btn-small pause"' +
+                ' data-toggle="tooltip" data-container="body"' +
+                ' data-placement="auto right"' +
+                ' title="' + WKBKTStr.Deactivate + '">' +
+                    '<i class="icon xi-stop-circle"></i>' +
+                '</div>';
         } else {
             isActive = WKBKTStr.Inactive;
             activateTooltip = WKBKTStr.Activate;
+
+            if (workbook.hasResource()) {
+                // stop button
+                stopTab =
+                    '<div class="tab btn btn-small deactivate"' +
+                    ' data-toggle="tooltip" data-container="body"' +
+                    ' data-placement="auto right"' +
+                    ' title="' + WKBKTStr.Deactivate + '">' +
+                        '<i class="icon xi-stop-circle"></i>' +
+                    '</div>';
+            } else {
+                extraClasses.push("noResource");
+                // delete button
+                stopTab =
+                '<div class="tab btn btn-small delete"' +
+                ' data-toggle="tooltip" data-container="body"' +
+                ' data-placement="auto right"' +
+                ' title="' + WKBKTStr.Delete + '">' +
+                    '<i class="icon xi-trash"></i>' +
+                '</div>';
+            }
         }
 
         var loadSection = "loadSection";
@@ -753,18 +821,7 @@ window.Workbook = (function($, Workbook) {
                         ' title="' + WKBKTStr.Duplicate + '">' +
                             '<i class="icon xi-duplicate"></i>' +
                         '</div>' +
-                        '<div class="tab btn btn-small delete"' +
-                        ' data-toggle="tooltip" data-container="body"' +
-                        ' data-placement="auto right"' +
-                        ' title="' + WKBKTStr.Delete + '">' +
-                            '<i class="icon xi-trash"></i>' +
-                        '</div>' +
-                        '<div class="tab btn btn-small deactivate"' +
-                        ' data-toggle="tooltip" data-container="body"' +
-                        ' data-placement="auto right"' +
-                        ' title="' + WKBKTStr.Deactivate + '">' +
-                            '<i class="icon xi-stop-circle"></i>' +
-                        '</div>' +
+                        stopTab +
                     '</div>' +
                 '</div>' +
             '</div>';
@@ -794,7 +851,7 @@ window.Workbook = (function($, Workbook) {
         });
         // active workbook always comes first
         if (activeWorkbook != null) {
-            html = createWorkbookCard(activeWorkbook, ["active"]) + html;
+            html = createWorkbookCard(activeWorkbook) + html;
         }
 
         $newWorkbookCard.after(html);

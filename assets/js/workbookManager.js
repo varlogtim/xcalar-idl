@@ -133,11 +133,13 @@ window.WorkbookManager = (function($, WorkbookManager) {
 
         XcalarNewWorkbook(wkbkName, isCopy, copySrcName)
         .then(function() {
+            // when create new wkbk, we always deactiveate it
             var options = {
                 "id": getWKBKId(wkbkName),
                 "name": wkbkName,
                 "srcUser": username,
-                "curUser": username
+                "curUser": username,
+                "resource": false
             };
 
             if (isCopy) {
@@ -367,8 +369,46 @@ window.WorkbookManager = (function($, WorkbookManager) {
         return deferred.promise();
     };
 
+    WorkbookManager.pause = function(workbookId) {
+        xcAssert(workbookId === activeWKBKId, WKBKTStr.PauseErr);
+        var wkbk = wkbkSet.get(workbookId);
+        if (wkbk == null) {
+            return PromiseHelper.reject(WKBKTStr.PauseErr);
+        }
+
+        // should stop check since seesion is released
+        Support.stopHeartbeatCheck();
+
+        $("#initialLoadScreen").show();
+        var deferred = jQuery.Deferred();
+
+        commitActiveWkbk()
+        .then(function() {
+            // XXX GUI-8242 temp use old code
+            var keepResource = false;
+            return XcalarDeactivateWorkbook(wkbk.getName(), keepResource);
+        })
+        .then(function() {
+            // pass in true to always resolve the promise
+            var promise = removeActiveWKBKKey();
+            return PromiseHelper.alwaysResolve(promise);
+        })
+        .then(function() {
+            // XXX GUI-8242 temp use old code
+            wkbk.setResource(false);
+            return saveWorkbook();
+        })
+        .then(deferred.resolve)
+        .fail(deferred.reject)
+        .always(function() {
+            $("#initialLoadScreen").hide();
+            Support.restartHeartbeatCheck();
+        });
+
+        return deferred.promise();
+    };
+
     WorkbookManager.deactivate = function(workbookId) {
-        xcAssert(workbookId === activeWKBKId, WKBKTStr.DeactivateErr);
         var wkbk = wkbkSet.get(workbookId);
         if (wkbk == null) {
             return PromiseHelper.reject(WKBKTStr.DeactivateErr);
@@ -380,14 +420,10 @@ window.WorkbookManager = (function($, WorkbookManager) {
         $("#initialLoadScreen").show();
         var deferred = jQuery.Deferred();
 
-        commitActiveWkbk()
+        XcalarDeactivateWorkbook(wkbk.getName())
         .then(function() {
-            return XcalarDeactivateWorkbook(wkbk.getName());
-        })
-        .then(function() {
-            // pass in true to always resolve the promise
-            var promise = removeActiveWKBKKey();
-            return PromiseHelper.alwaysResolve(promise);
+            wkbk.setResource(false);
+            return PromiseHelper.alwaysResolve(saveWorkbook);
         })
         .then(deferred.resolve)
         .fail(deferred.reject)
@@ -770,12 +806,17 @@ window.WorkbookManager = (function($, WorkbookManager) {
         }
     }
 
+    function checkResource(sessionInfo) {
+        return (sessionInfo.toLowerCase() === "has resources");
+    }
+
     function syncWorkbookMeta(oldWorkbooks, sessionInfo) {
         var numSessions = sessionInfo.numSessions;
         var sessions = sessionInfo.sessions;
 
         for (var i = 0; i < numSessions; i++) {
             var wkbkName = sessions[i].name;
+            var hasResouce = checkResource(sessions[i].info);
             var wkbkId = getWKBKId(wkbkName);
             var wkbk;
 
@@ -791,6 +832,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
                 });
             }
 
+            wkbk.setResource(hasResouce);
             wkbkSet.put(wkbkId, wkbk);
         }
 

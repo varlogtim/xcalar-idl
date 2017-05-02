@@ -493,7 +493,10 @@ WKBKTStr = {
 'DeleteMsg': '您确定要删除工作簿吗？',
 'Deactivate': '停用工作簿',
 'DeactivateMsg': '您确定要停用工作簿吗？',
-'DeactivateErr': '停用工作簿时出错'
+'DeactivateErr': '停用工作簿时出错',
+'Pause': '暂停工作簿',
+'PauseMsg': '您确定要暂停工作簿吗？',
+'PauseErr': '暂停工作簿时出错'
 };
 
 MonitorTStr = {

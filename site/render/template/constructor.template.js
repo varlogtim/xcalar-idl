@@ -1438,10 +1438,15 @@
             created: (date) create time
             modified: (date) last modified time
             numWorksheets: (integer) num of worksheets in the workbook
+         * new attr:
+            noResource: (boolena) true if it has no resource
         */
         function WKBK<%= v %>(options) {
             var self = _super.call(this, options);
             <%= addVersion %>
+            if (<%= checkFunc %>(options)) {
+                self.resource = options.resource || false;
+            }
             return self;
         }
 
@@ -1478,7 +1483,15 @@
 
             isNoMeta: function() {
                 return this.noMeta;
-            }
+            },
+
+            hasResource: function() {
+                return this.resource;
+            },
+
+            setResource: function(resource) {
+                this.resource = resource;
+            },
             <%}%>
         });
 
