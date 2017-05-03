@@ -20,7 +20,7 @@ window.DFCard = (function($, DFCard) {
                             '<div class="paramVal textOverflowOneLine"></div>' +
                         '</div>' +
                         '<div class="cell paramActionWrap">' +
-                            '<i class="paramDelete icon xi-close fa-10 xc-action">' +
+                            '<i class="paramDelete icon xi-close fa-15 xc-action">' +
                             '</i>' +
                         '</div>' +
                    '</div>';
@@ -1155,7 +1155,7 @@ window.DFCard = (function($, DFCard) {
         });
 
         return deferred.promise();
-    }
+    };
 
     function getDagWrap(dataflowName) {
         return $("#dataflowPanel").find(".dagWrap[data-dataflowName=" +

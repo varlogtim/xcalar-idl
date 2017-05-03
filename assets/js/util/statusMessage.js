@@ -136,7 +136,7 @@ window.StatusMessage = (function($, StatusMessage) {
         showDoneNotification(msgId, fail, null, srcTableId);
         failMessage = failMessage || StatusMessageTStr.Error;
         var failHTML = '<span class="text fail">' + failMessage + '</span>' +
-                       '<i class="icon close xi-close fa-15 xc-action"></i>';
+                       '<i class="icon close xi-close fa-17 xc-action"></i>';
 
         var $statusSpan = $('#stsMsg-' + msgId);
         $statusSpan.html(failHTML);
@@ -155,7 +155,7 @@ window.StatusMessage = (function($, StatusMessage) {
         var txt = msgObjs[msgId].operation[0].toUpperCase() +
                   msgObjs[msgId].operation.slice(1) + " canceled";
         var cancelHTML = '<span class="text fail">' + txt + '</span>' +
-                       '<i class="icon close xi-close fa-15 xc-action"></i>';
+                       '<i class="icon close xi-close fa-17 xc-action"></i>';
         var $statusSpan = $('#stsMsg-' + msgId);
         $statusSpan.html(cancelHTML);
         if (messages.indexOf(msgId) === 0) {

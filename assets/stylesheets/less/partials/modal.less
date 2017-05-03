@@ -27,6 +27,7 @@
         }
         .headerBtn, .close {
             cursor: pointer;
+            opacity: @opacity-unhover;
 
             .size(@width: 22px, @height: 22px);
 
@@ -34,27 +35,24 @@
                 display: inline-block;
                 .position(absolute, @top: 0, @right: 0);
                 .size(@width: 22px, @height: 22px);
-                line-height: 22px
+                line-height: 22px;
             }
 
-            &:hover {
-            }
-
-            &:active {
-
-            }
-        }
-        .close, .headerBtn {
-            opacity: @opacity-unhover;
-            .icon {
-               font-size: 16px;
-            }
             &:hover {
                 opacity: @opacity-hover;
             }
         }
+        .headerBtn {
+            .icon {
+                font-size: 16px;
+            }
+        }
+
         .close {
             .position(absolute, @top: 7px, @right: 7px);
+            .icon {
+                font-size: 18px;
+            }
         }
         .fullScreen {
             .position(absolute, @top: 7px, @right: 34px);
