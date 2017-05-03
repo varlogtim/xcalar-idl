@@ -716,10 +716,12 @@ window.FnBar = (function(FnBar, $) {
                     var innerDeferred = jQuery.Deferred();
                     ColManager.execCol(operation, newFuncStr, tableId, colNum)
                     .then(function(ret) {
+
                         if (ret === "update") {
                             TblManager.updateHeaderAndListInfo(tableId);
                             KVStore.commit();
                         }
+                        FnBar.focusCursor();
                         innerDeferred.resolve(ret);
                     })
                     .fail(innerDeferred.reject);

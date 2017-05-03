@@ -310,7 +310,7 @@ module.exports = {
         "empty": "空值",
         "instr": "要将此操作转换为参数化操作，请单击\"添加新的参数化操作\"按钮，然后将参数拖放到相应的位置。",
         "param": "参数",
-        "query": "当前操作",
+        "query": "Original Operation",
         "systemParamList": "系统参数表",
         "title": "参数化操作",
         "val": "值"

@@ -45,7 +45,8 @@ window.DSUploader = (function($, DSUploader) {
         for (var i = 0; i < pendingUploads.length; i++) {
             promises.push(XcalarDemoFileDelete(pendingUploads[i]));
         }
-        PromiseHelper.chain(promises)
+
+        PromiseHelper.when.apply(window, promises)
         .always(function() {
             if (pendingUploads.length) {
                 commit(); // clears pendingUploads from kvstore

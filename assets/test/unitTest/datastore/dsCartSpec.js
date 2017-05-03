@@ -287,7 +287,7 @@ describe("DSCart Test", function() {
                 "tableName": "testTable"
             });
             cart.setPrefix("testPrefix");
-            tooManyColAlertHelper(cart)
+            tooManyColAlertHelper(cart, WSManager.getActiveWS())
             .then(function() {
                 expect(true).to.be.true;
                 done();

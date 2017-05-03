@@ -759,7 +759,7 @@ module.exports = {
     "dfgParam": {
         "title": "Parameterize Operation",
         "instr": "To convert this operation into a parameterized operation, please click the add new parameterized operation button and drag and drop the parameters into their appropriate places.",
-        "query": "Current Operation",
+        "query": "Original Operation",
         "currParamList": "Current Parameter List",
         "systemParamList": "System Parameter List",
         "editParam": "Parameterized Operation",
