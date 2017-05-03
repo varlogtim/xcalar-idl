@@ -1974,7 +1974,7 @@ window.xcHelper = (function($, xcHelper) {
         if (columnName.length > XcalarApisConstantsT.XcalarApiMaxFieldNameLen) {
             error = ColTStr.LongName;
         } else if (xcHelper.hasInvalidCharInCol(columnName)) {
-            error = ColTStr.RenameSpecialChar;
+            error = ColTStr.ColNameInvalidChar;
         } else if (columnName === "DATA") {
             error = ErrTStr.PreservedName;
         } else if (firstrChar >= "0" && firstrChar <= "9") {

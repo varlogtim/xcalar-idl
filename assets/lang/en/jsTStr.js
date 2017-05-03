@@ -853,6 +853,8 @@ ColTStr = {
     'RenameSpecialChar': 'Invalid name. Ensure name contains only ' +
                          'alphanumeric, -, _ and space. It must start with ' +
                          'a letter.',
+    'ColNameInvalidChar': 'Invalid name. Ensure name does not contain the ' +
+                          'following characters: ^.\',":()[]{}\\',
     'RenameStartNum': 'Invalid name, cannot begin with a number.',
     'ImmediateClash': 'Invalid name, name already exists in at least one ' +
                       'DATA cell',

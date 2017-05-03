@@ -717,6 +717,8 @@ TblTStr = {
 ColTStr = {
 'SplitColWarn': '许多列会生成',
 'RenameSpecialChar': '名称无效确保名称只包含字母数字， - ，_和空格。它必须从字母开始。',
+ 'ColNameInvalidChar': 'Invalid name. Ensure name does not contain the ' +
+                          'following characters: ^.\',":()[]{}\\',
 'RenameStartNum': '名称无效，无法以数字开头。',
 'ImmediateClash': '无效名称，名称已经存在于至少一个数据单元中',
 'LongName': '列名太长，请使用少于255个字符。',

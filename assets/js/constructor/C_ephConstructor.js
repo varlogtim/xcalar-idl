@@ -2527,7 +2527,7 @@ MenuHelper.prototype = {
         $list.css('max-height', listHeight);
         $ul.css('max-height', listHeight).scrollTop(0);
 
-        var ulHeight = $ul[0].scrollHeight;
+        var ulHeight = $ul[0].scrollHeight - 1;
 
         if (ulHeight > $list.height()) {
             $ul.css('max-height', listHeight);
