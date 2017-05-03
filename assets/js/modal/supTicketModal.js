@@ -17,7 +17,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
     SupTicketModal.show = function() {
         $modal.addClass('flex-container');
         modalHelper.setup();
-        // Alert.tempHide();
+
         if ($("#modalBackground").hasClass('locked')) {
             $modal.addClass('locked');
             Alert.tempHide();
@@ -44,12 +44,6 @@ window.SupTicketModal = (function($, SupTicketModal) {
                 var inputVal = $input.val();
                 if (newVal !== inputVal) {
                     $input.val(newVal);
-                    if (newVal.indexOf('Crash') > -1 ||
-                        newVal.indexOf('Performance Issue') > -1) {
-                        showSupBundle();
-                    } else {
-                        hideSupBundle();
-                    }
                 }
             },
             "container": "#supTicketModal"
@@ -61,27 +55,12 @@ window.SupTicketModal = (function($, SupTicketModal) {
         });
     }
 
-    function showSupBundle() {
-        $modal.find('.genBundleRow').removeClass('xc-hidden');
-    }
-
-    function hideSupBundle() {
-        $modal.find('.genBundleRow').addClass('xc-hidden');
-    }
-
     function submitForm(download) {
         var deferred = jQuery.Deferred();
         var genBundle = false;
-        var perfOrCrash;
         var issueType = getIssueType();
-        if (issueType.toLowerCase().indexOf('perf') > -1 ||
-            issueType.toLowerCase().indexOf('crash') > -1) {
-            perfOrCrash = true;
-        } else {
-            perfOrCrash = false;
-        }
-        if (perfOrCrash &&
-            $modal.find('.genBundleRow .checkbox').hasClass('checked')) {
+
+        if ($modal.find('.genBundleRow .checkbox').hasClass('checked')) {
             genBundle = true;
         }
         var comment = $modal.find('.xc-textArea').val().trim();
