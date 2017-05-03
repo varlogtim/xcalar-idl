@@ -934,6 +934,10 @@ window.DSCart = (function($, DSCart) {
         }
         var tooManyWSCols = false;
         if (cart.items.length < gMaxColToPull) {
+            if (worksheet === "xc-new") {
+                return PromiseHelper.resolve();
+            }
+            // checks if current ws will have too many columns
             var wsCols = 0;
             var tableIds = WSManager.getWSById(worksheet).tables;
             for (var i = 0; i < tableIds.length; i++) {
