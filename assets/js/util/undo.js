@@ -57,9 +57,17 @@ window.Undo = (function($, Undo) {
             isUndo: true,
             replacingDest: TableType.Undone
         };
-        TblManager.refreshTable([options.tableName], null,
-                                [options.newTableName], worksheet,
-                                null, refreshOptions)
+
+         if (options.fltOptions.complement) {
+            var tableId = xcHelper.getTableId(options.newTableName);
+            promise = TblManager.sendTableToUndone(tableId, {'remove': true});
+        } else {
+            promise = TblManager.refreshTable([options.tableName], null,
+                                [options.newTableName], worksheet, null,
+                                refreshOptions);
+        }
+
+        promise
         .then(function() {
             // show filter form if filter was triggered from the form and was
             // the most recent operation

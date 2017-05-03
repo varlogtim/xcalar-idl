@@ -131,6 +131,7 @@ module.exports = {
         "CannotExpand": "Cannot expand tables",
         "ChangeType": "Change data type",
         "CollapseDF": "Collapse Tables",
+        "ComplementTable": "Create Complement Table",
         "CPCell": "Copy to clipboard",
         "CPColNames": "Copy column names",
         "CreateDF": "Create batch dataflow",

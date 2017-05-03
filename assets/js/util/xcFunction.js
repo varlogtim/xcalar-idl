@@ -7,6 +7,9 @@ window.xcFunction = (function($, xcFunction) {
     };
 
     // filter table column, returns resulting table name
+    // fltOptions:
+    //      filterString: eval string, required
+    //      formOpenTime: number
     xcFunction.filter = function(colNum, tableId, fltOptions) {
         var deferred = jQuery.Deferred();
 
@@ -46,8 +49,12 @@ window.xcFunction = (function($, xcFunction) {
         .then(function(tableAfterFilter) {
             finalTableName = tableAfterFilter;
             var options = {"selectCol": colNum};
+            var oldTables = [];
+            if (!fltOptions.complement) {
+                oldTables.push(tableName);
+            }
             return TblManager.refreshTable([finalTableName], table.tableCols,
-                                            [tableName], worksheet, txId,
+                                            oldTables, worksheet, txId,
                                             options);
         })
         .then(function() {

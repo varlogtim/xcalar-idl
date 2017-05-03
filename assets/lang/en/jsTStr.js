@@ -99,6 +99,9 @@ TooltipTStr = {
     "ViewAllWS": "View all worksheets",
     "LoggedIn": "Logged In",
     "SavedOn": "Last saved on",
+    "GeneratingComplement": "Generating complement table",
+    "ComplementSourceDropped": "Cannot create complement table if descendant table has been dropped",
+    "ComplementRestriction": "Complement table only available for Filter",
 
 
     // Sync with htmlTStr

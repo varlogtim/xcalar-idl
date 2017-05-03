@@ -456,8 +456,8 @@ window.DagPanel = (function($, DagPanel) {
 
             // to check if aggregate table, in which case we disallow
             // many options
-            var type = $dagTable.siblings('.actionType').data('type');
-            if (type === "aggregate") {
+            var operator = $dagTable.siblings('.actionType').data('type');
+            if (operator === "aggregate") {
                 $menu.find('.addTable, .revertTable, .focusTable, ' +
                             '.archiveTable, .addNoDelete').addClass('hidden');
             } else if (activeFound) {
@@ -476,7 +476,6 @@ window.DagPanel = (function($, DagPanel) {
                 $menu.find('.revertTable').removeClass('unavailable');
             }
 
-            var operator = $(this).closest('.dagTable').prev().data('type');
             var $genIcvLi = $menu.find('.generateIcv');
             if ($dagTable.find(".dagTableIcon").hasClass("icv")) {
                 xcHelper.disableMenuItem($genIcvLi, {
@@ -502,6 +501,25 @@ window.DagPanel = (function($, DagPanel) {
                         "title": TooltipTStr.IcvRestriction
                     });
                 }
+            }
+
+            var $complimentLi = $menu.find('.complementTable');
+            if (operator === "filter") {
+                if ($dagTable.hasClass("generatingComplement")) {
+                    xcHelper.disableMenuItem($complimentLi, {
+                        "title": TooltipTStr.generatingComplement
+                    });
+                } else if (isParentDropped($dagTable)) {
+                    xcHelper.disableMenuItem($complimentLi, {
+                        "title": TooltipTStr.ComplementSourceDropped
+                    });
+                } else {
+                    xcHelper.enableMenuItem($complimentLi);
+                }
+            } else {
+                xcHelper.disableMenuItem($complimentLi, {
+                    "title": TooltipTStr.ComplementRestriction
+                });
             }
 
             if (tableNoDelete) {
@@ -994,6 +1012,20 @@ window.DagPanel = (function($, DagPanel) {
             generateIcvTable($dagWrap.find('.tableName').text(),
                              $menu.data('tablename'), $tableIcon);
         });
+
+        $menu.find(".complementTable").mouseup(function(event) {
+            if (event.which !== 1) {
+                return;
+            }
+            if ($(this).hasClass("unavailable")) {
+                return;
+            }
+
+            var $tableIcon = $menu.data('tableelement');
+            var $dagWrap = $tableIcon.closest('.dagWrap');
+            generateComplementTable($menu.data('tablename'), $tableIcon);
+        });
+
     }
 
     // return hasFoundIcvTable or not
@@ -1066,6 +1098,80 @@ window.DagPanel = (function($, DagPanel) {
             "xcalarInput": xcalarInput,
             "op": op
         };
+    }
+
+    function generateComplementTable(dagTableName, $tableIcon) {
+        var origTableId = xcHelper.getTableId(dagTableName);
+        // Check whether this table already exists. If it does, then just add
+        // or focus on that table
+        if (isComplementTableExists(origTableId)) {
+            return PromiseHelper.reject();
+        }
+        var $tableWrap = $tableIcon.closest(".dagTableWrap");
+        var evalStr = $tableWrap.find(".actionType").data("info");
+        // remove or add not() for complement
+        if (evalStr.indexOf("not(") === 0 &&
+            evalStr[evalStr.length - 1] === ")") {
+            evalStr = evalStr.slice(4, -1);
+        } else {
+            evalStr = "not(" + evalStr + ")";
+        }
+
+        var fltOption = {
+            filterString: evalStr,
+            complement: true
+        };
+        var srcTableId = $tableWrap.prev().find(".dagTable").data("id");
+        $tableIcon.addClass("generatingComplement");
+
+        xcFunction.filter(1, srcTableId, fltOption)
+        .then(function(newTableName) {
+            if (gTables[origTableId]) {
+                gTables[origTableId].complement = newTableName;
+
+                var newId = xcHelper.getTableId(newTableName);
+                if (gTables[newId]) {
+                    gTables[newId].complement = dagTableName;
+                }
+            }
+        })
+        .always(function() {
+            $tableIcon.removeClass("generatingComplement");
+        });
+    }
+
+    function isComplementTableExists(origTableId) {
+         if (gTables[origTableId]) {
+            var complementTableName = gTables[origTableId].complement;
+            if (!complementTableName) {
+                return false;
+            }
+
+            var complementTableId = xcHelper.getTableId(complementTableName);
+            if (gTables[complementTableId]) {
+                // Find out whether it's already active. If so, focus on it
+                // Else add it to worksheet
+                if (TableList.checkTableInList(complementTableId)) {
+                    // Table is in active list. Simply focus
+                    DagFunction.focusTable(complementTableId);
+                    return true;
+                } else if (gTables[complementTableId].getType() ===
+                            TableType.Undone) {
+                    // Going to revert to it
+                    gTables[origTableId].complement = "";
+                } else {
+                    // Going to revert to it
+                    DagFunction.addTable(complementTableId);
+                    return true;
+                }
+            } else {
+                // The table has been deleted. We are cleaning up lazily
+                // so here's the cleanup
+                gTables[origTableId].complement = "";
+            }
+
+        }
+        return false;
     }
 
     function generateIcvTable(dagTableName, mapTableName, $tableIcon) {
@@ -3675,9 +3781,27 @@ window.Dag = (function($, Dag) {
                         filterValue = filterValue
                                         .slice(0, filterValue.lastIndexOf(')'));
                         info.column = filteredOn;
-                        info.tooltip = "Filtered table &quot;" + parents[0] +
-                                       "&quot; excluding " + filterValue +
-                                       " from " + filteredOn + ".";
+                        if (filteredOn.indexOf(")") > -1) {
+                            info.tooltip = "Filtered table &quot;" + parents[0] +
+                                       "&quot; where " + filteredOn +
+                                       " is " + filterType + " " +
+                                       filterValue + ".";
+                        } else {
+                            var commaIndex = filterStr.indexOf(',');
+                            if (commaIndex !== -1) {
+                                info.column = filterStr
+                                              .slice(parenIndex + 1, commaIndex)
+                                              .trim();
+                            } else {
+                                info.column = filterStr
+                                              .slice(parenIndex + 1,
+                                                     filterStr.lastIndexOf(')'))
+                                              .trim();
+                            }
+                            info.tooltip = "Filtered table &quot;" + parents[0] +
+                                            "&quot;: " + filterStr;
+                        }
+
                     } else {
                         info.tooltip = "Filtered table &quot;" + parents[0] +
                                        "&quot; where " + filteredOn +

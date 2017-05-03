@@ -18,6 +18,7 @@ module.exports = {
         "CannotExpand": "无法展开表",
         "ChangeType": "更改数据类型",
         "CollapseDF": "收缩表",
+        "ComplementTable": "Create Complement Table",
         "CreateDF": "创建批量数据流",
         "CreateParamQuery": "创建参数化操作",
         "CreateTarget": "新建导出目标",

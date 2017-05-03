@@ -302,6 +302,7 @@
             backTableMeta: (obj, not persist) backTableMeta
          * new attr:
             indexTables: (obj) cache column's indexed table
+            complement: (string), complement table
         */
         function TableMeta<%= v %>(options) {
             options = options || {};
@@ -313,6 +314,7 @@
                 self.tableCols = TableMeta<%= v %>.restoreProgCol(options.tableCols,
                                                             version);
                 self.indexTables = options.indexTables || {};
+                self.complement = options.complement || "";
             }
 
             return self;

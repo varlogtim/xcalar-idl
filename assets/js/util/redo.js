@@ -49,8 +49,12 @@ window.Redo = (function($, Redo) {
 
     redoFuncs[SQLOps.Filter] = function(options) {
         var worksheet = WSManager.getWSFromTable(options.tableId);
+        var oldTables = [];
+        if (!options.fltOptions.complement) {
+            oldTables = [options.tableName];
+        }
         return (TblManager.refreshTable([options.newTableName], null,
-                                            [options.tableName],
+                                            oldTables,
                                             worksheet));
     };
 
