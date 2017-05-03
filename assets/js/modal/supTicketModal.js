@@ -67,6 +67,15 @@ window.SupTicketModal = (function($, SupTicketModal) {
         var ticketObj = {
             "type": issueType,
             "comment": comment,
+            "xiLog": SQL.getAllLogs(),
+            "userIdName": userIdName,
+            "userIdUnique": userIdUnique,
+            "sessionName": WorkbookManager.getActiveWKBK(),
+            "version": {
+                "backendVersion": XVM.getBackendVersion(),
+                "frontendVersion": gGitVersion,
+                "thriftVersion": XVM.getSHA()
+            }
         };
 
         if (download) {
@@ -143,15 +152,6 @@ window.SupTicketModal = (function($, SupTicketModal) {
             // Even if it fails and returns undef, we continue with the values
             ticketObj.topInfo = topRet;
             ticketObj.license = licRet;
-            ticketObj.xiLog = SQL.getAllLogs();
-            ticketObj.userIdName = userIdName;
-            ticketObj.userIdUnique = userIdUnique;
-            ticketObj.sessionName = WorkbookManager.getActiveWKBK();
-            ticketObj.version = {
-                "backendVersion": XVM.getBackendVersion(),
-                "frontendVersion": gGitVersion,
-                "thriftVersion": XVM.getSHA(),
-            };
             return XFTSupportTools.fileTicket(JSON.stringify(ticketObj));
         }
         var deferred = jQuery.Deferred();

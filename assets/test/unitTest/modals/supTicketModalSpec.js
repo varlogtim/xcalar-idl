@@ -113,10 +113,24 @@ describe("SupTicketModal Test", function() {
         });
 
         it("should submit ticket", function(done) {
-            SupTicketModal.__testOnly__.submitTicket({})
+            var ticketObj = {
+                "type": "",
+                "comment": "",
+                "xiLog": "",
+                "userIdName": "",
+                "userIdUnique": "",
+                "sessionName": "",
+                "version": {
+                    "backendVersion": "",
+                    "frontendVersion": "",
+                    "thriftVersion": ""
+                }
+            };
+
+            SupTicketModal.__testOnly__.submitTicket(ticketObj)
             .then(function(res) {
                 expect(res).to.be.an("object");
-                expect(Object.keys(res).length).to.equal(7);
+                expect(Object.keys(res).length).to.equal(9);
                 expect(res).to.have.property("topInfo")
                 .and.to.equal("test api top");
                 expect(res).to.have.property("license")
