@@ -99,6 +99,8 @@ TooltipTStr = {
 "GeneratingComplement": "Generating complement table",
 "ComplementRestriction": "Complement table only available for Filter",
 "ComplementSourceDropped": "Cannot create complement table if descendant table has been dropped",
+"AddToWorksheet": "Add To Worksheet",
+"NoActiveUndone": "Tables in an undo state cannot be added to the worksheet",
 "IcvGenerating": '正在生成完整性约束冲突异常表',
 "IcvRestriction": '完整性约束冲突异常表仅适用于映射和分组',
 "IcvSourceDropped": '后代表被移除，完整性约束冲突异常表不可被创建',

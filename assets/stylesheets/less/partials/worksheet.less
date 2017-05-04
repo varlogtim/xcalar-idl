@@ -942,6 +942,8 @@ ul.CodeMirror-hints {
 
             background-color: @color-bg-boston-blue;
 
+
+
             .icon {
                 .center-align;
             }
@@ -949,6 +951,11 @@ ul.CodeMirror-hints {
             &:active {
                 border: 1px solid @color-white;
                 opacity: @opacity-hover;
+            }
+            &.xc-unavailable {
+                cursor: default;
+                opacity: 0.4;
+                border: none;
             }
         }
 

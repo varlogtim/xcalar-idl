@@ -89,6 +89,16 @@ window.TableList = (function($, TableList) {
                 $submitBtns.addClass("xc-hidden");
             } else {
                 $submitBtns.removeClass("xc-hidden");
+                var $activateBtn = $section.find(".submit.active");
+                if ($section.find(".undone .addTableBtn.selected").length) {
+                    $activateBtn.addClass('xc-unavailable');
+                    xcTooltip.changeText($activateBtn,
+                                         TooltipTStr.NoActiveUndone);
+                } else {
+                    $activateBtn.removeClass('xc-unavailable');
+                    xcTooltip.changeText($activateBtn,
+                                         TooltipTStr.AddToWorksheet);
+                }
             }
             focusedListNum = curListNum;
             // stop propogation
@@ -97,10 +107,20 @@ window.TableList = (function($, TableList) {
 
         $tableListSections.on("click", ".selectAll", function() {
             var $section = $(this).closest(".tableListSection");
-            var $btn = $section.find(".tableInfo:not(.hiddenWS) " +
+            var $btns = $section.find(".tableInfo:not(.hiddenWS) " +
                                 ".addTableBtn:visible").addClass("selected");
-            if ($btn.length > 0) {
+            if ($btns.length > 0) {
                 $section.find(".submit").removeClass("xc-hidden");
+                var $activateBtn = $section.find(".submit.active");
+                if ($btns.closest(".undone").length) {
+                    $activateBtn.addClass('xc-unavailable');
+                    xcTooltip.changeText($activateBtn,
+                                         TooltipTStr.NoActiveUndone);
+                } else {
+                    $activateBtn.removeClass('xc-unavailable');
+                    xcTooltip.changeText($activateBtn,
+                                         TooltipTStr.AddToWorksheet);
+                }
             }
             focusedListNum = null;
         });
@@ -140,6 +160,9 @@ window.TableList = (function($, TableList) {
         });
 
         $tableListSections.on("click", ".submit.active", function() {
+            if ($(this).hasClass('xc-unavailable')) {
+                return;
+            }
             var $section = $(this).closest(".tableListSection");
             if ($section.is("#archivedTableListSection")) {
                 activeTableAlert(TableType.Archived);
@@ -734,6 +757,14 @@ window.TableList = (function($, TableList) {
             $submitBtns.addClass("xc-hidden");
         } else {
             $submitBtns.removeClass("xc-hidden");
+            var $activateBtn = $submitBtns.filter(".active");
+            if ($listWrap.find(".undone .addTableBtn.selected").length) {
+                $activateBtn.addClass('xc-unavailable');
+                xcTooltip.changeText($activateBtn, TooltipTStr.NoActiveUndone);
+            } else {
+                $activateBtn.removeClass('xc-unavailable');
+                xcTooltip.changeText($activateBtn, TooltipTStr.AddToWorksheet);
+            }
         }
         focusedListNum = null;
     };

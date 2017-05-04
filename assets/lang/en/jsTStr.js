@@ -102,6 +102,8 @@ TooltipTStr = {
     "GeneratingComplement": "Generating complement table",
     "ComplementSourceDropped": "Cannot create complement table if descendant table has been dropped",
     "ComplementRestriction": "Complement table only available for Filter",
+    "AddToWorksheet": "Add To Worksheet",
+    "NoActiveUndone": "Tables in an undo state cannot be added to the worksheet",
 
 
     // Sync with htmlTStr
