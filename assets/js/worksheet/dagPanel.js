@@ -3361,7 +3361,6 @@ window.Dag = (function($, Dag) {
         var dagInfo = getDagNodeInfo(dagNode, key, parentNames, index,
                                      parentChildMap, dagArray);
         var state = dagInfo.state;
-        console.log(state);
         var tableName = getDagName(dagNode);
         nodeInfo.name = tableName;
         var tooltipTxt;
