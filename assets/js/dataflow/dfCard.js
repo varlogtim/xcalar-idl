@@ -1235,6 +1235,7 @@ window.DFCard = (function($, DFCard) {
             return XIApi.deleteTable(txId, tableName, true);
         })
         .then(function() {
+            Dag.makeInactive(tableName, true);
             deferred.resolve(dstTableName);
         })
         .fail(deferred.reject);

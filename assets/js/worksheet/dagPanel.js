@@ -397,10 +397,6 @@ window.DagPanel = (function($, DagPanel) {
                 // if dag does not have ready state, don't show dropdown
                 return;
             }
-            if ($dagTable.closest(".fromRetina").length &&
-                $dagTable.hasClass("dataStore")) {
-                return;
-            }
 
             var tableName = $dagTable.find('.tableTitle').text().trim();
             var tableId = $dagTable.data('id');
@@ -427,7 +423,8 @@ window.DagPanel = (function($, DagPanel) {
             $menu.find("li.unavailable").removeClass("unavailable");
             $menu.find(".deleteTableDescendants").addClass("unavailable");
 
-            if ($dagTable.hasClass("dataStore")) {
+            if ($dagTable.hasClass("dataStore") &&
+                !$dagTable.hasClass("retina")) {
                 $menu.addClass("dataStoreMode");
             } else {
                 $menu.removeClass("dataStoreMode");
@@ -954,9 +951,9 @@ window.DagPanel = (function($, DagPanel) {
             if (event.which !== 1) {
                 return;
             }
-            var tableId = $menu.data("tableId");
-            Dag.makeTableNoDelete(tableId);
-            TblManager.makeTableNoDelete(tableId);
+            var tableName = $menu.data("tablename");
+            Dag.makeTableNoDelete(tableName);
+            TblManager.makeTableNoDelete(tableName);
         });
 
         $menu.find('.removeNoDelete').mouseup(function(event) {
@@ -1766,7 +1763,7 @@ window.Dag = (function($, Dag) {
              .addClass('Dropped');
         var text = xcHelper.replaceMsg(TooltipTStr.DroppedTable,
                                         {"tablename": tableName});
-        $dags.find(".dagTableIcon").each(function() {
+        $dags.find(".dagTableIcon, .dataStoreIcon").each(function() {
             xcTooltip.changeText($(this), text);
         });
     };
@@ -2372,7 +2369,8 @@ window.Dag = (function($, Dag) {
         }
     }
 
-    Dag.makeTableNoDelete = function(tableId) {
+    Dag.makeTableNoDelete = function(tableName) {
+        var tableId = xcHelper.getTableId(tableName);
         var $dagTables = $("#dagPanel").find('.dagTable[data-id="' +
                                         tableId + '"]');
         $dagTables.addClass("noDelete");
@@ -3363,8 +3361,16 @@ window.Dag = (function($, Dag) {
         var dagInfo = getDagNodeInfo(dagNode, key, parentNames, index,
                                      parentChildMap, dagArray);
         var state = dagInfo.state;
+        console.log(state);
         var tableName = getDagName(dagNode);
         nodeInfo.name = tableName;
+        var tooltipTxt;
+        if (state === DgDagStateTStr[DgDagStateT.DgDagStateDropped]) {
+            tooltipTxt = xcHelper.replaceMsg(TooltipTStr.DroppedTable,
+                        {"tablename": tableName});
+        } else {
+            tooltipTxt = CommonTxtTstr.ClickToOpts;
+        }
         // check for data store
         if (dagOrigin === "") {
             var url = dagInfo.url;
@@ -3380,6 +3386,7 @@ window.Dag = (function($, Dag) {
                 dsText = "";
                 outerClassNames = " retina";
                 icon = '<i class="icon xi-table-2"></i>';
+                id = xcHelper.getTableId(tableName);
             } else {
                 dsText = "Dataset ";
                 icon = '<i class="icon xi_data"></i>';
@@ -3398,7 +3405,7 @@ window.Dag = (function($, Dag) {
                             'data-toggle="tooltip" ' +
                             'data-placement="top" ' +
                             'data-container="body" ' +
-                            'title="' + CommonTxtTstr.ClickToOpts + '"></div>' +
+                            'title="' + tooltipTxt + '"></div>' +
                             icon +
                             '<span class="tableTitle" ' +
                             'data-toggle="tooltip" ' +
@@ -3416,13 +3423,6 @@ window.Dag = (function($, Dag) {
             }
 
             var tableId = xcHelper.getTableId(tableName);
-            var tooltipTxt;
-            if (state === DgDagStateTStr[DgDagStateT.DgDagStateDropped]) {
-                tooltipTxt = xcHelper.replaceMsg(TooltipTStr.DroppedTable,
-                            {"tablename": tableName});
-            } else {
-                tooltipTxt = CommonTxtTstr.ClickToOpts;
-            }
 
             if (dagNode.api === XcalarApisT.XcalarApiExport) {
                 html += '<div class="dagTable typeTable ' + state + '" ' +

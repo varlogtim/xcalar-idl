@@ -598,7 +598,8 @@ window.TblManager = (function($, TblManager) {
         return deferred.promise();
     };
 
-    TblManager.makeTableNoDelete = function(tableId) {
+    TblManager.makeTableNoDelete = function(tableName) {
+        var tableId = xcHelper.getTableId(tableName);
         var table = gTables[tableId];
 
         if (!table) {

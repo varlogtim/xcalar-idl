@@ -347,12 +347,6 @@ html.firefox, html.microsoft {
             opacity: @opacity-disabled;
             cursor: default;
         }
-        .dagTable.dataStore {
-            cursor: default;
-            .dataStoreIcon {
-                pointer-events: none;
-            }
-        }
     }
 
     &.unsavable, &.tooLarge {
@@ -604,6 +598,9 @@ html.firefox, html.microsoft {
             }
             .dagTableIcon {
                 cursor: default;
+            }
+            .dataStoreIcon {
+                background-color: @color-bg-white-five;
             }
         }
 
