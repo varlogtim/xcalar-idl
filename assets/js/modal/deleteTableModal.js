@@ -272,10 +272,13 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
             if (orphanTableId != null && gTables.hasOwnProperty(orphanTableId)) {
                 orphanList.push(gTables[orphanTableId]);
             } else {
+                // orphan table may not have id, so use tableName to pass check
+                // as we don't use the id
                 orphanList.push(new TableMeta({
-                    "tableId": orphanTableId,
+                    "tableId": orphanTableId || orphanTable,
                     "tableName": orphanTable,
-                    "timeStamp": unknown
+                    "timeStamp": unknown,
+                    "isOrphan": true
                 }));
             }
         }

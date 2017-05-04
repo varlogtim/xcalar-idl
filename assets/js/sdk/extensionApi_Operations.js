@@ -265,6 +265,13 @@ window.XcSDK.Extension.prototype = (function() {
 
             var res1 = queryStr.match(re1);
             var res2 = queryStr.match(re2);
+            if (res1 == null && res2 == null) {
+                return true;
+            }
+            if (res1 == null || res2 == null) {
+                // must be some name don't match
+                return false;
+            }
             // the two patterns should match in length
             return (res1.length === res2.length);
         },
