@@ -52,6 +52,7 @@ window.XcSocket = (function(XcSocket, $) {
         });
 
         socket.on("system-allUsers", function(users) {
+            XVM.checkMaxUsers(users);
             Admin.updateLoggedInUsers(users);
         });
 

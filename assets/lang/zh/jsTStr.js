@@ -372,7 +372,9 @@ AlertTStr = {
 'CONFIRMATION': '确认',
 'NoConnect': '无法连接。',
 'Connecting': '连接中...',
-'TryConnect': '<second>秒后重新连接。'
+'TryConnect': '<second>秒后重新连接。',
+'UserOverLimit': '登录用户数量超过限制',
+'UserOverLimitMsg': '登录用户数量超过许可证支持的上限，请登出'
 };
 ErrorMessageTStr = {
 'title': '错误',

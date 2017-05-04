@@ -51,6 +51,27 @@ window.XVM = (function(XVM) {
         return numNodes;
     };
 
+    XVM.checkMaxUsers = function(users) {
+        if (users == null) {
+            console.error("wrong args, cannot check");
+            return;
+        }
+
+        if (Admin.isAdmin()) {
+            // admin skip the check
+            return;
+        }
+
+        var curNumUsers = Object.keys(users).length;
+        if (curNumUsers >= (numUsers * 2)) {
+            Alert.error(AlertTStr.UserOverLimit, AlertTStr.UserOverLimitMsg, {
+                "lockScreen": true
+            });
+        } else if (curNumUsers >= numUsers) {
+            console.warn("concurrent users is more than max users in license");
+        }
+    };
+
     XVM.checkVersionMatch = function() {
         var deferred = jQuery.Deferred();
 

@@ -421,7 +421,9 @@ AlertTStr = {
     'CONFIRMATION': 'CONFIRMATION',
     'NoConnect': 'Not connected.',
     'Connecting': 'Connecting...',
-    'TryConnect': 'Connecting in <second>s.'
+    'TryConnect': 'Connecting in <second>s.',
+    'UserOverLimit': 'Concurrent Users Overlimit',
+    'UserOverLimitMsg': 'Number of concurrent users is over the limit supported by the license, please logout'
 };
 
 ErrorMessageTStr = {
