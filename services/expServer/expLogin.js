@@ -173,13 +173,6 @@ function loginAuthentication(credArray, res) {
 
                     search.on('end', function(result) {
                         console.log('Finished Search!');
-                        if (activeDir) {
-                            user = users.get(currLogin);
-                            if (!user.getIsADUser()) {
-                                console.log('User is not a member of Xce Users');
-                                deferred2.reject();
-                            }
-                        }
 
                         client.unbind();
 
@@ -188,7 +181,7 @@ function loginAuthentication(credArray, res) {
                     return deferred2.promise();
                 })
                 .then(function(currLogin) {
-                    responseResult(currLogin, res);
+                    responseResult(currLogin, res, activeDir);
                 })
                 .fail(function() {
                     client.unbind();
@@ -242,7 +235,7 @@ function writeEntry(entry, loginId, activeDir, adUserGroup, adAdminGroup) {
     }
 }
 
-function responseResult(loginId, res) {
+function responseResult(loginId, res, activeDir) {
     var user = users.get(loginId);
     if (user.getEntryCount() >= 1) {
         if (user.getEntryCount() > 1) {
@@ -251,15 +244,20 @@ function responseResult(loginId, res) {
         // The employeeType is defined when adding new user
         // "administrator" for administrators, "normal user"
         // for normal users.
-        var isAdmin = user.isAdmin();
-        var isSupporter = user.isSupporter();
-        res.send({"status": Status.Ok,
-                  "firstName ": user.firstName,
-                  "mail": user.mail,
-                  "isAdmin": isAdmin,
-                  "isSupporter": isSupporter});
+        if ((activeDir) && (!user.getIsADUser())) {
+            console.log('User is not in the Xcalar user group.');
+            responseError(res);
+        } else {
+            var isAdmin = user.isAdmin();
+            var isSupporter = user.isSupporter();
+            res.send({"status": Status.Ok,
+                      "firstName ": user.firstName,
+                      "mail": user.mail,
+                      "isAdmin": isAdmin,
+                      "isSupporter": isSupporter});
+	}
     } else {
-        console.log("No matched user");
+        console.log("No matching user data found in LDAP directory");
         responseError(res);
     }
 }
