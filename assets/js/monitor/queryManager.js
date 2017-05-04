@@ -849,7 +849,10 @@ window.QueryManager = (function(QueryManager, $) {
         var mainQuery = queryLists[id];
         var queryState = mainQuery.getState();
         var dstTableState = mainQuery.getOutputTableState();
-        if (queryState === QueryStatus.Done && mainQuery.getOutputTableName()) {
+        // XXX TODO: more checks on which outputs can be viewed and/or determine
+        // the correct output
+        if (queryState === QueryStatus.Done && mainQuery.getOutputTableName() &&
+            mainQuery.getName() !== "profile") {
             var dstTableName = mainQuery.getOutputTableName();
 
             if (dstTableState === "active" || dstTableState === "exported" ||
