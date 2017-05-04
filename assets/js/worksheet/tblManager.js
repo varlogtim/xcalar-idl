@@ -261,7 +261,7 @@ window.TblManager = (function($, TblManager) {
     */
     TblManager.setOrphanTableMeta = function(tableName, tableCols) {
         if (tableCols == null) {
-            // at last have data col
+            // at least have data col
             tableCols = [ColManager.newDATACol()];
         }
 

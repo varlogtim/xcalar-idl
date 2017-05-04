@@ -100,71 +100,50 @@ describe('Dag Panel Test', function() {
         //
 
         // TODO: need to fix make large dag
-        // function makeLargeDag(total, base) {
-        //     var deferred = PromiseHelper.deferred();
-        //     var curIter = 0;
-        //     var curId = largeTableIds[curIter + base];
-        //     var firstTableName = largePrefix + "#" + curId;
-        //     var idPref = curId.slice(0, 2);
-        //     var cols = xcHelper.deepCopy(gTables[curId].tableCols);
-
-        //     var queryStr = "";
-        //     var newTName;
-        //     var fieldName;
-        //     var mapStr;
-        //     for (var i = 0; i < total; i++) {
-        //         curId = largeTableIds[curIter + base];
-        //         var nextId = Authentication.getHashId().slice(1);
-        //         mapStr = "add(" + largePrefix + "::average_stars, 1)";
-
-        //         fieldName = "mapped_col_" + String(curIter);
-        //         newTName = largePrefix + '#' + nextId;
-        //         queryStr += 'map --eval "' + mapStr +
-        //                 '" --srctable "' + largePrefix + '#' + curId +
-        //                 '" --fieldName "' + fieldName +
-        //                 '" --dsttable "' + newTName + '";';
-        //         largeTableNames.push(newTName);
-        //         largeTableIds.push(nextId);
-
-        //         curIter++;
-        //     }
-        //     // queryStr = queryStr.slice(0, -1); // remove last semi-colon
-        //     console.log(queryStr);
-        //     var qName = 'dfUnitTest' + Math.floor(Math.random() * 10000);
-        //     XcalarQueryWithCheck(qName, queryStr)
-        //     .then(function() {
-        //         var tablCols = xcHelper.mapColGenerate(1, fieldName, mapStr,
-        //                                             cols, {});
-        //         return TblManager.refreshTable([newTName], tablCols,
-        //                                    [firstTableName],
-        //                                    WSManager.getActiveWS(), null,
-        //                                    {});
-        //     })
-        //     .then(deferred.resolve)
-        //     .fail(deferred.reject);
-        //     return deferred.promise();
-        // }
-
-        function makeLargeDag(idx, total, base) {
+        function makeLargeDag(total, base) {
             var deferred = PromiseHelper.deferred();
-            var curIter = total-idx;
-            if (idx <= 0) {
-                return deferred.resolve();
-            }
-            var mapStr = "add("+gTables[largeTableIds[curIter + base]]
-                .getCol(1).backName+",1)";
-            xcFunction.map(1, largeTableIds[curIter + base],
-                "mapped_col_" + String(curIter), mapStr)
-            .then(function(newTName) {
+            var curIter = 0;
+            var curId = largeTableIds[curIter + base];
+            var firstTableName = largePrefix + "#" + curId;
+            var idPref = curId.slice(0, 2);
+            var cols = xcHelper.deepCopy(gTables[curId].tableCols);
 
+            var queryStr = "";
+            var newTName;
+            var fieldName;
+            var mapStr;
+            for (var i = 0; i < total; i++) {
+                curId = largeTableIds[curIter + base];
+                var nextId = Authentication.getHashId().slice(1);
+                mapStr = "add(" + largePrefix + "::average_stars, 1)";
+
+                fieldName = "mapped_col_" + String(curIter);
+                newTName = largePrefix + '#' + nextId;
+                queryStr += 'map --eval "' + mapStr +
+                        '" --srctable "' + largePrefix + '#' + curId +
+                        '" --fieldName "' + fieldName +
+                        '" --dsttable "' + newTName + '";';
                 largeTableNames.push(newTName);
-                largeTableIds.push(xcHelper.getTableId(newTName));
-                return makeLargeDag(idx - 1, total, base);
+                largeTableIds.push(nextId);
+
+                curIter++;
+            }
+
+            var qName = 'dfUnitTest' + Math.floor(Math.random() * 10000);
+            XcalarQueryWithCheck(qName, queryStr)
+            .then(function() {
+                var tablCols = xcHelper.mapColGenerate(1, fieldName, mapStr,
+                                                    cols, {});
+                return TblManager.refreshTable([newTName], tablCols,
+                                           [firstTableName],
+                                           WSManager.getActiveWS(), null,
+                                           {});
             })
             .then(deferred.resolve)
             .fail(deferred.reject);
             return deferred.promise();
         }
+
         $dagPanel = $('#dagPanel');
         var testDSObj = testDatasets.fakeYelp;
 
@@ -248,8 +227,7 @@ describe('Dag Panel Test', function() {
             largeTableNames.push(ret);
             largeTableIds.push(retId);
 
-            return makeLargeDag(14, 14, largeTableIds.length - 1);
-            // return makeLargeDag(14,  largeTableIds.length - 1);
+            return makeLargeDag(14,  largeTableIds.length - 1);
         })
         .then(function() {
             $largeDagWrap = $dagPanel.find(".dagWrap").filter(function(idx,
@@ -1125,12 +1103,14 @@ describe('Dag Panel Test', function() {
             var $prevDagTable;
             var $prevDagIcon;
             var prevTableId;
+            var prevTableName;
 
             beforeEach(function() {
                 dagDepth = largeTable.$dagWrap.data("allDagInfo").depth;
                 $prevDagTable = largeTable.$dagWrap.find(".dagTable").eq(dagDepth-2);
                 $prevDagIcon = $prevDagTable.find(".dagTableIcon");
                 prevTableId = $prevDagTable.data("id");
+                prevTableName = $prevDagTable.data("tablename");
             });
 
             it("Add table should work", function(done) {
@@ -1217,7 +1197,11 @@ describe('Dag Panel Test', function() {
                 })
                 .then(function() {
                     expect($("#alertModal").css("display")).to.not.equal("none");
-                    expect(gTables[prevTableId]).to.not.be.undefined;
+
+                    expect(gTables[prevTableId]).to.be.undefined;
+                    TblManager.setOrphanTableMeta(prevTableName);
+                     expect(gTables[prevTableId]).to.not.be.undefined;
+
                     var numNodes = Object.keys(largeTable.$dagWrap
                         .data("allDagInfo").nodes).length;
                     $("#alertModal .btn.confirm").click();
@@ -1279,6 +1263,41 @@ describe('Dag Panel Test', function() {
                     expect(false).to.be.true;
                     done("failed");
                 });
+            });
+        });
+
+        describe("Complement table on filter table should work", function() {
+            var $menu;
+
+            before(function() {
+                $menu = $dagPanel.find('.dagTableDropDown');
+            });
+
+            it("complement table", function(done) {
+                var $dagTable = $(".actionType.filter").eq(0).siblings(".dagTable");
+                var $icon = $dagTable.find(".dagTableIcon");
+                var prevId = $dagTable.closest(".dagTableWrap").prev()
+                            .find(".dagTable").data("id");
+                $icon.click();
+                expect($menu.find('li.complementTable').hasClass('unavailable'))
+                .to.be.false;
+                var called = false;
+                var cached = xcFunction.filter;
+                xcFunction.filter  = function(colNum, tId, options) {
+                    expect(colNum).to.equal(1);
+                    expect(tId).to.equal(prevId);
+                    expect(options.filterString.indexOf("not(eq(")).to.equal(0);
+                    expect(options.complement).to.be.true;
+                    called = true;
+                    xcFunction.filter = cached;
+                    return PromiseHelper.reject();
+                }
+
+                $menu.find("li.complementTable").trigger(fakeEvent.mouseup);
+                expect(called).to.be.true;
+                setTimeout(function() {
+                    done();
+                }, 1);
             });
         });
     });
