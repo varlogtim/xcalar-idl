@@ -153,7 +153,7 @@ window.XcSDK.Table.prototype = {
             return this;
         }
 
-        var frontName = xcHelper.parsePrefixColName(colName).name;
+        var frontName = col.getFrontName();
         var progCol = ColManager.newPullCol(frontName, colName, col.getType());
         if (len === 0) {
             tableCols.push(progCol);

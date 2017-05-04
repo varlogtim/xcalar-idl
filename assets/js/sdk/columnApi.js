@@ -43,4 +43,13 @@ window.XcSDK.Column.prototype = {
     getParsedName: function() {
         return xcHelper.parsePrefixColName(this.colName).name;
     },
+
+    setFrontName: function(name) {
+        this.frontColName = name;
+    },
+
+    getFrontName: function() {
+        var name = this.frontColName || this.colName;
+        return xcHelper.parsePrefixColName(name).name;
+    }
 };

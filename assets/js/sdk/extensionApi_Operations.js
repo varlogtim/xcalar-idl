@@ -273,6 +273,10 @@ window.XcSDK.Extension.prototype = (function() {
                 return false;
             }
             // the two patterns should match in length
+            if (res1 == null || res2 == null) {
+                return true;
+            }
+
             return (res1.length === res2.length);
         },
 
