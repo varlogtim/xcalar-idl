@@ -347,7 +347,7 @@ SuccessTStr = {
 FailTStr = {
 "Profile": '保存数据剖面图图像失败。',
 "ProfileStats": '生成统计失败。',
-"SaveSettings": '保存设置失败。'
+"SaveSettings": '保存设置失败。',
 "RmDF": "删除批量数据流失败。",
 "RmSched": "删除调度器失败"
 };

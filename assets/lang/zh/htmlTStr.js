@@ -684,7 +684,7 @@ module.exports = {
         "header": "数据概况",
         "orig": "初始",
         "results": "结果",
-        "Decimal": "小数位"，
+        "Decimal": "小数位",
         "download": "下载数据概况为PNG"
     },
     "query": {
