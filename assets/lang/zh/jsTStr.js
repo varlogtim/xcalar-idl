@@ -1,7 +1,7 @@
 StatusMessageTStr = {
 'Success': '成功！',
 'Completed': '完成',
-'Viewing': '观察',
+'Viewing': '浏览',
 'Error': '遇到错误',
 'Canceling': '取消',
 'CancelSuccess': '取消成功',
@@ -138,6 +138,7 @@ CommonTxtTstr = {
 'ClickSelect': '单击选择',
 'Ignore': 'Ignore',
 'Immediates': '派生列',
+'ImmediatesPlural': '派生列',
 'InP': '进行中',
 'LeaveWarn': '您要退出xcalar吗',
 'LogOut': '注销',
@@ -820,7 +821,9 @@ JsonModalTStr = {
 'ViewAll': '查看全部',
 'ViewAllTip': '查看所有列',
 'XcOriginated': 'Xcalar起源于',
-'XcOriginatedTip': '查看Xcalar生成的列'
+'XcOriginatedTip': '查看Xcalar生成的列',
+'PrefixedField': '含前缀的列',
+'Derived': '派生列'
 };
 SQLTStr = {
     "AddNewCol": "Add New Column",

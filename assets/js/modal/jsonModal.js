@@ -1168,7 +1168,7 @@ window.JSONModal = (function($, JSONModal) {
                     '<i class="icon xi-ckbox-empty fa-11"></i>' +
                     '<i class="icon xi-ckbox-selected fa-11"></i>' +
                   '</div>' +
-                  'Prefixed Fields' +
+                  JsonModalTStr.PrefixedField +
                 '</h3>';
         for (var i = 0; i < groups.length; i++) {
             var tempJson = xcHelper.prettifyJson(groups[i].objs, null,
@@ -1184,7 +1184,7 @@ window.JSONModal = (function($, JSONModal) {
                 immediatesGroup =
                     '<div class="groupType immediatesType">' +
                         '<h3 class="prefixGroupTitle">' +
-                            CommonTxtTstr.Immediates + 's' +
+                            CommonTxtTstr.ImmediatesPlural +
                         '</h3>' +
                         '<div class="prefixGroup immediatesGroup">' +
                             tempJson +
@@ -1268,8 +1268,10 @@ window.JSONModal = (function($, JSONModal) {
         for (var i = 0; i < groups.length; i++) {
             classNames = "";
             prefix = groups[i].prefix;
+            prefixText = prefix;
             if (prefix === gPrefixSign) {
                 prefix = "Derived";
+                prefixText = JsonModalTStr.Derived;
                 classNames += " immediates";
             }
             html += '<div class="tab tooltipOverflow' + classNames + '" ' +
@@ -1277,7 +1279,7 @@ window.JSONModal = (function($, JSONModal) {
                         'data-container="body" ' +
                         'data-original-title="' + prefix + '" ' +
                         'data-id="' + prefix + '" >' +
-                        '<span class="text">' + prefix +
+                        '<span class="text">' + prefixText +
                         '</span>' +
                     '</div>';
         }

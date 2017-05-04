@@ -148,6 +148,7 @@ CommonTxtTstr = {
     'ClickSelect': 'Click to select',
     'Ignore': 'Ignore',
     'Immediates': 'Derived Field',
+    'ImmediatesPlural': 'Derived Fields',
     'InP': 'In progress',
     'LeaveWarn': 'You are leaving Xcalar',
     'LogOut': 'Log Out',
@@ -973,6 +974,8 @@ JsonModalTStr = {
     'ViewAllTip': 'View all fields',
     'XcOriginated': 'Xcalar Originated',
     'XcOriginatedTip': 'View Xcalar generated fields',
+    'PrefixedField': 'Prefixed Fields',
+    'Derived': 'Derived'
 };
 
 SQLTStr = {

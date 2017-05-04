@@ -2,7 +2,8 @@ module.exports = {
     "FileProtocol": {
         "file": "file:///",
         "hdfs": "hdfs://",
-        "nfs": "file:///"
+        "nfs": "file:///",
+        "s3": "s3://"
     },
     "MenuTStr": {
         "AddCol": "插入1列",
