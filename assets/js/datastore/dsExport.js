@@ -640,7 +640,7 @@ window.DSExport = (function($, DSExport) {
     function addGridIcon(targetType, name, formatSpecificArg, options) {
         var target = {
             name: name,
-            formatArg: formatSpecificArg,
+            formatArg: "/" + formatSpecificArg, // backend prepends slash
             options: options
         };
 

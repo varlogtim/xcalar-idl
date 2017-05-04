@@ -1405,7 +1405,7 @@ describe('xcHelper Test', function() {
             },
             {
                 "str": "ab[c",
-                "res": ColTStr.RenameSpecialChar
+                "res": ColTStr.ColNameInvalidChar
             },
             {
                 "str": "DATA",

@@ -97,6 +97,53 @@ describe('Dag Panel Test', function() {
         // TODO: (general)
         // -replace a lot of the timeouts with direct function calls
         // -replace largeDag with a faux-dag for the expand/contract calls.
+        //
+
+        // TODO: need to fix make large dag
+        // function makeLargeDag(total, base) {
+        //     var deferred = PromiseHelper.deferred();
+        //     var curIter = 0;
+        //     var curId = largeTableIds[curIter + base];
+        //     var firstTableName = largePrefix + "#" + curId;
+        //     var idPref = curId.slice(0, 2);
+        //     var cols = xcHelper.deepCopy(gTables[curId].tableCols);
+
+        //     var queryStr = "";
+        //     var newTName;
+        //     var fieldName;
+        //     var mapStr;
+        //     for (var i = 0; i < total; i++) {
+        //         curId = largeTableIds[curIter + base];
+        //         var nextId = Authentication.getHashId().slice(1);
+        //         mapStr = "add(" + largePrefix + "::average_stars, 1)";
+
+        //         fieldName = "mapped_col_" + String(curIter);
+        //         newTName = largePrefix + '#' + nextId;
+        //         queryStr += 'map --eval "' + mapStr +
+        //                 '" --srctable "' + largePrefix + '#' + curId +
+        //                 '" --fieldName "' + fieldName +
+        //                 '" --dsttable "' + newTName + '";';
+        //         largeTableNames.push(newTName);
+        //         largeTableIds.push(nextId);
+
+        //         curIter++;
+        //     }
+        //     // queryStr = queryStr.slice(0, -1); // remove last semi-colon
+        //     console.log(queryStr);
+        //     var qName = 'dfUnitTest' + Math.floor(Math.random() * 10000);
+        //     XcalarQueryWithCheck(qName, queryStr)
+        //     .then(function() {
+        //         var tablCols = xcHelper.mapColGenerate(1, fieldName, mapStr,
+        //                                             cols, {});
+        //         return TblManager.refreshTable([newTName], tablCols,
+        //                                    [firstTableName],
+        //                                    WSManager.getActiveWS(), null,
+        //                                    {});
+        //     })
+        //     .then(deferred.resolve)
+        //     .fail(deferred.reject);
+        //     return deferred.promise();
+        // }
 
         function makeLargeDag(idx, total, base) {
             var deferred = PromiseHelper.deferred();
@@ -109,6 +156,7 @@ describe('Dag Panel Test', function() {
             xcFunction.map(1, largeTableIds[curIter + base],
                 "mapped_col_" + String(curIter), mapStr)
             .then(function(newTName) {
+
                 largeTableNames.push(newTName);
                 largeTableIds.push(xcHelper.getTableId(newTName));
                 return makeLargeDag(idx - 1, total, base);
@@ -201,6 +249,7 @@ describe('Dag Panel Test', function() {
             largeTableIds.push(retId);
 
             return makeLargeDag(14, 14, largeTableIds.length - 1);
+            // return makeLargeDag(14,  largeTableIds.length - 1);
         })
         .then(function() {
             $largeDagWrap = $dagPanel.find(".dagWrap").filter(function(idx,
@@ -222,7 +271,7 @@ describe('Dag Panel Test', function() {
                 operator: operator,
                 aggColName: aggCol,
                 newColName: newColName
-            }]
+            }];
 
             return xcFunction.groupBy(tId, gbArgs, groupByCols, {});
         })
@@ -460,9 +509,7 @@ describe('Dag Panel Test', function() {
             smallTable.$dagWrap.find('.dagTable').last().click();
             expect($menu.is(":visible")).to.be.true;
             expect($menu.find('li:visible').length).to.equal(7);
-            expect($menu.find('li.unavailable:visible').length).to.equal(2);
-            expect($menu.find('li.deleteTableDescendants')
-                .hasClass('unavailable')).to.be.true;
+            expect($menu.find('li.unavailable:visible').length).to.equal(1);
             expect($menu.find('li.generateIcv').hasClass('unavailable')).to.be.true;
             expect($menu.find('li.addTable').is(":visible")).to.be.false;
             expect($menu.find('li.revertTable').is(":visible")).to.be.false;
@@ -557,7 +604,6 @@ describe('Dag Panel Test', function() {
                     expect($menu.is(":visible")).to.be.true;
                     expect($menu.find('li:visible').length).to.equal(7);
                     expect($menu.find('li.unavailable:visible').length).to.equal(2);
-                    expect($menu.find('li.deleteTableDescendants').hasClass('unavailable')).to.be.true;
                     expect($menu.find('li.generateIcv').hasClass('unavailable')).to.be.true;
                     expect($menu.find('li.addTable').is(":visible")).to.be.true;
                     expect($menu.find('li.revertTable').is(":visible")).to.be.true;

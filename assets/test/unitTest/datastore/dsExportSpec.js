@@ -324,7 +324,7 @@ describe("DSExport Test", function() {
                 expect(newNumGrids).to.equal(numGrids + 1);
                 var $grid = $('.grid-unit[data-name="' + testTargetName + '"]');
                 expect($grid.length).to.equal(1);
-                expect($grid.data("formatarg")).to.equal("url");
+                expect($grid.data("formatarg")).to.equal("/url");
 
                 XcalarRemoveExportTarget(testTargetName,
                                         ExTargetTypeT.ExTargetSFType)
@@ -383,7 +383,7 @@ describe("DSExport Test", function() {
                 expect(newNumGrids).to.equal(numGrids + 1);
                 var $grid = $('.grid-unit[data-name="' + testTargetName + '"]');
                 expect($grid.length).to.equal(1);
-                expect($grid.data("formatarg")).to.equal("url");
+                expect($grid.data("formatarg")).to.equal("/url");
 
                 XcalarRemoveExportTarget(testTargetName,
                                         ExTargetTypeT.ExTargetUDFType)

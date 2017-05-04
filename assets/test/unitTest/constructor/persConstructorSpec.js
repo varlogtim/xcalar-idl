@@ -781,7 +781,7 @@ describe("Persistent Constructor Test", function() {
     });
 
     describe("Table Constructor Test", function() {
-        it("Should have 20 attributes", function() {
+        it("Should have 21 attributes", function() {
             var table = new TableMeta({
                 "tableName": "test#a1",
                 "tableId": "a1",
@@ -789,7 +789,7 @@ describe("Persistent Constructor Test", function() {
             });
 
             expect(table).to.be.an.instanceof(TableMeta);
-            expect(Object.keys(table).length).to.equal(20);
+            expect(Object.keys(table).length).to.equal(21);
             expect(table).have.property("version").and
             .to.equal(currentVersion);
             expect(table).have.property("tableName").and
@@ -815,6 +815,8 @@ describe("Persistent Constructor Test", function() {
             expect(table).have.property("resultSetId").and
             .to.be.equal(-1);
             expect(table).have.property("icv").and
+            .to.be.equal("");
+            expect(table).have.property("complement").and
             .to.be.equal("");
             expect(table).have.property("keyName").and
             .to.be.equal("");
