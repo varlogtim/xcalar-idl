@@ -986,9 +986,13 @@ function XcalarDestroyDataset(dsName, txId) {
     }
 
     var deferred = jQuery.Deferred();
+    var dsNameBeforeParse = dsName;
     dsName = parseDS(dsName);
 
-    deleteDagNodeHelper()
+    releaseAllResultsets()
+    .then(function() {
+        return deleteDagNodeHelper();
+    })
     .then(function() {
         return xcalarApiDeleteDatasets(tHandle, dsName);
     })
@@ -1031,6 +1035,27 @@ function XcalarDestroyDataset(dsName, txId) {
                 innerDeferred.reject(error1, error2);
             }
         });
+
+        return innerDeferred.promise();
+    }
+
+    function releaseAllResultsets() {
+        // always resolve to continue the deletion
+        var innerDeferred = jQuery.Deferred();
+
+        XcalarGetDatasetMeta(dsNameBeforeParse)
+        .then(function(res) {
+            if (res && res.resultSetIds) {
+                var resultSetIds = res.resultSetIds;
+                var promises = [];
+                for (var i = 0, len = resultSetIds.length; i < len; i++) {
+                    promises.push(XcalarSetFree(resultSetIds[i]));
+                }
+                return PromiseHelper.when.apply(this, promises);
+            }
+        })
+        .then(innerDeferred.resolve)
+        .fail(innerDeferred.resolve);
 
         return innerDeferred.promise();
     }
