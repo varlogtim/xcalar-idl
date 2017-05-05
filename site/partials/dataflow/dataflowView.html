@@ -86,8 +86,21 @@
     <!-- End of cardHeader -->
     <div class="cardMain"></div>
     <ul class="menu dagDropDown">
-        <li class="createParamQuery"><%= dicts.MenuTStr.CreateParamQuery %></li>
-        <li class="showExportCols"><%= dicts.MenuTStr.ShowExportCols %></li>
+        <li class="createParamQuery" data-action="createParamQuery">
+          <%= dicts.MenuTStr.CreateParamQuery %>
+        </li>
+        <li class="showExportCols" data-action="showExportCols">
+          <%= dicts.MenuTStr.ShowExportCols %>
+        </li>
+         <li class="expandAll" data-action="expandAll">
+          <%= dicts.MenuTStr.ExpandAllDagsAll %>
+        </li>
+        <li class="cannotExpand xc-disabled" data-action="none">
+          <%= dicts.MenuTStr.CannotExpand %>
+        </li>
+        <li class="collapseAll" data-action="collapseAll">
+          <%= dicts.MenuTStr.CollapseAllDF %>
+        </li>
     </ul>
     <div id="exportColPopup" class="schemaPopup">
       <div class="title">

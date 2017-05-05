@@ -156,6 +156,26 @@ window.DagPanel = (function($, DagPanel) {
         }, animateDelay);
     };
 
+    DagPanel.toggleExpCollapseAllLi = function ($dagWrap, $menu) {
+        if ($dagWrap.find('.expandWrap:not(.expanded)').length) {
+            if (Dag.checkCanExpandAll($dagWrap)) {
+                $menu.find('.expandAll').show();
+                $menu.find('.cannotExpand').hide();
+            } else {
+                $menu.find('.expandAll').hide();
+                $menu.find('.cannotExpand').show();
+            }
+        } else {
+            $menu.find('.expandAll, .cannotExpand').hide();
+        }
+
+        if ($dagWrap.find('.expandWrap.expanded').length) {
+            $menu.find('.collapseAll').show();
+        } else {
+            $menu.find('.collapseAll').hide();
+        }
+    };
+
     // opening and closing of dag is temporarily disabled during animation
 
     function setupDagPanelSliding() {
@@ -797,23 +817,8 @@ window.DagPanel = (function($, DagPanel) {
             $menu.find('.unsavable').hide();
         }
 
-        if ($dagWrap.find('.expandWrap:not(.expanded)').length) {
-            if (Dag.checkCanExpandAll($dagWrap)) {
-                $menu.find('.expandAll').show();
-                $menu.find('.cannotExpand').hide();
-            } else {
-                $menu.find('.expandAll').hide();
-                $menu.find('.cannotExpand').show();
-            }
-        } else {
-            $menu.find('.expandAll, .cannotExpand').hide();
-        }
+        DagPanel.toggleExpCollapseAllLi($dagWrap, $menu);
 
-        if ($dagWrap.find('.expandWrap.expanded').length) {
-            $menu.find('.collapseAll').show();
-        } else {
-            $menu.find('.collapseAll').hide();
-        }
         var inColumnPickerMode = $('#container').hasClass('columnPicker');
 
         if ((gTables[dagId] && gTables[dagId].hasLock()) ||
@@ -2908,6 +2913,7 @@ window.Dag = (function($, Dag) {
                                      TooltipTStr.ClickCollapse);
                 }
             } else {
+
                 $expandIcon.removeClass('expanded');
                 $groupOutline.removeClass('expanded');
                 var expandIconRight = parseFloat($expandIcon.css('right'));

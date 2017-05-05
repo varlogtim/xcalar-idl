@@ -750,6 +750,10 @@ window.DFCard = (function($, DFCard) {
                     e.preventDefault();
                     e.stopPropagation();
                 }
+            } else if ($(e.target).closest(".expandWrap").length) {
+                showExpandOption($(e.target).closest(".expandWrap"));
+                e.preventDefault();
+                e.stopPropagation();
             }
         };
 
@@ -773,11 +777,69 @@ window.DFCard = (function($, DFCard) {
                     return;
                 }
             }
+            $menu.find("li").hide();
 
-            var el = $(this);
-            //position colMenu
-            var top = el[0].getBoundingClientRect().bottom;
-            var left = el[0].getBoundingClientRect().left;
+            if (XVM.getLicenseMode() !== XcalarMode.Mod) {
+                $menu.find('.createParamQuery').show();
+            }
+
+            // If node is not export, hide showExportCols option
+            if ($(this).hasClass("export")) {
+                $menu.find(".showExportCols").show();
+                if (!$(this).hasClass("parameterizable") ||
+                    XVM.getLicenseMode() === XcalarMode.Mod) {
+                    $menu.find(".createParamQuery").hide();
+                } else {
+                    $menu.find(".createParamQuery").show();
+                }
+            }
+
+            positionAndInitMenu($currentIcon);
+        });
+
+        xcMenu.add($menu);
+
+        $menu.find("li").mouseup(function(event) {
+            if (event.which !== 1) {
+                return;
+            }
+            var $dagWrap = $dfCard.find(".dagWrap:visible");
+            var action = $(this).data("action");
+
+            switch (action) {
+                case ("createParamQuery"):
+                    DFParamModal.show($currentIcon);
+                    break;
+                case ("showExportCols"):
+                    showExportCols($currentIcon);
+                    break;
+                case ('expandAll'):
+                    Dag.expandAll($dagWrap);
+                    break;
+                case ('collapseAll'):
+                    Dag.collapseAll($dagWrap);
+                    break;
+                case ('none'):
+                    // do nothing;
+                    break;
+                default:
+                    break;
+            }
+        });
+
+        function showExpandOption($currentIcon) {
+            $('.menu').hide();
+            xcMenu.removeKeyboardNavigation();
+            $('.leftColMenu').removeClass('leftColMenu');
+
+            $menu.find("li").hide();
+            DagPanel.toggleExpCollapseAllLi($dfCard.find(".dagWrap:visible"), $menu);
+            positionAndInitMenu($currentIcon);
+        }
+
+        function positionAndInitMenu($currentIcon) {
+            var top = $currentIcon[0].getBoundingClientRect().bottom;
+            var left = $currentIcon[0].getBoundingClientRect().left;
 
             $menu.css({'top': top, 'left': left});
             $menu.show();
@@ -793,42 +855,7 @@ window.DFCard = (function($, DFCard) {
                 $menu.css('left', MainMenu.getOffset() + 5);
             }
             xcMenu.addKeyboardNavigation($menu);
-
-            if (XVM.getLicenseMode() === XcalarMode.Mod) {
-                $menu.find('.createParamQuery').hide();
-            } else {
-                $menu.find('.createParamQuery').show();
-            }
-
-            // If node is not export, hide showExportCols option
-            if ($(this).hasClass("export")) {
-                $menu.find(".showExportCols").show();
-                if (!$(this).hasClass("parameterizable") ||
-                    XVM.getLicenseMode() === XcalarMode.Mod) {
-                    $menu.find(".createParamQuery").hide();
-                } else {
-                    $menu.find(".createParamQuery").show();
-                }
-            } else {
-                $menu.find(".showExportCols").hide();
-            }
-        });
-
-        xcMenu.add($menu);
-
-        $menu.find('.createParamQuery').mouseup(function(event) {
-            if (event.which !== 1) {
-                return;
-            }
-            DFParamModal.show($currentIcon);
-        });
-
-        $menu.find('.showExportCols').mouseup(function(event) {
-            if (event.which !== 1) {
-                return;
-            }
-            showExportCols($currentIcon);
-        });
+        }
     }
 
     function showExportCols($dagTable) {
