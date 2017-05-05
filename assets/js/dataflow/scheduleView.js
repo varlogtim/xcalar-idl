@@ -774,7 +774,7 @@ window.Scheduler = (function(Scheduler, $) {
         return deferred.promise();
     }
 
-    function getOneRecordHtml(runTimeStr, timeTakenStr, statusStr, outputStr) {
+    function getOneRecordHtml(runTimeStr, parameterStr, statusStr, outputStr) {
         var record ='<div class="row' +
                     ((runTimeStr === SchedTStr.Notrun || runTimeStr === "") ?
                     ' noRun' : '')+ '">' +
@@ -782,7 +782,7 @@ window.Scheduler = (function(Scheduler, $) {
                         runTimeStr +
                     '</div>' +
                     '<div class="content lastContent">' +
-                        timeTakenStr +
+                        parameterStr +
                     '</div>' +
                     '<div class="content statusContent">' +
                         statusStr +
@@ -798,13 +798,18 @@ window.Scheduler = (function(Scheduler, $) {
         var str = "";
         for (var i = 0; i < paramArray.length; i++) {
             var currParam = paramArray[i];
-            str += currParam.parameterName + ":" +
-                   currParam.parameterValue + ", ";
+            if (i !== 0) {
+                str += "<span>" + ", " + "</span>";
+            }
+            str += '<span class="' +
+                    (systemParams.hasOwnProperty(currParam.parameterName) ?
+                    "systemParams" : "currParams") +
+                    '">' + currParam.parameterName + "</span>" +
+                    "<span>" + ":" + "</span>" +
+                    "<span>" + currParam.parameterValue + "</span>";
         }
         if (str.length === 0) {
             str = SchedTStr.noParam;
-        } else {
-            str = str.substring(0, str.length - 2);
         }
         return str;
     }
