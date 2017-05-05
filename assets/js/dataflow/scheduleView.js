@@ -815,13 +815,9 @@ window.Scheduler = (function(Scheduler, $) {
         }
 
         var deferred = jQuery.Deferred();
-        XcalarListExportTargets("*", "*")
-        .then(function(data) {
-            var res;
-            if (data && data.targets && data.targets[0].specificInput &&
-                    data.targets[0].specificInput.sfInput &&
-                    data.targets[0].specificInput.sfInput.url) {
-                res = data.targets[0].specificInput.sfInput.url;
+        DSExport.getDefaultPath()
+        .then(function(res) {
+            if (res) {
                 outputLocation = res;
                 deferred.resolve(res);
             } else {

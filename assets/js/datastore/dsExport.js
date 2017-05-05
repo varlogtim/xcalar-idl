@@ -10,6 +10,7 @@ window.DSExport = (function($, DSExport) {
     var $exportTargetCard;
     var $exportTargetEditCard;
     var $gridMenu; // $('#expTargetGridMenu');
+    var defaultPath;
 
     DSExport.setup = function() {
         $gridView = $("#dsExportListSection .gridItems");
@@ -187,6 +188,49 @@ window.DSExport = (function($, DSExport) {
     DSExport.getTargets = function() {
         return exportTargets;
     };
+
+    DSExport.getDefaultPath = function() {
+        if (defaultPath) { // if cached
+            PromiseHelper.resolve(defaultPath);
+        }
+        var deferred = jQuery.Deferred();
+        var path;
+        if (exportTargets.length === 0) {
+            DSExport.refresh()
+            .then(function() {
+                path = getDefaultPath();
+                defaultPath = path;
+                deferred.resolve(path);
+            })
+            .fail(function() {
+                deferred.resolve("");
+            });
+        } else {
+            path = getDefaultPath();
+            defaultPath = path;
+            deferred.resolve(path);
+        }
+
+        return deferred.promise();
+    };
+
+    function getDefaultPath() {
+        var group;
+        var targets;
+        for (var i = 0; i < exportTargets.length; i++) {
+            group = exportTargets[i];
+            if (group.name === ExportTStr.LocalFS) {
+                targets = group.targets;
+                for (var j = 0; j < targets.length; j++) {
+                    if (targets[j].name === "Default") {
+                        return  targets[j].formatArg;
+                    }
+                }
+                break;
+            }
+        }
+        return "";
+    }
 
     function setupDropdowns() {
         new MenuHelper($targetTypeList, {

@@ -537,6 +537,20 @@ describe("DSExport Test", function() {
         });
     });
 
+    describe("get default path", function() {
+        it("getDefaultPath should work", function(done) {
+            DSExport.getDefaultPath()
+            .then(function(res) {
+                expect(res.length).to.be.gt(10);
+                expect(res.indexOf("export")).to.be.gt(4);
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+    });
+
     after(function(done) {
         // delete even if already deleted to make sure, ignore error messages
         XcalarRemoveExportTarget(testTargetName, ExTargetTypeT.ExTargetSFType)

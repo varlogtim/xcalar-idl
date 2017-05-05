@@ -113,122 +113,50 @@ window.DFParamModal = (function($, DFParamModal){
         });
 
         var paramValue = decodeURI($currentIcon.data('paramValue'));
-        setupInputText(paramValue, type);
 
-        var draggableInputs = "";
-        validParams = [];
-        DF.getDataflow(dfName).parameters.forEach(function(paramName) {
-            draggableInputs += generateDraggableParams(paramName);
-            validParams.push(paramName);
-        });
-
-        if (draggableInputs === "") {
-            draggableInputs = DFTStr.AddParamHint;
-            $dfgParamModal.find('.draggableParams.currParams').addClass("hint")
-                        .html(draggableInputs);
-        } else {
-            $dfgParamModal.find('.draggableParams.currParams').removeClass("hint")
-                            .html(draggableInputs);
-        }
-
-        draggableInputs = "";
-        for (var key in systemParams) {
-            draggableInputs += generateDraggableParams(key);
-        }
-        $dfgParamModal.find('.draggableParams.systemParams').removeClass("hint")
-                            .html(draggableInputs);
-        fillUpRows();
-        populateSavedFields(id, dfName);
-
-        modalHelper.setup();
-
-        var $dummyInputs = $dfgParamModal.find('.dummy');
-        $dummyInputs.on('dragenter', '.line', function() {
-            $dummyInputs.find('.line, .space').removeClass('hover');
-            $(this).addClass('hover');
-        });
-        $dummyInputs.on('dragenter', '.space', function() {
-            $dummyInputs.find('.line, .space').removeClass('hover');
-            $(this).addClass('hover');
-        });
-        $dummyInputs.on('dragleave', '.line', function() {
-            $(this).removeClass('hover');
-        });
-        $dummyInputs.on('dragleave', '.space', function() {
-            $(this).removeClass('hover');
-        });
-
-        if (type === "filter") {
-            var $list = $dfgParamModal.find('.tdWrapper.dropDownList');
-
-            dropdownHelper = new MenuHelper($list, {
-                "onSelect": function($li) {
-                    var func = $li.text();
-                    var $input = $list.find("input.editableParamDiv");
-
-                    if (func === $.trim($input.val())) {
-                        return;
-                    }
-
-                    $input.val(func);
-                    updateNumArgs(func);
-                },
-                "onOpen": function() {
-                    var $lis = $list.find('li')
-                                    .sort(sortHTML)
-                                    .show();
-                    $lis.prependTo($list.find('ul'));
-                    $list.find('ul').width($list.width() - 1);
-
-                    //XXX 10-19-2016 need to shake it or it doesn't show up
-                    $list.find('.scrollArea.bottom').css('bottom', 1);
-                    setTimeout(function() {
-                        $list.find('.scrollArea.bottom').css('bottom', 0);
-                    });
-                },
-                "container": "#dfgParameterModal",
-                "bounds": "#dfgParameterModal .modalTopMain",
-                "bottomPadding": 2,
-                "exclude": '.draggableDiv, .defaultParam'
-            });
-            dropdownHelper.setupListeners();
-
-            $list.find("input").change(function() {
-                var func = $.trim($(this).val());
-                updateNumArgs(func);
+        getExportInfo(type)
+        .always(function(info) {
+            setupInputText(paramValue, type, info);
+            var draggableInputs = "";
+            validParams = [];
+            DF.getDataflow(dfName).parameters.forEach(function(paramName) {
+                draggableInputs += generateDraggableParams(paramName);
+                validParams.push(paramName);
             });
 
-            XcalarListXdfs('*', 'Conditional*')
-            .then(function(ret) {
-                var numXdfs = ret.numXdfs;
-                var html = "";
-                var fnNames = [];
-                // var fns = ret.fnDescs;
-                for (var i = 0; i < numXdfs; i++) {
-                    fnNames.push(ret.fnDescs[i].fnName);
-                    filterFnMap[ret.fnDescs[i].fnName] = ret.fnDescs[i].numArgs;
-                }
+            if (draggableInputs === "") {
+                draggableInputs = DFTStr.AddParamHint;
+                $dfgParamModal.find('.draggableParams.currParams')
+                                .addClass("hint")
+                                .html(draggableInputs);
+            } else {
+                $dfgParamModal.find('.draggableParams.currParams')
+                                .removeClass("hint")
+                                .html(draggableInputs);
+            }
 
-                fnNames = fnNames.sort();
-                for (i = 0; i < numXdfs; i++) {
-                    html += '<li>' + fnNames[i] + '</li>';
-                }
-                $list.find('ul').html(html);
+            draggableInputs = "";
+            for (var key in systemParams) {
+                draggableInputs += generateDraggableParams(key);
+            }
+            $dfgParamModal.find('.draggableParams.systemParams')
+                           .removeClass("hint")
+                                .html(draggableInputs);
+            fillUpRows();
+            populateSavedFields(id, dfName);
 
-                var $input = $list.find("input.editableParamDiv");
-                var func = $.trim($input.val());
-                updateNumArgs(func);
+            modalHelper.setup();
+            setupDummyInputs();
 
+            if (type === "filter") {
+                filterSetup()
+                .then(deferred.resolve)
+                .fail(deferred.reject);
+            } else {
+                dropdownHelper = null;
                 deferred.resolve();
-            })
-            .fail(function(error) {
-                Alert.error(DFTStr.ParamModalFail, error);
-                deferred.reject();
-            });
-        } else {
-            dropdownHelper = null;
-            deferred.resolve();
-        }
+            }
+        });
 
         return deferred.promise();
     };
@@ -350,11 +278,117 @@ window.DFParamModal = (function($, DFParamModal){
         event.preventDefault();
     };
 
-    function setupInputText(paramValue, type) {
+    function getExportInfo(type) {
+        if (type !== "export") {
+            return PromiseHelper.resolve({});
+        } else {
+            var deferred = jQuery.Deferred();
+            DSExport.getDefaultPath()
+            .then(function(path) {
+                deferred.resolve({defaultPath: path});
+            })
+            .fail(deferred.reject);
+            return deferred.promise();
+        }
+    }
+
+    function setupDummyInputs() {
+        var $dummyInputs = $dfgParamModal.find('.dummy');
+        $dummyInputs.on('dragenter', '.line', function() {
+            $dummyInputs.find('.line, .space').removeClass('hover');
+            $(this).addClass('hover');
+        });
+        $dummyInputs.on('dragenter', '.space', function() {
+            $dummyInputs.find('.line, .space').removeClass('hover');
+            $(this).addClass('hover');
+        });
+        $dummyInputs.on('dragleave', '.line', function() {
+            $(this).removeClass('hover');
+        });
+        $dummyInputs.on('dragleave', '.space', function() {
+            $(this).removeClass('hover');
+        });
+    }
+
+
+    function filterSetup() {
+        var deferred = jQuery.Deferred();
+        var $list = $dfgParamModal.find('.tdWrapper.dropDownList');
+
+        dropdownHelper = new MenuHelper($list, {
+            "onSelect": function($li) {
+                var func = $li.text();
+                var $input = $list.find("input.editableParamDiv");
+
+                if (func === $.trim($input.val())) {
+                    return;
+                }
+
+                $input.val(func);
+                updateNumArgs(func);
+            },
+            "onOpen": function() {
+                var $lis = $list.find('li')
+                                .sort(sortHTML)
+                                .show();
+                $lis.prependTo($list.find('ul'));
+                $list.find('ul').width($list.width() - 1);
+
+                //XXX 10-19-2016 need to shake it or it doesn't show up
+                $list.find('.scrollArea.bottom').css('bottom', 1);
+                setTimeout(function() {
+                    $list.find('.scrollArea.bottom').css('bottom', 0);
+                });
+            },
+            "container": "#dfgParameterModal",
+            "bounds": "#dfgParameterModal .modalTopMain",
+            "bottomPadding": 2,
+            "exclude": '.draggableDiv, .defaultParam'
+        });
+        dropdownHelper.setupListeners();
+
+        $list.find("input").change(function() {
+            var func = $.trim($(this).val());
+            updateNumArgs(func);
+        });
+
+        XcalarListXdfs('*', 'Conditional*')
+        .then(function(ret) {
+            var numXdfs = ret.numXdfs;
+            var html = "";
+            var fnNames = [];
+            // var fns = ret.fnDescs;
+            for (var i = 0; i < numXdfs; i++) {
+                fnNames.push(ret.fnDescs[i].fnName);
+                filterFnMap[ret.fnDescs[i].fnName] = ret.fnDescs[i].numArgs;
+            }
+
+            fnNames = fnNames.sort();
+            for (i = 0; i < numXdfs; i++) {
+                html += '<li>' + fnNames[i] + '</li>';
+            }
+            $list.find('ul').html(html);
+
+            var $input = $list.find("input.editableParamDiv");
+            var func = $.trim($input.val());
+            updateNumArgs(func);
+
+            deferred.resolve();
+        })
+        .fail(function(error) {
+            Alert.error(DFTStr.ParamModalFail, error);
+            deferred.reject();
+        });
+        return deferred.promise();
+    }
+
+    // options:
+    //      defaultPath: string, for export
+    function setupInputText(paramValue, type, options) {
         var defaultText = ""; // The html corresponding to Current Query:
         var editableText = ""; // The html corresponding to Parameterized
                                 // Query:
-
+        options = options || {};
         if (type === "dataStore") {
             defaultText += '<div>' +
                                 DFTStr.PointTo + ':' +
@@ -368,16 +402,25 @@ window.DFParamModal = (function($, DFParamModal){
                             '</div>' +
                             getParameterInputHTML(0, "large");
         } else if (type === "export") {
+
+            var path = options.defaultPath || "";
+            if (path[path.length - 1] !== "/") {
+                path += "/";
+            }
             defaultText += '<div>' +
                                 DFTStr.ExportTo + ':' +
                             '</div>' +
+
                             '<div class="boxed large">' +
                                 xcHelper.escapeHTMLSepcialChar(paramValue) +
                             '</div>';
             editableText += '<div class="static" data-op="export">' +
                                 DFTStr.ExportTo + ':' +
                             '</div>' +
-                            getParameterInputHTML(0, "large");
+                            '<div class="static path">' +
+                               path +
+                            '</div>' +
+                            getParameterInputHTML(0, "medium-small");
         } else { // not a datastore but a table
             if (!checkForOneParen(paramValue)) {
                 defaultText += '<div>' +
