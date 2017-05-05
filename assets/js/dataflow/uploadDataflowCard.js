@@ -26,7 +26,7 @@ window.UploadDataflowCard = (function($, UploadDataflowCard) {
             if (event) {
                 entireString = event.target.result;
             } else {
-                entireString  = this.content;
+                entireString = this.content;
             }
 
             XcalarImportRetina(moduleName,

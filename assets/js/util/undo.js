@@ -58,7 +58,7 @@ window.Undo = (function($, Undo) {
             replacingDest: TableType.Undone
         };
 
-         if (options.fltOptions.complement) {
+        if (options.fltOptions.complement) {
             var tableId = xcHelper.getTableId(options.newTableName);
             promise = TblManager.sendTableToUndone(tableId, {'remove': true});
         } else {

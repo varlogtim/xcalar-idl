@@ -1024,7 +1024,7 @@ window.DagPanel = (function($, DagPanel) {
             }
 
             var $tableIcon = $menu.data('tableelement');
-            var $dagWrap = $tableIcon.closest('.dagWrap');
+            // var $dagWrap = $tableIcon.closest('.dagWrap');
             generateComplementTable($menu.data('tablename'), $tableIcon);
         });
 
@@ -1143,7 +1143,7 @@ window.DagPanel = (function($, DagPanel) {
     }
 
     function isComplementTableExists(origTableId) {
-         if (gTables[origTableId]) {
+        if (gTables[origTableId]) {
             var complementTableName = gTables[origTableId].complement;
             if (!complementTableName) {
                 return false;
@@ -1415,10 +1415,9 @@ window.DagPanel = (function($, DagPanel) {
                 Aggregates.deleteAggs([tableName])
                 .then(function() {
                     TableList.removeTable(tableName, TableType.Aggregate);
-                })
-                .fail(function(successTables) {
-                    // being handled in Aggregates.deleteAggs transaction
                 });
+                // fail case is being handled in
+                // Aggregates.deleteAggs transaction
             } else {
                 var orphanFound = false;
                 $('#orphanedTablesList').find('.tableInfo').each(function() {

@@ -105,7 +105,6 @@ describe('Dag Panel Test', function() {
             var curIter = 0;
             var curId = largeTableIds[curIter + base];
             var firstTableName = largePrefix + "#" + curId;
-            var idPref = curId.slice(0, 2);
             var cols = xcHelper.deepCopy(gTables[curId].tableCols);
 
             var queryStr = "";
@@ -227,7 +226,7 @@ describe('Dag Panel Test', function() {
             largeTableNames.push(ret);
             largeTableIds.push(retId);
 
-            return makeLargeDag(14,  largeTableIds.length - 1);
+            return makeLargeDag(14, largeTableIds.length - 1);
         })
         .then(function() {
             $largeDagWrap = $dagPanel.find(".dagWrap").filter(function(idx,
@@ -1200,7 +1199,7 @@ describe('Dag Panel Test', function() {
 
                     expect(gTables[prevTableId]).to.be.undefined;
                     TblManager.setOrphanTableMeta(prevTableName);
-                     expect(gTables[prevTableId]).to.not.be.undefined;
+                    expect(gTables[prevTableId]).to.not.be.undefined;
 
                     var numNodes = Object.keys(largeTable.$dagWrap
                         .data("allDagInfo").nodes).length;
@@ -1283,7 +1282,7 @@ describe('Dag Panel Test', function() {
                 .to.be.false;
                 var called = false;
                 var cached = xcFunction.filter;
-                xcFunction.filter  = function(colNum, tId, options) {
+                xcFunction.filter = function(colNum, tId, options) {
                     expect(colNum).to.equal(1);
                     expect(tId).to.equal(prevId);
                     expect(options.filterString.indexOf("not(eq(")).to.equal(0);
@@ -1291,7 +1290,7 @@ describe('Dag Panel Test', function() {
                     called = true;
                     xcFunction.filter = cached;
                     return PromiseHelper.reject();
-                }
+                };
 
                 $menu.find("li.complementTable").trigger(fakeEvent.mouseup);
                 expect(called).to.be.true;

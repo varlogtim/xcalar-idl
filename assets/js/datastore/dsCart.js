@@ -963,18 +963,20 @@ window.DSCart = (function($, DSCart) {
                     deferred.reject();
                 },
                 "buttons": [
-                    {   name: CommonTxtTstr.Ignore.toUpperCase(),
-                        func: function() {
+                    {
+                        "name": CommonTxtTstr.Ignore.toUpperCase(),
+                        "func": function() {
                             xcHelper.enableSubmit($btn);
                             deferred.resolve();
                         }
                     },
-                    {   name: WSTStr.NewWS.toUpperCase(),
-                        func: function() {
+                    {
+                        "name": WSTStr.NewWS.toUpperCase(),
+                        "func": function() {
                             xcHelper.enableSubmit($btn);
                             deferred.resolve("xc-new");
                         },
-                        className: "larger"
+                        "className": "larger"
                     }
                 ]
             });

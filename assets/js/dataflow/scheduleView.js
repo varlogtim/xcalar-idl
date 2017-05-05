@@ -860,7 +860,7 @@ window.Scheduler = (function(Scheduler, $) {
     function changeTime(type, isIncrease) {
         var ampm = $modScheduleForm.find(".inputSection .ampm").text();
         var date = $modScheduleForm.find('.timePicker').data("date");
-        var hour = date.getHours();
+        // var hour = date.getHours();
         var hour = date.getUTCHours();
         var diff;
 

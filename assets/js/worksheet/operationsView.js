@@ -446,7 +446,7 @@ window.OperationsView = (function($, OperationsView) {
 
         // adds field to group on input
         $operationsView.on("click", ".addGroupArg", function() {
-             var $allGroups = $activeOpSection.find(".group");
+            var $allGroups = $activeOpSection.find(".group");
             var $group = $(this).closest(".group");
             var groupIndex = $allGroups.index($group);
             addGroupOnArg(groupIndex);
@@ -558,9 +558,8 @@ window.OperationsView = (function($, OperationsView) {
             xcHelper.centerFocusedTable(tableId, true);
         });
 
-
-        aggFunctionsListScroller = new MenuHelper(
-            $('.aggregate .functionsList'), {
+        var $aggList = $('.aggregate .functionsList');
+        aggFunctionsListScroller = new MenuHelper($aggList, {
             scrollerOnly: true,
             bounds: '#operationsView',
             bottomPadding: 5
@@ -2086,7 +2085,7 @@ window.OperationsView = (function($, OperationsView) {
             });
 
             var aggColNewText = [];
-            $groups.each(function(groupNum) {
+            $groups.each(function() {
                 var aggCol = $(this).find('.argsSection').last()
                                             .find('.arg').eq(0).val().trim();
                 aggCol = parseAggPrefixes(aggCol);
@@ -2124,10 +2123,10 @@ window.OperationsView = (function($, OperationsView) {
                 gbColNewText = wrapText(gbColNewText);
                 $description.find(".groupByCols").html(gbColNewText);
             } else {
-                var $aggColWrap = $description.find(".aggColSection");
-                var $aggColSpans = $aggColWrap.find('span.char');
+                // var $aggColWrap = $description.find(".aggColSection");
+                // var $aggColSpans = $aggColWrap.find('span.char');
 
-                 $groups.each(function(groupNum) {
+                $groups.each(function(groupNum) {
                     var $aggColWrap = $description.find(".aggCols").eq(groupNum);
                     var $aggColSpans = $aggColWrap.find('span.char');
                     var aggColOldText = $aggColWrap.text();
@@ -2355,7 +2354,7 @@ window.OperationsView = (function($, OperationsView) {
             if (!isOperationValid(groupNum)) {
                 var inputNum = 0;
                 if (operatorName === "group by") {
-                    var $group = $activeOpSection.find(".group").eq(groupNum)
+                    var $group = $activeOpSection.find(".group").eq(groupNum);
                     var $fnInput = $group.find('.functionsInput');
                     inputNum = $group.find('input').index($fnInput);
                 }
@@ -2483,7 +2482,7 @@ window.OperationsView = (function($, OperationsView) {
                         var fName = $(this).find(".argsSection").last()
                                                             .data("fnname");
                         funcs.push(fName);
-                    })
+                    });
                     promise = groupBy(funcs, args, colTypeInfos);
                     break;
                 case ('map'):
@@ -3079,8 +3078,6 @@ window.OperationsView = (function($, OperationsView) {
 
         var operatorsFound = {};
         for (var i = 0; i < args.length; i++) {
-
-
             var numArgs = args[i].length;
             var aggColIndex = numArgs - 2;
             var aggCol = args[i][aggColIndex];
@@ -3175,7 +3172,7 @@ window.OperationsView = (function($, OperationsView) {
             if (!isGroupbyColNameValid) {
                 isValid = false;
                 return false;
-            } else  if (groupNum === 0) {
+            } else if (groupNum === 0) {
                 var indexedColNames;
                 var $input;
                 var areIndexedColNamesValid = false;
@@ -4206,7 +4203,7 @@ window.OperationsView = (function($, OperationsView) {
             '<div class="argsSection inactive">' +
             '</div>' +
         '</div>';
-      return html;
+        return html;
     }
 
     function addGroupbyGroup() {

@@ -1266,7 +1266,6 @@ describe('xcHelper Test', function() {
         }];
 
         testCases.forEach(function(test) {
-            console.log(test)
             var res = xcHelper.checkNamePattern(test.category, test.action,
                                                 test.name, test.replace);
             expect(res).to.equal(test.expect);
