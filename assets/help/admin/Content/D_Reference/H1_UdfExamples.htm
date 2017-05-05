@@ -99,15 +99,15 @@
                                                 </li>
                                                 <li><a href="../A_GettingStarted/B2_PrepareDataSource.htm">Preparing the data source</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/C_EasySteps.htm">Easy steps for Xcalar 1.0 (with default settings)</a>
+                                                <li><a href="../A_GettingStarted/C_EasySteps.htm">Easy steps for Xcalar 1.2 (with default settings)</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/D_DetailedStepsForPointing.htm">Detailed steps for Xcalar 1.0 (with custom settings)</a>
+                                                <li><a href="../A_GettingStarted/D_DetailedStepsForPointing.htm">Detailed steps for Xcalar 1.2 (with custom settings)</a>
                                                 </li>
                                             </ul>
                                         </li>
                                         <li class="has-children"><a href="../B_CommonTasks/CommonTasks.htm">Common tasks</a>
                                             <ul class="sub-menu">
-                                                <li><a href="../B_CommonTasks/A_ManageDatasetRef.htm">Managing dataset references</a>
+                                                <li><a href="../B_CommonTasks/A_ManageDatasetRef.htm">Managing datasets</a>
                                                 </li>
                                                 <li><a href="../B_CommonTasks/B_CreateTable.htm">Creating a table</a>
                                                 </li>
@@ -141,6 +141,8 @@
                                                 </li>
                                                 <li><a href="../B_CommonTasks/P_UnderstandFNF.htm">Working with a table containing FNF</a>
                                                 </li>
+                                                <li><a href="../B_CommonTasks/Q_SearchTableOrColName.htm">Searching for a table or column</a>
+                                                </li>
                                             </ul>
                                         </li>
                                         <li class="has-children"><a href="../C_AdvancedTasks/AdvancedTasks.htm">Advanced tasks</a>
@@ -153,7 +155,7 @@
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/C1_PointWithVisualParser.htm">Using a visual parser to create a UDF</a>
                                                 </li>
-                                                <li><a href="../C_AdvancedTasks/D_FunctionBar.htm">Using the function or search bar</a>
+                                                <li><a href="../C_AdvancedTasks/D_FunctionBar.htm">Using the function  bar</a>
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/E_CreateBatchDataflow.htm">Understanding and creating batch dataflows</a>
                                                 </li>
@@ -163,7 +165,7 @@
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/G_ExportTable.htm">Exporting a table</a>
                                                 </li>
-                                                <li><a href="../C_AdvancedTasks/H_Parameterization.htm">Parameterizing queries</a>
+                                                <li><a href="../C_AdvancedTasks/H_Parameterization.htm">Parameterizing operations</a>
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/I_UnderstandMemoryUse.htm">Understanding memory usage</a>
                                                 </li>
@@ -403,7 +405,7 @@ def xmlToJson(xmlString, fullPath):
                                         <p>The return value of the function will be used in the place of the actual file contents.</p>
                                         <p>Upload this module so that it is available for execution.</p>
                                         <h3>Executing the streaming UDF</h3>
-                                        <p>In the <span class="UIelement">Point To New Data Source</span> window, after you specify the pathname to the data source, follow these steps</p>
+                                        <p>In the <span class="UIelement">Point to Data Source</span> window, after you specify the pathname to the data source, follow these steps</p>
                                         <ol>
                                             <li value="1">Select the <span class="UIelement">Parse Data With UDF</span> check box. </li>
                                             <li value="2">Select the <span class="UIelement">convertxmltojson</span> module.</li>
@@ -411,7 +413,7 @@ def xmlToJson(xmlString, fullPath):
                                         </ol>
                                         <p>For more information about pointing to a data source, see <a href="../A_GettingStarted/D_DetailedStepsForPointing.htm#Creating2" class="MCXref xref">Pointing to your data source</a>.</p>
                                         <h3>Result of executing the streaming UDF</h3>
-                                        <p>Suppose the data source is a file named <span class="UIelement">myFile.xml</span>. Its path, which you specified in the <span class="UIelement">Data Source Path</span> field, is passed to the UDF as the <span class="UIelement">fullPath</span> parameter. The contents of <span class="UIelement">myFile.xml</span> are passed to the UDF&#160;in <span class="UIelement">xmlString</span>. The function returns a string containing the corresponding JSON&#160;data to which the dataset reference will point.</p>
+                                        <p>Suppose the data source is a file named <span class="UIelement">myFile.xml</span>. Its path, which you specified in the <span class="UIelement">Data Source Path</span> field, is passed to the UDF as the <span class="UIelement">fullPath</span> parameter. The contents of <span class="UIelement">myFile.xml</span> are passed to the UDF&#160;in <span class="UIelement">xmlString</span>. The function returns a string containing the corresponding JSON&#160;data to which the dataset  will point.</p>
                                     </div>
                                     <p><a href="#Top" class="selected">Go to top</a>
                                     </p>

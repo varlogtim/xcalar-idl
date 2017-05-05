@@ -6,7 +6,7 @@
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta charset="utf-8" />
         <meta name="description" content="" />
-        <meta name="author" content="" /><title>Managing dataset references</title>
+        <meta name="author" content="" /><title>Managing datasets</title>
         <link href="../../Skins/Default/Stylesheets/Slideshow.css" rel="stylesheet" data-mc-generated="True" />
         <link href="../../Skins/Default/Stylesheets/TextEffects.css" rel="stylesheet" data-mc-generated="True" />
         <link href="../../Skins/Default/Stylesheets/Topic.css" rel="stylesheet" data-mc-generated="True" />
@@ -98,15 +98,15 @@
                                                 </li>
                                                 <li><a href="../A_GettingStarted/B2_PrepareDataSource.htm">Preparing the data source</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/C_EasySteps.htm">Easy steps for Xcalar 1.0 (with default settings)</a>
+                                                <li><a href="../A_GettingStarted/C_EasySteps.htm">Easy steps for Xcalar 1.2 (with default settings)</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/D_DetailedStepsForPointing.htm">Detailed steps for Xcalar 1.0 (with custom settings)</a>
+                                                <li><a href="../A_GettingStarted/D_DetailedStepsForPointing.htm">Detailed steps for Xcalar 1.2 (with custom settings)</a>
                                                 </li>
                                             </ul>
                                         </li>
                                         <li class="has-children"><a href="CommonTasks.htm">Common tasks</a>
                                             <ul class="sub-menu">
-                                                <li><a href="#" class="selected">Managing dataset references</a>
+                                                <li><a href="#" class="selected">Managing datasets</a>
                                                 </li>
                                                 <li><a href="B_CreateTable.htm">Creating a table</a>
                                                 </li>
@@ -140,6 +140,8 @@
                                                 </li>
                                                 <li><a href="P_UnderstandFNF.htm">Working with a table containing FNF</a>
                                                 </li>
+                                                <li><a href="Q_SearchTableOrColName.htm">Searching for a table or column</a>
+                                                </li>
                                             </ul>
                                         </li>
                                         <li class="has-children"><a href="../C_AdvancedTasks/AdvancedTasks.htm">Advanced tasks</a>
@@ -152,7 +154,7 @@
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/C1_PointWithVisualParser.htm">Using a visual parser to create a UDF</a>
                                                 </li>
-                                                <li><a href="../C_AdvancedTasks/D_FunctionBar.htm">Using the function or search bar</a>
+                                                <li><a href="../C_AdvancedTasks/D_FunctionBar.htm">Using the function  bar</a>
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/E_CreateBatchDataflow.htm">Understanding and creating batch dataflows</a>
                                                 </li>
@@ -162,7 +164,7 @@
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/G_ExportTable.htm">Exporting a table</a>
                                                 </li>
-                                                <li><a href="../C_AdvancedTasks/H_Parameterization.htm">Parameterizing queries</a>
+                                                <li><a href="../C_AdvancedTasks/H_Parameterization.htm">Parameterizing operations</a>
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/I_UnderstandMemoryUse.htm">Understanding memory usage</a>
                                                 </li>
@@ -278,7 +280,7 @@
                                         <ul class="menu _Skins_SideMenu mc-component">
                                             <li class="has-children"><a href="CommonTasks.htm">Common tasks</a>
                                                 <ul class="sub-menu">
-                                                    <li><a href="#" class="selected">Managing dataset references</a>
+                                                    <li><a href="#" class="selected">Managing datasets</a>
                                                     </li>
                                                     <li><a href="B_CreateTable.htm">Creating a table</a>
                                                     </li>
@@ -312,78 +314,84 @@
                                                     </li>
                                                     <li><a href="P_UnderstandFNF.htm">Working with a table containing FNF</a>
                                                     </li>
+                                                    <li><a href="Q_SearchTableOrColName.htm">Searching for a table or column</a>
+                                                    </li>
                                                 </ul>
                                             </li>
                                         </ul>
                                     </div>
-                                    <div class="MCBreadcrumbsBox_0"><span class="MCBreadcrumbsPrefix">You are here: </span><a class="MCBreadcrumbsLink" href="CommonTasks.htm">Common tasks</a><span class="MCBreadcrumbsDivider"> &gt; </span><span class="MCBreadcrumbs">Managing dataset references</span>
+                                    <div class="MCBreadcrumbsBox_0"><span class="MCBreadcrumbsPrefix">You are here: </span><a class="MCBreadcrumbsLink" href="CommonTasks.htm">Common tasks</a><span class="MCBreadcrumbsDivider"> &gt; </span><span class="MCBreadcrumbs">Managing datasets</span>
                                     </div>
                                     <div class="bodyProxyNarrow">
-                                        <h1><a name="manageDatasetRef" class="ForCSH"></a>Managing dataset references</h1>
-                                        <p>When you point to a data source, <span class="GeneralProductName3short">XDP</span> creates a dataset (typically in memory), which is the representation of raw data and metadata. In order for you to interact with the dataset, <span class="GeneralProductName">Xcalar Design</span> creates a dataset reference through which you can preview the data in the dataset and create tables with all or selected fields in the dataset.</p>
-                                        <p><span class="GeneralProductName">Xcalar Design</span> provides a default name for each dataset reference when you point to a new data source. The name is based on the name of the source file or directory. You can enter a different name or accept the default. You cannot rename the dataset reference at a later time.</p>
-                                        <p>Dataset references and the datasets they represent are shared by all users on the same cluster. The <span class="UIelement">Dataset Refs</span> list in the <span class="UIelement">DATASTORE/IN</span>&#160;panel displays all the dataset references. The following partial screenshot shows an example of the <span class="UIelement">Dataset Refs</span> list. </p>
-                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/dataset-refs-panel.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="557" data-mc-height="566" src="../Resources/Images/XD_screenshots/dataset-refs-panel_thumb_0_150.png" tabindex="" /></a>
+                                        <h1><a name="manageDatasetRef" class="ForCSH"></a>Managing datasets</h1>
+                                        <p>When you point to a data source, <span class="GeneralProductName3short">XDP</span> creates a dataset (typically in memory), which is the representation of raw data and metadata. You can preview the data in the dataset and create tables with all or selected fields in the dataset.</p>
+                                        <p><span class="GeneralProductName">Xcalar Design</span> provides a default name for each dataset when you point to a data source. The name is based on the name of the source file or directory. You can enter a different name or accept the default. You cannot rename the dataset at a later time.</p>
+                                        <p>Datasets are shared by all users on the same cluster. The <span class="UIelement">Datasets</span>&#160;panel displays all the datasets. The following partial screenshot shows an example of the <span class="UIelement">Datasets</span> list. </p>
+                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/dataset-panel.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="614" data-mc-height="474" src="../Resources/Images/XD_screenshots/dataset-panel_thumb_0_150.png" tabindex="" /></a>
                                         </p>
-                                        <h2>Organizing dataset references in folders</h2>
-                                        <p>In the <span class="UIelement">Dataset Refs</span> panel, you can organize dataset references in folders. For example, you can create a folder named <span class="UIelement">Finance</span> for dataset references pointing to data sources in the Finance department, another folder named <span class="UIelement">Engineering</span> for dataset references pointing to data sources in the Engineering department, and so on.</p>
-                                        <h2><a name="Effects"></a>Understanding dataset reference deletion</h2>
-                                        <p>Your attempt to delete a dataset reference fails if you have a table or aggregate created from the dataset.</p>
-                                        <p>If you do not have a table or aggregate created from the dataset, your attempt to delete a dataset reference has various effects depending on various factors.</p>
-                                        <div class="Note"><span class="label">NOTE</span>:&#160;A dropped table that is a part of a batch dataflow is not considered a table dependent on a dataset. As a result, such table does not prevent the dataset reference deletion. For example, after you drop a table named Airlines1#ue3 that is created from a dataset reference named Airlines, you can successful delete Airlines even if Airlines1#ue3 appears in a batch dataflow (provided that no other tables or aggregates use the dataset).  For information about dataflows, see <a href="../C_AdvancedTasks/E_CreateBatchDataflow.htm" class="MCXref xref">Understanding and creating batch dataflows</a></div>
-                                        <h3><a name="If"></a>If you are the creator of the dataset reference</h3>
-                                        <p>If no other users have tables or aggregates created from the dataset, the dataset reference is deleted immediately.</p>
-                                        <p>Otherwise, the dataset is marked for deletion.&#160;You cannot take any action for this dataset reference. When all tables and aggregates from this dataset are dropped, this dataset reference is deleted automatically. The associated dataset is also removed from memory.</p>
-                                        <h3>If you are not the creator of the dataset reference</h3>
-                                        <p>You cannot delete a dataset reference if it is in another user's folder. However, you can mark it for deletion by selecting <span class="UIelement">Delete</span> when right-clicking its icon. The following list describes the effects of marking another user's dataset reference for deletion:</p>
+                                        <h2>Organizing datasets in folders</h2>
+                                        <p>In the <span class="UIelement">Datasets</span> panel, you can organize datasets in folders. For example, you can create a folder named <span class="UIelement">Finance</span> for datasets pointing to data sources in the Finance department, another folder named <span class="UIelement">Engineering</span> for datasets pointing to data sources in the Engineering department, and so on.</p>
+                                        <h2><a name="Effects"></a>Understanding dataset deletion</h2>
+                                        <p>Your attempt to delete a dataset fails and the error message states that the dataset is in use if one or both of the following conditions are true:</p>
                                         <ul>
-                                            <li value="1">You cannot take any action on the dataset reference.</li>
-                                            <li value="2">Other users who do not have tables or aggregates created from the dataset cannot start using the dataset reference.</li>
-                                            <li value="3">Other user who already have tables or aggregates created from the dataset can see that the dataset reference is marked for deletion, but can continue using it.</li>
-                                            <li value="4">The creator of the dataset reference can see that the dataset reference is marked for deletion. The creator can choose to continue using it or to delete it. The dataset reference continues to exist until the creator deletes it.</li>
-                                            <li value="5">If the creator chooses to delete the dataset reference, the effect is the same as that described in <a href="#If" class="MCXref xref selected">If you are the creator of the dataset reference</a></li>
+                                            <li value="1">Your workbook contains a table (hidden, temporary, or active) that was created from the dataset, or</li>
+                                            <li value="2">You have an aggregate created from the dataset. </li>
                                         </ul>
-                                        <h3>How dataset reference icon changes</h3>
-                                        <p>The  dataset reference icon changes depending on the status of the dataset reference. For more information about how to determine the status of the dataset reference, see <a href="#Example" class="MCXref xref selected">Example of dataset reference deletion</a>.</p>
-                                        <h3>Deleting a dataset reference</h3>
-                                        <p>Follow these steps to delete a dataset reference:</p>
+                                        <div class="Note"><span class="label">NOTE</span>:&#160;A dropped table that is a part of a batch dataflow is not considered a table dependent on a dataset. As a result, such table does not prevent the dataset deletion. For example, after you drop a table named Airlines1#ue3 that is created from a dataset named Airlines, you can successful delete Airlines even if Airlines1#ue3 appears in a batch dataflow (provided that no other tables or aggregates use the dataset).  For information about dataflows, see <a href="../C_AdvancedTasks/E_CreateBatchDataflow.htm" class="MCXref xref">Understanding and creating batch dataflows</a>.</div>
+                                        <p>If you do not have a table or aggregate created from the dataset, your attempt to delete a dataset has various effects depending on various factors.</p>
+                                        <h3><a name="If"></a>If you are the creator of the dataset</h3>
+                                        <p>If no other users have tables or aggregates created from the dataset, the dataset is deleted immediately.</p>
+                                        <p>Otherwise, the dataset is marked for deletion.&#160;You cannot take any action for this dataset. When all tables and aggregates from this dataset are dropped, this dataset is deleted automatically. The associated dataset is also removed from memory.</p>
+                                        <h3>If you are not the creator of the dataset</h3>
+                                        <p>You cannot delete a dataset if it is in another user's folder. However, you can mark it for deletion by selecting <span class="UIelement">Delete</span> when right-clicking its icon. The following list describes the effects of marking another user's dataset for deletion:</p>
+                                        <ul>
+                                            <li value="1">You cannot take any action on the dataset.</li>
+                                            <li value="2">Other users who do not have tables or aggregates created from the dataset cannot start using the dataset.</li>
+                                            <li value="3">Other users who already have tables or aggregates created from the dataset can see that the dataset is marked for deletion, but can continue using it.</li>
+                                            <li value="4">The creator of the dataset can see that the dataset is marked for deletion. The creator can choose to continue using it or to delete it. The dataset continues to exist until the creator deletes it.</li>
+                                            <li value="5">If the creator chooses to delete the dataset, the effect is the same as that described in <a href="#If" class="MCXref xref selected">If you are the creator of the dataset</a></li>
+                                        </ul>
+                                        <h3>How the dataset icon changes</h3>
+                                        <p>The  dataset icon changes depending on the status of the dataset. For more information about how to determine the status of the dataset, see <a href="#Example" class="MCXref xref selected">Example of dataset deletion</a>.</p>
+                                        <h3>Deleting a dataset</h3>
+                                        <p>Follow these steps to delete a dataset:</p>
                                         <ol>
-                                            <li value="1">In the <span class="UIelement">Dataset Refs</span> list, navigate to the dataset reference that you want to delete. It can be located in your folder or another user's folder.</li>
-                                            <li value="2">Right click the icon or name of the dataset reference.</li>
+                                            <li value="1">In the <span class="UIelement">Datasets</span> list, navigate to the dataset that you want to delete. It can be located in your folder or another user's folder.</li>
+                                            <li value="2">Right click the icon or name of the dataset.</li>
                                             <li value="3">In the drop-down menu, click <span class="UIelement">Delete</span>.</li>
-                                            <li value="4">When a confirmation message is display, click <span class="UIelement">CONFIRM</span>&#160;if you are sure that you no longer need the dataset reference.</li>
+                                            <li value="4">When a confirmation message is displayed, click <span class="UIelement">CONFIRM</span>&#160;if you are sure that you no longer need the dataset.</li>
                                         </ol>
-                                        <h2>What you cannot do to other users' dataset references</h2>
-                                        <p>You can view or mark other users' dataset references for deletion. You can preview and create tables from other users' dataset references. However, you cannot perform the following tasks:</p>
+                                        <h2>What you cannot do to other users' datasets</h2>
+                                        <p>You can view or mark other users' datasets for deletion. You can preview and create tables from other users' datasets. However, you cannot perform the following tasks:</p>
                                         <ul>
-                                            <li value="1">Renaming the folder containing other users' dataset references</li>
-                                            <li value="2">Moving other users' dataset references to another folder</li>
-                                            <li value="3">Creating a folder in another user's dataset reference folder</li>
+                                            <li value="1">Renaming the folder containing other users' datasets</li>
+                                            <li value="2">Moving other users' datasets to another folder</li>
+                                            <li value="3">Creating a folder in another user's dataset folder</li>
                                         </ul>
-                                        <h2><a name="Example"></a>Example of dataset reference deletion</h2>
-                                        <p>In this example, user1 creates a dataset reference named airlines, from which a table is created. This dataset reference is visible to all other users on the cluster. The following screenshot shows the dataset reference list as seen by user1.</p>
+                                        <h2><a name="Example"></a>Example of dataset deletion</h2>
+                                        <p>In this example, user1 creates a dataset named airlines, from which a table is created. This dataset is visible to all other users on the cluster. The following screenshot shows the dataset list as seen by user1.</p>
                                         <p>
                                             <img src="../Resources/Images/XD_screenshots/user1-dataset-ref-active.png" />
                                         </p>
-                                        <p>Suppose user2 navigates to user1's dataset reference folder, right-click the icon for airlines, and select <span class="UIelement">Delete</span>. The airlines dataset reference is not deleted immediately but is marked for deletion. User2 can change the status of airlines because user2 does not have any tables or aggregates created from it. From this point on, user2 can no longer use airlines. The following screenshot shows the dataset reference list as seen by user2:</p>
+                                        <p>Suppose user2 navigates to user1's dataset folder, right-click the icon for airlines, and select <span class="UIelement">Delete</span>. The airlines dataset is not deleted immediately but is marked for deletion. User2 can change the status of airlines because user2 does not have any tables or aggregates created from it. From this point on, user2 can no longer use airlines. The following screenshot shows the dataset list as seen by user2:</p>
                                         <p>
                                             <img src="../Resources/Images/XD_screenshots/user2-dataset-ref-ghost.png" />
                                         </p>
-                                        <p>After the airlines dataset reference is marked for deletion by user2, the appearance of the dataset reference icon changes as well for user1, as illustrated in the following screenshot:</p>
+                                        <p>After the airlines dataset is marked for deletion by user2, the appearance of the dataset icon changes as well for user1, as illustrated in the following screenshot:</p>
                                         <p>
                                             <img src="../Resources/Images/XD_screenshots/user1-dataset-ref-ghost.png" />
                                         </p>
-                                        <p>Now user1 and other users who have tables and aggregates from the dataset can continue to use airlines. User1 can delete it when all users no longer have tables and aggregates from the dataset. Alternatively, user1 can mark it for deletion. In this way, after the last table or aggregate from the dataset is dropped, the dataset reference is deleted automatically.</p>
-                                        <div class="Note"><span class="label">NOTE</span>:&#160;To see the correct status of the dataset reference, you must click <span class="UIelement">Refresh</span>. In this example, as soon as user2 marks the airlines dataset reference for deletion, its icon disappears. Without clicking <span class="UIelement">Refresh</span>, it seems to user2 that the dataset is deleted, but actually it remains for other users who currently have tables or aggregates from the dataset.</div>
-                                        <h2>Effect of cluster restart on dataset references</h2>
-                                        <p>After a cluster is restarted, some dataset references previously in your list of dataset references might no longer be displayed. Only the dataset references used in your active workbook are shown immediately after the restart. </p>
-                                        <div class="Note"><span class="label">NOTE</span>:&#160;The datasets and the dataset references still exist; they are available for you to use again when needed. </div>
-                                        <p>A dataset reference appears in the list again when:</p>
+                                        <p>Now user1 and other users who have tables and aggregates from the dataset can continue to use airlines. User1 can delete it when all users no longer have tables and aggregates from the dataset. Alternatively, user1 can mark it for deletion. In this way, after the last table or aggregate from the dataset is dropped, the dataset is deleted automatically.</p>
+                                        <div class="Note"><span class="label">NOTE</span>:&#160;To see the correct status of the dataset, you must click <span class="UIelement">Refresh</span>. In this example, as soon as user2 marks the airlines dataset for deletion, its icon disappears. Without clicking <span class="UIelement">Refresh</span>, it seems to user2 that the dataset is deleted, but actually it remains for other users who currently have tables or aggregates from the dataset.</div>
+                                        <h2>Effect of cluster restart on datasets</h2>
+                                        <p>After a cluster is restarted, some datasets previously in your list of datasets might no longer be displayed. Only the datasets used in your active workbook are shown immediately after the restart. </p>
+                                        <div class="Note"><span class="label">NOTE</span>:&#160;The datasets  still exist; they are available for you to use again when needed. </div>
+                                        <p>A dataset appears in the list again when:</p>
                                         <ul>
-                                            <li value="1">you activate a workbook that uses the dataset reference, or</li>
+                                            <li value="1">you activate a workbook that uses the dataset, or</li>
                                             <li value="2">a batch dataflow is run against the dataset</li>
                                         </ul>
-                                        <div class="Example"> <span class="label">EXAMPLE</span>:&#160;You create a dataset reference called airlines, which is used in workbook1, and a dataset reference called carrier, which is used in workbook2. Both dataset references are visible in the list of dataset references, regardless of which workbook is active. After a cluster restart, if workbook1 is active, only the dataset reference named airlines is displayed. To also display the dataset reference named carrier, activate workbook2. </div>
+                                        <div class="Example"> <span class="label">EXAMPLE</span>:&#160;You create a dataset called airlines, which is used in workbook1, and a dataset called carrier, which is used in workbook2. Both datasets are visible in the list of datasets, regardless of which workbook is active. After a cluster restart, if workbook1 is active, only the dataset named airlines is displayed. To also display the dataset named carrier, activate workbook2. </div>
                                     </div>
                                     <p><a href="#Top" class="selected">Go to top</a>
                                     </p>

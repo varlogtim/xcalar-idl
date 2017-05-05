@@ -98,15 +98,15 @@
                                                 </li>
                                                 <li><a href="../A_GettingStarted/B2_PrepareDataSource.htm">Preparing the data source</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/C_EasySteps.htm">Easy steps for Xcalar 1.0 (with default settings)</a>
+                                                <li><a href="../A_GettingStarted/C_EasySteps.htm">Easy steps for Xcalar 1.2 (with default settings)</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/D_DetailedStepsForPointing.htm">Detailed steps for Xcalar 1.0 (with custom settings)</a>
+                                                <li><a href="../A_GettingStarted/D_DetailedStepsForPointing.htm">Detailed steps for Xcalar 1.2 (with custom settings)</a>
                                                 </li>
                                             </ul>
                                         </li>
                                         <li class="has-children"><a href="../B_CommonTasks/CommonTasks.htm">Common tasks</a>
                                             <ul class="sub-menu">
-                                                <li><a href="../B_CommonTasks/A_ManageDatasetRef.htm">Managing dataset references</a>
+                                                <li><a href="../B_CommonTasks/A_ManageDatasetRef.htm">Managing datasets</a>
                                                 </li>
                                                 <li><a href="../B_CommonTasks/B_CreateTable.htm">Creating a table</a>
                                                 </li>
@@ -140,6 +140,8 @@
                                                 </li>
                                                 <li><a href="../B_CommonTasks/P_UnderstandFNF.htm">Working with a table containing FNF</a>
                                                 </li>
+                                                <li><a href="../B_CommonTasks/Q_SearchTableOrColName.htm">Searching for a table or column</a>
+                                                </li>
                                             </ul>
                                         </li>
                                         <li class="has-children"><a href="../C_AdvancedTasks/AdvancedTasks.htm">Advanced tasks</a>
@@ -152,7 +154,7 @@
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/C1_PointWithVisualParser.htm">Using a visual parser to create a UDF</a>
                                                 </li>
-                                                <li><a href="../C_AdvancedTasks/D_FunctionBar.htm">Using the function or search bar</a>
+                                                <li><a href="../C_AdvancedTasks/D_FunctionBar.htm">Using the function  bar</a>
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/E_CreateBatchDataflow.htm">Understanding and creating batch dataflows</a>
                                                 </li>
@@ -162,7 +164,7 @@
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/G_ExportTable.htm">Exporting a table</a>
                                                 </li>
-                                                <li><a href="../C_AdvancedTasks/H_Parameterization.htm">Parameterizing queries</a>
+                                                <li><a href="../C_AdvancedTasks/H_Parameterization.htm">Parameterizing operations</a>
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/I_UnderstandMemoryUse.htm">Understanding memory usage</a>
                                                 </li>
@@ -328,13 +330,13 @@
                                         <h2>Understanding workbook deactivation</h2>
                                         <p>You do not need to manually deactivate one workbook to activate another. For example, if workbook1 is active but you want to switch to workbook2, simply click the play icon for workbook2. This deactivates workbook1 automatically and activates workbook2.</p>
                                         <p>If you have an active workbook that you want to delete and you do not want to switch to another workbook, deactivate it and then click the deletion icon. </p>
-                                        <p>When deactivating a workbook, <span class="GeneralProductName3short">XDP</span> releases memory used by the workbook's datasets and tables. When you re-activate the workbook, <span class="GeneralProductName3short">XDP</span> re-creates the dataset references and active tables, which might take a while especially if the tables were created with complex operations. Therefore, before you deactivate a workbook, be aware that re-activating it in the future might not be instantaneous. </p>
+                                        <p>When deactivating a workbook, <span class="GeneralProductName3short">XDP</span> releases memory used by the workbook's datasets and tables. When you re-activate the workbook, <span class="GeneralProductName3short">XDP</span> re-creates the datasets and active tables, which might take a while especially if the tables were created with complex operations. Therefore, before you deactivate a workbook, be aware that re-activating it in the future might not be instantaneous. </p>
                                         <div class="Note"><span class="label">NOTE</span>:&#160; <span class="GeneralProductName3short">XDP</span> cannot deactivate a workbook if the workbook has an operation in progress. Wait until the operation is finished before you switch from this workbook or click the deactivation icon for this workbook.</div>
                                         <h2>Effects of deleting a workbook</h2>
-                                        <p>The following list describes the effects of deleting a workbook:</p>
+                                        <p>Deleting a workbook has the following  effects:</p>
                                         <ul>
                                             <li value="1">All worksheets in the workbook and all tables in the worksheets are deleted. They are not recoverable after the deletion.</li>
-                                            <li value="2">A dataset reference created through the workbook might or might not remain depending on whether the dataset reference is also being used by other workbooks. The dataset reference and its associated dataset are removed only if the workbook being deleted is the only one using the dataset reference. For more information about dataset reference deletion, see <a href="../B_CommonTasks/A_ManageDatasetRef.htm#Effects" class="MCXref xref">Understanding dataset reference deletion</a></li>
+                                            <li value="2">A dataset created through the workbook might or might not remain depending on whether the dataset is also being used by other workbooks. The dataset is removed only if the workbook being deleted is the only one using the dataset. For more information about dataset deletion, see <a href="../B_CommonTasks/A_ManageDatasetRef.htm#Effects" class="MCXref xref">Understanding dataset deletion</a></li>
                                         </ul>
                                     </div>
                                     <p><a href="#Top" class="selected">Go to top</a>

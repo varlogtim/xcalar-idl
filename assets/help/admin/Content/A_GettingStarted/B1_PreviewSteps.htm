@@ -99,15 +99,15 @@
                                                 </li>
                                                 <li><a href="B2_PrepareDataSource.htm">Preparing the data source</a>
                                                 </li>
-                                                <li><a href="C_EasySteps.htm">Easy steps for Xcalar 1.0 (with default settings)</a>
+                                                <li><a href="C_EasySteps.htm">Easy steps for Xcalar 1.2 (with default settings)</a>
                                                 </li>
-                                                <li><a href="D_DetailedStepsForPointing.htm">Detailed steps for Xcalar 1.0 (with custom settings)</a>
+                                                <li><a href="D_DetailedStepsForPointing.htm">Detailed steps for Xcalar 1.2 (with custom settings)</a>
                                                 </li>
                                             </ul>
                                         </li>
                                         <li class="has-children"><a href="../B_CommonTasks/CommonTasks.htm">Common tasks</a>
                                             <ul class="sub-menu">
-                                                <li><a href="../B_CommonTasks/A_ManageDatasetRef.htm">Managing dataset references</a>
+                                                <li><a href="../B_CommonTasks/A_ManageDatasetRef.htm">Managing datasets</a>
                                                 </li>
                                                 <li><a href="../B_CommonTasks/B_CreateTable.htm">Creating a table</a>
                                                 </li>
@@ -141,6 +141,8 @@
                                                 </li>
                                                 <li><a href="../B_CommonTasks/P_UnderstandFNF.htm">Working with a table containing FNF</a>
                                                 </li>
+                                                <li><a href="../B_CommonTasks/Q_SearchTableOrColName.htm">Searching for a table or column</a>
+                                                </li>
                                             </ul>
                                         </li>
                                         <li class="has-children"><a href="../C_AdvancedTasks/AdvancedTasks.htm">Advanced tasks</a>
@@ -153,7 +155,7 @@
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/C1_PointWithVisualParser.htm">Using a visual parser to create a UDF</a>
                                                 </li>
-                                                <li><a href="../C_AdvancedTasks/D_FunctionBar.htm">Using the function or search bar</a>
+                                                <li><a href="../C_AdvancedTasks/D_FunctionBar.htm">Using the function  bar</a>
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/E_CreateBatchDataflow.htm">Understanding and creating batch dataflows</a>
                                                 </li>
@@ -163,7 +165,7 @@
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/G_ExportTable.htm">Exporting a table</a>
                                                 </li>
-                                                <li><a href="../C_AdvancedTasks/H_Parameterization.htm">Parameterizing queries</a>
+                                                <li><a href="../C_AdvancedTasks/H_Parameterization.htm">Parameterizing operations</a>
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/I_UnderstandMemoryUse.htm">Understanding memory usage</a>
                                                 </li>
@@ -289,9 +291,9 @@
                                                     </li>
                                                     <li><a href="B2_PrepareDataSource.htm">Preparing the data source</a>
                                                     </li>
-                                                    <li><a href="C_EasySteps.htm">Easy steps for Xcalar 1.0 (with default settings)</a>
+                                                    <li><a href="C_EasySteps.htm">Easy steps for Xcalar 1.2 (with default settings)</a>
                                                     </li>
-                                                    <li><a href="D_DetailedStepsForPointing.htm">Detailed steps for Xcalar 1.0 (with custom settings)</a>
+                                                    <li><a href="D_DetailedStepsForPointing.htm">Detailed steps for Xcalar 1.2 (with custom settings)</a>
                                                     </li>
                                                 </ul>
                                             </li>
@@ -302,6 +304,7 @@
                                     <div class="bodyProxyNarrow">
                                         <h1>Steps for <span class="GeneralProductTrialVersion">Xcalar Cloud Preview</span></h1>
                                         <p>This section describes the steps up to the point where you can start performing operations in tables presented in a  workbook.</p>
+                                        <div class="Note"><span class="label">IMPORTANT</span>:&#160;This topic is <em>not</em> applicable if you use <span class="GeneralProductFullVersion">Xcalar 1.2</span>. Information here is for users of the early-access version of <span class="GeneralCompanyNameShort">Xcalar</span>. To get started with <span class="GeneralProductFullVersion">Xcalar 1.2</span>, see <a href="C_EasySteps.htm" class="MCXref xref">Easy steps for Xcalar 1.2 (with default settings)</a> or <a href="D_DetailedStepsForPointing.htm" class="MCXref xref">Detailed steps for Xcalar 1.2 (with custom settings)</a>.</div>
                                         <h2>Starting <span class="GeneralProductName">Xcalar Design</span></h2>
                                         <p>Point your browser to the URL&#160;given to you by <span class="GeneralCompanyNameShort">Xcalar</span> to start <span class="GeneralProductName">Xcalar Design</span>. Then use the username and password provided by <span class="GeneralCompanyNameShort">Xcalar</span> to log in.</p>
                                         <h2>Creating a workbook as your workspace</h2>
@@ -356,36 +359,38 @@
                                         <p>Follow these steps to point to your data source:</p>
                                         <ol>
                                             <li value="1">
-                                                <p>In the <span class="UIelement">Add File / Create Dataset Reference</span> window, upload a file to the <span class="GeneralCompanyNameShort">Xcalar</span> instance in one of two ways:</p>
+                                                <p>In the <span class="UIelement">Add File / Create Dataset</span> window, upload a file to the <span class="GeneralCompanyNameShort">Xcalar</span> instance in one of two ways:</p>
                                                 <ul>
                                                     <li value="1">Click <span class="UIelement">BROWSE</span> as shown in the following screenshot. Then navigate to the data source file and select the file. </li>
                                                     <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/xp-add-file-to-point.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="787" data-mc-height="284" src="../Resources/Images/XD_screenshots/xp-add-file-to-point_thumb_0_150.png" tabindex="" /></a>
                                                     </p>
-                                                    <li value="2">Locate the data source file on your computer. Then drag and drop it into the <span class="UIelement">Add File / Create Dataset Reference</span> window. The following screenshot shows an example of copying a file named MyData to the <span class="GeneralCompanyNameShort">Xcalar</span> instance.</li>
+                                                    <li value="2">Locate the data source file on your computer. Then drag and drop it into the <span class="UIelement">Add File / Create Dataset</span> window. The following screenshot shows an example of copying a file named MyData to the <span class="GeneralCompanyNameShort">Xcalar</span> instance.</li>
                                                     <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/xp-add-file-to-point-by-dragging.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="841" data-mc-height="650" src="../Resources/Images/XD_screenshots/xp-add-file-to-point-by-dragging_thumb_0_150.png" tabindex="" /></a>
                                                     </p>
                                                 </ul>
+                                                <div class="Note"><span class="label">NOTE</span>:&#160;If a network problem happens during the upload, <span class="GeneralProductName">Xcalar Design</span> can resume the upload process from where it left off as soon as network access becomes available again.  </div>
                                             </li>
                                             <li value="2">
                                                 <p>In the list of uploaded data source files, select the file you want <span class="GeneralProductName">Xcalar Design</span> to point to as shown in the following screenshot. You can click only one file at a time. </p>
                                                 <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/xp-point-to-data-source.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1062" data-mc-height="567" src="../Resources/Images/XD_screenshots/xp-point-to-data-source_thumb_0_150.png" tabindex="" /></a>
                                                 </p>
-                                                <p>The <span class="UIelement">Point to New Data Source</span> window is displayed. </p>
+                                                <p>The <span class="UIelement">Point to Data Source</span> window is displayed. </p>
                                                 <div class="Note"><span class="label">NOTE</span>:&#160;The preview in this window enables you to verify that you have selected the intended data source file. You can position your mouse on a column header and drag it to resize the column. You can also use your mouse to scroll the rows.</div>
                                                 <p>If you accept the default values in this window, continue to the next step. To override the default values, skip the next step; instead, go to <a href="#Pointing" class="MCXref xref selected">Pointing to the data source (optional steps)</a></p>
                                             </li>
                                             <li value="3">
-                                                <p>In the <span class="UIelement">Point to New Data Source</span> window, create a dataset reference and a table at the same time by clicking <span class="UIelement">CREATE&#160;TABLE</span>. The table contains all columns in the data source. The following screenshot shows the <span class="UIelement">Point to New Data Source</span> window.</p>
-                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/point-to-data-preview.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1139" data-mc-height="917" src="../Resources/Images/XD_screenshots/point-to-data-preview_thumb_0_150.png" tabindex="" /></a>
+                                                <p>In the <span class="UIelement">Point to Data Source</span> window, create a dataset by clicking <span class="UIelement">CREATE&#160;DATASET</span>. The following screenshot shows the <span class="UIelement">Point to Data Source</span> window.</p>
+                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/point-to-data-preview.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1140" data-mc-height="943" src="../Resources/Images/XD_screenshots/point-to-data-preview_thumb_0_150.png" tabindex="" /></a>
                                                 </p>
-                                                <div class="Note"><span class="label">NOTE</span>:&#160;Under certain circumstances, not all columns are included automatically in the table. For example, if a dataset contains 62 rows and the last 2 rows have a column that the first 60 rows do not have, this column is not included in the table in this step. You can, however, add this column later according to <a href="../B_CommonTasks/C_AddColumns.htm" class="MCXref xref">Adding columns from a dataset to a table</a>.</div>
                                             </li>
+                                            <li value="4">In the Dataset Preview window, select the columns to send to a worksheet, and then click <span class="UIelement">CREATE&#160;TABLE</span>.</li>
+                                            <div class="Note"><span class="label">NOTE</span>:&#160;Under certain circumstances, not all columns are included automatically in the <span class="UIelement">Dataset Preview</span>. For example, if a dataset contains 62 rows and the last 2 rows have a column that the first 60 rows do not have, this column is not included in the table in this step. You can, however, add this column later according to <a href="../B_CommonTasks/C_AddColumns.htm" class="MCXref xref">Adding columns from a dataset to a table</a>.</div>
                                         </ol>
                                         <h3><a name="Pointing"></a>Pointing to the data source (optional steps)</h3>
                                         <p>If you do not want to accept all the default values when pointing to the data source, or if your data needs parsing with a UDF, follow these additional steps:</p>
                                         <ol>
                                             <li value="1">
-                                                <p>In the <span class="UIelement">Dataset Reference Name</span> field,  accept the suggested name or type the desired name. The name cannot be changed later. The dataset reference enables you to create tables from the dataset after you successfully point to your data source.  For more information about dataset references, see <a href="../B_CommonTasks/A_ManageDatasetRef.htm" class="MCXref xref">Managing dataset references</a>.</p>
+                                                <p>In the <span class="UIelement">Dataset Name</span> field,  accept the suggested name or type the desired name. The name cannot be changed later. The dataset enables you to create tables from the data source.  For more information about datasets, see <a href="../B_CommonTasks/A_ManageDatasetRef.htm" class="MCXref xref">Managing datasets</a>.</p>
                                                 <div class="MCDropDown MCDropDown_Open dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the  naming conventions:</a></span>
                                                     <div class="MCDropDownBody dropDownBody">
                                                         <ul>
@@ -413,11 +418,11 @@
                                                     <li value="10">period (.)</li>
                                                 </ul>
                                                 <p>A UDF for parsing data when <span class="GeneralProductName">Xcalar Design</span> points to the data is called a streaming UDF. You can preview the results of the streaming UDF by clicking <span class="UIelement">REFRESH&#160;PREVIEW</span>. If you see unexpected results, you can select another UDF&#160;or no UDFs. For more information about UDFs, see <a href="../C_AdvancedTasks/B_UDFUnderstand.htm" class="MCXref xref">Understanding UDFs</a> and <a href="../C_AdvancedTasks/C_UDFTasks.htm" class="MCXref xref">Using UDFs</a>. </p>
-                                                <div class="Note"><span class="label">Recommendation</span>:&#160;A streaming UDF causes columns to be ordered differently than they are in the data source. See <a href="D_DetailedStepsForPointing.htm#Before" class="MCXref xref">Detailed steps for Xcalar 1.0 (with custom settings)</a> for preparing your data source to ensure that you can easily locate columns in a table in <span class="GeneralProductName">Xcalar Design</span>.</div>
+                                                <div class="Note"><span class="label">Recommendation</span>:&#160;A streaming UDF causes columns to be ordered differently than they are in the data source. See <a href="B2_PrepareDataSource.htm#Before" class="MCXref xref">Creating a first row as column headers</a> for preparing your data source to ensure that you can easily locate columns in a table in <span class="GeneralProductName">Xcalar Design</span>.</div>
                                             </li>
                                             <li value="3">
-                                                <p>The fields in the rest of the <span class="UIelement">Point to New Data Source</span> window tell <span class="GeneralProductName">Xcalar Design</span> about the data format and layout. <span class="GeneralProductName">Xcalar Design</span> automatically detects the format and layout of the data source, but you can override the default values. </p>
-                                                <div class="Note"><span class="label">TIP:</span>&#160;After you enter values in these fields, if you want to see the values recommended by <span class="GeneralProductName">Xcalar Design</span> again, click <span class="UIelement">REDETECT</span>.</div>
+                                                <p>The fields in the rest of the <span class="UIelement">Point to Data Source</span> window tell <span class="GeneralProductName">Xcalar Design</span> about the data format and layout. <span class="GeneralProductName">Xcalar Design</span> automatically detects the format and layout of the data source, but you can override the default values. </p>
+                                                <div class="Note"><span class="label">TIP:</span>&#160;After you enter values in these fields, if you want to see the values recommended by <span class="GeneralProductName">Xcalar Design</span> again, click <span class="UIelement">REDETECT FORMAT</span>.</div>
                                                 <p>The following table describes the fields. </p>
                                                 <table class="TableStyle-SimpleTable" style="mc-table-style: url('../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;" cellspacing="0">
                                                     <col class="TableStyle-SimpleTable-Column-Column1" />
@@ -474,27 +479,11 @@
                                                 </table>
                                             </li>
                                             <li value="4">
-                                                <p>Follow one of these two steps:</p>
-                                                <ul>
-                                                    <li value="1">To create a dataset reference only to reference the dataset that will be created by XDP, click <span class="UIelement">CREATE REF&#160;ONLY</span>. You can use this dataset reference to  create tables later.</li>
-                                                    <li value="2">
-                                                        <p>To create a dataset reference and a table at the same time, click <span class="UIelement">CREATE&#160;TABLE</span>. The table contains all columns in the dataset.</p>
-                                                        <div class="Note"><span class="label">NOTE</span>:&#160;Under certain circumstances, not all columns are included automatically in the table. For example, if a dataset contains 62 rows and the last 2 rows have a column that the first 60 rows do not have, this column is not included in the table in this step. You can, however, add this column later according to <a href="../B_CommonTasks/C_AddColumns.htm" class="MCXref xref">Adding columns from a dataset to a table</a>.</div>
-                                                    </li>
-                                                </ul>
+                                                <p>Click <span class="UIelement">CREATE DATASET</span>.</p>
                                             </li>
                                         </ol>
                                         <h2>Next step</h2>
-                                        <p>You now have a dataset reference associated with a dataset. This dataset points to your data source. The data reference is listed in the <span class="UIelement">Dataset Refs</span> section of the left panel. </p>
-                                        <p>If you know what task to perform on your table, see <a href="../B_CommonTasks/CommonTasks.htm" class="MCXref xref">Common tasks</a> to find the instructions for the task. Otherwise, go to the following topics to learn about various <span class="GeneralProductName">Xcalar Design</span> windows:</p>
-                                        <ul>
-                                            <li value="1"><a href="../D_Reference/B_WkbkBrowser.htm" class="MCXref xref">Workbook Browser</a>
-                                            </li>
-                                            <li value="2"><a href="../D_Reference/C_WorksheetWindow.htm" class="MCXref xref">Worksheet window with tables</a>
-                                            </li>
-                                            <li value="3"><a href="../D_Reference/A_InsightWindow.htm" class="MCXref xref">Xcalar Design window</a>
-                                            </li>
-                                        </ul>
+                                        <p>You are now ready to create a table according to the instructions in <a href="../B_CommonTasks/B_CreateTable.htm" class="MCXref xref">Creating a table</a>.</p>
                                     </div>
                                     <p><a href="#Top" class="selected">Go to top</a>
                                     </p>

@@ -60,6 +60,7 @@
 }
 
 </style>
+        <link href="../Resources/TableStyles/SimpleTable.css" rel="stylesheet" />
         <script src="../../Resources/Scripts/custom.modernizr.js">
         </script>
         <script src="../../Resources/Scripts/jquery.min.js">
@@ -98,15 +99,15 @@
                                                 </li>
                                                 <li><a href="../A_GettingStarted/B2_PrepareDataSource.htm">Preparing the data source</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/C_EasySteps.htm">Easy steps for Xcalar 1.0 (with default settings)</a>
+                                                <li><a href="../A_GettingStarted/C_EasySteps.htm">Easy steps for Xcalar 1.2 (with default settings)</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/D_DetailedStepsForPointing.htm">Detailed steps for Xcalar 1.0 (with custom settings)</a>
+                                                <li><a href="../A_GettingStarted/D_DetailedStepsForPointing.htm">Detailed steps for Xcalar 1.2 (with custom settings)</a>
                                                 </li>
                                             </ul>
                                         </li>
                                         <li class="has-children"><a href="CommonTasks.htm">Common tasks</a>
                                             <ul class="sub-menu">
-                                                <li><a href="A_ManageDatasetRef.htm">Managing dataset references</a>
+                                                <li><a href="A_ManageDatasetRef.htm">Managing datasets</a>
                                                 </li>
                                                 <li><a href="B_CreateTable.htm">Creating a table</a>
                                                 </li>
@@ -140,6 +141,8 @@
                                                 </li>
                                                 <li><a href="P_UnderstandFNF.htm">Working with a table containing FNF</a>
                                                 </li>
+                                                <li><a href="Q_SearchTableOrColName.htm">Searching for a table or column</a>
+                                                </li>
                                             </ul>
                                         </li>
                                         <li class="has-children"><a href="../C_AdvancedTasks/AdvancedTasks.htm">Advanced tasks</a>
@@ -152,7 +155,7 @@
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/C1_PointWithVisualParser.htm">Using a visual parser to create a UDF</a>
                                                 </li>
-                                                <li><a href="../C_AdvancedTasks/D_FunctionBar.htm">Using the function or search bar</a>
+                                                <li><a href="../C_AdvancedTasks/D_FunctionBar.htm">Using the function  bar</a>
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/E_CreateBatchDataflow.htm">Understanding and creating batch dataflows</a>
                                                 </li>
@@ -162,7 +165,7 @@
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/G_ExportTable.htm">Exporting a table</a>
                                                 </li>
-                                                <li><a href="../C_AdvancedTasks/H_Parameterization.htm">Parameterizing queries</a>
+                                                <li><a href="../C_AdvancedTasks/H_Parameterization.htm">Parameterizing operations</a>
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/I_UnderstandMemoryUse.htm">Understanding memory usage</a>
                                                 </li>
@@ -278,7 +281,7 @@
                                         <ul class="menu _Skins_SideMenu mc-component">
                                             <li class="has-children"><a href="CommonTasks.htm">Common tasks</a>
                                                 <ul class="sub-menu">
-                                                    <li><a href="A_ManageDatasetRef.htm">Managing dataset references</a>
+                                                    <li><a href="A_ManageDatasetRef.htm">Managing datasets</a>
                                                     </li>
                                                     <li><a href="B_CreateTable.htm">Creating a table</a>
                                                     </li>
@@ -312,6 +315,8 @@
                                                     </li>
                                                     <li><a href="P_UnderstandFNF.htm">Working with a table containing FNF</a>
                                                     </li>
+                                                    <li><a href="Q_SearchTableOrColName.htm">Searching for a table or column</a>
+                                                    </li>
                                                 </ul>
                                             </li>
                                         </ul>
@@ -320,7 +325,10 @@
                                     </div>
                                     <div class="bodyProxyNarrow">
                                         <h1>Grouping data in a table</h1>
-                                        <p>You can use the Group By function  in a similar way as you would with the Group By clause in SQL. You can group by one column or multiple columns. </p>
+                                        <p>You can use the Group By function  in a similar way as you would with the Group By clause in SQL. </p>
+                                        <h2>Understanding the Group&#160;By operation</h2>
+                                        <p>Before starting the Group By operation, determine what aggregate functions to use for the calculation. For example, when you use a table containing airlines information, you might be interested in the average arrival delay time and the sum of distance. <span class="GeneralProductName">Xcalar Design</span> allows you to select more than one function to perform the Group By operation. </p>
+                                        <p>You also select the columns to group on. For example, from the airlines table, you might want to see the arrival delay time and the sum of distance grouped by day of the week and carrier name. In the resultant table, you can see the aggregate function results (average arrival delay and total distance) for each column being grouped on. For example, one row of the resultant table might show that on day 1, the total distance flown by the carrier named XE is 37845 with an average arrival delay of 58.2. </p>
                                         <h2>Aggregate functions supported</h2>
                                         <p>The following aggregate functions are supported:</p>
                                         <ul>
@@ -385,15 +393,53 @@
                                                 </ol>
                                             </li>
                                             <li value="4">Accept the default name for the new column or enter a new name.</li>
-                                            <li class="has-children" value="5">Select <span class="UIelement">Join table back to original</span> if you want to join the resultant table to the original table. This performs a left outer join, with the original table being the left table. Joining back the table provides a convenient way to compare the values in the column resulting from the Group By operation to values in the original column. </li>
-                                            <li class="has-children" value="6">
-                                                <p>Select <span class="UIelement">Keep all columns</span> if you want the resultant table to include all columns in the original table. The column created by the Group By function is a derived column. All other columns retain the column prefix.</p>
-                                                <p>If this option is not selected,  the resultant table contains only the new column created from the Group By function and the columns you group on. All columns in the resultant table, including the ones you group on, become derived fields.</p>
-                                                <div class="Note"><span class="label">NOTE:</span>&#160;This option is not applicable if you select <span class="UIelement">Join table back to original</span> because the table created by the Join operation automatically includes all the columns from the original table.</div>
+                                            <li value="5">
+                                                <p>(Optional)&#160;If you want to apply another aggregate function to the Group By operation, follow these steps:</p>
+                                                <ol style="list-style-type: lower-alpha;">
+                                                    <li value="1">Click <img src="../Resources/Images/XD_assets/xd-plus-in-square.png" /> that precedes <span class="UIelement">Apply Additional Functions</span>.</li>
+                                                    <li value="2">Specify the function name and the column to which the function applies.</li>
+                                                    <li value="3">Accept the default name for the new column or enter a new name.</li>
+                                                </ol>
+                                                <p>Repeat this step for each additional function.</p>
                                             </li>
-                                            <li class="has-children" value="7">(Optional)&#160;Select <span class="UIelement">Include only erroneous rows</span> if you want to filter the resultant table such that only erroneous rows are included. For more information about erroneous rows, see <a href="H_ErroneousRows.htm" class="MCXref xref">Creating a table with erroneous rows only</a>.</li>
+                                            <li value="6">In the <span class="UIelement">New table name</span> field, enter the name of the resultant table.</li>
+                                            <li class="has-children" value="7">
+                                                <p>(Optional) Click <span class="UIelement">Advanced Options</span> to further customize the result of the Group By operation. The following table describes the options.</p>
+                                                <table class="TableStyle-SimpleTable" style="mc-table-style: url('../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;" cellspacing="0">
+                                                    <col class="TableStyle-SimpleTable-Column-Column1" />
+                                                    <col class="TableStyle-SimpleTable-Column-Column2" />
+                                                    <thead>
+                                                        <tr class="TableStyle-SimpleTable-Head-Header1">
+                                                            <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">Advanced option</th>
+                                                            <th class="TableStyle-SimpleTable-HeadD-Column2-Header1">Description</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Include only erroneous rows</td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">This option filters only rows where the function cannot produce a value.</td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Join table back to original</td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">This option joins the resultant table to the original table. The operation is a left outer join, with the original table being the left table. Joining back the table provides a convenient way to compare the values in the column resulting from the Group By operation to values in the original column.</td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                            <td class="TableStyle-SimpleTable-BodyB-Column1-Body1">Keep some columns</td>
+                                                            <td class="TableStyle-SimpleTable-BodyA-Column2-Body1">
+                                                                <p>By default,  the resultant table contains only the new column created from the Group By function and the columns you group on. All columns in the resultant table, including the ones you group on, become derived columns.&#160;The Data Browser for the resultant table contains only the derived fields.</p>
+                                                                <p>This option enables you to select additional columns to include in the resultant table. The column created by the Group By function is a derived column. All prefixed columns retain the column prefix.</p>
+                                                                <div class="Note"><span class="label">NOTE:</span>&#160;This option is not applicable if you select <span class="UIelement">Join table back to original</span> because the table created by the Join operation automatically includes all the columns from the original table.</div>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </li>
                                             <li value="8">Click <span class="UIelement">GROUP&#160;BY</span>.</li>
                                         </ol>
+                                        <p>The following screenshot shows an example of a table created by a multi-column, multi-function Group By operation, without joining back to the original table. </p>
+                                        <p>
+                                            <img src="../Resources/Images/XD_screenshots/group-by-result-example.png" />
+                                        </p>
                                     </div>
                                     <p><a href="#Top" class="selected">Go to top</a>
                                     </p>

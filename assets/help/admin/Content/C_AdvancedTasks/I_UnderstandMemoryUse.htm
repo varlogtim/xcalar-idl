@@ -98,15 +98,15 @@
                                                 </li>
                                                 <li><a href="../A_GettingStarted/B2_PrepareDataSource.htm">Preparing the data source</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/C_EasySteps.htm">Easy steps for Xcalar 1.0 (with default settings)</a>
+                                                <li><a href="../A_GettingStarted/C_EasySteps.htm">Easy steps for Xcalar 1.2 (with default settings)</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/D_DetailedStepsForPointing.htm">Detailed steps for Xcalar 1.0 (with custom settings)</a>
+                                                <li><a href="../A_GettingStarted/D_DetailedStepsForPointing.htm">Detailed steps for Xcalar 1.2 (with custom settings)</a>
                                                 </li>
                                             </ul>
                                         </li>
                                         <li class="has-children"><a href="../B_CommonTasks/CommonTasks.htm">Common tasks</a>
                                             <ul class="sub-menu">
-                                                <li><a href="../B_CommonTasks/A_ManageDatasetRef.htm">Managing dataset references</a>
+                                                <li><a href="../B_CommonTasks/A_ManageDatasetRef.htm">Managing datasets</a>
                                                 </li>
                                                 <li><a href="../B_CommonTasks/B_CreateTable.htm">Creating a table</a>
                                                 </li>
@@ -140,6 +140,8 @@
                                                 </li>
                                                 <li><a href="../B_CommonTasks/P_UnderstandFNF.htm">Working with a table containing FNF</a>
                                                 </li>
+                                                <li><a href="../B_CommonTasks/Q_SearchTableOrColName.htm">Searching for a table or column</a>
+                                                </li>
                                             </ul>
                                         </li>
                                         <li class="has-children"><a href="AdvancedTasks.htm">Advanced tasks</a>
@@ -152,7 +154,7 @@
                                                 </li>
                                                 <li><a href="C1_PointWithVisualParser.htm">Using a visual parser to create a UDF</a>
                                                 </li>
-                                                <li><a href="D_FunctionBar.htm">Using the function or search bar</a>
+                                                <li><a href="D_FunctionBar.htm">Using the function  bar</a>
                                                 </li>
                                                 <li><a href="E_CreateBatchDataflow.htm">Understanding and creating batch dataflows</a>
                                                 </li>
@@ -162,7 +164,7 @@
                                                 </li>
                                                 <li><a href="G_ExportTable.htm">Exporting a table</a>
                                                 </li>
-                                                <li><a href="H_Parameterization.htm">Parameterizing queries</a>
+                                                <li><a href="H_Parameterization.htm">Parameterizing operations</a>
                                                 </li>
                                                 <li><a href="#" class="selected">Understanding memory usage</a>
                                                 </li>
@@ -288,7 +290,7 @@
                                                     </li>
                                                     <li><a href="C1_PointWithVisualParser.htm">Using a visual parser to create a UDF</a>
                                                     </li>
-                                                    <li><a href="D_FunctionBar.htm">Using the function or search bar</a>
+                                                    <li><a href="D_FunctionBar.htm">Using the function  bar</a>
                                                     </li>
                                                     <li><a href="E_CreateBatchDataflow.htm">Understanding and creating batch dataflows</a>
                                                     </li>
@@ -298,7 +300,7 @@
                                                     </li>
                                                     <li><a href="G_ExportTable.htm">Exporting a table</a>
                                                     </li>
-                                                    <li><a href="H_Parameterization.htm">Parameterizing queries</a>
+                                                    <li><a href="H_Parameterization.htm">Parameterizing operations</a>
                                                     </li>
                                                     <li><a href="#" class="selected">Understanding memory usage</a>
                                                     </li>
@@ -332,6 +334,7 @@
                                         <h2>What happens when the cluster is low on memory</h2>
                                         <p>If <span class="GeneralProductName2short">XCE</span> is low on memory, <span class="GeneralProductName">Xcalar Design</span> displays a warning icon next to the user icon. A yellow icon indicates that memory consumption is at 80% and a red icon indicates that memory consumption is at 90%. A warning message is also displayed, recommending the action to take for releasing memory.&#160;</p>
                                         <p>If the cluster is healthy without low-memory issues, <img src="../Resources/Images/XD_assets/xd-cluster-healthy.png" /> is displayed next to the user icon. </p>
+                                        <div class="Note"><span class="label">TIP</span>:&#160;You can mouse over <img src="../Resources/Images/XD_assets/xd-cluster-healthy.png" /> to display the percentage of memory used.&#160;Clicking the icon displays the <span class="UIelement">Statistics</span> window showing more detailed information about resource usage.</div>
                                         <h3>Example of low-memory warning due to tables</h3>
                                         <p>The following partial screenshot illustrates the warning message when dropping tables is the recommended action.</p>
                                         <p>
@@ -348,7 +351,7 @@
                                         <p>
                                             <img src="../Resources/Images/XD_screenshots/low-memory-datasets.png" />
                                         </p>
-                                        <p>Clicking the warning icon displays the <span class="UIelement">Dataset Refs</span> panel. By deleting dataset references, you remove datasets from the cluster. For more information about dataset deletion, see <a href="../B_CommonTasks/A_ManageDatasetRef.htm" class="MCXref xref">Managing dataset references</a>.</p>
+                                        <p>Clicking the warning icon displays the <span class="UIelement">Datasets</span> panel. For more information about dataset deletion, see <a href="../B_CommonTasks/A_ManageDatasetRef.htm" class="MCXref xref">Managing datasets</a>.</p>
                                         <h2><a name="dropTablesModal" class="ForCSH"></a>Determining which table to drop</h2>
                                         <p>The following list describes the considerations when you determine which table to drop:</p>
                                         <ul>

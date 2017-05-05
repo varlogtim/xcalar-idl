@@ -98,15 +98,15 @@
                                                 </li>
                                                 <li><a href="B2_PrepareDataSource.htm">Preparing the data source</a>
                                                 </li>
-                                                <li><a href="C_EasySteps.htm">Easy steps for Xcalar 1.0 (with default settings)</a>
+                                                <li><a href="C_EasySteps.htm">Easy steps for Xcalar 1.2 (with default settings)</a>
                                                 </li>
-                                                <li><a href="D_DetailedStepsForPointing.htm">Detailed steps for Xcalar 1.0 (with custom settings)</a>
+                                                <li><a href="D_DetailedStepsForPointing.htm">Detailed steps for Xcalar 1.2 (with custom settings)</a>
                                                 </li>
                                             </ul>
                                         </li>
                                         <li class="has-children"><a href="../B_CommonTasks/CommonTasks.htm">Common tasks</a>
                                             <ul class="sub-menu">
-                                                <li><a href="../B_CommonTasks/A_ManageDatasetRef.htm">Managing dataset references</a>
+                                                <li><a href="../B_CommonTasks/A_ManageDatasetRef.htm">Managing datasets</a>
                                                 </li>
                                                 <li><a href="../B_CommonTasks/B_CreateTable.htm">Creating a table</a>
                                                 </li>
@@ -140,6 +140,8 @@
                                                 </li>
                                                 <li><a href="../B_CommonTasks/P_UnderstandFNF.htm">Working with a table containing FNF</a>
                                                 </li>
+                                                <li><a href="../B_CommonTasks/Q_SearchTableOrColName.htm">Searching for a table or column</a>
+                                                </li>
                                             </ul>
                                         </li>
                                         <li class="has-children"><a href="../C_AdvancedTasks/AdvancedTasks.htm">Advanced tasks</a>
@@ -152,7 +154,7 @@
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/C1_PointWithVisualParser.htm">Using a visual parser to create a UDF</a>
                                                 </li>
-                                                <li><a href="../C_AdvancedTasks/D_FunctionBar.htm">Using the function or search bar</a>
+                                                <li><a href="../C_AdvancedTasks/D_FunctionBar.htm">Using the function  bar</a>
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/E_CreateBatchDataflow.htm">Understanding and creating batch dataflows</a>
                                                 </li>
@@ -162,7 +164,7 @@
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/G_ExportTable.htm">Exporting a table</a>
                                                 </li>
-                                                <li><a href="../C_AdvancedTasks/H_Parameterization.htm">Parameterizing queries</a>
+                                                <li><a href="../C_AdvancedTasks/H_Parameterization.htm">Parameterizing operations</a>
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/I_UnderstandMemoryUse.htm">Understanding memory usage</a>
                                                 </li>
@@ -286,9 +288,9 @@
                                                     </li>
                                                     <li><a href="B2_PrepareDataSource.htm">Preparing the data source</a>
                                                     </li>
-                                                    <li><a href="C_EasySteps.htm">Easy steps for Xcalar 1.0 (with default settings)</a>
+                                                    <li><a href="C_EasySteps.htm">Easy steps for Xcalar 1.2 (with default settings)</a>
                                                     </li>
-                                                    <li><a href="D_DetailedStepsForPointing.htm">Detailed steps for Xcalar 1.0 (with custom settings)</a>
+                                                    <li><a href="D_DetailedStepsForPointing.htm">Detailed steps for Xcalar 1.2 (with custom settings)</a>
                                                     </li>
                                                 </ul>
                                             </li>
@@ -300,10 +302,10 @@
                                         <h1>Basic <span class="GeneralCompanyNameShort">Xcalar</span> concepts</h1>
                                         <p>This section explains basic concepts you must understand to use <span class="GeneralProductName">Xcalar Design</span> efficiently.</p>
                                         <h2>Understanding the purpose of <span class="GeneralProductName">Xcalar Design</span></h2>
-                                        <p><span class="GeneralProductName">Xcalar Design</span> is an HTML5-based visual tool that enables you to interactively and intuitively design queries and algorithms, and manipulate your data to derive insights. The dataflows generated when you use  <span class="GeneralProductName">Xcalar Design</span> interactively can be saved. You can run the saved dataflows on demand or at scheduled intervals at a later time. </p>
-                                        <p>The data being queried can be unstructured or organized in arbitrary formats. The data sources can reside on file systems such as NFS, HDFS, Amazon S3, or a local  file system. </p>
+                                        <p><span class="GeneralProductName">Xcalar Design</span> is an HTML5-based visual tool that enables you to interactively and intuitively design queries and algorithms through elementary operations. By manipulating the values in the tables presented in <span class="GeneralProductName">Xcalar Design</span>, you can derive meaningful insights into your raw data. A dataflow, which is a sequence of elementary operations resulting in a particular table, is generated when you use  <span class="GeneralProductName">Xcalar Design</span> interactively. Dataflows can be saved and run on demand or at scheduled intervals. </p>
+                                        <p>You can use <span class="GeneralProductName">Xcalar Design</span> on data that is unstructured or organized in arbitrary formats. The data sources can reside on file systems such as NFS, HDFS, Amazon S3, or a local  file system. </p>
                                         <h2>Understanding <span class="GeneralProductName">Xcalar Design</span> login</h2>
-                                        <p>Each <span class="GeneralProductName">Xcalar Design</span> user can have one login at a given time. Closing the browser window does not automatically log you out of <span class="GeneralProductName">Xcalar Design</span>. If you are logged in to <span class="GeneralProductName">Xcalar Design</span> and you try to log in again, a message informs you that you cannot have concurrent logins. You can either go back to the login screen or continue the login, which causes <span class="GeneralProductName">Xcalar Design</span> to terminate your other connection. Remember that if you have unsaved changes through the other connection, the termination causes the changes to be lost.</p>
+                                        <p>Each <span class="GeneralProductName">Xcalar Design</span> user can have one login at a given time. Closing the browser window does not automatically log you out of <span class="GeneralProductName">Xcalar Design</span>. If you are logged in to <span class="GeneralProductName">Xcalar Design</span> and you try to log in again (for example, from another browser tab), a message informs you that you cannot have concurrent logins. You can either go back to the login screen or continue the login, which causes <span class="GeneralProductName">Xcalar Design</span> to terminate your other connection. </p>
                                         <h2>Shared vs. shared-nothing storage for Xcalar</h2>
                                         <p><span class="GeneralCompanyNameShort">Xcalar</span>'s True Data in Place algorithms enable you to store source data anywhere—on shared or shared-nothing storage—without having to move your data in advance to attain maximum processing speed.</p>
                                         <h3>Comparison between <span class="GeneralCompanyNameShort">Xcalar</span> and other architectures</h3>
@@ -320,25 +322,35 @@
                                         <p>In cases where only one core processes a source file, <span class="GeneralCompanyNameShort">Xcalar</span> does not arbitrarily break the file into chunks to parallelize I/O as that would violate the sequential integrity of the data. Remember that each core reads a file in its entirety; the core never reads a partial file. Therefore, if you want to take advantage of the bandwidth of all cores, you must split the source file into multiple smaller files in a way that can be understood by your logic when you perform modeling later on. </p>
                                         <h2><a name="Understa"></a>Understanding workbooks and worksheets</h2>
                                         <p>You can create workbooks in <span class="GeneralProductName">Xcalar Design</span>, which can be regarded as files. Within a workbook, you can create as many worksheets as you want. Worksheets in the same workbook usually contain data related to the same project. The worksheet displayed on your screen is the active worksheet.</p>
+                                        <p>At any time, only one workbook can be active. You can deactivate or activate a workbook as desired.</p>
                                         <p>The relationship between a worksheet and a workbook is similar to the relationship between a Microsoft Excel worksheet and workbook.</p>
                                         <p>The following sample screen shows a <span class="UIelement">Worksheet</span> window for a workbook titled MyNewWorkbook.</p>
                                         <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/workbook_worksheet_selection.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1134" data-mc-height="578" src="../Resources/Images/XD_screenshots/workbook_worksheet_selection_thumb_0_150.png" tabindex="" /></a>
                                         </p>
-                                        <h2>Understanding tables</h2>
-                                        <p><span class="GeneralCompanyNameShort">Xcalar</span> creates a dataset when you use <span class="GeneralProductName">Xcalar Design</span> to point to a data source. You access the dataset through a dataset reference created in <span class="GeneralProductName">Xcalar Design</span>. You can pull fields of interest from the dataset to create tables in a <span class="GeneralProductName">Xcalar Design</span> worksheet. More fields from the dataset can be added to an active table at any time. </p>
-                                        <p>After you create one or more tables, you can manipulate and transform data within a table (for example, by sorting or filtering) or  manipulate multiple tables to create a new table (for example, by joining).&#160;Use data operations to implement an algorithm that you design for deriving meanings from your data.  With Xcalar's True Data in Place architecture, data is pointed to at the source and analyzed without any  ETL (Extract, Transform, and Load). </p>
-                                        <p>Each table is created with a name unique in the workbook.</p>
-                                        <p>The following diagram illustrates the relationships among data sources, datasets, dataset references, and tables.</p>
+                                        <h2>Understanding data sources, datasets, and tables</h2>
+                                        <p>The raw data you want to analyze can be stored in one file, or multiple files in the same directory or different directories. The term "data source" refers to the file, files, or directory containing the raw data. For example, your data source can be an HDFS&#160;file system that your <span class="GeneralProductName3short">XDP</span> nodes can access or a file system NFS-mounted on each node of the cluster. Through reading the data at its source, <span class="GeneralProductName">Xcalar Design</span> obtains the metadata to build a dataset. This process of reading the data and building the dataset is called pointing to a data source, </p>
+                                        <p>After you point to a data source, you can pull fields of interest from the dataset to create tables in a <span class="GeneralProductName">Xcalar Design</span> worksheet. More fields from the dataset can be added to an active table at any time. </p>
+                                        <p>You can manipulate and transform data within a table (for example, by sorting or filtering) or  manipulate multiple tables, which can be in different worksheets, to create a new table (for example, by joining).&#160;Use data operations to implement an algorithm that you design for deriving meanings from your data.   With <span class="GeneralCompanyNameShort">Xcalar</span>'s True Data in Place architecture, data is pointed to and analyzed without any  ETL (Extract, Transform, and Load).</p>
+                                        <p>Each table is created with a name unique in the workbook. You can move tables between worksheets but not workbooks.</p>
+                                        <p><a name="pointToDataSource" class="ForCSH"></a>The following diagram illustrates the relationships among data sources, datasets,  and tables.</p>
                                         <p>
                                             <img src="../Resources/Images/dataset-concepts.png" />
                                         </p>
+                                        <h2>Effects of an <span class="GeneralProductName2short">XCE</span> restart on your work in <span class="GeneralProductName">Xcalar Design</span></h2>
+                                        <p>After <span class="GeneralProductName2short">XCE</span> is restarted, all workbooks become inactive. This means that you must re-activate a workbook to resume your work.</p>
+                                        <p>Re-activating a workbook in this scenario requires that <span class="GeneralProductName3short">XDP</span> can access all data sources for creating datasets used in the workbook. The path names to the data sources must be the same as before so that <span class="GeneralProductName3short">XDP</span> can rebuild the datasets in the same way as it did when you pointed to them the first time.</p>
                                         <h2>Data formats supported</h2>
                                         <p><span class="GeneralProductName">Xcalar Design</span> natively supports CSV, JSON, Excel, and raw text, and can support other formats using UDFs (user-defined functions).</p>
                                         <div class="Note"><span class="label">NOTE:</span>&#160;The CSV format includes not only comma-separated values but also other values separated by alternate delimiters. The default field delimiter is tab and the default record delimiter is newline (\n). You can select the delimiter for separating fields and for separating records. </div>
                                         <h2>How <span class="GeneralProductName">Xcalar Design</span> saves your work</h2>
                                         <p><span class="GeneralProductName">Xcalar Design</span> saves the results of all data operations as they are being completed. For example, after you filter a column, the resultant table is saved automatically. You do not have to click <span class="UIelement">Save</span>.</p>
-                                        <p>If your work is for manipulating the appearance of a table or a table column, the work is saved automatically when you sign out. However, before this automatic save, if you refresh your browser, your browser displays a message warning about unsaved changes. You must click <span class="UIelement">Save</span> to avoid losing the changes. The following screenshot shows the location of <span class="UIelement">Save</span>.</p>
-                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/save-worksheet.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="771" data-mc-height="530" src="../Resources/Images/XD_screenshots/save-worksheet_thumb_0_150.png" tabindex="" /></a>
+                                        <p>If your work is for manipulating the appearance of a table or a table column, <span class="GeneralProductName">Xcalar Design</span> automatically saves your work in these situations:</p>
+                                        <ul>
+                                            <li value="1">It saves your work every two minutes. (You can change the time interval in the <span class="UIelement">General Settings</span> window as described in <a href="../C_AdvancedTasks/K_Monitor.htm#Setting" class="MCXref xref">Setting the environment for Xcalar Design</a>.</li>
+                                            <li value="2">It saves your work when you sign out. However, before this automatic save, if you refresh your browser, your browser displays a message warning about unsaved changes. You must click <span class="UIelement">Save</span> to avoid losing the changes. The following screenshot shows the location of <span class="UIelement">Save</span>.</li>
+                                        </ul>
+                                        <p>To manually save changes, click <span class="UIelement">Save</span> as shown in the following screenshot. An asterisk displayed next to <span class="UIelement">Save</span> or in the browser tab means that there are unsaved changes. If you hover over <span class="UIelement">Save</span>, you can see a tooltip showing the time of the last save.</p>
+                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/save-worksheet.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="822" data-mc-height="565" src="../Resources/Images/XD_screenshots/save-worksheet_thumb_0_150.png" tabindex="" /></a>
                                         </p>
                                         <div class="Example"><span class="label">EXAMPLE:</span>&#160;After you hide the first table column and resize the second column, you can sign out  without clicking <span class="UIelement">Save</span>.&#160;These changes are automatically saved. However, if you refresh the browser after making these changes instead of signing out, the browser warns that you have unsaved changes. If you proceed with the browser refresh, the table in the refreshed browser does not reflect the hiding of the first column and the new width of the second column.</div>
                                         <div class="Note"><span class="label">IMPORTANT:</span>&#160;If you use the same browser window to go to another website, you can use the browser's <span class="UIelement">Back</span> button to return to <span class="GeneralProductName">Xcalar Design</span>. This causes the browser to reload the <span class="GeneralProductName">Xcalar Design</span> page, and the result is similar to a browser refresh. This means that your changes are lost. Therefore, always click <span class="UIelement">Save</span> before you use the same browser window to navigate to another website.</div>

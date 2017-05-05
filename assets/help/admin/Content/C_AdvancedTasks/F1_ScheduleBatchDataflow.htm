@@ -98,15 +98,15 @@
                                                 </li>
                                                 <li><a href="../A_GettingStarted/B2_PrepareDataSource.htm">Preparing the data source</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/C_EasySteps.htm">Easy steps for Xcalar 1.0 (with default settings)</a>
+                                                <li><a href="../A_GettingStarted/C_EasySteps.htm">Easy steps for Xcalar 1.2 (with default settings)</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/D_DetailedStepsForPointing.htm">Detailed steps for Xcalar 1.0 (with custom settings)</a>
+                                                <li><a href="../A_GettingStarted/D_DetailedStepsForPointing.htm">Detailed steps for Xcalar 1.2 (with custom settings)</a>
                                                 </li>
                                             </ul>
                                         </li>
                                         <li class="has-children"><a href="../B_CommonTasks/CommonTasks.htm">Common tasks</a>
                                             <ul class="sub-menu">
-                                                <li><a href="../B_CommonTasks/A_ManageDatasetRef.htm">Managing dataset references</a>
+                                                <li><a href="../B_CommonTasks/A_ManageDatasetRef.htm">Managing datasets</a>
                                                 </li>
                                                 <li><a href="../B_CommonTasks/B_CreateTable.htm">Creating a table</a>
                                                 </li>
@@ -140,6 +140,8 @@
                                                 </li>
                                                 <li><a href="../B_CommonTasks/P_UnderstandFNF.htm">Working with a table containing FNF</a>
                                                 </li>
+                                                <li><a href="../B_CommonTasks/Q_SearchTableOrColName.htm">Searching for a table or column</a>
+                                                </li>
                                             </ul>
                                         </li>
                                         <li class="has-children"><a href="AdvancedTasks.htm">Advanced tasks</a>
@@ -152,7 +154,7 @@
                                                 </li>
                                                 <li><a href="C1_PointWithVisualParser.htm">Using a visual parser to create a UDF</a>
                                                 </li>
-                                                <li><a href="D_FunctionBar.htm">Using the function or search bar</a>
+                                                <li><a href="D_FunctionBar.htm">Using the function  bar</a>
                                                 </li>
                                                 <li><a href="E_CreateBatchDataflow.htm">Understanding and creating batch dataflows</a>
                                                 </li>
@@ -162,7 +164,7 @@
                                                 </li>
                                                 <li><a href="G_ExportTable.htm">Exporting a table</a>
                                                 </li>
-                                                <li><a href="H_Parameterization.htm">Parameterizing queries</a>
+                                                <li><a href="H_Parameterization.htm">Parameterizing operations</a>
                                                 </li>
                                                 <li><a href="I_UnderstandMemoryUse.htm">Understanding memory usage</a>
                                                 </li>
@@ -288,7 +290,7 @@
                                                     </li>
                                                     <li><a href="C1_PointWithVisualParser.htm">Using a visual parser to create a UDF</a>
                                                     </li>
-                                                    <li><a href="D_FunctionBar.htm">Using the function or search bar</a>
+                                                    <li><a href="D_FunctionBar.htm">Using the function  bar</a>
                                                     </li>
                                                     <li><a href="E_CreateBatchDataflow.htm">Understanding and creating batch dataflows</a>
                                                     </li>
@@ -298,7 +300,7 @@
                                                     </li>
                                                     <li><a href="G_ExportTable.htm">Exporting a table</a>
                                                     </li>
-                                                    <li><a href="H_Parameterization.htm">Parameterizing queries</a>
+                                                    <li><a href="H_Parameterization.htm">Parameterizing operations</a>
                                                     </li>
                                                     <li><a href="I_UnderstandMemoryUse.htm">Understanding memory usage</a>
                                                     </li>
@@ -320,14 +322,19 @@
                                         <h1><a name="Creating"></a>Scheduling batch dataflows</h1>
                                         <p>After you create a batch dataflow, you can run the dataflow at regular intervals. (This feature is not available in <span class="GeneralProductTrialVersion">Xcalar Cloud Preview</span>.)</p>
                                         <div class="Note"><span class="label">NOTE</span>:&#160; When you manually run a batch dataflow, the result can be an exported file or table. However, running a batch dataflow automatically based on a schedule  can only result in an exported file.</div>
-                                        <p>Preparing a batch dataflow to run on schedule involve two steps, which are parameterizing the export file name and creating a schedule.</p>
+                                        <div class="Note"><span class="label">IMPORTANT</span>: Batch dataflows and their associated schedule do not persist across an <span class="GeneralProductName3short">XDP</span> restart. For example, suppose you have a batch dataflow named flightInfo that is scheduled to run daily at noon. If <span class="GeneralProductName3short">XDP</span> is restarted for any reason, you cannot find flightInfo after the restart. You must re-create the batch dataflow and its schedule. Therefore, <span class="GeneralCompanyNameShort">Xcalar</span> highly recommends that you download each batch dataflow to your computer. In this way, after <span class="GeneralProductName3short">XDP</span> is restarted, you can upload the dataflow file (flightInfo.tar.gz in this example)  and then re-create its schedule (to run daily at noon in this example).</div>
+                                        <p>Preparing a batch dataflow to run on schedule involve two steps:</p>
+                                        <ol>
+                                            <li value="1">Parameterize the export file name.</li>
+                                            <li value="2">Create a schedule for the batch dataflow.</li>
+                                        </ol>
                                         <h2><a name="Paramete"></a>Parameterizing the export file name</h2>
                                         <p>You must parameterize the export file name so that repeated runs of the batch dataflow do not overwrite the previous version of the export file. If <span class="GeneralProductName">Xcalar Design</span> detects that an export file of the same name already exists, the batch dataflow fails to run. </p>
                                         <p>Follow these steps to parameterize the export file name:</p>
                                         <ol>
                                             <li value="1">In the dataflow list, click the name of the batch dataflow to display it.</li>
                                             <li value="2">Right click the export file icon (last icon) of the batch dataflow to display a pop-up menu.</li>
-                                            <li value="3">Click Create <span class="UIelement">Parameterized Query</span> in the pop-up menu.</li>
+                                            <li value="3">Click Create <span class="UIelement">Parameterized Operation</span> in the pop-up menu.</li>
                                             <li value="4">
                                                 <p>If the <span class="UIelement">Export As</span> field is not filled in, click the <span class="UIelement">Default value</span> button to automatically add the default export file name in the field as shown in the following screenshot.</p>
                                                 <p>
@@ -335,12 +342,12 @@
                                                 </p>
                                             </li>
                                             <li value="5">
-                                                <p>In the <span class="UIelement">Parameterize Query</span> window, click and drag the <span class="UIelement">N</span> parameter to the file name shown in the <span class="UIelement">Export As</span> field. This parameter is a system parameter. By default, its value starts at 0 and is incremented by 1 each time the query is run.</p>
+                                                <p>In the <span class="UIelement">Parameterize Operation</span> window, click and drag the <span class="UIelement">N</span> parameter to the file name shown in the <span class="UIelement">Export As</span> field. This parameter is a system parameter. Its initial value is 0 and is incremented by 1 each time the operation is run.</p>
                                                 <div class="Example"><span class="label">EXAMPLE</span>: If the export file name is export-airlines#XS366.csv, you can drag the <span class="state">N</span> parameter to the name so that the name becomes export-airlines&lt;N&gt;#XS366.csv. Running the batch dataflow the first time creates a file named export-airlines0#XS366.csv, running it the second time creates export-airlines1#XS366.csv, and so on.</div>
                                             </li>
                                             <li value="6">Click <span class="UIelement">SAVE</span>.</li>
                                         </ol>
-                                        <p>For more information about parameterization, see <a href="H_Parameterization.htm" class="MCXref xref">Parameterizing queries</a>.</p>
+                                        <p>For more information about parameterization, see <a href="H_Parameterization.htm" class="MCXref xref">Parameterizing operations</a>.</p>
                                         <h2><a name="Specifying" class="ForCSH"></a>Specifying a schedule</h2>
                                         <p>Follow these steps to create a schedule for a batch dataflow:</p>
                                         <ol>
@@ -353,37 +360,35 @@
                                                 <p>You can specify a schedule in either simple mode as described in this step or in advanced mode as described in step 3. (Advanced mode is recommended only for users familiar with the cron utility on UNIX systems.)</p>
                                                 <p>Specify the following information in the <span class="UIelement">Create New Schedule</span> panel. See the screenshot following the list for more information about how to specify the information.</p>
                                                 <ul>
-                                                    <li value="1">The start time through a calendar and a 12-hour clock, which determines the first time the batch dataflow will be run. The time specified is based on the server time, not your browser time. The time specified must be in the future. </li>
+                                                    <li value="1">The start time, which is set by a calendar and a 12-hour clock. It determines the first time the batch dataflow will be run. The time is in UTC; it is not your browser time. You must specify a time in the future. To check the current UTC&#160;time, see the time displayed in the upper right corner of the window. </li>
                                                     <li value="2">How often the batch dataflow is run.</li>
                                                 </ul>
-                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/batch-dataflow-scheduling.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1174" data-mc-height="745" src="../Resources/Images/XD_screenshots/batch-dataflow-scheduling_thumb_0_150.png" tabindex="" /></a>
+                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/batch-dataflow-scheduling.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="904" data-mc-height="791" src="../Resources/Images/XD_screenshots/batch-dataflow-scheduling_thumb_0_150.png" tabindex="" /></a>
                                                 </p>
                                                 <p>Go to step 4.</p>
                                             </li>
                                             <li value="3">
                                                 <p>To specify a schedule in advanced mode, enter a cron expression in the <span class="UIelement">Schedule</span> field. Then click <span class="UIelement">SIMULATE</span>. The <span class="UIelement">Last Run</span> and <span class="UIelement">Next Run</span> fields display the times when two consecutive runs can take place. These times help you visualize the interval between any two runs if the batch dataflow is executed according to your schedule.</p>
                                                 <div class="Note"><span class="label">IMPORTANT</span>:&#160;The cron expression in this window allows only asterisk, digit, forward slash, comma, and hyphen. Do not use other characters even though they are valid  on other UNIX&#160;systems. </div>
-                                                <p>In the following example, the batch dataflow runs every minute, every day, starting at 4 p.m. until 4:59 p.m. </p>
-                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/batch-dataflow-schedule-advanced.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1170" data-mc-height="742" src="../Resources/Images/XD_screenshots/batch-dataflow-schedule-advanced_thumb_0_150.png" tabindex="" /></a>
+                                                <p>In the following example, the batch dataflow runs every minute, every day, starting at 4 p.m. until 4:59 p.m. The time specified in the cron expression is the server time.</p>
+                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/batch-dataflow-schedule-advanced.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1074" data-mc-height="576" src="../Resources/Images/XD_screenshots/batch-dataflow-schedule-advanced_thumb_0_150.png" tabindex="" /></a>
                                                 </p>
                                             </li>
-                                            <li value="4">Click <span class="UIelement">SAVE</span>. This schedule is now associated with the batch dataflow.</li>
+                                            <li value="4">Click <span class="UIelement">SAVE</span>. This schedule is now associated with the batch dataflow. The <span class="UIelement">Schedule Detail</span> window is displayed.</li>
                                         </ol>
                                         <div class="Note"><span class="label">NOTE</span>:&#160;After you create a schedule, you cannot modify it. If you want to apply a different schedule to the batch dataflow, delete the schedule and create a new one.</div>
                                         <div class="Note"><span class="label">IMPORTANT</span>:&#160;The batch dataflow can run only if the export file name is parameterized. If you have not parameterized the name already, follow the instructions in <a href="#Paramete" class="MCXref xref selected">Parameterizing the export file name</a>.</div>
                                         <h2>Deleting a batch dataflow schedule</h2>
                                         <p>Follow these steps to delete a batch dataflow schedule:</p>
                                         <ol>
-                                            <li value="1">
-                                                <p>In the dataflow list, click <img src="../Resources/Images/XD_assets/xd-schedules.png" /> for the selected batch dataflow. </p>
-                                            </li>
-                                            <li value="2">
-                                                <p>Click the Delete icon as shown in the following screenshot.</p>
-                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/batch-dataflow-schedule-delete.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1108" data-mc-height="774" src="../Resources/Images/XD_screenshots/batch-dataflow-schedule-delete_thumb_0_150.png" tabindex="" /></a>
-                                                </p>
-                                            </li>
-                                            <li value="3">When the confirmation message is displayed, click <span class="state">CONFIRM</span>.</li>
+                                            <li value="1">In the dataflow list, click <img src="../Resources/Images/XD_assets/xd-schedules.png" /> for the selected batch dataflow. The <span class="UIelement">Schedule Detail</span> window is displayed.</li>
+                                            <li value="2">Click <span class="UIelement">DELETE</span> in the <span class="UIelement">Schedule Detail</span> window.</li>
+                                            <li value="3">When the confirmation message is displayed, click <span class="state">CONFIRM</span>. (You cannot undo a schedule deletion.)</li>
                                         </ol>
+                                        <h2>Displaying run information</h2>
+                                        <p>For each batch dataflow that has a schedule, you can display a history of the runs. The following screenshot shows an example of the Schedule Detail window with the run information.</p>
+                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/batch-dataflow-run-info.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1163" data-mc-height="593" src="../Resources/Images/XD_screenshots/batch-dataflow-run-info_thumb_0_150.png" tabindex="" /></a>
+                                        </p>
                                     </div>
                                     <p><a href="#Top" class="selected">Go to top</a>
                                     </p>

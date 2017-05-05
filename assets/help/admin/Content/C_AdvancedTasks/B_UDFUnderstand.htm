@@ -98,15 +98,15 @@
                                                 </li>
                                                 <li><a href="../A_GettingStarted/B2_PrepareDataSource.htm">Preparing the data source</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/C_EasySteps.htm">Easy steps for Xcalar 1.0 (with default settings)</a>
+                                                <li><a href="../A_GettingStarted/C_EasySteps.htm">Easy steps for Xcalar 1.2 (with default settings)</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/D_DetailedStepsForPointing.htm">Detailed steps for Xcalar 1.0 (with custom settings)</a>
+                                                <li><a href="../A_GettingStarted/D_DetailedStepsForPointing.htm">Detailed steps for Xcalar 1.2 (with custom settings)</a>
                                                 </li>
                                             </ul>
                                         </li>
                                         <li class="has-children"><a href="../B_CommonTasks/CommonTasks.htm">Common tasks</a>
                                             <ul class="sub-menu">
-                                                <li><a href="../B_CommonTasks/A_ManageDatasetRef.htm">Managing dataset references</a>
+                                                <li><a href="../B_CommonTasks/A_ManageDatasetRef.htm">Managing datasets</a>
                                                 </li>
                                                 <li><a href="../B_CommonTasks/B_CreateTable.htm">Creating a table</a>
                                                 </li>
@@ -140,6 +140,8 @@
                                                 </li>
                                                 <li><a href="../B_CommonTasks/P_UnderstandFNF.htm">Working with a table containing FNF</a>
                                                 </li>
+                                                <li><a href="../B_CommonTasks/Q_SearchTableOrColName.htm">Searching for a table or column</a>
+                                                </li>
                                             </ul>
                                         </li>
                                         <li class="has-children"><a href="AdvancedTasks.htm">Advanced tasks</a>
@@ -152,7 +154,7 @@
                                                 </li>
                                                 <li><a href="C1_PointWithVisualParser.htm">Using a visual parser to create a UDF</a>
                                                 </li>
-                                                <li><a href="D_FunctionBar.htm">Using the function or search bar</a>
+                                                <li><a href="D_FunctionBar.htm">Using the function  bar</a>
                                                 </li>
                                                 <li><a href="E_CreateBatchDataflow.htm">Understanding and creating batch dataflows</a>
                                                 </li>
@@ -162,7 +164,7 @@
                                                 </li>
                                                 <li><a href="G_ExportTable.htm">Exporting a table</a>
                                                 </li>
-                                                <li><a href="H_Parameterization.htm">Parameterizing queries</a>
+                                                <li><a href="H_Parameterization.htm">Parameterizing operations</a>
                                                 </li>
                                                 <li><a href="I_UnderstandMemoryUse.htm">Understanding memory usage</a>
                                                 </li>
@@ -288,7 +290,7 @@
                                                     </li>
                                                     <li><a href="C1_PointWithVisualParser.htm">Using a visual parser to create a UDF</a>
                                                     </li>
-                                                    <li><a href="D_FunctionBar.htm">Using the function or search bar</a>
+                                                    <li><a href="D_FunctionBar.htm">Using the function  bar</a>
                                                     </li>
                                                     <li><a href="E_CreateBatchDataflow.htm">Understanding and creating batch dataflows</a>
                                                     </li>
@@ -298,7 +300,7 @@
                                                     </li>
                                                     <li><a href="G_ExportTable.htm">Exporting a table</a>
                                                     </li>
-                                                    <li><a href="H_Parameterization.htm">Parameterizing queries</a>
+                                                    <li><a href="H_Parameterization.htm">Parameterizing operations</a>
                                                     </li>
                                                     <li><a href="I_UnderstandMemoryUse.htm">Understanding memory usage</a>
                                                     </li>
@@ -318,7 +320,7 @@
                                     </div>
                                     <div class="bodyProxyNarrow">
                                         <h1>Understanding UDFs</h1>
-                                        <p>Some built-in UDFs (user-defined functions) are included in default Python modules for you to enhance your data queries. You can create additional UDFs to further extend the functions of XCE. </p>
+                                        <p>Some built-in UDFs (user-defined functions) are included in default Python modules for you to enhance your operations. You can create additional UDFs to further extend the functions of XCE. </p>
                                         <h2>When to run UDFs</h2>
                                         <p>You can run UDFs in these circumstances:</p>
                                         <ul>
@@ -327,7 +329,6 @@
                                             <div class="Example"><span class="label">EXAMPLE:</span>&#160;If you want to point your data source with a format  not natively supported by <span class="GeneralProductName3">Xcalar Data Platform</span>, run a streaming UDF to convert that particular format into a natively supported format. </div>
                                             <div class="Example"><span class="label">EXAMPLE:</span>&#160;If your  data source uses a comma in field names, which is an illegal field name character in <span class="GeneralProductName">Xcalar Design</span>, run a streaming UDF to replace the comma when pointing to the data source.</div>
                                         </ul>
-                                        <p>You might need to prepare your data source before using a streaming UDF. For more information, see <a href="../A_GettingStarted/D_DetailedStepsForPointing.htm#Before" class="MCXref xref">Detailed steps for Xcalar 1.0 (with custom settings)</a>.</p>
                                         <h2>Understanding UDF names</h2>
                                         <p>Functions are defined in modules. Therefore, to uniquely identify a UDF, both the module name and function name are needed. <span class="GeneralProductName">Xcalar Design</span> shows UDF names in the following format:</p>
                                         <p>module_name:function_name</p>
@@ -338,7 +339,7 @@
                                         <ul>
                                             <li value="1">Characters can be a-z, 0-9, hyphen (-), and underscore (_).</li>
                                             <li value="2">Letters must be lowercase.</li>
-                                            <li value="3">First character must be a letter.</li>
+                                            <li value="3">First character must be a letter or an underscore.</li>
                                         </ul>
                                         <h2>Limitations and restrictions</h2>
                                         <p>The following list describes the UDF limitations and restrictions:</p>
@@ -347,7 +348,7 @@
                                             <li value="2">The Python version supported by XCE is 2.7. Do not use code in the UDF that requires a Python 3 interpreter.</li>
                                             <li value="3">The data type for values returned by a UDF is always String. (UDFs, however, can accept arguments of different data types.)</li>
                                             <li value="4">Each UDF can have up to 16 parameters.</li>
-                                            <li value="5">Python code errors occurring during queries are not reported in <span class="GeneralProductName">Xcalar Design</span>.</li>
+                                            <li value="5">Python code errors occurring during operations are not reported in <span class="GeneralProductName">Xcalar Design</span>.</li>
                                             <li value="6">UDFs do not have read or write access to the  file system including the dataset that <span class="GeneralProductName2">Xcalar Compute Engine</span> points to. </li>
                                             <li value="7">UDFs cannot make any non-local network requests. Point directly to network resources rather than connecting to them in the Python code.</li>
                                             <li value="8">UDFs cannot be used for aggregate operations.</li>
@@ -363,6 +364,10 @@
                                             <li value="1">In a UDF, you cannot invoke another uploaded module. For example, if you created and uploaded a module named <span class="UIelement">calendar</span>, you cannot invoke <span class="UIelement">calendar</span> in another module named <span class="UIelement">calendar2</span>.</li>
                                             <li value="2">You can nest functions in a Python module. However, the nested function cannot be called as a UDF in <span class="GeneralProductName">Xcalar Design</span>. For example, if the <span class="UIelement">calendar</span> module defines a function named <span class="UIelement">function1</span>, which in turn defines a function named <span class="UIelement">function2</span>, the UDF&#160;named <span class="UIelement">calendar:function1</span> is available for you to use in <span class="GeneralProductName">Xcalar Design</span>, but <span class="UIelement">function2</span> is not.</li>
                                         </ul>
+                                        <h2>Understanding autogenerated UDFs</h2>
+                                        <p>In addition to writing UDFs yourself, you can instruct <span class="GeneralProductName">Xcalar Design</span> to generate a UDF based on your specifications. For example, you can use the visual parser to create streaming UDFs as described in <a href="C1_PointWithVisualParser.htm" class="MCXref xref">Using a visual parser to create a UDF</a>. </p>
+                                        <p>Because UDFs are shared among all users, you might see a long list of UDFs generated by <span class="GeneralProductName">Xcalar Design</span> in the <span class="UIelement">User Defined Function</span> panel, which might not be relevant to you. To reduce the clutter, you can use an option in the <span class="UIelement">General Settings</span> window that hides the autogenerated UDFs.&#160;For more information about changing a setting, see <a href="K_Monitor.htm#Setting" class="MCXref xref">Setting the environment for Xcalar Design</a>. The hidden UDFs continue to be available for you to use.</p>
+                                        <p>&#160;</p>
                                     </div>
                                     <p><a href="#Top" class="selected">Go to top</a>
                                     </p>

@@ -98,15 +98,15 @@
                                                 </li>
                                                 <li><a href="../A_GettingStarted/B2_PrepareDataSource.htm">Preparing the data source</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/C_EasySteps.htm">Easy steps for Xcalar 1.0 (with default settings)</a>
+                                                <li><a href="../A_GettingStarted/C_EasySteps.htm">Easy steps for Xcalar 1.2 (with default settings)</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/D_DetailedStepsForPointing.htm">Detailed steps for Xcalar 1.0 (with custom settings)</a>
+                                                <li><a href="../A_GettingStarted/D_DetailedStepsForPointing.htm">Detailed steps for Xcalar 1.2 (with custom settings)</a>
                                                 </li>
                                             </ul>
                                         </li>
                                         <li class="has-children"><a href="../B_CommonTasks/CommonTasks.htm">Common tasks</a>
                                             <ul class="sub-menu">
-                                                <li><a href="../B_CommonTasks/A_ManageDatasetRef.htm">Managing dataset references</a>
+                                                <li><a href="../B_CommonTasks/A_ManageDatasetRef.htm">Managing datasets</a>
                                                 </li>
                                                 <li><a href="../B_CommonTasks/B_CreateTable.htm">Creating a table</a>
                                                 </li>
@@ -140,6 +140,8 @@
                                                 </li>
                                                 <li><a href="../B_CommonTasks/P_UnderstandFNF.htm">Working with a table containing FNF</a>
                                                 </li>
+                                                <li><a href="../B_CommonTasks/Q_SearchTableOrColName.htm">Searching for a table or column</a>
+                                                </li>
                                             </ul>
                                         </li>
                                         <li class="has-children"><a href="AdvancedTasks.htm">Advanced tasks</a>
@@ -152,7 +154,7 @@
                                                 </li>
                                                 <li><a href="C1_PointWithVisualParser.htm">Using a visual parser to create a UDF</a>
                                                 </li>
-                                                <li><a href="D_FunctionBar.htm">Using the function or search bar</a>
+                                                <li><a href="D_FunctionBar.htm">Using the function  bar</a>
                                                 </li>
                                                 <li><a href="E_CreateBatchDataflow.htm">Understanding and creating batch dataflows</a>
                                                 </li>
@@ -162,7 +164,7 @@
                                                 </li>
                                                 <li><a href="#" class="selected">Exporting a table</a>
                                                 </li>
-                                                <li><a href="H_Parameterization.htm">Parameterizing queries</a>
+                                                <li><a href="H_Parameterization.htm">Parameterizing operations</a>
                                                 </li>
                                                 <li><a href="I_UnderstandMemoryUse.htm">Understanding memory usage</a>
                                                 </li>
@@ -288,7 +290,7 @@
                                                     </li>
                                                     <li><a href="C1_PointWithVisualParser.htm">Using a visual parser to create a UDF</a>
                                                     </li>
-                                                    <li><a href="D_FunctionBar.htm">Using the function or search bar</a>
+                                                    <li><a href="D_FunctionBar.htm">Using the function  bar</a>
                                                     </li>
                                                     <li><a href="E_CreateBatchDataflow.htm">Understanding and creating batch dataflows</a>
                                                     </li>
@@ -298,7 +300,7 @@
                                                     </li>
                                                     <li><a href="#" class="selected">Exporting a table</a>
                                                     </li>
-                                                    <li><a href="H_Parameterization.htm">Parameterizing queries</a>
+                                                    <li><a href="H_Parameterization.htm">Parameterizing operations</a>
                                                     </li>
                                                     <li><a href="I_UnderstandMemoryUse.htm">Understanding memory usage</a>
                                                     </li>
@@ -326,8 +328,13 @@
                                             <li value="1">Manually export a table from the table drop-down menu. </li>
                                             <li value="2">Automatically export a table resulting from running a batch dataflow. For more information about batch dataflows, see <a href="F_UseBatchDataflow.htm" class="MCXref xref">Using batch dataflows</a>.</li>
                                         </ul>
-                                        <h2>Where tables are exported</h2>
-                                        <p>By default, tables are exported to export files in a subdirectory in the /mnt/xcalar/export directory, which is called the default export target. You can, however, create export targets for different export files. An export target specifies both the location of the export directory  and whether a UDF is used to process the tables before the tables are saved to the export files.</p>
+                                        <h2><a name="Where"></a>Where tables are exported</h2>
+                                        <p>Tables are exported to the default export target. The path to the default export target might vary from one <span class="GeneralCompanyNameShort">Xcalar</span> installation to another. To determine your default export target, follow these steps:</p>
+                                        <ol>
+                                            <li value="1">Click the <span class="UIelement">Export Targets</span> icon (under the <span class="UIelement">Data Store</span> icon)&#160;in the <span class="GeneralProductName">Xcalar Design</span> toolbar.</li>
+                                            <li value="2">In the <span class="UIelement">Export Targets</span> panel,  click the icon for export target named Default.</li>
+                                        </ol>
+                                        <p>You can create additional export targets for different export files. For each export target you create, you can specify both the location of the export directory  and whether a UDF is used to process the table before the table is saved to the export target. To create a target, see <a href="#Creating" class="MCXref xref selected">Creating an export target</a>.</p>
                                         <p>When you export a table automatically by running a batch dataflow, the table can be exported to the default export target only. When you manually export a table, you can choose to use the default target or a user-defined target.</p>
                                         <h2>How export files are named</h2>
                                         <p>If you manually export a table, a default name of the export file is provided in the <span class="UIelement">EXPORT&#160;TABLES</span>&#160;panel. If you run a batch dataflow to export the resultant table, the default export file name is shown below the  exported table icon of the batch dataflow graph. (The exported table icon is the last table icon in the graph.)</p>
@@ -358,7 +365,7 @@
                                                 <div class="Note"><span class="label">IMPORTANT:</span>&#160;This directory must be accessible to all nodes of your cluster.</div>
                                             </li>
                                             <li value="2">Click <img src="../Resources/Images/XD_assets/xd-datastores.png" /> to expand the icons for Data Stores. Then click <img src="../Resources/Images/XD_assets/xd-datastores-out.png" /> to display the <span class="UIelement">Export Target</span> panel and the <span class="UIelement">Create Export Target</span> window, The following screenshot shows the location of the Data Stores icons.</li>
-                                            <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/datastores-icon-out.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1128" data-mc-height="557" src="../Resources/Images/XD_screenshots/datastores-icon-out_thumb_0_150.png" tabindex="" /></a>
+                                            <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/datastores-icon-out.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1035" data-mc-height="578" src="../Resources/Images/XD_screenshots/datastores-icon-out_thumb_0_150.png" tabindex="" /></a>
                                             </p>
                                             <li value="3">In the <span class="UIelement">Create Export Target</span> window, the information about the default export target is displayed. To create a target, click <img src="../Resources/Images/XD_assets/xd-create-export-target.png" /> in the <span class="UIelement">Export Targets</span> panel. The <span class="UIelement">Create Export Target</span> window now displays fields for you to define a new export target.</li>
                                             <li value="4">
@@ -399,8 +406,8 @@
                                                 <ul>
                                                     <li value="1">Table to Export:&#160;If the table displayed is not the one you want to export, use the Down arrow to display a list of tables in the active worksheet and select the table from the list.</li>
                                                     <li value="2">Export filename:&#160;Specify a unique name for the export file.</li>
-                                                    <li value="3">Export Location:&#160;It is the export target to be used for exporting the table. Use the Down arrow to display a list of targets that have been created.</li>
-                                                    <li value="4">Columns to export:&#160;By default, all columns are exported. You can select only a few columns. </li>
+                                                    <li value="3">Export Location:&#160;It is the export target to be used for exporting the table. Use the Down arrow to display a list of targets that you have created. Select the export target named Default if you want to use the default export target. To determine the location of the default export target, see <a href="#Where" class="MCXref xref selected">Where tables are exported</a>. </li>
+                                                    <li value="4">Columns to export:&#160;By default, all columns are exported. You can specify that only particular columns are included in the exported file. </li>
                                                 </ul>
                                             </li>
                                             <li value="4">

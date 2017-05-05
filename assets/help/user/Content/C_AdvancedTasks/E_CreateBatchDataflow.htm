@@ -98,15 +98,15 @@
                                                 </li>
                                                 <li><a href="../A_GettingStarted/B2_PrepareDataSource.htm">Preparing the data source</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/C_EasySteps.htm">Easy steps for Xcalar 1.0 (with default settings)</a>
+                                                <li><a href="../A_GettingStarted/C_EasySteps.htm">Easy steps for Xcalar 1.2 (with default settings)</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/D_DetailedStepsForPointing.htm">Detailed steps for Xcalar 1.0 (with custom settings)</a>
+                                                <li><a href="../A_GettingStarted/D_DetailedStepsForPointing.htm">Detailed steps for Xcalar 1.2 (with custom settings)</a>
                                                 </li>
                                             </ul>
                                         </li>
                                         <li class="has-children"><a href="../B_CommonTasks/CommonTasks.htm">Common tasks</a>
                                             <ul class="sub-menu">
-                                                <li><a href="../B_CommonTasks/A_ManageDatasetRef.htm">Managing dataset references</a>
+                                                <li><a href="../B_CommonTasks/A_ManageDatasetRef.htm">Managing datasets</a>
                                                 </li>
                                                 <li><a href="../B_CommonTasks/B_CreateTable.htm">Creating a table</a>
                                                 </li>
@@ -140,6 +140,8 @@
                                                 </li>
                                                 <li><a href="../B_CommonTasks/P_UnderstandFNF.htm">Working with a table containing FNF</a>
                                                 </li>
+                                                <li><a href="../B_CommonTasks/Q_SearchTableOrColName.htm">Searching for a table or column</a>
+                                                </li>
                                             </ul>
                                         </li>
                                         <li class="has-children"><a href="AdvancedTasks.htm">Advanced tasks</a>
@@ -152,7 +154,7 @@
                                                 </li>
                                                 <li><a href="C1_PointWithVisualParser.htm">Using a visual parser to create a UDF</a>
                                                 </li>
-                                                <li><a href="D_FunctionBar.htm">Using the function or search bar</a>
+                                                <li><a href="D_FunctionBar.htm">Using the function  bar</a>
                                                 </li>
                                                 <li><a href="#" class="selected">Understanding and creating batch dataflows</a>
                                                 </li>
@@ -162,7 +164,7 @@
                                                 </li>
                                                 <li><a href="G_ExportTable.htm">Exporting a table</a>
                                                 </li>
-                                                <li><a href="H_Parameterization.htm">Parameterizing queries</a>
+                                                <li><a href="H_Parameterization.htm">Parameterizing operations</a>
                                                 </li>
                                                 <li><a href="I_UnderstandMemoryUse.htm">Understanding memory usage</a>
                                                 </li>
@@ -286,7 +288,7 @@
                                                     </li>
                                                     <li><a href="C1_PointWithVisualParser.htm">Using a visual parser to create a UDF</a>
                                                     </li>
-                                                    <li><a href="D_FunctionBar.htm">Using the function or search bar</a>
+                                                    <li><a href="D_FunctionBar.htm">Using the function  bar</a>
                                                     </li>
                                                     <li><a href="#" class="selected">Understanding and creating batch dataflows</a>
                                                     </li>
@@ -296,7 +298,7 @@
                                                     </li>
                                                     <li><a href="G_ExportTable.htm">Exporting a table</a>
                                                     </li>
-                                                    <li><a href="H_Parameterization.htm">Parameterizing queries</a>
+                                                    <li><a href="H_Parameterization.htm">Parameterizing operations</a>
                                                     </li>
                                                     <li><a href="I_UnderstandMemoryUse.htm">Understanding memory usage</a>
                                                     </li>
@@ -335,6 +337,7 @@
                                             <li value="5">If you drop an active table, the dataflow associated with the table is also removed from <span class="GeneralProductName">Xcalar Design</span>. Table dropping cannot be undone, but if you have created a batch dataflow for this table, you can run the dataflow at any time to re-create the table.</li>
                                             <li value="6">You can export selected columns from the table or the entire table created by a batch dataflow to another application. Alternatively, you can export the result of the batch dataflow to a table, which automatically appears in your worksheet.</li>
                                         </ul>
+                                        <div class="Note"><span class="label">IMPORTANT</span>: Batch dataflows and their associated schedule do not persist across an <span class="GeneralProductName3short">XDP</span> restart. For example, suppose you have a batch dataflow named flightInfo that is scheduled to run daily at noon. If <span class="GeneralProductName3short">XDP</span> is restarted for any reason, you cannot find flightInfo after the restart. You must re-create the batch dataflow and its schedule. Therefore, <span class="GeneralCompanyNameShort">Xcalar</span> highly recommends that you download each batch dataflow to your computer. In this way, after <span class="GeneralProductName3short">XDP</span> is restarted, you can upload the dataflow file (flightInfo.tar.gz in this example)  and then re-create its schedule (to run daily at noon in this example).</div>
                                         <h2>Displaying dataflows for all active tables</h2>
                                         <p>To display the dataflows for all active tables in a worksheet, click <img src="../Resources/Images/XD_assets/xd-dataflow-graph-icon.png" /> in the lower right corner of the <span class="GeneralProductName">Xcalar Design</span> window. For more information about each element in the dataflow graph, see <a href="../D_Reference/E_DataflowGraph.htm" class="MCXref xref">Dataflow graph</a>.</p>
                                         <h2><a name="Creating"></a><a name="createBatchDataflow" class="ForCSH"></a>Creating a batch dataflow</h2>

@@ -60,6 +60,7 @@
 }
 
 </style>
+        <link href="../Resources/TableStyles/SimpleTable.css" rel="stylesheet" />
         <script src="../../Resources/Scripts/custom.modernizr.js">
         </script>
         <script src="../../Resources/Scripts/jquery.min.js">
@@ -98,15 +99,15 @@
                                                 </li>
                                                 <li><a href="../A_GettingStarted/B2_PrepareDataSource.htm">Preparing the data source</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/C_EasySteps.htm">Easy steps for Xcalar 1.0 (with default settings)</a>
+                                                <li><a href="../A_GettingStarted/C_EasySteps.htm">Easy steps for Xcalar 1.2 (with default settings)</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/D_DetailedStepsForPointing.htm">Detailed steps for Xcalar 1.0 (with custom settings)</a>
+                                                <li><a href="../A_GettingStarted/D_DetailedStepsForPointing.htm">Detailed steps for Xcalar 1.2 (with custom settings)</a>
                                                 </li>
                                             </ul>
                                         </li>
                                         <li class="has-children"><a href="CommonTasks.htm">Common tasks</a>
                                             <ul class="sub-menu">
-                                                <li><a href="A_ManageDatasetRef.htm">Managing dataset references</a>
+                                                <li><a href="A_ManageDatasetRef.htm">Managing datasets</a>
                                                 </li>
                                                 <li><a href="B_CreateTable.htm">Creating a table</a>
                                                 </li>
@@ -140,6 +141,8 @@
                                                 </li>
                                                 <li><a href="P_UnderstandFNF.htm">Working with a table containing FNF</a>
                                                 </li>
+                                                <li><a href="Q_SearchTableOrColName.htm">Searching for a table or column</a>
+                                                </li>
                                             </ul>
                                         </li>
                                         <li class="has-children"><a href="../C_AdvancedTasks/AdvancedTasks.htm">Advanced tasks</a>
@@ -152,7 +155,7 @@
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/C1_PointWithVisualParser.htm">Using a visual parser to create a UDF</a>
                                                 </li>
-                                                <li><a href="../C_AdvancedTasks/D_FunctionBar.htm">Using the function or search bar</a>
+                                                <li><a href="../C_AdvancedTasks/D_FunctionBar.htm">Using the function  bar</a>
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/E_CreateBatchDataflow.htm">Understanding and creating batch dataflows</a>
                                                 </li>
@@ -162,7 +165,7 @@
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/G_ExportTable.htm">Exporting a table</a>
                                                 </li>
-                                                <li><a href="../C_AdvancedTasks/H_Parameterization.htm">Parameterizing queries</a>
+                                                <li><a href="../C_AdvancedTasks/H_Parameterization.htm">Parameterizing operations</a>
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/I_UnderstandMemoryUse.htm">Understanding memory usage</a>
                                                 </li>
@@ -278,7 +281,7 @@
                                         <ul class="menu _Skins_SideMenu mc-component">
                                             <li class="has-children"><a href="CommonTasks.htm">Common tasks</a>
                                                 <ul class="sub-menu">
-                                                    <li><a href="A_ManageDatasetRef.htm">Managing dataset references</a>
+                                                    <li><a href="A_ManageDatasetRef.htm">Managing datasets</a>
                                                     </li>
                                                     <li><a href="B_CreateTable.htm">Creating a table</a>
                                                     </li>
@@ -312,6 +315,8 @@
                                                     </li>
                                                     <li><a href="P_UnderstandFNF.htm">Working with a table containing FNF</a>
                                                     </li>
+                                                    <li><a href="Q_SearchTableOrColName.htm">Searching for a table or column</a>
+                                                    </li>
                                                 </ul>
                                             </li>
                                         </ul>
@@ -320,7 +325,9 @@
                                     </div>
                                     <div class="bodyProxyNarrow">
                                         <h1>Changing the data type for a column</h1>
-                                        <p>After you create a dataset to point to a data source, you can create tables from the fields in the dataset. Each column in the table created is assigned a data type, which can be one of the following:</p>
+                                        <p>After you create a dataset to point to a data source, you can create tables from the fields in the dataset. Each column in the table created is assigned a data type.</p>
+                                        <h2>Understanding data types</h2>
+                                        <p>Each table column can be one of the  following data types:</p>
                                         <ul>
                                             <li value="1">String</li>
                                             <li value="2">Integer</li>
@@ -371,6 +378,96 @@
                                             <li value="5">Click <span class="UIelement">CAST</span>.</li>
                                         </ol>
                                         <div class="Example"><span class="label">TIP:</span>&#160;To display the suggestions again (for example, after you edited data types for several columns), click <span class="UIelement">DETECT</span>. Remember, however, that doing so removes columns that you added to the panel. The <span class="UIelement">SMART&#160;CAST</span> panel now contains only columns with data types suggested by <span class="GeneralProductName">Xcalar Design</span>.</div>
+                                        <h2>How strings with non-numeric characters are cast to Integer or Float</h2>
+                                        <p>When all characters in a string are valid characters in a numeric value, the characters remain unchanged after you cast the string to Integer or Float. However, if a character in the string is invalid for a numeric value, the resultant value might be different from the original value. The following table shows the results of a data type change for some string examples:</p>
+                                        <table style="width: 100%;mc-table-style: url('../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;" class="TableStyle-SimpleTable" cellspacing="0">
+                                            <col class="TableStyle-SimpleTable-Column-Column1" />
+                                            <col class="TableStyle-SimpleTable-Column-Column2" />
+                                            <col class="TableStyle-SimpleTable-Column-Column1" />
+                                            <col class="TableStyle-SimpleTable-Column-Column2" />
+                                            <thead>
+                                                <tr class="TableStyle-SimpleTable-Head-Header1">
+                                                    <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">String value before casting</th>
+                                                    <th class="TableStyle-SimpleTable-HeadE-Column2-Header1">Explanation for the string value</th>
+                                                    <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">Integer value after casting</th>
+                                                    <th class="TableStyle-SimpleTable-HeadD-Column2-Header1">Float value after casting</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">&#160;</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Empty string with no characters</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">0</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">0</td>
+                                                </tr>
+                                                <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">abc</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2"> No numbers in the entire string</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">0</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">0</td>
+                                                </tr>
+                                                <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">5</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">The number "5" preceded by one or more spaces</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">5</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">5</td>
+                                                </tr>
+                                                <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">5ab</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2"> The number "5" followed by non-numeric characters</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">5</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">5</td>
+                                                </tr>
+                                                <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">5&#160;&#160;</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">&#160;The number "5" followed by one or more spaces</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">5</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">5</td>
+                                                </tr>
+                                                <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">5 6 7 </td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Bumbers separated by spaces</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">5</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">5</td>
+                                                </tr>
+                                                <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">a5 </td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">A non-numeric character followed by the number "5"</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">FNF</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">FNF</td>
+                                                </tr>
+                                                <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">a.5 </td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">A non-numeric character followed by a period and the number "5"</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">FNF</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">FNF</td>
+                                                </tr>
+                                                <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">.6b </td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">A period followed by the number "6" and a non-numeric character</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">FNF</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">0.6</td>
+                                                </tr>
+                                                <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">0.9 </td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">The number "0" followed by a period and the number "9"</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">0</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">0.9</td>
+                                                </tr>
+                                                <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">.5 </td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">A space followed by a period and the number "5"</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">FNF</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">0.5</td>
+                                                </tr>
+                                                <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                    <td class="TableStyle-SimpleTable-BodyB-Column1-Body2">.5 </td>
+                                                    <td class="TableStyle-SimpleTable-BodyB-Column2-Body2">A period followed by the number "5"</td>
+                                                    <td class="TableStyle-SimpleTable-BodyB-Column1-Body2">FNF</td>
+                                                    <td class="TableStyle-SimpleTable-BodyA-Column2-Body2">0.5</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
                                     </div>
                                     <p><a href="#Top" class="selected">Go to top</a>
                                     </p>

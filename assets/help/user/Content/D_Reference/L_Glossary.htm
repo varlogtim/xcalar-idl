@@ -99,15 +99,15 @@
                                                 </li>
                                                 <li><a href="../A_GettingStarted/B2_PrepareDataSource.htm">Preparing the data source</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/C_EasySteps.htm">Easy steps for Xcalar 1.0 (with default settings)</a>
+                                                <li><a href="../A_GettingStarted/C_EasySteps.htm">Easy steps for Xcalar 1.2 (with default settings)</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/D_DetailedStepsForPointing.htm">Detailed steps for Xcalar 1.0 (with custom settings)</a>
+                                                <li><a href="../A_GettingStarted/D_DetailedStepsForPointing.htm">Detailed steps for Xcalar 1.2 (with custom settings)</a>
                                                 </li>
                                             </ul>
                                         </li>
                                         <li class="has-children"><a href="../B_CommonTasks/CommonTasks.htm">Common tasks</a>
                                             <ul class="sub-menu">
-                                                <li><a href="../B_CommonTasks/A_ManageDatasetRef.htm">Managing dataset references</a>
+                                                <li><a href="../B_CommonTasks/A_ManageDatasetRef.htm">Managing datasets</a>
                                                 </li>
                                                 <li><a href="../B_CommonTasks/B_CreateTable.htm">Creating a table</a>
                                                 </li>
@@ -141,6 +141,8 @@
                                                 </li>
                                                 <li><a href="../B_CommonTasks/P_UnderstandFNF.htm">Working with a table containing FNF</a>
                                                 </li>
+                                                <li><a href="../B_CommonTasks/Q_SearchTableOrColName.htm">Searching for a table or column</a>
+                                                </li>
                                             </ul>
                                         </li>
                                         <li class="has-children"><a href="../C_AdvancedTasks/AdvancedTasks.htm">Advanced tasks</a>
@@ -153,7 +155,7 @@
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/C1_PointWithVisualParser.htm">Using a visual parser to create a UDF</a>
                                                 </li>
-                                                <li><a href="../C_AdvancedTasks/D_FunctionBar.htm">Using the function or search bar</a>
+                                                <li><a href="../C_AdvancedTasks/D_FunctionBar.htm">Using the function  bar</a>
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/E_CreateBatchDataflow.htm">Understanding and creating batch dataflows</a>
                                                 </li>
@@ -163,7 +165,7 @@
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/G_ExportTable.htm">Exporting a table</a>
                                                 </li>
-                                                <li><a href="../C_AdvancedTasks/H_Parameterization.htm">Parameterizing queries</a>
+                                                <li><a href="../C_AdvancedTasks/H_Parameterization.htm">Parameterizing operations</a>
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/I_UnderstandMemoryUse.htm">Understanding memory usage</a>
                                                 </li>
@@ -334,31 +336,27 @@
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body1">
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Dataset</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">The representation of raw data and metadata that <span class="GeneralCompanyNameShort">Xcalar</span> creates when a user points to a data source. The dataset may contain all data or a sample of the data in the data source, depending on the dataset size limit that the user specifies when pointing to a data source.</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">The representation of raw data and metadata that <span class="GeneralCompanyNameShort">Xcalar</span> creates when you point to a data source. The dataset may contain all data or a sample of the data in the data source, depending on the dataset size limit that you specify when pointing to a data source. You can preview a dataset and create tables from it.</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Dataset reference</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">When you point to a data source, Xcalar creates a dataset. <span class="GeneralProductName">Xcalar Design</span> also creates an icon that provides you with a mechanism to access the dataset. The icon is called a dataset reference because it references a dataset, enabling you to preview the dataset and create tables from the dataset. It is possible to have a dataset reference without a dataset. For example, when you try to point to a data source but the pointing fails due to various reasons such as the dataset size limit being exceeded, the dataset reference is created nevertheless. This dataset reference simply gives you a convenient way to re-point to the data source. </td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Data source</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">The file containing raw data or the directory containing files with raw data that is being pointed to by <span class="GeneralProductName2short">XCE</span>. </td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Data source</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">The file containing raw data or the directory containing files with raw data that is being pointed to by <span class="GeneralProductName2short">XCE</span>. </td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Drop a table</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Dropping a table means completely removing the table (not just its contents) from a worksheet (for example, to conserve memory). This action is not reversible. It is not equivalent to "delete a table"  in SQL.</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Drop a table</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">Dropping a table means completely removing the table (not just its contents) from a worksheet (for example, to conserve memory). This action is not reversible. It is not equivalent to "delete a table"  in SQL.</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Export</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">This is the process for copying a table in <span class="GeneralProductName">Xcalar Design</span> (for example, a resultant table created by an operationalized dataflow) to a location for another application to use.</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Export</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">This is the process for copying a table in <span class="GeneralProductName">Xcalar Design</span> (for example, a resultant table created by an operationalized dataflow) to a location for another application to use.</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Function</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">A function defined by Xcalar is an XDF (Xcalar defined function) and a function defined by the user is a UDF (user defined function). You execute a function to either transform or extract data (for example, to find the average, to filter, and so on).</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Function</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">A function defined by Xcalar is an XDF (Xcalar defined function) and a function defined by the user is a UDF (user defined function). You execute a function to either transform or extract data (for example, to find the average, to filter, and so on).</td>
-                                                </tr>
-                                                <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Modeling</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Modeling</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">
                                                         <p>One or all of these tasks:</p>
                                                         <ul>
                                                             <li value="1">synthesizing a schema</li>
@@ -370,49 +368,49 @@
                                                         <p><span class="GeneralCompanyNameShort">Xcalar</span> will expand this list of supported modeling tasks in future releases.</p>
                                                     </td>
                                                 </tr>
+                                                <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Node</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">The physical or virtual execution environment that is a member of a cluster, for example, a server or a virtual machine running Linux.</td>
+                                                </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Node</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">The physical or virtual execution environment that is a member of a cluster, for example, a server or a virtual machine running Linux.</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Operation</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">A database operation, which is an overall process to accomplish a transformation. For example, "group by" is an operation. An operation can include one or multiple functions. For example, a map operation can contain a function that means, "If a value in column X is greater than 100, create a new column called Bad-percent, which is True, else set value in new column to False."</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Operation</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">A database operation, which is an overall process to accomplish a transformation. For example, "group by" is an operation. An operation can include one or multiple functions. For example, a map operation can contain a function that means, "If a value in column X is greater than 100, create a new column called Bad-percent, which is True, else set value in new column to False."</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1"><a name="Operationalizing"></a>Operationalizing batch dataflows</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">For Xcalar to meet SLOs (Service Level Objectives), customers need to contact Xcalar professional services who will do performance tuning on their batch dataflows. These batch dataflows, after being tuned, are called operationalized batch dataflows. </td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2"><a name="Operationalizing"></a>Operationalizing batch dataflows</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">For Xcalar to meet SLOs (Service Level Objectives), customers need to contact Xcalar professional services who will do performance tuning on their batch dataflows. These batch dataflows, after being tuned, are called operationalized batch dataflows. </td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Point to data</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">The first thing you do when you use <span class="GeneralProductName2short">XCE</span> to demystify your data. It means using <span class="GeneralProductName">Xcalar Design</span> to create a dataset, which lets you preview the data and create tables from the data.</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Point to data</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">The first thing you do when you use <span class="GeneralProductName2short">XCE</span> to demystify your data. It means using <span class="GeneralProductName">Xcalar Design</span> to create the dataset reference, which lets you preview the dataset and create tables from the dataset.</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Query</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">A request for information from a database. You need the information to answer your particular question.</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Query</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">A request for information from a database. You need the information to answer your particular question.</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Sample</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">Collection of records from the data source on which you can interactively model your dataflow. </td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Sample</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Collection of records from the data source on which you can interactively model your dataflow. </td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Session</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">A session is the same as a workbook in <span class="GeneralProductName">Xcalar Design</span>. It does not refer  to a user's login. Sessions are visible only to the cluster administrator when the administrator views information about workbooks on the <span class="GeneralProductName2short">XCE</span> nodes.</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Session</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">A session is the same as a workbook in <span class="GeneralProductName">Xcalar Design</span>. It does not refer  to a user's login. Sessions are visible only to the cluster administrator when the administrator views information about workbooks on the <span class="GeneralProductName2short">XCE</span> nodes.</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2"><span class="GeneralProductName2">Xcalar Compute Engine</span> (<span class="GeneralProductName2short">XCE</span>)</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">The engine that does the computing. Users interact with <span class="GeneralProductName2short">XCE</span> through <span class="GeneralProductName">Xcalar Design</span>.</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1"><span class="GeneralProductName2">Xcalar Compute Engine</span> (<span class="GeneralProductName2short">XCE</span>)</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">The engine that does the computing. Users interact with <span class="GeneralProductName2short">XCE</span> through <span class="GeneralProductName">Xcalar Design</span>.</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1"><span class="GeneralProductName3">Xcalar Data Platform</span> (<span class="GeneralProductName3short">XDP</span>)</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1"><span class="GeneralCompanyNameShort">Xcalar</span> product consisting of these components: <span class="GeneralProductName">Xcalar Design</span>, and <span class="GeneralProductName2">Xcalar Compute Engine</span>.</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2"><span class="GeneralProductName3">Xcalar Data Platform</span> (<span class="GeneralProductName3short">XDP</span>)</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2"><span class="GeneralCompanyNameShort">Xcalar</span> product consisting of these components: <span class="GeneralProductName">Xcalar Design</span>, and <span class="GeneralProductName2">Xcalar Compute Engine</span>.</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2"><span class="GeneralProductName">Xcalar Design</span> <![CDATA[ ]]></td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">The graphical user interface that users use to do interactive data modeling. </td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1"><span class="GeneralProductName">Xcalar Design</span> <![CDATA[ ]]></td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">The graphical user interface that users use to do interactive data modeling. </td>
-                                                </tr>
-                                                <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                    <td class="TableStyle-SimpleTable-BodyB-Column1-Body2"><span class="GeneralProductName2short">XCE</span> server (or <span class="GeneralProductName2">Xcalar Compute Engine</span> server)</td>
-                                                    <td class="TableStyle-SimpleTable-BodyA-Column2-Body2">An instance of <span class="GeneralProductName2short">XCE</span>. </td>
+                                                    <td class="TableStyle-SimpleTable-BodyB-Column1-Body1"><span class="GeneralProductName2short">XCE</span> server (or <span class="GeneralProductName2">Xcalar Compute Engine</span> server)</td>
+                                                    <td class="TableStyle-SimpleTable-BodyA-Column2-Body1">An instance of <span class="GeneralProductName2short">XCE</span>. </td>
                                                 </tr>
                                             </tbody>
                                         </table>

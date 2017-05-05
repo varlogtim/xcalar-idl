@@ -98,15 +98,15 @@
                                                 </li>
                                                 <li><a href="../A_GettingStarted/B2_PrepareDataSource.htm">Preparing the data source</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/C_EasySteps.htm">Easy steps for Xcalar 1.0 (with default settings)</a>
+                                                <li><a href="../A_GettingStarted/C_EasySteps.htm">Easy steps for Xcalar 1.2 (with default settings)</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/D_DetailedStepsForPointing.htm">Detailed steps for Xcalar 1.0 (with custom settings)</a>
+                                                <li><a href="../A_GettingStarted/D_DetailedStepsForPointing.htm">Detailed steps for Xcalar 1.2 (with custom settings)</a>
                                                 </li>
                                             </ul>
                                         </li>
                                         <li class="has-children"><a href="../B_CommonTasks/CommonTasks.htm">Common tasks</a>
                                             <ul class="sub-menu">
-                                                <li><a href="../B_CommonTasks/A_ManageDatasetRef.htm">Managing dataset references</a>
+                                                <li><a href="../B_CommonTasks/A_ManageDatasetRef.htm">Managing datasets</a>
                                                 </li>
                                                 <li><a href="../B_CommonTasks/B_CreateTable.htm">Creating a table</a>
                                                 </li>
@@ -140,6 +140,8 @@
                                                 </li>
                                                 <li><a href="../B_CommonTasks/P_UnderstandFNF.htm">Working with a table containing FNF</a>
                                                 </li>
+                                                <li><a href="../B_CommonTasks/Q_SearchTableOrColName.htm">Searching for a table or column</a>
+                                                </li>
                                             </ul>
                                         </li>
                                         <li class="has-children"><a href="AdvancedTasks.htm">Advanced tasks</a>
@@ -152,7 +154,7 @@
                                                 </li>
                                                 <li><a href="C1_PointWithVisualParser.htm">Using a visual parser to create a UDF</a>
                                                 </li>
-                                                <li><a href="D_FunctionBar.htm">Using the function or search bar</a>
+                                                <li><a href="D_FunctionBar.htm">Using the function  bar</a>
                                                 </li>
                                                 <li><a href="E_CreateBatchDataflow.htm">Understanding and creating batch dataflows</a>
                                                 </li>
@@ -162,7 +164,7 @@
                                                 </li>
                                                 <li><a href="G_ExportTable.htm">Exporting a table</a>
                                                 </li>
-                                                <li><a href="H_Parameterization.htm">Parameterizing queries</a>
+                                                <li><a href="H_Parameterization.htm">Parameterizing operations</a>
                                                 </li>
                                                 <li><a href="I_UnderstandMemoryUse.htm">Understanding memory usage</a>
                                                 </li>
@@ -288,7 +290,7 @@
                                                     </li>
                                                     <li><a href="C1_PointWithVisualParser.htm">Using a visual parser to create a UDF</a>
                                                     </li>
-                                                    <li><a href="D_FunctionBar.htm">Using the function or search bar</a>
+                                                    <li><a href="D_FunctionBar.htm">Using the function  bar</a>
                                                     </li>
                                                     <li><a href="E_CreateBatchDataflow.htm">Understanding and creating batch dataflows</a>
                                                     </li>
@@ -298,7 +300,7 @@
                                                     </li>
                                                     <li><a href="G_ExportTable.htm">Exporting a table</a>
                                                     </li>
-                                                    <li><a href="H_Parameterization.htm">Parameterizing queries</a>
+                                                    <li><a href="H_Parameterization.htm">Parameterizing operations</a>
                                                     </li>
                                                     <li><a href="I_UnderstandMemoryUse.htm">Understanding memory usage</a>
                                                     </li>
@@ -322,36 +324,89 @@
                                         <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/monitor-icon-location.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="672" data-mc-height="461" src="../Resources/Images/XD_screenshots/monitor-icon-location_thumb_0_150.png" tabindex="" /></a>
                                         </p>
                                         <div class="Note" data-mc-conditions="General.Admin help"><span class="label">NOTE:</span>&#160;If you log in as administrator, a <span class="UIelement">Setup</span> icon (<img src="../Resources/Images/XD_assets/xd-monitor-setup.png" />) is available in the Monitor. See <a href="L_UseSetup.htm" class="MCXref xref">Using Setup (XDP administrators only)</a> for information about how to set up the cluster through this icon.</div>
-                                        <h2><a name="Monitoring" class="ForCSH"></a>Monitoring query status</h2>
-                                        <p><span class="GeneralProductName">Xcalar Design</span> keeps a record of all operations since you logged in and displays information about them. The operations include the ones you have undone. Follow these steps to display query status:</p>
+                                        <h2><a name="Monitoring" class="ForCSH"></a>Monitoring operation status</h2>
+                                        <p><span class="GeneralProductName">Xcalar Design</span> keeps a record of all operations since you logged in and displays information about them. The operations include the ones you have undone. Follow these steps to display operation status:</p>
                                         <ol>
                                             <li value="1">
-                                                <p>Click <img src="../Resources/Images/XD_assets/xd-monitor.png" /> to start the Monitor. By default, the <span class="UIelement">Queries</span> panel is displayed. The following screenshot illustrates the icons in the <span class="UIelement">Queries</span> panel that control how the list of queries are displayed.</p>
-                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/monitor-queries-panel.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1201" data-mc-height="644" src="../Resources/Images/XD_screenshots/monitor-queries-panel_thumb_0_150.png" tabindex="" /></a>
+                                                <p>Click <img src="../Resources/Images/XD_assets/xd-monitor.png" /> to start the Monitor. By default, the <span class="UIelement">Operations</span> panel is displayed. The following screenshot illustrates the icons in the <span class="UIelement">Operations</span> panel that control how the list of operations are displayed.</p>
+                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/monitor-queries-panel.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1219" data-mc-height="644" src="../Resources/Images/XD_screenshots/monitor-queries-panel_thumb_0_150.png" tabindex="" /></a>
                                                 </p>
-                                                <div class="Note"><span class="label">NOTE:</span>&#160;The icon for removing a query only affects the queries list in the <span class="UIelement">Queries</span> panel. It does not affect the output of the query.&#160;For example, a table created by a Filter function remains in the worksheet even after you remove the Filter function from the <span class="UIelement">Queries</span> panel.</div>
+                                                <div class="Note"><span class="label">NOTE:</span>&#160;The icon for removing an operation only affects the operation list in the <span class="UIelement">Operations</span> panel. It does not affect the output of the operation.&#160;For example, a table created by a Filter function remains in the worksheet even after you remove the Filter function from the <span class="UIelement">Operations</span> panel.</div>
                                             </li>
-                                            <li value="2">Select a query in the panel to see detailed information about it. For example, you can see how long the operation took to complete. </li>
+                                            <li value="2">Select an operation in the panel to see detailed information about it. For example, you can see how long the operation took to complete. </li>
                                             <li value="3">
-                                                <p>You can click <span class="UIelement">VIEW&#160;OUTPUT</span> to go to the table in the worksheet. If it is a hidden table, it is added back to the worksheet as an active table. You cannot click <span class="UIelement">VIEW&#160;OUTPUT</span> if the output of a query is a table that has been dropped. </p>
-                                                <div class="Note"><span class="label">NOTE:</span>&#160;Because a query that has been undone is preserved in the list of queries, you can select an undone query to find its output, and then put the temporary table created by the query back to the worksheet.</div>
+                                                <p>You can click <span class="UIelement">VIEW&#160;OUTPUT</span> to go to the table in the worksheet. If it is a hidden table, it is added back to the worksheet as an active table. You cannot click <span class="UIelement">VIEW&#160;OUTPUT</span> if the output of an operation is a table that has been dropped. </p>
+                                                <div class="Note"><span class="label">NOTE:</span>&#160;Because an operation that has been undone is preserved in the list of operations, you can select an undone operation to find its output, and then put the temporary table created by the operation back to the worksheet.</div>
                                             </li>
                                         </ol>
-                                        <h3>Canceling a query</h3>
-                                        <p>If for any reason you want to terminate a query that is in progress, display the running queries in the <span class="UIelement">Queries</span> panel. Select the one you want to terminate and then click the Cancel icon either in the <span class="UIelement">Queries</span> panel or the <span class="UIelement">Detail of Query</span> window. The following screenshot shows an operation (pointing to a data source) in progress and the location of the icon for terminating the operation.</p>
+                                        <h3>Canceling an operation</h3>
+                                        <p>If for any reason you want to terminate an operation that is in progress, display the running operations in the <span class="UIelement">Operations</span> panel. Select the one you want to terminate and then click the Cancel icon either in the <span class="UIelement">Operations</span> panel or the <span class="UIelement">Operation Details</span> window. The following screenshot shows an operation (pointing to a data source) in progress and the location of the icon for terminating the operation.</p>
                                         <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/query-cancel.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1184" data-mc-height="735" src="../Resources/Images/XD_screenshots/query-cancel_thumb_0_150.png" tabindex="" /></a>
                                         </p>
-                                        <div class="Note"><span class="label">TIP</span>:&#160;There is another method for canceling a query. You can cancel it when <span class="GeneralProductName">Xcalar Design</span> displays the clock icon on the worksheet indicating the query is in progress. If you mouse over the icon, it changes to a cancellation icon, which you can click  to stop the query. The following screenshots show the clock icon and the cancellation icon. </div>
+                                        <div class="Note"><span class="label">TIP</span>:&#160;There is another method for canceling an operation. You can cancel it when <span class="GeneralProductName">Xcalar Design</span> displays the clock icon on the worksheet indicating the operation is in progress. If you mouse over the icon, it changes to a cancellation icon, which you can click  to stop the operation. The following screenshots show the clock icon and the cancellation icon. </div>
                                         <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/query-in-progress.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1390" data-mc-height="699" src="../Resources/Images/XD_screenshots/query-in-progress_thumb_0_150.png" tabindex="" /></a> <![CDATA[ ]]></p>
                                         <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/query-cancel-in-worksheet.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1390" data-mc-height="701" src="../Resources/Images/XD_screenshots/query-cancel-in-worksheet_thumb_0_150.png" tabindex="" /></a>
                                         </p>
                                         <h2>Monitoring the system</h2>
-                                        <p>The Monitor provides an icon for you to display <span class="GeneralProductName2short">XCE</span> statistics, generate a ticket for <span class="GeneralCompanyNameShort">Xcalar</span> technical support, and release memory.&#160;The following screenshot shows the location of the <span class="UIelement">System</span> icon in the Monitor. The screenshot also illustrates how you can use the icons in the <span class="UIelement">System</span> panel to perform various tasks.</p>
+                                        <p>The <span class="UIelement">System</span> icon in the Monitor enables you to perform these tasks:</p>
+                                        <ul>
+                                            <li value="1">View <span class="GeneralProductName2short">XCE</span> statistics.</li>
+                                            <li value="2">Send a support ticket for <span class="GeneralCompanyNameShort">Xcalar</span> technical support.</li>
+                                            <li value="3">Release memory.&#160;For more information about memory management, see <a href="J_OptimizeMemory.htm" class="MCXref xref">Optimizing memory usage</a>.</li>
+                                        </ul>
+                                        <p>The following screenshot shows the location of the <span class="UIelement">System</span> icon. The screenshot also illustrates how you can use the icons in the <span class="UIelement">System</span> panel to perform various tasks.</p>
                                         <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/monitor-system-statistics.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1123" data-mc-height="704" src="../Resources/Images/XD_screenshots/monitor-system-statistics_thumb_0_150.png" tabindex="" /></a>
                                         </p>
+                                        <h3><a name="Understa"></a>Understanding the support ticket</h3>
+                                        <p>You can send a support ticket to report a problem or to send a comment to <span class="GeneralCompanyNameShort">Xcalar</span>. To send a ticket from the cluster, the cluster must have Internet connection.</p>
+                                        <p>The following types of information are in the support ticket:</p>
+                                        <ul>
+                                            <li value="1">Type of issue</li>
+                                            <li value="2">Comment</li>
+                                            <li value="3">License key</li>
+                                            <li value="4">Workbook name</li>
+                                            <li value="5">Number of nodes</li>
+                                            <li value="6">Status</li>
+                                            <li value="7">Node information, which includes:<ul><li value="1">CPU&#160;usage in percentage</li><li value="2">Memory used in percentage</li><li value="3">Memory used in bytes</li><li value="4">Number of bytes received from the network</li><li value="5">Number of bytes sent to the network</li><li value="6">Node ID</li><li value="7">Memory available in bytes</li></ul></li>
+                                            <li value="8">User name</li>
+                                            <li value="9">User unique ID</li>
+                                            <li value="10">XDP version</li>
+                                        </ul>
+                                        <p>A support bundle, which contains additional information, can be included in the support ticket if you report a performance issue or a crash. </p>
+                                        <p>The following types of information are included in the support bundle:</p>
+                                        <ul>
+                                            <li value="1">Any core dumps caused by a crash</li>
+                                            <li value="2"><span class="GeneralProductName3short">XDP</span> configuration (/etc/xcalar/*) and <span class="GeneralProductName3short">XDP</span>-generated data (/var/opt/xcalar/*)</li>
+                                            <li value="3">System statistics and configuration, such as number of CPUs, memory, packages installed</li>
+                                            <li value="4">System and <span class="GeneralProductName3short">XDP</span> logs if permissions allow (for example, /var/log/messages, /var/log/httpd/*, /var/log/Xcalar*.log, and /var/log/xcalar/*).</li>
+                                        </ul>
+                                        <div class="Note"><span class="label">NOTE</span>:&#160;The exact information included in the support bundle might vary, depending on the access rights given to <span class="GeneralProductName3short">XDP</span>. Because by default, <span class="GeneralProductName2short">XCE</span> does not run as root, the file permissions  set by the system administrator can prevent some information from being sent to <span class="GeneralCompanyNameShort">Xcalar</span>. For example, by default, <span class="GeneralCompanyNameShort">Xcalar</span> cannot collect syslog information unless it has permission to read the syslog file.</div>
+                                        <h3>Generating a support ticket</h3>
+                                        <p>To generate a support ticket, follow these steps:</p>
+                                        <ol>
+                                            <li value="1">
+                                                <p>In the <span class="UIelement">Monitor</span> &gt;&#160;<span class="UIelement">System</span> panel, click the <span class="UIelement">Generate Support Bundle</span> icon. </p>
+                                            </li>
+                                            <li value="2">
+                                                <p>In the <span class="UIelement">Generate Support Ticket</span> modal window, select the reason for generating the ticket. The following screenshot shows an example of the modal window:</p>
+                                                <p>
+                                                    <img src="../Resources/Images/XD_screenshots/generate-support-ticket.png" />
+                                                </p>
+                                            </li>
+                                            <li value="3">(Optional)&#160;Type a comment providing information about the ticket.</li>
+                                            <li value="4">Disable or enable the <span class="UIelement">Generate Support Bundle?</span>&#160;option.</li>
+                                            <li value="5">Click <span class="UIelement">GENERATE&#160;TICKET</span>. When the ticket generation is in progress, the <span class="UIelement">Generate Support Ticket</span> icon turns gray. After the ticket is generated, the icon resumes its original color (white).</li>
+                                        </ol>
+                                        <h3>What happens if a support ticket cannot be sent</h3>
+                                        <p>The most common reason for failing to send a support ticket to <span class="GeneralCompanyNameShort">Xcalar</span> is that the <span class="GeneralProductName3short">XDP</span> cluster is not connected to the Internet. If your ticket includes the support bundle, the bundle stays on the cluster until the Internet connection is available. <span class="GeneralProductName3short">XDP</span> automatically sends the support bundle as soon as it can use the Internet. </p>
+                                        <p>The contents of the support ticket, excluding the support bundle, can be downloaded when <span class="GeneralProductName3short">XDP</span> fails to send the ticket. When an error message indicates that the you can download the ticket, follow these steps to manually send the ticket to <span class="GeneralCompanyNameShort">Xcalar</span>:</p>
+                                        <ol>
+                                            <li value="1">In the <span class="UIelement">Generate Support Ticket</span> modal window, click <span class="UIelement">DOWNLOAD</span>, which replaces <span class="UIelement">GENERATE&#160;TICKET</span>.&#160;A&#160;ticket file is created and downloaded to your computer.</li>
+                                            <li value="2">Upload the ticket file from your computer by using the <span class="UIelement">Submit a request</span> link on the portal.</li>
+                                        </ol>
                                         <h2><a name="Setting"></a><a name="GeneralSettings" class="ForCSH"></a>Setting the environment for <span class="GeneralProductName">Xcalar Design</span></h2>
                                         <p>The Monitor provides a <span class="UIelement">Settings</span> icon for you to customize the environment in which you run <span class="GeneralProductName">Xcalar Design</span>. The following screenshot explains the fields in the <span class="UIelement">General Settings</span> window. For fields that accept a numeric value, you can type the value or drag the slider to make a change.</p>
-                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/monitor-general-settings.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="843" data-mc-height="684" src="../Resources/Images/XD_screenshots/monitor-general-settings_thumb_0_150.png" tabindex="" /></a>
+                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/monitor-general-settings.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1010" data-mc-height="580" src="../Resources/Images/XD_screenshots/monitor-general-settings_thumb_0_150.png" tabindex="" /></a>
                                         </p>
                                     </div>
                                     <p><a href="#Top" class="selected">Go to top</a>

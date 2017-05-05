@@ -98,15 +98,15 @@
                                                 </li>
                                                 <li><a href="../A_GettingStarted/B2_PrepareDataSource.htm">Preparing the data source</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/C_EasySteps.htm">Easy steps for Xcalar 1.0 (with default settings)</a>
+                                                <li><a href="../A_GettingStarted/C_EasySteps.htm">Easy steps for Xcalar 1.2 (with default settings)</a>
                                                 </li>
-                                                <li><a href="../A_GettingStarted/D_DetailedStepsForPointing.htm">Detailed steps for Xcalar 1.0 (with custom settings)</a>
+                                                <li><a href="../A_GettingStarted/D_DetailedStepsForPointing.htm">Detailed steps for Xcalar 1.2 (with custom settings)</a>
                                                 </li>
                                             </ul>
                                         </li>
                                         <li class="has-children"><a href="../B_CommonTasks/CommonTasks.htm">Common tasks</a>
                                             <ul class="sub-menu">
-                                                <li><a href="../B_CommonTasks/A_ManageDatasetRef.htm">Managing dataset references</a>
+                                                <li><a href="../B_CommonTasks/A_ManageDatasetRef.htm">Managing datasets</a>
                                                 </li>
                                                 <li><a href="../B_CommonTasks/B_CreateTable.htm">Creating a table</a>
                                                 </li>
@@ -140,6 +140,8 @@
                                                 </li>
                                                 <li><a href="../B_CommonTasks/P_UnderstandFNF.htm">Working with a table containing FNF</a>
                                                 </li>
+                                                <li><a href="../B_CommonTasks/Q_SearchTableOrColName.htm">Searching for a table or column</a>
+                                                </li>
                                             </ul>
                                         </li>
                                         <li class="has-children"><a href="AdvancedTasks.htm">Advanced tasks</a>
@@ -152,7 +154,7 @@
                                                 </li>
                                                 <li><a href="C1_PointWithVisualParser.htm">Using a visual parser to create a UDF</a>
                                                 </li>
-                                                <li><a href="D_FunctionBar.htm">Using the function or search bar</a>
+                                                <li><a href="D_FunctionBar.htm">Using the function  bar</a>
                                                 </li>
                                                 <li><a href="E_CreateBatchDataflow.htm">Understanding and creating batch dataflows</a>
                                                 </li>
@@ -162,7 +164,7 @@
                                                 </li>
                                                 <li><a href="G_ExportTable.htm">Exporting a table</a>
                                                 </li>
-                                                <li><a href="H_Parameterization.htm">Parameterizing queries</a>
+                                                <li><a href="H_Parameterization.htm">Parameterizing operations</a>
                                                 </li>
                                                 <li><a href="I_UnderstandMemoryUse.htm">Understanding memory usage</a>
                                                 </li>
@@ -288,7 +290,7 @@
                                                     </li>
                                                     <li><a href="C1_PointWithVisualParser.htm">Using a visual parser to create a UDF</a>
                                                     </li>
-                                                    <li><a href="D_FunctionBar.htm">Using the function or search bar</a>
+                                                    <li><a href="D_FunctionBar.htm">Using the function  bar</a>
                                                     </li>
                                                     <li><a href="E_CreateBatchDataflow.htm">Understanding and creating batch dataflows</a>
                                                     </li>
@@ -298,7 +300,7 @@
                                                     </li>
                                                     <li><a href="G_ExportTable.htm">Exporting a table</a>
                                                     </li>
-                                                    <li><a href="H_Parameterization.htm">Parameterizing queries</a>
+                                                    <li><a href="H_Parameterization.htm">Parameterizing operations</a>
                                                     </li>
                                                     <li><a href="I_UnderstandMemoryUse.htm">Understanding memory usage</a>
                                                     </li>
@@ -348,11 +350,11 @@
                                         <h2>Specifying the name of the export file created by a batch dataflow</h2>
                                         <p>To export the result of a batch dataflow to a file, follow these steps to specify the name of the export file:</p>
                                         <ol>
-                                            <li value="1">Click the last icon in the batch dataflow graph. Then click <span class="UIelement">Create  Parameterized Query</span> in the pop-up menu.</li>
+                                            <li value="1">Click the last icon in the batch dataflow graph. Then click <span class="UIelement">Create  parameterized operation</span> in the pop-up menu.</li>
                                             <li value="2">
-                                                <p>In the <span class="UIelement">Parameterize Query</span> modal window, enter the export file name as shown in the following screenshot, then click <span class="UIelement">SAVE</span>. You must include an extension such as .csv in the name. This file will be created in the default export target.</p>
+                                                <p>In the <span class="UIelement">Parameterize Operation</span> modal window, enter the export file name as shown in the following screenshot, then click <span class="UIelement">SAVE</span>. You must include an extension such as .csv in the name. This file will be created in the default export target.</p>
                                                 <p>In the dataflow graph, the border for the batch dataflow result icon changes to green to indicate that the default name has been replaced by a user-specified name. </p>
-                                                <p>You can type the name of the export file as shown in the screenshot. Alternatively, you can parameterize the file name. For more information about parameterization, see <a href="H_Parameterization.htm" class="MCXref xref">Parameterizing queries</a>.</p>
+                                                <p>You can type the name of the export file as shown in the screenshot. Alternatively, you can parameterize the file name. For more information about parameterization, see <a href="H_Parameterization.htm" class="MCXref xref">Parameterizing operations</a>.</p>
                                                 <div class="Note"><span class="label">IMPORTANT</span>:&#160;If you choose to parameterize the export file name, be sure to use a parameter created by you. Do not use the <span class="UIelement">N</span> parameter, which is a system parameter reserved for scheduled batch dataflows. If the export file name contains this system parameter, running the batch dataflow manually fails with an error message.</div>
                                             </li>
                                         </ol>
@@ -384,7 +386,7 @@
                                         <p>The following screenshot shows an example of a batch dataflow.</p>
                                         <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/batch-dataflow-graph-example.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1356" data-mc-height="366" src="../Resources/Images/XD_screenshots/batch-dataflow-graph-example_thumb_0_150.png" tabindex="" /></a>
                                         </p>
-                                        <p>You can also run a batch dataflow according to a pre-defined a schedule. For information about scheduling a batch dataflow, see <a href="#Creating" class="MCXref xref selected">Using batch dataflows</a>.</p>
+                                        <p>You can also run a batch dataflow according to a pre-defined a schedule. For information about scheduling a batch dataflow, see <a href="F1_ScheduleBatchDataflow.htm#Creating" class="MCXref xref">Scheduling batch dataflows</a>.</p>
                                         <h2>Downloading and uploading a batch dataflow</h2>
                                         <p>You can download a batch dataflow to your computer as a .tar.gz file. The downloaded batch dataflow is called a dataflow file. After you create a dataflow file, you can upload it to any <span class="GeneralProductName2short">XCE</span> cluster. </p>
                                         <h3>Downloading</h3>

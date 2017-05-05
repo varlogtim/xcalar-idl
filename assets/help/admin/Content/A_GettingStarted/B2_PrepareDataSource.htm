@@ -98,15 +98,15 @@
                                                 </li>
                                                 <li><a href="#" class="selected">Preparing the data source</a>
                                                 </li>
-                                                <li><a href="C_EasySteps.htm">Easy steps for Xcalar 1.0 (with default settings)</a>
+                                                <li><a href="C_EasySteps.htm">Easy steps for Xcalar 1.2 (with default settings)</a>
                                                 </li>
-                                                <li><a href="D_DetailedStepsForPointing.htm">Detailed steps for Xcalar 1.0 (with custom settings)</a>
+                                                <li><a href="D_DetailedStepsForPointing.htm">Detailed steps for Xcalar 1.2 (with custom settings)</a>
                                                 </li>
                                             </ul>
                                         </li>
                                         <li class="has-children"><a href="../B_CommonTasks/CommonTasks.htm">Common tasks</a>
                                             <ul class="sub-menu">
-                                                <li><a href="../B_CommonTasks/A_ManageDatasetRef.htm">Managing dataset references</a>
+                                                <li><a href="../B_CommonTasks/A_ManageDatasetRef.htm">Managing datasets</a>
                                                 </li>
                                                 <li><a href="../B_CommonTasks/B_CreateTable.htm">Creating a table</a>
                                                 </li>
@@ -140,6 +140,8 @@
                                                 </li>
                                                 <li><a href="../B_CommonTasks/P_UnderstandFNF.htm">Working with a table containing FNF</a>
                                                 </li>
+                                                <li><a href="../B_CommonTasks/Q_SearchTableOrColName.htm">Searching for a table or column</a>
+                                                </li>
                                             </ul>
                                         </li>
                                         <li class="has-children"><a href="../C_AdvancedTasks/AdvancedTasks.htm">Advanced tasks</a>
@@ -152,7 +154,7 @@
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/C1_PointWithVisualParser.htm">Using a visual parser to create a UDF</a>
                                                 </li>
-                                                <li><a href="../C_AdvancedTasks/D_FunctionBar.htm">Using the function or search bar</a>
+                                                <li><a href="../C_AdvancedTasks/D_FunctionBar.htm">Using the function  bar</a>
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/E_CreateBatchDataflow.htm">Understanding and creating batch dataflows</a>
                                                 </li>
@@ -162,7 +164,7 @@
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/G_ExportTable.htm">Exporting a table</a>
                                                 </li>
-                                                <li><a href="../C_AdvancedTasks/H_Parameterization.htm">Parameterizing queries</a>
+                                                <li><a href="../C_AdvancedTasks/H_Parameterization.htm">Parameterizing operations</a>
                                                 </li>
                                                 <li><a href="../C_AdvancedTasks/I_UnderstandMemoryUse.htm">Understanding memory usage</a>
                                                 </li>
@@ -288,9 +290,9 @@
                                                     </li>
                                                     <li><a href="#" class="selected">Preparing the data source</a>
                                                     </li>
-                                                    <li><a href="C_EasySteps.htm">Easy steps for Xcalar 1.0 (with default settings)</a>
+                                                    <li><a href="C_EasySteps.htm">Easy steps for Xcalar 1.2 (with default settings)</a>
                                                     </li>
-                                                    <li><a href="D_DetailedStepsForPointing.htm">Detailed steps for Xcalar 1.0 (with custom settings)</a>
+                                                    <li><a href="D_DetailedStepsForPointing.htm">Detailed steps for Xcalar 1.2 (with custom settings)</a>
                                                     </li>
                                                 </ul>
                                             </li>
@@ -302,8 +304,8 @@
                                         <h1><a name="Prerequi"></a>Preparing the data source</h1>
                                         <p>To use <span class="GeneralProductName3short">XDP</span> reliably ad predictably, you must make sure that your data source meets the requirements described in this topic. You might need to prepare your data files so that <span class="GeneralProductName">Xcalar Design</span> can properly extract the metadata from them and can present the data in a readable format appropriate for data modeling. </p>
                                         <h2>Data accessibility</h2>
-                                        <p>Pointing to a data source means telling <span class="GeneralProductName">Xcalar Design</span> to derive metadata from one or multiple files containing raw data. These files must be stored at a location accessible to all <span class="GeneralProductName3short">XDP</span> nodes for <span class="GeneralProductOperationalizing">Xcalar Insight</span> to point to them.</p>
-                                        <div class="Note"><span class="label">IMPORTANT</span>:&#160;Renaming a data source file might render your data inaccessible.&#160;For example, if you rename a data source file and then restart <span class="GeneralProductName3short">XDP</span>, <span class="GeneralProductName">Xcalar Design</span> will no longer be able to locate the renamed data source file when trying to point to the data source. This failure means that you cannot use the workbook containing tables created from the data source. To avoid this problem, name the data source file carefully so that the path to the file does not require any changes after <span class="GeneralProductName">Xcalar Design</span> points to it.</div>
+                                        <p>Pointing to a data source means telling <span class="GeneralProductName">Xcalar Design</span> to derive metadata from one or multiple files containing raw data. These files must be stored at a location accessible to all <span class="GeneralProductName3short">XDP</span> nodes for <span class="GeneralProductName">Xcalar Design</span> to point to them.</p>
+                                        <div class="Note"><span class="label">IMPORTANT</span>:&#160;After you point to a data source, renaming the data source might render your data inaccessible.&#160;For example, if you rename a data source file and then restart <span class="GeneralProductName3short">XDP</span>, <span class="GeneralProductName">Xcalar Design</span> will no longer be able to locate the renamed data source file when trying to point to the data source. This failure means that you cannot use the workbook containing tables created from the data source. To avoid this problem, name the data source file carefully so that the path to the file does not require any changes after <span class="GeneralProductName">Xcalar Design</span> points to it.</div>
                                         <h2>Pointing to multiple files</h2>
                                         <p>The data source can be a file or a directory. If you point to a directory, <span class="GeneralProductName">Xcalar Design</span> points to data in all files in the directory. You can also point to subdirectories recursively. </p>
                                         <p>If you want to create a single dataset from multiple files, place the files in one directory.</p>
@@ -320,7 +322,7 @@
                                             </li>
                                         </ul>
                                         <h3>Verifying the file format or schema</h3>
-                                        <p>If you point to a directory or multiple files, make sure that the source files meet the following requirements to avoid unpredictable query results:</p>
+                                        <p>If you point to a directory or multiple files, make sure that the source files meet the following requirements to avoid unpredictable operation results:</p>
                                         <ul>
                                             <li value="1">All files are in the same format. For example, they must be all JSON&#160;files or XML&#160;files. </li>
                                             <li value="2">If the file format is CSV, the files must have the same schema. </li>
@@ -337,7 +339,7 @@
                                             <li value="2">All nodes have the same mount point (/mnt/datasets) but it points to different file systems. For example, /mnt/datasets on some nodes point to a file system on host1 and the same mount point on other nodes point to a file system on host2.</li>
                                         </ul>
                                         <h4>Using hdfs://</h4>
-                                        <p>If you select <span class="UIelement">hdfs://</span> to access data in an HDFS&#160;file system (for example, on a Hortonworks or Cloudera platform), make sure that the host with the HDFS file system is accessible to all nodes of the cluster.</p>
+                                        <p>If you select <span class="UIelement">hdfs://</span> to access data in an HDFS&#160;file system (for example, on a Hortonworks or Cloudera platform), make sure that the host with the HDFS file system is accessible to all nodes of the cluster. Contact your administrator to obtain the host name of the machine with the HDFS&#160;file system. You cannot use <span class="GeneralProductName">Xcalar Design</span> to list all hosts on which an HDFS file system is stored. </p>
                                         <h4>If data source is not shared</h4>
                                         <p>If your data is stored in a  shared-nothing environment, you can still create a dataset on <span class="GeneralProductName3short">XDP</span> for the data by using the <span class="GeneralCompanyNameShort">Xcalar</span> SDK. For more information about the SDK, contact <span class="GeneralCompanyNameShort">Xcalar</span> technical support.</p>
                                         <h2><a name="Before"></a>Creating a first row as column headers</h2>
@@ -347,7 +349,7 @@
                                         <div class="Example"><span class="label">Example</span>:&#160;Your data source is an Excel file with ID numbers in its first column. When you point to it, <span class="GeneralProductName">Xcalar Design</span> invokes a UDF&#160;to parse the data. If the file does not have headers, it might be difficult to determine which column is for ID&#160;numbers because the column is no longer the first column in the table displayed in <span class="GeneralProductName">Xcalar Design</span>. If, before parsing, you create a header row as the first row of the Excel file, and assign a name to the first column (for example, ID), then you can easily locate the column in <span class="GeneralProductName">Xcalar Design</span>.</div>
                                         <h2><a name="Preparin"></a>Preparing the first row as column header</h2>
                                         <p>Before you promote the first row, make sure that the first row of the source file does not contain illegal characters. If there are illegal characters, edit the first row to remove the illegal characters. Alternatively, you can point to the data source by using a user-defined function (UDF) provided by <span class="GeneralCompanyNameShort">Xcalar</span> to replace these characters.</p>
-                                        <p>In addition, make sure that the column headers based on the first row follow the naming conventions. Otherwise, you might see unexpected query results. </p>
+                                        <p>In addition, make sure that the column headers based on the first row follow the naming conventions. Otherwise, you might see unexpected operation results. </p>
                                         <div class="MCDropDown MCDropDown_Open dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the naming conventions:</a></span>
                                             <div class="MCDropDownBody dropDownBody">
                                                 <ul>
@@ -382,7 +384,7 @@
                                         <p>Unicode is supported for both delimiter-separated values and JSON that is UTF-8 encoded. UTF-16 or other encoding systems are not supported without user-defined functions (UDFs).</p>
                                         <h2>Next step</h2>
                                         <p>Point to a data source by using the instructions in the following topic:</p>
-                                        <p><a href="D_DetailedStepsForPointing.htm" class="MCXref xref">Detailed steps for Xcalar 1.0 (with custom settings)</a> <![CDATA[ ]]></p>
+                                        <p><a href="D_DetailedStepsForPointing.htm" class="MCXref xref">Detailed steps for Xcalar 1.2 (with custom settings)</a> <![CDATA[ ]]></p>
                                     </div>
                                     <p><a href="#Top" class="selected">Go to top</a>
                                     </p>
