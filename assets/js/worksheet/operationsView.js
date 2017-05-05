@@ -747,8 +747,13 @@ window.OperationsView = (function($, OperationsView) {
         var columnPicker = {
             "state": opNameNoSpace + "State",
             "colCallback": function($target) {
+                var options = {};
+                if ($lastInputFocused.closest(".row")
+                                     .siblings(".addArgWrap").length) {
+                    options.append = true;
+                }
                 xcHelper.fillInputFromCell($target, $lastInputFocused,
-                                            gColPrefix);
+                                            gColPrefix, options);
             }
         };
         formHelper.setup({"columnPicker": columnPicker});
