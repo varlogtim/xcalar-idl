@@ -141,54 +141,36 @@ window.Support = (function(Support, $) {
         }
 
         function detectMemoryUsage(nodes) {
-            var shouldAlert;
             var highestMemUsage = 0;
+            var used = 0;
+            var total = 0;
+
             jQuery.each(nodes, function(index, nodeInfo) {
                 if (nodeInfo.Mlocked && nodeInfo.Mlocked.xdb_pages) {
-                    var tableInfo = nodeInfo.Mlocked.xdb_pages;
-                    var tableUsage = tableInfo.used / tableInfo.total;
-                    if (tableUsage > highestMemUsage) {
-                        highestMemUsage = tableUsage;
-                    }
-                    shouldAlert = handleMemoryUsage(tableUsage, true);
-                    if (shouldAlert) {
-                        // stop looping
-                        return false;
-                    }
-                } else {
-                    console.error("no table mem info");
-                }
-                // XXX not sure if it's the right formula for ds yet
-                if (nodeInfo.malloc) {
-                    var dsInfo = nodeInfo.malloc;
-                    var dsUsage = dsInfo.used / dsInfo.total;
-                    shouldAlert = handleMemoryUsage(dsUsage, false);
+                    var xdbPages = nodeInfo.Mlocked.xdb_pages;
+                    var xdbUsage = xdbPages.used / xdbPages.total;
 
-                    if (shouldAlert) {
-                        // stop looping
-                        return false;
-                    }
+                    used += xdbPages.used;
+                    total += xdbPages.total;
+
+                    highestMemUsage = Math.max(highestMemUsage, xdbUsage);
                 } else {
-                    console.error("no ds mem info");
+                    console.error("no xdb info");
                 }
             });
 
-            if (!shouldAlert) {
-                var txt = TooltipTStr.SystemGood + "<br>" + CommonTxtTstr.Usage +
-                            ": " + Math.round(100 * highestMemUsage) + "%";
-                xcTooltip.changeText($("#memoryAlert"), txt);
-            }
+            handleMemoryUsage(highestMemUsage, used / total);
         }
 
-        function handleMemoryUsage(memoryUsage, isTable) {
+        function handleMemoryUsage(highestMemUsage, avgMemUsage) {
             var shouldAlert = false;
             var $memoryAlert = $("#memoryAlert");
 
-            if (memoryUsage > redThreshold) {
+            if (highestMemUsage > redThreshold) {
                 // when it's red, can stop loop immediately
                 $memoryAlert.addClass("red").removeClass("yellow");
                 shouldAlert = true;
-            } else if (memoryUsage > yellowThreshold) {
+            } else if (highestMemUsage > yellowThreshold) {
                 // when it's yellow, should continue loop
                 // to see if it has any red case
                 $memoryAlert.addClass("yellow").removeClass("red");
@@ -196,31 +178,25 @@ window.Support = (function(Support, $) {
             } else {
                 $memoryAlert.removeClass("red").removeClass("yellow");
             }
-            // XXX Remove following if clause when ds memory is fixed
-            if (!isTable) {
-                shouldAlert = false;
-                $memoryAlert.removeClass("red").removeClass("yellow");
-                xcTooltip.changeText($memoryAlert, TooltipTStr.SystemGood);
-            }
+
             if (shouldAlert) {
-                var text;
-                if (isTable) {
-                    if (jQuery.isEmptyObject(gTables) &&
-                        gOrphanTables.length === 0)
-                    {
-                        text = TooltipTStr.LowMemByOthers;
-                    } else {
-                        text = TooltipTStr.LowMemInTable;
-                    }
-                    $memoryAlert.addClass("tableAlert");
-                } else {
+                // we want user to drop table first and only when no tables
+                // let them drop ds
+                if (jQuery.isEmptyObject(gTables) && gOrphanTables.length === 0)
+                {
                     text = TooltipTStr.LowMemInDS;
                     $memoryAlert.removeClass("tableAlert");
+                } else {
+                    text = TooltipTStr.LowMemInTable;
+                    $memoryAlert.addClass("tableAlert");
                 }
-
-                xcTooltip.changeText($memoryAlert, text);
+            } else {
+                var percent = Math.round(avgMemUsage * 100);
+                text = TooltipTStr.SystemGood + "<br>" +
+                        CommonTxtTstr.Usage + ": " + percent + "%";
             }
 
+            xcTooltip.changeText($memoryAlert, text);
             return shouldAlert;
         }
     };
