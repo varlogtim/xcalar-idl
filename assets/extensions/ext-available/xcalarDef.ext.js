@@ -8,7 +8,7 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
             "fieldClass": "partitionCol",
             "autofill": true,
             "typeCheck": {
-                "columnType": ["number", "string"]
+                "columnType": ["number", "string", "boolean"]
             }
         },
         {
