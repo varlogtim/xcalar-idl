@@ -89,6 +89,7 @@ window.DSTable = (function($, DSTable) {
             clearTimeout(timer);
             dsObj.release();
 
+            var noRetry = false;
             if (error === notLastDSError ||
                 lastDSToSample !== datasetName)
             {
@@ -101,6 +102,9 @@ window.DSTable = (function($, DSTable) {
             var errorMsg;
             if (typeof error === "object" && error.error != null) {
                 errorMsg = error.error;
+                if (error.status === StatusT.StatusDatasetAlreadyDeleted) {
+                    noRetry = true;
+                }
             } else if (error instanceof Error){
                 errorMsg = String(error);
             } else if (typeof error === "string") {
@@ -110,7 +114,7 @@ window.DSTable = (function($, DSTable) {
                 errorMsg = ErrTStr.Unknown;
             }
 
-            setupViewAfterError(errorMsg, true);
+            setupViewAfterError(errorMsg, true, noRetry);
             deferred.reject(error);
         });
 
@@ -140,7 +144,7 @@ window.DSTable = (function($, DSTable) {
         $("#dsColsBtn").removeClass("xc-hidden");
     }
 
-    function setupViewAfterError(error, isFetchError) {
+    function setupViewAfterError(error, isFetchError, noRetry) {
         error = xcHelper.parseError(error);
         // backend might return this: "<string>"
         error = xcHelper.escapeHTMLSepcialChar(error);
@@ -159,7 +163,8 @@ window.DSTable = (function($, DSTable) {
 
         var dsId = $dsTableContainer.data("id");
         var dsObj = DS.getDSObj(dsId);
-        if (dsObj != null && dsObj.getUser() === Support.getUser()) {
+        if (!noRetry && dsObj != null &&
+            dsObj.getUser() === Support.getUser()) {
             $errorSection.find(".suggest").removeClass("xc-hidden");
         } else {
             $errorSection.find(".suggest").addClass("xc-hidden");
