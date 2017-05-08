@@ -1103,7 +1103,10 @@ require("jsdom").env("", function(err, window) {
         var credArray = req.body;
         var hasError = false;
         var errors = [];
-        login.loginAuthentication(credArray, res);
+        login.loginAuthentication(credArray)
+        .always(function(message) {
+            res.status(message.status).send(message);
+        });
     });
 
     app.post("/listPackage", function(req, res) {

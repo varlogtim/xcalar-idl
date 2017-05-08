@@ -10,6 +10,7 @@ var fs = require('fs');
 var ldap = require('ldapjs');
 
 var ssf = require('./supportStatusFile');
+var httpStatus = require('./../../assets/js/httpStatus.js').httpStatus;
 var support = require('./support.js');
 var Status = ssf.Status;
 var strictSecurity = false;
@@ -68,143 +69,159 @@ UserInformation.prototype = {
     },
 
     isSupporter: function() {
-        return this.employeeType == "supporter";
+        return this.employeeType === "supporter";
     },
     isAdmin: function() {
-        return this.employeeType == "administrator";
+        return this.employeeType === "administrator";
     }
 };
 
-function loginAuthentication(credArray, res) {
-    var ldapPromise = setUpLdapConfigs();
-    ldapPromise
+function loginAuthentication(credArray) {
+    var deferredOut = jQuery.Deferred();
+    var hasBind = false;
+    var currentUser;
+    var username;
+    var password;
+    var client_url;
+    var userDN;
+    var searchFilter;
+    var activeDir;
+    var useTLS;
+    var adUserGroup;
+    var adAdminGroup;
+    var client;
+    var searchOpts;
+
+    setUpLdapConfigs()
     .then(function() {
-        if (credArray) {
-            // here is the LDAP related material
-            // it's activated if xiusername is in the request body
-            if (("xiusername" in credArray) && ("xipassword" in credArray)) {
-
-                // Save the information of current user into a HashTable
-                var currentUser = new UserInformation();
-                currentUser.setLoginId(loginId);
-                users.set(loginId, currentUser);
-
-                // Configuration Parameter to Connect to LDAP
-                var username = credArray["xiusername"];
-                var password = credArray["xipassword"];
-                var client_url = config.ldap_uri.endsWith('/') ?
-                                 config.ldap_uri : config.ldap_uri+'/';
-                var userDN = config.userDN;
-                var searchFilter = config.searchFilter;
-                var activeDir = (config.activeDir === 'true');
-                var useTLS = (config.useTLS === 'true');
-                var adUserGroup = ("adUserGroup" in config) ?
-                    config.adUserGroup:"Xce User";
-                var adAdminGroup = ("adAdminGroup" in config) ?
-                    config.adAdminGroup:"Xce Admin";
-                var client = ldap.createClient({
-                    url: client_url,
-                    timeout: 10000,
-                    connectTimeout: 20000
-                });
-                if ((activeDir) && ("adDomain" in config) &&
-                    (username.indexOf("@") <= -1)) {
-                    username = username + "@" + config.adDomain;
-                }
-                var searchOpts = {
-                    filter: searchFilter != "" ?
-                        searchFilter.replace('%username%',username):undefined,
-                    scope: 'sub',
-                    attributes: activeDir ?
-                        ['cn','mail','memberOf']:['cn','mail','employeeType']
-                };
-                if (!activeDir) {
-                    userDN = userDN.replace('%username%', username);
-                    username = userDN;
-                }
-
-                var deferredTLS = jQuery.Deferred();
-                // Use TLS Protocol
-                if (useTLS) {
-                    var tlsOpts = {
-                        cert: trustedCerts,
-                        rejectUnauthorized: strictSecurity
-                    };
-                    console.log("Starting TLS...");
-                    client.starttls(tlsOpts, [], function(err) {
-                        if (err) {
-                            console.log("TLS startup error: " + err.message);
-                            deferredTLS.reject();
-                        }
-                        deferredTLS.resolve();
-                    });
-                } else {
-                    deferredTLS.resolve();
-                }
-
-                deferredTLS.promise()
-                .then(function() {
-                    // LDAP Authentication
-                    var deferred = jQuery.Deferred();
-                    client.bind(username, password, function(error) {
-                        if (error) {
-                            console.log("Bind Error! " + error.message)
-                            loginId++;
-                            deferred.reject();
-                        } else {
-                            console.log('Bind Successful!');
-                            client.search(userDN, searchOpts,
-                                          function(error, search) {
-                                deferred.resolve(error, search, loginId);
-                                loginId++;
-                            });
-                       }
-                    });
-                    return deferred.promise();
-                })
-                .then(function(error, search, currLogin) {
-                    var deferred2 = jQuery.Deferred();
-                    search.on('searchEntry', function(entry) {
-                        console.log('Searching entries.....');
-                        writeEntry(entry, currLogin, activeDir,
-                                   adUserGroup, adAdminGroup);
-                    });
-
-                    search.on('error', function(error) {
-                        console.log('Search error: ' + error.message);
-                        deferred2.reject();
-                    });
-
-                    search.on('end', function(result) {
-                        console.log('Finished Search!');
-
-                        client.unbind();
-
-                        deferred2.resolve(currLogin);
-                    });
-                    return deferred2.promise();
-                })
-                .then(function(currLogin) {
-                    responseResult(currLogin, res, activeDir);
-                })
-                .fail(function() {
-                    client.unbind();
-                    responseError(res);
-                });
-            } else {
-                responseError(res);
-            }
+        var deferred = jQuery.Deferred();
+        if (credArray && ("xiusername" in credArray)
+            && ("xipassword" in credArray)) {
+            deferred.resolve();
         } else {
-            responseError(res);
+            deferred.reject();
         }
+        return deferred.promise();
+    })
+    .then(function() {
+        var deferred = jQuery.Deferred();
+        // Save the information of current user into a HashTable
+        var currentUser = new UserInformation();
+        currentUser.setLoginId(loginId);
+        users.set(loginId, currentUser);
+
+        // Configuration Parameter to Connect to LDAP
+        username = credArray["xiusername"];
+        password = credArray["xipassword"];
+        client_url = config.ldap_uri.endsWith('/') ?
+                         config.ldap_uri : config.ldap_uri+'/';
+        userDN = config.userDN;
+        searchFilter = config.searchFilter;
+        activeDir = (config.activeDir === 'true');
+        useTLS = (config.useTLS === 'true');
+        adUserGroup = ("adUserGroup" in config) ?
+            config.adUserGroup:"Xce User";
+        adAdminGroup = ("adAdminGroup" in config) ?
+            config.adAdminGroup:"Xce Admin";
+        client = ldap.createClient({
+            url: client_url,
+            timeout: 10000,
+            connectTimeout: 20000
+        });
+        if ((activeDir) && ("adDomain" in config) &&
+            (username.indexOf("@") <= -1)) {
+            username = username + "@" + config.adDomain;
+        }
+        searchOpts = {
+            filter: searchFilter !== "" ?
+                searchFilter.replace('%username%',username):undefined,
+            scope: 'sub',
+            attributes: activeDir ?
+                ['cn','mail','memberOf']:['cn','mail','employeeType']
+        };
+        if (!activeDir) {
+            userDN = userDN.replace('%username%', username);
+            username = userDN;
+        }
+
+        // Use TLS Protocol
+        if (useTLS) {
+            var tlsOpts = {
+                cert: trustedCerts,
+                rejectUnauthorized: strictSecurity
+            };
+            console.log("Starting TLS...");
+            client.starttls(tlsOpts, [], function(err) {
+                if (err) {
+                    console.log("TLS startup error: " + err.message);
+                    deferred.reject();
+                } else {
+                    deferred.resolve();
+                }
+            });
+        } else {
+            deferred.resolve();
+        }
+        return deferred.promise();
+    })
+    .then(function() {
+        // LDAP Authentication
+        var deferred = jQuery.Deferred();
+        hasBind = true;
+        client.bind(username, password, function(error) {
+            if (error) {
+                console.log("Bind Error! " + error.message);
+                loginId++;
+                deferred.reject();
+            } else {
+                console.log('Bind Successful!');
+                client.search(userDN, searchOpts, function(error, search) {
+                    deferred.resolve(error, search, loginId);
+                    loginId++;
+                });
+            }
+        });
+        return deferred.promise();
+    })
+    .then(function(error, search, currLogin) {
+        var deferred = jQuery.Deferred();
+        search.on('searchEntry', function(entry) {
+            console.log('Searching entries.....');
+            writeEntry(entry, currLogin, activeDir,
+                       adUserGroup, adAdminGroup);
+        });
+
+        search.on('error', function(error) {
+            console.log('Search error: ' + error.message);
+            deferred.reject();
+        });
+
+        search.on('end', function() {
+            console.log('Finished Search!');
+            client.unbind();
+            deferred.resolve(currLogin);
+        });
+        return deferred.promise();
+    })
+    .then(function(currLogin) {
+        return responseResult(currLogin, activeDir);
+    })
+    .then(function(message) {
+        deferredOut.resolve(message);
     })
     .fail(function() {
-        res.send({"status": Status.Ok,
-                  "firstName ": credArray["xiusername"],
-                  "mail": credArray["xiusername"],
-                  "isAdmin": false,
-                  "isSupporter": false});
+        if (hasBind) {
+            client.unbind();
+        }
+        var message = {"status": httpStatus.OK,
+                       "firstName ": credArray["xiusername"],
+                       "mail": credArray["xiusername"],
+                       "isValid": false,
+                       "isAdmin": false,
+                       "isSupporter": false};
+        deferredOut.reject(message);
     });
+    return deferredOut.promise();
 }
 
 function writeEntry(entry, loginId, activeDir, adUserGroup, adAdminGroup) {
@@ -239,7 +256,8 @@ function writeEntry(entry, loginId, activeDir, adUserGroup, adAdminGroup) {
     }
 }
 
-function responseResult(loginId, res, activeDir) {
+function responseResult(loginId, activeDir) {
+    var deferred = jQuery.Deferred();
     var user = users.get(loginId);
     if (user.getEntryCount() >= 1) {
         if (user.getEntryCount() > 1) {
@@ -250,25 +268,28 @@ function responseResult(loginId, res, activeDir) {
         // for normal users.
         if ((activeDir) && (!user.getIsADUser())) {
             console.log('User is not in the Xcalar user group.');
-            responseError(res);
+            deferred.reject();
         } else {
             var isAdmin = user.isAdmin();
             var isSupporter = user.isSupporter();
-            res.send({"status": Status.Ok,
-                      "firstName ": user.firstName,
-                      "mail": user.mail,
-                      "isAdmin": isAdmin,
-                      "isSupporter": isSupporter});
+            var message = {"status": httpStatus.OK,
+                           "firstName ": user.firstName,
+                           "mail": user.mail,
+                           "isValid": true,
+                           "isAdmin": isAdmin,
+                           "isSupporter": isSupporter};
+            deferred.resolve(message);
         }
     } else {
         console.log("No matching user data found in LDAP directory");
-        responseError(res);
+        deferred.reject();
     }
+    return deferred.promise();
 }
 
 function setUpLdapConfigs() {
     var deferred = jQuery.Deferred();
-    if(setup) {
+    if (setup) {
         deferred.resolve();
     } else {
         var promise = support.getXlrRoot();
@@ -287,10 +308,6 @@ function setUpLdapConfigs() {
         });
     }
     return deferred.promise();
-}
-
-function responseError(res) {
-    res.send({"status":Status.Error});
 }
 
 exports.loginAuthentication = loginAuthentication;

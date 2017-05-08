@@ -48,8 +48,7 @@ $(document).ready(function() {
                 "contentType": "application/json",
                 "url": hostname + "/app/login",
                 "success": function(data) {
-                    ret = data;
-                    if (ret.status === Status.Ok) {
+                    if (data.isValid) {
                         console.log('success');
                         // XXX this is a temp hack, should not using it later
                         if (data.isAdmin) {
@@ -58,17 +57,12 @@ $(document).ready(function() {
                             xcLocalStorage.removeItem("admin");
                         }
                         submit();
-                    } else if (ret.status === Status.Error) {
+                    } else {
                         alert('Incorrect username or password. ' +
                               'Please try again.');
-                        console.log('return error', data, ret);
+                        console.log('return error', data);
                         isSubmitDisabled = false;
-                    } else {
-                        //Auth server probably down or something. Just let them in
-                        console.log('shouldnt be here', data, ret);
-                        submit();
                     }
-
                 },
                 "error": function(error) {
                     //Auth server probably down or something. Just let them in
