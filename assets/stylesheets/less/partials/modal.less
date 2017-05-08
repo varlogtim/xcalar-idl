@@ -1169,6 +1169,14 @@
         .aggContainer .aggTableField {
             color: @color-white;
         }
+
+        &:not(.empty) {
+           .headerContainer {
+                .padding {
+                    box-shadow: 1px 0px 0px 0px @color-border-pinkish-grey;
+                }
+            }
+        }
     }
 
     .mainAgg {
@@ -1259,7 +1267,6 @@
                     .size(@width: 120px, @height: 35px);
                     background: @color-bg-white-three;
                     z-index: 10;
-                    box-shadow: 1px 0px 0px 0px @color-border-pinkish-grey;
                 }
 
                 .colLabel {

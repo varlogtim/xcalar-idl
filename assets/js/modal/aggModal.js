@@ -390,6 +390,9 @@ window.AggModal = (function($, AggModal) {
             wholeTable = '<div class="hint">' +
                                 AggTStr.NoCorr +
                             '</div>';
+            $corr.addClass("empty");
+        } else {
+            $corr.removeClass("empty");
         }
 
         $corr.find(".headerContainer").html(getColLabelHTML(colLabels));

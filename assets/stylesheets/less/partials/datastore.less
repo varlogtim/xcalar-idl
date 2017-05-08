@@ -899,7 +899,7 @@ table.datasetTable {
 /* End of File Adder Card */
 
 /* File Browser */
-.fileBrowser {
+#fileBrowser {
     .size(@min-width: 650px, @height: ~"calc(100% - 5px)");
     text-transform: capitalize;
     overflow: visible;
@@ -1043,12 +1043,9 @@ table.datasetTable {
                 .position(absolute, @top: 0, @right: 20px);
 
                 .icon {
+                    display: block;
                     color: @color-font-greyish-brown;
-
-                    &:before {
-                        display: block;
-                        .position(relative, @top: 3px, @left: 3px);
-                    }
+                    .vertical-align;
                 }
             }
         }
