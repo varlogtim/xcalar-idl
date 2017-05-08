@@ -300,7 +300,7 @@
             resultSetMax: (integer, not persist) last row able to fetch
             numPages: (integer, not persist) num of pages
             backTableMeta: (obj, not persist) backTableMeta
-         * new attr:
+         * new attrs:
             indexTables: (obj) cache column's indexed table
             complement: (string), complement table
         */
@@ -313,6 +313,7 @@
             if (<%= checkFunc %>(options)) {
                 self.tableCols = TableMeta<%= v %>.restoreProgCol(options.tableCols,
                                                             version);
+                // XXX this is only for version 2!!!
                 self.indexTables = options.indexTables || {};
                 self.complement = options.complement || "";
             }
@@ -1440,8 +1441,8 @@
             created: (date) create time
             modified: (date) last modified time
             numWorksheets: (integer) num of worksheets in the workbook
-         * new attr:
-            noResource: (boolena) true if it has no resource
+         * new attrs:
+            resource: (boolean) true if it has resource
         */
         function WKBK<%= v %>(options) {
             var self = _super.call(this, options);
@@ -1684,21 +1685,11 @@
             isRegex: (boolean) path is using regEx or not;
             headers: (array, optional) XXX temp fix to preserve CSV header order
             error: (string, optional) ds's error
-
-        * new attrs:
             displayFormat (string) displayed format in ds table(Excel...)
         */
         function DSObj<%= v %>(options) {
             var self = _super.call(this, options);
             <%= addVersion %>
-
-            // XXX this is only for version 2!!!
-            if (<%= checkFunc %>(options)) {
-                if (options.displayFormat) {
-                    self.displayFormat = options.displayFormat;
-                }
-            }
-
             return self;
         }
 
@@ -2399,30 +2390,16 @@
             timeText: (string) time text
             repeat: (string) repate frequency
             modified: (date) the latest time when this schedule is modified
-        * new attrs:
             created: (date) the time when this schedule is created
             activeSession: (boolean)
             newTableName: (String)
             usePremadeCronString: (boolean) whether to use user defined cron
             premadeCronString: (String) cron defined by the user
-        * removed attrs:
-            recur
         */
         function SchedObj<%= v %>(options) {
             options = options || {};
             var self = _super.call(this, options);
             <%= addVersion %>
-
-            // XXX this is only for version 2!!!
-            if (<%= checkFunc %>(options)) {
-                delete self.recur;
-                self.created = options.created;
-                self.activeSession = options.activeSession;
-                self.newTableName = options.newTableName;
-                self.usePremadeCronString = options.usePremadeCronString;
-                self.premadeCronString = options.premadeCronString;
-            }
-
             return self;
         }
 

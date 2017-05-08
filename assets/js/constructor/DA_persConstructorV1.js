@@ -715,7 +715,6 @@
             this.created = options.created || time;
             this.modified = options.modified || time;
             this.numWorksheets = options.numWorksheets || 1;
-
             return this;
         }
 
@@ -968,6 +967,7 @@
             isRegex: (boolean) path is using regEx or not;
             headers: (array, optional) XXX temp fix to preserve CSV header order
             error: (string, optional) ds's error
+            displayFormat (string) displayed format in ds table(Excel...)
         */
         function DSObjV1(options) {
             options = options || {};
@@ -1013,6 +1013,10 @@
 
                 if (options.error != null) {
                     this.error = options.error;
+                }
+
+                if (options.displayFormat != null) {
+                    this.displayFormat = options.displayFormat;
                 }
             }
 
@@ -1113,8 +1117,11 @@
             repeat: (string) repate frequency
             freq: (number) ?
             modified: (date) modified time
-            created: (date) created time
-            recur: (number) number of runs
+            created: (date) the time when this schedule is created
+            activeSession: (boolean)
+            newTableName: (String)
+            usePremadeCronString: (boolean) whether to use user defined cron
+            premadeCronString: (String) cron defined by the user
         */
         function SchedObjV1(options) {
             options = options || {};
@@ -1125,8 +1132,11 @@
             this.timeText = options.timeText;
             this.repeat = options.repeat;
             this.modified = options.modified;
-            this.created = options.modified;
-            this.recur = options.recur;
+            this.created = options.created;
+            this.activeSession = options.activeSession;
+            this.newTableName = options.newTableName;
+            this.usePremadeCronString = options.usePremadeCronString;
+            this.premadeCronString = options.premadeCronString;
             return this;
         }
 
