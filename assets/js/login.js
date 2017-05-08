@@ -84,18 +84,7 @@ $(document).ready(function() {
         function submit() {
             isSubmitDisabled = false;
             var fullUsername = username;
-            var index = username.indexOf("/");
-            if (index > 0) {
-                username = username.substring(0, index);
-            }
-
-            var atIndex = username.indexOf("@");
-            if (atIndex > 0) {
-                username = username.substring(0, atIndex);
-            }
-
             xcSessionStorage.setItem("xcalar-username", username);
-            xcSessionStorage.setItem("xcalar-fullUsername", fullUsername);
             xcLocalStorage.setItem("lastUsername", fullUsername);
             // XXX this redirect is only for temporary use
             window.location = paths.indexAbsolute;

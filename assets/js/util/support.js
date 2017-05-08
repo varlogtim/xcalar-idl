@@ -1,5 +1,6 @@
 window.Support = (function(Support, $) {
     var username;
+    var fullUsername;
     var commitFlag;
     var commitCheckTimer;
     var commitCheckInterval = 120000; // 2 mins each check
@@ -18,9 +19,17 @@ window.Support = (function(Support, $) {
 
     var statsCache = {}; // Store temporary version of the Stats
 
-    Support.setup = function() {
+    Support.setup = function(stripEmail) {
         try {
             username = xcSessionStorage.getItem("xcalar-username");
+            fullUsername = username;
+
+            if (stripEmail) {
+                username = stripCharFromUserName(username, "@");
+            }
+            if (gCollab) {
+                username = stripCharFromUserName(username, "/");
+            }
             // set up session variables
             userIdName = username;
             userIdUnique = getUserIdUnique(username);
@@ -29,8 +38,20 @@ window.Support = (function(Support, $) {
         }
     };
 
+    function stripCharFromUserName(name, ch) {
+        var atIndex = name.indexOf(ch);
+        if (atIndex > 0) {
+            name = name.substring(0, atIndex);
+        }
+        return name;
+    }
+
     Support.getUser = function() {
         return username;
+    };
+
+    Support.getFullUsername = function() {
+        return fullUsername;
     };
 
     Support.holdSession = function() {
@@ -503,7 +524,6 @@ window.Support = (function(Support, $) {
         xcSessionStorage.removeItem(username);
         // user should force to logout
         xcSessionStorage.removeItem("xcalar-username");
-        xcSessionStorage.removeItem("xcalar-fullUsername");
 
         Alert.show({
             "title": WKBKTStr.Expire,

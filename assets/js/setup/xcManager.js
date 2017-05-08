@@ -9,13 +9,13 @@ window.xcManager = (function(xcManager, $) {
         $("body").addClass("xc-setup");
         $("#favicon").attr("href", paths.favicon);
 
-        setupUserArea();
         Compatible.check();
         setupThrift();
         // Support.setup() get username, so need to be at very eary time
         Support.setup();
         XVM.setup();
 
+        setupUserArea();
         xcTooltip.setup();
         CSHelp.setup();
         MainMenu.setup();
@@ -370,11 +370,6 @@ window.xcManager = (function(xcManager, $) {
             });
         });
 
-        var username = xcSessionStorage.getItem("xcalar-fullUsername");
-        if (username == null) {
-            username = xcSessionStorage.getItem("xcalar-username");
-        }
-
         $menu.on("mouseup", ".help", function(event) {
             if (event.which !== 1) {
                 return;
@@ -402,7 +397,7 @@ window.xcManager = (function(xcManager, $) {
             MainMenu.open(true);
         });
 
-        $("#userName").text(username);
+        $("#userName").text(Support.getFullUsername());
 
         $("#logout").mouseup(function(event) {
             if (event.which !== 1) {
@@ -1130,7 +1125,6 @@ window.xcManager = (function(xcManager, $) {
 
     function logoutRedirect() {
         xcSessionStorage.removeItem("xcalar-username");
-        xcSessionStorage.removeItem("xcalar-fullUsername");
         window.location = paths.dologout;
     }
 

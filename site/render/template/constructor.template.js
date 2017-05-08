@@ -2594,4 +2594,22 @@
         return XcQuery<%= v %>;
     }());
     /* End of Query */
+
+    /* Start of KVVersion */
+    win.KVVersion<%= v %> = (function() {
+        var _super = __getConstructor("KVVersion", parentVersion);
+        /* Attr:
+            version: <%= version %>,
+            stripEmail: (boolean) when set true,
+                        will strip email address in username
+        */
+        function KVVersion<%= v %>(options) {
+            var self = _super.call(this, options);
+            <%= addVersion %>
+            return self;
+        }
+
+        return KVVersion<%= v %>
+    }());
+    /* End of KVVersionV1 */
 }(window));

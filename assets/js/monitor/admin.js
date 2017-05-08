@@ -83,7 +83,6 @@ window.Admin = (function($, Admin) {
             return;
         }
         xcSessionStorage.setItem("xcalar-username", username);
-        xcSessionStorage.setItem("xcalar-fullUsername", username);
         if (xcSessionStorage.getItem("usingAs") !== "true") {
             xcSessionStorage.setItem("usingAs", true);
             xcSessionStorage.setItem("adminName", Support.getUser());
@@ -99,7 +98,6 @@ window.Admin = (function($, Admin) {
         xcSessionStorage.removeItem("usingAs");
         var adminName = xcSessionStorage.getItem("adminName");
         xcSessionStorage.setItem("xcalar-username", adminName);
-        xcSessionStorage.setItem("xcalar-fullUsername", adminName);
 
         xcManager.unload(false, true);
     };

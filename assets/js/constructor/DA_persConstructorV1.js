@@ -1195,4 +1195,24 @@
         return XcQueryV1;
     }());
     /* End of Query */
+
+    /* Start of KVVersion */
+    win.KVVersionV1 = (function() {
+        /* Attr:
+            version: 1,
+            stripEmail: (boolean) when set true,
+                        will strip email address in username
+        */
+        function KVVersionV1(options) {
+            options = options || {};
+            this.version = version;
+            if (options.stripEmail || currentVersion === version) {
+                this.stripEmail = true;
+            }
+            return this;
+        }
+
+        return KVVersionV1;
+    }());
+    /* End of KVVersionV1 */
 }(window));

@@ -6,7 +6,7 @@ window.XVM = (function(XVM) {
     var rcVersion = "4";
     var fullVersion = majorVersion + "." + minorVersion + "." +
                         revisionVersion + "-RC" + rcVersion;
-    var kvVersion; // equal to currentVersion;
+    var kvVersion;
     var kvVersionKey;
     var backendVersion = "";
     var licenseKey = "";
@@ -16,7 +16,6 @@ window.XVM = (function(XVM) {
     var numNodes = -1; // Set, but not used
 
     XVM.setup = function() {
-        kvVersion = currentVersion;
         kvVersionKey = "xcalar-version-" + Support.getUser();
     };
 
@@ -158,17 +157,19 @@ window.XVM = (function(XVM) {
         var firstUser = false;
 
         KVStore.get(kvVersionKey, gKVScope.VER)
-        .then(function(value) {
-            if (value == null) {
-                firstUser = true;
+        .then(function(res) {
+            var versionInfo = parseKVStoreVersionInfo(res);
+            firstUser = checkVersionInfo(versionInfo);
+
+            if (firstUser) {
                 // when it's a first time set up
                 return XVM.commitKVVersion();
             }
 
-            var version = Number(value);
-            if (isNaN(version) || version > kvVersion) {
-                xcConsole.error("Error of KVVersion", value);
-            } else if (version < kvVersion) {
+            var version = versionInfo.version;
+            if (isNaN(version) || version > currentVersion) {
+                xcConsole.error("Error of KVVersion", res);
+            } else if (version < currentVersion) {
                 needUpgrade = true;
             }
             if (needUpgrade) {
@@ -182,6 +183,44 @@ window.XVM = (function(XVM) {
 
         return deferred.promise();
     };
+
+    function parseKVStoreVersionInfo(info) {
+        if (info == null) {
+            return null;
+        }
+
+        var versionInfo;
+
+        try {
+            versionInfo = JSON.parse(info);
+        } catch (error) {
+            console.error("parse error", error);
+            return null;
+        }
+        return versionInfo;
+    }
+
+    function isValidVersionInfo(versionInfo) {
+        return (versionInfo != null && typeof versionInfo === "object");
+    }
+
+    function checkVersionInfo(versionInfo) {
+        var isNewUser = false;
+
+        if (isValidVersionInfo(versionInfo)) {
+            kvVersion = new KVVersion(versionInfo);
+        } else {
+            kvVersion = new KVVersion();
+            isNewUser = true;
+        }
+
+        if (kvVersion.stripEmail) {
+            // need to redo the username setup
+            Support.setup(true);
+        }
+
+        return isNewUser;
+    }
 
     // XXX it's not used anywhere, just for testing upgrade
     XVM.rmKVVersion = function() {

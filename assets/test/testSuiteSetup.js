@@ -28,7 +28,7 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
         if (user == null) {
             hasUser = false;
         } else {
-           autoLogin(user);
+            autoLogin(user);
         }
         var testType = params.type;
         if (testType === "undoredo") {
@@ -91,7 +91,6 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
 
     function autoLogin(user) {
         // XXX this may need to be replace after we have authentiaction
-        xcSessionStorage.setItem("xcalar-fullUsername", user);
         xcSessionStorage.setItem("xcalar-username", user);
     }
 
@@ -102,7 +101,7 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
         if (activeWorksheet != null) {
             if (whichTest === "demo") {
                 xcSessionStorage.setItem(testSuiteKey, "true");
-                console.log("run test")
+                console.log("run test");
                 return autoRunTestSuite();
             }
 
@@ -182,7 +181,7 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
         // console.log("delay", delay, "clean", clean, "animation", animation)
         setTimeout(function() {
             var deferred = jQuery.Deferred();
-            if (whichTest == "demo") {
+            if (whichTest === "demo") {
                 deferred = DemoTestSuite.run();
             } else {
                 deferred = TestSuite.run(animation, clean, noPopup, mode);
