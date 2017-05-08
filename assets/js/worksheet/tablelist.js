@@ -168,9 +168,6 @@ window.TableList = (function($, TableList) {
                 activeTableAlert(TableType.Archived);
             } else if ($section.is("#orphanedTableListSection")) {
                 TableList.activeTables(TableType.Orphan);
-                searchHelper.clearSearch(function() {
-                    clearTableListFilter($("#orphanedTableListSection"), null);
-                });
             }
             focusedListNum = null;
         });
@@ -437,8 +434,10 @@ window.TableList = (function($, TableList) {
             deferred.resolve();
         })
         .fail(function(error) {
-            Alert.error(TblTStr.ActiveFail, error);
-            deferred.reject(error);
+            if (error !== "canceled") {
+                Alert.error(TblTStr.ActiveFail, error);
+                deferred.reject(error);
+            }
         });
 
         return deferred.promise();
@@ -483,110 +482,83 @@ window.TableList = (function($, TableList) {
 
         var promises = [];
         var failures = [];
-        var tables = [];
+        var tablesAndLis = getSelectedTablesAndLis($tablesSelected, tableType,
+                                                    action, hiddenWS, tableIds);
+        var tables = tablesAndLis.tables;
+        var lis = tablesAndLis.lis;
+        if (!tables.length) {
+            deferred.reject("Error: table not found");
+            return deferred.promise();
+        }
 
-        $tableList.find(".submit").addClass("xc-hidden");
+        tooManyColAlertHelper(tables, tableType, action, destWS)
+        .then(function(res) {
+            $tableList.find(".submit").addClass("xc-hidden");
+            searchHelper.clearSearch(function() {
+                clearTableListFilter($("#orphanedTableListSection"), null);
+            });
+            if (action === "add") {
+                tables.forEach(function(tableName, index) {
+                    var $li = lis[index];
+                    promises.push((function() {
+                        var innerDeferred = jQuery.Deferred();
 
-        $tablesSelected.each(function(index, ele) {
-            if (action === "delete") {
-                var tableIdOrName;
+                        if (tableType === TableType.Orphan) {
+                            addOrphanedTable(tableName, destWS)
+                            .then(function(ws){
+                                doneHandler($li, tableName);
+                                var tableIndex = gOrphanTables.indexOf(tableName);
+                                gOrphanTables.splice(tableIndex, 1);
+                                innerDeferred.resolve(ws);
+                            })
+                            .fail(function(error) {
+                                failHandler($li, tableName, error);
+                                innerDeferred.resolve(error);
+                            });
+                        } else {
+                            var tableId = xcHelper.getTableId(tableName);
+                            var table = gTables[tableId];
+                            table.beActive();
+                            table.updateTimeStamp();
 
-                if (tableType === TableType.Orphan) {
-                    tableIdOrName = $(ele).data('tablename');
-                } else {
-                    tableIdOrName = $(ele).data('id');
-                }
-
-                tables.push(tableIdOrName);
-            } else if (action === "add") {
-                var tableId = $(ele).data("id");
-                var table = gTables[tableId];
-                // no adding back undone tables
-                if (table && table.getType() === TableType.Undone) {
-                    return;
-                }
-
-                promises.push((function() {
-                    var innerDeferred = jQuery.Deferred();
-
-                    var $li = $(ele);
-                    var tableId;
-                    if (hiddenWS) {
-                        tableId = tableIds[index];
-                    } else {
-                        tableId = $li.data("id");
-                    }
-
-                    var table = gTables[tableId];
-                    var tableName;
-
-                    if (tableType === TableType.Orphan){
-                        tableName = $li.data("tablename");
-                    } else {
-                        if (table == null) {
-                            innerDeferred.reject("Error: do not find the table");
-                            return innerDeferred.promise();
+                            TblManager.refreshTable([tableName], null, [], null)
+                            .then(function() {
+                                doneHandler($li, tableName, hiddenWS);
+                                innerDeferred.resolve();
+                            })
+                            .fail(function(error) {
+                                failHandler($li, tableName, error);
+                                innerDeferred.resolve(error);
+                            });
                         }
 
-                        tableName = table.getName();
-                    }
+                        return innerDeferred.promise();
+                    }).bind(this));
+                });
 
-                    tables.push(tableName);
-
-                    if (tableType === TableType.Orphan) {
-                        addOrphanedTable(tableName, destWS)
-                        .then(function(ws){
-                            doneHandler($li, tableName);
-                            var tableIndex = gOrphanTables.indexOf(tableName);
-                            gOrphanTables.splice(tableIndex, 1);
-                            innerDeferred.resolve(ws);
-                        })
-                        .fail(function(error) {
-                            failHandler($li, tableName, error);
-                            innerDeferred.resolve(error);
-                        });
+                PromiseHelper.chain(promises)
+                .then(function(ws) {
+                    // anything faile to alert
+                    if (failures.length > 0) {
+                        deferred.reject(failures.join("\n"));
                     } else {
-                        table.beActive();
-                        table.updateTimeStamp();
-
-                        TblManager.refreshTable([tableName], null, [], null)
-                        .then(function() {
-                            doneHandler($li, tableName, hiddenWS);
-                            innerDeferred.resolve();
-                        })
-                        .fail(function(error) {
-                            failHandler($li, tableName, error);
-                            innerDeferred.resolve(error);
-                        });
+                        if (tableType !== TableType.WSHidden) {
+                            focusOnLastTable(tables);
+                        }
+                        deferred.resolve(tables, ws);
                     }
-
-                    return innerDeferred.promise();
-
-                }).bind(this));
+                })
+                .fail(deferred.reject);
+            } else if (action === "delete") {
+                TblManager.deleteTables(tables, tableType)
+                .then(deferred.resolve)
+                .fail(deferred.reject)
+                .always(function() {
+                    $tableList.find('.addTableBtn').removeClass('selected');
+                });
             }
-        });
-
-        if (action === "add") {
-            PromiseHelper.chain(promises)
-            .then(function(ws) {
-                // anything faile to alert
-                if (failures.length > 0) {
-                    deferred.reject(failures.join("\n"));
-                } else {
-                    if (tableType !== TableType.WSHidden) {
-                        focusOnLastTable(tables);
-                    }
-                    deferred.resolve(tables, ws);
-                }
-            });
-        } else if (action === "delete") {
-            TblManager.deleteTables(tables, tableType)
-            .then(deferred.resolve)
-            .fail(deferred.reject)
-            .always(function() {
-                $tableList.find('.addTableBtn').removeClass('selected');
-            });
-        }
+        })
+        .fail(deferred.reject);
 
         return deferred.promise();
 
@@ -623,6 +595,113 @@ window.TableList = (function($, TableList) {
             failures.push(tableName + ": {" + error.error + "}");
         }
     };
+
+    function getSelectedTablesAndLis($tablesSelected, tableType, action,
+                                     hiddenWS, tableIds) {
+        var tables = [];
+        var lis = [];
+        var tableId;
+        var table;
+        var tableName;
+        $tablesSelected.each(function(index, ele) {
+            var $li = $(ele);
+            if (action === "delete") {
+                var tableIdOrName;
+
+                if (tableType === TableType.Orphan) {
+                    tableIdOrName = $li.data('tablename');
+                } else {
+                    tableIdOrName = $li.data('id');
+                }
+
+                tables.push(tableIdOrName);
+                lis.push($li);
+            } else if (action === "add") {
+                var tableId = $(ele).data("id");
+                var table = gTables[tableId];
+                // no adding back undone tables
+                if (table && table.getType() === TableType.Undone) {
+                    return;
+                }
+
+                if (hiddenWS) {
+                    tableId = tableIds[index];
+                } else {
+                    tableId = $li.data("id");
+                }
+
+                table = gTables[tableId];
+
+                if (tableType === TableType.Orphan){
+                    tableName = $li.data("tablename");
+                } else {
+                    if (table == null) {
+                        tables = [];
+                        return false;
+                    }
+
+                    tableName = table.getName();
+                }
+
+                tables.push(tableName);
+                lis.push($li);
+            }
+        });
+
+        return {tables: tables, lis: lis};
+    }
+
+    // checks number of calls and prompts for new ws if too many found
+    function tooManyColAlertHelper(tableNames, tableType, action, destWS) {
+
+        if (tableType === TableType.Orphan && action === "add" && !destWS) {
+            var deferred = jQuery.Deferred();
+            var worksheet = WSManager.getActiveWS();
+            var numWsCols = WSManager.getNumCols(worksheet);
+            var numTableCols = 0;
+            tableNames.forEach(function(tableName) {
+                var tableId = xcHelper.getTableId(tableName);
+                if (!gTables[tableId]) {
+                    numTableCols++;
+                } else {
+                    numTableCols += gTables[tableId].getNumCols();
+                }
+            });
+            var totalCols = numWsCols + numTableCols;
+            // only show alert if columns are present in ws
+            if (numWsCols && totalCols > gMaxColToPull) {
+                Alert.show({
+                    "title": DSFormTStr.CreateWarn,
+                    "msg": SideBarTStr.WSColsMsg,
+                    "onCancel": function() {
+                        deferred.reject("canceled");
+                    },
+                    "buttons": [
+                        {
+                            "name": CommonTxtTstr.Ignore.toUpperCase(),
+                            "func": function() {
+                                deferred.resolve();
+                            }
+                        },
+                        {
+                            "name": WSTStr.NewWS.toUpperCase(),
+                            "func": function() {
+                                WSManager.addWS(null, null);
+                                deferred.resolve("xc-new");
+                            },
+                            "className": "larger"
+                        }
+                    ]
+                });
+            } else {
+                deferred.resolve();
+            }
+
+            return deferred.promise();
+        } else {
+            return PromiseHelper.resolve();
+        }
+    }
 
     TableList.tablesToHiddenWS = function(wsIds) {
         var $activeList = $('#activeTableListSection');

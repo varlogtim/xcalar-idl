@@ -896,6 +896,8 @@ SideBarTStr = {
     'OverwriteErr': 'Cannot overwrite default UDF',
     'DropConsts': 'Drop Aggregates',
     'DropConstsMsg': 'Are you sure you want to drop the selected aggregate(s)?',
+    'WSColsMsg': 'Adding too many columns to the current worksheet may be slow. ' +
+                'Would you like to create a new worksheet for these tables?',
 
     // With Replace
     'UDFError': '<reason> found in line <line>'

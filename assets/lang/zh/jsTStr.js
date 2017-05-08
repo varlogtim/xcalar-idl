@@ -753,6 +753,8 @@ SideBarTStr = {
 'OverwriteErr': '不能覆盖默认的UDF',
 'DropConsts': '删除聚合',
 'DropConstsMsg': '您确定要删除所选的聚合吗？',
+'WSColsMsg': 'Adding too many columns to the current worksheet may be slow. ' +
+                'Would you like to create a new worksheet for these tables?',
 'UDFError': '<reason> 在 <line>中找到'
 };
 ExtTStr = {

@@ -1029,6 +1029,15 @@ window.WSManager = (function($, WSManager) {
         return deferred.promise();
     };
 
+    WSManager.getNumCols = function(wsId) {
+        var wsCols = 0;
+        var tableIds = WSManager.getWSById(wsId).tables;
+        for (var i = 0; i < tableIds.length; i++) {
+            wsCols += gTables[tableIds[i]].getNumCols();
+        }
+        return wsCols;
+    };
+
     // Add worksheet events, helper function for WSManager.setup()
     function addEventListeners() {
         // switch to table list
