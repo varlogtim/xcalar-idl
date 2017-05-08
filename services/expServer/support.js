@@ -21,7 +21,7 @@ require("jsdom").env("", function(err, window) {
     jQuery = require("jquery")(window);
 });
 
-var hostFile = "/config/privHosts.txt";
+var defaultHostsFile = "/etc/xcalar/default.cfg";
 var logPath = "/var/log/Xcalar.log";
 
 var bufferSize = 1024 * 1024;
@@ -50,12 +50,13 @@ function readHostsFromFile(hostFile) {
         }
         var tempHosts = hostData.split("\n");
         for (var i = 0; i < tempHosts.length; i++) {
-            var host = tempHosts[i].trim();
-            if (host.length > 1) {
-                hosts.push(host);
+            var str = tempHosts[i].trim();
+            var re = /Node\.([0-9]+)\.IpAddr=(.*)/g;
+            var matches = re.exec(str);
+            if (matches && matches.length >= 3) {
+                hosts.push(matches[2]);
             }
         }
-        console.log(hosts);
         deferred.resolve(hosts);
     });
     return deferred.promise();
@@ -63,10 +64,11 @@ function readHostsFromFile(hostFile) {
 
 function masterExecuteAction(action, slaveUrl, content) {
     var deferredOut = jQuery.Deferred();
-    getXlrRoot()
-    .then(function(xlrRoot) {
+    function readHosts() {
         var deferred = jQuery.Deferred();
-        readHostsFromFile(xlrRoot + hostFile)
+        var hostFile = process.env.XCE_CONFIG ?
+                        process.env.XCE_CONFIG : defaultHostsFile;
+        readHostsFromFile(hostFile)
         .then(function(hosts) {
             deferred.resolve(hosts);
         })
@@ -80,7 +82,9 @@ function masterExecuteAction(action, slaveUrl, content) {
             deferred.reject(retMsg);
         });
         return deferred.promise();
-    })
+    }
+
+    readHosts()
     .then(function(hosts) {
         var deferred = jQuery.Deferred();
         var retMsg;

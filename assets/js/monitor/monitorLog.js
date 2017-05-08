@@ -186,7 +186,7 @@ window.MonitorLog = (function(MonitorLog, $) {
         }, function(ret) {
             $streamBtns.removeClass("xc-disabled").addClass("streaming");
             if (ret && ret.logs) {
-                appendLog(logs);
+                appendLog(ret.logs);
             }
         });
     }
