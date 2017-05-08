@@ -283,21 +283,21 @@ describe('ColManager Test', function() {
         it('parseColFuncArgs(key) should work', function() {
             var fn = ColManager.__testOnly__.parseColFuncArgs;
 
-            expect(fn('colname')).to.deep.equal(['colname']);
-            // expect(fn('colname[child]')).to.deep.equal(['colname', 'child']);
-            // expect(fn('colname\\[child\\]')).to.deep.equal(['colname[child]']);
-            // expect(fn('colname\\[child]')).to.deep.equal(['colname[child]']);
-            // expect(fn('colname\\\\[child]')).to.deep.equal(['colname\\', 'child']);
-            // expect(fn('colname[\\[a]')).to.deep.equal(['colname', '[a']);
-            expect(fn('colname\\.child')).to.deep.equal(['colname.child']);
-            expect(fn('colname.child')).to.deep.equal(['colname', 'child']);
-            // expect(fn('colname\\.child')).to.deep.equal(['colname.child']);
-            // expect(fn('colname\\\\.child')).to.deep.equal(['colname\\', 'child']);
-            // expect(fn('colname\\\\\\.child')).to.deep.equal(['colname\\.child']);
-            // expect(fn('colname\\.\\\\.child')).to.deep.equal(['colname.\\','child']);
-            expect(fn('')).to.equal('');
+            expect(fn('colname').nested).to.deep.equal(['colname']);
+            expect(fn('colname[child]').nested).to.deep.equal(['colname', 'child']);
+            expect(fn('colname\\[child\\]').nested).to.deep.equal(['colname[child]']);
+            expect(fn('colname\\[child]').nested).to.deep.equal(['colname[child]']);
+            expect(fn('colname\\\\[child]').nested).to.deep.equal(['colname\\', 'child']);
+            expect(fn('colname[\\[a]').nested).to.deep.equal(['colname', '[a']);
+            expect(fn('colname\\.child').nested).to.deep.equal(['colname.child']);
+            expect(fn('colname.child').nested).to.deep.equal(['colname', 'child']);
+            expect(fn('colname\\.child').nested).to.deep.equal(['colname.child']);
+            expect(fn('colname\\\\.child').nested).to.deep.equal(['colname\\', 'child']);
+            expect(fn('colname\\\\\\.child').nested).to.deep.equal(['colname\\.child']);
+            expect(fn('colname\\.\\\\.child').nested).to.deep.equal(['colname.\\','child']);
+            expect(fn('').nested).to.equal('');
 
-            expect(fn('colname.child')).to.not.deep.equal(['child', 'colname']);
+            expect(fn('colname.child').nested).to.not.deep.equal(['child', 'colname']);
         });
 
         it('formatColumnCell should work', function() {

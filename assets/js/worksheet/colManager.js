@@ -1110,13 +1110,13 @@ window.ColManager = (function($, ColManager) {
             var progCol = tableCols[i];
             if (progCol.isDATACol() || progCol.isEmptyCol()) {
                 // this is the data Column
-                nestedVals.push([""]);
+                nestedVals.push({nested: [""]});
             } else {
                 var backColName = progCol.getBackColName();
                 if (!isValidColToPull(backColName)) {
-                    nested = [""];
+                    nested = {nested: [""]};
                 } else {
-                    nested = parseColFuncArgs(backColName);
+                    nested = parseColFuncArgs(backColName).nested;
                 }
 
                 nestedVals.push(nested);
@@ -1153,15 +1153,17 @@ window.ColManager = (function($, ColManager) {
                         '</td>';
 
             // loop through table tr's tds
+            var nestedTypes;
             for (var col = 0; col < numCols; col++) {
                 nested = nestedVals[col];
+                nestedTypes = nestedVals[col].types;
 
                 var indexed = (indexedColNums.indexOf(col) > -1);
                 var parseOptions = {
                     "hasIndexStyle": hasIndexStyle,
                     "indexed": indexed
                 };
-                var res = parseTdHelper(tdValue, nested,
+                var res = parseTdHelper(tdValue, nested, nestedTypes,
                                         tableCols[col], parseOptions);
                 var tdClass = "col" + (col + 1);
 
@@ -1392,8 +1394,10 @@ window.ColManager = (function($, ColManager) {
         if (!parsed) {
             return ColumnType.undefined;
         }
-        var nested = parseColFuncArgs(colName);
-        var val = getTdInfo(data, nested).tdValue;
+        var nestedInfo = parseColFuncArgs(colName);
+        var nested = nestedInfo.nested;
+        var nestedTypes = nestedInfo.types;
+        var val = getTdInfo(data, nested, nestedTypes).tdValue;
 
         return (xcHelper.parseColType(val));
     };
@@ -1401,22 +1405,12 @@ window.ColManager = (function($, ColManager) {
     function isValidColToPull(colName) {
         if (colName === "" || colName == null) {
             return false;
-        }
-
-        if (/\\.([0-9])/.test(colName)) {
-            // slash followed by dot followed by number is ok
-            // fall through
-        } else if (/\.([0-9])/.test(colName)) {
-            // dot followed by number is invalid
-            // return false; // xx disabling this to allow numbered keys such as
-            // {"1": "str"} GUI-6482 should address this issue
+        } else {
             return true;
         }
-
-        return true;
     }
 
-    function parseTdHelper(tdValue, nested, progCol, options) {
+    function parseTdHelper(tdValue, nested, nestedTypes, progCol, options) {
         options = options || {};
 
         var knf = false;
@@ -1438,7 +1432,7 @@ window.ColManager = (function($, ColManager) {
                 console.error('Error this value should not be empty');
                 tdValue = "";
             } else {
-                var tdInfo = getTdInfo(tdValue, nested);
+                var tdInfo = getTdInfo(tdValue, nested, nestedTypes);
                 tdValue = tdInfo.tdValue;
                 knf = tdInfo.knf;
                 if (tdInfo.isChildOfArray) {
@@ -1509,13 +1503,18 @@ window.ColManager = (function($, ColManager) {
 
     // helper function for parseTdHelper that returns an object with
     // tdValue string, knf boolean, and isChildOfArray boolean
-    function getTdInfo(tdValue, nested) {
+    function getTdInfo(tdValue, nested, types) {
         var knf = false;
         var nestedLength = nested.length;
         var isChildOfArray = false;
         var curVal;
 
         for (var i = 0; i < nestedLength; i++) {
+            if (types && types[i - 1] === "object" && Array.isArray(tdValue)) {
+                knf = true;
+                tdValue = null;
+                break;
+            }
             curVal = tdValue[nested[i]];
             if (curVal === null) {
                 // when tdValue is null (not undefined)
@@ -1611,7 +1610,10 @@ window.ColManager = (function($, ColManager) {
         var endingIndex = parseInt($table.find("tbody tr:last")
                                            .attr('class').substring(3)) + 1;
 
-        var nested = parseColFuncArgs(backColName);
+        var nestedInfo = parseColFuncArgs(backColName);
+        var nested = nestedInfo.nested;
+        var nestedTypes = nestedInfo.types;
+
         var indexed = (progCol.getBackColName() === table.getKeyName());
         var hasIndexStyle = table.showIndexStyle();
 
@@ -1619,7 +1621,7 @@ window.ColManager = (function($, ColManager) {
             var $jsonTd = $table.find('.row' + i + ' .col' + dataColNum);
             var jsonStr = $jsonTd.find('.originalData').text();
             var tdValue = parseRowJSON(jsonStr) || "";
-            var res = parseTdHelper(tdValue, nested, progCol, {
+            var res = parseTdHelper(tdValue, nested, nestedTypes, progCol, {
                 "indexed": indexed,
                 "hasIndexStyle": hasIndexStyle
             });
@@ -1729,7 +1731,7 @@ window.ColManager = (function($, ColManager) {
     // assumes legal syntax ie. votes[funny] and not votes[funny]blah
     function parseColFuncArgs(key) {
         if (key == null) {
-            return "";
+            return {nested:""};
         }
         key += ""; // if number, convert to string
 
@@ -1738,6 +1740,7 @@ window.ColManager = (function($, ColManager) {
         // we should not have votes\[fuuny\]
         var isEscaped = false;
         var bracketOpen = false;
+        var types = [];
         for (var i = 0; i < key.length; i++) {
             if (isEscaped) {
                 isEscaped = false;
@@ -1745,6 +1748,7 @@ window.ColManager = (function($, ColManager) {
                 if (key[i] === "[") {
                     key = key.substr(0, i) + "." + key.substr(i + 1);
                     bracketOpen = true;
+                    types.push("array");
                 } else if (key[i] === "]") {
                     if (bracketOpen) {
                         key = key.substr(0, i) + key.substr(i + 1);
@@ -1753,18 +1757,20 @@ window.ColManager = (function($, ColManager) {
                     }
                 } else if (key[i] === "\\") {
                     isEscaped = true;
+                } else if (key[i] === ".") {
+                    types.push("object");
                 }
             }
         }
         var nested = key.match(/([^\\.]|\\.)+/g);
 
         if (nested == null) {
-            return "";
+            return {nested: ""};
         }
         for (var i = 0; i < nested.length; i++) {
             nested[i] = xcHelper.unescapeColName(nested[i]);
         }
-        return nested;
+        return {nested: nested, types: types};
     }
 
     // parse json string of a table row
