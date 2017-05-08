@@ -477,8 +477,8 @@ describe("WorkbookManager Test", function() {
             });
         });
 
-        it("Should deactive workbook", function(done) {
-            WorkbookManager.deactivate(oldActiveWkbkId)
+        it("Should pause workbook", function(done) {
+            WorkbookManager.pause(oldActiveWkbkId)
             .then(function() {
                 expect(WorkbookManager.getActiveWKBK()).to.be.null;
                 done();

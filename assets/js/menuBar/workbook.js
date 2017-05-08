@@ -633,7 +633,6 @@ window.Workbook = (function($, Workbook) {
 
     function deactiveWorkbook($workbookBox) {
         var workbookId = $workbookBox.attr("data-workbook-id");
-
         WorkbookManager.deactivate(workbookId)
         .then(function() {
             updateWorkbookInfoWithReplace($workbookBox, workbookId);

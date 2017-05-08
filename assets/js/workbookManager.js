@@ -423,7 +423,8 @@ window.WorkbookManager = (function($, WorkbookManager) {
         XcalarDeactivateWorkbook(wkbk.getName())
         .then(function() {
             wkbk.setResource(false);
-            return PromiseHelper.alwaysResolve(saveWorkbook);
+            var promise = saveWorkbook();
+            return PromiseHelper.alwaysResolve(promise);
         })
         .then(deferred.resolve)
         .fail(deferred.reject)
