@@ -1400,16 +1400,16 @@ window.TestSuite = (function($, TestSuite) {
                      '"]');
         $dfg.find(".dagTable.export").click();
         $dfgViz.find(".createParamQuery").trigger(fakeEvent.mouseup);
-        var $dfgParamModal = $("#dfgParameterModal");
+        var $dfParamModal = $("#dfParamModal");
 
-        checkExists("#dfgParameterModal:visible")
+        checkExists("#dfParamModal:visible")
         .then(function() {
-            $dfgParamModal.find(".editableRow .defaultParam").click();
-            var $draggablePill = $dfgParamModal.find('.draggableDiv').eq(0);
-            $dfgParamModal.find("input.editableParamDiv").val('export-' +
+            $dfParamModal.find(".editableRow .defaultParam").click();
+            var $draggablePill = $dfParamModal.find('.draggableDiv').eq(0);
+            $dfParamModal.find("input.editableParamDiv").val('export-' +
                 $draggablePill.text() +'.csv'
             );
-            $dfgParamModal.find("input.editableParamDiv").trigger('input');
+            $dfParamModal.find("input.editableParamDiv").trigger('input');
 
             fileName = "file" + randInt();
 
@@ -1420,7 +1420,7 @@ window.TestSuite = (function($, TestSuite) {
         })
         .then(function() {
             $('#dagModleParamList').find('.row:first .paramVal').val(fileName);
-            $dfgParamModal.find(".modalBottom .confirm").click();
+            $dfParamModal.find(".modalBottom .confirm").click();
 
             checkExists(".dagTable.export.hasParam")
             .then(function() {
@@ -1465,11 +1465,11 @@ window.TestSuite = (function($, TestSuite) {
         $dfg.find(".dagTable.export").click();
         $dfgViz.find(".createParamQuery").trigger(fakeEvent.mouseup);
 
-        var $dfgParamModal = $("#dfgParameterModal");
+        var $dfParamModal = $("#dfParamModal");
         var cancelFileName = fileName + fileName;
         $('#dagModleParamList').find('.row:first .paramVal')
                                .val(cancelFileName);
-        $dfgParamModal.find(".modalBottom .confirm").click();
+        $dfParamModal.find(".modalBottom .confirm").click();
         $dfg.find(".runNowBtn").click();
         setTimeout(function() {
             $dfg.find(".runNowBtn").click(); // Cancel

@@ -1,7 +1,7 @@
-<!-- dfg Parameter Modal -->
-<div id="dfgParameterModal" class="modalContainer">
+<!-- df Parameter Modal -->
+<div id="dfParamModal" class="modalContainer">
   <div class="modalHeader">
-    <span class="text"><%= dicts.dfgParam.title %></span>
+    <span class="text"><%= dicts.dfParam.title %></span>
     <div class="headerBtn exitFullScreen" data-toggle="tooltip" data-container="body" data-placement="top auto" data-original-title="<%= dicts.common.Minimize %>">
       <i class="icon xi-exit-fullscreen"></i>
     </div>
@@ -14,34 +14,30 @@
   </div>
   <div class="modalInstruction">
     <i class="icon xi-info-circle"></i>
-    <div class="text"><%= dicts.dfgParam.instr %></div>
+    <div class="text"><%= dicts.dfParam.instr %></div>
   </div>
   <div class="modalTopMain">
     <div class="templateSection clearfix retinaSection">
-      <div class="heading"><%= dicts.dfgParam.query %>:</div>
+      <div class="heading"><%= dicts.dfParam.query %>:</div>
        <div class="templateTable">
         <div class="template flexContainer"></div>
       </div>
     </div>
     <div class="border"></div>
-    <!-- <div class="currentParameterList retinaSection" ondragover="DFParamModal.allowParamDrop(event)">
-      <div class="heading"><%= dicts.dfgParam.paramList %>:</div>
-      <div class="draggableParams"></div>
-    </div> -->
     <div class="parameterList retinaSection">
       <div class="currentParameterList" ondragover="DFParamModal.allowParamDrop(event)">
-        <div class="heading"><%= dicts.dfgParam.currParamList %>:</div>
+        <div class="heading"><%= dicts.dfParam.currParamList %>:</div>
         <div class="draggableParams currParams"></div>
       </div>
       <div class="vertical-border"></div>
       <div class="systemParameterList" ondragover="DFParamModal.allowParamDrop(event)">
-        <div class="heading"><%= dicts.dfgParam.systemParamList %>:</div>
+        <div class="heading"><%= dicts.dfParam.systemParamList %>:</div>
         <div class="draggableParams systemParams"></div>
       </div>
     </div>
     <div class="border"></div>
     <div class="editableParamQuery retinaSection">
-      <div class="heading"><%= dicts.dfgParam.editParam %>:</div>
+      <div class="heading"><%= dicts.dfParam.editParam %>:</div>
       <div class="editableTable">
         <div class="editableRow flexContainer"></div>
       </div>
@@ -49,9 +45,9 @@
     <!-- defaultListSection -->
     <div class="defaultListSection retinaParameter">
       <div class="tableHeader">
-        <div class="cell paramNameWrap"><%= dicts.dfgParam.param %></div>
-        <div class="cell paramValWrap"><%= dicts.dfgParam.val %></div>
-        <div class="cell paramActionWrap"><%= dicts.dfgParam.empty %></div>
+        <div class="cell paramNameWrap"><%= dicts.dfParam.param %></div>
+        <div class="cell paramValWrap"><%= dicts.dfParam.val %></div>
+        <div class="cell paramActionWrap"><%= dicts.dfParam.empty %></div>
       </div>
       <div class="tableContainer">
         <div id="dagModleParamList" class="tableWrapper"></div>

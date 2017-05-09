@@ -758,7 +758,7 @@ module.exports = {
         "incSampleTip": "Picks a sample record for each row and populates the values that are not involved in the group by operation with data from this record"
     },
 
-    "dfgParam": {
+    "dfParam": {
         "title": "Parameterize Operation",
         "instr": "To convert this operation into a parameterized operation, please click the add new parameterized operation button and drag and drop the parameters into their appropriate places.",
         "query": "Original Operation",

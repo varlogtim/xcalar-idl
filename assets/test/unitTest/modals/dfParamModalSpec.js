@@ -1,5 +1,5 @@
 describe("DFParamModal Test", function() {
-    var $modal; // $("#dfgParameterModal")
+    var $modal; // $("#dfParamModal")
     var testDfName;
     var tableName;
     var tableId;
@@ -8,7 +8,7 @@ describe("DFParamModal Test", function() {
     var colName;
 
     before(function(done) {
-        $modal = $("#dfgParameterModal");
+        $modal = $("#dfParamModal");
 
         testDfName = xcHelper.randName("unitTestParamDF");
         var testDSObj = testDatasets.fakeYelp;
@@ -172,7 +172,6 @@ describe("DFParamModal Test", function() {
                 });
             });
         });
-
 
         after(function() {
             DFParamModal.__testOnly__.closeDFParamModal();

@@ -307,7 +307,7 @@ module.exports = {
         "header": "删除表",
         "instr": "为了释放应用程序的空间，请删除不使用的表。"
     },
-    "dfgParam": {
+    "dfParam": {
         "currParamList": "当前参数列表",
         "editParam": "参数化操作",
         "empty": "空值",

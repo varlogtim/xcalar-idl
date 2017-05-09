@@ -222,8 +222,8 @@ describe('DFCard Test', function() {
 
 
             DFParamModal.show($dfWrap.find('.dagTable').last());
-            $("#dfgParameterModal").find('.editableTable input.editableParamDiv')
-                                   .val(testDfName + Date.now() + '.csv');
+            $("#dfParamModal").find('.editableTable input.editableParamDiv')
+                                .val(testDfName + Date.now() + '.csv');
 
             DFParamModal.__testOnly__.storeRetina()
             .then(function() {
