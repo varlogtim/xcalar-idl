@@ -10,22 +10,30 @@ window.Concurrency = (function($, Concurrency) {
     var backoffBasis = 100; // Start time for exponential backoff.
     var backoffTimeLimit = 10 * 1000; // Max time allowed for a trial before
                                       // asking user for action
+    // constants
+    Concurrency.NoKey = "Key seems non-existent";
+    Concurrency.NoLock = "Lock cannot be undefined";
+    Concurrency.AlreadyInit = "Mutex already initialized";
+    Concurrency.OverLimit = "Limit exceeded";
+    Concurrency.NoKVStore = "kvStore / kvEntry not found";
 
     Concurrency.initLock = function(lock) {
         var deferred = jQuery.Deferred();
         if (!lock) {
-            console.error("Lock cannot be undefined");
-            return PromiseHelper.reject("Lock cannot be undefined");
+            console.error(Concurrency.NoLock);
+            return PromiseHelper.reject(Concurrency.NoLock);
         }
         XcalarKeyLookup(lock.key, lock.scope)
         .then(function(ret) {
             if (ret === null) {
                 return XcalarKeyPut(lock.key, unlocked, false, lock.scope);
             } else {
-                return PromiseHelper.reject("Mutex already initialized");
+                return PromiseHelper.reject(Concurrency.AlreadyInit);
             }
         })
-        .then(deferred.resolve, deferred.reject);
+        .then(deferred.resolve, deferred.reject)
+        .fail(deferred.reject);
+
         return deferred.promise();
     };
 
@@ -34,12 +42,12 @@ window.Concurrency = (function($, Concurrency) {
     };
 
 
-    // Caller must look out for deferred.reject("Limit exceeded") and handle it
-    // appropriately.
+    // Caller must look out for deferred.reject(Concurrency.OverLimit)
+    // and handle it appropriately.
     Concurrency.lock = function(lock, startBackoffBasis) {
         if (!lock) {
-            console.error("Lock cannot be undefined");
-            return PromiseHelper.reject("Lock cannot be undefined");
+            console.error(Concurrency.NoLock);
+            return PromiseHelper.reject(Concurrency.NoLock);
         }
         var s ="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         var lockString = Array.apply(null, Array(88)).map(function() {
@@ -58,7 +66,7 @@ window.Concurrency = (function($, Concurrency) {
 
     function retryLock(scope, key, lockString, deferred, timeout) {
         if (timeout > backoffTimeLimit) {
-            return deferred.reject("Limit exceeded");
+            return deferred.reject(Concurrency.OverLimit);
         }
         // No locks can stay locked across restarts because XD is dead by then
         XcalarKeySetIfEqual(scope, false, key, unlocked, lockString)
@@ -69,7 +77,7 @@ window.Concurrency = (function($, Concurrency) {
             } else {
                 // This happens when status is kvStore not found or kvEntry
                 // not found.
-                deferred.reject("kvStore / kvEntry not found");
+                deferred.reject(Concurrency.NoKVStore);
             }
         })
         .fail(function(tError) {
@@ -89,14 +97,14 @@ window.Concurrency = (function($, Concurrency) {
     Concurrency.unlock = function(lock, lockString) {
         var deferred = jQuery.Deferred();
         if (!lock) {
-            console.error("Lock cannot be undefined");
-            return PromiseHelper.reject("Lock cannot be undefined");
+            console.error(Concurrency.NoLock);
+            return PromiseHelper.reject(Concurrency.NoLock);
         }
         XcalarKeyLookup(lock.key, lock.scope)
         .then(function(ret) {
             if (!ret) {
-                console.warn("Key seems non-existent");
-                deferred.reject();
+                console.warn(Concurrency.NoKey);
+                deferred.reject(Concurrency.NoKey);
             } else {
                 console.log(ret);
                 if (ret.value === lockString) {
@@ -112,22 +120,24 @@ window.Concurrency = (function($, Concurrency) {
                     deferred.resolve();
                 }
             }
-        });
+        })
+        .fail(deferred.reject);
+
         return deferred.promise();
     };
 
     Concurrency.forceUnlock = function(lock) {
         if (!lock) {
-            console.error("Lock cannot be undefined");
-            return PromiseHelper.reject("Lock cannot be undefined");
+            console.error(Concurrency.NoLock);
+            return PromiseHelper.reject(Concurrency.NoLock);
         }
         return XcalarKeyPut(lock.key, unlocked, false, lock.scope);
     };
 
     Concurrency.tryLock = function(lock) {
         if (!lock) {
-            console.error("Lock cannot be undefined");
-            return PromiseHelper.reject("Lock cannot be undefined");
+            console.error(Concurrency.NoLock);
+            return PromiseHelper.reject(Concurrency.NoLock);
         }
         // unless backoffTimeLimit is less than 2, otherwise this will cause
         // retryLock function to only run once
@@ -137,14 +147,14 @@ window.Concurrency = (function($, Concurrency) {
     Concurrency.isLocked = function(lock) {
         var deferred = jQuery.Deferred();
         if (!lock) {
-            console.error("Lock cannot be undefined");
-            return PromiseHelper.reject("Lock cannot be undefined");
+            console.error(Concurrency.NoLock);
+            return PromiseHelper.reject(Concurrency.NoLock);
         }
         XcalarKeyLookup(lock.key, lock.scope)
         .then(function(ret) {
             if (!ret) {
-                console.warn("Key seems non-existent");
-                deferred.reject();
+                console.warn(Concurrency.NoKey);
+                deferred.reject(Concurrency.NoKey);
             } else {
                 if (ret.value === unlocked) {
                     deferred.resolve(false);
@@ -153,7 +163,9 @@ window.Concurrency = (function($, Concurrency) {
                 }
             }
 
-        });
+        })
+        .fail(deferred.reject);
+
         return deferred.promise();
     };
 

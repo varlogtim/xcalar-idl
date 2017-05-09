@@ -13,31 +13,31 @@ describe("Concurrency Test", function() {
             .then(function() {
                 throw "Error";
             }, function(errorMessage) {
-                expect(errorMessage).to.equal("Lock cannot be undefined");
+                expect(errorMessage).to.equal(Concurrency.NoLock);
                 return Concurrency.lock();
             })
             .then(function() {
                 throw "Error";
             }, function(errorMessage) {
-                expect(errorMessage).to.equal("Lock cannot be undefined");
+                expect(errorMessage).to.equal(Concurrency.NoLock);
                 return Concurrency.tryLock();
             })
             .then(function() {
                 throw "Error";
             }, function(errorMessage) {
-                expect(errorMessage).to.equal("Lock cannot be undefined");
+                expect(errorMessage).to.equal(Concurrency.NoLock);
                 return Concurrency.forceUnlock();
             })
             .then(function() {
                 throw "Error";
             }, function(errorMessage) {
-                expect(errorMessage).to.equal("Lock cannot be undefined");
+                expect(errorMessage).to.equal(Concurrency.NoLock);
                 return Concurrency.isLocked();
             })
             .then(function() {
                 throw "Error";
             }, function(errorMessage) {
-                expect(errorMessage).to.equal("Lock cannot be undefined");
+                expect(errorMessage).to.equal(Concurrency.NoLock);
                 done();
             });
         });
@@ -48,7 +48,8 @@ describe("Concurrency Test", function() {
             .then(function() {
                 throw "Error";
             })
-            .fail(function() {
+            .fail(function(error) {
+                expect(error).to.equal(Concurrency.NoKVStore);
                 done();
             });
         });
@@ -59,7 +60,8 @@ describe("Concurrency Test", function() {
             .then(function() {
                 throw "Error";
             })
-            .fail(function() {
+            .fail(function(error) {
+                expect(error).to.equal("Error: Invalid argument");
                 done();
             });
         });
@@ -70,7 +72,8 @@ describe("Concurrency Test", function() {
             .then(function() {
                 throw "Error";
             })
-            .fail(function() {
+            .fail(function(error) {
+                expect(error).to.equal(Concurrency.NoKey);
                 done();
             });
         });
@@ -81,7 +84,8 @@ describe("Concurrency Test", function() {
             .then(function() {
                 throw "Error";
             })
-            .fail(function() {
+            .fail(function(error) {
+                expect(error).to.equal(Concurrency.NoKey);
                 done();
             });
         });
@@ -102,7 +106,8 @@ describe("Concurrency Test", function() {
             .then(function() {
                 throw "Should not be able to double init";
             })
-            .fail(function() {
+            .fail(function(error) {
+                expect(error).to.equal(Concurrency.AlreadyInit);
                 done();
             });
         });
@@ -113,7 +118,7 @@ describe("Concurrency Test", function() {
                 throw "Should not get lock!";
             })
             .fail(function(errorMessage) {
-                expect(errorMessage).to.equal("Limit exceeded");
+                expect(errorMessage).to.equal(Concurrency.OverLimit);
                 done();
             });
         });
@@ -124,7 +129,7 @@ describe("Concurrency Test", function() {
                 throw "Should not get lock!";
             })
             .fail(function(errorMessage) {
-                expect(errorMessage).to.equal("Lock cannot be undefined");
+                expect(errorMessage).to.equal(Concurrency.NoLock);
                 done();
             });
         });
