@@ -235,6 +235,18 @@ window.UserSettings = (function($, UserSettings) {
             }
         });
 
+        $("#hideSysOps").click(function() {
+            var $checkbox = $(this);
+            $checkbox.toggleClass("checked");
+            if ($checkbox.hasClass("checked")) {
+                UserSettings.setPref("hideSysOps", true, true);
+                QueryManager.toggleSysOps(true);
+            } else {
+                UserSettings.setPref("hideSysOps", false, true);
+                QueryManager.toggleSysOps(false);
+            }
+        });
+
         $("#enableFileBox").click(function() {
             var $checkbox = $(this);
             $checkbox.toggleClass('checked');
@@ -323,6 +335,7 @@ window.UserSettings = (function($, UserSettings) {
         var dsSampleLimit = UserSettings.getPref("DsDefaultSampleSize");
         var enableCreateTable = UserSettings.getPref("enableCreateTable");
         var hideXcUDF = UserSettings.getPref("hideXcUDF");
+        var hideSysOps = UserSettings.getPref("hideSysOps");
 
         if (!hideDataCol) {
             $("#showDataColBox").addClass("checked");
@@ -330,6 +343,10 @@ window.UserSettings = (function($, UserSettings) {
 
         if (hideXcUDF) {
             $("#hideXcUDF").addClass("checked");
+        }
+
+        if (hideSysOps) {
+            $("#hideSysOps").addClass("checked");
         }
 
         if (showFile) {

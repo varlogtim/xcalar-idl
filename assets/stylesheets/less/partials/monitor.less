@@ -202,13 +202,26 @@
             background-color: @color-bg-light-navy;
         }
 
-        &.hiddenType {
-            background-color: (@color-bg-light-navy * 1.7);
-            display: none;
+        &.sysType {
+            .name {
+                color: @color-font-pinkish-grey;
+            }
+            .progressBar {
+                background-color: @color-font-pinkish-grey;
+            }
+            .queryIcon {
+                color: @color-font-pinkish-grey;
+            }
         }
 
         .queryIcon {
             font-size: 15px;
+        }
+    }
+
+    &.hideSysOps {
+        .sysType {
+            display: none;
         }
     }
 

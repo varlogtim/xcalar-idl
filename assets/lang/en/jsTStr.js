@@ -104,7 +104,7 @@ TooltipTStr = {
     "ComplementRestriction": "Complement table only available for Filter",
     "AddToWorksheet": "Add To Worksheet",
     "NoActiveUndone": "Tables in an undo state cannot be added to the worksheet",
-
+    "SysOperation": "System generated operation",
 
     // Sync with htmlTStr
     "IcvGenerating": "Erroneous rows(ER) table is generating",

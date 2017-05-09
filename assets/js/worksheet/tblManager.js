@@ -516,7 +516,8 @@ window.TblManager = (function($, TblManager) {
             };
             txId = Transaction.start({
                 "operation": SQLOps.DeleteTable,
-                "sql": sql
+                "sql": sql,
+                "steps": tables.length
             });
         }
 

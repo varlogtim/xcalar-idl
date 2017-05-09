@@ -5,10 +5,17 @@ window.QueryManager = (function(QueryManager, $) {
     var queryCheckList = {}; // setTimeout timers
     var canceledQueries = {}; // for canceled queries that have been deleted
                               // but the operation has not returned yet
-    var hiddenQueryTypes = [SQLOps.ProfileSort, SQLOps.ProfileBucketing,
+    // XXX store this as a query property
+    var sysQueryTypes = [SQLOps.ProfileSort, SQLOps.ProfileBucketing,
                            SQLOps.ProfileAgg, SQLOps.ProfileStats,
                            SQLOps.RenameTable, SQLOps.RenameOrphanTable,
-                           SQLOps.QuickAgg, SQLOps.Corr, SQLOps.PreviewDS];
+                           SQLOps.QuickAgg, SQLOps.Corr, SQLOps.PreviewDS,
+                           SQLOps.DestroyPreviewDS];
+    var nonCancelableTypes = [SQLOps.RenameTable, SQLOps.RenameOrphanTable,
+                            SQLOps.DestroyDS, SQLOps.DestroyPreviewDS,
+                            SQLOps.DeleteTable, SQLOps.DeleteAgg];
+    var noOutputs = [SQLOps.DestroyDS, SQLOps.DestroyPreviewDS,
+                            SQLOps.DeleteTable, SQLOps.DeleteAgg];
 
     // constant
     var checkInterval = 2000; // check query every 2s
@@ -36,6 +43,9 @@ window.QueryManager = (function(QueryManager, $) {
             numSteps = subQueries.length;
         } else {
             type = "xcFunction";
+        }
+        if (nonCancelableTypes.indexOf(name) > -1) {
+            options.cancelable = false;
         }
 
         var mainQuery = new XcQuery({
@@ -66,7 +76,8 @@ window.QueryManager = (function(QueryManager, $) {
         if (type === "xcQuery") {
             runXcQuery(id, mainQuery, subQueries);
         } else {
-            if (hiddenQueryTypes.indexOf(name) === -1) {
+            if (UserSettings.getPref("hideSysOps") &&
+                sysQueryTypes.indexOf(name) > -1) {
                 updateQueryTextDisplay("");
             }
         }
@@ -219,14 +230,7 @@ window.QueryManager = (function(QueryManager, $) {
         delete queryLists[id];
         var $query = $queryList.find('.query[data-id="' + id + '"]');
         if ($query.hasClass('active')) {
-            updateQueryTextDisplay("", true);
-            updateStatusDetail({
-                "start": CommonTxtTstr.NA,
-                "elapsed": CommonTxtTstr.NA,
-                "remaining": CommonTxtTstr.NA,
-                "total": CommonTxtTstr.NA,
-            }, id, QueryStatus.RM);
-            updateOutputSection(id, true);
+            setDisplayToDefault();
         }
         $query.remove();
         $('.tooltip').hide();
@@ -295,7 +299,7 @@ window.QueryManager = (function(QueryManager, $) {
             XcalarCancelOp(mainQuery.subQueries[currStep].dstTable,
                            statusesToIgnore)
             .then(function(ret) {
-                console.info('coperation submitted', ret);
+                console.info('operation submitted', ret);
                 deferred.resolve();
             })
             .fail(deferred.reject); // errors being handled inside XcalarCancelOp
@@ -423,6 +427,7 @@ window.QueryManager = (function(QueryManager, $) {
     };
 
     QueryManager.restore = function(queries) {
+        QueryManager.toggleSysOps(UserSettings.getPref("hideSysOps"));
         if (!queries) {
             return;
         }
@@ -472,6 +477,18 @@ window.QueryManager = (function(QueryManager, $) {
         if (html) {
             $queryList.find('.hint').addClass('xc-hidden')
                        .end().append(html);
+        }
+    };
+
+    QueryManager.toggleSysOps = function(hide) {
+        if (hide) {
+            $queryList.addClass("hideSysOps");
+            if ($queryList.find(".sysType.active").length) {
+                setDisplayToDefault();
+                $queryList.find(".active").removeClass(".active");
+            }
+        } else {
+            $queryList.removeClass("hideSysOps");
         }
     };
 
@@ -686,7 +703,8 @@ window.QueryManager = (function(QueryManager, $) {
     }
 
     function focusOnQuery($target) {
-        if ($target.hasClass("active") || $target.hasClass("hiddenType")) {
+        if ($target.hasClass("active") || ($target.hasClass("sysType") &&
+            UserSettings.getPref("hideSysOps"))) {
             return;
         }
 
@@ -734,7 +752,11 @@ window.QueryManager = (function(QueryManager, $) {
         var state = mainQuery.getState();
         var id = mainQuery.id;
         var $text = $queryDetail.find(".op .text");
-        $text.text(mainQuery.name);
+        var name = mainQuery.name;
+        if (sysQueryTypes.indexOf(name) > -1) {
+            name = "Sys-" + name;
+        }
+        $text.text(name);
 
         if (state === QueryStateT.qrNotStarted ||
             state === QueryStateT.qrProcessing) {
@@ -849,10 +871,10 @@ window.QueryManager = (function(QueryManager, $) {
         var mainQuery = queryLists[id];
         var queryState = mainQuery.getState();
         var dstTableState = mainQuery.getOutputTableState();
-        // XXX TODO: more checks on which outputs can be viewed and/or determine
-        // the correct output
+
         if (queryState === QueryStatus.Done && mainQuery.getOutputTableName() &&
-            mainQuery.getName() !== "profile") {
+            sysQueryTypes.indexOf(mainQuery.getName()) === -1 &&
+            noOutputs.indexOf(mainQuery.getName()) === -1) {
             var dstTableName = mainQuery.getOutputTableName();
 
             if (dstTableState === "active" || dstTableState === "exported" ||
@@ -1444,8 +1466,10 @@ window.QueryManager = (function(QueryManager, $) {
                     queryObj.state === QueryStatus.Cancel) {
                     abbrQueryObj.name = queryObj.name;
                     abbrQueryObj.queryStr = queryObj.getQuery();
+                    queryMap[queryObj.fullName] = abbrQueryObj;
+                } else {
+                    queryMap[queryObj.sqlNum] = abbrQueryObj;
                 }
-                queryMap[queryObj.sqlNum] = abbrQueryObj;
             }
         }
         for (var i in queryMap) {
@@ -1461,7 +1485,7 @@ window.QueryManager = (function(QueryManager, $) {
         } else if (a.time < b.time) {
             return -1;
         } else {
-            return a.id > b.id;
+            return a.sqlNum > b.sqlNum;
         }
     }
 
@@ -1491,7 +1515,13 @@ window.QueryManager = (function(QueryManager, $) {
         var statusClass = "";
         var pct;
         var step = "";
-        var name = xcQuery.getName();
+        var originalName = xcQuery.getName();
+        var name = originalName;
+        var tooltip = "";
+        if (sysQueryTypes.indexOf(name) > -1) {
+            name = "Sys-" + name;
+            tooltip = TooltipTStr.SysOperation;
+        }
         if (restored) {
             statusClass = xcQuery.state;
             if (xcQuery.state === QueryStatus.Done) {
@@ -1506,8 +1536,8 @@ window.QueryManager = (function(QueryManager, $) {
             pct = 0;
             step = "";
         }
-        if (hiddenQueryTypes.indexOf(name) > -1) {
-            statusClass += " hiddenType";
+        if (sysQueryTypes.indexOf(originalName) > -1) {
+            statusClass += " sysType";
         }
         var html =
             '<div class="xc-query query no-selection ' + statusClass +
@@ -1518,7 +1548,9 @@ window.QueryManager = (function(QueryManager, $) {
                         '<i class="icon queryIcon error xi-error"></i>' +
                         '<i class="icon queryIcon done xi-success"></i>' +
                     '</div>' +
-                    '<div class="middlePart name">' +
+                    '<div class="middlePart name" data-original-title="' +
+                        tooltip + '" data-toggle="tooltip" ' +
+                        'data-placement="top" data-container="body">' +
                         name +
                     '</div>' +
                     '<div class="rightPart">' +
@@ -1671,6 +1703,18 @@ window.QueryManager = (function(QueryManager, $) {
     function clearIntervalHelper(id) {
         clearTimeout(queryCheckList[id]);
         delete queryCheckList[id];
+    }
+
+
+    function setDisplayToDefault() {
+        updateQueryTextDisplay("", true);
+        updateStatusDetail({
+            "start": CommonTxtTstr.NA,
+            "elapsed": CommonTxtTstr.NA,
+            "remaining": CommonTxtTstr.NA,
+            "total": CommonTxtTstr.NA,
+        }, null, QueryStatus.RM);
+        updateOutputSection(null, true);
     }
 
      /* Unit Test Only */
