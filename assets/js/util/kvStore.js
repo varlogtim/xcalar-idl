@@ -16,6 +16,12 @@ window.KVStore = (function($, KVStore) {
         KVStore.commitKey = KVStore.gStorageKey + "-" + "commitKey";
     };
 
+    KVStore.genMutex = function(kvKey, scope) {
+        var mutexKey = kvKey + "-mutex";
+        var mutex = new Mutex(mutexKey, scope);
+        return mutex;
+    };
+
     KVStore.get = function(key, scope) {
         var deferred = jQuery.Deferred();
 
@@ -81,6 +87,67 @@ window.KVStore = (function($, KVStore) {
         });
 
         return (deferred.promise());
+    };
+
+    KVStore.putWithMutex = function(key, value, persist, scope, noCommitCheck) {
+        var deferred = jQuery.Deferred();
+        var lock = KVStore.genMutex(key, scope);
+
+        commitCheck()
+        .then(function() {
+            return lockAndPut();
+        })
+        .then(deferred.resolve)
+        .fail(function(error) {
+            if (error === ConcurrencyEnum.NoKVStore) {
+                // XXX it's an error handling code, fix me if not correct
+                Concurrency.initLock(lock)
+                .then(lockAndPut)
+                .then(deferred.resolve)
+                .fail(deferred.reject);
+            } else {
+                deferred.reject(error);
+            }
+        });
+
+        function commitCheck() {
+            if (noCommitCheck) {
+                return PromiseHelper.resolve();
+            } else {
+                return Support.commitCheck();
+            }
+        }
+
+        function lockAndPut() {
+            var innerDeferred = jQuery.Deferred();
+            var lockString;
+
+            Concurrency.tryLock(lock)
+            .then(function(res) {
+                lockString = res;
+                console.log("lock key", key, "with", lockString);
+                return XcalarKeyPut(key, value, persist, scope);
+            })
+            .then(function() {
+                return Concurrency.unlock(lock, lockString);
+            })
+            .then(innerDeferred.resolve)
+            .fail(function(error) {
+                console.error("Put to KV Store with mutex fails!", error);
+                if (lockString != null) {
+                    Concurrency.unlock(lock, lockString)
+                    .always(function() {
+                        innerDeferred.reject(error);
+                    });
+                } else {
+                    innerDeferred.reject(error);
+                }
+            });
+
+            return innerDeferred.promise();
+        }
+
+        return deferred.promise();
     };
 
     KVStore.append = function(key, value, persist, scope) {

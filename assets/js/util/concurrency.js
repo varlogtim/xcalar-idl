@@ -10,12 +10,6 @@ window.Concurrency = (function($, Concurrency) {
     var backoffBasis = 100; // Start time for exponential backoff.
     var backoffTimeLimit = 10 * 1000; // Max time allowed for a trial before
                                       // asking user for action
-    // constants
-    ConcurrencyEnum.NoKey = "Key seems non-existent";
-    ConcurrencyEnum.NoLock = "Lock cannot be undefined";
-    ConcurrencyEnum.AlreadyInit = "Mutex already initialized";
-    ConcurrencyEnum.OverLimit = "Limit exceeded";
-    ConcurrencyEnum.NoKVStore = "kvStore / kvEntry not found";
 
     // NOTE: This function can only be called ONCE by ONE instance.
     // Otherwise you are going to run into races
@@ -28,6 +22,7 @@ window.Concurrency = (function($, Concurrency) {
         XcalarKeyLookup(lock.key, lock.scope)
         .then(function(ret) {
             if (ret === null) {
+                console.log("initialize", lock.key);
                 return XcalarKeyPut(lock.key, unlocked, false, lock.scope);
             } else {
                 return PromiseHelper.reject(ConcurrencyEnum.AlreadyInit);
@@ -115,7 +110,6 @@ window.Concurrency = (function($, Concurrency) {
                     .then(deferred.resolve)
                     .fail(deferred.reject);
                 } else {
-                    console.log(ret);
                     // Looks like someone forced me out. Nothing for me to do
                     console.warn("Lock has been forcefully taken away, or " +
                                "unlocker is not the same as the locker. noop.");

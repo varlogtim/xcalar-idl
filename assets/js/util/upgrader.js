@@ -291,8 +291,8 @@ window.Upgrader = (function(Upgrader, $) {
         var genSettingsKey = globalKeys.gSettingsKey;
         var genSettings = globalCache.genSettings;
 
-        var def1 = checkAndWrite(eMetaKey, eMeta, gKVScope.EPHM);
-        var def2 = checkAndWrite(genSettingsKey, genSettings, gKVScope.GLOB);
+        var def1 = checkAndWrite(eMetaKey, eMeta, gKVScope.EPHM, true);
+        var def2 = checkAndWrite(genSettingsKey, genSettings, gKVScope.GLOB, true);
         return PromiseHelper.when(def1, def2);
     }
 
@@ -338,15 +338,15 @@ window.Upgrader = (function(Upgrader, $) {
         return PromiseHelper.when(def1, def2, def3);
     }
 
-    function checkAndWrite(key, value, scope) {
+    function checkAndWrite(key, value, scope, needMutex) {
         var deferred = jQuery.Deferred();
 
         KVStore.get(key, scope)
         .then(function(oldValue) {
             if (oldValue != null) {
-                xcConsole.log("info of new version already exist");
+                console.log("info of new version already exist");
             } else {
-                return writeHelper(key,value, scope);
+                return writeHelper(key, value, scope, null, needMutex);
             }
 
             deferred.resolve();
@@ -357,7 +357,7 @@ window.Upgrader = (function(Upgrader, $) {
         return deferred.promise();
     }
 
-    function writeHelper(key, value, scope, alreadyStringify) {
+    function writeHelper(key, value, scope, alreadyStringify, needMutex) {
         if (value == null) {
             // skip null value
             return PromiseHelper.resolve();
@@ -369,7 +369,12 @@ window.Upgrader = (function(Upgrader, $) {
         } else {
             stringified = value;
         }
-        return XcalarKeyPut(key, stringified, true, scope);
+
+        if (needMutex) {
+            return KVStore.putWithMutex(key, stringified, true, scope, true);
+        } else {
+            return XcalarKeyPut(key, stringified, true, scope);
+        }
     }
     /* end of write part */
 

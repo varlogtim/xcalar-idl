@@ -72,13 +72,13 @@ window.UserSettings = (function($, UserSettings) {
                 if (gXcSupport) {
                     genSettings.updateXcSettings(UserSettings
                                                  .getPref('general'));
-                    userPrefPromise = KVStore.put(KVStore.gSettingsKey,
+                    userPrefPromise = KVStore.putWithMutex(KVStore.gSettingsKey,
                             JSON.stringify(genSettings.getAdminAndXcSettings()),
                                 true, gKVScope.GLOB);
                 } else if (Admin.isAdmin()) {
                     genSettings.updateAdminSettings(
                                             UserSettings.getPref('general'));
-                    userPrefPromise = KVStore.put(KVStore.gSettingsKey,
+                    userPrefPromise = KVStore.putWithMutex(KVStore.gSettingsKey,
                             JSON.stringify(genSettings.getAdminAndXcSettings()),
                                 true, gKVScope.GLOB);
                 } else if (!hasDSChange) {

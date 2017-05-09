@@ -603,6 +603,10 @@ window.WorkbookManager = (function($, WorkbookManager) {
         return deferred.promise();
     };
 
+    WorkbookManager.getGlobalScopeKeys = function(version) {
+        return getGlobalScopeKeys(version);
+    };
+
     function initializeVariable() {
         var username = Support.getUser();
         // key that stores all workbook infos for the user

@@ -36,11 +36,13 @@ window.xcManager = (function(xcManager, $) {
         var firstTimeUser;
 
         XVM.checkVersionAndLicense()
+        .then(function() {
+            // First XD instance to run since cluster restart
+            return oneTimeSetup();
+        })
         .then(XVM.checkKVVersion)
         .then(function(isFirstTimeUser) {
             firstTimeUser = isFirstTimeUser;
-            // First XD instance to run since cluster restart
-            return oneTimeSetup();
         })
         .then(setupSession)
         .then(function() {
@@ -310,18 +312,40 @@ window.xcManager = (function(xcManager, $) {
     };
 
     function oneTimeSetup() {
+        function initLocks() {
+            var keys = WorkbookManager.getGlobalScopeKeys(currentVersion);
+            var keyAttrs = [{
+                "key": keys.gEphStorageKey,
+                "scope": gKVScope.EPHM
+            }, {
+                "key": keys.gSettingsKey,
+                "scope": gKVScope.GLOB
+            }];
+            var promises = [];
+
+            keyAttrs.forEach(function(keyAttr) {
+                var mutex = KVStore.genMutex(keyAttr.key, keyAttr.scope);
+                promises.push(Concurrency.initLock(mutex));
+            });
+
+            return PromiseHelper.when.apply(this, promises);
+        }
+
         function actualOneTimeSetup() {
             var def = jQuery.Deferred();
 
             function initPhase() {
-                var deferred = jQuery.Deferred();
-                // Your changes go here, then do the .then for XcalarKeyPut
-                XcalarKeyPut(GlobalKVKeys.InitFlag,
-                             InitFlagState.AlreadyInit, false,
-                             gKVScope.INIT)
-                .then(deferred.resolve)
-                .fail(deferred.reject);
-                return deferred.promise();
+                var innerDeferred = jQuery.Deferred();
+                initLocks()
+                .then(function() {
+                    return XcalarKeyPut(GlobalKVKeys.InitFlag,
+                                        InitFlagState.AlreadyInit, false,
+                                        gKVScope.INIT);
+                })
+                .then(innerDeferred.resolve)
+                .fail(innerDeferred.reject);
+
+                return innerDeferred.promise();
             }
 
             XcalarKeyLookup(GlobalKVKeys.InitFlag, gKVScope.INIT)
@@ -333,7 +357,8 @@ window.xcManager = (function(xcManager, $) {
                     .then(def.resolve)
                     .fail(def.reject);
                 }
-            });
+            })
+            .fail(def.reject);
 
             return def.promise();
         }
@@ -349,61 +374,59 @@ window.xcManager = (function(xcManager, $) {
                      "you can force the current initialization to overwrite " +
                      "any concurrent / previously disrupted initialization.",
                 hideButtons: ["cancel"],
-                buttons: [
-                            {
-                                name: "Retry",
-                                className: "retry",
-                                func: function() {
-                                    $("#initialLoadScreen").show();
-                                    setTimeout(function() {
-                                        XcalarKeyLookup(GlobalKVKeys.InitFlag,
-                                                        gKVScope.INIT)
-                                        .then(function(ret) {
-                                            if (ret && ret.value ===
-                                                    InitFlagState.AlreadyInit) {
-                                                return deferred.resolve();
-                                            } else {
-                                                showForceAlert(deferred);
-                                            }
-                                        })
-                                        .fail(function(err) {
-                                            console.error(err);
-                                            showForceAlert(deferred);
-                                        });
-                                    }, 5000);
-                                    console.log("Retry");
+                buttons: [{
+                    name: "Retry",
+                    className: "retry",
+                    func: function() {
+                        $("#initialLoadScreen").show();
+                        setTimeout(function() {
+                            XcalarKeyLookup(GlobalKVKeys.InitFlag,
+                                            gKVScope.INIT)
+                            .then(function(ret) {
+                                if (ret && ret.value ===
+                                        InitFlagState.AlreadyInit) {
+                                    return deferred.resolve();
+                                } else {
+                                    showForceAlert(deferred);
                                 }
-                            },
-                            {
-                                name: "Overwrite",
-                                className: "force",
-                                func: function() {
-                                    $("#initialLoadScreen").show();
-                                    console.log("Force");
-                                    actualOneTimeSetup()
-                                    .then(function() {
-                                        // Force unlock
-                                        return XcalarKeyPut(
-                                                      GlobalKVKeys.XdFlag,
-                                                      "0", false, gKVScope.XD);
-                                    })
-                                    .then(deferred.resolve)
-                                    .fail(function(err) {
-                                        console.error(err);
-                                        console.error("SEVERE ERROR: Race " +
-                                                      "conditions ahead");
-                                        deferred.resolve();
-                                    });
-                                }
-                            }
-                        ]
+                            })
+                            .fail(function(err) {
+                                console.error(err);
+                                showForceAlert(deferred);
+                            });
+                        }, 5000);
+                        console.log("Retry");
+                    }
+                },
+                {
+                    name: "Overwrite",
+                    className: "force",
+                    func: function() {
+                        $("#initialLoadScreen").show();
+                        console.log("Force");
+                        actualOneTimeSetup()
+                        .then(function() {
+                            // Force unlock
+                            return XcalarKeyPut(
+                                          GlobalKVKeys.XdFlag,
+                                          "0", false, gKVScope.XD);
+                        })
+                        .then(deferred.resolve)
+                        .fail(function(err) {
+                            console.error(err);
+                            console.error("SEVERE ERROR: Race " +
+                                          "conditions ahead");
+                            deferred.resolve();
+                        });
+                    }
+                }]
             });
         }
 
         var deferred = jQuery.Deferred();
         XcalarKeyLookup(GlobalKVKeys.InitFlag, gKVScope.INIT)
         .then(function(ret) {
-            if (ret && ret.value == InitFlagState.AlreadyInit) {
+            if (ret && ret.value === InitFlagState.AlreadyInit) {
                 deferred.resolve();
             } else {
             // NOTE: Please do not follow this for generic concurrency use.
@@ -427,7 +450,7 @@ window.xcManager = (function(xcManager, $) {
                                             gKVScope.INIT)
                             .then(function(ret) {
                                 if (ret &&
-                                    ret.value == InitFlagState.AlreadyInit) {
+                                    ret.value === InitFlagState.AlreadyInit) {
                                     // All good
                                     deferred.resolve();
                                 } else {
@@ -443,7 +466,7 @@ window.xcManager = (function(xcManager, $) {
         })
         .fail(function(err) {
             console.error("Error Setting up global flags. May have race " +
-                          "conditions later. Letting it go through");
+                          "conditions later. Letting it go through", err);
             deferred.resolve();
         });
         return deferred.promise();

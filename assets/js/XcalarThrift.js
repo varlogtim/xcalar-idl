@@ -3664,7 +3664,7 @@ function XcalarGetStatGroupIdMap(nodeId, numGroupId) {
     // nodeId is the node (be 0, 1, 2, 3, 4)
     // numGroupId is the max number of statue you want to return
     if (tHandle == null) {
-        return PromiseHelper.resovle();
+        return PromiseHelper.resolve();
     }
 
     var deferred = jQuery.Deferred();
@@ -3688,7 +3688,7 @@ function XcalarGetStatsByGroupId(nodeId, groupIdList) {
     // nodeId is the node (be 0, 1, 2, 3, 4)
     // groupIdList is an array of groupId return from XcalarGetStatGroupIdMap
     if (tHandle == null) {
-        return PromiseHelper.resovle();
+        return PromiseHelper.resolve();
     }
 
     var deferred = jQuery.Deferred();
