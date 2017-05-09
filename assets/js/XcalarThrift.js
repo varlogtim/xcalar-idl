@@ -1120,26 +1120,31 @@ function XcalarIndexFromTable(srcTablename, key, tablename, ordering,
     } else {
         promise = getUnsortedTableName(srcTablename);
     }
+    var unsortedSrcTablename;
 
     promise
-    .then(function(unsortedSrcTablename) {
+    .then(function(unsortedTablename) {
         if (Transaction.checkAndSetCanceled(txId)) {
             return (deferred.reject(StatusTStr[StatusT.StatusCanceled])
                             .promise());
         }
-
-        var workItem = xcalarIndexTableWorkItem(unsortedSrcTablename, tablename,
-                                                key, dhtName, ordering);
+        unsortedSrcTablename = unsortedTablename;
+        return xcHelper.getKeyType(key, unsortedTablename);
+    })
+    .then(function(keyType) {
+        var workItem = xcalarIndexTableWorkItem(unsortedSrcTablename,
+                                                    tablename,
+                                                key, dhtName, ordering,
+                                                keyType);
 
         var def1 = xcalarIndexTable(tHandle, unsortedSrcTablename, key,
-                                    tablename, dhtName, ordering);
+                                    tablename, dhtName, ordering, keyType);
         var def2 = XcalarGetQuery(workItem);
         def2.then(function(query) {
             if (!unsorted) {
                 Transaction.startSubQuery(txId, 'index', tablename, query);
             }
         });
-
         return jQuery.when(def1, def2);
     })
     .then(function(ret1, ret2) {

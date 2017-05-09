@@ -2267,6 +2267,20 @@ describe('xcHelper Test', function() {
         });
     });
 
+    describe("translateFrontTypeToBackType", function() {
+       it("translateFrontTypeToBackType should work", function() {
+            var fn = xcHelper.__testOnly__.translateFrontTypeToBackType;
+            expect(fn("string")).to.equal(1);
+            expect(fn("boolean")).to.equal(8);
+            expect(fn("number")).to.equal(7);
+            expect(fn("float")).to.equal(7);
+            expect(fn("integer")).to.equal(4);
+            expect(fn("array")).to.equal(null);
+            expect(fn("mixed")).to.equal(null);
+            expect(fn("unknown")).to.equal(null);
+       });
+    });
+
     describe('xcHelper.dropdownOpen', function() {
         describe('Basic Test', function() {
             var $icon, $menu;

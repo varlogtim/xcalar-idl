@@ -3347,6 +3347,101 @@ window.xcHelper = (function($, xcHelper) {
         });
     };
 
+    xcHelper.getKeyType = function(key, tableName) {
+        var deferred = jQuery.Deferred();
+        console.log(tableName);
+        var tableId = xcHelper.getTableId(tableName);
+        var table = gTables[tableId];
+        var type;
+        var promise;
+        if (table) {
+            var progCol = table.getColByBackName(key);
+            if (progCol) {
+                type = progCol.getType();
+                type = translateFrontTypeToBackType(type);
+                promise = PromiseHelper.resolve(type);
+            } else if (table.backTableMeta && table.backTableMeta.valueAttrs) {
+                var colObjs = table.backTableMeta.valueAttrs;
+                for (var i = 0; i < colObjs.length; i++) {
+                    var colObj = colObjs[i];
+                    if (colObj.name === key &&
+                        colObj.type !== DfFieldTypeT.DfFatptr) {
+                        promise = PromiseHelper.resolve(colObj.type);
+                        break;
+                    }
+                }
+                if (!promise) {
+                    promise = PromiseHelper.resolve(null);
+                }
+            } else {
+                promise = searchTableMetaForKey(key, tableName);
+            }
+        } else {
+            promise = searchTableMetaForKey(key, tableName);
+            // XXX could also fetch some data and search for key
+        }
+        promise
+        .always(function(foundType) {
+            // XXX backend doesn't support this fully so just resolve null
+            if (foundType) {
+                // deferred.resolve(foundType);
+                deferred.resolve(null);
+            } else {
+                // deferred.resolve(DfFieldTypeT.DfString); // default to string
+                deferred.resolve(null);
+            }
+        });
+        return deferred.promise();
+    };
+
+        // converts "string" to 1 via DfFieldTypeT
+    function translateFrontTypeToBackType(frontType) {
+        var type;
+        switch(frontType) {
+            case (ColumnType.boolean):
+                type = DfFieldTypeT.DfBoolean;
+                break;
+            case(ColumnType.float):
+            case(ColumnType.number): // fall through
+                type = DfFieldTypeT.DfFloat64;
+                break;
+            case(ColumnType.integer):
+                type = DfFieldTypeT.DfInt64;
+                break;
+            case(ColumnType.string):
+                type = DfFieldTypeT.DfString;
+                break;
+            default:
+                type = null;
+                break;
+        }
+
+        return type;
+    }
+
+    function searchTableMetaForKey(key, tableName) {
+        var deferred = jQuery.Deferred();
+        XcalarGetTableMeta(tableName)
+        .then(function(tableMeta) {
+            var colObjs = tableMeta.valueAttrs;
+            for (var i = 0; i < colObjs.length; i++) {
+                var colObj = colObjs[i];
+                if (colObj.name === key &&
+                    colObj.type !== DfFieldTypeT.DfFatptr) {
+                    deferred.resolve(colObj.type);
+                    return;
+                }
+            }
+            deferred.resolve(null);
+        })
+        .fail(function() {
+            // just pass with null
+            deferred.resolve(null);
+        });
+
+        return deferred.promise();
+    }
+
     /*
     options: {
         mouseCoors: {x: float, y: float},
@@ -3901,6 +3996,8 @@ window.xcHelper = (function($, xcHelper) {
         xcHelper.__testOnly__.toggleUnnestandJsonOptions =
                               toggleUnnestandJsonOptions;
         xcHelper.__testOnly__.isInvalidMixed = isInvalidMixed;
+        xcHelper.__testOnly__.translateFrontTypeToBackType =
+                            translateFrontTypeToBackType;
     }
     /* End Of Unit Test Only */
 
