@@ -1701,7 +1701,12 @@ function XcalarMakeResultSetFromDataset(datasetName) {
 
     datasetName = parseDS(datasetName);
     xcalarMakeResultSetFromDataset(tHandle, datasetName)
-    .then(deferred.resolve)
+    .then(function(ret) {
+        if (ret.numEntries < 0) {
+            ret.numEntries = 0;
+        }
+        deferred.resolve(ret);
+    })
     .fail(function(error) {
         var thriftError = thriftLog("XcalarMakeResultSetFromDataset", error);
         SQL.errorLog("MakeResultSetFromDataset", null, null, thriftError);

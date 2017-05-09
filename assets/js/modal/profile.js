@@ -101,7 +101,8 @@ window.Profile = (function($, Profile, d3) {
 
         var $groupbySection = $modal.find(".groupbyInfoSection");
 
-        $groupbySection.on("click", ".bar-extra, .bar, .xlabel", function(event) {
+        $groupbySection.on("click", ".bar-extra, .bar, .xlabel",
+            function(event) {
             if (event.which !== 1) {
                 return;
             }

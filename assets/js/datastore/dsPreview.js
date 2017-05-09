@@ -1512,7 +1512,7 @@ window.DSPreview = (function($, DSPreview) {
         .then(function(result) {
             resultSetId = result.resultSetId;
             var totalEntries = result.numEntries;
-            if (totalEntries === 0) {
+            if (totalEntries <= 0) {
                 return PromiseHelper.resolve(null);
             } else {
                 return XcalarFetchData(resultSetId, 0, rowsToFetch,

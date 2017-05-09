@@ -2183,6 +2183,7 @@ window.Dag = (function($, Dag) {
                         size += metas[i].size;
                         numRows += metas[i].numRows;
                     }
+
                     loadInfo.numEntries = numRows;
                     loadInfo.size = xcHelper.sizeTranslator(size);
                     var html = prettify(loadInfo);
