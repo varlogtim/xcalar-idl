@@ -1400,21 +1400,24 @@ window.TestSuite = (function($, TestSuite) {
                      '"]');
         $dfg.find(".dagTable.export").click();
         $dfgViz.find(".createParamQuery").trigger(fakeEvent.mouseup);
-
         var $dfgParamModal = $("#dfgParameterModal");
-        $dfgParamModal.find(".editableRow .defaultParam").click();
-        var $draggablePill = $dfgParamModal.find('.draggableDiv').eq(0);
-        $dfgParamModal.find("input.editableParamDiv").val('export-' +
-            $draggablePill.text() +'.csv'
-        );
-        $dfgParamModal.find("input.editableParamDiv").trigger('input');
 
-        fileName = "file" + randInt();
+        checkExists("#dfgParameterModal:visible")
+        .then(function() {
+            $dfgParamModal.find(".editableRow .defaultParam").click();
+            var $draggablePill = $dfgParamModal.find('.draggableDiv').eq(0);
+            $dfgParamModal.find("input.editableParamDiv").val('export-' +
+                $draggablePill.text() +'.csv'
+            );
+            $dfgParamModal.find("input.editableParamDiv").trigger('input');
 
-        console.log(dfgName);
+            fileName = "file" + randInt();
 
-        checkExists("#dagModleParamList .row:first .paramName:contains('" +
+            console.log(dfgName);
+
+            return checkExists("#dagModleParamList .row:first .paramName:contains('" +
                     paramName + "')")
+        })
         .then(function() {
             $('#dagModleParamList').find('.row:first .paramVal').val(fileName);
             $dfgParamModal.find(".modalBottom .confirm").click();
