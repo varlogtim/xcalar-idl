@@ -242,8 +242,14 @@ window.ExtensionManager = (function(ExtensionManager, $) {
     };
 
     ExtensionManager.isExtensionEnabled = function(extName) {
-        var modName = "UExt" + xcHelper.capitalize(extName);
-        return extMap.hasOwnProperty(modName);
+        for (var extKey in extMap) {
+            if (extMap.hasOwnProperty(extKey)) {
+                if (extKey.toLowerCase() === "uext" + extName.toLowerCase()) {
+                    return true;
+                }
+            }
+        }
+        return false;
     };
 
     // This adds an extension to the current list of extensions. fileString
