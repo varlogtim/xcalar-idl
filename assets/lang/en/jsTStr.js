@@ -7,9 +7,9 @@ StatusMessageTStr = {
     'CancelSuccess': 'Cancellation Successful',
     'CancelFail': 'Cancellation Failed',
     'Loading': 'Loading',
-    'LoadingDataset': 'Pointing to Data Source',
-    'LoadingTables': 'Loading Tables',
-    'LoadFailed': 'Point to data source failed',
+    'ImportDataset': 'Importing Data Source',
+    'ImportTables': 'Importing Tables',
+    'ImportDSFailed': 'Importing data source failed',
     'DSFetchFailed': 'Dataset preview failed',
     'CreatingTable': 'Creating table',
     'TableCreationFailed': 'Table creation failed',
@@ -227,8 +227,6 @@ ErrTStr = {
     'NoMultiCol': 'This field only accept one column.',
     'NoBucketOnStr': 'Column type is string, cannot bucket into range.',
     'ParamInUse': 'Cannot delete, this parameter is in use.',
-    'NoPreviewExcel': 'Excel files are not previewable, ' +
-                      'please point to data directly without previewing.',
     'MVFolderConflict': 'Cannot move, name conflicts with files in target ' +
                         'folder',
     'TimeExpire': 'Please choose a time that is in the future.',
@@ -730,9 +728,9 @@ DSTStr = {
     'NoRecords': 'No records in dataset.',
     'NoColumns': 'No Columns Selected',
     'NoRecrodsHint': 'Please check the validation of path, pattern, dataset size, UDF and try again.',
-    'CancalPoint': 'Cancel Point to dataset',
+    'CancalPoint': 'Cancel import dataset',
     'DSSourceHint': 'Please try another path or use another protocol.',
-    'FileOversize': 'Too many files in the folder, cannot read, please load with the url directly',
+    'FileOversize': 'Too many files in the folder, cannot read, please import with the url directly',
     'InvalidHDFS': 'Invalid HDFS path, valid format is: "hostname/pathToFile"',
     'Excel': "EXCEL",
     'Home': 'Home',
@@ -765,7 +763,7 @@ DSTStr = {
     'ColPrefix': 'Column Prefix',
     'ShowAdvOpt': 'Show Advanced Option',
     'HideAdvOpt': 'Hide Advanced Option',
-    'PointErr': 'Cannot Point to the dataset',
+    'PointErr': 'Cannot import the dataset',
     'OffsetErr': 'Offset is larger than the dataset size',
     'DelUploadMsg': 'Are you sure you want to delete <filename>?'
 };

@@ -583,7 +583,7 @@ window.TestSuite = (function($, TestSuite) {
 
     function loadDS(dsName, url, check) {
         var innerDeferred = jQuery.Deferred();
-        $("#importDataButton").click(); // button to initiate point to dataset
+        $("#importDataButton").click(); // button to initiate import dataset
         $("#fileProtocol input").val(FileProtocol.nfs);
         $("#filePath").val(url);
         $("#dsForm-path").find(".confirm").click(); // go to the next step
@@ -633,7 +633,7 @@ window.TestSuite = (function($, TestSuite) {
 
         // Import dataset
         function flightTestPart1(dsName1, dsName2) {
-            console.log("start flightTestPart1", "point to dataset");
+            console.log("start flightTestPart1", "import dataset");
             $("#dataStoresTab").click(); // main menu tab
 
              // Import flight dataset
@@ -652,14 +652,14 @@ window.TestSuite = (function($, TestSuite) {
         }
 
         function flightTestPart1Load1(dsName1) {
-            console.log("point to airline dataset");
+            console.log("import airline dataset");
             var check = "#previewTable td:eq(1):contains(19403)";
             var url = testDataLoc + "flight/" + mode + "airlines";
             return loadDS(dsName1, url, check);
         }
 
         function flightTestPart1Load2(dsName2) {
-            console.log("point to airport dataset");
+            console.log("import airport dataset");
             var check = "#previewTable td:eq(1):contains(00M)";
             var url = testDataLoc + "flight/" + mode + "airports.csv";
             return loadDS(dsName2, url, check);
@@ -1087,8 +1087,8 @@ window.TestSuite = (function($, TestSuite) {
     }
 
     function multiJoinTest(deferred, testName, currentTestNumber) {
-        // point to schedule dataset
-        console.log("point to schedule dataset");
+        // import schedule dataset
+        console.log("import schedule dataset");
         $("#dataStoresTab").click();
         var dsName = "schedule" + Math.floor(Math.random() * 1000);
         var url = testDataLoc + "indexJoin/schedule/schedule.json";
@@ -1100,7 +1100,7 @@ window.TestSuite = (function($, TestSuite) {
         loadDS(dsName, url, check)
         .then(function() {
             var innerDeferred = jQuery.Deferred();
-            // XXX there is a point to ds error when not do setTimeout
+            // XXX there is a import ds error when not do setTimeout
             // need to fix later
             setTimeout(function() {
                 createTable(dsName)

@@ -306,7 +306,7 @@ describe("DSObj Test", function() {
     });
 
     describe("New Dataset Test", function() {
-        it("Should point to ds", function(done) {
+        it("Should import ds", function(done) {
             var name = xcHelper.uniqueRandName("testSuites-dsObj-sp500", DS.has, 10);
             var dataset = testDatasets.sp500;
             var pointArgs = $.extend({}, dataset, {"name": name});

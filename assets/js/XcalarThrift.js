@@ -617,7 +617,7 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
     var def2 = XcalarGetQuery(workItem);
 
     def2.then(function(query) {
-        Transaction.startSubQuery(txId, 'Point to Dataset',
+        Transaction.startSubQuery(txId, 'Import Dataset',
                                   parseDS(datasetName), query);
     });
     // We are using our .when instead of jQuery's because if load times out,

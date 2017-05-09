@@ -225,7 +225,7 @@ window.DS = (function ($, DS) {
         return deferred.promise();
     };
 
-    /* Point to dataset, promise returns dsObj
+    /* Import dataset, promise returns dsObj
         options:
             createTable: if set true, will auto create the table
             dsToReplace: if set true, will replace the old ds
@@ -533,7 +533,7 @@ window.DS = (function ($, DS) {
         DataStore.update();
 
         var txId = Transaction.start({
-            "msg": StatusMessageTStr.LoadingDataset + ": " + dsName,
+            "msg": StatusMessageTStr.ImportDataset + ": " + dsName,
             "operation": SQLOps.DSPoint,
             "sql": sql,
             "steps": 1
@@ -583,7 +583,7 @@ window.DS = (function ($, DS) {
             handlePointError(displayError);
 
             Transaction.fail(txId, {
-                "failMsg": StatusMessageTStr.LoadFailed,
+                "failMsg": StatusMessageTStr.ImportDSFailed,
                 "error": displayError
             });
 
@@ -720,7 +720,7 @@ window.DS = (function ($, DS) {
                 error.status === StatusT.StatusDsNotFound)
             {
                 // this error means the ds is not created,
-                // it's nomral when point to ds fail but gui still has
+                // it's nomral when import ds fail but gui still has
                 // the grid icon
                 deferred.resolve();
             } else {

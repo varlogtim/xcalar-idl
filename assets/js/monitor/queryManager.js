@@ -1245,7 +1245,7 @@ window.QueryManager = (function(QueryManager, $) {
                 if (mainQuery) {
                     qName = mainQuery.name;
                 }
-                // special handling for canceling pointToDS
+                // special handling for canceling importDataSource
                 if (qName === SQLOps.DSPoint) {
                     QueryManager.cancelDS(id);
                 } else if (qName === SQLOps.Retina) {
@@ -1634,7 +1634,7 @@ window.QueryManager = (function(QueryManager, $) {
     }
 
     // drops all the tables generated, even the intermediate tables
-    // or drops dataset if pointToDS operation
+    // or drops dataset if importDataSource operation
     function dropCanceledTables(mainQuery, onlyFinishedTables) {
         var queryStr = mainQuery.getQuery();
         var queries = xcHelper.parseQuery(queryStr);

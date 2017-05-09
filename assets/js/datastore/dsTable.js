@@ -150,7 +150,7 @@ window.DSTable = (function($, DSTable) {
         error = xcHelper.escapeHTMLSepcialChar(error);
         var startError = isFetchError
                          ? StatusMessageTStr.DSFetchFailed
-                         : StatusMessageTStr.LoadFailed;
+                         : StatusMessageTStr.ImportDSFailed;
         error = startError + ". " + error;
 
         $tableWrap.html("");

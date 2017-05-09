@@ -477,7 +477,7 @@ window.xcManager = (function(xcManager, $) {
         var hasTable = false;
         var noMetaTables = [];
 
-        StatusMessage.updateLocation(true, StatusMessageTStr.LoadingTables);
+        StatusMessage.updateLocation(true, StatusMessageTStr.ImportTables);
         // since we are not storing any redo states on start up, we should
         // drop any tables that were undone since there's no way to go forward
         // to reach them
