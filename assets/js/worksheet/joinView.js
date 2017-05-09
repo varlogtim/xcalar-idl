@@ -693,7 +693,7 @@ window.JoinView = (function($, JoinView) {
         }
 
         $input = $clauseSection.filter(function() {
-            return ($(this).val() === colRes.name);
+            return ($(this).val().trim() === colRes.name);
         }).eq(0);
 
         if (colRes.reason === 'notFound') {
