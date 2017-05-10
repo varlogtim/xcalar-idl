@@ -1807,7 +1807,7 @@ window.TblManager = (function($, TblManager) {
     function createTableHeader(tableId) {
         var $xcTheadWrap = $('<div id="xcTheadWrap-' + tableId +
                              '" class="xcTheadWrap dataTable" ' +
-                             '" data-id="' + tableId + '" ' +
+                             'data-id="' + tableId + '" ' +
                              'style="top:0px;"></div>');
 
         $('#xcTableWrap-' + tableId).prepend($xcTheadWrap);
@@ -2734,7 +2734,8 @@ window.TblManager = (function($, TblManager) {
             } else {
                 tId = tIdOrName;
             }
-            if (gTables[tId] && gTables[tId].isNoDelete()) {
+            if (gTables[tId] && (gTables[tId].isNoDelete() ||
+                gTables[tId].hasLock())) {
                 nonDeletables.push(tIdOrName);
             } else {
                 deleteables.push(tIdOrName);
