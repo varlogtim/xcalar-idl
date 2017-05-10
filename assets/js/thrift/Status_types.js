@@ -576,7 +576,13 @@ StatusT = {
   'StatusSessionUsrAlreadyDeleted' : 567,
   'StatusSessionUsrNotExist' : 568,
   'StatusNoShutdownPrivilege' : 569,
-  'StatusSerializationListEmpty' : 570
+  'StatusSerializationListEmpty' : 570,
+  'StatusAppAlreadyExists' : 571,
+  'StatusAppNotFound' : 572,
+  'StatusAppInUse' : 573,
+  'StatusInvalidStreamContext' : 574,
+  'StatusInvalidStatsProtocol' : 575,
+  'StatusStatStreamPartialFailure' : 576
 };
 StatusTStr = {0 : 'Success',
 1 : 'Operation not permitted',
@@ -1148,5 +1154,11 @@ StatusTStr = {0 : 'Success',
 567 : 'Session user already deleted',
 568 : 'Session user does not exist',
 569 : 'Insufficient privilege to shutdown cluster',
-570 : 'Nothing available to serialize'
+570 : 'Nothing available to serialize',
+571 : 'App with the given name already exists',
+572 : 'App specified was not found',
+573 : 'App currently in use',
+574 : 'Invalid stream context received',
+575 : 'Invalid number of bytes sent in payload',
+576 : 'Encountered partial failure in stats stream, cleaning up'
 };

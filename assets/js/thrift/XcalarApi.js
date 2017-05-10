@@ -1594,7 +1594,7 @@ xcalarFilter = runEntity.xcalarFilter = function(thriftHandle, filterStr, srcTab
 };
 
 xcalarGroupByWorkItem = runEntity.xcalarGroupByWorkItem = function(srcTableName, dstTableName, groupByEvalStr,
-                               newFieldName, includeSrcSample, icvMode) {
+                               newFieldName, includeSrcSample, icvMode, newKeyFieldName) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.groupByInput = new XcalarApiGroupByInputT();
@@ -1610,6 +1610,7 @@ xcalarGroupByWorkItem = runEntity.xcalarGroupByWorkItem = function(srcTableName,
     workItem.input.groupByInput.newFieldName = newFieldName;
     workItem.input.groupByInput.includeSrcTableSample = includeSrcSample;
     workItem.input.groupByInput.icvMode = icvMode;
+    workItem.input.groupByInput.newKeyFieldName = newKeyFieldName;
     return (workItem);
 };
 
@@ -1619,7 +1620,8 @@ xcalarGroupByWithWorkItem = runEntity.xcalarGroupByWithWorkItem = function(thrif
         console.log("xcalarGroupBy(srcTableName = " + srcTableName +
                     ", dstTableName = " + dstTableName + ", groupByEvalStr = " +
                     groupByEvalStr + ", newFieldName = " + newFieldName +
-                    ", icvMode = " + icvMode + ")");
+                    ", icvMode = " + icvMode +
+                    ", newKeyFieldName = " + newKeyFieldName + ")");
     }
 
     thriftHandle.client.queueWorkAsync(workItem)
@@ -1643,18 +1645,19 @@ xcalarGroupByWithWorkItem = runEntity.xcalarGroupByWithWorkItem = function(thrif
 };
 
 xcalarGroupBy = runEntity.xcalarGroupBy = function(thriftHandle, srcTableName, dstTableName, groupByEvalStr,
-                       newFieldName, includeSrcSample, icvMode) {
+                       newFieldName, includeSrcSample, icvMode, newKeyFieldName) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarGroupBy(srcTableName = " + srcTableName +
                     ", dstTableName = " + dstTableName + ", groupByEvalStr = " +
                     groupByEvalStr + ", newFieldName = " + newFieldName +
-                    ", icvMode = " + icvMode + ")");
+                    ", icvMode = " + icvMode +
+                    ", newKeyFieldName = " + newKeyFieldName + ")");
     }
 
     var workItem = xcalarGroupByWorkItem(srcTableName, dstTableName,
                                          groupByEvalStr, newFieldName,
-                                         includeSrcSample, icvMode);
+                                         includeSrcSample, icvMode, newKeyFieldName);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
@@ -1781,7 +1784,7 @@ xcalarDeleteDagNodes = runEntity.xcalarDeleteDagNodes = function(thriftHandle, n
             status = result.jobStatus;
         }
         if (status != StatusT.StatusOk) {
-            deferred.reject(status);
+            deferred.reject(status, deleteDagNodesOutput);
         }
         deferred.resolve(deleteDagNodesOutput);
     })
@@ -2435,7 +2438,7 @@ xcalarUpdateRetina = runEntity.xcalarUpdateRetina = function(thriftHandle, retin
 };
 
 xcalarExecuteRetinaWorkItem = runEntity.xcalarExecuteRetinaWorkItem = function(retinaName, parameters,
-                                     exportToActiveSession, newTableName) {
+                                     exportToActiveSession, newTableName, queryName) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.executeRetinaInput = new XcalarApiExecuteRetinaInputT();
@@ -2443,6 +2446,7 @@ xcalarExecuteRetinaWorkItem = runEntity.xcalarExecuteRetinaWorkItem = function(r
 
     workItem.api = XcalarApisT.XcalarApiExecuteRetina;
     workItem.input.executeRetinaInput.retinaName = retinaName;
+    workItem.input.executeRetinaInput.queryName = queryName;
     workItem.input.executeRetinaInput.numParameters = parameters.length;
     workItem.input.executeRetinaInput.parameters = parameters;
     workItem.input.executeRetinaInput.exportToActiveSession = exportToActiveSession;
@@ -2453,7 +2457,7 @@ xcalarExecuteRetinaWorkItem = runEntity.xcalarExecuteRetinaWorkItem = function(r
 };
 
 xcalarExecuteRetina = runEntity.xcalarExecuteRetina = function(thriftHandle, retinaName, parameters,
-                             exportToActiveSession, newTableName) {
+                             exportToActiveSession, newTableName, queryName) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarExecuteRetina(retinaName = " + retinaName +
@@ -2466,7 +2470,7 @@ xcalarExecuteRetina = runEntity.xcalarExecuteRetina = function(thriftHandle, ret
     }
     var workItem = xcalarExecuteRetinaWorkItem(retinaName, parameters,
                                                exportToActiveSession,
-                                               newTableName);
+                                               newTableName, queryName);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {

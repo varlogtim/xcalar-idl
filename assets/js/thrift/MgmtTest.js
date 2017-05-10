@@ -2087,6 +2087,7 @@ PromiseHelper = (function(PromiseHelper, $) {
         target.hdr.type = ExTargetTypeT.ExTargetSFType;
         target.specificInput = new ExAddTargetSpecificInputT();
         target.specificInput.sfInput = new ExAddTargetSFInputT();
+        target.specificInput.sfInput.url = "/tmp/mgmtdTest";
 
         xcalarAddExportTarget(thriftHandle, target)
         .done(function(status) {
@@ -2110,6 +2111,7 @@ PromiseHelper = (function(PromiseHelper, $) {
         target.hdr.type = ExTargetTypeT.ExTargetSFType;
         target.specificInput = new ExAddTargetSpecificInputT();
         target.specificInput.sfInput = new ExAddTargetSFInputT();
+        target.specificInput.sfInput.url = "/tmp/mgmtdTest";
 
         // testAddExportTarget might not be run, so add manually here
         xcalarAddExportTarget(thriftHandle, target)
