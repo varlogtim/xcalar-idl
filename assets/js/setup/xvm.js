@@ -155,14 +155,14 @@ window.XVM = (function(XVM) {
         var deferred = jQuery.Deferred();
         var needUpgrade = false;
         var firstUser = false;
-
         KVStore.get(kvVersionKey, gKVScope.VER)
         .then(function(res) {
             var versionInfo = parseKVStoreVersionInfo(res);
-            firstUser = checkVersionInfo(versionInfo);
+            checkVersionInfo(versionInfo);
 
-            if (firstUser) {
+            if (versionInfo == null) {
                 // when it's a first time set up
+                firstUser = true;
                 return XVM.commitKVVersion();
             }
 
@@ -172,8 +172,11 @@ window.XVM = (function(XVM) {
             } else if (version < currentVersion) {
                 needUpgrade = true;
             }
+
             if (needUpgrade) {
                 return Upgrader.exec(version);
+            } else if (versionInfo.needCommit) {
+                return XVM.commitKVVersion();
             }
         })
         .then(function() {
@@ -190,9 +193,16 @@ window.XVM = (function(XVM) {
         }
 
         var versionInfo;
-
         try {
             versionInfo = JSON.parse(info);
+            if (typeof versionInfo !== "object") {
+                // an old version of versionInfo
+                versionInfo = {
+                    "version": Number(versionInfo),
+                    "stripEmail": true,
+                    "needCommit": true
+                };
+            }
         } catch (error) {
             console.error("parse error", error);
             return null;
@@ -200,26 +210,12 @@ window.XVM = (function(XVM) {
         return versionInfo;
     }
 
-    function isValidVersionInfo(versionInfo) {
-        return (versionInfo != null && typeof versionInfo === "object");
-    }
-
     function checkVersionInfo(versionInfo) {
-        var isNewUser = false;
-
-        if (isValidVersionInfo(versionInfo)) {
-            kvVersion = new KVVersion(versionInfo);
-        } else {
-            kvVersion = new KVVersion();
-            isNewUser = true;
-        }
-
+        kvVersion = new KVVersion(versionInfo);
         if (kvVersion.stripEmail) {
             // need to redo the username setup
             Support.setup(true);
         }
-
-        return isNewUser;
     }
 
     // XXX it's not used anywhere, just for testing upgrade

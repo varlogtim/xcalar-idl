@@ -1216,7 +1216,7 @@
         function KVVersionV1(options) {
             options = options || {};
             this.version = version;
-            if (options.stripEmail || currentVersion === version) {
+            if (options.stripEmail) {
                 this.stripEmail = true;
             }
             return this;
