@@ -663,7 +663,7 @@ SchedTStr = {
     "failServerTime": "Failed to get server time",
     "Notrun": "Not run yet",
     "Success": "Success",
-    "NoExportParam": "The export location is not properly parameterized and" +
+    "NoExportParam": "The export(s) are not properly parameterized and" +
                      " subsequent runs will fail unless the export folder is " +
                      "manually moved after every run. Do you want to continue?"
 };

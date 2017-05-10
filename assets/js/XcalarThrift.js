@@ -28,7 +28,7 @@ function setupHostName() {
     }
 }
 // for convenience, add the function list here and make them
-// comment in deafult
+// comment in default
 var funcFailPercentage = {
     // "XcalarAggregateHelper": 0.2
 };

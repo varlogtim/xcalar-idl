@@ -1750,7 +1750,7 @@ window.JoinView = (function($, JoinView) {
 
 
     function showErrorTooltip($el, options, otherOptions) {
-        var deafultOptions = {
+        var defaultOptions = {
             "title": "",
             "placement": "top",
             "animation": true,
@@ -1761,11 +1761,10 @@ window.JoinView = (function($, JoinView) {
         otherOptions = otherOptions || {};
         var displayTime = otherOptions.time || 2000;
 
-        options = $.extend(deafultOptions, options);
+        options = $.extend(defaultOptions, options);
 
         xcTooltip.remove($el);
         // cannot overwrite previous title without removing the title attributes
-
         xcTooltip.transient($el, options, displayTime);
         $el.focus();
     }

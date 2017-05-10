@@ -670,18 +670,29 @@ window.Scheduler = (function(Scheduler, $) {
     function checkExportFileName(dataflowName) {
         var deferred = jQuery.Deferred();
         var dfObj = DF.getDataflow(dataflowName);
-        var exportInfo = dfObj.retinaNodes[0].input.exportInput;
-        var fileName = exportInfo.meta.specificInput.sfInput.fileName;
-        var sysParamFound = false;
-        for (var paramName in systemParams) {
-            var sysParam = "<" + paramName + ">";
-            if (fileName.indexOf(sysParam) > -1) {
-                sysParamFound = true;
+        var exportNodes = dfObj.retinaNodes.filter(function(a) {
+            return XcalarApisT.XcalarApiExport === a.api;
+        });
+        var notFound = false;
+        for (var i = 0; i < exportNodes.length; i++) {
+            var exportInfo = exportNodes[0].input.exportInput;
+            var fileName = exportInfo.meta.specificInput.sfInput.fileName;
+            var sysParamFound = false;
+            for (var paramName in systemParams) {
+                var sysParam = "<" + paramName + ">";
+                if (fileName.indexOf(sysParam) > -1) {
+                    sysParamFound = true;
+                    break;
+                }
+            }
+
+            if (!sysParamFound) {
+                notFound = true;
                 break;
             }
         }
 
-        if (!sysParamFound) {
+        if (notFound) {
             Alert.show({
                 title: AlertTStr.Title,
                 msg: SchedTStr.NoExportParam,

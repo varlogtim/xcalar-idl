@@ -41,7 +41,6 @@ window.Concurrency = (function($, Concurrency) {
         return XcalarKeyDelete(lock.key, lock.scope);
     };
 
-
     // Caller must look out for deferred.reject(Concurrency.OverLimit)
     // and handle it appropriately.
     Concurrency.lock = function(lock, startBackoffBasis) {
