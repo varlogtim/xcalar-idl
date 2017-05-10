@@ -152,6 +152,10 @@ window.XcSDK.Extension.prototype = (function() {
             return xcHelper.randName("randCol");
         },
 
+        stripColumnName: function(colName) {
+            return xcHelper.stripeColName(colName);
+        },
+
         "getConstant": function(aggName) {
             return gAggVarPrefix + aggName;
         },

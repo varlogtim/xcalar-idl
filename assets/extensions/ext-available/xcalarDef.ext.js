@@ -352,7 +352,6 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
                 // Step 5: inner join funnesss!
                 // Order: Take cur, join lags then join leads
                 var defChain = [];
-
                 var tableNames = self.getAttribute("tableNames");
                 var rowNumColNames = self.getAttribute("rowNumColNames");
                 var joinType = XcSDK.Enums.JoinType.InnerJoin;
@@ -520,7 +519,7 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
 
         ext.genRowNum(srcTable, newColName)
         .then(function(newTableName) {
-            return (ext.index(newColName, newTableName));
+            return ext.index(newColName, newTableName);
         })
         .then(function(newTableName) {
             deferred.resolve(newTableName, newColName);
@@ -550,6 +549,7 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
 
                 newTableName = ext.createTableName(null, "_project");
                 newColName = prefix + "_" + winCols[i].getParsedName();
+                newColName = ext.stripColumnName(newColName);
 
                 if (ext.getAttribute("avoidCollision")) {
                     newColName += "_win" + ext.getAttribute("randNumber");
