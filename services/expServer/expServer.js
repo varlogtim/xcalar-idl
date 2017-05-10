@@ -10,15 +10,16 @@ require("jsdom").env("", function(err, window) {
     jQuery = require("jquery")(window);
 
     var express = require('express');
-    var bodyParser = require('body-parser');
-    var fs = require('fs');
-    var http = require('http');
+    var bodyParser = require("body-parser");
+    var fs = require("fs");
+    var path = reqire("path");
+    var http = require("http");
     var https = require("https");
-    require('shelljs/global');
-    var ldap = require('ldapjs');
-    var exec = require('child_process').exec;
+    require("shelljs/global");
+    var ldap = require("ldapjs");
+    var exec = require("child_process").exec;
     try {
-        var AWS = require('aws-sdk');
+        var AWS = require("aws-sdk");
         var guiDir = "/var/www/xcalar-gui";
         if (fs.existsSync("./awsWriteConfig.json")) {
             AWS.config.loadFromPath(guiDir + "/services/expServer/awsWriteConfig.json");
