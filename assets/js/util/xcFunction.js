@@ -322,7 +322,7 @@ window.xcFunction = (function($, xcFunction) {
 
             var innerDeferred = jQuery.Deferred();
             var mapString = xcHelper.castStrHelper(backColName, typeToCast);
-            var mapColName = xcHelper.stripeColName(backColName) + "_" + typeToCast;
+            var mapColName = xcHelper.stripColName(backColName) + "_" + typeToCast;
 
             mapColName = xcHelper.getUniqColName(tableId, mapColName);
 
@@ -610,9 +610,10 @@ window.xcFunction = (function($, xcFunction) {
             deferred.reject(error);
         });
 
-        // TODO when multi-groupby we cant use the unsplit table instead of
+        // TODO when multi-groupby we can use the unsplit table instead of
         // splitting and then concatting again
         function groupByJoinHelper(nTable, nCols, dataColNum, isIncSample) {
+
             var innerDeferred = jQuery.Deferred();
 
             var joinType = JoinOperatorT.FullOuterJoin;
@@ -623,10 +624,10 @@ window.xcFunction = (function($, xcFunction) {
 
             var rTName = nTable;
             var lCols = groupByCols;
-
-            var rRenam = [];
+            var rRename = [];
 
             var rCols = groupByCols.map(function(colName) {
+                colName = xcHelper.stripColName(colName);
                 var parse = xcHelper.parsePrefixColName(colName);
                 var hasNameConflict;
 
@@ -645,7 +646,7 @@ window.xcFunction = (function($, xcFunction) {
 
                     var newName = xcHelper.randName(parse.name + "_GB", 3);
                     renameMap = xcHelper.getJoinRenameMap(colName, newName);
-                    rRenam.push(renameMap);
+                    rRename.push(renameMap);
                 }
 
                 return colName;
@@ -661,12 +662,13 @@ window.xcFunction = (function($, xcFunction) {
             var rTableInfo = {
                 "tableName": rTName,
                 "columns": rCols,
-                "rename": rRenam
+                "rename": rRename
             };
 
             var joinOpts = {
                 "newTableName": jonTable
             };
+
             XIApi.join(txId, joinType, lTableInfo, rTableInfo, joinOpts)
             .then(function(jonTable, joinTableCols) {
                 // remove the duplicated columns that were joined

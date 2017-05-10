@@ -1493,17 +1493,17 @@ describe('xcHelper Test', function() {
         expect(res).to.equal('a[b]');
     });
 
-    it('xcHelper.stripeColName should work', function() {
-        var res = xcHelper.stripeColName("votes.funny");
+    it('xcHelper.stripColName should work', function() {
+        var res = xcHelper.stripColName("votes.funny");
         expect(res).to.equal("votes_funny");
 
-        res = xcHelper.stripeColName("a[b]");
+        res = xcHelper.stripColName("a[b]");
         expect(res).to.equal("a_b");
 
-        res = xcHelper.stripeColName("[b]");
+        res = xcHelper.stripColName("[b]");
         expect(res).to.equal("b");
 
-        res = xcHelper.stripeColName("a\\.b");
+        res = xcHelper.stripColName("a\\.b");
         expect(res).to.equal("a_b");
     });
 

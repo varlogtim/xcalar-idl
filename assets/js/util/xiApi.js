@@ -494,6 +494,7 @@ window.XIApi = (function(XIApi, $) {
         var indexedColName;
         var finalTable;
         var isMultiGroupby = (groupByCols.length > 1);
+        var unstrippedIndexedColName;
 
         var finalCols = getFinalGroupByCols(tableName, groupByCols, gbArgs,
                                             isIncSample, sampleCols);
@@ -502,7 +503,8 @@ window.XIApi = (function(XIApi, $) {
         .then(function(resTable, resCol, tempTablesInIndex) {
             // table name may have changed after sort!
             indexedTable = resTable;
-            indexedColName = resCol;
+            unstrippedIndexedColName = resCol;
+            indexedColName = xcHelper.stripColName(resCol);
             tempTables = tempTables.concat(tempTablesInIndex);
 
             // get name from src table
@@ -520,9 +522,15 @@ window.XIApi = (function(XIApi, $) {
                     // only do sample on first groupby
                     sample = false;
                 }
+                var newKeyFieldName = indexedColName;
+                if (sample) {
+                    // incSample does not take renames
+                    newKeyFieldName = null;
+                }
                 promises.push(XcalarGroupBy(gbArgs[i].operator,
                     gbArgs[i].newColName, gbArgs[i].aggColName,
-                    indexedTable, gbTableName, sample, icvMode, txId));
+                    indexedTable, gbTableName, sample, icvMode, newKeyFieldName,
+                    txId));
             }
             return PromiseHelper.when.apply(window, promises);
         })
@@ -533,8 +541,9 @@ window.XIApi = (function(XIApi, $) {
                                          .name;
             }
 
-            return groupByJoinHelper(txId, indexedColName, finalTableName,
-                                    gbArgs, args);
+            return groupByJoinHelper(txId, indexedColName,
+                                unstrippedIndexedColName, finalTableName,
+                                    gbArgs, args, isIncSample);
         })
         .then(function(retTableName) {
             finalTableName = retTableName;
@@ -1096,7 +1105,7 @@ window.XIApi = (function(XIApi, $) {
 
             var curTableName = newTableNames[index + 1];
             var newTableName = newTableNames[index];
-            var fieldName = xcHelper.stripeColName(newFieldNames[index]);
+            var fieldName = xcHelper.stripColName(newFieldNames[index]);
             var mapString = mapStrings[index];
             var curColNum = colNums[index];
             var resize = resizeHeaders[index];
@@ -1448,22 +1457,16 @@ window.XIApi = (function(XIApi, $) {
             for (var i = 0; i < numGroupByCols; i++) {
                 var backColName = groupByCols[i];
                 var progCol = table.getColByBackName(backColName) || {};
-                // even though backColName may be escaped, the returned column
-                // from the backend will be escaped again
-
-                // both "a\.b" and "a.b" will become "a\.b" after groupby
-                // escapedName = xcHelper.unescapeColName(backColName);
-                escapedName = xcHelper.escapeColName(backColName);
-                // backend returns escaped dots so we must escape again
-                escapedName = xcHelper.escapeColName(escapedName);
+                var escapedName = xcHelper.stripColName(backColName);
 
                 // with no sample, group col is immediates
                 escapedName = xcHelper.parsePrefixColName(escapedName).name;
                 var colName = progCol.name || backColName;
+                colName = xcHelper.stripColName(colName);
 
                 finalCols[numNewCols + i] = ColManager.newCol({
                     "backName": escapedName,
-                    "name": progCol.name || colName,
+                    "name": colName,
                     "type": progCol.type || null,
                     "width": progCol.width || gNewCellWidth,
                     "isNewCol": false,
@@ -1480,8 +1483,9 @@ window.XIApi = (function(XIApi, $) {
         return finalCols;
     }
 
-    function groupByJoinHelper(txId, indexedColName, finalTableName, gbArgs,
-                                args) {
+    function groupByJoinHelper(txId, indexedColName, unstrippedIndexedColName,
+                                finalTableName, gbArgs,
+                                args, isIncSample) {
         var deferred = jQuery.Deferred();
         if (gbArgs.length < 2) {
             return PromiseHelper.resolve(finalTableName);
@@ -1496,6 +1500,9 @@ window.XIApi = (function(XIApi, $) {
         var lCols = [indexedColName];
         var rCols = [parsedIndexedColName];
         finalTableName = args[0].tableName;
+        if (isIncSample) {
+            lCols = [unstrippedIndexedColName];
+        }
 
         for (var i = 1; i < gbArgs.length; i++) {
             lTableInfo = {
@@ -1585,6 +1592,7 @@ window.XIApi = (function(XIApi, $) {
             tableCols = extractColGetColHelper(finalTableCols, i + 1);
 
             var parsedName = xcHelper.parsePrefixColName(groupByCols[i]).name;
+            parsedName = xcHelper.stripColName(parsedName);
             var args = {
                 "colName": parsedName,
                 "mapString": mapStr,

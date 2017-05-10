@@ -976,6 +976,7 @@ window.Profile = (function($, Profile, d3) {
         var groupbyTable;
         var finalTable;
         var colName = curStatsCol.colName;
+        var rename = xcHelper.stripColName(colName);
         var tableToDelete;
 
         curStatsCol.groupByInfo.isComplete = "running";
@@ -1036,7 +1037,7 @@ window.Profile = (function($, Profile, d3) {
 
             return XcalarGroupBy(operator, newColName, colName,
                                 indexedTableName, groupbyTable,
-                                isIncSample, false, txId);
+                                isIncSample, false, rename, txId);
         })
         .then(function() {
             if (curStatsCol.groupByInfo.allNull) {
@@ -1045,7 +1046,7 @@ window.Profile = (function($, Profile, d3) {
             }
 
             finalTable = getNewName(tableName, ".profile.final", true);
-            colName = xcHelper.parsePrefixColName(colName).name;
+            colName = xcHelper.parsePrefixColName(rename).name;
             return sortGroupby(groupbyTable, colName, finalTable, txId);
         })
         .then(function(maxVal, sumVal) {
@@ -1082,9 +1083,8 @@ window.Profile = (function($, Profile, d3) {
         return (deferred.promise());
     }
 
-    function sortGroupby(srcTable, colName, finalTable, txId) {
+    function sortGroupby(srcTable, sortCol, finalTable, txId) {
         var deferred = jQuery.Deferred();
-        var sortCol = parseColName(colName);
 
         XcalarIndexFromTable(srcTable, sortCol, finalTable,
                             XcalarOrderingT.XcalarOrderingAscending, txId)
@@ -1193,7 +1193,7 @@ window.Profile = (function($, Profile, d3) {
         var tableInfo = curStatsCol.groupByInfo.buckets[bucketNum];
         var noBucket  = (bucketNum === 0) ? 1 : 0;
         var noSort    = (order === sortMap.origin);
-        var xName = parseColName(tableInfo.colName);
+        var xName = tableInfo.colName;
         var yName = noBucket ? statsColName : bucketColName;
 
         var $section = $modal.find(".groupbyInfoSection");
@@ -2021,8 +2021,7 @@ window.Profile = (function($, Profile, d3) {
         var colName;
 
         if (sortOrder === sortMap.ztoa) {
-            // need to escape
-            colName = parseColName(tableInfo.colName);
+            colName = tableInfo.colName;
         } else {
             colName = (bucketNum === 0) ? statsColName : bucketColName;
         }
@@ -2232,7 +2231,7 @@ window.Profile = (function($, Profile, d3) {
         var groupbyTable;
         var finalTable;
 
-        var colName = parseColName(curStatsCol.colName);
+        var colName = xcHelper.stripColName(curStatsCol.colName);
         colName = xcHelper.parsePrefixColName(colName).name;
         var mapCol = xcHelper.randName("bucketMap", 4);
 
@@ -2266,7 +2265,7 @@ window.Profile = (function($, Profile, d3) {
 
             return XcalarGroupBy(operator, newColName, statsColName,
                                     indexTable, groupbyTable,
-                                    isIncSample, false, txId);
+                                    isIncSample, false,  mapCol, txId);
         })
         .then(function() {
             finalTable = getNewName(mapTable, ".final", true);
@@ -2558,7 +2557,7 @@ window.Profile = (function($, Profile, d3) {
         var noSort = (order === sortMap.origin);
         var tableInfo = statsCol.groupByInfo.buckets[bucketNum];
         var bucketSize = tableInfo.bucketSize;
-        var xName = parseColName(tableInfo.colName);
+        var xName = tableInfo.colName;
         var uniqueVals = {};
         var isExist = false;
 

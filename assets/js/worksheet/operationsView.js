@@ -1726,7 +1726,7 @@ window.OperationsView = (function($, OperationsView) {
             }
         }
 
-        autoGenColName = xcHelper.stripeColName(autoGenColName);
+        autoGenColName = xcHelper.stripColName(autoGenColName);
 
         $rows.eq(numArgs).addClass('colNameRow')
                         .find('.dropDownList')
@@ -1761,7 +1761,7 @@ window.OperationsView = (function($, OperationsView) {
         autoGenColName = xcHelper.parsePrefixColName(colName).name;
         autoGenColName = getAutoGenColName(autoGenColName + "_" +
                                             operObj.fnName);
-        autoGenColName = xcHelper.stripeColName(autoGenColName);
+        autoGenColName = xcHelper.stripColName(autoGenColName);
 
         $rows.eq(numArgs).addClass('colNameRow')
                          .find('.dropDownList')
@@ -3855,7 +3855,7 @@ window.OperationsView = (function($, OperationsView) {
         return newName;
     }
     function checkColNameUsedInInputs(name, $inputToIgnore) {
-        name = xcHelper.stripeColName(name);
+        name = xcHelper.stripColName(name);
         var $inputs = $activeOpSection.find(".colNameRow").find("input");
         var dupFound = false;
         $inputs.each(function() {

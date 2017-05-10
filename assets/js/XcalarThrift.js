@@ -2138,7 +2138,8 @@ function XcalarGroupByWithInput(txId, inputStruct) {
 }
 
 function XcalarGroupBy(operator, newColName, oldColName, tableName,
-                       newTableName, incSample, icvMode, txId) {
+                       newTableName, incSample, icvMode, newKeyFieldName,
+                       txId) {
     if (Transaction.checkAndSetCanceled(txId)) {
         return PromiseHelper.reject(StatusTStr[StatusT.StatusCanceled]);
     }
@@ -2164,9 +2165,10 @@ function XcalarGroupBy(operator, newColName, oldColName, tableName,
         }
         var workItem = xcalarGroupByWorkItem(unsortedTableName, newTableName,
                                              evalStr, newColName, incSample,
-                                             icvMode);
+                                             icvMode, newKeyFieldName);
         var def1 = xcalarGroupBy(tHandle, unsortedTableName, newTableName,
-                                 evalStr, newColName, incSample, icvMode);
+                                 evalStr, newColName, incSample, icvMode,
+                                 newKeyFieldName);
         var def2 = XcalarGetQuery(workItem);
         def2.then(function(query) {
             Transaction.startSubQuery(txId, 'groupBy', newTableName, query);

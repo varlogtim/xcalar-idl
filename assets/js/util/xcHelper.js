@@ -2024,7 +2024,7 @@ window.xcHelper = (function($, xcHelper) {
         return (str);
     };
 
-    xcHelper.stripeColName = function(colName) {
+    xcHelper.stripColName = function(colName) {
         var res = colName.split(/[\[\]\.\\]/g).filter(function(str) {
             return (str !== "");
         }).join("_");
@@ -3349,7 +3349,6 @@ window.xcHelper = (function($, xcHelper) {
 
     xcHelper.getKeyType = function(key, tableName) {
         var deferred = jQuery.Deferred();
-        console.log(tableName);
         var tableId = xcHelper.getTableId(tableName);
         var table = gTables[tableId];
         var type;

@@ -260,7 +260,7 @@ window.ColManager = (function($, ColManager) {
             var backName = progCol.getBackColName();
 
             var mapStr = xcHelper.castStrHelper(backName, colType);
-            var fieldName = xcHelper.stripeColName(frontName) + "_" + colType;
+            var fieldName = xcHelper.stripColName(frontName) + "_" + colType;
             // here use front col name to generate newColName
             fieldName = xcHelper.getUniqColName(tableId, fieldName);
 
@@ -453,7 +453,7 @@ window.ColManager = (function($, ColManager) {
 
             var curTableName = newTableNames[index - 1];
             var newTableName = newTableNames[index];
-            var fieldName = xcHelper.stripeColName(newFieldNames[index]);
+            var fieldName = xcHelper.stripColName(newFieldNames[index]);
             var newTableId = xcHelper.getTableId(newTableName);
 
             XIApi.map(txId, mapString, curTableName, fieldName, newTableName)
