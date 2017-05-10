@@ -93,11 +93,18 @@ require("jsdom").env("", function(err, window) {
     var cliArguments  = "";
     var stepNum = 0;
 
-    var scriptDir = "/installer";
-    var licenseLocation = "/config/license.txt";
-    var hostnameLocation = "/config/hosts.txt";
-    var privHostnameLocation = "/config/privHosts.txt";
-    var credentialLocation = "/tmp/key.txt";
+    var scriptRoot = process.env.XCE_INSTALLER_ROOT;
+    if (!scriptRoot) {
+        scriptRoot = "";
+    }
+
+    var scriptDir = path.join(scriptRoot, "/installer");
+    var licenseLocation = path.join(scriptRoot, "/config/license.txt");
+    var hostnameLocation = path.join(scriptRoot, "/config/hosts.txt");
+    var privHostnameLocation = path.join(scriptRoot, "/config/privHosts.txt");
+    var ldapLocation = path.join(scriptRoot, "/config/ldapConfig.json");
+    var credentialLocation = path.join(scriptRoot, "/tmp/key.txt");
+
 
     function initStepArray() {
         curStep = {
@@ -362,9 +369,8 @@ require("jsdom").env("", function(err, window) {
 
     function writeLdapConfig(credArray) {
         var deferredOut = jQuery.Deferred();
-        var file = "/config/ldapConfig.json";
         try {
-            fs.writeFileSync(file, JSON.stringify(credArray, null, 4));
+            fs.writeFileSync(ldapLocation, JSON.stringify(credArray, null, 4));
             copyFiles()
             .always(function(message) {
                 deferredOut.resolve(message);
