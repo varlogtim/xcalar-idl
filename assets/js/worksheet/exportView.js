@@ -140,15 +140,7 @@ window.ExportView = (function($, ExportView) {
 
         xcHelper.optionButtonEvent($exportView.find(".formRow"),
         function(option, $radio) {
-            if ($radio.closest(".typeRow").length > 0) {
-                if (option !== "DfFormatCsv") {
-                    $advancedSection.find('.csvRow').removeClass('csvSelected')
-                                                    .addClass('csvHidden');
-                } else {
-                    $advancedSection.find('.csvRow').addClass('csvSelected')
-                                                     .removeClass('csvHidden');
-                }
-            } else if ($radio.closest('.createRule').length) {
+            if ($radio.closest('.createRule').length) {
                 var appendCode = ExExportCreateRuleT[option];
                 if (appendCode === ExExportCreateRuleT.ExExportAppendOnly) {
                     toggleHeaderOptions(true);
@@ -903,8 +895,6 @@ window.ExportView = (function($, ExportView) {
                 $radios.eq(0).addClass('active');
             }
         });
-        $advancedSection.find('.csvRow').addClass('csvSelected')
-                                        .removeClass('csvHidden');
 
         var $input;
         $advancedSection.find('.csvRow').each(function() {
@@ -934,9 +924,7 @@ window.ExportView = (function($, ExportView) {
     // get selected options when submitting form
     function getAdvancedOptions() {
         var options = {};
-        options.format = DfFormatTypeT[$advancedSection.find('.typeRow')
-                                                .find('.radioButton.active')
-                                                .data('option')];
+        options.format = DfFormatTypeT.DfFormatCsv;
         options.splitType = ExSFFileSplitTypeT[$advancedSection
                                                 .find('.splitType')
                                                 .find('.radioButton.active')
@@ -955,31 +943,24 @@ window.ExportView = (function($, ExportView) {
             options.headerType = ExSFHeaderTypeT.ExSFHeaderNone;
         }
 
-        if (options.format === DfFormatTypeT.DfFormatCsv) {
-            options.csvArgs = {};
-            var $fieldDelim = $advancedSection.find('.fieldDelim');
-            var $recordDelim = $advancedSection.find('.recordDelim');
-            options.csvArgs.fieldDelim = xcHelper.delimiterTranslate($fieldDelim
-                                                    );
-            options.csvArgs.recordDelim = xcHelper.delimiterTranslate(
-                                                    $recordDelim);
-            if (options.csvArgs.fieldDelim === "") {
-                options.error = true;
-                options.errorMsg = ErrTStr.NoEmpty;
-                options.$target = $fieldDelim;
-            } else if (options.csvArgs.recordDelim === "") {
-                options.error = true;
-                options.errorMsg = ErrTStr.NoEmpty;
-                options.$target = $recordDelim;
-            }
-        } else if (options.format === DfFormatTypeT.DfFormatSql) {
-            options.sqlArgs = {};
-            // XX are there sql specific arguments?
-        } else {
+
+        options.csvArgs = {};
+        var $fieldDelim = $advancedSection.find('.fieldDelim');
+        var $recordDelim = $advancedSection.find('.recordDelim');
+        options.csvArgs.fieldDelim = xcHelper.delimiterTranslate($fieldDelim
+                                                );
+        options.csvArgs.recordDelim = xcHelper.delimiterTranslate(
+                                                $recordDelim);
+        if (options.csvArgs.fieldDelim === "") {
             options.error = true;
-            options.errorMsg = ExportTStr.InvalidType;
-            options.$target = $exportView.find('.typeRow');
+            options.errorMsg = ErrTStr.NoEmpty;
+            options.$target = $fieldDelim;
+        } else if (options.csvArgs.recordDelim === "") {
+            options.error = true;
+            options.errorMsg = ErrTStr.NoEmpty;
+            options.$target = $recordDelim;
         }
+
         return (options);
     }
 

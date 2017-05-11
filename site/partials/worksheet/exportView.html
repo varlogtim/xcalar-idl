@@ -40,9 +40,9 @@
           <div class="subHeading clearfix">
             <div class="label"><%= dicts.exportView.exportFilename %>:</div>
           </div>
-            
+
           <input id="exportName" class="text" type="text" spellcheck="false" required>
-          
+
         </div>
         <!-- export path section -->
         <div class="exportPathSection formRow">
@@ -104,7 +104,7 @@
               <i class="icon xi-ckbox-empty fa-13"></i>
               <i class="icon xi-ckbox-selected fa-13"></i>
             </div>
-            <div class="text"><%= dicts.exportView.exportInOrder %> 
+            <div class="text"><%= dicts.exportView.exportInOrder %>
               <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-original-title="<%= dicts.exportView.orderHint %>"></i>
             </div>
           </div>
@@ -117,30 +117,8 @@
               <i class="icon xi-minus-circle-outline advancedIcon minimized" data-container="body" data-toggle="tooltip" title="<%= dicts.TooltipTStr.ToggleAdvanced %>"></i>
               <span class="text"><%= dicts.common.AdvancedOpts %></span>
             </div>
-           
           </div>
-          <div class="formRow buttonRow typeRow">
-            <div class="subHeading clearfix">
-              <div class="label"><%= dicts.common.Type %>:</div>
-            </div>
-            <div class="radioButtonGroup">
-              <div class="radioButton active" data-option="DfFormatCsv">
-                <div class="radio">
-                  <i class="icon xi-radio-selected"></i>
-                  <i class="icon xi-radio-empty"></i>
-                </div>
-                <div class="label">CSV</div>
-              </div>
-              <div class="radioButton" data-option="DfFormatSql">
-                <div class="radio">
-                  <i class="icon xi-radio-selected"></i>
-                  <i class="icon xi-radio-empty"></i>
-                </div>
-                <div class="label">SQL</div>
-              </div>
-            </div>
-          </div>
-          <div class="formRow csvRow csvHidden">
+          <div class="formRow csvRow">
               <div class="subHeading clearfix">
                 <div class="label"><%= dicts.dsForm.FieldDelim %>:</div>
               </div>
@@ -173,7 +151,7 @@
                 </div>
               </div>
           </div>
-          <div class="formRow csvRow csvHidden">
+          <div class="formRow csvRow">
             <div class="subHeading clearfix">
               <div class="label"><%= dicts.exportView.RecordDelim %>:</div>
             </div>
@@ -288,9 +266,9 @@
         <button type="button" class="btn btn-cancel cancel"><%= dicts.common.CANCEL %></button>
       </section>
     </div>
-    
+
   </div>
   <!-- Export Modal Instruction -->
-  
+
 </div>
 <!-- End of Export Modal -->

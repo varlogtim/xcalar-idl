@@ -19,7 +19,7 @@ describe('ExportView Test', function() {
             tableName = tName;
             $exportForm = $('#exportView');
             tableId = xcHelper.getTableId(tableName);
-            
+
             // add a second table for table list testing
             tableName2 = "fakeTable#zz999";
             tableId2 = "zz999";
@@ -48,7 +48,7 @@ describe('ExportView Test', function() {
             });
         });
     });
-    
+
     describe('check export initial state', function() {
         it('inputs should be prefilled', function() {
             expect($exportForm.find('.tableList .text:visible')).to.have.lengthOf(1);
@@ -105,7 +105,7 @@ describe('ExportView Test', function() {
                 }
             });
         });
-        
+
         it('checkDuplicateExportName should work', function(done) {
             var check = ExportView.__testOnly__.checkDuplicateExportName;
             var options = ExportView.__testOnly__.getAdvancedOptions();
@@ -225,7 +225,7 @@ describe('ExportView Test', function() {
             $tableList.find('li').filter(function() {
                 return $(this).text() === tableName;
             }).trigger(fakeEvent.mouseup);
-      
+
             expect($tableList.find('.text').text()).to.equal(tableName);
             expect($exportForm.find('.cols li.checked').length).to.equal(numCols);
         });
@@ -250,7 +250,7 @@ describe('ExportView Test', function() {
             $ul.find("li").first().trigger(fakeEvent.mouseup);
             expect($text.val()).to.equal("Default");
             expect($text.data('type')).to.equal(1);
-            
+
             $ul.append('<li data-type="2" class="">Other</li>');
             $ul.find('li').last().trigger(fakeEvent.mouseup);
             expect($text.val()).to.equal("Other");
@@ -320,33 +320,6 @@ describe('ExportView Test', function() {
             expect($advancedSection.hasClass('collapsed')).to.be.true;
             expect($advancedSection.hasClass('expanded')).to.be.false;
             expect($advancedSection.find('.createRule:visible').length).to.equal(0);
-        });
-
-        it('csv to sql toggling should work', function() {
-            var $typeRow = $advancedSection.find('.typeRow');
-            $advancedSection.find('.advancedTitle').click(); // show
-            expect($advancedSection.hasClass('collapsed')).to.be.false;
-            expect($advancedSection.hasClass('expanded')).to.be.true;
-            expect($typeRow.is(":visible")).to.be.true;
-
-            // first button is CSV and is active
-            expect($typeRow.find('.radioButton').eq(0).hasClass('active')).to.be.true;
-            expect($typeRow.find('.radioButton').eq(1).hasClass('active')).to.be.false;
-            expect($advancedSection.find('.csvRow:visible').length).to.equal(2);
-
-            // select SQL
-            $typeRow.find('.radioButton').eq(1).click();
-
-            expect($typeRow.find('.radioButton').eq(0).hasClass('active')).to.be.false;
-            expect($typeRow.find('.radioButton').eq(1).hasClass('active')).to.be.true;
-            expect($advancedSection.find('.csvRow:visible').length).to.equal(0);
-
-            // select CSV
-            $typeRow.find('.radioButton').eq(0).click();
-
-            expect($typeRow.find('.radioButton').eq(0).hasClass('active')).to.be.true;
-            expect($typeRow.find('.radioButton').eq(1).hasClass('active')).to.be.false;
-            expect($advancedSection.find('.csvRow:visible').length).to.equal(2);
         });
 
         it('csv delimiters should work', function() {
