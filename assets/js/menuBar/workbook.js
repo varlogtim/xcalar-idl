@@ -336,17 +336,9 @@ window.Workbook = (function($, Workbook) {
         $workbookSection.on("click", ".pause", function() {
             clearActives();
             var $workbookBox = $(this).closest(".workbookBox");
-            // Alert.show({
-            //     "title": WKBKTStr.Pause,
-            //     "msg": WKBKTStr.PauseMsg,
-            //     "onConfirm": function() {
-            //         pauseWorkbook($workbookBox);
-            //     }
-            // });
-            // XXX GUI-8242 temp use old code
             Alert.show({
-                "title": WKBKTStr.Deactivate,
-                "msg": WKBKTStr.DeactivateMsg,
+                "title": WKBKTStr.Pause,
+                "msg": WKBKTStr.PauseMsg,
                 "onConfirm": function() {
                     pauseWorkbook($workbookBox);
                 }
@@ -677,20 +669,12 @@ window.Workbook = (function($, Workbook) {
             isActive = WKBKTStr.Active;
             activateTooltip = WKBKTStr.ReturnWKBK;
             // pause button
-            // stopTab =
-            //     '<div class="tab btn btn-small pause"' +
-            //     ' data-toggle="tooltip" data-container="body"' +
-            //     ' data-placement="auto right"' +
-            //     ' title="' + WKBKTStr.Pause + '">' +
-            //         '<i class="icon xi-pause-circle"></i>' +
-            //     '</div>';
-            // XXX GUI-8242 temp use old code
             stopTab =
                 '<div class="tab btn btn-small pause"' +
                 ' data-toggle="tooltip" data-container="body"' +
                 ' data-placement="auto right"' +
-                ' title="' + WKBKTStr.Deactivate + '">' +
-                    '<i class="icon xi-stop-circle"></i>' +
+                ' title="' + WKBKTStr.Pause + '">' +
+                    '<i class="icon xi-pause-circle"></i>' +
                 '</div>';
         } else {
             isActive = WKBKTStr.Inactive;

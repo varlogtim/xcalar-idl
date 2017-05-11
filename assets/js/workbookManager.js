@@ -384,19 +384,13 @@ window.WorkbookManager = (function($, WorkbookManager) {
 
         commitActiveWkbk()
         .then(function() {
-            // XXX GUI-8242 temp use old code
-            var keepResource = false;
+            var keepResource = true;
             return XcalarDeactivateWorkbook(wkbk.getName(), keepResource);
         })
         .then(function() {
             // pass in true to always resolve the promise
             var promise = removeActiveWKBKKey();
             return PromiseHelper.alwaysResolve(promise);
-        })
-        .then(function() {
-            // XXX GUI-8242 temp use old code
-            wkbk.setResource(false);
-            return saveWorkbook();
         })
         .then(deferred.resolve)
         .fail(deferred.reject)

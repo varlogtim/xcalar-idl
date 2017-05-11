@@ -3548,13 +3548,13 @@ function XcalarDeleteWorkbook(workbookName) {
     return (deferred.promise());
 }
 
-function XcalarDeactivateWorkbook(workbookName) {
+function XcalarDeactivateWorkbook(workbookName, noCleanup) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
     var deferred = jQuery.Deferred();
 
-    xcalarApiSessionInact(tHandle, workbookName, gSessionNoCleanup)
+    xcalarApiSessionInact(tHandle, workbookName, noCleanup)
     .then(function(output) {
         deferred.resolve(output);
     })
