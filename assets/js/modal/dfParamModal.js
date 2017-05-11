@@ -185,7 +185,9 @@ window.DFParamModal = (function($, DFParamModal){
         });
         event.dataTransfer.effectAllowed = "copyMove";
         event.dataTransfer.dropEffect = "copy";
-        event.dataTransfer.setData("text", event.target.id);
+        // must add datatransfer to support firefox drag drop
+        event.dataTransfer.setData("text", "");
+        event.dataTransfer.setData("id", event.target.id);
         event.dataTransfer.setDragImage(crt, 0, 0);
         event.stopPropagation();
         var $origin = $(event.target).parent();
@@ -247,7 +249,7 @@ window.DFParamModal = (function($, DFParamModal){
         event.stopPropagation();
         var $dropTarget = $(event.target);
         var $dropTargParent = $dropTarget.parent();
-        var paramId = event.dataTransfer.getData("text");
+        var paramId = event.dataTransfer.getData("id");
 
         var $draggableParam = $('#' + paramId);
 
@@ -266,7 +268,7 @@ window.DFParamModal = (function($, DFParamModal){
         event.stopPropagation();
         var $dropTarget = $(event.target);
         var $dropTargParent = $dropTarget.parent();
-        var paramId = event.dataTransfer.getData("text");
+        var paramId = event.dataTransfer.getData("id");
 
         var $draggableParam = $('#' + paramId);
 

@@ -4189,7 +4189,7 @@ window.OperationsView = (function($, OperationsView) {
                 'data-fnlistnum="' + index + '">' +
               '<input class="text inputable autocomplete functionsInput" ' +
                     'data-fninputnum="' + index + '" tabindex="10" ' +
-                    'spellcheck="false"  required>' +
+                    'spellcheck="false">' +
               '<div class="iconWrapper dropdown">' +
                 '<i class="icon xi-arrow-down"></i>' +
               '</div>' +
@@ -4426,7 +4426,7 @@ window.OperationsView = (function($, OperationsView) {
                             'class="dropDownList firstList functionsList">' +
                             '<input data-fninputnum="' + index + '" ' +
                             'class="text inputable autocomplete functionsInput" ' +
-                            'tabindex="10" spellcheck="false" required>' +
+                            'tabindex="10" spellcheck="false">' +
                             '<div class="iconWrapper dropdown">' +
                               '<i class="icon xi-arrow-down"></i>' +
                             '</div>' +
