@@ -458,8 +458,18 @@ function viewRelatedFunctionTest() {
                     "retinaDag": {
                         "numNodes": 1,
                         "node": [{
-                            "name": "test",
+                            "name": {"name": "test"},
                             "dagNodeId": "104399",
+                            "api": 2,
+                            "input": {
+                                "loadInput": {
+                                    "dataset": {
+                                        "url": "test",
+                                        "formatType": 0,
+                                        "name": "test"
+                                    }
+                                }
+                            }
                         }],
                     },
                     "retinaDesc": {

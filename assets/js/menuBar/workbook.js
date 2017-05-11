@@ -677,10 +677,10 @@ window.Workbook = (function($, Workbook) {
                     '<i class="icon xi-pause-circle"></i>' +
                 '</div>';
         } else {
-            isActive = WKBKTStr.Inactive;
             activateTooltip = WKBKTStr.Activate;
 
             if (workbook.hasResource()) {
+                isActive = WKBKTStr.Paused;
                 // stop button
                 stopTab =
                     '<div class="tab btn btn-small deactivate"' +
@@ -690,6 +690,7 @@ window.Workbook = (function($, Workbook) {
                         '<i class="icon xi-stop-circle"></i>' +
                     '</div>';
             } else {
+                isActive = WKBKTStr.Inactive;
                 extraClasses.push("noResource");
                 // delete button
                 stopTab =

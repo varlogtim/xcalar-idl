@@ -594,6 +594,7 @@ WKBKTStr = {
                 'please choose another name.',
     'Active': 'Active',
     'Inactive': 'Inactive',
+    'Paused': 'Paused',
     'Createby': 'Created by',
     'CreateOn': 'Created on',
     'Modified': 'Last modified',
