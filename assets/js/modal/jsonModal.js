@@ -291,11 +291,8 @@ window.JSONModal = (function($, JSONModal) {
                 var $compareIcons = $jsonArea.find('.compareIcon')
                                           .addClass('single');
                 var title = JsonModalTStr.SelectOther;
-                var $compareIcon;
-
                 $compareIcons.each(function() {
-                    $compareIcon = $(this);
-                    $compareIcon.attr('data-original-title', title);
+                    xcTooltip.changeText($(this), title);
                 });
             }
 
@@ -385,6 +382,12 @@ window.JSONModal = (function($, JSONModal) {
         $tab.closest('.tabs').find('.tab').removeClass('active');
         $tab.addClass('active');
 
+        if ($jsonWrap.find(".compareIcon.selected").length) {
+            // when switching tabs, uncompare, then recompare
+            compareIconSelect($jsonWrap.find(".compareIcon"));
+            compareIconSelect($jsonWrap.find(".compareIcon"));
+        }
+
         if (isSeeAll) {
             $prefixGroups.removeClass('xc-hidden');
             $prefixGroups.find('.prefix').removeClass('xc-hidden');
@@ -417,7 +420,8 @@ window.JSONModal = (function($, JSONModal) {
         var numComparisons = $compareIcons.length;
         var isSearchUpdateNeeded = true;
         var multipleComparison = false;
-        var newComparisonNum;
+        var $jsonWrap = $compareIcon.closest(".jsonWrap");
+        var curIndex = $jsonWrap.index();
 
         if ($compareIcon.hasClass('selected')) {// uncheck this jsonwrap
             $compareIcon.removeClass('selected');
@@ -432,7 +436,6 @@ window.JSONModal = (function($, JSONModal) {
                 isSearchUpdateNeeded = false;
             } else if (numComparisons > 1) {
                 multipleComparison = true;
-                newComparisonNum = $compareIcon.closest('.jsonWrap').index();
             }
             $compareIcon.addClass('selected');
             $compareIcon.closest('.jsonWrap').addClass('active');
@@ -442,16 +445,20 @@ window.JSONModal = (function($, JSONModal) {
 
         // only run comparison if more than 2 compareIcons are selected
         if ($compareIcons.length > 1) {
-            var indices = [];
-            var objs = [];
             if (multipleComparison) {
-                compare(jsonData[newComparisonNum], newComparisonNum,
-                        multipleComparison);
+                var $jsonWrap = $compareIcon.closest('.jsonWrap');
+                var index = $jsonWrap.index();
+                var data = getDataObj($jsonWrap, index);
+                compare(data, index, multipleComparison);
             } else {
+                var indices = [];
+                var objs = [];
                 $compareIcons.each(function() {
-                    var index = $(this).closest('.jsonWrap').index();
+                    var $curJsonWrap = $(this).closest('.jsonWrap');
+                    var index = $curJsonWrap.index();
                     indices.push(index);
-                    objs.push(jsonData[index]);
+                    var data = getDataObj($curJsonWrap, index);
+                    objs.push(data);
                 });
 
                 compare(objs, indices);
@@ -459,10 +466,24 @@ window.JSONModal = (function($, JSONModal) {
             displayComparison(comparisonObjs);
         }
 
-        if (isSearchUpdateNeeded && $compareIcons.length !== 0) {
+        if (isSearchUpdateNeeded && $compareIcons.length) {
             updateSearchResults();
             searchText();
         }
+    }
+
+    function getDataObj($jsonWrap, index) {
+        var $activeTab = $jsonWrap.find(".tab.active");
+        var data;
+        if ($activeTab.hasClass("seeAll")) {
+            data = jsonData[index].full;
+        } else if ($activeTab.hasClass('immediates')) {
+            data = jsonData[index].immediates;
+        } else {
+            var prefix = $activeTab.data("id");
+            data = jsonData[index].prefixed[prefix];
+        }
+        return data;
     }
 
     function selectAllFields($btn) {
@@ -1011,7 +1032,23 @@ window.JSONModal = (function($, JSONModal) {
             $jsonModal.removeClass('isArray');
         }
 
-        jsonData.push(jsonObj);
+        var dataObj = {
+            full: jsonObj,
+            immediates: {},
+            prefixed: {}
+        };
+        if (isDataCol) {
+            var groups = splitJsonIntoGroups(jsonObj);
+            for (var i = 0; i < groups.length; i++) {
+                if (groups[i].prefix === gPrefixSign) {
+                    dataObj.immediates = groups[i].objs;
+                } else {
+                    dataObj.prefixed[groups[i].prefix] = groups[i].objs;
+                }
+            }
+        }
+
+        jsonData.push(dataObj);
 
         if (!isModalOpen) {
             var height = Math.min(500, $(window).height());
@@ -1059,11 +1096,9 @@ window.JSONModal = (function($, JSONModal) {
         if (isModalOpen) {
             var $compareIcons = $jsonArea.find('.compareIcon')
                                       .removeClass('single');
-            var $compareIcon;
             var title = JsonModalTStr.Compare;
             $compareIcons.each(function() {
-                $compareIcon = $(this);
-                $compareIcon.attr('data-original-title', title);
+                xcTooltip.changeText($(this), title);
             });
             if (allProjectMode) {
                 $jsonWrap.addClass('projectMode');
@@ -1287,7 +1322,7 @@ window.JSONModal = (function($, JSONModal) {
     }
 
     function compare(jsonObjs, indices, multiple) {
-        if (jsonObjs.length < 2) {
+        if (!multiple && jsonObjs.length < 2) {
             return;
         }
 
@@ -1306,31 +1341,22 @@ window.JSONModal = (function($, JSONModal) {
             var numMatches = matches.length;
             var numPartials = partials.length;
 
-            var keysMapped = {};
-            for (var key in jsonObjs) {
-                keysMapped[xcHelper.parsePrefixColName(key).name] = key;
-            }
-
             for (var i = 0; i < numMatches; i++) {
                 var possibleMatch = matches[i];
                 var tempActiveObj = {};
                 var tempObj;
                 var key = Object.keys(matches[i])[0];
-                var key2 = key;
-                if (!jsonObjs.hasOwnProperty(key)) {
-                    key2 = keysMapped[xcHelper.parsePrefixColName(key).name];
-                }
 
                 var compareResult = xcHelper.deepCompare(possibleMatch[key],
-                                                          jsonObjs[key2]);
+                                                          jsonObjs[key]);
                 if (compareResult) {
                     activeObj.matches.push(possibleMatch);
-                } else if (jsonObjs.hasOwnProperty(key2)) {
+                } else if (jsonObjs.hasOwnProperty(key)) {
                     for (var j in comparisonObjs) {
                         tempObj = comparisonObjs[j].matches.splice(i, 1)[0];
                         comparisonObjs[j].partial.push(tempObj);
                     }
-                    tempActiveObj[key2] = jsonObjs[key2];
+                    tempActiveObj[key] = jsonObjs[key];
                     tempPartials.push(tempActiveObj);
 
                     numMatches--;
@@ -1343,42 +1369,34 @@ window.JSONModal = (function($, JSONModal) {
                     numMatches--;
                     i--;
                 }
-                delete jsonObjs[key2];
+                delete jsonObjs[key];
             }
             for (var i = 0; i < numPartials; i++) {
                 var key = Object.keys(partials[i])[0];
-                var key2 = key;
-                if (!jsonObjs.hasOwnProperty(key)) {
-                    key2 = keysMapped[xcHelper.parsePrefixColName(key).name];
-                }
                 var tempActiveObj = {};
                 var tempObj;
-                if (jsonObjs.hasOwnProperty(key2)) {
-                    tempActiveObj[key2] = jsonObjs[key2];
+
+                if (jsonObjs.hasOwnProperty(key)) {
+                    tempActiveObj[key] = jsonObjs[key];
                     activeObj.partial.push(tempActiveObj);
                 } else {
                     for (var j in comparisonObjs) {
                         tempObj = comparisonObjs[j].partial.splice(i, 1)[0];
                         comparisonObjs[j].unmatched.push(tempObj);
                     }
-                    tempActiveObj[key2] = jsonObjs[key2];
+                    tempActiveObj[key] = jsonObjs[key];
                     numPartials--;
                     i--;
                 }
-                delete jsonObjs[key2];
+                delete jsonObjs[key];
             }
             for (var i = 0; i < nonMatches.length; i++) {
                 var key = Object.keys(nonMatches[i])[0];
-                var key2 = key;
-                if (!jsonObjs.hasOwnProperty(key)) {
-                    key2 = keysMapped[xcHelper.parsePrefixColName(key).name];
-                }
-
                 var tempActiveObj = {};
-                if (jsonObjs.hasOwnProperty(key2)) {
-                    tempActiveObj[key2] = jsonObjs[key2];
+                if (jsonObjs.hasOwnProperty(key)) {
+                    tempActiveObj[key] = jsonObjs[key];
                     activeObj.unmatched.push(tempActiveObj);
-                    delete jsonObjs[key2];
+                    delete jsonObjs[key];
                 }
             }
             activeObj.partial = activeObj.partial.concat(tempPartials);
@@ -1392,11 +1410,6 @@ window.JSONModal = (function($, JSONModal) {
             var unmatchedJsons = [];
             var partialMatchedJsons = []; // when both objs have the same key but different values
 
-            var keysMapped = {};
-            for (var key in jsonObjs[1]) {
-                keysMapped[xcHelper.parsePrefixColName(key).name] = key;
-            }
-
             for (var i = 0; i < numObjs; i++) {
                 matchedJsons.push([]);
                 unmatchedJsons.push([]);
@@ -1404,28 +1417,23 @@ window.JSONModal = (function($, JSONModal) {
             }
             for (var i = 0; i < numKeys; i++) {
                 var key = keys[i];
-                var key2 = key;
-                if (!jsonObjs[1].hasOwnProperty(key)) {
-                    key2 = keysMapped[xcHelper.parsePrefixColName(key).name];
-                }
-
                 var compareResult = xcHelper.deepCompare(jsonObjs[0][key],
-                                                        jsonObjs[1][key2]);
+                                                        jsonObjs[1][key]);
 
                 var obj = {};
                 var obj2 = {};
                 obj[key] = jsonObjs[0][key];
-                obj2[key2] = jsonObjs[1][key2];
+                obj2[key] = jsonObjs[1][key];
 
                 if (compareResult) { // perfect match
                     matchedJsons[0].push(obj);
                     matchedJsons[1].push(obj2);
-                    delete jsonObjs[1][key2];
-                } else if (jsonObjs[1].hasOwnProperty(key2)) {
+                    delete jsonObjs[1][key];
+                } else if (jsonObjs[1].hasOwnProperty(key)) {
                     // keys match but values do not
                     partialMatchedJsons[0].push(obj);
                     partialMatchedJsons[1].push(obj2);
-                    delete jsonObjs[1][key2];
+                    delete jsonObjs[1][key];
                 } else {
                     // no match
                     unmatchedJsons[0].push(obj);

@@ -285,13 +285,6 @@
                 opacity: 0.5;
                 pointer-events: none;
             }
-            .tabBar {
-                cursor: not-allowed;
-                .tabs {
-                    pointer-events: none;
-                    opacity: @opacity-disabled;
-                }
-            }
         }
 
         &.projectMode, &.multiSelectMode {
@@ -608,6 +601,12 @@
                 }
             }
 
+            &.remove {
+                .icon {
+                    font-size: 14px;
+                }
+            }
+
             &.binaryIcon {
                 display: none;
             }
@@ -853,9 +852,6 @@
         .modalContainer.modalHeader.close();
         .position(@top: 3px, @right: 4px);
         color: @color-white;
-        .icon {
-            font-size: 14px;
-        }
     }
 
     .fullScreen, .exitFullScreen {
@@ -998,12 +994,10 @@
     .partial > .jsonBlock > .jKey + span {
         box-shadow: none;
         border-radius: 1px;
-        line-height: 17px;
     }
     .unmatched > .jsonBlock > span {
         box-shadow: none;
         border-radius: 1px;
-        line-height: 17px;
     }
 
     .partial .jArray  {
