@@ -466,7 +466,7 @@ window.Support = (function(Support, $) {
         // if xcalargetversion doesn't work then it's very probably that
         // there is no connection so alert.
         var connectionCheck = true;
-        return XcalarGetVersion(connectionCheck);
+        return XVM.checkVersion(connectionCheck);
     }
 
     function checkConnectionTrigger(cnt, alertId) {
@@ -492,10 +492,11 @@ window.Support = (function(Support, $) {
             if (shouldCheck) {
                 // if fail, continue to another check
                 checkConnection()
-                .then(function() {
+                .then(function(versionMatch) {
                     clearTimeout(connectionCheckTimer);
                     // reload browser if connection back
-                    location.reload();
+                    var hardLoad = !versionMatch;
+                    location.reload(hardLoad);
                 })
                 .fail(function() {
                     checkConnectionTrigger(cnt + 1, alertId);

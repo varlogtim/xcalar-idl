@@ -35,7 +35,7 @@ window.xcManager = (function(xcManager, $) {
 
         var firstTimeUser;
 
-        XVM.checkVersionMatch()
+        XVM.checkVersionAndLicense()
         .then(XVM.checkKVVersion)
         .then(function(isFirstTimeUser) {
             firstTimeUser = isFirstTimeUser;

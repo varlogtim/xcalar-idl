@@ -72,20 +72,49 @@ window.XVM = (function(XVM) {
         }
     };
 
-    XVM.checkVersionMatch = function() {
+    XVM.checkVersion = function(connectionCheck) {
         var deferred = jQuery.Deferred();
 
-        var def1 = XcalarGetLicense();
-        var def2 = XcalarGetVersion();
-        PromiseHelper
-        .when(def1, def2)
-        .then(function(licKey, result) {
-            var passed = false;
-            var err;
+        XcalarGetVersion(connectionCheck)
+        .then(function(result) {
+            var versionMatch = true;
             try {
                 var versionNum = result.apiVersionSignatureShort;
                 backendVersion = result.version;
 
+                if (versionNum !== XcalarApiVersionT.XcalarApiVersionSignature) {
+                    console.log("Thrift version mismatch! Backend's thrift " +
+                      "version is:" +
+                      XcalarApiVersionT.XcalarApiVersionSignature);
+                    console.log("Frontend's thrift version is: " + versionNum);
+                    console.log("Frontend's git SHA is: " + gGitVersion);
+
+                    versionMatch = false;
+                }
+            } catch (error) {
+                // code may go here if thrift changes
+                versionMatch = false;
+                console.error(error);
+            }
+
+            deferred.resolve(versionMatch);
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    };
+
+    XVM.checkVersionAndLicense = function() {
+        var deferred = jQuery.Deferred();
+
+        var def1 = XcalarGetLicense();
+        var def2 = XVM.checkVersion();
+        PromiseHelper
+        .when(def1, def2)
+        .then(function(licKey, versionMatch) {
+            var passed = false;
+            var err;
+            try {
                 if (typeof(licKey) === "string") {
                     // This is an error. Otherwise it will be an object
                     licenseKey = "Unlicensed";
@@ -112,12 +141,7 @@ window.XVM = (function(XVM) {
                 }
                 numNodes = licKey.nodeCount;
                 numUsers = licKey.userCount;
-                if (versionNum !== XcalarApiVersionT.XcalarApiVersionSignature) {
-                    console.log("Thrift version mismatch! Backend's thrift " +
-                      "version is:" +
-                      XcalarApiVersionT.XcalarApiVersionSignature);
-                    console.log("Frontend's thrift version is: " + versionNum);
-                    console.log("Frontend's git SHA is: " + gGitVersion);
+                if (!versionMatch) {
                     err = {"error": ThriftTStr.Update};
                 } else if (licKey.expired) {
                     console.log(licKey);
@@ -130,7 +154,7 @@ window.XVM = (function(XVM) {
                 }
             } catch (error) {
                 // code may go here if thrift changes
-                err = {error: ThriftTStr.Update};
+                err = {"error": ThriftTStr.Update};
                 console.error(error);
             }
             if (passed) {
