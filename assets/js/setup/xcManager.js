@@ -11,7 +11,7 @@ window.xcManager = (function(xcManager, $) {
 
         Compatible.check();
         setupThrift();
-        // Support.setup() get username, so need to be at very eary time
+        // Support.setup() get username, so need to be at very early time
         Support.setup();
         XVM.setup();
 
@@ -39,8 +39,10 @@ window.xcManager = (function(xcManager, $) {
         .then(XVM.checkKVVersion)
         .then(function(isFirstTimeUser) {
             firstTimeUser = isFirstTimeUser;
-            return setupSession();
+            // First XD instance to run since cluster restart
+            return oneTimeSetup();
         })
+        .then(setupSession)
         .then(function() {
             StatusMessage.updateLocation(true,
                                         StatusMessageTStr.SettingExtensions);
@@ -172,7 +174,8 @@ window.xcManager = (function(xcManager, $) {
                         "name": NewUserTStr.openGuide,
                         "className": "confirm",
                         "func": function() {
-                            var url = "https://university.xcalar.com/confluence/display/XU/Self-Paced+Training";
+                            var url = "https://university.xcalar.com/" +
+                                    "confluence/display/XU/Self-Paced+Training";
                             window.open(url, "_blank");
                         }
                     }],
@@ -305,6 +308,146 @@ window.xcManager = (function(xcManager, $) {
         window.onbeforeunload = function() {}; // Do not enable prompt
         window.onunload = function() {}; // do not call unload again
     };
+
+    function oneTimeSetup() {
+        function actualOneTimeSetup() {
+            var def = jQuery.Deferred();
+
+            function initPhase() {
+                var deferred = jQuery.Deferred();
+                // Your changes go here, then do the .then for XcalarKeyPut
+                XcalarKeyPut(GlobalKVKeys.InitFlag,
+                             InitFlagState.AlreadyInit, false,
+                             gKVScope.INIT)
+                .then(deferred.resolve)
+                .fail(deferred.reject);
+                return deferred.promise();
+            }
+
+            XcalarKeyLookup(GlobalKVKeys.InitFlag, gKVScope.INIT)
+            .then(function(ret) {
+                if (ret && ret.value === InitFlagState.AlreadyInit) {
+                    def.resolve();
+                } else {
+                    initPhase()
+                    .then(def.resolve)
+                    .fail(def.reject);
+                }
+            });
+
+            return def.promise();
+        }
+
+        function showForceAlert(deferred) {
+            $("#initialLoadScreen").hide();
+            Alert.show({
+                title: "Unexpected Initialization Time",
+                msg: "The initialization time is taking longer than usual. " +
+                     "This may be due to a slow network connection or a " +
+                     "previously distrupted or concurrent initialization. " +
+                     "You can choose to retry and wait a little longer, or " +
+                     "you can force the current initialization to overwrite " +
+                     "any concurrent / previously disrupted initialization.",
+                hideButtons: ["cancel"],
+                buttons: [
+                            {
+                                name: "Retry",
+                                className: "retry",
+                                func: function() {
+                                    $("#initialLoadScreen").show();
+                                    setTimeout(function() {
+                                        XcalarKeyLookup(GlobalKVKeys.InitFlag,
+                                                        gKVScope.INIT)
+                                        .then(function(ret) {
+                                            if (ret && ret.value ===
+                                                    InitFlagState.AlreadyInit) {
+                                                return deferred.resolve();
+                                            } else {
+                                                showForceAlert(deferred);
+                                            }
+                                        })
+                                        .fail(function(err) {
+                                            console.error(err);
+                                            showForceAlert(deferred);
+                                        });
+                                    }, 5000);
+                                    console.log("Retry");
+                                }
+                            },
+                            {
+                                name: "Overwrite",
+                                className: "force",
+                                func: function() {
+                                    $("#initialLoadScreen").show();
+                                    console.log("Force");
+                                    actualOneTimeSetup()
+                                    .then(function() {
+                                        // Force unlock
+                                        return XcalarKeyPut(
+                                                      GlobalKVKeys.XdFlag,
+                                                      "0", false, gKVScope.XD);
+                                    })
+                                    .then(deferred.resolve)
+                                    .fail(function(err) {
+                                        console.error(err);
+                                        console.error("SEVERE ERROR: Race " +
+                                                      "conditions ahead");
+                                        deferred.resolve();
+                                    });
+                                }
+                            }
+                        ]
+            });
+        }
+
+        var deferred = jQuery.Deferred();
+        XcalarKeyLookup(GlobalKVKeys.InitFlag, gKVScope.INIT)
+        .then(function(ret) {
+            if (ret && ret.value == InitFlagState.AlreadyInit) {
+                deferred.resolve();
+            } else {
+            // NOTE: Please do not follow this for generic concurrency use.
+            // This is a one time setup where the lock init phase is part of the
+            // backend startup process
+                var globalMutex = new Mutex(GlobalKVKeys.XdFlag);
+                var ls = "";
+                Concurrency.tryLock(globalMutex)
+                .then(function(lockString) {
+                    ls = lockString;
+                    return actualOneTimeSetup();
+                })
+                .then(function() {
+                    return Concurrency.unlock(globalMutex, ls);
+                })
+                .then(deferred.resolve)
+                .fail(function(err) {
+                    if (err === ConcurrencyEnum.OverLimit) {
+                        setTimeout(function() {
+                            XcalarKeyLookup(GlobalKVKeys.InitFlag,
+                                            gKVScope.INIT)
+                            .then(function(ret) {
+                                if (ret &&
+                                    ret.value == InitFlagState.AlreadyInit) {
+                                    // All good
+                                    deferred.resolve();
+                                } else {
+                                    showForceAlert(deferred);
+                                }
+                            });
+                        }, 5000);
+                    } else {
+                        showForceAlert(deferred);
+                    }
+                });
+            }
+        })
+        .fail(function(err) {
+            console.error("Error Setting up global flags. May have race " +
+                          "conditions later. Letting it go through");
+            deferred.resolve();
+        });
+        return deferred.promise();
+    }
 
     function setupSession() {
         var deferred = jQuery.Deferred();

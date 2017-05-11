@@ -343,3 +343,22 @@ var XCTrackerCategory = {
 var systemParams = {
     "N": 0,
 };
+
+// Global predefined keys
+var GlobalKVKeys = {
+    InitFlag: "alreadyInit",
+    XdFlag: "xdGlobalKey"
+};
+
+var InitFlagState = {
+    AlreadyInit: "inited",
+    NotYetInit: "not inited"
+};
+
+var ConcurrencyEnum = {
+    NoKey: "Key seems non-existent",
+    NoLock: "Lock cannot be undefined",
+    AlreadyInit: "Mutex already initialized",
+    OverLimit: "Limit exceeded",
+    NoKVStore: "kvStore / kvEntry not found"
+};

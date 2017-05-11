@@ -40,7 +40,7 @@ window.Alert = (function($, Alert){
             optList: an object to setup datalist in alert modal, it contains:
                 label: label to show
                 list: options in the datalist
-            buttons: buttons to show instead of confirm buttonm which contains:
+            buttons: buttons to show instead of confirm button which contains:
                 name: name of the button
                 className: class of the button
                 func: callback to trigger when click,

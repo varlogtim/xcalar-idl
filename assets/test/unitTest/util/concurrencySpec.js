@@ -13,31 +13,31 @@ describe("Concurrency Test", function() {
             .then(function() {
                 throw "Error";
             }, function(errorMessage) {
-                expect(errorMessage).to.equal(Concurrency.NoLock);
+                expect(errorMessage).to.equal(ConcurrencyEnum.NoLock);
                 return Concurrency.lock();
             })
             .then(function() {
                 throw "Error";
             }, function(errorMessage) {
-                expect(errorMessage).to.equal(Concurrency.NoLock);
+                expect(errorMessage).to.equal(ConcurrencyEnum.NoLock);
                 return Concurrency.tryLock();
             })
             .then(function() {
                 throw "Error";
             }, function(errorMessage) {
-                expect(errorMessage).to.equal(Concurrency.NoLock);
+                expect(errorMessage).to.equal(ConcurrencyEnum.NoLock);
                 return Concurrency.forceUnlock();
             })
             .then(function() {
                 throw "Error";
             }, function(errorMessage) {
-                expect(errorMessage).to.equal(Concurrency.NoLock);
+                expect(errorMessage).to.equal(ConcurrencyEnum.NoLock);
                 return Concurrency.isLocked();
             })
             .then(function() {
                 throw "Error";
             }, function(errorMessage) {
-                expect(errorMessage).to.equal(Concurrency.NoLock);
+                expect(errorMessage).to.equal(ConcurrencyEnum.NoLock);
                 done();
             });
         });
@@ -49,7 +49,7 @@ describe("Concurrency Test", function() {
                 throw "Error";
             })
             .fail(function(error) {
-                expect(error).to.equal(Concurrency.NoKVStore);
+                expect(error).to.equal(ConcurrencyEnum.NoKVStore);
                 done();
             });
         });
@@ -73,7 +73,7 @@ describe("Concurrency Test", function() {
                 throw "Error";
             })
             .fail(function(error) {
-                expect(error).to.equal(Concurrency.NoKey);
+                expect(error).to.equal(ConcurrencyEnum.NoKey);
                 done();
             });
         });
@@ -85,7 +85,7 @@ describe("Concurrency Test", function() {
                 throw "Error";
             })
             .fail(function(error) {
-                expect(error).to.equal(Concurrency.NoKey);
+                expect(error).to.equal(ConcurrencyEnum.NoKey);
                 done();
             });
         });
@@ -107,7 +107,7 @@ describe("Concurrency Test", function() {
                 throw "Should not be able to double init";
             })
             .fail(function(error) {
-                expect(error).to.equal(Concurrency.AlreadyInit);
+                expect(error).to.equal(ConcurrencyEnum.AlreadyInit);
                 done();
             });
         });
@@ -118,7 +118,7 @@ describe("Concurrency Test", function() {
                 throw "Should not get lock!";
             })
             .fail(function(errorMessage) {
-                expect(errorMessage).to.equal(Concurrency.OverLimit);
+                expect(errorMessage).to.equal(ConcurrencyEnum.OverLimit);
                 done();
             });
         });
@@ -129,7 +129,7 @@ describe("Concurrency Test", function() {
                 throw "Should not get lock!";
             })
             .fail(function(errorMessage) {
-                expect(errorMessage).to.equal(Concurrency.NoLock);
+                expect(errorMessage).to.equal(ConcurrencyEnum.NoLock);
                 done();
             });
         });

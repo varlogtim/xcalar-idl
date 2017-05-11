@@ -48,7 +48,9 @@ var gKVScope = {
     "ERR": XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
     "FLAG": XcalarApiKeyScopeT.XcalarApiKeyScopeSession,
     "VER": XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
-    "GLOB": XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal
+    "GLOB": XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
+    "XD": XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
+    "INIT": XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal
 };
 var gTables = {}; // This is the main global array containing structures
                   // Stores TableMeta structs

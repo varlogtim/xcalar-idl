@@ -6,6 +6,7 @@ window.KVStore = (function($, KVStore) {
     var metaInfos;
     var ephMetaInfos; // Ephemeral meta
     var commitCnt = 0;
+
     // keys: gStorageKey, gEphStorageKey, gLogKey, gErrKey, gUserKey,
     // gSettingsKey
     KVStore.setup = function(keys) {
@@ -38,7 +39,7 @@ window.KVStore = (function($, KVStore) {
         var deferred = jQuery.Deferred();
         XcalarKeyLookup(key, scope)
         .then(function(value) {
-            // "" can not be JSO.parse
+            // "" can not be JSON.parse
             if (value != null && value.value != null && value.value !== "") {
                 var passed = false;
                 var error;
