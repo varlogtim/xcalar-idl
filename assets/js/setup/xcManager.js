@@ -1242,8 +1242,9 @@ window.xcManager = (function(xcManager, $) {
                 return;
             }
 
-            if (window.isBrowserChrome && isRetinaDevice()
-                || window.isBrowserFirefox)
+            if ((window.isBrowserChrome && isRetinaDevice()
+                || window.isBrowserFirefox) &&
+                ($(event.target).closest(".dataTable").length))
             {
                 reImplementMouseWheel(event);
                 // prevent back/forward swipe
