@@ -128,7 +128,7 @@ describe('JsonModal Test', function() {
     describe('test sort btn', function() {
         it('sorting should work', function() {
             expect($jsonModal.find('.mainKey').length).to.equal(12);
-        
+
             expect($jsonModal.find('.sort').length).to.equal(1);
             expect($jsonModal.find('.sort.desc').length).to.equal(0);
             $jsonModal.find('.sort').click();
@@ -297,8 +297,8 @@ describe('JsonModal Test', function() {
         it('compare matches on 2 data browser panels', function() {
             // click on 1 compare icon
             compare($jsonModal.find('.compareIcon').eq(0));
-            expect($jsonModal.find('.compareIcon').eq(0).hasClass('on')).to.be.true;
-            expect($jsonModal.find('.compareIcon').eq(1).hasClass('on')).to.be.false;
+            expect($jsonModal.find('.compareIcon').eq(0).hasClass('selected')).to.be.true;
+            expect($jsonModal.find('.compareIcon').eq(1).hasClass('selected')).to.be.false;
             expect($jsonModal.find('.jsonWrap').eq(0).hasClass('active')).to.be.true;
             expect($jsonModal.find('.jsonWrap').eq(1).hasClass('active')).to.be.false;
             expect($jsonModal.find('.jsonWrap').eq(0).hasClass('comparison')).to.be.false;
@@ -306,7 +306,7 @@ describe('JsonModal Test', function() {
 
             // click on 2nd compare icon
             compare($jsonModal.find('.compareIcon').eq(1));
-            expect($jsonModal.find('.compareIcon').eq(1).hasClass('on')).to.be.true;
+            expect($jsonModal.find('.compareIcon').eq(1).hasClass('selected')).to.be.true;
             expect($jsonModal.find('.jsonWrap').eq(1).hasClass('active')).to.be.true;
             expect($jsonModal.find('.jsonWrap').eq(0).hasClass('comparison')).to.be.true;
             expect($jsonModal.find('.jsonWrap').eq(1).hasClass('comparison')).to.be.true;
@@ -338,7 +338,7 @@ describe('JsonModal Test', function() {
 
         it('compare matches on 3 data browser panels', function() {
             var modalWidth = $jsonModal.width();
-            
+
             JSONModal.show($table.find('.jsonElement').eq(2));
 
             expect($jsonModal.width()).to.be.gt(modalWidth);
@@ -355,7 +355,7 @@ describe('JsonModal Test', function() {
 
             // check partial matches
             expect($jsonModal.find('.partial').eq(2).children().length).to.equal(9);
-  
+
             expect($jsonModal.find('.partial').eq(1).children().eq(0).data('key'))
             .to.equal($jsonModal.find('.partial').eq(2).children().eq(0).data('key'));
             var partialKeyText1 = $jsonModal.find('.partial').eq(1).children().children('.jKey').text();
@@ -372,7 +372,7 @@ describe('JsonModal Test', function() {
         });
 
         it('uncheck compare should work', function() {
-            expect($jsonModal.find('.compareIcon').eq(1).hasClass('on')).to.be.true;
+            expect($jsonModal.find('.compareIcon').eq(1).hasClass('selected')).to.be.true;
             expect($jsonModal.find('.jsonWrap').eq(1).hasClass('active')).to.be.true;
             expect($jsonModal.find('.jsonWrap').eq(0).hasClass('comparison')).to.be.true;
             expect($jsonModal.find('.jsonWrap').eq(1).hasClass('comparison')).to.be.true;
@@ -380,7 +380,7 @@ describe('JsonModal Test', function() {
 
             // click to remove middle comparison
             compare($jsonModal.find('.compareIcon').eq(1));
-            expect($jsonModal.find('.compareIcon').eq(1).hasClass('on')).to.be.false;
+            expect($jsonModal.find('.compareIcon').eq(1).hasClass('selected')).to.be.false;
             expect($jsonModal.find('.jsonWrap').eq(1).hasClass('active')).to.be.false;
             expect($jsonModal.find('.jsonWrap').eq(1).hasClass('comparison')).to.be.false;
             expect($jsonModal.find('.comparison').length).to.equal(2);
@@ -476,7 +476,7 @@ describe('JsonModal Test', function() {
 
             // project mode
             $jsonWrap.find('.jsonModalMenu .projectionOpt').trigger(fakeEvent.mouseup);
-        
+
             expect($jsonWrap.hasClass('projectMode')).to.be.true;
             expect($jsonWrap.find('.submitProject').is(":visible")).to.be.true;
             expect($jsonWrap.find('.projectModeBar .numColsSelected').text()).to.equal("12/12 fields selected to project");
@@ -606,7 +606,7 @@ describe('JsonModal Test', function() {
             }).click();
 
             $jsonModal.find(".submitProject").click();
-            
+
             UnitTest.timeoutPromise(1)
             .then(function() {
                 expect(called).to.be.true;
@@ -708,7 +708,7 @@ describe('JsonModal Test', function() {
         it("search should work", function() {
             $("#jsonSearch").find(".searchIcon").click();
             $("#jsonSearch").find("input").val("yelping").trigger(fakeEvent.input);
-            
+
             expect($jsonModal.find(".highlightedText").length).to.equal(1);
             expect($jsonModal.find(".highlightedText").text()).to.equal("yelping");
             expect($("#jsonSearch").find('.position').text()).to.equal("1");

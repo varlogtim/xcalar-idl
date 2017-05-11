@@ -281,7 +281,7 @@ window.JSONModal = (function($, JSONModal) {
             var index = $jsonWrap.index();
             $jsonWrap.find('.remove').tooltip('destroy');
 
-            if ($jsonWrap.find('.compareIcon.on').length) {
+            if ($jsonWrap.find('.compareIcon.selected').length) {
                 $jsonWrap.find('.compareIcon').click();
             }
 
@@ -413,14 +413,14 @@ window.JSONModal = (function($, JSONModal) {
     }
 
     function compareIconSelect($compareIcon) {
-        var $compareIcons = $jsonArea.find('.compareIcon.on');
+        var $compareIcons = $jsonArea.find('.compareIcon.selected');
         var numComparisons = $compareIcons.length;
         var isSearchUpdateNeeded = true;
         var multipleComparison = false;
         var newComparisonNum;
 
-        if ($compareIcon.hasClass('on')) {// uncheck this jsonwrap
-            $compareIcon.removeClass('on');
+        if ($compareIcon.hasClass('selected')) {// uncheck this jsonwrap
+            $compareIcon.removeClass('selected');
             $jsonArea.find('.comparison').find('.prettyJson.secondary')
                                          .empty();
             $compareIcon.closest('.jsonWrap').removeClass('active comparison');
@@ -434,11 +434,11 @@ window.JSONModal = (function($, JSONModal) {
                 multipleComparison = true;
                 newComparisonNum = $compareIcon.closest('.jsonWrap').index();
             }
-            $compareIcon.addClass('on');
+            $compareIcon.addClass('selected');
             $compareIcon.closest('.jsonWrap').addClass('active');
         }
 
-        $compareIcons = $jsonArea.find('.compareIcon.on');
+        $compareIcons = $jsonArea.find('.compareIcon.selected');
 
         // only run comparison if more than 2 compareIcons are selected
         if ($compareIcons.length > 1) {
@@ -687,7 +687,7 @@ window.JSONModal = (function($, JSONModal) {
         $jsonWrap.after($jsonClone);
         $jsonClone.removeClass('active comparison');
         $jsonClone.find('.selected').removeClass('selected');
-        $jsonClone.find('.compareIcon').removeClass('on');
+        $jsonClone.find('.compareIcon').removeClass('selected');
         $jsonClone.find('.prettyJson.secondary').empty();
 
         if (!$jsonWrap.hasClass('comparison')) {
@@ -1884,14 +1884,14 @@ window.JSONModal = (function($, JSONModal) {
                 autoSelectFieldsToProject($jsonWrap);
                 selectTab($jsonWrap.find('.seeAll'));
                 xcTooltip.changeText($jsonWrap.find('.submitProject'), JsonModalTStr.SubmitProjection);
-                if ($jsonWrap.find('.compareIcon.on').length) {
+                if ($jsonWrap.find('.compareIcon.selected').length) {
                     compareIconSelect($jsonWrap.find('.compareIcon'));
                 }
             } else if ($li.hasClass('multiSelectionOpt')) {
                 $jsonWrap.addClass('multiSelectMode');
                 selectTab($jsonWrap.find('.seeAll'));
                 xcTooltip.changeText($jsonWrap.find('.submitProject'), JsonModalTStr.SubmitPull);
-                if ($jsonWrap.find('.compareIcon.on').length) {
+                if ($jsonWrap.find('.compareIcon.selected').length) {
                     compareIconSelect($jsonWrap.find('.compareIcon'));
                 }
             }
