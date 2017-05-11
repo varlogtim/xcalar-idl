@@ -970,7 +970,8 @@ window.xcManager = (function(xcManager, $) {
                     "parents": parentsHTML,
                     "prevMouseDowns": prevTargetsHtml
                 },
-                "stack": stack
+                "stack": stack,
+                "txCache": Transaction.getCache()
             };
             xcConsole.log(msg, url + ":" + line + ":" + column);
 

@@ -257,6 +257,10 @@ window.Transaction = (function(Transaction, $) {
         QueryManager.cleanUpCanceledTables(txId);
     };
 
+    Transaction.getCache = function() {
+        return txCache;
+    };
+
     // Transaction.errorLog = function(txId) {
     //     if (!isValidTX(txId)) {
     //         console.warn("transaction does't exist!");
