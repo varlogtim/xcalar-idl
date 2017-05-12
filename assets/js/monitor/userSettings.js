@@ -7,10 +7,15 @@ window.UserSettings = (function($, UserSettings) {
     var commitIntervalSlider;
     var genSettings;
 
-    UserSettings.restore = function(oldUserInfos, gInfosSetting) {
+    // oldUserInfos/userInfos contains settings such as if the user last had
+    // list vs grid view on in the file browser, also contains general settings
+    // which has the user's version of genSettings (ones editable in the 
+    // settings npanel)
+    // prevSettings/genSettings has the settings that are editable in the
+    // settings panel such as monitor interval time
+    UserSettings.restore = function(oldUserInfos, prevSettings) {
         var deferred = jQuery.Deferred();
         setup();
-
         userInfos = oldUserInfos;
         userPrefs = userInfos.getPrefInfo();
 
@@ -18,11 +23,11 @@ window.UserSettings = (function($, UserSettings) {
         restoreMainTabs();
 
         var dsInfo = userInfos.getDSInfo();
+        genSettings = new GenSettings({}, prevSettings);
 
         var atStartup = true;
         DS.restore(dsInfo, atStartup)
         .then(function() {
-            genSettings = new GenSettings({}, gInfosSetting);
             restoreSettingsPanel();
             deferred.resolve();
         })
