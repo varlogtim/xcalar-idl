@@ -355,6 +355,7 @@ window.FnBar = (function(FnBar, $) {
             if (fullVal.indexOf("(") === -1) {
                 onlyMainOperators = true;
             }
+            var hideXcUDF = UserSettings.getPref("hideXcUDF");
             var word = /[\w$:^]+/; // allow : and ^
             var cur = editor.getCursor();
             var fnBarText = editor.getLine(0);
@@ -463,6 +464,9 @@ window.FnBar = (function(FnBar, $) {
                 if (fnName.lastIndexOf(curWord, 0) === 0 &&
                     !seen.hasOwnProperty(fnName)) {
                     seen[fnName] = true;
+                    if (hideXcUDF && mapFunc.fnName.indexOf("_xcalar") === 0) {
+                        return;
+                    }
                     list.push({
                         text: mapFunc.fnName + "()",
                         displayText: mapFunc.fnName,

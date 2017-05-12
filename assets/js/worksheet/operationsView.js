@@ -1120,7 +1120,11 @@ window.OperationsView = (function($, OperationsView) {
         }
 
         operatorsMap[udfCategoryNum] = [];
+        var hideXcUDF = UserSettings.getPref("hideXcUDF");
         for (var i = 0; i < arrayLen; i++) {
+            if (hideXcUDF && opArray[i].fnName.startsWith("_xcalar")) {
+                continue;
+            }
             operatorsMap[udfCategoryNum].push(opArray[i]);
         }
     }
