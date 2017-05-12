@@ -405,6 +405,15 @@ window.DS = (function ($, DS) {
         return PromiseHelper.when.apply(window, promises);
     };
 
+    DS.resize = function() {
+        var $menu = $("#datastoreMenu");
+        if ($menu.hasClass("active") && $gridView.hasClass("listView")) {
+            var $allGrids = $gridView.add($("#dsExportListSection .gridItems"));
+            var $labels = $allGrids.find(".label:visible");
+            truncateDSName($labels, true);
+        }
+    };
+
     // Clear dataset/folder in gridView area
     DS.clear = function() {
         $gridView.find(".grid-unit").remove();
@@ -1569,7 +1578,6 @@ window.DS = (function ($, DS) {
         }
 
         var maxChar = isListView ? 18 : 8;
-        var maxWidth = isListView ? 165 : 52;
         var canvas = document.createElement('canvas');
         var ctx = canvas.getContext('2d');
         ctx.font = isListView ? '700 12px Open Sans' : '700 9px Open Sans';
@@ -1577,6 +1585,8 @@ window.DS = (function ($, DS) {
         $labels.each(function() {
             var $label = $(this);
             var name = $label.data("dsname");
+            var maxWidth = isListView ? Math.max(165, $label.width()) : 52;
+
             xcHelper.middleEllipsis(name, $label, maxChar, maxWidth,
                                     !isListView, ctx);
         });

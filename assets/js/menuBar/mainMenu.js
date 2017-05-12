@@ -192,6 +192,7 @@ window.MainMenu = (function($, MainMenu) {
                     $mainMenu.addClass('expanded');
                     isSmall = false;
                 }
+                DS.resize();
             }
         });
     }
@@ -300,6 +301,7 @@ window.MainMenu = (function($, MainMenu) {
                     DS.release();
                     DSUploader.refreshFiles();
                 }
+                DS.resize();
                 break;
             case ("monitorTab"):
                 $('#monitorPanel').addClass("active");
