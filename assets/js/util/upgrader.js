@@ -260,13 +260,13 @@ window.Upgrader = (function(Upgrader, $) {
                 newMeta = KVStore.upgrade(meta, consctorName);
                 passed = true;
             } catch (error) {
+                err = error.stack || error;
                 console.error(error.stack || error);
-                err = false;
             }
             if (passed) {
                 deferred.resolve(newMeta);
             } else {
-                deferred.reject(error);
+                deferred.reject(err);
             }
         })
         .fail(deferred.reject);

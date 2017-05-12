@@ -492,7 +492,7 @@ window.TableList = (function($, TableList) {
         }
 
         tooManyColAlertHelper(tables, tableType, action, destWS)
-        .then(function(res) {
+        .then(function() {
             $tableList.find(".submit").addClass("xc-hidden");
             searchHelper.clearSearch(function() {
                 clearTableListFilter($("#orphanedTableListSection"), null);
@@ -600,9 +600,6 @@ window.TableList = (function($, TableList) {
                                      hiddenWS, tableIds) {
         var tables = [];
         var lis = [];
-        var tableId;
-        var table;
-        var tableName;
         $tablesSelected.each(function(index, ele) {
             var $li = $(ele);
             if (action === "delete") {
@@ -619,6 +616,7 @@ window.TableList = (function($, TableList) {
             } else if (action === "add") {
                 var tableId = $(ele).data("id");
                 var table = gTables[tableId];
+                var tableName;
                 // no adding back undone tables
                 if (table && table.getType() === TableType.Undone) {
                     return;

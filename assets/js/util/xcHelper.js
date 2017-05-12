@@ -3396,18 +3396,18 @@ window.xcHelper = (function($, xcHelper) {
         // converts "string" to 1 via DfFieldTypeT
     function translateFrontTypeToBackType(frontType) {
         var type;
-        switch(frontType) {
+        switch (frontType) {
             case (ColumnType.boolean):
                 type = DfFieldTypeT.DfBoolean;
                 break;
-            case(ColumnType.float):
-            case(ColumnType.number): // fall through
+            case (ColumnType.float):
+            case (ColumnType.number): // fall through
                 type = DfFieldTypeT.DfFloat64;
                 break;
-            case(ColumnType.integer):
+            case (ColumnType.integer):
                 type = DfFieldTypeT.DfInt64;
                 break;
-            case(ColumnType.string):
+            case (ColumnType.string):
                 type = DfFieldTypeT.DfString;
                 break;
             default:

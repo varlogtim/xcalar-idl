@@ -1731,7 +1731,7 @@ window.ColManager = (function($, ColManager) {
     // assumes legal syntax ie. votes[funny] and not votes[funny]blah
     function parseColFuncArgs(key) {
         if (key == null) {
-            return {nested:""};
+            return {nested: ""};
         }
         key += ""; // if number, convert to string
 

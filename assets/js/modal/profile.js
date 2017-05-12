@@ -102,7 +102,7 @@ window.Profile = (function($, Profile, d3) {
         var $groupbySection = $modal.find(".groupbyInfoSection");
 
         $groupbySection.on("click", ".bar-extra, .bar, .xlabel",
-            function(event) {
+        function(event) {
             if (event.which !== 1) {
                 return;
             }
@@ -2265,7 +2265,7 @@ window.Profile = (function($, Profile, d3) {
 
             return XcalarGroupBy(operator, newColName, statsColName,
                                     indexTable, groupbyTable,
-                                    isIncSample, false,  mapCol, txId);
+                                    isIncSample, false, mapCol, txId);
         })
         .then(function() {
             finalTable = getNewName(mapTable, ".final", true);
@@ -2545,12 +2545,12 @@ window.Profile = (function($, Profile, d3) {
         }
     }
 
-    function parseColName(colName) {
-        // both "a\.b" and "a.b" will become "a\.b" after groupby
-        colName = xcHelper.unescapeColName(colName);
-        colName = xcHelper.escapeColName(colName);
-        return colName;
-    }
+    // function parseColName(colName) {
+    //     // both "a\.b" and "a.b" will become "a\.b" after groupby
+    //     colName = xcHelper.unescapeColName(colName);
+    //     colName = xcHelper.escapeColName(colName);
+    //     return colName;
+    // }
 
     function filterSelectedValues(operator) {
         var noBucket = (bucketNum === 0) ? 1 : 0;

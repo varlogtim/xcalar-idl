@@ -2586,7 +2586,7 @@
             return self;
         }
 
-        return KVVersion<%= v %>
+        return KVVersion<%= v %>;
     }());
     /* End of KVVersionV1 */
 }(window));

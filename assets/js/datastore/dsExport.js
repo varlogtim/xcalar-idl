@@ -223,7 +223,7 @@ window.DSExport = (function($, DSExport) {
                 targets = group.targets;
                 for (var j = 0; j < targets.length; j++) {
                     if (targets[j].name === "Default") {
-                        return  targets[j].formatArg;
+                        return targets[j].formatArg;
                     }
                 }
                 break;
