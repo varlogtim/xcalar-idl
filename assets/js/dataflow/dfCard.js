@@ -448,7 +448,6 @@ window.DFCard = (function($, DFCard) {
 
         $('#uploadDataflowButton').click(function() {
             UploadDataflowCard.show();
-            $dfView.scrollTop(0);
         });
 
         $dfCard.on("click", ".runNowBtn", function() {

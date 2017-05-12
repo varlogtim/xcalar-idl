@@ -214,6 +214,9 @@ window.Scheduler = (function(Scheduler, $) {
             unlockCard();
         }
         displayServerTimeInterval();
+        var top = $scheduleDetail.position().top -
+                  $scheduleDetail.parent().position().top;
+        $("#dataflowPanel").find(".mainContent").scrollTop(top);
     };
 
     Scheduler.hide = function() {

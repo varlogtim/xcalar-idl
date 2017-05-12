@@ -15,6 +15,7 @@ window.UploadDataflowCard = (function($, UploadDataflowCard) {
 
     UploadDataflowCard.show = function() {
         $card.show();
+        $("#dataflowPanel").find(".mainContent").scrollTop(0);
     };
 
     function readRetinaFromFile(file, moduleName) {
