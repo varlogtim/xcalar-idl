@@ -476,7 +476,7 @@ window.QueryManager = (function(QueryManager, $) {
 
         if (html) {
             $queryList.find('.hint').addClass('xc-hidden')
-                       .end().append(html);
+                       .end().prepend(html);
         }
     };
 
