@@ -532,8 +532,6 @@
             }
 
             .dropDownList {
-                // width: 123px;
-
                 width: ~"calc(100% - 50px)" !important;
 
                 &.hidden {
@@ -948,6 +946,12 @@
             }
         }
 
+        .colNameSection .arg {
+            .size(@width: ~"calc(100% - @{commonMargin} * 2)");
+            margin-left: @commonMargin;
+        }
+
+
         .extra {
             position: relative;
             margin-top: 10px;
@@ -1004,6 +1008,9 @@
         }
         .catFuncHeadings {
             margin-top: 4px;
+        }
+        .icvContainer {
+            margin-top: 10px;
         }
     }
 }
