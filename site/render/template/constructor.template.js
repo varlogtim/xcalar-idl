@@ -2503,7 +2503,8 @@
             name: (string) queryName
             fullName: (string) fullName
             time: (date)
-            elapsedTime: (integer) time used
+            elapsedTime: (integer) time used,
+            opTime: (integer) backend time used,
             type: (sring) query type
             id:  (integer) query id
             numSteps: (integer) total steps in query
@@ -2519,6 +2520,10 @@
         function XcQuery<%= v %>(options) {
             var self = _super.call(this, options);
             <%= addVersion %>
+            if (<%= checkFunc %>(options)) {
+                self.opTime = options.opTime || 0;
+            }
+
             return self;
         }
 
@@ -2546,6 +2551,19 @@
 
             setElapsedTime: function() {
                 this.elapsedTime = Date.now() - this.time;
+            },
+
+            addOpTime: function(time) {
+                this.opTimeAdded = true;
+                this.opTime += time;
+            },
+
+            getOpTime: function() {
+                if (this.opTimeAdded) {
+                    return this.opTime;
+                } else {
+                    return CommonTxtTstr.NA;
+                }
             },
 
             getQuery: function() {

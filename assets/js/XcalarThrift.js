@@ -659,7 +659,7 @@ function XcalarLoad(url, format, datasetName, options, txId) {
         if (Transaction.checkAndSetCanceled(txId)) {
             deferred.reject(StatusTStr[StatusT.StatusCanceled]);
         } else {
-            Transaction.log(txId, ret2, parseDS(datasetName));
+            Transaction.log(txId, ret2, parseDS(datasetName), ret1.timeElapsed);
             deferred.resolve(ret1);
         }
     })
@@ -977,7 +977,7 @@ function XcalarExport(tableName, exportName, targetName, numColumns,
         if (Transaction.checkAndSetCanceled(txId)) {
             deferred.reject(StatusTStr[StatusT.StatusCanceled]);
         } else {
-            Transaction.log(txId, ret2);
+            Transaction.log(txId, ret2, null, ret1.timeElapsed);
             // XXX There is a bug here that backend actually needs to fix
             // We must drop the export node on a successful export.
             // Otherwise you will not be able to delete your dataset
@@ -1038,13 +1038,17 @@ function XcalarDestroyDataset(dsName, txId) {
                                                 SourceTypeT.SrcDataset);
         var def1 = xcalarDeleteDagNodes(tHandle, dsName, SourceTypeT.SrcDataset);
         var def2 = XcalarGetQuery(workItem);
+        def2.then(function(query) {
+            Transaction.startSubQuery(txId, 'delete dataset', dsName, query);
+        });
 
         jQuery.when(def1, def2)
         .then(function(delDagNodesRes, query) {
             // txId may be null if performing a
             // deletion not triggered by the user (i.e. clean up)
+            console.log(txId, delDagNodesRes);
             if (txId != null) {
-                Transaction.log(txId, query);
+                Transaction.log(txId, query, null, delDagNodesRes.timeElapsed);
             }
             innerDeferred.resolve();
         })
@@ -1114,7 +1118,7 @@ function XcalarIndexFromDataset(datasetName, key, tablename, prefix, txId) {
         if (Transaction.checkAndSetCanceled(txId)) {
             deferred.reject(StatusTStr[StatusT.StatusCanceled]);
         } else {
-            Transaction.log(txId, ret2, tablename);
+            Transaction.log(txId, ret2, tablename, ret1.timeElapsed);
             deferred.resolve(ret1);
         }
     })
@@ -1176,7 +1180,7 @@ function XcalarIndexFromTable(srcTablename, key, tablename, ordering,
             deferred.reject(StatusTStr[StatusT.StatusCanceled]);
         } else {
             if (!unsorted) {
-                Transaction.log(txId, ret2, tablename);
+                Transaction.log(txId, ret2, tablename, ret1.timeElapsed);
             }
             deferred.resolve(ret1);
         }
@@ -1216,7 +1220,7 @@ function XcalarDeleteTable(tableName, txId, isRetry) {
             // txId may be null if deleting an undone table or performing a
             // deletion not triggered by the user (i.e. clean up)
             if (txId != null) {
-                Transaction.log(txId, ret2);
+                Transaction.log(txId, ret2, null, ret1.timeElapsed);
             }
             deferred.resolve(ret1);
         }
@@ -1898,7 +1902,7 @@ function XcalarFilter(evalStr, srcTablename, dstTablename, txId) {
         if (Transaction.checkAndSetCanceled(txId)) {
             deferred.reject(StatusTStr[StatusT.StatusCanceled]);
         } else {
-            Transaction.log(txId, ret2, dstTablename);
+            Transaction.log(txId, ret2, dstTablename, ret1.timeElapsed);
             deferred.resolve(ret1);
         }
     })
@@ -1933,7 +1937,8 @@ function XcalarMapWithInput(txId, inputStruct) {
         if (Transaction.checkAndSetCanceled(txId)) {
             deferred.reject(StatusTStr[StatusT.StatusCanceled]);
         } else {
-            Transaction.log(txId, ret2, inputStruct.dstTable.tableName);
+            Transaction.log(txId, ret2, inputStruct.dstTable.tableName,
+                            ret1.timeElapsed);
             deferred.resolve(ret1);
         }
     })
@@ -1993,7 +1998,7 @@ function XcalarMap(newFieldName, evalStr, srcTablename, dstTablename,
         if (Transaction.checkAndSetCanceled(txId)) {
             deferred.reject(StatusTStr[StatusT.StatusCanceled]);
         } else {
-            Transaction.log(txId, ret2, dstTablename);
+            Transaction.log(txId, ret2, dstTablename, ret1.timeElapsed);
             deferred.resolve(ret1);
         }
     })
@@ -2045,7 +2050,7 @@ function XcalarAggregate(evalStr, dstAggName, srcTablename, txId) {
         if (Transaction.checkAndSetCanceled(txId)) {
             deferred.reject(StatusTStr[StatusT.StatusCanceled]);
         } else {
-            Transaction.log(txId, ret2, dstAggName);
+            Transaction.log(txId, ret2, dstAggName, ret1.timeElapsed);
             deferred.resolve(ret1, dstAggName);
         }
     })
@@ -2115,7 +2120,7 @@ function XcalarJoin(left, right, dst, joinType, leftRename, rightRename, txId) {
         if (Transaction.checkAndSetCanceled(txId)) {
             deferred.reject(StatusTStr[StatusT.StatusCanceled]);
         } else {
-            Transaction.log(txId, ret2, dst);
+            Transaction.log(txId, ret2, dst, ret1.timeElapsed);
             deferred.resolve(ret1);
         }
     })
@@ -2149,7 +2154,8 @@ function XcalarGroupByWithInput(txId, inputStruct) {
         if (Transaction.checkAndSetCanceled(txId)) {
             deferred.reject(StatusTStr[StatusT.StatusCanceled]);
         } else {
-            Transaction.log(txId, ret2, inputStruct.dstTable.tableName);
+            Transaction.log(txId, ret2, inputStruct.dstTable.tableName,
+                            ret1.timeElapsed);
             deferred.resolve(ret1);
         }
     })
@@ -2205,7 +2211,7 @@ function XcalarGroupBy(operator, newColName, oldColName, tableName,
         if (Transaction.checkAndSetCanceled(txId)) {
             deferred.reject(StatusTStr[StatusT.StatusCanceled]);
         } else {
-            Transaction.log(txId, ret2, newTableName);
+            Transaction.log(txId, ret2, newTableName, ret1.timeElapsed);
             deferred.resolve(ret1);
         }
     })
@@ -2245,7 +2251,7 @@ function XcalarProject(columns, tableName, dstTableName, txId) {
         if (Transaction.checkAndSetCanceled(txId)) {
             deferred.reject(StatusTStr[StatusT.StatusCanceled]);
         } else {
-            Transaction.log(txId, ret2, dstTableName);
+            Transaction.log(txId, ret2, dstTableName, ret1.timeElapsed);
             deferred.resolve(ret1);
         }
     })
@@ -2279,7 +2285,7 @@ function XcalarGenRowNum(srcTableName, dstTableName, newFieldName, txId) {
             deferred.reject(StatusTStr[StatusT.StatusCanceled]);
         } else {
              // XXX This part doesn't work yet
-            Transaction.log(txId, ret2, dstTableName);
+            Transaction.log(txId, ret2, dstTableName, ret1.timeElapsed);
             deferred.resolve(ret1);
         }
     })
@@ -2814,7 +2820,7 @@ function XcalarExecuteRetina(retName, params, options, txId) {
         if (Transaction.checkAndSetCanceled(txId)) {
             deferred.reject(StatusTStr[StatusT.StatusCanceled]);
         } else {
-            Transaction.log(txId, ret2, retName);
+            Transaction.log(txId, ret2, retName, ret1.timeElapsed);
             deferred.resolve(ret1);
         }
     })

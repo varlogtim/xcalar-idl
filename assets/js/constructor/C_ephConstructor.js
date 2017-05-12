@@ -623,6 +623,8 @@ Corrector.prototype = {
  * removeSelected: function, callback for removing highlighted text
  * highlightSelected: function, callback for highlighted text
  * scrollMatchIntoView: function, callback for scrolling to a highlighted match
+ * onInput: function, callback for input event
+ * onEnter: function, callback for enter event
  * removeHighlight: boolean, if true, will unwrap $list contents and remove
  *                 highlighted class
  * arrowsPreventDefault: boolean, if true, preventDefault & stopPropagation will
@@ -735,6 +737,10 @@ SearchBar.prototype = {
                 $selectedMatch.addClass('selected');
                 searchBar.$position.html(searchBar.matchIndex + 1);
                 searchBar.scrollMatchIntoView($selectedMatch);
+                if (e.which === keyCode.Enter &&
+                    typeof options.onEnter === "function") {
+                    options.onEnter();
+                }
             }
         }
         // secondaryEvent is the event passed in by codemirror
@@ -775,9 +781,9 @@ SearchBar.prototype = {
         }
 
         if (typeof options.onInput === "function") {
-            searchBar.$searchInput.on("input", function() {
+            searchBar.$searchInput.on("input", function(event) {
                 var val = $(this).val();
-                options.onInput(val);
+                options.onInput(val, event);
             });
         }
     },

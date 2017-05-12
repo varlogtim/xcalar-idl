@@ -203,7 +203,7 @@ window.Transaction = (function(Transaction, $) {
     };
 
     // dstTableName is optional - only needed to trigger subQueryDone
-    Transaction.log = function(txId, cli, dstTableName) {
+    Transaction.log = function(txId, cli, dstTableName, timeObj) {
         if (!isValidTX(txId)) {
             return;
         }
@@ -214,8 +214,8 @@ window.Transaction = (function(Transaction, $) {
         var tx = txCache[txId];
         tx.addCli(cli);
 
-        if (dstTableName) {
-            QueryManager.subQueryDone(txId, dstTableName);
+        if (dstTableName || timeObj != null) {
+            QueryManager.subQueryDone(txId, dstTableName, timeObj);
         }
     };
 

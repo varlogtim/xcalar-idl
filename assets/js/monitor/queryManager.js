@@ -157,17 +157,21 @@ window.QueryManager = (function(QueryManager, $) {
         updateStatusDetail({
             "start": getQueryTime(mainQuery.getTime()),
             "elapsed": getElapsedTimeStr(mainQuery.getElapsedTime()),
-            "remaining": CommonTxtTstr.NA,
+            "opTime": getElapsedTimeStr(mainQuery.getOpTime(), null, true),
             "total": getElapsedTimeStr(mainQuery.getElapsedTime())
         }, id);
         updateOutputSection(id);
     };
 
-    QueryManager.subQueryDone = function(id, dstTable) {
+    QueryManager.subQueryDone = function(id, dstTable, time) {
         if (!queryLists[id]) {
             return;
         }
         var mainQuery = queryLists[id];
+        if (time != null) {
+            mainQuery.addOpTime(time);
+        }
+
         if (mainQuery.subQueries[0].getName() === "index from DS") {
             DSCart.queryDone(mainQuery.getId());
             return;
@@ -356,7 +360,7 @@ window.QueryManager = (function(QueryManager, $) {
         updateStatusDetail({
             "start": getQueryTime(mainQuery.getTime()),
             "elapsed": getElapsedTimeStr(mainQuery.getElapsedTime(), true),
-            "remaining": CommonTxtTstr.NA,
+            "opTime": getElapsedTimeStr(mainQuery.getOpTime(), true, true),
             "total": getElapsedTimeStr(mainQuery.getElapsedTime())
         }, id);
         updateOutputSection(id, true);
@@ -472,6 +476,7 @@ window.QueryManager = (function(QueryManager, $) {
                 "queryStr": cli,
                 "sqlNum": queries[i].sqlNum,
                 "elapsedTime": queries[i].elapsedTime,
+                "opTime": queries[i].opTime,
                 "outputTableName": queries[i].outputTableName,
                 "outputTableState": queries[i].outputTableState,
                 "state": queries[i].state,
@@ -755,20 +760,23 @@ window.QueryManager = (function(QueryManager, $) {
 
         var totalTime = CommonTxtTstr.NA;
         var elapsedTime;
+        var opTime;
         if (mainQuery.getState() === QueryStatus.Done) {
             totalTime = getElapsedTimeStr(mainQuery.getElapsedTime());
             elapsedTime = totalTime;
+            opTime = getElapsedTimeStr(mainQuery.getOpTime(), null, true);
         } else {
             if (mainQuery !== null) {
                 mainQuery.setElapsedTime();
             }
             elapsedTime = getElapsedTimeStr(mainQuery.getElapsedTime(), true);
+            opTime = getElapsedTimeStr(mainQuery.getOpTime(), true, true);
         }
         updateHeadingSection(mainQuery);
         updateStatusDetail({
             "start": startTime,
             "elapsed": elapsedTime,
-            "remaining": CommonTxtTstr.NA,
+            "opTime": opTime,
             "total": totalTime
         }, queryId);
         updateQueryTextDisplay(query);
@@ -1012,8 +1020,8 @@ window.QueryManager = (function(QueryManager, $) {
                 updateStatusDetail({
                     "start": getQueryTime(mainQuery.getTime()),
                     "elapsed": getElapsedTimeStr(mainQuery.getElapsedTime(), true),
-                    "remaining": CommonTxtTstr.NA,
-                    "total": CommonTxtTstr.NA
+                    "opTime": getElapsedTimeStr(mainQuery.getOpTime(), true, true),
+                    "total": getElapsedTimeStr(mainQuery.getElapsedTime()),
                 }, id);
             }
             deferred.resolve();
@@ -1197,7 +1205,11 @@ window.QueryManager = (function(QueryManager, $) {
 
     // milliSeconds - integer
     // round - boolean, if true will round to nearest second
-    function getElapsedTimeStr(milliSeconds, round) {
+    function getElapsedTimeStr(milliSeconds, round, acceptZero) {
+        if ((!milliSeconds && !acceptZero) || typeof milliSeconds === "string")
+        {
+            return CommonTxtTstr.NA;
+        }
         var s = Math.floor(milliSeconds / 1000);
         var seconds = Math.floor(s) % 60;
         var minutes = Math.floor((s % 3600) / 60);
@@ -1485,6 +1497,7 @@ window.QueryManager = (function(QueryManager, $) {
                     "sqlNum": queryObj.sqlNum,
                     "time": queryObj.time,
                     "elapsedTime": queryObj.elapsedTime,
+                    "opTime": queryObj.opTime,
                     "outputTableName": queryObj.getOutputTableName(),
                     "outputTableState": queryObj.getOutputTableState(),
                     "state": queryObj.state
@@ -1737,7 +1750,7 @@ window.QueryManager = (function(QueryManager, $) {
         updateStatusDetail({
             "start": CommonTxtTstr.NA,
             "elapsed": CommonTxtTstr.NA,
-            "remaining": CommonTxtTstr.NA,
+            "opTime": CommonTxtTstr.NA,
             "total": CommonTxtTstr.NA,
         }, null, QueryStatus.RM);
         updateOutputSection(null, true);

@@ -1007,6 +1007,16 @@
                 display: block;
                 color: @color-bg-apple-green;
             }
+            ~ .infoSection {
+                .status {
+                    &.elapsed {
+                        display: none;
+                    }
+                    &.total {
+                        display: block;
+                    }
+                }
+            }
         }
 
         &.error {
@@ -1112,6 +1122,9 @@
 
             .status {
                 margin-bottom: 5px;
+                &.total {
+                    display: none;
+                }
             }
         }
     }

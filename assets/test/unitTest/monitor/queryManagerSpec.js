@@ -514,9 +514,10 @@ describe('QueryManager Test', function() {
             var cachedFn = QueryManager.removeQuery;
             var count = 0;
             var called = false;
-            QueryManager.removeQuery = function(id) {
+            QueryManager.removeQuery = function(ids) {
                 if (count === 0) {
-                    expect(id).to.equal(1);
+                    expect(ids[0]).to.equal(1);
+                    expect(ids[1]).to.equal(2);
                 } else {
                     expect(id).to.equal(2);
                 }
@@ -532,7 +533,7 @@ describe('QueryManager Test', function() {
             $query.find("li.deleteAll").click();
             expect(called).to.be.true;
             expect($query.find(".bulkOptions").is(":visible")).to.be.false;
-            expect(count).to.equal(2);
+            expect(count).to.equal(1);
 
             QueryManager.removeQuery = cachedFn;
         });
