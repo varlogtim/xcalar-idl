@@ -14605,9 +14605,25 @@ XcalarApiOutputResultT.prototype.write = function(output) {
 
 XcalarApiOutputHeaderT = function(args) {
   this.status = null;
+  this.hours = null;
+  this.minutes = null;
+  this.seconds = null;
+  this.milliseconds = null;
   if (args) {
     if (args.status !== undefined) {
       this.status = args.status;
+    }
+    if (args.hours !== undefined) {
+      this.hours = args.hours;
+    }
+    if (args.minutes !== undefined) {
+      this.minutes = args.minutes;
+    }
+    if (args.seconds !== undefined) {
+      this.seconds = args.seconds;
+    }
+    if (args.milliseconds !== undefined) {
+      this.milliseconds = args.milliseconds;
     }
   }
 };
@@ -14632,9 +14648,34 @@ XcalarApiOutputHeaderT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
-      case 0:
+      case 2:
+      if (ftype == Thrift.Type.I64) {
+        this.hours = input.readI64().value;
+      } else {
         input.skip(ftype);
-        break;
+      }
+      break;
+      case 3:
+      if (ftype == Thrift.Type.I64) {
+        this.minutes = input.readI64().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 4:
+      if (ftype == Thrift.Type.I64) {
+        this.seconds = input.readI64().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 5:
+      if (ftype == Thrift.Type.I64) {
+        this.milliseconds = input.readI64().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -14649,6 +14690,26 @@ XcalarApiOutputHeaderT.prototype.write = function(output) {
   if (this.status !== null && this.status !== undefined) {
     output.writeFieldBegin('status', Thrift.Type.I32, 1);
     output.writeI32(this.status);
+    output.writeFieldEnd();
+  }
+  if (this.hours !== null && this.hours !== undefined) {
+    output.writeFieldBegin('hours', Thrift.Type.I64, 2);
+    output.writeI64(this.hours);
+    output.writeFieldEnd();
+  }
+  if (this.minutes !== null && this.minutes !== undefined) {
+    output.writeFieldBegin('minutes', Thrift.Type.I64, 3);
+    output.writeI64(this.minutes);
+    output.writeFieldEnd();
+  }
+  if (this.seconds !== null && this.seconds !== undefined) {
+    output.writeFieldBegin('seconds', Thrift.Type.I64, 4);
+    output.writeI64(this.seconds);
+    output.writeFieldEnd();
+  }
+  if (this.milliseconds !== null && this.milliseconds !== undefined) {
+    output.writeFieldBegin('milliseconds', Thrift.Type.I64, 5);
+    output.writeI64(this.milliseconds);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
