@@ -1328,23 +1328,20 @@
     }
     .formRow {
         .flex-display;
+        .justify-content(space-between);
         // .flex-wrap(wrap);
         .formGroup {
-            .flex(1 1 auto);
+            .flex(0 1 auto);
             .flex-display;
-            // height: 30px;
             margin-bottom: 5px;
             margin-top: 5px;
-            // padding-left: 15px;
             padding-right: 20px;
             font-size: 13px;
-            // font-weight: 700;
 
             .inputWrap {
                 .flex-display;
             }
             .text {
-                // line-height: 30px;
                 padding-top: 6px;
                 font-weight: 700;
                 margin-right: 10px;
@@ -1353,7 +1350,6 @@
                 width: 120px;
                 .flex(1 1 70px);
                 font-size: 13px;
-                // font-weight: 700;
                 &[type="number"] {
                     width:  80px;
                 }
@@ -1373,6 +1369,7 @@
             // height: 80px;
             .flex-display;
             .align-items(center);
+            padding-right: 0px;
             .btn {
                 width: 180px;
                 &.stopStream {

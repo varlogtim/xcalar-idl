@@ -8,7 +8,7 @@ window.QueryManager = (function(QueryManager, $) {
     // XXX store this as a query property
     var sysQueryTypes = [SQLOps.ProfileSort, SQLOps.ProfileBucketing,
                            SQLOps.ProfileAgg, SQLOps.ProfileStats,
-                           SQLOps.RenameTable, SQLOps.RenameOrphanTable,
+                           SQLOps.RenameOrphanTable,
                            SQLOps.QuickAgg, SQLOps.Corr, SQLOps.PreviewDS,
                            SQLOps.DestroyPreviewDS];
     var nonCancelableTypes = [SQLOps.RenameTable, SQLOps.RenameOrphanTable,
