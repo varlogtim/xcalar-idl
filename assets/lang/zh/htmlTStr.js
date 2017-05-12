@@ -665,7 +665,7 @@ module.exports = {
     },
     "profile": {
         "AggSummary": "聚合",
-        "BucketInstr": "输入分段范围大小（例如0.5）",
+        "BucketInstr": "输入分段范围大小",
         "BucketTitle": "数据分段",
         "Corr": "计算相关性",
         "FitAll": "分段显示所有数据",

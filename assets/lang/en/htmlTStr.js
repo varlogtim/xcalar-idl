@@ -782,7 +782,7 @@ module.exports = {
         "Range": "Range",
         "RangeLog": "Range (log scale)",
         "FitAll": "Fit all",
-        "BucketInstr": "Input range size (e.g. 0.5)",
+        "BucketInstr": "Input range size",
         "AggSummary": "Aggregate Summary",
         "QuartileSummary": "Quartile Summary",
         "QuartileInstr": "Quartile statistics can only be calculated when the column is sorted.",

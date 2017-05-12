@@ -2062,15 +2062,22 @@ window.Profile = (function($, Profile, d3) {
 
         var bucketSize;
         var isFitAll = false;
+        var input = Number($rangeInput.val());
+
         switch (rangeOption) {
             case "range":
                 // go to range
-                bucketSize = Number($rangeInput.val());
+                bucketSize = input;
                 $rangeInput.removeClass("xc-disabled");
                 break;
             case "rangeLog":
-                bucketSize = -Number($rangeInput.val());
                 $rangeInput.removeClass("xc-disabled");
+                if (!Number.isInteger(input)) {
+                    $rangeInput.val("");
+                    bucketSize = 0;
+                } else {
+                    bucketSize = -Number(input);
+                }
                 break;
             case "fitAll":
                 // fit all
@@ -2093,6 +2100,9 @@ window.Profile = (function($, Profile, d3) {
                 return;
         }
         bucketData(bucketSize, statsCol, isFitAll);
+        if (!$rangeInput.hasClass("xc-disabled")) {
+            $rangeInput.focus();
+        }
     }
 
     // UDF for log scale bucketing
