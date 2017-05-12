@@ -133,6 +133,9 @@ window.TestSuite = (function($, TestSuite) {
         } else {
             gMinModeOn = true;
         }
+        $("#joinView").find(".keepTableCheckbox .checkbox")
+                      .removeClass("checked"); // deselect keep original tables
+                      // otherwise table ids get mixed up during test
 
         if (mode) {
             if (mode === "ten") {
