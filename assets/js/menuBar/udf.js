@@ -319,9 +319,11 @@ window.UDF = (function($, UDF) {
         });
 
         if ($li.length === 0) {
-            StatusBox.show(UDFTStr.NoTemplate, $input);
+            StatusBox.show(UDFTStr.NoTemplate, $("#udf-fnList"));
+            return true;
         } else {
             selectUDFFuncList($li);
+            return false;
         }
     }
 

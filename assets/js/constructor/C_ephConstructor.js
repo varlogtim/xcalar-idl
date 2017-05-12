@@ -2630,7 +2630,10 @@ InputDropdownHint.prototype = {
             if (event.which === keyCode.Enter) {
                 var val = $input.val().trim();
                 if (typeof options.onEnter === "function") {
-                    options.onEnter(val, $input);
+                    var stopEvent = options.onEnter(val, $input);
+                    if (stopEvent) {
+                        event.stopPropagation();
+                    }
                 }
                 menuHelper.hideDropdowns();
             } else if (event.which === keyCode.Up ||
