@@ -214,7 +214,7 @@ window.Support = (function(Support, $) {
             } else {
                 var percent = Math.round(avgMemUsage * 100);
                 text = TooltipTStr.SystemGood + "<br>" +
-                        CommonTxtTstr.Usage + ": " + percent + "%";
+                        CommonTxtTstr.XDBUsage + ": " + percent + "%";
             }
 
             xcTooltip.changeText($memoryAlert, text);

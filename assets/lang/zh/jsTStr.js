@@ -160,7 +160,7 @@ CommonTxtTstr = {
 'InvalidSize': '无效大小',
 'Uploading': '上传',
 'Upgrading': '升级',
-'Usage': '使用率'
+'XDBUsage': 'XDB使用率'
 };
 ErrTStr = {
 'Error': '错误',

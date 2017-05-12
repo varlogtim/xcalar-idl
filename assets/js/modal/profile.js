@@ -213,7 +213,12 @@ window.Profile = (function($, Profile, d3) {
         });
 
         $("#profile-download").click(function() {
-            downloadProfileAsPNG();
+            var $btn = $(this);
+            xcHelper.disableSubmit($btn);
+            downloadProfileAsPNG()
+            .always(function() {
+                xcHelper.enableSubmit($btn);
+            });
         });
 
         setupRangeSection();
@@ -2834,7 +2839,9 @@ window.Profile = (function($, Profile, d3) {
     }
 
     function downloadProfileAsPNG() {
+        var deferred = jQuery.Deferred();
         var node = $modal.get(0);
+
         domtoimage.toPng(node, {
             "width": $modal.width(),
             "height": $modal.height(),
@@ -2849,11 +2856,15 @@ window.Profile = (function($, Profile, d3) {
             download.download = "profile.png";
             download.click();
             xcHelper.showSuccess(SuccessTStr.Profile);
+            deferred.resolve();
         })
         .catch(function (error) {
             console.error(error);
             xcHelper.showFail(FailTStr.Profile);
+            deferred.reject(error);
         });
+
+        return deferred.promise();
     }
 
     /* Unit Test Only */
