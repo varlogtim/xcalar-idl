@@ -41,7 +41,6 @@ require("jsdom").env("", function(err, window) {
     var httpStatus = require('./../../assets/js/httpStatus.js').httpStatus;
 
     var basePath = "/var/www/xcalar-gui/assets/extensions/";
-
     var app = express();
 
     app.use(bodyParser.urlencoded({extended: false}));
@@ -844,21 +843,18 @@ require("jsdom").env("", function(err, window) {
             s3.getObject(params, function(err, data) {
                 if (err) {
                     deferred.reject(err);
-                }
-                else {
+                } else {
                     deferred.resolve({status: Status.Ok,
                                       data: data.Body.toString('base64')});
                 }
             });
             return deferred.promise();
         };
-
         xcConsole.log("Download Package");
         var pkg = req.body;
         xcConsole.log(pkg);
         var url = "/marketplace/download?name=" + pkg.name + "&version=" +
                   pkg.version;
-
         download(pkg.name, pkg.version)
         .then(function(ret) {
             writeTarGzWithCleanup(ret, pkg.name, pkg.version);
@@ -993,7 +989,6 @@ require("jsdom").env("", function(err, window) {
             res.jsonp({status:Status.Error,
                        error: err});
         });
-
     });
 
     app.post("/disableExtension", function(req, res) {
@@ -1229,6 +1224,70 @@ require("jsdom").env("", function(err, window) {
         });
         return deferred.promise();
     }
+
+    function unitTest() {
+        exports.genExecString = genExecString;
+        exports.genLdapExecString = genLdapExecString;
+        responseReplace();
+        function responseReplace() {
+            support.removeSessionFiles = fakeResponseRSF;
+            support.removeSHM = fakeResponseSHM;
+            support.getLicense = fakeResponseLicense;
+            support.submitTicket = fakeResponseSubmitTicket;
+            support.masterExecuteAction = fakeResponseMasterExecuteAction;
+            support.slaveExecuteAction = fakeResponseSlaveExecuteAction;
+            login.loginAuthentication = fakeResponseUploadContent;
+            upload.uploadContent = fakeResponseUploadContent;
+            upload.uploadMeta = fakeResponseUploadMeta;
+        }
+
+        function fakeResponseRSF(filePath) {
+            var deferred = jQuery.Deferred();
+            var retMsg = {"status": httpStatus.OK,
+                          "logs": "Fake response remove Session Files!"};
+            return deferred.resolve(retMsg).promise();
+        }
+        function fakeResponseSHM() {
+            var deferred = jQuery.Deferred();
+            var retMsg = {"status": httpStatus.OK,
+                          "logs": "Fake response remove SHM Files!"};
+            return deferred.resolve(retMsg).promise();
+        }
+        function fakeResponseLicense(res) {
+            var deferred = jQuery.Deferred();
+            var retMsg = {"status": httpStatus.OK,
+                          "logs": "Fake response get License!"};
+            return deferred.resolve(retMsg).promise();
+        }
+        function fakeResponseSubmitTicket(contents) {
+            var deferred = jQuery.Deferred();
+            var retMsg = {"status": httpStatus.OK,
+                          "logs": "Fake response submit Ticket!"};
+            return deferred.resolve(retMsg).promise();
+        }
+        function fakeResponseMasterExecuteAction(action, slaveUrl, content) {
+            var deferred = jQuery.Deferred();
+            var retMsg = {"status": httpStatus.OK,
+                          "logs": "Master: Fake response! " + slaveUrl};
+            return deferred.resolve(retMsg).promise();
+        }
+        function fakeResponseSlaveExecuteAction(action, slaveUrl, content) {
+            var deferred = jQuery.Deferred();
+            var retMsg = {"status": httpStatus.OK,
+                          "logs": "Slave: Fake response! " + slaveUrl};
+            return deferred.resolve(retMsg).promise();
+        }
+        function fakeResponseLogin(credArray, res) {
+            res.send("Fake response login!");
+        }
+        function fakeResponseUploadContent(req, res) {
+            res.send("Fake response uploadContent!");
+        }
+        function fakeResponseUploadMeta(req, res) {
+            res.send("Fake response uploadMeta!");
+        }
+    }
+    exports.unitTest = unitTest;
 
     getOperatingSystem()
     .always(function(data) {

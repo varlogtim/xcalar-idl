@@ -625,6 +625,13 @@ function readInstallerLog() {
     return deferred.promise();
 }
 
+function unitTest() {
+    exports.generateLogs = generateLogs;
+    exports.isUnderBasePath = isUnderBasePath;
+    exports.isComplete = isComplete;
+    exports.readHostsFromFile = readHostsFromFile;
+}
+
 exports.getXlrRoot = getXlrRoot;
 exports.getLicense = getLicense;
 exports.submitTicket = submitTicket;
@@ -634,3 +641,4 @@ exports.masterExecuteAction = masterExecuteAction;
 exports.readHostsFromFile = readHostsFromFile;
 exports.removeSHM = removeSHM;
 exports.hasLogFile = hasLogFile;
+exports.unitTest = unitTest;

@@ -1,18 +1,19 @@
 var assert = require('assert');
 var expect = require('chai').expect;
 var express = require('express');
+var fs = require("fs");
 
 require("jquery");
 var expServer = require(__dirname + '/../../expServer/expServer.js');
 var support = require(__dirname + '/../../expServer/support.js');
 
-function postRequest(action, str) {
+function postRequest(action, url, str) {
     var deferred = jQuery.Deferred();
     jQuery.ajax({
-        "type": "POST",
+        "type": action,
         "data": JSON.stringify(str),
         "contentType": "application/json",
-        "url": "http://localhost:12124" + action,
+        "url": "http://localhost:12124" + url,
         "async": true,
         success: function(data) {
             deferred.resolve(data);
@@ -54,240 +55,193 @@ describe('ExpServer function Test', function() {
         expect(res.indexOf(str)).to.equal(0);
     });
 
-    it('Should receive /removeSessionFiles request', function() {
-        return postRequest("/removeSessionFiles", {})
+    it('Should receive /sessionFiles request', function() {
+        return postRequest("DELETE", "/sessionFiles", {})
                 .then(function(data) {
-                    expect(data)
+                    expect(new Buffer(data.logs, 'base64').toString())
                     .to.equal("Fake response remove Session Files!");
                 })
                 .fail(function(data) {
-                    expect(data)
+                    expect(new Buffer(data.logs, 'base64').toString())
                     .to.equal("Fake response remove Session Files!");
                 });
     });
 
     it('Should receive /removeSHM request', function() {
-        return postRequest("/removeSHM", {})
+        return postRequest("DELETE", "/SHMFiles", {})
                 .then(function(data) {
-                    expect(data)
+                    expect(new Buffer(data.logs, 'base64').toString())
                     .to.equal("Fake response remove SHM Files!");
                 })
                 .fail(function(data) {
-                    expect(data)
+                    expect(new Buffer(data.logs, 'base64').toString())
                     .to.equal("Fake response remove SHM Files!");
                 });
     });
 
     it('Should receive /getLicense request', function() {
-        return postRequest("/getLicense", {})
+        return postRequest("GET", "/license", {})
                 .then(function(data) {
-                    expect(data)
-                    .to.equal("Fake response get License");
+                    expect(new Buffer(data.logs, 'base64').toString())
+                    .to.equal("Fake response get License!");
                 })
                 .fail(function(data) {
-                    expect(data)
-                    .to.equal("Fake response get License");
+                    expect(new Buffer(data.logs, 'base64').toString())
+                    .to.equal("Fake response get License!");
                 });
     });
 
     it('Should receive /fileTicket request', function() {
-        return postRequest("/fileTicket", {})
+        return postRequest("POST", "/ticket", {})
                 .then(function(data) {
-                    expect(data).to.equal("Fake response submit Ticket!");
+                    expect(new Buffer(data.logs, 'base64').toString())
+                    .to.equal("Fake response submit Ticket!");
                 })
                 .fail(function(data) {
-                    expect(data).to.equal("Fake response submit Ticket!");
+                    expect(new Buffer(data.logs, 'base64').toString())
+                    .to.equal("Fake response submit Ticket!");
                 });
     });
 
     it('Should receive /service/start request', function() {
-        return postRequest("/service/start", {})
+        return postRequest("POST", "/service/start", {})
                 .then(function(data) {
-                    expect(data).to.equal("Fake response! /service/start");
+                    expect(new Buffer(data.logs, 'base64').toString())
+                    .to.equal("Master: Fake response! /service/start/slave");
                 })
                 .fail(function(data) {
-                    expect(data).to.equal("Fake response! /service/start");
+                    expect(new Buffer(data.logs, 'base64').toString())
+                    .to.equal("Master: Fake response! /service/start/slave");
                 });
     });
 
     it('Should receive /service/stop request', function() {
-        return postRequest("/service/stop", {})
+        return postRequest("POST", "/service/stop", {})
                 .then(function(data) {
-                    expect(data).to.equal("Fake response! /service/stop");
+                    expect(new Buffer(data.logs, 'base64').toString())
+                    .to.equal("Master: Fake response! /service/stop/slave");
                 })
                 .fail(function(data) {
-                    expect(data).to.equal("Fake response! /service/stop");
+                    expect(new Buffer(data.logs, 'base64').toString())
+                    .to.equal("Master: Fake response! /service/stop/slave");
                 });
     });
 
     it('Should receive /service/restart request', function() {
-        return postRequest("/service/restart", {})
+        return postRequest("POST", "/service/restart", {})
                 .then(function(data) {
-                    expect(data).to.equal("Fake response! /service/restart");
+                    expect(new Buffer(data.logs, 'base64').toString())
+                    .to.equal("Master: Fake response! /service/stop/slave" +
+                        "Master: Fake response! /service/start/slave");
                 })
                 .fail(function(data) {
-                    expect(data).to.equal("Fake response! /service/restart");
+                    expect(new Buffer(data.logs, 'base64').toString())
+                    .to.equal("Master: Fake response! /service/stop/slave" +
+                        "Master: Fake response! /service/start/slave");
                 });
     });
 
     it('Should receive /service/status request', function() {
-        return postRequest("/service/status", {})
+        return postRequest("GET", "/service/status", {})
                 .then(function(data) {
-                    expect(data).to.equal("Fake response! /service/status");
+                    expect(new Buffer(data.logs, 'base64').toString())
+                    .to.equal("Master: Fake response! /service/status/slave");
                 })
                 .fail(function(data) {
-                    expect(data).to.equal("Fake response! /service/status");
+                    expect(new Buffer(data.logs, 'base64').toString())
+                    .to.equal("Master: Fake response! /service/status/slave");
                 });
     });
 
-    it('Should receive /service/condrestart request', function() {
-        return postRequest("/service/condrestart", {})
+    it('Should receive /logs request', function() {
+        return postRequest("GET", "/logs", {})
                 .then(function(data) {
-                    expect(data)
-                    .to.equal("Fake response! /service/condrestart");
+                    expect(new Buffer(data.logs, 'base64').toString())
+                    .to.equal("Master: Fake response! /logs/slave");
                 })
                 .fail(function(data) {
-                    expect(data)
-                    .to.equal("Fake response! /service/condrestart");
+                    expect(new Buffer(data.logs, 'base64').toString())
+                    .to.equal("Master: Fake response! /logs/slave");
+                });
+    });
+
+    it('Should receive /service/status request', function() {
+        return postRequest("GET", "/service/status", {})
+                .then(function(data) {
+                    expect(new Buffer(data.logs, 'base64').toString())
+                    .to.equal("Master: Fake response! /service/status/slave");
+                })
+                .fail(function(data) {
+                    expect(new Buffer(data.logs, 'base64').toString())
+                    .to.equal("Master: Fake response! /service/status/slave");
                 });
     });
 
     it('Should receive /service/start/slave request', function() {
-        return postRequest("/service/start/slave", {})
+        return postRequest("POST", "/service/start/slave", {})
                 .then(function(data) {
-                    expect(data)
-                    .to.equal("Fake response! /service/start/slave");
+                    expect(data.logs)
+                    .to.equal("Slave: Fake response! /service/start/slave");
                 })
                 .fail(function(data) {
-                    expect(data)
-                    .to.equal("Fake response! /service/start/slave");
+                    expect(data.logs)
+                    .to.equal("Slave: Fake response! /service/start/slave");
                 });
     });
 
     it('Should receive /service/stop/slave request', function() {
-        return postRequest("/service/stop/slave", {})
+        return postRequest("POST", "/service/stop/slave", {})
                 .then(function(data) {
-                    expect(data)
-                    .to.equal("Fake response! /service/stop/slave");
+                    expect(data.logs)
+                    .to.equal("Slave: Fake response! /service/stop/slave");
                 })
                 .fail(function(data) {
-                    expect(data).
-                    to.equal("Fake response! /service/stop/slave");
-                });
-    });
-
-    it('Should receive /service/restart/slave request', function() {
-        return postRequest("/service/restart/slave", {})
-                .then(function(data) {
-                    expect(data)
-                    .to.equal("Fake response! /service/restart/slave");
-                })
-                .fail(function(data) {
-                    expect(data)
-                    .to.equal("Fake response! /service/restart/slave");
+                    expect(data.logs)
+                    .to.equal("Slave: Fake response! /service/stop/slave");
                 });
     });
 
     it('Should receive /service/status/slave request', function() {
-        return postRequest("/service/status/slave", {})
+        return postRequest("GET", "/service/status/slave", {})
                 .then(function(data) {
-                    expect(data)
-                    .to.equal("Fake response! /service/status/slave");
+                    expect(data.logs)
+                    .to.equal("Slave: Fake response! /service/status/slave");
                 })
                 .fail(function(data) {
-                    expect(data)
-                    .to.equal("Fake response! /service/status/slave");
+                    expect(data.logs)
+                    .to.equal("Slave: Fake response! /service/status/slave");
                 });
     });
 
-    it('Should receive /service/condrestart/slave request', function() {
-        return postRequest("/service/condrestart/slave", {})
+    it('Should receive /logs/slave request', function() {
+        return postRequest("GET", "/logs/slave", {})
                 .then(function(data) {
-                    expect(data)
-                    .to.equal("Fake response! /service/condrestart/slave");
+                    expect(data.logs)
+                    .to.equal("Slave: Fake response! /logs/slave");
                 })
                 .fail(function(data) {
-                    expect(data)
-                    .to.equal("Fake response! /service/condrestart/slave");
+                    expect(data.logs)
+                    .to.equal("Slave: Fake response! /logs/slave");
                 });
     });
 
-    it('Should receive /recentLogs request', function() {
-        expServer.hasLog(true);
-        return postRequest("/recentLogs", {})
+    it('Should receive /installationLogs/slave request', function() {
+        return postRequest("GET", "/installationLogs/slave", {})
                 .then(function(data) {
-                    expect(data).to.equal("Fake response! /recentLogs");
+                    expect(data.logs)
+                    .to.equal("Slave: Fake response! /installationLogs/slave");
                 })
                 .fail(function(data) {
-                    expect(data).to.equal("Fake response! /recentLogs");
-                });
-    });
-
-    it('Should receive /recentLogs request', function() {
-        expServer.hasLog(false);
-        return postRequest("/recentLogs", {})
-                .then(function(data) {
-                    expect(data).to.equal("Fake response! /recentJournals");
-                })
-                .fail(function(data) {
-                    expect(data).to.equal("Fake response! /recentJournals");
-                });
-    });
-
-    it('Should receive /monitorLogs request', function() {
-        return postRequest("/monitorLogs", {})
-                .then(function(data) {
-                    expect(data).to.equal("Fake response! /monitorJournals");
-                })
-                .fail(function(data) {
-                    expect(data).to.equal("Fake response! /monitorJournals");
-                });
-    });
-
-    it('Should receive /stopMonitorLogs request', function() {
-        return postRequest("/stopMonitorLogs", {})
-                .then(function(data) {
-                    expect(data).to.equal("Fake response! /stopMonitorLogs");
-                })
-                .fail(function(data) {
-                    expect(data).to.equal("Fake response! /stopMonitorLogs");
-                });
-    });
-
-    it('Should receive /recentLogs/slave request', function() {
-        return postRequest("/recentLogs/slave", {})
-                .then(function(data) {
-                    expect(data).to.equal("Fake response! /recentLogs/slave");
-                })
-                .fail(function(data) {
-                    expect(data).to.equal("Fake response! /recentLogs/slave");
-                });
-    });
-
-    it('Should receive /monitorJournals/slave request', function() {
-        return postRequest("/monitorJournals/slave", {})
-                .then(function(data) {
-                    expect(data).to.equal("Fake response! /monitorJournals/slave");
-                })
-                .fail(function(data) {
-                    expect(data).to.equal("Fake response! /monitorJournals/slave");
-                });
-    });
-
-    it('Should receive /recentJournals/slave request', function() {
-        return postRequest("/recentJournals/slave", {})
-                .then(function(data) {
-                    expect(data).to.equal("Fake response! /recentJournals/slave");
-                })
-                .fail(function(data) {
-                    expect(data).to.equal("Fake response! /recentJournals/slave");
+                    expect(data.logs)
+                    .to.equal("Slave: Fake response! /installationLogs/slave");
                 });
     });
 
     it('Should receive /uploadContent request', function() {
-        return postRequest("/uploadContent", {})
+        return postRequest("POST", "/uploadContent", {})
                 .then(function(data) {
-                    expect(data).to.equal("Fake response uploadContent!");
+                    expect(data)
+                    .to.equal("Fake response uploadContent!");
                 })
                 .fail(function(data) {
                     expect(data).to.equal("Fake response uploadContent!");
@@ -295,7 +249,7 @@ describe('ExpServer function Test', function() {
     });
 
     it('Should receive /uploadMeta request', function() {
-        return postRequest("/uploadMeta", {})
+        return postRequest("POST", "/uploadMeta", {})
                 .then(function(data) {
                     expect(data).to.equal("Fake response uploadMeta!");
                 })
@@ -305,45 +259,12 @@ describe('ExpServer function Test', function() {
     });
 
     it('Should receive /login request', function() {
-        return postRequest("/login", {})
+        return postRequest("POST", "/login", {})
                 .then(function(data) {
                     expect(data).to.equal("Fake response uploadContent!");
                 })
                 .fail(function(data) {
                     expect(data).to.equal("Fake response uploadContent!");
-                });
-    });
-
-    it('Should response xcalar start request', function() {
-        support.unitTest();
-        return postRequest("/fakeRequest/xcalarStart", {})
-                .then(function(data) {
-                    expect(data).to.equal("Fake execution!");
-                })
-                .fail(function(data) {
-                    expect(data).to.equal("Fake execution!");
-                });
-    });
-
-    it('Should response xcalar stop request', function() {
-        support.unitTest();
-        return postRequest("/fakeRequest/xcalarStop", {})
-                .then(function(data) {
-                    expect(data).to.equal("Fake execution!");
-                })
-                .fail(function(data) {
-                    expect(data).to.equal("Fake execution!");
-                });
-    });
-
-    it('Should response xcalar status request', function() {
-        support.unitTest();
-        return postRequest("/fakeRequest/xcalarStatus", {})
-                .then(function(data) {
-                    expect(data).to.equal("Fake execution!");
-                })
-                .fail(function(data) {
-                    expect(data).to.equal("Fake execution!");
                 });
     });
 });
@@ -362,6 +283,7 @@ describe('Support function Test', function() {
 
     it('Should generate Logs', function() {
         var action = "action";
+        var slaveUrl = "/logs/slave";
         var result1 = {};
         result1.status = 1;
         result1.logs = "123";
@@ -370,16 +292,16 @@ describe('Support function Test', function() {
         result2.error = "456";
         var results = [result1, result2];
 
-        var res = support.generateLogs(action, results);
-        var str = "Execute action for all Nodes:\n\n"
+        var res = support.generateLogs(action, slaveUrl, results);
+        var str = "Execute action /logs for all Nodes:\n\n"
                   + "Host: " + 0 + "\n"
                   + "Return Status: "
-                  + "Ok\n"
-                  + "Logs: 123\n\n"
+                  + "1\n"
+                  + "Logs:\n123\n\n"
                   + "Host: " + 1 + "\n"
                   + "Return Status: "
-                  + "Error\n"
-                  + "Error: 456\n\n";
+                  + "-1\n"
+                  + "Error:\n456\n\n";
         expect(res).to.equal(str);
     });
 
@@ -401,20 +323,234 @@ describe('Support function Test', function() {
     });
 
     it('Should be completed', function() {
-        var command = "service xcalar start";
-        var data = 'Mgmtd running';
+        var command = "/opt/xcalar/bin/xcalarctl start";
+        var data = 'xcmonitor started';
         expect(support.isComplete(command, data)).to.equal(true);
 
-        command = "service xcalar start";
-        data = 'Mgmtd already running';
+        command = "/opt/xcalar/bin/xcalarctl start";
+        data = 'xcmonitor already running';
         expect(support.isComplete(command, data)).to.equal(true);
 
-        command = "service xcalar start";
+        command = "/opt/xcalar/bin/xcalarctl start";
         data = '...';
         expect(support.isComplete(command, data)).to.equal(false);
 
-        command = "service xcalar stop";
-        data = 'Xcalar is not running';
+        command = "/opt/xcalar/bin/xcalarctl stop";
+        data = 'Stopping remaining Xcalar processes';
         expect(support.isComplete(command, data)).to.equal(true);
+    });
+});
+
+describe('App market place function Test', function() {
+    before(function() {
+        support.unitTest();
+    });
+    it('Should download Extension', function() {
+        var deferred = jQuery.Deferred();
+        postRequest("POST", "/downloadExtension", {name: "kmeans",
+            version: "1.0.0"})
+        .then(function(data) {
+            expect(data.status).to.equal(1);
+            deferred.resolve();
+        });
+        return deferred.promise();
+    });
+
+    it('Should remove Extension', function() {
+        var jsFile = '/../../../assets/extensions/ext-available/kmeans.ext.js';
+        var pyFile = '/../../../assets/extensions/ext-available/kmeans.ext.py';
+        var deferred = jQuery.Deferred();
+
+        postRequest("POST", "/downloadExtension", {name: "kmeans",
+            version: "1.0.0"})
+        .then(function() {
+            return postRequest("POST", "/enableExtension", {name: "kmeans"});
+        })
+        .then(function() {
+            expect(fs.existsSync(__dirname + jsFile))
+            .to.equal(true);
+            expect(fs.existsSync(__dirname + pyFile))
+            .to.equal(true);
+            return postRequest("POST", "/removeExtension", {name: "kmeans"});
+        })
+        .then(function(data) {
+            expect(data.status).to.equal(-1);
+            expect(data.error).to.equal("Must disable extension first");
+            return postRequest("POST", "/disableExtension", {name: "kmeans"});
+        })
+        .then(function(data) {
+            expect(data.status).to.equal(1);
+            return postRequest("POST", "/removeExtension", {name: "kmeans"});
+        })
+        .then(function() {
+            expect(fs.existsSync(__dirname + jsFile))
+            .to.equal(false);
+            expect(fs.existsSync(__dirname + pyFile))
+            .to.equal(false);
+        })
+        .then(function() {
+            deferred.resolve();
+        })
+        .fail(function() {
+            deferred.reject();
+        });
+        return deferred.promise();
+    });
+
+    it('Should Enabled and Disable Extensions', function() {
+        var jsFile = '/../../../assets/extensions/ext-enabled/kmeans.ext.js';
+        var pyFile = '/../../../assets/extensions/ext-enabled/kmeans.ext.py';
+
+        var outDeferred = jQuery.Deferred();
+
+        postRequest("POST", "/downloadExtension", {name: "kmeans",
+            version: "1.0.0"})
+        .then(function() {
+            return postRequest("POST", "/disableExtension", {name: "kmeans"});
+        })
+        .then(function() {
+            return postRequest("POST", "/enableExtension", {name: "kmeans"});
+        })
+        .then(function(data) {
+            expect(fs.existsSync(__dirname + jsFile))
+            .to.equal(true);
+            expect(fs.existsSync(__dirname + pyFile))
+            .to.equal(true);
+            expect(data.status).to.equal(1);
+            return postRequest("POST", "/enableExtension", {name: "kmeans"});
+        })
+        .then(function(data) {
+            expect(fs.existsSync(__dirname + jsFile))
+            .to.equal(true);
+            expect(fs.existsSync(__dirname + pyFile))
+            .to.equal(true);
+            expect(data.status).to.equal(-1);
+            expect(data.error).to.equal("Extension already enabled");
+            return postRequest("POST", "/disableExtension", {name: "kmeans"});
+        })
+        .then(function(data) {
+            expect(fs.existsSync(__dirname + jsFile))
+            .to.equal(false);
+            expect(fs.existsSync(__dirname + pyFile))
+            .to.equal(false);
+            expect(data.status).to.equal(1);
+            return postRequest("POST", "/disableExtension", {name: "kmeans"});
+        })
+        .then(function(data) {
+            expect(fs.existsSync(__dirname + jsFile))
+            .to.equal(false);
+            expect(fs.existsSync(__dirname + pyFile))
+            .to.equal(false);
+            expect(data.status).to.equal(-1);
+            expect(data.error).to.equal("Extension was not enabled");
+            outDeferred.resolve();
+        })
+        .fail(function() {
+            outDeferred.reject();
+        });
+        return outDeferred.promise();
+    });
+
+    it('Should get Enabled Extensions', function() {
+        var outDeferred = jQuery.Deferred();
+        postRequest("POST", "/downloadExtension", {name: "bizRules",
+            version: "1.0.0"})
+        .then(function() {
+            return postRequest("POST", "/downloadExtension",
+             {name: "dev", version: "1.0.0"});
+        })
+        .then(function() {
+            return postRequest("POST", "/downloadExtension",
+             {name: "genRowNum", version: "1.0.0"});
+        })
+        .then(function() {
+            return postRequest("POST", "/downloadExtension",
+             {name: "glm", version: "1.0.0"});
+        })
+        .then(function() {
+            return postRequest("POST", "/downloadExtension",
+             {name: "kmeans", version: "1.0.0"});
+        })
+        .then(function() {
+            return postRequest("POST", "/downloadExtension",
+             {name: "xcalarDef", version: "1.0.0"});
+        })
+        .then(function() {
+            return postRequest("POST", "/enableExtension",
+             {name: "bizRules"});
+        })
+        .then(function() {
+            return postRequest("POST", "/disableExtension",
+             {name: "dev"});
+        })
+        .then(function() {
+            return postRequest("POST", "/disableExtension",
+             {name: "genRowNum"});
+        })
+        .then(function() {
+            return postRequest("POST", "/disableExtension",
+             {name: "glm"});
+        })
+        .then(function() {
+            return postRequest("POST", "/disableExtension",
+             {name: "kmeans"});
+        })
+        .then(function() {
+            return postRequest("POST", "/disableExtension",
+             {name: "xcalarDef"});
+        })
+        .then(function() {
+            return postRequest("POST", "/getEnabledExtensions", {});
+        })
+        .then(function(data) {
+            var str = '<html>\n' +
+                      '<head>\n' +
+                      '    <script src="assets/extensions/ext-enabled/bizRules.ext.js"' +
+                      ' type="text/javascript"></script>\n' +
+                      '  </head>\n'+
+                      '  <body>\n' +
+                      '  </body>\n' +
+                      '</html>';
+            expect(str).to.equal(data.data);
+            return postRequest("POST", "/enableExtension", {name: "dev"});
+        })
+        .then(function() {
+            return postRequest("POST", "/getEnabledExtensions", {});
+        })
+        .then(function(data) {
+            var str = '<html>\n' +
+                      '<head>\n' +
+                      '    <script src="assets/extensions/ext-enabled/bizRules.ext.js"' +
+                      ' type="text/javascript"></script>\n' +
+                      '    <script src="assets/extensions/ext-enabled/dev.ext.js"' +
+                      ' type="text/javascript"></script>\n' +
+                      '  </head>\n'+
+                      '  <body>\n' +
+                      '  </body>\n' +
+                      '</html>';
+            expect(str).to.equal(data.data);
+            outDeferred.resolve();
+        })
+        .fail(function() {
+            outDeferred.reject();
+        });
+        return outDeferred.promise();
+    });
+
+    it('Should get Available Extension', function() {
+        var outDeferred = jQuery.Deferred();
+        postRequest("POST", "/getAvailableExtension", {})
+        .then(function(data) {
+            var arr = data.extensionsAvailable;
+            expect(jQuery.inArray('bizRules', arr)).to.not.equal(-1);
+            expect(jQuery.inArray('dev', arr)).to.not.equal(-1);
+            expect(jQuery.inArray('genRowNum', arr)).to.not.equal(-1);
+            expect(jQuery.inArray('glm', arr)).to.not.equal(-1);
+            expect(jQuery.inArray('kmeans', arr)).to.not.equal(-1);
+            expect(jQuery.inArray('xcalarDef', arr)).to.not.equal(-1);
+            expect(jQuery.inArray('fake-extension', arr)).to.equal(-1);
+            outDeferred.resolve();
+        });
+        return outDeferred.promise();
     });
 });
