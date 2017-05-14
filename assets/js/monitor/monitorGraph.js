@@ -268,7 +268,9 @@ window.MonitorGraph = (function($, MonitorGraph) {
             network.sumTot += networkTot;
         }
 
-        var allStats = [cpu, ram, xdb, network];
+        // var allStats = [cpu, ram, xdb, network];
+        // XXX xdb is null
+        var allStats = [cpu, ram, network];
         return (allStats);
     }
 
