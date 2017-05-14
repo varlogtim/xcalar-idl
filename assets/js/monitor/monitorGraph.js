@@ -190,14 +190,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
             }
             apiTopResult = result;
             numNodes = result.numNodes;
-            return xcHelper.getMemUsage();
-        })
-        .then(function(memInfos) {
-            if (prevIteration !== curIteration) {
-                deferred.resolve();
-                return;
-            }
-            var allStats = processNodeStats(memInfos, apiTopResult, numNodes);
+            var allStats = processNodeStats(apiTopResult, numNodes);
             updateGraph(allStats, numNodes);
             MonitorPanel.updateDonuts(allStats, numNodes);
             failCount = 0;
@@ -227,7 +220,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
         return deferred.promise();
     }
 
-    function processNodeStats(memInfos, apiTopResult, numNodes) {
+    function processNodeStats(apiTopResult, numNodes) {
         var StatsObj = function() {
             this.used = [];
             this.tot = [];
@@ -250,25 +243,21 @@ window.MonitorGraph = (function($, MonitorGraph) {
             cpu.sumUsed += cpuPct;
             cpu.sumTot += 100;
 
+
             // 2 memory graphs
-            if (memInfos[i] != null) {
-                if (memInfos[i].sys != null) {
-                    var ramUsed = memInfos[i].sys.used;
-                    var ramTot = memInfos[i].sys.total;
-                    ram.used.push(ramUsed);
-                    ram.tot.push(ramTot);
-                    ram.sumUsed += ramUsed;
-                    ram.sumTot += ramTot;
-                }
-                if (memInfos[i].Mlocked && memInfos[i].Mlocked.xdb_pages) {
-                    var xdbUsed = memInfos[i].Mlocked.xdb_pages.used;
-                    var xdbTot = memInfos[i].Mlocked.xdb_pages.total;
-                    xdb.used.push(xdbUsed);
-                    xdb.tot.push(xdbTot);
-                    xdb.sumUsed += xdbUsed;
-                    xdb.sumTot += xdbTot;
-                }
-            }
+            var ramUsed = node.memUsedInBytes;
+            var ramTot = Math.ceil(node.memUsedInBytes * 100 /
+                                   node.memUsageInPercent);
+            ram.used.push(ramUsed);
+            ram.tot.push(ramTot);
+            ram.sumUsed += ramUsed;
+            ram.sumTot += ramTot;
+            var xdbUsed = node.xdbUsedBytes;
+            var xdbTot = node.xdbTotalBytes;
+            xdb.used.push(xdbUsed);
+            xdb.tot.push(xdbTot);
+            xdb.sumTot += xdbTot;
+            xdb.sumUsed += xdbUsed;
 
             // network
             var networkUsed = node.networkSendInBytesPerSec;

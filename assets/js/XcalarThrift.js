@@ -2780,10 +2780,12 @@ function XcalarExecuteRetina(retName, params, options, txId) {
 
     var activeSession = options.activeSession || false;
     var newTableName = options.newTableName || "";
+    var queryName = options.queryName || undefined;
 
-    var workItem = xcalarExecuteRetinaWorkItem(retName, params, activeSession, newTableName);
+    var workItem = xcalarExecuteRetinaWorkItem(retName, params, activeSession,
+                                               newTableName, queryName);
     var def1 = xcalarExecuteRetina(tHandle, retName, params, activeSession,
-                                   newTableName);
+                                   newTableName, queryName);
     var def2 = XcalarGetQuery(workItem);
     def2.then(function(query) {
         Transaction.startSubQuery(txId, 'executeRetina', retName, query);

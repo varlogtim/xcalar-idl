@@ -142,7 +142,7 @@ window.Support = (function(Support, $) {
         isCheckingMem = true;
 
         refreshTables()
-        .then(xcHelper.getMemUsage)
+        .then(XcalarApiTop)
         .then(detectMemoryUsage)
         .then(deferred.resolve)
         .fail(deferred.reject)
@@ -161,24 +161,23 @@ window.Support = (function(Support, $) {
             return innerDeferred.promise();
         }
 
-        function detectMemoryUsage(nodes) {
+        function detectMemoryUsage(topOutput) {
             var highestMemUsage = 0;
             var used = 0;
             var total = 0;
 
-            jQuery.each(nodes, function(index, nodeInfo) {
-                if (nodeInfo.Mlocked && nodeInfo.Mlocked.xdb_pages) {
-                    var xdbPages = nodeInfo.Mlocked.xdb_pages;
-                    var xdbUsage = xdbPages.used / xdbPages.total;
+            var numNodes = topOutput.numNodes;
 
-                    used += xdbPages.used;
-                    total += xdbPages.total;
+            for (var i = 0; i < numNodes; i++) {
+                var node = topOutput.topOutputPerNode[i];
+                var xdbPages = node.xdbUsedBytes;
+                var xdbUsage = node.xdbUsedBytes / node.xdbTotalBytes;
 
-                    highestMemUsage = Math.max(highestMemUsage, xdbUsage);
-                } else {
-                    console.error("no xdb info");
-                }
-            });
+                used += node.xdbUsedBytes;
+                total += node.xdbTotalBytes;
+
+                highestMemUsage = Math.max(highestMemUsage, xdbUsage);
+            }
 
             handleMemoryUsage(highestMemUsage, used / total);
         }

@@ -3080,47 +3080,6 @@ window.xcHelper = (function($, xcHelper) {
         return (colNameMap);
     };
 
-    xcHelper.getMemUsage = function() {
-        var deferred = jQuery.Deferred();
-
-        XcalarAppExecute("Mem", true, "/etc/xcalar/default.cfg")
-        .then(function(ret) {
-            var passed = false;
-            var parsedRes;
-            var err;
-            try {
-                var res = JSON.parse(ret.outStr);
-                parsedRes = res.map(parser);
-                passed = true;
-            } catch (error) {
-                err = error;
-                console.log(error);
-            }
-            if (passed) {
-                deferred.resolve(parsedRes);
-            } else {
-                deferred.reject(err);
-            }
-        })
-        .fail(deferred.reject);
-
-        return deferred.promise();
-
-        function parser(node) {
-            var nodeInfo = node[0];
-
-            try {
-                nodeInfo = JSON.parse(node[0]);
-            } catch (error) {
-                // this throw will be catched by the catch
-                // in xcHelper.getMemUsage
-                throw error;
-            }
-
-            return nodeInfo;
-        }
-    };
-
     xcHelper.disableMenuItem = function($menuLi, tooltipOptions) {
         $menuLi.addClass("unavailable");
         xcTooltip.add($menuLi, tooltipOptions);
