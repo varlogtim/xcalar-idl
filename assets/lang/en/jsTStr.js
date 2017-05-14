@@ -170,7 +170,9 @@ CommonTxtTstr = {
     'InvalidSize': 'Invalid size',
     'Uploading': 'Uploading',
     'Upgrading': 'Upgrading',
-    'XDBUsage': 'XDB Usage'
+    'XDBUsage': 'XDB Usage',
+    'Retry': 'Retry',
+    'Overwrite': 'Overwrite'
 };
 
 ErrTStr = {
@@ -424,7 +426,14 @@ AlertTStr = {
     'Connecting': 'Connecting...',
     'TryConnect': 'Connecting in <second>s.',
     'UserOverLimit': 'Concurrent Users Overlimit',
-    'UserOverLimitMsg': 'Number of concurrent users is over the limit supported by the license, please logout'
+    'UserOverLimitMsg': 'Number of concurrent users is over the limit supported by the license, please logout',
+    'UnexpectInit': 'Unexpected Initialization Time',
+    'UnexpectInitMsg': 'The initialization time is taking longer than usual. ' +
+                     'This may be due to a slow network connection or a ' +
+                     'previously distrupted or concurrent initialization. ' +
+                     'You can choose to retry and wait a little longer, or ' +
+                     'you can force the current initialization to overwrite ' +
+                     'any concurrent / previously disrupted initialization.'
 };
 
 ErrorMessageTStr = {

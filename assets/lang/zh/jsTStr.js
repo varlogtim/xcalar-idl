@@ -160,7 +160,9 @@ CommonTxtTstr = {
 'InvalidSize': '无效大小',
 'Uploading': '上传',
 'Upgrading': '升级',
-'XDBUsage': 'XDB使用率'
+'XDBUsage': 'XDB使用率',
+'Retry': '重试',
+'Overwrite': '覆盖'
 };
 ErrTStr = {
 'Error': '错误',
@@ -377,7 +379,9 @@ AlertTStr = {
 'Connecting': '连接中...',
 'TryConnect': '<second>秒后重新连接。',
 'UserOverLimit': '登录用户数量超过限制',
-'UserOverLimitMsg': '登录用户数量超过许可证支持的上限，请登出'
+'UserOverLimitMsg': '登录用户数量超过许可证支持的上限，请登出',
+'UnexpectInit': '初始化超时',
+'UnexpectInitMsg': '初始化超时。这可能是由网络延迟或同步初始化出错造成的。请重试或覆盖初始化操作。'
 };
 ErrorMessageTStr = {
 'title': '错误',

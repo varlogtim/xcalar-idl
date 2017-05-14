@@ -366,16 +366,11 @@ window.xcManager = (function(xcManager, $) {
         function showForceAlert(deferred) {
             $("#initialLoadScreen").hide();
             Alert.show({
-                title: "Unexpected Initialization Time",
-                msg: "The initialization time is taking longer than usual. " +
-                     "This may be due to a slow network connection or a " +
-                     "previously distrupted or concurrent initialization. " +
-                     "You can choose to retry and wait a little longer, or " +
-                     "you can force the current initialization to overwrite " +
-                     "any concurrent / previously disrupted initialization.",
+                title: AlertTStr.UnexpectInit,
+                msg: AlertTStr.UnexpectInitMsg,
                 hideButtons: ["cancel"],
                 buttons: [{
-                    name: "Retry",
+                    name: CommonTxtTstr.Retry,
                     className: "retry",
                     func: function() {
                         $("#initialLoadScreen").show();
@@ -395,11 +390,10 @@ window.xcManager = (function(xcManager, $) {
                                 showForceAlert(deferred);
                             });
                         }, 5000);
-                        console.log("Retry");
                     }
                 },
                 {
-                    name: "Overwrite",
+                    name: CommonTxtTstr.Overwrite,
                     className: "force",
                     func: function() {
                         $("#initialLoadScreen").show();
@@ -413,8 +407,7 @@ window.xcManager = (function(xcManager, $) {
                         })
                         .then(deferred.resolve)
                         .fail(function(err) {
-                            console.error(err);
-                            console.error("SEVERE ERROR: Race " +
+                            console.error(err, "SEVERE ERROR: Race " +
                                           "conditions ahead");
                             deferred.resolve();
                         });
@@ -456,6 +449,10 @@ window.xcManager = (function(xcManager, $) {
                                 } else {
                                     showForceAlert(deferred);
                                 }
+                            })
+                            .fail(function(err) {
+                                console.error(err);
+                                showForceAlert(deferred);
                             });
                         }, 5000);
                     } else {
