@@ -375,20 +375,20 @@
                 overflow: hidden;
                 position: relative;
 
-                // &.xdbMode {
-                //     .line.line1 {
-                //         display: none;
-                //     }
-                //     .line.line2 {
-                //         display: block;
-                //     }
-                //     .area.area1 {
-                //         display: none;
-                //     }
-                //     .area.area2 {
-                //         display: block;
-                //     }
-                // }
+                &.xdbMode {
+                    .line.line1 {
+                        display: none;
+                    }
+                    .line.line2 {
+                        display: block;
+                    }
+                    .area.area1 {
+                        display: none;
+                    }
+                    .area.area2 {
+                        display: block;
+                    }
+                }
                 &.hideCPU {
                     .line0, .area0, .yAxis.left  {
                         display: none !important;
@@ -524,7 +524,6 @@
                 }
 
                 line {
-                    // stroke: rgba(0,0,0,0.15);
                     stroke: #EEEEEE;
                 }
 
@@ -729,30 +728,30 @@
                     }
                 }
 
-                // &.ramDonut.xdbMode {
-                //     #donut1 {
-                //         .donutInfo {
-                //             display: none;
-                //         }
-                //         svg {
-                //             opacity: 0.5;
-                //         }
-                //     }
-                //     #donut2 {
-                //         .donutInfo {
-                //             display: block;
-                //         }
-                //         svg {
-                //             opacity:  1;
-                //         }
-                //     }
-                //     #donutStats1 {
-                //         display: none;
-                //     }
-                //     #donutStats2 {
-                //         display: block;
-                //     }
-                // }
+                &.ramDonut.xdbMode {
+                    #donut1 {
+                        .donutInfo {
+                            display: none;
+                        }
+                        svg {
+                            opacity: 0.5;
+                        }
+                    }
+                    #donut2 {
+                        .donutInfo {
+                            display: block;
+                        }
+                        svg {
+                            opacity:  1;
+                        }
+                    }
+                    #donutStats1 {
+                        display: none;
+                    }
+                    #donutStats2 {
+                        display: block;
+                    }
+                }
 
                 #donut1{
                     svg:first-of-type {
@@ -762,32 +761,35 @@
                     }
                 }
 
-                // #donut2 {
-                //     width: 112px;
-                //     height: 112px;
-                //     .position(absolute, @top: -6px);
-                //     .horizontal-align(absolute);
+                #donut2 {
+                    width: 112px;
+                    height: 112px;
+                    .position(absolute, @top: -6px);
+                    .horizontal-align(absolute);
 
-                //     .donutInfo {
-                //         display: none;
-                //         top: 36px;
-                //     }
-                //     svg {
-                //         opacity: 0.5;
-                //     }
-                // }
+                    .donutInfo {
+                        display: none;
+                        top: 36px;
+                    }
+                    svg {
+                        opacity: 0.5;
+                    }
+                }
 
-                #donut1 {
+                #donut1, #donut2 {
                     .font(@color: @color-bg-graph-two);
-                    // cursor: pointer;
+                    cursor: pointer;
 
                     svg:first-of-type {
                         fill: @color-bg-graph-two;
                     }
                 }
 
+                #donutStats2 {
+                    display: none;
+                }
 
-                #donutStats1{
+                #donutStats1, #donutStats2 {
                     .statsTopHeading {
                         .font(@color: @color-bg-graph-two);
                     }
@@ -797,11 +799,11 @@
                     }
                 }
 
-                #donut2 {
+                #donut3 {
                     .font(@color: @color-bg-graph-three);
                 }
 
-                #donutStats2 {
+                #donutStats3 {
                     .statsTopHeading {
                         .font(@color: @color-bg-graph-three);
                     }

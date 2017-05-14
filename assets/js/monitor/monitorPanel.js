@@ -91,12 +91,12 @@ window.MonitorPanel = (function($, MonitorPanel) {
                 used = allStats[index].sumUsed;
                 total = allStats[index].sumTot;
             }
-            if (index === 2) {
-                updateDonutMidText('#donut2 .userSize .num',
+            if (index === 3) {
+                updateDonutMidText('#donut3 .userSize .num',
                                 allStats[index].sumUsed,
                                 defDurationForD3Anim, index);
 
-                updateDonutMidText('#donut2 .totalSize .num',
+                updateDonutMidText('#donut3 .totalSize .num',
                                 allStats[index].sumTot,
                                 defDurationForD3Anim, index);
             } else {
@@ -167,46 +167,46 @@ window.MonitorPanel = (function($, MonitorPanel) {
     }
 
     function initializeDonuts() {
-        var numDonuts = 2;
+        var numDonuts = 3;
         var radius = diameter / 2;
-        // var outerDonutRadius = radius + donutThickness;
+        var outerDonutRadius = radius + donutThickness;
         var arc = d3.svg.arc()
                     .innerRadius(radius)
                     .outerRadius(radius - donutThickness);
-        // var outerArc = d3.svg.arc()
-        //                 .innerRadius(outerDonutRadius)
-        //                 .outerRadius(outerDonutRadius - donutThickness);
+        var outerArc = d3.svg.arc()
+                        .innerRadius(outerDonutRadius)
+                        .outerRadius(outerDonutRadius - donutThickness);
         var pie = d3.layout.pie()
                 .sort(null);
 
         var svg;
 
         for (var i = 0; i < numDonuts; i++) {
-            // if (i === 2) {
-            //     svg = makeSvg("#donut" + i, diameter + (donutThickness * 2), outerDonutRadius);
-            //     drawPath(svg, pie, outerArc);
-            // } else {
+            if (i === 2) {
+                svg = makeSvg("#donut" + i, diameter + (donutThickness * 2), outerDonutRadius);
+                drawPath(svg, pie, outerArc);
+            } else {
                 svg = makeSvg("#donut" + i, diameter, radius);
                 drawPath(svg, pie, arc);
-            // }
+            }
         }
         var smallRadius = radius - 2;
-        // var outerSmallRadius = outerDonutRadius - 2;
+        var outerSmallRadius = outerDonutRadius - 2;
         arc = d3.svg.arc()
                     .innerRadius(smallRadius)
                     .outerRadius(smallRadius - (donutThickness - 3));
-        // outerArc = d3.svg.arc()
-        //             .innerRadius(outerSmallRadius)
-        //             .outerRadius(outerSmallRadius - (donutThickness - 3));
+        outerArc = d3.svg.arc()
+                    .innerRadius(outerSmallRadius)
+                    .outerRadius(outerSmallRadius - (donutThickness - 3));
         for (var i = 0; i < numDonuts; i++) {
 
-            // if (i === 2) {
-            //     svg = makeSvg("#donut" + i, diameter + (donutThickness * 2), outerDonutRadius);
-            //     drawPath(svg, pie, outerArc);
-            // } else {
+            if (i === 2) {
+                svg = makeSvg("#donut" + i, diameter + (donutThickness * 2), outerDonutRadius);
+                drawPath(svg, pie, outerArc);
+            } else {
                 svg = makeSvg("#donut" + i, diameter, radius);
                 drawPath(svg, pie, arc);
-            // }
+            }
 
         }
 
@@ -248,9 +248,9 @@ window.MonitorPanel = (function($, MonitorPanel) {
         var paths = donut.selectAll("path").data(pie(data));
         var radius = diameter / 2;
         var rad = radius;
-        // if (index === 2) {
-        //     rad = radius + donutThickness;
-        // }
+        if (index === 2) {
+            rad = radius + donutThickness;
+        }
         var arc = d3.svg.arc()
                     .innerRadius(rad)
                     .outerRadius(rad - donutThickness);
@@ -335,7 +335,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
             var sumTotal = xcHelper.sizeTranslator(stats.sumTot, true);
             var sumUsed = xcHelper.sizeTranslator(stats.sumUsed, true);
 
-            if (index === 2) {
+            if (index === 3) {
                 $statsSection.find('.statsHeadingBar .totNum')
                              .text(sumTotal[0] + sumTotal[1] + "ps");
                 $statsSection.find('.statsHeadingBar .avgNum')
@@ -353,7 +353,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
                 var usedUnits;
                 var totalUnits;
 
-                if (index === 2) {
+                if (index === 3) {
                     usedUnits = used[1] + "ps";
                     totalUnits = total[1] + "ps";
                 } else {
