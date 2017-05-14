@@ -8131,6 +8131,8 @@ XcalarApiTopOutputPerNodeT = function(args) {
   this.totalAvailableMemInBytes = null;
   this.networkRecvInBytesPerSec = null;
   this.networkSendInBytesPerSec = null;
+  this.xdbUsedBytes = null;
+  this.xdbTotalBytes = null;
   if (args) {
     if (args.nodeId !== undefined) {
       this.nodeId = args.nodeId;
@@ -8152,6 +8154,12 @@ XcalarApiTopOutputPerNodeT = function(args) {
     }
     if (args.networkSendInBytesPerSec !== undefined) {
       this.networkSendInBytesPerSec = args.networkSendInBytesPerSec;
+    }
+    if (args.xdbUsedBytes !== undefined) {
+      this.xdbUsedBytes = args.xdbUsedBytes;
+    }
+    if (args.xdbTotalBytes !== undefined) {
+      this.xdbTotalBytes = args.xdbTotalBytes;
     }
   }
 };
@@ -8218,6 +8226,20 @@ XcalarApiTopOutputPerNodeT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 8:
+      if (ftype == Thrift.Type.I64) {
+        this.xdbUsedBytes = input.readI64().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 9:
+      if (ftype == Thrift.Type.I64) {
+        this.xdbTotalBytes = input.readI64().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -8262,6 +8284,16 @@ XcalarApiTopOutputPerNodeT.prototype.write = function(output) {
   if (this.networkSendInBytesPerSec !== null && this.networkSendInBytesPerSec !== undefined) {
     output.writeFieldBegin('networkSendInBytesPerSec', Thrift.Type.I64, 7);
     output.writeI64(this.networkSendInBytesPerSec);
+    output.writeFieldEnd();
+  }
+  if (this.xdbUsedBytes !== null && this.xdbUsedBytes !== undefined) {
+    output.writeFieldBegin('xdbUsedBytes', Thrift.Type.I64, 8);
+    output.writeI64(this.xdbUsedBytes);
+    output.writeFieldEnd();
+  }
+  if (this.xdbTotalBytes !== null && this.xdbTotalBytes !== undefined) {
+    output.writeFieldBegin('xdbTotalBytes', Thrift.Type.I64, 9);
+    output.writeI64(this.xdbTotalBytes);
     output.writeFieldEnd();
   }
   output.writeFieldStop();

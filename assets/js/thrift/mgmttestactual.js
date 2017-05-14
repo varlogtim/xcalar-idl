@@ -20417,6 +20417,8 @@ XcalarApiTopOutputPerNodeT = function(args) {
   this.totalAvailableMemInBytes = null;
   this.networkRecvInBytesPerSec = null;
   this.networkSendInBytesPerSec = null;
+  this.xdbUsedBytes = null;
+  this.xdbTotalBytes = null;
   if (args) {
     if (args.nodeId !== undefined) {
       this.nodeId = args.nodeId;
@@ -20438,6 +20440,12 @@ XcalarApiTopOutputPerNodeT = function(args) {
     }
     if (args.networkSendInBytesPerSec !== undefined) {
       this.networkSendInBytesPerSec = args.networkSendInBytesPerSec;
+    }
+    if (args.xdbUsedBytes !== undefined) {
+      this.xdbUsedBytes = args.xdbUsedBytes;
+    }
+    if (args.xdbTotalBytes !== undefined) {
+      this.xdbTotalBytes = args.xdbTotalBytes;
     }
   }
 };
@@ -20504,6 +20512,20 @@ XcalarApiTopOutputPerNodeT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 8:
+      if (ftype == Thrift.Type.I64) {
+        this.xdbUsedBytes = input.readI64().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 9:
+      if (ftype == Thrift.Type.I64) {
+        this.xdbTotalBytes = input.readI64().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -20548,6 +20570,16 @@ XcalarApiTopOutputPerNodeT.prototype.write = function(output) {
   if (this.networkSendInBytesPerSec !== null && this.networkSendInBytesPerSec !== undefined) {
     output.writeFieldBegin('networkSendInBytesPerSec', Thrift.Type.I64, 7);
     output.writeI64(this.networkSendInBytesPerSec);
+    output.writeFieldEnd();
+  }
+  if (this.xdbUsedBytes !== null && this.xdbUsedBytes !== undefined) {
+    output.writeFieldBegin('xdbUsedBytes', Thrift.Type.I64, 8);
+    output.writeI64(this.xdbUsedBytes);
+    output.writeFieldEnd();
+  }
+  if (this.xdbTotalBytes !== null && this.xdbTotalBytes !== undefined) {
+    output.writeFieldBegin('xdbTotalBytes', Thrift.Type.I64, 9);
+    output.writeI64(this.xdbTotalBytes);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -29079,9 +29111,9 @@ XcalarApiServiceClient.prototype.recv_queueWork = function() {
 
 
 XcalarApiVersionT = {
-  'XcalarApiVersionSignature' : 74108487
+  'XcalarApiVersionSignature' : 43025625
 };
-XcalarApiVersionTStr = {74108487 : '46ace4701ca1dce179cf2a96a0ebe4c5'
+XcalarApiVersionTStr = {43025625 : '29084d98aa09a9ac4381386377579d3d'
 };
 // Async extension for XcalarApiService.js
 XcalarApiServiceClient.prototype.queueWorkAsync = function(workItem) {
@@ -36212,6 +36244,10 @@ PromiseHelper = (function(PromiseHelper, $) {
                 console.log("\tMemUsage(%): ", topOutput.topOutputPerNode[ii].memUsageInPercent);
                 console.log("\tMemUsed: ", topOutput.topOutputPerNode[ii].memUsedInBytes);
                 console.log("\tMemAvailable: ", topOutput.topOutputPerNode[ii].totalAvailableMemInBytes);
+                console.log("\tnetworkRecvInBytesPerSec: ", topOutput.topOutputPerNode[ii].networkRecvInBytesPerSec);
+                console.log("\tnetworkSendInBytesPerSec: ", topOutput.topOutputPerNode[ii].networkSendInBytesPerSec);
+                console.log("\txdbUsedBytes: ", topOutput.topOutputPerNode[ii].xdbUsedBytes);
+                console.log("\txdbTotalBytes: ", topOutput.topOutputPerNode[ii].xdbTotalBytes);
                 console.log("\n\n");
             }
             test.pass();

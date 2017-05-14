@@ -3034,6 +3034,10 @@ PromiseHelper = (function(PromiseHelper, $) {
                 console.log("\tMemUsage(%): ", topOutput.topOutputPerNode[ii].memUsageInPercent);
                 console.log("\tMemUsed: ", topOutput.topOutputPerNode[ii].memUsedInBytes);
                 console.log("\tMemAvailable: ", topOutput.topOutputPerNode[ii].totalAvailableMemInBytes);
+                console.log("\tnetworkRecvInBytesPerSec: ", topOutput.topOutputPerNode[ii].networkRecvInBytesPerSec);
+                console.log("\tnetworkSendInBytesPerSec: ", topOutput.topOutputPerNode[ii].networkSendInBytesPerSec);
+                console.log("\txdbUsedBytes: ", topOutput.topOutputPerNode[ii].xdbUsedBytes);
+                console.log("\txdbTotalBytes: ", topOutput.topOutputPerNode[ii].xdbTotalBytes);
                 console.log("\n\n");
             }
             test.pass();
