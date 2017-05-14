@@ -567,6 +567,7 @@ function formSubmitTest() {
     // TODO need to test for valid parameterized export name
     it("unparamaterized export file name should show alert", function() {
         var dfObj = DF.getDataflow("df1");
+        dfObj.retinaNodes[0].api = XcalarApisT.XcalarApiExport;
         dfObj.retinaNodes[0].input = {
             "exportInput": {meta: {
                 specificInput: {

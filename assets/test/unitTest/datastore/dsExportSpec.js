@@ -6,6 +6,7 @@ describe("DSExport Test", function() {
     var $form;
     var $fileFormatMenu;
     var testTargetName = "unitTestTarget";
+    var url = "mnt/nfsshare/xcalar/export";
 
     before(function() {
         UnitTest.onMinMode();
@@ -26,7 +27,7 @@ describe("DSExport Test", function() {
 
     describe("XcalarListExportTargets", function() {
         it("should return expected struct", function(done) {
-            XcalarAddLocalFSExportTarget(testTargetName, "url")
+            XcalarAddLocalFSExportTarget(testTargetName, url)
             .then(function() {
                 return XcalarListExportTargets("*", testTargetName);
             })
@@ -37,12 +38,12 @@ describe("DSExport Test", function() {
                 expect(targ).to.have.all.keys("hdr", "specificInput");
                 expect(targ.hdr.name).to.equal(testTargetName);
                 expect(targ.hdr.type).to.equal(ExTargetTypeT.ExTargetSFType);
-                expect(targ.specificInput.sfInput.url).to.equal("/url");
+                expect(targ.specificInput.sfInput.url).to.equal("/" + url);
                 return XcalarRemoveExportTarget(testTargetName,
                                                 ExTargetTypeT.ExTargetSFType);
             })
             .then(function() {
-                return XcalarAddUDFExportTarget(testTargetName, "url", "a:b");
+                return XcalarAddUDFExportTarget(testTargetName, url, "a:b");
             })
             .then(function() {
                 return XcalarListExportTargets("*", testTargetName);
@@ -54,7 +55,7 @@ describe("DSExport Test", function() {
                 expect(targ).to.have.all.keys("hdr", "specificInput");
                 expect(targ.hdr.name).to.equal(testTargetName);
                 expect(targ.hdr.type).to.equal(ExTargetTypeT.ExTargetUDFType);
-                expect(targ.specificInput.udfInput.url).to.equal("/url");
+                expect(targ.specificInput.udfInput.url).to.equal("/" + url);
                 expect(targ.specificInput.udfInput.appName).to.equal("a:b");
                 return XcalarRemoveExportTarget(testTargetName,
                                                 ExTargetTypeT.ExTargetUDFType);
@@ -297,7 +298,7 @@ describe("DSExport Test", function() {
                 return PromiseHelper.reject({});
             };
 
-            submitForm("LocalFilesystem", testTargetName, "url", {})
+            submitForm("LocalFilesystem", testTargetName, url, {})
             .then(function() {
                 expect("didnt work").to.equal("should work");
             })
@@ -317,14 +318,14 @@ describe("DSExport Test", function() {
             expect($('.grid-unit[data-name="' + testTargetName + '"]').length)
             .to.equal(0);
 
-            submitForm("LocalFilesystem", testTargetName, "url", {})
+            submitForm("LocalFilesystem", testTargetName, url, {})
             .then(function() {
                 var newNumGrids = $("#gridTarget-FileSystem")
                                     .find(".grid-unit").length;
                 expect(newNumGrids).to.equal(numGrids + 1);
                 var $grid = $('.grid-unit[data-name="' + testTargetName + '"]');
                 expect($grid.length).to.equal(1);
-                expect($grid.data("formatarg")).to.equal("/url");
+                expect($grid.data("formatarg")).to.equal("/" + url);
 
                 XcalarRemoveExportTarget(testTargetName,
                                         ExTargetTypeT.ExTargetSFType)
@@ -358,7 +359,7 @@ describe("DSExport Test", function() {
                 return PromiseHelper.reject({});
             };
 
-            submitForm("UDF", testTargetName, "url", {module: "a", fn: "b"})
+            submitForm("UDF", testTargetName, url, {module: "a", fn: "b"})
             .then(function() {
                 expect("didnt work").to.equal("should work");
             })
@@ -377,13 +378,13 @@ describe("DSExport Test", function() {
             expect($('.grid-unit[data-name="' + testTargetName + '"]').length)
             .to.equal(0);
 
-            submitForm("UDF", testTargetName, "url", {module: "a", fn: "b"})
+            submitForm("UDF", testTargetName, url, {module: "a", fn: "b"})
             .then(function() {
                 var newNumGrids = $("#gridTarget-UDF").find(".grid-unit").length;
                 expect(newNumGrids).to.equal(numGrids + 1);
                 var $grid = $('.grid-unit[data-name="' + testTargetName + '"]');
                 expect($grid.length).to.equal(1);
-                expect($grid.data("formatarg")).to.equal("/url");
+                expect($grid.data("formatarg")).to.equal("/" + url);
 
                 XcalarRemoveExportTarget(testTargetName,
                                         ExTargetTypeT.ExTargetUDFType)
@@ -449,7 +450,7 @@ describe("DSExport Test", function() {
 
         it("grid icon should show details", function(done) {
             var submitForm = DSExport.__testOnly__.submitForm;
-            submitForm("UDF", testTargetName, "url", {module: "a", fn: "b"})
+            submitForm("UDF", testTargetName, url, {module: "a", fn: "b"})
             .then(function() {
                 var $grid = $('.grid-unit[data-name="' + testTargetName + '"]');
                 expect($grid.length).to.equal(1);
@@ -466,7 +467,7 @@ describe("DSExport Test", function() {
                 expect($("#exportTargetCard").is(":visible")).to.be.false;
                 expect($("#targetName-edit").val()).to.equal(testTargetName);
                 expect($("#targetTypeList-edit input").val()).to.equal("UDF");
-                expect($("#exportURL-edit").val()).to.equal("file:///url");
+                expect($("#exportURL-edit").val()).to.equal("file:///" + url);
                 expect($("#exportTargetEditCard .udfModuleName").val())
                 .to.equal("a");
                 expect($("#exportTargetEditCard .udfFuncName").val())

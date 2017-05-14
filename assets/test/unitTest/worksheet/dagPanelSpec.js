@@ -1146,8 +1146,14 @@ describe('Dag Panel Test', function() {
                 $prevDagIcon.click();
                 expect($menu.find('li.revertTable').is(":visible")).to.be.true;
                 $menu.find('.revertTable').trigger(fakeEvent.mouseup);
+                expect(gTables[prevTableId].status).to.not.equal("active");
                 UnitTest.testFinish(function() {
                     return gTables[prevTableId].status === "active";
+                })
+                .then(function() {
+                    return UnitTest.testFinish(function() {
+                        return gTables[largeTable.tableId].status !== "active";
+                    });
                 })
                 .then(function() {
                     expect(gTables[prevTableId].status).is.equal("active");
