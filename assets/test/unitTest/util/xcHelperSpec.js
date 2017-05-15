@@ -499,6 +499,13 @@ describe('xcHelper Test', function() {
     // it("xcHelper.middleEllipsis should work", function() {
     //     // don't know how to test yet...
     // });
+    //
+    it("xcHelper.getMaxTextLen should work", function() {
+        var canvas = $('<canvas></canvas>')[0];
+        var ctx = canvas.getContext("2d");
+        expect(xcHelper.getMaxTextLen(ctx, "hello", 100, 0, 5)).to.equal(4);
+        expect(xcHelper.getMaxTextLen(ctx, "hello", 10, 0, 5)).to.be.lt(4);
+    });
 
     it("xcHelper.mapColGenerate should work", function() {
         var progCol = ColManager.newCol({
@@ -1082,6 +1089,14 @@ describe('xcHelper Test', function() {
         var tableName = xcHelper.randName("test-noConflict");
         var res = xcHelper.checkDupTableName(tableName);
         expect(res).to.equal(true);
+
+        gTables[tableName] = {
+            getType: function() {return TableType.Active},
+            getName: function() {return tableName}
+        };
+        res = xcHelper.checkDupTableName(tableName);
+        expect(res).to.equal(false);
+        delete gTables[tableName];
     });
 
     it('xcHelper.lockTable and  xcHelper.unlockTable should work', function() {
@@ -1716,6 +1731,19 @@ describe('xcHelper Test', function() {
         expect(getFormat("f.test")).to.be.null;
     });
 
+    it("xcHelper.hasSelection should work", function() {
+        xcHelper.removeSelectionRange();
+        expect(xcHelper.hasSelection()).to.be.false;
+        var $input = $("<input style='position:fixed; top: 0px; left:0px; z-index:99999;'>");
+        $("body").append($input);
+        $input.val(123);
+        $input.focus().range(0,2);
+        expect(xcHelper.hasSelection()).to.be.true;
+        xcHelper.removeSelectionRange();
+        expect(xcHelper.hasSelection()).to.be.false;
+        $input.remove();
+    });
+
     it('xcHelper.convertToHtmlEntity should work', function() {
         var terribleString = "<&boo>";
         var convertHtml = xcHelper.convertToHtmlEntity;
@@ -2200,19 +2228,84 @@ describe('xcHelper Test', function() {
         expect(res).to.be.null;
     });
 
-    describe("translateFrontTypeToBackType", function() {
-       it("translateFrontTypeToBackType should work", function() {
-            var fn = xcHelper.__testOnly__.translateFrontTypeToBackType;
-            expect(fn("string")).to.equal(1);
-            expect(fn("boolean")).to.equal(8);
-            expect(fn("number")).to.equal(7);
-            expect(fn("float")).to.equal(7);
-            expect(fn("integer")).to.equal(4);
-            expect(fn("array")).to.equal(null);
-            expect(fn("mixed")).to.equal(null);
-            expect(fn("unknown")).to.equal(null);
-       });
+    describe("xcHelper.getKeyType", function() {
+        it("xcHelper.getKeyType on regular column should work", function(done) {
+            var progCol1 = ColManager.newCol({
+                "backName": "col",
+                "name": "col",
+                "isNewCol": false,
+                "type": "float"
+            });
+
+            var progCol2 = ColManager.newDATACol();
+
+            gTables["fakeId"] = new TableMeta({
+                "tableId": "fakeId",
+                "tableName": "test#fakeId",
+                "tableCols": [progCol1, progCol2]
+            });
+            xcHelper.getKeyType("col", "test#fakeId")
+            .then(function(res) {
+                expect(res).to.equal(null);
+                delete gTables["fakeId"];
+                done();
+            })
+            .fail(function() {
+                delete gTables["fakeId"];
+                done("fail");
+            });
+        });
+
+        it("xcHelper.getKeyType on missing column should work", function(done) {
+            var progCol1 = ColManager.newDATACol();
+
+            gTables["fakeId"] = new TableMeta({
+                "tableId": "fakeId",
+                "tableName": "test#fakeId",
+                "tableCols": [progCol1]
+            });
+            gTables["fakeId"].backTableMeta = {valueAttrs: [{name:"col2", type: 4}]};
+
+            xcHelper.getKeyType("col2", "test#fakeId")
+            .then(function(res) {
+                expect(res).to.equal(null);
+                delete gTables["fakeId"];
+                done();
+            })
+            .fail(function() {
+                delete gTables["fakeId"];
+                done("fail");
+            });
+        });
+
+        it("xcHelper.searchTableMetaForKey should work", function(done) {
+            var cachedFn = XcalarGetTableMeta;
+            XcalarGetTableMeta = function(tableName) {
+                return PromiseHelper.resolve(
+                    {valueAttrs: [{name:"col1", type: 3}, {name:"col2", type: 4}]}
+                );
+            }
+            var fn = xcHelper.__testOnly__.searchTableMetaForKey;
+            fn("col2", "tName")
+            .then(function(ret) {
+                expect(ret).to.equal(4);
+                XcalarGetTableMeta = cachedFn;
+                done();
+            });
+        });
     });
+
+    it("translateFrontTypeToBackType should work", function() {
+        var fn = xcHelper.__testOnly__.translateFrontTypeToBackType;
+        expect(fn("string")).to.equal(1);
+        expect(fn("boolean")).to.equal(8);
+        expect(fn("number")).to.equal(7);
+        expect(fn("float")).to.equal(7);
+        expect(fn("integer")).to.equal(4);
+        expect(fn("array")).to.equal(null);
+        expect(fn("mixed")).to.equal(null);
+        expect(fn("unknown")).to.equal(null);
+   });
 
     describe('xcHelper.dropdownOpen', function() {
         describe('Basic Test', function() {

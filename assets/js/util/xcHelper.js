@@ -2040,39 +2040,6 @@ window.xcHelper = (function($, xcHelper) {
         }
     };
 
-    xcHelper.createSelection = function(element, atEnd) {
-        if (element == null) {
-            return;
-        }
-        var range;
-        var selection;
-
-        if (window.getSelection && document.createRange) {
-            range = document.createRange();
-            range.selectNodeContents(element);
-            // move the cursor to end, else select all
-            if (atEnd) {
-                range.collapse(false);
-            }
-            selection = window.getSelection();
-            selection.removeAllRanges();
-            try {
-                selection.addRange(range);
-            } catch (error) {
-                console.warn(error);
-            }
-
-        } else if (document.body.createTextRange) {
-            range = document.body.createTextRange();
-            range.moveToElementText(element);
-
-            if (atEnd) {
-                range.collapse(false);
-            }
-            range.select();
-        }
-    };
-
     xcHelper.removeSelectionRange = function() {
         if (window.getSelection) {
             window.getSelection().removeAllRanges();
@@ -3951,6 +3918,7 @@ window.xcHelper = (function($, xcHelper) {
     /* Unit Test Only */
     if (window.unitTestMode) {
         xcHelper.__testOnly__ = {};
+        xcHelper.__testOnly__.searchTableMetaForKey = searchTableMetaForKey;
         xcHelper.__testOnly__.toggleUnnestandJsonOptions =
                               toggleUnnestandJsonOptions;
         xcHelper.__testOnly__.isInvalidMixed = isInvalidMixed;
