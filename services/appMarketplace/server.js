@@ -10,7 +10,7 @@ var Status = {
     "Error": -1,
     "Unknown": 0,
     "Ok": 1,
-    "Done"   : 2,
+    "Done": 2,
     "Running": 3,
     "Incomplete": 4
 };
@@ -41,17 +41,17 @@ app.all("/*", function(req, res, next) {
 });
 
 var __createIfNotExists = function(projectName, version) {
-    dir = __dirname + "/extensions"
+    dir = __dirname + "/extensions";
     var deferred = jQuery.Deferred();
-    var promise = __create(dir)
+    var promise = __create(dir);
     promise
     .then(function() {
-        dir = dir + "/" + projectName
-        return __create(dir)
+        dir = dir + "/" + projectName;
+        return __create(dir);
     })
     .then(function() {
-        dir = dir + "/" + version
-        return __create(dir)
+        dir = dir + "/" + version;
+        return __create(dir);
     })
     .then(function() {
         deferred.resolve();
@@ -60,7 +60,7 @@ var __createIfNotExists = function(projectName, version) {
         deferred.reject();
     });
     return deferred.promise();
-}
+};
 
 var __create = function(dir) {
     var deferred = jQuery.Deferred();
@@ -73,10 +73,10 @@ var __create = function(dir) {
         }
     });
     return deferred.promise();
-}
+};
 
 app.post("/uploadContent", function(req, res) {
-    // console.log(req.body);
+    console.log("upload Content");
     var appName = req.body.appName;
     var savedAsName = req.body.savedAsName;
     var version = req.body.version;
@@ -88,7 +88,7 @@ app.post("/uploadContent", function(req, res) {
         // TODO: create a method to construct filePath
         var filename = __dirname + "/extensions" + "/" + appName + "/" + version + "/" + savedAsName;
         fs.writeFile(filename, content, function(err) {
-            if(err) {
+            if (err) {
                 return res.send({"status": Status.Error, "logs": err});
             } else {
                 return res.send("Success");
@@ -107,20 +107,15 @@ app.post("/gzip", function(req, res) {
     var fileName = dir + "/" + appName + "-" + version + ".tar.gz";
     var filePath1 = req.body.filePath1;
     var filePath2 = req.body.filePath2;
-    var filePath3 = req.body.filePath3;
-    var filenames = []
-    var files = []
-    if (filePath1.length != 0) {
+    var filenames = [];
+    var files = [];
+    if (filePath1.length !== 0) {
         files.push(dir + "/" + filePath1);
         filenames.push(filePath1);
     }
-    if (filePath2.length != 0) {
+    if (filePath2.length !== 0) {
         files.push(dir + "/" + filePath2);
         filenames.push(filePath2);
-    }
-    if (filePath3.length != 0) {
-        files.push(dir + "/" + filePath3);
-        filenames.push(filePath3);
     }
     __gzip(dir, fileName)
     .then(function() {
@@ -142,12 +137,12 @@ app.post("/gzip", function(req, res) {
 
 var __gzip = function(dir, fileName) {
     var deferred = jQuery.Deferred();
-    var execString = "tar -czf " + fileName + " -C " + dir + " . --exclude \"*.tar.gz\" --warning=no-file-changed"
+    var execString = "tar -czf " + fileName + " -C " + dir + " . --exclude \"*.tar.gz\" --warning=no-file-changed";
     var out = exec(execString);
 
     out.on('close', function(code) {
         // code(1) means files were changed while being archived
-        if (code == 0 || code == 1) {
+        if (code === 0 || code === 1) {
             console.log("Succeeded to upload");
             deferred.resolve(Status.Done);
         } else {
@@ -157,10 +152,11 @@ var __gzip = function(dir, fileName) {
         }
     });
     return deferred.promise();
-}
+};
 
 
 app.post("/uploadMeta", function(req, res) {
+    console.log("upload Meta");
     var appName = req.body.appName;
     var version = req.body.version;
     var description = req.body.description;
@@ -168,7 +164,7 @@ app.post("/uploadMeta", function(req, res) {
     var image = req.body.image;
     __createIfNotExists(appName, version)
     .then(function() {
-        var filename = __dirname + "/extensions" + "/" + appName + "/" + version + "/" + appName + ".txt"
+        var filename = __dirname + "/extensions" + "/" + appName + "/" + version + "/" + appName + ".txt";
         var jsonMetaOutput = {
             "name": appName,
             "version": version,
@@ -176,8 +172,8 @@ app.post("/uploadMeta", function(req, res) {
             "author": author,
             "image": image
         };
-        var promise = __uploadMeta(filename, jsonMetaOutput)
-        return promise
+        var promise = __uploadMeta(filename, jsonMetaOutput);
+        return promise;
     })
     .then(function() {
         return res.send("Success");
@@ -192,7 +188,7 @@ var __uploadMeta = function(filename, jsonMetaOutput) {
     fs.access(filename, function(err) {
         if (err) {
             fs.writeFile(filename, JSON.stringify(jsonMetaOutput), function(err) {
-                if(err) {
+                if (err) {
                     deferred.reject();
                 }
                 console.log("Metadata file was saved!");
@@ -225,7 +221,7 @@ var __uploadMeta = function(filename, jsonMetaOutput) {
         }
     });
     return deferred.promise();
-}
+};
 
 /*
 Example: http://localhost:3001/list
@@ -242,18 +238,18 @@ app.get("/list", function(req, res) {
         .fail(function(err) {
             return res.send({"status": Status.Error, "logs": err});
         });
-    })
+    });
 });
 
 var __validate = function(name, version) {
-    if (name == null || name.length == 0) {
+    if (name === null || name.length === 0) {
         return false;
     }
-    if (version == null || version.length == 0) {
+    if (version === null || version.length === 0) {
         return false;
     }
     return true;
-}
+};
 
 /*
 Example: http://localhost:3001/download?name=testApp&version=1.0.0
@@ -267,7 +263,7 @@ app.get("/download", function(req, res) {
         return res.send({"status": Status["Error"], "logs": "Please specify name, version and type"});
     }
     var appFolder = __dirname + "/extensions" + "/" + appName + "/" + version + "/";
-    var fileName = appFolder + appName + "-" + version + ".tar.gz"
+    var fileName = appFolder + appName + "-" + version + ".tar.gz";
     // console.log(fileName);
     fs.access(fileName, function (err) {
         if (err) {
@@ -311,7 +307,7 @@ var _getAllFilesFromFolder = function(dir) {
     walk(dir, function(err, results) {
         var allMeta = [];
         var fileCount = 0;
-        if (results.length == 0) {
+        if (results.length === 0) {
             deferred.resolve(allMeta);
         }
         for (var i = 0; i < results.length; i++) {
@@ -320,7 +316,7 @@ var _getAllFilesFromFolder = function(dir) {
                 fileCount += 1;
             }
         }
-        if (fileCount == 0) {
+        if (fileCount === 0) {
             deferred.resolve(allMeta);
         }
         for (var i = 0; i < results.length; i++) {
@@ -331,7 +327,7 @@ var _getAllFilesFromFolder = function(dir) {
                         return console.log(err);
                     }
                     allMeta.push(JSON.parse(data));
-                    if (allMeta.length == fileCount) {
+                    if (allMeta.length === fileCount) {
                         deferred.resolve(allMeta);
                     }
                 });

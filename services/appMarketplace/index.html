@@ -7,8 +7,8 @@
 <br/>
 <h1>Uploader</h1>
 <form id        =  "uploadContent"
-     action    =  "/marketclient/uploadContent"
-     method    =  "post"
+    action    =  "/marketclient/uploadContent"
+    method    =  "post"
 >
 Project Name: <input type="text" name="name" />
 Version: <input type="text" name="version" />
@@ -18,9 +18,6 @@ First File Path: <input type="text" name="filePath1" />
 <br/>
 Second File Path: <input type="text" name="filePath2" />
 --> Saved As Name --> <input type="text" name="savedAsName2" />
-<br/>
-Third File Path: <input type="text" name="filePath3" />
---> Saved As Name --> <input type="text" name="savedAsName3" />
 <br/>
 <input type="submit" value="Upload Extension" name="submit">
 </form>
@@ -37,10 +34,10 @@ Version: <input type="text" name="version" />
 Description: <input type="text" name="description" />
 Main: <input type="text" name="main" />
 Author: <input type="text" name="author" />
-Category: <input type="text" name="category" />
+Category: <input type="text" name="category" value="Extensions" disabled/>
 <br/>
 Website: <input type="text" name="website" />
-ImageFilePath: <input type="text" name="path" />
+ImageFilePath: <input type="file" name="path" />
 <br/>
 <input type="submit" value="Upload Metadata" name="submit">
 </form>
