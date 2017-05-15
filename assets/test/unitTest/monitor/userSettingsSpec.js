@@ -49,6 +49,7 @@ describe("User Setting Test", function() {
         before(function() {
             oldLogChange = KVStore.logChange;
             oldPut = KVStore.put;
+            oldPutMutex = KVStore.putWithMutex;
             oldShowSuccess = xcHelper.showSuccess;
 
             KVStore.logChange = function() {
@@ -56,6 +57,11 @@ describe("User Setting Test", function() {
             };
 
             KVStore.put = function(key) {
+                testKey = key;
+                return PromiseHelper.resolve();
+            };
+
+            KVStore.putWithMutex = function(key) {
                 testKey = key;
                 return PromiseHelper.resolve();
             };
@@ -213,6 +219,7 @@ describe("User Setting Test", function() {
         after(function() {
             KVStore.logChange = oldLogChange;
             KVStore.put = oldPut;
+            KVStore.putWithMutex = oldPutMutex;
             xcHelper.showSuccess = oldShowSuccess;
         });
     });
