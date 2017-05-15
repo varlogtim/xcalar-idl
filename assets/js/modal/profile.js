@@ -43,7 +43,8 @@ window.Profile = (function($, Profile, d3) {
     var bucketColName = "bucketGroupBy";
     var defaultRowsToFetch = 20;
     var minRowsToFetch = 10;
-    var maxRowsToFetch = 60;
+    var maxRowsToFetch = 100;
+    var decimalLimit = 5;
 
     var statsInfos = {};
 
@@ -187,7 +188,8 @@ window.Profile = (function($, Profile, d3) {
         });
 
         // event on decimalInput
-        $modal.find(".decimalInput").on("click", ".action", function() {
+        var $decimalInput = $modal.find(".decimalInput");
+        $decimalInput.on("click", ".action", function() {
             if ($(this).hasClass("more")) {
                 decimalNum++;
             } else {
@@ -195,6 +197,29 @@ window.Profile = (function($, Profile, d3) {
             }
 
             updateDecimalInput(decimalNum);
+        });
+
+        $decimalInput.on("keydown", "input", function(event) {
+            if (event.which === keyCode.Enter) {
+                var $input = $(this);
+                var val = $input.val();
+                if (val === "") {
+                    decimalNum = -1;
+                } else {
+                    val = Number(val);
+                    if (val < 0 || val > decimalLimit) {
+                        var err = xcHelper.replaceMsg(ErrWRepTStr.NumInRange, {
+                            "lowerBound": 0,
+                            "upperBound": decimalLimit
+                        });
+                        StatusBox.show(err, $input, true);
+                        return;
+                    } else {
+                        decimalNum = val;
+                    }
+                }
+                updateDecimalInput(decimalNum);
+            }
         });
 
         $("#profile-filterOption").on("mousedown", ".option", function(event) {
@@ -1892,7 +1917,6 @@ window.Profile = (function($, Profile, d3) {
     }
 
     function updateDecimalInput(decimal, isReset) {
-        var decimalLimit = 5; // XXX hard coded
         var $decimalInput = $modal.find(".decimalInput");
         var $moreBtn = $decimalInput.find(".more").removeClass("xc-disabled");
         var $lessBtn = $decimalInput.find(".less").removeClass("xc-disabled");
@@ -1900,7 +1924,7 @@ window.Profile = (function($, Profile, d3) {
 
         if (decimal < 0) {
             $lessBtn.addClass("xc-disabled");
-            $input.val("N/A");
+            $input.val("");
         } else {
             $input.val(decimal);
             if (decimal >= decimalLimit) {
@@ -2076,13 +2100,17 @@ window.Profile = (function($, Profile, d3) {
                 $rangeInput.removeClass("xc-disabled");
                 break;
             case "rangeLog":
-                $rangeInput.removeClass("xc-disabled");
-                if (!Number.isInteger(input)) {
-                    $rangeInput.val("");
-                    bucketSize = 0;
-                } else {
-                    bucketSize = -Number(input);
-                }
+                // $rangeInput.removeClass("xc-disabled");
+                // if (!Number.isInteger(input)) {
+                //     $rangeInput.val("");
+                //     bucketSize = 0;
+                // } else {
+                //     bucketSize = -Number(input);
+                // }
+                // Note: as it's hard to explain what't range size in log
+                // now only allow size to be 1
+                $rangeInput.addClass("xc-disabled");
+                bucketSize = -1;
                 break;
             case "fitAll":
                 // fit all
@@ -2491,7 +2519,7 @@ window.Profile = (function($, Profile, d3) {
                             .classed("selecting", false)
                             .classed("unselected", false)
                             .classed("selected", true);
-                        } else {
+                        } else if (!barArea.classed("selected")){
                             barArea
                             .classed("unselected", true)
                             .classed("selected", false);
@@ -2581,6 +2609,8 @@ window.Profile = (function($, Profile, d3) {
         var filterTableId = curTableId;
         var isString = (statsCol.type === "string");
         var chart = getChart();
+        var prevRowNum;
+        var isContinuous = true;
 
         chart.selectAll(".barArea.selected").each(function(d) {
             var rowNum = d.rowNum;
@@ -2597,12 +2627,19 @@ window.Profile = (function($, Profile, d3) {
 
                     uniqueVals[val] = true;
                 }
+
+                if (prevRowNum == null) {
+                    prevRowNum = rowNum;
+                } else if (isContinuous) {
+                    isContinuous = (rowNum - 1 === prevRowNum);
+                    prevRowNum = rowNum;
+                }
             }
         });
 
         var options;
         var isNumber = isTypeNumber(statsCol.type);
-        if (isNumber && noSort) {
+        if (isNumber && noSort && isContinuous) {
             // this suit for numbers
             options = getNumFltOpt(operator, colName,
                                     uniqueVals, isExist, bucketSize);

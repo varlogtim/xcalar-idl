@@ -2127,6 +2127,21 @@ html.microsoft {
 
                 &.displayInput {
                     .justify-content(flex-end);
+
+                    input {
+                        border: none;
+                        background-color: transparent;
+                    }
+
+                    .control {
+                        border-color: transparent;
+
+                        > div {
+                            &:first-child {
+                                border-color: transparent;
+                            }
+                        }
+                    }
                 }
 
                 .input-box(@w: 50px, @h: 20px);
