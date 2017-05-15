@@ -240,12 +240,14 @@ window.AggModal = (function($, AggModal) {
         }
 
         $("#aggModal-tableName").find(".text").text(tableName);
-        modalHelper.setup()
-        .always(function() {
-            $aggModal.find(".aggContainer")
-                    .scrollTop(0)
-                    .scrollLeft(0);
-        });
+        if (!$aggModal.is(":visible")) {
+            modalHelper.setup()
+            .always(function() {
+                $aggModal.find(".aggContainer")
+                        .scrollTop(0)
+                        .scrollLeft(0);
+            });
+        }
     }
 
     function aggColsInitialize(tableId) {

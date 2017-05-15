@@ -1128,7 +1128,7 @@ window.DS = (function ($, DS) {
 
         $gridView.on("click", ".grid-unit .delete", function() {
             var $grid = $(this).closest(".grid-unit");
-            focusDSHelper($grid);
+            // focusDSHelper($grid);
             DS.remove($grid);
             // stop event propogation
             return false;
