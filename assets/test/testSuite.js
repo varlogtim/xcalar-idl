@@ -133,9 +133,8 @@ window.TestSuite = (function($, TestSuite) {
         } else {
             gMinModeOn = true;
         }
-        $("#joinView").find(".keepTableCheckbox .checkbox")
-                      .removeClass("checked"); // deselect keep original tables
-                      // otherwise table ids get mixed up during test
+
+        preCleanup();
 
         if (mode) {
             if (mode === "ten") {
@@ -407,6 +406,20 @@ window.TestSuite = (function($, TestSuite) {
 
     TestSuite.cleanup = cleanup;
 
+    function preCleanup() {
+        $("#joinView").find(".keepTableCheckbox .checkbox")
+                      .removeClass("checked"); // deselect keep original tables
+                      // otherwise table ids get mixed up during test
+        deleteWorksheets();
+    }
+
+    function deleteWorksheets() {
+        var sheets = xcHelper.deepCopy(WSManager.getWSList());
+        for (var i = 1; i < sheets.length; i++) {
+            WSManager.delWS(sheets[i], DelWSType.Archive);
+        }
+    }
+
     function cleanup() {
         var deferred = jQuery.Deferred();
 
@@ -459,12 +472,6 @@ window.TestSuite = (function($, TestSuite) {
             .fail(innerDeferred.reject);
 
             return innerDeferred.promise();
-        }
-
-        function deleteWorksheets() {
-            console.log("Delete Worksheets");
-            var wsId = WSManager.getWSIdByName("Multi group by");
-            WSManager.delWS(wsId, DelWSType.Empty);
         }
 
         function deleteDS() {
