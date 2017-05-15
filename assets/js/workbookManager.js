@@ -154,12 +154,8 @@ window.WorkbookManager = (function($, WorkbookManager) {
         })
         .then(function() {
             // in case KVStore has some remants about wkbkId, clear it
-            var innerDeferred = jQuery.Deferred();
-
-            delWKBKHelper(wkbk.id)
-            .always(innerDeferred.resolve);
-
-            return innerDeferred.promise();
+            var def = delWKBKHelper(wkbk.id);
+            return PromiseHelper.alwaysResolve(def);
         })
         .then(function() {
             // If workbook is active, make it inactive so that our UX is linear
@@ -288,54 +284,49 @@ window.WorkbookManager = (function($, WorkbookManager) {
         });
 
         return deferred.promise();
-
-        function switchWorkBookHelper(toName, fromName) {
-            var innerDeferred = jQuery.Deferred();
-
-            XcalarSwitchToWorkbook(toName, fromName)
-            .then(function() {
-                innerDeferred.resolve();
-            })
-            .fail(function(error) {
-                XcalarListWorkbooks(toName)
-                .then(function(ret) {
-                    var sessionInfo = ret.sessions[0];
-                    if (sessionInfo.state === "Active") {
-                        // when error but backend still active the session
-                        showAlert();
-                    } else {
-                        console.log(error);
-                        innerDeferred.reject(error);
-                    }
-                })
-                .fail(function(error) {
-                    // reject the outside level of error
-                    console.log(error);
-                    innerDeferred.reject(error);
-                });
-            });
-
-            function showAlert() {
-                $("#initialLoadScreen").hide();
-
-                Alert.show({
-                    "title": WKBKTStr.SwitchErr,
-                    "msg": WKBKTStr.SwitchErrMsg,
-                    "onCancel": function() { innerDeferred.reject(); },
-                    "buttons": [{
-                        "name": CommonTxtTstr.Continue,
-                        "className": "continue",
-                        "func": function() {
-                            $("#initialLoadScreen").show();
-                            innerDeferred.resolve();
-                        }
-                    }]
-                });
-            }
-
-            return innerDeferred.promise();
-        }
     };
+
+    function switchWorkBookHelper(toName, fromName) {
+        var deferred = jQuery.Deferred();
+
+        XcalarSwitchToWorkbook(toName, fromName)
+        .then(deferred.resolve)
+        .fail(function(error) {
+            console.error(error);
+
+            XcalarListWorkbooks(toName)
+            .then(function(ret) {
+                var sessionInfo = ret.sessions[0];
+                if (sessionInfo.state === "Active") {
+                    // when error but backend still active the session
+                    showAlert();
+                } else {
+                    deferred.reject(error);
+                }
+            })
+            .fail(deferred.reject);
+        });
+
+        function showAlert() {
+            $("#initialLoadScreen").hide();
+
+            Alert.show({
+                "title": WKBKTStr.SwitchErr,
+                "msg": WKBKTStr.SwitchErrMsg,
+                "onCancel": function() { deferred.reject(); },
+                "buttons": [{
+                    "name": CommonTxtTstr.Continue,
+                    "className": "continue",
+                    "func": function() {
+                        $("#initialLoadScreen").show();
+                        deferred.resolve();
+                    }
+                }]
+            });
+        }
+
+        return deferred.promise();
+    }
 
     // copy workbook
     WorkbookManager.copyWKBK = function(srcWKBKId, wkbkName) {
@@ -501,11 +492,8 @@ window.WorkbookManager = (function($, WorkbookManager) {
             return XcalarRenameWorkbook(newName, srcWKBK.name);
         })
         .then(function() {
-            var innerDeferred = jQuery.Deferred();
-            delWKBKHelper(srcWKBK.id)
-            .always(innerDeferred.resolve);
-
-            return innerDeferred.promise();
+            var def = delWKBKHelper(srcWKBK.id);
+            return PromiseHelper.alwaysResolve(def);
         })
         .then(function() {
             var options = {
@@ -560,10 +548,8 @@ window.WorkbookManager = (function($, WorkbookManager) {
 
         XcalarDeleteWorkbook(workbook.name)
         .then(function() {
-            var innerDeferred = jQuery.Deferred();
-            delWKBKHelper(workbookId)
-            .always(innerDeferred.resolve);
-            return innerDeferred.promise();
+            var def = delWKBKHelper(workbookId);
+            return PromiseHelper.alwaysResolve(def);
         })
         .then(function() {
             if (isCurrentWKBK) {
@@ -1060,14 +1046,14 @@ window.WorkbookManager = (function($, WorkbookManager) {
     }
 
     // XXX placeholder, need progress from backend
-    function updateProgressBar(stepsComp, stepsTotal) {
-        $("#initialLoadScreen").find(".numSteps").text(stepsComp + "/" +
-                                                        stepsTotal);
-        var pct = Math.round(100 * stepsComp / stepsTotal) + "%";
-        $("#initialLoadScreen").find(".progressBar")
-                              .animate({"width": pct}, 2000, "linear",
-                                function(){});
-    }
+    // function updateProgressBar(stepsComp, stepsTotal) {
+    //     $("#initialLoadScreen").find(".numSteps").text(stepsComp + "/" +
+    //                                                     stepsTotal);
+    //     var pct = Math.round(100 * stepsComp / stepsTotal) + "%";
+    //     $("#initialLoadScreen").find(".progressBar")
+    //                           .animate({"width": pct}, 2000, "linear",
+    //                             function(){});
+    // }
 
     /* Unit Test Only */
     if (window.unitTestMode) {
@@ -1078,6 +1064,8 @@ window.WorkbookManager = (function($, WorkbookManager) {
         WorkbookManager.__testOnly__.copyHelper = copyHelper;
         WorkbookManager.__testOnly__.resetActiveWKBK = resetActiveWKBK;
         WorkbookManager.__testOnly__.saveWorkbook = saveWorkbook;
+        WorkbookManager.__testOnly__.syncSessionInfo = syncSessionInfo;
+        WorkbookManager.__testOnly__.switchWorkBookHelper = switchWorkBookHelper;
     }
     /* End Of Unit Test Only */
 

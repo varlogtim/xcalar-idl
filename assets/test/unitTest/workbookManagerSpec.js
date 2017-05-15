@@ -68,7 +68,7 @@ describe("WorkbookManager Test", function() {
                 done();
             })
             .fail(function() {
-                throw "error case";
+                done("fail");
             });
         });
 
@@ -80,7 +80,7 @@ describe("WorkbookManager Test", function() {
 
             WorkbookManager.__testOnly__.delWKBKHelper()
             .then(function() {
-                throw "error case";
+                done("fail");
             })
             .fail(function(error) {
                 expect(error).to.equal("testError");
@@ -117,7 +117,7 @@ describe("WorkbookManager Test", function() {
                 done();
             })
             .fail(function() {
-                throw "error case";
+                done("fail");
             });
         });
 
@@ -143,7 +143,7 @@ describe("WorkbookManager Test", function() {
                 done();
             })
             .fail(function() {
-                throw "error case";
+                done("fail");
             })
             .always(function() {
                 KVStore.setup = oldSetup;
@@ -160,7 +160,77 @@ describe("WorkbookManager Test", function() {
                 done();
             })
             .fail(function() {
-                throw "error case";
+                done("fail");
+            });
+        });
+
+        it("syncSessionInfo should handle error case", function(done) {
+            WorkbookManager.__testOnly__.syncSessionInfo(null, null)
+            .then(function() {
+                done("fail");
+            })
+            .fail(function(error) {
+                expect(error).not.to.be.null;
+                done();
+            });
+        });
+
+        it("syncSessionInfo should handle no workbok case", function(done) {
+            var sessionInfo = {
+                "numSessions": 0,
+                "sessions": []
+            };
+            WorkbookManager.__testOnly__.syncSessionInfo(null, sessionInfo)
+            .then(function(storedActiveId) {
+                expect(storedActiveId).to.be.null;
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        it("switchWorkBookHelper should handle fail case", function(done) {
+            var oldSwitch = XcalarSwitchToWorkbook;
+            var oldList = XcalarListWorkbooks;
+
+            UnitTest.onMinMode();
+            XcalarSwitchToWorkbook = function() {
+                return PromiseHelper.reject("test");
+            };
+
+            XcalarListWorkbooks = function() {
+                return PromiseHelper.resolve({
+                    "sessions": [{"state": "Active"}]
+                });
+            };
+
+            var checkFunc = function() {
+                return $("#alertModal").is(":visible");
+            };
+
+            var def = WorkbookManager.__testOnly__.switchWorkBookHelper("to",
+                                                                        "from");
+            
+            UnitTest.testFinish(checkFunc)
+            .then(function() {
+                UnitTest.hasAlertWithTitle(WKBKTStr.SwitchErr);
+            })
+            .fail(function() {
+                done("fail");
+            });
+
+            def
+            .then(function() {
+                done("fail");
+            })
+            .fail(function() {
+                done();
+            })
+            .always(function() {
+                XcalarSwitchToWorkbook = oldSwitch;
+                XcalarListWorkbooks = oldList;
+                UnitTest.offMinMode();
             });
         });
     });
@@ -189,7 +259,7 @@ describe("WorkbookManager Test", function() {
                 done();
             })
             .fail(function() {
-                throw "error case";
+                done("fail");
             });
         });
 
@@ -273,7 +343,7 @@ describe("WorkbookManager Test", function() {
         it("Should not new workbook with invalid name", function(done) {
             WorkbookManager.newWKBK(null, "testId")
             .then(function() {
-                throw "error case";
+                done("fail");
             })
             .fail(function(error) {
                 expect(error).to.be.equal("Invalid name");
@@ -285,7 +355,7 @@ describe("WorkbookManager Test", function() {
             var srcId = xcHelper.randName("errorId");
             WorkbookManager.newWKBK(testWkbkName, srcId)
             .then(function() {
-                throw "error case";
+                done("fail");
             })
             .fail(function(error) {
                 expect(error).to.be.equal("missing workbook meta");
@@ -301,7 +371,7 @@ describe("WorkbookManager Test", function() {
 
             WorkbookManager.newWKBK(testWkbkName)
             .then(function() {
-                throw "error case";
+                done("fail");
             })
             .fail(function(error) {
                 expect(error).to.be.an("object");
@@ -326,7 +396,7 @@ describe("WorkbookManager Test", function() {
                 done();
             })
             .fail(function() {
-                throw "error case";
+                done("fail");
             });
         });
 
@@ -343,7 +413,7 @@ describe("WorkbookManager Test", function() {
                 done();
             })
             .fail(function() {
-                throw "error case";
+                done("fail");
             })
             .always(function() {
                 WorkbookManager.newWKBK = oldNewWorkbook;
@@ -357,7 +427,7 @@ describe("WorkbookManager Test", function() {
 
             WorkbookManager.renameWKBK(testWkbkId, newName)
             .then(function() {
-                throw "error case";
+                done("fail");
             })
             .fail(function(error) {
                 var errStr = xcHelper.replaceMsg(ErrTStr.WorkbookExists,
@@ -380,14 +450,14 @@ describe("WorkbookManager Test", function() {
                 done();
             })
             .fail(function() {
-                throw "error case";
+                done("fail");
             });
         });
 
         it("Should reject if switch with wrong id", function(done) {
             WorkbookManager.switchWKBK(null)
             .then(function() {
-                throw "error case";
+                done("fail");
             })
             .fail(function(error) {
                 expect(error).to.be.an("object");
@@ -400,7 +470,7 @@ describe("WorkbookManager Test", function() {
             var activeWkbk = WorkbookManager.getActiveWKBK();
             WorkbookManager.switchWKBK(activeWkbk)
             .then(function() {
-                throw "error case";
+                done("fail");
             })
             .fail(function(error) {
                 expect(error).to.be.an("object");
@@ -419,7 +489,7 @@ describe("WorkbookManager Test", function() {
                 done();
             })
             .fail(function() {
-                throw "error case";
+                done("fail");
             });
         });
 
@@ -431,7 +501,7 @@ describe("WorkbookManager Test", function() {
                 done();
             })
             .fail(function() {
-                throw "error case";
+                done("fail");
             });
         });
 
@@ -445,7 +515,7 @@ describe("WorkbookManager Test", function() {
                 done();
             })
             .fail(function() {
-                throw "error case";
+                done("fail");
             });
         });
 
@@ -454,7 +524,7 @@ describe("WorkbookManager Test", function() {
 
             WorkbookManager.deleteWKBK(errorId)
             .then(function() {
-                throw "error case";
+                done("fail");
             })
             .fail(function(error) {
                 expect(error).to.equal(WKBKTStr.DelErr);
@@ -473,7 +543,7 @@ describe("WorkbookManager Test", function() {
                 done();
             })
             .fail(function() {
-                throw "error case";
+                done("fail");
             });
         });
 
@@ -481,6 +551,31 @@ describe("WorkbookManager Test", function() {
             WorkbookManager.pause(oldActiveWkbkId)
             .then(function() {
                 expect(WorkbookManager.getActiveWKBK()).to.be.null;
+                var wkbk = WorkbookManager.getWorkbook(oldActiveWkbkId);
+                expect(wkbk.hasResource()).to.be.true;
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        it("should reject deactivate workbbok inn error", function(done) {
+            WorkbookManager.deactivate("test")
+            .then(function() {
+                done("fail");
+            })
+            .fail(function(error) {
+                expect(error).to.equal(WKBKTStr.DeactivateErr);
+                done();
+            });
+        });
+
+        it("Should deactivate workbook", function(done) {
+            WorkbookManager.deactivate(oldActiveWkbkId)
+            .then(function() {
+                var wkbk = WorkbookManager.getWorkbook(oldActiveWkbkId);
+                expect(wkbk.hasResource()).to.be.false;
                 done();
             })
             .fail(function() {
@@ -498,7 +593,7 @@ describe("WorkbookManager Test", function() {
                 done();
             })
             .fail(function() {
-                throw "error case";
+                done("fail");
             });
         });
 
