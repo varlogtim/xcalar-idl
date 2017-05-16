@@ -38,14 +38,14 @@ describe("UDF Test", function() {
                 done();
             })
             .fail(function() {
-                throw "error case";
+                done("fail");
             });
         });
 
         it("getEntireUDF should handle error", function(done) {
             UDF.__testOnly__.getEntireUDF("unitTestErrorModule")
             .then(function() {
-                throw "error case";
+                done("fail");
             })
             .fail(function(error) {
                 expect(error).not.to.be.null;
@@ -67,7 +67,7 @@ describe("UDF Test", function() {
                 done();
             })
             .fail(function() {
-                throw "error case";
+                done("fail");
             })
             .always(function() {
                 xcHelper.downloadAsFile = oldFunc;
@@ -77,7 +77,7 @@ describe("UDF Test", function() {
         it("downloadUDF should handle error case", function(done) {
             UDF.__testOnly__.downloadUDF("unitTestErrorModule")
             .then(function() {
-                throw "error case";
+                done("fail");
             })
             .fail(function() {
                 UnitTest.hasAlertWithTitle(SideBarTStr.DownloadError);
@@ -119,7 +119,7 @@ describe("UDF Test", function() {
         it("Should handle uneditable error", function(done) {
             uploadUDF(defaultModule, "test", "UDF")
             .then(function() {
-                throw "error case";
+                done("fail");
             })
             .fail(function(error) {
                 expect(error).to.equal(SideBarTStr.OverwriteErr);
@@ -136,7 +136,7 @@ describe("UDF Test", function() {
             var moduleName = xcHelper.randName("unittest");
             uploadUDF(moduleName, "test", "UDF")
             .then(function() {
-                throw "error case";
+                done("fail");
             })
             .fail(function() {
                 expect($udfSection.find(".lint-error").length)
@@ -160,7 +160,7 @@ describe("UDF Test", function() {
             var moduleName = xcHelper.randName("unittest");
             uploadUDF(moduleName, "test", "UDF")
             .then(function() {
-                throw "error case";
+                done("fail");
             })
             .fail(function() {
                 expect($udfSection.find(".lint-error").length)
@@ -220,7 +220,7 @@ describe("UDF Test", function() {
 
             UDF.initialize()
             .then(function() {
-                throw "error case";
+                done("fail");
             })
             .fail(function(error) {
                 expect(error).not.to.be.null;
@@ -239,8 +239,20 @@ describe("UDF Test", function() {
                 done();
             })
             .fail(function() {
-                throw "error case";
+                done("fail");
             });
+        });
+
+        it("UDF.toggleXcUDFs should work", function() {
+            var isHide = UserSettings.getPref("hideXcUDF");
+            var $li = $("<li>_xcalar_test</li>");
+            $("#udf-fnMenu").append($li);
+            UDF.toggleXcUDFs(!isHide);
+            expect($li.hasClass("xcUDF")).to.be.equal(!isHide);
+
+            UDF.toggleXcUDFs(isHide);
+            expect($li.hasClass("xcUDF")).to.be.equal(isHide);
+            $li.remove();
         });
     });
 
@@ -264,7 +276,7 @@ describe("UDF Test", function() {
                 done();
             })
             .fail(function() {
-                throw "error case";
+                done("fail");
             });
         });
 
@@ -352,7 +364,7 @@ describe("UDF Test", function() {
                 done();
             })
             .fail(function() {
-                throw "error case";
+                done("fail");
             });
         });
 
@@ -386,6 +398,80 @@ describe("UDF Test", function() {
             });
         });
 
+        it("should handle delet udf fails case", function(done) {
+            var oldDelete = XcalarDeletePython;
+            var test = false;
+            XcalarDeletePython = function() {
+                test = true;
+                return PromiseHelper.reject({"error": "test"});
+            };
+
+            var $udf = $udfManager.find(".udf:contains(" + uploadModule + ")");
+            $udf.find(".delete").click();
+            UnitTest.hasAlertWithTitle(UDFTStr.DelTitle, {
+                "confirm": true,
+                "nextAlert": true
+            });
+
+            var checkFunc = function() {
+                return test === true;
+            };
+
+            UnitTest.testFinish(checkFunc)
+            .then(function() {
+                UnitTest.hasAlertWithTitle(UDFTStr.DelFail);
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                XcalarDeletePython = oldDelete;
+            });
+        });
+
+        it("should handle delet udf fails case 2", function(done) {
+            var oldDelete = XcalarDeletePython;
+            var oldList = XcalarListXdfs;
+            var test = false;
+            XcalarDeletePython = function() {
+                test = true;
+                return PromiseHelper.reject({
+                    "status": StatusT.StatusUdfModuleNotFound
+                });
+            };
+
+            XcalarListXdfs = function() {
+                return PromiseHelper.resolve({
+                    "numXdfs": 1
+                });
+            };
+
+            var $udf = $udfManager.find(".udf:contains(" + uploadModule + ")");
+            $udf.find(".delete").click();
+            UnitTest.hasAlertWithTitle(UDFTStr.DelTitle, {
+                "confirm": true,
+                "nextAlert": true
+            });
+
+            var checkFunc = function() {
+                return test === true;
+            };
+
+            UnitTest.testFinish(checkFunc)
+            .then(function() {
+                UnitTest.hasAlertWithTitle(UDFTStr.DelFail);
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                XcalarDeletePython = oldDelete;
+                XcalarListXdfs = oldList;
+            });
+        });
+
         it("Should delete udf", function(done) {
             var $udf = $udfManager.find(".udf:contains(" + uploadModule + ")");
             $udf.find(".delete").click();
@@ -407,7 +493,7 @@ describe("UDF Test", function() {
                 done();
             })
             .fail(function() {
-                throw "error case";
+                done("fail");
             });
         });
     });
@@ -450,7 +536,7 @@ describe("UDF Test", function() {
     //         UnitTest.testFinish(checkFunc)
     //         .then(done)
     //         .fail(function() {
-    //             throw "error case";
+    //             done("fail");
     //         })
     //         .always(function() {
     //             XcalarAppSet = oldAppSetFunc;
@@ -488,7 +574,7 @@ describe("UDF Test", function() {
     //         UnitTest.testFinish(checkFunc)
     //         .then(done)
     //         .fail(function() {
-    //             throw "error case";
+    //            done("fail");
     //         })
     //         .always(function() {
     //             XcalarUploadPython = oldUploadFunc;

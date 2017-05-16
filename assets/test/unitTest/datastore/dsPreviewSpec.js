@@ -561,7 +561,7 @@ describe("DSPreview Test", function() {
         });
     });
 
-    describe("getFileToPreviewInUDF Test", function() {
+    describe("getFileToPreviewInUDF Function Test", function() {
         var getFileToPreviewInUDF;
         var oldFunc;
 

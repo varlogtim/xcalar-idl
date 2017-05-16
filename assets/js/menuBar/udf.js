@@ -212,25 +212,25 @@ window.UDF = (function($, UDF) {
             readUDFFromFile(file, moduleName);
         });
 
-        new MenuHelper($("#udf-uploadType"), {
-            "onSelect": selectTypeList,
-            "container": "#udfSection",
-            "bounds": "#udfSection",
-            "bottomPadding": 2
-        }).setupListeners();
+        // new MenuHelper($("#udf-uploadType"), {
+        //     "onSelect": selectTypeList,
+        //     "container": "#udfSection",
+        //     "bounds": "#udfSection",
+        //     "bottomPadding": 2
+        // }).setupListeners();
         /* end of function input section */
 
-        function selectTypeList($li) {
-            $li.closest(".dropDownList").find(".iconWrapper .icon").remove();
+        // function selectTypeList($li) {
+        //     $li.closest(".dropDownList").find(".iconWrapper .icon").remove();
 
-            var cloned = $li.find(".icon")[0].cloneNode(false);
-            $li.closest(".dropDownList").find(".iconWrapper").append(cloned);
-            if ($li.find(".icon").attr("data-uploadType") === "UDF") {
-                $("#udf-fnName").attr("placeholder", UDFTStr.NameHint);
-            } else {
-                $("#udf-fnName").attr("placeholder", UDFTStr.AppName);
-            }
-        }
+        //     var cloned = $li.find(".icon")[0].cloneNode(false);
+        //     $li.closest(".dropDownList").find(".iconWrapper").append(cloned);
+        //     if ($li.find(".icon").attr("data-uploadType") === "UDF") {
+        //         $("#udf-fnName").attr("placeholder", UDFTStr.NameHint);
+        //     } else {
+        //         $("#udf-fnName").attr("placeholder", UDFTStr.AppName);
+        //     }
+        // }
 
         /* upload udf section */
         $("#udf-fnName").keypress(function(event) {
