@@ -107,6 +107,10 @@ function loginAuthentication(credArray, res) {
                     timeout: 10000,
                     connectTimeout: 20000
                 });
+                if ((activeDir) && ("adDomain" in config) &&
+                    (username.indexOf("@") <= -1)) {
+                    username = username + "@" + config.adDomain;
+                }
                 var searchOpts = {
                     filter: searchFilter != "" ?
                         searchFilter.replace('%username%',username):undefined,
@@ -255,7 +259,7 @@ function responseResult(loginId, res, activeDir) {
                       "mail": user.mail,
                       "isAdmin": isAdmin,
                       "isSupporter": isSupporter});
-	}
+        }
     } else {
         console.log("No matching user data found in LDAP directory");
         responseError(res);
