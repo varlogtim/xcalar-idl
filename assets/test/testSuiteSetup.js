@@ -98,9 +98,10 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
         var params = getSearchParameters();
         var whichTest = params.whichTest;
         var activeWorksheet = WSManager.getActiveWS();
+        xcSessionStorage.setItem(testSuiteKey, "true");
+
         if (activeWorksheet != null) {
             if (whichTest === "demo") {
-                xcSessionStorage.setItem(testSuiteKey, "true");
                 console.log("run test");
                 return autoRunTestSuite();
             }
