@@ -1195,7 +1195,8 @@ window.DFCard = (function($, DFCard) {
         }
 
         for (var i = 0; i < paramArray.length; i++) {
-            var re = new RegExp( "<" + paramArray[i].parameterName + ">", "g");
+            var name = xcHelper.escapeRegExp(paramArray[i].parameterName);
+            var re = new RegExp("<" + name + ">", "g");
             fileName = fileName.replace(re, paramArray[i].parameterValue);
         }
 

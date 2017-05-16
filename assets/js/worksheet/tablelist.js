@@ -1519,7 +1519,8 @@ window.TableList = (function($, TableList) {
             $section.find('input').css("padding-right", 30);
             return;
         } else {
-            var regex = new RegExp(keyWord, "gi");
+            keyword = xcHelper.escapeRegExp(keyWord);
+            var regex = new RegExp(keyword, "gi");
             $lis.each(function() {
                 var $li = $(this);
                 var tableName = $li.data("tablename");

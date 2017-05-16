@@ -1037,7 +1037,7 @@ window.DFParamModal = (function($, DFParamModal){
         for (var i = 0; i < numParams; i++) {
             param = params[i].name;
             val = params[i].val;
-            find = "<" + param + ">";
+            find = "<" + xcHelper.escapeRegExp(param) + ">";
             rgx = new RegExp(find, 'g');
             filterParamText = filterParamText.replace(rgx, val);
         }
@@ -1062,7 +1062,8 @@ window.DFParamModal = (function($, DFParamModal){
                                  .find('input.editableParamDiv').val();
 
         for (var i = 0; i < params.length; i++) {
-            var regex = new RegExp("<" + params[i].name + ">", "g");
+            var regex = new RegExp("<" +
+                            xcHelper.escapeRegExp(params[i].name) + ">", "g");
             val = val.replace(regex, params[i].val);
         }
         var index = val.indexOf(".");

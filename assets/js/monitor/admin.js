@@ -292,7 +292,7 @@ window.Admin = (function($, Admin) {
             $("#adminUserSearch").find("input").removeClass('hasArrows');
             return;
         } else {
-            var regex = new RegExp(keyWord, "gi");
+            var regex = new RegExp(xcHelper.escapeRegExp(keyWord), "gi");
             $lis.each(function() {
                 var $li = $(this);
                 var tableName = $li.text();
