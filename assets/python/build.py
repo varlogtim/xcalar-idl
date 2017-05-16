@@ -1,7 +1,7 @@
 # Remember to squash all subfolders
 # Remember to change include paths in all .html files
 
-import os, shutil, fnmatch, re, tempfile
+import os, shutil, fnmatch, re, tempfile, sys
 
 def catFilesTogether():
     sortSubfolder = ["prod/assets/js/constructor"]
@@ -73,7 +73,7 @@ def replacePathsInHtml():
         shutil.move(abs_path, f)
 
 def genSearchInsight(searchLocation):
-    print "Generating SearchInsight.htm"
+    print "Generating SearchInsight.htm from " + searchLocation
     newFile = searchLocation.split(".")[0]+"Insight.htm"
     insertions = "prod/site/partials/mcf.html"
     code = open(searchLocation, "rb").read()
@@ -97,7 +97,9 @@ def genSearchInsight(searchLocation):
 
 
 if __name__ == "__main__":
-    catFilesTogether()
-    replacePathsInHtml()
+    print sys.argv
+    if len(sys.argv) >= 2 and not sys.argv[1] == "debug":
+        catFilesTogether()
+        replacePathsInHtml()
     genSearchInsight("prod/assets/help/user/Content/Search.htm")
     genSearchInsight("prod/assets/help/admin/Content/Search.htm")
