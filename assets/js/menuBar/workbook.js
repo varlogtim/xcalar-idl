@@ -25,32 +25,33 @@ window.Workbook = (function($, Workbook) {
         // open or close workbook view
         $("#homeBtn").click(function() {
             $(this).blur();
-            if ($('#container').hasClass('workbookMode')) {
+            var $container = $("#container");
+            var $dialogWrap = $("#dialogWrap");
+
+            if ($container.hasClass("workbookMode")) {
                 if (!$workbookPanel.is(":visible")) {
                     // on monitor view or something else
-                    $('#container').removeClass('monitorMode');
+                    $container.removeClass("monitorMode");
                     if (!wasMonitorActive) {
                         MonitorPanel.inActive();
                     }
-                } else if ($('#container').hasClass('noWorkbook')) {
+                } else if ($container.hasClass("noWorkbook")) {
                     // do not allow user to exit without entering a workbook
-                    $workbookPanel.addClass('closeAttempt');
-                    $workbookPanel.find("#dialogWrap")
-                                  .removeClass("doneCloseAttempt");
-                    $workbookPanel.find("#dialogWrap").addClass('closeAttempt');
+                    $workbookPanel.addClass("closeAttempt");
+                    $dialogWrap.removeClass("doneCloseAttempt");
+                    $dialogWrap.addClass("closeAttempt");
                     setTimeout(function() {
-                        $workbookPanel.removeClass('closeAttempt');
-
+                        $workbookPanel.removeClass("closeAttempt");
                     }, 200);
                     setTimeout(function() {
-                        $workbookPanel.find("#dialogWrap")
-                                      .removeClass('closeAttempt')
-                                      .addClass('doneCloseAttempt');
+                        $dialogWrap.removeClass("closeAttempt")
+                                    .addClass("doneCloseAttempt");
                     }, 1000);
-                } else { // default, exit the workbook
+                } else {
+                    // default, exit the workbook
                     closeWorkbookPanel();
                     Workbook.hide();
-                    $('#container').removeClass('monitorMode');
+                    $container.removeClass("monitorMode");
                 }
             } else {
                 Workbook.show();
@@ -68,14 +69,14 @@ window.Workbook = (function($, Workbook) {
 
     Workbook.show = function(isForceShow) {
         $workbookPanel.show();
-        $('#container').addClass('workbookMode');
+        $("#container").addClass("workbookMode");
 
         if (isForceShow) {
             getWorkbookInfo(isForceShow);
-            $workbookPanel.removeClass('hidden'); // no animation if force show
+            $workbookPanel.removeClass("hidden"); // no animation if force show
         } else {
             setTimeout(function() {
-                $workbookPanel.removeClass('hidden');
+                $workbookPanel.removeClass("hidden");
             }, 100);
         }
 
@@ -85,29 +86,29 @@ window.Workbook = (function($, Workbook) {
     };
 
     Workbook.hide = function(immediate) {
-        if ($workbookPanel.hasClass('hidden')) {
+        if ($workbookPanel.hasClass("hidden")) {
             return;
         }
-        $workbookPanel.addClass('hidden');
-        $workbookSection.find('.workbookBox').remove();
+        $workbookPanel.addClass("hidden");
+        $workbookSection.find(".workbookBox").remove();
 
         if (immediate) {
             $workbookPanel.hide();
-            $('#container').removeClass('workbookMode');
+            $("#container").removeClass("workbookMode");
         } else {
             setTimeout(function() {
                 $workbookPanel.hide();
-                $('#container').removeClass('workbookMode');
+                $("#container").removeClass("workbookMode");
             }, 400);
         }
 
-        $('.tooltip').hide();
+        xcTooltip.hideAll();
         StatusBox.forceHide();
     };
 
     Workbook.forceShow = function() {
         // When it's forceShow, no older workbooks are displayed
-        $('#container').addClass('noWorkbook');
+        $("#container").addClass("noWorkbook");
         Workbook.show(true);
 
         // Create a new workbook with the name already selected - Prompting
@@ -117,9 +118,9 @@ window.Workbook = (function($, Workbook) {
     };
 
     Workbook.goToMonitor = function() {
-        $('#container').addClass('monitorMode');
-        $('#mainMenu').addClass('noAnim');
-        $('#container').addClass('noMenuAnim');
+        $("#container").addClass("monitorMode");
+        $("#mainMenu").addClass("noAnim");
+        $("#container").addClass("noMenuAnim");
 
         if (!MonitorPanel.isGraphActive()) {
             wasMonitorActive = false;
@@ -129,8 +130,8 @@ window.Workbook = (function($, Workbook) {
         }
 
         setTimeout(function() {
-            $('#mainMenu').removeClass('noAnim');
-            $('#container').removeClass('noMenuAnim');
+            $("#mainMenu").removeClass("noAnim");
+            $("#container").removeClass("noMenuAnim");
         }, 200);
     };
 
@@ -179,14 +180,14 @@ window.Workbook = (function($, Workbook) {
         // Tutorial listener
 
         // go to monitor panel
-        $workbookTopbar.find('.monitorBtn, .monitorLink').click(function(e) {
+        $workbookTopbar.find(".monitorBtn, .monitorLink").click(function(e) {
             e.preventDefault(); // prevent monitor link from actually navigating
             Workbook.goToMonitor();
         });
 
         // from monitor to workbook panel
-        $('#monitorPanel').find('.backToWB').click(function() {
-            $('#container').removeClass('monitorMode');
+        $("#monitorPanel").find(".backToWB").click(function() {
+            $("#container").removeClass("monitorMode");
             if (!wasMonitorActive) {
                 MonitorPanel.inActive();
             }
@@ -257,7 +258,7 @@ window.Workbook = (function($, Workbook) {
             var $workbookBox = $(this).closest(".workbookBox");
             var $workbookName = $workbookBox.find("input");
             $workbookName.addClass("active");
-            $workbookName.parent().removeAttr('data-container data-toggle');
+            $workbookName.parent().removeAttr("data-container data-toggle");
             // sets focus and puts cursor at end of input
             $workbookName.focus().val($workbookName.val());
 
@@ -295,8 +296,8 @@ window.Workbook = (function($, Workbook) {
                 currentWorkbookName += "-" + Math.floor(Math.random()*100000);
             }
 
-            var $dupButton = $workbookBox.find('.duplicate');
-            $dupButton.addClass('inActive');
+            var $dupButton = $workbookBox.find(".duplicate");
+            $dupButton.addClass("inActive");
 
             var deferred1 = createLoadingCard($workbookBox);
             var deferred2 = WorkbookManager.copyWKBK(workbookId,
@@ -311,7 +312,7 @@ window.Workbook = (function($, Workbook) {
                 removeWorkbookBox($fauxCard);
             })
             .always(function() {
-                $dupButton.removeClass('inActive');
+                $dupButton.removeClass("inActive");
             });
 
             $(".tooltip").remove();
@@ -362,11 +363,11 @@ window.Workbook = (function($, Workbook) {
             $(".tooltip").remove();
         });
 
-        $workbookSection.on('mouseenter', '.tooltipOverflow', function() {
-            var $input = $(this).find('input');
-            if ($input.is(':focus')) {
+        $workbookSection.on("mouseenter", ".tooltipOverflow", function() {
+            var $input = $(this).find("input");
+            if ($input.is(":focus")) {
                 // no tooltip when input is in focus, gets in the way of typing
-                $(this).removeAttr('data-container data-toggle');
+                $(this).removeAttr("data-container data-toggle");
                 return;
             }
 
@@ -425,11 +426,11 @@ window.Workbook = (function($, Workbook) {
     }
 
     function updateWorkbookInfo($workbookBox, workbookId) {
-        $workbookBox.attr('data-workbook-id', workbookId);
+        $workbookBox.attr("data-workbook-id", workbookId);
         var workbook = WorkbookManager.getWorkbook(workbookId);
         var modified = workbook.modified;
         if (modified) {
-            modified = xcHelper.getDate("-", null, modified) + ' ' +
+            modified = xcHelper.getDate("-", null, modified) + " " +
                         xcHelper.getTime(null, modified, true);
         } else {
             modified = "";
@@ -498,7 +499,7 @@ window.Workbook = (function($, Workbook) {
         }
 
         $newWorkbookInput.blur();
-        var $buttons = $newWorkbookInput.find('button').addClass('inActive');
+        var $buttons = $newWorkbookInput.find("button").addClass("inActive");
 
         Support.commitCheck()
         .then(function() {
@@ -509,8 +510,8 @@ window.Workbook = (function($, Workbook) {
         .then(function($fauxCard, id) {
             replaceLoadingCard($fauxCard, id);
 
-            $newWorkbookInput.val('');
-            $lastFocusedInput = '';
+            $newWorkbookInput.val("");
+            $lastFocusedInput = "";
         })
         .fail(function($fauxCard, error) {
             handleError(error || WKBKTStr.CreateErr, $newWorkbookInput);
@@ -519,7 +520,7 @@ window.Workbook = (function($, Workbook) {
             $newWorkbookInput.focus();
         })
         .always(function() {
-            $buttons.removeClass('inActive');
+            $buttons.removeClass("inActive");
         });
     }
 
@@ -554,13 +555,13 @@ window.Workbook = (function($, Workbook) {
         // need to remove "new" class from workbookcard a split second
         // after it's appended or it won't animate
         setTimeout(function() {
-            $newCard.removeClass('new');
+            $newCard.removeClass("new");
         }, 100);
 
         // this class hides the right bar tabs during the slide out
         // so they don't come out when the cursor is hovering over
         setTimeout(function() {
-            $newCard.removeClass('animating');
+            $newCard.removeClass("animating");
             deferred.resolve($newCard);
         }, newBoxSlideTime);
 
@@ -568,7 +569,7 @@ window.Workbook = (function($, Workbook) {
     }
 
     function replaceLoadingCard($card, workbookId) {
-        var classes = ['loading'];
+        var classes = ["loading"];
         var workbook = WorkbookManager.getWorkbook(workbookId);
         var $updateCard = $(createWorkbookCard(workbook, classes));
         $card.replaceWith($updateCard);
@@ -651,13 +652,13 @@ window.Workbook = (function($, Workbook) {
         }
 
         if (createdTime) {
-            createdTime = xcHelper.getDate("-", null, createdTime) + ' ' +
+            createdTime = xcHelper.getDate("-", null, createdTime) + " " +
                           xcHelper.getTime(null, createdTime, noSeconds);
 
         }
 
         if (modifiedTime) {
-            modifiedTime = xcHelper.getDate("-", null, modifiedTime) + ' ' +
+            modifiedTime = xcHelper.getDate("-", null, modifiedTime) + " " +
                            xcHelper.getTime(null, modifiedTime, noSeconds);
         }
         var activateTooltip;
