@@ -445,6 +445,7 @@ describe("Workbook Test", function() {
                 var wkbk = WorkbookManager.getWorkbook(activeWkbkId);
                 wkbk.setResource(true);
                 test = true;
+                $("#container").removeClass("noWorkbook");
                 return PromiseHelper.resolve();
             };
 

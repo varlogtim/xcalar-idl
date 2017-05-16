@@ -26,6 +26,25 @@ describe("Ephemeral Constructor Test", function() {
         });
     });
 
+    describe("Mutex Constructor Test", function() {
+        it("should have 2 attributes", function() {
+            var scope = XcalarApiKeyScopeT.XcalarApiKeyScopeSession;
+            var mutex = new Mutex("key", scope);
+            expect(mutex).to.be.instanceof(Mutex);
+            expect(Object.keys(mutex).length).to.equal(2);
+
+            expect(mutex.key).to.equal("key");
+            expect(mutex.scope).to.equal(scope);
+        });
+
+        it("should accept null value", function() {
+            var mutex = new Mutex();
+            expect(mutex.key).not.to.be.null;
+            expect(mutex.scope)
+            .to.equal(XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal);
+        });
+    });
+
     describe("WKBKSet Constructor Test", function() {
         var wkbkSet;
         var wkbk;
@@ -78,9 +97,13 @@ describe("Ephemeral Constructor Test", function() {
             mouseEvent.setClickTarget($target);
             expect(mouseEvent.getLastClickTarget()).to.equal($target);
 
+            mouseEvent.setMouseDownTarget(null);
+            expect(mouseEvent.getLastMouseDownTarget().length).to.equal(0);
+
             mouseEvent.setMouseDownTarget($target);
             expect(mouseEvent.getLastMouseDownTarget()).to.equal($target);
             expect(mouseEvent.getLastMouseDownTime()).to.be.a("number");
+            expect(mouseEvent.getLastMouseDownParents().length).to.equal(0);
         });
 
         it("Should set and get multiple mouse down target", function() {
@@ -175,6 +198,20 @@ describe("Ephemeral Constructor Test", function() {
             expect($radioButton.hasClass("active")).to.be.true;
         });
 
+        it("should set mode", function() {
+            var $fakeSection = $("<section></section>");
+            var fakeOpt = new DSFormAdvanceOption($fakeSection, "body");
+            var oldGetMode = XVM.getLicenseMode;
+
+            XVM.getLicenseMode = function() {
+                return XcalarMode.Mod;
+            };
+
+            fakeOpt.setMode();
+            expect($fakeSection.hasClass(XcalarMode.Mod)).to.be.true;
+            XVM.getLicenseMode = oldGetMode;
+        });
+
         it("Should reset options", function() {
             advanceOption.reset();
 
@@ -253,9 +290,15 @@ describe("Ephemeral Constructor Test", function() {
             $limit.find(".size").val("123");
             res = advanceOption.getArgs();
             expect(res).to.be.null;
-            assert.isTrue($("#statusBox").is(":visible"));
+            UnitTest.hasStatusBoxWithError(ErrTStr.NoEmptyList);
 
-            $("#statusBox .close").click();
+            // case 3
+            $limit.find(".unit").val("B");
+            $pattern.find(".input").val("*123");
+            $pattern.find(".regex .checkbox").addClass("checked");
+            res = advanceOption.getArgs();
+            expect(res).to.be.null;
+            UnitTest.hasStatusBoxWithError(ErrTStr.InvalidRegEx);
         });
     });
 
@@ -605,8 +648,7 @@ describe("Ephemeral Constructor Test", function() {
         after(function() {
             // Why is the following line not done in clear?
             $("#mainFrame").removeClass('modalOpen');
-
-            $("#container").remove("#fakeModalInst");
+            $("#fakeModalInst").remove();
             UnitTest.offMinMode();
         });
     });
@@ -1063,6 +1105,56 @@ describe("Ephemeral Constructor Test", function() {
         });
     });
 
+    describe("InputSuggest Constructor Test", function() {
+        var $container;
+        var test = false;
+        var inputSuggest;
+
+        before(function() {
+            $container = $('<div>' +
+                                '<input>' +
+                                '<ul class="hint openList">' +
+                                    '<li></li>' +
+                                '</ul>' +
+                            '</div>');
+        });
+
+        it("should have 2 attributes", function() {
+            inputSuggest = new InputSuggest({
+                "$container": $container,
+                "onClick": function() {
+                    test = true;
+                }
+            });
+
+            expect(inputSuggest).to.be.instanceof(InputSuggest);
+            expect(Object.keys(inputSuggest).length).to.equal(2);
+            expect(inputSuggest.$container).to.equal($container);
+            expect(inputSuggest.onClick).to.be.a("function");
+        });
+
+        it("should trigger click event", function() {
+            $container.find(".hint li").click();
+            expect(test).to.be.true;
+        });
+
+        it("should list high light", function() {
+            var $input = $container.find("input");
+            var oldList = xcHelper.listHighlight;
+
+            xcHelper.listHighlight = function() {
+                test = false;
+            };
+
+            inputSuggest.listHighlight({
+                "currentTarget": $input.get(0),
+                "which": keyCode.Down
+            });
+
+            expect(test).to.be.false;
+            xcHelper.listHighlight = oldList;
+        });
+    });
 
     describe("InputDropdownHint Constructor Test", function() {
         var $dropdown;
@@ -1211,13 +1303,26 @@ describe("Ephemeral Constructor Test", function() {
             expect(extItem.getImage()).to.equal("testImage");
         });
 
-        it("should test image", function() {
+        it("should set image", function() {
             extItem.setImage("testImage2");
             expect(extItem.getImage()).to.equal("testImage2");
+
+            // case 2
+            extItem.setImage(null);
+            expect(extItem.getImage()).to.equal("");
         });
 
         it("should know if it's installed", function() {
+            var $fakeItem = $('<div class="item">item1</div>');
+            $("#extension-lists").append($fakeItem);
             expect(extItem.isInstalled()).to.be.false;
+
+            // case 2
+            $fakeItem.addClass("error");
+            expect(extItem.isInstalled()).to.be.false;
+
+            // clean up
+            $fakeItem.remove();
         });
     });
 
@@ -1329,8 +1434,230 @@ describe("Ephemeral Constructor Test", function() {
         });
     });
 
+    describe("DSFileUpload Constructor Test", function() {
+        var dsFileUpload;
+        var call;
+
+        before(function() {
+            UnitTest.onMinMode();
+        });
+
+        it("should have 12 attributes", function() {
+            dsFileUpload = new DSFileUpload("test", 123, {"name": "test"}, {
+                onComplete: function() { call = "complete"; },
+                onUpdate: function() { call = "update"; },
+                onError: function() { call = "error"; },
+            });
+
+            expect(dsFileUpload).to.be.instanceof(DSFileUpload);
+            expect(Object.keys(dsFileUpload).length).to.equal(12);
+            expect(dsFileUpload.name).to.equal("test");
+            expect(dsFileUpload.chunks).to.be.an("array");
+            expect(dsFileUpload.totalSize).to.equal(123);
+            expect(dsFileUpload.sizeCompleted).to.equal(0);
+            expect(dsFileUpload.status).to.equal("started");
+            expect(dsFileUpload.cancelStatus).to.be.null;
+            expect(dsFileUpload.isWorkerDone).to.be.false;
+            expect(dsFileUpload.onCompleteCallback).to.be.a("function");
+            expect(dsFileUpload.onUpdateCallback).to.be.a("function");
+            expect(dsFileUpload.onErrorCallback).to.be.a("function");
+            expect(dsFileUpload.times).to.be.an("array");
+            expect(dsFileUpload.fileObj).to.be.an("object");
+        });
+
+        it("should get size completed", function() {
+            expect(dsFileUpload.getSizeCompleted()).to.equal(0);
+        });
+
+        it("should get file obj", function() {
+            var fileObj = dsFileUpload.getFileObj();
+            expect(fileObj.name).to.equal("test");
+        });
+
+        it("should get status", function() {
+            expect(dsFileUpload.getStatus()).to.equal("started");
+        });
+
+        it("should complete", function() {
+            dsFileUpload.complete();
+            expect(dsFileUpload.getStatus()).to.equal("done");
+        });
+
+        it("should cancel", function() {
+            dsFileUpload.status = "started";
+            dsFileUpload.chunks = ["1"];
+
+            var oldDelete = XcalarDemoFileDelete;
+            var test = false;
+            XcalarDemoFileDelete = function() {
+                test = true;
+            };
+
+            dsFileUpload.cancel();
+            expect(dsFileUpload.getStatus()).to.equal("canceled");
+            expect(dsFileUpload.chunks.length).to.equal(0);
+            expect(test).to.be.true;
+
+            XcalarDemoFileDelete = oldDelete;
+        });
+
+        it("should errorAdding", function() {
+            dsFileUpload.errorAdding("testErr");
+            expect(dsFileUpload.getStatus()).to.equal("errored");
+            expect(call).to.equal("error");
+            UnitTest.hasAlertWithTitle(DSTStr.UploadFailed);
+        });
+
+        it("should set wokerDone", function() {
+            dsFileUpload.workerDone();
+            expect(dsFileUpload.isWorkerDone).to.be.true;
+        });
+
+        it("should not add in cancel case", function(done) {
+            dsFileUpload.status = "canceled";
+
+            dsFileUpload.add()
+            .then(function() {
+                done("fail");
+            })
+            .fail(function() {
+                done();
+            });
+        });
+
+        it("should not add in errored case", function(done) {
+            dsFileUpload.status = "errored";
+
+            dsFileUpload.add()
+            .then(function() {
+                done("fail");
+            })
+            .fail(function() {
+                done();
+            });
+        });
+
+        it("should not add with more than 2 chunks", function(done) {
+            dsFileUpload.status = "started";
+            dsFileUpload.chunks = ["1", "2"];
+
+            dsFileUpload.add("test", 1)
+            .then(function() {
+                done("fail");
+            })
+            .fail(function() {
+                done();
+            });
+        });
+
+        it("should reject if cancel", function(done) {
+            dsFileUpload.status = "started";
+            dsFileUpload.chunks = [];
+
+            var oldAppend = XcalarDemoFileAppend;
+            var oldDelete = XcalarDemoFileDelete;
+            var test = false;
+
+            XcalarDemoFileAppend = function() {
+                dsFileUpload.status = "canceled";
+                return PromiseHelper.resolve();
+            };
+
+            XcalarDemoFileDelete = function() {
+                test = true;
+            };
+
+            dsFileUpload.add("test", 1)
+            .then(function() {
+                done("fail");
+            })
+            .fail(function() {
+                expect(test).to.be.true;
+                done();
+            })
+            .always(function() {
+                XcalarDemoFileAppend = oldAppend;
+                XcalarDemoFileDelete = oldDelete;
+            });
+        });
+
+        it("should reject if errored", function(done) {
+            dsFileUpload.status = "started";
+            dsFileUpload.chunks = [];
+
+            var oldAppend = XcalarDemoFileAppend;
+            XcalarDemoFileAppend = function() {
+                dsFileUpload.status = "errored";
+                return PromiseHelper.resolve();
+            };
+
+            dsFileUpload.add("test", 1)
+            .then(function() {
+                done("fail");
+            })
+            .fail(function() {
+                expect(call).to.be.equal("update");
+                done();
+            })
+            .always(function() {
+                XcalarDemoFileAppend = oldAppend;
+            });
+        });
+
+        it("should handle fail case", function(done) {
+            dsFileUpload.status = "started";
+            dsFileUpload.chunks = [];
+
+            var oldAppend = XcalarDemoFileAppend;
+            XcalarDemoFileAppend = function() {
+                return PromiseHelper.reject();
+            };
+
+            dsFileUpload.add("test", 1)
+            .then(function() {
+                done("fail");
+            })
+            .fail(function() {
+                expect(call).to.be.equal("error");
+                UnitTest.hasAlertWithTitle(DSTStr.UploadFailed);
+                done();
+            })
+            .always(function() {
+                XcalarDemoFileAppend = oldAppend;
+            });
+        });
+
+        it("should complete", function(done) {
+            dsFileUpload.status = "started";
+            dsFileUpload.chunks = [];
+
+            var oldAppend = XcalarDemoFileAppend;
+            XcalarDemoFileAppend = function() {
+                dsFileUpload.isWorkerDone = true;
+                return PromiseHelper.resolve();
+            };
+
+            dsFileUpload.add("test", 1)
+            .then(function() {
+                expect(call).to.be.equal("complete");
+                expect(dsFileUpload.getStatus()).to.equal("done");
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                XcalarDemoFileAppend = oldAppend;
+            });
+        });
+
+        after(function() {
+            UnitTest.offMinMode();
+        });
+    });
+
     describe("XcSubQuery Constructor Test", function() {
-        it("Should have 10 attributes", function() {
+        it("should have 10 attributes", function() {
             var xcSubQuery = new XcSubQuery({
                 "name": "test",
                 "time": 123,
@@ -1363,8 +1690,8 @@ describe("Ephemeral Constructor Test", function() {
         });
     });
 
-    describe("ScollTableChecker should work", function() {
-        it("Shuold have 2 attrs", function() {
+    describe("ScollTableChecker Constructor Test", function() {
+        it("should have 2 attrs", function() {
             var scrollChecker = new ScollTableChecker();
             expect(scrollChecker).to.be.an.instanceof(ScollTableChecker);
             expect(scrollChecker.startTime).to.be.a("number");
@@ -1372,10 +1699,71 @@ describe("Ephemeral Constructor Test", function() {
             .to.equal($("#mainFrame").scrollLeft());
         });
 
-        it("Should check to scroll", function() {
+        it("should check to scroll", function() {
             var scrollChecker = new ScollTableChecker();
             // immediate check should return true
             expect(scrollChecker.checkScroll()).to.be.true;
+        });
+    });
+
+    describe("ProgressCircle Constructor Test", function() {
+        var $fakeIcon;
+        var circle;
+
+        before(function() {
+            $fakeIcon = $('<div class="lockedTableIcon" data-txId="test" ' +
+                          'data-iconnum="1"' +
+                            '<div class="progress"></div>' +
+                         '</div>');
+            $fakeIcon.appendTo($("body"));
+        });
+
+        it("should have 8 attributes", function() {
+            circle = new ProgressCircle("test", 1);
+            expect(circle).to.be.instanceof(ProgressCircle);
+            expect(Object.keys(circle).length).to.equal(8);
+            expect(circle.txId).to.equal("test");
+            expect(circle.iconNum).to.equal(1);
+            expect(circle.status).to.equal("inProgress");
+            expect(circle.progress).to.equal(0);
+            expect(circle.svg).not.to.be.null;
+            expect(circle.pie).not.to.be.null;
+            expect(circle.arc).not.to.be.null;
+            expect(circle.prevPct).to.equal(0);
+        });
+
+        it("should update", function() {
+            circle.update(10);
+            expect(circle.status).to.equal("inProgress");
+            expect(circle.prevPct).to.equal(10);
+        });
+
+        it("should not update if pass in same pct", function() {
+            circle.update(10);
+            expect(circle.status).to.equal("inProgress");
+            expect(circle.prevPct).to.equal(10);
+        });
+
+        it("should reset if pass in wrong pct", function() {
+            circle.update();
+            expect(circle.status).to.equal("inProgress");
+            expect(circle.prevPct).to.equal(0);
+        });
+
+        it("should done", function() {
+            circle.done();
+            expect(circle.status).to.equal("done");
+            expect(circle.prevPct).to.equal(100);
+        });
+
+        it("should not update after done", function() {
+            circle.update();
+            expect(circle.status).to.equal("done");
+            expect(circle.prevPct).to.equal(100);
+        });
+
+        after(function() {
+            $fakeIcon.remove();
         });
     });
 });

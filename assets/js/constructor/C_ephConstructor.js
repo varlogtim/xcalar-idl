@@ -2547,7 +2547,6 @@ function InputSuggest(options) {
     options = options || {};
     this.$container = options.$container;
     this.onClick = options.onClick;
-    this.timer = null;
     this.__init();
     return this;
 }
@@ -2757,7 +2756,7 @@ ExtItem.prototype = {
 
         $("#extension-ops-script script").each(function() {
             var src = $(this).attr("src");
-            if (src.includes(name)) {
+            if (src && src.includes(name)) {
                 exist = true;
                 // end loop
                 return false;
@@ -2952,7 +2951,7 @@ function DSFileUpload(name, size, fileObj, options) {
     this.chunks = [];
     this.totalSize = size;
     this.sizeCompleted = 0;
-    this.status = 'started';
+    this.status = "started";
     this.cancelStatus = null;
     this.isWorkerDone = false;
     this.onCompleteCallback = options.onComplete;
@@ -2967,14 +2966,15 @@ function DSFileUpload(name, size, fileObj, options) {
 DSFileUpload.prototype = {
     add: function(content, chunkSize) {
         if (this.status === "canceled" || this.status === "errored") {
-            return;
+            return PromiseHelper.reject();
         }
 
-        this.chunks.push({content: content, size: chunkSize});
+        this.chunks.push({"content": content, "size": chunkSize});
 
         if (this.chunks.length === 1) {
-            this.__stream();
+            return this.__stream();
         }
+        return PromiseHelper.reject();
     },
     getSizeCompleted: function() {
         return this.sizeCompleted;
@@ -2982,8 +2982,11 @@ DSFileUpload.prototype = {
     getFileObj: function() {
         return this.fileObj;
     },
+    getStatus: function() {
+        return this.status;
+    },
     complete: function() {
-        this.status = 'done';
+        this.status = "done";
     },
     cancel: function() {
         var self = this;
@@ -2991,33 +2994,33 @@ DSFileUpload.prototype = {
             // hasn't begun streaming yet, ok to delete
             XcalarDemoFileDelete(self.name);
         }
-        self.status = 'canceled';
+        self.status = "canceled";
         self.chunks = [];
         // cannot call delete during an append so _stream checks for
         // self.status === 'canceled' and stops streaming and deletes
     },
     errored: function() {
-        self.status = 'errored';
+        this.status = "errored";
     },
     workerDone: function() {
         this.isWorkerDone = true;
     },
     errorAdding: function(err) {
         // occurs when worker fails
-        this.status = "errored";
+        this.errored();
         Alert.error(DSTStr.UploadFailed, err);
         this.onErrorCallback();
     },
-    getStatus: function() {
-        return this.status;
-    },
     __stream: function() {
         var self = this;
+        var deferred = jQuery.Deferred();
+
         self.status = "inProgress";
         XcalarDemoFileAppend(self.name, self.chunks[0].content)
         .then(function() {
             if (self.status === "canceled") {
                 XcalarDemoFileDelete(self.name);
+                deferred.reject();
                 return;
             }
 
@@ -3025,6 +3028,7 @@ DSFileUpload.prototype = {
             self.onUpdateCallback(self.sizeCompleted);
             self.chunks.shift();
             if (self.status === "errored") {
+                deferred.reject();
                 return;
             }
 
@@ -3038,15 +3042,16 @@ DSFileUpload.prototype = {
                 // no chunks in the stream but worker is not done so .add
                 // and .__stream will get called again eventually
             }
+            deferred.resolve();
         })
         .fail(function(err) {
-            Alert.error(DSTStr.UploadFailed, err);
             // XXX need to handle fails and storing the progress so we can
             // try from where we left off
-
-            self.onErrorCallback();
-            self.errored();
+            self.errorAdding(err);
+            deferred.reject(err);
         });
+
+        return deferred.promise();
     }
 };
 
