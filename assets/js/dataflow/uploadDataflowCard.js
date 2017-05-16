@@ -53,19 +53,24 @@ window.UploadDataflowCard = (function($, UploadDataflowCard) {
     }
 
     function submitForm() {
-        var deferred = jQuery.Deferred();
         var retName = $dfName.val().trim();
+        if (retName.length === 0) {
+            StatusBox.show(ErrTStr.NoEmpty, $dfName);
+            return PromiseHelper.reject();
+        }
+
         var valid = xcHelper.checkNamePattern("dataflow", "check", retName);
         if (!valid) {
             StatusBox.show(ErrTStr.DFNameIllegal, $dfName);
-            return;
+            return PromiseHelper.reject();
         }
         var limit = 1024 * 1024; // 1M
         if (file && file.size > limit) {
             Alert.error(DSTStr.UploadLimit, DFTStr.UploadLimitMsg);
-            return;
+            return PromiseHelper.reject();
         }
 
+        var deferred = jQuery.Deferred();
         lockCard();
         XcalarListRetinas()
         .then(function(ret) {
@@ -107,10 +112,6 @@ window.UploadDataflowCard = (function($, UploadDataflowCard) {
 
         // click upload button
         $card.on("click", ".confirm", function() {
-            if ($dfName.val().trim().length === 0) {
-                StatusBox.show(ErrTStr.NoEmpty, $dfName);
-                return;
-            }
             submitForm();
         });
 

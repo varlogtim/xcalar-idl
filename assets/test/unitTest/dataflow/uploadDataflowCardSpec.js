@@ -100,7 +100,58 @@ describe("Upload Dataflow Test", function() {
             UploadDataflowCard.__testOnly__.changeFilePath("file.tar.gz");
         });
 
+        it("should handle empty name error", function(done) {
+            $("#dfName").val("");
+
+            UploadDataflowCard.__testOnly__.submitForm()
+            .then(function() {
+                done("fail");
+            })
+            .fail(function() {
+                UnitTest.hasStatusBoxWithError(ErrTStr.NoEmpty);
+                done();
+            });
+        });
+
+        it("should handle name error", function(done) {
+            $("#dfName").val("invalid#name");
+
+            UploadDataflowCard.__testOnly__.submitForm()
+            .then(function() {
+                done("fail");
+            })
+            .fail(function() {
+                UnitTest.hasStatusBoxWithError(ErrTStr.DFNameIllegal);
+                done();
+            });
+        });
+
+        it("should handle name duplicate error", function(done) {
+            $("#dfName").val("file");
+
+            var curList = XcalarListRetinas;
+            XcalarListRetinas = function() {
+                return PromiseHelper.resolve({"retinaDescs": [{
+                    "retinaName": "file"
+                }]});
+            };
+
+            UploadDataflowCard.__testOnly__.submitForm()
+            .then(function() {
+                done("fail");
+            })
+            .fail(function() {
+                UnitTest.hasStatusBoxWithError(ErrTStr.NameInUse);
+                done();
+            })
+            .always(function() {
+                XcalarListRetinas = curList;
+            });
+        });
+
         it("should handle error case", function(done) {
+            $("#dfName").val("file");
+
             XcalarImportRetina = function() {
                 return PromiseHelper.reject("test");
             };
@@ -119,6 +170,8 @@ describe("Upload Dataflow Test", function() {
         });
 
         it("should upload the df", function(done) {
+            $("#dfName").val("file");
+
             XcalarImportRetina = function() {
                 return PromiseHelper.resolve();
             };

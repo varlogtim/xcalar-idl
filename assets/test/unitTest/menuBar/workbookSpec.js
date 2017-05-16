@@ -353,7 +353,9 @@ describe("Workbook Test", function() {
         it("should pause workbook", function(done) {
             var oldPause = WorkbookManager.pause;
             var oldGet = WorkbookManager.getActiveWKBK;
-            WorkbookManager.pause = function() {
+            WorkbookManager.pause = function(workbookId) {
+                var wkbk = WorkbookManager.getWorkbook(workbookId);
+                wkbk.setResource(true);
                 return PromiseHelper.resolve();
             };
 
