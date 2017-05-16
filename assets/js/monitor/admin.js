@@ -50,24 +50,31 @@ window.Admin = (function($, Admin) {
 
     // will not add user if already exists in kvstore
     Admin.addNewUser = function() {
+        var deferred = jQuery.Deferred();
         var username = Support.getUser();
 
         KVStore.get(userListKey, gKVScope.GLOB)
         .then(function(value) {
             if (value == null) {
-                storeUsername(username);
+                return storeUsername(username);
             } else {
                 parseStrIntoUserList(value);
                 // usernames are case sensitive
                 if (userList.indexOf(username) === -1) {
-                    storeUsername(username, true);
+                    return storeUsername(username, true);
+                } else {
+                    return PromiseHelper.resolve();
                 }
             }
         })
+        .then(deferred.resolve)
         .fail(function(err) {
             //xx need to handle or alert?
             console.warn(err);
+            deferred.reject(err);
         });
+
+        return deferred.promise();
     };
 
     Admin.getUserList = function() {
@@ -229,7 +236,7 @@ window.Admin = (function($, Admin) {
     function updateLoggedInUsersList() {
         $userList.find(".userLi").each(function() {
             var $li = $(this);
-            var name = $(this).find(".text").text();
+            var name = $li.find(".text").text();
             if (loggedInUsers.hasOwnProperty(name)) {
                 $li.addClass("loggedIn");
             } else {
@@ -247,6 +254,7 @@ window.Admin = (function($, Admin) {
     };
 
     function refreshUserList() {
+        var deferred = jQuery.Deferred();
         KVStore.get(userListKey, gKVScope.GLOB)
         .then(function(value) {
             if (value == null) {
@@ -256,7 +264,10 @@ window.Admin = (function($, Admin) {
             }
             setupUserListMenu();
             updateLoggedInUsersList();
-        });
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+        return deferred.promise();
     }
 
     function filterUserList(keyWord) {
@@ -356,7 +367,6 @@ window.Admin = (function($, Admin) {
         .then(XFTSupportTools.clusterStart)
         .then(function(ret) {
             // refresh page
-            console.log('success start', ret);
             if (ret.status === Status.Ok &&
                 ret.logs.indexOf("already running") > -1) {
                 Alert.show({msg: ret.logs, isAlert: true});
@@ -376,7 +386,6 @@ window.Admin = (function($, Admin) {
         supportPrep('stopNode')
         .then(XFTSupportTools.clusterStop)
         .then(function(ret) {
-            console.log('success stop', ret);
             if ($('#container').hasClass('supportOnly')) {
                 xcHelper.showSuccess(SuccessTStr.StopCluster);
             } else {
@@ -392,7 +401,6 @@ window.Admin = (function($, Admin) {
         .always(function() {
             $("#initialLoadScreen").hide();
         });
-        console.log("Shut down!");
     }
 
     function restartNode() {
@@ -492,7 +500,7 @@ window.Admin = (function($, Admin) {
                         deferred.resolve();
                     })
                     .fail(function(err) {
-                        console.log(err);
+                        console.error(err);
                         deferred.resolve();
                     });
                 } else {
@@ -512,7 +520,6 @@ window.Admin = (function($, Admin) {
         if (err === "canceled") {
             return;
         }
-        console.log("fail", err);
         var title;
         switch (command) {
             case ('startNode'):
@@ -537,6 +544,17 @@ window.Admin = (function($, Admin) {
 
         Alert.error(title, msg);
     }
+
+      /* Unit Test Only */
+    if (window.unitTestMode) {
+        Admin.__testOnly__ = {};
+        Admin.__testOnly__.setPosingAs = function() {
+            posingAsUser = true;
+            $('#container').addClass('posingAsUser');
+        };
+        Admin.__testOnly__.refreshUserList = refreshUserList;
+    }
+    /* End Of Unit Test Only */
 
     return (Admin);
 }(jQuery, {}));
