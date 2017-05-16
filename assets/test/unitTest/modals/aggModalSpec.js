@@ -19,8 +19,8 @@ describe("Agg Modal Test", function() {
             tableId = xcHelper.getTableId(tableName);
             done();
         })
-        .fail(function(error) {
-            throw error;
+        .fail(function() {
+            done("fail");
         });
     });
 
@@ -163,8 +163,8 @@ describe("Agg Modal Test", function() {
                 expect($quickAgg.find(".dash").length).to.be.at.least(1);
                 done();
             })
-            .fail(function(error) {
-                throw error;
+            .fail(function() {
+                done("fail");
             });
         });
 
@@ -175,8 +175,8 @@ describe("Agg Modal Test", function() {
                 expect($corr.find(".dash").length).to.be.at.least(1);
                 done();
             })
-            .fail(function(error) {
-                throw error;
+            .fail(function() {
+                done("fail");
             });
         });
 
@@ -201,8 +201,8 @@ describe("Agg Modal Test", function() {
                         " To view correlation coefficients for every pair of numerical columns, please click on the vertical tab.");
                 done();
             })
-            .fail(function(error) {
-                throw error;
+            .fail(function() {
+                done("fail");
             });
         });
 
@@ -218,8 +218,8 @@ describe("Agg Modal Test", function() {
                         "To view common aggregate functions on all numerical columns, please click on the vertical tab.");
                 done();
             })
-            .fail(function(error) {
-                throw error;
+            .fail(function() {
+                done("fail");
             });
         });
 
@@ -250,6 +250,31 @@ describe("Agg Modal Test", function() {
             $aggModal.find(".close").click();
             assert.isFalse($quickAgg.is(":visible"));
             assert.isFalse($corr.is(":visible"));
+        });
+
+        it("should back to profile modal", function(done) {
+            var test = false;
+            var oldProfile = Profile.show;
+
+            Profile.show = function() {
+                test = true;
+            };
+
+            AggModal.quickAgg(tableId)
+            .then(function() {
+                assert.isTrue($aggModal.is(":visible"));
+
+                $("#aggModal-backToProfile").click();
+                expect(test).to.be.true;
+                assert.isFalse($aggModal.is(":visible"));
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                Profile.show = oldProfile;
+            });
         });
     });
 

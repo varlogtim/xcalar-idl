@@ -59,14 +59,14 @@ window.Alert = (function($, Alert){
             $modal.find(".btn.logout").remove();
         }
 
-        if ($modal.hasClass('locked')) {
+        if ($modal.hasClass("locked")) {
             // this handle the case that some modal failure handler
             // may close the modal and it will hide modalBackground
             $modalBg.show();
-            $modalBg.addClass('locked');
+            $modalBg.addClass("locked");
             // alert modal is already opened and locked due to connection error
             return id;
-        } else if ($('#container').hasClass('supportOnly') &&
+        } else if ($("#container").hasClass("supportOnly") &&
             options.lockScreen) {
             // do not show any more modals that lock the screen
             return id;
@@ -81,16 +81,16 @@ window.Alert = (function($, Alert){
         };
         if (options.lockScreen) {
             extraOptions = {"noEsc": true};
-            $modalBg.addClass('locked');
-            $("#container").addClass('locked');
+            $modalBg.addClass("locked");
+            $("#container").addClass("locked");
             // should not show initial screen
             $("#initialLoadScreen").hide();
         }
 
         if (options.highZindex) {
-            $modal.addClass('highZindex');
+            $modal.addClass("highZindex");
         } else {
-            $modal.removeClass('highZindex');
+            $modal.removeClass("highZindex");
         }
 
         modalHelper.setup(extraOptions);
@@ -138,19 +138,19 @@ window.Alert = (function($, Alert){
 
     Alert.forceClose = function(keepBg) {
         closeAlertModal();
-        $modal.removeClass('locked');
+        $modal.removeClass("locked");
         if (!keepBg) {
-            $modalBg.removeClass('locked');
+            $modalBg.removeClass("locked");
         }
     };
 
     // hides the alert modal but doesn't close/reset  it
     Alert.tempHide = function() {
-        $modal.addClass('xc-hidden');
+        $modal.addClass("xc-hidden");
     };
 
     Alert.unhide = function() {
-        $modal.removeClass('xc-hidden');
+        $modal.removeClass("xc-hidden");
     };
 
     Alert.getOptionVal = function() {
@@ -226,10 +226,10 @@ window.Alert = (function($, Alert){
         if (options.instr != null) {
             $alertInstr.find(".text").text(options.instr);
             $alertInstr.show();
-            $modal.addClass('hasInstr');
+            $modal.addClass("hasInstr");
         } else {
             $alertInstr.hide();
-            $modal.removeClass('hasInstr');
+            $modal.removeClass("hasInstr");
         }
 
         // set checkbox,  default is unchecked
@@ -242,10 +242,10 @@ window.Alert = (function($, Alert){
                 $(this).toggleClass("checked");
             });
             $checkbox.show();
-            $modal.addClass('hasCheckbox');
+            $modal.addClass("hasCheckbox");
         } else {
             $checkbox.hide();
-            $modal.removeClass('hasCheckbox');
+            $modal.removeClass("hasCheckbox");
         }
 
         // set option list
@@ -262,8 +262,8 @@ window.Alert = (function($, Alert){
         }
 
         if (options.userInput) {
-            $("#alertUserInputArea").removeClass('xc-hidden');
-            $("#alertUserInputArea").find('.label').html(options.userInput.label);
+            $("#alertUserInputArea").removeClass("xc-hidden");
+            $("#alertUserInputArea").find(".label").html(options.userInput.label);
             $("#alertUserInput").val(options.userInput.autofill);
             setTimeout(function() {
                 // otherwise it doesn't get focused and range doesn't get
@@ -271,8 +271,8 @@ window.Alert = (function($, Alert){
                 $("#alertUserInput").focus().range(0);
             }, 0);
         } else {
-            $("#alertUserInputArea").addClass('xc-hidden');
-            $("#alertUserInputArea").find('.label').empty();
+            $("#alertUserInputArea").addClass("xc-hidden");
+            $("#alertUserInputArea").find(".label").empty();
             $("#alertUserInput").val("");
         }
 
@@ -340,7 +340,7 @@ window.Alert = (function($, Alert){
 
         // lock screen if necessary
         if (options.lockScreen) {
-            $modal.addClass('locked');
+            $modal.addClass("locked");
             $modal.find(".close, .cancel").hide();
             $confirmBtn.hide();
 
@@ -366,7 +366,7 @@ window.Alert = (function($, Alert){
 
         if (options.hideButtons) {
             for (var i = 0; i < options.hideButtons.length; i++) {
-                $modal.find('.' + options.hideButtons[i]).hide();
+                $modal.find("." + options.hideButtons[i]).hide();
             }
         }
     }
