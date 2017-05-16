@@ -585,6 +585,10 @@ describe('OperationsView Test', function() {
                 expect($ul.find("li").length).to.equal(1);
                 expect($ul.find("li").text()).to.equal(colName);
 
+                // close dropdown
+                $(document).trigger({type: "keydown", which: keyCode.Escape});
+                expect($ul.is(':visible')).to.be.false;
+
                 xcHelper.getColNameMap = colMapCache;
                 OperationsView.__testOnly__.updateColNamesCache();
             });
@@ -788,6 +792,16 @@ describe('OperationsView Test', function() {
                     expect($operationsModal.find('.gbOnArg').eq(1).val()).to.equal(gColPrefix + prefix + gPrefixSign + "compliments");
                     done();
                 });
+            });
+        });
+
+        describe("addGroupbyGroup", function() {
+            it("addGroupbyGroup should work", function() {
+                expect($operationsView.find(".groupbyGroup").length).to.equal(1);
+                $operationsView.find(".addGBGroup").click();
+                expect($operationsView.find(".groupbyGroup").length).to.equal(2);
+                expect($operationsView.find(".groupbyGroup").eq(0).find(".argsSection").length).to.equal(2);
+                expect($operationsView.find(".groupbyGroup").eq(1).find(".argsSection").length).to.equal(1);
             });
         });
 
@@ -1026,7 +1040,6 @@ describe('OperationsView Test', function() {
                 done();
             }, 500);
         });
-
     });
 
     // using filter in operations view
@@ -1185,6 +1198,13 @@ describe('OperationsView Test', function() {
             expect($functionsList.find('li.highlighted').length).to.equal(1);
             expect($functionsList.find('li').eq(1).hasClass('highlighted')).to.be.true;
             expect($functionsInput.val()).to.equal("between");
+        });
+
+        it("dblclick should select full text", function() {
+            $functionsInput.val("$something");
+            expect($functionsInput.range().length).to.equal(0);
+            $functionsInput.trigger("dblclick");
+            expect($functionsInput.range().length).to.equal(10);
         });
 
         after(function() {
@@ -1407,7 +1427,7 @@ describe('OperationsView Test', function() {
                 expect($argSection.find('.arg:visible').length).to.equal(0);
 
                 // trigger function and arg section
-                $functionsInput.val('and').trigger(fakeEvent.enterKeydown);
+                $functionsInput.val('eq').trigger(fakeEvent.enterKeydown);
                 expect($argSection.hasClass('inactive')).to.be.false;
                 expect($argSection.find('.arg:visible').length).to.equal(2);
 
@@ -1433,9 +1453,23 @@ describe('OperationsView Test', function() {
                 expect($filterForm.find('.group').eq(0).hasClass('minimized')).to.be.true;
                 expect($filterForm.find('.group').eq(0).attr('data-numargs')).to.equal("2");
                 expect($filterForm.find('.group').eq(1).hasClass('minimized')).to.be.false;
+                $filterForm.find('.group').eq(1).find(".functionsInput").val("between").change();
 
-                addGroup();
+                // add another group
+                $filterForm.find(".addFilterArg").click();
                 expect($filterForm.find('.group').length).to.equal(3);
+
+                // switch and to or to and
+                expect($operationsView.find(".strPreview").text().indexOf("and(")).to.be.gt(-1);
+                expect($operationsView.find(".strPreview").text().indexOf("or(")).to.equal(-1);
+
+                $operationsView.find(".switch").click();
+                expect($operationsView.find(".strPreview").text().indexOf("and(")).to.equal(-1);
+                expect($operationsView.find(".strPreview").text().indexOf("or(")).to.be.gt(-1);
+
+                $operationsView.find(".switch").click();
+                expect($operationsView.find(".strPreview").text().indexOf("and(")).to.be.gt(-1);
+                expect($operationsView.find(".strPreview").text().indexOf("or(")).to.equal(-1);
 
                 // cache 3rd group
                 var $thirdGroup = $filterForm.find('.group').eq(2);
@@ -1446,6 +1480,10 @@ describe('OperationsView Test', function() {
 
                 expect($filterForm.find('.group').length).to.equal(2);
                 expect($thirdGroup.find('.functionsList').data('fnlistnum')).to.equal(1);
+
+                $filterForm.find(".closeGroup").last().click();
+                expect($filterForm.find('.group').length).to.equal(1);
+                expect($filterForm.find('.andOrToggle').is(":visible")).to.be.false;
             });
         });
 
@@ -1851,8 +1889,34 @@ describe('OperationsView Test', function() {
             }
         });
 
+        describe("cast helper", function() {
+            // assumes "add" function is chosen
+            it("add on string col should show cast helper", function(done) {
+                var $argInputs = $operationsView.find('.arg[type=text]:visible');
+                var prefixCol = gColPrefix + xcHelper.getPrefixColName(prefix, "yelping_since");
+                $argInputs.eq(0).val(prefixCol);
+                $argInputs.eq(1).val(5).change();
+                OperationsView.__testOnly__.submitForm()
+                .always(function() {
+                    expect($operationsView.find(".strPreview").text().indexOf("float(")).to.equal(-1);
+                    var $castSection = $operationsView.find(".cast.showing");
+                    expect($castSection.length).to.equal(1);
+                    expect($castSection.find(".list").is(":visible")).to.be.false;
+                    $castSection.find("input").trigger(fakeEvent.mousedown);
+                    $castSection.find("input").click();
+
+                    expect($castSection.find(".list").is(":visible")).to.be.true;
+                    $castSection.find("li").filter(function() {
+                        return $(this).text() === "float";
+                    }).trigger(fakeEvent.mouseup);
+                    expect($operationsView.find(".strPreview").text().indexOf("float(")).to.be.gt(-1);
+                    done();
+                });
+            });
+        });
+
         after(function(done) {
-            OperationsView.close();
+            $(document).trigger({type: "keydown", which: keyCode.Escape});
             // allow time for operations view to close
             setTimeout(function() {
                 UnitTest.removeOrphanTable()
@@ -1930,17 +1994,19 @@ describe('OperationsView Test', function() {
         describe('resultant name input', function() {
             it('resultant name input should work', function() {
                 var $resultInput = $aggForm.find('.colNameSection .arg');
-                 // xx focus testing only works if you're actually focused on this window
-                if (document.hasFocus()) {
-                    expect($resultInput.val()).to.equal("");
-                    $resultInput.focus();
-                    expect($resultInput.val()).to.equal(gAggVarPrefix);
-                    $resultInput.blur();
-                    expect($resultInput.val()).to.equal("");
-                }
+
+                expect($resultInput.val()).to.equal("");
+                $resultInput.focus().trigger("focus");
+                expect($resultInput.val()).to.equal(gAggVarPrefix);
+                $resultInput.blur().trigger("blur");
+                expect($resultInput.val()).to.equal("");
 
                 $resultInput.val('something').trigger('input');
                 expect($resultInput.val()).to.equal(gAggVarPrefix + 'something');
+                $resultInput.caret(0);
+                expect($resultInput.caret()).to.equal(0);
+                $resultInput.trigger("keydown");
+                expect($resultInput.caret()).to.equal(1);
             });
         });
 
