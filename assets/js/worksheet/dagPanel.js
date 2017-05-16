@@ -1494,6 +1494,7 @@ window.DagPanel = (function($, DagPanel) {
         DagPanel.__testOnly__.saveImageAction = saveImageAction;
         DagPanel.__testOnly__.newTabImageAction = newTabImageAction;
         DagPanel.__testOnly__.generateIcvTable = generateIcvTable;
+        DagPanel.__testOnly__.isComplementTableExists = isComplementTableExists;
     }
 
     return (DagPanel);
@@ -2300,11 +2301,13 @@ window.Dag = (function($, Dag) {
     };
 
     function getSchemaNumRows($schema, schemaId, tableName, table) {
+        var deferred = jQuery.Deferred();
         XcalarGetTableMeta(tableName)
         .then(function(meta) {
             if ($schema.data("id") !== schemaId) {
                 return;
             }
+
             if (meta != null && meta.metas != null) {
                 var metas = meta.metas;
                 var numRows = 0;
@@ -2320,7 +2323,9 @@ window.Dag = (function($, Dag) {
         })
         .fail(function() {
             $schema.find('.rowCount .value').text(CommonTxtTstr.Unknown);
-        });
+        })
+        .always(deferred.resolve);
+        return deferred.promise();
     }
 
     function positionSchemaPopup($dagTable) {
@@ -4180,6 +4185,12 @@ window.Dag = (function($, Dag) {
     //                'px;top:' + y + 'px;">' + text + x + ',' + y + '</div>';
     //     $dagImage.append(html);
     // }
+
+    if (window.unitTestMode) {
+        Dag.__testOnly__ = {};
+        Dag.__testOnly__.getSchemaNumRows = getSchemaNumRows;
+        Dag.__testOnly__.findColumnSource = findColumnSource;
+    }
 
     return (Dag);
 

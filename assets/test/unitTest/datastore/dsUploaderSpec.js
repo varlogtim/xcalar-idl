@@ -1,17 +1,22 @@
-describe.skip("DSUploader Test", function() {
+describe("DSUploader Test", function() {
     var $mainTabCache;
     var cachedXcalarListFiles;
     var uploads;
     var $uploaderMain;
+    var cachedGetLicense;
 
     before(function() {
         Alert.forceClose();
         // go to the data store tab,
         // or some UI effect like :visible cannot test
         $mainTabCache = $(".topMenuBarTab.active");
-        $("#dataStoresTab").click();
+
         // turn off min mode, as it affectes DOM test
         UnitTest.onMinMode();
+        cachedGetLicense = XVM.getLicenseMode;
+        XVM.getLicenseMode = function() {
+            return XcalarMode.Demo;
+        };
 
         // test for file name duplicates, must use refreshFiles to set up
         // the file list that DSUploader checks against
@@ -25,6 +30,10 @@ describe.skip("DSUploader Test", function() {
         };
         uploads = DSUploader.__testOnly__.uploads;
         $uploaderMain = $("#dsUploaderMain");
+
+        $("#dsUploader").removeClass('xc-hidden');
+        DSUploader.initialize();
+        $("#dataStoresTab").click();
     });
 
     describe("initial state", function() {
@@ -603,7 +612,6 @@ describe.skip("DSUploader Test", function() {
         it('file upload should work', function(done) {
             var numGrids = $uploaderMain.find(".grid-unit").length;
             var file = new File(["abcd"], "unitTest2");
-
             DSUploader.__testOnly__.submitFiles([file]);
 
             var $grid = $uploaderMain.find(".grid-unit").last();
@@ -638,7 +646,7 @@ describe.skip("DSUploader Test", function() {
                 return DSPreview.show(options, true);
             })
             .then(function() {
-                expect($("#preview-url").text()).to.equal("demo:///unitTest2");
+                expect($("#preview-url").text()).to.equal("Path: demo:///unitTest2");
                 expect($('#previewTable').text()).to.equal("column01abcd");
                 DSUploader.show();
 
@@ -667,10 +675,14 @@ describe.skip("DSUploader Test", function() {
     });
 
     after(function() {
+        $("#dsForm-path").removeClass('xc-hidden');
+        $("#importDataForm-content").find(".advanceOption").show();
         // go back to previous tab
         $mainTabCache.click();
         UnitTest.offMinMode();
         XcalarListFiles = cachedXcalarListFiles;
+        XVM.getLicenseMode = cachedGetLicense;
+
     });
-    
+
 });

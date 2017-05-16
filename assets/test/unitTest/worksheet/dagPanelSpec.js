@@ -492,6 +492,22 @@ describe('Dag Panel Test', function() {
             expect($menu.find('li.revertTable').is(":visible")).to.be.false;
             expect($menu.find('li.archiveTable').is(":visible")).to.be.true;
             expect($menu.find('li.focusTable').is(":visible")).to.be.true;
+            expect($menu.find('li.removeNoDelete').is(":visible")).to.be.false;
+            expect($menu.find('li.addNoDelete').is(":visible")).to.be.true;
+        });
+
+         it('menu should on noDrop table should be correct', function() {
+            gTables[smallTable.tableId].addNoDelete();
+            smallTable.$dagWrap.find('.dagTable').last().click();
+            expect($menu.find('li.removeNoDelete').is(":visible")).to.be.true;
+            expect($menu.find('li.addNoDelete').is(":visible")).to.be.false;
+            expect($menu.find('li.deleteTable').hasClass("unavailable")).to.be.true;
+
+            gTables[smallTable.tableId].removeNoDelete();
+            smallTable.$dagWrap.find('.dagTable').last().click();
+            expect($menu.find('li.removeNoDelete').is(":visible")).to.be.false;
+            expect($menu.find('li.addNoDelete').is(":visible")).to.be.true;
+            expect($menu.find('li.deleteTable').hasClass("unavailable")).to.be.false;
         });
 
         describe('table menu actions', function() {
@@ -771,7 +787,7 @@ describe('Dag Panel Test', function() {
                 });
             });
 
-            it.skip("newTabImageAction should work", function(done) {
+            it("newTabImageAction should work", function(done) {
                 DagPanel.__testOnly__.newTabImageAction($smallDagWrap)
                 .then(function(newTab) {
                     // TODO: figure out why newTab instanceof Window is false
@@ -1281,6 +1297,8 @@ describe('Dag Panel Test', function() {
             it("complement table", function(done) {
                 var $dagTable = $(".actionType.filter").eq(0).siblings(".dagTable");
                 var $icon = $dagTable.find(".dagTableIcon");
+                var origId = $dagTable.data("id");
+                var origTablename = $dagTable.data("tablename");
                 var prevId = $dagTable.closest(".dagTableWrap").prev()
                             .find(".dagTable").data("id");
                 $icon.click();
@@ -1295,15 +1313,110 @@ describe('Dag Panel Test', function() {
                     expect(options.complement).to.be.true;
                     called = true;
                     xcFunction.filter = cached;
-                    return PromiseHelper.reject();
+                    return PromiseHelper.resolve("fakeTableName#fakeId");
                 };
 
+                expect(gTables[origId].complement).to.equal("");
+                gTables["fakeId"] = {complement: ""};
+
                 $menu.find("li.complementTable").trigger(fakeEvent.mouseup);
+
                 expect(called).to.be.true;
+                expect(gTables[origId].complement).to.equal("fakeTableName#fakeId");
+                expect(gTables["fakeId"].complement).to.equal(origTablename);
+                gTables[origId].complement = "";
+                delete gTables["fakeId"];
+
                 setTimeout(function() {
                     done();
                 }, 1);
             });
+
+            it("complement table exists should work", function() {
+                var fn = DagPanel.__testOnly__.isComplementTableExists;
+                var cachedFn = DagFunction.addTable;
+                var called = false;
+                DagFunction.addTable = function() {
+                    called = true;
+                };
+                gTables["fakeId"] = {"complement": "otherTable#otherId", getName: function(){}};
+                gTables["otherId"] = {getType: function() {}, getName: function(){}};
+                fn("fakeId");
+                expect(called).to.be.true;
+
+                delete gTables["otherId"];
+
+                expect(gTables["fakeId"].complement).to.equal("otherTable#otherId");
+                fn("fakeId");
+                expect(gTables["fakeId"].complement).to.equal("");
+
+                delete gTables["fakeId"];
+                DagFunction.addTable = cachedFn;
+            })
+        });
+    });
+
+    describe("Dag rename all occurrences should work", function() {
+        it("dag rename", function() {
+            var oldTableName = largeTable.tableName;
+            var newTableName = "newTableName#newName";
+            var $dagPanel = $('#dagPanel');
+
+            var $tables = $("#dagPanel .dagTable[data-tablename='" + oldTableName + "']");
+            var numTables = $tables.length;
+
+            expect(numTables).to.be.gt(1);
+
+            Dag.renameAllOccurrences(oldTableName, newTableName);
+
+            expect($tables.data("tablename").indexOf(newTableName)).to.be.gt(-1);
+            var $sameTables = $("#dagPanel .dagTable").filter(function() {
+                return $(this).data("tablename") === oldTableName;
+            });
+            expect($sameTables.length).to.equal(0);
+            var $newTables = $("#dagPanel .dagTable").filter(function() {
+                return $(this).data("tablename") === newTableName;
+            });
+            expect($newTables.length).to.equal(numTables);
+
+            Dag.renameAllOccurrences(newTableName, oldTableName);
+        });
+    });
+
+    describe("other functions", function() {
+        it("Dag.getSchemaNumRows", function(done) {
+            var fn = Dag.__testOnly__.getSchemaNumRows;
+            var cachedFn = XcalarGetTableMeta;
+            XcalarGetTableMeta = function(tableName) {
+                return PromiseHelper.resolve({metas: [{numRows: 3}, {numRows: 4}]});
+            }
+
+            $("#dagSchema").data('id', "dataId");
+            var table = {};
+            fn($("#dagSchema"), "dataId", "tableName", table)
+            .then(function() {
+                expect($("#dagSchema").find(".rowCount .value").text()).to.equal("7");
+                expect(table.resultSetCount).to.equal(7);
+                XcalarGetTableMeta = cachedFn;
+                done();
+            });
+        });
+
+        it("findColumnSource should work", function() {
+            aggTable;
+            var prefix = aggTable.prefix;
+            var $dagWrap = aggTable.$dagWrap;
+            var $dagTable = $dagWrap.find(".dagTable").last();
+
+            var index = $dagTable.data("index");
+            var nodes = $dagWrap.data('allDagInfo').nodes;
+            var fn = Dag.__testOnly__.findColumnSource;
+            var sourceColNames = [prefix + gPrefixSign + "average_stars"];
+
+            fn(sourceColNames, $dagWrap, index, nodes, "agg_result", false);
+            expect($dagWrap.find(".highlighted").length).to.equal(3);
+            expect($dagWrap.find(".highlighted").eq(0).data("index")).to.equal(5);
+            expect($dagWrap.find(".highlighted").last().data("index")).to.equal(1);
         });
     });
 
