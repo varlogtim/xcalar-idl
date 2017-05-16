@@ -1022,7 +1022,10 @@ describe("Ephemeral Constructor Test", function() {
             var oldY = $("#colMenu li").last().position().top;
             var newY;
             $("#colMenu .scrollArea.bottom").mouseenter();
-            timeoutPromise(400)
+
+            UnitTest.testFinish(function() {
+                return $("#colMenu li").last().position().top < oldY;
+            })
             .then(function() {
                 $("#colMenu .scrollArea.bottom").mouseleave();
                 newY = $("#colMenu li").last().position().top;
@@ -1035,7 +1038,10 @@ describe("Ephemeral Constructor Test", function() {
                 expect(oldY).to.equal(newY);
 
                 $("#colMenu .scrollArea.top").mouseenter();
-                return timeoutPromise(400);
+
+                return UnitTest.testFinish(function() {
+                    return $("#colMenu li").last().position().top > oldY;
+                });
             })
             .then(function() {
                 newY = $("#colMenu li").last().position().top;
