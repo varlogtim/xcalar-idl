@@ -102,10 +102,11 @@ window.Alert = (function($, Alert){
         }
 
         if (window.isBrowserIE) { // all text will be on 1 line otherwise
+            var width = $modal.width();
             setTimeout(function() {
-                $modal.width(parseInt(minWidth) + 1);
+                $modal.width(parseInt(width) + 1);
                 setTimeout(function() {
-                    $modal.width(minWidth);
+                    $modal.width(width);
                 });
             });
         }
