@@ -221,24 +221,27 @@ describe('DFCard Test', function() {
             $dfWrap = $('#dfgViz .dagWrap[data-dataflowname="' + testDfName + '"]');
 
 
-            DFParamModal.show($dfWrap.find('.dagTable').last());
-            $("#dfParamModal").find('.editableTable input.editableParamDiv')
+            DFParamModal.show($dfWrap.find('.dagTable').last())
+            .then(function() {
+                $("#dfParamModal").find('.editableTable input.editableParamDiv')
                                 .val(testDfName + Date.now() + '.csv');
 
-            DFParamModal.__testOnly__.storeRetina()
-            .then(function() {
-                DFCard.__testOnly__.runDF(testDfName)
+                DFParamModal.__testOnly__.storeRetina()
                 .then(function() {
-                    // wait for last xcalarquerystate call to return
-                    setTimeout(function() {
-                        expect(DFCard.__testOnly__.retinasInProgress[testDfName]).to.be.undefined;
-                        $dfWrap = $('#dfgViz .dagWrap[data-dataflowname="' + testDfName + '"]');
-                        expect($dfWrap.find('.dagTable.Created').length).to.equal(0);
-                        expect($dfWrap.find('.dagTable.Ready').length).to.equal(3);
-                        done();
-                    }, 4000);
+                    DFCard.__testOnly__.runDF(testDfName)
+                    .then(function() {
+                        // wait for last xcalarquerystate call to return
+                        setTimeout(function() {
+                            expect(DFCard.__testOnly__.retinasInProgress[testDfName]).to.be.undefined;
+                            $dfWrap = $('#dfgViz .dagWrap[data-dataflowname="' + testDfName + '"]');
+                            expect($dfWrap.find('.dagTable.Created').length).to.equal(0);
+                            expect($dfWrap.find('.dagTable.Ready').length).to.equal(3);
+                            done();
+                        }, 4000);
+                    });
                 });
-            });
+            })
+
         });
 
         // using fake xcalarquerystate

@@ -23,11 +23,6 @@ window.DagPanel = (function($, DagPanel) {
         setupScrollBar();
     };
 
-    DagPanel.clear = function() {
-        $(".closeDag").click();
-        $(".dagWrap").remove();
-    };
-
     DagPanel.setScrollBarId = function(winHeight) {
         // #moveCursor from TblAnim.startColDrag may be covering the screen
         // so temporarily remove it before we check if a dataflow is visible
@@ -984,10 +979,7 @@ window.DagPanel = (function($, DagPanel) {
         });
 
         $menu.find('.deleteTable').mouseup(function(event) {
-            if (event.which !== 1) {
-                return;
-            }
-            if ($(this).hasClass("unavailable")) {
+            if (event.which !== 1 || $(this).hasClass("unavailable")) {
                 return;
             }
             var tableId = $menu.data('tableId');
@@ -1003,10 +995,7 @@ window.DagPanel = (function($, DagPanel) {
         });
 
         $menu.find(".generateIcv").mouseup(function(event) {
-            if (event.which !== 1) {
-                return;
-            }
-            if ($(this).hasClass("unavailable")) {
+            if (event.which !== 1 || $(this).hasClass("unavailable")) {
                 return;
             }
             var $tableIcon = $menu.data('tableelement');
@@ -1016,10 +1005,7 @@ window.DagPanel = (function($, DagPanel) {
         });
 
         $menu.find(".complementTable").mouseup(function(event) {
-            if (event.which !== 1) {
-                return;
-            }
-            if ($(this).hasClass("unavailable")) {
+            if (event.which !== 1 || $(this).hasClass("unavailable")) {
                 return;
             }
 
@@ -1374,8 +1360,8 @@ window.DagPanel = (function($, DagPanel) {
 
         // check if table visibile, else check if its in the inactivelist,
         // else check if its in the orphan list, else just delete the table
-        if ($table.length !== 0 && (!$table.hasClass('locked') &&
-            !$table.hasClass("noDelete"))) {
+        if ($table.length !== 0 && !$table.hasClass('locked') &&
+            !$table.hasClass("noDelete")) {
             var msg = xcHelper.replaceMsg(TblTStr.DelMsg, {
                 "table": tableName
             });
@@ -1730,7 +1716,7 @@ window.Dag = (function($, Dag) {
 
         $dagTableTitles.parent().data('tablename', newTableName);
         var $dagParentsTitles = $dagPanel.find('.parentsTitle').filter(function() {
-            return ($(this).text() === oldTableName);
+            return ($(this).text().indexOf(oldTableName) > -1);
         });
 
         $dagParentsTitles.text(newTableName);
@@ -1739,7 +1725,8 @@ window.Dag = (function($, Dag) {
             var tooltipText = $(this).attr('data-original-title');
             var newText;
             if (tooltipText) {
-                newText = tooltipText.replace(oldTableName, newTableName);
+                var re = new RegExp(oldTableName, "g");
+                newText = tooltipText.replace(re, newTableName);
                 $(this).attr('data-original-title', newText);
             }
             var title = $(this).attr('title');
@@ -3670,16 +3657,12 @@ window.Dag = (function($, Dag) {
                 iconClass += "-not-equal";
                 break;
             case ("filterregex"):
-                iconClass = "oldIcon";
-                break;
             case ("filterlike"):
-                iconClass = "oldIcon";
-                break;
             case ("filterothers"):
                 iconClass = "oldIcon";
                 break;
             default:
-                iconClass = "filter";
+                iconClass = "oldIcon";
                 break;
         }
         return iconClass;
@@ -3695,7 +3678,7 @@ window.Dag = (function($, Dag) {
                 iconClass = "join-outer";
                 break;
             case ("left"):
-                iconClass = "oin-leftouter";
+                iconClass = "oin-leftouter"; // icon name has mispelling
                 break;
             case ("right"):
                 iconClass = "join-rightouter";
@@ -4190,6 +4173,9 @@ window.Dag = (function($, Dag) {
         Dag.__testOnly__ = {};
         Dag.__testOnly__.getSchemaNumRows = getSchemaNumRows;
         Dag.__testOnly__.findColumnSource = findColumnSource;
+        Dag.__testOnly__.getIconHtml = getIconHtml;
+        Dag.__testOnly__.getJoinIconClass = getJoinIconClass;
+        Dag.__testOnly__.getDagNodeInfo = getDagNodeInfo;
     }
 
     return (Dag);

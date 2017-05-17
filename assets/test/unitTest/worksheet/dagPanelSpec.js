@@ -8,6 +8,7 @@ describe('Dag Panel Test', function() {
     var smallTable;
 
     var aggName;
+    var rightMouseup;
 
     function timeOutPromise(amtTime) {
         var waitTime = amtTime || 1000;
@@ -46,6 +47,11 @@ describe('Dag Panel Test', function() {
         var groupTableName;
         var groupTableId;
         var $groupDagWrap;
+
+        rightMouseup = {
+            type: "mouseup",
+            which: 3
+        };
 
         smallTable = {
             "prefix": undefined,
@@ -99,7 +105,6 @@ describe('Dag Panel Test', function() {
         // -replace largeDag with a faux-dag for the expand/contract calls.
         //
 
-        // TODO: need to fix make large dag
         function makeLargeDag(total, base) {
             var deferred = PromiseHelper.deferred();
             var curIter = 0;
@@ -380,6 +385,28 @@ describe('Dag Panel Test', function() {
             }, 600);
         });
 
+        it("heightForTableReveal should work", function(done) {
+            expect($dagPanel.hasClass("hidden")).to.be.true;
+            DagPanel.heightForTableReveal();
+            UnitTest.testFinish(function() {
+                return $dagPanel.hasClass("noTransform");
+            })
+            .then(function() {
+                var top = parseInt($dagPanel.css("top"));
+                var total = $dagPanel.parent().height();
+                expect(top / total).to.be.gt(.40).and.lt(.60);
+
+                // close panel
+                $switch.click();
+                return UnitTest.testFinish(function() {
+                    return $dagPanel.hasClass("xc-hidden");
+                });
+            })
+            .then(function() {
+                done();
+            });
+        });
+
         it('maximizing dag should work', function(done) {
             // open panel
             $switch.click();
@@ -387,8 +414,6 @@ describe('Dag Panel Test', function() {
             setTimeout(function() {
                 expect($dagPanel.hasClass('hidden')).to.be.false;
                 expect($dagPanel.hasClass('xc-hidden')).to.be.false;
-                expect($dagPanel.offset().top)
-                .to.equal($("#mainFrame").offset().top);
 
                 $dagPanel.css('top', '20%');
                 $dagPanel.find('.dagArea').css('height', 'calc(80% - 5px)');
@@ -522,6 +547,11 @@ describe('Dag Panel Test', function() {
                     expect(cachedFnTriggered).to.be.false;
                     $menu.find('.focusTable').trigger(fakeEvent.mouseup);
                     expect(cachedFnTriggered).to.be.true;
+
+                    cachedFnTriggered = false;
+                    $menu.find('.focusTable').trigger(rightMouseup);
+                    expect(cachedFnTriggered).to.be.false;
+
                     DagFunction.focusTable = cachedFn;
                 });
 
@@ -535,6 +565,11 @@ describe('Dag Panel Test', function() {
                     expect(cachedFnTriggered).to.be.false;
                     $menu.find('.archiveTable').trigger(fakeEvent.mouseup);
                     expect(cachedFnTriggered).to.be.true;
+
+                    cachedFnTriggered = false;
+                    $menu.find('.archiveTable').trigger(rightMouseup);
+                    expect(cachedFnTriggered).to.be.false;
+
                     TblManager.archiveTables = cachedFn;
                 });
 
@@ -549,11 +584,19 @@ describe('Dag Panel Test', function() {
                     $menu.find('.deleteTable').trigger(fakeEvent.mouseup);
                     UnitTest.hasAlertWithTitle("Drop Tables", {confirm: true});
                     expect(cachedFnTriggered).to.be.true;
+
+                    cachedFnTriggered = false;
+                    $menu.find('.deleteTable').trigger(rightMouseup);
+                    expect(cachedFnTriggered).to.be.false;
+
                     TblManager.deleteTables = cachedFn;
                 });
 
                 it('showSchema li should work', function() {
                     expect($("#dagSchema:visible").length).to.equal(0);
+                    $menu.find('.showSchema').trigger(rightMouseup);
+                    expect($("#dagSchema:visible").length).to.equal(0);
+
                     $menu.find('.showSchema').trigger(fakeEvent.mouseup);
                     expect($("#dagSchema:visible").length).to.equal(1);
                     var numCols = gTables[smallTable.tableId].tableCols.length - 1;
@@ -569,6 +612,11 @@ describe('Dag Panel Test', function() {
                 });
 
                 it('lockTable li should work', function() {
+                    $menu.find('.addNoDelete').trigger(rightMouseup);
+                    expect(smallTable.$dagWrap.find('.dagTable').last()
+                        .find('.lockIcon').length)
+                    .to.equal(0);
+
                     $menu.find('.addNoDelete').trigger(fakeEvent.mouseup);
                     expect(smallTable.$dagWrap.find('.dagTable').last()
                         .find('.lockIcon').length)
@@ -579,6 +627,11 @@ describe('Dag Panel Test', function() {
                 });
 
                 it('unlockTable li should work', function() {
+                    $menu.find('.removeNoDelete').trigger(rightMouseup);
+                    expect(smallTable.$dagWrap.find('.dagTable').last()
+                        .find('.lockIcon').length)
+                    .to.equal(1);
+
                     $menu.find('.removeNoDelete').trigger(fakeEvent.mouseup);
                     expect(smallTable.$dagWrap.find('.dagTable').last()
                         .find('.lockIcon').length)
@@ -614,6 +667,11 @@ describe('Dag Panel Test', function() {
                     expect(cachedFnTriggered).to.be.false;
                     $menu.find('.addTable').trigger(fakeEvent.mouseup);
                     expect(cachedFnTriggered).to.be.true;
+
+                    cachedFnTriggered = false;
+                    $menu.find('.addTable').trigger(rightMouseup);
+                    expect(cachedFnTriggered).to.be.false;
+
                     DagFunction.addTable = cachedFn;
                 });
 
@@ -629,6 +687,11 @@ describe('Dag Panel Test', function() {
                     expect(cachedFnTriggered).to.be.false;
                     $menu.find('.revertTable').trigger(fakeEvent.mouseup);
                     expect(cachedFnTriggered).to.be.true;
+
+                    cachedFnTriggered = false;
+                    $menu.find('.revertTable').trigger(rightMouseup);
+                    expect(cachedFnTriggered).to.be.false;
+
                     DagFunction.revertTable = cachedFn;
                 });
             });
@@ -645,6 +708,9 @@ describe('Dag Panel Test', function() {
 
                 it('showSchema li should work', function() {
                     expect($("#dagSchema:visible").length).to.equal(0);
+                    $menu.find('.dataStoreInfo').trigger(rightMouseup);
+                    expect($("#dagSchema:visible").length).to.equal(0);
+
                     $menu.find('.dataStoreInfo').trigger(fakeEvent.mouseup);
                     expect($("#dagSchema:visible").length).to.equal(1);
                     expect($("#dagSchema").hasClass("loadInfo")).to.be.true;
@@ -779,8 +845,8 @@ describe('Dag Panel Test', function() {
 
         describe("Panel button actions should work", function() {
             it("SaveImageAction should work", function(done) {
-                DagPanel.__testOnly__.saveImageAction($smallDagWrap,
-                                                        smallTable.tableName)
+                DagPanel.__testOnly__.saveImageAction($largeDagWrap,
+                                                        largeTable.tableName)
                 .then(done)
                 .fail(function() {
                     done("failed");
@@ -1054,6 +1120,33 @@ describe('Dag Panel Test', function() {
                     done("failed");
                 });
             });
+
+            it("Drop table fail should work", function() {
+                var cachedDelete = XIApi.deleteTable;
+                var deleteCalled = false;
+                XIApi.deleteTable = function() {
+                    deleteCalled = true;
+                    return PromiseHelper.reject();
+                }
+
+                $('#xcTableWrap-' + icvTableId).addClass("noDelete");
+                $icvDagIcon.click();
+                expect($menu.find('li.deleteTable').hasClass('unavailable'))
+                .to.be.false;
+                var table = gTables[icvTableId];
+                delete gTables[icvTableId];
+
+                expect($("#alertModal").css("display")).to.equal("none");
+                $menu.find('.deleteTable').trigger(fakeEvent.mouseup);
+                UnitTest.hasAlertWithTitle("Drop Table(s) Failed");
+
+                expect(deleteCalled).to.be.true;
+
+                $('#xcTableWrap-' + icvTableId).removeClass("noDelete");
+                gTables[icvTableId] = table;
+                XIApi.deleteTable = cachedDelete;
+            });
+
             it("Drop table should work", function(done) {
                 $icvDagIcon.click();
                 expect($menu.find('li.deleteTable').hasClass('unavailable'))
@@ -1076,6 +1169,7 @@ describe('Dag Panel Test', function() {
                     done();
                 });
             });
+
             it("Hide table should work", function(done) {
                 // Use icv table to also test repeated ICV table behavior
                 $largeDagIcon.click();
@@ -1319,6 +1413,9 @@ describe('Dag Panel Test', function() {
                 expect(gTables[origId].complement).to.equal("");
                 gTables["fakeId"] = {complement: ""};
 
+                $menu.find("li.complementTable").trigger(rightMouseup);
+                expect(called).to.be.false;
+
                 $menu.find("li.complementTable").trigger(fakeEvent.mouseup);
 
                 expect(called).to.be.true;
@@ -1366,6 +1463,9 @@ describe('Dag Panel Test', function() {
             var numTables = $tables.length;
 
             expect(numTables).to.be.gt(1);
+            $dagPanel.find(".parentsTitle").eq(0).closest(".actionType").attr("data-original-title", oldTableName);
+            $dagPanel.find(".parentsTitle").eq(0).closest(".actionType").attr("title", oldTableName);
+            $dagPanel.find(".parentsTitle").eq(0).text(oldTableName);
 
             Dag.renameAllOccurrences(oldTableName, newTableName);
 
@@ -1377,6 +1477,7 @@ describe('Dag Panel Test', function() {
             var $newTables = $("#dagPanel .dagTable").filter(function() {
                 return $(this).data("tablename") === newTableName;
             });
+            expect($dagPanel.find(".parentsTitle").eq(0).closest(".actionType").attr("data-original-title")).to.equal(newTableName);
             expect($newTables.length).to.equal(numTables);
 
             Dag.renameAllOccurrences(newTableName, oldTableName);
@@ -1402,6 +1503,39 @@ describe('Dag Panel Test', function() {
             });
         });
 
+        it("Dag.showDataStoreInfo", function() {
+            var $dagWrap = largeTable.$dagWrap;
+            var $table = $dagWrap.find(".dataStore").eq(0);
+            var tableName = $table.data("tablename");
+            var datasets = $dagWrap.data().allDagInfo.datasets;
+            var loadInfo = datasets[tableName].loadInfo;
+            var cachedLoadInfo = xcHelper.deepCopy(loadInfo);
+            loadInfo.loadArgs = {csv: {recordDelim: "\t"}};
+
+            var cachedDS = DS.getDSObj;
+            DS.getDSObj = function() {
+                return {getNumEntries: function() {return null;},
+                        getSize: function() {return null;}};
+            };
+            var cachedGetMeta = XcalarGetDatasetMeta;
+            var getMetaCalled = false;
+            XcalarGetDatasetMeta = function() {
+                getMetaCalled = true;
+                return PromiseHelper.resolve({metas: [{size: 1, numRows: 2}]})
+            }
+
+            Dag.showDataStoreInfo($table);
+
+            expect(getMetaCalled).to.be.true;
+            expect($("#dagSchema").text().indexOf('"numEntries": 2')).to.be.gt(-1);
+
+            $(document).mousedown(); // hide schema
+
+            DS.getDSObj = cachedDS;
+            XcalarGetDatasetMeta = cachedGetMeta;
+            datasets[tableName].loadInfo = cachedLoadInfo;
+        });
+
         it("findColumnSource should work", function() {
             aggTable;
             var prefix = aggTable.prefix;
@@ -1417,6 +1551,68 @@ describe('Dag Panel Test', function() {
             expect($dagWrap.find(".highlighted").length).to.equal(3);
             expect($dagWrap.find(".highlighted").eq(0).data("index")).to.equal(5);
             expect($dagWrap.find(".highlighted").last().data("index")).to.equal(1);
+        });
+
+        it("getIconHtml", function() {
+            var fn = Dag.__testOnly__.getIconHtml;
+            var res = fn("filter", {type: "filtergt"});
+            expect(res.indexOf("filter-greaterthan")).to.be.gt(-1);
+
+            res = fn("filter", {type: "filterge"});
+            expect(res.indexOf("filter-greaterthan")).to.be.gt(-1);
+
+            res = fn("filter", {type: "filterlt"});
+            expect(res.indexOf("filter-lessthan")).to.be.gt(-1);
+
+            res = fn("filter", {type: "filterle"});
+            expect(res.indexOf("filter-lessthan-equalto")).to.be.gt(-1);
+
+            res = fn("filter", {type: "filternot"});
+            expect(res.indexOf("filter-not-equal")).to.be.gt(-1);
+
+            res = fn("filter", {type: "filterlike"});
+            expect(res.indexOf("oldIcon")).to.be.gt(-1);
+
+            res = fn("filter", {type: "filterothers"});
+            expect(res.indexOf("oldIcon")).to.be.gt(-1);
+
+            res = fn("filter", {type: "other"});
+            expect(res.indexOf("oldIcon")).to.be.gt(-1);
+        });
+
+        it("getJoinIconClass", function() {
+            var fn = Dag.__testOnly__.getJoinIconClass;
+            var res = fn("fullOuter");
+            expect(res).to.equal("join-outer");
+
+            res = fn("left");
+            expect(res).to.equal("oin-leftouter");
+
+            res = fn("right");
+            expect(res).to.equal("join-rightouter");
+
+            res = fn("other");
+            expect(res).to.equal("join-inner");
+        });
+
+        it("getDagNodeInfo", function() {
+            var fn = Dag.__testOnly__.getDagNodeInfo;
+            var dagNode = {input: {filterInput: {filterStr: "not(eq(col, 2))"}}};
+            var res = fn(dagNode, "filterInput", ["parent"], 1, {});
+            expect(res.type).to.equal("filternot");
+            expect(res.tooltip).to.equal("Filtered table &quot;parent&quot;: not(eq(col, 2))");
+
+            var dagNode = {input: {filterInput: {filterStr: "other(col, 2)"}}};
+            var res = fn(dagNode, "filterInput", ["parent"], 1, {});
+
+            expect(res.type).to.equal("filterother");
+            expect(res.tooltip).to.equal("Filtered table &quot;parent&quot;: other(col, 2)");
+            expect(res.column).to.equal("col");
+
+            var dagNode = {input: {otherInput: {filterStr: "other(col, 2)"}}};
+            var res = fn(dagNode, "otherInput", ["parent"], 1, {});
+            expect(res.type).to.equal("other");
+            expect(res.tooltip).to.equal("Other");
         });
     });
 
