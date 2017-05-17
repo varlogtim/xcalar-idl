@@ -835,7 +835,7 @@ window.xcManager = (function(xcManager, $) {
                 return CommonTxtTstr.LeaveWarn;
             } else {
                 // when no change, no need to warn
-                return null;
+                return;
             }
         };
 

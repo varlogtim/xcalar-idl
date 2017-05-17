@@ -1562,13 +1562,12 @@ window.OperationsView = (function($, OperationsView) {
             defaultValue = gColPrefix + colName;
         }
 
-        var numArgs = operObj.numArgs;
-        if (numArgs < 0) {
-            numArgs = 1; // Refer to operObj.numArgs for min number
-        }
+        var numArgs = Math.max(Math.abs(operObj.numArgs),
+                                operObj.argDescs.length);
+
         var numInputsNeeded = numArgs;
         if (operatorName !== "filter") {
-            numInputsNeeded++;
+            numInputsNeeded++; // for new column name
         }
 
         addArgRows(numInputsNeeded, $argsGroup, groupIndex);

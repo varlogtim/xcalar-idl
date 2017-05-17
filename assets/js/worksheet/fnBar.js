@@ -812,8 +812,8 @@ window.FnBar = (function(FnBar, $) {
         }, 0);
     }
 
-    function showConfirmAlert($colInput, alertTitle, alertMsg, cursor, confirm,
-                             btnOption) {
+    function showConfirmAlert($colInput, alertTitle, alertMsg, cursor,
+                             confirmFunc, btnOption) {
         var btns;
         if (btnOption) {
             btns = [btnOption];
@@ -839,7 +839,7 @@ window.FnBar = (function(FnBar, $) {
                 isAlertOpen = false;
             },
             "onConfirm": function() {
-                confirm();
+                confirmFunc();
                 isAlertOpen = false;
             }
         });
