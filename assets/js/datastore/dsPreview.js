@@ -2479,6 +2479,7 @@ window.DSPreview = (function($, DSPreview) {
         DSPreview.__testOnly__.clearPreviewTable = clearPreviewTable;
         DSPreview.__testOnly__.sampleData = sampleData;
         DSPreview.__testOnly__.getFileToPreviewInUDF = getFileToPreviewInUDF;
+        DSPreview.__testOnly__.loadDataWithUDF = loadDataWithUDF;
 
         DSPreview.__testOnly__.resetForm = resetForm;
         DSPreview.__testOnly__.restoreForm = restoreForm;

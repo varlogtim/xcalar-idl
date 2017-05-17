@@ -15,6 +15,7 @@ describe("DSPreview Test", function() {
 
     var $headerCheckBox; // promote header checkbox
     var $udfCheckbox; // udf checkbox
+    var $genLineNumCheckBox;
 
     var $skipInput;
     var $quoteInput;
@@ -39,6 +40,7 @@ describe("DSPreview Test", function() {
 
         $headerCheckBox = $("#promoteHeaderCheckbox"); // promote header checkbox
         $udfCheckbox = $("#udfCheckbox"); // udf checkbox
+        $genLineNumCheckBox = $("#genLineNumbersCheckbox");
 
         $skipInput = $("#dsForm-skipRows");
         $quoteInput = $("#dsForm-quote");
@@ -386,6 +388,18 @@ describe("DSPreview Test", function() {
             DSPreview.changePreviewFile = oldFunc;
         });
 
+        it("DSPreview.toggleXcUDFs should work", function() {
+            var isHide = UserSettings.getPref("hideXcUDF");
+            var $li = $("<li>_xcalar_test</li>");
+            $("#udfArgs-moduleList").append($li);
+            DSPreview.toggleXcUDFs(!isHide);
+            expect($li.hasClass("xcUDF")).to.be.equal(!isHide);
+
+            DSPreview.toggleXcUDFs(isHide);
+            expect($li.hasClass("xcUDF")).to.be.equal(isHide);
+            $li.remove();
+        });
+
         after(function() {
             DSPreview.__testOnly__.resetForm();
         });
@@ -537,7 +551,6 @@ describe("DSPreview Test", function() {
             expect($rmHightLightBtn.hasClass("xc-disabled")).to.be.true;
         });
 
-      
         it("Should clear preview table", function(done) {
             var data = "h,i";
             DSPreview.__testOnly__.set(data);
@@ -561,13 +574,21 @@ describe("DSPreview Test", function() {
         });
     });
 
-    describe("getFileToPreviewInUDF Function Test", function() {
+    describe("Preview with UDF Function Test", function() {
         var getFileToPreviewInUDF;
-        var oldFunc;
+        var oldList;
+        var oldLoad;
+        var oldMakeResultSet;
+        var oldFetch;
+        var oldSetFree;
 
         before(function() {
             getFileToPreviewInUDF = DSPreview.__testOnly__.getFileToPreviewInUDF;
-            oldFunc = XcalarListFilesWithPattern;
+            oldList = XcalarListFilesWithPattern;
+            oldLoad = XcalarLoad;
+            oldMakeResultSet = XcalarMakeResultSetFromDataset;
+            oldSetFree = XcalarSetFree;
+            oldFetch = XcalarFetchData;
         });
 
         it("Should get url of single file", function(done) {
@@ -638,8 +659,115 @@ describe("DSPreview Test", function() {
             });
         });
 
+        it("should loadDataWithUDF handle error case", function(done) {
+            XcalarListFilesWithPattern = function() {
+                return PromiseHelper.reject("test");
+            };
+
+            XcalarLoad = function() {
+                return PromiseHelper.reject("test");
+            };
+
+            DSPreview.__testOnly__.loadDataWithUDF(1, "test", null, "ds",
+                                                  "module", "func")
+            .then(function() {
+                done("fail");
+            })
+            .fail(function(error) {
+                expect(error).to.equal("test");
+                done();
+            });
+        });
+
+        it("should loadDataWithUDF handle parse error", function(done) {
+            loadArgs.set({"path": "test"});
+
+            XcalarListFilesWithPattern = function() {
+                return PromiseHelper.resolve({
+                    "numFiles": 1,
+                    "files": [{"name": "test"}]
+                });
+            };
+
+            XcalarLoad = function() {
+                return PromiseHelper.resolve();
+            };
+
+            XcalarMakeResultSetFromDataset = function() {
+                return PromiseHelper.resolve({
+                    "resultSetId": 1,
+                    "numEntries": 1
+                });
+            };
+
+            XcalarFetchData = function() {
+                return PromiseHelper.resolve([{
+                    "value": "test"
+                }]);
+            };
+
+            DSPreview.__testOnly__.loadDataWithUDF(1, "test", null, "ds",
+                                                  "module", "func")
+            .then(function() {
+                done("fail");
+            })
+            .fail(function(error) {
+                expect(error.error).to.equal(DSTStr.NoParse);
+                done();
+            });
+        });
+
+        it("should loadDataWithUDF", function(done) {
+            loadArgs.set({"path": "test"});
+
+            XcalarListFilesWithPattern = function() {
+                return PromiseHelper.resolve({
+                    "numFiles": 1,
+                    "files": [{"name": "test"}]
+                });
+            };
+
+            XcalarLoad = function() {
+                return PromiseHelper.resolve();
+            };
+
+            XcalarMakeResultSetFromDataset = function() {
+                return PromiseHelper.resolve({
+                    "resultSetId": 1,
+                    "numEntries": 1
+                });
+            };
+
+            XcalarFetchData = function() {
+                var val = JSON.stringify({"a": "test"});
+                return PromiseHelper.resolve([{
+                    "value": val
+                }]);
+            };
+
+            XcalarSetFree = function() {
+                return PromiseHelper.resolve();
+            };
+
+            DSPreview.__testOnly__.loadDataWithUDF(1, "test", null, "ds",
+                                                  "module", "func")
+            .then(function(buffer) {
+                expect(buffer).not.to.be.null;
+                expect(buffer).contains("test");
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
         after(function() {
-            XcalarListFilesWithPattern = oldFunc;
+            XcalarListFilesWithPattern = oldList;
+            XcalarLoad = oldLoad;
+            XcalarSetFree = oldSetFree;
+            XcalarMakeResultSetFromDataset = oldMakeResultSet;
+            XcalarFetchData = oldFetch;
+            DSPreview.__testOnly__.resetForm();
         });
     });
 
@@ -1173,6 +1301,37 @@ describe("DSPreview Test", function() {
             DSPreview.__testOnly__.set(null, "a");
             $previewCard.find(".highlight").click();
             expect(loadArgs.getFieldDelim()).to.equal("a");
+        });
+
+        it("should input to set quote", function() {
+            $quoteInput.val("a").focus().trigger("input");
+            expect(loadArgs.getQuote()).to.equal("a");
+        });
+
+        it("should click header box to toggle promote header", function() {
+            var $checkbox = $headerCheckBox.find(".checkbox");
+            var hasHeader = $checkbox.hasClass("checked");
+
+            $headerCheckBox.click();
+            expect($checkbox.hasClass("checked")).to.equal(!hasHeader);
+            expect(loadArgs.useHeader()).to.equal(!hasHeader);
+
+            // toggle back
+            $headerCheckBox.click();
+            expect($checkbox.hasClass("checked")).to.equal(hasHeader);
+            expect(loadArgs.useHeader()).to.equal(hasHeader);
+        });
+
+        it("should toggle gen line num", function() {
+            var $checkbox = $genLineNumCheckBox.find(".checkbox");
+            var checked = $checkbox.hasClass("checked");
+
+            $genLineNumCheckBox.click();
+            expect($checkbox.hasClass("checked")).to.equal(!checked);
+
+            // toggle back
+            $genLineNumCheckBox.click();
+            expect($checkbox.hasClass("checked")).to.equal(checked);
         });
 
         it("should click colGrab to trigger col resize", function() {
