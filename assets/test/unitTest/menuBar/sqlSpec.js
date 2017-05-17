@@ -144,12 +144,36 @@ describe("SQL Test", function() {
             expect(typeof cachedSQL === "string");
         });
 
+        it("SQL.getConsoleErrors should work", function() {
+            var res = SQL.getConsoleErrors();
+            expect(res).to.be.an("array");
+        });
+
         it("SQL.viewLastAction should work", function() {
             var res = SQL.viewLastAction();
             var res2 = SQL.viewLastAction(true);
             if (res !== "none") {
                 expect(res).not.to.equal(res2);
             }
+        });
+
+        it("SQL.upgrade should work", function() {
+            // null case
+            var res = SQL.upgrade(null);
+            expect(res).to.equal("");
+
+            // error case
+            res = SQL.upgrade("abc");
+            expect(res).to.equal(null);
+
+            // empty case
+            res = SQL.upgrade("");
+            expect(res).to.equal("");
+
+            // normal case
+            var sql = new XcLog({"title": "test"});
+            res = SQL.upgrade(JSON.stringify(sql));
+            expect(res.length).not.to.equal(0);
         });
     });
 
@@ -254,6 +278,55 @@ describe("SQL Test", function() {
 
             Support.stopHeartbeatCheck();
             SQL.add("test", {"operation": SQLOps.MinimizeCols}, "testCli", true);
+        });
+
+        it("should click to trigger undo", function() {
+            var curUndo = SQL.undo;
+            var $undo = $("#undo");
+            var isDisabled = $undo.hasClass("disabled");
+            var test = false;
+
+            SQL.undo = function() {
+                test = true;
+            };
+
+            $undo.addClass("disabled");
+            $undo.click();
+            expect(test).to.be.false;
+            // case 2
+            $undo.removeClass("disabled");
+            $undo.click();
+            expect(test).to.be.true;
+        
+            if (isDisabled) {
+                $undo.addClass("disabled");
+            }
+            SQL.undo = curUndo;
+        });
+
+        it("should click to trigger redo", function() {
+            var curRedo = SQL.redo;
+            var $redo = $("#redo");
+            var isDisabled = $redo.hasClass("disabled");
+            var test = false;
+
+            SQL.redo = function() {
+                test = true;
+            };
+
+            $redo.addClass("disabled");
+            $redo.click();
+            expect(test).to.be.false;
+            // case 2
+            $redo.removeClass("disabled");
+            $redo.click();
+            expect(test).to.be.true;
+        
+            if (isDisabled) {
+                $redo.addClass("disabled");
+            }
+
+            SQL.redo = curRedo;
         });
 
         it("SQL.isUndo should work", function() {
@@ -361,11 +434,19 @@ describe("SQL Test", function() {
         var $sqlButtons;
         var $textarea;
         var $machineTextarea;
+        var $sqlMenu;
+        var wasOpen;
 
         before(function() {
             $sqlButtons = $("#sqlButtonWrap");
             $textarea = $("#sql-TextArea");
             $machineTextarea = $("#sql-MachineTextArea");
+            $sqlMenu = $("#sqlMenu");
+
+            wasOpen = $("#sqlTab").hasClass("active");
+            if (!wasOpen) {
+                $("#sqlTab").click();
+            }
         });
 
         it("Should view machine SQL", function() {
@@ -376,12 +457,26 @@ describe("SQL Test", function() {
             .to.equal("none");
         });
 
+        it("should open sql menu in machine SQL", function() {
+            openContextMenu();
+            assert.isTrue($sqlMenu.is(":visible"));
+            expect($sqlMenu.find("li:visible").length).to.equal(1);
+            $sqlMenu.hide();
+        });
+
         it("Should view human SQL", function() {
             $sqlButtons.find(".machineLog").click();
             expect($machineTextarea.get(0).style.display)
             .to.equal("none");
             expect($textarea.get(0).style.display)
             .to.equal("block");
+        });
+
+        it("should open sql menu in human SQL", function() {
+            openContextMenu();
+            assert.isTrue($sqlMenu.is(":visible"));
+            expect($sqlMenu.find("li:visible").length).to.equal(3);
+            $sqlMenu.hide();
         });
 
         it("Should copy log", function(done) {
@@ -407,6 +502,66 @@ describe("SQL Test", function() {
             .always(function() {
                 xcAssert = oldFunc;
             });
+        });
+
+        it("should toggle sql size", function() {
+            var $sql = $textarea.find(".sqlContentWrap.expanded:first-child");
+            if ($sql.length === 0) {
+                // cannot test in this case
+                return;
+            }
+
+            $sql.find(".title").click();
+            expect($sql.hasClass("expanded")).to.equal(false);
+            expect($sql.hasClass("collapsed")).to.equal(true);
+            // toggle back
+            $sql.click();
+            expect($sql.hasClass("expanded")).to.equal(true);
+            expect($sql.hasClass("collapsed")).to.equal(false);
+        });
+
+        it("should right click to copy log", function() {
+            var test = false;
+            var oldSuccess = xcHelper.showSuccess;
+            xcHelper.showSuccess = function() {
+                test = true;
+            };
+
+            var $li = $sqlMenu.find("li.copy");
+            $li.mouseup();
+            expect(test).to.be.false;
+
+            $li.trigger(fakeEvent.mouseup);
+            expect(test).to.be.true;
+
+            xcHelper.showSuccess = oldSuccess;
+        });
+
+        it("should right click to collapse all", function() {
+            var $li = $sqlMenu.find("li.collapseAll");
+            $li.trigger(fakeEvent.mouseup);
+            expect($textarea.find(".sqlContentWrap.expanded").length)
+            .to.equal(0);
+        });
+
+        it("should right click to expand all", function() {
+            var $li = $sqlMenu.find("li.expandAll");
+            $li.trigger(fakeEvent.mouseup);
+            expect($textarea.find(".sqlContentWrap.collapsed").length)
+            .to.equal(0);
+        });
+
+        function openContextMenu() {
+            var e = jQuery.Event("contextmenu", {
+                "target": $sqlMenu
+            });
+            $textarea.parent().trigger(e);
+        }
+
+        after(function() {
+            if (!wasOpen) {
+                $("#sqlTab").click();
+            }
         });
     });
 });

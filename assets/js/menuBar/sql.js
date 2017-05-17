@@ -85,30 +85,17 @@ window.SQL = (function($, SQL) {
             if ($(event.target).closest(".title").length) {
                 return;
             }
-            $(this).toggleClass("collapsed");
-            $(this).toggleClass("expanded");
-            if ($textarea.find(".expanded").length) {
-                isCollapsed = false;
-            } else if ($textarea.find(".collapsed").length) {
-                isCollapsed = true;
-            }
+            toggleSQLSize($(this));
         });
 
         $textarea.on("click", ".title", function() {
-            $(this).parent().toggleClass("collapsed");
-            $(this).parent().toggleClass("expanded");
-            if ($textarea.find(".expanded").length) {
-                isCollapsed = false;
-            } else if ($textarea.find(".collapsed").length) {
-                isCollapsed = true;
-            }
+            toggleSQLSize($(this).parent());
         });
 
         xcMenu.add($sqlMenu);
         setupMenuActions();
 
         $textarea.parent().contextmenu(function(event) {
-
             var $target = $(event.target);
             xcHelper.dropdownOpen($target, $sqlMenu, {
                 "mouseCoors": {"x": event.pageX, "y": event.pageY + 10},
@@ -136,8 +123,6 @@ window.SQL = (function($, SQL) {
 
             return false;
         });
-
-
     };
 
     SQL.hasUnCommitChange = function() {
@@ -250,7 +235,7 @@ window.SQL = (function($, SQL) {
         .then(deferred.resolve)
         .fail(deferred.reject);
 
-        return (deferred.promise());
+        return deferred.promise();
     };
 
     SQL.commitErrors = function() {
@@ -269,7 +254,7 @@ window.SQL = (function($, SQL) {
             deferred.reject(error);
         });
 
-        return (deferred.promise());
+        return deferred.promise();
     };
 
     SQL.getCursor = function() {
@@ -538,7 +523,7 @@ window.SQL = (function($, SQL) {
 
     function commitLogs() {
         if (sqlToCommit === "") {
-            return jQuery.Deferred().resolve().promise();
+            return PromiseHelper.resolve();
         }
 
         var deferred = jQuery.Deferred();
@@ -555,7 +540,7 @@ window.SQL = (function($, SQL) {
             deferred.reject(error);
         });
 
-        return (deferred.promise());
+        return deferred.promise();
     }
 
     function parseRawLog(rawLog) {
@@ -1031,6 +1016,16 @@ window.SQL = (function($, SQL) {
         document.execCommand("copy");
         $hiddenInput.remove();
         xcHelper.showSuccess(SuccessTStr.Copy);
+    }
+
+    function toggleSQLSize($sql) {
+        $sql.toggleClass("collapsed");
+        $sql.toggleClass("expanded");
+        if ($textarea.find(".expanded").length) {
+            isCollapsed = false;
+        } else if ($textarea.find(".collapsed").length) {
+            isCollapsed = true;
+        }
     }
 
     function setupMenuActions() {
