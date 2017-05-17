@@ -91,8 +91,8 @@ describe("DSObj Test", function() {
             .then(function() {
                 done();
             })
-            .fail(function(error) {
-                throw error;
+            .fail(function() {
+                done("fail");
             });
         });
 
@@ -108,6 +108,17 @@ describe("DSObj Test", function() {
             // case 2
             newFolder = DS.upgrade(null);
             expect(newFolder).to.be.null;
+        });
+
+        it("should cache error ds", function() {
+            expect(DS.getErrorDSObj("test")).to.be.null;
+            DS.__testOnly__.cacheErrorDS("test", "testDSObj");
+            expect(DS.getErrorDSObj("test")).to.equal("testDSObj");
+        });
+
+        it("should remoe cache error ds", function() {
+            DS.removeErrorDSObj("test");
+            expect(DS.getErrorDSObj("test")).to.be.null;
         });
     });
 
@@ -306,6 +317,29 @@ describe("DSObj Test", function() {
     });
 
     describe("New Dataset Test", function() {
+        it("should handle DS.point error", function(done) {
+            var oldFocus = DS.focusOn;
+            DS.focusOn = function() {
+                return PromiseHelper.reject("test");
+            };
+
+            var name = xcHelper.uniqueRandName("test", DS.has, 10);
+            var dataset = testDatasets.sp500;
+            var pointArgs = $.extend({}, dataset, {"name": name});
+            DS.point(pointArgs)
+            .then(function() {
+                done("fail");
+            })
+            .fail(function(error) {
+                expect(error).to.equal("test");
+                UnitTest.hasAlertWithTitle(StatusMessageTStr.ImportDSFailed);
+                done();
+            })
+            .always(function() {
+                DS.focusOn = oldFocus;
+            });
+        });
+
         it("Should import ds", function(done) {
             var name = xcHelper.uniqueRandName("testSuites-dsObj-sp500", DS.has, 10);
             var dataset = testDatasets.sp500;
@@ -332,7 +366,7 @@ describe("DSObj Test", function() {
                 }, 2000);
             })
             .fail(function() {
-                throw "Fail Case!";
+                done("fail");
             });
         });
 
@@ -347,6 +381,27 @@ describe("DSObj Test", function() {
             expect(DS.has(dsName)).to.be.true;
         });
 
+        it("should handle focus on error", function(done) {
+            var oldFunc = DSTable.show;
+
+            DSTable.show = function() {
+                return PromiseHelper.reject("test");
+            };
+
+            var $grid = DS.getGrid(testDS.getId());
+            DS.focusOn($grid)
+            .then(function() {
+                done("fail");
+            })
+            .fail(function(error) {
+                expect(error).to.equal("test");
+                done();
+            })
+            .always(function() {
+                DSTable.show = oldFunc;
+            });
+        });
+
         it("Should Focus on ds", function(done) {
             var $grid = DS.getGrid(testDS.getId());
             DS.focusOn($grid)
@@ -355,7 +410,7 @@ describe("DSObj Test", function() {
                 done();
             })
             .fail(function() {
-                throw "Fail Case!";
+                done("fail");
             });
         });
 
@@ -373,7 +428,7 @@ describe("DSObj Test", function() {
                 done();
             })
             .fail(function() {
-                throw "Fail Case!";
+                done("fail");
             })
             .always(function() {
                 $grid.removeClass("fetching");
@@ -725,7 +780,7 @@ describe("DSObj Test", function() {
                 done();
             })
             .fail(function() {
-                throw "Fail Case!";
+                done("fail");
             });
         });
     });
@@ -739,6 +794,14 @@ describe("DSObj Test", function() {
             $ds = DS.getGrid(testDS.getId());
             $folder = DS.getGrid(testFolder.getId());
             $alertModal = $("#alertModal");
+        });
+
+        it("should not delete uneditable folder", function() {
+            var folder = DS.getDSObj($folder.data("dsid"));
+            folder.uneditable = true;
+            DS.remove($folder);
+            UnitTest.hasAlertWithTitle(AlertTStr.NoDel);
+            folder.uneditable = false;
         });
 
         it("Should not delete folder with ds", function() {
@@ -769,6 +832,27 @@ describe("DSObj Test", function() {
             expect(DS.getDSObj(dsId)).not.to.exist;
         });
 
+        it("should cancel ds", function() {
+            var oldCancel = DS.cancel;
+            var test = false;
+            DS.cancel = function() {
+                test = true;
+            };
+            $ds.data("txid", "test");
+            DS.remove($ds);
+            UnitTest.hasAlertWithTitle(DSTStr.CancalPoint, {
+                "confirm": true
+            });
+            expect(test).to.be.true;
+            $ds.removeData("txid");
+            DS.cancel = oldCancel;
+        });
+
+        it("should remove ds", function() {
+            DS.remove($ds);
+            UnitTest.hasAlertWithTitle(DSTStr.DelDS);
+        });
+
         it("Should delete ds", function(done) {
             var dsId = testDS.getId();
             DS.__testOnly__.delDSHelper($ds, testDS)
@@ -779,7 +863,7 @@ describe("DSObj Test", function() {
                 done();
             })
             .fail(function() {
-                throw "Fail Case!";
+                done("fail");
             });
         });
     });

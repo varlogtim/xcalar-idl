@@ -17,11 +17,12 @@ describe("File Browser Test", function() {
     describe('Basic function test', function() {
         var $testGrid;
         var testFiles;
+        var testHtml;
 
         before(function(){
-            var testHtml = '<div class="grid-unit">' +
-                                '<div class="label" data-name="test"></div>' +
-                            '</div>';
+            testHtml = '<div class="grid-unit">' +
+                            '<div class="label" data-name="test"></div>' +
+                        '</div>';
             $testGrid = $(testHtml);
 
             testFiles = [{
@@ -163,7 +164,7 @@ describe("File Browser Test", function() {
                 done();
             })
             .fail(function() {
-                throw "error case";
+                done("fail");
             });
         });
 
@@ -195,6 +196,20 @@ describe("File Browser Test", function() {
             expect(test).to.contain("test");
 
             FilePreviewer.show = oldFunc;
+        });
+
+        it("findVerticalIcon() should work", function() {
+            var findVerticalIcon = FileBrowser.__testOnly__.findVerticalIcon;
+            var $curIcon = $(testHtml);
+            $curIcon.after($testGrid);
+
+            var $res = findVerticalIcon($curIcon, keyCode.Up);
+            expect($res).to.equal($curIcon);
+
+            // case 2
+            $curIcon.before($testGrid);
+            $res = findVerticalIcon($curIcon, keyCode.Down);
+            expect($res.length).to.equal(0);
         });
 
         it("should submit form", function() {
@@ -230,6 +245,10 @@ describe("File Browser Test", function() {
 
             DSPreview.show = oldFunc;
         });
+
+        after(function() {
+            $testGrid.remove();
+        });
     });
 
     describe("Go To Path Test", function() {
@@ -250,7 +269,7 @@ describe("File Browser Test", function() {
                 done();
             })
             .fail(function() {
-                throw "Error Case!";
+                done("fail");
             });
         });
 
@@ -261,7 +280,7 @@ describe("File Browser Test", function() {
                 done();
             })
             .fail(function() {
-                throw "Error Case!";
+                done("fail");
             });
         });
 
@@ -272,7 +291,7 @@ describe("File Browser Test", function() {
 
             FileBrowser.__testOnly__.goToPath($li)
             .then(function() {
-                throw "Error Case!";
+                done("fail");
             })
             .fail(function() {
                 assert.isTrue($("#alertModal").is(":visible"));
@@ -301,7 +320,7 @@ describe("File Browser Test", function() {
 
             FileBrowser.show(FileProtocol.nfs)
             .then(function() {
-                throw "error case";
+                done("fail");
             })
             .fail(function(error) {
                 expect(error).to.be.an("object");
@@ -319,7 +338,7 @@ describe("File Browser Test", function() {
 
             FileBrowser.show(FileProtocol.nfs)
             .then(function() {
-                throw "error case";
+                done("fail");
             })
             .fail(function(error) {
                 expect(error).to.be.an("object");
@@ -339,7 +358,7 @@ describe("File Browser Test", function() {
 
             FileBrowser.show(FileProtocol.nfs, "test/")
             .then(function() {
-                throw "error case";
+                done("fail");
             })
             .fail(function(error) {
                 expect(error).to.be.an("object");
@@ -366,7 +385,7 @@ describe("File Browser Test", function() {
                 done();
             })
             .fail(function() {
-                throw "Error case!";
+                done("fail");
             });
         });
 
@@ -415,7 +434,7 @@ describe("File Browser Test", function() {
                 done();
             })
             .fail(function() {
-                throw "error case";
+                done("fail");
             });
         });
 
@@ -443,7 +462,7 @@ describe("File Browser Test", function() {
                 done();
             })
             .fail(function() {
-                throw "error case";
+                done("fail");
             })
             .always(function() {
                 XcalarListFiles = oldFunc;
@@ -467,7 +486,7 @@ describe("File Browser Test", function() {
                 done();
             })
             .fail(function() {
-                throw "error case";
+                done("fail");
             });
         });
 
@@ -486,7 +505,7 @@ describe("File Browser Test", function() {
                 done();
             })
             .fail(function() {
-                throw "error case";
+                done("fail");
             });
         });
 
@@ -519,7 +538,7 @@ describe("File Browser Test", function() {
                 done();
             })
             .fail(function() {
-                throw "Error case!";
+                done("fail");
             });
         });
 
@@ -534,7 +553,7 @@ describe("File Browser Test", function() {
                 done();
             })
             .fail(function() {
-                throw "Error case!";
+                done("fail");
             });
         });
 
@@ -552,7 +571,7 @@ describe("File Browser Test", function() {
                 done();
             })
             .fail(function() {
-                throw "Error case!";
+                done("fail");
             });
         });
 
@@ -583,11 +602,15 @@ describe("File Browser Test", function() {
         it("Should use sort menu to sort", function() {
             var $li = $("#fileBrowserSortMenu").find('li[data-sortkey="size"]');
             expect($li.hasClass("select")).to.be.false;
+            // when not left click
+            $li.mouseup();
+            expect($li.hasClass("select")).to.be.false;
+
             $li.trigger(fakeEvent.mouseup);
             expect($li.hasClass("select")).to.be.true;
         });
 
-        it.skip("Should sort using title label", function() {
+        it("Should sort using title label", function() {
             var $fileBrowserMain = $("#fileBrowserMain");
             var isListView = $fileBrowserMain.hasClass("listView");
 
@@ -645,7 +668,7 @@ describe("File Browser Test", function() {
                 done();
             })
             .fail(function() {
-                throw "Error case!";
+                done("fail");
             });
         });
 
@@ -710,7 +733,7 @@ describe("File Browser Test", function() {
                 done();
             })
             .fail(function() {
-                throw "Error case!";
+                done("fail");
             });
         });
 
@@ -744,7 +767,7 @@ describe("File Browser Test", function() {
                 done();
             })
             .fail(function() {
-                throw "error case";
+                done("fail");
             });
         });
 
@@ -764,7 +787,7 @@ describe("File Browser Test", function() {
                 done();
             })
             .fail(function() {
-                throw "error case";
+                done("fail");
             });
         });
 
@@ -784,7 +807,7 @@ describe("File Browser Test", function() {
                 done();
             })
             .fail(function() {
-                throw "Error case!";
+                done("fail");
             });
         });
 
@@ -899,7 +922,7 @@ describe("File Browser Test", function() {
                 done();
             })
             .fail(function() {
-                throw "error case";
+                done("fail");
             });
         });
 
@@ -918,7 +941,7 @@ describe("File Browser Test", function() {
                 done();
             })
             .fail(function() {
-                throw "error case";
+                done("fail");
             });
         });
 
@@ -950,7 +973,7 @@ describe("File Browser Test", function() {
                 done();
             })
             .fail(function() {
-                throw "Error case!";
+                done("fail");
             });
         });
 

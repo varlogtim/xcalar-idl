@@ -1802,6 +1802,7 @@ window.DS = (function ($, DS) {
         DS.__testOnly__.canCreateFolder = canCreateFolder;
         DS.__testOnly__.createDS = createDS;
         DS.__testOnly__.removeDS = removeDS;
+        DS.__testOnly__.cacheErrorDS = cacheErrorDS;
 
         DS.__testOnly__.getDragDS = getDragDS;
         DS.__testOnly__.setDragDS = setDragDS;

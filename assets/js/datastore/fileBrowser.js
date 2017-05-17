@@ -1293,7 +1293,9 @@ window.FileBrowser = (function($, FileBrowser) {
                 // pick the last icon of the last row, unless it's on the same
                 // row (position().top === curIconTop)
                 var curIconTop = $curIcon.position().top;
-                if ($targetIcon.position().top === curIconTop) {
+                if ($targetIcon.length &&
+                    $targetIcon.position().top === curIconTop)
+                {
                     $targetIcon = $curIcon;
                 }
             }
@@ -1430,6 +1432,7 @@ window.FileBrowser = (function($, FileBrowser) {
         FileBrowser.__testOnly__.focusOn = focusOn;
         FileBrowser.__testOnly__.isDS = isDS;
         FileBrowser.__testOnly__.previewDS = previewDS;
+        FileBrowser.__testOnly__.findVerticalIcon = findVerticalIcon;
         FileBrowser.__testOnly__.redirectHandler = redirectHandler;
         FileBrowser.__testOnly__.sumbitForm = sumbitForm;
     }

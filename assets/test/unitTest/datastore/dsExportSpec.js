@@ -25,6 +25,58 @@ describe("DSExport Test", function() {
         }
     });
 
+    describe("DSExport Basic Api Test", function() {
+        it("DSExport.toggleXcUDFs should work", function() {
+            var $udfModule = $("#exportDataForm").find(".udfModuleListWrap");
+            var isHide = UserSettings.getPref("hideXcUDF");
+            var $li = $("<li>_xcalar_test</li>");
+            $udfModule.append($li);
+            DSExport.toggleXcUDFs(!isHide);
+            expect($li.hasClass("xcUDF")).to.be.equal(!isHide);
+
+            DSExport.toggleXcUDFs(isHide);
+            expect($li.hasClass("xcUDF")).to.be.equal(isHide);
+            $li.remove();
+        });
+
+        it("DSExport.getTargets should work", function() {
+            var res = DSExport.getTargets();
+            expect(res).to.be.an("array");
+        });
+
+        it("DSExport.getDefaultPath should work", function(done) {
+            DSExport.getDefaultPath()
+            .then(function(res) {
+                expect(res.length).to.be.gt(10);
+                expect(res.indexOf("export")).to.be.gt(4);
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        it("DSExport.refresh should handle error case", function(done) {
+            var oldList = XcalarListExportTargets;
+            XcalarListExportTargets = function() {
+                return PromiseHelper.reject({"error": "test"});
+            };
+
+            DSExport.refresh()
+            .then(function() {
+                done("fail");
+            })
+            .fail(function(error) {
+                expect(error.error).to.equal("test");
+                UnitTest.hasAlertWithTitle(DSExportTStr.RestoreFail);
+                done();
+            })
+            .always(function() {
+                XcalarListExportTargets = oldList;
+            });
+        });
+    });
+
     describe("XcalarListExportTargets", function() {
         it("should return expected struct", function(done) {
             XcalarAddLocalFSExportTarget(testTargetName, url)
@@ -300,15 +352,15 @@ describe("DSExport Test", function() {
 
             submitForm("LocalFilesystem", testTargetName, url, {})
             .then(function() {
-                expect("didnt work").to.equal("should work");
+                done("fail");
             })
             .fail(function(){
                 expect(passed).to.be.true;
+                done();
             })
             .always(function() {
                 XcalarAddLocalFSExportTarget = localExportCache;
                 Alert.forceClose();
-                done();
             });
         });
 
@@ -336,18 +388,15 @@ describe("DSExport Test", function() {
                         done();
                     })
                     .fail(function() {
-                        expect("didnt work").to.equal("should work");
-                        done();
+                        done("fail");
                     });
                 })
                 .fail(function() {
-                    expect("didnt work").to.equal("should work");
-                    done();
+                    done("fail");
                 });
             })
             .fail(function(){
-                expect("didnt work").to.equal("should work");
-                done();
+                done("fail");
             });
         });
 
@@ -361,15 +410,15 @@ describe("DSExport Test", function() {
 
             submitForm("UDF", testTargetName, url, {module: "a", fn: "b"})
             .then(function() {
-                expect("didnt work").to.equal("should work");
+                done("fail");
             })
             .fail(function(){
                 expect(passed).to.be.true;
+                done();
             })
             .always(function() {
                 XcalarAddUDFExportTarget = exportCache;
                 Alert.forceClose();
-                done();
             });
         });
 
@@ -395,23 +444,43 @@ describe("DSExport Test", function() {
                         done();
                     })
                     .fail(function() {
-                        expect("didnt work").to.equal("should work");
-                        done();
+                        done("fail");
                     });
                 })
                 .fail(function() {
-                    expect("didnt work").to.equal("should work");
-                    done();
+                    done("fail");
                 });
             })
             .fail(function(){
-                expect("didnt work").to.equal("should work");
-                done();
+                done("fail");
             });
         });
     });
 
     describe("grid panel", function() {
+        it("should click refre button to refresh", function() {
+            var oldRefresh = DSExport.refresh;
+            var test = false;
+            DSExport.refresh = function() {
+                test = true;
+            };
+            $("#dsExport-refresh").click();
+            expect(test).to.be.true;
+            DSExport.refresh = oldRefresh;
+        });
+
+        it("should toggle export list", function() {
+            var $btn = $("#dsExportListSection").find(".targetInfo");
+            var $list = $btn.closest(".xc-expand-list");
+            var isActive = $list.hasClass("active");
+
+            $btn.click();
+            expect($list.hasClass("active")).to.equal(!isActive);
+            // toggle back
+            $btn.click();
+            expect($list.hasClass("active")).to.equal(isActive);
+        });
+
         it("create export button should work", function() {
             $("#dsExportListSection .grid-unit").eq(0).click();
             expect($("#exportTargetEditCard").is(":visible")).to.be.true;
@@ -476,8 +545,7 @@ describe("DSExport Test", function() {
                 done();
             })
             .fail(function(){
-                expect("didnt work").to.equal("should work");
-                done();
+                done("fail");
             });
         });
 
@@ -526,29 +594,13 @@ describe("DSExport Test", function() {
                         done();
                     })
                     .fail(function() {
-                        expect("didnt work").to.equal("should work");
-                        done();
+                        done("fail");
                     });
                 })
                 .fail(function() {
-                    expect("didnt work").to.equal("should work");
-                    done();
+                    done("fail");
                 });
             },1);
-        });
-    });
-
-    describe("get default path", function() {
-        it("getDefaultPath should work", function(done) {
-            DSExport.getDefaultPath()
-            .then(function(res) {
-                expect(res.length).to.be.gt(10);
-                expect(res.indexOf("export")).to.be.gt(4);
-                done();
-            })
-            .fail(function() {
-                done("fail");
-            });
         });
     });
 

@@ -473,6 +473,23 @@ describe("DSParser Test", function() {
             });
         });
 
+        it("should handle submit with text format", function(done) {
+            $formatInput.val("PLAIN TEXT");
+            var test = false;
+            DSPreview.backFromParser = function() {
+                test = true;
+            };
+
+            submitForm()
+            .then(function() {
+                expect(test).to.be.true;
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
         it("should handle parse error", function(done) {
             $formatInput.val("JSON");
             XcalarAppExecute = function() {
@@ -551,6 +568,46 @@ describe("DSParser Test", function() {
             $card = $("#dsParser");
         });
 
+        it("should alert when size is over limit", function(done) {
+            var oldList = XcalarListFiles;
+            XcalarListFiles = function() {
+                return PromiseHelper.resolve({
+                    "files": [{
+                        "attr": {
+                            "size": 600 * 1024 * 1024 // 600MB;
+                        }
+                    }]
+                });
+            };
+
+            var promise = DSParser.show("test");
+            var checkFunc = function() {
+                return $("#alertModal").is(":visible");
+            };
+
+            UnitTest.onMinMode();
+
+            UnitTest.testFinish(checkFunc)
+            .then(function() {
+                UnitTest.hasAlertWithText(DSParserTStr.FileSizeWarn);
+            })
+            .fail(function() {
+                done("fail");
+            });
+
+            promise
+            .then(function() {
+                done("fail");
+            })
+            .fail(function() {
+                done();
+            })
+            .always(function() {
+                XcalarListFiles = oldList;
+                UnitTest.offMinMode();
+            });
+        });
+
         it("should show parser", function(done) {
             var url = "file:///netstore/datasets/dsParser/Sample_JSON_-_Ugly.json";
             DSParser.show(url)
@@ -623,6 +680,13 @@ describe("DSParser Test", function() {
             .always(function() {
                 XcalarPreview = cached;
             });
+        });
+
+        it("should not accept invalid row to skip", function() {
+            var $input = $("#parserRowInput");
+            var oldVal = $input.val();
+            $input.val("1.23").trigger(fakeEvent.enter);
+            expect($input.val()).to.equal(oldVal);
         });
 
         it("should use input to skip to row", function(done) {
