@@ -1320,7 +1320,6 @@ window.QueryManager = (function(QueryManager, $) {
             }
 
             if (gTables[tableId]) {
-
                 if (gTables[tableId].status === TableType.Active) {
                     $('#workspaceTab').click();
                     wsId = WSManager.getWSFromTable(tableId);
@@ -1723,6 +1722,7 @@ window.QueryManager = (function(QueryManager, $) {
         QueryManager.__testOnly__.getElapsedTimeStr = getElapsedTimeStr;
         QueryManager.__testOnly__.queryLists = queryLists;
         QueryManager.__testOnly__.queryCheckLists = queryCheckList;
+        QueryManager.__testOnly__.canceledQueries = canceledQueries;
     }
     /* End Of Unit Test Only */
 

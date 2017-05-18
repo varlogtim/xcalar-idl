@@ -222,7 +222,103 @@ describe('QueryManager Test', function() {
         });
     });
 
-    describe('Cancel DS upload', function() {
+    describe("Focusing", function() {
+        it("should scroll to focused item", function() {
+            var lis = "";
+            for (var i = 0; i < 100; i++) {
+                lis += "<div class='xc-query query'></div>";
+            }
+            lis += "<div class='xc-query query active'></div>";
+            var $lis = $(lis);
+            $queryList.append($lis);
+            var scrollTop = $queryList.scrollTop();
+            QueryManager.scrollToFocused();
+            expect($queryList.scrollTop()).to.be.gt(scrollTop + 4000);
+            $lis.remove();
+        });
+        it("focus on output should work", function() {
+            var fakeQuery = new XcQuery({});
+            queryLists[999] = fakeQuery;
+            $queryList.append("<div data-id='999' class='xc-query query active'></div>");
+
+            $("#monitor-inspect").click();
+
+            UnitTest.hasAlertWithTitle("table not found");
+            $queryList.find(".query").last().remove();
+            delete queryLists[999];
+        });
+
+        it("focus on dsOutput should work", function(done) {
+            var fakeQuery = new XcQuery({});
+            queryLists[999] = fakeQuery;
+            $queryList.append("<div data-id='999' class='xc-query query active'></div>");
+
+            fakeQuery.getOutputTableName = function() {
+                return gDSPrefix + "fakeDS";
+            };
+
+            $("#monitor-inspect").click();
+            UnitTest.testFinish(function() {
+                return $("#alertHeader .text").text() === "Dataset Not Found";
+            })
+            .then(function() {
+                UnitTest.hasAlertWithTitle("dataset not found", {confirm: true});
+                $queryList.find(".query").last().remove();
+                delete queryLists[999];
+                done();
+            });
+        });
+
+        it("focus on table output should work", function() {
+            var fakeQuery = new XcQuery({});
+            queryLists[999] = fakeQuery;
+            $queryList.append("<div data-id='999' class='xc-query query active'></div>");
+            var cachedFn = WSManager.getWSFromTable;
+            WSManager.getWSFromTable = function() {
+                return true;
+            };
+            fakeQuery.getOutputTableName = function() {
+                return "fakeTable#fakeId";
+            };
+
+            gTables["fakeId"] = {status: TableType.Undone};
+            $("#monitor-inspect").click();
+
+            UnitTest.hasAlertWithTitle("table not found");
+            $queryList.find(".query").last().remove();
+            delete queryLists[999];
+            delete gTables["fakeId"];
+            WSManager.getWSFromTable = cachedFn;
+        });
+
+         it("focus on table output should work", function(done) {
+            var fakeQuery = new XcQuery({});
+            queryLists[999] = fakeQuery;
+            $queryList.append("<div data-id='999' class='xc-query query active'></div>");
+            var cachedFn = WSManager.getWSFromTable;
+            WSManager.getWSFromTable = function() {
+                return true;
+            };
+            fakeQuery.getOutputTableName = function() {
+                return "fakeTable#fakeId";
+            };
+
+            $("#monitor-inspect").click();
+
+             UnitTest.testFinish(function() {
+                return $("#alertHeader .text").text() === "Table Not Found";
+            })
+            .then(function() {
+                UnitTest.hasAlertWithTitle("table not found", {confirm: true});
+                WSManager.getWSFromTable = cachedFn;
+                $queryList.find(".query").last().remove();
+                delete queryLists[999];
+                done();
+            });
+        });
+    });
+
+    describe('Canceling', function() {
         it("QueryManager.cancelDS should work", function() {
             var dsCancelCache = DS.cancel;
             var cachedGetOpStats = XcalarGetOpStats;
@@ -248,6 +344,37 @@ describe('QueryManager Test', function() {
 
             delete queryLists[1];
             $queryList.find(".xc-query").last().remove();
+        });
+        it("confirmCanceledQuery should work", function() {
+            var list = queryLists;
+            var fakeQuery = new XcQuery({});
+            list["fakeId"] = fakeQuery;
+            QueryManager.confirmCanceledQuery("fakeId");
+            expect(fakeQuery.outputTableState).to.equal("deleted");
+            expect(fakeQuery.state).to.equal("canceled");
+
+            var fnCalled = false;
+            var cachedFn = DSCart.queryDone;
+            DSCart.queryDone = function() {
+                fnCalled = true;
+            };
+            fakeQuery.subQueries[0] = {getName:function() {
+                return "index from DS";
+            }};
+
+            QueryManager.confirmCanceledQuery("fakeId");
+            expect(fnCalled).to.be.true;
+
+            DSCart.queryDone = cachedFn;
+            delete list["fakeId"];
+        });
+
+        it("cleanup canceled tables should work", function() {
+            var fakeQuery = new XcQuery({});
+            var list = QueryManager.__testOnly__.canceledQueries;
+            list["fakeId"] = fakeQuery;
+            QueryManager.cleanUpCanceledTables("fakeId");
+            expect(list["fakeId"]).to.be.undefined;
         });
     });
 
