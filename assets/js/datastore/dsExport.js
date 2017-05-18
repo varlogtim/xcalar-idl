@@ -9,21 +9,21 @@ window.DSExport = (function($, DSExport) {
     var $targetTypeInput;
     var $exportTargetCard;
     var $exportTargetEditCard;
-    var $gridMenu; // $('#expTargetGridMenu');
+    var $gridMenu; // $("#expTargetGridMenu");
     var defaultPath;
 
     DSExport.setup = function() {
         $gridView = $("#dsExportListSection .gridItems");
-        $form = $('#exportDataForm');
-        $editForm = $('#exportDataEditForm');
-        $udfModuleList = $form.find('.udfModuleListWrap');
-        $udfFuncList = $form.find('.udfFuncListWrap');
-        $exportTargetCard = $('#exportTargetCard');
-        $exportTargetEditCard = $('#exportTargetEditCard');
-        $gridMenu = $('#expTargetGridMenu');
+        $form = $("#exportDataForm");
+        $editForm = $("#exportDataEditForm");
+        $udfModuleList = $form.find(".udfModuleListWrap");
+        $udfFuncList = $form.find(".udfFuncListWrap");
+        $exportTargetCard = $("#exportTargetCard");
+        $exportTargetEditCard = $("#exportTargetEditCard");
+        $gridMenu = $("#expTargetGridMenu");
 
-        $targetTypeList = $('#targetTypeList');
-        $targetTypeInput = $targetTypeList.find('.text');
+        $targetTypeList = $("#targetTypeList");
+        $targetTypeInput = $targetTypeList.find(".text");
 
         setupDropdowns();
         setupGridMenu();
@@ -33,7 +33,7 @@ window.DSExport = (function($, DSExport) {
             DSExport.refresh();
         });
 
-        $('#createExportButton').click(function() {
+        $("#createExportButton").click(function() {
             showExportTargetForm();
         });
 
@@ -45,20 +45,20 @@ window.DSExport = (function($, DSExport) {
 
         $form.submit(function(event) {
             event.preventDefault();
-            $form.find('input').blur();
+            $form.find("input").blur();
 
             var $submitBtn = $("#exportFormSubmit").blur();
             xcHelper.disableSubmit($submitBtn);
-            $form.find('.formRow').addClass('disabled');
+            $form.find(".formRow").addClass("disabled");
 
-            var targetType = $targetTypeInput.data('value');
-            var name = $('#targetName').val().trim();
-            var formatSpecificArg = $form.find('.active .formatSpecificArg')
+            var targetType = $targetTypeInput.data("value");
+            var name = $("#targetName").val().trim();
+            var formatSpecificArg = $form.find(".active .formatSpecificArg")
                                          .val();
             var options = {};
             if (targetType === "UDF") {
-                options.module = $form.find('.udfModuleName').val().trim();
-                options.fn = $form.find('.udfFuncName').val().trim();
+                options.module = $form.find(".udfModuleName").val().trim();
+                options.fn = $form.find(".udfFuncName").val().trim();
             }
 
             submitForm(targetType, name, formatSpecificArg, options)
@@ -73,28 +73,28 @@ window.DSExport = (function($, DSExport) {
             })
             .always(function() {
                 xcHelper.enableSubmit($submitBtn);
-                $form.find('.formRow').removeClass('disabled');
+                $form.find(".formRow").removeClass("disabled");
             });
         });
 
-        $('#exportFormReset').click(function() {
-            $form.find('.formatSpecificRow').removeClass('active');
-            $form.find('.placeholderRow').removeClass('xc-hidden');
-            $targetTypeInput.data('value', "");
+        $("#exportFormReset").click(function() {
+            $form.find(".formatSpecificRow").removeClass("active");
+            $form.find(".placeholderRow").removeClass("xc-hidden");
+            $targetTypeInput.data("value", "");
             xcTooltip.enable($udfFuncList.parent());
             $udfFuncList.addClass("disabled");
             $gridView.find(".gridArea .active").removeClass("active");
-            // var $inputs = $exportTargetCard.find('input:enabled');
-            $exportTargetCard.find('.tempDisabled').removeClass('tempDisabled')
-                             .prop('disabled', false);
-            $('#targetName').focus();
+
+            $exportTargetCard.find(".tempDisabled").removeClass("tempDisabled")
+                             .prop("disabled", false);
+            $("#targetName").focus();
         });
 
         $("#dsExportListSection").on("click", ".targetInfo", function() {
             $(this).closest(".xc-expand-list").toggleClass("active");
         });
 
-        $('#exportTargetDelete').click(function() {
+        $("#exportTargetDelete").click(function() {
             deleteTarget();
         });
     };
@@ -102,15 +102,15 @@ window.DSExport = (function($, DSExport) {
     DSExport.refresh = function(noWaitIcon) {
         var deferred = jQuery.Deferred();
         if (!noWaitIcon) {
-            xcHelper.showRefreshIcon($('#dsExportListSection'));
+            xcHelper.showRefreshIcon($("#dsExportListSection"));
         }
 
-        var $activeIcon = $gridView.find('.target.active');
+        var $activeIcon = $gridView.find(".target.active");
         var activeName;
         var activeType;
         if ($activeIcon.length) {
-            activeName = $activeIcon.data('name');
-            activeType = $activeIcon.closest('.targetSection').data('type');
+            activeName = $activeIcon.data("name");
+            activeType = $activeIcon.closest(".targetSection").data("type");
         }
 
         XcalarListExportTargets("*", "*")
@@ -171,8 +171,8 @@ window.DSExport = (function($, DSExport) {
     // updates the udf list
     DSExport.refreshUDF = function(listXdfsObj) {
         var udfObj = xcHelper.getUDFList(listXdfsObj);
-        $udfModuleList.find('ul').html(udfObj.moduleLis);
-        $udfFuncList.find('ul').html(udfObj.fnLis);
+        $udfModuleList.find("ul").html(udfObj.moduleLis);
+        $udfFuncList.find("ul").html(udfObj.fnLis);
     };
 
     DSExport.toggleXcUDFs = function(hide) {
@@ -241,20 +241,20 @@ window.DSExport = (function($, DSExport) {
                 if ($li.hasClass("unavailable")) {
                     return true; // return true to keep dropdown open
                 }
-                $form.find('.placeholderRow').addClass('xc-hidden');
-                $targetTypeInput.val($li.text()).removeClass('hint');
-                var type = $li.attr('name');
-                $targetTypeInput.data('value', type);
-                $form.find('.formatSpecificRow').removeClass('active');
+                $form.find(".placeholderRow").addClass("xc-hidden");
+                $targetTypeInput.val($li.text()).removeClass("hint");
+                var type = $li.attr("name");
+                $targetTypeInput.data("value", type);
+                $form.find(".formatSpecificRow").removeClass("active");
                 if (type === "ODBC") {
-                    $('#connectionStr').closest('.formatSpecificRow')
-                                       .addClass('active');
+                    $("#connectionStr").closest(".formatSpecificRow")
+                                       .addClass("active");
                 } else {
-                    $('#exportURL').closest('.formatSpecificRow')
-                                   .addClass('active');
+                    $("#exportURL").closest(".formatSpecificRow")
+                                   .addClass("active");
                 }
                 if (type === "UDF") {
-                    $form.find('.udfSelectorRow').addClass('active');
+                    $form.find(".udfSelectorRow").addClass("active");
                 }
                 StatusBox.forceHide();
             },
@@ -264,7 +264,7 @@ window.DSExport = (function($, DSExport) {
         new MenuHelper($udfModuleList, {
             "onSelect": function($li) {
                 var module = $li.text();
-                $udfModuleList.find('.udfModuleName').val(module);
+                $udfModuleList.find(".udfModuleName").val(module);
                 xcTooltip.disable($udfFuncList.parent());
                 var $funcListLis = $udfFuncList.removeClass("disabled")
                                     .find("input").val("")
@@ -278,7 +278,7 @@ window.DSExport = (function($, DSExport) {
                 // autofill input if there's only 1 option
                 if ($funcListLis.length === 1) {
                     var func = $funcListLis.text();
-                    $udfFuncList.find('.udfFuncName').val(func);
+                    $udfFuncList.find(".udfFuncName").val(func);
                 }
                 StatusBox.forceHide();
             },
@@ -289,7 +289,7 @@ window.DSExport = (function($, DSExport) {
         new MenuHelper($udfFuncList, {
             "onSelect": function($li) {
                 var func = $li.text();
-                $udfFuncList.find('.udfFuncName').val(func);
+                $udfFuncList.find(".udfFuncName").val(func);
                 StatusBox.forceHide();
             },
             "bounds": "#datastorePanel > .mainContent",
@@ -310,42 +310,41 @@ window.DSExport = (function($, DSExport) {
 
     function selectGrid($grid) {
         clearSelectedGrid();
-        if ($grid.hasClass('active')) {
+        if ($grid.hasClass("active")) {
             return;
         }
 
-        $exportTargetCard.addClass('xc-hidden');
-        $exportTargetEditCard.removeClass('xc-hidden');
-        var $activeInputs = $exportTargetEditCard.find('input:enabled');
-        $activeInputs.addClass('tempDisabled').prop('disabled', true);
+        $exportTargetCard.addClass("xc-hidden");
+        $exportTargetEditCard.removeClass("xc-hidden");
+        var $activeInputs = $exportTargetEditCard.find("input:enabled");
+        $activeInputs.addClass("tempDisabled").prop("disabled", true);
 
 
         $gridView.find(".gridArea .active").removeClass("active");
         $grid.addClass("active");
-        var name = $grid.data('name');
-        var type = $grid.closest('.targetSection').data('type');
-        var formatArg = $grid.data('formatarg');
+        var name = $grid.data("name");
+        var type = $grid.closest(".targetSection").data("type");
+        var formatArg = $grid.data("formatarg");
 
-        $('#targetName-edit').val(name);
-        $('#targetTypeList-edit').find('.text').val(type);
+        $("#targetName-edit").val(name);
+        $("#targetTypeList-edit").find(".text").val(type);
 
-        // $form.find('.placeholderRow').addClass('xc-hidden');
-        $form.find('.formatSpecificRow').removeClass('active');
-        $editForm.find('.formatSpecificRow').removeClass('active');
+        $form.find(".formatSpecificRow").removeClass("active");
+        $editForm.find(".formatSpecificRow").removeClass("active");
         if (type === "ODBC") {
-            $('#connectionStr-edit').closest('.formatSpecificRow')
-                               .addClass('active');
-            $('#connectionStr-edit').val(formatArg);
+            $("#connectionStr-edit").closest(".formatSpecificRow")
+                               .addClass("active");
+            $("#connectionStr-edit").val(formatArg);
         } else {
-            $('#exportURL-edit').closest('.formatSpecificRow')
-                           .addClass('active');
-            $('#exportURL-edit').val(FileProtocol.nfs.substring(0,
+            $("#exportURL-edit").closest(".formatSpecificRow")
+                           .addClass("active");
+            $("#exportURL-edit").val(FileProtocol.nfs.substring(0,
                 FileProtocol.nfs.length - 1) + formatArg);
         }
         if (type === "UDF") {
-            $editForm.find('.udfSelectorRow').addClass('active');
-            $editForm.find('.udfModuleName').val($grid.data('module'));
-            $editForm.find('.udfFuncName').val($grid.data('fnname'));
+            $editForm.find(".udfSelectorRow").addClass("active");
+            $editForm.find(".udfModuleName").val($grid.data("module"));
+            $editForm.find(".udfFuncName").val($grid.data("fnname"));
         }
         var $deleteBtn = $("#exportTargetDelete");
         if (name === "Default") {
@@ -360,7 +359,7 @@ window.DSExport = (function($, DSExport) {
     }
 
     function resetForm() {
-        $('#exportFormReset').click();
+        $("#exportFormReset").click();
     }
 
     function clearSelectedGrid() {
@@ -369,11 +368,11 @@ window.DSExport = (function($, DSExport) {
 
     function docTempMouseup() {
         clearSelectedGrid();
-        $(document).off('mouseup.gridSelected');
+        $(document).off("mouseup.gridSelected");
     }
 
     function setupGridMenu() {
-        $gridView.closest('.mainSection').contextmenu(function(event) {
+        $gridView.closest(".mainSection").contextmenu(function(event) {
             var $target = $(event.target);
             var $grid = $target.closest(".grid-unit");
             var classes = "";
@@ -382,7 +381,7 @@ window.DSExport = (function($, DSExport) {
             if ($grid.length) {
                 $grid.addClass("selected");
                 $gridMenu.data("grid", $grid);
-                $(document).on('mouseup.gridSelected', function(event) {
+                $(document).on("mouseup.gridSelected", function(event) {
                     // do not deselect if mouseup is on the menu or menu open
                     if (!$(event.target).closest("#expTargetGridMenu").length
                         && !$("#expTargetGridMenu").is(":visible")) {
@@ -412,32 +411,33 @@ window.DSExport = (function($, DSExport) {
             return false;
         });
 
-        $gridMenu.on('mouseup', 'li', function(event) {
+        $gridMenu.on("mouseup", "li", function(event) {
             if (event.which !== 1) {
                 return;
             }
-            var action = $(this).data('action');
+            var action = $(this).data("action");
             if (!action) {
                 return;
             }
             if ($(this).hasClass("unavailable")) {
                 return;
             }
+
             switch (action) {
-                case ('view'):
+                case ("view"):
                     selectGrid($gridMenu.data("grid"));
                     break;
-                case ('delete'):
+                case ("delete"):
                     deleteTarget($gridMenu.data("grid"));
                     break;
-                case ('create'):
+                case ("create"):
                     showExportTargetForm();
                     break;
-                case ('refresh'):
+                case ("refresh"):
                     DSExport.refresh();
                     break;
                 default:
-                    console.warn('menu action not recognized: ' + action);
+                    console.warn("menu action not recognized:", action);
                     break;
             }
             clearSelectedGrid();
@@ -445,12 +445,12 @@ window.DSExport = (function($, DSExport) {
     }
 
     function showExportTargetForm() {
-        if ($exportTargetCard.hasClass('xc-hidden')) {
-            $exportTargetCard.removeClass('xc-hidden');
-            $exportTargetEditCard.addClass('xc-hidden');
+        if ($exportTargetCard.hasClass("xc-hidden")) {
+            $exportTargetCard.removeClass("xc-hidden");
+            $exportTargetEditCard.addClass("xc-hidden");
             resetForm();
         } else {
-            $('#targetName').focus();
+            $("#targetName").focus();
         }
     }
 
@@ -459,15 +459,15 @@ window.DSExport = (function($, DSExport) {
         if ($grid && $grid.length) {
             $activeIcon = $grid;
         } else {
-            $activeIcon = $gridView.find('.target.active');
+            $activeIcon = $gridView.find(".target.active");
         }
 
-        var targetName = $activeIcon.data('name');
+        var targetName = $activeIcon.data("name");
 
         if (targetName === "Default") {
             return;
         }
-        var targetTypeText = $activeIcon.closest('.targetSection').data('type');
+        var targetTypeText = $activeIcon.closest(".targetSection").data("type");
 
         var targetType;
         if (targetTypeText === UDFTStr.UDF) {
@@ -479,7 +479,7 @@ window.DSExport = (function($, DSExport) {
         Alert.show({
             "title": DSExportTStr.DeleteExportTarget,
             "msgTemplate": xcHelper.replaceMsg(DSExportTStr.DeleteConfirmMsg,
-                                {'target': targetName}),
+                                {"target": targetName}),
             "onConfirm": function() {
                 XcalarRemoveExportTarget(targetName, targetType)
                 .then(function() {
@@ -495,7 +495,7 @@ window.DSExport = (function($, DSExport) {
                 });
 
                 function resolveDelete() {
-                    if ($activeIcon.hasClass('active')) {
+                    if ($activeIcon.hasClass("active")) {
                         showExportTargetForm();
                     }
                     DSExport.refresh();
@@ -506,11 +506,11 @@ window.DSExport = (function($, DSExport) {
 
     function submitForm(targetType, name, formatSpecificArg, options) {
         var deferred = jQuery.Deferred();
-        var $targetTypeInput = $('#targetTypeList').find('.text');
-        var $formatSpecificInput = $form.find('.active .formatSpecificArg');
+        var $targetTypeInput = $("#targetTypeList").find(".text");
+        var $formatSpecificInput = $form.find(".active .formatSpecificArg");
         var isValid = xcHelper.validate([
             {
-                "$ele": $('#targetName'),
+                "$ele": $("#targetName"),
                 "error": ErrTStr.NoEmpty,
                 "side": "top",
                 "check": function() {
@@ -550,7 +550,7 @@ window.DSExport = (function($, DSExport) {
                 }
             },
             {
-                "$ele": $form.find('.udfModuleName'),
+                "$ele": $form.find(".udfModuleName"),
                 "error": ErrTStr.NoEmptyList,
                 "side": "top",
                 "check": function() {
@@ -562,7 +562,7 @@ window.DSExport = (function($, DSExport) {
                 }
             },
             {
-                "$ele": $form.find('.udfFuncName'),
+                "$ele": $form.find(".udfFuncName"),
                 "error": ErrTStr.NoEmptyList,
                 "side": "top",
                 "check": function() {
@@ -648,7 +648,7 @@ window.DSExport = (function($, DSExport) {
             if (!$activeGrid.length) {
                 showExportTargetForm();
             } else {
-                $activeGrid.addClass('active');
+                $activeGrid.addClass("active");
             }
 
         }

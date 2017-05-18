@@ -12,6 +12,12 @@ describe("DSParser Test", function() {
             DSParser.__testOnly__.resetView("test");
             expect($previewContent.text()).to.be.empty;
         });
+
+        it("should handle error case", function() {
+            DSParser.__testOnly__.handleError("testError");
+            expect($("#dsParser .errorSection.error").text())
+            .to.equal("testError");
+        });
     });
 
     describe("Format Detection Test", function() {
@@ -23,6 +29,8 @@ describe("DSParser Test", function() {
             oldPreview = XcalarPreview;
             detectFormat = DSParser.__testOnly__.detectFormat;
             getFormat = DSParser.__testOnly__.getFormat;
+
+            DSParser.__testOnly__.resetView("test");
         });
 
         it("Should detect xml", function(done) {

@@ -75,6 +75,41 @@ describe("DSExport Test", function() {
                 XcalarListExportTargets = oldList;
             });
         });
+
+        it("DSExport.refresh should work", function(done) {
+            var oldList = XcalarListExportTargets;
+            XcalarListExportTargets = function() {
+                return PromiseHelper.resolve({
+                    "numTargets": 1,
+                    "targets": [{
+                        "hdr": {
+                            "name": "test",
+                            "type": ExTargetTypeT.ExTargetUDFType
+                        },
+                        "specificInput": {
+                            "udfInput": {
+                                "url": "testUrl",
+                                "appName": "testApp:testFunc"
+                            }
+                        }
+                    }]
+                });
+            };
+
+            DSExport.refresh()
+            .then(function() {
+                var $grid = $("#dsExportListSection .grid-unit");
+                expect($grid.length).to.equal(1);
+                expect($grid.data("name")).to.equal("test");
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                XcalarListExportTargets = oldList;
+            });
+        });
     });
 
     describe("XcalarListExportTargets", function() {
@@ -547,6 +582,59 @@ describe("DSExport Test", function() {
             .fail(function(){
                 done("fail");
             });
+        });
+
+        it("should click to right menu for action", function() {
+            var $grid = $('.grid-unit[data-name="' + testTargetName + '"]');
+            var $gridMenu = $("#expTargetGridMenu");
+            var $view = $gridMenu.find('li[data-action="view"]');
+            var $refresh = $gridMenu.find('li[data-action="refresh"]');
+            var $create = $gridMenu.find('li[data-action="create"]');
+            // show form case
+            $create.trigger(fakeEvent.mouseup);
+            expect($grid.hasClass("active")).to.be.false;
+            assert.isTrue($("#exportTargetCard").is(":visible"));
+
+            // not left mouseup
+            $grid.removeClass("active");
+            $view.mouseup();
+            expect($grid.hasClass("active")).to.be.false;
+
+            // not avaialable
+            $view.addClass("unavailable");
+            $view.trigger(fakeEvent.mouseup);
+            expect($grid.hasClass("active")).to.be.false;
+
+            // invalid action
+            var $fakeAction = $("<li>test</li>").appendTo($gridMenu);
+            $fakeAction.trigger(fakeEvent.mouseup);
+            expect($grid.hasClass("active")).to.be.false;
+
+            // invalid action 2
+            $fakeAction.data("action", "wrongAction");
+            $fakeAction.trigger(fakeEvent.mouseup);
+            expect($grid.hasClass("active")).to.be.false;
+
+            $fakeAction.remove();
+
+            // view detail case
+            $view.removeClass("unavailable");
+            $gridMenu.data("grid", $grid);
+            $view.trigger(fakeEvent.mouseup);
+            expect($grid.hasClass("active")).to.be.true;
+            assert.isFalse($("#exportTargetCard").is(":visible"));
+
+            // refresh case
+            var test = false;
+            var oldRefresh = DSExport.refresh;
+           
+            DSExport.refresh = function() {
+                test = true;
+            };
+
+            $refresh.trigger(fakeEvent.mouseup);
+            expect(test).to.be.true;
+            DSExport.refresh = oldRefresh;
         });
 
         it("grid icon menu should work", function(done) {

@@ -1988,6 +1988,7 @@ window.DSParser = (function($, DSParser) {
         DSParser.__testOnly__.submitForm = submitForm;
         DSParser.__testOnly__.fetchRows = fetchRows;
         DSParser.__testOnly__.addContent = addContent;
+        DSParser.__testOnly__.handleError = handleError;
     }
     /* End Of Unit Test Only */
 

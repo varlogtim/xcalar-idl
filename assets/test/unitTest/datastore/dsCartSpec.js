@@ -361,8 +361,8 @@ describe("DSCart Test", function() {
                 dsId = $grid.data("dsid");
                 done();
             })
-            .fail(function(error) {
-                throw error;
+            .fail(function() {
+                done("fail");
             });
         });
 
@@ -378,8 +378,8 @@ describe("DSCart Test", function() {
                 expect($cart.length).to.equal(1);
                 done();
             })
-            .fail(function(error) {
-                throw error;
+            .fail(function() {
+                done("fail");
             });
         });
 
@@ -435,7 +435,7 @@ describe("DSCart Test", function() {
                 done();
             })
             .fail(function() {
-                throw "error case";
+                done("fail");
             });
         });
 
@@ -460,11 +460,34 @@ describe("DSCart Test", function() {
         it("Should not create table in error case", function(done) {
             DSCart.createTable()
             .then(function() {
-                throw "error case";
+                done("fail");
             })
             .fail(function(error) {
                 expect(error).not.to.be.null;
                 done();
+            });
+        });
+
+        it("should click submit button to submit", function(done) {
+            var oldFunc = DSCart.createTable;
+            var test = false;
+            DSCart.createTable = function() {
+                test = true;
+            };
+            $("#dataCart-submit").click();
+            var checkFunc = function() {
+                return test === true;
+            };
+
+            UnitTest.testFinish(checkFunc)
+            .then(function() {
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                DSCart.createTable = oldFunc;
             });
         });
 
@@ -480,8 +503,8 @@ describe("DSCart Test", function() {
                 expect(gTables.hasOwnProperty(tableId)).to.be.true;
                 done();
             })
-            .fail(function(error) {
-                throw error;
+            .fail(function() {
+                done("fail");
             });
         });
 
@@ -495,8 +518,8 @@ describe("DSCart Test", function() {
                     done();
                 });
             })
-            .fail(function(error) {
-                throw error;
+            .fail(function() {
+                done("fail");
             });
 
             function deleteHelper() {
