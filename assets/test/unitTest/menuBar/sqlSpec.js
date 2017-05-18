@@ -215,7 +215,7 @@ describe("SQL Test", function() {
                 done();
             })
             .fail(function() {
-                throw "error case";
+                done("fail");
             });
         });
 
@@ -227,7 +227,7 @@ describe("SQL Test", function() {
 
             SQL.restore()
             .then(function() {
-                throw "error case";
+                done("fail");
             })
             .fail(function(error) {
                 expect(error).not.to.be.null;
@@ -251,7 +251,7 @@ describe("SQL Test", function() {
                 done();
             })
             .fail(function() {
-                throw "error case";
+                done("fail");
             });
         });
 
@@ -321,7 +321,7 @@ describe("SQL Test", function() {
             $redo.removeClass("disabled");
             $redo.click();
             expect(test).to.be.true;
-        
+
             if (isDisabled) {
                 $redo.addClass("disabled");
             }
@@ -355,7 +355,7 @@ describe("SQL Test", function() {
 
             SQL.undo()
             .then(function() {
-                throw "error case";
+                done("fail");
             })
             .fail(function(error) {
                 expect(error).not.to.be.null;
@@ -376,7 +376,7 @@ describe("SQL Test", function() {
                 done();
             })
             .fail(function() {
-                throw "error case";
+                done("fail");
             });
         });
 
@@ -387,7 +387,7 @@ describe("SQL Test", function() {
 
             SQL.redo()
             .then(function() {
-                throw "error case";
+                done("fail");
             })
             .fail(function(error) {
                 expect(error).not.to.be.null;
@@ -408,7 +408,7 @@ describe("SQL Test", function() {
                 done();
             })
             .fail(function() {
-                throw "error case";
+                done("fail");
             });
         });
 
@@ -420,7 +420,7 @@ describe("SQL Test", function() {
                 done();
             })
             .fail(function() {
-                throw "error case";
+                done("fail");
             })
             .always(function() {
                 Undo.run = oldUndo;
@@ -497,7 +497,7 @@ describe("SQL Test", function() {
                 done();
             })
             .fail(function() {
-                throw "error case";
+                done("fail");
             })
             .always(function() {
                 xcAssert = oldFunc;

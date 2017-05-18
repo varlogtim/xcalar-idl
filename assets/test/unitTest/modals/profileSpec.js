@@ -1,6 +1,5 @@
 describe("Profile Test", function() {
     var dsName, tableName, tableId, prefix, colNum;
-    var sortTableName, sortTableId;
     var $modal;
 
     before(function(done) {
@@ -15,38 +14,24 @@ describe("Profile Test", function() {
             prefix = resPrefix;
             done();
         })
-        .fail(function(error) {
-            throw error;
+        .fail(function() {
+            done("fail");
         });
     });
 
     describe("Show Profile Test", function() {
-        // prepare
-        it("Should sort the table", function(done) {
+        it("Should show profile", function(done) {
             var table = gTables[tableId];
             var backCol = xcHelper.getPrefixColName(prefix, "average_stars");
             colNum = table.getColNumByBackName(backCol);
 
-            xcFunction.sort(colNum, tableId, SortDirection.Forward)
-            .then(function(finalTableName) {
-                sortTableName = finalTableName;
-                sortTableId = xcHelper.getTableId(sortTableName);
-                expect(gTables.hasOwnProperty(sortTableId));
-                done();
-            })
-            .fail(function() {
-                throw "error case";
-            });
-        });
-
-        it("Should show profile", function(done) {
-            Profile.show(sortTableId, colNum)
+            Profile.show(tableId, colNum)
             .then(function() {
                 assert.isTrue($modal.is(":visible"));
                 done();
             })
             .fail(function() {
-                throw "error case";
+                done("fail");
             });
         });
 
@@ -103,6 +88,67 @@ describe("Profile Test", function() {
     });
 
     describe("Profile SVG Test", function() {
+        it("getNumInScale should work", function() {
+            var getNumInScale = Profile.__testOnly__.getNumInScale;
+            var res = getNumInScale(1);
+            expect(res).to.equal(1);
+            // case 2
+            res = getNumInScale(0, true);
+            expect(res).to.equal(0);
+            // case 3
+            res = getNumInScale(2, true);
+            expect(res).to.equal(10);
+            // case 4
+            res = getNumInScale(-2, true);
+            expect(res).to.equal(-10);
+        });
+
+        it("addNullValue should work", function() {
+            var addNullValue = Profile.__testOnly__.addNullValue;
+            var data = [];
+            addNullValue({"groupByInfo": {}}, data);
+            expect(data.length).to.equal(0);
+
+            // csae 2
+            addNullValue({
+                "groupByInfo": {
+                    "nullCount": 10,
+                    "buckets": {
+                        0: "test"
+                    }
+                }
+            }, data);
+            expect(data.length).to.equal(1);
+        });
+
+        it("formatNumber should work", function() {
+            var formatNumber = Profile.__testOnly__.formatNumber;
+            var res = formatNumber(null);
+            expect(res).to.equal("");
+            // case 2
+            res = formatNumber("1");
+            expect(res).to.equal("\"1\"");
+            // case 3
+            res = formatNumber(true);
+            expect(res).to.equal(true);
+            // case 4
+            var obj = {};
+            res = formatNumber(obj);
+            expect(res).to.equal(obj);
+            // case 5
+            res = formatNumber(1);
+            expect(res).to.equal("1");
+            // case 6
+            res = formatNumber(1, true);
+            expect(res).to.equal(1);
+            // case 7
+            res = formatNumber(2, true);
+            expect(res).to.equal("2e+0");
+            // case 8
+            res = formatNumber(1, false, 2);
+            expect(res).to.equal("1.00");
+        });
+
         it("Should hover on bar area", function() {
             var $barArea = $modal.find(".barArea").eq(0);
             $barArea.trigger("mouseenter");
@@ -134,6 +180,40 @@ describe("Profile Test", function() {
         });
     });
 
+    describe("Decimal Places Test", function() {
+        var $decimalInput;
+
+        before(function() {
+            $decimalInput = $modal.find(".decimalInput");
+        });
+
+        it("should click to change decimal", function() {
+            $decimalInput.find(".more").click();
+            expect($decimalInput.find("input").val()).to.equal("0");
+
+            $decimalInput.find(".less").click();
+            expect($decimalInput.find("input").val()).to.equal("");
+        });
+
+        it("should intput to changne decimal", function() {
+            var $input = $decimalInput.find("input");
+            var $less = $decimalInput.find(".less");
+
+            $input.val(2).trigger(fakeEvent.enterKeydown);
+            expect($less.hasClass("xc-disabled")).to.be.false;
+
+            $input.val(6).trigger(fakeEvent.enterKeydown);
+            var err = xcHelper.replaceMsg(ErrWRepTStr.NumInRange, {
+                "lowerBound": 0,
+                "upperBound": 5
+            });
+            UnitTest.hasStatusBoxWithError(err);
+
+            $input.val("").trigger(fakeEvent.enterKeydown);
+            expect($less.hasClass("xc-disabled")).to.be.true;
+        });
+    });
+
     describe("Skip Rows Test", function() {
         var $skipInput;
         var $scrollSection;
@@ -153,7 +233,7 @@ describe("Profile Test", function() {
                 done();
             })
             .fail(function() {
-                throw "error case";
+                done("fail");
             });
         });
 
@@ -167,7 +247,7 @@ describe("Profile Test", function() {
                 done();
             })
             .fail(function() {
-                throw "error case";
+                done("fail");
             });
         });
 
@@ -181,7 +261,7 @@ describe("Profile Test", function() {
                 done();
             })
             .fail(function() {
-                throw "error case";
+                done("fail");
             });
         });
 
@@ -211,7 +291,7 @@ describe("Profile Test", function() {
                 done();
             })
             .fail(function() {
-                throw "error case";
+                done("fail");
             });
         });
 
@@ -228,7 +308,7 @@ describe("Profile Test", function() {
                 done();
             })
             .fail(function() {
-                throw "error case";
+                done("fail");
             });
         });
 
@@ -243,7 +323,7 @@ describe("Profile Test", function() {
                 done();
             })
             .fail(function() {
-                throw "error case";
+                done("fail");
             });
         });
 
@@ -287,7 +367,7 @@ describe("Profile Test", function() {
                 done();
             })
             .fail(function() {
-                throw "error case";
+                done("fail");
             });
         });
 
@@ -306,7 +386,7 @@ describe("Profile Test", function() {
                 done();
             })
             .fail(function() {
-                throw "error case";
+                done("fail");
             });
         });
 
@@ -325,7 +405,7 @@ describe("Profile Test", function() {
                 done();
             })
             .fail(function() {
-                throw "error case";
+                done("fail");
             });
         });
     });
@@ -362,7 +442,26 @@ describe("Profile Test", function() {
                 done();
             })
             .fail(function() {
-                throw "error case";
+                done("fail");
+            });
+        });
+
+        it("Should range log bucket", function(done) {
+            var $range = $dropdown.find('li[name="rangeLog"]');
+            $range.trigger(fakeEvent.mouseup);
+            expect($dropdown.find("input").val()).to.equal("Range (log scale)");
+
+            var checkFunc = function() {
+                return $modal.attr("data-state") === "finished";
+            };
+
+            UnitTest.testFinish(checkFunc)
+            .then(function() {
+                expect($modal.find(".bar").length).to.equal(1);
+                done();
+            })
+            .fail(function() {
+                done("fail");
             });
         });
 
@@ -381,7 +480,7 @@ describe("Profile Test", function() {
                 done();
             })
             .fail(function() {
-                throw "error case";
+                done("fail");
             });
         });
 
@@ -400,8 +499,69 @@ describe("Profile Test", function() {
                 done();
             })
             .fail(function() {
-                throw "error case";
+                done("fail");
             });
+        });
+    });
+
+    describe("Stats Test", function() {
+        var $statsSection;
+
+        before(function() {
+            $statsSection = $("#profile-stats");
+        });
+
+        it("should gen agg", function(done) {
+            var $btn = $statsSection.find(".genAgg");
+            $btn.click();
+            expect($btn.hasClass("xc-disabled"));
+
+            var checkFunc = function() {
+                return !$btn.hasClass("xc-disabled");
+            };
+
+            UnitTest.testFinish(checkFunc)
+            .then(function() {
+                var $avg = $statsSection.find(".aggInfo .info").eq(1);
+                expect($avg.find(".text").text()).to.equal("3.778");
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        it("should gen stats", function(done) {
+            var $statsInfo = $statsSection.find(".statsInfo");
+            expect($statsInfo.hasClass("hasStats")).to.be.false;
+
+            $statsInfo.find(".genStats").click();
+            var checkFunc = function() {
+                var $zeroQuantile = $statsInfo.find(".info").eq(0);
+                return $zeroQuantile.find(".text").text() === "1";
+            };
+
+            UnitTest.testFinish(checkFunc)
+            .then(function() {
+                expect($statsInfo.hasClass("hasStats")).to.be.true;
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        it("should click to go to corr modal", function() {
+            var oldCorr = AggModal.corrAgg;
+            var test = false;
+            AggModal.corrAgg = function() {
+                test = true;
+            };
+
+            $("#profile-corr").click();
+            expect(test).to.be.true;
+            assert.isFalse($modal.is(":visible"));
+            AggModal.corrAgg = oldCorr;
         });
     });
 
@@ -410,6 +570,122 @@ describe("Profile Test", function() {
 
         before(function() {
             $filterOption = $("#profile-filterOption");
+        });
+
+        it("should show the profile", function(done) {
+            Profile.show(tableId, colNum)
+            .then(function() {
+                var checkFunc = function() {
+                    return $modal.find(".bar").length > 0;
+                };
+
+                return UnitTest.testFinish(checkFunc);
+            })
+            .then(function() {
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        it("fltExist should work", function() {
+            var fltExist = Profile.__testOnly__.fltExist;
+            var res = fltExist(FltOp.Filter, "test");
+            expect(res).to.equal("not(exists(test))");
+            // case 2
+            res = fltExist(FltOp.Filter, "test", "fltStr");
+            expect(res).to.equal("or(fltStr, not(exists(test)))");
+            // case 3
+            res = fltExist(FltOp.Exclude, "test");
+            expect(res).to.equal("exists(test)");
+            // case 4
+            res = fltExist(FltOp.Exclude, "test", "fltStr");
+            expect(res).to.equal("and(fltStr, exists(test))");
+        });
+
+        it("getBucketFltOpt should work", function() {
+            var getBucketFltOpt = Profile.__testOnly__.getBucketFltOpt;
+            // case 1
+            var res = getBucketFltOpt(null, "test", {});
+            expect(res).to.be.null;
+
+            // case 2
+            res = getBucketFltOpt(FltOp.Filter, "test", {
+                1: true,
+                2: true
+            }, true, 1);
+            expect(res).to.be.an("object");
+            expect(res.operator).to.equal(FltOp.Filter);
+            expect(res.filterString)
+            .to.equal("or(or(and(ge(test, 1), lt(test, 2)), and(ge(test, 2), lt(test, 3))), not(exists(test)))");
+
+            // caser 3
+            res = getBucketFltOpt(FltOp.Exclude, "test", {
+                2: true,
+                3: true
+            }, false, 1);
+            expect(res).to.be.an("object");
+            expect(res.operator).to.equal(FltOp.Exclude);
+            expect(res.filterString)
+            .to.equal("and(or(lt(test, 2), ge(test, 3)), or(lt(test, 3), ge(test, 4)))");
+        });
+
+        it("getNumFltOpt should work", function() {
+            var getNumFltOpt = Profile.__testOnly__.getNumFltOpt;
+            // case 1
+            var res = getNumFltOpt(FltOp.Filter, "test", {}, true);
+            expect(res).to.be.an("object");
+            expect(res.operator).to.equal(FltOp.Filter);
+            expect(res.filterString).to.equal("not(exists(test))");
+            // case 2
+            res = getNumFltOpt(FltOp.Filter, "test", {1: true}, true);
+            expect(res).to.be.an("object");
+            expect(res.operator).to.equal(FltOp.Filter);
+            expect(res.filterString)
+            .to.equal("or(eq(test, 1), not(exists(test)))");
+            // case 3
+            res = getNumFltOpt(FltOp.Filter, "test", {
+                1: true,
+                2: true
+            });
+            expect(res).to.be.an("object");
+            expect(res.operator).to.equal(FltOp.Filter);
+            expect(res.filterString)
+            .to.equal("and(ge(test, 1), le(test, 2))");
+            // case 4
+            res = getNumFltOpt(FltOp.Exclude, "test", {1: true});
+            expect(res).to.be.an("object");
+            expect(res.operator).to.equal(FltOp.Exclude);
+            expect(res.filterString)
+            .to.equal("neq(test, 1)");
+            // case 5
+            res = getNumFltOpt(FltOp.Exclude, "test", {
+                1: true,
+                2: true
+            });
+            expect(res).to.be.an("object");
+            expect(res.operator).to.equal(FltOp.Exclude);
+            expect(res.filterString)
+            .to.equal("or(lt(test, 1), gt(test, 2))");
+            // case 6
+            res = getNumFltOpt("wrongOperator", "test", {});
+            expect(res).to.be.null;
+            // case 7
+            res = getNumFltOpt(FltOp.Filter, "test", {1: true}, false, 1);
+            expect(res).to.be.an("object");
+            expect(res.operator).to.equal(FltOp.Filter);
+            expect(res.filterString)
+            .to.equal("and(ge(test, 1), lt(test, 2))");
+            // case 8
+            res = getNumFltOpt(FltOp.Exclude, "test", {1: true}, false, 1);
+            expect(res).to.be.an("object");
+            expect(res.operator).to.equal(FltOp.Exclude);
+            expect(res.filterString)
+            .to.equal("or(lt(test, 1), ge(test, 2))");
+            // case 9
+            res = getNumFltOpt("wrongOperator", "test", {}, false, 1);
+            expect(res).to.be.null;
         });
 
         it("Should create selection", function() {
@@ -442,9 +718,57 @@ describe("Profile Test", function() {
                 done();
             }, 300);
         });
+
+        it("should click to filter", function() {
+            var oldFilter = xcFunction.filter;
+            var test = false;
+            xcFunction.filter = function() {
+                test = true;
+            };
+
+            // create selection
+            var $chart = $("#profile-chart");
+            var offsest = $chart.offset();
+            var e = jQuery.Event("mousedown", {
+                "which": 1,
+                "pageX": offsest.left + 50,
+                "pageY": offsest.top + 50
+            });
+
+            $chart.trigger(e);
+            var e2 = jQuery.Event("mousemove", {
+                "pageX": offsest.left + 100,
+                "pageY": offsest.top + 100
+            });
+            // need to trigger twice mousemove
+            $(document).trigger(e2);
+            $(document).trigger(e2);
+            $(document).trigger("mouseup");
+            $filterOption.find(".filter").trigger(fakeEvent.mousedown);
+            expect(test).to.be.true;
+            assert.isFalse($modal.is(":visible"));
+            xcFunction.filter = oldFilter;
+        });
     });
 
     describe("Close Profile and Clean up Test", function() {
+        it("should show the profile", function(done) {
+            Profile.show(tableId, colNum)
+            .then(function() {
+                var checkFunc = function() {
+                    return $modal.find(".bar").length > 0;
+                };
+
+                return UnitTest.testFinish(checkFunc);
+            })
+            .then(function() {
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
         it("Should close profile", function(done) {
             $modal.find(".close").click();
             var checkFunc = function() {
@@ -458,7 +782,7 @@ describe("Profile Test", function() {
                 done();
             })
             .fail(function() {
-                throw "error case";
+                done("fail");
             });
         });
 
@@ -474,7 +798,7 @@ describe("Profile Test", function() {
     after(function(done) {
         cleanUp()
         .then(function() {
-            return UnitTest.deleteAll(sortTableName, dsName);
+            return UnitTest.deleteAll(tableName, dsName);
         })
         .always(function() {
             UnitTest.offMinMode();
