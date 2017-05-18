@@ -9,7 +9,7 @@ window.UserSettings = (function($, UserSettings) {
 
     // oldUserInfos/userInfos contains settings such as if the user last had
     // list vs grid view on in the file browser, also contains general settings
-    // which has the user's version of genSettings (ones editable in the 
+    // which has the user's version of genSettings (ones editable in the
     // settings npanel)
     // prevSettings/genSettings has the settings that are editable in the
     // settings panel such as monitor interval time
@@ -252,17 +252,18 @@ window.UserSettings = (function($, UserSettings) {
             }
         });
 
-        $("#enableFileBox").click(function() {
-            var $checkbox = $(this);
-            $checkbox.toggleClass('checked');
-            if ($checkbox.hasClass("checked")) {
-                UserSettings.setPref('fileEnabled', true, true);
-                $("#fileProtocolMenu").find('li[name="file"]').show();
-            } else {
-                UserSettings.setPref('fileEnabled', false, true);
-                $("#fileProtocolMenu").find('li[name="file"]').hide();
-            }
-        });
+        // XXX temporary hidden
+        // $("#enableFileBox").click(function() {
+        //     var $checkbox = $(this);
+        //     $checkbox.toggleClass('checked');
+        //     if ($checkbox.hasClass("checked")) {
+        //         UserSettings.setPref('fileEnabled', true, true);
+        //         $("#fileProtocolMenu").find('li[name="file"]').show();
+        //     } else {
+        //         UserSettings.setPref('fileEnabled', false, true);
+        //         $("#fileProtocolMenu").find('li[name="file"]').hide();
+        //     }
+        // });
 
         var $dsSampleLimit = $('#monitorDsSampleInput');
         new MenuHelper($dsSampleLimit.find(".dropDownList"), {

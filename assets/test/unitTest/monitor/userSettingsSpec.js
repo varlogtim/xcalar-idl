@@ -236,6 +236,41 @@ describe("User Setting Test", function() {
             expect(UserSettings.getPref("hideDataCol")).to.equal(hideDataCol);
         });
 
+        it("should toggle enable table", function() {
+            var enableTable = UserSettings.getPref("enableCreateTable");
+            var $btn = $("#enableCreateTable");
+            // case 1
+            $btn.click();
+            expect(UserSettings.getPref("enableCreateTable"))
+            .to.equal(!enableTable);
+            // case 2
+            $btn.click();
+            expect(UserSettings.getPref("enableCreateTable"))
+            .to.equal(enableTable);
+        });
+
+        it("should toggle Xc UDF", function() {
+            var hideXcUDF = UserSettings.getPref("hideXcUDF");
+            var $btn = $("#hideXcUDF");
+            // case 1
+            $btn.click();
+            expect(UserSettings.getPref("hideXcUDF")).to.equal(!hideXcUDF);
+            // case 2
+            $btn.click();
+            expect(UserSettings.getPref("hideXcUDF")).to.equal(hideXcUDF);
+        });
+
+        it("should toggle hideSysOps", function() {
+            var hideSysOps = UserSettings.getPref("hideSysOps") || false;
+            var $btn = $("#hideSysOps");
+            // case 1
+            $btn.click();
+            expect(UserSettings.getPref("hideSysOps")).to.equal(!hideSysOps);
+            // case 2
+            $btn.click();
+            expect(UserSettings.getPref("hideSysOps")).to.equal(hideSysOps);
+        });
+
         it("should change ds sample size", function() {
             var oldSize = UserSettings.getPref("DsDefaultSampleSize");
             var $input = $("#monitorDsSampleInput .size");
