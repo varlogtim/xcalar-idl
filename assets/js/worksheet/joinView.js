@@ -803,11 +803,11 @@ window.JoinView = (function($, JoinView) {
             $estimatorWrap.find('.max .value').text(ret.maxSum);
             deferred.resolve();
         })
-        .fail(function() {
+        .fail(function(error) {
             $joinView.find('.estimatorWrap .title')
                      .text(JoinTStr.EstimatedJoin + ':');
             $estimatorWrap.find('.value').text('N/A');
-            deferred.reject();
+            deferred.reject(error);
         });
 
         return deferred.promise();
