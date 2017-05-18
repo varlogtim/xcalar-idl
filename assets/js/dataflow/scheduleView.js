@@ -221,6 +221,9 @@ window.Scheduler = (function(Scheduler, $) {
 
     Scheduler.hide = function() {
         currentDataFlowName = null;
+        $('#modifyScheduleForm .timePickerPart').removeClass("active");
+        $('#modifyScheduleForm .datePickerPart').removeClass("active");
+        StatusBox.forceHide();
         $scheduleDetail.addClass("xc-hidden");
         clearServerTimeInterval();
     };
@@ -1081,6 +1084,14 @@ window.Scheduler = (function(Scheduler, $) {
         Scheduler.__testOnly__.changeTime = changeTime;
         Scheduler.__testOnly__.showScheduleSettings = showScheduleSettings;
         Scheduler.__testOnly__.saveScheduleForm = saveScheduleForm;
+        Scheduler.__testOnly__.getParameterStr = getParameterStr;
+        Scheduler.__testOnly__.removeSchedule = removeSchedule;
+        Scheduler.__testOnly__.testDate = testDate;
+        Scheduler.__testOnly__.simulateCron = simulateCron;
+        Scheduler.__testOnly__.getTime = getTime;
+        Scheduler.__testOnly__.validateCron = validateCron;
+        Scheduler.__testOnly__.showScheduleResult = showScheduleResult;
+        Scheduler.__testOnly__.getTimeToSecond = getTimeToSecond;
     }
     /* End Of Unit Test Only */
 

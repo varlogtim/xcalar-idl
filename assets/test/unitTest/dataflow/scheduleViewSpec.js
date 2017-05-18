@@ -11,8 +11,6 @@ describe("Schedule related Test", function() {
 
     describe("Time related function Test", timeRelatedFunctionTest);
     describe("View related function Test", viewRelatedFunctionTest);
-    describe("Form Submit Test", formSubmitTest);
-
     after(function() {
        DF.refresh = oldRefresh;
     });
@@ -441,6 +439,44 @@ function timeRelatedFunctionTest() {
         expect($timeInput.val()).to.equal("12 : 59 AM");
     });
 
+    it("Should test Date", function() {
+        expect(Scheduler.__testOnly__.testDate("05/20/2017")).to.equal(true);
+        expect(Scheduler.__testOnly__.testDate("02/29/2017")).to.equal(false);
+        expect(Scheduler.__testOnly__.testDate("02/30/2017")).to.equal(false);
+        expect(Scheduler.__testOnly__.testDate("22/29/2017")).to.equal(false);
+        expect(Scheduler.__testOnly__.testDate("06/31/2017")).to.equal(false);
+        expect(Scheduler.__testOnly__.testDate("")).to.equal(false);
+        expect(Scheduler.__testOnly__.testDate("&&***/@")).to.equal(false);
+    });
+
+    it("Should simulate Cron String", function() {
+        var res = Scheduler.__testOnly__.simulateCron("* * */1 * *");
+        expect(res.isValid).to.equal(true);
+        var res = Scheduler.__testOnly__.simulateCron("A B C D E");
+        expect(res.isValid).to.equal(false);
+    });
+
+    it("Should get parameter string", function() {
+        var param1 = {};
+        param1.parameterName = "name1";
+        param1.parameterValue = "value1";
+        var param2 = {};
+        param2.parameterName = "name2";
+        param2.parameterValue = "value2";
+        var paramArray = [param1, param2];
+
+        var str = Scheduler.__testOnly__.getParameterStr(paramArray);
+        var expectedStr =
+                     '<span class="currParams">name1</span>' +
+                     '<span>:</span>' +
+                     '<span>value1</span>' +
+                     '<span>, </span>' +
+                     '<span class="currParams">name2</span>' +
+                     '<span>:</span>' +
+                     '<span>value2</span>';
+        assert.equal(str, expectedStr);
+    });
+
     function triggerInput($input, val) {
         $input.val(val).focus().trigger("input");
     }
@@ -546,40 +582,6 @@ function viewRelatedFunctionTest() {
         }
     });
 
-    // it("Should toggle schedule detail Tabs", function() {
-    //     var $tabArea = $("#scheduleDetail .tabArea");
-    //     var $defaultTab = $tabArea.find(".default");
-    //     var $dfgTab = $tabArea.find(".dfg");
-
-    //     expect($defaultTab.hasClass("active")).to.be.true;
-    //     assert.isTrue($("#scheduleSettings").is(":visible"));
-    //     assert.isFalse($("#scheduleResults").is(":visible"));
-
-    //     $dfgTab.click();
-    //     expect($dfgTab.hasClass("active")).to.be.true;
-    //     expect($defaultTab.hasClass("active")).to.be.false;
-    //     assert.isFalse($("#scheduleSettings").is(":visible"));
-    //     assert.isTrue($("#scheduleResults").is(":visible"));
-
-    //     $defaultTab.click();
-
-    // });
-
-    // it("should delete schedule", function() {
-    //     $("#modScheduleForm-delete").click();
-    //     UnitTest.hasAlertWithTitle(SchedTStr.DelSched, {"confirm": true});
-    //     assert.isFalse($scheduleDetail.is(":visible"));
-    // });
-
-    after(function() {
-        XcalarGetRetina = oldGetRetinaFunc;
-        XcalarDeleteRetina = oldDeleteRetinaFunc;
-        UnitTest.offMinMode();
-    });
-}
-
-function formSubmitTest() {
-    // TODO need to test for valid parameterized export name
     it("unparamaterized export file name should show alert", function() {
         var dfObj = DF.getDataflow("df1");
         dfObj.retinaNodes[0].api = XcalarApisT.XcalarApiExport;
@@ -596,7 +598,133 @@ function formSubmitTest() {
         UnitTest.hasAlertWithText(SchedTStr.NoExportParam);
     });
 
+    it("Should show schedule result correctly", function() {
+        Scheduler.__testOnly__.showScheduleResult();
+        var str = '<div class="row noRun">' +
+                  '<div class="content timeContent"></div>' +
+                  '<div class="content lastContent"></div>' +
+                  '<div class="content statusContent"></div>' +
+                  '<div class="content outputLocationContent"></div></div>';
+        expect($("#scheduleTable .mainSection").html()).to.equal(str);
+    });
+
+    it("Should delete schedule correctly", function(done) {
+        expect(DF.getSchedule(dfName)).to.not.equal(null);
+        expect($("#alertModal:visible").length).to.equal(0);
+        $("#modScheduleForm-delete").click();
+        expect($("#alertModal:visible").length).to.not.equal(0);
+        $("#alertModal .cancel").click();
+        Scheduler.__testOnly__.removeSchedule(dfName)
+        .always(function() {
+            expect(DF.getSchedule(dfName)).to.equal(null);
+            done();
+        });
+    });
+
+    it("should show correct date", function() {
+        Scheduler.show(dfName);
+        $dateInput = $('#modifyScheduleForm').find(".timeSection .date");
+        expect($dateInput.val()).to.equal("");
+        $('#modifyScheduleForm').find(".datePickerPart").datepicker('show');
+        var date = new Date();
+        var str = (date.getUTCMonth() + 1) + "/" + date.getUTCDate()
+                  + "/" + date.getUTCFullYear();
+        expect($dateInput.val()).to.equal(str);
+    });
+
+    it("should check incorrect date", function(done) {
+        Scheduler.show(dfName);
+        $dateInput = $('#modifyScheduleForm').find(".timeSection .date");
+        expect($dateInput.val()).to.equal("");
+        $('#modifyScheduleForm').find(".datePickerPart").datepicker('show');
+        $dateInput.val("88/88/8888");
+        $dateInput.focusout();
+        expect($("#statusBox:visible").length).to.not.equal(0);
+        $('#scheduleDetail .advancedModeTab').click();
+        setTimeout(function(){
+            expect($("#statusBox:visible").length).to.equal(0);
+            $dateInput.val("");
+            $dateInput.focusout();
+            done();
+        }, 1000);
+    });
+
+    it("should show correct time", function() {
+        Scheduler.show(dfName);
+        $timeInput = $('#modifyScheduleForm').find(".timeSection .time");
+        expect($timeInput.val()).to.equal("");
+        $timeInput.focus();
+        var date = new Date();
+        date.setMinutes(date.getMinutes() + 1);
+        var hours = date.getUTCHours();
+        var minutes = date.getUTCMinutes();
+        var ampm = hours >= 12 ? "PM" : "AM";
+        hours = hours % 12;
+        hours = hours ? hours : 12; // the hour '0' should be '12'
+        hours = hours < 10 ? "0" + hours : hours;
+        minutes = minutes < 10 ? "0" + minutes : minutes;
+        var timeStr = hours + " : " + minutes + " " + ampm;
+        expect($timeInput.val()).to.equal(timeStr);
+        expect($("#statusBox:visible").length).to.equal(0);
+        $('#modifyScheduleForm input.hour').val(12345);
+        $('#modifyScheduleForm input.hour').focusout();
+        expect($("#statusBox:visible").length).to.not.equal(0);
+        $('#modifyScheduleForm input.hour').val(05);
+        $('#modifyScheduleForm input.minute').val(12345);
+        $('#modifyScheduleForm input.minute').focusout();
+        expect($("#statusBox:visible").length).to.not.equal(0);
+        $('#modifyScheduleForm input.hour').val("01");
+        $('#modifyScheduleForm input.minute').val("01");
+        $('#statusBox').click();
+        $timeInput.focus();
+        $timeInput.focusout();
+        $(document).trigger("mousedown");
+    });
+
+    it("should get time to second", function() {
+        var date = new Date("5/18/2017 9:12:35 PM UTC");
+        var str = Scheduler.__testOnly__.getTimeToSecond(date.getTime(),
+                  date.getTimezoneOffset());
+        expect(str).to.equal("5/18/2017 9:12:35 PM UTC");
+    });
+
+    it("should close schedule detail", function() {
+        Scheduler.show(dfName);
+        expect($("#modifyScheduleForm:visible").length).to.not.equal(0);
+        $scheduleDetail.find(".close").click();
+        expect($("#modifyScheduleForm:visible").length).to.equal(0);
+    });
+
+    it("should validate cron", function() {
+        Scheduler.show(dfName);
+        $("#scheduleDetail .advancedModeTab").click();
+        $("#cronScheduler").val("* * * * *");
+        var res = Scheduler.__testOnly__.validateCron(false);
+        expect(res).equal("* * * * *");
+        $("#cronScheduler").val("ABCDE");
+        var res = Scheduler.__testOnly__.validateCron(false);
+        expect(res).equal(null);
+        expect($("#statusBox:visible").length).to.equal(0);
+        var res = Scheduler.__testOnly__.validateCron(true);
+        expect($("#statusBox:visible").length).to.not.equal(0);
+        $("#cronScheduler").val("");
+        var res = Scheduler.__testOnly__.validateCron(false);
+    });
+
+    it("should save schedule", function() {
+        expect(DF.getSchedule(dfName)).to.equal(null);
+        $("#modScheduleForm-save").click();
+        setTimeout(function(){
+            expect(DF.getSchedule(dfName)).to.not.equal(null);
+        }, 4000);
+        Scheduler.show(dfName);
+    });
+
     after(function(done) {
+        XcalarGetRetina = oldGetRetinaFunc;
+        XcalarDeleteRetina = oldDeleteRetinaFunc;
+        UnitTest.offMinMode();
+        StatusBox.forceHide();
         DF.removeDataflow("df1")
         .always(function() {
             done();
