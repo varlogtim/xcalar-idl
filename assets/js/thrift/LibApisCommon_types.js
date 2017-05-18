@@ -1764,6 +1764,7 @@ XcalarApiDatasetT = function(args) {
   this.loadIsComplete = null;
   this.refCount = null;
   this.isListable = null;
+  this.udfName = null;
   if (args) {
     if (args.url !== undefined) {
       this.url = args.url;
@@ -1785,6 +1786,9 @@ XcalarApiDatasetT = function(args) {
     }
     if (args.isListable !== undefined) {
       this.isListable = args.isListable;
+    }
+    if (args.udfName !== undefined) {
+      this.udfName = args.udfName;
     }
   }
 };
@@ -1851,6 +1855,13 @@ XcalarApiDatasetT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 8:
+      if (ftype == Thrift.Type.STRING) {
+        this.udfName = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -1895,6 +1906,11 @@ XcalarApiDatasetT.prototype.write = function(output) {
   if (this.isListable !== null && this.isListable !== undefined) {
     output.writeFieldBegin('isListable', Thrift.Type.BOOL, 7);
     output.writeBool(this.isListable);
+    output.writeFieldEnd();
+  }
+  if (this.udfName !== null && this.udfName !== undefined) {
+    output.writeFieldBegin('udfName', Thrift.Type.STRING, 8);
+    output.writeString(this.udfName);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -10519,6 +10535,8 @@ XcalarApiImportRetinaInputT = function(args) {
   this.overwriteExistingUdf = null;
   this.retinaCount = null;
   this.retina = null;
+  this.loadFromPersistedRetina = null;
+  this.persistedRetinaUrl = null;
   if (args) {
     if (args.retinaName !== undefined) {
       this.retinaName = args.retinaName;
@@ -10531,6 +10549,12 @@ XcalarApiImportRetinaInputT = function(args) {
     }
     if (args.retina !== undefined) {
       this.retina = args.retina;
+    }
+    if (args.loadFromPersistedRetina !== undefined) {
+      this.loadFromPersistedRetina = args.loadFromPersistedRetina;
+    }
+    if (args.persistedRetinaUrl !== undefined) {
+      this.persistedRetinaUrl = args.persistedRetinaUrl;
     }
   }
 };
@@ -10576,6 +10600,20 @@ XcalarApiImportRetinaInputT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 5:
+      if (ftype == Thrift.Type.BOOL) {
+        this.loadFromPersistedRetina = input.readBool().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 6:
+      if (ftype == Thrift.Type.STRING) {
+        this.persistedRetinaUrl = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -10605,6 +10643,16 @@ XcalarApiImportRetinaInputT.prototype.write = function(output) {
   if (this.retina !== null && this.retina !== undefined) {
     output.writeFieldBegin('retina', Thrift.Type.STRING, 4);
     output.writeString(this.retina);
+    output.writeFieldEnd();
+  }
+  if (this.loadFromPersistedRetina !== null && this.loadFromPersistedRetina !== undefined) {
+    output.writeFieldBegin('loadFromPersistedRetina', Thrift.Type.BOOL, 5);
+    output.writeBool(this.loadFromPersistedRetina);
+    output.writeFieldEnd();
+  }
+  if (this.persistedRetinaUrl !== null && this.persistedRetinaUrl !== undefined) {
+    output.writeFieldBegin('persistedRetinaUrl', Thrift.Type.STRING, 6);
+    output.writeString(this.persistedRetinaUrl);
     output.writeFieldEnd();
   }
   output.writeFieldStop();

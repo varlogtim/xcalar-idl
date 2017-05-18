@@ -14050,6 +14050,7 @@ XcalarApiDatasetT = function(args) {
   this.loadIsComplete = null;
   this.refCount = null;
   this.isListable = null;
+  this.udfName = null;
   if (args) {
     if (args.url !== undefined) {
       this.url = args.url;
@@ -14071,6 +14072,9 @@ XcalarApiDatasetT = function(args) {
     }
     if (args.isListable !== undefined) {
       this.isListable = args.isListable;
+    }
+    if (args.udfName !== undefined) {
+      this.udfName = args.udfName;
     }
   }
 };
@@ -14137,6 +14141,13 @@ XcalarApiDatasetT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 8:
+      if (ftype == Thrift.Type.STRING) {
+        this.udfName = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -14181,6 +14192,11 @@ XcalarApiDatasetT.prototype.write = function(output) {
   if (this.isListable !== null && this.isListable !== undefined) {
     output.writeFieldBegin('isListable', Thrift.Type.BOOL, 7);
     output.writeBool(this.isListable);
+    output.writeFieldEnd();
+  }
+  if (this.udfName !== null && this.udfName !== undefined) {
+    output.writeFieldBegin('udfName', Thrift.Type.STRING, 8);
+    output.writeString(this.udfName);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -22805,6 +22821,8 @@ XcalarApiImportRetinaInputT = function(args) {
   this.overwriteExistingUdf = null;
   this.retinaCount = null;
   this.retina = null;
+  this.loadFromPersistedRetina = null;
+  this.persistedRetinaUrl = null;
   if (args) {
     if (args.retinaName !== undefined) {
       this.retinaName = args.retinaName;
@@ -22817,6 +22835,12 @@ XcalarApiImportRetinaInputT = function(args) {
     }
     if (args.retina !== undefined) {
       this.retina = args.retina;
+    }
+    if (args.loadFromPersistedRetina !== undefined) {
+      this.loadFromPersistedRetina = args.loadFromPersistedRetina;
+    }
+    if (args.persistedRetinaUrl !== undefined) {
+      this.persistedRetinaUrl = args.persistedRetinaUrl;
     }
   }
 };
@@ -22862,6 +22886,20 @@ XcalarApiImportRetinaInputT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 5:
+      if (ftype == Thrift.Type.BOOL) {
+        this.loadFromPersistedRetina = input.readBool().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 6:
+      if (ftype == Thrift.Type.STRING) {
+        this.persistedRetinaUrl = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -22891,6 +22929,16 @@ XcalarApiImportRetinaInputT.prototype.write = function(output) {
   if (this.retina !== null && this.retina !== undefined) {
     output.writeFieldBegin('retina', Thrift.Type.STRING, 4);
     output.writeString(this.retina);
+    output.writeFieldEnd();
+  }
+  if (this.loadFromPersistedRetina !== null && this.loadFromPersistedRetina !== undefined) {
+    output.writeFieldBegin('loadFromPersistedRetina', Thrift.Type.BOOL, 5);
+    output.writeBool(this.loadFromPersistedRetina);
+    output.writeFieldEnd();
+  }
+  if (this.persistedRetinaUrl !== null && this.persistedRetinaUrl !== undefined) {
+    output.writeFieldBegin('persistedRetinaUrl', Thrift.Type.STRING, 6);
+    output.writeString(this.persistedRetinaUrl);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -29111,9 +29159,9 @@ XcalarApiServiceClient.prototype.recv_queueWork = function() {
 
 
 XcalarApiVersionT = {
-  'XcalarApiVersionSignature' : 43025625
+  'XcalarApiVersionSignature' : 133296601
 };
-XcalarApiVersionTStr = {43025625 : '29084d98aa09a9ac4381386377579d3d'
+XcalarApiVersionTStr = {133296601 : '7f1f1d97d0ce4335f24a1a808cc1e283'
 };
 // Async extension for XcalarApiService.js
 XcalarApiServiceClient.prototype.queueWorkAsync = function(workItem) {
@@ -32796,7 +32844,7 @@ xcalarApiSupportGenerate = runEntity.xcalarApiSupportGenerate = function(thriftH
     return (deferred.promise());
 };
 
-xcalarApiImportRetinaWorkItem = runEntity.xcalarApiImportRetinaWorkItem = function(retinaName, overwrite, retina) {
+xcalarApiImportRetinaWorkItem = runEntity.xcalarApiImportRetinaWorkItem = function(retinaName, overwrite, retina, loadFromPersistedRetina, persistedRetinaUrl) {
     var workItem = new WorkItem();
     var encodedRetina = btoa(retina);
     workItem.input = new XcalarApiInputT();
@@ -32807,11 +32855,13 @@ xcalarApiImportRetinaWorkItem = runEntity.xcalarApiImportRetinaWorkItem = functi
     workItem.input.importRetinaInput.overwriteExistingUdf = overwrite;
     workItem.input.importRetinaInput.retinaCount = encodedRetina.length;
     workItem.input.importRetinaInput.retina = encodedRetina;
+    workItem.input.importRetinaInput.loadFromPersistedRetina = loadFromPersistedRetina;
+    workItem.input.importRetinaInput.persistedRetinaUrl = persistedRetinaUrl;
 
     return (workItem);
 };
 
-xcalarApiImportRetina = runEntity.xcalarApiImportRetina = function(thriftHandle, retinaName, overwrite, retina) {
+xcalarApiImportRetina = runEntity.xcalarApiImportRetina = function(thriftHandle, retinaName, overwrite, retina, loadFromPersistedRetina, persistedRetinaUrl) {
     var deferred = jQuery.Deferred();
 
     if (verbose) {
@@ -32819,7 +32869,9 @@ xcalarApiImportRetina = runEntity.xcalarApiImportRetina = function(thriftHandle,
                     ", overwrite = " + overwrite + ")");
     }
 
-    var workItem = xcalarApiImportRetinaWorkItem(retinaName, overwrite, retina);
+    var workItem = xcalarApiImportRetinaWorkItem(retinaName, overwrite, retina,
+                                                 loadFromPersistedRetina,
+                                                 persistedRetinaUrl);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {

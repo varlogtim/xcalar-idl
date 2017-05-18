@@ -3578,7 +3578,7 @@ xcalarApiSupportGenerate = runEntity.xcalarApiSupportGenerate = function(thriftH
     return (deferred.promise());
 };
 
-xcalarApiImportRetinaWorkItem = runEntity.xcalarApiImportRetinaWorkItem = function(retinaName, overwrite, retina) {
+xcalarApiImportRetinaWorkItem = runEntity.xcalarApiImportRetinaWorkItem = function(retinaName, overwrite, retina, loadFromPersistedRetina, persistedRetinaUrl) {
     var workItem = new WorkItem();
     var encodedRetina = btoa(retina);
     workItem.input = new XcalarApiInputT();
@@ -3589,11 +3589,13 @@ xcalarApiImportRetinaWorkItem = runEntity.xcalarApiImportRetinaWorkItem = functi
     workItem.input.importRetinaInput.overwriteExistingUdf = overwrite;
     workItem.input.importRetinaInput.retinaCount = encodedRetina.length;
     workItem.input.importRetinaInput.retina = encodedRetina;
+    workItem.input.importRetinaInput.loadFromPersistedRetina = loadFromPersistedRetina;
+    workItem.input.importRetinaInput.persistedRetinaUrl = persistedRetinaUrl;
 
     return (workItem);
 };
 
-xcalarApiImportRetina = runEntity.xcalarApiImportRetina = function(thriftHandle, retinaName, overwrite, retina) {
+xcalarApiImportRetina = runEntity.xcalarApiImportRetina = function(thriftHandle, retinaName, overwrite, retina, loadFromPersistedRetina, persistedRetinaUrl) {
     var deferred = jQuery.Deferred();
 
     if (verbose) {
@@ -3601,7 +3603,9 @@ xcalarApiImportRetina = runEntity.xcalarApiImportRetina = function(thriftHandle,
                     ", overwrite = " + overwrite + ")");
     }
 
-    var workItem = xcalarApiImportRetinaWorkItem(retinaName, overwrite, retina);
+    var workItem = xcalarApiImportRetinaWorkItem(retinaName, overwrite, retina,
+                                                 loadFromPersistedRetina,
+                                                 persistedRetinaUrl);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
