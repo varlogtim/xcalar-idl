@@ -193,6 +193,7 @@ ErrTStr = {
     'NoSpecialCharInParam': 'No special characters or spaces allowed within' +
                             ' parameter braces.',
     'UnclosedParamBracket': 'Unclosed parameter bracket detected.',
+    "FilterTypeNoSupport": 'Filter type not currently supported.',
     'NoEmptyList': 'Please choose an option on the dropdown list.',
     'NoEmptyFn': 'There are no function definitions to upload.',
     'NoEmptyOrCheck': 'Please fill out this field ' +
@@ -373,6 +374,7 @@ SuccessTStr = {
     "Saved": "Saved!",
     "SaveDF": "Dataflow Saved!",
     "SaveParam": "Parameters Saved!",
+    "OperationParameterized": "Operation Parameterized!",
     "SaveSettings": "Settings Saved!",
     "Sched": "Schedule Added!",
     "StopCluster": "Cluster Stopped!",

@@ -93,6 +93,7 @@ describe("DFParamModal Test", function() {
                     done("failed");
                 })
                 .fail(function(){
+                    expect($modal.is(":visible")).to.be.true;
                     UnitTest.hasStatusBoxWithError("Export file name must have an extension.");
                     done();
                 });
@@ -116,7 +117,11 @@ describe("DFParamModal Test", function() {
                     expect(called).to.be.true;
                     Alert.forceClose();
                     XcalarUpdateRetina = cachedFn;
-                    done();
+                    expect($modal.is(":visible")).to.be.false;
+                    DFParamModal.show($dfWrap.find(".dagTable.export"))
+                    .then(function() {
+                        done();
+                    });
                 });
             });
 
@@ -431,7 +436,7 @@ describe("DFParamModal Test", function() {
                 done("failed");
             })
             .fail(function(){
-                UnitTest.hasAlertWithTitle("Update Parameters Failed");
+                UnitTest.hasStatusBoxWithError(ErrTStr.FilterTypeNoSupport);
                 $modal.find(".paramVal").eq(0).val("4");
                 done();
             });

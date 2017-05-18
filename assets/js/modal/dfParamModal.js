@@ -859,11 +859,9 @@ window.DFParamModal = (function($, DFParamModal){
         var retName = $dfParamModal.data("dfg");
         var dfg = DF.getDataflow(retName);
         var dagNodeId = $dfParamModal.data("id");
-        var curParamInfo;
 
         updateRetina()
         .then(function(paramInfo) {
-            curParamInfo = paramInfo;
             // store meta
             dfg.updateParameters(params);
 
@@ -871,19 +869,19 @@ window.DFParamModal = (function($, DFParamModal){
 
             if (!dfg.getParameterizedNode(dagNodeId)) {
                 var val = genOrigQueryStruct();
-                dfg.addParameterizedNode(dagNodeId, val, curParamInfo);
+                dfg.addParameterizedNode(dagNodeId, val, paramInfo);
             } else {
                 // Only updates view. Doesn't change any stored information
-                dfg.updateParameterizedNode(dagNodeId, curParamInfo);
+                dfg.updateParameterizedNode(dagNodeId, paramInfo);
             }
 
-            closeDFParamModal();
             // show success message??
             xcHelper.sendSocketMessage("refreshDataflow");
+            xcHelper.showSuccess(SuccessTStr.OperationParameterized);
             deferred.resolve();
         })
         .fail(function(error) {
-            Alert.error(DFTStr.UpdateParamFail, error);
+            updateRetinaErrorHandler(error);
             deferred.reject();
         });
 
@@ -939,6 +937,7 @@ window.DFParamModal = (function($, DFParamModal){
             };
         }
 
+        // will close the modal if passes checks
         function updateRetina() {
             var deferred  = jQuery.Deferred();
             var operation = $paramPart.find(".editableRow").children().first()
@@ -961,7 +960,7 @@ window.DFParamModal = (function($, DFParamModal){
                                                               params);
 
                         if (!filterExists) {
-                            deferred.reject("Filter type not currently supported.");
+                            deferred.reject(ErrTStr.FilterTypeNoSupport);
                             return (deferred.promise());
                         }
 
@@ -1006,6 +1005,8 @@ window.DFParamModal = (function($, DFParamModal){
             if (paramType == null) {
                 deferred.reject("currently not supported");
             } else {
+                closeDFParamModal();
+
                 XcalarUpdateRetina(retName, dagNodeId, paramType, paramValue)
                 .then(function() {
                     return XcalarGetRetina(retName);
@@ -1024,6 +1025,17 @@ window.DFParamModal = (function($, DFParamModal){
             }
 
             return (deferred.promise());
+        }
+    }
+
+    function updateRetinaErrorHandler(error) {
+        if (error === ErrTStr.FilterTypeNoSupport) {
+            // modal would still be open
+            var $editableDivs = $dfParamModal.find(".editableTable")
+                                             .find('input.editableParamDiv');
+            StatusBox.show(error, $editableDivs.eq(1));
+        } else {
+            Alert.error(DFTStr.UpdateParamFail, error);
         }
     }
 
@@ -1060,7 +1072,6 @@ window.DFParamModal = (function($, DFParamModal){
         $dfParamModal.find(".editableTable");
         var val =  $dfParamModal.find(".editableTable")
                                  .find('input.editableParamDiv').val();
-
         for (var i = 0; i < params.length; i++) {
             var regex = new RegExp("<" +
                             xcHelper.escapeRegExp(params[i].name) + ">", "g");
