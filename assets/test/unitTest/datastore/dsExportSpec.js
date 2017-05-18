@@ -627,7 +627,7 @@ describe("DSExport Test", function() {
             // refresh case
             var test = false;
             var oldRefresh = DSExport.refresh;
-           
+
             DSExport.refresh = function() {
                 test = true;
             };

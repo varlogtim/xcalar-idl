@@ -1,12 +1,21 @@
 describe("Schedule related Test", function() {
+    var oldRefresh;
+
     before(function() {
         // go to the tab;
         $("#dataflowTab").click();
+        oldRefresh = DF.refresh;
+        // prevent others refresh it
+        DF.refresh = function() {};
     });
 
     describe("Time related function Test", timeRelatedFunctionTest);
     describe("View related function Test", viewRelatedFunctionTest);
     describe("Form Submit Test", formSubmitTest);
+
+    after(function() {
+       DF.refresh = oldRefresh;
+    });
 });
 
 
@@ -444,7 +453,7 @@ function viewRelatedFunctionTest() {
     var $scheduleDetail;
     var dateText;
 
-    before(function() {
+    before(function(done) {
         $scheduleDetail = $("#scheduleDetail");
         dfName = "df1";
         Scheduler.hide();
@@ -487,23 +496,30 @@ function viewRelatedFunctionTest() {
         DF.addDataflow(dfName, new Dataflow(dfName), null, {
             "isUpload": true,
             "noClick": true
-        });
+        })
+        .then(function() {
+            var date = new Date();
+            date.setUTCDate(date.getUTCDate() + 1);
+            date.setUTCHours(23);
+            date.setUTCMinutes(13);
 
-        var date = new Date();
-        date.setUTCDate(date.getUTCDate() + 1);
-        date.setUTCHours(23);
-        date.setUTCMinutes(13);
-
-        dateText = (date.getUTCMonth() + 1) + "/" +
-                    date.getUTCDate() + "/" + date.getUTCFullYear();
-        var timeText = "11 : 13 PM";
-        DF.addScheduleToDataflow(dfName, {
-            "startTime": date.getTime(), // The time to start the next run
-            "dateText": dateText,
-            "timeText": timeText,
-            "repeat": "hourly",
-            "modified": date.getTime(),
-            "created": date.getTime()
+            dateText = (date.getUTCMonth() + 1) + "/" +
+                        date.getUTCDate() + "/" + date.getUTCFullYear();
+            var timeText = "11 : 13 PM";
+            return DF.addScheduleToDataflow(dfName, {
+                "startTime": date.getTime(), // The time to start the next run
+                "dateText": dateText,
+                "timeText": timeText,
+                "repeat": "hourly",
+                "modified": date.getTime(),
+                "created": date.getTime()
+            })
+        })
+        .then(function() {
+            done();
+        })
+        .fail(function() {
+            done("fail");
         });
     });
 
@@ -556,7 +572,6 @@ function viewRelatedFunctionTest() {
     // });
 
     after(function() {
-
         XcalarGetRetina = oldGetRetinaFunc;
         XcalarDeleteRetina = oldDeleteRetinaFunc;
         UnitTest.offMinMode();
@@ -581,7 +596,10 @@ function formSubmitTest() {
         UnitTest.hasAlertWithText(SchedTStr.NoExportParam);
     });
 
-    after(function() {
-        DF.removeDataflow("df1");
+    after(function(done) {
+        DF.removeDataflow("df1")
+        .always(function() {
+            done();
+        });
     });
 }

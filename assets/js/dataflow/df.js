@@ -135,7 +135,7 @@ window.DF = (function($, DF) {
 
         innerDef
         .then(function() {
-            return (XcalarGetRetina(dataflowName));
+            return XcalarGetRetina(dataflowName);
         })
         .then(function(retInfo) {
             updateDFInfo(retInfo);
@@ -152,7 +152,7 @@ window.DF = (function($, DF) {
             deferred.reject(error);
         });
 
-        return (deferred.promise());
+        return deferred.promise();
     };
 
     DF.removeDataflow = function(dataflowName) {
@@ -200,6 +200,7 @@ window.DF = (function($, DF) {
     };
 
     DF.addScheduleToDataflow = function(dataflowName, allOptions) {
+        var deferred = jQuery.Deferred();
         var dataflow = dataflows[dataflowName];
         if (dataflow) {
             if (!dataflow.schedule) {
@@ -211,7 +212,9 @@ window.DF = (function($, DF) {
                     substitutions, options, timingInfo)
                 .then(function() {
                     xcHelper.sendSocketMessage("refreshDataflow");
-                });
+                    deferred.resolve();
+                })
+                .fail(deferred.reject);
             } else {
                 var schedule = dataflow.schedule;
                 schedule.update(allOptions);
@@ -224,12 +227,17 @@ window.DF = (function($, DF) {
                         substitutions, options, timingInfo)
                     .then(function() {
                         xcHelper.sendSocketMessage("refreshDataflow");
-                    });
+                        deferred.resolve();
+                    })
+                    .fail(deferred.reject);
                 });
             }
         } else {
             console.warn("No such dataflow exist!");
+            deferred.resolve();
         }
+
+        return deferred.promise();
     };
 
     DF.removeScheduleFromDataflow = function(dataflowName) {
