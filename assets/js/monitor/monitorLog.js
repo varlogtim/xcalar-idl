@@ -55,7 +55,9 @@ window.MonitorLog = (function(MonitorLog, $) {
     function getRecentLogs() {
         var $recentLogsGroup = $logCard.find(".recentLogsGroup");
         var $input = $recentLogsGroup.find(".xc-input");
-        var val = $input.val().trim();
+        var lastNRow = $recentLogsGroup.find(".lastRow .xc-input").val().trim();
+        var filePath = $recentLogsGroup.find(".logFolder .xc-input").val().trim();
+        var fileName = $recentLogsGroup.find(".logName .xc-input").val().trim();
         $input.blur();
 
         var isValid = xcHelper.validate([
@@ -66,18 +68,18 @@ window.MonitorLog = (function(MonitorLog, $) {
                 "$ele": $input,
                 "error": "Please enter a value between 1 and 500",
                 "check": function() {
-                    return (!(parseInt(val) > 0 && parseInt(val) < 501));
+                    return (!(parseInt(lastNRow) > 0 && parseInt(lastNRow) < 501));
                 }
             }
         ]);
         if (!isValid) {
             return false;
         }
-        val = parseInt(val);
+        lastNRow = parseInt(lastNRow);
 
         $recentLogsGroup.addClass("xc-disabled");
 
-        XFTSupportTools.getRecentLogs(val)
+        XFTSupportTools.getRecentLogs(lastNRow, filePath, fileName)
         .then(function(ret) {
             xcHelper.showSuccess(SuccessTStr.RetrieveLogs);
             appendLog(ret.logs);
@@ -153,8 +155,12 @@ window.MonitorLog = (function(MonitorLog, $) {
     function startMonitorLog() {
         var $streamBtns = $logCard.find(".streamBtns");
         $streamBtns.addClass("xc-disabled");
-
-        XFTSupportTools.monitorLogs(function(err) {
+        $("#monitorLogCard .recentLogsGroup .xc-input").prop('disabled', true);
+        var filePath = $("#monitorLogCard .recentLogsGroup .logFolder .xc-input")
+                       .val().trim();
+        var fileName = $("#monitorLogCard .recentLogsGroup .logName .xc-input")
+                       .val().trim();
+        XFTSupportTools.monitorLogs(filePath, fileName, function(err) {
             $streamBtns.removeClass('xc-disabled streaming');
             var msg;
             if (err && err.logs) {
@@ -183,6 +189,7 @@ window.MonitorLog = (function(MonitorLog, $) {
                 // $streamBtns.removeClass("xc-disabled streaming");
                 Alert.error(MonitorTStr.StartStreamFail, msg);
             }
+            $("#monitorLogCard .recentLogsGroup .xc-input").prop('disabled', false);
         }, function(ret) {
             $streamBtns.removeClass("xc-disabled").addClass("streaming");
             if (ret && ret.logs) {
@@ -195,7 +202,7 @@ window.MonitorLog = (function(MonitorLog, $) {
         var $streamBtns = $logCard.find(".streamBtns");
         // var $btn = $logCard.find(".stopStream");
         $streamBtns.removeClass("xc-disabled streaming");
-
+        $("#monitorLogCard .recentLogsGroup .xc-input").prop('disabled', false);
         XFTSupportTools.stopMonitorLogs();
     }
 

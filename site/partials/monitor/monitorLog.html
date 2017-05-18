@@ -7,19 +7,32 @@
   <section class="cardMain">
     <div class="formRow">
       <div class="formGroup recentLogsGroup">
-        <label>
-          <span class="text">Get recent logs:</span>
+        <label class="logFolder">
+          <span class="text"><%= dicts.admin.logFolder %></span>
+          <div class="inputWrap">
+            <input class="xc-input" type="text" spellcheck="false" placeholder="/var/log/xcalar/" value="/var/log/xcalar/">
+          </div>
+        </label>
+
+        <label class="logName">
+          <span class="text"><%= dicts.admin.logName %></span>
+          <div class="inputWrap">
+            <input class="xc-input" type="text" spellcheck="false" placeholder="node.*.out" value="node.*.out">
+          </div>
+        </label>
+
+        <label class="lastRow">
+          <span class="text"><%= dicts.admin.lastNRow %></span>
           <div class="inputWrap">
             <input class="xc-input" type="number" min="1" max="500" spellcheck="false" placeholder="1 to 500" data-toggle="tooltip" data-container="body" data-original-title="Number of rows to fetch">
             <div class="btn btn-small inputAction xc-action getRecentLogs">
               <i class="icon xi-tick fa-11"></i>
             </div>
           </div>
-
         </label>
 
       </div>
-      <div class="formGroup removeSessGroup">
+      <!-- <div class="formGroup removeSessGroup">
         <label>
           <span class="text">Remove Session Files:</span>
           <div class="inputWrap">
@@ -30,7 +43,7 @@
           </div>
         </label>
 
-      </div>
+      </div> -->
       <div class="formGroup streamBtns">
         <button type="button" class="btn startStream">Start Monitor Stream</button>
         <button type="button" class="btn stopStream">Stop Stream</button>

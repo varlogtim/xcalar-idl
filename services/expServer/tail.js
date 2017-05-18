@@ -1,5 +1,6 @@
 var cp = require('child_process');
 var fs = require('fs');
+var path = require('path');
 
 var jQuery;
 require("jsdom").env("", function(err, window) {
@@ -14,7 +15,7 @@ var bufferSize = 1024 * 1024;
 var gMaxLogs = 500;
 
 var httpStatus = require('./../../assets/js/httpStatus.js').httpStatus;
-var logPath = "/var/log/Xcalar.log";
+// var logPath = "/var/log/Xcalar.log";
 
 //*** This file is broken into two parts due to different OS requiring different
 //*** methods to access syslog. On Ubuntu, we tail /var/log/Xcalar.log
@@ -22,37 +23,29 @@ var logPath = "/var/log/Xcalar.log";
 
 // *************************** tail Xcalar.log ****************************** //
 // Tail Xcalar.log
-function tailLog(requireLineNum) {
+function tailLog(requireLineNum, filePath, fileName) {
     var deferredOut = jQuery.Deferred();
-    var deferred = jQuery.Deferred();
-    requireLineNum = Number(requireLineNum);
-    if (!isLogNumValid(requireLineNum)) {
-        var retMsg = {
-            "status": Status.BadRequest, // Bad Request
-            "logs": "Please Enter a nonnegative integer not over 500"
-        };
-        deferred.reject(retMsg);
-    } else {
-        deferred.resolve();
+    var logPath;
+    function checkLineNum(requireLineNum) {
+        var deferred = jQuery.Deferred();
+        var requireLineNum = Number(requireLineNum);
+        if (!isLogNumValid(requireLineNum)) {
+            var retMsg = {
+                "status": Status.BadRequest, // Bad Request
+                "logs": "Please enter a non-negative number less than 500"
+            };
+            deferred.reject(retMsg);
+        } else {
+            deferred.resolve();
+        }
+        return deferred.promise();
     }
 
-    deferred.promise()
+    checkLineNum(requireLineNum)
     .then(function() {
-        var deferred = jQuery.Deferred();
-        fs.stat(logPath, function(err, stat) {
-            if (err) {
-                var retMsg = {
-                    "status": httpStatus.InternalServerError, // Server Internal error
-                    "logs": "fail to get file status: " + err.message
-                };
-                deferred.reject(retMsg);
-            } else {
-                deferred.resolve(stat);
-            }
-        });
-        return deferred.promise();
+        return getPath(filePath, fileName);
     })
-    .then(function(stat) {
+    .then(function(logPath, stat) {
         var deferred = jQuery.Deferred();
         if (!stat || stat.size === 0) {
             var retMsg = {
@@ -110,7 +103,7 @@ function tailLog(requireLineNum) {
                             // the last bits as they are non sense
                             if ((lines.length + 1) >= stat.size) {
                                 lines = lines.substring(lines.length - stat.size);
-                                deferred3.resolve(lines, stat);
+                                deferred.resolve(lines, stat);
                                 return;
                             }
                             // meet a '\n'
@@ -153,34 +146,22 @@ function tailLog(requireLineNum) {
 }
 
 // Tail -f
-function monitorLog(lastMonitor) {
+function monitorLog(lastMonitor, filePath, fileName) {
     if (lastMonitor === -1) {
-        return tailLog(10);
+        return tailLog(10, filePath, fileName);
     } else {
-        return sinceLastMonitorLog(Number(lastMonitor));
+        return sinceLastMonitorLog(Number(lastMonitor), filePath, fileName);
     }
 }
 
 // Send delta Xcalar.log logs
-function sinceLastMonitorLog(lastMonitor) {
-    var lines = "";
+function sinceLastMonitorLog(lastMonitor, filePath, fileName) {
     var deferredOut = jQuery.Deferred();
-    var deferred = jQuery.Deferred();
-    fs.stat(logPath, function(err, stat) {
-        if (err) {
-            var retMsg = {
-                "status": httpStatus.InternalServerError, // Server Internal error
-                "logs": "fail to get file status: " + err.message
-            };
-            deferred.reject(retMsg);
-        } else {
-            deferred.resolve(stat);
-        }
-        return deferred.promise();
-    });
+    var lines = "";
+    var logPath;
 
-    deferred.promise()
-    .then(function(stat) {
+    getPath(filePath, fileName)
+    .then(function(logPath, stat) {
         var deferred = jQuery.Deferred();
         if (!stat || stat.size === 0) {
             var retMsg = {
@@ -250,92 +231,92 @@ function sinceLastMonitorLog(lastMonitor) {
     return deferredOut.promise();
 }
 
-// ***************************** journalctl ********************************* //
-// journalctl
-function tailJournal(requireLineNum) {
-    var deferredOut = jQuery.Deferred();
-    var deferred = jQuery.Deferred();
-    if (!isLogNumValid(requireLineNum)) {
-        var retMsg = {
-            "status": httpStatus.BadRequest, // Bad Request
-            "logs": "Please Enter a nonnegative integer not over 500"
-        };
-        deferred.reject(retMsg);
-    } else {
-        deferred.resolve();
-    }
-    deferred.promise()
-    .then(function() {
-        var deferred = jQuery.Deferred();
-        var command = 'journalctl -n ' + requireLineNum;
-        cp.exec(command, function(err,stdout,stderr) {
-            var retMsg;
-            if (err) {
-                retMsg = {
-                    "status": httpStatus.InternalServerError, // Server Internal Error
-                    "logs": "Fail to execute " + err.message
-                };
-                deferred.reject(retMsg);
-            } else {
-                var lines = String(stdout);
-                var currentTime = getCurrentTime();
-                retMsg = {
-                    "status": httpStatus.OK,
-                    "logs": lines,
-                    "lastMonitor": currentTime
-                };
-                deferred.resolve(retMsg);
-            }
-        });
-        return deferred.promise();
-    })
-    .then(function(retMsg) {
-        deferredOut.resolve(retMsg);
-    })
-    .fail(function(retMsg) {
-        deferredOut.reject(retMsg);
-    });
-    return deferredOut.promise();
-}
+// // ***************************** journalctl ********************************* //
+// // journalctl
+// function tailJournal(requireLineNum) {
+//     var deferredOut = jQuery.Deferred();
+//     var deferred = jQuery.Deferred();
+//     if (!isLogNumValid(requireLineNum)) {
+//         var retMsg = {
+//             "status": httpStatus.BadRequest, // Bad Request
+//             "logs": "Please Enter a nonnegative integer not over 500"
+//         };
+//         deferred.reject(retMsg);
+//     } else {
+//         deferred.resolve();
+//     }
+//     deferred.promise()
+//     .then(function() {
+//         var deferred = jQuery.Deferred();
+//         var command = 'journalctl -n ' + requireLineNum;
+//         cp.exec(command, function(err,stdout,stderr) {
+//             var retMsg;
+//             if (err) {
+//                 retMsg = {
+//                     "status": httpStatus.InternalServerError, // Server Internal Error
+//                     "logs": "Fail to execute " + err.message
+//                 };
+//                 deferred.reject(retMsg);
+//             } else {
+//                 var lines = String(stdout);
+//                 var currentTime = getCurrentTime();
+//                 retMsg = {
+//                     "status": httpStatus.OK,
+//                     "logs": lines,
+//                     "lastMonitor": currentTime
+//                 };
+//                 deferred.resolve(retMsg);
+//             }
+//         });
+//         return deferred.promise();
+//     })
+//     .then(function(retMsg) {
+//         deferredOut.resolve(retMsg);
+//     })
+//     .fail(function(retMsg) {
+//         deferredOut.reject(retMsg);
+//     });
+//     return deferredOut.promise();
+// }
 
-// journalctl -f
-function monitorJournal(lastMonitor) {
-    if (lastMonitor === -1) {
-        return tailJournal(10);
-    } else {
-        return sinceLastMonitorJournal(lastMonitor);
-    }
-}
+// // journalctl -f
+// function monitorJournal(lastMonitor) {
+//     if (lastMonitor === -1) {
+//         return tailJournal(10);
+//     } else {
+//         return sinceLastMonitorJournal(lastMonitor);
+//     }
+// }
 
-// Send delta journalctl logs
-function sinceLastMonitorJournal(lastMonitor) {
-    var deferredOut = jQuery.Deferred();
-    var currentTime = getCurrentTime();
-    var command = 'journalctl --since ' + lastMonitor +
-                  ' --until ' + currentTime;
-    cp.exec(command, function(err,stdout,stderr) {
-        var retMsg;
-        if (err) {
-            retMsg = {
-                "status": httpStatus.InternalServerError, // Server Internal Error
-                "logs": "Fail to execute " + err.message
-            };
-            deferredOut.reject(retMsg);
-        } else {
-            var lines = "";
-            lines = String(stdout);
-            var firstLineIndex = lines.indexOf("\n");
-            lines = lines.substring(firstLineIndex + 1);
-            retMsg = {
-                "status": httpStatus.OK,
-                "logs": lines,
-                "lastMonitor": currentTime
-            };
-            deferredOut.resolve(retMsg);
-        }
-    });
-    return deferredOut.promise();
-}
+// // Send delta journalctl logs
+// function sinceLastMonitorJournal(lastMonitor) {
+//     var deferredOut = jQuery.Deferred();
+//     var currentTime = getCurrentTime();
+//     var command = 'journalctl --since ' + lastMonitor +
+//                   ' --until ' + currentTime;
+//     cp.exec(command, function(err,stdout,stderr) {
+//         var retMsg;
+//         if (err) {
+//             retMsg = {
+//                 "status": httpStatus.InternalServerError, // Server Internal Error
+//                 "logs": "Fail to execute " + err.message
+//             };
+//             deferredOut.reject(retMsg);
+//         } else {
+//             var lines = "";
+//             lines = String(stdout);
+//             var firstLineIndex = lines.indexOf("\n");
+//             lines = lines.substring(firstLineIndex + 1);
+//             retMsg = {
+//                 "status": httpStatus.OK,
+//                 "logs": lines,
+//                 "lastMonitor": currentTime
+//             };
+//             deferredOut.resolve(retMsg);
+//         }
+//     });
+//     return deferredOut.promise();
+// }
 
 // *************************** Common Functions ***************************** //
 function isLogNumValid(num) {
@@ -347,6 +328,109 @@ function isLogNumValid(num) {
         }
         return false;
     }
+}
+
+function getPath(filePath, fileName) {
+    var numDone = 0;
+    var deferredOut = jQuery.Deferred();
+
+    function getFileName() {
+        var deferred = jQuery.Deferred();
+        if (fileName === "node.*.out") {
+            getNodeId()
+            .then(function(nodeID) {
+                console.log("NodeID: " + nodeID);
+                deferred.resolve("node." + nodeID + ".out");
+            })
+            .fail(function(err) {
+                var retMsg = {
+                        // Server Internal error
+                        "status": httpStatus.InternalServerError,
+                        "logs": "Can not get the Node ID " + err
+                    };
+                deferred.reject(retMsg);
+            });
+        } else {
+            deferred.resolve(fileName);
+        }
+        return deferred.promise();
+    }
+
+    getFileName()
+    .then(function(realName) {
+        var logPath = path.join(filePath, realName);
+        console.log("Reading file stat: " + logPath);
+        return readFileStat(logPath);
+    })
+    .then(function(currFile, stat) {
+        deferredOut.resolve(currFile, stat);
+    })
+    .fail(function(retMsg) {
+        deferredOut.reject(retMsg);
+    });
+    return deferredOut.promise();
+}
+
+function getNodeId() {
+    var deferredOut = jQuery.Deferred();
+    var command = "/opt/xcalar/bin/xcalarctl status";
+    var reg = /^Node\sID:\s([0-9]+)$/;
+    var lineData = "";
+    var path;
+    var out = cp.exec(command);
+
+    out.stdout.on('data', function(data) {
+        lineData += data;
+    });
+
+    out.stdout.on('close', function(data) {
+        var lines = lineData.split("\n");
+        if (lines.length === 0) {
+            deferredOut.reject();
+            return;
+        }
+        for (var i = 0; i < lines.length; i++) {
+            var line = lines[i].trim();
+            var arr = reg.exec(line);
+            if (arr && arr.length > 0) {
+                deferredOut.resolve(arr[1]);
+                return;
+            }
+        }
+        deferredOut.reject();
+    });
+
+    out.stdout.on('error', function(err) {
+        console.log(err);
+        deferredOut.reject(err);
+    });
+    return deferredOut.promise();
+}
+
+function readFileStat(currFile) {
+    var deferred = jQuery.Deferred();
+    fs.stat(currFile, function(err, stat) {
+        if (err) {
+            console.log(err);
+            var retMsg = {
+                // Server Internal error
+                "status": httpStatus.InternalServerError,
+                "logs": "Fail to read file stat" + err
+            };
+            deferred.reject(retMsg);
+        } else if (stat.size === 0) {
+            var retMsg = {
+                // Server Internal error
+                "status": httpStatus.InternalServerError,
+                "logs": "File " + currFile + " have 0 size."
+            };
+            deferred.reject(retMsg);
+        } else {
+            console.log(currFile, stat.size);
+            deferred.resolve(currFile, stat);
+        }
+    });
+    return deferred.promise();
 }
 
 function getCurrentTime() {
@@ -370,5 +454,5 @@ function getCurrentTime() {
 
 exports.tailLog = tailLog;
 exports.monitorLog = monitorLog;
-exports.tailJournal = tailJournal;
-exports.monitorJournal = monitorJournal;
+// exports.tailJournal = tailJournal;
+// exports.monitorJournal = monitorJournal;

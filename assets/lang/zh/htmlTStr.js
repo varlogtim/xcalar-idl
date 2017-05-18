@@ -165,7 +165,10 @@ module.exports = {
         "copyRight": "Xcalar, Inc 版权所有 © 2017"
     },
     "admin": {
-        "searchUser": "搜索用户"
+        "searchUser": "搜索用户",
+        "logFolder": "文件路径:",
+        "logName": "文件名:",
+        "lastNRow": "读取最新日志行数:"
     },
     "aggModal": {
         "BackToProfile": "返回数据概况",

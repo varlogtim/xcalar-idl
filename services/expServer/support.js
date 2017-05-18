@@ -139,33 +139,46 @@ function slaveExecuteAction(action, slaveUrl, content) {
         case "/logs/slave":
             {
                 var deferredOut = jQuery.Deferred();
-                hasLogFile(logPath)
-                .then(function() {
-                    if (content.isMonitoring === "true") {
-                        tail.monitorLog(Number(content.lastMonitor))
-                        .always(function(message) {
-                            deferredOut.resolve(message);
-                        });
-                    } else {
-                        tail.tailLog(Number(content.requireLineNum))
-                        .always(function(message) {
-                            deferredOut.resolve(message);
-                        });
-                    }
-                })
-                .fail(function() {
-                    if (content.isMonitoring === "true") {
-                        tail.monitorJournal(content.lastMonitor)
-                        .always(function(message) {
-                            deferredOut.resolve(message);
-                        });
-                    } else {
-                        tail.tailJournal(Number(content.requireLineNum))
-                        .always(function(message) {
-                            deferredOut.resolve(message);
-                        });
-                    }
-                });
+                // hasLogFile(logPath)
+                // .then(function() {
+                //     if (content.isMonitoring === "true") {
+                //         tail.monitorLog(Number(content.lastMonitor))
+                //         .always(function(message) {
+                //             deferredOut.resolve(message);
+                //         });
+                //     } else {
+                //         tail.tailLog(Number(content.requireLineNum))
+                //         .always(function(message) {
+                //             deferredOut.resolve(message);
+                //         });
+                //     }
+                // })
+                // .fail(function() {
+                //     if (content.isMonitoring === "true") {
+                //         tail.monitorJournal(content.lastMonitor)
+                //         .always(function(message) {
+                //             deferredOut.resolve(message);
+                //         });
+                //     } else {
+                //         tail.tailJournal(Number(content.requireLineNum))
+                //         .always(function(message) {
+                //             deferredOut.resolve(message);
+                //         });
+                //     }
+                // });
+                if (content.isMonitoring === "true") {
+                    tail.monitorLog(Number(content.lastMonitor),
+                        content.filePath, content.fileName)
+                    .always(function(message) {
+                        deferredOut.resolve(message);
+                    });
+                } else {
+                    tail.tailLog(Number(content.requireLineNum),
+                        content.filePath, content.fileName)
+                    .always(function(message) {
+                        deferredOut.resolve(message);
+                    });
+                }
                 return deferredOut.promise();
             }
         case "/installationLogs/slave":
@@ -184,7 +197,7 @@ function sendCommandToSlaves(action, slaveUrl, content, hosts) {
         if (slaveUrl === "/logs/slave" && content.isMonitoring === "true") {
             addLastMonitorIndex(hosts[i], content);
         }
-        postRequest(hosts[i]);
+        postRequest(hosts[i], content);
     }
 
     function addLastMonitorIndex(hostname, content) {
@@ -198,7 +211,7 @@ function sendCommandToSlaves(action, slaveUrl, content, hosts) {
         content.lastMonitor = lastMonitor;
     }
 
-    function postRequest(hostName) {
+    function postRequest(hostName, content) {
         var postData;
         if (content) {
             postData = JSON.stringify(content);

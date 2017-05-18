@@ -6,18 +6,21 @@ window.XFTSupportTools = (function(XFTSupportTools, $) {
     var timeout = timeoutBase * expendFactor * expendFactor * 2;
     var lastMonitorMap = {};
 
-    XFTSupportTools.getRecentLogs = function(requireLineNum) {
+    XFTSupportTools.getRecentLogs = function(requireLineNum, filePath,
+        fileName) {
         var action = "GET";
         var url = "/logs";
         var content = {
             "requireLineNum": requireLineNum,
-            "isMonitoring": false
+            "isMonitoring": false,
+            "filePath": filePath,
+            "fileName": fileName
         };
         return sendRequest(action, url, content);
     };
 
     // pass in callbacks to get triggered upon each post return
-    XFTSupportTools.monitorLogs = function(errCallback, successCallback) {
+    XFTSupportTools.monitorLogs = function(filePath, fileName, errCallback, successCallback) {
         clearInterval(monitorIntervalId);
         monitorIntervalId = setInterval(getLog, 2000);
         getLog();
@@ -29,7 +32,9 @@ window.XFTSupportTools = (function(XFTSupportTools, $) {
                 var url = "/logs";
                 var content = {
                     "lastMonitorMap": JSON.stringify(lastMonitorMap),
-                    "isMonitoring": true
+                    "isMonitoring": true,
+                    "filePath": filePath,
+                    "fileName": fileName
                 };
                 sendRequest(action, url, content)
                 .then(function(ret) {

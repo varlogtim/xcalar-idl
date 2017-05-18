@@ -310,7 +310,10 @@ module.exports = {
     },
 
     "admin": {
-        "searchUser": "Search users"
+        "searchUser": "Search users",
+        "logFolder": "Log Folder:",
+        "logName": "Log Name:",
+        "lastNRow": "Get recent logs:"
     },
 
     "ws": {

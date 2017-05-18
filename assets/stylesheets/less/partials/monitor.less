@@ -1329,6 +1329,7 @@
         .flex-display;
         .justify-content(space-between);
         // .flex-wrap(wrap);
+        min-width: 600px;
         .formGroup {
             .flex(0 1 auto);
             .flex-display;
@@ -1353,16 +1354,25 @@
                     width:  80px;
                 }
             }
+            &.recentLogsGroup {
+                width: ~"calc(100% - 170px)";
+                min-width: 115px;
+            }
         }
         label {
             .flex-display;
             .flex-wrap(wrap);
             .text {
                 margin-bottom: 3px;
+                min-width: 115px;
             }
             .inputWrap {
                 // margin-top: 6px;
+                width: ~"calc(100% - 125px)";
+                min-width: 110px;
             }
+            margin-left: 15px;
+            width: 33%;
         }
         .streamBtns {
             // height: 80px;
