@@ -193,7 +193,6 @@ window.BottomMenu = (function($, BottomMenu) {
         $("#container").removeClass("bottomMenuOpen");
         isMenuOpen = false;
         // recenter table titles if on workspace panel
-        
         $("#bottomMenuBarTabs .sliderBtn.active").removeClass("active");
         if (topMenuOpening && !isPoppedOut) {
             noAnim();

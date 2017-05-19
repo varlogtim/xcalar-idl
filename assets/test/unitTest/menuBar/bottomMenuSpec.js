@@ -55,6 +55,7 @@ describe("Bottom Menu Test", function() {
             $bottomMenu.find(".popOut").click();
             expect($bottomMenu.hasClass("poppedOut")).to.be.true;
             expect(BottomMenu.isPoppedOut()).to.be.true;
+            expect(MainMenu.getOffset()).to.be.an("number");
         });
 
         it("should resize the right bar of bottom", function() {
@@ -208,6 +209,7 @@ describe("Bottom Menu Test", function() {
             $bottomMenu.find(".popOut").click();
             expect($bottomMenu.hasClass("poppedOut")).to.be.false;
             expect(BottomMenu.isPoppedOut()).to.be.false;
+            expect(MainMenu.getOffset()).to.be.an("number");
         });
 
         it("should close the menu", function() {

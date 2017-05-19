@@ -1,7 +1,7 @@
 window.MainMenu = (function($, MainMenu) {
     var extraDelay = 280; // +80 to anim time in case of lag
-    var $menuBar; // $('#menuBar');
-    var $mainMenu; // $('#mainMenu');
+    var $menuBar; // $("#menuBar");
+    var $mainMenu; // $("#mainMenu");
     var slideTimeout; // setTimeout for setting closed state after animation finishes
     var isMenuOpen = false;
     var closedOffset = 65; // in pixels, how much the panels are horizonally
@@ -14,24 +14,11 @@ window.MainMenu = (function($, MainMenu) {
     // triggered by the clicking of a mainMenu tab, we do not want to restore
     // the pre-form state of the menu so we turn the flag on temporarily
     MainMenu.setup = function() {
-        $menuBar = $('#menuBar');
-        $mainMenu = $('#mainMenu');
+        $menuBar = $("#menuBar");
+        $mainMenu = $("#mainMenu");
         setupTabbing();
         setupBtns();
         setupResizable();
-    };
-
-    MainMenu.initialize = function() {
-        try {
-            // TableList.initialize();
-        } catch (error) {
-            console.error(error);
-            Alert.error(ThriftTStr.SetupErr, error);
-        }
-    };
-
-    MainMenu.clear = function() {
-        // TableList.clear();
     };
 
     MainMenu.close = function(noAnim, makeInactive) {
@@ -44,9 +31,9 @@ window.MainMenu = (function($, MainMenu) {
     MainMenu.isMenuOpen = function(menu) {
         if (menu) {
             if (menu === "mainMenu") {
-                return (isMenuOpen);
+                return isMenuOpen;
             } else {
-                return (BottomMenu.isMenuOpen());
+                return BottomMenu.isMenuOpen();
             }
         } else {
             return (isMenuOpen || BottomMenu.isMenuOpen());
@@ -60,17 +47,17 @@ window.MainMenu = (function($, MainMenu) {
     MainMenu.openPanel = function(panelId, subTabId) {
         var $tab;
         switch (panelId) {
-            case ('workspacePanel'):
-                $tab = $('#workspaceTab');
+            case ("workspacePanel"):
+                $tab = $("#workspaceTab");
                 break;
-            case ('monitorPanel'):
-                $tab = $('#monitorTab');
+            case ("monitorPanel"):
+                $tab = $("#monitorTab");
                 break;
-            case ('datastorePanel'):
-                $tab = $('#dataStoresTab');
+            case ("datastorePanel"):
+                $tab = $("#dataStoresTab");
                 break;
-            case ('dataflowPanel'):
-                $tab = $('#dataflowTab');
+            case ("dataflowPanel"):
+                $tab = $("#dataflowTab");
                 break;
             default:
                 break;
@@ -109,20 +96,22 @@ window.MainMenu = (function($, MainMenu) {
             isPoppedOut: BottomMenu.isPoppedOut(),
             isTopOpen: isMenuOpen,
             isBottomOpen: BottomMenu.isMenuOpen(),
-            $activeTopSection: $mainMenu.find('.commonSection.active'),
-            $activeBottomSection: $('#bottomMenu').find('.menuSection.active'),
+            $activeTopSection: $mainMenu.find(".commonSection.active"),
+            $activeBottomSection: $("#bottomMenu").find(".menuSection.active"),
             $activeWorkspaceMenu: $("#workspaceMenu")
-                                   .find('.menuSection:not(.xc-hidden)')
+                                   .find(".menuSection:not(.xc-hidden)")
         };
         return (state);
     };
 
     MainMenu.setFormOpen = function() {
         isFormOpen = true;
+        return isFormOpen;
     };
 
     MainMenu.setFormClose = function() {
         isFormOpen = false;
+        return isFormOpen;
     };
 
     // xx currently only supporting form views in the worksheet panel
@@ -144,8 +133,8 @@ window.MainMenu = (function($, MainMenu) {
         }
 
         // restore worksheet list view or table list view
-        $("#workspaceMenu").find('.menuSection').addClass('xc-hidden');
-        prevState.$activeWorkspaceMenu.removeClass('xc-hidden');
+        $("#workspaceMenu").find(".menuSection").addClass("xc-hidden");
+        prevState.$activeWorkspaceMenu.removeClass("xc-hidden");
     };
 
     function setupResizable() {
@@ -157,39 +146,39 @@ window.MainMenu = (function($, MainMenu) {
             "minWidth": 295,
             "distance": 2,
             "start": function() {
-                // set boundaries so it can't resize past window
+                // set boundaries so it can"t resize past window
                 var panelRight = $menuPanel[0].getBoundingClientRect().right;
 
                 panelRight = $(window).width() - panelRight +
                              $menuPanel.width();
-                $menuPanel.css('max-width', panelRight - 10);
-                $mainMenu.addClass('resizing');
+                $menuPanel.css("max-width", panelRight - 10);
+                $mainMenu.addClass("resizing");
             },
             "stop": function() {
-                $menuPanel.css('max-width', '').css('max-height', '');
+                $menuPanel.css("max-width", "").css("max-height", "");
                 var width = $menuPanel.width();
 
                 width = Math.min(width, $(window).width() - $("#menuBar").width() - 10);
 
                 $menuPanel.width(width);
-                $mainMenu.removeClass('resizing');
+                $mainMenu.removeClass("resizing");
                 var newWidth = $mainMenu.width();
                 if (newWidth < minWidth) {
                     $mainMenu.width(defaultWidth);
-                    $mainMenu.removeClass('expanded');
+                    $mainMenu.removeClass("expanded");
                     isSmall = true;
                 } else {
-                    $mainMenu.addClass('expanded');
+                    $mainMenu.addClass("expanded");
                     isSmall = false;
                 }
                 currWidth = newWidth;
             },
             "resize": function(event, ui) {
                 if (!isSmall && ui.size.width < minWidth) {
-                    $mainMenu.removeClass('expanded');
+                    $mainMenu.removeClass("expanded");
                     isSmall = true;
                 } else if (isSmall && ui.size.width >= minWidth) {
-                    $mainMenu.addClass('expanded');
+                    $mainMenu.addClass("expanded");
                     isSmall = false;
                 }
                 DS.resize();
@@ -198,10 +187,10 @@ window.MainMenu = (function($, MainMenu) {
     }
 
     function setupBtns() {
-        $mainMenu.find('.minimizeBtn').click(function() {
+        $mainMenu.find(".minimizeBtn").click(function() {
             closeMenu($menuBar.find(".topMenuBarTab.active"));
         });
-        $mainMenu.find('.minimizedContent').click(function() {
+        $mainMenu.find(".minimizedContent").click(function() {
             openMenu($menuBar.find(".topMenuBarTab.active"));
         });
     }
@@ -225,35 +214,35 @@ window.MainMenu = (function($, MainMenu) {
             var $target = $(event.target);
 
             if ($curTab.hasClass("active")) {
-                if ($target.closest('.mainTab').length) {
+                if ($target.closest(".mainTab").length) {
                     toggleMenu($curTab);
-                } else if ($target.closest('.subTab').length) {
-                    var $subTab = $target.closest('.subTab');
-                    if ($subTab.hasClass('active')) {
+                } else if ($target.closest(".subTab").length) {
+                    var $subTab = $target.closest(".subTab");
+                    if ($subTab.hasClass("active")) {
                         toggleMenu($curTab);
-                    } else if ($('#bottomMenu').hasClass('open')) {
+                    } else if ($("#bottomMenu").hasClass("open")) {
                         openMenu($curTab, true);
                     }
-                    $curTab.find('.subTab').removeClass('active');
-                    $subTab.addClass('active');
+                    $curTab.find(".subTab").removeClass("active");
+                    $subTab.addClass("active");
                 }
 
                 return;
             }
             var $lastActiveTab = $tabs.filter(".active");
             var lastTabId = $lastActiveTab.attr("id");
-            $lastActiveTab.addClass('noTransition')
-                          .find('.icon')
-                          .addClass('noTransition');
+            $lastActiveTab.addClass("noTransition")
+                          .find(".icon")
+                          .addClass("noTransition");
             // we dont want transition when active tab goes to inactive
             setTimeout(function() {
-                $tabs.removeClass('noTransition')
-                     .find('.icon')
-                     .removeClass('noTransition');
+                $tabs.removeClass("noTransition")
+                     .find(".icon")
+                     .removeClass("noTransition");
             }, 100);
 
             var noAnim = true;
-            if ($curTab.hasClass('mainMenuOpen')) {
+            if ($curTab.hasClass("mainMenuOpen")) {
                 openMenu($curTab, noAnim);
             } else {
                 closeMenu($curTab, noAnim);
@@ -270,8 +259,8 @@ window.MainMenu = (function($, MainMenu) {
             // to render. WSManager.focusOnWorksheet() will reveal hidden tables
             TblFunc.hideOffScreenTables();
         }
-        $('.mainPanel').removeClass('active');
-        var curTab = $curTab.attr('id');
+        $(".mainPanel").removeClass("active");
+        var curTab = $curTab.attr("id");
         $menuBar.find(".topMenuBarTab").removeClass("active");
         $curTab.addClass("active");
 
@@ -281,10 +270,10 @@ window.MainMenu = (function($, MainMenu) {
                 WSManager.focusOnWorksheet();
                 break;
             case ("dataflowTab"):
-                $('#dataflowPanel').addClass("active");
+                $("#dataflowPanel").addClass("active");
                 DataflowPanel.refresh();
-                if ($curTab.hasClass('firstTouch')) {
-                    $curTab.removeClass('firstTouch');
+                if ($curTab.hasClass("firstTouch")) {
+                    $curTab.removeClass("firstTouch");
                     DFCard.focusFirstDF();
                 }
                 break;
@@ -304,7 +293,7 @@ window.MainMenu = (function($, MainMenu) {
                 DS.resize();
                 break;
             case ("monitorTab"):
-                $('#monitorPanel').addClass("active");
+                $("#monitorPanel").addClass("active");
                 MonitorPanel.active();
                 break;
             default:
@@ -320,15 +309,14 @@ window.MainMenu = (function($, MainMenu) {
         } else if (lastTabId === "dataStoresTab") {
             DSCart.checkQueries();
         } else if (lastTabId === "workspaceTab") {
-            var $activeCompSwitch = $('.dagTab.active');
+            var $activeCompSwitch = $(".dagTab.active");
             if ($activeCompSwitch.length) {
-                $activeCompSwitch.attr('data-original-title',
-                                        TooltipTStr.OpenQG);
+                xcTooltip.changeText($activeCompSwitch, TooltipTStr.OpenQG);
             }
         }
 
         StatusMessage.updateLocation();
-        $('.tableDonePopupWrap').remove();
+        $(".tableDonePopupWrap").remove();
     }
 
     function openMenu($curTab, noAnim) {
@@ -336,22 +324,22 @@ window.MainMenu = (function($, MainMenu) {
         $mainMenu.find(".commonSection").removeClass("active").filter(function() {
             return $(this).data("tab") === id;
         }).addClass("active");
-        if ($('#bottomMenu').hasClass('open') && !BottomMenu.isPoppedOut()) {
+        if ($("#bottomMenu").hasClass("open") && !BottomMenu.isPoppedOut()) {
             noAnim = true;
         }
         checkAnim(noAnim, true);
-        $mainMenu.addClass('open').removeClass('closed');
+        $mainMenu.addClass("open").removeClass("closed");
         $mainMenu.width(currWidth);
 
         var mainMenuOpening = true;
         BottomMenu.close(mainMenuOpening);
-        $('#container').addClass('mainMenuOpen');
+        $("#container").addClass("mainMenuOpen");
         isMenuOpen = true;
-        $curTab.addClass('mainMenuOpen');
+        $curTab.addClass("mainMenuOpen");
         clearTimeout(slideTimeout);
 
         // recenter table titles if on workspace panel
-        if (!noAnim && $('#workspacePanel').hasClass('active')) {
+        if (!noAnim && $("#workspacePanel").hasClass("active")) {
             xcHelper.menuAnimAligner();
         }
     }
@@ -363,38 +351,38 @@ window.MainMenu = (function($, MainMenu) {
         $mainMenu.width(defaultWidth);
         $mainMenu.find(".commonSection").removeClass("active");
 
-        $('#container').removeClass('mainMenuOpen');
-        $curTab.removeClass('mainMenuOpen');
+        $("#container").removeClass("mainMenuOpen");
+        $curTab.removeClass("mainMenuOpen");
         isMenuOpen = false;
 
         setCloseTimer(noAnim);
 
         if (makeInactive) {
-            $curTab.removeClass('active');
+            $curTab.removeClass("active");
         }
 
         // recenter table titles if on workspace panel
-        if (!noAnim && $('#workspacePanel').hasClass('active')) {
+        if (!noAnim && $("#workspacePanel").hasClass("active")) {
             xcHelper.menuAnimAligner(true);
         }
     }
 
     // turns off animation during open or close
     function checkAnim(noAnim) {
-        $mainMenu.removeClass('noAnim');
-        $('#container').removeClass('noMenuAnim');
+        $mainMenu.removeClass("noAnim");
+        $("#container").removeClass("noMenuAnim");
         if (noAnim) {
-            $mainMenu.addClass('noAnim');
-            $('#container').addClass('noMenuAnim');
+            $mainMenu.addClass("noAnim");
+            $("#container").addClass("noMenuAnim");
             setTimeout(function() {
-                $mainMenu.removeClass('noAnim');
-                $('#container').removeClass('noMenuAnim');
+                $mainMenu.removeClass("noAnim");
+                $("#container").removeClass("noMenuAnim");
             }, extraDelay);
         }
     }
 
     function toggleMenu($curTab) {
-        if ($mainMenu.hasClass('open')) {
+        if ($mainMenu.hasClass("open")) {
             closeMenu($curTab);
         } else {
             openMenu($curTab);
@@ -403,10 +391,10 @@ window.MainMenu = (function($, MainMenu) {
 
     function setCloseTimer(noAnim) {
         if (noAnim) {
-            $mainMenu.addClass('closed');
+            $mainMenu.addClass("closed");
         } else {
             slideTimeout = setTimeout(function() {
-                $mainMenu.addClass('closed');
+                $mainMenu.addClass("closed");
             }, extraDelay);
         }
     }

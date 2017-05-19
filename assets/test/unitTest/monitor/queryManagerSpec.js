@@ -45,7 +45,7 @@ describe('QueryManager Test', function() {
 
     describe("restore", function() {
         it("restore should work", function() {
-            var cachedGetLogs = SQL.getLogs();
+            var cachedGetLogs = SQL.getLogs;
             SQL.getLogs = function() {
                 return [];
             };
@@ -348,7 +348,7 @@ describe('QueryManager Test', function() {
             WSManager.getWSFromTable = cachedFn;
         });
 
-         it("focus on table output should work", function(done) {
+        it("focus on table output should work", function(done) {
             var fakeQuery = new XcQuery({});
             queryLists[999] = fakeQuery;
             $queryList.append("<div data-id='999' class='xc-query query active'></div>");
@@ -362,7 +362,7 @@ describe('QueryManager Test', function() {
 
             $("#monitor-inspect").click();
 
-             UnitTest.testFinish(function() {
+            UnitTest.testFinish(function() {
                 return $("#alertHeader .text").text() === "Table Not Found";
             })
             .then(function() {
@@ -415,9 +415,11 @@ describe('QueryManager Test', function() {
             DSCart.queryDone = function() {
                 fnCalled = true;
             };
-            fakeQuery.subQueries[0] = {getName:function() {
-                return "index from DS";
-            }};
+            fakeQuery.subQueries[0] = {
+                getName: function() {
+                    return "index from DS";
+                }
+            };
 
             QueryManager.confirmCanceledQuery("fakeId");
             expect(fnCalled).to.be.true;
