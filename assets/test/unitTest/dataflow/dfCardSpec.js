@@ -6,6 +6,7 @@ describe("DFCard Test", function() {
     var $dfWrap;
 
     before(function(done) {
+        UnitTest.onMinMode();
         testDfName = xcHelper.randName("unitTestDF");
         var testDSObj = testDatasets.fakeYelp;
         UnitTest.addAll(testDSObj, "unitTestFakeYelp")
@@ -298,6 +299,7 @@ describe("DFCard Test", function() {
     });
 
     after(function(done) {
+        UnitTest.offMinMode();
         DFCard.__testOnly__.deleteDataflow(testDfName)
         .always(function() {
             XcalarDeleteRetina.log("unitTestDF");

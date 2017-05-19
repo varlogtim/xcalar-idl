@@ -70,7 +70,7 @@ describe("Admin Test", function() {
                 appendCalled = true;
                 return PromiseHelper.resolve();
             };
-            
+
             Admin.addNewUser()
             .then(function() {
                 expect(appendCalled).to.be.true;

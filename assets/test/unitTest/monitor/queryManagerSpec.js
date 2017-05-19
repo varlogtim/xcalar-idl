@@ -6,6 +6,8 @@ describe('QueryManager Test', function() {
     var $queryDetail;
 
     before(function() {
+        UnitTest.onMinMode();
+
         queryLists = QueryManager.__testOnly__.queryLists;
         queryCheckLists = QueryManager.__testOnly__.queryCheckLists;
         for (var i in queryLists) {
@@ -548,5 +550,7 @@ describe('QueryManager Test', function() {
         for (var key in queryListsCache) {
             queryLists[key] = queryListsCache[key];
         }
+
+        UnitTest.offMinMode();
     });
 });
