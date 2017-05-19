@@ -170,7 +170,6 @@ window.Support = (function(Support, $) {
 
             for (var i = 0; i < numNodes; i++) {
                 var node = topOutput.topOutputPerNode[i];
-                var xdbPages = node.xdbUsedBytes;
                 var xdbUsage = node.xdbUsedBytes / node.xdbTotalBytes;
 
                 used += node.xdbUsedBytes;
@@ -348,9 +347,9 @@ window.Support = (function(Support, $) {
                     }
 
                     oneRow.name = data[groupId]["node0"]["stats"][j]["statName"];
-                    for (var i = 0; i<numNodes; i++) {
-                        stat = data[groupId]["node"+i]["stats"][j];
-                        oneRow["node"+i] = stat["statValue"];
+                    for (var i = 0; i < numNodes; i++) {
+                        stat = data[groupId]["node" + i]["stats"][j];
+                        oneRow["node" + i] = stat["statValue"];
                     }
                     var outRow = ("                                         " +
                                   oneRow.groupName).slice(-40);
@@ -358,7 +357,7 @@ window.Support = (function(Support, $) {
                                oneRow.name).slice(-40);
                     for (var i = 0; i < numNodes; i++) {
                         outRow += ("                                         " +
-                                   oneRow["node"+i]).slice(-20);
+                                   oneRow["node" + i]).slice(-20);
                     }
                     outRow += "\n";
                     file += outRow;
@@ -370,7 +369,7 @@ window.Support = (function(Support, $) {
             header += ("                                         StatName")
                        .slice(-40);
             for (var i = 0; i < numNodes; i++) {
-                header += ("                                         Node"+i)
+                header += ("                                         Node" + i)
                            .slice(-20);
             }
             header += "\n";

@@ -3,7 +3,7 @@
  */
 window.DSCart = (function($, DSCart) {
     var $cartArea; // $("#dataCart")
-    var $loadingBar; // $('#sendToWorksheetLoadBar .innerBar')
+    var $loadingBar; // $("#sendToWorksheetLoadBar .innerBar")
     var $cartList; // $("#dataCartWSList");
 
     var innerCarts = {};
@@ -18,7 +18,7 @@ window.DSCart = (function($, DSCart) {
     DSCart.setup = function() {
         $cartArea = $("#dataCart");
         $cartList = $("#dataCartWSList");
-        $loadingBar = $('#sendToWorksheetLoadBar .innerBar');
+        $loadingBar = $("#sendToWorksheetLoadBar .innerBar");
 
         $("#dataCartBtn").click(function() {
             $(this).toggleClass("active");
@@ -247,7 +247,7 @@ window.DSCart = (function($, DSCart) {
         DSCart.removeCart(cartId);
         DSCart.refresh();
         var txId = Transaction.start({
-            "msg": StatusMessageTStr.CreatingTable + ': ' + endTableName,
+            "msg": StatusMessageTStr.CreatingTable + ": " + endTableName,
             "operation": SQLOps.IndexDS,
             "sql": sql,
             "steps": numSteps
@@ -360,7 +360,7 @@ window.DSCart = (function($, DSCart) {
         $cartArea.prepend($cart);
 
         if (!isInBg) {
-            var $tableNameEdit = $cart.find('.tableNameEdit').focus();
+            var $tableNameEdit = $cart.find(".tableNameEdit").focus();
             // this flag is used to mark if the name is update or not
             $cart.addClass("updateName");
 
@@ -444,8 +444,8 @@ window.DSCart = (function($, DSCart) {
     DSCart.addQuery = function(mainQuery) {
         // var id = mainQuery.getId();
         queryQueue.push(mainQuery);
-        if (queryQueue.length === 1 && !$loadingBar.hasClass('inProgress') &&
-            $('#dataStoresTab').hasClass('active')) {
+        if (queryQueue.length === 1 && !$loadingBar.hasClass("inProgress") &&
+            $("#dataStoresTab").hasClass("active")) {
             endBarAnimation(0);
             trackQueries();
         }
@@ -453,7 +453,7 @@ window.DSCart = (function($, DSCart) {
 
     // used for turning on/off checking when switching tabs
     DSCart.checkQueries = function() {
-        if (!$('#dataStoresTab').hasClass('active')) {
+        if (!$("#dataStoresTab").hasClass("active")) {
             clearCycle();
         } else {
             if (queryQueue.length) {
@@ -622,11 +622,11 @@ window.DSCart = (function($, DSCart) {
                 }, intervalTime);
             }
             resetTimer = setTimeout(function() {
-                $loadingBar.stop().removeClass('full goingToFull inProgress')
+                $loadingBar.stop().removeClass("full goingToFull inProgress")
                                   .width(0);
             }, time);
         } else {
-            $loadingBar.stop().removeClass('full goingToFull inProgress')
+            $loadingBar.stop().removeClass("full goingToFull inProgress")
                               .width(0);
         }
         if (force) {
@@ -639,15 +639,15 @@ window.DSCart = (function($, DSCart) {
         clearCycle();
         clearTimeout(resetTimer);
         clearTimeout(fadeOutTimer);
-        if ($loadingBar.hasClass('full')) {
+        if ($loadingBar.hasClass("full")) {
             return;
         }
-        $loadingBar.addClass('inProgress goingToFull');
+        $loadingBar.addClass("inProgress goingToFull");
         $loadingBar
         .stop()
-        .animate({"width": '100%'}, intervalTime, "linear", function() {
-            $loadingBar.removeClass('inProgress goingToFull');
-            $loadingBar.addClass('full');
+        .animate({"width": "100%"}, intervalTime, "linear", function() {
+            $loadingBar.removeClass("inProgress goingToFull");
+            $loadingBar.addClass("full");
             endBarAnimation();
         });
     }
@@ -657,23 +657,23 @@ window.DSCart = (function($, DSCart) {
         clearTimeout(resetTimer);
         clearTimeout(fadeOutTimer);
         $loadingBar.parent().stop().fadeIn(500);
-        if ($loadingBar.hasClass('goingToFull')) {
+        if ($loadingBar.hasClass("goingToFull")) {
             return;
         }
-        if (pct < 100 && $loadingBar.hasClass('full')) {
+        if (pct < 100 && $loadingBar.hasClass("full")) {
             endBarAnimation(0);
         } else if (pct === 100) {
-            $loadingBar.addClass('goingToFull');
+            $loadingBar.addClass("goingToFull");
         }
-        $loadingBar.addClass('inProgress');
+        $loadingBar.addClass("inProgress");
 
         $loadingBar
         .stop()
-        .animate({"width": pct + '%'}, intervalTime, "linear", function() {
-            $loadingBar.removeClass('inProgress');
+        .animate({"width": pct + "%"}, intervalTime, "linear", function() {
+            $loadingBar.removeClass("inProgress");
             if (pct === 100) {
-                $loadingBar.addClass('full');
-                $loadingBar.removeClass('goingToFull');
+                $loadingBar.addClass("full");
+                $loadingBar.removeClass("goingToFull");
 
                 if (queryQueue.length) {
                     endBarAnimation(0);
@@ -762,7 +762,7 @@ window.DSCart = (function($, DSCart) {
         // if the table is displayed
         if ($table.data("dsid") === dsId) {
             $table.find("th.col" + colNum + " .header")
-                        .removeClass('colAdded');
+                        .removeClass("colAdded");
             $table.find(".col" + colNum).removeClass("selectedCol");
         }
 
@@ -811,7 +811,7 @@ window.DSCart = (function($, DSCart) {
     }
 
     function scrollToInput($input) {
-        var cartRect = $('#dataCartWrap')[0].getBoundingClientRect();
+        var cartRect = $("#dataCartWrap")[0].getBoundingClientRect();
         var cartBottom = cartRect.bottom;
         var cartTop = cartRect.top;
         var inputTop = $input.offset().top;
@@ -822,16 +822,16 @@ window.DSCart = (function($, DSCart) {
 
         if (hiddenDistance > -10) {
             scrollTop = $("#dataCartWrap").scrollTop();
-            $('#dataCartWrap').scrollTop(scrollTop +
+            $("#dataCartWrap").scrollTop(scrollTop +
                                          hiddenDistance + 10);
         } else if (distFromTop < 0) {
             scrollTop = $("#dataCartWrap").scrollTop();
-            $('#dataCartWrap').scrollTop(scrollTop + distFromTop - 10);
+            $("#dataCartWrap").scrollTop(scrollTop + distFromTop - 10);
         }
     }
 
     function scrollToDatasetColumn($li) {
-        var dsId = $li.closest('.selectedTable').data('dsid');
+        var dsId = $li.closest(".selectedTable").data("dsid");
         var $ds = DS.getGrid(dsId);
 
         if ($ds.hasClass("active")) {
@@ -847,7 +847,7 @@ window.DSCart = (function($, DSCart) {
 
         function scrollHelper(showTooltip) {
             var $table = $("#dsTable");
-            var $dsTableContainer = $('#dsTableContainer');
+            var $dsTableContainer = $("#dsTableContainer");
             var colNum = $cartArea.find(".colSelected").data("colnum");
             var $column = $table.find("th.col" + colNum);
             var position = $column.position().left;

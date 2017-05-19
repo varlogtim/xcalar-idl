@@ -1,13 +1,9 @@
 describe("Admin Test", function() {
-    var $mainTabCache;
-    var $monitorPanel;
-    var cachedStorage;
     var cachedGetItem;
 
     before(function() {
-        gMinModeOn = true;
+        UnitTest.onMinMode();
         cachedGetItem = xcLocalStorage.getItem;
-        // cachedStorage = xcLocalStorage;
         var wasAdmin = xcLocalStorage.getItem("admin") === "true";
 
         xcLocalStorage.getItem = function(item) {
@@ -68,12 +64,13 @@ describe("Admin Test", function() {
             Support.getUser = function() {
                 return userName;
             };
+
+            var appendCalled = false;
             XcalarKeyAppend = function() {
                 appendCalled = true;
                 return PromiseHelper.resolve();
             };
-
-            var appendCalled = false;
+            
             Admin.addNewUser()
             .then(function() {
                 expect(appendCalled).to.be.true;
@@ -114,7 +111,7 @@ describe("Admin Test", function() {
 
         it("switch user should work", function() {
             var cachedunload = xcManager.unload;
-            xcManager.unload = function() {return null};
+            xcManager.unload = function() { return null; };
             var $userList = $('#monitorMenu-setup .userList');
             var ownName = Support.getUser();
             var $ownLi = $userList.find(".userLi").filter(function() {
@@ -160,7 +157,7 @@ describe("Admin Test", function() {
 
         it("startNode should work", function(done) {
             var cached = XFTSupportTools.clusterStart;
-            XFTSupportTools.clusterStart  = function() {
+            XFTSupportTools.clusterStart = function() {
                 return PromiseHelper.resolve({status: Status.Ok, logs: "already running"});
             };
 
@@ -180,7 +177,7 @@ describe("Admin Test", function() {
 
         it("startNode fail should work", function(done) {
             var cached = XFTSupportTools.clusterStart;
-            XFTSupportTools.clusterStart  = function() {
+            XFTSupportTools.clusterStart = function() {
                 return PromiseHelper.reject({});
             };
 
@@ -220,7 +217,7 @@ describe("Admin Test", function() {
 
         it("restartNode should work", function(done) {
             var cached1 = XFTSupportTools.clusterStart;
-            XFTSupportTools.clusterStart  = function() {
+            XFTSupportTools.clusterStart = function() {
                 return PromiseHelper.reject({});
             };
             var cached2 = XFTSupportTools.clusterStop;
@@ -253,7 +250,7 @@ describe("Admin Test", function() {
             XFTSupportTools.clusterStatus = cached;
         });
 
-         it("get status fail should work", function() {
+        it("get status fail should work", function() {
             var cached = XFTSupportTools.clusterStatus;
             XFTSupportTools.clusterStatus = function() {
                 return PromiseHelper.reject({logs: "logs"});
@@ -279,8 +276,8 @@ describe("Admin Test", function() {
         });
 
         it("switch user should not be allowed", function() {
-           Admin.switchUser();
-           expect(xcSessionStorage.getItem("usingAs")).to.not.equal("true");
+            Admin.switchUser();
+            expect(xcSessionStorage.getItem("usingAs")).to.not.equal("true");
         });
 
         it("usertoadmin should not be allowed", function() {
@@ -304,8 +301,8 @@ describe("Admin Test", function() {
 
     after(function() {
         xcLocalStorage.getItem = cachedGetItem;
-        // xcLocalStorage = cachedStorage;
         gAdmin = false;
         $("#container").removeClass("admin posingAsUser");
+        UnitTest.offMinMode();
     });
 });

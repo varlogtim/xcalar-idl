@@ -60,7 +60,7 @@ describe("MonitorConfig Test", function() {
 
             var cachedFn = XcalarSetConfigParams;
             var configCalled = false;
-            XcalarSetConfigParams = function(args) {
+            XcalarSetConfigParams = function() {
                 configCalled = true;
                 return PromiseHelper.reject({});
             };

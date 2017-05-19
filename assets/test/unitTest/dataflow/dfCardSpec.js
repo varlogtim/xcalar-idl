@@ -1,4 +1,4 @@
-describe('DFCard Test', function() {
+describe("DFCard Test", function() {
     var testDs;
     var tableName;
     var tableId;
@@ -20,15 +20,15 @@ describe('DFCard Test', function() {
     it("Should submit form", function(done) {
         DFCreateView.show($("#dagWrap-" + tableId));
 
-        var $newNameInput = $('#newDFNameInput');
+        var $newNameInput = $("#newDFNameInput");
         $newNameInput.val(testDfName);
 
         DFCreateView.__testOnly__.submitForm()
         .then(function() {
             // triggers construction of dag image
-            $('#dfgMenu').find('.listBox').filter(function() {
-                return ($(this).find('.groupName').text() === testDfName);
-            }).closest('.listBox').trigger('click');
+            $("#dfgMenu").find(".listBox").filter(function() {
+                return ($(this).find(".groupName").text() === testDfName);
+            }).closest(".listBox").trigger("click");
 
             $dfWrap = $('#dfgViz .dagWrap[data-dataflowname="' + testDfName + '"]');
 
@@ -54,7 +54,7 @@ describe('DFCard Test', function() {
         before(function(done){
             $("#dfgMenu .groupName").filter(function() {
                 return $(this).text() === testDfName;
-            }).closest('.dataFlowGroup').click();
+            }).closest(".dataFlowGroup").click();
 
             UnitTest.testFinish(function() {
                 $dfWrap = $('#dfgViz .dagWrap[data-dataflowname="' + testDfName + '"]');
@@ -70,7 +70,7 @@ describe('DFCard Test', function() {
             XVM.getLicenseMode = function() {
                 return XcalarMode.Oper;
             };
-            var $menu = $('#dfgViz').find('.dagDropDown');
+            var $menu = $("#dfgViz").find(".dagDropDown");
             $dfWrap.find(".export .dagTableIcon").click();
 
             expect($menu.find("li:visible").length).to.equal(2);
@@ -89,7 +89,7 @@ describe('DFCard Test', function() {
 
         it("show export cols should work", function() {
             expect($("#exportColPopup").is(":visible")).to.be.false;
-            var $menu = $('#dfgViz').find('.dagDropDown');
+            var $menu = $("#dfgViz").find(".dagDropDown");
             $dfWrap.find(".export .dagTableIcon").click();
             $menu.find("li.showExportCols").trigger(fakeEvent.mouseup);
             expect($("#exportColPopup").is(":visible")).to.be.true;
@@ -193,12 +193,12 @@ describe('DFCard Test', function() {
         });
     });
 
-    it('dag tables should have Created class', function() {
-        expect($dfWrap.find('.dagTable').length).to.equal(3);
-        expect($dfWrap.find('.dagTable.Created').length).to.equal(3);
+    it("dag tables should have Created class", function() {
+        expect($dfWrap.find(".dagTable").length).to.equal(3);
+        expect($dfWrap.find(".dagTable.Created").length).to.equal(3);
     });
 
-    it('Dataflow refresh test', function() {
+    it("Dataflow refresh test", function() {
         var allNames = [];
         $("#dfgMenu .groupName").each(function(idx, obj) {
             allNames.push($(obj).text());
@@ -218,21 +218,21 @@ describe('DFCard Test', function() {
         }
     });
 
-    describe('Status Progress check', function() {
+    describe("Status Progress check", function() {
 
         // using real xcalarquerystate
-        it('dag table statuses should update when executing retina', function(done) {
+        it("dag table statuses should update when executing retina", function(done) {
             $("#dfgMenu .groupName").filter(function() {
                 return $(this).text() === testDfName;
-            }).closest('.dataFlowGroup').click();
+            }).closest(".dataFlowGroup").click();
 
             $dfWrap = $('#dfgViz .dagWrap[data-dataflowname="' + testDfName + '"]');
 
 
-            DFParamModal.show($dfWrap.find('.dagTable').last())
+            DFParamModal.show($dfWrap.find(".dagTable").last())
             .then(function() {
-                $("#dfParamModal").find('.editableTable input.editableParamDiv')
-                                .val(testDfName + Date.now() + '.csv');
+                $("#dfParamModal").find(".editableTable input.editableParamDiv")
+                                .val(testDfName + Date.now() + ".csv");
 
                 DFParamModal.__testOnly__.storeRetina()
                 .then(function() {
@@ -242,18 +242,18 @@ describe('DFCard Test', function() {
                         setTimeout(function() {
                             expect(DFCard.__testOnly__.retinasInProgress[testDfName]).to.be.undefined;
                             $dfWrap = $('#dfgViz .dagWrap[data-dataflowname="' + testDfName + '"]');
-                            expect($dfWrap.find('.dagTable.Created').length).to.equal(0);
-                            expect($dfWrap.find('.dagTable.Ready').length).to.equal(3);
+                            expect($dfWrap.find(".dagTable.Created").length).to.equal(0);
+                            expect($dfWrap.find(".dagTable.Ready").length).to.equal(3);
                             done();
                         }, 4000);
                     });
                 });
-            })
+            });
 
         });
 
         // using fake xcalarquerystate
-        it('XcalarQueryState should be called when starting status check', function(done) {
+        it("XcalarQueryState should be called when starting status check", function(done) {
             var cachedFn = XcalarQueryState;
             var passed = false;
             var count = 0;

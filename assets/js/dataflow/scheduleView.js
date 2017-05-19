@@ -512,12 +512,12 @@ window.Scheduler = (function(Scheduler, $) {
         return serverTime;
     }
     // Keep, in case needed in future
-    function timeTransfer(time, timezoneOffset, targetTimezoneOffset) {
-        return time + (timezoneOffset - targetTimezoneOffset) * 60000;
-    }
-    function toUTC0(time, timezoneOffset) {
-        return timeTransfer(time, timezoneOffset, 0);
-    }
+    // function timeTransfer(time, timezoneOffset, targetTimezoneOffset) {
+    //     return time + (timezoneOffset - targetTimezoneOffset) * 60000;
+    // }
+    // function toUTC0(time, timezoneOffset) {
+    //     return timeTransfer(time, timezoneOffset, 0);
+    // }
 
     function getServerTimezoneOffset() {
         $.ajax({
