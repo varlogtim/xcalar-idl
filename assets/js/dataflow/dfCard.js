@@ -143,7 +143,8 @@ window.DFCard = (function($, DFCard) {
 
         dfg.parameters.forEach(function(paramName) {
             if (!systemParams.hasOwnProperty(paramName)) {
-                addParamToRetina(paramName, paramMap[paramName]);
+                var val = decodeURIComponent(paramMap[paramName]);
+                addParamToRetina(paramName, val);
             }
         });
 

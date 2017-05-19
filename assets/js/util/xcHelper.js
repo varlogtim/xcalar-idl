@@ -2011,6 +2011,13 @@ window.xcHelper = (function($, xcHelper) {
         return (str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&"));
     };
 
+    xcHelper.encodeURL = function(url) {
+        // escapes all excep talphabetic, decimal digits, - _ . ! ~ * ' ( )
+        // must revert : and /
+        return encodeURIComponent(url).replace(/%3A/g, ":")
+                                      .replace(/%2F/g, "/");
+    };
+
     xcHelper.escapeColName = function(str) {
         // adds a backslash before each of these: [ ] . \
         return (str.replace(/[\[\]\.\\]/g, "\\$&"));

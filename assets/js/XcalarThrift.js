@@ -446,6 +446,8 @@ function XcalarPreview(url, fileNamePattern, isRecur, numBytesRequested, offset)
         return PromiseHelper.resolve(null);
     }
 
+    url = xcHelper.encodeURL(url);
+
     if (offset == null) {
         offset = 0;
     }
@@ -495,6 +497,7 @@ function XcalarPreview(url, fileNamePattern, isRecur, numBytesRequested, offset)
 function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
                     hasHeader, moduleName, funcName, isRecur, maxSampleSize,
                     quoteChar, skipRows, fileNamePattern, txId) {
+    url = xcHelper.encodeURL(url);
     function checkForDatasetLoad(def, sqlString, dsName, txId) {
         // Using setInterval will have issues because of the deferred
         // GetDatasets call inside here. Do not use it.
@@ -2546,6 +2549,7 @@ function XcalarListFilesWithPattern(url, isRecur, namePattern) {
     if (tHandle == null) {
         return PromiseHelper.resolve(null);
     }
+    url = xcHelper.encodeURL(url);
 
     var deferred = jQuery.Deferred();
     if (insertError(arguments.callee, deferred)) {
@@ -2567,6 +2571,8 @@ function XcalarListFiles(url, isRecur) {
     if (tHandle == null) {
         return PromiseHelper.resolve(null);
     }
+
+    url = xcHelper.encodeURL(url);
 
     var deferred = jQuery.Deferred();
     if (insertError(arguments.callee, deferred)) {
@@ -2725,7 +2731,11 @@ function XcalarUpdateRetina(retName, dagNodeId, paramType, paramValue, txId) {
     switch (paramType) {
         case (XcalarApisT.XcalarApiBulkLoad):
             paramStruct = new XcalarApiParamLoadT();
-            paramStruct.datasetUrl = paramValue;
+
+            // encode special characters but restore <>
+            var url = xcHelper.encodeURL(paramValue).replace(/%3C/g, "<")
+                                                    .replace(/%3E/g, ">");
+            paramStruct.datasetUrl = url;
             // XXX Handle name pattern
             break;
         case (XcalarApisT.XcalarApiFilter):

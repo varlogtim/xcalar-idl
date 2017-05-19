@@ -112,7 +112,12 @@ window.DFParamModal = (function($, DFParamModal){
             "dfg": dfName
         });
 
-        var paramValue = decodeURI($currentIcon.data('paramValue'));
+        // data in icon is encoded
+        var paramValue = decodeURIComponent($currentIcon.data('paramValue'));
+        if (type === "dataStore") {
+            // urls with special characters are further encoded
+            paramValue = decodeURIComponent(decodeURIComponent(paramValue));
+        }
 
         getExportInfo(type)
         .always(function(info) {
@@ -767,6 +772,7 @@ window.DFParamModal = (function($, DFParamModal){
         var $paramPart = $dfParamModal.find(".editableTable");
         var $editableDivs = $paramPart.find('input.editableParamDiv');
         var $paramInputs = $dfParamModal.find('input.editableParamDiv');
+        var type = $iconTrigger.data('type');
         var isValid = true;
         var params;
         // check for valid brackets or invalid characters
@@ -816,6 +822,9 @@ window.DFParamModal = (function($, DFParamModal){
             var $row = $(this);
             var name = $row.find(".paramName").text();
             var val = $.trim($row.find(".paramVal").val());
+            if (type === "dataStore") {
+                val = xcHelper.encodeURL(val);
+            }
             var check = $row.find(".checkbox").hasClass("checked");
 
             if ($row.hasClass("currParams")) {
@@ -888,7 +897,7 @@ window.DFParamModal = (function($, DFParamModal){
         return deferred.promise();
 
         function genOrigQueryStruct() {
-            var type = $iconTrigger.data('type');
+
             var $oldVals = $(".template .boxed");
             var paramType;
             var paramValue;
@@ -1150,7 +1159,7 @@ window.DFParamModal = (function($, DFParamModal){
             var parameterizedVals = [];
 
             $templateVals.each(function() {
-                parameterizedVals.push(decodeURI($(this).text()));
+                parameterizedVals.push(decodeURIComponent($(this).text()));
             });
 
             for (; i < retinaNode.paramQuery.length; i++) {
@@ -1160,7 +1169,8 @@ window.DFParamModal = (function($, DFParamModal){
                     $dfParamModal.find(".template").append(html);
                     $templateVals = $dfParamModal.find(".template .boxed");
                 }
-                $templateVals.eq(i).text(retinaNode.paramQuery[i]);
+                var val = decodeURIComponent(retinaNode.paramQuery[i]);
+                $templateVals.eq(i).text(val);
             }
             $dfParamModal.find(".template .boxed:gt(" +
                             (retinaNode.paramQuery.length - 1) + ")").remove();
@@ -1206,7 +1216,8 @@ window.DFParamModal = (function($, DFParamModal){
             // keep the order of paramName the in dfg.parameters
             dfg.parameters.forEach(function(paramName) {
                 if (nameMap.hasOwnProperty(paramName)) {
-                    addParamToLists(paramName, paramMap[paramName], true, false);
+                    var val = decodeURIComponent(paramMap[paramName]);
+                    addParamToLists(paramName, val, true, false);
                 }
             });
 

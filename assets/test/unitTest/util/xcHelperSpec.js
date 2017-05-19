@@ -1484,6 +1484,11 @@ describe('xcHelper Test', function() {
         expect(res).to.equal('a');
     });
 
+    it("encodeURL should work", function() {
+        var fn = xcHelper.encodeURL;
+        expect(fn("file:///ab?c/d-e#f")).to.equal("file:///ab%3Fc/d-e%23f");
+    });
+
     it('xcHelper.escapeColName should work', function() {
         // case 1
         var res = xcHelper.escapeColName('a.b');
