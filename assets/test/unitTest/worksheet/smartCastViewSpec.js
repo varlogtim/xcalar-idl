@@ -130,6 +130,8 @@ describe('Smart Cast View Test', function() {
             // detect
             $castView.find(".detect").click();
             expect($table.find("th.modalHighlighted").length).to.equal(0);
+
+            expect($("#smartCast-table .tableContent").text()).to.equal("");
         });
 
         it("Should click column name to focus", function() {

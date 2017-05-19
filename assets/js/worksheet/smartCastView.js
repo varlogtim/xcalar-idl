@@ -236,7 +236,7 @@ window.SmartCastView = (function($, SmartCastView) {
         }
 
         if (html === "") {
-            $castTable.addClass("empty");
+            $castTable.addClass("empty").find(".tableContent").empty();
         } else {
             $castTable.removeClass("empty")
                 .find(".tableContent").html(html);
