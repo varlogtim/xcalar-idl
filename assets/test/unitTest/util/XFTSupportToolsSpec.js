@@ -1,97 +1,56 @@
-// XXX this module rewrite the ajax call, but
-// other thrift call also need ajax call, so
-// temp disable it until we find good solution
-describe.skip("XFTSupportTools Test", function() {
-    before(function() {
-        // no extra ajax call
-        Support.stopHeartbeatCheck();
-    });
-
+describe("XFTSupportTools Test", function() {
     describe("XFTSupportTools Send Request Test", function() {
-        var sendRequest;
-        var oldAjax;
+        it("prePraseSendData should work", function() {
+            var prePraseSendData = XFTSupportTools.__testOnly__.prePraseSendData;
+            var res = prePraseSendData("GET");
+            expect(res).to.be.an("object");
 
-        before(function() {
-            sendRequest = XFTSupportTools.__testOnly__.sendRequest;
-            oldAjax = $.ajax;
+            // case 2
+            res = prePraseSendData("PUT", "test");
+            expect(res).to.be.a("string");
+            expect(res).contains("test");
         });
 
-        it("should send request", function(done) {
-            $.ajax = function(options) {
-                var data = btoa("test");
-                options.success({"logs": data});
-            };
-
-            sendRequest("POST", "testURL")
-            .then(function(res) {
-                expect(res).to.be.an("object");
-                expect(res.logs).to.equal("test");
-                done();
-            })
-            .fail(function() {
-                done("fail");
+        it("parseSuccessData should work", function() {
+            var parseSuccessData = XFTSupportTools.__testOnly__.parseSuccessData;
+            var res = parseSuccessData("test");
+            expect(res).to.equal("test");
+            // case 2
+            res = parseSuccessData({
+                "logs": btoa("test")
             });
+            expect(res).to.be.an("object");
+            expect(res.logs).to.equal("test");
         });
 
-        it("should handle send request error case 1", function(done) {
-            $.ajax = function(options) {
-                var data = btoa("test");
-                options.error({"responseJSON": {"logs": data}});
-            };
-
-            sendRequest("POST", "testURL")
-            .then(function() {
-                done("fail");
-            })
-            .fail(function(res) {
-                expect(res).to.be.an("object");
-                expect(res.logs).to.equal("test");
-                done();
+        it("parseErrorData should work", function() {
+            var parseErrorData = XFTSupportTools.__testOnly__.parseErrorData;
+            var res = parseErrorData({
+                "status": 1,
+                "statusText": "test"
             });
-        });
 
-        it("should handle send request error case 2", function(done) {
-            $.ajax = function(options) {
-                options.error({
-                    "status": "testStatus",
-                    "statusText": "testText"
-                });
-            };
+            expect(res).to.be.an("object");
+            expect(res.status).to.equal(1);
+            expect(res.logs).to.equal("test");
+            expect(res.unexpectedError).to.be.true;
 
-            sendRequest("POST", "testURL")
-            .then(function() {
-                done("fail");
-            })
-            .fail(function(res) {
-                expect(res).to.be.an("object");
-                expect(res.status).to.equal("testStatus");
-                expect(res.logs).to.equal("testText");
-                expect(res.unexpectedError).to.be.true;
-                done();
+            // case 2
+            res = parseErrorData({
+                "responseJSON": {
+                    "logs": btoa("test")
+                }
             });
-        });
 
-        after(function() {
-            $.ajax = oldAjax;
+            expect(res).to.be.an("object");
+            expect(res.logs).to.equal("test");
         });
     });
 
     describe("XFTSupportTools API Test", function() {
-        var oldAjax;
-
-        before(function() {
-            oldAjax = $.ajax;
-            $.ajax = function(options) {
-                options = options || {};
-                options.success(options.data);
-            };
-        });
-
-        after(function() {
-            $.ajax = oldAjax;
-        });
-
         it("XFTSupportTools.getRecentLogs should work", function(done) {
+            XFTSupportTools.__testOnly__.setSendRequest();
+
             XFTSupportTools.getRecentLogs(10)
             .then(function(res) {
                 expect(res).to.be.an("object");
@@ -104,10 +63,8 @@ describe.skip("XFTSupportTools Test", function() {
         });
 
         it("should get monitor log", function(done) {
-            var cache = $.ajax;
-            $.ajax = function(options) {
-                options.success({"updatedLastMonitorMap": "test"});
-            };
+            var ret = {"updatedLastMonitorMap": "test"};
+            XFTSupportTools.__testOnly__.setSendRequest(ret);
             var lasMonitorMap = XFTSupportTools.__testOnly__.getMonitorMap();
             // clean first
             XFTSupportTools.stopMonitorLogs();
@@ -135,17 +92,11 @@ describe.skip("XFTSupportTools Test", function() {
             })
             .fail(function() {
                 done("fail");
-            })
-            .always(function() {
-                $.ajax = cache;
             });
         });
 
         it("should handle fail monitor case", function(done) {
-            var cache = $.ajax;
-            $.ajax = function(options) {
-                options.error({});
-            };
+            XFTSupportTools.__testOnly__.setSendRequest({}, true);
             var lasMonitorMap = XFTSupportTools.__testOnly__.getMonitorMap();
             lasMonitorMap["test"] = "testVal";
 
@@ -171,13 +122,11 @@ describe.skip("XFTSupportTools Test", function() {
             })
             .fail(function() {
                 done("fail");
-            })
-            .always(function() {
-                $.ajax = cache;
             });
         });
 
         it("XFTSupportTools.clusterStart should work", function(done) {
+            XFTSupportTools.__testOnly__.setSendRequest();
             XFTSupportTools.clusterStart()
             .then(function(res) {
                 expect(res).to.be.a("string");
@@ -189,6 +138,7 @@ describe.skip("XFTSupportTools Test", function() {
         });
 
         it("XFTSupportTools.clusterStop should work", function(done) {
+            XFTSupportTools.__testOnly__.setSendRequest();
             XFTSupportTools.clusterStop()
             .then(function(res) {
                 expect(res).to.be.a("string");
@@ -200,6 +150,7 @@ describe.skip("XFTSupportTools Test", function() {
         });
 
         it("XFTSupportTools.clusterRestart should work", function(done) {
+            XFTSupportTools.__testOnly__.setSendRequest();
             XFTSupportTools.clusterRestart()
             .then(function(res) {
                 expect(res).to.be.a("string");
@@ -211,6 +162,7 @@ describe.skip("XFTSupportTools Test", function() {
         });
 
         it("XFTSupportTools.clusterStatus should work", function(done) {
+            XFTSupportTools.__testOnly__.setSendRequest();
             XFTSupportTools.clusterStatus()
             .then(function(res) {
                 expect(res).to.be.an("object");
@@ -222,9 +174,10 @@ describe.skip("XFTSupportTools Test", function() {
         });
 
         it("XFTSupportTools.removeSessionFiles should work", function(done) {
+            XFTSupportTools.__testOnly__.setSendRequest();
             XFTSupportTools.removeSessionFiles("testFile")
             .then(function(res) {
-                expect(res).to.be.an("string");
+                expect(res).to.be.a("string");
                 expect(res).to.contains("testFile");
                 done();
             })
@@ -234,6 +187,7 @@ describe.skip("XFTSupportTools Test", function() {
         });
 
         it("XFTSupportTools.removeSHM should work", function(done) {
+            XFTSupportTools.__testOnly__.setSendRequest();
             XFTSupportTools.removeSHM()
             .then(function(res) {
                 expect(res).to.be.a("string");
@@ -245,6 +199,7 @@ describe.skip("XFTSupportTools Test", function() {
         });
 
         it("XFTSupportTools.getLicense should work", function(done) {
+            XFTSupportTools.__testOnly__.setSendRequest();
             XFTSupportTools.getLicense()
             .then(function(res) {
                 expect(res).to.be.an("object");
@@ -256,6 +211,7 @@ describe.skip("XFTSupportTools Test", function() {
         });
 
         it("XFTSupportTools.fileTicket should work", function(done) {
+            XFTSupportTools.__testOnly__.setSendRequest();
             XFTSupportTools.fileTicket("testStr")
             .then(function(res) {
                 expect(res).to.be.a("string");
@@ -268,11 +224,7 @@ describe.skip("XFTSupportTools Test", function() {
         });
 
         after(function() {
-            $.ajax = oldAjax;
+            XFTSupportTools.__testOnly__.resetSendRequest();
         });
-    });
-
-    after(function() {
-        Support.restartHeartbeatCheck();
     });
 });

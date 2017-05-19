@@ -122,14 +122,7 @@ window.XFTSupportTools = (function(XFTSupportTools, $) {
     }
 
     function sendRequest(action, url, content) {
-        var data = content ? content : {};
-        // A flag to indicate whether current window is using http protocol or not
-        data.isHTTP = isHTTP();
-        // Post and Delete case, send a String
-        // Get case, send a JSON object
-        if (action !== "GET") {
-            data = JSON.stringify(data);
-        }
+        var data = prePraseSendData(action, content);
         var deferred = jQuery.Deferred();
         $.ajax({
             "type": action,
@@ -139,42 +132,63 @@ window.XFTSupportTools = (function(XFTSupportTools, $) {
             "cache": false,
             "timeout": timeout,
             success: function(data) {
-                // If this request will be sent to all slave nodes
-                // success state means that all slave nodes return 200
-                // to master node
-                if (data.logs) {
-                    data.logs = atob(data.logs);
-                }
-                // console.log(data.logs);
+                data = parseSuccessData(data);
                 deferred.resolve(data);
             },
             error: function(xhr) {
-                // If this request will be sent to all slave nodes
-                // error state means that some slave nodes fails to
-                // return 200 to master node
-                var data;
-                if (xhr.responseJSON) {
-                    // under this case, server sent the response and set
-                    // the status code
-                    data = xhr.responseJSON;
-                    if (data.logs) {
-                        data.logs = atob(data.logs);
-                    }
-                } else {
-                    // under this case, the error status is not set by
-                    // server, it may due to other reasons, therefore we
-                    // need to create our own JSON object
-                    data = {
-                        "status": xhr.status,
-                        "logs": xhr.statusText,
-                        "unexpectedError": true
-                    };
-                }
+                var data = parseErrorData(xhr);
                 // console.log(data.logs);
                 deferred.reject(data);
             }
         });
         return deferred.promise();
+    }
+
+    function prePraseSendData(action, content) {
+        var data = content ? content : {};
+        // A flag to indicate whether current window is using http protocol or not
+        data.isHTTP = isHTTP();
+        // Post and Delete case, send a String
+        // Get case, send a JSON object
+        if (action !== "GET") {
+            data = JSON.stringify(data);
+        }
+        return data;
+    }
+
+    function parseSuccessData(data) {
+        // If this request will be sent to all slave nodes
+        // success state means that all slave nodes return 200
+         // to master node
+        if (data.logs) {
+            data.logs = atob(data.logs);
+        }
+        return data;
+    }
+
+    function parseErrorData(xhr) {
+        // If this request will be sent to all slave nodes
+        // error state means that some slave nodes fails to
+        // return 200 to master node
+        var data;
+        if (xhr.responseJSON) {
+            // under this case, server sent the response and set
+            // the status code
+            data = xhr.responseJSON;
+            if (data.logs) {
+                data.logs = atob(data.logs);
+            }
+        } else {
+            // under this case, the error status is not set by
+            // server, it may due to other reasons, therefore we
+            // need to create our own JSON object
+            data = {
+                "status": xhr.status,
+                "logs": xhr.statusText,
+                "unexpectedError": true
+            };
+        }
+        return data;
     }
 
     function setLastMonitors(map) {
@@ -185,10 +199,29 @@ window.XFTSupportTools = (function(XFTSupportTools, $) {
 
     /* Unit Test Only */
     if (window.unitTestMode) {
+        var oldSendRequest = sendRequest;
         XFTSupportTools.__testOnly__ = {};
-        XFTSupportTools.__testOnly__.sendRequest = sendRequest;
+        XFTSupportTools.__testOnly__.prePraseSendData = prePraseSendData;
+        XFTSupportTools.__testOnly__.parseSuccessData = parseSuccessData;
+        XFTSupportTools.__testOnly__.parseErrorData = parseErrorData;
         XFTSupportTools.__testOnly__.getMonitorMap = function() {
             return lastMonitorMap;
+        };
+
+        XFTSupportTools.__testOnly__.setSendRequest = function(res, isErr){
+            sendRequest = function(action, url, content) {
+                var output = res || prePraseSendData(action, content);
+                if (isErr) {
+                    return PromiseHelper.reject(output);
+                } else {
+                    return PromiseHelper.resolve(output);
+                }
+            };
+            return sendRequest;
+        };
+
+        XFTSupportTools.__testOnly__.resetSendRequest = function() {
+            sendRequest = oldSendRequest;
         };
     }
     /* End Of Unit Test Only */
