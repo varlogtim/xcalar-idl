@@ -2800,6 +2800,7 @@ ExtCategory.prototype = {
 
     getExtensionList: function(searchKey) {
         searchKey = searchKey || "";
+        searchKey = xcHelper.escapeRegExp(searchKey);
         var extensions = this.extensions;
         var listToSort = [];
         var regExp = new RegExp(searchKey, "i");
