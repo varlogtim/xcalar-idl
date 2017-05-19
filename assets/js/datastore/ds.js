@@ -945,7 +945,7 @@ window.DS = (function ($, DS) {
                 if (searchHash.hasOwnProperty(obj.fullName)) {
                     // restore a ds
                     ds = searchHash[obj.fullName];
-                    format = DfFormatTypeTStr[ds.formatType].toUpperCase();
+                    format = parseDSFormat(ds);
 
                     obj = $.extend(obj, {
                         "format": format,
@@ -970,7 +970,7 @@ window.DS = (function ($, DS) {
             ds = searchHash[dsName];
 
             if (ds != null) {
-                format = DfFormatTypeTStr[ds.formatType].toUpperCase();
+                format = parseDSFormat(ds);
 
                 if (xcHelper.parseDSName(dsName).user === userPrefix) {
                     // XXX this case appears when same use switch workbook
@@ -988,6 +988,19 @@ window.DS = (function ($, DS) {
         refreshDS();
         DataStore.update();
         checkUnlistableDS(unlistableDS);
+    }
+
+    function parseDSFormat(ds) {
+        var format = DfFormatTypeTStr[ds.formatType].toUpperCase();
+        if (format === "JSON" && (isExcelUDF(ds.udfName))) {
+            format = "Excel";
+        }
+        return format;
+    }
+
+    function isExcelUDF(udfName) {
+        return (udfName === "default:openExcelWithHeader")
+                || (udfName === "default:openExcel");
     }
 
     function checkUnlistableDS(unlistableDS) {
