@@ -418,7 +418,7 @@ window.DSUploader = (function($, DSUploader) {
         var $grid = getDSIcon(name);
         $grid.removeClass("inProgress").find(".fileSize").html(
                                 xcHelper.sizeTranslator(fileObj.attr.size));
-        var displayName = xcHelper.escapeHTMLSepcialChar(name);
+        var displayName = xcHelper.escapeHTMLSpecialChar(name);
         $grid.find(".fileName").html(displayName);
         fileObj.status = "done";
         delete uploads[name];
@@ -426,7 +426,7 @@ window.DSUploader = (function($, DSUploader) {
     }
 
     function updateProgress(fileObj, file, name, sizeCompleted) {
-        name = xcHelper.escapeHTMLSepcialChar(name);
+        name = xcHelper.escapeHTMLSpecialChar(name);
         var $icon = getDSIcon(name);
         $icon.find(".fileName").html(name + " (" + CommonTxtTstr.Uploading +
                                      ")");
@@ -441,7 +441,7 @@ window.DSUploader = (function($, DSUploader) {
     function onError(fileObj, name) {
         var $grid = getDSIcon(name);
         $grid.removeClass("inProgress").addClass("isError");
-        var displayName = xcHelper.escapeHTMLSepcialChar(name);
+        var displayName = xcHelper.escapeHTMLSpecialChar(name);
         $grid.find(".fileName").html(displayName + " (" + ErrTStr.Error + ")");
         fileObj.status = "errored";
 
@@ -533,7 +533,7 @@ window.DSUploader = (function($, DSUploader) {
         var name = fileInfo.name;
         var dataName = encodeURI(name);
         var titleName = xcHelper.escapeDblQuoteForHTML(name);
-        var displayName = xcHelper.escapeHTMLSepcialChar(name);
+        var displayName = xcHelper.escapeHTMLSpecialChar(name);
         var size = xcHelper.sizeTranslator(fileInfo.attr.size);
         var sizeCompleted = xcHelper.sizeTranslator(fileInfo.sizeCompleted);
         var mtime = fileInfo.attr.mtime;

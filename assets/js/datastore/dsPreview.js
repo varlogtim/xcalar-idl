@@ -2298,7 +2298,7 @@ window.DSPreview = (function($, DSPreview) {
                     if (strLen > colStrLimit) {
                         hiddenStrLen++;
                     } else {
-                        html += xcHelper.escapeHTMLSepcialChar(d);
+                        html += xcHelper.escapeHTMLSpecialChar(d);
                     }
 
                     strLen++;
@@ -2325,7 +2325,7 @@ window.DSPreview = (function($, DSPreview) {
                 }
 
                 html += '<span class="' + cellClass + '">' +
-                            xcHelper.escapeHTMLSepcialChar(d) +
+                            xcHelper.escapeHTMLSpecialChar(d) +
                         '</span>';
             }
             var lenDiff = data.length - dataLen;

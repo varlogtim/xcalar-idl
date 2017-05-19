@@ -147,7 +147,7 @@ window.DSTable = (function($, DSTable) {
     function setupViewAfterError(error, isFetchError, noRetry) {
         error = xcHelper.parseError(error);
         // backend might return this: "<string>"
-        error = xcHelper.escapeHTMLSepcialChar(error);
+        error = xcHelper.escapeHTMLSpecialChar(error);
         var startError = isFetchError
                          ? StatusMessageTStr.DSFetchFailed
                          : StatusMessageTStr.ImportDSFailed;

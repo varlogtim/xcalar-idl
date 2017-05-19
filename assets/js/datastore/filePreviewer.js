@@ -221,7 +221,7 @@ window.FilePreviewer = (function(FilePreviewer, $) {
     function getCell(ch, offset) {
         offset = initialOffset + offset;
         var cell = '<span class="cell" data-offset="' + offset + '">' +
-                            xcHelper.escapeHTMLSepcialChar(ch) +
+                            xcHelper.escapeHTMLSpecialChar(ch) +
                     '</span>';
         return cell;
     }

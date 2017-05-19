@@ -711,7 +711,7 @@ window.DSCart = (function($, DSCart) {
                 type = "unknown";
             }
 
-            var escapedVal = xcHelper.escapeHTMLSepcialChar(value);
+            var escapedVal = xcHelper.escapeHTMLSpecialChar(value);
             html +=
             '<li data-colnum="' + colNum + '">' +
                 '<div class="itemWrap type-' + type + '">' +

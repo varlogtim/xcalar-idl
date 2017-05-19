@@ -124,7 +124,7 @@ window.xcConsole = (function(xcConsole, $) {
         var stackStr = "";
         var msg = "";
         for (var i = 0; i < stack.length; i++) {
-            msg = xcHelper.escapeHTMLSepcialChar(stack[i]);
+            msg = xcHelper.escapeHTMLSpecialChar(stack[i]);
             msg = msg.replace(/\(/g, '<span style="color: #999;">');
             msg = msg.replace(/\)/g, '</span>');
             stackStr += '<div>' + msg + '</div>';

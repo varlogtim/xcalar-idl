@@ -119,7 +119,7 @@ window.xcHelper = (function($, xcHelper) {
             }
             // escape < & > so external html doesn't get injected
             if (typeof value === "string") {
-                value = xcHelper.escapeHTMLSepcialChar(value);
+                value = xcHelper.escapeHTMLSpecialChar(value);
             }
         }
         return (value);
@@ -205,7 +205,7 @@ window.xcHelper = (function($, xcHelper) {
         }
 
         // XXX why this part need escape?
-        text = xcHelper.escapeHTMLSepcialChar(text);
+        text = xcHelper.escapeHTMLSpecialChar(text);
 
         var $tempDiv = $("<div>" + text + "</div>");
         $tempDiv.css({
@@ -1995,7 +1995,7 @@ window.xcHelper = (function($, xcHelper) {
         return error;
     };
 
-    xcHelper.escapeHTMLSepcialChar = function(str, ignoreTab) {
+    xcHelper.escapeHTMLSpecialChar = function(str, ignoreTab) {
         // esacpe & to &amp;, so text &quot; will not become " in html
         // escape < & > so external html doesn't get injected
         str = str.replace(/\&/g, "&amp;")
@@ -3095,12 +3095,12 @@ window.xcHelper = (function($, xcHelper) {
                     continue;
                 }
                 var value = obj[key];
-                key = xcHelper.escapeHTMLSepcialChar(key);
+                key = xcHelper.escapeHTMLSpecialChar(key);
                 var dataKey = key.replace(/\"/g, "&quot;"); // replace " with &quot;
                 var arrayElClass = isArrayEl ? " arrayEl" : "";
                 switch (typeof value) {
                     case ('string'):
-                        value = xcHelper.escapeHTMLSepcialChar(value, true);
+                        value = xcHelper.escapeHTMLSpecialChar(value, true);
                         value = '"<span class="jString text ' + arrayElClass +
                                 '">' + value + '</span>"';
                         break;

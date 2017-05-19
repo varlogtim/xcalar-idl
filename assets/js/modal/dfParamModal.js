@@ -405,7 +405,7 @@ window.DFParamModal = (function($, DFParamModal){
                                 DFTStr.PointTo + ':' +
                             '</div>' +
                             '<div class="boxed large">' +
-                                xcHelper.escapeHTMLSepcialChar(paramValue) +
+                                xcHelper.escapeHTMLSpecialChar(paramValue) +
                             '</div>';
 
             editableText += '<div class="static" data-op="load">' +
@@ -423,7 +423,7 @@ window.DFParamModal = (function($, DFParamModal){
                             '</div>' +
 
                             '<div class="boxed large">' +
-                                xcHelper.escapeHTMLSepcialChar(paramValue) +
+                                xcHelper.escapeHTMLSpecialChar(paramValue) +
                             '</div>';
             editableText += '<div class="static" data-op="export">' +
                                 DFTStr.ExportTo + ':' +
@@ -438,7 +438,7 @@ window.DFParamModal = (function($, DFParamModal){
                                 'Filter' + ':' +
                             '</div>' +
                             '<div class="boxed large">' +
-                                xcHelper.escapeHTMLSepcialChar(paramValue) +
+                                xcHelper.escapeHTMLSpecialChar(paramValue) +
                             '</div>';
 
                 editableText += '<div class="static" data-op="' + type + '">' +
@@ -450,7 +450,7 @@ window.DFParamModal = (function($, DFParamModal){
 
                 defaultText += '<div>' + type + ':</div>' +
                                 '<div class="boxed medium">' +
-                                    xcHelper.escapeHTMLSepcialChar(
+                                    xcHelper.escapeHTMLSpecialChar(
                                         retStruct.args[0]) +
                                 '</div>';
 
@@ -462,11 +462,11 @@ window.DFParamModal = (function($, DFParamModal){
 
                     defaultText += '<div class="static">by</div>' +
                                     '<div class="boxed small">' +
-                                    xcHelper.escapeHTMLSepcialChar(retStruct.op) +
+                                    xcHelper.escapeHTMLSpecialChar(retStruct.op) +
                                     '</div>';
                     for (var i = 1; i < retStruct.args.length; i++) {
                         defaultText += '<div class="boxed medium">' +
-                                            xcHelper.escapeHTMLSepcialChar(
+                                            xcHelper.escapeHTMLSpecialChar(
                                                 retStruct.args[i]) +
                                         '</div>';
                     }

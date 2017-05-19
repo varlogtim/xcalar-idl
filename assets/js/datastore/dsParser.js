@@ -1401,7 +1401,7 @@ window.DSParser = (function($, DSParser) {
     }
 
     function addKeyItem(displayKey, type) {
-        var tag = xcHelper.escapeHTMLSepcialChar(displayKey);
+        var tag = xcHelper.escapeHTMLSpecialChar(displayKey);
         var li =
                 '<li class="key">' +
                     '<div class="item">' +
@@ -1695,8 +1695,8 @@ window.DSParser = (function($, DSParser) {
         } else {
             $content.append($page);
         }
-
-        if (meta.endPage - meta.startPage > 1) { // no more than 2 pages visible at a time
+        // no more than 2 pages visible at a time
+        if (meta.endPage - meta.startPage > 1) {
             if (up) {
                 $content.find(".page").last().remove();
                 meta.endPage--;
@@ -1726,6 +1726,7 @@ window.DSParser = (function($, DSParser) {
     }
 
     function parseContent(content) {
+        content = xcHelper.escapeHTMLSpecialChar(content);
         var lines = content.split("\n");
         var $line;
         var $lines = $();
