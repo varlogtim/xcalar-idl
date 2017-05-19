@@ -131,6 +131,20 @@ describe("Admin Test", function() {
             expect(xcSessionStorage.getItem("usingAs")).to.not.equal("true");
             xcManager.unload = cachedunload;
         });
+
+        it("refreshUserList button should work", function() {
+            var cachedFn = KVStore.get;
+            KVStore.get = function() {
+                return PromiseHelper.resolve(null);
+            };
+            $("#adminUserSearch").find("input").val("test");
+
+            $("#monitorMenu-setup").find(".refreshUserList").click();
+            expect($("#adminUserSearch").find("input").val()).to.equal("");
+            expect(Admin.getUserList.length).to.equal(0);
+
+            KVStore.get = cachedFn;
+        });
     });
 
     describe("admin functions", function() {

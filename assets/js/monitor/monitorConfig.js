@@ -49,7 +49,7 @@ window.MonitorConfig = (function(MonitorConfig, $) {
             }
         });
 
-        
+
         $configCard.on('keypress', '.paramName', function(e) {
             if (e.which !== keyCode.Enter) {
                 return;
@@ -102,7 +102,6 @@ window.MonitorConfig = (function(MonitorConfig, $) {
     }
 
     function submitParamName($nameInput, onChangeTriggered) {
-        console.log('submitted');
         var val = $nameInput.val().trim();
 
         if (!val.length) {
@@ -121,7 +120,7 @@ window.MonitorConfig = (function(MonitorConfig, $) {
                       .val(paramObj.paramName);
             $curValInput.val(paramObj.paramValue);
             $formRow.addClass('nameIsSet');
-            
+
             if (paramObj.changeable) {
                 if ($newValInput.val() === "") {
                     $newValInput.val(paramObj.paramValue);
@@ -205,11 +204,9 @@ window.MonitorConfig = (function(MonitorConfig, $) {
             PromiseHelper.when.apply(window, promises)
             .then(function() {
                 xcHelper.showSuccess(SuccessTStr.SaveParam);
-
             })
             .fail(function() {
                 submitFailHandler(arguments, rows);
-                console.log('error', arguments);
             })
             .always(function() {
                 MonitorConfig.refreshParams()
@@ -223,7 +220,7 @@ window.MonitorConfig = (function(MonitorConfig, $) {
     function submitFailHandler(args, rows) {
         var errorMsg = "";
         // var partialFail = false;
-        var $errorRow;
+        var $errorRow = $();
         for (var i = 0 ; i < args.length; i++) {
             if (args[i].error) {
                 if (!errorMsg) {

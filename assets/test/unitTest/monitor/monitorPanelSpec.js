@@ -47,6 +47,20 @@ describe("Monitor Panel Test", function() {
         });
     });
 
+    describe("toggling graph switches", function() {
+        it("switching should work", function() {
+            $monitorPanel.find(".graphSwitch").eq(0).click();
+            expect($monitorPanel.find(".area0").css("display")).to.equal("none");
+            $monitorPanel.find(".graphSwitch").eq(0).click();
+            expect($monitorPanel.find(".area0").css("display")).to.not.equal("none");
+
+            $monitorPanel.find(".graphSwitch").eq(1).click();
+            expect($monitorPanel.find(".area2").css("display")).to.equal("none");
+            $monitorPanel.find(".graphSwitch").eq(1).click();
+            expect($monitorPanel.find(".area2").css("display")).to.not.equal("none");
+        });
+    });
+
     after(function() {
         $mainTabCache.click();
     });

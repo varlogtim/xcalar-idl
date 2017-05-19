@@ -227,6 +227,7 @@ window.QueryManager = (function(QueryManager, $) {
         if (queryLists[id].state === QueryStatus.Cancel) {
             canceledQueries[id] = queryLists[id];
         }
+
         delete queryLists[id];
         var $query = $queryList.find('.query[data-id="' + id + '"]');
         if ($query.hasClass('active')) {
@@ -553,6 +554,7 @@ window.QueryManager = (function(QueryManager, $) {
 
             mainQuery.check()
             .then(function(res) {
+
                 if (!queryLists[id]) {
                     clearIntervalHelper(id);
                     deferred.reject();
@@ -573,7 +575,7 @@ window.QueryManager = (function(QueryManager, $) {
                     clearIntervalHelper(id);
                     updateQueryBar(id, res, true, false, doNotAnimate);
                     deferred.reject();
-                } if (state === QueryStateT.qrCancelled) {
+                } else if (state === QueryStateT.qrCancelled) {
                     clearIntervalHelper(id);
                     updateQueryBar(id, res, false, true, doNotAnimate);
                     deferred.reject();
@@ -1199,7 +1201,6 @@ window.QueryManager = (function(QueryManager, $) {
             }
             timeString += "s";
         }
-
 
         return (timeString);
     }

@@ -43,6 +43,23 @@ describe('QueryManager Test', function() {
         });
     });
 
+    describe("restore", function() {
+        it("restore should work", function() {
+            var cachedGetLogs = SQL.getLogs();
+            SQL.getLogs = function() {
+                return [];
+            };
+            QueryManager.restore([{name: "unitTest2"}]);
+            expect($queryList.text().indexOf("unitTest2")).to.be.gt(-1);
+            expect(queryLists[-1].name).to.equal("unitTest2");
+            delete queryLists[-1];
+            $queryList.find(".xcQuery").filter(function() {
+                return $(this).find('.name') === "unitTest2";
+            }).remove();
+            SQL.getLogs = cachedGetLogs;
+        });
+    });
+
     describe('QueryManager.addQuery()', function() {
         var queryObj;
         var cachedGetOpStats;
@@ -219,6 +236,46 @@ describe('QueryManager Test', function() {
         after(function() {
             XcalarGetOpStats = cachedGetOpStats;
             XcalarQueryState = cachedQueryState;
+        });
+    });
+
+    describe("xcalarQuery", function() {
+        it("mainQueryCheck should work", function() {
+            var cachedQueryState = XcalarQueryState;
+            var stateCalled = false;
+            XcalarQueryState = function() {
+                stateCalled = true;
+                return PromiseHelper.resolve({queryState: QueryStateT.qrError,
+                    numCompletedWorkItem: 0});
+            };
+
+            var cachedXcalarQuery = XcalarQuery;
+            var queryCalled = false;
+            XcalarQuery = function(name, query) {
+                queryCalled = true;
+                expect(query).to.equal("filter --dstTable unitTestTable;");
+                return PromiseHelper.resolve();
+            };
+            QueryManager.addQuery(999, "unitTest", {
+                query: "filter --dstTable unitTestTable"
+            });
+            console.log(queryLists);
+            var query = queryLists[999];
+            expect(query.subQueries.length).to.equal(1);
+            expect(query.subQueries[0].name).to.equal("filter");
+            expect(queryCalled).to.be.true;
+            expect(stateCalled).to.be.true;
+
+            XcalarQueryState = cachedQueryState;
+            XcalarQuery = cachedXcalarQuery;
+        });
+
+        it("remove query should work", function() {
+            expect(queryLists[999]).to.not.be.undefined;
+            var numList = $queryList.find(".xc-query").length;
+            QueryManager.removeQuery(999);
+            expect($queryList.find(".xc-query").length).to.equal(numList - 1);
+            expect(queryLists[999]).to.be.undefined;
         });
     });
 

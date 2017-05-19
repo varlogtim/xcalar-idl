@@ -51,11 +51,18 @@ describe('DFCard Test', function() {
 
     // XXX need comprehensive test, currently just has test for certain bugs
     describe("dfcard menu", function() {
-        before(function(){
+        before(function(done){
             $("#dfgMenu .groupName").filter(function() {
                 return $(this).text() === testDfName;
             }).closest('.dataFlowGroup').click();
 
+            UnitTest.testFinish(function() {
+                $dfWrap = $('#dfgViz .dagWrap[data-dataflowname="' + testDfName + '"]');
+                return $dfWrap.find(".export .dagTableIcon").length > 0;
+            })
+            .then(function() {
+                done();
+            });
         });
 
         it("menu should show correct options depending on license mode", function() {
@@ -65,6 +72,7 @@ describe('DFCard Test', function() {
             };
             var $menu = $('#dfgViz').find('.dagDropDown');
             $dfWrap.find(".export .dagTableIcon").click();
+
             expect($menu.find("li:visible").length).to.equal(2);
             expect($menu.find("li.createParamQuery:visible").length).to.equal(1);
 
