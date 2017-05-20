@@ -284,4 +284,190 @@ describe("xcManager Test", function() {
             $e.remove();
         });
     });
+    
+    describe("oneTimeSetup Test", function() {
+        var oldKeyLookup;
+        var oldKeyPut;
+        var oldInitLock;
+        var oldTryLock;
+        var oldUnLock;
+        var oneTimeSetup;
+        var keyMap = {};
+
+        before(function() {
+            oldKeyLookup = XcalarKeyLookup;
+            oldKeyPut = XcalarKeyPut;
+            oldInitLock = Concurrency.initLock;
+            oldTryLock = Concurrency.tryLock;
+            oldUnLock = Concurrency.unlock;
+            oneTimeSetup = xcManager.__testOnly__.oneTimeSetup;
+            UnitTest.onMinMode();
+            Support.stopHeartbeatCheck();
+
+            XcalarKeyPut = function(key, value) {
+                keyMap[key] = value;
+                return PromiseHelper.resolve();
+            };
+
+            Concurrency.initLock = function() {
+                return PromiseHelper.resolve();
+            };
+
+            Concurrency.tryLock = function() {
+                return PromiseHelper.resolve("testLockStr");
+            };
+
+            Concurrency.unlock = function() {
+                return PromiseHelper.resolve();
+            };
+        });
+
+        beforeEach(function() {
+            keyMap = {}; // reset
+        });
+
+        it("should resolve if already initialized", function(done) {
+            XcalarKeyLookup = function() {
+                return PromiseHelper.resolve({
+                    "value": InitFlagState.AlreadyInit
+                });
+            };
+
+            oneTimeSetup()
+            .then(function() {
+                // nothing happened
+                expect(Object.keys(keyMap).length).to.equal(0);
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        it("should still resolve in fail case", function(done) {
+            XcalarKeyLookup = function() {
+                return PromiseHelper.reject("test");
+            };
+
+            oneTimeSetup()
+            .then(function() {
+                // nothing happened
+                expect(Object.keys(keyMap).length).to.equal(0);
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        it("should go through normal setup case", function(done) {
+            XcalarKeyLookup = function() {
+                return PromiseHelper.resolve();
+            };
+
+            oneTimeSetup()
+            .then(function() {
+                expect(Object.keys(keyMap).length).to.equal(1);
+                expect(keyMap[GlobalKVKeys.InitFlag])
+                .to.equal(InitFlagState.AlreadyInit);
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        it("should force unlock", function(done) {
+            var curTryLock = Concurrency.tryLock;
+            Concurrency.tryLock = function() {
+                return PromiseHelper.reject(ConcurrencyEnum.OverLimit);
+            };
+
+            var promise = oneTimeSetup();
+            var checkFunc = function() {
+                return $("#alertModal").is(":visible");
+            };
+
+            UnitTest.testFinish(checkFunc)
+            .then(function() {
+                var $btn = $("#alertModal").find(".force");
+                expect($btn.length).to.equal(1);
+                $btn.click();
+            })
+            .fail(function() {
+                done("fail");
+            });
+
+            promise
+            .then(function() {
+                expect(Object.keys(keyMap).length).to.equal(2);
+                expect(keyMap[GlobalKVKeys.InitFlag])
+                .to.equal(InitFlagState.AlreadyInit);
+                expect(keyMap[GlobalKVKeys.XdFlag]).to.equal("0");
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                Concurrency.tryLock = curTryLock;
+                $("#initialLoadScreen").hide();
+            });
+        });
+
+        it("should reftry unlock", function(done) {
+            var curTryLock = Concurrency.tryLock;
+            var curKeyLookUp = XcalarKeyLookup;
+
+            Concurrency.tryLock = function() {
+                return PromiseHelper.reject();
+            };
+
+            var promise = oneTimeSetup();
+            var checkFunc = function() {
+                return $("#alertModal").is(":visible");
+            };
+
+            UnitTest.testFinish(checkFunc)
+            .then(function() {
+                XcalarKeyLookup = function() {
+                    return PromiseHelper.resolve({
+                        "value": InitFlagState.AlreadyInit
+                    });
+                };
+
+                var $btn = $("#alertModal").find(".retry");
+                expect($btn.length).to.equal(1);
+                $btn.click();
+            })
+            .fail(function() {
+                done("fail");
+            });
+
+            promise
+            .then(function() {
+                expect(Object.keys(keyMap).length).to.equal(0);
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                Concurrency.tryLock = curTryLock;
+                XcalarKeyLookup = curKeyLookUp;
+                $("#initialLoadScreen").hide();
+            });
+        });
+
+        after(function() {
+            XcalarKeyLookup = oldKeyLookup;
+            XcalarKeyPut = oldKeyPut;
+            Concurrency.initLock = oldInitLock;
+            Concurrency.tryLock = oldTryLock;
+            Concurrency.unlock = oldUnLock;
+
+            UnitTest.offMinMode();
+            Support.restartHeartbeatCheck();
+        });
+    });
 });

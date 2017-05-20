@@ -1440,6 +1440,7 @@ window.xcManager = (function(xcManager, $) {
         xcManager.__testOnly__ = {};
         xcManager.__testOnly__.handleSetupFail = handleSetupFail;
         xcManager.__testOnly__.reImplementMouseWheel = reImplementMouseWheel;
+        xcManager.__testOnly__.oneTimeSetup = oneTimeSetup;
     }
     /* End Of Unit Test Only */
 
