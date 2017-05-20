@@ -1096,11 +1096,14 @@ window.WorkbookManager = (function($, WorkbookManager) {
                     return;
                 }
                 var elapsedTime = Date.now() - startTime;
+                progressCycle(queryName, elapsedTime);
             })
             .fail(function() {
-                console.log('fail');
+                if (timeoutNum !== progressTimeout) {
+                    return;
+                }
                 if (!retry) {
-                    progressCycle(queryName, elapsedTime, true);
+                    progressCycle(queryName, true);
                 }
             });
         }, intTime);
