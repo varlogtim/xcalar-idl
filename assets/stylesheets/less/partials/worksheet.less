@@ -1416,13 +1416,12 @@ ul.CodeMirror-hints {
 /* Row and Column Resizing*/
 .colGrab {
     .position(absolute, @top: -5px, @right: -14px);
-    .size(@width: 22px);
+    .size(@width: 22px, @height: ~"calc(100% + 5px)");
     display: inline-block;
     cursor: col-resize;
     z-index: 2;
     background-color: @color-black-invisible; //ie hack
     border-left: 6px solid @color-black-invisible !important;
-    height: 100%;
     .noSelection;
 
     &:hover, &:active {

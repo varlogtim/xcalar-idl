@@ -211,7 +211,7 @@ describe("WorkbookManager Test", function() {
 
             var def = WorkbookManager.__testOnly__.switchWorkBookHelper("to",
                                                                         "from");
-            
+
             UnitTest.testFinish(checkFunc)
             .then(function() {
                 UnitTest.hasAlertWithTitle(WKBKTStr.SwitchErr);
@@ -232,6 +232,35 @@ describe("WorkbookManager Test", function() {
                 XcalarListWorkbooks = oldList;
                 UnitTest.offMinMode();
             });
+        });
+
+        it("progressCycle should work", function(done) {
+            var fnCalled = false;
+            var cachedQueryState = XcalarQueryState;
+            XcalarQueryState = function() {
+                fnCalled = true;
+                return PromiseHelper.resolve({
+                    numCompletedWorkItem: 5,
+                    queryGraph: {numNodes: 10}
+                });
+            };
+            WorkbookManager.__testOnly__.changeIntTime(200);
+            var cycle = WorkbookManager.__testOnly__.progressCycle;
+            cycle("testName", 200);
+
+            UnitTest.testFinish(function() {
+               return fnCalled === true;
+            })
+            .then(function() {
+                XcalarQueryState = cachedQueryState;
+                expect($("#initialLoadScreen").hasClass("sessionProgress")).to.be.true;
+                expect($("#initialLoadScreen .numSteps").text()).to.equal("5/10");
+                expect($("#initialLoadScreen .progressBar").data("pct")).to.equal(50);
+                WorkbookManager.__testOnly__.endProgressCycle();
+                expect($("#initialLoadScreen").hasClass("sessionProgress")).to.be.false;
+                done();
+            });
+
         });
     });
 
@@ -478,7 +507,7 @@ describe("WorkbookManager Test", function() {
                 done();
             });
         });
-        
+
         it("Should switch workbook", function(done) {
             WorkbookManager.switchWKBK(testWkbkId)
             .then(function() {

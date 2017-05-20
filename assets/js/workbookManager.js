@@ -3,6 +3,8 @@ window.WorkbookManager = (function($, WorkbookManager) {
     var activeWKBKKey;
     var activeWKBKId;
     var wkbkSet;
+    var checkInterval = 2000;
+    var progressTimeout;
 
     // initial setup
     WorkbookManager.setup = function() {
@@ -225,7 +227,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
             })
             .fail(function(ret) {
                 if (ret && ret.status === StatusT.StatusSessionNotInact) {
-                    switchWorkbookAnimation();
+                    switchWorkbookAnimation(true);
                     xcHelper.reload();
                     deferred.resolve();
                 } else {
@@ -235,6 +237,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
                         };
                     }
                     $("#initialLoadScreen").hide();
+                    endProgressCycle();
                     deferred.reject(ret);
                 }
             });
@@ -277,6 +280,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
         .fail(function(error) {
             console.error("Switch Workbook Fails", error);
             $("#initialLoadScreen").hide();
+            endProgressCycle();
             deferred.reject(error);
         })
         .always(function() {
@@ -288,6 +292,8 @@ window.WorkbookManager = (function($, WorkbookManager) {
 
     function switchWorkBookHelper(toName, fromName) {
         var deferred = jQuery.Deferred();
+
+        progressCycle(Support.getUser() + ":" + toName, checkInterval);
 
         XcalarSwitchToWorkbook(toName, fromName)
         .then(deferred.resolve)
@@ -309,6 +315,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
 
         function showAlert() {
             $("#initialLoadScreen").hide();
+            endProgressCycle();
 
             Alert.show({
                 "title": WKBKTStr.SwitchErr,
@@ -387,6 +394,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
         .fail(deferred.reject)
         .always(function() {
             $("#initialLoadScreen").hide();
+            endProgressCycle();
             Support.restartHeartbeatCheck();
         });
 
@@ -415,6 +423,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
         .fail(deferred.reject)
         .always(function() {
             $("#initialLoadScreen").hide();
+            endProgressCycle();
             Support.restartHeartbeatCheck();
         });
 
@@ -899,6 +908,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
                 }
 
                 if (isInactive) {
+                    console.log("activating");
                     XcalarSwitchToWorkbook(wkbkName, null)
                     .then(function() {
                         deferred.resolve(wkbkId);
@@ -1041,19 +1051,92 @@ window.WorkbookManager = (function($, WorkbookManager) {
         return generateKey(username, "wkbk", wkbkName);
     }
 
-    function switchWorkbookAnimation() {
+    function switchWorkbookAnimation(failed) {
+        if (!failed) {
+            progressComplete();
+        }
         Workbook.hide(true);
     }
 
-    // XXX placeholder, need progress from backend
-    // function updateProgressBar(stepsComp, stepsTotal) {
-    //     $("#initialLoadScreen").find(".numSteps").text(stepsComp + "/" +
-    //                                                     stepsTotal);
-    //     var pct = Math.round(100 * stepsComp / stepsTotal) + "%";
-    //     $("#initialLoadScreen").find(".progressBar")
-    //                           .animate({"width": pct}, 2000, "linear",
-    //                             function(){});
-    // }
+    function progressCycle(queryName, adjustTime, retry) {
+        var intTime = checkInterval;
+        if (adjustTime) {
+            intTime = Math.max(200, checkInterval - adjustTime);
+        }
+        progressTimeout = setTimeout(function() {
+            var timeoutNum = progressTimeout;
+            var startTime = Date.now();
+
+            getProgress(queryName)
+            .then(function(progress) {
+                if (timeoutNum !== progressTimeout) {
+                    return;
+                }
+                var $loadScreen = $("#initialLoadScreen");
+                var $bar = $loadScreen.find(".progressBar");
+                var $numSteps = $loadScreen.find(".numSteps");
+                if (!$loadScreen.hasClass("sessionProgress")) {
+                    $loadScreen.addClass("sessionProgress");
+                    $bar.stop().width(0).data("pct", 0);
+                }
+                $bar.data("totalsteps", progress.numTotal);
+                var pct = Math.round(100 * progress.numCompleted /
+                                     progress.numTotal);
+                if (pct !== $bar.data("pct")) {
+                    var animTime = checkInterval;
+                    if (pct === 100) {
+                        animTime /= 2;
+                    }
+                    $bar.animate({"width": pct + "%"}, animTime, "linear");
+                    $bar.data("pct", pct);
+                }
+
+                $numSteps.text(progress.numCompleted + "/" + progress.numTotal);
+                if (progress.numCompletedWorkItem === progress.numTotal) {
+                    return;
+                }
+                var elapsedTime = Date.now() - startTime;
+            })
+            .fail(function() {
+                console.log('fail');
+                if (!retry) {
+                    progressCycle(queryName, elapsedTime, true);
+                }
+            });
+        }, intTime);
+    }
+
+    function getProgress(queryName) {
+        var deferred = jQuery.Deferred();
+        XcalarQueryState(queryName)
+        .then(function(ret) {
+            // in case numCompleted is somehow greater than num nodes
+            var numCompleted = Math.min(ret.numCompletedWorkItem,
+                                        ret.queryGraph.numNodes);
+            var progress = {
+                numCompleted: numCompleted,
+                numTotal: ret.queryGraph.numNodes
+            };
+            deferred.resolve(progress);
+        })
+        .fail(deferred.reject);
+        return deferred.promise();
+    }
+
+    function progressComplete() {
+        var $loadScreen = $("#initialLoadScreen");
+        var $bar = $loadScreen.find(".progressBar");
+        var $numSteps = $loadScreen.find(".numSteps");
+        $bar.stop().width("100%").data('pct', 100);
+        var numSteps = $bar.data("totalsteps");
+        $numSteps.text(numSteps + "/" + numSteps);
+        clearTimeout(progressTimeout);
+    }
+
+    function endProgressCycle() {
+        clearTimeout(progressTimeout);
+        $("#initialLoadScreen").removeClass("sessionProgress");
+    }
 
     /* Unit Test Only */
     if (window.unitTestMode) {
@@ -1066,6 +1149,11 @@ window.WorkbookManager = (function($, WorkbookManager) {
         WorkbookManager.__testOnly__.saveWorkbook = saveWorkbook;
         WorkbookManager.__testOnly__.syncSessionInfo = syncSessionInfo;
         WorkbookManager.__testOnly__.switchWorkBookHelper = switchWorkBookHelper;
+        WorkbookManager.__testOnly__.changeIntTime = function(time) {
+            checkInterval = time;
+        };
+        WorkbookManager.__testOnly__.progressCycle = progressCycle;
+        WorkbookManager.__testOnly__.endProgressCycle = endProgressCycle;
     }
     /* End Of Unit Test Only */
 

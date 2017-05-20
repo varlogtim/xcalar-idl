@@ -234,6 +234,15 @@ body {
     cursor: progress;
     background-color: rgba(0, 0, 0, 0.15);
 
+    &.sessionProgress .waitBox {
+        .steps, .progressWrap {
+            display: block;
+        }
+        .animatedEllipsisWrapper {
+            display: none;
+        }
+    }
+
     .waitBox {
         .size(400px, 270px);
         .center-align;
