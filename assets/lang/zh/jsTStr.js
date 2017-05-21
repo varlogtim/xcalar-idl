@@ -162,7 +162,8 @@ CommonTxtTstr = {
 'Upgrading': '升级',
 'XDBUsage': 'XDB使用率',
 'Retry': '重试',
-'Overwrite': '覆盖'
+'Overwrite': '覆盖',
+'NoResult': '无搜索结果'
 };
 ErrTStr = {
 'Error': '错误',

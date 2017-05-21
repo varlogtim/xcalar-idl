@@ -1223,6 +1223,12 @@ describe("Ephemeral Constructor Test", function() {
             expect($li.text()).to.equal("aa");
 
             // case 2
+            $input.val("z").trigger("input");
+            $li = $dropdown.find("li:not(.xc-hidden)");
+            expect($li.length).to.equal(1);
+            expect($li.text()).to.equal(CommonTxtTstr.NoResult);
+
+            // case 3
             $input.val("").trigger("input");
             $li = $dropdown.find("li:not(.xc-hidden)");
             expect($li.length).to.equal(2);

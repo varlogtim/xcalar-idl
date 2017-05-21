@@ -172,7 +172,8 @@ CommonTxtTstr = {
     'Upgrading': 'Upgrading',
     'XDBUsage': 'XDB Usage',
     'Retry': 'Retry',
-    'Overwrite': 'Overwrite'
+    'Overwrite': 'Overwrite',
+    'NoResult': 'No Results Found'
 };
 
 ErrTStr = {

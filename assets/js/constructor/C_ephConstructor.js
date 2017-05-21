@@ -2619,9 +2619,12 @@ InputDropdownHint.prototype = {
             if (oldVal !== text) {
                 $input.val(oldVal);
             }
+            // reset
+            self.__filterInput();
             // when the dropdown is closed
-            if (!$dropdown.hasClass("open")) {
-                $dropdown.find("li").removeClass("xc-hidden");
+            if ($dropdown.hasClass("open")) {
+                // close it
+                menuHelper.toggleList($dropdown);
             }
         });
 
@@ -2647,12 +2650,15 @@ InputDropdownHint.prototype = {
         var $dropdown = this.$dropdown;
         var $lis = $dropdown.find("li");
 
+        $dropdown.find(".noResultHint").remove();
         if (!searchKey) {
             $lis.removeClass("xc-hidden");
+            return;
         }
 
         searchKey = searchKey.toLowerCase();
 
+        var count = 0;
         $lis.each(function() {
             var $li = $(this);
             if (!$li.is(":visible")) {
@@ -2662,10 +2668,19 @@ InputDropdownHint.prototype = {
 
             if ($li.text().toLowerCase().includes(searchKey)) {
                 $li.removeClass("xc-hidden");
+                count++;
             } else {
                 $li.addClass("xc-hidden");
             }
         });
+
+        if (count === 0) {
+            var li = '<li class="hint noResultHint" ' +
+                     'style="pointer-events:none">' +
+                        CommonTxtTstr.NoResult +
+                    '</li>';
+            $dropdown.find("ul").append(li);
+        }
     },
 
     setInput: function(val) {

@@ -284,7 +284,7 @@ describe("xcManager Test", function() {
             $e.remove();
         });
     });
-    
+
     describe("oneTimeSetup Test", function() {
         var oldKeyLookup;
         var oldKeyPut;
