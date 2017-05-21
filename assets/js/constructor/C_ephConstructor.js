@@ -2648,9 +2648,9 @@ InputDropdownHint.prototype = {
 
     __filterInput: function(searchKey) {
         var $dropdown = this.$dropdown;
-        var $lis = $dropdown.find("li");
-
         $dropdown.find(".noResultHint").remove();
+
+        var $lis = $dropdown.find("li");
         if (!searchKey) {
             $lis.removeClass("xc-hidden");
             return;
@@ -2661,11 +2661,6 @@ InputDropdownHint.prototype = {
         var count = 0;
         $lis.each(function() {
             var $li = $(this);
-            if (!$li.is(":visible")) {
-                // skip it
-                return;
-            }
-
             if ($li.text().toLowerCase().includes(searchKey)) {
                 $li.removeClass("xc-hidden");
                 count++;
