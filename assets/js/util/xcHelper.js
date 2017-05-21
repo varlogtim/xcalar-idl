@@ -3034,9 +3034,14 @@ window.xcHelper = (function($, xcHelper) {
                 return value;
             }
 
-            res = res.toLocaleString("en", {
-                "maximumFractionDigits": maxDecimals
-            });
+            var n = Math.pow(10, maxDecimals);
+            if (res !== 0 && Math.abs(res * n) < 1) {
+                res = res.toExponential();
+            } else {
+                res = res.toLocaleString("en", {
+                    "maximumFractionDigits": maxDecimals
+                });
+            }
         }
         return res;
     };

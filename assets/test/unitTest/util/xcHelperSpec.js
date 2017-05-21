@@ -2047,6 +2047,9 @@ describe("xcHelper Test", function() {
         expect(xcHelper.numToStr("1234")).to.equal("1,234");
         expect(xcHelper.numToStr(1.12345)).to.equal("1.123");
         expect(xcHelper.numToStr(1.12345, 5)).to.equal("1.12345");
+        expect(xcHelper.numToStr(0.001, 2)).to.equal("1e-3");
+        expect(xcHelper.numToStr(-0.001, 2)).to.equal("-1e-3");
+        expect(xcHelper.numToStr(0, 2)).to.equal("0");
         expect(xcHelper.numToStr(null)).to.equal(null);
         expect(xcHelper.numToStr(undefined)).to.equal(undefined);
         expect(xcHelper.numToStr("not a num")).to.equal("not a num");
