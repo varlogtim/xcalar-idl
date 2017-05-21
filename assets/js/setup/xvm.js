@@ -2,8 +2,8 @@
 window.XVM = (function(XVM) {
     var majorVersion = "1";
     var minorVersion = "1";
-    var revisionVersion = "2";
-    var rcVersion = "4";
+    var revisionVersion = "3";
+    var rcVersion = "1";
     var fullVersion = majorVersion + "." + minorVersion + "." +
                         revisionVersion + "-RC" + rcVersion;
     var kvVersion;
