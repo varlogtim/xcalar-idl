@@ -112,7 +112,8 @@ XcalarApisT = {
   'XcalarApiDagNodeNamePattern' : 103,
   'XcalarApiDagNodeNamePatternDelete' : 104,
   'XcalarApiAddParameterToRetina' : 105,
-  'XcalarApiFunctionInvalid' : 106
+  'XcalarApiGetMemoryUsage' : 106,
+  'XcalarApiFunctionInvalid' : 107
 };
 XcalarApisTStr = {0 : 'XcalarApiUnknown',
 1 : 'XcalarApiGetVersion',
@@ -220,5 +221,6 @@ XcalarApisTStr = {0 : 'XcalarApiUnknown',
 103 : 'XcalarApiDagNodeNamePattern',
 104 : 'XcalarApiDagNodeNamePatternDelete',
 105 : 'XcalarApiAddParameterToRetina',
-106 : 'XcalarApiFunctionInvalid'
+106 : 'XcalarApiGetMemoryUsage',
+107 : 'XcalarApiFunctionInvalid'
 };

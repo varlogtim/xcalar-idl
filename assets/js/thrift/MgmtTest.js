@@ -3047,6 +3047,10 @@ PromiseHelper = (function(PromiseHelper, $) {
         });
     }
 
+    function testGetMemoryUsage(test) {
+        test.trivial(xcalarApiGetMemoryUsage(thriftHandle, "test", 1));
+    }
+
     function testMemory(test) {
         xcalarApiMemory(thriftHandle, null)
         .done(function(memOutput) {
@@ -3793,6 +3797,7 @@ PromiseHelper = (function(PromiseHelper, $) {
     retinaExportParamType = XcalarApisT.XcalarApiExport;
     retinaExportParam = new XcalarApiParamExportT();
     retinaExportParam.fileName  = "retinaDstFile.csv";
+    retinaExportParam.udfTarget = "";
 
     // Format
     // addTestCase(testFn, testName, timeout, TestCaseEnabled, Witness)
@@ -3869,7 +3874,7 @@ PromiseHelper = (function(PromiseHelper, $) {
     addTestCase(testCancel, "test cancel", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testQuery, "Submit Query", defaultTimeout, TestCaseDisabled, "");
     addTestCase(testQueryState, "Request query state of indexing dataset (int)", defaultTimeout, TestCaseDisabled, "");
-    addTestCase(testQueryCancel, "test cancel query", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testQueryCancel, "test cancel query", defaultTimeout, TestCaseDisabled, "");
     addTestCase(waitForDag, "waitForDag", defaultTimeout, TestCaseDisabled, "");
     addTestCase(testDag, "dag", defaultTimeout, TestCaseDisabled, "568");
     addTestCase(testGroupBy, "groupBy", defaultTimeout, TestCaseEnabled, "");
@@ -3925,6 +3930,7 @@ PromiseHelper = (function(PromiseHelper, $) {
     addTestCase(testApiKeySetIfEqual, "key set if equal", defaultTimeout, TestCaseEnabled, "");
 
     addTestCase(testTop, "top test", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testGetMemoryUsage, "get memory usage test", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testMemory, "memory test", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testListXdfs, "listXdfs test", defaultTimeout, TestCaseEnabled, "");
 

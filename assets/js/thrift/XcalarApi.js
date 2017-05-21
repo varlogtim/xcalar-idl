@@ -2856,6 +2856,51 @@ xcalarApiTop = runEntity.xcalarApiTop = function(thriftHandle, measureIntervalIn
     return (deferred.promise());
 };
 
+xcalarApiGetMemoryUsageWorkItem = runEntity.xcalarApiGetMemoryUsageWorkItem =
+    function(userName, userId) {
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiInputT();
+    workItem.input.memoryUsageInput = new XcalarApiGetMemoryUsageInputT();
+
+    workItem.api = XcalarApisT.XcalarApiGetMemoryUsage;
+    workItem.input.memoryUsageInput.userName = userName;
+    workItem.input.memoryUsageInput.userId = userId;
+    return (workItem);
+};
+
+xcalarApiGetMemoryUsage = runEntity.xcalarApiGetMemoryUsage = function(thriftHandle,
+                                                                       userName,
+                                                                       userId) {
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarApiGetMemoryUsage(userName = ", userName,
+                    ")");
+    }
+
+    var workItem = xcalarApiGetMemoryUsageWorkItem(userName, userId);
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        var memoryUsageOutput = result.output.outputResult.memoryUsageOutput;
+        var status = result.output.hdr.status;
+
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            deferred.reject(status);
+        }
+
+        deferred.resolve(memoryUsageOutput);
+    })
+    .fail(function(error) {
+        console.log("xcalarApiGetMemoryUsage() caught exception: ", error);
+        deferred.reject(error);
+    });
+
+    return (deferred.promise());
+};
+
 xcalarApiMemoryWorkItem = runEntity.xcalarApiMemoryWorkItem = function(tagName) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
