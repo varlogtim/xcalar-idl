@@ -98,7 +98,7 @@ def genSearchInsight(searchLocation):
 
 if __name__ == "__main__":
     print sys.argv
-    if len(sys.argv) >= 2 and not sys.argv[1] == "debug":
+    if len(sys.argv) < 2 or not sys.argv[1] == "debug":
         catFilesTogether()
         replacePathsInHtml()
     genSearchInsight("prod/assets/help/user/Content/Search.htm")
