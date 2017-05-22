@@ -2238,8 +2238,10 @@ window.Profile = (function($, Profile, d3) {
     import math
 
     def logBuckets(n):
-        if n == 0:
+        if n >= 0 and n < 1:
             return 0
+        elif n < 0 and n >= -1:
+            return -1
         elif n < 0:
             res = math.ceil(math.log(abs(n), 10)) + 1
             return -1 * int(res)

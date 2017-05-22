@@ -1,10 +1,11 @@
 window.CSHelp = (function($, CSHelp) {
-
     var lookup;
-    var helpBaseUrl = paths.helpUserContent;
+    var helpBaseUrl;
 
     CSHelp.setup = function() {
         lookup = csLookup;
+        helpBaseUrl = paths.helpUserContent;
+
         if (xcLocalStorage.getItem("admin") === "true") {
             lookup = adminCsLookup;
             helpBaseUrl = paths.helpAdminContent;

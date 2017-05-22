@@ -1,7 +1,8 @@
 window.Help = (function($, Help) {
-    var searchURL = paths.helpUserSearch;
+    var searchURL;
     var curHelpHashTags;
-    var helpContentPath = paths.helpUserContent;
+    var helpContentPath;
+
     Help.setup = function() {
         if (xcLocalStorage.getItem("admin") === "true") { // XXX fixme
             // Admin gets different categories
@@ -10,7 +11,9 @@ window.Help = (function($, Help) {
             helpContentPath = paths.helpAdminContent;
             $(".noResults a").attr("href", helpContentPath);
         } else {
+            searchURL = paths.helpUserSearch;
             curHelpHashTags = helpHashTags;
+            helpContentPath = paths.helpUserContent;
         }
         // Toggling helper tooltips
         setupHelpSearch();
