@@ -1116,9 +1116,11 @@ window.WorkbookManager = (function($, WorkbookManager) {
             // in case numCompleted is somehow greater than num nodes
             var numCompleted = Math.min(ret.numCompletedWorkItem,
                                         ret.queryGraph.numNodes);
+            // so it's never 0/0
+            var numTotal = Math.max(ret.queryGraph.numNodes, 1);
             var progress = {
                 numCompleted: numCompleted,
-                numTotal: ret.queryGraph.numNodes
+                numTotal: numTotal
             };
             deferred.resolve(progress);
         })

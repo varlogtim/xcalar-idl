@@ -146,6 +146,32 @@ describe('TableMenu Test', function() {
                 ExportView.show = cachedFunc;
             });
 
+            it("copyColNames", function() {
+                var cachedFunc = document.execCommand;
+                var called = false;
+                document.execCommand = function(action) {
+                    expect(action).to.equal("copy");
+                    var $hiddenInput = $("body").find("input").last();
+                    var val = $hiddenInput.val();
+                    var colNames = '["average_stars","compliments","elite","four","friends","mixVal","one","review_count","two.three","user_id","votes","yelping_since"]';
+                    expect(val).to.equal(colNames);
+                    expect($hiddenInput.range().length).to.equal(colNames.length);
+                    called = true;
+                };
+
+                if (!$tableMenu.find('.copyColNames').length) {
+                    $tableMenu.find("ul").append("<li class='copyColNames'></li>");
+                }
+
+                $tableMenu.find('.copyColNames').trigger(rightMouseup);
+                expect(called).to.be.false;
+
+                $tableMenu.find('.copyColNames').trigger(fakeEvent.mouseup);
+                expect(called).to.be.true;
+
+                document.execCommand = cachedFunc;
+            });
+
             it('multiCast', function() {
                 var cachedFunc = SmartCastView.show;
                 var called = false;
@@ -529,6 +555,48 @@ describe('TableMenu Test', function() {
                     done();
                 }, 10);
             });
+
+
+            it('resizeCols to fit all', function(done) {
+                var cachedFunc = TblManager.resizeColumns;
+                var called = false;
+                TblManager.resizeColumns = function(tId, resizeTo) {
+                    expect(tId).to.equal(tableId);
+                    expect(resizeTo).to.equal('sizeToFitAll');
+                    called = true;
+                };
+
+                $tableSubMenu.find('.resizeCols li.sizeToFitAll').eq(0).trigger(rightMouseup);
+                expect(called).to.be.false;
+
+                $tableSubMenu.find('.resizeCols li.sizeToFitAll').eq(0).trigger(fakeEvent.mouseup);
+                setTimeout(function() {
+                    expect(called).to.be.true;
+                    TblManager.resizeColumns = cachedFunc;
+                    done();
+                }, 10);
+            });
+
+            it('resizeCols to contents', function(done) {
+                var cachedFunc = TblManager.resizeColumns;
+                var called = false;
+                TblManager.resizeColumns = function(tId, resizeTo) {
+                    expect(tId).to.equal(tableId);
+                    expect(resizeTo).to.equal('sizeToContents');
+                    called = true;
+                };
+
+                $tableSubMenu.find('.resizeCols li.sizeToContents').eq(0).trigger(rightMouseup);
+                expect(called).to.be.false;
+
+                $tableSubMenu.find('.resizeCols li.sizeToContents').eq(0).trigger(fakeEvent.mouseup);
+                setTimeout(function() {
+                    expect(called).to.be.true;
+                    TblManager.resizeColumns = cachedFunc;
+                    done();
+                }, 10);
+            });
+
         });
     });
 
@@ -946,6 +1014,27 @@ describe('TableMenu Test', function() {
                 ColManager.format = cachedFunc;
             });
 
+            it("changeFormat multi", function() {
+                var cachedFunc = ColManager.format;
+                var called = false;
+                ColManager.format = function(colNums, tId, formats) {
+                    expect(colNums.length).to.equal(1);
+                    expect(colNums[0]).to.equal(1);
+                    expect(tId).to.equal(tableId);
+                    expect(formats[0]).to.equal("percent");
+                    called = true;
+                };
+                $colMenu.data("columns", [1,12]);
+
+                $colSubMenu.find('.multiFormat .changeFormat').eq(0).trigger(rightMouseup);
+                expect(called).to.be.false;
+
+                $colSubMenu.find('.multiFormat .changeFormat').eq(0).trigger(fakeEvent.mouseup);
+                expect(called).to.be.true;
+
+                ColManager.format = cachedFunc;
+            });
+
             it('digitsToRound', function() {
                 var cachedFunc = ColManager.roundToFixed;
                 var called = false;
@@ -958,8 +1047,32 @@ describe('TableMenu Test', function() {
 
 
                 $colSubMenu.find('.digitsToRound').eq(0).val("3");
+
+                $colSubMenu.find('.digitsToRound').eq(0).trigger({
+                    type: "keypress",
+                    which: 1
+                });
+                expect(called).to.be.false;
+
                 $colSubMenu.find('.digitsToRound').eq(0).trigger(fakeEvent.enter);
                 expect(called).to.be.true;
+
+                ColManager.roundToFixed = cachedFunc;
+            });
+
+            it('digitsToRound invalid', function() {
+                var cachedFunc = ColManager.roundToFixed;
+                var called = false;
+                ColManager.roundToFixed = function(colNums, tId, decimals) {
+                    called = true;
+                };
+
+                $colSubMenu.find('.digitsToRound').eq(0).val("x");
+
+                $colSubMenu.find('.digitsToRound').eq(0).trigger(fakeEvent.enter);
+                expect(called).to.be.false;
+
+                UnitTest.hasStatusBoxWithError("Please enter a value between 0 and 14.");
 
                 ColManager.roundToFixed = cachedFunc;
             });
@@ -1002,6 +1115,25 @@ describe('TableMenu Test', function() {
                 ColManager.splitCol = cachedFunc;
             });
 
+            it("corrAgg", function() {
+                var cachedFunc = AggModal.corrAgg;
+                var called = false;
+                AggModal.corrAgg = function(tId, vertColNums, horColNums) {
+                    expect(tId).to.equal(tableId);
+                    expect(vertColNums.length).to.equal(1);
+                    expect(vertColNums[0]).to.equal(12);
+                    expect(horColNums[0]).to.equal(12);
+                    called = true;
+                };
+
+                $colMenu.find('.corrAgg').eq(0).trigger(rightMouseup);
+                expect(called).to.be.false;
+                $colMenu.find('.corrAgg').eq(0).trigger(fakeEvent.mouseup);
+                expect(called).to.be.true;
+
+                AggModal.corrAgg = cachedFunc;
+            });
+
             it('textAlign', function() {
                 var cachedFunc = ColManager.textAlign;
                 var called = false;
@@ -1021,7 +1153,7 @@ describe('TableMenu Test', function() {
                 ColManager.textAlign = cachedFunc;
             });
 
-            it('resize', function(done) {
+            it('resize to header', function(done) {
                 var cachedFunc = TblManager.resizeColumns;
                 var called = false;
                 TblManager.resizeColumns = function(tId, resizeTo, colNum) {
@@ -1035,6 +1167,48 @@ describe('TableMenu Test', function() {
                 expect(called).to.be.false;
 
                 $colSubMenu.find('.resize.sizeToHeader').eq(0).trigger(fakeEvent.mouseup);
+                setTimeout(function() {
+                    expect(called).to.be.true;
+                    TblManager.resizeColumns = cachedFunc;
+                    done();
+                }, 10);
+            });
+
+            it('resize to fit all', function(done) {
+                var cachedFunc = TblManager.resizeColumns;
+                var called = false;
+                TblManager.resizeColumns = function(tId, resizeTo, colNum) {
+                    expect(tId).to.equal(tableId);
+                    expect(resizeTo).to.equal('sizeToFitAll');
+                    expect(colNum).to.equal(12);
+                    called = true;
+                };
+
+                $colSubMenu.find('.resize.sizeToFitAll').eq(0).trigger(rightMouseup);
+                expect(called).to.be.false;
+
+                $colSubMenu.find('.resize.sizeToFitAll').eq(0).trigger(fakeEvent.mouseup);
+                setTimeout(function() {
+                    expect(called).to.be.true;
+                    TblManager.resizeColumns = cachedFunc;
+                    done();
+                }, 10);
+            });
+
+            it('resize to contents', function(done) {
+                var cachedFunc = TblManager.resizeColumns;
+                var called = false;
+                TblManager.resizeColumns = function(tId, resizeTo, colNum) {
+                    expect(tId).to.equal(tableId);
+                    expect(resizeTo).to.equal('sizeToContents');
+                    expect(colNum).to.equal(12);
+                    called = true;
+                };
+
+                $colSubMenu.find('.resize.sizeToContents').eq(0).trigger(rightMouseup);
+                expect(called).to.be.false;
+
+                $colSubMenu.find('.resize.sizeToContents').eq(0).trigger(fakeEvent.mouseup);
                 setTimeout(function() {
                     expect(called).to.be.true;
                     TblManager.resizeColumns = cachedFunc;
@@ -1058,6 +1232,31 @@ describe('TableMenu Test', function() {
                 expect(called).to.be.false;
 
                 $colSubMenu.find('.typeList').eq(0).trigger(fakeEvent.mouseup);
+                expect(called).to.be.true;
+
+                ColManager.changeType = cachedFunc;
+            });
+
+            it('multi typeList', function() {
+                var cachedFunc = ColManager.changeType;
+                var called = false;
+                ColManager.changeType = function(colTypeInfos, tId) {
+                    expect(colTypeInfos.length).to.equal(2);
+                    expect(colTypeInfos[0].colNum).to.equal(11);
+                    expect(colTypeInfos[0].type).to.equal("boolean");
+                    expect(colTypeInfos[1].colNum).to.equal(12);
+                    expect(colTypeInfos[1].type).to.equal("boolean");
+                    expect(tId).to.equal(tableId);
+                    called = true;
+                    return PromiseHelper.resolve();
+                };
+
+                $colMenu.data("columns", [11,12]);
+
+                $colSubMenu.find('.multiChangeDataType .typeList').eq(0).trigger(rightMouseup);
+                expect(called).to.be.false;
+
+                $colSubMenu.find('.multiChangeDataType .typeList').eq(0).trigger(fakeEvent.mouseup);
                 expect(called).to.be.true;
 
                 ColManager.changeType = cachedFunc;
@@ -1216,6 +1415,60 @@ describe('TableMenu Test', function() {
             xcFunction.filter = cachedFunc;
         });
 
+        it('tdFilter multiple cells', function() {
+
+            var table = gTables[tableId];
+
+            $table.find('td.col12').eq(0).trigger(fakeEvent.mousedown);
+
+            table.highlightedCells = {
+                "0": {
+                    "12": {
+                        colNum: 12,
+                        rowNum: 0,
+                        val: "3",
+                        isUndefined: true
+                    }
+                },
+                "1": {
+                    "12": {
+                        colNum: 12,
+                        rowNum: 1,
+                        val: "4"
+                    }
+                },
+                "2": {
+                    "12": {
+                        colNum: 12,
+                        rowNum: 2,
+                        val: ""
+                    }
+                }
+            };
+
+            $table.find("th.col12 .header").addClass("type-integer");
+
+            var cellText = $table.find('td.col12').eq(0).text();
+            var cachedFunc = xcFunction.filter;
+            var called = false;
+            xcFunction.filter = function(colNum, tId, options) {
+                expect(colNum).to.equal(12);
+                expect(tId).to.equal(tableId);
+                expect(options.filterString).to.equal('or(eq(' + prefix + gPrefixSign + 'yelping_since, 4), not(exists(' + prefix + gPrefixSign + 'yelping_since' + ')))');
+                expect(options.operator).to.equal("Filter");
+                called = true;
+            };
+
+            $cellMenu.find('.tdFilter').trigger(rightMouseup);
+            expect(called).to.be.false;
+
+            $cellMenu.find('.tdFilter').trigger(fakeEvent.mouseup);
+            expect(called).to.be.true;
+
+            xcFunction.filter = cachedFunc;
+            $table.find("th.col12 .header").removeClass("type-integer");
+        });
+
         it('tdFilter on mixed column', function() {
             $table.find('td.col6').eq(0).trigger(fakeEvent.mousedown);
             var cellText = $table.find('td.col6').eq(0).find(".displayedData").text();
@@ -1319,6 +1572,44 @@ describe('TableMenu Test', function() {
             //     ColManager.unnest = cachedFunc;
             //     done();
             // }, 10);
+        });
+
+        it("tdCopy", function() {
+            var called = false;
+            var cachedFn = document.execCommand;
+            var table = gTables[tableId];
+            table.highlightedCells = {
+                "0": {
+                    "1": {
+                        colNum: 1,
+                        rowNum: 0,
+                        val: "testVal"
+                    },
+                    "2": {
+                        colNum: 2,
+                        rowNum: 0,
+                        val: "otherVal"
+                    }
+                }
+            };
+
+            document.execCommand = function(action) {
+                expect(action).to.equal("copy");
+                var $hiddenInput = $("body").find("input").last();
+                var val = $hiddenInput.val();
+                var cellVals = 'testVal, otherVal';
+                expect(val).to.equal(cellVals);
+                expect($hiddenInput.range().length).to.equal(cellVals.length);
+                called = true;
+            };
+
+            $cellMenu.find('.tdCopy').trigger(rightMouseup);
+            expect(called).to.be.false;
+
+            $cellMenu.find('.tdCopy').trigger(fakeEvent.mouseup);
+            expect(called).to.be.true;
+
+            document.execCommand = cachedFn;
         });
     });
 
