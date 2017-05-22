@@ -1556,6 +1556,112 @@ describe("Dag Panel Test", function() {
             expect($dagWrap.find(".highlighted").last().data("index")).to.equal(1);
         });
 
+        it("getSourceTables should work", function() {
+            var fn =  Dag.__testOnly__.getSourceTables;
+            var node = {
+                renameMap: [
+                    {oldName: "before", newName: "after", type: 0}
+                ],
+                parents: [0, 1],
+                numLeftColumns: 0
+            };
+            var nodes = {
+                "0": {name: "tName1"},
+                "1": {name: "tName2"},
+            }
+            var res = fn("after", node, nodes);
+            expect(res.length).to.equal(1);
+            expect(res[0]).to.equal(1);
+
+            node.numLeftColumns = 1;
+            res = fn("after", node, nodes);
+            expect(res.length).to.equal(1);
+            expect(res[0]).to.equal(0);
+
+            // should not find a match
+            node.renameMap = [ {oldName: "before", newName: "after", type: 13}];
+            node.numLeftColumns = 0;
+            res = fn("after", node, nodes);
+            expect(res.length).to.equal(2);
+            expect(res[0]).to.equal(0);
+            expect(res[1]).to.equal(1);
+
+            node.renameMap = [ {oldName: "before", newName: "after", type: 13}];
+            node.numLeftColumns = 0;
+            res = fn("after::colName", node, nodes);
+            expect(res.length).to.equal(1);
+            expect(res[0]).to.equal(1);
+
+            node.renameMap = [ {oldName: "before", newName: "after", type: 13}];
+            node.numLeftColumns = 1;
+            res = fn("after::colName", node, nodes);
+            expect(res.length).to.equal(1);
+            expect(res[0]).to.equal(0);
+
+            // the case that this table's prefix didn't get renamed but another's
+            // did
+            node.renameMap = [{oldName: "before", newName: "after", type: 13}];
+            node.numLeftColumns = 0;
+            res = fn("before::colName", node, nodes);
+            expect(res.length).to.equal(1);
+            expect(res[0]).to.equal(0);
+
+            node.renameMap = [{oldName: "before", newName: "after", type: 13}];
+            node.numLeftColumns = 1;
+            res = fn("before::colName", node, nodes);
+            expect(res.length).to.equal(1);
+            expect(res[0]).to.equal(1);
+
+            node.renameMap = [{oldName: "before", newName: "after", type: 0}];
+            node.numLeftColumns = 1;
+            res = fn("before", node, nodes);
+            expect(res.length).to.equal(1);
+            expect(res[0]).to.equal(1);
+
+            node.renameMap = [{oldName: "before", newName: "after", type: 0}];
+            node.numLeftColumns = 0;
+            res = fn("before", node, nodes);
+            expect(res.length).to.equal(1);
+            expect(res[0]).to.equal(0);
+
+            //self join
+            node.renameMap = [{oldName: "before", newName: "after", type: 0}];
+            node.numLeftColumns = 0;
+             var nodes = {
+                "0": {name: "tName1"},
+                "1": {name: "tName1"},
+            }
+            res = fn("before", node, nodes);
+            expect(res.length).to.equal(2);
+            expect(res[0]).to.equal(0);
+            expect(res[1]).to.equal(1);
+        });
+
+        it("getRenamedColname should work", function() {
+            var fn =  Dag.__testOnly__.getRenamedColName;
+            var node = {
+                renameMap: [
+                    {oldName: "before", newName: "after", type: 0}
+                ]
+            };
+            var res = fn("after", node);
+            expect(res).to.equal("before");
+
+            res = fn("before", node);
+            expect(res).to.equal("before");
+
+            res = fn("something", node);
+            expect(res).to.equal("something");
+
+            node.renameMap = [{oldName: "before", newName: "after", type: 13}];
+
+            res = fn("test::colName", node);
+            expect(res).to.equal("test::colName");
+
+            res = fn("after::colName", node);
+            expect(res).to.equal("before::colName");
+        })
+
         it("getIconHtml", function() {
             var fn = Dag.__testOnly__.getIconHtml;
             var res = fn("filter", {type: "filtergt"});

@@ -2114,7 +2114,6 @@ window.Dag = (function($, Dag) {
             minWidth: 300,
             containment: "document"
         });
-
     };
 
     Dag.showDataStoreInfo = function($dagTable) {
@@ -2968,7 +2967,6 @@ window.Dag = (function($, Dag) {
 
     function checkExpandHelper(index, nodes, savedInfo) {
         var node = nodes[index];
-        // var parents = node.parents;
         if (node.numParents === 0) {
             savedInfo.depth = Math.max(node.depth, savedInfo.depth);
         } else {
@@ -3065,7 +3063,28 @@ window.Dag = (function($, Dag) {
                 }
             }
         }
+
         return (names);
+    }
+
+    function getRenamedColName(colName, node) {
+        if (node.renameMap && node.renameMap.length) {
+            var renameMap = node.renameMap;
+            parsedName = xcHelper.parsePrefixColName(colName);
+
+            for (var i = 0; i < renameMap.length; i++) {
+                if (renameMap[i].type === DfFieldTypeT.DfFatptr) {
+                    if (parsedName.prefix &&
+                        renameMap[i].newName === parsedName.prefix) {
+                        return xcHelper.getPrefixColName(renameMap[i].oldName,
+                                                         parsedName.name);
+                    }
+                } else if (renameMap[i].newName === colName) {
+                    return renameMap[i].oldName;
+                }
+            }
+        }
+        return colName;
     }
 
     function closeDagHighlight(event) {
@@ -3116,7 +3135,8 @@ window.Dag = (function($, Dag) {
     //          with nodes[0] being the most recent table on the far right
     function findColumnSource(sourceColNames, $dagWrap, index, nodes,
                               curColName, isEmptyCol) {
-        var tables = nodes[index].parents;
+        var tables = getSourceTables(curColName, nodes[index], nodes);
+        curColName = getRenamedColName(curColName, nodes[index]);
         var tableIndex;
         var tableNode;
         var tableName;
@@ -3125,6 +3145,7 @@ window.Dag = (function($, Dag) {
             tableIndex = tables[i];
             tableNode = nodes[tableIndex];
             tableName = tableNode.name;
+
             var table;
             if (tableNode.numParents > 0) {
                 table = gTables[xcHelper.getTableId(tableName)];
@@ -3197,6 +3218,49 @@ window.Dag = (function($, Dag) {
                 highlightColumnSource($dagWrap, tableIndex);
             }
         }
+    }
+
+    function getSourceTables(colName, node, nodes) {
+        if (node.renameMap && node.renameMap.length) {
+            var renameMap = node.renameMap;
+            parsedName = xcHelper.parsePrefixColName(colName);
+            var parents = node.parents;
+            if (nodes[parents[0]].name === nodes[parents[1]].name) {
+                return parents;
+            }
+            for (var i = 0; i < renameMap.length; i++) {
+                if (renameMap[i].type === DfFieldTypeT.DfFatptr) {
+                    if (parsedName.prefix) {
+                        if (renameMap[i].newName === parsedName.prefix) {
+                            if (i >= node.numLeftColumns) {
+                                return [parents[1]];
+                            } else {
+                                return [parents[0]];
+                            }
+                        } else if (renameMap[i].oldName === parsedName.prefix) {
+                            if (i >= node.numLeftColumns) {
+                                return [parents[0]];
+                            } else {
+                                return [parents[1]];
+                            }
+                        }
+                    }
+                } else if (renameMap[i].newName === colName) {
+                    if (i >= node.numLeftColumns) {
+                        return [node.parents[1]];
+                    } else {
+                        return [node.parents[0]];
+                    }
+                } else if (renameMap[i].oldName === colName) {
+                    if (i >= node.numLeftColumns) {
+                        return [node.parents[0]];
+                    } else {
+                        return [node.parents[1]];
+                    }
+                }
+            }
+        }
+        return node.parents;
     }
 
     function highlightColumnHelper($dagWrap, col, srcColNames, index, nodes,
@@ -3350,12 +3414,14 @@ window.Dag = (function($, Dag) {
                         tableWrapRight + 'px;">' + dagOrigin;
 
         var key = DagFunction.getInputType(XcalarApisTStr[dagNode.api]);
+
         var parentNames = Dag.getDagSourceNames(parentChildMap, index,
                                                 dagArray);
         var dagInfo = getDagNodeInfo(dagNode, key, parentNames, index,
                                      parentChildMap, dagArray);
         var state = dagInfo.state;
         var tableName = getDagName(dagNode);
+        setRenames(key, dagNode, nodeInfo);
         nodeInfo.name = tableName;
         var tooltipTxt;
         if (state === DgDagStateTStr[DgDagStateT.DgDagStateDropped]) {
@@ -3684,6 +3750,14 @@ window.Dag = (function($, Dag) {
                 break;
         }
         return iconClass;
+    }
+
+    function setRenames(key, dagNode, nodeInfo) {
+        if (key.indexOf("join") === 0) {
+            nodeInfo.renameMap = dagNode.input[key].renameMap;
+            nodeInfo.numLeftColumns = dagNode.input[key].numLeftColumns;
+            nodeInfo.numRightColumns = dagNode.input[key].numRightColumns;
+        }
     }
 
     function getDagnumParents(dagNode) {
@@ -4172,6 +4246,8 @@ window.Dag = (function($, Dag) {
         Dag.__testOnly__.getIconHtml = getIconHtml;
         Dag.__testOnly__.getJoinIconClass = getJoinIconClass;
         Dag.__testOnly__.getDagNodeInfo = getDagNodeInfo;
+        Dag.__testOnly__.getSourceTables = getSourceTables;
+        Dag.__testOnly__.getRenamedColName = getRenamedColName;
     }
 
     return (Dag);
