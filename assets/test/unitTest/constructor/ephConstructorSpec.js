@@ -856,7 +856,7 @@ describe("Ephemeral Constructor Test", function() {
             });
         });
 
-        it('formHelper columnPicker should work', function() {
+        it("formHelper columnPicker should work", function() {
             var colPickerCallBackTriggered = false;
             var columnPicker = {
                 "state": "testState",
@@ -868,35 +868,35 @@ describe("Ephemeral Constructor Test", function() {
             formHelper = new FormHelper($(), {"columnPicker": columnPicker});
 
             // initial state
-            expect($('.xcTableWrap.columnPicker').length).to.equal(0);
-            expect($('#container.columnPicker').length).to.equal(0);
-            expect($('#container.testState').length).to.equal(0);
+            expect($(".xcTableWrap.columnPicker").length).to.equal(0);
+            expect($("#container.columnPicker").length).to.equal(0);
+            expect($("#container.testState").length).to.equal(0);
 
             formHelper.setup(); // activate
 
-            expect($('.xcTableWrap.columnPicker').length).to.be.gt(0);
-            expect($('#container.columnPicker.testState').length).to.equal(1);
-            expect($table.find('th.col1 .header').hasClass('noColumnPicker')).to.be.false;
-            expect($table.find('th.col2 .header').hasClass('noColumnPicker')).to.be.true;
-            var $colHead = $table.find('th.col2 .header');
-            expect($colHead.attr('data-original-title').indexOf('Cannot') > -1).to.be.true;
-            expect($colHead.attr('data-original-title').indexOf('objects') > -1).to.be.true;
+            expect($(".xcTableWrap.columnPicker").length).to.be.gt(0);
+            expect($("#container.columnPicker.testState").length).to.equal(1);
+            expect($table.find("th.col1 .header").hasClass("noColumnPicker")).to.be.false;
+            expect($table.find("th.col2 .header").hasClass("noColumnPicker")).to.be.true;
+            var $colHead = $table.find("th.col2 .header");
+            expect($colHead.attr("data-original-title").indexOf("Cannot") > -1).to.be.true;
+            expect($colHead.attr("data-original-title").indexOf("objects") > -1).to.be.true;
 
             // click on object column
-            $table.find('th.col2 .header').trigger('click');
+            $table.find("th.col2 .header").trigger("click");
             expect(colPickerCallBackTriggered).to.be.false;
 
             // click on boolean column
-            $table.find('th.col1 .header').trigger('click');
+            $table.find("th.col1 .header").trigger("click");
             expect(colPickerCallBackTriggered).to.be.true;
         });
 
-        it('formHelper clear should work', function() {
-            expect($table.find('.header.noColumnPicker').length).to.be.gt(2);
+        it("formHelper clear should work", function() {
+            expect($table.find(".header.noColumnPicker").length).to.be.gt(2);
             formHelper.clear();
-            expect($table.find('.header.noColumnPicker').length).to.equal(0);
-            var $colHead = $table.find('th.col2 .header');
-            expect($colHead.attr('data-original-title')).to.be.undefined;
+            expect($table.find(".header.noColumnPicker").length).to.equal(0);
+            var $colHead = $table.find("th.col2 .header");
+            expect($colHead.attr("data-original-title")).to.be.undefined;
         });
 
         after(function(done) {
@@ -915,6 +915,7 @@ describe("Ephemeral Constructor Test", function() {
         var randPrefName;
         var USSetPrefCached;
         var curVal;
+
         before(function() {
             randPrefName = "RANDPREFNAME";
             USSetPrefCached = UserSettings.setPref;
@@ -940,6 +941,7 @@ describe("Ephemeral Constructor Test", function() {
             $rangeSliderWrap = $(html);
             curVal = -1;
         });
+
         it("RangeSlider should be a constructor.", function() {
             expect($rangeSliderWrap.find(".leftArea").hasClass("ui-resizable"))
             .to.be.false;
@@ -1043,7 +1045,7 @@ describe("Ephemeral Constructor Test", function() {
                 tableName = tName;
                 var prefix = tPrefix;
                 var tableId = xcHelper.getTableId(tableName);
-                var $table = $('#xcTable-' + tableId);
+                var $table = $("#xcTable-" + tableId);
                 var table = gTables[tableId];
                 $colMenu = $("#colMenu");
                 var yelpColNum = table.getColNumByBackName(prefix +

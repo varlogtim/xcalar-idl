@@ -189,8 +189,8 @@ window.DagPanel = (function($, DagPanel) {
             if ($dagPanel.hasClass('hidden')) {
                 // open dag panel
                 $dagPanel.removeClass('xc-hidden');
-                $panelSwitch.attr('data-original-title', TooltipTStr.CloseQG);
-                $('.tooltip').hide();
+                xcTooltip.changeText($panelSwitch, TooltipTStr.CloseQG);
+                xcTooltip.hideAll();
 
                 // without set timeout, animation would not work because
                 // we're setting dagpanel from display none to display block
@@ -222,8 +222,8 @@ window.DagPanel = (function($, DagPanel) {
 
             if (!wasOnWorksheetPanel) {
                 $('#workspaceTab').trigger('click');
-                $panelSwitch.attr('data-original-title', TooltipTStr.CloseQG);
-                $('.tooltip').hide();
+                xcTooltip.changeText($panelSwitch, TooltipTStr.CloseQG);
+                xcTooltip.hideAll();
             }
 
             $('.columnOriginInfo').remove();
@@ -350,8 +350,8 @@ window.DagPanel = (function($, DagPanel) {
 
     function closePanel() {
         $panelSwitch.removeClass('active');
-        $panelSwitch.attr('data-original-title', TooltipTStr.OpenQG);
-        $('.tooltip').hide();
+        xcTooltip.changeText($panelSwitch, TooltipTStr.OpenQG);
+        xcTooltip.hideAll();
         $dagPanel.removeClass('noTransform');
         $('#mainFrame').height('100%');
         // $dagArea.css('height', (100 - dagTopPct) + '%');
@@ -909,7 +909,7 @@ window.DagPanel = (function($, DagPanel) {
         if (menuBottom > dagPanelBottom) {
             $menu.css('top', '-=' + ($menu.height() + 35));
         }
-        $('.tooltip').hide();
+        xcTooltip.hideAll();
     }
 
     function dagTableDropDownActions($menu) {
@@ -1710,9 +1710,8 @@ window.Dag = (function($, Dag) {
         var $dagTableTitles = $dagPanel.find('.tableTitle').filter(function() {
             return ($(this).text() === oldTableName);
         });
-        $dagTableTitles.text(newTableName)
-                       .attr('data-original-title', newTableName);
-
+        $dagTableTitles.text(newTableName);
+        xcTooltip.changeText($dagTableTitles, newTableName);
         $dagTableTitles.parent().data('tablename', newTableName);
         var $dagParentsTitles = $dagPanel.find('.parentsTitle').filter(function() {
             return ($(this).text().indexOf(oldTableName) > -1);
@@ -1726,7 +1725,7 @@ window.Dag = (function($, Dag) {
             if (tooltipText) {
                 var re = new RegExp(oldTableName, "g");
                 newText = tooltipText.replace(re, newTableName);
-                $(this).attr('data-original-title', newText);
+                xcTooltip.changeText($(this), newText);
             }
             var title = $(this).attr('title');
             if (title) {
@@ -1955,8 +1954,7 @@ window.Dag = (function($, Dag) {
             $expandWrap = $dagImage.find('.expandWrap[data-index="' + i + '"]');
             $expandWrap.css('right', right).data('depth', depth)
                                            .addClass('expanded');
-            $expandWrap.attr('data-original-title', TooltipTStr.ClickCollapse);
-            $expandWrap.attr('title', "");
+            xcTooltip.changeText($expandWrap, TooltipTStr.ClickCollapse);
             size = $expandWrap.data('size');
             $groupOutline = $expandWrap.next();
             groupWidth = size * dagTableWidth + 11;
@@ -2038,11 +2036,11 @@ window.Dag = (function($, Dag) {
             if (size === 1) {
                 tooltip = TooltipTStr.CollapsedTable;
             } else {
-                tooltip = xcHelper.replaceMsg(TooltipTStr.CollapsedTables,
-                            {number: size + ""});
+                tooltip = xcHelper.replaceMsg(TooltipTStr.CollapsedTables, {
+                    number: size + ""
+                });
             }
-            $expandWrap.attr('data-original-title', tooltip);
-            $expandWrap.attr('title', "");
+            xcTooltip.changeText($expandWrap, tooltip);
 
             $groupOutline = $expandWrap.next();
             $groupOutline.css('right', (right - groupOutlineOffset))
@@ -2183,7 +2181,7 @@ window.Dag = (function($, Dag) {
 
         $schema.find(".content").addClass("prettyJson").html(html);
         $schema.show();
-        $('.tooltip').hide();
+        xcTooltip.hideAll();
 
         $(document).on('mousedown.hideDagSchema', function(event) {
             if ($(event.target).closest('#dagSchema').length === 0 &&
@@ -2274,7 +2272,7 @@ window.Dag = (function($, Dag) {
 
         $schema.find(".content").html(html);
         $schema.show();
-        $('.tooltip').hide();
+        xcTooltip.hideAll();
 
         $(document).on('mousedown.hideDagSchema', function(event) {
             if ($(event.target).closest('#dagSchema').length === 0 &&
@@ -2612,7 +2610,7 @@ window.Dag = (function($, Dag) {
                                           all) {
         var $dagImage = $dagWrap.find('.dagImage');
         $dagWrap.find('canvas').eq(0).remove();
-        $('.tooltip').hide();
+        xcTooltip.hideAll();
         DagPanel.adjustScrollBarPositionAndSize();
 
         var canvas = createCanvas($dagWrap);
@@ -2888,11 +2886,11 @@ window.Dag = (function($, Dag) {
                 var canExpand = checkCanExpand(group, depth, index, $dagWrap);
                 if (!canExpand) {
                     $dagWrap.addClass('unsavable');
-                    $('.tooltip').hide();
-                    StatusBox.show(ErrTStr.DFNoExpand, $expandIcon, false,
-                                    {type: "info"}) ;
+                    xcTooltip.hideAll();
+                    StatusBox.show(ErrTStr.DFNoExpand, $expandIcon, false, {
+                        type: "info"
+                    }) ;
                 } else {
-                    // $expandIcon.remove();
                     $expandIcon.addClass('expanded');
                     $groupOutline.addClass('expanded');
                     var expandIconRight = parseFloat($expandIcon.css('right'));
@@ -2900,11 +2898,9 @@ window.Dag = (function($, Dag) {
                                              (group.length * dagTableWidth) - 24;
                     $expandIcon.css('right', newRight);
                     expandGroup(groupInfo, $dagWrap, $expandIcon);
-                    $expandIcon.attr('data-original-title',
-                                     TooltipTStr.ClickCollapse);
+                    xcTooltip.changeText($expandIcon, TooltipTStr.ClickCollapse);
                 }
             } else {
-
                 $expandIcon.removeClass('expanded');
                 $groupOutline.removeClass('expanded');
                 var expandIconRight = parseFloat($expandIcon.css('right'));
@@ -2920,10 +2916,11 @@ window.Dag = (function($, Dag) {
                 if (size === 1) {
                     tooltip = TooltipTStr.CollapsedTable;
                 } else {
-                    tooltip = xcHelper.replaceMsg(TooltipTStr.CollapsedTables,
-                                {number: size + ""});
+                    tooltip = xcHelper.replaceMsg(TooltipTStr.CollapsedTables, {
+                        number: size + ""
+                    });
                 }
-                $expandIcon.attr('data-original-title', tooltip);
+                xcTooltip.changeText($expandIcon, tooltip);
                 collapseGroup(groupInfo, $dagWrap);
             }
         });

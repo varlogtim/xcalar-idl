@@ -499,7 +499,7 @@ window.JoinView = (function($, JoinView) {
         $("body").off(".joinModal");
         $lastInputFocused = null;
         StatusBox.forceHide();// hides any error boxes;
-        $('.tooltip').hide();
+        xcTooltip.hideAll();
     };
 
     function activateClauseSection(index) {

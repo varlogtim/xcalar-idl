@@ -421,9 +421,10 @@ window.JSONModal = (function($, JSONModal) {
         var isSearchUpdateNeeded = true;
         var multipleComparison = false;
         var $jsonWrap = $compareIcon.closest(".jsonWrap");
-        var curIndex = $jsonWrap.index();
+        // var curIndex = $jsonWrap.index();
 
-        if ($compareIcon.hasClass('selected')) {// uncheck this jsonwrap
+        if ($compareIcon.hasClass('selected')) {
+            // uncheck this jsonwrap
             $compareIcon.removeClass('selected');
             $jsonArea.find('.comparison').find('.prettyJson.secondary')
                                          .empty();
@@ -431,7 +432,8 @@ window.JSONModal = (function($, JSONModal) {
             $jsonArea.find('.comparison').removeClass('comparison');
             comparisonObjs = {}; // empty any saved comparisons
 
-        } else { // check this jsonWrap
+        } else {
+            // check this jsonWrap
             if (numComparisons === 0) {
                 isSearchUpdateNeeded = false;
             } else if (numComparisons > 1) {
@@ -722,14 +724,9 @@ window.JSONModal = (function($, JSONModal) {
         refCounts[id]++;
 
         var $compareIcons = $jsonArea.find('.compareIcon').removeClass('single');
-        var title = "Click to select for comparison";
-        var $compareIcon;
-
         $compareIcons.each(function() {
-            $compareIcon = $(this);
-            $compareIcon.attr('data-original-title', title);
+            xcTooltip.changeText($(this), JsonModalTStr.Compare);
         });
-
 
         var numData = jsonData.length;
         for (var i = numData - 1; i > index; i--) {
@@ -948,7 +945,7 @@ window.JSONModal = (function($, JSONModal) {
 
             $('#bottomMenu').removeClass('jsonModalOpen');
             $('#mainMenu').removeClass('jsonModalOpen');
-            $('.tooltip').hide();
+            xcTooltip.hideAll();
         }});
 
         if (!isSaveModeOff) {
@@ -1096,9 +1093,8 @@ window.JSONModal = (function($, JSONModal) {
         if (isModalOpen) {
             var $compareIcons = $jsonArea.find('.compareIcon')
                                       .removeClass('single');
-            var title = JsonModalTStr.Compare;
             $compareIcons.each(function() {
-                xcTooltip.changeText($(this), title);
+                xcTooltip.changeText($(this), JsonModalTStr.Compare);
             });
             if (allProjectMode) {
                 $jsonWrap.addClass('projectMode');

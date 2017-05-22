@@ -68,7 +68,7 @@ window.OperationsView = (function($, OperationsView) {
         $operationsView.find('.mainContent').scroll(function() {
             if (!scrolling) {
                 StatusBox.forceHide();// hides any error boxes;
-                $('.tooltip').hide();
+                xcTooltip.hideAll();
                 scrolling = true;
             }
             clearTimeout(scrollTimeout);
@@ -192,7 +192,7 @@ window.OperationsView = (function($, OperationsView) {
         });
 
         $functionsList.scroll(function() {
-            $('.tooltip').hide();
+            xcTooltip.hideAll();
         });
 
         // .functionsInput
@@ -4009,7 +4009,7 @@ window.OperationsView = (function($, OperationsView) {
 
         formHelper.clear();
         StatusBox.forceHide();// hides any error boxes;
-        $('.tooltip').hide();
+        xcTooltip.hideAll();
         $(document).off('click.OpSection');
         $(document).off("keydown.OpSection");
         $(document).off('mousedown.mapCategoryListener');

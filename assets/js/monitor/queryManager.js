@@ -234,7 +234,7 @@ window.QueryManager = (function(QueryManager, $) {
             setDisplayToDefault();
         }
         $query.remove();
-        $('.tooltip').hide();
+        xcTooltip.hideAll();
     };
 
     QueryManager.cancelQuery = function(id) {

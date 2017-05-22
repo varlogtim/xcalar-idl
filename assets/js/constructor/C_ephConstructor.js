@@ -2344,7 +2344,7 @@ MenuHelper.prototype = {
             $('.selectedCell').removeClass('selectedCell');
             FnBar.clear();
         }
-        $('.tooltip').hide();
+        xcTooltip.hideAll();
     },
     setupListScroller: function() {
         if (this.numScrollAreas === 0) {

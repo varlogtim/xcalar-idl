@@ -409,10 +409,9 @@ window.Workbook = (function($, Workbook) {
                         })
                         .always(function() {
                             $workbookBox.removeClass("edit");
-                            var name = $workbookBox.find(".subHeading input")
-                                                    .val();
-                            $workbookBox.find(".subHeading")
-                                        .attr("data-original-title", name);
+                            var $subHeading = $workbookBox.find(".subHeading");
+                            var name = $subHeading.find("input").val();
+                            xcTooltip.changeText($subHeading, name);
                         });
                         $workbookBox.find(".subHeading input")
                                     .removeClass("active");

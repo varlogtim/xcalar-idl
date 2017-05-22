@@ -635,17 +635,18 @@ window.Profile = (function($, Profile, d3) {
 
         aggKeysToRefesh.forEach(function(aggkey) {
             var aggVal = curStatsCol.aggInfo[aggkey];
+            var $agg = $infoSection.find("." + aggkey);
+
             if (aggVal == null && !isStartUp) {
                 // when aggregate is still running
-                $infoSection.find("." + aggkey).html("...")
-                            .attr("data-origina-title", "...")
-                            .addClass("animatedEllipsis");
+                $agg.html("...")
+                    .addClass("animatedEllipsis");
+                xcTooltip.changeText($agg, "...");
             } else {
                 var text = (aggVal != null) ? xcHelper.numToStr(aggVal) : "N/A";
-                $infoSection.find("." + aggkey)
-                            .removeClass("animatedEllipsis")
-                            .attr("data-original-title", text)
-                            .text(text);
+                $agg.removeClass("animatedEllipsis")
+                    .text(text);
+                xcTooltip.changeText($agg, text);
             }
         });
 
@@ -683,17 +684,18 @@ window.Profile = (function($, Profile, d3) {
             for (var key in statsKeyMap) {
                 var statsKey = statsKeyMap[key];
                 var statsVal = curStatsCol.statsInfo[statsKey];
+                var $stats = $infoSection.find("." + statsKey);
+
                 if (statsVal == null) {
                     // when stats is still running
-                    $infoSection.find("." + statsKey).html("...")
-                                .attr("data-original-title", "...")
-                                .addClass("animatedEllipsis");
+                    $stats.html("...")
+                          .addClass("animatedEllipsis");
+                    xcTooltip.changeText($stats, "...");
                 } else {
                     var text = xcHelper.numToStr(statsVal);
-                    $infoSection.find("." + statsKey)
-                                .removeClass("animatedEllipsis")
-                                .attr("data-original-title", text)
-                                .text(text);
+                    $stats.removeClass("animatedEllipsis")
+                          .text(text);
+                    xcTooltip.changeText($stats, text);
                 }
             }
         }

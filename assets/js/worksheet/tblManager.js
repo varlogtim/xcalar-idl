@@ -1149,7 +1149,7 @@ window.TblManager = (function($, TblManager) {
 
         $td.addClass('rowBookmarked');
         xcTooltip.changeText($td.find('.idSpan'), TooltipTStr.Bookmarked);
-        $('.tooltip').hide();
+        xcTooltip.hideAll();
         RowScroller.addBookmark(rowNum, tableId);
         table.addBookmark(rowNum);
 
@@ -1168,7 +1168,7 @@ window.TblManager = (function($, TblManager) {
 
         $td.removeClass('rowBookmarked');
         xcTooltip.changeText($td.find('.idSpan'), TooltipTStr.Bookmark);
-        $('.tooltip').hide();
+        xcTooltip.hideAll();
         RowScroller.removeBookmark(rowNum, tableId);
         table.removeBookmark(rowNum);
 

@@ -469,11 +469,11 @@ window.SQL = (function($, SQL) {
     };
 
     SQL.lockUndoRedo = function() {
-        $undo.addClass('disabled')
-             .attr("data-original-title", TooltipTStr.LockedTableUndo);
+        $undo.addClass("disabled");
+        xcTooltip.changeText($undo, TooltipTStr.LockedTableUndo);
 
-        $redo.addClass('disabled')
-             .attr("data-original-title", TooltipTStr.LockedTableRedo);
+        $redo.addClass("disabled");
+        xcTooltip.changeText($redo, TooltipTStr.LockedTableRedo);
     };
 
     SQL.unlockUndoRedo = function() {
@@ -492,15 +492,15 @@ window.SQL = (function($, SQL) {
                 $undo.removeClass("disabled");
             }
 
-            $undo.attr("data-original-title", lastUndoMessage);
+            xcTooltip.changeText($undo, lastUndoMessage);
 
-            var lastRedoMessage = $undo.data("lastmessage");
-            var lastRedoState = $undo.data("laststate");
+            var lastRedoMessage = $redo.data("lastmessage");
+            var lastRedoState = $redo.data("laststate");
             if (lastRedoState !== "disabled") {
-                $undo.removeClass("disabled");
+                $redo.removeClass("disabled");
             }
 
-            $redo.attr("data-original-title", lastRedoMessage);
+            xcTooltip.changeText($redo, lastRedoMessage);
         }
     };
 

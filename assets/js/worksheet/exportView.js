@@ -274,7 +274,7 @@ window.ExportView = (function($, ExportView) {
         formHelper.clear();
 
         StatusBox.forceHide();// hides any error boxes;
-        $('.tooltip').hide();
+        xcTooltip.hideAll();
     };
 
     function submitForm() {

@@ -907,7 +907,7 @@ window.DFCard = (function($, DFCard) {
             $popup.css('top', '-=' + ((menuBottom - $(window).height()) + 5));
         }
 
-        $('.tooltip').hide();
+        xcTooltip.hideAll();
 
         $(document).on('mousedown.hideExportColPopup', function(event) {
             if ($(event.target).closest('#exportColPopup').length === 0) {

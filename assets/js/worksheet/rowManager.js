@@ -287,7 +287,7 @@ window.RowManager = (function($, RowManager) {
 
         promise
         .then(function() {
-            return (getNextPage(table, numRowsToFetch));
+            return getNextPage(table, numRowsToFetch);
         })
         .then(function(tableOfEntries) {
             var kvPairs = tableOfEntries.kvPair;
@@ -308,7 +308,7 @@ window.RowManager = (function($, RowManager) {
         .fail(function(error) {
             if (error.status === StatusT.StatusNoBufs) {
                 numRowsToFetch = Math.floor(numRowsToFetch / 2);
-                getDataColumnJson(table, rowPosition, numRowsToFetch)
+                getDataColumnJson(tableId, rowPosition, numRowsToFetch)
                 .then(deferred.resolve)
                 .fail(deferred.reject);
             } else {

@@ -926,7 +926,7 @@ window.xcManager = (function(xcManager, $) {
                 // table head's dropdown has position issue if not hide
                 $('.xcTheadWrap').find('.dropdownBox')
                                  .addClass('dropdownBoxHidden');
-                $('.tooltip').hide();
+                xcTooltip.hideAll();
                 $('.tableScrollBar').hide();
             }
             $(this).scrollTop(0);

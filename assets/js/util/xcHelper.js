@@ -3426,7 +3426,7 @@ window.xcHelper = (function($, xcHelper) {
 
         $('.menu .selected').removeClass('selected');
         $(".leftColMenu").removeClass("leftColMenu");
-        $('.tooltip').hide();
+        xcTooltip.hideAll();
         xcMenu.removeKeyboardNavigation();
         $menu.removeData("rowNum");
 
