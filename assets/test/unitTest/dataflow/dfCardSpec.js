@@ -4,8 +4,12 @@ describe("DFCard Test", function() {
     var tableId;
     var testDfName;
     var $dfWrap;
+    var oldRefresh;
 
     before(function(done) {
+        oldRefresh = DataflowPanel.refresh;
+        DataflowPanel.refresh = function() {};
+
         UnitTest.onMinMode();
         testDfName = xcHelper.randName("unitTestDF");
         var testDSObj = testDatasets.fakeYelp;
@@ -73,7 +77,6 @@ describe("DFCard Test", function() {
             };
             var $menu = $("#dfgViz").find(".dagDropDown");
             $dfWrap.find(".export .dagTableIcon").click();
-
             expect($menu.find("li:visible").length).to.equal(2);
             expect($menu.find("li.createParamQuery:visible").length).to.equal(1);
 
@@ -214,7 +217,7 @@ describe("DFCard Test", function() {
 
         // Everything in newNames must be in oldNames
         expect(newNames.length).to.equal(allNames.length);
-        for (var i = 0; i<allNames.length; i++) {
+        for (var i = 0; i < allNames.length; i++) {
             expect(newNames).to.include(allNames[i]);
         }
     });
@@ -304,6 +307,7 @@ describe("DFCard Test", function() {
         .always(function() {
             XcalarDeleteRetina.log("unitTestDF");
             Alert.forceClose();
+            DataflowPanel.refresh = oldRefresh;
             done();
         });
     });
