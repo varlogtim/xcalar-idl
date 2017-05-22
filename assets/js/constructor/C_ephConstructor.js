@@ -1010,22 +1010,17 @@ ModalHelper.prototype = {
             // if options.open is not a promise, make it a promise
             jQuery.when(options.open())
             .then(deferred.resolve)
-            .fail(deferred.reject)
-            .always(function() {
-                Tips.refresh();
-            });
+            .fail(deferred.reject);
         } else if (!options.noBackground) {
             var $modalBg = $("#modalBackground");
 
             if (gMinModeOn) {
                 $modalBg.show();
                 $modal.show();
-                Tips.refresh();
                 deferred.resolve();
             } else {
                 $modal.fadeIn(180);
                 $modalBg.fadeIn(300, function() {
-                    Tips.refresh();
                     deferred.resolve();
                     $modalBg.css('display', 'block'); // when alert modal opens
                     // and drop table modal is open
@@ -1033,7 +1028,6 @@ ModalHelper.prototype = {
             }
         } else {
             $modal.show();
-            Tips.refresh();
             deferred.resolve();
         }
 
@@ -1103,25 +1097,19 @@ ModalHelper.prototype = {
         if (options.close != null && options.close instanceof Function) {
             jQuery.when(options.close())
             .then(deferred.resolve)
-            .fail(deferred.reject)
-            .always(function() {
-                Tips.refresh();
-            });
+            .fail(deferred.reject);
         } else {
             var $modalBg = $("#modalBackground");
             var fadeOutTime = gMinModeOn ? 0 : 300;
             $modal.hide();
             if (options.noBackground) {
-                Tips.refresh();
                 deferred.resolve();
             } else {
                 if (numModalsOpen < 2) {
                     $modalBg.fadeOut(fadeOutTime, function() {
-                        Tips.refresh();
                         deferred.resolve();
                     });
                 } else {
-                    Tips.refresh();
                     deferred.resolve();
                 }
             }
@@ -1782,13 +1770,9 @@ FormHelper.prototype = {
             // if options.open is not a promise, make it a promise
             jQuery.when(options.open())
             .then(deferred.resolve)
-            .fail(deferred.reject)
-            .always(function() {
-                Tips.refresh();
-            });
+            .fail(deferred.reject);
         } else {
             $form.show();
-            Tips.refresh();
             deferred.resolve();
         }
 
@@ -1870,12 +1854,8 @@ FormHelper.prototype = {
         if (options.close != null && options.close instanceof Function) {
             jQuery.when(options.close())
             .then(deferred.resolve)
-            .fail(deferred.reject)
-            .always(function() {
-                Tips.refresh();
-            });
+            .fail(deferred.reject);
         } else {
-            Tips.refresh();
             deferred.resolve();
         }
 

@@ -9,7 +9,7 @@ window.Help = (function($, Help) {
             curHelpHashTags = adminHelpHashTags;
             searchURL = paths.helpAdminSearch;
             helpContentPath = paths.helpAdminContent;
-            $(".noResults a").attr("href", helpContentPath);
+            $("#helpResults .noResults a").attr("href", helpContentPath);
         } else {
             searchURL = paths.helpUserSearch;
             curHelpHashTags = helpHashTags;
@@ -17,35 +17,6 @@ window.Help = (function($, Help) {
         }
         // Toggling helper tooltips
         setupHelpSearch();
-
-        $('#helpOnOff').click(function() {
-            toggleRefresh($(this));
-        });
-
-        function toggleRefresh($target) {
-            if ($target.hasClass('on')) {
-                $('#helpOnOff').removeClass('on');
-                Tips.destroy();
-            } else {
-                $('#helpOnOff').addClass('on');
-                Tips.display();
-            }
-        }
-
-    };
-
-    Help.tooltipOff = function() {
-        $('body').addClass('tooltipOff');
-        $('#helpOnOff').addClass('off');
-    };
-
-    Help.tooltipOn = function() {
-        $('body').removeClass('tooltipOff');
-        $('#helpOnOff').removeClass('off');
-    };
-
-    Help.isTooltipOff = function() {
-        return ($('body').hasClass('tooltipOff'));
     };
 
     function setupHelpSearch() {
@@ -84,8 +55,7 @@ window.Help = (function($, Help) {
                     // work
                     var $iframe = $('#mcfResults');
                     $iframe.remove();
-                    $(".resultsArea").append(
-                                           '<iframe id="mcfResults"></iframe>');
+                    $resultsArea.append('<iframe id="mcfResults"></iframe>');
                     $iframe = $("#mcfResults");
                     $iframe.attr('src', searchURL + $searchInput.val());
                     $iframe.load(function() {

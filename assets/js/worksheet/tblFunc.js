@@ -391,8 +391,6 @@ window.TblFunc = (function(TblFunc, $) {
         }
         $('.dagWrap').addClass('notSelected').removeClass('selected');
         $('#dagWrap-' + tableId).addClass('selected').removeClass('notSelected');
-
-        Tips.refresh();
     };
 
     TblFunc.isTableScrollable = function(tableId) {

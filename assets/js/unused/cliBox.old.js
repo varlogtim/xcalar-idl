@@ -28,7 +28,7 @@ window.CLIBox = (function($, CLIBox) {
         $lineBox.html(lineUnit);
         $cliBox.html(cliUnit);
     };
-   
+
     CLIBox.getCli = function() {
         return ($cliBox.html());
     };
@@ -139,7 +139,7 @@ window.CLIBox = (function($, CLIBox) {
             var $editableCli = $cliBox.find('.cliUnit[contenteditable]');
             $editableCli.focus();
             var textLen = $editableCli.text().length;
-            
+
             if (textLen === 0) {
                 return;
             }

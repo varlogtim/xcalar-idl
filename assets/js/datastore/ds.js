@@ -209,9 +209,6 @@ window.DS = (function ($, DS) {
         // when switch to a ds, should clear others' ref count first!!
         DSTable.show(dsId, isLoading)
         .then(function() {
-            if (!isLoading) {
-                Tips.refresh();
-            }
             deferred.resolve(isLoading);
         })
         .fail(function(error) {

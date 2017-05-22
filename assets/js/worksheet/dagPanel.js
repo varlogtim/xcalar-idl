@@ -227,7 +227,6 @@ window.DagPanel = (function($, DagPanel) {
             }
 
             $('.columnOriginInfo').remove();
-            Tips.refresh();
         });
 
         $('#closeDag').click(function() {

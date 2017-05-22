@@ -735,8 +735,6 @@ window.TblAnim = (function($, TblAnim) {
             var newColNum = dragInfo.colIndex;
 
             ColManager.reorderCol(tableId, oldColNum, newColNum);
-
-            Tips.refresh();
         }
 
         setTimeout(function() {
