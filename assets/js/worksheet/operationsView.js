@@ -2641,6 +2641,8 @@ window.OperationsView = (function($, OperationsView) {
         var errorText;
         var $errorInput;
         var errorType;
+        var inputsToCast = [];
+        var castText;
         var invalidNonColumnType = false; // when an input does not have a
         // a column name but still has an invalid type
         var $group = $activeOpSection.find('.group').eq(groupNum);
@@ -2737,7 +2739,7 @@ window.OperationsView = (function($, OperationsView) {
                         }
                     }
 
-                    if (isPassing) {
+                    if (isPassing || inputsToCast.length) {
                         var isCasted = $input.data('casted');
                         if (!isCasted) {
                             var numTypes = colTypes.length;
@@ -2754,7 +2756,8 @@ window.OperationsView = (function($, OperationsView) {
                                 if (errorText != null) {
                                     isPassing = false;
                                     $errorInput = $input;
-                                    errorType = "invalidColType";
+                                    inputsToCast.push(inputNum);
+                                    castText = errorText;
                                     break;
                                 }
                             }
@@ -2804,20 +2807,25 @@ window.OperationsView = (function($, OperationsView) {
         });
 
         if (!isPassing) {
+            if (inputsToCast.length) {
+                errorText = castText;
+                errorType = "invalidColType";
+                $errorInput = $group.find(".arg:visible").eq(inputsToCast[0]);
+            }
             handleInvalidArgs(errorType, $errorInput, errorText, groupNum,
-                              allColTypes);
+                              allColTypes, inputsToCast);
         }
 
         return ({args: args, isPassing: isPassing, allColTypes: allColTypes});
     }
 
     function handleInvalidArgs(errorType, $errorInput, errorText, groupNum,
-                                       allColTypes) {
+                                       allColTypes, inputsToCast) {
         if (errorType === "invalidColType") {
             var castIsVisible = $activeOpSection.find('.group').eq(groupNum)
                                                 .find('.cast')
                                                 .hasClass('showing');
-            showCastRow(allColTypes, groupNum)
+            showCastRow(allColTypes, groupNum, inputsToCast)
             .then(function() {
                 if (!castIsVisible) {
                     var $castDropdown = $errorInput.closest('.inputWrap')
@@ -2845,16 +2853,19 @@ window.OperationsView = (function($, OperationsView) {
         }
     }
 
-    function showCastRow(allColTypes, groupNum) {
+    function showCastRow(allColTypes, groupNum, inputsToCast) {
         var deferred = jQuery.Deferred();
         getProperCastOptions(allColTypes);
-        var isCastAvailable = displayCastOptions(allColTypes, groupNum);
+        var isCastAvailable = displayCastOptions(allColTypes, groupNum, inputsToCast);
         $activeOpSection.find('.cast .list li').show();
 
         if (isCastAvailable) {
             var $castable = $activeOpSection
                             .find('.cast .dropDownList:not(.hidden)').parent();
             $castable.addClass('showing');
+            $activeOpSection.find('.group').eq(groupNum)
+                            .find('.cast .dropDownList:not(.colNameSection)')
+                            .removeClass('hidden');
 
             $activeOpSection.find('.descCell').addClass('castShowing');
             setTimeout(function() {
@@ -2907,10 +2918,10 @@ window.OperationsView = (function($, OperationsView) {
         }
     }
 
-    function displayCastOptions(allColTypes, groupNum) {
-        var $castDropdowns = $activeOpSection.find('.group').eq(groupNum)
-                                             .find('.cast')
-                                             .find('.dropDownList');
+    function displayCastOptions(allColTypes, groupNum, inputsToCast) {
+        var $castWrap = $activeOpSection.find('.group').eq(groupNum)
+                                                       .find('.cast');
+        var $castDropdowns = $castWrap.find('.dropDownList');
         $castDropdowns.addClass('hidden');
         var lis;
         var castAvailable = false;
@@ -2922,7 +2933,8 @@ window.OperationsView = (function($, OperationsView) {
         var inputNum;
         for (var i = start; i < allColTypes.length; i++) {
             if (allColTypes[i].filteredTypes &&
-                allColTypes[i].filteredTypes.length) {
+                allColTypes[i].filteredTypes.length &&
+                inputsToCast.indexOf(allColTypes[i].inputNum) > -1) {
                 castAvailable = true;
                 lis = "<li class='default'>default</li>";
                 inputNum = allColTypes[i].inputNum;
