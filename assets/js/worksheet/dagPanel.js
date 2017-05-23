@@ -2,7 +2,7 @@ window.DagPanel = (function($, DagPanel) {
     var $dagPanel; // $('#dagPanel');
     var $dagArea;  // $dagPanel.find('.dagArea');
     var $scrollBarWrap; // $('#dagScrollBarWrap');
-    var $panelSwitch; // $('#dfgPanelSwitch');
+    var $panelSwitch; // $('#dfPanelSwitch');
     var dagPanelLeft; // $('#dagPanelContainer').offset().left;
     var dagTopPct = 0; // open up dag to 100% by default;
     var clickDisabled = false;
@@ -11,7 +11,7 @@ window.DagPanel = (function($, DagPanel) {
         $dagPanel = $('#dagPanel');
         $dagArea = $dagPanel.find('.dagArea');
         $scrollBarWrap = $('#dagScrollBarWrap');
-        $panelSwitch = $('#dfgPanelSwitch');
+        $panelSwitch = $('#dfPanelSwitch');
         dagPanelLeft = $('#dagPanelContainer').offset().left || 65;
         // dagPanelLeft shouldn't be zero but will result in false zero if not visible
 
@@ -86,7 +86,7 @@ window.DagPanel = (function($, DagPanel) {
     DagPanel.heightForTableReveal = function(noAnimateDelay, onlyIfNeeded,
                                         highTolerance) {
         if ($dagPanel.hasClass('hidden')) {
-            // open dfg by triggering panelSwitch click
+            // open df by triggering panelSwitch click
             // set dagTopPct to 50 so it opens half way
             dagTopPct = 50;
             $panelSwitch.click();
@@ -595,7 +595,7 @@ window.DagPanel = (function($, DagPanel) {
         }
     }
 
-     DagPanel.saveImageAction = function($dagWrap, tableName) {
+    DagPanel.saveImageAction = function($dagWrap, tableName) {
         var deferred = PromiseHelper.deferred();
         Dag.createSavableCanvas($dagWrap, tableName)
         .then(function() {

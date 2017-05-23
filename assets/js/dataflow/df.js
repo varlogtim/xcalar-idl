@@ -27,7 +27,7 @@ window.DF = (function($, DF) {
 
             DFCard.refreshDFList(true, true);
             if (numRetinas > 0) {
-                var firstDFName = $("#dfgMenu").find(".groupName").eq(0).text();
+                var firstDFName = $("#dfMenu").find(".groupName").eq(0).text();
                 promise = DF.updateDF(firstDFName);
             } else {
                 promise = PromiseHelper.resolve();

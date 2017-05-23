@@ -283,7 +283,7 @@ module.exports = {
         "action": "操作",
         "create": "创建",
         "dfName": "批量数据流名称",
-        "dfgs": "数据流",
+        "dfs": "数据流",
         "exportHeader": "请选择要导出的列",
         "exportInstr": "请选择要导出的列。只有被选择的列会在批量数据流运行后被导出。选择的导出列会影响数据流的运行速度。",
         "header": "数据流",

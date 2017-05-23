@@ -442,7 +442,7 @@ window.Shortcuts = (function($, Shortcuts) {
         var html = '<div id="shortcutMenuIcon">' +
                         '<i class="icon fa-15 xi-down center"></i>' +
                     '</div>'
-        $('#dfgPanelSwitch').before(html);
+        $('#dfPanelSwitch').before(html);
 
         xcMenu.add($('#shortcutMenu'));
         addMenuActions();

@@ -30,11 +30,11 @@ describe("DFParamModal Test", function() {
                 DFCreateView.__testOnly__.saveDataFlow(testDfName, columns, tableName)
                 .then(function() {
                     $("#dataflowTab .mainTab").click();
-                    $("#dfgMenu").find(".listBox").filter(function() {
+                    $("#dfMenu").find(".listBox").filter(function() {
                         return ($(this).find(".groupName").text() === testDfName);
                     }).closest(".listBox").trigger("click");
 
-                    $dfWrap = $('#dfgViz .dagWrap[data-dataflowname="' + testDfName + '"]');
+                    $dfWrap = $('#dfViz .dagWrap[data-dataflowname="' + testDfName + '"]');
 
                     done();
                 });

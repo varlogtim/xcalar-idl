@@ -1,7 +1,7 @@
 window.DFCard = (function($, DFCard) {
     var $dfView;       // $('#dataflowView');
-    var $dfCard;       // $('#dfgViz');
-    var $dfMenu;       // $('#dfgMenu').find('.dfgList');
+    var $dfCard;       // $('#dfViz');
+    var $dfMenu;       // $('#dfMenu').find('.dfList');
     var $listSection;   // $dfMenu.find('.listSection');
     var $header;        // $dfCard.find('.cardHeader h2');
     var $retTabSection; // $dfCard.find('.retTabSection');
@@ -30,8 +30,8 @@ window.DFCard = (function($, DFCard) {
 
     DFCard.setup = function() {
         $dfView = $('#dataflowView');
-        $dfCard = $('#dfgViz');
-        $dfMenu = $('#dfgMenu').find('.dfgList');
+        $dfCard = $('#dfViz');
+        $dfMenu = $('#dfMenu').find('.dfList');
         $listSection = $dfMenu.find('.listSection');
         $header = $dfCard.find('.cardHeader h2');
         $retTabSection = $dfCard.find('.retTabSection');
@@ -138,10 +138,10 @@ window.DFCard = (function($, DFCard) {
 
         $retLists.html(html);
 
-        var dfg = DF.getDataflow(retName);
-        var paramMap = dfg.paramMap;
+        var df = DF.getDataflow(retName);
+        var paramMap = df.paramMap;
 
-        dfg.parameters.forEach(function(paramName) {
+        df.parameters.forEach(function(paramName) {
             if (!systemParams.hasOwnProperty(paramName)) {
                 var val = decodeURIComponent(paramMap[paramName]);
                 addParamToRetina(paramName, val);
@@ -184,9 +184,9 @@ window.DFCard = (function($, DFCard) {
     function deleteParamFromRetina($row) {
         var $paramName = $row.find(".paramName");
         var paramName = $paramName.text();
-        var dfg = DF.getDataflow(currentDataflow);
+        var df = DF.getDataflow(currentDataflow);
 
-        if (dfg.checkParamInUse(paramName)) {
+        if (df.checkParamInUse(paramName)) {
             StatusBox.show(ErrTStr.ParamInUse, $paramName);
             return;
         }
@@ -196,7 +196,7 @@ window.DFCard = (function($, DFCard) {
             $retLists.append(retinaTr);
         }
 
-        dfg.removeParameter(paramName);
+        df.removeParameter(paramName);
     }
 
     function setupRetinaTab() {
@@ -321,7 +321,7 @@ window.DFCard = (function($, DFCard) {
 
     function addListeners() {
         $dfMenu.on('click', '.refreshBtn', function() {
-            var $section = $("#dfgMenu .dfgList");
+            var $section = $("#dfMenu .dfList");
             $section.addClass("disabled");
             xcHelper.showRefreshIcon($section);
 
@@ -343,8 +343,8 @@ window.DFCard = (function($, DFCard) {
         });
 
         $listSection.on('click', '.dataFlowGroup', function() {
-            var $dfg = $(this);
-            var $dataflowLi = $dfg.find('.listBox');
+            var $df = $(this);
+            var $dataflowLi = $df.find('.listBox');
             if ($dataflowLi.hasClass('selected')) {
                 return;
             }
@@ -456,7 +456,7 @@ window.DFCard = (function($, DFCard) {
                 return showLicenseTooltip(this);
             }
             var $btn = $(this);
-            var retName = $("#dfgMenu .listSection")
+            var retName = $("#dfMenu .listSection")
                                 .find(".selected .groupName").text();
             if ($btn.hasClass('canceling') || canceledRuns[retName]) {
                 return;
@@ -715,7 +715,7 @@ window.DFCard = (function($, DFCard) {
     }
 
     function enableDagTooltips() {
-        var $tooltipTables = $('#dfgViz').find('.dagTableIcon');
+        var $tooltipTables = $('#dfViz').find('.dagTableIcon');
         xcTooltip.disable($tooltipTables);
         var selector;
         if (XVM.getLicenseMode() === XcalarMode.Mod) {
@@ -725,7 +725,7 @@ window.DFCard = (function($, DFCard) {
                         '.export .dagTableIcon, .actionType.filter';
         }
 
-        xcTooltip.add($('#dfgViz').find(selector), {
+        xcTooltip.add($('#dfViz').find(selector), {
             "title": CommonTxtTstr.ClickToOpts
         });
     }
@@ -1004,10 +1004,10 @@ window.DFCard = (function($, DFCard) {
         var $dagWrap = getDagWrap(retName);
         $dagWrap.data("txid", txId);
 
-        var passedCheckBeforeRunDFG = false;
-        checkBeforeRunDFG(advancedOpts.activeSession)
+        var passedCheckBeforeRunDF = false;
+        checkBeforeRunDF(advancedOpts.activeSession)
         .then(function() {
-            passedCheckBeforeRunDFG = true;
+            passedCheckBeforeRunDF = true;
             var promise = XcalarExecuteRetina(retName, paramsArray,
                                               advancedOpts, txId);
             startStatusCheck(retName);
@@ -1015,9 +1015,9 @@ window.DFCard = (function($, DFCard) {
             return promise;
         })
         .then(function() {
-            endStatusCheck(retName, passedCheckBeforeRunDFG, true);
+            endStatusCheck(retName, passedCheckBeforeRunDF, true);
             if (advancedOpts.activeSession) {
-                return projectAfterRunDFG(advancedOpts.newTableName, exportInfo,
+                return projectAfterRunDF(advancedOpts.newTableName, exportInfo,
                                           txId);
             }
         })
@@ -1041,7 +1041,7 @@ window.DFCard = (function($, DFCard) {
             deferred.resolve();
         })
         .fail(function(error) {
-            endStatusCheck(retName, passedCheckBeforeRunDFG);
+            endStatusCheck(retName, passedCheckBeforeRunDF);
             // do not show alert if op was canceled and
             // has cancel error msg
             if (typeof error === "object" &&
@@ -1066,7 +1066,7 @@ window.DFCard = (function($, DFCard) {
 
         return deferred.promise();
 
-        function checkBeforeRunDFG(noExportCheck) {
+        function checkBeforeRunDF(noExportCheck) {
             if (noExportCheck) {
                 // already verified
                 return PromiseHelper.resolve();
@@ -1252,7 +1252,7 @@ window.DFCard = (function($, DFCard) {
         };
     }
 
-    function projectAfterRunDFG(tableName, exportInfo, txId) {
+    function projectAfterRunDF(tableName, exportInfo, txId) {
         var deferred = jQuery.Deferred();
         var worksheet = WSManager.getActiveWS();
         var metaCols = [];

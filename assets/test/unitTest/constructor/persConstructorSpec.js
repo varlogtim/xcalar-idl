@@ -2980,47 +2980,47 @@ describe("Persistent Constructor Test", function() {
         });
 
         it("Dataflow should be a constructor", function() {
-            var dfg = new Dataflow("testDF");
-            expect(dfg).to.be.an("object");
-            expect(dfg).to.have.property("name").and.to.equal("testDF");
+            var df = new Dataflow("testDF");
+            expect(df).to.be.an("object");
+            expect(df).to.have.property("name").and.to.equal("testDF");
         });
 
         it("DF should add dataflow", function() {
-            var dfg = new Dataflow("testDF");
-            expect(dfg).to.have.property("dataFlows")
+            var df = new Dataflow("testDF");
+            expect(df).to.have.property("dataFlows")
             .and.to.an("Array");
 
-            expect(dfg.dataFlows.length).to.equal(0);
+            expect(df.dataFlows.length).to.equal(0);
 
-            dfg.addDataFlow(dataFlow);
-            expect(dfg.dataFlows.length).to.equal(1);
-            expect(dfg.dataFlows[0].name).to.equal("testFlow");
+            df.addDataFlow(dataFlow);
+            expect(df.dataFlows.length).to.equal(1);
+            expect(df.dataFlows[0].name).to.equal("testFlow");
         });
 
         it("DF should add RetinaNode", function() {
-            var dfg = new Dataflow("testDF");
-            expect(dfg).to.have.property("retinaNodes")
+            var df = new Dataflow("testDF");
+            expect(df).to.have.property("retinaNodes")
             .and.to.an("Object");
 
-            expect(dfg.getParameterizedNode(123)).not.to.be.exist;
+            expect(df.getParameterizedNode(123)).not.to.be.exist;
 
-            dfg.addParameterizedNode(123, retinaNode);
-            expect(dfg.getParameterizedNode(123)).to.be.exist;
+            df.addParameterizedNode(123, retinaNode);
+            expect(df.getParameterizedNode(123)).to.be.exist;
         });
 
         it("DF should add Parameter", function() {
-            var dfg = new Dataflow("testDF");
-            expect(dfg).to.have.property("parameters")
+            var df = new Dataflow("testDF");
+            expect(df).to.have.property("parameters")
             .and.to.an("Array");
 
-            expect(dfg).to.have.property("paramMap")
+            expect(df).to.have.property("paramMap")
             .and.to.an("Object");
 
-            expect(dfg.parameters.length).to.equal(0);
-            expect(dfg.getParameter("a")).not.to.be.exist;
-            expect(dfg.addParameter("a"));
-            expect(dfg.getParameter("a")).to.be.null;
-            var params = dfg.getAllParameters();
+            expect(df.parameters.length).to.equal(0);
+            expect(df.getParameter("a")).not.to.be.exist;
+            expect(df.addParameter("a"));
+            expect(df.getParameter("a")).to.be.null;
+            var params = df.getAllParameters();
             expect(params.length).to.equal(1);
             expect(params[0]).to.be.an("object");
             expect(params[0]).to.have.property("parameterName")
@@ -3028,22 +3028,22 @@ describe("Persistent Constructor Test", function() {
             expect(params[0]).to.have.property("parameterValue")
             .and.to.be.null;
 
-            dfg.updateParameters([{
+            df.updateParameters([{
                 "name": "a",
                 "val": "c"
             }]);
-            expect(dfg.getParameter("a")).to.equal("c");
+            expect(df.getParameter("a")).to.equal("c");
 
-            expect(dfg.checkParamInUse("a")).to.be.false;
-            dfg.addParameterizedNode(123, {
+            expect(df.checkParamInUse("a")).to.be.false;
+            df.addParameterizedNode(123, {
                 "paramType": "test",
                 "paramValue": "test",
                 "paramQuery": ["load <a>"]
             });
-            expect(dfg.checkParamInUse("a")).to.be.true;
+            expect(df.checkParamInUse("a")).to.be.true;
 
-            dfg.removeParameter("a");
-            expect(dfg.getParameter("a")).not.to.be.exist;
+            df.removeParameter("a");
+            expect(df.getParameter("a")).not.to.be.exist;
         });
     });
 

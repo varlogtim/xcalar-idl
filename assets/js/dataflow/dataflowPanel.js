@@ -14,8 +14,8 @@ window.DataflowPanel = (function($, DataflowPanel) {
     DataflowPanel.refresh = function() {
         if ($("#dataflowPanel").hasClass("active") && hasChange) {
             $("#scheduleDetail .close").click();
-            $("#dfgMenu .refreshBtn").click();
-            $("#dfgViz .retTab").removeClass("active");
+            $("#dfMenu .refreshBtn").click();
+            $("#dfViz .retTab").removeClass("active");
             $("#dfParamModal .close").click();
             hasChange = false;
         }

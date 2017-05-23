@@ -109,7 +109,7 @@ window.DFParamModal = (function($, DFParamModal){
 
         $dfParamModal.data({
             "id": id,
-            "dfg": dfName
+            "df": dfName
         });
 
         // data in icon is encoded
@@ -711,8 +711,8 @@ window.DFParamModal = (function($, DFParamModal){
             });
             if (!$paramFound.length) {
                 if (validParams.indexOf(param) !== -1) {
-                    var dfg = DF.getDataflow($dfParamModal.data("dfg"));
-                    var paramVal = dfg.getParameter(param) || "";
+                    var df = DF.getDataflow($dfParamModal.data("df"));
+                    var paramVal = df.getParameter(param) || "";
                     addParamToLists(param, paramVal, false, false);
                 } else if (systemParams.hasOwnProperty(param)) {
                     addParamToLists(param, CommonTxtTstr.DefaultVal, false, true);
@@ -865,23 +865,23 @@ window.DFParamModal = (function($, DFParamModal){
             return deferred.promise();
         }
 
-        var retName = $dfParamModal.data("dfg");
-        var dfg = DF.getDataflow(retName);
+        var retName = $dfParamModal.data("df");
+        var df = DF.getDataflow(retName);
         var dagNodeId = $dfParamModal.data("id");
 
         updateRetina()
         .then(function(paramInfo) {
             // store meta
-            dfg.updateParameters(params);
+            df.updateParameters(params);
 
             DFCard.updateRetinaTab(retName);
 
-            if (!dfg.getParameterizedNode(dagNodeId)) {
+            if (!df.getParameterizedNode(dagNodeId)) {
                 var val = genOrigQueryStruct();
-                dfg.addParameterizedNode(dagNodeId, val, paramInfo);
+                df.addParameterizedNode(dagNodeId, val, paramInfo);
             } else {
                 // Only updates view. Doesn't change any stored information
-                dfg.updateParameterizedNode(dagNodeId, paramInfo);
+                df.updateParameterizedNode(dagNodeId, paramInfo);
             }
 
             // show success message??
@@ -1138,14 +1138,14 @@ window.DFParamModal = (function($, DFParamModal){
     }
 
     function populateSavedFields(dagNodeId, retName) {
-        var dfg = DF.getDataflow(retName);
-        var retinaNode = dfg.getParameterizedNode(dagNodeId);
-        var paramMap = dfg.paramMap;
+        var df = DF.getDataflow(retName);
+        var retinaNode = df.getParameterizedNode(dagNodeId);
+        var paramMap = df.paramMap;
         var nameMap = {};
         // Here's what we are doing:
         // For parameterized nodes, the retDag is actually the post-param
         // version, so we must store the original pre-param version.
-        // This is what is stored in the dfg's paramMap and parameterizedNodes
+        // This is what is stored in the df's paramMap and parameterizedNodes
         // struct. Upon getting the dag, we first assume that everything is not
         // parameterized, and stick everything into the template. We then
         // iterate through the parameterized nodes array and apply the
@@ -1213,8 +1213,8 @@ window.DFParamModal = (function($, DFParamModal){
                 $editableDivs.eq(index).val(html);
             });
 
-            // keep the order of paramName the in dfg.parameters
-            dfg.parameters.forEach(function(paramName) {
+            // keep the order of paramName the in df.parameters
+            df.parameters.forEach(function(paramName) {
                 if (nameMap.hasOwnProperty(paramName)) {
                     var val = decodeURIComponent(paramMap[paramName]);
                     addParamToLists(paramName, val, true, false);

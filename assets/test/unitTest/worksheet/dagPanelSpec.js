@@ -325,7 +325,7 @@ describe("Dag Panel Test", function() {
         var $switch;
 
         before(function() {
-            $switch = $("#dfgPanelSwitch");
+            $switch = $("#dfPanelSwitch");
         });
 
         it("panel should open", function(done) {
@@ -1725,8 +1725,8 @@ describe("Dag Panel Test", function() {
     });
 
     after(function(done) {
-        if ($("#dfgPanelSwitch").hasClass("active")) {
-            $("#dfgPanelSwitch").click();
+        if ($("#dfPanelSwitch").hasClass("active")) {
+            $("#dfPanelSwitch").click();
         }
 
         timeOutPromise(500)

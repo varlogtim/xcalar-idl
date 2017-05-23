@@ -6,7 +6,7 @@ describe("DFCard Test", function() {
     var oldRefresh;
 
     function getDfWrap(dfName) {
-        return $('#dfgViz .dagWrap[data-dataflowname="' + dfName + '"]');
+        return $('#dfViz .dagWrap[data-dataflowname="' + dfName + '"]');
     }
 
     before(function(done) {
@@ -34,7 +34,7 @@ describe("DFCard Test", function() {
         DFCreateView.__testOnly__.submitForm()
         .then(function() {
             // triggers construction of dag image
-            $("#dfgMenu").find(".listBox").filter(function() {
+            $("#dfMenu").find(".listBox").filter(function() {
                 return ($(this).find(".groupName").text() === testDfName);
             }).closest(".listBox").trigger("click");
 
@@ -58,7 +58,7 @@ describe("DFCard Test", function() {
     // XXX need comprehensive test, currently just has test for certain bugs
     describe("dfcard menu", function() {
         before(function(done){
-            $("#dfgMenu .groupName").filter(function() {
+            $("#dfMenu .groupName").filter(function() {
                 return $(this).text() === testDfName;
             }).closest(".dataFlowGroup").click();
 
@@ -79,7 +79,7 @@ describe("DFCard Test", function() {
             XVM.getLicenseMode = function() {
                 return XcalarMode.Oper;
             };
-            var $menu = $("#dfgViz").find(".dagDropDown");
+            var $menu = $("#dfViz").find(".dagDropDown");
             var $dfWrap = getDfWrap(testDfName);
             $dfWrap.find(".export .dagTableIcon").click();
             expect($menu.find("li:visible").length).to.equal(2);
@@ -98,7 +98,7 @@ describe("DFCard Test", function() {
 
         it("show export cols should work", function() {
             expect($("#exportColPopup").is(":visible")).to.be.false;
-            var $menu = $("#dfgViz").find(".dagDropDown");
+            var $menu = $("#dfViz").find(".dagDropDown");
             var $dfWrap = getDfWrap(testDfName);
             $dfWrap.find(".export .dagTableIcon").click();
             $menu.find("li.showExportCols").trigger(fakeEvent.mouseup);
@@ -135,7 +135,7 @@ describe("DFCard Test", function() {
             expect($tab.find(".retPopUp").is(":visible")).to.be.true;
             $(document).trigger(fakeEvent.mousedown);
             expect($tab.find(".retPopUp").is(":visible")).to.be.true;
-            $("#dfgViz").trigger(fakeEvent.mousedown);
+            $("#dfViz").trigger(fakeEvent.mousedown);
             expect($tab.find(".retPopUp").is(":visible")).to.be.false;
         });
 
@@ -211,14 +211,14 @@ describe("DFCard Test", function() {
 
     it("Dataflow refresh test", function() {
         var allNames = [];
-        $("#dfgMenu .groupName").each(function(idx, obj) {
+        $("#dfMenu .groupName").each(function(idx, obj) {
             allNames.push($(obj).text());
         });
 
         // Now hit refresh
-        $(".dfgList .refreshBtn").click();
+        $(".dfList .refreshBtn").click();
         var newNames = [];
-        $("#dfgMenu .groupName").each(function(idx, obj) {
+        $("#dfMenu .groupName").each(function(idx, obj) {
             newNames.push($(obj).text());
         });
 
@@ -233,12 +233,12 @@ describe("DFCard Test", function() {
 
         // using real xcalarquerystate
         it("dag table statuses should update when executing retina", function(done) {
-            $("#dfgMenu .groupName").filter(function() {
+            $("#dfMenu .groupName").filter(function() {
                 return $(this).text() === testDfName;
             }).closest(".dataFlowGroup").click();
 
             var $dfWrap = getDfWrap(testDfName);
-            $dfWrap = $('#dfgViz .dagWrap[data-dataflowname="' + testDfName + '"]');
+            $dfWrap = $('#dfViz .dagWrap[data-dataflowname="' + testDfName + '"]');
 
 
             DFParamModal.show($dfWrap.find(".dagTable").last())
@@ -253,7 +253,7 @@ describe("DFCard Test", function() {
                         // wait for last xcalarquerystate call to return
                         setTimeout(function() {
                             expect(DFCard.__testOnly__.retinasInProgress[testDfName]).to.be.undefined;
-                            $dfWrap = $('#dfgViz .dagWrap[data-dataflowname="' + testDfName + '"]');
+                            $dfWrap = $('#dfViz .dagWrap[data-dataflowname="' + testDfName + '"]');
                             expect($dfWrap.find(".dagTable.Created").length).to.equal(0);
                             expect($dfWrap.find(".dagTable.Ready").length).to.equal(3);
                             done();

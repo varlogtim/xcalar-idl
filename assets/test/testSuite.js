@@ -29,7 +29,7 @@ window.TestSuite = (function($, TestSuite) {
 
 
     // Globals
-    var dfgName;
+    var dfName;
     var schedName;
     var paramName;
     var fileName;
@@ -1349,18 +1349,18 @@ window.TestSuite = (function($, TestSuite) {
         // });
     }
 
-    function dfgTest(deferred, testName, currentTestNumber) {
-        // Create a dfg
+    function dfTest(deferred, testName, currentTestNumber) {
+        // Create a dataflow
         $("#workspaceTab").click();
         var $worksheetTab = $(".worksheetTab.active");
-        $("#dfgPanelSwitch").click();
+        $("#dfPanelSwitch").click();
         var worksheetId = $worksheetTab.attr("id").substring(13);
         var tId = WSManager.getAllMeta().wsInfos[worksheetId].tables[0];
         $("#dagWrap-" + tId + " .addDataFlow").click();
 
-        // on dfgModal
-        dfgName = "testDfg" + randInt(); // globals in the module
-        $("#newDFNameInput").val(dfgName);
+        // on dfModal
+        dfName = "testDf" + randInt(); // globals in the module
+        $("#newDFNameInput").val(dfName);
 
         var $section = $("#dfCreateView");
         $section.find(".selectAllWrap").click();
@@ -1374,13 +1374,13 @@ window.TestSuite = (function($, TestSuite) {
         // got to scheduler panel
         $("#dataflowTab").click();
 
-        var selector = "#dfgMenu .dataFlowGroup .listBox " +
-                        ".groupName:contains('" + dfgName + "')";
+        var selector = "#dfMenu .dataFlowGroup .listBox " +
+                        ".groupName:contains('" + dfName + "')";
         checkExists(selector)
         .then(function() {
-            // focus on that dfg
+            // focus on that df
             $(selector).click();
-            selector = '.dagWrap[data-dataflowname="' + dfgName +
+            selector = '.dagWrap[data-dataflowname="' + dfName +
                         '"] .dagImage';
             return checkExists(selector);
         })
@@ -1394,10 +1394,10 @@ window.TestSuite = (function($, TestSuite) {
 
     function retinaTest(deferred, testName, currentTestNumber) {
         // Create Parameter
-        var $dfgViz = $('#dfgViz');
+        var $dfViz = $('#dfViz');
         // add param to retina
-        var $retTab = $dfgViz.find(".retTab");
-        var $retPopup = $dfgViz.find(".retPopUp");
+        var $retTab = $dfViz.find(".retTab");
+        var $retPopup = $dfViz.find(".retPopUp");
         paramName = "param" + randInt();  // globals in the module
 
         $retTab.trigger(fakeEvent.mousedown);
@@ -1406,10 +1406,10 @@ window.TestSuite = (function($, TestSuite) {
         $retTab.trigger(fakeEvent.mousedown);
 
         // Add parameter to export
-        var $dfg = $('#dfgViz .dagWrap[data-dataflowname="' + dfgName +
+        var $df = $('#dfViz .dagWrap[data-dataflowname="' + dfName +
                      '"]');
-        $dfg.find(".dagTable.export").click();
-        $dfgViz.find(".createParamQuery").trigger(fakeEvent.mouseup);
+        $df.find(".dagTable.export").click();
+        $dfViz.find(".createParamQuery").trigger(fakeEvent.mouseup);
         var $dfParamModal = $("#dfParamModal");
 
         checkExists("#dfParamModal:visible")
@@ -1423,7 +1423,7 @@ window.TestSuite = (function($, TestSuite) {
 
             fileName = "file" + randInt();
 
-            console.log(dfgName);
+            console.log(dfName);
 
             return checkExists("#dagModleParamList .row:first .paramName:contains('" +
                     paramName + "')")
@@ -1446,7 +1446,7 @@ window.TestSuite = (function($, TestSuite) {
     }
 
     function runRetinaTest(deferred, testName, currentTestNumber) {
-        $('.dagWrap[data-dataflowname="' + dfgName + '"] .runNowBtn').click();
+        $('.dagWrap[data-dataflowname="' + dfName + '"] .runNowBtn').click();
         checkExists("#alertHeader .text:contains('Run')")
         .then(function() {
             // If text is "Successfully ran dataflow" or
@@ -1469,20 +1469,20 @@ window.TestSuite = (function($, TestSuite) {
 
     function cancelRetinaTest(deferred, testName, currentTestNumber) {
         // First parameterize the node so that there is no way to duplicate
-        var $dfgViz = $("#dfgViz");
-        var $dfg = $('#dfgViz .dagWrap[data-dataflowname="' + dfgName +
+        var $dfViz = $("#dfViz");
+        var $df = $('#dfViz .dagWrap[data-dataflowname="' + dfName +
                      '"]');
-        $dfg.find(".dagTable.export").click();
-        $dfgViz.find(".createParamQuery").trigger(fakeEvent.mouseup);
+        $df.find(".dagTable.export").click();
+        $dfViz.find(".createParamQuery").trigger(fakeEvent.mouseup);
 
         var $dfParamModal = $("#dfParamModal");
         var cancelFileName = fileName + fileName;
         $('#dagModleParamList').find('.row:first .paramVal')
                                .val(cancelFileName);
         $dfParamModal.find(".modalBottom .confirm").click();
-        $dfg.find(".runNowBtn").click();
+        $df.find(".runNowBtn").click();
         setTimeout(function() {
-            $dfg.find(".runNowBtn").click(); // Cancel
+            $df.find(".runNowBtn").click(); // Cancel
             checkExists("#alertModal:visible")
             .then(function() {
                 if ($("#alertHeader .text").text()
@@ -1500,7 +1500,7 @@ window.TestSuite = (function($, TestSuite) {
                     return PromiseHelper.resolve();
                 } else if ($("#alertContent .text").text()
                             .indexOf("Error occurs during Operation") > -1) {
-                    // Failed to cancel. Must wait for dfg to finish running
+                    // Failed to cancel. Must wait for df to finish running
                     // else deleteRetinaTest will fail
                     console.info("Cancel failed");
                     return PromiseHelper.reject();
@@ -1531,8 +1531,8 @@ window.TestSuite = (function($, TestSuite) {
         }
         checkExists("#alertModal:hidden")
         .then(function() {
-            $("#dfgMenu .dataFlowGroup .listBox .groupName:contains('" +
-              dfgName + "')").next(".deleteDataflow").click();
+            $("#dfMenu .dataFlowGroup .listBox .groupName:contains('" +
+              dfName + "')").next(".deleteDataflow").click();
             return checkExists("#alertModal:visible");
         })
         .then(function() {
@@ -1540,8 +1540,8 @@ window.TestSuite = (function($, TestSuite) {
             $("#alertActions .cancel").click();
             // There's a change we will run into cannot delete due to
             // table in use
-            return checkExists("#dfgMenu .dataFlowGroup .listBox " +
-                               ".groupName:contains('" + dfgName + "')",
+            return checkExists("#dfMenu .dataFlowGroup .listBox " +
+                               ".groupName:contains('" + dfName + "')",
                                3000, {notExist: true,
                                       optional: true});
         })
@@ -1555,9 +1555,9 @@ window.TestSuite = (function($, TestSuite) {
     }
 
     function addDFToSchedTest(deferred, testName, currentTestNumber) {
-        // Attach schedule to dfg
-        var $listBox = $("#dfgMenu .dataFlowGroup .listBox").filter(function() {
-            return $(this).find(".groupName").text() === dfgName;
+        // Attach schedule to dataflow
+        var $listBox = $("#dfMenu .dataFlowGroup .listBox").filter(function() {
+            return $(this).find(".groupName").text() === dfName;
         });
 
         $listBox.find(".addGroup").click();
@@ -1571,7 +1571,7 @@ window.TestSuite = (function($, TestSuite) {
                 .trigger(fakeEvent.mouseup);
         $addScheduleCard.find("button.confirm").click();
 
-        var selector = "#dfgViz .schedulesList:contains('1')";
+        var selector = "#dfViz .schedulesList:contains('1')";
         checkExists(selector)
         .then(function() {
             TestSuite.pass(deferred, testName, currentTestNumber);
@@ -1650,7 +1650,7 @@ window.TestSuite = (function($, TestSuite) {
                       defaultTimeout, TestCaseEnabled);
         TestSuite.add(schedTest, "ScheduleTest",
                       defaultTimeout, TestCaseDisabled);
-        TestSuite.add(dfgTest, "DFTest",
+        TestSuite.add(dfTest, "DFTest",
                       defaultTimeout, TestCaseEnabled);
         TestSuite.add(retinaTest, "RetinaTest",
                       defaultTimeout, TestCaseEnabled);
