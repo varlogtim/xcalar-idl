@@ -3,7 +3,8 @@ window.WorkbookManager = (function($, WorkbookManager) {
     var activeWKBKKey;
     var activeWKBKId;
     var wkbkSet;
-    var checkInterval = 2000;
+    var checkInterval = 2000; // progress bar check time
+    var textTime = 1000; // progress text transition
     var progressTextCycle;
     var progressTimeout;
 
@@ -1073,6 +1074,9 @@ window.WorkbookManager = (function($, WorkbookManager) {
                 if (timeoutNum !== progressTimeout) {
                     return;
                 }
+                if (progress.numTotal < 1) {
+                    return;
+                }
                 var $loadScreen = $("#initialLoadScreen");
                 var $bar = $loadScreen.find(".progressBar");
                 var $numSteps = $loadScreen.find(".numSteps");
@@ -1131,7 +1135,6 @@ window.WorkbookManager = (function($, WorkbookManager) {
         clearInterval(progressTextCycle);
         var $loadScreen = $("#initialLoadScreen");
         var $numSteps = $loadScreen.find(".numSteps");
-        var intTime = 1000;
         var count = 0;
         setTimeout(function() {
             clearInterval(progressTextCycle);
@@ -1141,7 +1144,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
         $numSteps.text(lastNum + "/" + total);
 
         var diff = currNum - lastNum;
-        var numChanges = Math.floor(checkInterval / intTime);
+        var numChanges = Math.floor(checkInterval / textTime);
         var vals = [];
         for (var i = 0; i < numChanges; i++) {
             vals.push(lastNum + Math.floor(diff * ((i + 1) / numChanges)));
@@ -1155,14 +1158,13 @@ window.WorkbookManager = (function($, WorkbookManager) {
                 $numSteps.text(vals[count] + "/" + total);
             }
             count++;
-        }, intTime);
+        }, textTime);
     }
 
     function getProgress(queryName) {
         var deferred = jQuery.Deferred();
         XcalarQueryState(queryName)
         .then(function(ret) {
-            var statuses = {};
             var state;
             var numCompleted = 0;
             var processingNode;
@@ -1175,10 +1177,9 @@ window.WorkbookManager = (function($, WorkbookManager) {
                     processingNode = ret.queryGraph.node[i];
                 }
             }
-            var numTotal = Math.max(ret.queryGraph.numNodes, 1);
             var progress = {
                 numCompleted: numCompleted,
-                numTotal: numTotal,
+                numTotal: ret.queryGraph.numNodes,
                 processingNode: processingNode
             };
             deferred.resolve(progress);
@@ -1213,8 +1214,9 @@ window.WorkbookManager = (function($, WorkbookManager) {
         WorkbookManager.__testOnly__.saveWorkbook = saveWorkbook;
         WorkbookManager.__testOnly__.syncSessionInfo = syncSessionInfo;
         WorkbookManager.__testOnly__.switchWorkBookHelper = switchWorkBookHelper;
-        WorkbookManager.__testOnly__.changeIntTime = function(time) {
+        WorkbookManager.__testOnly__.changeIntTime = function(time, tTime) {
             checkInterval = time;
+            textTime = tTime;
         };
         WorkbookManager.__testOnly__.progressCycle = progressCycle;
         WorkbookManager.__testOnly__.endProgressCycle = endProgressCycle;

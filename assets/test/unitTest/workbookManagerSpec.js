@@ -240,11 +240,16 @@ describe("WorkbookManager Test", function() {
             XcalarQueryState = function() {
                 fnCalled = true;
                 return PromiseHelper.resolve({
-                    numCompletedWorkItem: 5,
-                    queryGraph: {numNodes: 10}
+                    numCompletedWorkItem: 2,
+                    queryGraph: {numNodes: 4, node: [
+                            {state: DgDagStateT.DgDagStateReady},
+                            {state: DgDagStateT.DgDagStateReady},
+                            {state: DgDagStateT.DgDagStateProcessing, api:15},
+                            {state: 0},
+                        ]}
                 });
             };
-            WorkbookManager.__testOnly__.changeIntTime(200);
+            WorkbookManager.__testOnly__.changeIntTime(200, 100);
             var cycle = WorkbookManager.__testOnly__.progressCycle;
             cycle("testName", 200);
 
@@ -252,15 +257,21 @@ describe("WorkbookManager Test", function() {
                return fnCalled === true;
             })
             .then(function() {
-                XcalarQueryState = cachedQueryState;
                 expect($("#initialLoadScreen").hasClass("sessionProgress")).to.be.true;
-                expect($("#initialLoadScreen .numSteps").text()).to.equal("5/10");
+                expect($("#initialLoadScreen .numSteps").text()).to.equal("0/4");
                 expect($("#initialLoadScreen .progressBar").data("pct")).to.equal(50);
-                WorkbookManager.__testOnly__.endProgressCycle();
-                expect($("#initialLoadScreen").hasClass("sessionProgress")).to.be.false;
-                done();
-            });
 
+                UnitTest.testFinish(function() {
+                    return $("#initialLoadScreen .numSteps").text() === "2/4";
+                })
+                .then(function() {
+                    XcalarQueryState = cachedQueryState;
+                    WorkbookManager.__testOnly__.endProgressCycle();
+                    expect($("#initialLoadScreen").hasClass("sessionProgress")).to.be.false;
+                    WorkbookManager.__testOnly__.changeIntTime(200, 100);
+                    done();
+                });
+            });
         });
     });
 
