@@ -177,14 +177,20 @@ window.DSPreview = (function($, DSPreview) {
 
         if (loadArgs.getFormat() === formatMap.EXCEL) {
             toggleFormat("EXCEL");
-            return previewData(excelModule, excelFunc);
+            return previewData({
+                "module": excelModule,
+                "func": excelFunc
+            });
         } else if (restore) {
-            return previewData(options.moduleName, options.funcName);
+            return previewData({
+                "module": options.moduleName,
+                "func": options.funcName
+            });
         } else {
             // all other rest format first
             // otherwise, cannot detect speical format(like special json)
             loadArgs.setFormat(null);
-            return previewData(null, null);
+            return previewData();
         }
     };
 
@@ -697,6 +703,7 @@ window.DSPreview = (function($, DSPreview) {
 
         var udfModule = res.udfModule;
         var udfFunc = res.udfFunc;
+        var udfQuery = null; // XXX currently it's not used
 
         var fieldDelim = res.fieldDelim;
         var lineDelim = res.lineDelim;
@@ -792,7 +799,8 @@ window.DSPreview = (function($, DSPreview) {
                 "quoteChar": quote,
                 "skipRows": skipRows,
                 "isRegex": isRegex,
-                "headers": headers
+                "headers": headers,
+                "udfQuery": udfQuery
             };
 
             var dsToReplace = $previewCard.data("dsid") || null;
@@ -1305,8 +1313,12 @@ window.DSPreview = (function($, DSPreview) {
         return deferred.promise();
     }
 
-    function previewData(udfModule, udfFunc, noDetect, fromChangeFile) {
+    function previewData(udfOptions, noDetect, fromChangeFile) {
         var deferred = jQuery.Deferred();
+
+        udfOptions = udfOptions || {};
+        var udfModule = udfOptions.module || null;
+        var udfFunc = udfOptions.func || null;
 
         var loadURL = loadArgs.getPath();
         var dsName = $("#dsForm-dsName").val();
@@ -1371,8 +1383,14 @@ window.DSPreview = (function($, DSPreview) {
 
         var promise;
         if (hasUDF) {
-            promise = loadDataWithUDF(txId, urlToPreview, pattern, dsName,
-                                    udfModule, udfFunc, isRecur, previewSize);
+            promise = loadDataWithUDF(txId, urlToPreview, dsName, {
+                "moduleName": udfModule,
+                "funcName": udfFunc,
+                "isRecur": isRecur,
+                "maxSampleSize": previewSize,
+                "fileNamePattern": pattern,
+                "udfQuery": udfOptions.udfQuery
+            });
         } else {
             promise = loadData(urlToPreview, pattern, isRecur);
         }
@@ -1613,12 +1631,35 @@ window.DSPreview = (function($, DSPreview) {
     }
 
     // load with UDF always return JSON format
-    function loadDataWithUDF(txId, loadURL, pattern, dsName,
-                            udfModule, udfFunc, isRecur, previewSize) {
+    /*
+     * options (example):
+        {
+            "moduleName": udfModule,
+            "funcName": udfFunc,
+            "isRecur": isRecur,
+            "maxSampleSize": previewSize,
+            "fileNamePattern": pattern,
+            "udfQuery": udfQuery
+        };
+     */
+    function loadDataWithUDF(txId, loadURL, dsName, options) {
+        options = options || {};
+
         var deferred = jQuery.Deferred();
         var urlToPreview;
         var disablePreview;
         var format = formatMap.JSON;
+        var pattern = options.pattern;
+        var isRecur = options.isRecur;
+
+        var defaultOptions = {
+            "fieldDelim": "",
+            "recordDelim": "\n",
+            "hasHeader": false,
+            "quoteChar": gDefaultQDelim,
+            "skipRows": 0
+        };
+        options = $.extend(defaultOptions, options);
 
         var tempDSName = getPreviewTableName(dsName);
         tableName = tempDSName;
@@ -1627,9 +1668,7 @@ window.DSPreview = (function($, DSPreview) {
         .then(function(url, noPreview) {
             urlToPreview = url;
             disablePreview = noPreview;
-            return XcalarLoad(urlToPreview, format, tempDSName, "", "\n",
-                            false, udfModule, udfFunc, isRecur,
-                            previewSize, gDefaultQDelim, 0, pattern, txId);
+            return XcalarLoad(urlToPreview, format, tempDSName, options, txId);
         })
         .then(function() {
             return sampleData(tempDSName, rowsToFetch);
@@ -1725,6 +1764,7 @@ window.DSPreview = (function($, DSPreview) {
 
         var udfModule = "";
         var udfFunc = "";
+        var udfQuery = null;
 
         if (res.format === formatMap.EXCEL) {
             udfModule = excelModule;
@@ -1734,9 +1774,15 @@ window.DSPreview = (function($, DSPreview) {
             udfFunc = res.udfFunc;
         }
 
+        var udfOptions = {
+            "module": udfModule,
+            "func": udfFunc,
+            "udfQuery": udfQuery
+        };
+
         clearPreviewTable()
         .then(function() {
-            return previewData(udfModule, udfFunc, noDetect, fromChangeFile);
+            return previewData(udfOptions, noDetect, fromChangeFile);
         })
         .fail(errorHandler);
     }

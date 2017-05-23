@@ -2071,7 +2071,9 @@ describe("Persistent Constructor Test", function() {
             expect(res[0]).to.equal("file:///netstore/datasets/gdelt/");
             expect(res[1]).to.equal("CSV");
             expect(res[2]).to.equal("testFullName");
-            expect(res[12]).to.equal("re:test");
+            expect(res[3]).to.be.a("object")
+            .and.to.have.property("fileNamePattern")
+            .and.to.equal("re:test");
 
             // case 2
             dsObj = new DSObj({
@@ -2093,7 +2095,29 @@ describe("Persistent Constructor Test", function() {
             expect(res[0]).to.equal("file:///netstore/datasets/gdelt/");
             expect(res[1]).to.equal("CSV");
             expect(res[2]).to.equal("testFullName");
-            expect(res[12]).to.equal("test");
+            expect(res[3]).to.be.a("object")
+            .and.to.have.property("fileNamePattern")
+            .and.to.equal("test");
+
+            // case 3
+            dsObj = new DSObj({
+                "id": "testId",
+                "name": "testName",
+                "pattern": "test",
+                "user": "testUser",
+                "fullName": "testFullName",
+                "parentId": DSObjTerm.homeParentId,
+                "uneditable": false,
+                "path": "file:///netstore/datasets/gdelt/",
+                "format": "CSV",
+                "udfQuery": {"a": 1}
+            });
+
+            res = dsObj.getPointArgs();
+            expect(res[3]).to.be.a("object")
+            .and.to.have.property("udfQuery");
+            expect(res[3].udfQuery).to.have.property("a")
+            .and.to.equal(1);
         });
 
         it("Should get and set size", function() {

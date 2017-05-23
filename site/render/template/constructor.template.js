@@ -1686,10 +1686,19 @@
             headers: (array, optional) XXX temp fix to preserve CSV header order
             error: (string, optional) ds's error
             displayFormat (string) displayed format in ds table(Excel...)
+
+            new attr:
+                udfQuery: (object), extra udf args
         */
         function DSObj<%= v %>(options) {
             var self = _super.call(this, options);
             <%= addVersion %>
+            // XXX this is only for version 2!!!
+            if (<%= checkFunc %>(options)) {
+                if (options.udfQuery) {
+                    self.udfQuery = options.udfQuery;
+                }
+            }
             return self;
         }
 
@@ -1787,11 +1796,20 @@
                 var self = this;
                 var pattern = xcHelper.getFileNamePattern(self.pattern,
                                                           self.isRegex);
-
-                return [self.path, self.format, self.fullName,
-                    self.fieldDelim, self.lineDelim, self.hasHeader,
-                    self.moduleName, self.funcName, self.isRecur, self.previewSize,
-                    self.quoteChar, self.skipRows, pattern];
+                var options = {
+                    "fieldDelim": self.fieldDelim,
+                    "recordDelim": self.lineDelim,
+                    "hasHeader": self.hasHeader,
+                    "moduleName": self.moduleName,
+                    "funcName": self.funcName,
+                    "isRecur": self.isRecur,
+                    "maxSampleSize": self.previewSize,
+                    "quoteChar": self.quoteChar,
+                    "skipRows": self.skipRows,
+                    "fileNamePattern": pattern,
+                    "udfQuery": self.udfQuery
+                };
+                return [self.path, self.format, self.fullName, options];
             },
 
             getNumEntries: function() {

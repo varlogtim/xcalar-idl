@@ -197,11 +197,11 @@ window.XIApi = (function(XIApi, $) {
 
     XIApi.load = function(dsArgs, formatArgs, dsName, txId) {
         // dsArgs is as follows:
-        // url, isRecur, maxSampleSize, skipRows, isRegex
+        // url, isRecur, maxSampleSize, skipRows, isRegex, pattern,
         // formatArgs is as follows:
         // format("CSV", "JSON", "Excel", "raw"), if "CSV", then
-        // fieldDelim, recordDelim, hasHeader, quoteChar,
-        // moduleName, funcName
+        // fieldDelim, recordDelim, hasHeader, quoteChar
+        // moduleName, funcName, udfQuery
         if (txId == null || !dsArgs || !formatArgs || !dsArgs.url ||
             !formatArgs.format) {
             return PromiseHelper.reject("Invalid args in load");
@@ -212,6 +212,7 @@ window.XIApi = (function(XIApi, $) {
         var maxSampleSize = dsArgs.maxSampleSize || 0;
         var skipRows = dsArgs.skipRows || 0;
         var isRegex = dsArgs.isRegex || false;
+        var pattern = xcHelper.getFileNamePattern(dsArgs.pattern, isRegex);
 
         var fieldDelim;
         var recordDelim;
@@ -226,10 +227,23 @@ window.XIApi = (function(XIApi, $) {
 
         var moduleName = formatArgs.moduleName || "";
         var funcName = formatArgs.funcName || "";
+        var udfQuery = formatArgs.udfQuery;
 
-        return XcalarLoad(url, format, dsName, fieldDelim, recordDelim,
-                          hasHeader, moduleName, funcName, isRecur,
-                          maxSampleSize, quoteChar, skipRows, isRegex, txId);
+        var options = {
+            "fieldDelim": fieldDelim,
+            "recordDelim": recordDelim,
+            "hasHeader": hasHeader,
+            "moduleName": moduleName,
+            "funcName": funcName,
+            "isRecur": isRecur,
+            "maxSampleSize": maxSampleSize,
+            "quoteChar": quoteChar,
+            "skipRows": skipRows,
+            "fileNamePattern": pattern,
+            "udfQuery": udfQuery
+        };
+
+        return XcalarLoad(url, format, dsName, options, txId);
     };
 
     XIApi.indexFromDataset = function(txId, dsName, newTableName, prefix) {
@@ -1238,9 +1252,7 @@ window.XIApi = (function(XIApi, $) {
         // for each fat ptr rename, find whether a column has this fat ptr as
         // a prefix. If so, fix up all fields in colStruct that pertains to the
         // prefix
-        var i = 0;
-        var j = 0;
-        for (i = 0; i < rename.length; i++) {
+        for (var i = 0; i < rename.length; i++) {
             if (rename[i].type === DfFieldTypeT.DfFatptr) {
                 if (!col.immediate && col.prefix === rename[i].orig) {
                     col.backName = col.backName.replace(rename[i].orig,

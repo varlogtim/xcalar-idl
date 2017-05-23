@@ -2581,7 +2581,7 @@ window.Profile = (function($, Profile, d3) {
 
             if (w + 5 < right) {
                 // when can move right,
-                // move the optoin label as right as possible
+                // move the option label as right as possible
                 right -= (w + 5);
             }
 

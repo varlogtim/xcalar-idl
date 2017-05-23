@@ -710,7 +710,7 @@ describe("Profile Test", function() {
             assert.isTrue($filterOption.is(":visible"));
         });
 
-        it("Should cancel the optoin", function(done) {
+        it("Should cancel the option", function(done) {
             $filterOption.find(".cancel").trigger(fakeEvent.mousedown);
             // has animation
             setTimeout(function() {

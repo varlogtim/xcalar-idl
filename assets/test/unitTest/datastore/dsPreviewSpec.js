@@ -668,8 +668,10 @@ describe("DSPreview Test", function() {
                 return PromiseHelper.reject("test");
             };
 
-            DSPreview.__testOnly__.loadDataWithUDF(1, "test", null, "ds",
-                                                  "module", "func")
+            DSPreview.__testOnly__.loadDataWithUDF(1, "test", "ds", {
+                "moduleName": "module",
+                "funcName": "func"
+            })
             .then(function() {
                 done("fail");
             })
@@ -706,8 +708,10 @@ describe("DSPreview Test", function() {
                 }]);
             };
 
-            DSPreview.__testOnly__.loadDataWithUDF(1, "test", null, "ds",
-                                                  "module", "func")
+            DSPreview.__testOnly__.loadDataWithUDF(1, "test", "ds",{
+                "moduleName": "module",
+                "funcName": "func"
+            })
             .then(function() {
                 done("fail");
             })
@@ -749,8 +753,10 @@ describe("DSPreview Test", function() {
                 return PromiseHelper.resolve();
             };
 
-            DSPreview.__testOnly__.loadDataWithUDF(1, "test", null, "ds",
-                                                  "module", "func")
+            DSPreview.__testOnly__.loadDataWithUDF(1, "test", "ds", {
+                "moduleName": "module",
+                "funcName": "func"
+            })
             .then(function(buffer) {
                 expect(buffer).not.to.be.null;
                 expect(buffer).contains("test");

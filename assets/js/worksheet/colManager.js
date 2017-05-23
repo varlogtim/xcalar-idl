@@ -49,8 +49,8 @@ window.ColManager = (function($, ColManager) {
             "isNewCol": true,
             "width": xcHelper.getDefaultColWidth("")
         };
-        var actulColOptoins = $.extend(defaultOptions, colOptions);
-        var progCol = ColManager.newCol(actulColOptoins);
+        var actulColOptions = $.extend(defaultOptions, colOptions);
+        var progCol = ColManager.newCol(actulColOptions);
         addColHelper(colNum, tableId, progCol, {
             "direction": direction
         });

@@ -494,10 +494,44 @@ function XcalarPreview(url, fileNamePattern, isRecur, numBytesRequested, offset)
     return deferred.promise();
 }
 
-function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
-                    hasHeader, moduleName, funcName, isRecur, maxSampleSize,
-                    quoteChar, skipRows, fileNamePattern, txId) {
+/*
+ * options (example):
+    {
+        "fieldDelim": "",
+        "recordDelim": "\n",
+        "hasHeader": false,
+        "moduleName": udfModule,
+        "funcName": udfFunc,
+        "isRecur": isRecur,
+        "maxSampleSize": previewSize,
+        "quoteChar": gDefaultQDelim,
+        "skipRows": 0,
+        "fileNamePattern": pattern,
+        "udfQuery": udfQuery
+    }
+ */
+function XcalarLoad(url, format, datasetName, options, txId) {
+    options = options || {};
+    var fieldDelim = options.fieldDelim;
+    var recordDelim = options.recordDelim;
+    var hasHeader = options.hasHeader;
+    var moduleName = options.moduleName;
+    var funcName = options.funcName;
+    var isRecur = options.isRecur;
+    var maxSampleSize = options.maxSampleSize;
+    var quoteChar = options.quoteChar;
+    var skipRows = options.skipRows;
+    var fileNamePattern = options.fileNamePattern;
+
     url = xcHelper.encodeURL(url);
+
+    if (options.udfQuery && typeof options.udfQuery === "object") {
+        var queryData = encodeQueryData(options.udfQuery);
+        if (queryData) {
+            url += "?" + queryData;
+        }
+    }
+
     function checkForDatasetLoad(def, sqlString, dsName, txId) {
         // Using setInterval will have issues because of the deferred
         // GetDatasets call inside here. Do not use it.
@@ -673,7 +707,6 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
 
     return deferred.promise();
 
-
     function parseLoadError(error) {
         var res = error;
         try {
@@ -699,6 +732,12 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
         }
 
         return res;
+    }
+
+    function encodeQueryData(data) {
+        return Object.keys(data).map(function(key) {
+            return [key, data[key]].map(encodeURIComponent).join("=");
+        }).join("&");
     }
 }
 
