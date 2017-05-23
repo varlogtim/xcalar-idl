@@ -235,7 +235,7 @@ body {
     background-color: rgba(0, 0, 0, 0.15);
 
     &.sessionProgress .waitBox {
-        .steps, .progressWrap {
+        .steps, .progressWrap, .progressNode {
             display: block;
         }
         .animatedEllipsisWrapper {
@@ -259,10 +259,12 @@ body {
         }
         .bottom {
             height: 120px;
+            padding: 4px 16px;
             .font(@size: 18px, @weight: 300, @color: @color-font-greyish-brown);
             .flex-display;
             .justify-content(center);
             .align-items(center);
+            .flex-direction(column);
         }
 
         .waitIcon {
@@ -283,8 +285,17 @@ body {
             background-color: @color-white;
         }
 
-        .steps, .progressWrap {
-            display: none; // XXX temporary
+        .steps, .progressWrap, .progressNode {
+            display: none;
+        }
+
+        .progressNode {
+            margin-top: -10px;
+            margin-bottom: 10px;
+            font-size: 16px;
+            text-align: center;
+            .textOverflow;
+            width: 100%;
         }
 
         .animatedEllipsisWrapper {

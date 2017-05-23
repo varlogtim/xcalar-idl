@@ -50,6 +50,8 @@ StatusMessageTStr = {
     'StoredProc': 'Performing Stored Procedure',
     'StoredProcFailed': 'Stored Procedure execution failed',
     'SettingExtensions': 'Setting up extensions',
+    'CurrReplay': 'Currently Replaying',
+    'CompReplay': 'Completed Replaying',
     // Must keep in sync with htmlTStr
     'ActionSuccess': 'Your action was successful!',
     'ActionFailed': 'Your action failed!',

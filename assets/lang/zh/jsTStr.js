@@ -50,6 +50,8 @@ StatusMessageTStr = {
 'StoredProc': '执行存储操作',
 'StoredProcFailed': '执行存储操作失败',
 'SettingExtensions': '加载插件',
+'CurrReplay': 'Currently Replaying',
+'CompReplay': 'Completed Replaying',
 'ActionSuccess': '操作成功！',
 'ActionFailed': '操作失败！'
 };

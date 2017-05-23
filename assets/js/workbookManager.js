@@ -4,6 +4,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
     var activeWKBKId;
     var wkbkSet;
     var checkInterval = 2000;
+    var progressTextCycle;
     var progressTimeout;
 
     // initial setup
@@ -1075,14 +1076,18 @@ window.WorkbookManager = (function($, WorkbookManager) {
                 var $loadScreen = $("#initialLoadScreen");
                 var $bar = $loadScreen.find(".progressBar");
                 var $numSteps = $loadScreen.find(".numSteps");
+                var $progressNode = $loadScreen.find(".progressNode");
                 if (!$loadScreen.hasClass("sessionProgress")) {
                     $loadScreen.addClass("sessionProgress");
                     $bar.stop().width(0).data("pct", 0);
+                    $progressNode.text("").data("node", "")
+                    $numSteps.data("num", 0);
                 }
                 $bar.data("totalsteps", progress.numTotal);
                 var pct = Math.round(100 * progress.numCompleted /
                                      progress.numTotal);
-                if (pct !== $bar.data("pct")) {
+                var lastPct = $bar.data("pct");
+                if (pct !== lastPct) {
                     var animTime = checkInterval;
                     if (pct === 100) {
                         animTime /= 2;
@@ -1090,8 +1095,21 @@ window.WorkbookManager = (function($, WorkbookManager) {
                     $bar.animate({"width": pct + "%"}, animTime, "linear");
                     $bar.data("pct", pct);
                 }
+                var lastNum = $numSteps.data("num");
 
-                $numSteps.text(progress.numCompleted + "/" + progress.numTotal);
+                transitionProgressText(lastNum, progress.numCompleted, progress.numTotal);
+                $numSteps.data("num", progress.numCompleted);
+                // $numSteps.text(progress.numCompleted + "/" + progress.numTotal);
+                var type;
+                if (progress.processingNode) {
+                    type = XcalarApisTStr[progress.processingNode.api];
+                    $progressNode.text(StatusMessageTStr.CurrReplay + ": " + type)
+                                 .data("node", progress.processingNode);
+                } else if ($progressNode.data("node")) {
+                    var node = $progressNode.data("node");
+                    type = XcalarApisTStr[node.api];
+                    $progressNode.text(StatusMessageTStr.CompReplay + ": " + type);
+                }
                 if (progress.numCompletedWorkItem === progress.numTotal) {
                     return;
                 }
@@ -1109,18 +1127,59 @@ window.WorkbookManager = (function($, WorkbookManager) {
         }, intTime);
     }
 
+    function transitionProgressText(lastNum, currNum, total) {
+        clearInterval(progressTextCycle);
+        var $loadScreen = $("#initialLoadScreen");
+        var $numSteps = $loadScreen.find(".numSteps");
+        var intTime = 1000;
+        var count = 0;
+        setTimeout(function() {
+            clearInterval(progressTextCycle);
+            $numSteps.text(currNum + "/" + total);
+        }, checkInterval);
+
+        $numSteps.text(lastNum + "/" + total);
+
+        var diff = currNum - lastNum;
+        var numChanges = Math.floor(checkInterval / intTime);
+        var vals = [];
+        for (var i = 0; i < numChanges; i++) {
+            vals.push(lastNum + Math.floor(diff * ((i + 1) / numChanges)));
+        }
+
+        progressTextCycle = setInterval(function() {
+            if (count >= numChanges) {
+                clearInterval(progressTextCycle);
+                $numSteps.text(currNum + "/" + total);
+            } else {
+                $numSteps.text(vals[count] + "/" + total);
+            }
+            count++;
+        }, intTime);
+    }
+
     function getProgress(queryName) {
         var deferred = jQuery.Deferred();
         XcalarQueryState(queryName)
         .then(function(ret) {
-            // in case numCompleted is somehow greater than num nodes
-            var numCompleted = Math.min(ret.numCompletedWorkItem,
-                                        ret.queryGraph.numNodes);
-            // so it's never 0/0
+            var statuses = {};
+            var state;
+            var numCompleted = 0;
+            var processingNode;
+            var states = {};
+            for (var i = 0; i < ret.queryGraph.numNodes; i++) {
+                state = ret.queryGraph.node[i].state;
+                if (state === DgDagStateT.DgDagStateReady) {
+                    numCompleted++;
+                } else if (state === DgDagStateT.DgDagStateProcessing) {
+                    processingNode = ret.queryGraph.node[i];
+                }
+            }
             var numTotal = Math.max(ret.queryGraph.numNodes, 1);
             var progress = {
                 numCompleted: numCompleted,
-                numTotal: numTotal
+                numTotal: numTotal,
+                processingNode: processingNode
             };
             deferred.resolve(progress);
         })
