@@ -754,11 +754,11 @@ window.Scheduler = (function(Scheduler, $) {
                 scheduleInfo.scheduleResults.forEach(function(res) {
                     var startTime = "Start Time: " +
                         getTimeToSecond(res.startTime, serverTimeZoneOffset);
-                    var endTime = "End Time: " +
-                        getTimeToSecond(res.endTime, serverTimeZoneOffset);
+                    var endTime = (res.endTime ? "End Time: " +
+                        getTimeToSecond(res.endTime, serverTimeZoneOffset):"");
                     var runTimeStr = startTime + "<br>" + endTime;
                     var parameterStr = getParameterStr(res.parameters);
-                    var statusStr = StatusTStr[res.status];
+                    var statusStr = res.endTime ? StatusTStr[res.status]: "Running";
                     html += getOneRecordHtml(runTimeStr, parameterStr,
                                              statusStr, outputStr);
                 });
