@@ -195,7 +195,7 @@ window.OperationsView = (function($, OperationsView) {
             xcTooltip.hideAll();
         });
 
-        // .functionsInput
+        // .functionsInput used in filter, groupby, aggregate, not in map
         $operationsView.on({
             'mousedown': function() {
                 var $list = $(this).siblings('.list');
@@ -227,6 +227,12 @@ window.OperationsView = (function($, OperationsView) {
                 var $input = $(this);
                 if (event.which === keyCode.Enter || event.which ===
                     keyCode.Tab) {
+                    var $li = $input.siblings(".list").find("li.highlighted");
+                    if ($li.length === 1) {
+                        fnListMouseup(event, $li);
+                        return false;
+                    }
+
                     var value = $input.val().trim().toLowerCase();
                     var prevValue = $input.data('value');
                     $input.data('value', value);
@@ -245,6 +251,9 @@ window.OperationsView = (function($, OperationsView) {
                     enterFunctionsInput($input.data('fninputnum'));
                     // prevent modal tabbing
                     return (false);
+                } else if (event.which === keyCode.Escape) {
+                    hideDropdowns();
+                    return false;
                 }
             },
             'input': function() {
@@ -1184,6 +1193,7 @@ window.OperationsView = (function($, OperationsView) {
         if (listLis.length) {
             menu.openList();
             positionDropdown($list);
+            $list.find("li").eq(0).addClass("highlighted");
         } else {
             menu.hideDropdowns();
         }
@@ -1279,6 +1289,7 @@ window.OperationsView = (function($, OperationsView) {
         }).show();
 
         $visibleLis.sort(sortHTML).prependTo($list.find('ul'));
+        $visibleLis.eq(0).addClass('highlighted');
 
         if (operatorName === "filter" || operatorName === "group by") {
             var fnInputNum = parseInt($list.siblings('input')
