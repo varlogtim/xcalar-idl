@@ -3,8 +3,11 @@ describe("DFCard Test", function() {
     var tableName;
     var tableId;
     var testDfName;
-    var $dfWrap;
     var oldRefresh;
+
+    function getDfWrap(dfName) {
+        return $('#dfgViz .dagWrap[data-dataflowname="' + dfName + '"]');
+    }
 
     before(function(done) {
         oldRefresh = DataflowPanel.refresh;
@@ -35,8 +38,6 @@ describe("DFCard Test", function() {
                 return ($(this).find(".groupName").text() === testDfName);
             }).closest(".listBox").trigger("click");
 
-            $dfWrap = $('#dfgViz .dagWrap[data-dataflowname="' + testDfName + '"]');
-
             $("#maximizeDag").click();
             setTimeout(function() {
                 $("#closeDag").click();
@@ -62,11 +63,14 @@ describe("DFCard Test", function() {
             }).closest(".dataFlowGroup").click();
 
             UnitTest.testFinish(function() {
-                $dfWrap = $('#dfgViz .dagWrap[data-dataflowname="' + testDfName + '"]');
+                var $dfWrap = getDfWrap(testDfName);
                 return $dfWrap.find(".export .dagTableIcon").length > 0;
             })
             .then(function() {
                 done();
+            })
+            .fail(function() {
+                done("fail");
             });
         });
 
@@ -76,6 +80,7 @@ describe("DFCard Test", function() {
                 return XcalarMode.Oper;
             };
             var $menu = $("#dfgViz").find(".dagDropDown");
+            var $dfWrap = getDfWrap(testDfName);
             $dfWrap.find(".export .dagTableIcon").click();
             expect($menu.find("li:visible").length).to.equal(2);
             expect($menu.find("li.createParamQuery:visible").length).to.equal(1);
@@ -94,6 +99,7 @@ describe("DFCard Test", function() {
         it("show export cols should work", function() {
             expect($("#exportColPopup").is(":visible")).to.be.false;
             var $menu = $("#dfgViz").find(".dagDropDown");
+            var $dfWrap = getDfWrap(testDfName);
             $dfWrap.find(".export .dagTableIcon").click();
             $menu.find("li.showExportCols").trigger(fakeEvent.mouseup);
             expect($("#exportColPopup").is(":visible")).to.be.true;
@@ -198,6 +204,7 @@ describe("DFCard Test", function() {
     });
 
     it("dag tables should have Created class", function() {
+        var $dfWrap = getDfWrap(testDfName);
         expect($dfWrap.find(".dagTable").length).to.equal(3);
         expect($dfWrap.find(".dagTable.Created").length).to.equal(3);
     });
@@ -230,6 +237,7 @@ describe("DFCard Test", function() {
                 return $(this).text() === testDfName;
             }).closest(".dataFlowGroup").click();
 
+            var $dfWrap = getDfWrap(testDfName);
             $dfWrap = $('#dfgViz .dagWrap[data-dataflowname="' + testDfName + '"]');
 
 
