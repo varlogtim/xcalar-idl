@@ -750,8 +750,8 @@ window.DFCard = (function($, DFCard) {
                     e.preventDefault();
                     e.stopPropagation();
                 }
-            } else if ($(e.target).closest(".expandWrap").length) {
-                showExpandOption($(e.target).closest(".expandWrap"));
+            } else if ($(e.target).closest(".dagImageWrap").length) {
+                showRightClickOption(e);
                 e.preventDefault();
                 e.stopPropagation();
             }
@@ -813,33 +813,47 @@ window.DFCard = (function($, DFCard) {
                 case ("showExportCols"):
                     showExportCols($currentIcon);
                     break;
-                case ('expandAll'):
+                case ("expandAll"):
                     Dag.expandAll($dagWrap);
                     break;
-                case ('collapseAll'):
+                case ("collapseAll"):
                     Dag.collapseAll($dagWrap);
                     break;
-                case ('none'):
+                case ("none"):
                     // do nothing;
+                    break;
+                case ("saveImage"):
+                    var tableName = $dagWrap.data("dataflowname");
+                    DagPanel.saveImageAction($dagWrap, tableName);
+                    break;
+                case ("newTabImage"):
+                    DagPanel.newTabImageAction($dagWrap);
                     break;
                 default:
                     break;
             }
         });
 
-        function showExpandOption($currentIcon) {
+        function showRightClickOption(e) {
             $('.menu').hide();
             xcMenu.removeKeyboardNavigation();
             $('.leftColMenu').removeClass('leftColMenu');
 
             $menu.find("li").hide();
+            $menu.find(".newTabImage, .saveImage").show();
             DagPanel.toggleExpCollapseAllLi($dfCard.find(".dagWrap:visible"), $menu);
-            positionAndInitMenu($currentIcon);
+            positionAndInitMenu(null, e);
         }
 
-        function positionAndInitMenu($currentIcon) {
-            var top = $currentIcon[0].getBoundingClientRect().bottom;
-            var left = $currentIcon[0].getBoundingClientRect().left;
+        function positionAndInitMenu($currentIcon, e) {
+            var top, left;
+            if (e) {
+                top = e.pageY + 15;
+                left = e.pageX;
+            } else {
+                top = $currentIcon[0].getBoundingClientRect().bottom;
+                left = $currentIcon[0].getBoundingClientRect().left;
+            }
 
             $menu.css({'top': top, 'left': left});
             $menu.show();
@@ -853,6 +867,11 @@ window.DFCard = (function($, DFCard) {
                         MainMenu.getOffset()) {
                 // if on the left side of the screen
                 $menu.css('left', MainMenu.getOffset() + 5);
+            }
+
+            var menuBottom = $menu[0].getBoundingClientRect().bottom;
+            if (menuBottom > $(window).height()) {
+                $menu.css('top', '-=' + $menu.height());
             }
             xcMenu.addKeyboardNavigation($menu);
         }

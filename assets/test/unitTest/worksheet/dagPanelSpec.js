@@ -845,8 +845,7 @@ describe("Dag Panel Test", function() {
 
         describe("Panel button actions should work", function() {
             it("SaveImageAction should work", function(done) {
-                DagPanel.__testOnly__.saveImageAction($largeDagWrap,
-                                                        largeTable.tableName)
+                DagPanel.saveImageAction($largeDagWrap, largeTable.tableName)
                 .then(done)
                 .fail(function() {
                     done("failed");
@@ -854,7 +853,7 @@ describe("Dag Panel Test", function() {
             });
 
             it("newTabImageAction should work", function(done) {
-                DagPanel.__testOnly__.newTabImageAction($smallDagWrap)
+                DagPanel.newTabImageAction($smallDagWrap)
                 .then(function(newTab) {
                     // TODO: figure out why newTab instanceof Window is false
                     // For now, take advantage of fact that windows have prop

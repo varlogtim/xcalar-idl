@@ -595,7 +595,7 @@ window.DagPanel = (function($, DagPanel) {
         }
     }
 
-    function saveImageAction($dagWrap, tableName) {
+     DagPanel.saveImageAction = function($dagWrap, tableName) {
         var deferred = PromiseHelper.deferred();
         Dag.createSavableCanvas($dagWrap, tableName)
         .then(function() {
@@ -617,9 +617,9 @@ window.DagPanel = (function($, DagPanel) {
         })
         .fail(deferred.reject);
         return deferred;
-    }
+    };
 
-    function newTabImageAction($dagWrap) {
+    DagPanel.newTabImageAction = function($dagWrap) {
         var deferred = PromiseHelper.deferred();
         Dag.createSavableCanvas($dagWrap)
         .then(function() {
@@ -644,7 +644,7 @@ window.DagPanel = (function($, DagPanel) {
         .fail(deferred.reject);
 
         return deferred;
-    }
+    };
 
     // for map & groupby tables, does not handle joined tables
     function isParentDropped($dagTable) {
@@ -669,12 +669,12 @@ window.DagPanel = (function($, DagPanel) {
             var $dagWrap = $(this).closest('.dagWrap');
             var tableName = $dagWrap.find('.dagTable[data-index="0"]')
                                         .data('tablename');
-            saveImageAction($dagWrap, tableName);
+            DagPanel.saveImageAction($dagWrap, tableName);
         });
 
         $dagPanel.on('click', '.newTabImageBtn', function() {
             var $dagWrap = $(this).closest('.dagWrap');
-            newTabImageAction($dagWrap);
+            DagPanel.newTabImageAction($dagWrap);
         });
     }
 
@@ -695,10 +695,10 @@ window.DagPanel = (function($, DagPanel) {
 
             switch (action) {
                 case ('saveImage'):
-                    saveImageAction($dagWrap, tableName);
+                    DagPanel.saveImageAction($dagWrap, tableName);
                     break;
                 case ('newTabImage'):
-                    newTabImageAction($dagWrap);
+                    DagPanel.newTabImageAction($dagWrap);
                     break;
                 case ('expandAll'):
                     Dag.expandAll($dagWrap);
@@ -1476,8 +1476,6 @@ window.DagPanel = (function($, DagPanel) {
     if (window.unitTestMode) {
         DagPanel.__testOnly__ = {};
         DagPanel.__testOnly__.addDataFlowAction = addDataFlowAction;
-        DagPanel.__testOnly__.saveImageAction = saveImageAction;
-        DagPanel.__testOnly__.newTabImageAction = newTabImageAction;
         DagPanel.__testOnly__.generateIcvTable = generateIcvTable;
         DagPanel.__testOnly__.isComplementTableExists = isComplementTableExists;
     }
@@ -1867,7 +1865,9 @@ window.Dag = (function($, Dag) {
             var tableRedImage = new Image();
             var dbImage = new Image();
             var expandImage = new Image();
+            var eTableImage = new Image();
             tableImage.src = paths.dTable;
+            eTableImage.src = paths.eTable;
             tableGrayImage.src = paths.dTableGray;
             tableRedImage.src = paths.dTableRed;
             dbImage.src = paths.dbDiamond;
@@ -1876,7 +1876,8 @@ window.Dag = (function($, Dag) {
             PromiseHelper.when.apply(window, [loadImage(tableImage),
                                     loadImage(tableGrayImage),
                                     loadImage(tableRedImage),
-                                    loadImage(dbImage), loadImage(expandImage)])
+                                    loadImage(dbImage), loadImage(expandImage),
+                                    loadImage(eTableImage)])
             .then(function() {
                 $dagWrap.find('.dagTable').each(function() {
                     var $dagTable = $(this);
@@ -1887,7 +1888,7 @@ window.Dag = (function($, Dag) {
                         drawDagTableToCanvas($dagTable, ctx, top, left,
                                              tableImage, tableGrayImage,
                                              tableRedImage,
-                                             dbImage);
+                                             dbImage, eTableImage);
                     }
                 });
 
@@ -2693,7 +2694,7 @@ window.Dag = (function($, Dag) {
     }
 
     function drawDagTableToCanvas($dagTable, ctx, top, left, tImage, tGrayImage,
-                                  tRedImage, dImage) {
+                                  tRedImage, dImage, eImage) {
         left += 35;
         top += 50;
         var iconLeft = left;
@@ -2713,6 +2714,9 @@ window.Dag = (function($, Dag) {
                 tableImage = tRedImage;
             } else if (gShowDroppedTablesImage && $dagTable.hasClass('Dropped')) {
                 tableImage = tGrayImage;
+            } else if ($dagTable.hasClass("export") &&
+                $dagTable.attr("data-advancedopts") === "default") {
+                tableImage = eImage;
             } else {
                 tableImage = tImage;
             }
@@ -2724,7 +2728,7 @@ window.Dag = (function($, Dag) {
         var lineHeight = 12;
 
         var y = top + 38;
-        var text = $dagTable.find('.tableTitle').text();
+        var text = $dagTable.find('.tableTitle:visible').text();
 
         ctx.save();
         ctx.beginPath();
