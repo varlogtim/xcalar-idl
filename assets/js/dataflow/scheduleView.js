@@ -344,7 +344,7 @@ window.Scheduler = (function(Scheduler, $) {
         $timeSection.find(".time").val(timeText);
 
         // frequency
-        if (tmpSchedObj.repeat) {
+        if (!tmpSchedObj.repeat) {
             $freqSection.find(".radioButton.active").removeClass("active");
             $freqSection.find('.radioButton[data-option="minute"]').click();
         } else {
