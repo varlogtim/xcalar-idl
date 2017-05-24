@@ -158,7 +158,6 @@ CommonTxtTstr = {
     'LogoutWarn': 'You have unsaved changes, please save or you may lose your' +
                 ' work.',
     'NA': 'N/A',
-    'main': 'main',
     'NEWCOLUMN': 'NEW COLUMN',
     'NEXT': 'NEXT',
     'NumCol': 'Number of columns',

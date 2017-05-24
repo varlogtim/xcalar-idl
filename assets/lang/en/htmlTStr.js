@@ -40,7 +40,6 @@ module.exports = {
         "LastUpdated": "Last updated",
         "Loading": "Loading",
         "Location": "Location",
-        "main": "main",
         "Maximize": "Maximize",
         "Minimize": "Minimize",
         "NA": "N/A",
@@ -548,7 +547,7 @@ module.exports = {
     "dsPreview": {
         "Previewing": "Previewing",
         "RmHighlight": "Remove highlights",
-        "ApplyHighlight": "Apply highlighted characters as delimiter",
+        "ApplyHighlight": "Apply highlighted characters as field delimiter",
         "EndOfPreview": "End of Preview"
     },
 

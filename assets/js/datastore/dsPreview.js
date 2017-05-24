@@ -1823,8 +1823,7 @@ window.DSPreview = (function($, DSPreview) {
 
         var fieldDelim = loadArgs.getFieldDelim();
         if (format === formatMap.CSV && fieldDelim === "") {
-            $highlightBtns.removeClass("hidden")
-                        .find("button").removeClass("xc-disabled");
+            $highlightBtns.removeClass("hidden");
         }
 
         var $tbody = $(getTbodyHTML(data, fieldDelim));

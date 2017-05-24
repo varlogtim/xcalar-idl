@@ -350,7 +350,9 @@ window.DSExport = (function($, DSExport) {
 
     function resetForm() {
         $("#exportFormReset").click();
-       $form.find(".udfFuncName").val(CommonTxtTstr.main);
+        // "main" should not be translated into other language
+        // so don't put into jsTStr
+        $form.find(".udfFuncName").val("main");
     }
 
     function clearSelectedGrid() {

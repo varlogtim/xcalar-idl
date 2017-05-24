@@ -98,16 +98,16 @@ TooltipTStr = {
 "KeyExists": '键已经存在',
 "ViewAllWS": '查看所有工作表',
 "LoggedIn": '已登录',
-"GeneratingComplement": "Generating complement table",
-"ComplementRestriction": "Complement table only available for Filter",
-"ComplementSourceDropped": "Cannot create complement table if descendant table has been dropped",
-"AddToWorksheet": "Add To Worksheet",
-"NoActiveUndone": "Tables in an undo state cannot be added to the worksheet",
-"SysOperation": "System generated operation",
-"UDFNoMain": "UDF requires a 'main' function",
+"GeneratingComplement": "生成补集表",
+"ComplementRestriction": "补集表只适用于过滤操作",
+"ComplementSourceDropped": "如果子孙表被移除，则无法生成补集表",
+"AddToWorksheet": "添加至工作表",
+"NoActiveUndone": "被撤销的表无法添加至工作表",
+"SysOperation": "系统操作",
+"UDFNoMain": "UDF 需要包含'main'函数",
 "IcvGenerating": '正在生成完整性约束冲突异常表',
 "IcvRestriction": '完整性约束冲突异常表仅适用于映射和分组',
-"IcvSourceDropped": '后代表被移除，完整性约束冲突异常表不可被创建',
+"IcvSourceDropped": '子孙表被移除，完整性约束冲突异常表不可被创建',
 "OnlyInOpMode": '该功能仅在操作模式下可用',
 "ColumnAlreadyInt": '当前数据类型已经是整型',
 "ColumnAlreadyFloat": '当前数据类型已经是浮点型',
@@ -144,11 +144,10 @@ CommonTxtTstr = {
 'Immediates': '派生列',
 'ImmediatesPlural': '派生列',
 'InP': '进行中',
-'LeaveWarn': '您要退出xcalar吗',
+'LeaveWarn': '您要退出Xcalar吗',
 'LogOut': '注销',
 'LogoutWarn': '您有未保存的更改，请保存, 否则您可能会失去现有的数据。',
 'NA': '本条目不适用',
-'main': 'main',
 'NEWCOLUMN': '新列',
 'NEXT': '下一步',
 'NumCol': '列数',
@@ -694,8 +693,8 @@ DSExportTStr = {
 'DeleteExportTarget': '删除导出目标',
 'NoDelete': '无法删除默认的导出目标',
 'InvalidExportPath': '导出路径不能包含引号。',
-'DefaultPath': 'default path',
-'URLPlaceholder': 'will default to <target> if left blank',
+'DefaultPath': '默认路径',
+'URLPlaceholder': '默认值: <target>',
 'DeleteConfirmMsg': '您确定要删除<target>吗？'
 };
 WSTStr = {
@@ -736,12 +735,11 @@ TblTStr = {
 };
 ColTStr = {
 'SplitColWarn': '许多列会生成',
-'RenameSpecialChar': '名称无效确保名称只包含字母数字， - ，_和空格。它必须从字母开始。',
- 'ColNameInvalidChar': 'Invalid name. Ensure name does not contain the ' +
-                          'following characters: ^.\',":()[]{}\\',
-'RenameStartNum': '名称无效，无法以数字开头。',
-'ImmediateClash': '无效名称，名称已经存在于至少一个数据单元中',
-'LongName': '列名太长，请使用少于255个字符。',
+'RenameSpecialChar': '无效名称，名称只能包含字母数字， - ，_和空格，并且必须以字母开头。',
+'ColNameInvalidChar': '无效名称，请不要包含以下字符: ^.\',":()[]{}\\',
+'RenameStartNum': '无效名称，不能以数字开头。',
+'ImmediateClash': '无效名称，该名称已被其他列使用',
+'LongName': '列名过长，请使用少于255个字符。',
 'NoOperateArray': '不能直接在整个数值上操作',
 'NoOperateObject': '不能直接在整个对象上操作',
 'NoOperateGeneral': '不能直接操作这种类型的列',
@@ -768,8 +766,7 @@ SideBarTStr = {
 'OverwriteErr': '不能覆盖默认的UDF',
 'DropConsts': '删除聚合',
 'DropConstsMsg': '您确定要删除所选的聚合吗？',
-'WSColsMsg': 'Adding too many columns to the current worksheet may be slow. ' +
-                'Would you like to create a new worksheet for these tables?',
+'WSColsMsg': '该表包含过多列，加入当前工作表可能会影响界面流畅度。您是否想要为此表新建一个工作表？',
 'UDFError': '<reason> 在 <line>中找到'
 };
 ExtTStr = {

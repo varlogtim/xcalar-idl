@@ -19,8 +19,8 @@ module.exports = {
         "CannotExpand": "无法展开表",
         "ChangeType": "更改数据类型",
         "CollapseDF": "收缩表",
-        "CollapseAllDF": "Collapse all tables",
-        "ComplementTable": "Create Complement Table",
+        "CollapseAllDF": "收缩所有表",
+        "ComplementTable": "创建补集表",
         "CreateDF": "创建批量数据流",
         "CreateParamQuery": "创建参数化操作",
         "CreateTarget": "新建导出目标",
@@ -220,7 +220,7 @@ module.exports = {
         "ColRenameInstr": "您选择的列有重名。请重命名。",
         "ColRenames": "重命名",
         "ComeSoon": "功能即将开放",
-        "CompleteExc": "complete!",
+        "CompleteExc": "完成!",
         "Comma": "逗号",
         "DELETE": "删除",
         "DS": "数据集",
@@ -240,7 +240,6 @@ module.exports = {
         "LastUpdated": "最后更新时间",
         "Loading": "加载",
         "Location": "路径",
-        "main": "main",
         "Maximize": "最大化",
         "Minimize": "最小化",
         "NA": "N/A",
@@ -318,7 +317,7 @@ module.exports = {
         "empty": "空值",
         "instr": "要将此操作转换为参数化操作，请单击\"添加新的参数化操作\"按钮，然后将参数拖放到相应的位置。",
         "param": "参数",
-        "query": "Original Operation",
+        "query": "初始操作",
         "systemParamList": "系统参数表",
         "title": "参数化操作",
         "val": "值"
@@ -383,7 +382,7 @@ module.exports = {
         "filePath": "数据源路径"
     },
     "dsFormat": {
-        "CSV": "Separated Values(CSV, TSV...)",
+        "CSV": "分隔值(CSV, TSV...)",
         "JSON": "JSON",
         "EXCEL": "Excel",
         "TEXT": "Text",
@@ -401,7 +400,7 @@ module.exports = {
         "ViewInText": "用plain text格式浏览数据"
     },
     "dsPreview": {
-        "ApplyHighlight": "应用高亮字符作为分隔符",
+        "ApplyHighlight": "应用高亮字符作为列分隔符",
         "EndOfPreview": "预览结束",
         "Previewing": "数据预览",
         "RmHighlight": "清除高亮"
@@ -463,7 +462,7 @@ module.exports = {
         "NotFound": "找不到插件",
         "SearchHint": "搜索插件",
         "Upload": "上传自定义插件",
-        "uploadInstr": "将插件上传到Xcalar。您的文件的格式应为.tar.gz，并包含.ext.js和.ext.py文件"
+        "uploadInstr": "将插件上传至Xcalar。您的文件的格式应为.tar.gz，并包含.ext.js和.ext.py文件"
     },
     "fileBrowser": {
         "Offset": "偏移",
