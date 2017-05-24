@@ -2902,7 +2902,7 @@ window.xcHelper = (function($, xcHelper) {
     }
 
     // returns {moduleLis: htmlStr, fnLis: htmlStr}
-    xcHelper.getUDFList = function(listXdfsObj) {
+    xcHelper.getUDFList = function(listXdfsObj, mainOnly) {
         var i;
         var len = listXdfsObj.numXdfs;
         var udfs = listXdfsObj.fnDescs;
@@ -2927,11 +2927,14 @@ window.xcHelper = (function($, xcHelper) {
         var fnLi = "";
         var hideXcUDF = UserSettings.getPref("hideXcUDF");
         var liClass = "";
+        var mainFound = false;
+        var prevModule = null;
+        var moduleNames = [];
         for (i = 0; i < len; i++) {
             var udf = modules[i].split(":");
             var moduleName = udf[0];
             var fnName = udf[1];
-
+            listClass = "";
             if (!moduleMap.hasOwnProperty(moduleName)) {
                 moduleMap[moduleName] = true;
                 if (hideXcUDF && moduleName.indexOf("_xcalar") === 0) {
@@ -2941,11 +2944,39 @@ window.xcHelper = (function($, xcHelper) {
                 }
                 moduleLi += '<li class="' + liClass + '">' + moduleName +
                             "</li>";
+                if (prevModule != null) {
+                    moduleNames.push({name: prevModule, hasMain: mainFound});
+                }
+
+                prevModule = moduleName;
+                mainFound = false;
+            }
+            if (mainOnly && fnName === "main") {
+                mainFound = true;
             }
 
             fnLi += '<li data-module="' + moduleName + '">' +
                         fnName +
                     '</li>';
+        }
+        if (mainOnly) {
+            if (prevModule != null) {
+                moduleNames.push({name: prevModule, hasMain: mainFound});
+            }
+            moduleLi = "";
+            for (i = 0; i < moduleNames.length; i++) {
+                var name = moduleNames[i].name;
+                liClass = "";
+                if (moduleNames[i].hasMain) {
+                    liClass += "hasMain";
+                } else {
+                    liClass += "noMain unavailable";
+                }
+                if (hideXcUDF && name.indexOf("_xcalar") === 0) {
+                    liClass += " xcUDF";
+                }
+                moduleLi += '<li class="' + liClass + '">' + name + '</li>';
+            }
         }
         return {
             moduleLis: moduleLi,

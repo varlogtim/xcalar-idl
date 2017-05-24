@@ -107,6 +107,7 @@ TooltipTStr = {
     "AddToWorksheet": "Add To Worksheet",
     "NoActiveUndone": "Tables in an undo state cannot be added to the worksheet",
     "SysOperation": "System generated operation",
+    "UDFNoMain": "UDF requires a 'main' function",
 
     // Sync with htmlTStr
     "IcvGenerating": "Erroneous rows(ER) table is generating",
@@ -157,6 +158,7 @@ CommonTxtTstr = {
     'LogoutWarn': 'You have unsaved changes, please save or you may lose your' +
                 ' work.',
     'NA': 'N/A',
+    'main': 'main',
     'NEWCOLUMN': 'NEW COLUMN',
     'NEXT': 'NEXT',
     'NumCol': 'Number of columns',
@@ -821,6 +823,8 @@ DSExportTStr = {
     'DeleteExportTarget': 'DELETE EXPORT TARGET',
     'NoDelete': 'Cannot delete default export target',
     'InvalidExportPath': 'Export path cannot contain quotes.',
+    'DefaultPath': 'default path',
+    'URLPlaceholder': 'will default to <target> if left blank',
 
     // with replace
     'DeleteConfirmMsg': 'Are you sure you want to delete <target>?'

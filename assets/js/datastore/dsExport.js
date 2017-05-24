@@ -4,7 +4,6 @@ window.DSExport = (function($, DSExport) {
     var $form;
     var $editForm;
     var $udfModuleList;
-    var $udfFuncList;
     var $targetTypeList;
     var $targetTypeInput;
     var $exportTargetCard;
@@ -17,7 +16,6 @@ window.DSExport = (function($, DSExport) {
         $form = $("#exportDataForm");
         $editForm = $("#exportDataEditForm");
         $udfModuleList = $form.find(".udfModuleListWrap");
-        $udfFuncList = $form.find(".udfFuncListWrap");
         $exportTargetCard = $("#exportTargetCard");
         $exportTargetEditCard = $("#exportTargetEditCard");
         $gridMenu = $("#expTargetGridMenu");
@@ -28,6 +26,20 @@ window.DSExport = (function($, DSExport) {
         setupDropdowns();
         setupGridMenu();
         xcMenu.add($gridMenu);
+
+        // set placeholder path val
+        DSExport.getDefaultPath()
+        .then(function(dPath) {
+            if (dPath.length) {
+                dPath = dPath.slice(1);
+            } else {
+                dPath = DSExportTStr.DefaultPath;
+            }
+            var msg = xcHelper.replaceMsg(DSExportTStr.URLPlaceholder, {
+                target: dPath
+            });
+            $("#exportURL").attr("placeholder", msg);
+        });
 
         $("#dsExport-refresh").click(function() {
             DSExport.refresh();
@@ -58,7 +70,7 @@ window.DSExport = (function($, DSExport) {
             var options = {};
             if (targetType === "UDF") {
                 options.module = $form.find(".udfModuleName").val().trim();
-                options.fn = $form.find(".udfFuncName").val().trim();
+                options.fn = "main";
             }
 
             submitForm(targetType, name, formatSpecificArg, options)
@@ -81,8 +93,6 @@ window.DSExport = (function($, DSExport) {
             $form.find(".formatSpecificRow").removeClass("active");
             $form.find(".placeholderRow").removeClass("xc-hidden");
             $targetTypeInput.data("value", "");
-            xcTooltip.enable($udfFuncList.parent());
-            $udfFuncList.addClass("disabled");
             $gridView.find(".gridArea .active").removeClass("active");
 
             $exportTargetCard.find(".tempDisabled").removeClass("tempDisabled")
@@ -170,9 +180,11 @@ window.DSExport = (function($, DSExport) {
 
     // updates the udf list
     DSExport.refreshUDF = function(listXdfsObj) {
-        var udfObj = xcHelper.getUDFList(listXdfsObj);
+        var udfObj = xcHelper.getUDFList(listXdfsObj, true);
         $udfModuleList.find("ul").html(udfObj.moduleLis);
-        $udfFuncList.find("ul").html(udfObj.fnLis);
+        xcTooltip.add($udfModuleList.find(".noMain"), {
+            title: TooltipTStr.UDFNoMain
+        });
     };
 
     DSExport.toggleXcUDFs = function(hide) {
@@ -263,33 +275,11 @@ window.DSExport = (function($, DSExport) {
 
         new MenuHelper($udfModuleList, {
             "onSelect": function($li) {
+                if ($li.hasClass("unavailable")) {
+                    return true; // return true to keep dropdown open
+                }
                 var module = $li.text();
                 $udfModuleList.find(".udfModuleName").val(module);
-                xcTooltip.disable($udfFuncList.parent());
-                var $funcListLis = $udfFuncList.removeClass("disabled")
-                                    .find("input").val("")
-                                    .end()
-                                    .find(".list li").addClass("hidden")
-                                    .filter(function() {
-                                        return $(this).data("module") === module;
-                                    });
-                $funcListLis.removeClass("hidden");
-
-                // autofill input if there's only 1 option
-                if ($funcListLis.length === 1) {
-                    var func = $funcListLis.text();
-                    $udfFuncList.find(".udfFuncName").val(func);
-                }
-                StatusBox.forceHide();
-            },
-            "bounds": "#datastorePanel > .mainContent",
-            "bottomPadding": 5
-        }).setupListeners();
-
-        new MenuHelper($udfFuncList, {
-            "onSelect": function($li) {
-                var func = $li.text();
-                $udfFuncList.find(".udfFuncName").val(func);
                 StatusBox.forceHide();
             },
             "bounds": "#datastorePanel > .mainContent",
@@ -360,6 +350,7 @@ window.DSExport = (function($, DSExport) {
 
     function resetForm() {
         $("#exportFormReset").click();
+       $form.find(".udfFuncName").val(CommonTxtTstr.main);
     }
 
     function clearSelectedGrid() {
@@ -530,7 +521,7 @@ window.DSExport = (function($, DSExport) {
                 "error": ErrTStr.NoEmpty,
                 "side": "top",
                 "check": function() {
-                    if (targetType === "ODBC") {
+                    if (targetType === "ODBC" || targetType === "UDF") {
                         return false;
                     } else {
                         return (formatSpecificArg.trim() === "");
@@ -560,18 +551,6 @@ window.DSExport = (function($, DSExport) {
                         return false;
                     }
                 }
-            },
-            {
-                "$ele": $form.find(".udfFuncName"),
-                "error": ErrTStr.NoEmptyList,
-                "side": "top",
-                "check": function() {
-                    if (targetType === "UDF") {
-                        return (options.fn === "");
-                    } else {
-                        return false;
-                    }
-                }
             }
         ]);
 
@@ -587,7 +566,7 @@ window.DSExport = (function($, DSExport) {
             promise = XcalarAddODBCExportTarget(name, formatSpecificArg);
         } else if (targetType === "UDF") {
             var udfName = options.module + ":" + options.fn;
-            promise = XcalarAddUDFExportTarget(name, formatSpecificArg,
+            promise = addUDFExportTarget(name, formatSpecificArg,
                                                 udfName);
         } else {
             var error = {error: DSExportTStr.InvalidTypeMsg};
@@ -597,7 +576,10 @@ window.DSExport = (function($, DSExport) {
         }
 
         promise
-        .then(function() {
+        .then(function(path) {
+            if (targetType === "UDF") {
+                formatSpecificArg = path;
+            }
             addGridIcon(targetType, name, formatSpecificArg, options);
             deferred.resolve();
         })
@@ -606,6 +588,30 @@ window.DSExport = (function($, DSExport) {
             deferred.reject(err);
         });
 
+        return deferred.promise();
+    }
+
+    function addUDFExportTarget(name, formatSpecificArg, udfName) {
+        var deferred = jQuery.Deferred();
+        var promise;
+        var newPath;
+        if (formatSpecificArg === "") {
+            promise = DSExport.getDefaultPath();
+        } else {
+            promise = PromiseHelper.resolve(formatSpecificArg);
+        }
+        promise
+        .then(function(path) {
+            if (formatSpecificArg === "") {
+                path = path.slice(1);
+            }
+            newPath = path;
+            return XcalarAddUDFExportTarget(name, path, udfName);
+        })
+        .then(function() {
+            deferred.resolve(newPath);
+        })
+        .fail(deferred.reject);
         return deferred.promise();
     }
 

@@ -172,15 +172,8 @@ describe("DSExport Test", function() {
             $("#exportURL").val("test");
             expect($("#exportURL").val()).to.equal("test");
             $form.find(".udfModuleListWrap li")
-            .eq(0).trigger(fakeEvent.mouseup);
+            .eq(0).removeClass("unavailable").trigger(fakeEvent.mouseup);
             expect($form.find(".udfModuleName").val()).to.not.equal("");
-            if (isBrowserMicrosoft) {
-                expect($form.find(".udfFuncListWrap").css("pointer-events"))
-                .to.equal("visiblePainted");
-            } else {
-                expect($form.find(".udfFuncListWrap").css("pointer-events"))
-                .to.equal("auto");
-            }
 
             $form.find(".udfFuncName").val("test");
             expect($form.find(".udfFuncName").val()).to.equal("test");
@@ -195,9 +188,7 @@ describe("DSExport Test", function() {
             expect($form.find(".placeholderRow:visible").length).to.equal(1);
             expect($("#exportURL").val()).to.equal("");
             expect($form.find(".udfModuleName").val()).to.equal("");
-            expect($form.find(".udfFuncListWrap").css("pointer-events"))
-            .to.equal("none");
-            expect($form.find(".udfFuncName").val()).to.equal("");
+            expect($form.find(".udfFuncName").val()).to.equal("main");
             expect($(document.activeElement).attr("id")).to.equal("targetName");
         });
     });
@@ -234,23 +225,6 @@ describe("DSExport Test", function() {
             expect($("#exportURL").closest(".formRow").hasClass("active"))
             .to.be.true;
             expect($form.find(".udfSelectorRow").hasClass("active")).to.be.true;
-        });
-
-        it("udf dropdowns should work", function() {
-            $form.find(".udfModuleListWrap li")
-            .eq(0).trigger(fakeEvent.mouseup);
-            expect($form.find(".udfModuleName").val()).to.not.equal("");
-            if (isBrowserMicrosoft) {
-                expect($form.find(".udfFuncListWrap").css("pointer-events"))
-                .to.equal("visiblePainted");
-            } else {
-                expect($form.find(".udfFuncListWrap").css("pointer-events"))
-                .to.equal("auto");
-            }
-            $form.find(".udfFuncList li").eq(0).trigger(fakeEvent.mouseup);
-            expect($form.find(".udfFuncName").val()).to.not.equal("");
-            expect($form.find(".udfFuncName").val())
-            .to.equal($(".udfFuncList li").eq(0).text());
         });
 
         after(function() {
@@ -521,9 +495,7 @@ describe("DSExport Test", function() {
             expect($form.find(".placeholderRow:visible").length).to.equal(1);
             expect($("#exportURL").val()).to.equal("");
             expect($form.find(".udfModuleName").val()).to.equal("");
-            expect($form.find(".udfFuncListWrap").css("pointer-events"))
-            .to.equal("none");
-            expect($form.find(".udfFuncName").val()).to.equal("");
+            expect($form.find(".udfFuncName").val()).to.equal("main");
             expect($(document.activeElement).attr("id"))
             .to.equal("targetName");
         });

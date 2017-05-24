@@ -104,6 +104,7 @@ TooltipTStr = {
 "AddToWorksheet": "Add To Worksheet",
 "NoActiveUndone": "Tables in an undo state cannot be added to the worksheet",
 "SysOperation": "System generated operation",
+"UDFNoMain": "UDF requires a 'main' function",
 "IcvGenerating": '正在生成完整性约束冲突异常表',
 "IcvRestriction": '完整性约束冲突异常表仅适用于映射和分组',
 "IcvSourceDropped": '后代表被移除，完整性约束冲突异常表不可被创建',
@@ -147,6 +148,7 @@ CommonTxtTstr = {
 'LogOut': '注销',
 'LogoutWarn': '您有未保存的更改，请保存, 否则您可能会失去现有的数据。',
 'NA': '本条目不适用',
+'main': 'main',
 'NEWCOLUMN': '新列',
 'NEXT': '下一步',
 'NumCol': '列数',
@@ -692,6 +694,8 @@ DSExportTStr = {
 'DeleteExportTarget': '删除导出目标',
 'NoDelete': '无法删除默认的导出目标',
 'InvalidExportPath': '导出路径不能包含引号。',
+'DefaultPath': 'default path',
+'URLPlaceholder': 'will default to <target> if left blank',
 'DeleteConfirmMsg': '您确定要删除<target>吗？'
 };
 WSTStr = {
