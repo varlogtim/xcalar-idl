@@ -681,13 +681,6 @@ function viewRelatedFunctionTest() {
         $(document).trigger("mousedown");
     });
 
-    it("should get time to second", function() {
-        var date = new Date("5/18/2017 9:12:35 PM UTC");
-        var str = Scheduler.__testOnly__.getTimeToSecond(date.getTime(),
-                  date.getTimezoneOffset());
-        expect(str).to.equal("5/18/2017 9:12:35 PM UTC");
-    });
-
     it("should close schedule detail", function() {
         Scheduler.show(dfName);
         expect($("#modifyScheduleForm:visible").length).to.not.equal(0);
