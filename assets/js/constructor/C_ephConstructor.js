@@ -129,45 +129,64 @@ function MouseEvents() {
 }
 
 // dsForm.js and fileBrowser.js
-function DSFormAdvanceOption($section, container) {
+function DSFormAdvanceOption($section, options) {
     this.$section = $section;
-
-    // add event listener
-    $section.on("click", ".listInfo .expand, .listInfo .text", function() {
-        $section.toggleClass("active");
-        $(container).toggleClass("has-expand-list");
-    });
-
-    var $limit = $section.find(".option.limit");
-    new MenuHelper($limit.find(".dropDownList"), {
-        "onSelect": function($li) {
-            var $input = $li.closest(".dropDownList").find(".unit");
-            $input.val($li.text());
-        },
-        "container": container,
-        "bounds": container
-    }).setupListeners();
-
-    xcHelper.optionButtonEvent($limit, function(option) {
-        var $ele = $limit.find(".inputWrap, .dropDownList");
-        if (option === "default") {
-            $ele.addClass("xc-disabled");
-        } else {
-            $ele.removeClass("xc-disabled");
-        }
-    });
-
-    var $pattern = $section.find(".option.pattern");
-    $pattern.on("click", ".checkboxSection", function() {
-        $(this).find(".checkbox").toggleClass("checked");
-    });
-
+    this.options = options || {};
+    this.__addEventListener();
     this.reset();
 
     return this;
 }
 
 DSFormAdvanceOption.prototype = {
+    __addEventListener: function() {
+        var self = this;
+        var $section = self.$section;
+        var container = self.container;
+        // add event listener
+        $section.on("click", ".listInfo .expand, .listInfo .text", function() {
+            self.__toggleList();
+        });
+
+        var $limit = $section.find(".option.limit");
+        new MenuHelper($limit.find(".dropDownList"), {
+            "onSelect": function($li) {
+                var $input = $li.closest(".dropDownList").find(".unit");
+                $input.val($li.text());
+            },
+            "container": container,
+            "bounds": container
+        }).setupListeners();
+
+        xcHelper.optionButtonEvent($limit, function(option) {
+            var $ele = $limit.find(".inputWrap, .dropDownList");
+            if (option === "default") {
+                $ele.addClass("xc-disabled");
+            } else {
+                $ele.removeClass("xc-disabled");
+            }
+        });
+
+        var $pattern = $section.find(".option.pattern");
+        $pattern.on("click", ".checkboxSection", function() {
+            $(this).find(".checkbox").toggleClass("checked");
+        });
+    },
+
+    __toggleList: function() {
+        var $section = this.$section;
+        var container = this.container;
+        var options = this.options;
+
+        $section.toggleClass("active");
+        $(container).toggleClass("has-expand-list");
+        var isOpen = $section.hasClass("active");
+        var callback = options.onOpenList;
+        if (isOpen && typeof callback === "function") {
+            callback($section);
+        }
+    },
+
     setMode: function() {
         var $section = this.$section;
         this.isInteractiveMod = (XVM.getLicenseMode() === XcalarMode.Mod);
@@ -182,7 +201,9 @@ DSFormAdvanceOption.prototype = {
         $section.find("input").val("")
                 .end()
                 .find(".checked").removeClass("checked");
-
+        if ($section.hasClass("active")) {
+            this.__toggleList();
+        }
         this.set();
     },
 

@@ -658,7 +658,8 @@ DSTStr = {
 'HideAdvOpt': '隐藏高级选项',
 'PointErr': '无法导入数据集',
 'OffsetErr': 'offset大于数据集大小',
-'DelUploadMsg': '您确定要删除<filename>吗？'
+'DelUploadMsg': '您确定要删除<filename>吗？',
+'NoSingleFilePattern': '不支持单个文件'
 };
 DSFormTStr = {
 'Pattern': '模式',

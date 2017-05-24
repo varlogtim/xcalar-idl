@@ -75,7 +75,10 @@ window.DSPreview = (function($, DSPreview) {
         $genLineNumCheckBox = $("#genLineNumbersCheckbox");
 
         var $advanceOption = $form.find(".advanceOption");
-        advanceOption = new DSFormAdvanceOption($advanceOption, "#dsForm-preview");
+        advanceOption = new DSFormAdvanceOption($advanceOption, {
+            "container": "#dsForm-preview",
+            "onOpenList": openAdvanceList
+        });
 
         // select a char as candidate delimiter
         $previewTable.mouseup(function(event) {
@@ -1029,6 +1032,22 @@ window.DSPreview = (function($, DSPreview) {
             "quote": quote,
             "skipRows": skipRows
         };
+    }
+
+    function openAdvanceList($section) {
+        var $pattern = $section.find(".pattern");
+        var $input = $pattern.find("input");
+        if (isPreviewSingleFile()) {
+            $pattern.addClass("unavailable");
+            $input.prop("disabled", true);
+            xcTooltip.add($input, {
+                "title": DSTStr.NoSingleFilePattern
+            });
+        } else {
+            $pattern.removeClass("unavailable");
+            $input.prop("disabled", false);
+            xcTooltip.remove($input);
+        }
     }
 
     function getNameFromPath(path) {

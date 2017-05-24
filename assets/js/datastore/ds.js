@@ -869,8 +869,11 @@ window.DS = (function ($, DS) {
         for (var i = 0; i < numDatasets; i++) {
             var dsName = datasets.datasets[i].name;
 
-            if (atStartUp && dsName.endsWith("-xcalar-preview") &&
-                xcHelper.parseDSName(dsName).user === userPrefix) {
+            if (atStartUp && dsName.endsWith("-xcalar-preview")) {
+                // other users don' deal with it
+                if (xcHelper.parseDSName(dsName).user !== userPrefix) {
+                    continue;
+                }
                 // deal with preview datasets,
                 // if it's the current user's preview ds,
                 // then we delete it on start up time

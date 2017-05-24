@@ -126,6 +126,7 @@ describe("Ephemeral Constructor Test", function() {
         var $section;
         var $limit;
         var $pattern;
+        var test = false;
 
         before(function() {
             var html =
@@ -170,18 +171,22 @@ describe("Ephemeral Constructor Test", function() {
         });
 
         it("Should be a valid constructor", function() {
-            advanceOption = new DSFormAdvanceOption($section, "body");
+            advanceOption = new DSFormAdvanceOption($section, {
+                "container": "body",
+                "onOpenList": function() { test = true; }
+            });
             expect(advanceOption).to.be.an("object");
-            expect(Object.keys(advanceOption).length).to.equal(1);
+            expect(Object.keys(advanceOption).length).to.equal(2);
 
             expect(advanceOption).to.have.property("$section");
+            expect(advanceOption).to.have.property("options");
         });
 
         it("Should have valid event", function() {
             // expand
             $section.find(".listInfo .expand").click();
             expect($section.hasClass("active")).to.be.true;
-
+            expect(test).to.be.true;
             // dropdown list
             $limit.find("li").trigger(fakeEvent.mouseup);
 

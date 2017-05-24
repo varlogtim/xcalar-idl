@@ -1945,6 +1945,14 @@ table.datasetTable {
                 .radioButtonGroup {
                     .size(@width: ~"calc(100% - 180px)");
                 }
+
+                .unavailable {
+                    opacity: @opacity-disabled;
+
+                    > div {
+                        position: none;
+                    }
+                }
             }
         }
     }
