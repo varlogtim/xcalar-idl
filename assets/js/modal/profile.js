@@ -207,8 +207,10 @@ window.Profile = (function($, Profile, d3) {
                     decimalNum = -1;
                 } else {
                     val = Number(val);
-                    if (val < 0 || val > decimalLimit) {
-                        var err = xcHelper.replaceMsg(ErrWRepTStr.NumInRange, {
+                    if (val < 0 || val > decimalLimit ||
+                        !Number.isInteger(val))
+                    {
+                        var err = xcHelper.replaceMsg(ErrWRepTStr.IntInRange, {
                             "lowerBound": 0,
                             "upperBound": decimalLimit
                         });

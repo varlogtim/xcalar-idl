@@ -322,7 +322,7 @@ ErrWRepTStr = {
     'ColConflict': 'Column "<name>" already exists in table "<table>."',
     'NoLessNum': 'Please enter a value greater than or equal to <num>',
     'NoBiggerNum': 'Please enter a value less than or equal to <num>',
-    'NumInRange': 'Please input a number between <lowerBound> and <upperBound>',
+    'IntInRange': 'Please input an integer between <lowerBound> and <upperBound>',
     'TableNotDeleted': 'Table <name> was not deleted.',
     'ConstNotDeleted': 'Aggregate <name> was not deleted.',
     'AggConflict': 'Aggregate <aggPrefix>"' + '<name>" already exists, ' +

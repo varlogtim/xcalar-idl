@@ -296,7 +296,7 @@ ErrWRepTStr = {
 'InvalidAggName': '聚合名称必须以<aggPrefix>作为前缀',
 'InvalidAggLength': '聚合名称必须以<aggPrefix>为前缀，后跟用户自定义的名称',
 'InvalidSampleSize': '最大可支持size为<size>的数据集。',
-'NumInRange': '请输入在<lowerBound>-<upperBound>之间的数字',
+'IntInRange': '请输入在<lowerBound>-<upperBound>之间的整数',
 };
 DemoTStr = {
 "title": '欢迎使用 Xcalar Design',
