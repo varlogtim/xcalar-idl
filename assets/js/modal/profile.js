@@ -47,6 +47,7 @@ window.Profile = (function($, Profile, d3) {
     var decimalLimit = 5;
 
     var statsInfos = {};
+    var bucketCache = {};
 
     // data with initial value
     var curTableId = null;
@@ -375,8 +376,22 @@ window.Profile = (function($, Profile, d3) {
                                  ? val
                                  : -val;
                 bucketData(bucketSize, statsCol);
+                cacheBucket(bucketSize);
             }
         });
+    }
+
+    function restoreOldBucket() {
+        if (bucketCache[curTableId] != null &&
+            bucketCache[curTableId][curColNum] != null) {
+            var oldBucket = bucketCache[curTableId][curColNum];
+            $rangeInput.val(oldBucket);
+        }
+    }
+
+    function cacheBucket(bucket) {
+        bucketCache[curTableId] = bucketCache[curTableId] || {};
+        bucketCache[curTableId][curColNum] = bucket;
     }
 
     function setupStatsSection() {
@@ -543,6 +558,7 @@ window.Profile = (function($, Profile, d3) {
         refreshAggInfo(aggKeys, statsCol, true);
         refreshStatsInfo(statsCol);
         resetGroupbySection();
+        restoreOldBucket();
     }
 
     function resetGroupbySection(resetRefresh) {
