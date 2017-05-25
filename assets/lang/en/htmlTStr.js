@@ -629,7 +629,7 @@ module.exports = {
         "status": "Status",
         "hour": "Hour",
         "min": "Minute",
-        "runtime": "Run Time",
+        "runtime": "Run Time (UTC)",
         "parameters": "Parameters",
         "outputLocation": "Output Location",
         "noRun": "Not run yet",

@@ -722,7 +722,7 @@ module.exports = {
         "outputLocation": "输出位置",
         "parameters": "参数",
         "perMin": "每分钟",
-        "runtime": "运行时间",
+        "runtime": "运行时间 (UTC)",
         "sched": "调度器",
         "schedDetail": "调度器详情",
         "startTime": "开始时间",

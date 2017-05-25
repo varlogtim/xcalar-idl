@@ -249,7 +249,7 @@ window.Scheduler = (function(Scheduler, $) {
 
     function showServerTime() {
         var $serverTime = $scheduleDetail.find(".serverTime .text");
-        var serverTimeStr = getUTCStr(new Date());
+        var serverTimeStr = getUTCStr(new Date(), false, true);
         $serverTime.text(serverTimeStr);
     }
 
@@ -316,16 +316,16 @@ window.Scheduler = (function(Scheduler, $) {
 
         // Update the schedule detail card
         // Created
-        var created = getUTCStr(tmpSchedObj.created) || "N/A";
+        var created = getUTCStr(tmpSchedObj.created, false, true) || "N/A";
         $scheduleSettings.find(".created .text").text(created);
 
         // Last modified
-        var modified = getUTCStr(tmpSchedObj.modified) || "N/A";
+        var modified = getUTCStr(tmpSchedObj.modified, false, true) || "N/A";
         $scheduleSettings.find(".modified .text").text(modified);
 
         // Next run (update use schedule, not scheObj)
         getNextRunTime(schedule);
-        var startTime = getUTCStr(tmpSchedObj.startTime) || "N/A";
+        var startTime = getUTCStr(tmpSchedObj.startTime, false, true) || "N/A";
         $scheduleSettings.find(".nextRunInfo .text").text(startTime);
 
         // date picker input
@@ -446,7 +446,7 @@ window.Scheduler = (function(Scheduler, $) {
         return new Date(completeTimeStr);
     }
 
-    function getUTCStr(input, isShowSecond) {
+    function getUTCStr(input, isShowSecond, withUTCSuffix) {
         var date;
         if (typeof input === "number") {
             date = new Date(input);
@@ -461,7 +461,8 @@ window.Scheduler = (function(Scheduler, $) {
                 getHourIndex(date.getUTCHours()) + ":" +
                 addPrefixZero(date.getUTCMinutes()) +
                 (isShowSecond ? (":" + addPrefixZero(date.getUTCSeconds())) : "") +
-                " " + getAMPM(date.getUTCHours()) + " UTC";
+                " " + getAMPM(date.getUTCHours()) +
+                (withUTCSuffix ? " UTC" : "");
     }
 
     function getHourIndex(hour) {
@@ -684,15 +685,15 @@ window.Scheduler = (function(Scheduler, $) {
 
             if (scheduleInfo && scheduleInfo.scheduleResults.length) {
                 scheduleInfo.scheduleResults.forEach(function(res) {
-                    var startTime = "Start Time: " +
+                    var startTime = "Start: " +
                         getUTCStr(res.startTime, true);
-                    var endTime = "End Time: " +
+                    var endTime = "End: " +
                         getUTCStr(res.endTime, true);
                     var runTimeStr = startTime + "<br>" + endTime;
                     var parameterStr = getParameterStr(res.parameters);
                     var statusStr = res.endTime ? StatusTStr[res.status]: "Running";
-                    html += getOneRecordHtml(runTimeStr, parameterStr,
-                                             statusStr, outputStr);
+                    html = getOneRecordHtml(runTimeStr, parameterStr,
+                                             statusStr, outputStr) + html;
                 });
             } else {
                 html = getOneRecordHtml(SchedTStr.Notrun, SchedTStr.Notrun,
@@ -754,7 +755,7 @@ window.Scheduler = (function(Scheduler, $) {
                     (systemParams.hasOwnProperty(currParam.parameterName) ?
                     "systemParams" : "currParams") +
                     '">' + currParam.parameterName + "</span>" +
-                    "<span>" + ":" + "</span>" +
+                    "<span>" + ": " + "</span>" +
                     "<span>" + currParam.parameterValue + "</span>";
         }
         if (str.length === 0) {
