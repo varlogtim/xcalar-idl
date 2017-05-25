@@ -721,7 +721,8 @@ DFTStr = {
     'AddSched': 'Add Schedule to dataflow',
     'TooLarge': 'Dataflow image exceeds viewable limit.',
     'NoTExists': 'Dataflow <df> doesn\'t exist',
-    'NoFields': 'No fields present'
+    'NoFields': 'No fields present',
+    'WarnInMemTable': 'This will generate an in-memory table in your current workbook. Please note that you will NOT be able to create further batched dataflows from this table.'
 };
 
 DSTStr = {

@@ -602,7 +602,8 @@ DFTStr = {
 'UploadLimitMsg': '无法上传超过大小超过1mb的数据流。',
 'AddSched': '创建调度器',
 'DownloadDF': '下载数据流',
-"DelDF2": "删除数据流"
+"DelDF2": "删除数据流",
+"WarnInMemTable": "此操作将在当前工作簿中生成表。注意：生成的表将无法创建批量数据流"
 };
 DSTStr = {
 'UnknownUser': '未知用户',

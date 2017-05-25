@@ -975,6 +975,7 @@ window.DFCard = (function($, DFCard) {
 
     function runDF(retName) {
         var deferred = jQuery.Deferred();
+        var cancelErr = "canceled";
 
         var paramsArray = [];
         var dfObj = DF.getDataflow(retName);
@@ -1006,6 +1007,9 @@ window.DFCard = (function($, DFCard) {
 
         var passedCheckBeforeRunDF = false;
         checkBeforeRunDF(advancedOpts.activeSession)
+        .then(function() {
+            return alertBeforeRunDF(advancedOpts.activeSession);
+        })
         .then(function() {
             passedCheckBeforeRunDF = true;
             var promise = XcalarExecuteRetina(retName, paramsArray,
@@ -1052,7 +1056,7 @@ window.DFCard = (function($, DFCard) {
                     "msg": DFTStr.CancelSuccessMsg,
                     "isAlert": true
                 });
-            } else {
+            } else if (error !== cancelErr) {
                 Alert.error(DFTStr.RunFail, error);
             }
 
@@ -1073,6 +1077,20 @@ window.DFCard = (function($, DFCard) {
             } else {
                 return checkExistingFileName(fileName, targetName);
             }
+        }
+
+        function alertBeforeRunDF(isToActiveSession) {
+            if (!isToActiveSession) {
+                return PromiseHelper.resolve();
+            }
+
+            var deferred = jQuery.Deferred();
+            Alert.show({
+                "msg": DFTStr.WarnInMemTable,
+                "onConfirm": function() { deferred.resolve(); },
+                "onCancel": function() { deferred.reject(cancelErr); }
+            });
+            return deferred.promise();
         }
     }
 
