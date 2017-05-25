@@ -688,7 +688,7 @@ window.Scheduler = (function(Scheduler, $) {
                     var startTime = "Start: " +
                         getUTCStr(res.startTime, true);
                     var endTime = "End: " +
-                        getUTCStr(res.endTime, true);
+                        res.endTime ? "-" : getUTCStr(res.endTime, true);
                     var runTimeStr = startTime + "<br>" + endTime;
                     var parameterStr = getParameterStr(res.parameters);
                     var statusStr = res.endTime ? StatusTStr[res.status]: "Running";

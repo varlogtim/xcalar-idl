@@ -1409,35 +1409,24 @@
         padding: 0px;
         height: 80px;
         min-width: 630px;
-        #modScheduleForm-delete {
-            .trash {
-                width: 24px;
-                display: inline-block;
-                float: left;
-                margin-left: 15px;
-                margin-top: 2px;
-            }
-            .trash-info {
-                display: inline-block;
-                float: left;
-                margin-left: 10px;
+        .trash, .refresh, .pause, .resume {
+            width: 24px;
+            display: inline-block;
+            float: left;
+            margin-left: 15px;
+            margin-top: 2px;
+        }
+        .pause, .resume {
+            .icon {
+                font-size: 15px;
             }
         }
-        #modScheduleForm-refresh {
-            float: right;
-            .refresh {
-                width: 24px;
-                display: inline-block;
-                float: left;
-                margin-left: 15px;
-                margin-top: 2px;
-            }
-            .refresh-info {
-                display: inline-block;
-                float: left;
-                margin-left: 10px;
-            }
+        .trash-info, .refresh-info, .pause-info, .resume-info {
+            display: inline-block;
+            float: left;
+            margin-left: 10px;
         }
+
         .buttonArea {
             margin-right: 40px;
             .btn {
@@ -1467,6 +1456,21 @@
         #scheduleSettings {
             pointer-events: none;
         }
+        #modScheduleForm-pause {
+            display: block;
+        }
+        #modScheduleForm-resume {
+            display: none;
+        }
+        &.pauseState {
+            #modScheduleForm-pause {
+                display: none;
+            }
+            #modScheduleForm-resume {
+                display: block;
+            }
+        }
+
     }
     &.withoutSchedule {
         .tabArea .tab {
@@ -1479,7 +1483,7 @@
             }
         }
 
-        #modScheduleForm-delete {
+        #modScheduleForm-delete, #modScheduleForm-resume, #modScheduleForm-pause {
             display: none;
         }
     }
