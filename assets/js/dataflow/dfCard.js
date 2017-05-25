@@ -1331,7 +1331,9 @@ window.DFCard = (function($, DFCard) {
     function checkExistingFileName(fileName, targetName) {
         var deferred = jQuery.Deferred();
         var extensionDotIndex = fileName.lastIndexOf(".");
-        if (extensionDotIndex > 0) {
+        if (fileName.includes("/")) {
+            return PromiseHelper.reject(DFTStr.InvalidExportPath);
+        } else if (extensionDotIndex > 0) {
             fileName = fileName.slice(0, extensionDotIndex);
         } else {
             return PromiseHelper.reject(DFTStr.NoFileExt);

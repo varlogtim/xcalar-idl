@@ -859,8 +859,7 @@ window.DFParamModal = (function($, DFParamModal){
             return deferred.promise();
         }
 
-        if (hasInvalidExportSuffix(params)) {
-            StatusBox.show(DFTStr.NoFileExt, $editableDivs.eq(0));
+        if (hasInvalidExportPath(params)) {
             deferred.reject();
             return deferred.promise();
         }
@@ -1073,21 +1072,26 @@ window.DFParamModal = (function($, DFParamModal){
     }
 
     // returns true if doesn't have .extension
-    function hasInvalidExportSuffix(params) {
-        var type = $iconTrigger.data('type');
+    function hasInvalidExportPath(params) {
+        var type = $iconTrigger.data("type");
         if (type !== "export") {
-            return false;
+            return true;
         }
-        $dfParamModal.find(".editableTable");
-        var val =  $dfParamModal.find(".editableTable")
-                                 .find('input.editableParamDiv').val();
+
+        var $input = $dfParamModal.find(".editableTable")
+                                .find("input.editableParamDiv");
+        var val =  $input.val();
         for (var i = 0; i < params.length; i++) {
-            var regex = new RegExp("<" +
-                            xcHelper.escapeRegExp(params[i].name) + ">", "g");
+            var name = xcHelper.escapeRegExp(params[i].name);
+            var regex = new RegExp("<" + name + ">", "g");
             val = val.replace(regex, params[i].val);
         }
         var index = val.indexOf(".");
         if (index === -1 || index === (val.length - 1)) {
+            StatusBox.show(DFTStr.NoFileExt, $input);
+            return true;
+        } else if (val.includes("/")) {
+            StatusBox.show(DFTStr.InvalidExportPath, $input);
             return true;
         } else {
             return false;

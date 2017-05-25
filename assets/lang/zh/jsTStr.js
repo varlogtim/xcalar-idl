@@ -603,7 +603,8 @@ DFTStr = {
 'AddSched': '创建调度器',
 'DownloadDF': '下载数据流',
 "DelDF2": "删除数据流",
-"WarnInMemTable": "此操作将在当前工作簿中生成表。注意：生成的表将无法创建批量数据流"
+"WarnInMemTable": "此操作将在当前工作簿中生成表。注意：生成的表将无法创建批量数据流",
+"InvalidExportPath": "导出文件名不能含有/"
 };
 DSTStr = {
 'UnknownUser': '未知用户',
