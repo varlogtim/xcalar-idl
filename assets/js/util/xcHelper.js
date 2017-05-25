@@ -2032,7 +2032,7 @@ window.xcHelper = (function($, xcHelper) {
     };
 
     xcHelper.stripColName = function(colName) {
-        var res = colName.split(/[\[\]\.\\]/g).filter(function(str) {
+        var res = colName.split(/[\[\]\.\\:]/g).filter(function(str) {
             return (str !== "");
         }).join("_");
         return res;
