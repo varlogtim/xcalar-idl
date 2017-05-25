@@ -1047,6 +1047,7 @@
                         height: 100%;
                         overflow: hidden;
                         display: inline-block;
+                        margin-left: ~"calc(50% - 120px)";
                         &.fail {
                             color: @color-error-border;
                         }
@@ -1063,6 +1064,13 @@
             .upperArea, .lowerArea {
                 padding: 0px 40px 0px 40px;
                 overflow: hidden;
+            }
+            .upperArea {
+                .column {
+                    .text {
+                        margin-left: ~"calc(50% - 120px)";
+                    }
+                }
             }
             .lowerArea {
                 padding-top: 0px;
@@ -1138,7 +1146,6 @@
                                 margin-left: 30px;
                                 border-bottom: 1px solid @color-border-white-two;
                                 border-left: 1px solid @color-border-white-two;
-                                min-width: 230px;
                                 &:last-child {
                                     .flex(1 1 230px);
                                 }
@@ -1166,7 +1173,7 @@
                                     width: 165px;
                                     text-transform: capitalize;
                                     color: @color-font-select-blue;
-
+                                    min-width: 230px;
                                 }
 
                                 &.runInfo {
@@ -1246,6 +1253,7 @@
 
         .column {
             width: 33%;
+            min-width: 237px;
             float: left;
             border-bottom: 1px solid @color-border-white-two;
             min-width: 270px;
@@ -1278,7 +1286,7 @@
                 text-transform: capitalize;
                 color: @color-font-select-blue;
                 position: relative;
-                margin-left: ~"calc(50% - 134px)";
+                margin-left: ~"calc(50% - 114px)";
             }
 
             &.runInfo {

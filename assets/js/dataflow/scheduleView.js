@@ -418,9 +418,9 @@ window.Scheduler = (function(Scheduler, $) {
         try {
             var interval = CronParser.parseExpression(cronString, options);
             var next1 = interval.next();
-            var lastRun = getUTCStr(next1.getTime());
+            var lastRun = getUTCStr(next1.getTime(), false, true);
             var next2 = interval.next();
-            var nextRun = getUTCStr(next2.getTime());
+            var nextRun = getUTCStr(next2.getTime(), false, true);
             res = {
                 "isValid": true,
                 "lastRun": lastRun,
