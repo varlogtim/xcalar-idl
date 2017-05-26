@@ -80,7 +80,7 @@ describe("XFTSupportTools Test", function() {
                 test = true;
             };
 
-            XFTSupportTools.monitorLogs(null, successCallback);
+            XFTSupportTools.monitorLogs("testPath", "testFile", null, successCallback);
 
             UnitTest.testFinish(checkFunc)
             .then(function() {
@@ -110,7 +110,7 @@ describe("XFTSupportTools Test", function() {
                 test = true;
             };
 
-            XFTSupportTools.monitorLogs(errCallback);
+            XFTSupportTools.monitorLogs("testPath", "testFile", errCallback);
 
             UnitTest.testFinish(checkFunc)
             .then(function() {

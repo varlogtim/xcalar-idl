@@ -374,7 +374,7 @@ describe("DFParamModal Test", function() {
         });
     });
 
-    describe("submit", function() {
+    describe("DFParam Modal Submit Test", function() {
         it("empty input should be detected", function(done) {
             $modal.find(".editableParamQuery input").eq(0).val("");
             DFParamModal.__testOnly__.storeRetina()

@@ -1075,7 +1075,7 @@ window.DFParamModal = (function($, DFParamModal){
     function hasInvalidExportPath(params) {
         var type = $iconTrigger.data("type");
         if (type !== "export") {
-            return true;
+            return false;
         }
 
         var $input = $dfParamModal.find(".editableTable")

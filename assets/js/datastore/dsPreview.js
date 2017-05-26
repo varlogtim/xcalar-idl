@@ -1842,7 +1842,8 @@ window.DSPreview = (function($, DSPreview) {
 
         var fieldDelim = loadArgs.getFieldDelim();
         if (format === formatMap.CSV && fieldDelim === "") {
-            $highlightBtns.removeClass("hidden");
+            $highlightBtns.removeClass("hidden")
+                          .find("button").addClass("xc-disabled");
         }
 
         var $tbody = $(getTbodyHTML(data, fieldDelim));

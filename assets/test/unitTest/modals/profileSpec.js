@@ -203,7 +203,7 @@ describe("Profile Test", function() {
             expect($less.hasClass("xc-disabled")).to.be.false;
 
             $input.val(6).trigger(fakeEvent.enterKeydown);
-            var err = xcHelper.replaceMsg(ErrWRepTStr.NumInRange, {
+            var err = xcHelper.replaceMsg(ErrWRepTStr.IntInRange, {
                 "lowerBound": 0,
                 "upperBound": 5
             });

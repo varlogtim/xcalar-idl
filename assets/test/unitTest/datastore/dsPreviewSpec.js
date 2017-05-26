@@ -534,8 +534,8 @@ describe("DSPreview Test", function() {
             DSPreview.__testOnly__.set(data);
             DSPreview.__testOnly__.getPreviewTable();
 
-            expect($highLightBtn.hasClass("xc-disabled")).to.be.false;
-            expect($rmHightLightBtn.hasClass("xc-disabled")).to.be.false;
+            expect($highLightBtn.hasClass("xc-disabled")).to.be.true;
+            expect($rmHightLightBtn.hasClass("xc-disabled")).to.be.true;
             // can highlight
             DSPreview.__testOnly__.applyHighlight(",");
             expect(DSPreview.__testOnly__.get().highlighter).to.equal(",");

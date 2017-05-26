@@ -468,11 +468,11 @@ function timeRelatedFunctionTest() {
         var str = Scheduler.__testOnly__.getParameterStr(paramArray);
         var expectedStr =
                      '<span class="currParams">name1</span>' +
-                     '<span>:</span>' +
+                     '<span>: </span>' +
                      '<span>value1</span>' +
                      '<span>, </span>' +
                      '<span class="currParams">name2</span>' +
-                     '<span>:</span>' +
+                     '<span>: </span>' +
                      '<span>value2</span>';
         assert.equal(str, expectedStr);
     });
