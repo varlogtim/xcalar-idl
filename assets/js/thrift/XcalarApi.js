@@ -708,8 +708,7 @@ xcalarStartNodes = runEntity.xcalarStartNodes = function(thriftHandle, numNodes)
         deferred.resolve(status);
     })
     .fail(function(error) {
-        console.log(JSON.stringify(error));
-        console.log("xcalarStartNodes() caught exception: "+error);
+        console.log("xcalarStartNodes() caught exception: "+JSON.stringify(error));
         deferred.reject(error);
     });
 
@@ -3962,6 +3961,43 @@ xcalarDemoFileDelete = runEntity.xcalarDemoFileDelete = function(thriftHandle, f
     })
     .fail(function(error) {
         console.log("xcalarDemoFileDelete() caught exception:", error);
+        deferred.reject(error);
+    });
+
+    return (deferred.promise());
+};
+
+xcalarLogLevelSetWorkItem = runEntity.xcalarLogLevelSetWorkItem = function(logLevel) {
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiInputT();
+    workItem.input.logLevelSetInput = new XcalarApiLogLevelSetInputT();
+
+    workItem.api = XcalarApisT.XcalarApiLogLevelSet;
+    workItem.input.logLevelSetInput.logLevel = logLevel;
+    return (workItem);
+};
+
+xcalarLogLevelSet = runEntity.xcalarLogLevelSet = function(thriftHandle, logLevel) {
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarLogLevelSet(logLevel = " + logLevel.toString() + ")");
+    }
+
+    var workItem = xcalarLogLevelSetWorkItem(logLevel);
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        var status = result.output.hdr.status;
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            deferred.reject(status);
+        }
+        deferred.resolve(status);
+    })
+    .fail(function(error) {
+        console.log("xcalarLogLevelSet() caught exception:", error);
         deferred.reject(error);
     });
 

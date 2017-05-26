@@ -582,7 +582,8 @@ StatusT = {
   'StatusAppInUse' : 573,
   'StatusInvalidStreamContext' : 574,
   'StatusInvalidStatsProtocol' : 575,
-  'StatusStatStreamPartialFailure' : 576
+  'StatusStatStreamPartialFailure' : 576,
+  'StatusLogLevelSetInvalid' : 577
 };
 StatusTStr = {0 : 'Success',
 1 : 'Operation not permitted',
@@ -1160,5 +1161,6 @@ StatusTStr = {0 : 'Success',
 573 : 'App currently in use',
 574 : 'Invalid stream context received',
 575 : 'Invalid number of bytes sent in payload',
-576 : 'Encountered partial failure in stats stream, cleaning up'
+576 : 'Encountered partial failure in stats stream, cleaning up',
+577 : 'Log level is too large'
 };

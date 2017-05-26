@@ -558,6 +558,15 @@ PromiseHelper = (function(PromiseHelper, $) {
         });
     }
 
+    function testLogLevelSetDebug(test) {
+        test.trivial(xcalarLogLevelSet(thriftHandle, 7));
+    }
+
+    function testLogLevelSetCrit(test) {
+        test.trivial(xcalarLogLevelSet(thriftHandle, 2));
+    }
+
+
     function testPreview(test) {
         var url = "nfs://" + qaTestDir + "/yelp/user";
 
@@ -1901,7 +1910,7 @@ PromiseHelper = (function(PromiseHelper, $) {
                             return wait();
                         }
 
-                        return (xcalarQueryDelete(thriftHandle, queryName));
+                        test.pass();
                     })
                     .then(function(status) {
                         test.pass();
@@ -3874,6 +3883,8 @@ PromiseHelper = (function(PromiseHelper, $) {
     addTestCase(testCancel, "test cancel", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testQuery, "Submit Query", defaultTimeout, TestCaseDisabled, "");
     addTestCase(testQueryState, "Request query state of indexing dataset (int)", defaultTimeout, TestCaseDisabled, "");
+    // XXX: this test case is buggy and we are already testing queryCancel in
+    // testCancel. Disable this for now
     addTestCase(testQueryCancel, "test cancel query", defaultTimeout, TestCaseDisabled, "");
     addTestCase(waitForDag, "waitForDag", defaultTimeout, TestCaseDisabled, "");
     addTestCase(testDag, "dag", defaultTimeout, TestCaseDisabled, "568");
@@ -3959,6 +3970,8 @@ PromiseHelper = (function(PromiseHelper, $) {
     addTestCase(testBulkDeleteConstants, "bulk delete constant node", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testBulkDeleteDataset, "bulk delete datasets", defaultTimeout, TestCaseEnabled, "2314");
     addTestCase(testShutdown, "shutdown", defaultTimeout, TestCaseEnabled, "98");
+    addTestCase(testLogLevelSetCrit, "loglevelset LOG_CRIT", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testLogLevelSetDebug, "loglevelset LOG_DEBUG", defaultTimeout, TestCaseEnabled, "");
 
     runTestSuite(testCases);
 
