@@ -284,7 +284,9 @@ window.FileBrowser = (function($, FileBrowser) {
             protocol = FileProtocol.nfs;
         }
 
-        protocol = changeProtocol(protocol);
+        var res = changeProtocol(protocol, path);
+        protocol = res[0];
+        path = res[1];
         path = getPathWithProtocol(protocol, path);
 
         var paths = parsePath(path);
@@ -569,7 +571,7 @@ window.FileBrowser = (function($, FileBrowser) {
         return paths;
     }
 
-    function changeProtocol(protocol) {
+    function changeProtocol(protocol, path) {
         // for any edage case, use default file path
         var isValidProtocol = false;
         for (var key in FileProtocol) {
@@ -585,10 +587,17 @@ window.FileBrowser = (function($, FileBrowser) {
             protocol = FileProtocol.nfs;
         }
 
+        if (protocol === FileProtocol.hdfs) {
+            // this assume the path follow the hdfs format (has check in dsForm)
+            var index = path.indexOf("/");
+            protocol += path.substring(0, index);
+            path = path.substring(index);
+        }
+
         $pathSection.find(".defaultPath").text(protocol);
         defaultPath = protocol;
 
-        return protocol;
+        return [protocol, path];
     }
 
     function getPathWithProtocol(protocol, path) {
