@@ -3125,6 +3125,96 @@ function XcalarListSchedules(scheduleKey) {
     return (deferred.promise());
 }
 
+function XcalarPauseSched(scheduleKey) {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return PromiseHelper.resolve(null);
+    }
+
+    var pauseInput = {
+        "scheduleKey": scheduleKey
+    };
+
+    var deferred = jQuery.Deferred();
+    XcalarAppExecute("SchedulePause", true, JSON.stringify(pauseInput))
+    .then(function(result) {
+        var innerParsed;
+        try {
+            // App results are formatted this way
+            var outerParsed = JSON.parse(result.outStr);
+            innerParsed = JSON.parse(outerParsed[0]);
+        } catch (err) {
+            deferred.reject("Failed to parse extension output.");
+        }
+        var defRes;
+        if (innerParsed === "0") {
+            // Success
+            defRes = true;
+        } else if (innerParsed === "-1") {
+            // Couldn't get lock
+            defRes = false;
+        } else if (innerParsed === "-2") {
+            // Lost lock in the middle of operation, after editing cron
+            // but before editing kv due to force unlock
+            // best effort made to undo in cron, during this undo period
+            // inconsistencies possible
+            defRes = false;
+        } else {
+            defRes = false;
+        }
+        deferred.resolve(defRes);
+    })
+    .fail(function(error1) {
+        console.log(error1)
+        deferred.reject(error1);
+    });
+    return (deferred.promise());
+}
+
+function XcalarResumeSched(scheduleKey) {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return PromiseHelper.resolve(null);
+    }
+
+    var resumeInput = {
+        "scheduleKey": scheduleKey
+    };
+
+    var deferred = jQuery.Deferred();
+    XcalarAppExecute("ScheduleResume", true, JSON.stringify(resumeInput))
+    .then(function(result) {
+        var innerParsed;
+        try {
+            // App results are formatted this way
+            var outerParsed = JSON.parse(result.outStr);
+            innerParsed = JSON.parse(outerParsed[0]);
+        } catch (err) {
+            deferred.reject("Failed to parse extension output.");
+        }
+        var defRes;
+        if (innerParsed === "0") {
+            // Success
+            defRes = true;
+        } else if (innerParsed === "-1") {
+            // Couldn't get lock
+            defRes = false;
+        } else if (innerParsed === "-2") {
+            // Lost lock in the middle of operation, after editing cron
+            // but before editing kv due to force unlock
+            // best effort made to undo in cron, during this undo period
+            // inconsistencies possible
+            defRes = false;
+        } else {
+            defRes = false;
+        }
+        deferred.resolve(defRes);
+    })
+    .fail(function(error1) {
+        console.log(error1)
+        deferred.reject(error1)
+    });
+    return (deferred.promise());
+}
+
 function XcalarKeyLookup(key, scope) {
     if (tHandle == null) {
         return PromiseHelper.resolve(null);

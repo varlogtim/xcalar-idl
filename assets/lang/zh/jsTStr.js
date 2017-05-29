@@ -343,6 +343,8 @@ SuccessTStr = {
 "RetrieveLogs": '记录检索！',
 "RmDF": '删除批量数据流成功！',
 "RmSched": "删除调度器成功！",
+"PauseSched": "暂停调度器成功！",
+"ResumeSched": "重启调度器成功！",
 "RmSession": '会话文件被删除！',
 "UpdateLicense": '许可证成功更新，新的许可证将在下次重新启动后生效。',
 "Upload": '上传成功！',

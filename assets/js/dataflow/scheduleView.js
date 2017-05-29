@@ -188,6 +188,38 @@ window.Scheduler = (function(Scheduler, $) {
             showScheduleResult();
         });
 
+        $("#modScheduleForm-pause").click(function() {
+            $(this).blur();
+            XcalarPauseSched(currentDataFlowName)
+            .then(function() {
+                return updateSchedule();
+            })
+            .then(function() {
+                xcHelper.showSuccess(SuccessTStr.PauseSched);
+                $("#scheduleDetail").addClass("pauseState");
+                showScheduleSettings();
+            })
+            .fail(function(error) {
+                console.log("error", error);
+            });
+        });
+
+        $("#modScheduleForm-resume").click(function() {
+            $(this).blur();
+            XcalarResumeSched(currentDataFlowName)
+            .then(function() {
+                return updateSchedule();
+            })
+            .then(function() {
+                xcHelper.showSuccess(SuccessTStr.ResumeSched);
+                $("#scheduleDetail").removeClass("pauseState");
+                showScheduleSettings();
+            })
+            .fail(function(error) {
+                console.log("error", error);
+            });
+        });
+
         // schedule Tabs
         $scheduleDetail.on("click", ".tabArea .tab", function() {
             var $tab = $(this);
@@ -272,22 +304,18 @@ window.Scheduler = (function(Scheduler, $) {
 
         xcHelper.disableSubmit($addSched);
         $scheduleDetail.addClass("locked");
-
         DF.removeScheduleFromDataflow(dataflowName)
         .then(function() {
             xcHelper.showSuccess(SuccessTStr.RmSched);
             $addSched.removeClass("xi-menu-scheduler")
-                     .addClass("xi-menu-add-scheduler");
-
+                .addClass("xi-menu-add-scheduler");
             if (dataflowName === currentDataFlowName) {
                 Scheduler.hide();
             }
-
             KVStore.commit();
             deferred.resolve();
         })
         .fail(function(error) {
-            xcHelper.showFail(FailTStr.RmSched);
             if (dataflowName === currentDataFlowName) {
                 $scheduleDetail.removeClass("locked");
             }
@@ -296,7 +324,26 @@ window.Scheduler = (function(Scheduler, $) {
         .always(function() {
             xcHelper.enableSubmit($addSched);
         });
+        return deferred.promise();
+    }
 
+    function updateSchedule() {
+        var deferred = jQuery.Deferred();
+        var schedule = DF.getSchedule(currentDataFlowName);
+        XcalarListSchedules(currentDataFlowName)
+        .then(function(data) {
+            if (data) {
+                scheduleObj = data[0].scheduleMain;
+                schedule.isPaused = scheduleObj["options"]["isPaused"];
+                schedule.startTime = scheduleObj["timingInfo"]["startTime"];
+                deferred.resolve();
+            } else {
+                deferred.reject();
+            }
+        })
+        .fail(function(error) {
+            deferred.reject(error);
+        });
         return deferred.promise();
     }
 
@@ -325,7 +372,11 @@ window.Scheduler = (function(Scheduler, $) {
 
         // Next run (update use schedule, not scheObj)
         getNextRunTime(schedule);
-        var startTime = getUTCStr(tmpSchedObj.startTime, false, true) || "N/A";
+        if (!tmpSchedObj.isPaused) {
+            var startTime = getUTCStr(tmpSchedObj.startTime, false, true) || "N/A";
+        } else {
+            startTime = "The schedule is Paused";
+        }
         $scheduleSettings.find(".nextRunInfo .text").text(startTime);
 
         // date picker input
@@ -352,6 +403,15 @@ window.Scheduler = (function(Scheduler, $) {
         // title
         var title = schedule ? SchedTStr.detail : SchedTStr.NewSched;
         $scheduleDetail.find(".cardHeader .title").text(title);
+
+        // button
+        if (!jQuery.isEmptyObject(tmpSchedObj)) {
+            if (tmpSchedObj.isPaused) {
+                $("#scheduleDetail").addClass("pauseState");
+            } else {
+                $("#scheduleDetail").removeClass("pauseState");
+            }
+        }
 
         if (schedule) {
             $scheduleDetail.addClass("withSchedule")
@@ -562,7 +622,8 @@ window.Scheduler = (function(Scheduler, $) {
                 "activeSession": false,
                 "newTableName": "",
                 "usePremadeCronString": false,
-                "premadeCronString": ""
+                "premadeCronString": "",
+                "isPaused": false
             };
         } else {
             // Advanced mode, is considered starting immediately
@@ -582,7 +643,8 @@ window.Scheduler = (function(Scheduler, $) {
                 "activeSession": false,
                 "newTableName": "",
                 "usePremadeCronString": true,
-                "premadeCronString": cronString
+                "premadeCronString": cronString,
+                "isPaused": false
             };
         }
 
@@ -687,8 +749,7 @@ window.Scheduler = (function(Scheduler, $) {
                 scheduleInfo.scheduleResults.forEach(function(res) {
                     var startTime = "Start: " +
                         getUTCStr(res.startTime, true);
-                    var endTime = "End: " +
-                        res.endTime ? "-" : getUTCStr(res.endTime, true);
+                    var endTime = (res.endTime ? ("End: " + getUTCStr(res.endTime, true)) : "-");
                     var runTimeStr = startTime + "<br>" + endTime;
                     var parameterStr = getParameterStr(res.parameters);
                     var statusStr = res.endTime ? StatusTStr[res.status]: "Running";

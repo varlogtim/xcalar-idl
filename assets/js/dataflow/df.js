@@ -3,10 +3,10 @@ window.DF = (function($, DF) {
 
     DF.restore = function(retMeta) {
         var deferred = jQuery.Deferred();
+        var numRetinas;
         XcalarListRetinas()
         .then(function(list) {
-            var promise;
-            var numRetinas = list.numRetinas;
+            numRetinas = list.numRetinas;
             for (var i = 0; i < list.numRetinas; i++) {
                 var retName = list.retinaDescs[i].retinaName;
                 if (retName.indexOf("#") > -1) {
@@ -16,7 +16,6 @@ window.DF = (function($, DF) {
                     numRetinas--;
                     continue;
                 }
-
                 if (retName in retMeta) {
                     dataflows[retName] = retMeta[retName];
                 } else {
@@ -24,7 +23,17 @@ window.DF = (function($, DF) {
                     dataflows[retName] = new Dataflow(retName);
                 }
             }
-
+            return XcalarListSchedules();
+        })
+        .then(function(list) {
+            for (var i = 0; i < list.length; i++) {
+                var retName = list[i].scheduleMain.retName;
+                allOptions = $.extend({}, list[i].scheduleMain.options,
+                             list[i].scheduleMain.substitutions,
+                             list[i].scheduleMain.timingInfo);
+                dataflows[retName].schedule = new SchedObj(allOptions);
+            }
+            var promise;
             DFCard.refreshDFList(true, true);
             if (numRetinas > 0) {
                 var firstDFName = $("#dfMenu").find(".groupName").eq(0).text();
@@ -32,7 +41,6 @@ window.DF = (function($, DF) {
             } else {
                 promise = PromiseHelper.resolve();
             }
-
             promise
             .then(deferred.resolve)
             .fail(deferred.reject);
@@ -65,7 +73,6 @@ window.DF = (function($, DF) {
         .then(function() {
             dataflows = {}; // Reset dataflow cache
             var retStructs = arguments;
-
             for (var i = 0; i < retStructs.length; i++) {
                 if (retStructs[i] == null) {
                     continue;
@@ -362,17 +369,19 @@ window.DF = (function($, DF) {
             "activeSession": allOptions.activeSession,
             "newTableName": allOptions.newTableName,
             "usePremadeCronString": allOptions.usePremadeCronString,
-            "premadeCronString": allOptions.premadeCronString
+            "premadeCronString": allOptions.premadeCronString,
+            "isPaused": allOptions.isPaused
         };
         return options;
     }
     function getTimingInfo(allOptions) {
         var timingInfo = {
             "startTime": allOptions.startTime,
-            "dateText": allOptions.dataText,
+            "dateText": allOptions.dateText,
             "timeText": allOptions.timeText,
             "repeat": allOptions.repeat,
-            "modified": allOptions.modified
+            "modified": allOptions.modified,
+            "created": allOptions.created
         };
         return timingInfo;
     }

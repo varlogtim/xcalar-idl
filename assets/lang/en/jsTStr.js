@@ -387,6 +387,8 @@ SuccessTStr = {
     "RetrieveLogs": "Logs Retrieved!",
     "RmDF": "Batched DF Successfully Removed!",
     "RmSched": "Schedule Successfully Deleted!",
+    "PauseSched": "Schedule Successfully Pause!",
+    "ResumeSched": "Schedule Successfully Resume!",
     "RmSession": "Session Files Removed!",
     "UpdateLicense": "License Successfully Updated. New license will take effect after next cluster restart.",
     "Upload": "Upload Successful!",
