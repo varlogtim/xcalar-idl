@@ -7,6 +7,25 @@ var userIdName = "test";
 var verbose = true;
 var superVerbose = true;
 
+setUserIdAndName = runEntity.setUserIdAndName = function(name, id, hashFunc) {
+    id = Number(id);
+    if (id !== getUserIdUnique(name)) {
+        return false;
+    }
+
+    userIdUnique = id;
+    userIdName = name;
+
+    return true;
+
+    function getUserIdUnique(name) {
+        var hash = hashFunc(name);
+        var len = 5;
+        var id = parseInt("0x" + hash.substring(0, len)) + 4000000;
+        return id;
+    }
+};
+
 ThriftHandle = function(args) {
     this.transport = null;
     this.protocol = null;
