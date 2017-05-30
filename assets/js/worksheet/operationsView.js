@@ -147,9 +147,11 @@ window.OperationsView = (function($, OperationsView) {
             }
         });
 
-        $operationsView.find('.filterMapFuncArea .clear').mousedown(function() {
+        $operationsView.find('.filterMapFuncArea .clear').mousedown(
+            function(event) {
             if ($('#mapFilter').val() !== "") {
-                $('#mapFilter').val("").trigger('input');
+                $('#mapFilter').val("").trigger("input").focus();
+                event.preventDefault(); // prevent input from blurring
             }
         });
 

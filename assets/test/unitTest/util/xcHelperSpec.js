@@ -1474,6 +1474,16 @@ describe("xcHelper Test", function() {
         });
     });
 
+    it("xcHelper.escapeDblQuoteForHtml should work", function() {
+        var res = xcHelper.escapeDblQuoteForHTML('te"st\'ing"');
+        expect(res).to.equal('te&quot;st\'ing&quot;');
+    });
+
+    it("xcHelper.escapeDblQuote should work", function() {
+        var res = xcHelper.escapeDblQuote('te"st\'ing"');
+        expect(res).to.equal('te\\"st\'ing\\"');
+    });
+
     it("xcHelper.escapeRegExp should work", function() {
         // case 1
         var res = xcHelper.escapeRegExp("]");

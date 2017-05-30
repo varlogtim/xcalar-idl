@@ -1960,6 +1960,11 @@ window.xcHelper = (function($, xcHelper) {
         return str.replace(/\"/g, "&quot;");
     };
 
+    xcHelper.escapeDblQuote = function(str) {
+        // used for $el.find(str) when str is '[data-val="val"ue"]'
+        return str.replace(/\"/g, "\\\"");
+    };
+
     xcHelper.hasInvalidCharInCol = function(str) {
         return /^ | $|[\^,\(\)\[\]{}'"\.\\]|:/.test(str);
     };
@@ -1999,8 +2004,8 @@ window.xcHelper = (function($, xcHelper) {
         // esacpe & to &amp;, so text &quot; will not become " in html
         // escape < & > so external html doesn't get injected
         str = str.replace(/\&/g, "&amp;")
-                      .replace(/\</g, "&lt;")
-                      .replace(/\>/g, "&gt;");
+                 .replace(/\</g, "&lt;")
+                 .replace(/\>/g, "&gt;");
         if (!ignoreTab) {
             str = str.replace(/\\t/g, "&emsp;");
         }

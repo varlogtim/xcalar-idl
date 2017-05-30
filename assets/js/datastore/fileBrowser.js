@@ -728,7 +728,7 @@ window.FileBrowser = (function($, FileBrowser) {
         }
 
         historyPath = curDir;
- 
+
         var path = null;
         var format = null;
 
@@ -965,6 +965,7 @@ window.FileBrowser = (function($, FileBrowser) {
 
         if (typeof grid === "string") {
             name = xcHelper.escapeRegExp(grid);
+            name = xcHelper.escapeDblQuote(name);
             if (isAll) {
                 str = '.grid-unit .label[data-name="' + name + '"]';
             } else {
@@ -972,6 +973,7 @@ window.FileBrowser = (function($, FileBrowser) {
             }
         } else {
             name = xcHelper.escapeRegExp(grid.name);
+            name = xcHelper.escapeDblQuote(name);
             var type = grid.type;
 
             if (type == null) {
@@ -1074,12 +1076,13 @@ window.FileBrowser = (function($, FileBrowser) {
             var size = isDirectory ? "" :
                         xcHelper.sizeTranslator(fileObj.attr.size);
             var date = xcHelper.timeStampTranslator(mtime) || "";
+            var escName = xcHelper.escapeDblQuoteForHTML(name);
 
             html +=
-                '<div title="' + name + '" class="' +
+                '<div title="' + escName + '" class="' +
                     gridClass + visibilityClass + ' grid-unit">' +
                     '<i class="gridIcon icon ' + iconClass + '"></i>' +
-                    '<div class="label fileName" data-name="' + name + '">' +
+                    '<div class="label fileName" data-name="' + escName + '">' +
                         name +
                     '</div>' +
                     '<div class="fileDate">' + date + '</div>' +
