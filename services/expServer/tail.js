@@ -336,11 +336,15 @@ function getPath(filePath, fileName) {
 
     function getFileName() {
         var deferred = jQuery.Deferred();
-        if (fileName === "node.*.out") {
+        if (fileName === "node.*.out" || fileName === "node.*.err") {
             getNodeId()
             .then(function(nodeID) {
                 console.log("NodeID: " + nodeID);
-                deferred.resolve("node." + nodeID + ".out");
+                if (fileName === "node.*.out") {
+                    deferred.resolve("node." + nodeID + ".out");
+                } else {
+                    deferred.resolve("node." + nodeID + ".err");
+                }
             })
             .fail(function(err) {
                 var retMsg = {
