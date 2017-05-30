@@ -251,7 +251,6 @@ require("jsdom").env("", function(err, window) {
             }
             var out = exec(scriptDir + '/01-* --license-file ' + fileLocation);
             out.stdout.on('data', function(data) {
-                console.log(data);
                 if (data.indexOf("SUCCESS") > -1) {
                     var retMsg = {"status": httpStatus.OK, "verified": true};
                     console.log("Success: Checking License");
@@ -269,7 +268,6 @@ require("jsdom").env("", function(err, window) {
     app.get('/xdp/license/verification', function(req, res) {
         console.log("Checking License");
         var credArray = req.query;
-        console.log(credArray);
         checkLicense(credArray)
         .always(function(message) {
             res.status(message.status).send(message);
@@ -279,7 +277,6 @@ require("jsdom").env("", function(err, window) {
     app.get("/xdp/installation/status", function(req, res) {
         console.log("Check Status");
         var credArray = req.query;
-        console.log(credArray);
         createStatusArray(credArray)
         .always(function(message) {
             res.status(message.status).send(message);
@@ -289,7 +286,6 @@ require("jsdom").env("", function(err, window) {
     app.post("/xdp/installation/start", function(req, res) {
         console.log("Executing Installer");
         var credArray = req.body;
-        console.log(credArray);
         installXcalar(credArray);
         // Immediately ack after starting
         res.send({"status": httpStatus.OK});
@@ -312,7 +308,6 @@ require("jsdom").env("", function(err, window) {
     app.post("/ldap/installation", function(req, res) {
         console.log("Installing Ldap");
         var credArray = req.body;
-        console.log(credArray);
         installLdap(credArray.domainName,
                             credArray.password,
                             credArray.companyName)
@@ -323,7 +318,6 @@ require("jsdom").env("", function(err, window) {
 
     app.put("/ldap/config", function(req, res) {
         console.log("Writing Ldap configurations");
-        console.log(req.body);
         writeLdapConfig(req.body)
         .always(function(message) {
             res.status(message.status).send(message);
