@@ -1444,6 +1444,13 @@
 }
 
 #scheduleDetail {
+    #modScheduleForm-pause {
+        display: none;
+    }
+    #modScheduleForm-resume {
+        display: none;
+    }
+
     &.withSchedule {
         #modScheduleForm-save, #modScheduleForm-cancel {
             display: none;
@@ -1456,21 +1463,20 @@
         #scheduleSettings {
             pointer-events: none;
         }
-        #modScheduleForm-pause {
-            display: block;
-        }
-        #modScheduleForm-resume {
-            display: none;
-        }
-        &.pauseState {
-            #modScheduleForm-pause {
-                display: none;
-            }
-            #modScheduleForm-resume {
-                display: block;
-            }
-        }
-
+        // #modScheduleForm-pause {
+        //     display: block;
+        // }
+        // #modScheduleForm-resume {
+        //     display: none;
+        // }
+        // &.pauseState {
+        //     #modScheduleForm-pause {
+        //         display: none;
+        //     }
+        //     #modScheduleForm-resume {
+        //         display: block;
+        //     }
+        // }
     }
     &.withoutSchedule {
         .tabArea .tab {
