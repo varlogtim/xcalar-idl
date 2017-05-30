@@ -563,6 +563,9 @@ window.xcSuggest = (function($, xcSuggest) {
                 isValid = true;
             } else if (text === "") {
                 continue;
+            } else if (i === len - 1 && text.startsWith("{")) {
+                // last line may only have partial data, skip it
+                continue;
             } else {
                 isValid = false;
                 break;
