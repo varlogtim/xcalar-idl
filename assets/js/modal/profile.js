@@ -2415,150 +2415,71 @@ window.Profile = (function($, Profile, d3) {
     }
 
     function createFilterSelection(startX, startY) {
-        var bound = $("#profile-chart").get(0).getBoundingClientRect();
-
-        function FilterSelection(x, y) {
-            var self = this;
-            // move it 1px so that the filterSelection
-            // not stop the click event to toggle percertageLabel
-            // to be trigger
-            self.x = x + 1;
-            self.y = y;
-
-            var left = self.x - bound.left;
-            var top = self.y - bound.top;
-
-            var html = '<div id="profile-filterSelection" style="' +
-                        'pointer-events: none; left:' + left +
-                        'px; top:' + top + 'px; width:0; height:0;"></div>';
-
-            $("#profile-filterSelection").remove();
-            $("#profile-filterOption").fadeOut(200);
-            $("#profile-chart").append(html);
-            $modal.addClass("drawing")
+        $("#profile-filterOption").fadeOut(200);
+        $modal.addClass("drawing")
                 .addClass("selecting");
-            addSelectRectEvent(self);
 
-            return self;
-        }
+        return new RectSelction(startX, startY, {
+            "id": "profile-filterSelection",
+            "$container": $("#profile-chart"),
+            "onStart": function() { filterDragging = true; },
+            "onDraw": drawFilterRect,
+            "onEnd": endDrawFilterRect
+        });
+    }
 
-        function addSelectRectEvent(selectRect) {
-            $(document).on("mousemove.checkMovement", function(event) {
-                // check for mousemovement before actually calling draw
-                selectRect.checkMovement(event.pageX, event.pageY);
-            });
+    function drawFilterRect(bound, top, right, bottom, left) {
+        var chart = getChart();
+        chart.selectAll(".barArea").each(function() {
+            var barArea = this;
+            var barBound = barArea.getBoundingClientRect();
+            var barTop = barBound.top - bound.top;
+            var barLeft = barBound.left - bound.left;
+            var barRight = barBound.right - bound.left;
+            var bar = d3.select(this);
+            bar.classed("highlight", false);
 
-            $(document).on("mouseup.selectRect", function() {
-                selectRect.end();
-                $(document).off(".selectRect");
-                $(document).off("mousemove.checkMovement");
-                $modal.removeClass("selecting");
-            });
-        }
-
-        FilterSelection.prototype = {
-            "checkMovement": function (x, y) {
-                var self = this;
-                if (Math.abs(x - self.x) > 0 || Math.abs(y - self.y) > 0) {
-                    filterDragging = true;
-                    $(document).off('mousemove.checkMovement');
-                    $(document).on("mousemove.selectRect", function(event) {
-                        self.draw(event.pageX, event.pageY);
-                    });
-                }
-            },
-            "draw": function(x, y) {
-                // x should be within bound.left and bound.right
-                x = Math.max(bound.left, Math.min(bound.right, x));
-                // y should be within boud.top and bound.bottom
-                y = Math.max(bound.top, Math.min(bound.bottom, y));
-
-                // update rect's position
-                var left;
-                var top;
-                var w = x - this.x;
-                var h = y - this.y;
-                var $rect = $("#profile-filterSelection");
-
-                if (w >= 0) {
-                    left = this.x - bound.left;
-                } else {
-                    left = x - bound.left;
-                    w = -w;
-                }
-
-                if (h >= 0) {
-                    top = this.y - bound.top;
-                } else {
-                    top = y - bound.top;
-                    h = -h;
-                }
-
-                var bottom = top + h;
-                var right = left + w;
-
-                $rect.css("left", left)
-                    .css("top", top)
-                    .width(w)
-                    .height(h);
-
-                var chart = getChart();
-                chart.selectAll(".barArea").each(function() {
-                    var barArea = this;
-                    var barBound = barArea.getBoundingClientRect();
-                    var barTop = barBound.top - bound.top;
-                    var barLeft = barBound.left - bound.left;
-                    var barRight = barBound.right - bound.left;
-                    var bar = d3.select(this);
-                    bar.classed("highlight", false);
-
-                    if (bottom < barTop || right < barLeft || left > barRight) {
-                        bar.classed("selecting", false);
-                    } else {
-                        bar.classed("selecting", true);
-                    }
-                });
-            },
-
-            "end": function() {
-                $("#profile-filterSelection").remove();
-                $modal.removeClass("drawing");
-
-                var chart = getChart();
-                var barToSelect = chart.selectAll(".barArea.selecting");
-                var barAreas = chart.selectAll(".barArea");
-                if (barToSelect.size() === 0) {
-                    barAreas.each(function() {
-                        d3.select(this)
-                        .classed("unselected", false)
-                        .classed("selected", false);
-                    });
-                } else {
-                    barAreas.each(function() {
-                        var barArea = d3.select(this);
-                        if (barArea.classed("selecting")) {
-                            barArea
-                            .classed("selecting", false)
-                            .classed("unselected", false)
-                            .classed("selected", true);
-                        } else if (!barArea.classed("selected")){
-                            barArea
-                            .classed("unselected", true)
-                            .classed("selected", false);
-                        }
-                    });
-                }
-
-                // allow click event to occur before setting filterdrag to false
-                setTimeout(function() {
-                    filterDragging = false;
-                }, 10);
-
-                toggleFilterOption();
+            if (bottom < barTop || right < barLeft || left > barRight) {
+                bar.classed("selecting", false);
+            } else {
+                bar.classed("selecting", true);
             }
-        };
+        });
+    }
 
-        return new FilterSelection(startX, startY);
+    function endDrawFilterRect() {
+        $modal.removeClass("drawing").removeClass("selecting");
+        var chart = getChart();
+        var barToSelect = chart.selectAll(".barArea.selecting");
+        var barAreas = chart.selectAll(".barArea");
+        if (barToSelect.size() === 0) {
+            barAreas.each(function() {
+                d3.select(this)
+                .classed("unselected", false)
+                .classed("selected", false);
+            });
+        } else {
+            barAreas.each(function() {
+                var barArea = d3.select(this);
+                if (barArea.classed("selecting")) {
+                    barArea
+                    .classed("selecting", false)
+                    .classed("unselected", false)
+                    .classed("selected", true);
+                } else if (!barArea.classed("selected")){
+                    barArea
+                    .classed("unselected", true)
+                    .classed("selected", false);
+                }
+            });
+        }
+
+        // allow click event to occur before setting filterdrag to false
+        setTimeout(function() {
+            filterDragging = false;
+        }, 10);
+
+        toggleFilterOption();
     }
 
     function toggleFilterOption(isHidden) {

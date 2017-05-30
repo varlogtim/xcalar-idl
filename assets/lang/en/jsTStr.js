@@ -738,11 +738,7 @@ DSTStr = {
     'NoNewFolder': 'Cannot Create Folder',
     'NoNewFolderMsg': 'This folder is uneditable, cannot create a new folder here',
     'NotFindDS': 'Cannot find the dataset',
-    'DelFolder': 'Delete Folder',
-    'DelFolderInstr': 'Please remove all the datasets in the folder first.',
-    'DelFolderMsg': 'Unable to delete non-empty folders. Please ensure\r\n' +
-                    ' that all datasets have been removed from folders prior' +
-                    ' to deletion.',
+    'DelMultipleDS': 'Are you sure you want to delete selected datasets/folders?',
     'NoParse': 'Cannot parse the dataset.',
     'NoRecords': 'No records in dataset.',
     'NoColumns': 'No Columns Selected',
@@ -775,7 +771,10 @@ DSTStr = {
 
     // With replace
     'DelDSConfirm': 'Are you sure you want to delete dataset <ds>?',
-    'DelUneditable': 'This <ds> is uneditable, cannot delete',
+    'DelUneditable': '\"<ds>\" is uneditable, cannot delete',
+    'FailDelFolder': 'Delete folder \"<folder>\" failed: Non-empty folder',
+    'FailDelDS': 'Delete dataset \"<ds>\" failed: <error>',
+    'FailCancelDS': 'Cancel importing dataset \"<ds>\" failed: <error>',
     'CancelPointMsg': 'Are you sure you want to cancel pointing dataset <ds> ?',
     'LoadErr': 'Error: <error>',
     'LoadErrFile': 'Error File: <file>',

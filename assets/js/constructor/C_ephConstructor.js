@@ -3299,3 +3299,130 @@ ProgressCircle.prototype = {
         this.status = "done";
     }
 };
+
+/*
+ * options:
+    id: id of the rect element
+    container: container
+ */
+function RectSelction(x, y, options) {
+    options = options || {};
+    var self = this;
+    // move it 1px so that the filterSelection
+    // not stop the click event to toggle percertageLabel
+    // to be trigger
+    self.x = x + 1;
+    self.y = y;
+    self.id = options.id;
+    self.$container = options.$container;
+    self.bound = self.$container.get(0).getBoundingClientRect();
+    self.onStart = options.onStart;
+    self.onDraw = options.onDraw;
+    self.onEnd = options.onEnd;
+
+    self.__init();
+
+    return self;
+}
+
+RectSelction.prototype = {
+    __init: function() {
+        var self = this;
+        var bound = self.bound;
+        var left = self.x - bound.left;
+        var top = self.y - bound.top;
+
+        var html = '<div id="' + self.id + '" class="rectSelection" style="' +
+                    'pointer-events: none; left:' + left +
+                    'px; top:' + top + 'px; width:0; height:0;"></div>';
+        self.__getRect().remove();
+        self.$container.append(html);
+        self.__addSelectRectEvent();
+    },
+
+    __addSelectRectEvent: function() {
+        var self = this;
+        var id = self.id;
+        $(document).on("mousemove.checkMovement", function(event) {
+            // check for mousemovement before actually calling draw
+            self.checkMovement(event.pageX, event.pageY);
+        });
+
+        $(document).on("mouseup.selectRect", function() {
+            self.end();
+            $(document).off(".selectRect");
+            $(document).off("mousemove.checkMovement");
+            if (typeof self.onMouseup === "function") {
+                self.onMouseup();
+            }
+        });
+    },
+
+    __getRect: function() {
+        return $("#" + this.id);
+    },
+
+    checkMovement: function (x, y) {
+        var self = this;
+        if (Math.abs(x - self.x) > 0 || Math.abs(y - self.y) > 0) {
+            if (typeof self.onStart === "function") {
+                self.onStart();
+            }
+
+            $(document).off('mousemove.checkMovement');
+            $(document).on("mousemove.selectRect", function(event) {
+                self.draw(event.pageX, event.pageY);
+            });
+        }
+    },
+
+    draw: function(x, y) {
+        var self = this;
+        var bound = self.bound;
+        // x should be within bound.left and bound.right
+        x = Math.max(bound.left, Math.min(bound.right, x));
+        // y should be within boud.top and bound.bottom
+        y = Math.max(bound.top, Math.min(bound.bottom, y));
+
+        // update rect's position
+        var left;
+        var top;
+        var w = x - self.x;
+        var h = y - self.y;
+        var $rect = self.__getRect();
+
+        if (w >= 0) {
+            left = self.x - bound.left;
+        } else {
+            left = x - bound.left;
+            w = -w;
+        }
+
+        if (h >= 0) {
+            top = self.y - bound.top;
+        } else {
+            top = y - bound.top;
+            h = -h;
+        }
+
+        var bottom = top + h;
+        var right = left + w;
+
+        $rect.css("left", left)
+            .css("top", top)
+            .width(w)
+            .height(h);
+
+        if (typeof self.onDraw === "function") {
+            self.onDraw(bound, top, right, bottom, left);
+        }
+    },
+
+    end: function() {
+        var self = this;
+        self.__getRect().remove();
+        if (typeof self.onEnd === "function") {
+            self.onEnd();
+        }
+    }
+};

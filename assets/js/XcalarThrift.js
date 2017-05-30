@@ -1074,6 +1074,9 @@ function XcalarDestroyDataset(dsName, txId) {
                 // this error is allowed
                 innerDeferred.resolve();
             } else {
+                if (typeof error2 !== "number") {
+                    error2 = null;
+                }
                 innerDeferred.reject(error1, error2);
             }
         });

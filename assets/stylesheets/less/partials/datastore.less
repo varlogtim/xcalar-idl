@@ -2547,6 +2547,12 @@ table.datasetTable {
                 }
             }
 
+            &.drawing {
+                .grid-unit {
+                    pointer-events: none;
+                }
+            }
+
             .dragWrap {
                 display: none;
             }
@@ -2580,8 +2586,11 @@ table.datasetTable {
                     }
                 }
 
-                &.active, &.entering {
-                    background-color: @color-bg-light-navy;
+                &.active {
+                    outline: 1px solid @color-white;
+                    // should have highter z-index to show outline
+                    // but should lower than menu
+                    z-index: @z-index-gridViewMenu - 1;
                 }
 
                 &.uneditable {
@@ -2590,11 +2599,12 @@ table.datasetTable {
                     }
                 }
 
-                &.selected {
-                    outline: 1px solid @color-white;
-                    // should have highter z-index to show outline
-                    // but should lower than menu
-                    z-index: @z-index-gridViewMenu - 1;
+                &.selected, &.selecting, &.entering {
+                    background-color: @color-bg-light-navy;
+                }
+
+                &.selecting {
+                    opacity: 0.8;
                 }
 
                 &.deleting {
@@ -2871,7 +2881,11 @@ table.datasetTable {
             display: block;
         }
     }
-
+    &.multiOpts {
+        .multiOpt {
+            display: block;
+        }
+    }
     .disabled {
         opacity: @opacity-disabled;
         pointer-events: none;

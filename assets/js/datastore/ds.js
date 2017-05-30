@@ -303,64 +303,42 @@ window.DS = (function ($, DS) {
     };
 
     // Remove dataset/folder
-    DS.remove = function($grid) {
-        xcAssert(($grid != null && $grid.length !== 0));
+    DS.remove = function($grids) {
+        xcAssert($grids != null && $grids.length !== 0);
 
-        var dsId = $grid.data("dsid");
-        var dsObj = DS.getDSObj(dsId);
-        var dsName = dsObj.getName();
-        var msg;
-        var isFolder = dsObj.beFolder();
-
-        if (!dsObj.isEditable() && isFolder) {
-            msg = xcHelper.replaceMsg(DSTStr.DelUneditable, {
-                "ds": "folder"
+        alertDSRemove($grids)
+        .then(function() {
+            var dsIds = [];
+            $grids.each(function() {
+                dsIds.push($(this).data("dsid"));
             });
-            // add alert
-            Alert.show({
-                "title": AlertTStr.NoDel,
-                "msg": msg,
-                "isAlert": true,
-                "onCancel": focsueOnTracker
-            });
-
-            return;
-        } else if (!isFolder) {
-            var txId = $grid.data("txid");
-            var title;
-            var callback;
-            if (txId != null) {
-                // when cancel ds
-                title = DSTStr.CancalPoint;
-                msg = xcHelper.replaceMsg(DSTStr.CancelPointMsg, {"ds": dsName});
-                callback = function() {
-                    DS.cancel($grid);
-                };
-            } else {
-                // when remove ds
-                title = DSTStr.DelDS;
-                msg = xcHelper.replaceMsg(DSTStr.DelDSConfirm, {"ds": dsName});
-                callback = function() {
-                    delDSHelper($grid, dsObj);
-                    focsueOnTracker();
-                };
-            }
-
-            // add alert
-            Alert.show({
-                "title": title,
-                "msg": msg,
-                "onConfirm": callback
-            });
-        } else if (removeFolderRecursive(dsId) === true) {
-            UserSettings.logDSChange();
-        }
+            removeDSHandler(dsIds);
+            cleanDSSelect();
+        })
+        .fail(function() {
+            focsueOnTracker();
+        });
     };
 
     DS.cancel = function($grid) {
         xcAssert(($grid != null && $grid.length !== 0));
-        cancelDSHelper($grid.data("txid"), $grid);
-        focsueOnTracker();
+        var deferred = jQuery.Deferred();
+
+        if ($grid.hasClass("active")) {
+            focusOnForm();
+        }
+        $grid.removeClass("active").addClass("inactive deleting");
+        var txId = $grid.data("txid");
+        // if cancel success, it will trigger fail in DS.point, so it's fine
+        QueryManager.cancelQuery(txId)
+        .then(deferred.resolve)
+        .fail(function(error) {
+            console.error(error);
+            // if cancel fails, transaction fail handler will delete the ds
+            deferred.reject(error);
+        });
+
+        return deferred.promise();
     };
 
     // Change dir to parent folder
@@ -584,6 +562,14 @@ window.DS = (function ($, DS) {
             deferred.resolve(dsObj);
         })
         .fail(function(error, loadError) {
+            if (typeof error === "object" &&
+                error.status === StatusT.StatusCanceled)
+            {
+                removeDS(dsObj.getId());
+                if ($grid.hasClass("active")) {
+                    focusOnForm();
+                }
+            }
             // show loadError if has, otherwise show error message
             var displayError = loadError || error;
             handlePointError(displayError);
@@ -607,13 +593,7 @@ window.DS = (function ($, DS) {
 
         function handlePointError(error) {
             var dsId = dsObj.getId();
-            if (error === StatusTStr[StatusT.StatusCanceled] ||
-                error.status === StatusT.StatusCanceled) {
-                removeDS(dsId);
-                if ($grid.hasClass("active")) {
-                    focusOnForm();
-                }
-            } else if ($grid.hasClass("active")) {
+            if ($grid.hasClass("active")) {
                 dsObj.setError(error);
                 cacheErrorDS(dsId, dsObj);
                 DSTable.showError(dsId, error);
@@ -622,20 +602,6 @@ window.DS = (function ($, DS) {
         }
     }
 
-    function cancelDSHelper(txId, $grid) {
-        if ($grid.hasClass('active')) {
-            focusOnForm();
-        }
-        $grid.removeClass("active").addClass("inactive deleting");
-        // if cancel success, it will trigger fail in DS.point, so it's fine
-        QueryManager.cancelQuery(txId)
-        .fail(function(error) {
-            console.error(error);
-            // if cancel fails, transaction fail handler will delete the ds
-        });
-    }
-
-    // Helper function for DS.remove()
     function delDSHelper($grid, dsObj, options) {
         options = options || {};
         var forceRemove = options.forceRemove || false;
@@ -693,7 +659,7 @@ window.DS = (function ($, DS) {
             $grid.removeClass("inactive")
                  .removeClass("deleting");
 
-            var noAlert = false;
+            var noAlert = options.noAlert || false;
             if (forceRemove) {
                 removeDS(dsId);
             } else if (failToShow) {
@@ -714,6 +680,53 @@ window.DS = (function ($, DS) {
 
     function cacheErrorDS(dsId, dsObj) {
         errorDSSet[dsId] = dsObj;
+    }
+
+    function alertDSRemove($grids) {
+        var deferred = jQuery.Deferred();
+        var title;
+        var msg;
+
+        if ($grids.length > 1) {
+            // delete multiple ds/folder
+            title = DSTStr.DelDS;
+            msg = DSTStr.DelMultipleDS;
+        } else {
+            var $grid = $grids.eq(0);
+            var dsId = $grid.data("dsid");
+            var dsObj = DS.getDSObj(dsId);
+
+            if (dsObj.beFolder()) {
+                // skip folder case
+                return PromiseHelper.resolve();
+            }
+
+            var txId = $grid.data("txid");
+            var dsName = dsObj.getName();
+
+            if (txId != null) {
+                // cancel case
+                title = DSTStr.CancalPoint;
+                msg = xcHelper.replaceMsg(DSTStr.CancelPointMsg, {
+                    "ds": dsName
+                });
+            } else {
+                // when remove ds
+                title = DSTStr.DelDS;
+                msg = xcHelper.replaceMsg(DSTStr.DelDSConfirm, {
+                    "ds": dsName
+                });
+            }
+        }
+
+        Alert.show({
+            "title": title,
+            "msg": msg,
+            "onConfirm": deferred.resolve,
+            "onCancel": deferred.reject
+        });
+
+        return deferred.promise();
     }
 
     function destroyDataset(dsName, txId) {
@@ -737,19 +750,90 @@ window.DS = (function ($, DS) {
         return deferred.promise();
     }
 
-    function removeFolderRecursive(dsId) {
-        var dsObj = DS.getDSObj(dsId);
+    function removeDSHandler(dsIds) {
+        var deferred = jQuery.Deferred();
+        var failures = [];
+        var promises = [];
 
-        if (dsObj.beFolderWithDS()) {
-            // add alert
-            Alert.show({
-                "title": DSTStr.DelFolder,
-                "instr": DSTStr.DelFolderInstr,
-                "msg": DSTStr.DelFolderMsg,
-                "isAlert": true,
-                "onCancel": focsueOnTracker
+        dsIds.forEach(function(dsId) {
+            promises.push(removeOneSHelper(dsId, failures));
+        });
+
+        PromiseHelper.when.apply(this, promises)
+        .then(function() {
+            if (failures.length) {
+                Alert.show({
+                    "title": AlertTStr.NoDel,
+                    "msg": failures.join("\n"),
+                    "isAlert": true,
+                    "onCancel": focsueOnTracker
+                });
+            } else {
+                focsueOnTracker();
+            }
+
+            deferred.resolve();
+        })
+        .fail(deferred.reject); // should not have any reject case
+
+        return deferred.promise();
+    }
+
+    function removeOneSHelper(dsId, failures) {
+        var dsObj = DS.getDSObj(dsId);
+        var dsName = dsObj.getName();
+        var err;
+
+        if (!dsObj.isEditable()) {
+            // delete uneditable folder/ds
+            err = xcHelper.replaceMsg(DSTStr.DelUneditable, {
+                "ds": dsName
+            });
+            failures.push(err);
+
+            return PromiseHelper.resolve();
+        } else if (dsObj.beFolder()) {
+            // delete folder
+            if (!removeFolderRecursive(dsId)) {
+                err = xcHelper.replaceMsg(DSTStr.FailDelFolder, {
+                    "folder": dsName
+                });
+                failures.push(err);
+            }
+
+            return PromiseHelper.resolve();
+        } else {
+            var deferred = jQuery.Deferred();
+            var $grid = DS.getGrid(dsId);
+            var isCanel = ($grid.data("txid") != null);
+            var def = isCanel
+                      ? DS.cancel($grid)
+                      : delDSHelper($grid, dsObj, {"noAlert": true});
+            def
+            .then(function() {
+                deferred.resolve();
+            })
+            .fail(function(error) {
+                if (typeof error === "object" && error.error) {
+                    error = error.error;
+                }
+                var msg = isCanel ? DSTStr.FailCancelDS : DSTStr.FailDelDS;
+                error = xcHelper.replaceMsg(msg, {
+                    "ds": dsName,
+                    "error": error
+                });
+                failures.push(error);
+                // still resolve it
+                deferred.resolve();
             });
 
+            return deferred.promise();
+        }
+    }
+
+    function removeFolderRecursive(dsId) {
+        var dsObj = DS.getDSObj(dsId);
+        if (dsObj.beFolderWithDS()) {
             return false;
         }
 
@@ -761,7 +845,7 @@ window.DS = (function ($, DS) {
         }
 
         removeDS(dsId);
-
+        UserSettings.logDSChange();
         return true;
     }
 
@@ -1213,37 +1297,46 @@ window.DS = (function ($, DS) {
             var $target = $(event.target);
             var $grid = $target.closest(".grid-unit");
             var classes = "";
-            cleanDSSelect();
-            if ($grid.length) {
-                // focusDSHelper($grid);
-                $grid.addClass("selected");
-                var dsId = $grid.data("dsid");
-                var dsObj = DS.getDSObj(dsId);
-                if (!dsObj.isEditable()) {
-                    classes += " uneditable";
-                } else if ($grid.hasClass("deleting")) {
-                    // if it's deleting, also make it uneditable
-                    classes += " uneditable";
-                }
 
-                $gridMenu.data("dsid", dsId);
-
-                if (dsObj.beFolder()) {
-                    classes += " folderOpts";
-                } else {
-                    classes += " dsOpts";
-                }
-
-                if ($grid.hasClass("unlistable")) {
-                    classes += " unlistable";
-
-                    if ($grid.hasClass("noAction")) {
-                        classes += " noAction";
-                    }
-                }
-            } else {
-                classes += " bgOpts";
+            if ($grid.length &&
+                $gridView.find(".grid-unit.selected").length > 1)
+            {
+                // multi selection
                 $gridMenu.removeData("dsid");
+                classes += " multiOpts";
+            } else {
+                cleanDSSelect();
+
+                if ($grid.length) {
+                    $grid.addClass("selected");
+                    var dsId = $grid.data("dsid");
+                    var dsObj = DS.getDSObj(dsId);
+                    if (!dsObj.isEditable()) {
+                        classes += " uneditable";
+                    } else if ($grid.hasClass("deleting")) {
+                        // if it's deleting, also make it uneditable
+                        classes += " uneditable";
+                    }
+
+                    $gridMenu.data("dsid", dsId);
+
+                    if (dsObj.beFolder()) {
+                        classes += " folderOpts";
+                    } else {
+                        classes += " dsOpts";
+                    }
+
+                    if ($grid.hasClass("unlistable")) {
+                        classes += " unlistable";
+
+                        if ($grid.hasClass("noAction")) {
+                            classes += " noAction";
+                        }
+                    }
+                } else {
+                    classes += " bgOpts";
+                    $gridMenu.removeData("dsid");
+                }
             }
 
             xcHelper.dropdownOpen($target, $gridMenu, {
@@ -1253,6 +1346,72 @@ window.DS = (function ($, DS) {
             });
             return false;
         };
+
+        $("#dsListSection .gridViewWrapper").on("mousedown", function(event) {
+            if (event.which !== 1) {
+                return;
+            }
+            var $target = $(event.target);
+            if (!$target.closest(".uneditable").length &&
+                ($target.closest(".gridIcon").length ||
+                $target.closest(".label").length))
+            {
+                // this part is for drag and drop
+                return;
+            }
+
+            createRectSelection(event.pageX, event.pageY);
+        });
+    }
+
+    function createRectSelection(startX, startY) {
+        $gridMenu.hide();
+        return new RectSelction(startX, startY, {
+            "id": "gridView-rectSelection",
+            "$container": $("#dsListSection .gridViewWrapper"),
+            "onStart": function() { $gridView.addClass("drawing"); },
+            "onDraw": drawRect,
+            "onEnd": endDrawRect
+        });
+    }
+
+    function drawRect(bound, rectTop, rectRight, rectBottom, rectLeft) {
+        $gridView.find(".grid-unit:visible").each(function() {
+            var grid = this;
+            var $grid = $(grid);
+            if ($grid.hasClass("uneditable")) {
+                // skip uneditable grid
+                return;
+            }
+
+            var gridBound = grid.getBoundingClientRect();
+            var gridTop = gridBound.top - bound.top;
+            var gridLeft = gridBound.left - bound.left;
+            var gridRight = gridBound.right - bound.left;
+            var gridBottom = gridBound.bottom - bound.top;
+
+            if (gridTop > rectBottom || gridLeft > rectRight ||
+                gridRight < rectLeft || gridBottom < rectTop)
+            {
+                $grid.removeClass("selecting");
+            } else {
+                $grid.addClass("selecting");
+            }
+        });
+    }
+
+    function endDrawRect() {
+        $gridView.removeClass("drawing");
+        var $grids = $gridView.find(".grid-unit.selecting");
+        if ($grids.length === 0) {
+            $gridView.find(".grid-unit.selected").removeClass("selected");
+        } else {
+            $grids.each(function() {
+                var $grid = $(this);
+                $grid.removeClass("selecting")
+                     .addClass("selected");
+            });
+        }
     }
 
     function setupMenuActions() {
@@ -1262,7 +1421,6 @@ window.DS = (function ($, DS) {
                 return;
             }
             DS.newFolder();
-            cleanDSSelect();
         });
 
         $gridMenu.on("mouseup", ".back", function(event) {
@@ -1272,7 +1430,6 @@ window.DS = (function ($, DS) {
             if (!$(this).hasClass("disabled")) {
                 DS.upDir();
             }
-            cleanDSSelect();
         });
 
         $gridMenu.on("mouseup", ".refresh", function(event) {
@@ -1280,7 +1437,6 @@ window.DS = (function ($, DS) {
                 return;
             }
             refreshHelper();
-            cleanDSSelect();
         });
 
         // folder/ds operation
@@ -1289,7 +1445,6 @@ window.DS = (function ($, DS) {
                 return;
             }
             goToDirHelper($gridMenu.data("dsid"));
-            cleanDSSelect();
         });
 
         $gridMenu.on("mouseup", ".moveUp", function(event) {
@@ -1298,7 +1453,6 @@ window.DS = (function ($, DS) {
             }
             var $grid = DS.getGrid($gridMenu.data("dsid"));
             DS.dropToParent($grid);
-            cleanDSSelect();
         });
 
         $gridMenu.on("mouseup", ".rename", function(event) {
@@ -1324,7 +1478,13 @@ window.DS = (function ($, DS) {
             }
             var $grid = DS.getGrid($gridMenu.data("dsid"));
             DS.remove($grid);
-            cleanDSSelect();
+        });
+
+        $gridMenu.on("mouseup", ".multiDelete", function(event) {
+            if (event.which !== 1) {
+                return;
+            }
+            DS.remove($gridView.find(".grid-unit.selected"));
         });
     }
 

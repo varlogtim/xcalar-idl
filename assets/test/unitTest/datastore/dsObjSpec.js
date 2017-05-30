@@ -837,6 +837,7 @@ describe("DSObj Test", function() {
             var test = false;
             DS.cancel = function() {
                 test = true;
+                return PromiseHelper.resolve();
             };
             $ds.data("txid", "test");
             DS.remove($ds);

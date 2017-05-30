@@ -618,9 +618,6 @@ DSTStr = {
 'NoNewFolder': '无法创建文件夹',
 'NoNewFolderMsg': '这个文件夹是不可编辑的，不能在这里创建一个新的文件夹',
 'NotFindDS': '找不到数据集',
-'DelFolder': '删除文件夹',
-'DelFolderInstr': '请先删除文件夹中的所有数据集。',
-'DelFolderMsg': '无法删除非空文件夹。请确保\ r \ n所有数据集在删除之前已从文件夹中删除。',
 'NoParse': '无法解析数据集。',
 'NoRecords': '数据集中没有记录。',
 'NoColumns': '未选择列',
@@ -650,7 +647,7 @@ DSTStr = {
 'UploadLimitMsg': '一次不能上传超过2个文件。',
 'Unlistable': '数据集被标记为删除',
 'DelDSConfirm': '您确定要删除数据集<ds>吗？',
-'DelUneditable': '这个<ds>是不可编辑的，不能删除',
+'DelUneditable': '\"<ds>\"不可修改，无法删除',
 'CancelPointMsg': '您确定要取消指向数据集<ds>吗？',
 'LoadErr': '错误：<error>',
 'LoadErrFile': '错误文件：<file>',
@@ -661,7 +658,11 @@ DSTStr = {
 'PointErr': '无法导入数据集',
 'OffsetErr': 'offset大于数据集大小',
 'DelUploadMsg': '您确定要删除<filename>吗？',
-'NoSingleFilePattern': '不支持单个文件'
+'NoSingleFilePattern': '不支持单个文件',
+'DelMultipleDS': '您确定要删除选中的数据集、文件夹吗?',
+'FailDelFolder': '删除文件夹\"<folder>\"失败: 非空文件夹',
+'FailDelDS': '删除数据集\"<ds>\"失败: <error>',
+'FailCancelDS': '取消导入数据集\"<ds>\"失败: <error>'
 };
 DSFormTStr = {
 'Pattern': '模式',
@@ -672,9 +673,8 @@ DSFormTStr = {
 'NoData': '没有数据',
 'NoFile': '找不到文件，请返回选择一个有效的文件/文件夹。',
 'CreateWarn': '太多的列要创建',
-'CreateWarnMsg': '创建一个数据集太多列的表可能很慢，您确定要继续吗？',
-'WSColsMsg': 'Adding too many columns to the current worksheet may be slow. ' +
-                'Would you like to create a new worksheet for this table?',
+'CreateWarnMsg': '创建一个含有很多列的表可能会影响系统性能，您确定要继续吗？',
+'WSColsMsg': '添加含有很多列的表至当前工作簿可能会影响系统性能, 您想创建一个新的工作表吗？',
 'NoQuoteWarn': '没有引用字符',
 'NoQuoteWarnMsg': '您没有为数据集选择引用字符。您确定您要继续吗？'
 };
