@@ -50,11 +50,11 @@ module.exports = function(grunt) {
     // tags is for dev use only
     tags: {
       index: {
-        src: ['assets/dev/**/*.js', 'assets/dev/**/*.css'],
+        src: ['assets/dev/shortcuts.js', 'assets/dev/shortCutStyles.css'],
         dest: 'index.html'
       },
       login: {
-        src: ['assets/dev/**/*.js', 'assets/dev/**/*.css'],
+        src: ['assets/dev/shortcuts.js', 'assets/dev/shortCutStyles.css'],
         dest: destMap["login.html"]
       }
     },
