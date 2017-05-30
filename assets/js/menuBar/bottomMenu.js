@@ -271,7 +271,10 @@ window.BottomMenu = (function($, BottomMenu) {
 
         var sectionId = $section.attr("id");
         if (sectionId === "sqlSection") {
-            SQL.scrollToBottom();
+            if ($section.hasClass("firstTouch")) {
+                $section.removeClass("firstTouch");
+                SQL.scrollToBottom();
+            }
             $("#sqlButtonWrap").removeClass("xc-hidden");
         } else {
             $("#sqlButtonWrap").addClass("xc-hidden");

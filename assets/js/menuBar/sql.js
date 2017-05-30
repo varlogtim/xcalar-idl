@@ -32,6 +32,7 @@ window.SQL = (function($, SQL) {
         "Invalid": 2    // cannot undo/redo
     };
     var isCollapsed = false;
+    var hasTriggerScrollToBottom = false;
 
     SQL.setup = function() {
         $sqlButtons = $("#sqlButtonWrap");
@@ -52,6 +53,10 @@ window.SQL = (function($, SQL) {
                     .addClass("humanLog xi-human-dot");
             $machineTextarea.hide();
             $textarea.show();
+            if (hasTriggerScrollToBottom) {
+                SQL.scrollToBottom();
+                hasTriggerScrollToBottom = false;
+            }
         });
 
         $sqlButtons.on("click", ".humanLog", function() {
@@ -59,6 +64,10 @@ window.SQL = (function($, SQL) {
                     .addClass("machineLog xi-android-dot");
             $machineTextarea.show();
             $textarea.hide();
+            if (hasTriggerScrollToBottom) {
+                SQL.scrollToBottom();
+                hasTriggerScrollToBottom = false;
+            }
         });
 
         $sqlButtons.on("click", ".copyLog", function() {
@@ -158,9 +167,10 @@ window.SQL = (function($, SQL) {
         })
         .always(function() {
             updateUndoRedoState();
+            SQL.scrollToBottom();
         });
 
-        return (deferred.promise());
+        return deferred.promise();
     };
 
     SQL.upgrade = function(oldRawLogs) {
@@ -312,6 +322,10 @@ window.SQL = (function($, SQL) {
     SQL.scrollToBottom = function() {
         xcHelper.scrollToBottom($textarea);
         xcHelper.scrollToBottom($machineTextarea);
+        // when one panel scroll to bottom,
+        // another panel didn't scroll as it's hidden
+        // use this flag to mark
+        hasTriggerScrollToBottom = true;
     };
 
     SQL.undo = function(step) {
