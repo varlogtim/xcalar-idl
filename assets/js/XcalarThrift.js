@@ -2756,7 +2756,7 @@ function XcalarGetRetina(retName) {
 // replaced with "filter(<opera>(<colName>, <val>))"
 // val = \"hello\"
 // <argument> is used to denote a parameter
-function XcalarUpdateRetina(retName, dagNodeId, paramType, paramValue, txId) {
+function XcalarUpdateRetina(retName, dagNodeId, paramType, paramValues, txId) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
@@ -2770,20 +2770,18 @@ function XcalarUpdateRetina(retName, dagNodeId, paramType, paramValue, txId) {
     switch (paramType) {
         case (XcalarApisT.XcalarApiBulkLoad):
             paramStruct = new XcalarApiParamLoadT();
-
-            // encode special characters but restore <>
-            var url = xcHelper.encodeURL(paramValue).replace(/%3C/g, "<")
-                                                    .replace(/%3E/g, ">");
-            paramStruct.datasetUrl = url;
+            paramStruct.datasetUrl = paramValues.datasetUrl;
+            paramStruct.namePattern = paramValues.namePattern;
             // XXX Handle name pattern
             break;
         case (XcalarApisT.XcalarApiFilter):
             paramStruct = new XcalarApiParamFilterT();
-            paramStruct.filterStr = paramValue;
+            paramStruct.filterStr = paramValues.filterStr;
             break;
         case (XcalarApisT.XcalarApiExport):
             paramStruct = new XcalarApiParamExportT();
-            paramStruct.fileName = paramValue;
+            paramStruct.fileName = paramValues.fileName;
+            paramStruct.udfTarget = paramValues.udfTarget;
             break;
     }
 

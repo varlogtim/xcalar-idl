@@ -114,10 +114,6 @@ window.DFParamModal = (function($, DFParamModal){
 
         // data in icon is encoded
         var paramValue = decodeURIComponent($currentIcon.data('paramValue'));
-        if (type === "dataStore") {
-            // urls with special characters are further encoded
-            paramValue = decodeURIComponent(decodeURIComponent(paramValue));
-        }
 
         getExportInfo(type)
         .always(function(info) {
@@ -822,9 +818,6 @@ window.DFParamModal = (function($, DFParamModal){
             var $row = $(this);
             var name = $row.find(".paramName").text();
             var val = $.trim($row.find(".paramVal").val());
-            if (type === "dataStore") {
-                val = xcHelper.encodeURL(val);
-            }
             var check = $row.find(".checkbox").hasClass("checked");
 
             if ($row.hasClass("currParams")) {
@@ -952,6 +945,7 @@ window.DFParamModal = (function($, DFParamModal){
                                                                     .data("op");
             var paramType = null;
             var paramValue;
+            var paramValues = {};
             var paramQuery;
             // var paramInput = new XcalarApiParamInputT();
             switch (operation) {
@@ -988,7 +982,7 @@ window.DFParamModal = (function($, DFParamModal){
                         paramValue = filterText + "(" + str1 +
                                                     additionalArgs + ")";
                     }
-
+                    paramValues.filterStr = paramValue;
 
                     // paramInput.paramFilter = new XcalarApiParamFilterT();
                     // paramInput.paramFilter.filterStr = str;
@@ -999,11 +993,15 @@ window.DFParamModal = (function($, DFParamModal){
                     // paramInput.paramLoad = new XcalarApiParamLoadT();
                     // paramInput.paramLoad.datasetUrl = str;
                     paramQuery = [paramValue];
+                    paramValues.datasetUrl = paramValue;
+                    paramValues.namePattern = null;
                     break;
                 case ("export"):
                     paramType = XcalarApisT.XcalarApiExport;
                     paramValue = $.trim($editableDivs.eq(0).val());
                     paramQuery = [paramValue];
+                    paramValues.fileName = paramValue;
+                    paramValues.udfTarget = null;
                     break;
                 default:
                     deferred.reject("currently not supported");
@@ -1015,7 +1013,7 @@ window.DFParamModal = (function($, DFParamModal){
             } else {
                 closeDFParamModal();
 
-                XcalarUpdateRetina(retName, dagNodeId, paramType, paramValue)
+                XcalarUpdateRetina(retName, dagNodeId, paramType, paramValues)
                 .then(function() {
                     return XcalarGetRetina(retName);
                 })
@@ -1163,7 +1161,7 @@ window.DFParamModal = (function($, DFParamModal){
             var parameterizedVals = [];
 
             $templateVals.each(function() {
-                parameterizedVals.push(decodeURIComponent($(this).text()));
+                parameterizedVals.push(decodeURI($(this).text()));
             });
 
             for (; i < retinaNode.paramQuery.length; i++) {
@@ -1173,8 +1171,7 @@ window.DFParamModal = (function($, DFParamModal){
                     $dfParamModal.find(".template").append(html);
                     $templateVals = $dfParamModal.find(".template .boxed");
                 }
-                var val = decodeURIComponent(retinaNode.paramQuery[i]);
-                $templateVals.eq(i).text(val);
+                $templateVals.eq(i).text(retinaNode.paramQuery[i]);
             }
             $dfParamModal.find(".template .boxed:gt(" +
                             (retinaNode.paramQuery.length - 1) + ")").remove();
@@ -1220,8 +1217,7 @@ window.DFParamModal = (function($, DFParamModal){
             // keep the order of paramName the in df.parameters
             df.parameters.forEach(function(paramName) {
                 if (nameMap.hasOwnProperty(paramName)) {
-                    var val = decodeURIComponent(paramMap[paramName]);
-                    addParamToLists(paramName, val, true, false);
+                    addParamToLists(paramName, paramMap[paramName], true, false);
                 }
             });
 

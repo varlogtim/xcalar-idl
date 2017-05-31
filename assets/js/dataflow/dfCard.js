@@ -143,8 +143,7 @@ window.DFCard = (function($, DFCard) {
 
         df.parameters.forEach(function(paramName) {
             if (!systemParams.hasOwnProperty(paramName)) {
-                var val = decodeURIComponent(paramMap[paramName]);
-                addParamToRetina(paramName, val);
+                addParamToRetina(paramName, paramMap[paramName]);
             }
         });
 
@@ -681,7 +680,7 @@ window.DFCard = (function($, DFCard) {
         var $loadNodes = $wrap.find(".dagTable.dataStore");
         $loadNodes.each(function(idx, val) {
             var $val = $(val);
-            $val.data("paramValue", encodeURI($val.data("url")));
+            $val.data("paramValue", $val.data("url"));
         });
 
         var $opNodes = $wrap.find(".actionType.dropdownBox");
@@ -1227,7 +1226,13 @@ window.DFCard = (function($, DFCard) {
     }
 
     function parseFileName(exportInfo, paramArray) {
-        var fileName = exportInfo.meta.specificInput.sfInput.fileName;
+        var fileName = "";
+        if (exportInfo.meta.target.type === ExTargetTypeT.ExTargetSFType) {
+            fileName = exportInfo.meta.specificInput.sfInput.fileName;
+        } else if (exportInfo.meta.target.type ===
+            ExTargetTypeT.ExTargetUDFType) {
+            fileName = exportInfo.meta.specificInput.udfInput.fileName;
+        }
         if (paramArray.length === 0 || fileName.indexOf("<") === -1) {
             return fileName;
         }
