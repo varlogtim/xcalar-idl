@@ -1048,10 +1048,9 @@ window.Profile = (function($, Profile, d3) {
         });
 
         XIApi.index(txId, colName, tableName)
-        .then(function(indexedTableName, hasIndexed) {
+        .then(function(indexedTableName, hasIndexed, temTables, isCachedTable) {
             var innerDeferred = jQuery.Deferred();
-
-            if (indexedTableName !== tableName) {
+            if (indexedTableName !== tableName && !isCachedTable) {
                 tableToDelete = indexedTableName;
             }
 

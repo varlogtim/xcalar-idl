@@ -1169,7 +1169,7 @@ window.XIApi = (function(XIApi, $) {
                 var indexTableId = xcHelper.getTableId(indexTable);
                 if (gTables.hasOwnProperty(indexTableId)) {
                     console.log("has cached of index table", indexTable);
-                    return PromiseHelper.resolve(indexTable, true, []);
+                    return PromiseHelper.resolve(indexTable, true, [], true);
                 } else {
                     console.log("cached index table", indexTable, "not exists");
                     table.removeIndexTable(colName);
