@@ -536,7 +536,8 @@ window.XIApi = (function(XIApi, $) {
                     // only do sample on first groupby
                     sample = false;
                 }
-                var newKeyFieldName = indexedColName;
+                var newKeyFieldName = xcHelper.getPrefixColName(indexedColName)
+                                              .name;
                 if (sample) {
                     // incSample does not take renames
                     newKeyFieldName = null;
@@ -1167,10 +1168,10 @@ window.XIApi = (function(XIApi, $) {
                 // async
                 var indexTableId = xcHelper.getTableId(indexTable);
                 if (gTables.hasOwnProperty(indexTableId)) {
-                    console.log("has cahced of index table", indexTable);
+                    console.log("has cached of index table", indexTable);
                     return PromiseHelper.resolve(indexTable, true, []);
                 } else {
-                    console.log("cahced index table", indexTable, "not exists");
+                    console.log("cached index table", indexTable, "not exists");
                     table.removeIndexTable(colName);
                 }
             }
@@ -1469,10 +1470,9 @@ window.XIApi = (function(XIApi, $) {
             for (var i = 0; i < numGroupByCols; i++) {
                 var backColName = groupByCols[i];
                 var progCol = table.getColByBackName(backColName) || {};
-                var escapedName = xcHelper.stripColName(backColName);
+                var escapedName = xcHelper.stripColName(
+                    xcHelper.parsePrefixColName(backColName).name);
 
-                // with no sample, group col is immediates
-                escapedName = xcHelper.parsePrefixColName(escapedName).name;
                 var colName = progCol.name || backColName;
                 colName = xcHelper.stripColName(colName);
 
