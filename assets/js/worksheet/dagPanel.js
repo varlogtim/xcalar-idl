@@ -1862,20 +1862,20 @@ window.Dag = (function($, Dag) {
 
             var tableImage = new Image();
             var tableGrayImage = new Image();
-            var tableRedImage = new Image();
+            var tableICVImage = new Image();
             var dbImage = new Image();
             var expandImage = new Image();
             var eTableImage = new Image();
             tableImage.src = paths.dTable;
             eTableImage.src = paths.eTable;
             tableGrayImage.src = paths.dTableGray;
-            tableRedImage.src = paths.dTableRed;
+            tableICVImage.src = paths.dTableICV;
             dbImage.src = paths.dbDiamond;
             expandImage.src = paths.expandIcon;
 
             PromiseHelper.when.apply(window, [loadImage(tableImage),
                                     loadImage(tableGrayImage),
-                                    loadImage(tableRedImage),
+                                    loadImage(tableICVImage),
                                     loadImage(dbImage), loadImage(expandImage),
                                     loadImage(eTableImage)])
             .then(function() {
@@ -1887,7 +1887,7 @@ window.Dag = (function($, Dag) {
                                           $dagTable.position().left);
                         drawDagTableToCanvas($dagTable, ctx, top, left,
                                              tableImage, tableGrayImage,
-                                             tableRedImage,
+                                             tableICVImage,
                                              dbImage, eTableImage);
                     }
                 });
@@ -2694,7 +2694,7 @@ window.Dag = (function($, Dag) {
     }
 
     function drawDagTableToCanvas($dagTable, ctx, top, left, tImage, tGrayImage,
-                                  tRedImage, dImage, eImage) {
+                                  tICVImage, dImage, eImage) {
         left += 35;
         top += 50;
         var iconLeft = left;
@@ -2711,7 +2711,7 @@ window.Dag = (function($, Dag) {
             x = left - 42;
         } else {
             if ($dagTable.find(".icv").length) {
-                tableImage = tRedImage;
+                tableImage = tICVImage;
             } else if (gShowDroppedTablesImage && $dagTable.hasClass('Dropped')) {
                 tableImage = tGrayImage;
             } else if ($dagTable.hasClass("export") &&
@@ -3386,7 +3386,7 @@ window.Dag = (function($, Dag) {
         var dagOrigin = drawDagOperation(dagNode, dagArray, parentChildMap,
                                          index);
 
-
+        var icon;
         var top = Math.round(coor.y * dagTableOuterHeight);
         var right = Math.round(coor.x * dagTableWidth);
         var condensedRight = Math.round(coor.condensedX * dagTableWidth);
@@ -3441,7 +3441,6 @@ window.Dag = (function($, Dag) {
             var originalTableName = tableName;
             var dsText;
             var outerClassNames = "";
-            var icon;
             if (tableName.indexOf(gDSPrefix) === 0) {
                 tableName = tableName.substr(gDSPrefix.length);
             }
@@ -3483,6 +3482,9 @@ window.Dag = (function($, Dag) {
             if (dagNode.input.mapInput.icvMode ||
                 dagNode.input.groupByInput.icvMode) {
                 icv = "icv";
+                icon = "xi-table-error2";
+            } else {
+                icon = "xi-table-2";
             }
 
             var tableId = xcHelper.getTableId(tableName);
@@ -3515,6 +3517,7 @@ window.Dag = (function($, Dag) {
                                 tableName +
                             '</span>';
             } else {
+
                 html += '<div class="dagTable typeTable ' + state + '" ' +
                             'data-tablename="' + tableName + '" ' +
                             'data-index="' + index + '" ' +
@@ -3525,7 +3528,7 @@ window.Dag = (function($, Dag) {
                                 'data-container="body" ' +
                                 'title="' + tooltipTxt + '"' +
                                 '></div>' +
-                                '<i class="icon xi-table-2"></i>'+
+                                '<i class="icon ' + icon + '"></i>'+
                                 '<span class="tableTitle exportFileName" ' +
                                     'data-toggle="tooltip" ' +
                                     'data-placement="bottom" ' +

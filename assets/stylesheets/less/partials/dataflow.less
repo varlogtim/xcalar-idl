@@ -374,15 +374,6 @@
                 width: 120px;
             }
 
-            .icv.dagTableIcon {
-                // XXX TEMP FIX until we get distinguishs between icv and
-                // errored tables
-                // background-color: @color-error-border !important;
-                ~ .icon {
-                    color: @color-error-border !important;
-                }
-            }
-
             &.noDropdown {
                 pointer-events: none;
                 .tableTitle {
@@ -430,7 +421,7 @@
                     .dataStoreIcon {
                         background-color: @color-bg-fern-green !important;
                     }
-                    .dagTableIcon:not(.icv) ~ .icon {
+                    .dagTableIcon ~ .icon {
                         color: @color-bg-fern-green !important;
                     }
                     &[data-advancedOpts="default"] i.icon.xi-generate-sub {

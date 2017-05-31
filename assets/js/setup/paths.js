@@ -15,7 +15,7 @@ var paths = {
     dTable: 'assets/images/dfgIcons/dTable2.png',
     eTable: 'assets/images/dfgIcons/eTable.png',
     dTableGray: 'assets/images/dfgIcons/dTable2Gray.png',
-    dTableRed: 'assets/images/dfgIcons/dTable2Red.png',
+    dTableICV: 'assets/images/dfgIcons/dTableIcv.png',
     expandIcon: 'assets/images/dfgIcons/expand.png',
     roundedRect: 'assets/images/dfgIcons/rounded-rect.png',
     waitIcon: 'assets/images/waiting-1.gif',
