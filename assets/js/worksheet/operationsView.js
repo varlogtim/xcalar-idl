@@ -114,7 +114,7 @@ window.OperationsView = (function($, OperationsView) {
                 event.which === keyCode.Up) {
                 event.preventDefault();
                 if ($categoryList.find('li.active').length === 0) {
-                    $categoryList.find('li').eq(0).click();
+                    $categoryList.find('li:visible').eq(0).click();
                     return;
                 }
             }
@@ -128,7 +128,7 @@ window.OperationsView = (function($, OperationsView) {
 
             if (event.which === keyCode.Enter) {
                 if ($functionsList.find('li').length === 1) {
-                    $functionsList.find('li').eq(0).click();
+                    $functionsList.find('li:visible').eq(0).click();
                     event.preventDefault();
                 }
             }
@@ -1455,6 +1455,9 @@ window.OperationsView = (function($, OperationsView) {
 
         for (var cat in opsMap) {
             var ops = opsMap[cat];
+            if (!ops) {
+                continue;
+            }
             if (parseInt(cat) === FunctionCategoryT.FunctionCategoryUdf) {
                 for (i = 0; i < ops.length; i++) {
                     li = '<li class="textNoCap" data-category="' + cat +
