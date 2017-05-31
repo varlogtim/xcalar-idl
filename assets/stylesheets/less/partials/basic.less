@@ -74,6 +74,16 @@ body {
             padding-left: 60px;
             width: 100%;
         }
+        .mainPanel {
+            display: none;
+        }
+        #workspacePanel {
+            display: block;
+            .dagPanelContainer, .xcTableWrap, #rowInputArea {
+                display: none !important;
+
+            }
+        }
     }
 
     &.workbookMode {
@@ -281,7 +291,7 @@ body {
         }
         .progressBar {
             height: 100%;
-            width: 60%; // XXX fake %, should be 0
+            width: 0%;
             background-color: @color-white;
         }
 

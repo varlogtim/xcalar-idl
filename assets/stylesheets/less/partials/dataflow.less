@@ -345,9 +345,12 @@
 
         .dagTable {
             z-index: 1;
-            cursor: auto;
+            cursor: default;
             .tableTitle {
                 width: 180px;
+            }
+            .progressBarWrap {
+                display: none;
             }
             &:hover:not(.noDropdown) {
                 .typeTable .icon {
@@ -413,6 +416,32 @@
                     }
                     i.icon.xi-generate-sub {
                         color: @color-white !important;
+                    }
+                }
+                .progressBarWrap {
+                    width: 25px;
+                    height: 3px;
+                    border-radius: 3px;
+                    background-color: @color-bg-light-blue-grey;
+                    display: block;
+                    pointer-events: none;
+                    .position(absolute, @top: 0px, @left: 5px);
+                    overflow: hidden;
+                }
+                .progressBar {
+                    height: 100%;
+                    width: 0%;
+                    background-color: @color-bg-select-blue;
+                }
+                &.parameterizable {
+                    .progressBarWrap {
+                        top: -5px;
+                    }
+                    &.dataStore {
+                        .progressBarWrap {
+                            top: -10px;
+                            left: 3px;
+                        }
                     }
                 }
             }

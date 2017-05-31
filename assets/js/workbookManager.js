@@ -1084,7 +1084,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
                 if (!$loadScreen.hasClass("sessionProgress")) {
                     $loadScreen.addClass("sessionProgress");
                     $bar.stop().width(0).data("pct", 0);
-                    $progressNode.text("").data("node", "")
+                    $progressNode.text("").data("node", "");
                     $numSteps.data("num", 0);
                 }
                 $bar.data("totalsteps", progress.numTotal);
@@ -1168,7 +1168,6 @@ window.WorkbookManager = (function($, WorkbookManager) {
             var state;
             var numCompleted = 0;
             var processingNode;
-            var states = {};
             for (var i = 0; i < ret.queryGraph.numNodes; i++) {
                 state = ret.queryGraph.node[i].state;
                 if (state === DgDagStateT.DgDagStateReady) {

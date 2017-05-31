@@ -612,6 +612,20 @@ window.QueryManager = (function(QueryManager, $) {
         return (firstQueryPos);
     }
 
+    function getLastQueryPos(mainQuery, start) {
+        var currStep = mainQuery.currStep;
+        var subQueries = mainQuery.subQueries;
+        var queryName = subQueries[currStep].queryName;
+        var lastQueryPos = start;
+        for (var i = subQueries.length - 1; i >= 0; i--) {
+            if (subQueries[i].queryName === queryName) {
+                lastQueryPos = i;
+                break;
+            }
+        }
+        return (lastQueryPos);
+    }
+
     // used for xcalarQuery subqueries since QueryManager.subQueryDone does not
     // get called
     function setQueriesDone(mainQuery, start, end) {
@@ -631,6 +645,7 @@ window.QueryManager = (function(QueryManager, $) {
 
         var mainQuery = queryLists[id];
         var firstQueryPos = getFirstQueryPos(mainQuery);
+        var lastQueryPos = getLastQueryPos(mainQuery, firstQueryPos);
 
         var startTime = Date.now();
         check()
@@ -646,7 +661,10 @@ window.QueryManager = (function(QueryManager, $) {
             XcalarQueryState(queryName)
             .then(function(res) {
                 var numCompleted = res.numCompletedWorkItem;
-                var currStep = numCompleted + firstQueryPos;
+                // XXX need to accurately determine currStep based on
+                // numCompleted
+                var currStep = Math.min(numCompleted + firstQueryPos,
+                                        lastQueryPos);
                 mainQuery.currStep = currStep;
                 setQueriesDone(mainQuery, firstQueryPos, currStep);
                 var state = res.queryState;

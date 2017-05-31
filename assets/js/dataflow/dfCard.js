@@ -400,9 +400,11 @@ window.DFCard = (function($, DFCard) {
                     $dagWrap.find('.dagImageWrap').scrollLeft(width);
                     if (XVM.getLicenseMode() === XcalarMode.Demo &&
                         dataflowName === currentDataflow) {
-                        var $name = $dagWrap.find(".dagTable.export .exportTableName");
+                        var $name = $dagWrap.find(".dagTable.export " +
+                                                 ".exportTableName");
                         var exportName = xcHelper.getTableName($name.text());
-                        var $option = $dagWrap.find(".advancedOpts [data-option='import']");
+                        var $option = $dagWrap.find(".advancedOpts " +
+                                                    "[data-option='import']");
                         $option.click();
                         $option.find("input").val(exportName);
                         $name.text(exportName);
@@ -840,7 +842,8 @@ window.DFCard = (function($, DFCard) {
 
             $menu.find("li").hide();
             $menu.find(".newTabImage, .saveImage").show();
-            DagPanel.toggleExpCollapseAllLi($dfCard.find(".dagWrap:visible"), $menu);
+            DagPanel.toggleExpCollapseAllLi($dfCard.find(".dagWrap:visible"),
+                                             $menu);
             positionAndInitMenu(null, e);
         }
 
@@ -1148,14 +1151,38 @@ window.DFCard = (function($, DFCard) {
         var tableName;
         var state;
         var numCompleted = 0;
+        var $dagTable;
+        var progressBar = '<div class="progressBarWrap" data-pct="0">' +
+                            '<div class="progressBar"></div>' +
+                         '</div>';
         for (var i = 0; i < nodes.length; i++) {
             tableName = getTableNameFromStatus(nodes[i]);
             state = DgDagStateTStr[nodes[i].state];
-            $dagWrap.find('.dagTable[data-tablename="' + tableName + '"]')
-                    .removeClass(dagStateClasses)
-                    .addClass(state);
+            $dagTable = $dagWrap.find('.dagTable[data-tablename="' + tableName +
+                                      '"]');
+
+            $dagTable.removeClass(dagStateClasses).addClass(state);
             if (nodes[i].state === DgDagStateT.DgDagStateReady) {
                 numCompleted++;
+            }
+            var $barWrap = $dagTable.find(".progressBarWrap");
+            if (nodes[i].state === DgDagStateT.DgDagStateProcessing) {
+                if (!$barWrap.length) {
+                    $dagTable.append(progressBar);
+                    $barWrap = $dagTable.find(".progressBarWrap");
+                }
+                var nodePct = Math.round(100 * nodes[i].numWorkCompleted /
+                                     nodes[i].numWorkTotal);
+                var lastPct = $barWrap.data("pct");
+                if (nodePct && nodePct !== lastPct) {
+                    $barWrap.find(".progressBar").animate(
+                                                    {"width": nodePct + "%"},
+                                                    retinaCheckInterval,
+                                                    "linear");
+                    $barWrap.data("pct", nodePct);
+                }
+            } else {
+                $barWrap.remove();
             }
         }
         var pct;
