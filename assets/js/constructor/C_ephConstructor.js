@@ -3342,7 +3342,6 @@ RectSelction.prototype = {
 
     __addSelectRectEvent: function() {
         var self = this;
-        var id = self.id;
         $(document).on("mousemove.checkMovement", function(event) {
             // check for mousemovement before actually calling draw
             self.checkMovement(event.pageX, event.pageY);

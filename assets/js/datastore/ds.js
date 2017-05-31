@@ -810,9 +810,7 @@ window.DS = (function ($, DS) {
                       ? DS.cancel($grid)
                       : delDSHelper($grid, dsObj, {"noAlert": true});
             def
-            .then(function() {
-                deferred.resolve();
-            })
+            .then(deferred.resolve)
             .fail(function(error) {
                 if (typeof error === "object" && error.error) {
                     error = error.error;
