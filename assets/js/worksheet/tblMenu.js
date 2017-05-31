@@ -649,14 +649,20 @@ window.TblMenu = (function(TblMenu, $) {
             sortColumn(colNum, tableId, SortDirection.Backward);
         });
 
-        $colMenu.on('mouseup', '.joinList', function(event) {
+        $colMenu.on('mouseup', '.join', function(event) {
             if (event.which !== 1) {
                 return;
             }
+            var $li = $(this);
+            var colNums;
+            if ($li.hasClass('multiJoin')) {
+                colNums = $colMenu.data('columns');
+            } else {
+                colNums = [$colMenu.data('colNum')];
+            }
 
-            var colNum  = $colMenu.data('colNum');
             var tableId = $colMenu.data('tableId');
-            JoinView.show(tableId, colNum);
+            JoinView.show(tableId, colNums);
         });
 
         $colMenu.on('mouseup', '.functions', function(event) {

@@ -659,19 +659,20 @@ describe('TableMenu Test', function() {
                 ColManager.maximizeCols = cachedFunc;
             });
 
-            it('joinList', function() {
+            it('join', function() {
                 var cachedFunc = JoinView.show;
                 var called = false;
-                JoinView.show = function(tId, colNum) {
-                    expect(colNum).to.equal(12);
+                JoinView.show = function(tId, colNums) {
+                    expect(colNums[0]).to.equal(12);
+                    expect(colNums.length).to.equal(1);
                     expect(tId).to.equal(tableId);
                     called = true;
                 };
 
-                $colMenu.find('.joinList').trigger(rightMouseup);
+                $colMenu.find('.join').eq(0).trigger(rightMouseup);
                 expect(called).to.be.false;
 
-                $colMenu.find('.joinList').trigger(fakeEvent.mouseup);
+                $colMenu.find('.join').eq(0).trigger(fakeEvent.mouseup);
                 expect(called).to.be.true;
 
                 JoinView.show = cachedFunc;

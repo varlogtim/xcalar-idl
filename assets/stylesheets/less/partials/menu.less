@@ -395,7 +395,7 @@
         margin-right: 0px !important;
     }
     // END FASJ ICONS
-    
+
     .newColumn {
         display: none;
     }
@@ -523,7 +523,7 @@
     &.type-multiColumn {
         .multiColumn {
             &.hideColumns, &.minimizeColumns, &.textAlignColumns, &.multiChangeDataType,
-            &.resizeColumns, &.extensions, &.multiGroupby, &.corrAgg {
+            &.resizeColumns, &.extensions, &.multiGroupby, &.multiJoin, &.corrAgg {
                 display: list-item !important;
                 li {
                     display: list-item !important;
@@ -559,9 +559,9 @@
                 }
             }
         }
-
-        &.type-undefined, &.type-newColumn {
-            .multiGroupby {
+        &.type-object, &.type-newColumn,
+        &.childOfArray, &.type-array, &.type-undefined {
+            .multiGroupby, .multiJoin {
                 display: none !important;
             }
         }
@@ -631,7 +631,7 @@
 
     &.type-object, &.type-newColumn,
     &.childOfArray, &.type-array {
-        .sort, .aggregate, .groupby, .filter, .joinList, .map, .operations,
+        .sort, .aggregate, .groupby, .filter, .join, .map, .operations,
         .profile, .corrAgg
         {
             display: none;
@@ -640,7 +640,7 @@
 
     // show map option
     &.type-mixed {
-        .sort, .aggregate, .groupby, .filter, .joinList, .profile, .corrAgg {
+        .sort, .aggregate, .groupby, .filter, .join, .profile, .corrAgg {
             display: none;
         }
     }
@@ -652,7 +652,7 @@
     }
 
     &.type-undefined, {
-        .sort, .aggregate, .groupby, .joinList, .operations,
+        .sort, .aggregate, .groupby, .join, .operations,
         .profile, .corrAgg
         {
             display: none;
@@ -691,7 +691,7 @@
     }
 
     &.type-data {
-        .sort, .aggregate, .groupby, .filter, .joinList, .hideColumn,
+        .sort, .aggregate, .groupby, .filter, .join, .hideColumn,
         .rename, .map, .operations,
         .changeDataType, .profile, .corrAgg, .divider, .format, .roundToFixed,
         .extensions {
@@ -741,7 +741,7 @@
     #colMenu, #tableMenu {
         li, .divider {
             display: none !important;
-        } 
+        }
     }
     &.joinState {
         #colMenu, #tableMenu {

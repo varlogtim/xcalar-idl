@@ -46,7 +46,7 @@ describe("JoinView Test", function() {
                 return tableList;
             };
 
-            JoinView.show(tableId, 1);
+            JoinView.show(tableId, [1]);
             done();
         });
     });

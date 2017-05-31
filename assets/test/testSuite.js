@@ -504,7 +504,7 @@ window.TestSuite = (function($, TestSuite) {
         assert($header.length === 1);
         $header.closest(".flexContainer").find(".flex-right .innerBox").click();
 
-        var $colMenu = $("#colMenu ." + funcClassName);
+        var $colMenu = $("#colMenu ." + funcClassName).eq(0);
         $colMenu.trigger(fakeEvent.mouseup);
 
         if (whichModal === "join") {
@@ -859,7 +859,7 @@ window.TestSuite = (function($, TestSuite) {
             console.log("start flightTestPart7", "join flight and airport table");
 
             var tableId = getFirstTableInWS(0);
-            trigOpModal(tableId, "Dest", "joinList", "join")
+            trigOpModal(tableId, "Dest", "join", "join")
             .then(function() {
                 // fisrt step of join
                 $("#joinRightTableList").find("li:contains('airport')")
@@ -1132,7 +1132,7 @@ window.TestSuite = (function($, TestSuite) {
         .then(function(){
             console.log("multi join with flight-airport table");
             var tableId = ws.tables[2];
-            return trigOpModal(tableId, "class_id", "joinList", "join");
+            return trigOpModal(tableId, "class_id", "join", "join");
         })
         .then(function() {
             var rightTableId = ws.tables[0];

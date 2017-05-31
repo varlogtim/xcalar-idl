@@ -447,7 +447,7 @@ window.JoinView = (function($, JoinView) {
         }
     };
 
-    JoinView.show = function(tableId, colNum, restore, restoreTime) {
+    JoinView.show = function(tableId, colNums, restore, restoreTime) {
         if (restoreTime && restoreTime !== formOpenTime) {
             // if restoreTime and formOpenTime do not match, it means we're
             // trying to restore a form to a state that's already been
@@ -462,7 +462,9 @@ window.JoinView = (function($, JoinView) {
             resetJoinView();
             fillTableLists(tableId);
             updatePreviewText();
-            addClause(true, tableId, colNum);
+            for (var i = 0; i < colNums.length; i++) {
+                addClause(true, tableId, colNums[i]);
+            }
         }
         formHelper.setup();
 
