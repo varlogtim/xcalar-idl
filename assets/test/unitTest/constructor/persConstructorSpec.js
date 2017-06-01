@@ -2841,7 +2841,7 @@ describe("Persistent Constructor Test", function() {
 
         it("Should have 8 attributes", function() {
             expect(sched).to.be.an.instanceof(SchedObj);
-            expect(Object.keys(sched).length).to.equal(11);
+            expect(Object.keys(sched).length).to.equal(12);
 
             expect(sched).to.have.property("version")
             .and.to.equal(currentVersion);
@@ -2865,6 +2865,8 @@ describe("Persistent Constructor Test", function() {
             .and.to.equal("str1");
             expect(sched).to.have.property("premadeCronString")
             .and.to.equal("str2");
+            expect(sched).to.have.property("isPaused")
+            .and.to.be.false;
         });
 
         it("Should update schedule", function() {

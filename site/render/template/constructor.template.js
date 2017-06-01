@@ -2413,6 +2413,7 @@
             newTableName: (String)
             usePremadeCronString: (boolean) whether to use user defined cron
             premadeCronString: (String) cron defined by the user
+        newAttr:
             isPaused: (boolean) when the schedule is paused or not
         */
         function SchedObj<%= v %>(options) {
@@ -2421,7 +2422,7 @@
             <%= addVersion %>
 
             if (<%= checkFunc %>(options)) {
-                self.isPaused = options.isPaused;
+                self.isPaused = options.isPaused || false;
             }
             return self;
         }
@@ -2439,7 +2440,7 @@
                 this.newTableName = options.newTableName;
                 this.usePremadeCronString = options.usePremadeCronString;
                 this.premadeCronString = options.premadeCronString;
-                this.isPaused = options.isPaused;
+                this.isPaused = options.isPaused || false;
             }
             <%}%>
         });
