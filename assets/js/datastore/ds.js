@@ -305,6 +305,7 @@ window.DS = (function ($, DS) {
     // Remove dataset/folder
     DS.remove = function($grids) {
         xcAssert($grids != null && $grids.length !== 0);
+        var deferred = jQuery.Deferred();
 
         alertDSRemove($grids)
         .then(function() {
@@ -312,12 +313,16 @@ window.DS = (function ($, DS) {
             $grids.each(function() {
                 dsIds.push($(this).data("dsid"));
             });
-            removeDSHandler(dsIds);
             cleanDSSelect();
+            return removeDSHandler(dsIds);
         })
+        .then(deferred.resolve)
         .fail(function() {
             focsueOnTracker();
+            deferred.reject();
         });
+
+        return deferred.promise();
     };
 
     DS.cancel = function($grid) {

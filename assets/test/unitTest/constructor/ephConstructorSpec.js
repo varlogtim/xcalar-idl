@@ -1779,4 +1779,61 @@ describe("Ephemeral Constructor Test", function() {
             $fakeIcon.remove();
         });
     });
+
+    describe("RectSelction Constructor Test", function() {
+        var rect;
+        var test;
+
+        beforeEach(function() {
+            test = null;
+        });
+
+        it("RectSelction should have 8 attributes", function() {
+            rect = new RectSelction(100, 200, {
+                "id": "test-selection",
+                "$container": $("#container"),
+                onStart: function() { test = "start"; },
+                onDraw: function() { test = "draw"; },
+                onEnd: function() { test = "end"; }
+            });
+
+            expect(rect).to.be.instanceof(RectSelction);
+            expect(Object.keys(rect).length).to.equal(8);
+
+            expect(rect.x).to.equal(101);
+            expect(rect.y).to.equal(200);
+            expect(rect.id).to.equal("test-selection");
+            expect(rect.$container.attr("id")).to.equal("container");
+            expect(rect.bound).to.exists;
+            expect(rect.onStart).to.be.a("function");
+            expect(rect.onDraw).to.be.a("function");
+            expect(rect.onEnd).to.be.a("function");
+        });
+
+        it("should get rect", function() {
+            var $rect = rect.__getRect();
+            expect($rect.attr("id")).to.equal("test-selection");
+        });
+
+        it("should checkMovement", function() {
+            rect.checkMovement(101, 200);
+            expect(test).to.be.null;
+
+            rect.checkMovement(102, 201);
+            expect(test).to.equal("start");
+        });
+
+        it("should draw", function() {
+            rect.draw(120, 220);
+            expect(test).to.equal("draw");
+        });
+
+        it("should end draw", function() {
+            rect.end();
+            expect(test).to.equal("end");
+            // should be removed
+            var $rect = $("#test-selection");
+            expect($rect.length).to.equal(0);
+        });
+    });
 });

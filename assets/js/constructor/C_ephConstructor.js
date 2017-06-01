@@ -3303,7 +3303,10 @@ ProgressCircle.prototype = {
 /*
  * options:
     id: id of the rect element
-    container: container
+    $container: container
+    onStart: trigger when start move
+    onDraw: trigger when drawing
+    onEnd: trigger when mouse up
  */
 function RectSelction(x, y, options) {
     options = options || {};

@@ -649,6 +649,75 @@ describe("DSObj Test", function() {
 
             DS.remove = oldFunc;
         });
+
+        it("Should click .multiDelete to delte folder/ds", function() {
+            var oldFunc = DS.remove;
+            var test = false;
+            DS.remove = function() {
+                test = true;
+            };
+
+            var $li = $gridMenu.find(".multiDelete");
+            // simple mouse up not work
+            $li.mouseup();
+            expect(test).to.be.false;
+            $li.trigger(fakeEvent.mouseup);
+            expect(test).to.be.true;
+
+            DS.remove = oldFunc;
+        });
+    });
+
+    describe("Create Selection Test", function() {
+        var $ds;
+        var $wrap;
+
+        before(function() {
+            $wrap = $("#dsListSection .gridViewWrapper");
+            $ds = DS.getGrid(testDS.getId());
+        });
+
+        it("should create selection", function() {
+            // invalid case 1
+            $wrap.mousedown();
+            expect($("#gridView-rectSelection").length).to.equal(0);
+            // invalid case 2
+            var e = jQuery.Event("mousedown", {
+                "which": 1,
+                "target": $('<div class="gridIcon"></div>').get(0),
+                "pageX": 0,
+                "pageY": 0
+            });
+
+            $wrap.trigger(e);
+            expect($("#gridView-rectSelection").length).to.equal(0);
+
+            // valid case
+            e = jQuery.Event("mousedown", {
+                "which": 1,
+                "pageX": 0,
+                "pageY": 0
+            });
+
+            $wrap.trigger(e);
+            expect($("#gridView-rectSelection").length).to.equal(1);
+        });
+
+        it("should create selection to select ds", function() {
+            var offsest = $ds.offset();
+            var e = jQuery.Event("mousemove", {
+                "pageX": offsest.left + 20,
+                "pageY": offsest.top + 100
+            });
+            // need to trigger twice mousemove
+            $(document).trigger(e);
+            expect($gridView.hasClass("drawing")).to.be.true;
+            $(document).trigger(e);
+            expect($ds.hasClass("selecting")).to.be.true;
+            $(document).trigger("mouseup");
+            expect($ds.hasClass("selected")).to.be.true;
+            expect($gridView.hasClass("drawing")).to.be.false;
+        });
     });
 
     describe("Drag and Drop test", function() {
@@ -849,14 +918,43 @@ describe("DSObj Test", function() {
             DS.cancel = oldCancel;
         });
 
-        it("should remove ds", function() {
+        it("should trigger ds and see alert", function() {
             DS.remove($ds);
             UnitTest.hasAlertWithTitle(DSTStr.DelDS);
         });
 
+        it("should handle delete error", function(done) {
+            var oldFunc = XcalarDestroyDataset;
+            XcalarDestroyDataset = function() {
+                return PromiseHelper.reject({"error": "test"});
+            };
+
+            var def = DS.remove($ds);
+            UnitTest.hasAlertWithTitle(DSTStr.DelDS, {
+                "confirm": true
+            });
+
+            def
+            .then(function() {
+                UnitTest.hasAlertWithTitle(AlertTStr.NoDel);
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                XcalarDestroyDataset = oldFunc;
+            });
+        });
+
         it("Should delete ds", function(done) {
             var dsId = testDS.getId();
-            DS.__testOnly__.delDSHelper($ds, testDS)
+            var def = DS.remove($ds);
+            UnitTest.hasAlertWithTitle(DSTStr.DelDS, {
+                "confirm": true
+            });
+
+            def
             .then(function() {
                 // ds is deleted
                 expect(DS.getGrid(dsId)).have.length(0);
