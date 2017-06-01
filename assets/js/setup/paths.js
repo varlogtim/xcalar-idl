@@ -30,5 +30,6 @@ var paths = {
     helpAdminGuide: 'assets/help/admin/Content/Home.htm',
     helpAdminContent: 'assets/help/admin/Content/',
     helpAdminSearch: 'assets/help/admin/Content/SearchInsight.htm#search-',
-    favicon: "assets/images/favicon.ico"
+    favicon: "assets/images/xc-favicon.png",
+    faviconUnsave: "assets/images/xc-favicon-unsave.gif",
 };

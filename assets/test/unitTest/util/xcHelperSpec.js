@@ -1535,8 +1535,9 @@ describe("xcHelper Test", function() {
         res = xcHelper.stripColName("a\\.b");
         expect(res).to.equal("a_b");
 
+        // don't strip ::
         res = xcHelper.stripColName("a::b");
-        expect(res).to.equal("a_b");
+        expect(res).to.equal("a::b");
     });
 
     it("xcHelper.scrollToBottom should work", function() {

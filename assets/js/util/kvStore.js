@@ -243,13 +243,15 @@ window.KVStore = (function($, KVStore) {
 
     KVStore.logChange = function() {
         isUnCommit = true;
-        document.title = "* Xcalar";
+        // document.title = "* Xcalar";
+        $("#favicon").attr("href", paths.faviconUnsave);
         $("#autoSaveBtn").addClass("unsave");
     };
 
     KVStore.logSave = function(updateInfo) {
         isUnCommit = false;
-        document.title = "Xcalar";
+        // document.title = "Xcalar";
+        $("#favicon").attr("href", paths.favicon);
         $("#autoSaveBtn").removeClass("unsave");
 
         if (!updateInfo) {
