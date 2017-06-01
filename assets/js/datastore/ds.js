@@ -108,7 +108,7 @@ window.DS = (function ($, DS) {
             "isFolder": true
         });
 
-        UserSettings.logDSChange();
+        UserSettings.logChange();
 
         // forcus on folder's label for renaming
         DS.getGrid(ds.id).click()
@@ -268,7 +268,7 @@ window.DS = (function ($, DS) {
                     .attr("data-dsname", newName)
                     .attr("title", newName);
 
-                UserSettings.logDSChange();
+                UserSettings.logChange();
                 return true;
             } else {
                 $label.html(oldName);
@@ -555,7 +555,7 @@ window.DS = (function ($, DS) {
                 }
             }
 
-            UserSettings.logDSChange();
+            UserSettings.logChange();
 
             var msgOptions = {
                 "newDataSet": true,
@@ -654,7 +654,7 @@ window.DS = (function ($, DS) {
             if (!noDeFocus) {
                 focusOnForm();
             }
-            UserSettings.logDSChange();
+            UserSettings.logChange();
 
             Transaction.done(txId);
             deferred.resolve();
@@ -848,7 +848,7 @@ window.DS = (function ($, DS) {
         }
 
         removeDS(dsId);
-        UserSettings.logDSChange();
+        UserSettings.logChange();
         return true;
     }
 
@@ -1881,7 +1881,7 @@ window.DS = (function ($, DS) {
                 .data("dsParentId", targetId);
             DS.goToDir(targetId);
             refreshDS();
-            UserSettings.logDSChange();
+            UserSettings.logChange();
         }
     };
 
@@ -1919,7 +1919,7 @@ window.DS = (function ($, DS) {
             }
             refreshDS();
 
-            UserSettings.logDSChange();
+            UserSettings.logChange();
         }
     };
 
@@ -1935,7 +1935,7 @@ window.DS = (function ($, DS) {
                     .data("dsParentId", grandPaId);
             DS.goToDir(grandPaId);
             refreshDS();
-            UserSettings.logDSChange();
+            UserSettings.logChange();
         }
     };
 

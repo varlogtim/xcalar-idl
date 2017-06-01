@@ -152,7 +152,7 @@ window.UserSettings = (function($, UserSettings) {
         }
     };
 
-    UserSettings.logDSChange = function() {
+    UserSettings.logChange = function() {
         hasDSChange = true;
         KVStore.logChange();
     };
@@ -215,6 +215,7 @@ window.UserSettings = (function($, UserSettings) {
             } else {
                 UserSettings.setPref("hideDataCol", true, true);
             }
+            UserSettings.logChange();
         });
 
         $("#enableCreateTable").click(function() {
@@ -222,6 +223,7 @@ window.UserSettings = (function($, UserSettings) {
             var toEnable = !($checkbox.hasClass("checked"));
             setEnableCreateTable(toEnable);
             UserSettings.setPref("enableCreateTable", toEnable, true);
+            UserSettings.logChange();
         });
 
         $("#hideXcUDF").click(function() {
@@ -238,6 +240,7 @@ window.UserSettings = (function($, UserSettings) {
                 DSPreview.toggleXcUDFs(false);
                 DSExport.toggleXcUDFs(false);
             }
+            UserSettings.logChange();
         });
 
         $("#hideSysOps").click(function() {
@@ -250,6 +253,7 @@ window.UserSettings = (function($, UserSettings) {
                 UserSettings.setPref("hideSysOps", false, true);
                 QueryManager.toggleSysOps(false);
             }
+            UserSettings.logChange();
         });
 
         // XXX temporary hidden
@@ -286,6 +290,7 @@ window.UserSettings = (function($, UserSettings) {
             maxVal: 60,
             onChangeEnd: function(val) {
                 MonitorGraph.updateInterval(val * 1000);
+                UserSettings.logChange();
             }
         });
 
@@ -295,6 +300,7 @@ window.UserSettings = (function($, UserSettings) {
             maxVal: 600,
             onChangeEnd: function() {
                 Support.heartbeatCheck();
+                UserSettings.logChange();
             }
         });
 
@@ -318,6 +324,7 @@ window.UserSettings = (function($, UserSettings) {
             advanceOption.modify({
                 previewSize: size
             });
+            UserSettings.logChange();
         }
     }
 

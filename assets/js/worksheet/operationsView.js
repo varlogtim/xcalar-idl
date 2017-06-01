@@ -148,7 +148,7 @@ window.OperationsView = (function($, OperationsView) {
         });
 
         $operationsView.find('.filterMapFuncArea .clear').mousedown(
-            function(event) {
+        function(event) {
             if ($('#mapFilter').val() !== "") {
                 $('#mapFilter').val("").trigger("input").focus();
                 event.preventDefault(); // prevent input from blurring

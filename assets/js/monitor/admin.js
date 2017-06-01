@@ -385,7 +385,7 @@ window.Admin = (function($, Admin) {
     function stopNode() {
         supportPrep('stopNode')
         .then(XFTSupportTools.clusterStop)
-        .then(function(ret) {
+        .then(function() {
             if ($('#container').hasClass('supportOnly')) {
                 xcHelper.showSuccess(SuccessTStr.StopCluster);
             } else {

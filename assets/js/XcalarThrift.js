@@ -2390,18 +2390,18 @@ function queryStateErrorStatusHandler(error, statusesToIgnore) {
 
 // used to check when a query finishes or when a queryCancel finishes
 function XcalarQueryCheck(queryName, canceling) {
-    function getDagNodeStatuses(dagOutput) {
-        var nodeStatuses = {};
-        for (var i = 0; i < dagOutput.length; i++) {
-            var tableName = dagOutput[i].name.name;
-            if (tableName.indexOf(gDSPrefix) > -1) {
-                tableName = tableName.substring(tableName.indexOf(gDSPrefix));
-            }
-            var state = dagOutput[i].state;
-            nodeStatuses[tableName] = DgDagStateTStr[state];
-        }
-        return nodeStatuses;
-    }
+    // function getDagNodeStatuses(dagOutput) {
+    //     var nodeStatuses = {};
+    //     for (var i = 0; i < dagOutput.length; i++) {
+    //         var tableName = dagOutput[i].name.name;
+    //         if (tableName.indexOf(gDSPrefix) > -1) {
+    //             tableName = tableName.substring(tableName.indexOf(gDSPrefix));
+    //         }
+    //         var state = dagOutput[i].state;
+    //         nodeStatuses[tableName] = DgDagStateTStr[state];
+    //     }
+    //     return nodeStatuses;
+    // }
     if (tHandle == null) {
         return PromiseHelper.resolve(null);
     }
@@ -2421,8 +2421,8 @@ function XcalarQueryCheck(queryName, canceling) {
         setTimeout(function() {
             XcalarQueryState(queryName)
             .then(function(queryStateOutput) {
-                var nodeStatuses =
-                        getDagNodeStatuses(queryStateOutput.queryGraph.node);
+                // var nodeStatuses =
+                //         getDagNodeStatuses(queryStateOutput.queryGraph.node);
                 var state = queryStateOutput.queryState;
                 if (state === QueryStateT.qrFinished ||
                     state === QueryStateT.qrCancelled) {

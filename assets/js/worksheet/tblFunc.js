@@ -514,7 +514,7 @@ window.TblFunc = (function(TblFunc, $) {
             var right = Math.max(5, rightOffset - windowWidth);
             $rightTable.find(".tableScrollBar").css("right", right);
 
-            var adjustNext = true;
+            adjustNext = true;
             while (adjustNext) {
                 $rightTable = $rightTable.prev();
                 if ($rightTable.length === 0) {

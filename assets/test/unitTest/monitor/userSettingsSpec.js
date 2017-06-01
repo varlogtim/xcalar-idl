@@ -26,13 +26,13 @@ describe("User Setting Test", function() {
             UserSettings.setPref("general", oldCache);
         });
 
-        it("UserSettings.logDSChange should work", function() {
+        it("UserSettings.logChange should work", function() {
             var oldFunc = KVStore.logChange;
             var test = false;
             KVStore.logChange = function() {
                 test = true;
             };
-            UserSettings.logDSChange();
+            UserSettings.logChange();
             expect(test).to.be.true;
 
             KVStore.logChange = oldFunc;
@@ -77,7 +77,7 @@ describe("User Setting Test", function() {
         });
 
         it("should commit change", function(done) {
-            UserSettings.logDSChange();
+            UserSettings.logChange();
 
             UserSettings.commit(true)
             .then(function() {
@@ -104,7 +104,7 @@ describe("User Setting Test", function() {
 
 
         it("should handle fail case", function(done) {
-            UserSettings.logDSChange();
+            UserSettings.logChange();
 
             var oldFunc = KVStore.put;
             var oldFail = xcHelper.showFail;
@@ -134,7 +134,7 @@ describe("User Setting Test", function() {
         });
 
         it("should commit dsChange in XcSupport case", function(done) {
-            UserSettings.logDSChange();
+            UserSettings.logChange();
 
             var oldCache = gXcSupport;
             gXcSupport = true;
@@ -173,7 +173,7 @@ describe("User Setting Test", function() {
         });
 
         it("should commit admin settings", function(done) {
-            UserSettings.logDSChange();
+            UserSettings.logChange();
 
             var oldFunc = Admin.isAdmin;
             Admin.isAdmin = function() {
