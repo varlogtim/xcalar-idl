@@ -792,7 +792,7 @@ require("jsdom").env("", function(err, window) {
                 }
                 xcConsole.log("Writing");
                 var out = exec("tar -zxf " + zipPath + " -C " + basePath +
-                               "ext-available/");
+                               "ext-available/ --strip-components 1");
                 out.on('close', function(code) {
                     if (code) {
                         innerDeferred.reject(code);
