@@ -7,25 +7,6 @@ var userIdName = "test";
 var verbose = true;
 var superVerbose = true;
 
-setUserIdAndName = runEntity.setUserIdAndName = function(name, id, hashFunc) {
-    id = Number(id);
-    if (id !== getUserIdUnique(name)) {
-        return false;
-    }
-
-    userIdUnique = id;
-    userIdName = name;
-
-    return true;
-
-    function getUserIdUnique(name) {
-        var hash = hashFunc(name);
-        var len = 5;
-        var id = parseInt("0x" + hash.substring(0, len)) + 4000000;
-        return id;
-    }
-};
-
 ThriftHandle = function(args) {
     this.transport = null;
     this.protocol = null;
@@ -3986,23 +3967,25 @@ xcalarDemoFileDelete = runEntity.xcalarDemoFileDelete = function(thriftHandle, f
     return (deferred.promise());
 };
 
-xcalarLogLevelSetWorkItem = runEntity.xcalarLogLevelSetWorkItem = function(logLevel) {
+xcalarLogLevelSetWorkItem = runEntity.xcalarLogLevelSetWorkItem = function(logLevel, logFlush) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.logLevelSetInput = new XcalarApiLogLevelSetInputT();
 
     workItem.api = XcalarApisT.XcalarApiLogLevelSet;
     workItem.input.logLevelSetInput.logLevel = logLevel;
+    workItem.input.logLevelSetInput.logFlush = logFlush;
     return (workItem);
 };
 
-xcalarLogLevelSet = runEntity.xcalarLogLevelSet = function(thriftHandle, logLevel) {
+xcalarLogLevelSet = runEntity.xcalarLogLevelSet = function(thriftHandle, logLevel, logFlush) {
     var deferred = jQuery.Deferred();
     if (verbose) {
-        console.log("xcalarLogLevelSet(logLevel = " + logLevel.toString() + ")");
+        console.log("xcalarLogLevelSet(logLevel = " + logLevel.toString() +
+                    "logFlush = " + logFlush + ")");
     }
 
-    var workItem = xcalarLogLevelSetWorkItem(logLevel);
+    var workItem = xcalarLogLevelSetWorkItem(logLevel, logFlush);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {

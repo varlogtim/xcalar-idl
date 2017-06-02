@@ -583,7 +583,8 @@ StatusT = {
   'StatusInvalidStreamContext' : 574,
   'StatusInvalidStatsProtocol' : 575,
   'StatusStatStreamPartialFailure' : 576,
-  'StatusLogLevelSetInvalid' : 577
+  'StatusLogLevelSetInvalid' : 577,
+  'StatusConnectionWrongHandshake' : 578
 };
 StatusTStr = {0 : 'Success',
 1 : 'Operation not permitted',
@@ -1162,5 +1163,6 @@ StatusTStr = {0 : 'Success',
 574 : 'Invalid stream context received',
 575 : 'Invalid number of bytes sent in payload',
 576 : 'Encountered partial failure in stats stream, cleaning up',
-577 : 'Log level is too large'
+577 : 'Log level is too large',
+578 : 'Client performed a handshake we didn\'t understand'
 };

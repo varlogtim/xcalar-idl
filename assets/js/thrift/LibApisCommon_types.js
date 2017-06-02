@@ -4866,13 +4866,17 @@ XcalarApiParamFilterT.prototype.write = function(output) {
 
 XcalarApiParamExportT = function(args) {
   this.fileName = null;
-  this.udfTarget = null;
+  this.targetName = null;
+  this.targetType = null;
   if (args) {
     if (args.fileName !== undefined) {
       this.fileName = args.fileName;
     }
-    if (args.udfTarget !== undefined) {
-      this.udfTarget = args.udfTarget;
+    if (args.targetName !== undefined) {
+      this.targetName = args.targetName;
+    }
+    if (args.targetType !== undefined) {
+      this.targetType = args.targetType;
     }
   }
 };
@@ -4899,7 +4903,14 @@ XcalarApiParamExportT.prototype.read = function(input) {
       break;
       case 2:
       if (ftype == Thrift.Type.STRING) {
-        this.udfTarget = input.readString().value;
+        this.targetName = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 3:
+      if (ftype == Thrift.Type.I32) {
+        this.targetType = input.readI32().value;
       } else {
         input.skip(ftype);
       }
@@ -4920,9 +4931,14 @@ XcalarApiParamExportT.prototype.write = function(output) {
     output.writeString(this.fileName);
     output.writeFieldEnd();
   }
-  if (this.udfTarget !== null && this.udfTarget !== undefined) {
-    output.writeFieldBegin('udfTarget', Thrift.Type.STRING, 2);
-    output.writeString(this.udfTarget);
+  if (this.targetName !== null && this.targetName !== undefined) {
+    output.writeFieldBegin('targetName', Thrift.Type.STRING, 2);
+    output.writeString(this.targetName);
+    output.writeFieldEnd();
+  }
+  if (this.targetType !== null && this.targetType !== undefined) {
+    output.writeFieldBegin('targetType', Thrift.Type.I32, 3);
+    output.writeI32(this.targetType);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -11388,9 +11404,13 @@ XcalarApiGetMemoryUsageInputT.prototype.write = function(output) {
 
 XcalarApiLogLevelSetInputT = function(args) {
   this.logLevel = null;
+  this.logFlush = null;
   if (args) {
     if (args.logLevel !== undefined) {
       this.logLevel = args.logLevel;
+    }
+    if (args.logFlush !== undefined) {
+      this.logFlush = args.logFlush;
     }
   }
 };
@@ -11415,9 +11435,13 @@ XcalarApiLogLevelSetInputT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
-      case 0:
+      case 2:
+      if (ftype == Thrift.Type.BOOL) {
+        this.logFlush = input.readBool().value;
+      } else {
         input.skip(ftype);
-        break;
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -11432,6 +11456,11 @@ XcalarApiLogLevelSetInputT.prototype.write = function(output) {
   if (this.logLevel !== null && this.logLevel !== undefined) {
     output.writeFieldBegin('logLevel', Thrift.Type.I32, 1);
     output.writeI32(this.logLevel);
+    output.writeFieldEnd();
+  }
+  if (this.logFlush !== null && this.logFlush !== undefined) {
+    output.writeFieldBegin('logFlush', Thrift.Type.BOOL, 2);
+    output.writeBool(this.logFlush);
     output.writeFieldEnd();
   }
   output.writeFieldStop();

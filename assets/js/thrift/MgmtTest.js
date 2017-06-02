@@ -559,11 +559,11 @@ PromiseHelper = (function(PromiseHelper, $) {
     }
 
     function testLogLevelSetDebug(test) {
-        test.trivial(xcalarLogLevelSet(thriftHandle, 7));
+        test.trivial(xcalarLogLevelSet(thriftHandle, 7, false));
     }
 
     function testLogLevelSetCrit(test) {
-        test.trivial(xcalarLogLevelSet(thriftHandle, 2));
+        test.trivial(xcalarLogLevelSet(thriftHandle, 2, true));
     }
 
 
@@ -1037,9 +1037,6 @@ PromiseHelper = (function(PromiseHelper, $) {
             var rowCount1 = 0;
             var rowCount2 = 0;
 
-            var totalXdbPageConsumed = 0;
-            var totalXdbPageAllocated = 0;
-
             for (var i = 0; i < metaOutput.numMetas; i ++) {
                 rowCount1 += metaOutput.metas[i].numRows;
                 pgCount1 += metaOutput.metas[i].numPages;
@@ -1047,18 +1044,7 @@ PromiseHelper = (function(PromiseHelper, $) {
                     rowCount2 += metaOutput.metas[i].numRowsPerSlot[j];
                     pgCount2 += metaOutput.metas[i].numPagesPerSlot[j];
                 }
-
-                totalXdbPageConsumed = metaOutput.metas[i].xdbPageConsumedInBytes;
-                totalXdbPageAllocated = metaOutput.metas[i].xdbPageAllocatedInBytes;
             }
-
-            test.assert(totalXdbPageConsumed > 0, undefined,
-                        "Incorrect value (" + totalXdbPageConsumed + ")" +
-                        "returned for XDB page space required");
-
-            test.assert(totalXdbPageConsumed < totalXdbPageAllocated, undefined,
-                        "totalXdbPageConsumed (" + totalXdbPageConsumed +
-                        ")should less than allocated");
 
             if (pgCount1 == pgCount2 && rowCount1 == rowCount2) {
                 test.pass();
@@ -3806,7 +3792,8 @@ PromiseHelper = (function(PromiseHelper, $) {
     retinaExportParamType = XcalarApisT.XcalarApiExport;
     retinaExportParam = new XcalarApiParamExportT();
     retinaExportParam.fileName  = "retinaDstFile.csv";
-    retinaExportParam.udfTarget = "";
+    retinaExportParam.targetName = "";
+    retinaExportParam.targetType = 0;
 
     // Format
     // addTestCase(testFn, testName, timeout, TestCaseEnabled, Witness)
@@ -3970,8 +3957,8 @@ PromiseHelper = (function(PromiseHelper, $) {
     addTestCase(testBulkDeleteConstants, "bulk delete constant node", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testBulkDeleteDataset, "bulk delete datasets", defaultTimeout, TestCaseEnabled, "2314");
     addTestCase(testShutdown, "shutdown", defaultTimeout, TestCaseEnabled, "98");
-    addTestCase(testLogLevelSetCrit, "loglevelset LOG_CRIT", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testLogLevelSetDebug, "loglevelset LOG_DEBUG", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testLogLevelSetCrit, "loglevelset LOG_CRIT true", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testLogLevelSetDebug, "loglevelset LOG_DEBUG false", defaultTimeout, TestCaseEnabled, "");
 
     runTestSuite(testCases);
 
