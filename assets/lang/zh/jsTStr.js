@@ -566,6 +566,7 @@ SchedTStr = {
 "noParam": '无参数',
 "unknown": '未知',
 "failServerTime": '无法获得服务器时间',
+"ListSchedFail" : "获取调度器运行记录失败",
 'NewSched': '新建调度器',
 "Notrun": "未运行",
 "Success": "成功",

@@ -222,26 +222,31 @@
         </div>
       </div>
       <div id="scheduleResults" class="scheduleInfoSection">
+        <div id="scheduleTable" class="contentSection">
         <div class="loadSection">
             include "../../util/animatedEllipsis.html"
         </div>
-        <div id="scheduleTable" class="contentSection">
           <section class="titleSection">
             <div class="titleWrapper clearfix">
               <div class="row">
-                <div class="title time"><%= dicts.sched.runtime %></div>
-                <div class="title last"><%= dicts.sched.parameters %></div>
-                <div class="title status"><%= dicts.sched.status %></div>
-                <div class="title outputLocation"><%= dicts.sched.outputLocation %></div>
+                <div class="title history"><%= dicts.sched.runHistory %></div>
+                <div class="title border"></div>
+                <div class="title details"><%= dicts.sched.details %></div>
               </div>
             </div>
           </section>
           <section class="mainSection">
-              <div class="row">
-                <div class="content timeContent"><%= dicts.sched.noRun %></div>
-                <div class="content lastContent"><%= dicts.sched.noRun %></div>
-                <div class="content statusContent"><%= dicts.sched.noRun %></div>
-                <div class="content outputLocationContent"><%= dicts.sched.noRun %></div>
+              <div class="historySection">
+                <div class="row">
+                  <circle class="hint"><%= dicts.sched.noRun %></circle>
+                  <div class="content timeContent"><%= dicts.sched.noRun %></div>
+                </div>
+              </div>
+              <div class="border"></div>
+              <div class="detailsSection">
+                <div class="row">
+                  <div class="content infoContent"><%= dicts.sched.noRun %></div>
+                </div>
               </div>
           </section>
         </div>

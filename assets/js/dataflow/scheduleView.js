@@ -5,6 +5,8 @@ window.Scheduler = (function(Scheduler, $) {
     var $timePicker;
     var $dateInput;
     var $timeInput;
+    var $historySection;
+    var $detailsSection;
 
     var currentDataFlowName;
     var displayServerTimeCycle;
@@ -29,6 +31,8 @@ window.Scheduler = (function(Scheduler, $) {
         $timePicker = $("#modScheduler-timePicker");
         $dateInput = $modScheduleForm.find(".timeSection .date");
         $timeInput = $modScheduleForm.find(".timeSection .time");
+        $historySection = $("#scheduleTable .historySection");
+        $detailsSection = $("#scheduleTable .detailsSection");
 
         // Card
         $scheduleDetail.find(".close").on("click", function() {
@@ -227,6 +231,16 @@ window.Scheduler = (function(Scheduler, $) {
                 return;
             }
             switchTab($tab.index());
+        });
+
+        $historySection.on("click", ".row", function() {
+            var $row = $(this);
+            var index = $historySection.find(".row").index(this);
+            $historySection.find(".row").removeClass("chosen");
+            $detailsSection.find(".record").removeClass("chosen");
+            $row.addClass("chosen");
+            var $record = $detailsSection.find(".record").eq(index);
+            $record.addClass("chosen");
         });
     };
 
@@ -720,13 +734,10 @@ window.Scheduler = (function(Scheduler, $) {
         // other case, will restart and ingore old fetching result
 
         var deferred = jQuery.Deferred();
-        var $section = $("#scheduleTable .mainSection");
         var $refreshBtn = $("#modScheduleForm-refresh");
         var outputStr = "";
-        var html = getOneRecordHtml("", "", "", "");
-
-        $section.html(html);
-
+        $historySection.html("");
+        $detailsSection.html("");
         $refreshBtn.addClass("xc-disabled");
 
         var dataflowName = currentDataFlowName;
@@ -743,34 +754,35 @@ window.Scheduler = (function(Scheduler, $) {
             }
 
             var scheduleInfo = data[0];
-            html = "";
-
+            histories = "";
+            infos = "";
             if (scheduleInfo && scheduleInfo.scheduleResults.length) {
-                scheduleInfo.scheduleResults.forEach(function(res) {
-                    var startTime = "Start: " +
-                        getUTCStr(res.startTime, true);
-                    var endTime = (res.endTime ? ("End: " + getUTCStr(res.endTime, true)) : "-");
-                    var runTimeStr = startTime + "<br>" + endTime;
-                    var parameterStr = getParameterStr(res.parameters);
-                    var statusStr = res.endTime ? StatusTStr[res.status]: "Running";
-                    html = getOneRecordHtml(runTimeStr, parameterStr,
-                                             statusStr, outputStr) + html;
+                scheduleInfo.scheduleResults.forEach(function(res, index) {
+                    var record = getOneRecordHtml(res, outputStr, index);
+                    histories = record.history + histories;
+                    infos = record.info + infos;
                 });
             } else {
-                html = getOneRecordHtml(SchedTStr.Notrun, SchedTStr.Notrun,
-                                        SchedTStr.Notrun, SchedTStr.Notrun);
+                histories = '<div class="row noRun">' + SchedTStr.Notrun +
+                            '</div>';
+                infos = "";
             }
 
-            $section.html(html);
+            $historySection.html(histories);
+            $detailsSection.html(infos);
+            $historySection.find(".row:first-child").addClass("chosen");
+            $detailsSection.find(".record:first-child").addClass("chosen");
             deferred.resolve();
         })
         .fail(function(error) {
             if (dataflowName !== currentDataFlowName) {
                 return;
             }
-
-            html = getOneRecordHtml("", "", "", "");
-            $section.html(html);
+            histories = '<div class="row noRun">' + SchedTStr.ListSchedFail +
+                        '</div>';
+            infos = "";
+            $historySection.html(histories);
+            $detailsSection.html(infos);
             deferred.reject(error);
         })
         .always(function() {
@@ -785,44 +797,108 @@ window.Scheduler = (function(Scheduler, $) {
         return deferred.promise();
     }
 
-    function getOneRecordHtml(runTimeStr, parameterStr, statusStr, outputStr) {
-        var record ='<div class="row' +
-                    ((runTimeStr === SchedTStr.Notrun || runTimeStr === "") ?
-                    ' noRun' : '')+ '">' +
-                    '<div class="content timeContent">' +
-                        runTimeStr +
+    function getOneRecordHtml (res, outputStr, index) {
+        var result = {};
+        var startTimeStr = getUTCStr(res.startTime, true);
+        var endTimeStr = (res.endTime ? getUTCStr(res.endTime, true) : "-");
+        var parameters = getParameterStr(res.parameters);
+        var systemParameterStr = parameters.systemParameterStr;
+        var customizedParameterStr = parameters.customizedParameterStr;
+        // console.log("systemParameterStr", systemParameterStr)
+        // console.log("customizedParameterStr", customizedParameterStr)
+        var statusStr = (res.endTime ? StatusTStr[res.status]: "Running");
+        var statusClass;
+        if (statusStr === "Running") {
+            statusClass = "processing";
+        } else if (statusStr === "Success" ||
+                   statusStr === "Export file already exists") {
+            statusClass = "success";
+        } else {
+            statusClass = "fail";
+        }
+
+        var info  =  '<div class="record">' +
+                    '<div class="row startTime">' +
+                        '<div Class="item">Start Time (UTC):</div>' +
+                        '<div Class="content">' + startTimeStr + '</div>' +
                     '</div>' +
-                    '<div class="content lastContent">' +
-                        parameterStr +
+                    '<div class="row endTime">' +
+                        '<div Class="item">End Time (UTC):</div>' +
+                        '<div Class="content">' + endTimeStr + '</div>' +
                     '</div>' +
-                    '<div class="content statusContent">' +
-                        statusStr +
+                    '<div class="row parameters systemParameters">' +
+                        '<div Class="item">System Parameters:</div>' +
+                        '<div Class="content">' + systemParameterStr + '</div>' +
                     '</div>' +
-                    '<div class="content outputLocationContent">' +
-                        outputStr +
+                    '<div class="row parameters customizedParameters">' +
+                        '<div Class="item">Customized Parameters:</div>' +
+                        '<div Class="content">' + customizedParameterStr + '</div>' +
+                    '</div>' +
+                    '<div class="row status">' +
+                        '<div Class="item">Status:</div>' +
+                        '<div Class="content">' + statusStr + '</div>' +
+                    '</div>' +
+                    '<div class="row outputLocationContent">' +
+                        '<div Class="item">Output Location:</div>' +
+                        '<div Class="content">' + outputStr + '</div>' +
                     '</div>'+
                     '</div>';
-        return record;
+
+        var history  = '<div class="row">' +
+                        '<div class="info ' + statusClass + '">' +
+                            '<div class="hint">' +
+                            '</div>' +
+                        '</div>' +
+                        '<div class="order">' +
+                            index +
+                        '</div>' +
+                        '<div class="time">' +
+                            startTimeStr +
+                        '</div>' +
+                    '</div>';
+        result.history = history;
+        result.info = info;
+        return result;
     }
 
     function getParameterStr(paramArray) {
-        var str = "";
-        for (var i = 0; i < paramArray.length; i++) {
-            var currParam = paramArray[i];
-            if (i !== 0) {
-                str += "<span>" + ", " + "</span>";
+        var systemParameterStr = "";
+        var customizedParameterStr = "";
+        var hasSys = false;
+        var hasCus = false;
+        var res = {};
+        if (paramArray != null) {
+            for (var i = 0; i < paramArray.length; i++) {
+                var currParam = paramArray[i];
+                if (systemParams.hasOwnProperty(currParam.parameterName)) {
+                    systemParameterStr = systemParameterStr +
+                                         (hasSys ? "</div>":"") +
+                                         '<div class="paramRow">' +
+                                         "<span>" + currParam.parameterName +
+                                         "</span>" +
+                                         "<span>: </span>" +
+                                         "<span>" + currParam.parameterValue +
+                                         "</span>";
+                    hasSys = true;
+                } else {
+                    customizedParameterStr = customizedParameterStr +
+                                            (hasCus ? "</div>":"")+
+                                            '<div class="paramRow">' +
+                                            "<span>" + currParam.parameterName +
+                                            "</span>" +
+                                            "<span>: </span>" +
+                                            "<span>" + currParam.parameterValue +
+                                            "</span>";
+                    hasCus = true;
+                }
             }
-            str += '<span class="' +
-                    (systemParams.hasOwnProperty(currParam.parameterName) ?
-                    "systemParams" : "currParams") +
-                    '">' + currParam.parameterName + "</span>" +
-                    "<span>" + ": " + "</span>" +
-                    "<span>" + currParam.parameterValue + "</span>";
         }
-        if (str.length === 0) {
-            str = SchedTStr.noParam;
-        }
-        return str;
+        res.systemParameterStr = systemParameterStr.length === 0 ?
+                                 SchedTStr.noParam : systemParameterStr + '</div>';
+        res.customizedParameterStr = customizedParameterStr.length === 0 ?
+                                 SchedTStr.noParam : (customizedParameterStr
+                                 +'</div>');
+        return res;
     }
 
     function getOutputLocation() {

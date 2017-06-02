@@ -916,74 +916,153 @@
     #scheduleTable {
         @rowHeight: 30px;
         background-color: @color-bg-white-three;
-        border-right: 1px solid @color-border-white-two;
-
+        .border {
+            width: 2px;
+            height: 100%;
+            background-color: @color-white;
+            float: left;
+        }
         .titleSection {
             padding-right: 11px;
-            border: 1px solid @color-border-white-two;
-            background-color: @color-bg-white-seven;
-            border-left: none;
-            border-right: none;
-            .row {
-                height: @rowHeight;
+            background-color: @color-table-midGray;
+            border: none;
+            .row, .title {
+                height: 40px;
+            }
+            .history {
+                width: 255px;
+                border-right: 1px @color-white;
+            }
+            .details {
+                width: ~"calc(100% - 257px)";
             }
         }
         .mainSection {
-            max-height: 300px;
-            overflow-x: hidden;
-            overflow-y: scroll;
-            margin-bottom: 40px;
-            border-top: none;
-            border-bottom: 1px solid @color-border-white-two;
+            height: 320px;
+            border: none;
             line-height: 0px;
-            .row {
-                height: @rowHeight * 2;
+            overflow: hidden;
+            background-color: @color-table-evenRow-gray;
+            .historySection {
+                width: 255px;
+                float: left;
+                display: inline-block;
+                height: 320px;
+                overflow-x: hidden;
+                overflow-y: auto;
+                background-color: @color-bg-white-three;
+                border-right: 1px @color-white;
+                .row {
+                    width: 100%;
+                    height: 40px;
+                    cursor: pointer;
+                    background-color: @color-bg-white-three;
+                    &.chosen {
+                        background-color: @color-table-evenRow-gray;
+                    }
+                    .info {
+                        width: 30px;
+                        height: 100%;
+                        float: left;
+                        .hint {
+                            width: 6px;
+                            height: 6px;
+                            margin-left: 15px;
+                            margin-top: 17px;
+                            .rounded(50%);
+                        }
+                        &.success {
+                            .hint {
+                                background-color: @color-sched-success;
+                            }
+                        }
+                        &.processing {
+                            .hint {
+                                background-color: @color-sched-processing;
+                            }
+                        }
+                        &.fail {
+                            .hint {
+                                background-color: @color-sched-fail;
+                            }
+                        }
+                    }
+                    .order {
+                        width: 50px;
+                        height: 100%;
+                        float: left;
+                        padding-left: 5px;
+                        line-height: 40px;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        cursor: pointer;
+                    }
+                    .time {
+                        width: 160px;
+                        height: 100%;
+                        float: left;
+                        line-height: 40px;
+                        padding-left: 5px;
+                    }
+                    &.noRun {
+                        .timeContent {
+                            text-align: center;
+                        }
+                        line-height: 40px;
+                        text-align: center;
+                    }
+                    &:hover {
+                        background-color: @color-table-evenRow-gray;
+                    }
+                }
+            }
+            .detailsSection {
+                width: ~"calc(100% - 262px)";
+                height: 320px;
+                float: left;
+                overflow-x: hidden;
+                overflow-y: auto;
+                display: inline-block;
+                background-color: @color-table-evenRow-gray;
+                padding-left: 20px;
+                padding-top: 10px;
+                .record {
+                    height: 100%;
+                    background-color: @color-table-evenRow-gray;
+                    display: none;
+                    &.chosen {
+                        display:block;
+                    }
+                }
+                .row {
+                    height: 20px;
+                    line-height: 20px;
+                    width: 100%;
+                    .item {
+                        width: 180px;
+                        float: left;
+                        // font-weight: 800;
+                    }
+                    .content {
+                        width: ~"calc(100% - 180px)";
+                        float: left;
+                    }
+                }
             }
         }
 
-        .content, .title, .grid-unit > div {
-            border-left: 1px solid @color-border-white-two;
+        .title, .grid-unit > div {
             display: inline-block;
             float: left;
             height: 100%;
             text-align: center;
             vertical-align: bottom;
-            line-height: 30px;
+            line-height: 40px;
             white-space: pre;
             &.title {
-                height: @rowHeight;
                 text-align: center;
             }
             .textOverflowOneLine;
-        }
-        .row {
-            width: 100%;
-            &:nth-child(odd) {
-               background-color: @color-bg-white-seven;
-            }
-            .timeContent, .time {
-                width: 216px;
-            }
-            .lastContent, .statusContent, .last, .status {
-                width: ~"calc(33% - 72px)";
-            }
-            .outputLocationContent, .outputLocation {
-                width: ~"calc(34% - 72px)";
-            }
-            .timeContent {
-                text-align: right;
-                padding-right: 10px;
-            }
-            &.noRun {
-                height: @rowHeight;
-                .timeContent {
-                    text-align: center;
-                }
-            }
-            .lastContent {
-                white-space: normal;
-                overflow-y: auto;
-            }
         }
     }
 }
@@ -1455,12 +1534,12 @@
         }
     }
 
-    .currParams {
-        color: @color-bg-select-blue;
-    }
-    .systemParams {
-        color: @color-bg-fern-green;
-    }
+    // .customizedParameters {
+    //     color: @color-bg-select-blue;
+    // }
+    // .systemParameters {
+    //     color: @color-bg-greyish-green;
+    // }
 }
 
 #scheduleDetail {

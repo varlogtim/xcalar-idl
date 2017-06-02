@@ -680,6 +680,7 @@ SchedTStr = {
     "noParam": "No parameters are defined",
     "unknown": "Unknown",
     "failServerTime": "Failed to get server time",
+    "ListSchedFail" : "Failed to get schedule results",
     "Notrun": "Not run yet",
     "Success": "Success",
     "NoExportParam": "The export(s) are not properly parameterized and" +

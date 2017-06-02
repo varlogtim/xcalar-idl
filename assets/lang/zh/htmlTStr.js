@@ -736,6 +736,8 @@ module.exports = {
         "SimpleMode": "基本模式",
         "AdvancedMode": "高级模式",
         "SIMULATE": "模拟",
+        "runHistory": "运行历史",
+        "details": "细节参数"
     },
     "smartCast": {
         "NoCast": "没有找到需要更改类型的列",
