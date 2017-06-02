@@ -759,22 +759,14 @@ function XcalarAddLocalFSExportTarget(targetName, path, txId) {
     target.specificInput.sfInput = new ExAddTargetSFInputT();
     target.specificInput.sfInput.url = "/" + path;
 
-
-    var def1 = xcalarAddExportTarget(tHandle, target);
-    // var def2 = XcalarGetQuery(workItem);
-    var def2 = jQuery.Deferred().resolve().promise();
-    jQuery.when(def1, def2)
-    .then(function(ret1, ret2) {
-        // XXX Add sql for this thing
-        // Transaction.log(txId, ret2);
-        deferred.resolve(ret1);
-    })
+    xcalarAddExportTarget(tHandle, target)
+    .then(deferred.resolve)
     .fail(function(error) {
         var thriftError = thriftLog("XcalarAddExportTarget", error);
         deferred.reject(thriftError);
     });
 
-    return (deferred.promise());
+    return deferred.promise();
 }
 
 function XcalarAddUDFExportTarget(targetName, path, udfName, txId) {
@@ -796,21 +788,14 @@ function XcalarAddUDFExportTarget(targetName, path, udfName, txId) {
     target.specificInput.udfInput.url = "/" + path;
     target.specificInput.udfInput.appName = udfName;
 
-    var def1 = xcalarAddExportTarget(tHandle, target);
-    // var def2 = XcalarGetQuery(workItem);
-    var def2 = jQuery.Deferred().resolve().promise();
-    jQuery.when(def1, def2)
-    .then(function(ret1, ret2) {
-        // XXX Add sql for this thing
-        // Transaction.log(txId, ret2);
-        deferred.resolve(ret1);
-    })
+    xcalarAddExportTarget(tHandle, target)
+    .then(deferred.resolve)
     .fail(function(error) {
         var thriftError = thriftLog("XcalarAddExportTarget", error);
         deferred.reject(thriftError);
     });
 
-    return (deferred.promise());
+    return deferred.promise();
 }
 
 function XcalarRemoveExportTarget(targetName, targetType) {
@@ -830,7 +815,7 @@ function XcalarRemoveExportTarget(targetName, targetType) {
         deferred.reject(thriftError);
     });
 
-    return (deferred.promise());
+    return deferred.promise();
 }
 
 // typePattern: "*", "file", "udf"
@@ -843,21 +828,15 @@ function XcalarListExportTargets(typePattern, namePattern) {
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
-
     // var workItem = xcalarListExportTargetsWorkItem(typePattern, namePattern);
-    var def1 = xcalarListExportTargets(tHandle, typePattern, namePattern);
-    // var def2 = XcalarGetQuery(workItem);
-    var def2 = jQuery.Deferred().resolve().promise();
-    jQuery.when(def1, def2)
-    .then(function(ret1, ret2) {
-        deferred.resolve(ret1);
-    })
+    xcalarListExportTargets(tHandle, typePattern, namePattern)
+    .then(deferred.resolve)
     .fail(function(error) {
         var thriftError = thriftLog("XcalarListExportTargets", error);
         deferred.reject(thriftError);
     });
 
-    return (deferred.promise());
+    return deferred.promise();
 }
 
 function XcalarExport(tableName, exportName, targetName, numColumns,
@@ -2099,9 +2078,10 @@ function XcalarJoin(left, right, dst, joinType, leftRename, rightRename, txId) {
 
         var leftRenameMap = [];
         var rightRenameMap = [];
+        var map;
         if (leftRename) {
             for (var i = 0; i < leftRename.length; i++) {
-                var map = new XcalarApiRenameMapT();
+                map = new XcalarApiRenameMapT();
                 map.oldName = leftRename[i].orig;
                 map.newName = leftRename[i].new;
                 map.type = leftRename[i].type;
@@ -2111,7 +2091,7 @@ function XcalarJoin(left, right, dst, joinType, leftRename, rightRename, txId) {
 
         if (rightRename) {
             for (var i = 0; i < rightRename.length; i++) {
-                var map = new XcalarApiRenameMapT();
+                map = new XcalarApiRenameMapT();
                 map.oldName = rightRename[i].orig;
                 map.newName = rightRename[i].new;
                 map.type = rightRename[i].type;
@@ -2686,16 +2666,10 @@ function XcalarMakeRetina(retName, tableArray, txId) {
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
     }
     // var workItem = xcalarMakeRetinaWorkItem(retName, tableArray);
-    var def1 = xcalarMakeRetina(tHandle, retName, tableArray);
-    var def2 = jQuery.Deferred().resolve().promise();
-    // var def2 = XcalarGetQuery(workItem);
-    jQuery.when(def1, def2)
-    .then(function(ret1, ret2) {
-        // Transaction.log(txId, ret2);
-        deferred.resolve(ret1);
-    })
-    .fail(function(error1, error2) {
-        var thriftError = thriftLog("XcalarMakeRetina", error1, error2);
+    xcalarMakeRetina(tHandle, retName, tableArray)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarMakeRetina", error);
         deferred.reject(thriftError);
     });
     return (deferred.promise());
@@ -2790,20 +2764,13 @@ function XcalarUpdateRetina(retName, dagNodeId, paramType, paramValues, txId) {
 
     // var workItem = xcalarUpdateRetinaWorkItem(retName, dagNodeId,
     //                                           paramType, paramValue);
-    var def1 = xcalarUpdateRetina(tHandle, retName, dagNodeId, paramType,
-                                  paramStruct);
-    var def2 = jQuery.Deferred().resolve().promise();
-    // var def2 = xcalarGetQuery(workItem);
-    jQuery.when(def1, def2)
-    .then(function(ret1, ret2) {
-        // Transaction.log(txId, ret2);
-        deferred.resolve(ret1);
-    })
-    .fail(function(error1, error2) {
-        var thriftError = thriftLog("XcalarUpdateRetina", error1, error2);
+    xcalarUpdateRetina(tHandle, retName, dagNodeId, paramType, paramStruct)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarUpdateRetina", error);
         deferred.reject(thriftError);
     });
-    return (deferred.promise());
+    return deferred.promise();
 }
 
 // XXX TODO SQL.ADD
@@ -2888,20 +2855,13 @@ function XcalarDeleteRetina(retName, txId) {
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
     }
     // var workItem = xcalarApiDeleteRetinaWorkItem(retName);
-    var def1 = xcalarApiDeleteRetina(tHandle, retName);
-    var def2 = jQuery.Deferred().resolve().promise();
-    // var def2 = XcalarGetQuery(workItem);
-
-    jQuery.when(def1, def2)
-    .then(function(ret1, ret2) {
-        // Transaction.log(txId, ret2);
-        deferred.resolve(ret1);
-    })
-    .fail(function(error1, error2) {
-        var thriftError = thriftLog("XcalarApiDeleteRetina", error1, error2);
+    xcalarApiDeleteRetina(tHandle, retName)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarApiDeleteRetina", error);
         deferred.reject(thriftError);
     });
-    return (deferred.promise());
+    return deferred.promise();
 }
 
 function XcalarImportRetina(retinaName, overwrite, retina, txId) {
@@ -2915,19 +2875,13 @@ function XcalarImportRetina(retinaName, overwrite, retina, txId) {
     }
     // var workItem = xcalarApiImportRetinaWorkItem(retinaName, overwrite,
     //                                              retina);
-    var def1 = xcalarApiImportRetina(tHandle, retinaName, overwrite, retina);
-    var def2 = jQuery.Deferred().resolve().promise();
-    // var def2 = XcalarGetQuery(workItem);
-    jQuery.when(def1, def2)
-    .then(function(ret1, ret2) {
-        // Transaction.log(txId, ret2);
-        deferred.resolve(ret1);
-    })
-    .fail(function(error1, error2) {
-        var thriftError = thriftLog("XcalarImportRetina", error1, error2);
+    xcalarApiImportRetina(tHandle, retinaName, overwrite, retina)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarImportRetina", error);
         deferred.reject(thriftError);
     });
-    return (deferred.promise());
+    return deferred.promise();
 }
 
 function XcalarExportRetina(retName, txId) {
@@ -2940,19 +2894,13 @@ function XcalarExportRetina(retName, txId) {
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
     }
     // var workItem = xcalarApiExportRetinaWorkItem(retName);
-    var def1 = xcalarApiExportRetina(tHandle, retName);
-    var def2 = jQuery.Deferred().resolve().promise();
-    // var def2 = XcalarGetQuery(workItem);
-    jQuery.when(def1, def2)
-    .then(function(ret1, ret2) {
-        // Transaction.log(txId, ret2);
-        deferred.resolve(ret1);
-    })
-    .fail(function(error1, error2) {
-        var thriftError = thriftLog("XcalarExportRetina", error1, error2);
+    xcalarApiExportRetina(tHandle, retName)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarExportRetina", error);
         deferred.reject(thriftError);
     });
-    return (deferred.promise());
+    return deferred.promise();
 }
 
 function XcalarDeleteSched(scheduleKey) {
@@ -3122,7 +3070,7 @@ function XcalarListSchedules(scheduleKey) {
         var thriftError = thriftLog("XcalarListSchedule", error1);
         deferred.reject(thriftError);
     });
-    return (deferred.promise());
+    return deferred.promise();
 }
 
 function XcalarPauseSched(scheduleKey) {
@@ -3163,11 +3111,11 @@ function XcalarPauseSched(scheduleKey) {
         }
         deferred.resolve(defRes);
     })
-    .fail(function(error1) {
-        console.log(error1)
-        deferred.reject(error1);
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarPauseSched", error);
+        deferred.reject(thriftError);
     });
-    return (deferred.promise());
+    return deferred.promise();
 }
 
 function XcalarResumeSched(scheduleKey) {
@@ -3208,11 +3156,11 @@ function XcalarResumeSched(scheduleKey) {
         }
         deferred.resolve(defRes);
     })
-    .fail(function(error1) {
-        console.log(error1)
-        deferred.reject(error1)
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarResumeSched", error);
+        deferred.reject(thriftError);
     });
-    return (deferred.promise());
+    return deferred.promise();
 }
 
 function XcalarKeyLookup(key, scope) {

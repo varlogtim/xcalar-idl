@@ -227,37 +227,24 @@ window.TableList = (function($, TableList) {
 
         // XXX make this public in case we need to reuse elsewhere
         function getAllTables(isActive) {
-            var wsheets = WSManager.getWSList();
             var tables = [];
-            var wsTables;
-            var ws;
-
-            for (var i = 0; i < wsheets.length; i++) {
-                ws = WSManager.getWSById(wsheets[i]);
-                if (isActive) {
-                    wsTables = ws.tables;
-                } else {
-                    wsTables = ws.archivedTables;
-                }
+            WSManager.getWSList().forEach(function(wsId) {
+                var ws = WSManager.getWSById(wsId);
+                var wsTables = isActive ? ws.tables : ws.archivedTables;
                 for (var j = 0; j < wsTables.length; j++) {
                     tables.push(gTables[wsTables[j]]);
                 }
-            }
+            });
 
-            wsheets = WSManager.getHiddenWSList();
-            for (var i = 0; i < wsheets.length; i++) {
-                ws = WSManager.getWSById(wsheets[i]);
-                if (isActive) {
-                    wsTables = ws.tempHiddenTables;
-                } else {
-                    wsTables = ws.archivedTables;
-                }
+            WSManager.getHiddenWSList().forEach(function(wsId) {
+                var ws = WSManager.getWSById(wsId);
+                var wsTables = isActive
+                               ? ws.tempHiddenTables
+                               : ws.archivedTables;
                 for (var j = 0; j < wsTables.length; j++) {
                     tables.push(gTables[wsTables[j]]);
                 }
-            }
-
-
+            });
             return tables;
         }
 
@@ -1038,7 +1025,7 @@ window.TableList = (function($, TableList) {
 
         var totalHtml = "";
         for (var i = 0; i < sortedTables.length; i++) {
-            var table     = sortedTables[i][0];
+            var table = sortedTables[i][0];
             var timeStamp = sortedTables[i][1];
 
             // pointer to a day after at 0:00 am

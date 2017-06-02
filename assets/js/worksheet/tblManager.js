@@ -918,13 +918,13 @@ window.TblManager = (function($, TblManager) {
         for (var i = 0; i < numCols; i++) {
             var newColNum = i + 1;
             var newProgCol = table.getCol(newColNum);
-            var colName = newProgCol.getFrontColName(true);
+            var newColName = newProgCol.getFrontColName(true);
             var oldColNum;
-            if (colName === "") {
+            if (newColName === "") {
                 oldColNum = noNameCols[noNameIndex];
                 noNameIndex++;
             } else {
-                oldColNum = colNumMap[colName];
+                oldColNum = colNumMap[newColName];
             }
             var $thToMove = thLists[oldColNum];
 
@@ -1048,20 +1048,19 @@ window.TblManager = (function($, TblManager) {
         var columns = [];
         var colNums = [];
         if (columnNums !== undefined) {
-
             if (typeof columnNums !== "object") {
                 colNums.push(columnNums);
             } else {
                 colNums = columnNums;
             }
-            for (var i = 0; i < colNums.length; i++) {
-                columns.push(table.tableCols[colNums[i] - 1]);
-            }
+            colNums.forEach(function(colNum) {
+                columns.push(table.getCol(colNum));
+            });
         } else {
             columns = table.tableCols;
-            for (var i = 0; i < columns.length; i++) {
-                colNums.push(i + 1);
-            }
+            colNums = columns.map(function(col, index) {
+                return index + 1;
+            });
         }
 
         var $th;
@@ -1419,6 +1418,7 @@ window.TblManager = (function($, TblManager) {
         var noDeleteMsg = "";
         var failedTablesStr = "";
         var successTables = [];
+
         for (var i = 0, len = results.length; i < len; i++) {
             if (results[i] != null && results[i].error != null) {
                 fails.push({tables: tables[i], error: results[i].error});
@@ -1432,16 +1432,18 @@ window.TblManager = (function($, TblManager) {
 
         if (noDeleteTables.length) {
             var tableName;
-            for (var i = 0; i < noDeleteTables.length; i++) {
-                if (gTables[noDeleteTables[i]]) {
-                    tableName = gTables[noDeleteTables[i]].getName();
+            noDeleteTables.forEach(function(tIdOrName) {
+                if (gTables[tIdOrName]) {
+                    tableName = gTables[tIdOrName].getName();
                 } else {
-                    tableName = noDeleteTables[i];
+                    tableName = tIdOrName;
                 }
                 noDeleteMsg += tableName + ", ";
-                fails.push({tables: tableName,
-                            error: ErrTStr.CannotDropLocked});
-            }
+                fails.push({
+                    "tables": tableName,
+                    "error": ErrTStr.CannotDropLocked
+                });
+            });
             // remove last comma
             noDeleteMsg = noDeleteMsg.substr(0, noDeleteMsg.length - 2);
             if (noDeleteTables.length === 1) {

@@ -1417,11 +1417,11 @@ window.XIApi = (function(XIApi, $) {
         var newProgCols = [];
         var numNewCols = gbArgs.length;
 
-        for (var i = 0; i < numNewCols; i++) {
-            escapedNames.push(gbArgs[i].newColName);
-            newProgCols.push(ColManager.newPullCol(gbArgs[i].newColName, gbArgs[i].newColName));
-
-        }
+        gbArgs.forEach(function(gbArg) {
+            var name = gbArg.newColName;
+            escapedNames.push(name);
+            newProgCols.push(ColManager.newPullCol(name, name));
+        });
 
         // xx kinda crazy but the backend returns a lot of \ slashes
         // front name of a.b turns into a\.b in the backend and then
@@ -1432,8 +1432,7 @@ window.XIApi = (function(XIApi, $) {
         if (isIncSample) {
             var newCols = [];
             var newProgColPosFound = false;
-            for (var i = 0; i < sampleCols.length; i++) {
-                var colNum = sampleCols[i];
+            sampleCols.forEach(function(colNum) {
                 var backCol = tableCols[colNum].getBackColName();
                 if (!newProgColPosFound) {
                     for (var j = 0; j < numGroupByCols; j++) {
@@ -1448,12 +1447,12 @@ window.XIApi = (function(XIApi, $) {
                 }
 
                 newCols.push(tableCols[colNum]);
-            }
+            });
 
             if (!newProgColPosFound) {
-                for (var i = 0; i < numNewCols; i++) {
-                    newCols.unshift(newProgCols[i]);
-                }
+                newProgCols.forEach(function(progCol) {
+                    newCols.unshift(progCol);
+                });
             }
             // Note that if include sample,
             // a.b should not be escaped to a\.b
@@ -1461,10 +1460,9 @@ window.XIApi = (function(XIApi, $) {
             newCols.push(tableCols[dataColNum]);
             finalCols = xcHelper.deepCopy(newCols);
         } else {
-            finalCols = [];
-            for (var i = 0; i < newProgCols.length; i++) {
-                finalCols.push(newProgCols[i]);
-            }
+            finalCols = newProgCols.map(function(progCol) {
+                return progCol;
+            });
             // finalCols = [newProgCol];
             // Pull out each individual groupByCols
             for (var i = 0; i < numGroupByCols; i++) {
