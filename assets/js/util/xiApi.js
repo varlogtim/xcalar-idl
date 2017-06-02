@@ -126,6 +126,7 @@ window.XIApi = (function(XIApi, $) {
         var toDelete = false;
 
         if (!isValidAggName(dstAggName)) {
+            console.error("invalid agg name");
             var nameRoot = xcHelper.getTableName(tableName);
             dstAggName = xcHelper.randName(nameRoot + "-agg");
             toDelete = true;
@@ -640,7 +641,7 @@ window.XIApi = (function(XIApi, $) {
     };
 
     XIApi.getNumRows = function(tableName) {
-        if (tableName === null) {
+        if (tableName == null) {
             return PromiseHelper.reject("Invalid args in getNumRows");
         }
         var tableId = xcHelper.getTableId(tableName);
@@ -652,8 +653,8 @@ window.XIApi = (function(XIApi, $) {
     };
 
     XIApi.fetchData = function(tableName, startRowNum, rowsToFetch) {
-        if (tableName === null || startRowNum === null ||
-            rowsToFetch === null || rowsToFetch <= 0)
+        if (tableName == null || startRowNum == null ||
+            rowsToFetch == null || rowsToFetch <= 0)
         {
             return PromiseHelper.reject("Invalid args in fetch data");
         }
@@ -718,7 +719,7 @@ window.XIApi = (function(XIApi, $) {
     };
 
     XIApi.fetchColumnData = function(colName, tableName, startRowNum, rowsToFetch) {
-        if (colName === null) {
+        if (colName == null) {
             // other args with check in XIApi.fetchData
             return PromiseHelper.reject("Invalid args in fetch data");
         }
@@ -1659,6 +1660,7 @@ window.XIApi = (function(XIApi, $) {
         var isValid = isCorrectTableNameFormat(tableName);
 
         if (!isValid) {
+            console.error("incorrect table name format");
             return false;
         }
 
@@ -1670,7 +1672,9 @@ window.XIApi = (function(XIApi, $) {
             namePart = namePart.replace(/\./g, "");
             isValid = xcHelper.isValidTableName(namePart);
         }
-
+        if (!isValid) {
+            console.error("incorrect table name format");
+        }
         return isValid;
     }
 
@@ -1697,6 +1701,7 @@ window.XIApi = (function(XIApi, $) {
 
     function isValidPrefix(prefix) {
         if (!prefix || prefix === "") {
+            console.error("invalid prefix");
             return false;
         }
         return xcHelper.checkNamePattern("prefix", "check", prefix);

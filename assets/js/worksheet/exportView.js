@@ -423,7 +423,7 @@ window.ExportView = (function($, ExportView) {
         }
 
         formHelper.disableSubmit();
-
+        var tableName = exportTableName;
         checkDuplicateExportName(exportName, advancedOptions)
         .then(function(hasDuplicate) {
             if (hasDuplicate) {
@@ -439,7 +439,7 @@ window.ExportView = (function($, ExportView) {
             } else {
                 var closeModal = true;
                 var modalClosed = false;
-                xcFunction.exportTable(exportTableName, exportName,
+                xcFunction.exportTable(tableName, exportName,
                                        $exportPath.val(),
                                        frontColumnNames.length,
                                        backColumnNames, frontColumnNames,
