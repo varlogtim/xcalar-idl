@@ -29949,9 +29949,9 @@ XcalarApiServiceClient.prototype.recv_queueWork = function() {
 
 
 XcalarApiVersionT = {
-  'XcalarApiVersionSignature' : 104834669
+  'XcalarApiVersionSignature' : 171543330
 };
-XcalarApiVersionTStr = {104834669 : '63fa66df9f6e4963d0e1ed6bbcdd88c9'
+XcalarApiVersionTStr = {171543330 : 'a398b22a31b750ebf928f00a2eb3b580'
 };
 // Async extension for XcalarApiService.js
 XcalarApiServiceClient.prototype.queueWorkAsync = function(workItem) {
