@@ -85,22 +85,22 @@ describe("UDF Test", function() {
             });
         });
 
-        it("parseSytanxError should work", function() {
-            var parseSytanxError = UDF.__testOnly__.parseSytanxError;
+        it("parseSyntaxError should work", function() {
+            var parseSyntaxError = UDF.__testOnly__.parseSyntaxError;
             // case 1
-            var res = parseSytanxError(null);
+            var res = parseSyntaxError(null);
             expect(res).to.be.null;
             // case 2
-            res = parseSytanxError({"error": "abc"});
+            res = parseSyntaxError({"error": "abc"});
             expect(res).to.be.null;
             // case 3
-            res = parseSytanxError({"error": "a,b,c,d"});
+            res = parseSyntaxError({"error": "a,b,c,d"});
             expect(res).to.be.null;
             // case 4
-            res = parseSytanxError({"error": "(a,b,c,d)"});
+            res = parseSyntaxError({"error": "(a,b,c,d)"});
             expect(res).to.be.null;
 
-            res = parseSytanxError({"error": syntaxErrror});
+            res = parseSyntaxError({"error": syntaxErrror});
             expect(res).to.be.an("object");
             expect(res.reason).to.equal("\'invalid syntax\'");
             expect(res.line).to.equal(12);

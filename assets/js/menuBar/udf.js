@@ -691,12 +691,14 @@ window.UDF = (function($, UDF) {
                     xcHelper.showSuccess(SuccessTStr.UploadUDF);
 
                     refreshUDF(true);
-
+                    var $uploadedFunc = $("#udf-fnMenu").find("li[data-title=" +
+                                                              moduleName + "]");
+                    $uploadedFunc.trigger(fakeEvent.mouseup);
                     deferred.resolve();
                 })
                 .fail(function(error) {
                     // XXX might not actually be a syntax error
-                    var syntaxErr = parseSytanxError(error);
+                    var syntaxErr = parseSyntaxError(error);
                     if (syntaxErr != null) {
                         var errMsg = xcHelper.replaceMsg(SideBarTStr.UDFError, syntaxErr);
                         Alert.error(SideBarTStr.SyntaxError, errMsg);
@@ -740,7 +742,7 @@ window.UDF = (function($, UDF) {
         return deferred.promise();
     }
 
-    function parseSytanxError(error) {
+    function parseSyntaxError(error) {
         if (!error || !error.error) {
             return null;
         }
@@ -807,7 +809,7 @@ window.UDF = (function($, UDF) {
         UDF.__testOnly__.isEditableUDF = isEditableUDF;
         UDF.__testOnly__.getEntireUDF = getEntireUDF;
         UDF.__testOnly__.downloadUDF = downloadUDF;
-        UDF.__testOnly__.parseSytanxError = parseSytanxError;
+        UDF.__testOnly__.parseSyntaxError = parseSyntaxError;
         UDF.__testOnly__.uploadUDF = upload;
     }
     /* End Of Unit Test Only */
