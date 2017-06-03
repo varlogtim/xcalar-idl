@@ -119,6 +119,8 @@ window.UExtHello = (function(UExtHello) {
      *           can not be less than it. Any invalid value may make extension
      *           has unexpected behavior.
      *
+     *  8) variableArg: Optional, when set to true, will allow to add multiple
+     *                  args for the field, typeCheck will run all inputs
      *
      * E.g of an argument object:
      * {
@@ -126,6 +128,7 @@ window.UExtHello = (function(UExtHello) {
      *  "name": "Example 1",
      *  "allowEmpty": true,
      *  "fieldClass": "col1",
+     *  "variableArg": true,
      *  "typeCheck": {
      *      "columnType": ["number"],
      *      "tableField": "tableA"

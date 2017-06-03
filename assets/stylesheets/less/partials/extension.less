@@ -662,8 +662,32 @@
                         }
                     }
                 }
+
+                &.subInput {
+                    margin-top: 5px;
+                    .position(relative);
+                    .removeClause {
+                        .font(@size: 14px);
+                        .position(absolute, @top: 8px, @left: 4px);
+                    }
+
+                    input {
+                        padding-left: 20px;
+                    }
+                }
+            } // end of .inputWrap
+
+            .addClause {
+                margin-top: 10px;
+
+                .btn {
+                    .size(@width: 260px, @height: 30px);
+                    line-height: 30px;
+                    display: block;
+                    margin: 0 auto;
+                }
             }
-        }
+        } // end of .argSection
 
         .bottomSection {
             padding: 12px 0;

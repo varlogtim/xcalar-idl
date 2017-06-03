@@ -150,7 +150,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
     ExtensionManager.setup = function() {
         $extOpsView = $("#extension-ops");
         $extTriggerTableDropdown = $("#extension-ops-mainTable");
-        setupView();
+        addEventListeners();
         setupSuggest();
         return ExtensionManager.install();
     };
@@ -475,10 +475,29 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         return deferred.promise();
     };
 
-    function setupView() {
+    function addEventListeners() {
+        $("#extension-ops-submit").click(function() {
+            submitArgs();
+        });
+
+        $("#extension-ops-close").click(function() {
+            clearArgs();
+        });
+
+        new MenuHelper($extTriggerTableDropdown, {
+            "onOpen": function() {
+                updateTableList(null, true);
+            },
+            "onSelect": selectTriggerTableDropdown
+        }).setupListeners();
+
+        addExtListEventListeners();
+        addExtArgsEventListeners();
+    }
+
+    function addExtListEventListeners() {
         var $extLists = $extOpsView.find(".extLists");
         var $extArgs = $extOpsView.find(".extArgs");
-
         $extLists.on("click", ".moduleInfo", function() {
             $(this).closest(".module").toggleClass("active");
         });
@@ -519,19 +538,40 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                 }
             }, 300);
         }
+    }
 
-        $("#extension-ops-close").click(function() {
-            clearArgs();
+    function addExtArgsEventListeners() {
+        var $extArgs = $extOpsView.find(".extArgs");
+
+        var colCallback = function($target) {
+            var options = {};
+            if (!$lastInputFocused) {
+                return;
+            }
+            if ($lastInputFocused.hasClass('multiColumn')) {
+                options.append = true;
+            }
+            xcHelper.fillInputFromCell($target, $lastInputFocused, gColPrefix,
+                                        options);
+        };
+        var headCallback = function($target) {
+            if (!$lastInputFocused) {
+                return;
+            }
+            xcHelper.fillInputFromCell($target, $lastInputFocused, "", {
+                "type": "table"
+            });
+        };
+        var columnPicker = {
+            "state": "extState",
+            "colCallback": colCallback,
+            "headCallback": headCallback
+        };
+
+        formHelper = new FormHelper($extArgs, {
+            "columnPicker": columnPicker
         });
-
-        new MenuHelper($extTriggerTableDropdown, {
-            "onOpen": function() {
-                updateTableList(null, true);
-            },
-            "onSelect": selectTriggerTableDropdown
-        }).setupListeners();
-
-        // focus on table
+         // focus on table
         $extArgs.on("click", ".focusTable", function() {
             var $icon = $(this);
             var tableName;
@@ -547,10 +587,6 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                 var tableId = xcHelper.getTableId(tableName);
                 xcHelper.centerFocusedTable(tableId, true);
             }
-        });
-
-        $("#extension-ops-submit").click(function() {
-            submitArgs();
         });
 
         $extArgs.on("keypress", ".argument", function(event) {
@@ -583,33 +619,17 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             $(this).find(".checkbox").toggleClass("checked");
         });
 
-        var colCallback = function($target) {
-            var options = {};
-            if (!$lastInputFocused) {
-                return;
-            }
-            if ($lastInputFocused.hasClass('multiColumn')) {
-                options.append = true;
-            }
-            xcHelper.fillInputFromCell($target, $lastInputFocused, gColPrefix,
-                                        options);
-        };
-        var headCallback = function($target) {
-            if (!$lastInputFocused) {
-                return;
-            }
-            xcHelper.fillInputFromCell($target, $lastInputFocused, "", {
-                "type": "table"
-            });
-        };
-        var columnPicker = {
-            "state": "extState",
-            "colCallback": colCallback,
-            "headCallback": headCallback
-        };
+        // add more clause
+        $extArgs.on("click", ".addClause", function() {
+            hideHintDropdown();
+            var $field = $(this).closest(".field");
+            addClause($field);
+        });
 
-        formHelper = new FormHelper($extArgs, {
-            "columnPicker": columnPicker
+        // remove clause
+        $extArgs.on("click", ".removeClause", function() {
+            hideHintDropdown();
+            removeClause($(this).closest(".inputWrap"));
         });
     }
 
@@ -795,22 +815,27 @@ window.ExtensionManager = (function(ExtensionManager, $) {
     }
 
     function addHintDropdown($list, index) {
-        hintMenu[index] = new MenuHelper($list, {
+        hintMenu[index] = hintMenu[index] || [];
+        var menuHelper = new MenuHelper($list, {
             "container": "#extension-ops .argSection",
             "bounds": "#extension-ops .argSection"
         });
+
+        hintMenu[index].push(menuHelper);
+    }
+
+    function removeHintDropdown(index, subIndex) {
+        hintMenu[index].splice(subIndex, 1);
     }
 
     function hideHintDropdown() {
-        var $argSection = $extOpsView.find(".extArgs").find(".argSection");
-        $argSection.find(".dropDownList").each(function(index) {
-            // should add one by one or the scroll will not work
-            var $list = $(this);
-            if ($list.hasClass("hintDropdown") &&
-                $list.find(".openList").length)
-            {
-                hintMenu[index].hideDropdowns();
+        hintMenu.forEach(function(menus) {
+            if (menus == null) {
+                return;
             }
+            menus.forEach(function(menuHelper) {
+                menuHelper.hideDropdowns();
+            });
         });
     }
 
@@ -875,6 +900,29 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         }
     }
 
+    function addClause($field) {
+        var $inputWraps = $field.find(".inputWrap");
+        var $newWrap = $inputWraps.eq(0).clone();
+        var $input = $newWrap.find("input");
+        $input.addClass("subArg").val("");
+        var icon = '<i class="icon xi-cancel removeClause xc-action"></i>';
+        $newWrap.addClass("subInput").append(icon);
+        $inputWraps.eq($inputWraps.length - 1).after($newWrap);
+
+        var $list = $newWrap.find(".hintDropdown");
+        if ($list.length) {
+            addHintDropdown($list, $field.index());
+        }
+        $input.focus();
+    }
+
+    function removeClause($inputWrap) {
+        var index = $inputWrap.closest(".field").index();
+        var subIndex = getInputSubIndex($inputWrap);
+        removeHintDropdown(index, subIndex);
+        $inputWrap.remove();
+    }
+
     function getArgHtml(arg, tableList) {
         var inputType = "text";
         var inputVal = "";
@@ -898,7 +946,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         } else if (argType === "boolean") {
             isCheckbox = true;
             inputClass += " checkbox";
-            if (arg.autofill === true ) {
+            if (arg.autofill === true) {
                 inputClass += " checked";
             }
         } else if (argType === "column") {
@@ -946,6 +994,16 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                     }
                 }
             }
+        }
+
+        var addClause = "";
+        if (arg.variableArg === true) {
+            addClause = '<div class="addClause">' +
+                            '<button class="btn iconBtn">' +
+                                '<i class="icon xi-plus fa-14"></i>' +
+                                ExtTStr.AddClause +
+                            '</button>' +
+                        '</div>';
         }
 
         var html;
@@ -1019,6 +1077,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                             '</div>' +
                         '</div>' +
                     '</div>' +
+                    addClause +
                 '</div>';
         }
 
@@ -1030,7 +1089,8 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         var $field = $input.closest(".field");
         var index = $field.index();
         var list = getColSuggestList($field, input);
-        var menu = hintMenu[index];
+        var subIndex = getInputSubIndex($input);
+        var menu = hintMenu[index][subIndex];
         if (menu == null) {
             console.error("cannot find menu");
             return;
@@ -1045,13 +1105,20 @@ window.ExtensionManager = (function(ExtensionManager, $) {
 
     function applyColSuggest($li) {
         var val = gColPrefix + $li.text();
-        var $field = $li.closest(".field");
+        var $inputWrap = $li.closest(".inputWrap");
+        var $field = $inputWrap.closest(".field");
         var index = $field.index();
-        var menu = hintMenu[index];
+        var subIndex = getInputSubIndex($inputWrap);
+        var menu = hintMenu[index][subIndex];
         if (menu != null) {
             menu.hideDropdowns();
         }
-        $field.find(".argument").val(val);
+        $inputWrap.find(".argument").val(val);
+    }
+
+    function getInputSubIndex($input) {
+        // first element in .inputWrap is always .desc
+        return $input.closest(".inputWrap").index() - 1;
     }
 
     function getColSuggestList($field, input) {
@@ -1174,7 +1241,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
 
     function getArgs(modName, fnName, extTableId) {
         var args = {};
-        var $arguments = $extOpsView.find(".extArgs .argument");
+        var $arguments = $extOpsView.find(".extArgs .argument:not(.subArg)");
         var extFields = extMap[modName][fnName];
         var invalidArg = false;
 
@@ -1198,12 +1265,23 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         $arguments.each(function(i) {
             var argInfo = extFields[i];
             if (argInfo.type !== "table") {
-                var res = checkArg(argInfo, $(this), extTableId, args);
+                var $input = $(this);
+                var res = checkArg(argInfo, $input, extTableId, args);
                 if (!res.valid) {
                     invalidArg = true;
                     return false;
                 }
-                args[argInfo.fieldClass] = res.arg;
+                var arg = res.arg;
+                var subArgs = checkSubArgs(argInfo, $input, extTableId, args);
+                if (subArgs == null) {
+                    // error case;
+                    invalidArg = true;
+                    return false;
+                } else if (subArgs.length > 0) {
+                    arg = [arg].concat(subArgs);
+                }
+
+                args[argInfo.fieldClass] = arg;
             }
         });
 
@@ -1234,6 +1312,28 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             "valid": true,
             "arg": tableArg
         });
+    }
+
+    function checkSubArgs(argInfo, $input, extTableId, args) {
+        var subArgs = [];
+        if (argInfo.variableArg !== true) {
+            return subArgs;
+        }
+
+        var invalidArg = false;
+        $input.closest(".field").find(".subArg").each(function() {
+            var res = checkArg(argInfo, $(this), extTableId, args);
+            if (!res.valid) {
+                invalidArg = true;
+                return false;
+            }
+            subArgs.push(res.arg);
+        });
+
+        if (invalidArg) {
+            return null;
+        }
+        return subArgs;
     }
 
     function checkArg(argInfo, $input, extTableId, args) {
