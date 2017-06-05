@@ -585,6 +585,7 @@ DFTStr = {
 "DownloadErr": '下载失败',
 "ExportTo": '导出为',
 "FindTable": '导出表<table>至工作表中',
+"ViewTable": "VIEW TABLE",
 "Import": '导出为Xcalar表',
 "NoFileExt": '导出文件名必须有一个扩展名',
 "PointTo": '文件路径',

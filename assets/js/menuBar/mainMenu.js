@@ -44,7 +44,8 @@ window.MainMenu = (function($, MainMenu) {
         openMenu($menuBar.find(".topMenuBarTab.active"), noAnim);
     };
 
-    MainMenu.openPanel = function(panelId, subTabId) {
+    MainMenu.openPanel = function(panelId, subTabId, options) {
+        options = options || {};
         var $tab;
         switch (panelId) {
             case ("workspacePanel"):
@@ -63,7 +64,9 @@ window.MainMenu = (function($, MainMenu) {
                 break;
         }
         if ($tab) {
+            var wasActive = true;
             if (!$tab.hasClass("active")) {
+                wasActive = false;
                 $tab.click();
             }
 
@@ -71,6 +74,13 @@ window.MainMenu = (function($, MainMenu) {
                 var $subTab =  $tab.find("#" + subTabId);
                 if (!$subTab.hasClass("active")) {
                     $subTab.click();
+                }
+            }
+            if (options.hideDF && !wasActive) {
+                if ($('#maximizeDag').hasClass('unavailable') &&
+                    !$('#dagPanel').hasClass('hidden'))
+                {
+                    $('#dfPanelSwitch').trigger('click');
                 }
             }
         }
@@ -268,6 +278,10 @@ window.MainMenu = (function($, MainMenu) {
             case ("workspaceTab"):
                 $("#workspacePanel").addClass("active");
                 WSManager.focusOnWorksheet();
+                if (!$("#dagPanel").hasClass("hidden")) {
+                    xcTooltip.changeText($("#dfPanelSwitch"),
+                                         TooltipTStr.CloseQG);
+                }
                 break;
             case ("dataflowTab"):
                 $("#dataflowPanel").addClass("active");
@@ -309,10 +323,7 @@ window.MainMenu = (function($, MainMenu) {
         } else if (lastTabId === "dataStoresTab") {
             DSCart.checkQueries();
         } else if (lastTabId === "workspaceTab") {
-            var $activeCompSwitch = $(".dagTab.active");
-            if ($activeCompSwitch.length) {
-                xcTooltip.changeText($activeCompSwitch, TooltipTStr.OpenQG);
-            }
+            xcTooltip.changeText($("#dfPanelSwitch"), TooltipTStr.OpenQG);
         }
 
         StatusMessage.updateLocation();

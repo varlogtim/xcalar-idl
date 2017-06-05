@@ -796,9 +796,7 @@ window.DagPanel = (function($, DagPanel) {
         if (!window.isBrowserIE) {
             // if dagpanel is open halfway we have to change the top position
             // of colmenu
-            if ($('#dagPanel').hasClass('midway')) {
-                top -= $('#dagPanel').offset().top;
-            }
+            top -= $('#dagPanel').offset().top;
         }
 
         var dagId = $menu.data('dagid');
@@ -880,9 +878,7 @@ window.DagPanel = (function($, DagPanel) {
         if (!window.isBrowserIE) {
             // if dagpanel is open halfway we have to change the top position
             // of colmenu
-            if ($('#dagPanel').hasClass('midway')) {
-                top -= $('#dagPanel').offset().top;
-            }
+            top -= $('#dagPanel').offset().top;
         }
 
         $menu.removeClass('leftColMenu');
@@ -3123,9 +3119,7 @@ window.Dag = (function($, Dag) {
             var rect = $dagTable[0].getBoundingClientRect();
             var top = rect.top - 35;
             var left = rect.left;
-            if ($('#dagPanel').hasClass('midway')) {
-                top -= $('#dagPanel').offset().top + 15;
-            }
+            top -= $('#dagPanel').offset().top + 15;
             $dagWrap.append('<div class="columnOriginInfo " ' +
                 'data-rename="' + msg + '" ' +
                 'style="top: ' + top + 'px;left: ' + left + 'px">' + msg +
@@ -3289,9 +3283,7 @@ window.Dag = (function($, Dag) {
         //             .length === 0) {
         //     var top = rect.top - 15;
         //     var left = rect.left;
-        //     if ($('#dagPanel').hasClass('midway')) {
-        //         top -= $('#dagPanel').offset().top;
-        //     }
+        //     top -= $('#dagPanel').offset().top;
         //     $dagWrap.append('<div class="columnOriginInfo " data-id="' + id +
         //         '" style="top: ' + top + 'px;left: ' + left + 'px">' +
         //         name + '</div>');

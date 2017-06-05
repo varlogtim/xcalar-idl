@@ -78,7 +78,9 @@ window.TblManager = (function($, TblManager) {
             }
 
             if (options.focusWorkspace) {
-                focusOnWorkspace();
+                MainMenu.openPanel("workspacePanel", null, {
+                    hideDF: true
+                });
             }
             var addTableOptions;
             var tablesToReplace = [];
@@ -1618,20 +1620,6 @@ window.TblManager = (function($, TblManager) {
             $('#numPages').empty();
             gActiveTableId = null;
         }
-    }
-
-    function focusOnWorkspace() {
-        if (!$('#workspaceTab').hasClass('active')) {
-            $("#workspaceTab").trigger('click');
-
-            if ($('#dagPanel').hasClass('full') &&
-                !$('#dagPanel').hasClass('hidden'))
-            {
-                $('#compSwitch').trigger('click');
-                $('#mainFrame').removeClass('midway');
-            }
-        }
-        $("#workspaceTab").trigger('click');
     }
 
     function scrollAndFocusTable(tableName) {

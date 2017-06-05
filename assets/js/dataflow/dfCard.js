@@ -1029,10 +1029,21 @@ window.DFCard = (function($, DFCard) {
         })
         .then(function(finalTable) {
             var msg = DFTStr.RunDoneMsg;
+            var btns = [];
             if (advancedOpts.activeSession) {
                 msg += "\n" + xcHelper.replaceMsg(DFTStr.FindTable, {
                     "table": finalTable
                 });
+                btns = [{
+                    name: DFTStr.ViewTable,
+                    func: function() {
+                        MainMenu.openPanel("workspacePanel", null, {
+                            hideDF: true
+                        });
+                        var tableId = xcHelper.getTableId(finalTable);
+                        xcHelper.centerFocusedTable(tableId, true);
+                    }
+                }];
             }
 
             Transaction.done(txId, {
@@ -1042,7 +1053,8 @@ window.DFCard = (function($, DFCard) {
             Alert.show({
                 "title": DFTStr.RunDone,
                 "msg": msg,
-                "isAlert": true
+                "isAlert": true,
+                "buttons": btns
             });
             deferred.resolve();
         })
