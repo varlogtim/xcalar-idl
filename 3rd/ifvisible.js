@@ -21,7 +21,7 @@
     var startedHidden = false;
 
 	// xcalar custom code to test if page starts off out of focus
-    var scrolled = false;
+  var scrolled = false;
 	var html = '<div id="ifvisibleScrollTest" style="height:100px; overflow:scroll;">' +
 	'<div class="content" style="height:2000px;"></div></div>';
 	$("body").append(html);
@@ -50,6 +50,7 @@
 		}
 		// if we remove immediately, scroll doesn't get triggered
 		$("#ifvisibleScrollTest").remove();
+    window.ifvisible.now(); // initialize blur listener
 	});
 
     idleTime = 60000;
