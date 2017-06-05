@@ -982,11 +982,17 @@ window.DFCard = (function($, DFCard) {
         var paramsArray = [];
         var dfObj = DF.getDataflow(retName);
         var parameters = dfObj.paramMap;
+        var hasSysParam = false;
+
         for (var param in parameters) {
             var p = new XcalarApiParameterT();
             p.parameterName = param;
             p.parameterValue = parameters[param];
             paramsArray.push(p);
+
+            if (!hasSysParam && systemParams.hasOwnProperty(param)) {
+                hasSysParam = true;
+            }
         }
 
         var dagNode = dfObj.retinaNodes[0];
@@ -1010,7 +1016,7 @@ window.DFCard = (function($, DFCard) {
         var passedCheckBeforeRunDF = false;
         checkBeforeRunDF(advancedOpts.activeSession)
         .then(function() {
-            return alertBeforeRunDF(advancedOpts.activeSession);
+            return alertBeforeRunDF(hasSysParam, advancedOpts.activeSession);
         })
         .then(function() {
             passedCheckBeforeRunDF = true;
@@ -1093,14 +1099,36 @@ window.DFCard = (function($, DFCard) {
             }
         }
 
-        function alertBeforeRunDF(isToActiveSession) {
-            if (!isToActiveSession) {
+        function alertBeforeRunDF(hasSysParam, isToActiveSession) {
+            if (!hasSysParam && !isToActiveSession) {
                 return PromiseHelper.resolve();
             }
 
             var deferred = jQuery.Deferred();
+            var msgArray = [];
+
+            if (hasSysParam) {
+                msgArray.push(DFTStr.WarnSysParam);
+            }
+
+            if (isToActiveSession) {
+                msgArray.push(DFTStr.WarnInMemTable);
+            }
+
+            msg = "";
+            if (msgArray.length === 1) {
+                msg = msgArray[0];
+            } else {
+                msgArray.forEach(function(info, index) {
+                    msg += (index + 1) + ". " + info + "\n";
+                });
+            }
+
             Alert.show({
-                "msg": DFTStr.WarnInMemTable,
+                "instr": DFTStr.RunDFInstr,
+                "msg": msg,
+                "align": "left",
+                "sizeToText": true,
                 "onConfirm": function() { deferred.resolve(); },
                 "onCancel": function() { deferred.reject(cancelErr); }
             });

@@ -53,6 +53,8 @@ window.Alert = (function($, Alert){
             focusOnConfirm: boolean, if true then set focus on confirm button,
             highZIndex: boolean, if true then will set z-index above locked
                         background modal
+            align: it is left, with do left align,
+            sizeToText: when set true, size the modal to align text
             noLogout: remove log out button when  set true
         */
         if (options.noLogout) {
@@ -93,6 +95,13 @@ window.Alert = (function($, Alert){
             $modal.removeClass("highZindex");
         }
 
+        var $text = $("#alertContent .text");
+        if (options.align === "left") {
+            $text.addClass("left-align");
+        } else {
+            $text.removeClass("left-align");
+        }
+
         modalHelper.setup(extraOptions);
 
         if ($modal.find("button:visible").length > 3) {
@@ -109,6 +118,8 @@ window.Alert = (function($, Alert){
                     $modal.width(width);
                 });
             });
+        } else if (options.sizeToText) {
+            sizeToText();
         }
 
         return id;
@@ -369,6 +380,14 @@ window.Alert = (function($, Alert){
             for (var i = 0; i < options.hideButtons.length; i++) {
                 $modal.find("." + options.hideButtons[i]).hide();
             }
+        }
+    }
+
+    function sizeToText() {
+        var $section = $("#alertContent");
+        var diff = $section.find(".text").height() - $section.height();
+        if (diff > 0) {
+            $modal.height($modal.height() + diff);
         }
     }
 

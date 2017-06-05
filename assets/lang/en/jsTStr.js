@@ -726,7 +726,9 @@ DFTStr = {
     'TooLarge': 'Dataflow image exceeds viewable limit.',
     'NoTExists': 'Dataflow <df> doesn\'t exist',
     'NoFields': 'No fields present',
+    'RunDFInstr': 'Please pay attention to the following warning(s) for running batch dataflow:',
     'WarnInMemTable': 'This will generate an in-memory table in your current workbook. Please note that you will NOT be able to create further batched dataflows from this table.',
+    'WarnSysParam': 'System parameters are not used when you run batch data flow directly, they will be replaced with empty strings.',
     'InvalidExportPath': 'Cannot contain / in the export file name'
 };
 
