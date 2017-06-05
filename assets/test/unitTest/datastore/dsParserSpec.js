@@ -829,15 +829,18 @@ describe("DSParser Test", function() {
                 sel.addRange(range);
 
                 $("#dsParser .previewContent").mouseup();
-                return UnitTest.timeoutPromise(1);
+                return UnitTest.testFinish(function() {
+                    return opened === true;
+                });
             })
             .then(function() {
-                expect(opened).to.be.true;
-                xcHelper.dropdownOpen = cached;
                 done();
             })
             .fail(function() {
                 done("fail");
+            })
+            .always(function() {
+                xcHelper.dropdownOpen = cached;
             });
         });
 

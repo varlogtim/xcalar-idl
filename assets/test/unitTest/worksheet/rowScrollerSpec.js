@@ -215,26 +215,30 @@ describe("RowScroller Test", function() {
                 $scrollBar.scroll();
             }
             gTables[tableId].rowHeights[0] = {1: 300};
-            UnitTest.timeoutPromise(500)
+            UnitTest.testFinish(function() {
+                return addRowsCalled === false;
+            })
             .then(function() {
                 expect(table.scrollMeta.isBarScrolling).to.be.false;
                 expect($tbodyWrap.scrollTop()).to.equal(50);
-                expect(addRowsCalled).to.be.false;
 
                 $(document).mouseup();
 
-                UnitTest.testFinish(function() {
+                return UnitTest.testFinish(function() {
                     return $tbodyWrap.scrollTop() === 100;
-                })
-                .then(function() {
-                    expect($tbodyWrap.scrollTop()).to.equal(100);
-                    expect(addRowsCalled).to.be.true;
-                    delete gTables[tableId].rowHeights[0];
-                    UnitTest.timeoutPromise(1)
-                    .then(function() {
-                        done();
-                    });
                 });
+            })
+            .then(function() {
+                expect($tbodyWrap.scrollTop()).to.equal(100);
+                expect(addRowsCalled).to.be.true;
+                delete gTables[tableId].rowHeights[0];
+                return UnitTest.timeoutPromise(1);
+            })
+            .then(function() {
+                done();
+            })
+            .fail(function() {
+                done("fail");
             });
         });
 

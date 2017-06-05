@@ -465,16 +465,21 @@ function timeRelatedFunctionTest() {
         param2.parameterValue = "value2";
         var paramArray = [param1, param2];
 
-        var str = Scheduler.__testOnly__.getParameterStr(paramArray);
+        var res = Scheduler.__testOnly__.getParameterStr(paramArray);
         var expectedStr =
-                     '<span class="currParams">name1</span>' +
-                     '<span>: </span>' +
-                     '<span>value1</span>' +
-                     '<span>, </span>' +
-                     '<span class="currParams">name2</span>' +
-                     '<span>: </span>' +
-                     '<span>value2</span>';
-        assert.equal(str, expectedStr);
+            '<div class="paramRow">' +
+                '<span>name1</span>' +
+                '<span>: </span>' +
+                '<span>value1</span>' +
+            '</div>' +
+            '<div class="paramRow">' +
+                '<span>name2</span>' +
+                '<span>: </span>' +
+                '<span>value2</span>' +
+            '</div>';
+        expect(res).to.be.an("object");
+        expect(res.systemParameterStr).to.equal(SchedTStr.noParam);
+        expect(res.customizedParameterStr).to.equal(expectedStr);
     });
 
     function triggerInput($input, val) {
@@ -598,14 +603,16 @@ function viewRelatedFunctionTest() {
         UnitTest.hasAlertWithText(SchedTStr.NoExportParam);
     });
 
-    it("Should show schedule result correctly", function() {
-        Scheduler.__testOnly__.showScheduleResult();
-        var str = '<div class="row noRun">' +
-                  '<div class="content timeContent"></div>' +
-                  '<div class="content lastContent"></div>' +
-                  '<div class="content statusContent"></div>' +
-                  '<div class="content outputLocationContent"></div></div>';
-        expect($("#scheduleTable .mainSection").html()).to.equal(str);
+    it("Should show schedule result correctly", function(done) {
+        Scheduler.__testOnly__.showScheduleResult()
+        .then(function() {
+            var html = $("#scheduleTable .mainSection").html();
+            expect(html).contains(SchedTStr.Notrun);
+            done();
+        })
+        .fail(function() {
+            done("fail");
+        });
     });
 
     it("Should delete schedule correctly", function(done) {
