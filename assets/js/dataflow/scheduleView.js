@@ -314,17 +314,16 @@ window.Scheduler = (function(Scheduler, $) {
     function removeSchedule(dataflowName) {
         var deferred = jQuery.Deferred();
         var $list = DFCard.getDFList(dataflowName);
-        var $addSched = $list.find(".addScheduleToDataflow");
+        var $icon = $list.find(".addScheduleToDataflow");
 
-        xcHelper.disableSubmit($addSched);
         $scheduleDetail.addClass("locked");
         DF.removeScheduleFromDataflow(dataflowName)
         .then(function() {
             xcHelper.showSuccess(SuccessTStr.RmSched);
-            $addSched.removeClass("xi-menu-scheduler")
-                .addClass("xi-menu-add-scheduler");
+            $icon.remove();
             if (dataflowName === currentDataFlowName) {
                 Scheduler.hide();
+                $("#dfViz").removeClass("withSchedule");
             }
             KVStore.commit();
             deferred.resolve();
@@ -334,9 +333,6 @@ window.Scheduler = (function(Scheduler, $) {
                 $scheduleDetail.removeClass("locked");
             }
             deferred.reject(error);
-        })
-        .always(function() {
-            xcHelper.enableSubmit($addSched);
         });
         return deferred.promise();
     }
@@ -362,10 +358,16 @@ window.Scheduler = (function(Scheduler, $) {
     }
 
     function existScheduleIcon(dataflowName) {
+        if (dataflowName === currentDataFlowName) {
+            $("#dfViz").addClass("withSchedule");
+        }
+        var html = '<i class="icon xi-menu-scheduler addScheduleToDataflow" ' +
+                        'data-placement="top" ' +
+                        'data-container="body">' +
+                    '</i>';
         var $list = DFCard.getDFList(dataflowName);
-        $list.find(".addScheduleToDataflow")
-             .addClass("xi-menu-scheduler")
-             .removeClass("xi-menu-add-scheduler");
+        $list.find(".iconWrap")
+             .html(html);
     }
 
     function showScheduleSettings() {

@@ -381,8 +381,10 @@ window.DFCard = (function($, DFCard) {
 
             if (DF.hasSchedule(dataflowName)) {
                 Scheduler.show(dataflowName);
+                $("#dfViz").addClass("withSchedule");
             } else {
                 Scheduler.hide();
+                $("#dfViz").removeClass("withSchedule");
             }
 
             promise
@@ -442,9 +444,9 @@ window.DFCard = (function($, DFCard) {
             });
         });
 
-        $listSection.on('click', '.addScheduleToDataflow', function() {
+        $dfCard.on('click', '.addScheduleToDataflow', function() {
             // doesn't have schedule, show schedule
-            var dfName = $(this).siblings('.groupName').text();
+            var dfName = $listSection.find(".selected .groupName").text();
             Scheduler.show(dfName);
         });
 
@@ -557,6 +559,13 @@ window.DFCard = (function($, DFCard) {
                         dataflowName +
                     '</span>' +
                 '</div>' +
+                '<button class="addScheduleToDataflow btn btn-small iconBtn' + xdpMode + '" ' +
+                'data-toggle="tooltip" data-container="body" ' +
+                'data-placement="top" data-original-title="' +
+                DFTStr.AddSched + '">' +
+                    '<i class="icon xi-menu-add-scheduler"></i>' +
+                '</button>' +
+                '<div class="border"></div>' +
                 '<button class="runNowBtn btn btn-small iconBtn ' + xdpMode + '" ' +
                 'data-toggle="tooltip" data-container="body" ' +
                 'data-placement="top" data-original-title="' +
@@ -944,17 +953,17 @@ window.DFCard = (function($, DFCard) {
 
     function getDFListItemHtml(dfName) {
         var html = "";
-        var icon = "";
-        if (DF.hasSchedule(dfName)) {
-            icon = "xi-menu-scheduler";
-        } else {
-            icon = "xi-menu-add-scheduler";
-        }
         html += '<div class="dataFlowGroup listWrap">' +
                   '<div class="listBox listInfo">' +
-                    '<div class="iconWrap">' +
-                      '<i class="icon xi-dataflowgroup"></i>' +
-                    '</div>' +
+                    '<div class="iconWrap">';
+        if (DF.hasSchedule(dfName)) {
+            html += '<i class="icon xi-menu-scheduler addScheduleToDataflow" ' +
+                        'title="' + DFTStr.AddSched + '" ' +
+                        'data-toggle="tooltip" data-placement="top" ' +
+                        'data-container="body">' +
+                    '</i>';
+        }
+        html += '</div>' +
                     '<span class="groupName">' + dfName + '</span>' +
                     '<i class="icon xi-trash deleteDataflow" ' +
                         'title="' + DFTStr.DelDF2 + '" data-toggle="tooltip" ' +
@@ -965,12 +974,7 @@ window.DFCard = (function($, DFCard) {
                         'data-toggle="tooltip" data-placement="top" ' +
                         'data-container="body">' +
                     '</i>' +
-                    '<i class="icon ' + icon + ' addScheduleToDataflow" ' +
-                        'title="' + DFTStr.AddSched + '" ' +
-                        'data-toggle="tooltip" data-placement="top" ' +
-                        'data-container="body">' +
-                    '</i>' +
-                  '</div>' +
+                '</div>' +
                 '</div>';
         return (html);
     }

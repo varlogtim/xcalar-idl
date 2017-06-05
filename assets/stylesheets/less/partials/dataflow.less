@@ -238,7 +238,7 @@
             }
         }
 
-        .runNowBtn {
+        .runNowBtn, .addScheduleToDataflow {
             .size(@width: 25px, @height: 25px);
             float: right;
             padding: 0px;
@@ -278,6 +278,8 @@
             .icon {
                 font-size: 14px;
                 .transition(opacity 1s);
+                margin-top: -5%;
+                margin-left: 2%;
             }
 
             .xi-close {
@@ -325,6 +327,16 @@
                     .keyframeAnim(spinClock 2s infinite linear);
                 }
             }
+        }
+
+        .border {
+            float: right;
+            .size(@width: 1px, @height: 25px);
+            margin-left: 5px;
+            margin-right: 5px;
+            background-color: @color-border-pinkish-grey2;
+            margin-top: -5px;
+
         }
 
         .dagImage {
@@ -593,6 +605,12 @@
 
     .refreshIcon {
         z-index: 2;
+    }
+
+    &.withSchedule {
+        .addScheduleToDataflow, .border {
+            display: none;
+        }
     }
 }
 
