@@ -49,6 +49,7 @@ window.UnitTest = (function(UnitTest, $) {
     var minModeCache;
 
     UnitTest.setup = function() {
+
         $(document).ready(function() {
             mocha.run();
             console.log("Setup code coverage!!!");

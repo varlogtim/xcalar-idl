@@ -55,7 +55,7 @@
             // NOTE: this is an instance of BlanketReporter
             new OriginalReporter(runner);
         };
-        
+
     BlanketReporter.prototype = OriginalReporter.prototype;
 
     mocha.reporter(BlanketReporter);
@@ -68,7 +68,7 @@
       console.log("waiting for blanket...");
     };
     blanket.beforeStartTestRunner({
-        callback: function(){
+        callback: function() {
             if (!blanket.options("existingRequireJS")){
                 oldRun(oldCallback);
             }

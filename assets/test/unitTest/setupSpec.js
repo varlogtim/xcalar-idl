@@ -20,16 +20,39 @@ describe("Mocha Setup Test", function() {
     });
 
     it("Should set up XI", function(done) {
-        xcManager.setup()
-        .then(function() {
-            expect("pass").to.equal("pass");
-            done();
-        })
-        .fail(function(error) {
-            console.error(error);
-            // fail case
-            throw error;
-        });
+        function transformToAssocArray(prmstr) {
+            var params = {};
+            var prmarr = prmstr.split("&");
+            for ( var i = 0; i < prmarr.length; i++) {
+                var tmparr = prmarr[i].split("=");
+                params[tmparr[0]] = tmparr[1];
+            }
+            return params;
+        }
+        function getUrlParameters() {
+            var prmstr = window.location.search.substr(1);
+            return prmstr != null && prmstr !== "" ? transformToAssocArray(prmstr) : {};
+        }
+        params = getUrlParameters();
+        if (params.hasOwnProperty("createWorkbook")) {
+            TestSuiteSetup.setup();
+            TestSuiteSetup.initialize()
+            .always(function() {
+                expect("pass").to.equal("pass");
+                done();
+            });
+        } else {
+            xcManager.setup()
+            .then(function() {
+                expect("pass").to.equal("pass");
+                done();
+            })
+            .fail(function(error) {
+                console.error(error);
+                // fail case
+                throw error;
+            });
+        }
     });
 
     it("Should check license type", function() {

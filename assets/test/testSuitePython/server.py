@@ -38,6 +38,7 @@ class Handler( BaseHTTPServer.BaseHTTPRequestHandler ):
         if action=="start":
             """
             Sample url: http://localhost:5909/action?name=start&mode=ten&host=10.10.4.110&server=euler&port=5909&users=1
+            Sample url: http://localhost:5909/action?name=start&test=unitTest&host=10.10.4.110&server=euler&port=5909
             """
             self.processStart(params)
         elif action=="close":
@@ -71,7 +72,8 @@ class Handler( BaseHTTPServer.BaseHTTPRequestHandler ):
         server = params.get("server", socket.gethostname())
         port = params.get("port", str(DEFAULT_SERVER_PORT))
         host = params.get("host", socket.gethostname())
-        testSuiteUrl = "http://"+host+"/test.html?auto=y&mode="+mode+"&host="+host+"&server="+socket.gethostname()+"%3A"+port+"&users="+users
+        test = params.get("test", "testSuite")
+        testSuiteUrl = "http://"+host+"/test.html?test=" + test + "&auto=y&mode="+mode+"&host="+host+"&server="+socket.gethostname()+"%3A"+port+"&users="+users
         print testSuiteUrl
         sys.stdout.flush()
         CHROME_DRIVER_PATH = "/usr/bin/chromedriver"

@@ -23,7 +23,7 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
     var hasUser = true;
 
     TestSuiteSetup.setup = function() {
-        var params = getSearchParameters();
+        var params = getUrlParameters();
         var user = params.user;
         if (user == null) {
             hasUser = false;
@@ -37,12 +37,14 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
     };
 
     TestSuiteSetup.initialize = function() {
+        var deferred = jQuery.Deferred();
         // in case of the auto login trigger of short cuts
         xcLocalStorage.removeItem("autoLogin");
 
-        var params = getSearchParameters();
+        var params = getUrlParameters();
         var runTest = hasUser && parseBooleanParam(params.test);
         var testType = params.type;
+        var createWorkbookOnly = params.createWorkbook;
         var toTest = xcSessionStorage.getItem(testSuiteKey);
 
         if (toTest) {
@@ -53,7 +55,7 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
         .then(function() {
             if (!runTest) {
                 if (!hasUser) {
-                    document.write("Please Specify a user name");
+                    document.write("Please specify a user name");
                 }
                 return;
             }
@@ -70,11 +72,23 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
                 return autoCreateWorkbook();
             }
         })
+        .then(function() {
+            deferred.resolve();
+        })
         .fail(function(error) {
-            if (runTest && error === WKBKTStr.NoWkbk) {
-                return autoCreateWorkbook();
+            if (runTest && error === WKBKTStr.NoWkbk || createWorkbookOnly) {
+                autoCreateWorkbook()
+                .then(function() {
+                    deferred.resolve();
+                })
+                .fail(function() {
+                    deferred.reject();
+                });
+            } else {
+                deferred.reject();
             }
         });
+        return deferred.promise();
     };
 
     function heartBeat() {
@@ -95,7 +109,7 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
     }
 
     function autoCreateWorkbook() {
-        var params = getSearchParameters();
+        var params = getUrlParameters();
         var whichTest = params.whichTest;
         var activeWorksheet = WSManager.getActiveWS();
         xcSessionStorage.setItem(testSuiteKey, "true");
@@ -116,10 +130,10 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
             return activeWorkbook(wkbkName);
         }
 
-        return creatWorkbook();
+        return createWorkbook();
     }
 
-    function creatWorkbook() {
+    function createWorkbook() {
         var deferred = jQuery.Deferred();
         var count = 0;
         var wbInterval = setInterval(function() {
@@ -167,7 +181,7 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
     }
 
     function autoRunTestSuite() {
-        var params = getSearchParameters();
+        var params = getUrlParameters();
         var delay = Number(params.timeout);
 
         if (isNaN(delay)) {
@@ -200,7 +214,7 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
 
     function autoRunUndoTest() {
         // sample param ?user=someone&test=y&type=undoredo&subType=frontEnd
-        var params = getSearchParameters();
+        var params = getUrlParameters();
         var delay = Number(params.timeout);
         var operationType = params.subType;
 
@@ -217,7 +231,7 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
     }
 
     function reportResults(res) {
-        var params = getSearchParameters();
+        var params = getUrlParameters();
         var close = params.close;
         var id = Number(params.id);
         if (isNaN(id)) {
@@ -246,7 +260,7 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
         }
     }
 
-    function getSearchParameters() {
+    function getUrlParameters() {
         var prmstr = window.location.search.substr(1);
         return prmstr != null && prmstr !== "" ? transformToAssocArray(prmstr) : {};
     }

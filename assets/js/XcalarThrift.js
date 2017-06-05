@@ -9,13 +9,9 @@ function setupHostName() {
     if (window.hostname == null || window.hostname === "") {
         hostname = window.location.href;
         // remove path
-        var path = "/index.html";
-        var testPath = "/testSuite.html";
-        if (hostname.endsWith(path)) {
-            var index = hostname.lastIndexOf(path);
+        if (hostname.lastIndexOf(".html") > -1) {
+            var index = hostname.lastIndexOf("/");
             hostname = hostname.substring(0, index);
-        } else if (hostname.indexOf(testPath) > -1) {
-            hostname = hostname.substring(0, hostname.indexOf(testPath));
         }
     }
     // protocol needs to be part of hostname
