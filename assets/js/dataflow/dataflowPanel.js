@@ -16,7 +16,9 @@ window.DataflowPanel = (function($, DataflowPanel) {
             $("#scheduleDetail .close").click();
             $("#dfMenu .refreshBtn").click();
             $("#dfViz .retTab").removeClass("active");
-            $("#dfParamModal .close").click();
+            if ($("#dfParamModal").is(":visible")) {
+                $("#dfParamModal .close").click();
+            }
             hasChange = false;
         }
     };

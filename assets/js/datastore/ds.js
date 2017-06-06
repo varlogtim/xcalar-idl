@@ -555,8 +555,6 @@ window.DS = (function ($, DS) {
                 }
             }
 
-            UserSettings.logChange();
-
             var msgOptions = {
                 "newDataSet": true,
                 "dataSetId": dsObj.getId()
@@ -654,7 +652,6 @@ window.DS = (function ($, DS) {
             if (!noDeFocus) {
                 focusOnForm();
             }
-            UserSettings.logChange();
 
             Transaction.done(txId);
             deferred.resolve();
