@@ -940,7 +940,7 @@ window.DFParamModal = (function($, DFParamModal){
 
         // will close the modal if passes checks
         function updateRetina() {
-            var deferred  = jQuery.Deferred();
+            var deferred = jQuery.Deferred();
             var operation = $paramPart.find(".editableRow").children().first()
                                                                     .data("op");
             var paramType = null;

@@ -559,14 +559,16 @@ window.DFCard = (function($, DFCard) {
                         dataflowName +
                     '</span>' +
                 '</div>' +
-                '<button class="addScheduleToDataflow btn btn-small iconBtn' + xdpMode + '" ' +
+                '<button class="addScheduleToDataflow btn btn-small iconBtn ' +
+                xdpMode + '" ' +
                 'data-toggle="tooltip" data-container="body" ' +
                 'data-placement="top" data-original-title="' +
                 DFTStr.AddSched + '">' +
                     '<i class="icon xi-menu-add-scheduler"></i>' +
                 '</button>' +
                 '<div class="border"></div>' +
-                '<button class="runNowBtn btn btn-small iconBtn ' + xdpMode + '" ' +
+                '<button class="runNowBtn btn btn-small iconBtn ' +
+                xdpMode + '" ' +
                 'data-toggle="tooltip" data-container="body" ' +
                 'data-placement="top" data-original-title="' +
                 DFTStr.Run + '">' +

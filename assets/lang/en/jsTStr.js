@@ -722,7 +722,7 @@ DFTStr = {
     'UpdateParamFail': 'Update Parameters Failed',
     'UploadLimitMsg': 'Cannot upload dataflow that is over 1MB.',
     'DownloadDF': 'Download dataflow',
-    'AddSched': 'Add Schedule to dataflow',
+    'AddSched': 'Add schedule to dataflow',
     'TooLarge': 'Dataflow image exceeds viewable limit.',
     'NoTExists': 'Dataflow <df> doesn\'t exist',
     'NoFields': 'No fields present',
