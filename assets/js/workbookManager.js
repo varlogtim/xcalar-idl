@@ -12,6 +12,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
     WorkbookManager.setup = function() {
         var deferred = jQuery.Deferred();
         initializeVariable();
+        setupSessionCancel();
 
         WorkbookManager.getWKBKsAsync()
         .then(syncSessionInfo)
@@ -238,7 +239,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
                             error: "Error occurred while switching workbooks"
                         };
                     }
-                    $("#initialLoadScreen").hide();
+                    $("#initialLoadScreen").hide().removeClass("switchingWkbk");
                     endProgressCycle();
                     deferred.reject(ret);
                 }
@@ -281,7 +282,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
         })
         .fail(function(error) {
             console.error("Switch Workbook Fails", error);
-            $("#initialLoadScreen").hide();
+            $("#initialLoadScreen").hide().removeClass("switchingWkbk");
             endProgressCycle();
             deferred.reject(error);
         })
@@ -294,8 +295,10 @@ window.WorkbookManager = (function($, WorkbookManager) {
 
     function switchWorkBookHelper(toName, fromName) {
         var deferred = jQuery.Deferred();
-
-        progressCycle(Support.getUser() + ":" + toName, checkInterval);
+        var queryName = Support.getUser() + ":" + toName;
+        progressCycle(queryName, checkInterval);
+        $("#initialLoadScreen").addClass("switchingWkbk")
+                               .data("curquery", queryName);
 
         XcalarSwitchToWorkbook(toName, fromName)
         .then(deferred.resolve)
@@ -313,10 +316,16 @@ window.WorkbookManager = (function($, WorkbookManager) {
                 }
             })
             .fail(deferred.reject);
+        })
+        .always(function() {
+            $("#initialLoadScreen").removeClass("switchingWkbk canceling")
+                                   .removeData("canceltime");
+            $("#initialLoadScreen").find(".animatedEllipsisWrapper .text")
+                                    .text(StatusMessageTStr.PleaseWait);
         });
 
         function showAlert() {
-            $("#initialLoadScreen").hide();
+            $("#initialLoadScreen").hide().removeClass("switchingWkbk");
             endProgressCycle();
 
             Alert.show({
@@ -611,6 +620,49 @@ window.WorkbookManager = (function($, WorkbookManager) {
         // key that stores the current active workbook Id
         activeWKBKKey = generateKey(username, "activeWorkbook");
         wkbkSet = new WKBKSet();
+    }
+
+    function setupSessionCancel() {
+        var $loadScreen = $("#initialLoadScreen");
+        $loadScreen.find(".cancel").click(function() {
+            if ($loadScreen.hasClass("canceling")) {
+                return;
+            }
+            $loadScreen.addClass("canceling");
+            var time = Date.now();
+            $loadScreen.data('canceltime', time);
+            $loadScreen.addClass("alertOpen");
+
+            Alert.show({
+                "title": WKBKTStr.CancelTitle,
+                "msg": WKBKTStr.CancelMsg,
+                "onCancel": function() {
+                    $loadScreen.removeClass("canceling alertOpen");
+                },
+                "onConfirm": cancel,
+                "ultraHighZindex": true
+            });
+
+            function cancel() {
+                $loadScreen.removeClass("alertOpen");
+                if ($loadScreen.data("canceltime") !== time ||
+                    !$loadScreen.hasClass("canceling")) {
+                    return;
+                }
+                endProgressCycle();
+
+                $loadScreen.find(".animatedEllipsisWrapper .text")
+                           .text(StatusMessageTStr.Canceling);
+                var queryName = $loadScreen.data("curquery");
+                XcalarQueryCancel(queryName)
+                .always(function() {
+                    $loadScreen.removeClass("canceling")
+                               .removeData("canceltime");
+                    $loadScreen.find(".animatedEllipsisWrapper .text")
+                               .text(StatusMessageTStr.PleaseWait);
+                });
+            }
+        });
     }
 
     function getWKbkKey(version) {
@@ -1057,6 +1109,10 @@ window.WorkbookManager = (function($, WorkbookManager) {
         if (!failed) {
             progressComplete();
         }
+        var $loadScreen = $("#initialLoadScreen");
+        $loadScreen.removeClass("canceling").removeData("canceltime");
+        $loadScreen.find(".animatedEllipsisWrapper .text")
+                   .text(StatusMessageTStr.PleaseWait);
         Workbook.hide(true);
     }
 
@@ -1101,18 +1157,20 @@ window.WorkbookManager = (function($, WorkbookManager) {
                 }
                 var lastNum = $numSteps.data("num");
 
-                transitionProgressText(lastNum, progress.numCompleted, progress.numTotal);
+                transitionProgressText(lastNum, progress.numCompleted,
+                                       progress.numTotal);
                 $numSteps.data("num", progress.numCompleted);
-                // $numSteps.text(progress.numCompleted + "/" + progress.numTotal);
                 var type;
                 if (progress.processingNode) {
                     type = XcalarApisTStr[progress.processingNode.api];
-                    $progressNode.text(StatusMessageTStr.CurrReplay + ": " + type)
+                    $progressNode.text(StatusMessageTStr.CurrReplay + ": " +
+                                        type)
                                  .data("node", progress.processingNode);
                 } else if ($progressNode.data("node")) {
                     var node = $progressNode.data("node");
                     type = XcalarApisTStr[node.api];
-                    $progressNode.text(StatusMessageTStr.CompReplay + ": " + type);
+                    $progressNode.text(StatusMessageTStr.CompReplay + ": " +
+                                       type);
                 }
                 if (progress.numCompletedWorkItem === progress.numTotal) {
                     return;
@@ -1199,6 +1257,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
 
     function endProgressCycle() {
         clearTimeout(progressTimeout);
+        progressTimeout += "canceled";
         $("#initialLoadScreen").removeClass("sessionProgress");
     }
 

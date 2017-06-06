@@ -601,6 +601,9 @@ window.Workbook = (function($, Workbook) {
     function handleError(error, $ele) {
         var errorText;
         if (typeof error === "object" && error.error != null) {
+            if (error.status === StatusT.StatusCanceled) {
+                return;
+            }
             errorText = error.error;
         } else if (typeof error === "string") {
             errorText = error;

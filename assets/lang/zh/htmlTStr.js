@@ -208,6 +208,7 @@ module.exports = {
         "BACK": "返回",
         "BROWSE": "浏览",
         "CANCEL": "取消",
+        "Cancel": "Cancel",
         "CLEAR": "清空",
         "CLOSE": "关闭",
         "CONFIRM": "确认",

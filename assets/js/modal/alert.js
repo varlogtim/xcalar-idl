@@ -52,7 +52,9 @@ window.Alert = (function($, Alert){
             lockScreen: if screen should be frozen
             focusOnConfirm: boolean, if true then set focus on confirm button,
             highZIndex: boolean, if true then will set z-index above locked
-                        background modal
+                        background modal,
+            ultraHighZIndex: boolean, if true then will set z-index above locked
+                        waiting screen
             align: it is left, with do left align,
             sizeToText: when set true, size the modal to align text
             noLogout: remove log out button when  set true
@@ -93,6 +95,11 @@ window.Alert = (function($, Alert){
             $modal.addClass("highZindex");
         } else {
             $modal.removeClass("highZindex");
+        }
+        if (options.ultraHighZindex) {
+            $modal.addClass("ultraHighZindex");
+        } else {
+            $modal.removeClass("ultraHighZindex");
         }
 
         var $text = $("#alertContent .text");

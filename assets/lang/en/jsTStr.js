@@ -52,6 +52,7 @@ StatusMessageTStr = {
     'SettingExtensions': 'Setting up extensions',
     'CurrReplay': 'Currently Replaying',
     'CompReplay': 'Completed Replaying',
+    "PleaseWait": "Please wait",
     // Must keep in sync with htmlTStr
     'ActionSuccess': 'Your action was successful!',
     'ActionFailed': 'Your action failed!',
@@ -607,6 +608,8 @@ WKBKTStr = {
     "Delete": "Delete Workbook",
     "DelErr": "Error occurred in deleting workbook",
     "CreateErr": "Error occurred when creating workbook",
+    "CancelTitle": "Cancel Workbook Activation",
+    "CancelMsg": "Are you sure you want to cancel activating this workbook?",
     // With replace
     'Conflict': 'Workbook "<name>" already exists, ' +
                 'please choose another name.',

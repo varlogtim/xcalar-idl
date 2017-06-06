@@ -8,6 +8,7 @@ module.exports = {
         "BACK": "BACK",
         "BROWSE": "BROWSE",
         "CANCEL": "CANCEL",
+        "Cancel": "Cancel",
         "Change": "Change",
         "CLEAR": "CLEAR",
         "ClearAll": "Clear All",

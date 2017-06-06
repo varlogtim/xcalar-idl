@@ -52,6 +52,7 @@ StatusMessageTStr = {
 'SettingExtensions': '加载插件',
 'CurrReplay': 'Currently Replaying',
 'CompReplay': 'Completed Replaying',
+"PleaseWait": "Please wait",
 'ActionSuccess': '操作成功！',
 'ActionFailed': '操作失败！'
 };
@@ -500,6 +501,8 @@ WKBKTStr = {
 "Delete": '删除工作簿',
 "DelErr": '删除工作簿出错',
 "CreateErr": '创建工作簿出错',
+"CancelTitle": "Cancel Workbook Activation",
+"CancelMsg": "Are you sure you want to cancel activating this workbook?",
 'Conflict': '相同名称的工作簿"<name>"已经存在，请选取其他名称。',
 'Active': '激活',
 'Inactive': '未激活',

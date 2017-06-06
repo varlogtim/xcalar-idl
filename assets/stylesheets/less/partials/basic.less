@@ -253,6 +253,21 @@ body {
         }
     }
 
+    &.switchingWkbk .cancel {
+        display: block !important;
+    }
+
+    &.alertOpen {
+        &:after {
+            content: "";
+            display: block;
+            width: 100%;
+            height: 100%;
+            .position(absolute, 0, 0);
+            background: rgba(0,0,0,0.5);
+        }
+    }
+
     .waitBox {
         .size(400px, 270px);
         .center-align;
@@ -266,6 +281,7 @@ body {
             background-color: @color-bg-select-blue;
             .font(@size: 40px, @color: @color-white, @weight: 500);
             text-align: center;
+            position: relative;
         }
         .bottom {
             height: 120px;
@@ -275,6 +291,16 @@ body {
             .justify-content(center);
             .align-items(center);
             .flex-direction(column);
+        }
+
+        .cancel {
+            display: none;
+            .position(absolute, @right: 8px, @top: 8px);
+            height: 20px;
+            pointer-events: initial;
+            .icon {
+                vertical-align: top;
+            }
         }
 
         .waitIcon {
@@ -1748,6 +1774,9 @@ input[type=number]::-webkit-outer-spin-button {
 
 .tooltip.highZindex {
     z-index: @z-index-locked + 4;
+}
+.tooltip.zIndex10000 {
+    z-index: 10000;
 }
 
 // for tooltip fade in animation
