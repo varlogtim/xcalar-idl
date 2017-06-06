@@ -348,9 +348,11 @@ module.exports = {
     },
 
     "queryGraph": {
-        "numRows": "Num Rows",
+        "numRows": "Total Rows",
         "type": "type",
-        "field": "field"
+        "field": "field",
+        "node": "node",
+        "numRowsPct": "Num Rows (percent)",
     },
 
     "monitor": {

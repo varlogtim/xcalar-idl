@@ -2063,7 +2063,7 @@ window.Dag = (function($, Dag) {
 
     Dag.setupDagSchema = function() {
         var $dagSchema = $("#dagSchema");
-        $dagSchema.on('mouseup', 'li', function(event) {
+        $dagSchema.on("mouseup", ".content li", function(event) {
             if (event.which !== 1) {
                 return;
             }
@@ -2091,6 +2091,25 @@ window.Dag = (function($, Dag) {
             findColumnSource(sourceColNames, $dagWrap, index, nodes, backName,
                             progCol.isEmptyCol());
             $(document).mousedown(closeDagHighlight);
+        });
+
+        $dagSchema.on("click", '.sort', function() {
+            var tableId = $dagSchema.data("tableid");
+            var table = gTables[tableId];
+            var sortByNode = false;
+            var reversed = false;
+            var $btn = $(this);
+            if ($btn.parent().hasClass("text")) {
+                sortByNode = true;
+            }
+            $dagSchema.find(".subHeader").children().removeClass("active");
+            $btn.parent().addClass("active");
+            $btn.parent().toggleClass("reversed");
+            if ($btn.parent().hasClass("reversed")) {
+                reversed = true;
+            }
+
+            getSchemaNodeInfo($dagSchema, table, sortByNode, reversed);
         });
 
         $dagSchema.find(".close").click(function() {
@@ -2217,6 +2236,16 @@ window.Dag = (function($, Dag) {
         }
 
         if (table) {
+            var $sortedOn = $schema.find(".subHeader").children(".active");
+            var sortByNode = false;
+            var reversed = false;
+            if ($sortedOn.hasClass("text")) {
+                sortByNode = true;
+            }
+            if ($sortedOn.hasClass("reversed")) {
+                reversed = true;
+            }
+            getSchemaNodeInfo($schema, table, sortByNode, reversed);
             if (table.resultSetCount > -1) {
                 numRows = table.resultSetCount;
                 numRows = xcHelper.numToStr(numRows);
@@ -2225,6 +2254,7 @@ window.Dag = (function($, Dag) {
                 getSchemaNumRows($schema, schemaId, tableName, table);
             }
         } else {
+            $schema.find(".nodeInfo").addClass("xc-hidden");
             numRows = "...";
             getSchemaNumRows($schema, schemaId, tableName);
         }
@@ -2248,14 +2278,15 @@ window.Dag = (function($, Dag) {
             var backName = progCol.getBackColName();
             html += '<li>' +
                         '<div>' +
-                        '<span class="iconWrap">' +
-                            '<i class="icon fa-13 xi-' + type + '"></i>' +
-                        '</span>' +
-                        '<span class="text">' + type + '</span>' +
+                            '<span class="iconWrap">' +
+                                '<i class="icon fa-13 xi-' + type + '"></i>' +
+                            '</span>' +
+                            '<span class="text">' + type + '</span>' +
                         '</div>' +
                         '<div title="' + name + '" class="name" ' +
                         'data-backname="' + backName + '">' +
-                            name + '</div>' +
+                            name +
+                        '</div>' +
                         // '<div>' +
                         // // XX SAMPLE DATA GOES HERE
                         // '</div>' +
@@ -2280,6 +2311,65 @@ window.Dag = (function($, Dag) {
         positionSchemaPopup($dagTable);
     };
 
+    function getSchemaNodeInfo($schema, table, sortByNode, sortReverse) {
+        if (!table.backTableMeta) {
+            $schema.find(".nodeInfo").addClass("xc-hidden");
+            return;
+        }
+        $schema.find(".nodeInfo").removeClass("xc-hidden");
+        var meta = table.backTableMeta;
+        var html = "<ul>";
+        var totalRows = table.resultSetCount;
+        var infos = [];
+        for (var i = 0; i < meta.numMetas; i++) {
+            infos.push({
+                index: i,
+                numRows: meta.metas[i].numRows
+            });
+        }
+
+        if (sortByNode) {
+            if (sortReverse) {
+                infos = infos.sort(function(a, b) {
+                    return b.index - a.index;
+                });
+            }
+        } else {
+            if (sortReverse) {
+                infos = infos.sort(function(a, b) {
+                    return b.numRows - a.numRows;
+                });
+            } else {
+                infos = infos.sort(function(a, b) {
+                    return a.numRows - b.numRows;
+                });
+            }
+        }
+
+        for (var i = 0; i < meta.numMetas; i++) {
+            var numRows = infos[i].numRows;
+            var pct = (100 * (numRows / totalRows)).toFixed(1);
+            if (pct[pct.length - 1] === "0") {
+                pct = pct.slice(0, -2);
+            }
+            pct += "%";
+            if (totalRows === 0) {
+                pct = CommonTxtTstr.NA;
+            }
+            numRows = xcHelper.numToStr(numRows);
+            html += '<li>' +
+                        '<div>' +
+                            infos[i].index +
+                        '</div>' +
+                        '<div>' +
+                            numRows + " (" + pct + ")" +
+                        '</div>' +
+                    '</li>';
+        }
+        html += "</ul>";
+        $schema.find(".nodeInfoContent").html(html);
+    }
+
     function getSchemaNumRows($schema, schemaId, tableName, table) {
         var deferred = jQuery.Deferred();
         XcalarGetTableMeta(tableName)
@@ -2298,8 +2388,10 @@ window.Dag = (function($, Dag) {
                 if (table) {
                     table.resultSetCount = numRows;
                 }
+                numRows = xcHelper.numToStr(numRows);
+                $schema.find('.rowCount .value').text(numRows);
             }
-            $schema.find('.rowCount .value').text(numRows);
+
         })
         .fail(function() {
             $schema.find('.rowCount .value').text(CommonTxtTstr.Unknown);
@@ -2323,6 +2415,8 @@ window.Dag = (function($, Dag) {
         if ($schema.hasClass("loadInfo")) {
             defaultWidth = 500;
             defaultHeight = 530;
+        } else {
+            defaultHeight += $schema.find(".nodeInfo").outerHeight();
         }
 
         $schema.css("width", "auto");
@@ -2331,7 +2425,6 @@ window.Dag = (function($, Dag) {
 
         $schema.css("height", "auto");
         var height = $schema.outerHeight();
-        $schema.height(Math.min(defaultHeight, height));
 
         left = Math.max(2, left);
         top = Math.max(2, top - height); // at least 2px from the top

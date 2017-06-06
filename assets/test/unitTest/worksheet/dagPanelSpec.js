@@ -600,15 +600,27 @@ describe("Dag Panel Test", function() {
                     $menu.find(".showSchema").trigger(fakeEvent.mouseup);
                     expect($("#dagSchema:visible").length).to.equal(1);
                     var numCols = gTables[smallTable.tableId].tableCols.length - 1;
-                    expect($("#dagSchema").find("li").length).to.equal(numCols);
+                    expect($("#dagSchema").find(".content li").length).to.equal(numCols);
                     expect($("#dagSchema").find(".rowCount .value").text())
                     .to.equal("8");
 
-                    var $li = $("#dagSchema").find("li").filter(function() {
+                    var $li = $("#dagSchema").find(".content li").filter(function() {
                         return $(this).text() === "string" + smallTable.prefix +
                             gPrefixSign + "yelping_since";
                     });
                     expect($li.length).to.equal(1);
+
+                    expect($("#dagSchema .nodeInfo").is(":visible")).to.be.true;
+                    var $nodeLis = $("#dagSchema").find(".nodeInfoContent li");
+                    expect($nodeLis.length).to.be.gt(0);
+                    expect($nodeLis.eq(0).children().eq(0).text()).to.equal("0");
+
+                    // sort by node number
+                    $("#dagSchema").find(".nodeInfoHeader .sort").eq(0).click();
+                    $nodeLis = $("#dagSchema").find(".nodeInfoContent li");
+                    if ($nodeLis.length > 1) {
+                        expect($nodeLis.eq(0).children().eq(0).text()).to.not.equal("0");
+                    }
                 });
 
                 it("lockTable li should work", function() {
@@ -714,6 +726,7 @@ describe("Dag Panel Test", function() {
                     $menu.find(".dataStoreInfo").trigger(fakeEvent.mouseup);
                     expect($("#dagSchema:visible").length).to.equal(1);
                     expect($("#dagSchema").hasClass("loadInfo")).to.be.true;
+                    expect($("#dagSchema .nodeInfo").is(":visible")).to.be.false;
 
                     var text = $("#dagSchema .content").text();
                     expect(text.indexOf('"numEntries": 1000')).to.be.gt(-1);
@@ -1071,8 +1084,8 @@ describe("Dag Panel Test", function() {
                 $menu.find(".showSchema").trigger(fakeEvent.mouseup);
                 $dagSchema = $("#dagSchema");
                 var numCols = gTables[largeTableId].tableCols.length - 1;
-                expect($("#dagSchema").find("li").length).to.equal(numCols);
-                $("#dagSchema").find("li").eq(8).trigger(fakeEvent.mouseup);
+                expect($("#dagSchema").find(".content li").length).to.equal(numCols);
+                $("#dagSchema").find(".content li").eq(8).trigger(fakeEvent.mouseup);
 
                 // TODO: Do more interesting tests once have groupBy and join tables
             });

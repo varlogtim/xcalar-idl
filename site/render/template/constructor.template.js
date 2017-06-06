@@ -71,8 +71,14 @@
                         delete table.resultSetMax;
                         delete table.numPages;
                         delete table.ordering;
-                        delete table.backTableMeta;
                         delete table.scrollMeta;
+                        if (table.backTableMeta) {
+                            var metas = table.backTableMeta.metas;
+                            for (var i = 0; i < metas.length; i++) {
+                                delete metas[i].numPagesPerSlot;
+                                delete metas[i].numRowsPerSlot;
+                            }
+                        }
                     }
 
                     return persistTables;
@@ -295,11 +301,12 @@
             resultSetId: (string) result id
             icv: (string), icv table
             resultSetCount: (integer) total row num
+            backTableMeta: (obj) backTableMeta
 
             keyName: (string, not persist) column on index
             resultSetMax: (integer, not persist) last row able to fetch
             numPages: (integer, not persist) num of pages
-            backTableMeta: (obj, not persist) backTableMeta
+
          * new attrs:
             indexTables: (obj) cache column's indexed table
             complement: (string), complement table
@@ -316,6 +323,8 @@
                 // XXX this is only for version 2!!!
                 self.indexTables = options.indexTables || {};
                 self.complement = options.complement || "";
+
+                self.backTableMeta = options.backTableMeta || null;
             }
 
             return self;
