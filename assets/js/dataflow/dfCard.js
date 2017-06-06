@@ -989,17 +989,12 @@ window.DFCard = (function($, DFCard) {
         var paramsArray = [];
         var dfObj = DF.getDataflow(retName);
         var parameters = dfObj.paramMap;
-        var hasSysParam = false;
 
         for (var param in parameters) {
             var p = new XcalarApiParameterT();
             p.parameterName = param;
             p.parameterValue = parameters[param];
             paramsArray.push(p);
-
-            if (!hasSysParam && systemParams.hasOwnProperty(param)) {
-                hasSysParam = true;
-            }
         }
 
         var dagNode = dfObj.retinaNodes[0];
@@ -1023,6 +1018,9 @@ window.DFCard = (function($, DFCard) {
         var passedCheckBeforeRunDF = false;
         checkBeforeRunDF(advancedOpts.activeSession)
         .then(function() {
+            return checkIfHasSystemParam(retName);
+        })
+        .then(function(hasSysParam) {
             return alertBeforeRunDF(hasSysParam, advancedOpts.activeSession);
         })
         .then(function() {
@@ -1141,6 +1139,31 @@ window.DFCard = (function($, DFCard) {
             });
             return deferred.promise();
         }
+    }
+
+    function checkIfHasSystemParam(retName) {
+        var deferred = jQuery.Deferred();
+        XcalarListParametersInRetina(retName)
+        .then(function(res) {
+            var length = res.numParameters;
+            var parameters = res.parameters;
+            var hasSysParam = false;
+            for (var i = 0; i < length; i++) {
+                var paramName = parameters[i].parameterName;
+                if (systemParams.hasOwnProperty(paramName)) {
+                    hasSysParam = true;
+                    break;
+                }
+            }
+            deferred.resolve(hasSysParam);
+        })
+        .fail(function(error) {
+            console.error("error", error);
+            // still resolve the promise
+            deferred.resolve(false);
+        });
+
+        return deferred.promise();
     }
 
     function startStatusCheck(retName) {
