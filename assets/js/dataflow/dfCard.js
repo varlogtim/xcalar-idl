@@ -447,6 +447,7 @@ window.DFCard = (function($, DFCard) {
         $dfCard.on('click', '.addScheduleToDataflow', function() {
             // doesn't have schedule, show schedule
             var dfName = $listSection.find(".selected .groupName").text();
+            xcTooltip.hideAll();
             Scheduler.show(dfName);
         });
 

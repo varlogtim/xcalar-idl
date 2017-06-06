@@ -51,7 +51,8 @@ window.ExtensionManager = (function(ExtensionManager, $) {
     }
 
     function loadAndStorePython(extName) {
-        var pyModName = extName.substring(0, extName.length - 4);
+        // python name need to be lowercase
+        var pyModName = extName.substring(0, extName.length - 4).toLowerCase();
         var innerDef = jQuery.Deferred();
         var data;
         jQuery.ajax({
@@ -330,8 +331,9 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         var worksheet;
         var table;
         var tableName;
+        var notTableDependent = extMap[module]._configParams.notTableDependent;
 
-        if (!extMap[module]._configParams.notTableDependent) {
+        if (!notTableDependent) {
             worksheet = WSManager.getWSFromTable(tableId);
             table = gTables[tableId];
             tableName = table.getName();
@@ -376,6 +378,11 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                     }
                 }
             }
+            var ids = getTableIdFromArgs(args);
+            if (!notTableDependent) {
+                ids.push(tableId);
+            }
+
             var runBeforeStartRet;
 
             ext.initialize(tableName, worksheet, args);
@@ -399,9 +406,9 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                     "sql": sql
                 });
 
-                if (!extMap[module]._configParams.notTableDependent) {
+                ids.forEach(function(tableId) {
                     xcHelper.lockTable(tableId, txId);
-                }
+                });
 
                 hasStart = true;
                 return ext.run(txId);
@@ -411,9 +418,9 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                 return ext.runAfterFinish();
             })
             .then(function(finalTables, finalReplaces) {
-                if (!extMap[module]._configParams.notTableDependent) {
+                ids.forEach(function(tableId) {
                     xcHelper.unlockTable(tableId);
-                }
+                });
 
                 sql.newTables = finalTables;
                 sql.replace = finalReplaces;
@@ -474,6 +481,23 @@ window.ExtensionManager = (function(ExtensionManager, $) {
 
         return deferred.promise();
     };
+
+    function getTableIdFromArgs(args) {
+        var ids = [];
+        for (var arg in args) {
+            var sdkTable = args[arg];
+            if (sdkTable instanceof XcSDK.Table) {
+                var tableName = sdkTable.getName();
+                var tableId = xcHelper.getTableId(tableName);
+                var table = gTables[tableId];
+                if (table != null && table.isActive()) {
+                    ids.push(tableId);
+                }
+            }
+        }
+
+        return ids;
+    }
 
     function addEventListeners() {
         $("#extension-ops-submit").click(function() {
