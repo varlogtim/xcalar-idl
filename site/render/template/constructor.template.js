@@ -2327,7 +2327,6 @@
             addParameter: function(name) {
                 xcAssert(!this.paramMap.hasOwnProperty(name), "Invalid name");
                 this.parameters.push(name);
-                this.paramMap[name] = null;
             },
 
             getParameter: function(paramName) {
@@ -2348,15 +2347,42 @@
             },
 
             updateParameters: function(params) {
+                var deferred = jQuery.Deferred();
                 var paramMap = this.paramMap;
-
-                params.forEach(function(param) {
+                var parameters = this.parameters;
+                var usedParamNames = {};
+                if (!jQuery.isEmptyObject(params)) {
+                    params.forEach(function(param) {
                     var name = param.name;
                     var val  = param.val;
-                    xcAssert((paramMap.hasOwnProperty(name) ||
+                    xcAssert((parameters.includes(name) ||
                         systemParams.hasOwnProperty(name)), "Invalid name");
-                    paramMap[name] = val;
+                        paramMap[name] = val;
+                    });
+                }
+                XcalarListParametersInRetina(this.name)
+                .then(function(data) {
+                    var usedParams = data.parameters;
+                    for (var i = 0; i < usedParams.length; i++) {
+                        var param = usedParams[i];
+                        usedParamNames[param.parameterName] = "";
+                        if (!paramMap.hasOwnProperty(param.parameterName)) {
+                            deferred.reject();
+                            return;
+                        }
+                    }
+                    for (var paramName in paramMap) {
+                        if (!usedParamNames.hasOwnProperty(paramName)) {
+                            delete paramMap[paramName];
+                        }
+                    }
+                    deferred.resolve();
+                })
+                .fail(function(error) {
+                    console.log("Error" + error);
+                    deferred.reject();
                 });
+                return deferred.promise();
             },
 
             checkParamInUse: function(paramName) {

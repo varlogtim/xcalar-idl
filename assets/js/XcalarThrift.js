@@ -3021,6 +3021,84 @@ function XcalarCreateSched(scheduleKey, retName, substitutions, options, timingI
     return (deferred.promise());
 }
 
+function XcalarUpdateSched(scheduleKey, retName, substitutions, options, timingInfo)
+{
+    // Substitutions is the exact same format as the params argument to
+    // xcalarExecuteRetina.  If that changes, this implementation will change
+    // well to follow.
+    // options is the same as the output of getAdvancedExportOption in dfCard
+    // Additionally, options can also include "usePremadeCronString" : true
+    // In which case there MUST also be a "premadeCronString" present in options
+    // which MUST be of the form of a valid cron string:
+    // e.g. "* * * * *". "1-2, */4 * 4,7 *", etc.
+    // As of right now, activeSession and newTableName do nothing
+    // Example:
+    // var options = {
+    //     "activeSession": false,
+    //     "newTableName": "",
+    //     "usePremadeCronString": true,
+    //     "premadeCronString": "* * 3 * *"
+    // }
+    // timingInfo format is identical to a similar struct in scheduleView.js:
+    //   var timingInfo = {
+    //        "startTime": startTime, // In milliseconds
+    //        "dateText": date, // String
+    //        "timeText": time, // String
+    //        "repeat": repeat, // element in scheduleFreq in Scheduler
+    //        "modified": currentTime, // In milliseconds
+    //    };
+
+    var appInObj = {
+        "scheduleKey": scheduleKey,
+        "retName": retName,
+        "substitutions": substitutions,
+        "options": options,
+        "timingInfo": timingInfo
+    };
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return PromiseHelper.resolve(null);
+    }
+
+    var deferred = jQuery.Deferred();
+    XcalarAppExecute("ScheduleUpdate", true, JSON.stringify(appInObj))
+    .then(function(result) {
+        var innerParsed;
+        try {
+            // App results are formatted this way
+            var outerParsed = JSON.parse(result.outStr);
+            innerParsed = JSON.parse(outerParsed[0]);
+        } catch (err) {
+            deferred.reject("Failed to parse extension output.");
+        }
+        var defRes;
+        if (innerParsed === "0") {
+            // Success
+            defRes = true;
+        } else if (innerParsed === "-1") {
+            // Couldn't get lock
+            defRes = false;
+        } else if (innerParsed === "-2") {
+            // Lost lock in the middle of operation, after editing cron
+            // but before editing kv due to force unlock
+            // best effort made to undo in cron, during this undo period
+            // inconsistencies possible
+            defRes = false;
+        } else if (innerParsed === "-3") {
+            // Schedule with that ID already exists
+            defRes = false;
+        } else {
+            defRes = false;
+        }
+        deferred.resolve(defRes);
+    })
+    .fail(function(error1) {
+        var thriftError = thriftLog("XcalarUpdateSchedule", error1);
+        deferred.reject(thriftError);
+    });
+    return (deferred.promise());
+}
+
+
 function XcalarListSchedules(scheduleKey) {
     // scheduleKey can be an *exact* schedule key,
     // or emptystring, in which case all schedules are listed

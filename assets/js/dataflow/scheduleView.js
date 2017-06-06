@@ -852,7 +852,7 @@ window.Scheduler = (function(Scheduler, $) {
                             '</div>' +
                         '</div>' +
                         '<div class="order">' +
-                            index +
+                            (index + 1) +
                         '</div>' +
                         '<div class="time">' +
                             startTimeStr +

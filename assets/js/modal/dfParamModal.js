@@ -860,14 +860,15 @@ window.DFParamModal = (function($, DFParamModal){
         var retName = $dfParamModal.data("df");
         var df = DF.getDataflow(retName);
         var dagNodeId = $dfParamModal.data("id");
-
+        var paramInfo;
         updateRetina()
-        .then(function(paramInfo) {
+        .then(function(paramInfomation) {
             // store meta
-            df.updateParameters(params);
-
+            paramInfo = paramInfomation;
+            return df.updateParameters(params);
+        })
+        .then(function() {
             DFCard.updateRetinaTab(retName);
-
             if (!df.getParameterizedNode(dagNodeId)) {
                 var val = genOrigQueryStruct();
                 df.addParameterizedNode(dagNodeId, val, paramInfo);
@@ -875,7 +876,13 @@ window.DFParamModal = (function($, DFParamModal){
                 // Only updates view. Doesn't change any stored information
                 df.updateParameterizedNode(dagNodeId, paramInfo);
             }
-
+            if (DF.hasSchedule(retName)) {
+                return DF.updateScheduleForDataflow(retName);
+            } else {
+                return PromiseHelper.resolve();
+            }
+        })
+        .then(function() {
             // show success message??
             xcHelper.sendSocketMessage("refreshDataflow");
             xcHelper.showSuccess(SuccessTStr.OperationParameterized);
@@ -1012,7 +1019,6 @@ window.DFParamModal = (function($, DFParamModal){
                 deferred.reject("currently not supported");
             } else {
                 closeDFParamModal();
-
                 XcalarUpdateRetina(retName, dagNodeId, paramType, paramValues)
                 .then(function() {
                     return XcalarGetRetina(retName);

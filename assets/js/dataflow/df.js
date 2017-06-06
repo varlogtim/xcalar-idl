@@ -4,6 +4,7 @@ window.DF = (function($, DF) {
     DF.restore = function(retMeta) {
         var deferred = jQuery.Deferred();
         var numRetinas;
+        var paramPromises =[];
         XcalarListRetinas()
         .then(function(list) {
             numRetinas = list.numRetinas;
@@ -22,7 +23,12 @@ window.DF = (function($, DF) {
                     console.warn("No meta for dataflow", retName);
                     dataflows[retName] = new Dataflow(retName);
                 }
+                paramPromises.push(dataflows[retName].updateParameters({}));
             }
+            var def = PromiseHelper.when.apply(this, paramPromises);
+            return  PromiseHelper.alwaysResolve(def);
+        })
+        .then(function() {
             return XcalarListSchedules();
         })
         .then(function(list) {
@@ -214,12 +220,15 @@ window.DF = (function($, DF) {
     DF.addScheduleToDataflow = function(dataflowName, allOptions) {
         var deferred = jQuery.Deferred();
         var dataflow = dataflows[dataflowName];
+        var substitutions;
+        var options;
+        var timingInfo;
         if (dataflow) {
             if (!dataflow.schedule) {
                 dataflow.schedule = new SchedObj(allOptions);
-                var substitutions = getSubstitutions(dataflowName);
-                var options = getOptions(allOptions);
-                var timingInfo = getTimingInfo(allOptions);
+                substitutions = getSubstitutions(dataflowName);
+                options = getOptions(allOptions);
+                timingInfo = getTimingInfo(allOptions);
                 XcalarCreateSched(dataflowName, dataflowName,
                     substitutions, options, timingInfo)
                 .then(function() {
@@ -232,23 +241,39 @@ window.DF = (function($, DF) {
                 schedule.update(allOptions);
                 XcalarDeleteSched(dataflowName)
                 .then(function() {
-                    var substitutions = getSubstitutions(dataflowName);
-                    var options = getOptions(allOptions);
-                    var timingInfo = getTimingInfo(allOptions);
-                    XcalarCreateSched(dataflowName, dataflowName,
-                        substitutions, options, timingInfo)
-                    .then(function() {
-                        xcHelper.sendSocketMessage("refreshDataflow");
-                        deferred.resolve();
-                    })
-                    .fail(deferred.reject);
-                });
+                    substitutions = getSubstitutions(dataflowName);
+                    options = getOptions(allOptions);
+                    timingInfo = getTimingInfo(allOptions);
+                    return XcalarCreateSched(dataflowName, dataflowName,
+                            substitutions, options, timingInfo);
+                })
+                .then(function() {
+                    xcHelper.sendSocketMessage("refreshDataflow");
+                    deferred.resolve();
+                })
+                .fail(deferred.reject);
             }
         } else {
             console.warn("No such dataflow exist!");
             deferred.resolve();
         }
+        return deferred.promise();
+    };
 
+    DF.updateScheduleForDataflow = function(dataflowName) {
+        var deferred = jQuery.Deferred();
+        var dataflow = dataflows[dataflowName];
+
+        var options = getOptions(dataflow.schedule);
+        var timingInfo = getTimingInfo(dataflow.schedule);
+        var substitutions = getSubstitutions(dataflowName);
+        // XcalarUpdateSched(dataflowName, dataflowName,
+        //     substitutions, options, timingInfo)
+        PromiseHelper.resolve()
+        .then(function() {
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
         return deferred.promise();
     };
 

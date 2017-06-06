@@ -3030,6 +3030,12 @@ describe("Persistent Constructor Test", function() {
             expect(params[0]).to.have.property("parameterValue")
             .and.to.be.null;
 
+            XcalarListParametersInRetina = function() {
+                return PromiseHelper.resolve({
+                    "name": "a",
+                    "val": ""
+                });
+            };
             df.updateParameters([{
                 "name": "a",
                 "val": "c"
