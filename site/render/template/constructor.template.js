@@ -2311,13 +2311,13 @@
                 var $tableNode = this.colorNodes(dagNodeId);
                 if (paramInfo.paramType === XcalarApisT.XcalarApiExport) {
                     var $elem = $tableNode.find(".tableTitle");
-                    $elem.text(paramInfo.paramValue);
-                    var text = xcHelper.convertToHtmlEntity(paramInfo.paramValue);
+                    $elem.text(paramInfo.paramValue[0]);
+                    var text = xcHelper.convertToHtmlEntity(paramInfo.paramValue[0]);
                     xcTooltip.changeText($elem, text);
                 } else if (paramInfo.paramType === XcalarApisT.XcalarApiFilter) {
                     $tableNode.find(".parentsTitle").text("<Parameterized>");
                 }
-                $tableNode.data("paramValue", encodeURI(paramInfo.paramValue));
+                $tableNode.data("paramValue", paramInfo.paramValue);
             },
 
             getParameterizedNode: function(dagNodeId) {

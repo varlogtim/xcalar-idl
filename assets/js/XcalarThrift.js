@@ -2752,7 +2752,8 @@ function XcalarUpdateRetina(retName, dagNodeId, paramType, paramValues, txId) {
         case (XcalarApisT.XcalarApiExport):
             paramStruct = new XcalarApiParamExportT();
             paramStruct.fileName = paramValues.fileName;
-            paramStruct.udfTarget = paramValues.udfTarget;
+            paramStruct.targetName = paramValues.targetName;
+            paramStruct.targetType = paramValues.targetType;
             break;
     }
 

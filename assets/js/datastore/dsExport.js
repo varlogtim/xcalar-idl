@@ -226,6 +226,28 @@ window.DSExport = (function($, DSExport) {
         return deferred.promise();
     };
 
+    DSExport.getTarget = function(name) {
+        for (var i = 0; i < exportTargets.length; i++) {
+            var targGroup = exportTargets[i];
+            var type = targGroup.name;
+            for (var j = 0; j < targGroup.targets.length; j++) {
+                var target = targGroup.targets[j];
+                if (target.name === name) {
+                    if (type === ExportTStr.LocalFS) {
+                        type = ExTargetTypeT.ExTargetSFType;
+                    } else {
+                        type = ExTargetTypeT.ExTargetUDFType;
+                    }
+                    return {
+                        type: type,
+                        info: target
+                    };
+                }
+            }
+        }
+        return null;
+    };
+
     function getDefaultPath() {
         var group;
         var targets;

@@ -3522,6 +3522,7 @@ window.Dag = (function($, Dag) {
         // check for data store
         if (dagOrigin === "") {
             var url = dagInfo.url;
+            var pattern = "";
             var id = dagInfo.id;
             var originalTableName = tableName;
             var dsText;
@@ -3538,6 +3539,7 @@ window.Dag = (function($, Dag) {
                 dsText = "Dataset ";
                 icon = '<i class="icon xi_data"></i>';
                 storedInfo.datasets[tableName] = dagInfo;
+                pattern = dagInfo.loadInfo.loadArgs.fileNamePattern;
             }
 
             html += '<div class="dagTable dataStore ' + state +
@@ -3547,7 +3549,8 @@ window.Dag = (function($, Dag) {
                         'data-index="' + index + '" ' +
                         'data-type="dataStore" ' +
                         'data-id="' + id + '" ' +
-                        'data-url="' + encodeURI(url) + '">' +
+                        'data-url="' + encodeURI(url) + '" ' +
+                        'data-pattern="' + encodeURI(pattern) + '">' +
                             '<div class="dataStoreIcon" ' +
                             'data-toggle="tooltip" ' +
                             'data-placement="top" ' +

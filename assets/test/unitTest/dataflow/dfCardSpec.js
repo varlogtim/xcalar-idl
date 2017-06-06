@@ -243,8 +243,10 @@ describe("DFCard Test", function() {
 
             DFParamModal.show($dfWrap.find(".dagTable").last())
             .then(function() {
-                $("#dfParamModal").find(".editableTable input.editableParamDiv")
+                $("#dfParamModal").find(".editableTable input.editableParamDiv").eq(0)
                                 .val(testDfName + Date.now() + ".csv");
+                 $("#dfParamModal").find(".editableTable input.editableParamDiv").eq(1)
+                                .val("Default");
 
                 DFParamModal.__testOnly__.storeRetina()
                 .then(function() {

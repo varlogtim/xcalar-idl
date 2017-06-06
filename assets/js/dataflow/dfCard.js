@@ -670,22 +670,24 @@ window.DFCard = (function($, DFCard) {
         var paramValue = '';
         for (i = 0; i < retNodes.length; i++) {
             if (retNodes[i].dagNodeId === $action.attr("data-id")) {
-                var specInput = retNodes[i].input.exportInput.meta
-                                                             .specificInput;
-                paramValue = specInput.sfInput.fileName ||
+                var meta = retNodes[i].input.exportInput.meta;
+                var specInput = meta.specificInput;
+                var fileName = specInput.sfInput.fileName ||
                              specInput.udfInput.fileName; // Only one of the
                              // 3 should have a non "" value
                              //xx specInput.odbcInput.tableName no longer exists
+                paramValue = [fileName, meta.target.name, meta.target.type];
             }
         }
+
         $exportTable.addClass("export").data("type", "export")
                     .attr("data-table", $exportTable.attr("data-tablename"))
-                    .data("paramValue", encodeURI(paramValue))
+                    .data("paramValue", paramValue)
                     .attr("data-advancedOpts", "default");
 
         var $elem = $exportTable.find(".tableTitle");
-        $elem.text(paramValue);
-        xcTooltip.changeText($elem, xcHelper.convertToHtmlEntity(paramValue));
+        $elem.text(paramValue[0]);
+        xcTooltip.changeText($elem, xcHelper.convertToHtmlEntity(paramValue[0]));
 
         // Data table moved so that the hasParam class is added correctly
         $wrap.find(".actionType.export").attr("data-table", "");
@@ -694,13 +696,14 @@ window.DFCard = (function($, DFCard) {
         var $loadNodes = $wrap.find(".dagTable.dataStore");
         $loadNodes.each(function(idx, val) {
             var $val = $(val);
-            $val.data("paramValue", $val.data("url"));
+            var paramValue = [$val.data("url"), $val.data("pattern")];
+            $val.data("paramValue", paramValue);
         });
 
         var $opNodes = $wrap.find(".actionType.dropdownBox");
         $opNodes.each(function(idx, val) {
             var $op = $(val);
-            $op.data("paramValue", encodeURI($op.attr("data-info")));
+            $op.data("paramValue", [$op.attr("data-info")]);
         });
 
         var selector = '.dagTable.export, .dagTable.dataStore, ' +
@@ -1000,6 +1003,7 @@ window.DFCard = (function($, DFCard) {
         var dagNode = dfObj.retinaNodes[0];
         var exportInfo = dagNode.input.exportInput;
         var targetName = exportInfo.meta.target.name;
+        var targetType = exportInfo.meta.target.type;
         var fileName = parseFileName(exportInfo, paramsArray);
         var advancedOpts = getAdvancedExportOption(retName);
         if (advancedOpts == null) {
@@ -1100,7 +1104,7 @@ window.DFCard = (function($, DFCard) {
                 // already verified
                 return PromiseHelper.resolve();
             } else {
-                return checkExistingFileName(fileName, targetName);
+                return checkExistingFileName(fileName, targetName, targetType);
             }
         }
 
@@ -1430,7 +1434,7 @@ window.DFCard = (function($, DFCard) {
     }
 
     // returns promise with boolean True if duplicate found
-    function checkExistingFileName(fileName, targetName) {
+    function checkExistingFileName(fileName, targetName, targetType) {
         var deferred = jQuery.Deferred();
         var extensionDotIndex = fileName.lastIndexOf(".");
         if (fileName.includes("/")) {
@@ -1441,10 +1445,11 @@ window.DFCard = (function($, DFCard) {
             return PromiseHelper.reject(DFTStr.NoFileExt);
         }
 
-        XcalarListExportTargets(ExTargetTypeTStr[1], targetName)
+        XcalarListExportTargets(ExTargetTypeTStr[targetType], targetName)
         .then(function(ret) {
             if (ret.numTargets === 1) {
-                var url = ret.targets[0].specificInput.sfInput.url;
+                var url = ret.targets[0].specificInput.sfInput.url ||
+                          ret.targets[0].specificInput.udfInput.url;
                 XcalarListFiles(FileProtocol.nfs + url, false)
                 .then(function(result) {
                     for (var i = 0; i < result.numFiles; i++) {

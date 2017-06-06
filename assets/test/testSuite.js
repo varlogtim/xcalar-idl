@@ -1416,11 +1416,11 @@ window.TestSuite = (function($, TestSuite) {
         .then(function() {
             $dfParamModal.find(".editableRow .defaultParam").click();
             var $draggablePill = $dfParamModal.find('.draggableDiv').eq(0);
-            $dfParamModal.find("input.editableParamDiv").val('export-' +
+            $dfParamModal.find("input.editableParamDiv").eq(0).val('export-' +
                 $draggablePill.text() +'.csv'
             );
-            $dfParamModal.find("input.editableParamDiv").trigger('input');
-
+            $dfParamModal.find("input.editableParamDiv").eq(0).trigger('input');
+            $dfParamModal.find("input.editableParamDiv").eq(1).val("Default");
             fileName = "file" + randInt();
 
             console.log(dfName);

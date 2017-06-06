@@ -67,15 +67,16 @@ describe("DFParamModal Test", function() {
         });
 
         it("inputs should be correct", function() {
-            expect($modal.find(".template .boxed").length).to.equal(1);
-            expect($modal.find(".template").text()).to.equal("Export As:export-" + tableName + ".csv");
+            expect($modal.find(".template .boxed").length).to.equal(2);
+            expect($modal.find(".template").text()).to.equal("Export As:export-" + tableName + ".csvTarget:Default");
             expect($modal.find("input").eq(0).val()).to.equal("");
-            expect($modal.find("input").length).to.equal(8);
+            expect($modal.find("input").length).to.equal(9);
         });
 
         describe("export submit with invalid file name", function() {
             it("no extension should fail", function(done) {
                 $modal.find(".editableParamQuery input").eq(0).val("abc");
+                $modal.find(".editableParamQuery input").eq(1).val("Default");
                 DFParamModal.__testOnly__.storeRetina()
                 .then(function() {
                     done("failed");
@@ -134,6 +135,7 @@ describe("DFParamModal Test", function() {
                 };
 
                 $modal.find(".editableParamQuery input").eq(0).val("ab<test>c");
+                $modal.find(".editableParamQuery input").eq(1).val("Default");
                 $modal.find(".paramName").eq(0).text("test");
                 $modal.find(".paramVal").eq(0).val("csv");
                 $modal.find(".row").eq(0).removeClass("unfilled")

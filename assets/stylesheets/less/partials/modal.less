@@ -2678,6 +2678,49 @@ html.microsoft {
         }
     }
 
+    &.type-dataStore, &.type-export {
+        .flexContainer {
+            display: block;
+            > div {
+                margin-left: 0px;
+                margin-right: 0px;
+                .flex-display;
+
+                &:last-child {
+                    margin-top: 2px;
+                }
+                > div {
+                    text-align: left;
+                    padding: 0px;
+                    margin: 0px 5px;
+                    .font(@line-height: 34px, @weight: 600, @size: 12px, @color: @color-font-navy);
+                    text-transform: none;
+
+                    &:first-child {
+                        text-transform: capitalize;
+                        margin-left: 0px;
+                        min-width: 60px;
+                        .flex(0 0 auto);
+                    }
+                    &:last-child {
+                        margin-right: 0px;
+                    }
+                    &.path {
+                        margin-right: 0px;
+                        .flex(0 1 auto);
+                        .textOverflowOneLine;
+                        min-width: 0px;
+                    }
+                    &.boxed {
+                        line-height: 30px;
+                        padding: 0px 4px 0px 6px;
+                        color: @color-font-select-blue;
+                    }
+                }
+            }
+        }
+    }
+
     .flexContainer {
         > div {
             text-align: left;
