@@ -763,13 +763,16 @@ html.firefox, html.microsoft {
     .noSelection;
     cursor: default;
 
+    &.active {
+        .flex-display !important;
+        .flex-direction(column);
+    }
+
     &.loadInfo {
-        .background, .subHeader, .heading, .nodeInfo {
-            display: none;
+        .background, .subHeader, .heading, .nodeInfoHeader, .nodeInfoContent {
+            display: none !important;
         }
-        .title {
-            .cursor-move();
-        }
+
         .content {
             white-space: pre;
             height: ~"calc(100% - 24px)";
@@ -783,9 +786,13 @@ html.firefox, html.microsoft {
             }
         }
     }
-    &:not(.loadInfo) {
-        .ui-resizable-handle {
-            display: none !important;
+
+    &.expanded {
+        .subHeader .expand {
+            .transform(rotate(0deg));
+        }
+        .nodeInfoContent, .nodeInfoHeader {
+            display: block;
         }
     }
 
@@ -796,11 +803,13 @@ html.firefox, html.microsoft {
         color: @color-white;
         line-height: 22px;
         height: 24px;
+        .flex(0 0 24px);
         .textOverflow;
         white-space: nowrap;
         font-weight: 600;
         background-color: @color-bg-select-blue;
         padding: 0 4px;
+        .cursor-move;
 
 
         .titleContentWrap {
@@ -856,7 +865,10 @@ html.firefox, html.microsoft {
         font-weight: bold;
         margin-top: -1px;
         height: 21px;
+        .flex(0 0 21px);
         border-bottom: 1px solid @color-border-pinkish-grey2;
+        position: relative;
+
         > div {
             display: inline-block;
             float: left;
@@ -877,55 +889,89 @@ html.firefox, html.microsoft {
                 width: 100px;
             }
         }
+        .expand {
+            color: @color-font-select-blue;
+            font-size: 8px;
+            .position(absolute, @top: 0px, @right: 0px);
+            line-height: 21px;
+            width: 20px;
+            text-align: center;
+            .transform(rotate(270deg));
+        }
+        .error {
+            font-size: 12px;
+            line-height: 21px;
+            margin-left: 2px;
+            display: none;
+            &.xi-warning {
+                color: @color-bg-tahiti-gold;
+            }
+            &.xi-error {
+                color: @color-error-border;
+            }
+        }
     }
-
-    .nodeInfo {
-        border-bottom: 1px solid @color-border-pinkish-grey2;
-        .subHeader {
-            overflow: hidden;
-            .text {
-                text-indent: 22px;
-                padding: 0 4px;
-                width: 80px;
+    &.slightSkew {
+        .xi-warning {
+            display: inline-block;
+        }
+    }
+    &.heavySkew {
+        .xi-error {
+            display: inline-block;
+        }
+    }
+    .rowCount .value {
+        width: auto !important;
+    }
+    .nodeInfoHeader {
+        display: none;
+        overflow: hidden;
+        .text {
+            text-indent: 22px !important;
+            padding: 0 4px;
+            width: 80px;
+        }
+        .value {
+            text-indent: 1px !important;
+            width: ~"calc(100% - 80px)" !important;
+            // min-width: 142px;
+            padding: 0 4px;
+            > span {
+                width: ~"calc(100% - 20px)";
+                display: inline-block;
+                .textOverflowOneLine;
             }
-            .value {
+        }
+        > div {
+            position: relative;
+            margin: 0 0;
+            .sort {
+                .position(absolute, @top: 0, @right: 0px);
+                font-size: 10px;
+                .size(20px, 20px);
+                line-height: 20px;
                 text-indent: 0px;
-                width: ~"calc(100% - 80px)";
-                min-width: 142px;
-                padding: 0 4px;
-                > span {
-                    width: ~"calc(100% - 20px)";
-                    display: inline-block;
-                    .textOverflowOneLine;
-                }
-            }
-            > div {
-                position: relative;
-                margin: 0 0;
-                .sort {
-                    .position(absolute, @top: 0, @right: 0px);
-                    font-size: 10px;
-                    .size(20px, 20px);
-                    line-height: 20px;
-                    text-indent: 0px;
-                    text-align: center;
-                    cursor: pointer;
-                }
+                text-align: center;
+                cursor: pointer;
             }
         }
-        .nodeInfoContent {
-            ul {
-                overflow-y: auto;
-                overflow-x: hidden;
-                max-height: 200px;
-            }
-        }
+    }
+    .nodeInfoContent {
+        display: none;
+        border-bottom: 1px solid @color-border-pinkish-grey2;
         li {
             > div {
                 cursor: default;
                 &:first-child {
                     padding-left: 24px;
                 }
+            }
+            &.slight > div {
+                color: @color-bg-tahiti-gold;
+            }
+            &.heavy > div {
+                color: @color-error-border;
             }
         }
     }
@@ -935,6 +981,7 @@ html.firefox, html.microsoft {
         font-weight: bold;
         margin-top: -1px;
         height: 21px;
+        .flex(0 0 21px);
         border-bottom: 1px solid @color-border-pinkish-grey2;
         > div {
             display: inline-block;
@@ -963,14 +1010,16 @@ html.firefox, html.microsoft {
         }
     }
 
-    ul {
+    .content, .nodeInfoContent {
         overflow-y: auto;
         overflow-x: hidden;
-        max-height: 200px;
         padding: 0px;
         padding-top: 0px;
         text-align: left;
-
+        .flex(1 1 auto);
+        min-height: 20%;
+    }
+    ul {
         li {
             height: 20px;
             white-space: nowrap;
@@ -991,8 +1040,6 @@ html.firefox, html.microsoft {
                 margin: 0 5px;
                 white-space: nowrap;
                 text-align: left;
-                min-width: 100px;
-                max-width: 200px;
                 line-height: 20px;
                 .textOverflow;
                 cursor: pointer;

@@ -405,7 +405,7 @@ window.DagPanel = (function($, DagPanel) {
         $dagPanel.on('click', '.dagTable', function(event) {
             $('.menu').hide().removeClass('leftColMenu');
             xcMenu.removeKeyboardNavigation();
-            $('#dagSchema').hide();
+            $('#dagSchema').removeClass("active");
             var $dagTable = $(this).closest('.dagTable');
             if (!$dagTable.hasClass(DgDagStateTStr[5])) {
                 // if dag does not have ready state, don't show dropdown
@@ -563,7 +563,7 @@ window.DagPanel = (function($, DagPanel) {
                 return false;
             } else if ($dagWrap.length !== 0) {
                 $('.menu').hide().removeClass('leftColMenu');
-                $('#dagSchema').hide();
+                $('#dagSchema').removeClass("active");
                 $menu.data('dagid', $dagWrap.data('id'));
                 var tableName = $dagWrap.find('.dagTable[data-index="0"]')
                                         .data('tablename');
@@ -2112,6 +2112,10 @@ window.Dag = (function($, Dag) {
             getSchemaNodeInfo($dagSchema, table, sortByNode, reversed);
         });
 
+        $dagSchema.on("click", ".expand", function() {
+            $dagSchema.toggleClass("expanded");
+        });
+
         $dagSchema.find(".close").click(function() {
             hideSchema();
         });
@@ -2126,8 +2130,8 @@ window.Dag = (function($, Dag) {
 
         $dagSchema.resizable({
             handles: "n, e, s, w, se",
-            minHeight: 300,
-            minWidth: 300,
+            minHeight: 200,
+            minWidth: 200,
             containment: "document"
         });
     };
@@ -2195,7 +2199,7 @@ window.Dag = (function($, Dag) {
         var html = prettify(loadInfo);
 
         $schema.find(".content").addClass("prettyJson").html(html);
-        $schema.show();
+        $schema.addClass("active");
         xcTooltip.hideAll();
 
         $(document).on('mousedown.hideDagSchema', function(event) {
@@ -2298,7 +2302,7 @@ window.Dag = (function($, Dag) {
         html += "</ul>";
 
         $schema.find(".content").html(html);
-        $schema.show();
+        $schema.addClass("active");
         xcTooltip.hideAll();
 
         $(document).on('mousedown.hideDagSchema', function(event) {
@@ -2312,6 +2316,7 @@ window.Dag = (function($, Dag) {
     };
 
     function getSchemaNodeInfo($schema, table, sortByNode, sortReverse) {
+        $schema.removeClass('heavySkew slightSkew');
         if (!table.backTableMeta) {
             $schema.find(".nodeInfo").addClass("xc-hidden");
             return;
@@ -2346,9 +2351,17 @@ window.Dag = (function($, Dag) {
             }
         }
 
-        for (var i = 0; i < meta.numMetas; i++) {
+        var largest = 0;
+        var largestIndex;
+        var numMetas = meta.numMetas;
+        for (var i = 0; i < numMetas; i++) {
             var numRows = infos[i].numRows;
-            var pct = (100 * (numRows / totalRows)).toFixed(1);
+            var pct = (100 * (numRows / totalRows));
+            if (pct > largest) {
+                largest = pct;
+                largestIndex = i;
+            }
+            pct = pct.toFixed(1);
             if (pct[pct.length - 1] === "0") {
                 pct = pct.slice(0, -2);
             }
@@ -2366,8 +2379,26 @@ window.Dag = (function($, Dag) {
                         '</div>' +
                     '</li>';
         }
+
         html += "</ul>";
         $schema.find(".nodeInfoContent").html(html);
+
+        if ((largest - (100 / numMetas)) > (0.25 * 100 / numMetas)) {
+            var $li = $schema.find(".nodeInfoContent li").eq(largestIndex);
+            if ((largest - (100 / numMetas)) > (0.5 * 100 / numMetas)) {
+                $li.addClass("heavy");
+                xcTooltip.add($li.find("div").eq(0), {title: DFTStr.HeavySkew});
+                xcTooltip.add($li.find("div").eq(1), {title: DFTStr.HeavySkew});
+                $li.find("div").attr("data-tipClasses", "zIndex10000");
+                $schema.addClass("heavySkew");
+            } else {
+                $li.addClass("slight");
+                xcTooltip.add($li.find("div").eq(0), {title: DFTStr.SlightSkew});
+                xcTooltip.add($li.find("div").eq(1), {title: DFTStr.SlightSkew});
+                $li.find("div").attr("data-tipClasses", "zIndex10000");
+                $schema.addClass("slightSkew");
+            }
+        }
     }
 
     function getSchemaNumRows($schema, schemaId, tableName, table) {
@@ -2402,29 +2433,25 @@ window.Dag = (function($, Dag) {
 
     function positionSchemaPopup($dagTable) {
         var $schema = $('#dagSchema');
-
         var topMargin = 3;
         var top = $dagTable[0].getBoundingClientRect().top + topMargin;
         var left = $dagTable[0].getBoundingClientRect().left - 30;
-        var menuWidth = 0;
-        if (MainMenu.isMenuOpen()) {
-            menuWidth = 285;
-        }
         var defaultWidth = 300;
         var defaultHeight = 266;
         if ($schema.hasClass("loadInfo")) {
             defaultWidth = 500;
             defaultHeight = 530;
-        } else {
-            defaultHeight += $schema.find(".nodeInfo").outerHeight();
         }
 
         $schema.css("width", "auto");
-        var width = $schema.outerWidth();
-        $schema.width(Math.min(defaultWidth, width));
+        var width = Math.min(defaultWidth, $schema.outerWidth());
+        width = Math.max(230, width);
+        $schema.width(width);
 
         $schema.css("height", "auto");
-        var height = $schema.outerHeight();
+        var height = Math.min(defaultHeight, $schema.outerHeight());
+        height = Math.max(200, height);
+        $schema.height(height);
 
         left = Math.max(2, left);
         top = Math.max(2, top - height); // at least 2px from the top
@@ -2434,12 +2461,7 @@ window.Dag = (function($, Dag) {
         var rightBoundary = $(window).width() - 5;
 
         if ($schema[0].getBoundingClientRect().right > rightBoundary) {
-            if (isBrowserMicrosoft) {
-                left = rightBoundary - $schema.width();
-            } else {
-                left = rightBoundary - (menuWidth + dagPanelLeft +
-                                        $schema.width());
-            }
+            left = rightBoundary - $schema.width();
             $schema.css('left', left);
         }
 
@@ -2473,7 +2495,7 @@ window.Dag = (function($, Dag) {
     };
 
     function hideSchema() {
-        $('#dagSchema').hide();
+        $('#dagSchema').removeClass("active");
         $(document).off('.hideDagSchema');
     }
 

@@ -212,7 +212,7 @@ window.ExportView = (function($, ExportView) {
         $(document).on("keypress.exportView", function(event) {
             if (event.which === keyCode.Enter &&
                 gMouseEvents.getLastMouseDownTarget()
-                .closest('#dfCreateView').length)
+                .closest('#exportView').length)
             {
                 submitForm();
             }

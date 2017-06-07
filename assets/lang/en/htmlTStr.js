@@ -350,9 +350,9 @@ module.exports = {
 
     "queryGraph": {
         "numRows": "Total Rows",
-        "type": "type",
-        "field": "field",
-        "node": "node",
+        "type": "Type",
+        "field": "Field",
+        "node": "Node",
         "numRowsPct": "Num Rows (percent)",
     },
 
@@ -600,6 +600,8 @@ module.exports = {
         "inputNewParam": "Input New Parameter",
         "val": "Value",
         "action": "Action",
+        "slightSkew": "Slight skew",
+        "heavySkew": "Heavy skew",
         // For uploader
         "upload": "UPLOAD",
         "uploadHeader": "Upload Dataflow",

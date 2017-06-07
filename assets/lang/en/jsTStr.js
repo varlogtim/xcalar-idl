@@ -733,7 +733,9 @@ DFTStr = {
     'WarnInMemTable': 'This will generate an in-memory table in your current workbook. Please note that you will NOT be able to create further batched dataflows from this table.',
     'WarnSysParam': 'System parameters are not used when you run batch data flow directly, they will be replaced with empty strings.',
     'InvalidExportPath': 'Cannot contain / in the export file name',
-    'Scheduled': 'Scheduled'
+    'Scheduled': 'Scheduled',
+    "SlightSkew": "Slight skew",
+    "HeavySkew": "Heavy skew"
 };
 
 DSTStr = {

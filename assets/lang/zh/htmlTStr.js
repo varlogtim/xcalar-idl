@@ -301,6 +301,8 @@ module.exports = {
         "overwriteUdf": "使用数据流内的UDF覆盖同名UDF",
         "param": "参数",
         "params": "参数",
+        "slightSkew": "Slight skew",
+        "heavySkew": "Heavy skew",
         "upload": "上传",
         "uploadHeader": "上传数据流",
         "uploadInstr": "将以前下载的数据流上传到Xcalar。您的文件的格式应为.tar.gz",
