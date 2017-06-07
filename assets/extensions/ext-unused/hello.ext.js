@@ -54,42 +54,39 @@ window.UExtHello = (function(UExtHello) {
      *                 extension writers can use it to get the argument's
      *                 value in XcSDK.Extension (see the sum3() as an example).
      *
-     *  4) allowEmpty: Optional, when set to be true, XI will allow the argument
-     *                 to be empty. Otherwise, XI will prevent value in
-     *                 this field.
      *
-     *  5) enums: Optional, an arry of values. If specified, then in XI this
+     *  4) enums: Optional, an arry of values. If specified, then in XI this
      *            field will be a dropdown list instead of input and the
      *            arugment's value must be one of the element in enums.
      *
-     *  6) autofill: Optional, when set a valid value, this field will be
+     *  5) autofill: Optional, when set a valid value, this field will be
      *               auto filled of the value in XI. If not specified or
      *               the value is invalid, then auto fill will not happen.
      *               Different type of arguments accept
      *               different autofill value. Here is a checklist:
      *
      *
-     *      6.1 Autofill for boolean type argument:
+     *      5.1 Autofill for boolean type argument:
      *          boolean type of field displays as a checkbox in XI.
      *          If autofill set to true, checkbox will be checked by default,
      *          otherwise, checkbox will not be checked by default.
      *
-     *      6.2 Autofill for column type argument:
+     *      5.2 Autofill for column type argument:
      *          once the value exists, this field will be auto filled of
      *          the column name if user trigger extension from a column.
      *          For good practice, please use "autofill: true".
      *
-     *      6.2 Autofill for string type argument:
+     *      5.3 Autofill for string type argument:
      *          value can be any string.
      *
-     *      6.3 Autofill for number type argument:
+     *      5.4 Autofill for number type argument:
      *          value can be any number.
      *
-     *  7) typeCheck: Optional, an object to specify how XI should check
+     *  6) typeCheck: Optional, an object to specify how XI should check
      *                the argument. Different type of arguments accept
      *                different attributes. Here is a checklist:
      *
-     *   7.1 Attributes of typeCheck for column type argument:
+     *   6.1 Attributes of typeCheck for column type argument:
      *       columnType: Optional, an array to restrict the column argument's
      *                   type, each element in the array can be
      *                   "number", "string", "boolean"...
@@ -108,30 +105,33 @@ window.UExtHello = (function(UExtHello) {
      *                   must be type table. For other case, XI will
      *                   not check, extension writer should
      *                   be responsible for invalid column value.
+     *       allowEmpty: Optional, when set to be true, XI will allow the argument
+     *                   to be empty. Otherwise, XI will prevent value in
+     *                   this field.
      *
-     *  7.2 Attributes of typeCheck for number type argument:
-     *      integer: Optional, when set true, only allow the arguement to be
-     *               integer. Float value is not allowed.
-     *      max: Optional, when set to a valid number, the argument's value
-     *           can not be more than it. Any invalid value may make extension
-     *           has unexpected behavior.
-     *      min: Optional, when set to a valid number, the argument's value
-     *           can not be less than it. Any invalid value may make extension
-     *           has unexpected behavior.
+     *   6.2 Attributes of typeCheck for number type argument:
+     *       integer: Optional, when set true, only allow the arguement to be
+     *                integer. Float value is not allowed.
+     *       max: Optional, when set to a valid number, the argument's value
+     *            can not be more than it. Any invalid value may make extension
+     *            has unexpected behavior.
+     *       min: Optional, when set to a valid number, the argument's value
+     *            can not be less than it. Any invalid value may make extension
+     *            has unexpected behavior.
      *
-     *  8) variableArg: Optional, when set to true, will allow to add multiple
+     *  7) variableArg: Optional, when set to true, will allow to add multiple
      *                  args for the field, typeCheck will run all inputs
      *
      * E.g of an argument object:
      * {
      *  "type": "column",
      *  "name": "Example 1",
-     *  "allowEmpty": true,
      *  "fieldClass": "col1",
      *  "variableArg": true,
      *  "typeCheck": {
      *      "columnType": ["number"],
-     *      "tableField": "tableA"
+     *      "tableField": "tableA",
+     *      "allowEmpty": true,
      *  }
      * }
      *

@@ -237,7 +237,7 @@ describe("User Setting Test", function() {
         });
 
         it("should toggle enable table", function() {
-            var enableTable = UserSettings.getPref("enableCreateTable");
+            var enableTable = UserSettings.getPref("enableCreateTable") || false;
             var $btn = $("#enableCreateTable");
             // case 1
             $btn.click();
@@ -250,7 +250,7 @@ describe("User Setting Test", function() {
         });
 
         it("should toggle Xc UDF", function() {
-            var hideXcUDF = UserSettings.getPref("hideXcUDF");
+            var hideXcUDF = UserSettings.getPref("hideXcUDF") || false;
             var $btn = $("#hideXcUDF");
             // case 1
             $btn.click();
