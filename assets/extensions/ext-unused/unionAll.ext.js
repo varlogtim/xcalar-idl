@@ -38,7 +38,7 @@ window.UExtUnionAll = (function(UExtUnionAll) {
                 return XcSDK.Promise.reject("Both tables must have an equal number of Columns");
             }
 
-            var nonMatchingTypes = []
+            var nonMatchingTypes = [];
 
             // find all column types that do not correspond between the two
             var j = 0;
@@ -46,8 +46,8 @@ window.UExtUnionAll = (function(UExtUnionAll) {
             for (var i = 0; i < totalCols; i++) {
 
                 //as long as data
-                if (tableOne.tableCols[i].name == 'DATA') continue;
-                if (tableTwo.tableCols[j].name == 'DATA') j++;
+                if (tableOne.tableCols[i].name === 'DATA') continue;
+                if (tableTwo.tableCols[j].name === 'DATA') j++;
 
                 if (j >= totalCols) continue;
 
@@ -81,7 +81,7 @@ window.UExtUnionAll = (function(UExtUnionAll) {
             }
 
             return XcSDK.Promise.resolve();
-        }
+        };
 
 
         function combineColumns(ext, errMapConditionArgs) {
@@ -169,8 +169,6 @@ window.UExtUnionAll = (function(UExtUnionAll) {
 
             var totalCols = tableOneColNames.length;
 
-
-            var t1TotalRows;
             var rowColOne = "ColumnOfOnes";
             var rowColTwo = "ColumnOfTwos";
 
@@ -189,15 +187,15 @@ window.UExtUnionAll = (function(UExtUnionAll) {
                 // resolve naming conlicts
                 // add '_+1 to every col in tableOne and '_+2' to every col in
                 // tableTwo to get unique names.
-                var renameMapOne = []
-                var renameMapTwo = []
+                var renameMapOne = [];
+                var renameMapTwo = [];
                 var appendStrTableOne = '_1';
                 var appendStrTableTwo = '_2';
 
                 // change all derived fields
                 tableOne.getImmediatesMeta().forEach(function(col) {
                     var colName = col.name;
-                    var newName = colName + appendStrTableOne
+                    var newName = colName + appendStrTableOne;
                     renameMapOne.push(ext.getJoinRenameMap(colName,
                         newName, false));
                 });
@@ -217,7 +215,7 @@ window.UExtUnionAll = (function(UExtUnionAll) {
                 tableOne.getPrefixMeta().forEach(function(prefixField) {
                     var prefix = prefixField.name;
                     if (cache.has(prefix)) {
-                        newPrefix = prefix +
+                        var newPrefix = prefix +
                             (Math.floor(Math.random() * 1000) + 1000);
                         renameMapTwo.push(ext.getJoinRenameMap(prefix,
                             newPrefix, true));
@@ -235,8 +233,7 @@ window.UExtUnionAll = (function(UExtUnionAll) {
                 var rightTableInfo = {
                     "tableName": tableTwoUniqueRowNum,
                     "columns": rowColTwo,
-                    // "columns": uniqueRowColTwo,
-                    "pulledColumns": tableTwo.getColNamesAsArray(),
+                    "pulledColumns": tableTwoColNames,
                     "rename": renameMapTwo
                 };
 

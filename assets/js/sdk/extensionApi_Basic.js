@@ -109,6 +109,12 @@ window.XcSDK.Extension.prototype = (function() {
             return this.attrs[attrName];
         },
 
+        "createUniqueCol": function(tableName, colName, onlyCheckPulledCols) {
+            var tableId = xcHelper.getTableId(tableName);
+            return xcHelper.getUniqColName(tableId, colName,
+                onlyCheckPulledCols);
+        },
+
         // some helper function for table name and column name
         "createTableName": function(prefix, suffix, sourceName) {
             // currently we only allow users to add prefix and suffix
