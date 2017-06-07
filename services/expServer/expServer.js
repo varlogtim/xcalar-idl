@@ -785,14 +785,13 @@ require("jsdom").env("", function(err, window) {
             var zipPath = basePath + "ext-available/" + name + "-" + version +
                           ".tar.gz";
             xcConsole.log(zipPath);
-            fs.writeFile(basePath + "ext-available/" + name + "-" + version +
-                         ".tar.gz", zipFile, function(error) {
+            fs.writeFile(zipPath, zipFile, function(error) {
                 if (error) {
                     innerDeferred.reject(error);
                 }
                 xcConsole.log("Writing");
                 var out = exec("tar -zxf " + zipPath + " -C " + basePath +
-                               "ext-available/ --strip-components 1");
+                               "ext-available/");
                 out.on('close', function(code) {
                     if (code) {
                         innerDeferred.reject(code);
