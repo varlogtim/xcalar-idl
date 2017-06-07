@@ -465,6 +465,7 @@ window.JoinView = (function($, JoinView) {
             for (var i = 0; i < colNums.length; i++) {
                 addClause(true, tableId, colNums[i]);
             }
+            $rightTableDropdown.find("input").focus();
         }
         formHelper.setup();
 
@@ -475,12 +476,14 @@ window.JoinView = (function($, JoinView) {
                     if (formHelper.checkBtnFocus()) {
                         return;
                     }
+                    if ($(event.target).is("#rowInput")) {
+                        return;
+                    }
                     if ($joinView.hasClass('nextStep')) {
                         $('#joinTables').click();
                     } else {
                         $joinView.find('.next').click();
                     }
-
                     break;
                 default:
                     break;

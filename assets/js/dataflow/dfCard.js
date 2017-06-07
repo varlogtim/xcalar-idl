@@ -961,7 +961,7 @@ window.DFCard = (function($, DFCard) {
                     '<div class="iconWrap">';
         if (DF.hasSchedule(dfName)) {
             html += '<i class="icon xi-menu-scheduler addScheduleToDataflow" ' +
-                        'title="' + DFTStr.AddSched + '" ' +
+                        'title="' + DFTStr.Scheduled + '" ' +
                         'data-toggle="tooltip" data-placement="top" ' +
                         'data-container="body">' +
                     '</i>';

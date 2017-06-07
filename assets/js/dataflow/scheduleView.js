@@ -362,7 +362,8 @@ window.Scheduler = (function(Scheduler, $) {
             $("#dfViz").addClass("withSchedule");
         }
         var html = '<i class="icon xi-menu-scheduler addScheduleToDataflow" ' +
-                        'data-placement="top" ' +
+                        'title="' + DFTStr.Scheduled + '" ' +
+                        'data-toggle="tooltip" data-placement="top" ' +
                         'data-container="body">' +
                     '</i>';
         var $list = DFCard.getDFList(dataflowName);
