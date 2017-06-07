@@ -620,7 +620,6 @@ window.JSONModal = (function($, JSONModal) {
             }
 
             if (event.shiftKey && $lastKeySelected) {
-                // var $els = $jsonWrap.find('jKey, .arrayEl');
                 var $cboxes = $jsonWrap.find('.jsonCheckbox');
                 var $els = $();
                 $cboxes.each(function() {
@@ -954,7 +953,7 @@ window.JSONModal = (function($, JSONModal) {
                 $modalBg.hide();
             }
             $jsonModal.hide().width(500);
-
+            $(".xcTable").find(".jsonModalOpen").removeClass("jsonModalOpen");
             $('#bottomMenu').removeClass('jsonModalOpen');
             $('#mainMenu').removeClass('jsonModalOpen');
             xcTooltip.hideAll();

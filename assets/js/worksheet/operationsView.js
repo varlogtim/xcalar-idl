@@ -4141,8 +4141,6 @@ window.OperationsView = (function($, OperationsView) {
         $activeOpSection.addClass('xc-hidden');
 
         formHelper.clear();
-        StatusBox.forceHide();// hides any error boxes;
-        xcTooltip.hideAll();
         $(document).off('click.OpSection');
         $(document).off("keydown.OpSection");
         $(document).off('mousedown.mapCategoryListener');

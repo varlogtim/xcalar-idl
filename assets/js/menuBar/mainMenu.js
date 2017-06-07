@@ -442,6 +442,9 @@ window.MainMenu = (function($, MainMenu) {
         // recenter table titles if on workspace panel
         if (!noAnim && $("#workspacePanel").hasClass("active")) {
             xcHelper.menuAnimAligner(false, checkMenuAnimFinish);
+        } else if ($("#monitor-queries").hasClass("active")) {
+            QueryManager.scrollToFocused();
+            menuAnimAlign = null;
         } else {
             menuAnimAlign = null;
         }

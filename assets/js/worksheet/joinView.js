@@ -630,8 +630,6 @@ window.JoinView = (function($, JoinView) {
         formHelper.clear();
         $("body").off(".joinModal");
         $lastInputFocused = null;
-        StatusBox.forceHide();// hides any error boxes;
-        xcTooltip.hideAll();
         $(".xcTableWrap").find('.modalHighlighted')
                          .removeClass('modalHighlighted');
         $("#container").removeClass("joinState2");

@@ -1585,6 +1585,8 @@
     };
 
     // if no txId, will not be made cancelable
+    // will lock the table's worksheet as well so that worksheet cannot be
+    // deleted
     xcHelper.lockTable = function(tableId, txId) {
         // lock worksheet as well
         xcAssert((tableId != null), "Invalid Parameters!");
@@ -1892,7 +1894,7 @@
 
         var currentScrollPosition = $('#mainFrame').scrollLeft();
         var leftPosition = currentScrollPosition + tableLeft - mainMenuOffset;
-
+        var scrollPosition;
 
         if (tableWidth < mainFrameWidth) {
             // table fits completely within window so we center it
@@ -3158,7 +3160,7 @@
         for (var i = 0; i < numTableCols; i++) {
             var col = tableCols[i];
             if (!col.isDATACol() && !col.isEmptyCol()) {
-                if (gExportNoCheck) {
+                if (gExportNoCheck || !validTypes) {
                     colsArray.push(col);
                 } else {
                     if (validTypes.indexOf(col.type) !== -1) {

@@ -193,6 +193,9 @@ window.TblMenu = (function(TblMenu, $) {
                 case ("sort"):
                     SortView.close();
                     break;
+                case ("project"):
+                    ProjectView.close();
+                    break;
                 default:
                     break;
             }
@@ -794,6 +797,16 @@ window.TblMenu = (function(TblMenu, $) {
             Profile.show(tableId, colNum);
         });
 
+
+        $colMenu.on('mouseup', '.project', function(event) {
+            if (event.which !== 1) {
+                return;
+            }
+            var tableId = $colMenu.data('tableId');
+            var colNums = $colMenu.data("colNums");
+            ProjectView.show(tableId, colNums);
+        });
+
         $colMenu.on('mouseup', '.extensions', function(event) {
             if (event.which !== 1 || $(this).hasClass("unavailable")) {
                 return;
@@ -984,6 +997,9 @@ window.TblMenu = (function(TblMenu, $) {
                     break;
                 case ("sort"):
                     SortView.close();
+                    break;
+                case ("project"):
+                    ProjectView.close();
                     break;
                 default:
                     break;

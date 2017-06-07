@@ -302,16 +302,31 @@ window.Undo = (function($, Undo) {
                                        worksheet, null, refreshOptions);
     };
 
-    undoFuncs[SQLOps.Project] = function(options) {
+    undoFuncs[SQLOps.Project] = function(options, isMostRecent) {
+        var deferred = jQuery.Deferred();
         var newTableId = xcHelper.getTableId(options.newTableName);
         var worksheet = WSManager.getWSFromTable(newTableId);
         var refreshOptions = {
             isUndo: true,
             replacingDest: TableType.Undone
         };
-        return TblManager.refreshTable([options.tableName], null,
+        TblManager.refreshTable([options.tableName], null,
                                         [options.newTableName], worksheet, null,
-                                        refreshOptions);
+                                        refreshOptions)
+        .then(function() {
+            if (isMostRecent && options.formOpenTime) {
+                ProjectView.show(null, null, {
+                    "restore": true,
+                    "restoreTime": options.formOpenTime
+                });
+            }
+            deferred.resolve();
+        })
+        .fail(function() {
+            deferred.reject();
+        });
+
+        return (deferred.promise());
     };
 
     undoFuncs[SQLOps.Finalize] = function(options) {

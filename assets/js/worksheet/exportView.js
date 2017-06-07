@@ -2,7 +2,6 @@ window.ExportView = (function($, ExportView) {
     var $exportView;   // $("#exportView")
     var $exportName;    // $("#exportName")
     var $exportPath;    // $("#exportPath")
-    var $exportColumns; // $("#exportColumns")
     var $advancedSection; // $('#xportModal .advancedSection')
     var $colList;
 
@@ -24,7 +23,6 @@ window.ExportView = (function($, ExportView) {
         $exportView = $("#exportView");
         $exportName = $("#exportName");
         $exportPath = $("#exportPath");
-        $exportColumns = $("#exportColumns");
         $advancedSection = $exportView.find('.advancedSection');
         $colList = $exportView.find('.cols');
 
@@ -252,7 +250,6 @@ window.ExportView = (function($, ExportView) {
         exportTableName = null;
         exportTargInfo = null;
         // leave target path as is
-        $exportColumns.val("");
         $(document).off(".exportView");
         $exportView.find('.checkbox').removeClass('checked');
         $exportView.find('.checked').removeClass('checked');
@@ -265,9 +262,6 @@ window.ExportView = (function($, ExportView) {
         restoreXcTableColumns();
         $advancedSection.addClass('collapsed').removeClass('expanded');
         formHelper.clear();
-
-        StatusBox.forceHide();// hides any error boxes;
-        xcTooltip.hideAll();
     };
 
     function submitForm() {
@@ -383,13 +377,6 @@ window.ExportView = (function($, ExportView) {
                     "type": backColumnNames.type
                 });
             }
-            xcHelper.validate([{
-                "$ele": $exportColumns,
-                "error": errorText,
-                "check": function() {
-                    return (true);
-                }
-            }]);
             isValid = false;
         }
 

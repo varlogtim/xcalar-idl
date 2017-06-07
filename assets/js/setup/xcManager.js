@@ -528,6 +528,7 @@ window.xcManager = (function(xcManager, $) {
         OperationsView.setup();
         WorkbookPanel.setup();
         DFCreateView.setup();
+        ProjectView.setup();
         DFParamModal.setup();
         SmartCastView.setup();
         SortView.setup();

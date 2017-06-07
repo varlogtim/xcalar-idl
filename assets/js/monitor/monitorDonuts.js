@@ -154,6 +154,7 @@ window.MonitorDonuts = (function($, MonitorDonuts) {
         }
 
         function drawPath(svg, pie, arc2, index) {
+            var data;
             if (index === memIndex) {
                 data = [0, 0, 0, 0, 100];
                 ramData = data;

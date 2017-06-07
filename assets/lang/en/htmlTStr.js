@@ -188,6 +188,7 @@ module.exports = {
         "ExitExt": "Exit Extension",
         "ExitDF": "Exit Dataflow",
         "ExitSort": "Exit Sort",
+        "ExitProject": "Exit Project",
         "ExpandAllDags": "Expand collapsed tables",
         "ExpandAllDagsAll": "Expand all collapsed tables",
         "ExportTbl": "Export table",
@@ -231,6 +232,7 @@ module.exports = {
         "Percent": "Percent",
         "Preview": "Preview",
         "Profile": "Profile",
+        "Project": "Project",
         "PullAllCell": "Pull all",
         "QuickAgg": "Correlation",
         "Refresh": "Refresh",
@@ -825,6 +827,16 @@ module.exports = {
         "CopyAll": "Copy All",
         "CopyAppend": "Copy & Append",
         "RenameInBulk": "Rename in bulk"
+    },
+
+    "project": {
+        "instr": "Projection enables you to eliminate unnecessary fields that Xcalar Design keeps in memory for a table.",
+        "colInstr": "Select columns to keep. Each set of prefixed columns act as a unit and can only be selected in their entirety.",
+        "colsToProject": "Columns to project",
+        "project": "Project",
+        "derived": "Derived columns",
+        "prefixed": "Prefixed columns",
+        "prefixTip": "Prefixed columns act as a unit and can only be selected in their entirety"
     },
 
     "jsonModal": {

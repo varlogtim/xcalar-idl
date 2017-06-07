@@ -2450,7 +2450,7 @@ window.TblManager = (function($, TblManager) {
             } else if (isNewCol) {
                 $lis = $menu.find(".groupby, .sort, .aggregate, .filter, " +
                     ".join, .operations, .profile, .corrAgg, .extensions, " +
-                    ".changeDataType, .format, .roundToFixed");
+                    ".changeDataType, .format, .roundToFixed, .project");
                 $lis.addClass("unavailable");
                 xcTooltip.add($lis, {
                     title: ErrTStr.InvalidOpNewColumn
@@ -2713,12 +2713,14 @@ window.TblManager = (function($, TblManager) {
                 return;
             }
             if ($("#container").hasClass("columnPicker") &&
-                !$("#container").hasClass("dataflowState")) {
+                !$("#container").hasClass("dataflowState") &&
+                 !$("#container").hasClass("projectState") ) {
                 // not focus when in modal
                 return;
             }
             var $td = $(this);
             if ($("#container").hasClass("dataflowState") &&
+                $("#container").hasClass("projectState") &&
                 !$td.hasClass("jsonElement")) {
                 // no json modal for regular tds if form is open
                 return;

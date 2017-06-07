@@ -180,6 +180,7 @@ window.ColManager = (function($, ColManager) {
         .then(function() {
             TblManager.updateHeaderAndListInfo(tableId);
             DFCreateView.updateTables(tableId, true);
+            ProjectView.updateColumns();
             Log.add(SQLTStr.PullCol, sqlOptions);
             deferred.resolve(newColNum);
         })
@@ -1278,6 +1279,7 @@ window.ColManager = (function($, ColManager) {
         pullRowsBulkHelper(tableId);
 
         DFCreateView.updateTables(tableId, true);
+        ProjectView.updateColumns();
 
         Log.add(SQLTStr.PullCols, {
             "operation": SQLOps.PullMultipleCols,

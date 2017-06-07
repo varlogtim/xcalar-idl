@@ -60,7 +60,6 @@
             <div class="label"><%= dicts.exportView.colsToExport %>:</div>
           </div>
           <p><%= dicts.exportView.colInstr %></p>
-          <input id="exportColumns" type="text" placeholder="<%= dicts.exportView.ColumnsHint %>" spellcheck="false" required>
           <div class="checkboxWrap selectAllWrap">
             <div class="checkbox">
               <i class="icon xi-ckbox-empty fa-13"></i>
@@ -68,7 +67,7 @@
             </div>
             <div class="text"><%= dicts.common.SelectAll %></div>
           </div>
-          <div class="columnsToExport columnsWrap clearfix">
+          <div class="columnsToExport columnsWrap flexWrap clearfix">
             <ul class="cols"></ul>
             <div class="hint noColsHint empty"><%= dicts.dataflow.noColsHint %></div>
           </div>

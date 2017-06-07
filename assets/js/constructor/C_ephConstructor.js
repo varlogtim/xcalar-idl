@@ -1762,25 +1762,27 @@ FormHelper.prototype = {
         $(".xcTableWrap").addClass('columnPicker');
 
         // add noColumnPicker class to array and object columns
-        var $headers = $(".xcTable").find(".header");
-        var $arrayHeaders = $headers.filter(function() {
-            return $(this).hasClass("type-array");
-        }).addClass("noColumnPicker").attr("data-tipClasses", "invalidTypeTip");
-        var $objHeaders = $headers.filter(function() {
-            return $(this).hasClass("type-object");
-        }).addClass("noColumnPicker").attr("data-tipClasses", "invalidTypeTip");
+        if (!options.allowAllColPicker) {
+            var $headers = $(".xcTable").find(".header");
+            var $arrayHeaders = $headers.filter(function() {
+                return $(this).hasClass("type-array");
+            }).addClass("noColumnPicker").attr("data-tipClasses", "invalidTypeTip");
+            var $objHeaders = $headers.filter(function() {
+                return $(this).hasClass("type-object");
+            }).addClass("noColumnPicker").attr("data-tipClasses", "invalidTypeTip");
 
-        xcTooltip.add($arrayHeaders, {
-            title: ColTStr.NoOperateArray,
-            container: "body",
-            placement: "bottom"
-        });
+            xcTooltip.add($arrayHeaders, {
+                title: ColTStr.NoOperateArray,
+                container: "body",
+                placement: "bottom"
+            });
 
-        xcTooltip.add($objHeaders, {
-            title: ColTStr.NoOperateObject,
-            container: "body",
-            placement: "bottom"
-        });
+            xcTooltip.add($objHeaders, {
+                title: ColTStr.NoOperateObject,
+                container: "body",
+                placement: "bottom"
+            });
+        }
 
         if (columnPicker.validColTypes) {
             var validTypes = columnPicker.validColTypes;
@@ -1928,6 +1930,8 @@ FormHelper.prototype = {
             MainMenu.restoreState(this.mainMenuState, ignoreClose);
             this.mainMenuState = null;
         }
+        StatusBox.forceHide();
+        xcTooltip.hideAll();
     },
 
     checkBtnFocus: function() {

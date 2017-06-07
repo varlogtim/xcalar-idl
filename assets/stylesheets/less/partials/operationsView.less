@@ -131,6 +131,49 @@
             margin-top: 5px;
             margin-right: 4px;
         }
+
+        &.flexWrap {
+            ul {
+                .flex-display;
+                .flex-wrap(wrap);
+                width: 100%;
+                border-top: 1px solid @color-border-pinkish-grey2;
+                background-color: transparent;
+                &:first-child {
+                    border-right-width: 0px;
+                }
+            }
+            li {
+                float: left;
+                border-right: 1px solid @color-border-pinkish-grey2;
+                background-color: @color-white;
+                padding-right: 22px;
+                position: relative;
+                .flex(1 1 100px);
+                width: 100px;
+                &:first-child {
+                    border-top: none;
+                }
+
+                .text {
+                    width: 100%;
+                }
+
+                .checkbox {
+                    position: absolute;
+                }
+            }
+            .flexSpace {
+                border-right: 1px solid transparent;
+                .flex(1 1 100px);
+                width: 100px;
+                height: 0px;
+                padding-left: 10px;
+                padding-right: 22px;
+                overflow: hidden;
+                visibility: hidden;
+            }
+        }
     }
 
     .instructions {
@@ -876,49 +919,6 @@
             }
         }
 
-        .columnsWrap {
-            ul {
-                .flex-display;
-                .flex-wrap(wrap);
-                width: 100%;
-                border-top: 1px solid @color-border-pinkish-grey2;
-                background-color: transparent;
-                &:first-child {
-                    border-right-width: 0px;
-                }
-            }
-            li {
-                float: left;
-                border-right: 1px solid @color-border-pinkish-grey2;
-                background-color: @color-white;
-                padding-right: 22px;
-                position: relative;
-                .flex(1 1 100px);
-                width: 100px;
-                &:first-child {
-                    border-top: none;
-                }
-
-                .text {
-                    width: 100%;
-                }
-
-                .checkbox {
-                    position: absolute;
-                }
-            }
-            .flexSpace {
-                border-right: 1px solid transparent;
-                .flex(1 1 100px);
-                width: 100px;
-                height: 0px;
-                padding-left: 10px;
-                padding-right: 22px;
-                overflow: hidden;
-                visibility: hidden;
-            }
-        }
-
         .selectAllWrap {
             margin-bottom: 8px;
             float: right;
@@ -1532,7 +1532,7 @@
 }
 
 
-#exportView, #dfCreateView {
+#exportView, #dfCreateView, #projectView {
     @listHeight: 26px;
     @standardFontSize: 12px;
     @commonMargin: 10px;
@@ -1566,57 +1566,6 @@
             &.inUse {
                 opacity: 1;
             }
-        }
-    }
-
-    #exportColumns {
-        // need to remove JS for this input
-        //
-        // visibility: hidden;
-        // height: 0px;
-        display: none;
-    }
-
-    .columnsWrap {
-        ul {
-            .flex-display;
-            .flex-wrap(wrap);
-            width: 100%;
-            border-top: 1px solid @color-border-pinkish-grey2;
-            background-color: transparent;
-            &:first-child {
-                border-right-width: 0px;
-            }
-        }
-        li {
-            float: left;
-            border-right: 1px solid @color-border-pinkish-grey2;
-            background-color: @color-white;
-            padding-right: 22px;
-            position: relative;
-            .flex(1 1 100px);
-            width: 100px;
-            &:first-child {
-                border-top: none;
-            }
-
-            .text {
-                width: 100%;
-            }
-
-            .checkbox {
-                position: absolute;
-            }
-        }
-        .flexSpace {
-            border-right: 1px solid transparent;
-            .flex(1 1 100px);
-            width: 100px;
-            height: 0px;
-            padding-left: 10px;
-            padding-right: 22px;
-            overflow: hidden;
-            visibility: hidden;
         }
     }
 
@@ -1898,17 +1847,59 @@
     }
 }
 
+#projectView {
+    .prefixedSection, .derivedSection {
+        margin-bottom: 10px;
+        .subHeading {
+            margin-top: 0px;
+            margin-left: 10px;
+            font-weight: bold;
+        }
+        &.empty {
+            display: none;
+        }
+    }
+    .derivedSection {
+        .subHeading {
+            width: 50%;
+            float: left;
+        }
+    }
+    .prefixedSection {
+        .subHeading {
+            margin-bottom: 4px;
+            display: inline-block;
+            .xi-help {
+                color: @color-bg-select-blue;
+                position: relative;
+                top: 1px;
+                margin-left: 2px;
+                border-radius: 100%;
+                background-color: @color-white;
+            }
+        }
+        .prefixGroup {
+            margin-bottom: 10px;
+        }
+        .prefixName {
+            display: inline-block;
+            float: left;
+            margin-left: 10px;
+            max-width: ~"calc(100% - 100px)";
+            .textOverflowOneLine;
+        }
+    }
+}
+
 #mainMenu.expanded {
-    #exportView, #dfCreateView, #operationsView {
-        .columnsWrap {
-            li {
-                .flex(1 1 200px);
-                width: 200px;
-            }
-            .flexSpace {
-                .flex(1 1 200px);
-                width: 200px;
-            }
+    .columnsWrap.flexWrap {
+        li {
+            .flex(1 1 200px);
+            width: 200px;
+        }
+        .flexSpace {
+            .flex(1 1 200px);
+            width: 200px;
         }
     }
 }

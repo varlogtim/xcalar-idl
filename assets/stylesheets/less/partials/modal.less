@@ -1060,6 +1060,9 @@
                 display: inline-block;
             }
         }
+        .projectionOpt {
+            display: none;
+        }
         .check {
             .size(@width: 20px, @height: 10px);
             .position(absolute, @top: 10px, @left: 5px);
@@ -1073,7 +1076,7 @@
     }
 }
 
-#container.dataflowState {
+#container.dataflowState, #container.projectState {
     #jsonModal {
         .projectMode .submitProject {
             .xc-disabled;

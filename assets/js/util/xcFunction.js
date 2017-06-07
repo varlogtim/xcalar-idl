@@ -1069,6 +1069,7 @@ window.xcFunction = (function($, xcFunction) {
         var deferred = jQuery.Deferred();
 
         options = options || {};
+        var formOpenTime = options.formOpenTime;
         var tableName = gTables[tableId].getName();
         var worksheet = WSManager.getWSFromTable(tableId);
 
@@ -1108,7 +1109,6 @@ window.xcFunction = (function($, xcFunction) {
             }
             var options = {"focusWorkspace": focusOnTable};
 
-
             var tableCols = xcHelper.deepCopy(gTables[tableId].tableCols);
             var finalTableCols = [];
             var colNameIndex;
@@ -1132,7 +1132,9 @@ window.xcFunction = (function($, xcFunction) {
                 "tableName": tableName,
                 "tableId": tableId,
                 "colNames": colNames,
-                "newTableName": dstTableName
+                "newTableName": dstTableName,
+                "formOpenTime": formOpenTime,
+                "htmlExclude": ["formOpenTime"]
             };
 
             var finalTableId = xcHelper.getTableId(dstTableName);

@@ -1168,6 +1168,10 @@ JsonModalTStr = {
 
 };
 
+ProjectTStr = {
+    "prefixTip": "Prefixed columns act as a unit and can only be selected in their entirety"
+};
+
 SQLTStr = {
     "AddNewCol": "Add New Column",
     "AddWS": "Create Worksheet",

@@ -48,6 +48,7 @@ module.exports = {
         "ExitMap": "退出映射",
         "ExitSmartCast": "退出数据类型探测",
         "ExitSort": "退出排序",
+        "ExitProject": "Exit Project",
         "ExpandAllDags": "展开表",
         "ExpandAllDagsAll": "展开所以表",
         "ExportTbl": "导出表",
@@ -91,6 +92,7 @@ module.exports = {
         "Percent": "百分比",
         "Preview": "预览",
         "Profile": "数据概况",
+        "Project": "Project",
         "PullAllCell": "展开所有列",
         "QuickAgg": "相关性",
         "Refresh": "刷新",
@@ -597,6 +599,15 @@ module.exports = {
         "keepTables": "保留当前表",
         "keepTablesHint": "保留左表和右表，并将新表添加到当前工作表",
         "viewTables": "查看其他表"
+    },
+    "project": {
+        "instr": "Instructions go here",
+        "colInstr": "Select columns to keep. Prefixed columns act as a unit and can only be selected in their entirety.",
+        "colsToProject": "Columns to project",
+        "project": "Project",
+        "derived": "Derived columns",
+        "prefixed": "Prefixed columns",
+        "prefixTip": "Prefixed columns act as a unit and can only be selected in their entirety"
     },
     "jsonModal": {
         "header": "数据浏览器"
