@@ -743,7 +743,7 @@ window.DFParamModal = (function($, DFParamModal){
                             '</div>' +
                             getParameterInputHTML(0, "large");
             } else {
-                var retStruct = xcHelper.extractOpAndArgs(paramValue, ',');
+                var retStruct = xcHelper.extractOpAndArgs(paramValue);
 
                 defaultText += '<div>' + type + ':</div>' +
                                 '<div class="boxed medium">' +

@@ -593,9 +593,18 @@ window.ProjectView = (function($, ProjectView) {
             "formOpenTime": formHelper.getOpenTime()
         };
 
-        xcFunction.project(backColumnNames, tableId, options)
-        .then(deferred.resolve)
-        .fail(deferred.reject);
+        if ($("#container").hasClass("dfEditState")) {
+            DagEdit.store({
+                tableId: tableId,
+                args: {columns: backColumnNames}
+            });
+        } else {
+            xcFunction.project(backColumnNames, tableId, options)
+            .then(deferred.resolve)
+            .fail(deferred.reject);
+        }
+
+
 
     }
     return (ProjectView);

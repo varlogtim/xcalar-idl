@@ -60,7 +60,13 @@ window.Redo = (function($, Redo) {
                                             worksheet));
     };
 
-    redoFuncs[SQLOps.Query] = redoFuncs[SQLOps.Filter];
+    redoFuncs[SQLOps.Query] = function(options) {
+        var worksheet = WSManager.getWSFromTable(options.tableId);
+        oldTables = [options.tableName];
+        return (TblManager.refreshTable([options.newTableName], null,
+                                            oldTables,
+                                            worksheet));
+    };
 
     redoFuncs[SQLOps.Map] = function(options) {
         var worksheet = WSManager.getWSFromTable(options.tableId);

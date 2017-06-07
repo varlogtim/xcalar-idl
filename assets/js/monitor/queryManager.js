@@ -1143,8 +1143,9 @@ window.QueryManager = (function(QueryManager, $) {
 
     // enables or disbles the view output button
     function updateOutputSection(id, forceInactive) {
+        var $focusOutputBtn = $("#monitor-inspect");
         if (forceInactive) {
-            $("#monitor-inspect").addClass('btn-disabled');
+            $focusOutputBtn.addClass('btn-disabled');
             $queryDetail.find('.outputSection').find('.text')
                          .text(CommonTxtTstr.NA);
             return;
@@ -1165,18 +1166,18 @@ window.QueryManager = (function(QueryManager, $) {
             if (dstTableState === "active" || dstTableState === "exported" ||
              dstTableState === TableType.Undone) {
                 if (dstTableState === "exported") {
-                    $("#monitor-inspect").addClass('btn-disabled');
+                    $focusOutputBtn.addClass('btn-disabled');
                 } else { // either active or undone
                     if (checkIfTableIsUndone(dstTableName)) {
                         mainQuery.outputTableState = TableType.Undone;
-                        $("#monitor-inspect").addClass('btn-disabled');
+                        $focusOutputBtn.addClass('btn-disabled');
                     } else {
                         mainQuery.outputTableState = "active";
-                        $("#monitor-inspect").removeClass('btn-disabled');
+                        $focusOutputBtn.removeClass('btn-disabled');
                     }
                 }
             } else {
-                $("#monitor-inspect").addClass('btn-disabled');
+                $focusOutputBtn.addClass('btn-disabled');
             }
 
             if (dstTableName.indexOf(gDSPrefix) < 0) {
@@ -1188,7 +1189,7 @@ window.QueryManager = (function(QueryManager, $) {
             }
 
         } else {
-            $("#monitor-inspect").addClass('btn-disabled');
+            $focusOutputBtn.addClass('btn-disabled');
             $queryDetail.find('.outputSection').find('.text')
                          .text(CommonTxtTstr.NA);
         }
@@ -1576,58 +1577,18 @@ window.QueryManager = (function(QueryManager, $) {
             }
 
             var tableId = xcHelper.getTableId(tableName);
-            var wsId;
-            var tableType;
 
             if (!tableId) {
                 focusOutputErrorHandler('output', mainQuery);
                 return;
             }
 
-            if (gTables[tableId]) {
-                if (gTables[tableId].status === TableType.Active) {
-                    $('#workspaceTab').click();
-                    wsId = WSManager.getWSFromTable(tableId);
-                    $('#worksheetTab-' + wsId).trigger(fakeEvent.mousedown);
-
-                    if ($("#dagPanel").hasClass('full')) {
-                        $('#dagPulloutTab').click();
-                    }
-                    var $tableWrap = $('#xcTableWrap-' + tableId);
-                    xcHelper.centerFocusedTable($tableWrap, false);
-                    $tableWrap.mousedown();
-                    return;
-                } else if (WSManager.getWSFromTable(tableId) == null) {
-                    tableType = TableType.Orphan;
-                } else if (gTables[tableId].status === TableType.Orphan) {
-                    tableType = TableType.Orphan;
-                } else if (gTables[tableId].status === TableType.Undone) {
-                    tableType = TableType.Undone;
-                } else {
-                    tableType = TableType.Orphan;
+            TblManager.findAndFocusTable(tableName)
+            .fail(function(res) {
+                if (res && typeof res === "object") {
+                    focusOutputErrorHandler('table', mainQuery, res.tableType);
                 }
-
-                //xx currently we won't allow focusing on undone tables
-                if (tableType === TableType.Undone) {
-                    focusOutputErrorHandler('table', mainQuery, tableType);
-                } else {
-                    $('#workspaceTab').click();
-                    wsId = WSManager.getActiveWS();
-                    WSManager.moveInactiveTable(tableId, wsId, tableType);
-                }
-
-            } else {
-                XcalarGetTables(tableName)
-                .then(function(ret) {
-                    if (ret.numNodes > 0) {
-                        $('#workspaceTab').click();
-                        wsId = WSManager.getActiveWS();
-                        WSManager.moveInactiveTable(tableId, wsId, TableType.Orphan);
-                    } else {
-                        focusOutputErrorHandler('table', mainQuery);
-                    }
-                });
-            }
+            });
         }
 
         function focusOnDSGrid($grid, dsId) {

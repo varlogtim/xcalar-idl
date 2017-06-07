@@ -591,8 +591,13 @@
         }
 
         .actionType {
+            .actionTypeWrap {
+                cursor: default;
+            }
             &.filter {
-                cursor: pointer;
+                .actionTypeWrap {
+                    cursor: pointer;
+                }
             }
             &.hasParam {
 

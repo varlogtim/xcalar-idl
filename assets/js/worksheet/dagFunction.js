@@ -1,6 +1,8 @@
 window.DagFunction = (function($, DagFunction) {
     var dagLineage = {};
     var globalArray = []; // Place to store all the lines of xccli
+    var editedLineage = {};
+    var editInfo;
     var TreeNode = function(value) {
         this.value = value;
         this.parents = [];
@@ -19,7 +21,7 @@ window.DagFunction = (function($, DagFunction) {
                     if (parentNode.value.display.isHiddenTag ||
                         parentNode.value.display.isHidden) {
                         search(parentNode);
-                    } else {// may produce duplicate parents on purpose
+                    } else { // may produce duplicate parents on purpose
                         parents.push(parentNode);
                     }
                 }
@@ -37,7 +39,7 @@ window.DagFunction = (function($, DagFunction) {
                     if (childNode.value.display.isHiddenTag ||
                         childNode.value.display.isHidden) {
                         search(childNode);
-                    } else {// may produce duplicate children on purpose
+                    } else { // may produce duplicate children on purpose
                         children.push(childNode);
                     }
                 }
@@ -115,7 +117,7 @@ window.DagFunction = (function($, DagFunction) {
         var lineageStruct = {};
         var trees = [];
         var alreadySeen = {};
-        var tree = constructTree(valArray[0], valArray, alreadySeen, undefined,
+        var tree = constructTree(valArray[0], valArray, alreadySeen, null,
                                  allEndPoints);
         if (!tree) {
             console.info("No creatable tree");
@@ -124,8 +126,8 @@ window.DagFunction = (function($, DagFunction) {
         trees.push(tree);
 
         for (var i = 0; i < startPoints.length; i++) {
-            tree = constructTree(startPoints[i], valArray, alreadySeen,
-                                 undefined, allEndPoints);
+            tree = constructTree(startPoints[i], valArray, alreadySeen, null,
+                                 allEndPoints);
             trees.push(tree);
         }
 
@@ -185,7 +187,7 @@ window.DagFunction = (function($, DagFunction) {
         if (tableId in dagLineage) {
             return (dagLineage[tableId]);
         } else {
-            return (undefined);
+            return (null);
         }
     };
 
@@ -194,21 +196,33 @@ window.DagFunction = (function($, DagFunction) {
         // var toPrint;
         // var deferred = jQuery.Deferred();
         if (dagLineage[tableId]) {
-            getXcalarQueryCli(dagLineage[tableId].orderedPrintArray)
-            .then(concatAllCli);
+            getXcalarQueryCli(dagLineage[tableId].orderedPrintArray);
         } else {
             XcalarGetDag(tableName)
             .then(function(dagOutput) {
                 var outStruct = DagFunction.construct(dagOutput);
-                return getXcalarQueryCli(outStruct.orderedPrintArray);
-            })
-            .then(concatAllCli);
+                getXcalarQueryCli(outStruct.orderedPrintArray);
+            });
         }
     };
 
     DagFunction.cloneDagNode = function(inputName, origInputStruct) {
+        // We are looking for something like XcalarApiBLAHInputT
+        var structName = getConstructorName(inputName);
+        var newStruct = {};
+        try {
+            // XXX Once we have a nice clean interface from the backend
+            // we can algorithmically generate this rather than use eval
+            newStruct = eval("new " + structName);
+        } catch (error) {
+            console.error(error);
+            console.error("Constructor doesn't eval to any known struct! " +
+                          structName);
+            return;
+        }
+
         function getConstructorName(inputName) {
-            var input = inputName.substr(0, inputName.length-5);
+            var input = inputName.substr(0, inputName.length - 5);
             switch (input) {
                 case ("load"):
                     consName = "BulkLoad";
@@ -222,23 +236,11 @@ window.DagFunction = (function($, DagFunction) {
                 default:
                     consName = input[0].toUpperCase() + input.substr(1);
             }
-            consName = "XcalarApi" + consName +"InputT()";
+            consName = "XcalarApi" + consName + "InputT()";
 
             return (consName);
         }
-        // We are looking for something like XcalarApiBLAHInputT
-        var structName = getConstructorName(inputName);
-        var newStruct = {};
-        try {
-            // XXX Once we have a nice clean interface from the backend
-            // we can algorithmically generate this rather than use eval
-            newStruct = eval("new "+structName);
-        } catch (error) {
-            console.error(error);
-            console.error("Constructor doesn't eval to any known struct! "+
-                          structName);
-            return;
-        }
+
         return (jQuery.extend(true, newStruct, origInputStruct));
     };
 
@@ -253,7 +255,7 @@ window.DagFunction = (function($, DagFunction) {
         }
         xcHelper.lockTable(tableId);
         xcHelper.lockTable(oldTableId);
-        TblManager.refreshTable([newTableName], undefined, oldTableNames, wsId,
+        TblManager.refreshTable([newTableName], null, oldTableNames, wsId,
                                 null)
         .then(function() {
             xcHelper.unlockTable(tableId);
@@ -310,7 +312,7 @@ window.DagFunction = (function($, DagFunction) {
         xcHelper.centerFocusedTable($tableWrap);
         $tableWrap.mousedown();
         TblFunc.moveFirstColumn();
-        Dag.focusDagForActiveTable(undefined, true);
+        Dag.focusDagForActiveTable(null, true);
     };
 
 
@@ -387,42 +389,6 @@ window.DagFunction = (function($, DagFunction) {
         return deferred.promise();
     }
 
-    // Helpers for cloneTreeWithNewValue
-    function findXidByDstTableName(valArray, dstName) {
-        for (var i = 0; i < valArray.length; i++) {
-            var cmpValue = "";
-            if (valArray[i].value.api === XcalarApisT.XcalarApiBulkLoad) {
-                cmpValue = valArray[i].value.struct.dataset.name;
-            } else if (valArray[i].value.api === XcalarApisT.XcalarApiJoin) {
-                cmpValue = valArray[i].value.struct.joinTable.tableName;
-            } else {
-                cmpValue = valArray[i].value.struct.dstTable.tableName;
-            }
-            if (cmpValue === dstName) {
-                // XXX Disallow parameterization of load nodes
-                if (valArray[i].value.api === XcalarApisT.XcalarApiBulkLoad) {
-                    console.info("Cannot parameterize load. You can do this " +
-                                 "via retinas.");
-                    return (-1);
-                }
-                return (valArray[i].value.dagNodeId);
-            }
-        }
-        console.error("Cannot find xid!");
-        return (-1);
-    }
-
-    function findTreeNodeByTableName(nodeIdMap, dstName) {
-        for (var i in nodeIdMap) {
-            var node = nodeIdMap[i];
-            if (node.value.name === dstName) {
-                return node;
-            }
-        }
-        console.error("Cannot find node by tablename!");
-        return null;
-    }
-
     function findTreeValueInValArray(name, valArray) {
         for (var i = 0; i < valArray.length; i++) {
             if (valArray[i].name === name) {
@@ -431,113 +397,46 @@ window.DagFunction = (function($, DagFunction) {
         }
     }
 
-    function findTreeNodeInNodeArray(dagId, nodeArray) {
-        for (var i = 0; i<nodeArray.length; i++) {
-            if (nodeArray[i].value.dagNodeId === dagId) {
+    function findTreeNodeInNodeArray(name, nodeArray) {
+        for (var i = 0; i < nodeArray.length; i++) {
+            if (nodeArray[i].value.name === name) {
                 return (nodeArray[i]);
             }
         }
     }
 
-    function findTreeValueInValArrayByName(tableName, valArray) {
-        for (var i = 0; i<valArray.length; i++) {
-            if (valArray[i].api === XcalarApisT.XcalarApiJoin) {
-                if (valArray[i].struct.joinTable.tableName === tableName) {
-                    return (valArray[i]);
-                }
-            } else if (valArray[i].api === XcalarApisT.XcalarApiBulkLoad) {
-                // Cannot parameterize bulk load
-                // A later function catches this and errors out
-                continue;
-            } else {
-                if (valArray[i].struct.dstTable.tableName === tableName) {
-                    return (valArray[i]);
-                }
-            }
-        }
-    }
-
-    function getAllXidFromStart(tree, startTreeNodes) {
+    function getAllNamesFromStart(tree, startTreeNodes) {
         // Recursively go down the tree of all children until we hit the end
         // Returns list of all xids that we have seen in this traversal
         // This terminates due to the graph being a DAG
-        function recurHelper(node, listSoFar) {
-            listSoFar[node.value.dagNodeId] = 1; // We are only using the key
-            for (var i = 0; i < node.parents.length; i++) {
-                recurHelper(node.parents[i], listSoFar);
-            }
+        var mapOfNames = {};
+        for (var i = 0; i < startTreeNodes.length; i++) {
+            recurHelper(startTreeNodes[i], mapOfNames);
         }
 
-        var listOfXids = {};
-        for (var i = 0; i<startTreeNodes.length; i++) {
-            recurHelper(startTreeNodes[i], listOfXids);
+        return mapOfNames;
+
+        function recurHelper(node, mapSoFar) {
+            mapSoFar[node.value.name] = true; // We are only using the key
+            for (var i = 0; i < node.children.length; i++) {
+                recurHelper(node.children[i], mapSoFar);
+            }
         }
-        return listOfXids;
     }
 
-    DagFunction.runProcedureWithParams = function(tableName, param, doNotRun) {
-        function updateSourceName(structArray, translation) {
-            for (var i = 0; i<structArray.length; i++) {
-                if ("tableName" in structArray[i]) {
-                    if (structArray[i].tableName in translation) {
-                        structArray[i].tableName =
-                                          translation[structArray[i].tableName];
-                    }
-                } else if ("name" in structArray[i]) {
-                    if (structArray[i].name in translation) {
-                        structArray[i].name = translation[structArray[i].name];
-                    }
-                }
-            }
-            // Note: Inability to find "tableName" or "name" here is not an
-            // error. It just means that one of the input is not parameterized
-        }
-
-        function updateDestinationName(struct, translation, randomQueryNum) {
-            if (struct.tableName in translation) {
-                struct.tableName = translation[struct.tableName];
-            } else {
-                var newTableName = "rerunQuery" +
-                                   randomQueryNum +
-                                   Authentication.getHashId();
-                translation[struct.tableName] = newTableName;
-                struct.tableName = newTableName;
-            }
-        }
-
-        function modifyValueArrayWithParameters(valArray, param) {
-            for (var p in param) {
-                var tValue = findTreeValueInValArrayByName(p, valArray);
-                var struct = tValue.struct;
-                for (var key in param[p]) {
-                    var sub = param[p][key];
-                    var keyArray = key.split(".");
-                    var obj = struct;
-                    for (var i = 0; i<keyArray.length; i++) {
-                        if (keyArray[i] in obj) {
-                            if (i === keyArray.length-1) {
-                                obj[keyArray[i]] = sub;
-                            } else {
-                                obj = obj[keyArray[i]];
-                            }
-                        } else {
-                            console.error("No such param!");
-                            return (false);
-                        }
-                    }
-                }
-            }
-            return (true);
-        }
-
+    // DagFunction.runProcedureWithParams("schedule2#kU683", {"schedule2#kU682":{"eval": [{"evalString":"eq(schedule1::class_id, 2)","newField":""}]}})
+    // DagFunction.runProcedureWithParams("students#p7304", {"students#p7303":{"eval": [{"evalString":"eq(students::student_id, 2)","newField":""}]}})
+    DagFunction.runProcedureWithParams = function(tableName, params, doNotRun) {
+        // XXX need to handle old struct format
         if (doNotRun) {
             console.log("Sample Usage: ");
             console.log('DagFunction.runProcedureWithParams("yay#ar133",  ' +
                         '{"reviews1#ar132":{"evalStr":"add(stars, 2)"}, ' +
                         '"user#ar122":{"filterStr":"eq(fans, 8)"}})');
+            console.log("schedule1#kU683", {"schedule1#kU682":{"eval": [{"evalString":"eq(schedule1::class_id, 2)","newField":""}]}});
         }
 
-        var paramNodes = Object.keys(param);
+        var paramNodes = Object.keys(params);
 
         var tableId = xcHelper.getTableId(tableName);
         if (!dagLineage[tableId]) {
@@ -546,11 +445,12 @@ window.DagFunction = (function($, DagFunction) {
         }
         var valueArray = getOrderedDedupedNodes(dagLineage[tableId].endPoints,
                                                 "TreeValue");
+
         if (valueArray.length === 0) {
             console.info("There is nothing to rerun.");
             return;
         }
-        for (var i = 0; i<valueArray.length; i++) {
+        for (var i = 0; i < valueArray.length; i++) {
             var struct = DagFunction.cloneDagNode(valueArray[i].inputName,
                                                   valueArray[i].struct);
             valueArray[i] = xcHelper.deepCopy(valueArray[i]);
@@ -559,16 +459,16 @@ window.DagFunction = (function($, DagFunction) {
             valueArray[i].struct = struct;
         }
 
-        if (!modifyValueArrayWithParameters(valueArray, param)) {
+        if (!modifyValueArrayWithParameters(valueArray, params)) {
             return;
         }
 
         // Time to deep clone the tree. We cannot use deepCopy trick due to
         // constructor functions.
         var allEndPoints = [];
-        var deepCopyTree = constructTree(valueArray[valueArray.length-1],
+        var deepCopyTree = constructTree(valueArray[valueArray.length - 1],
                                                     valueArray, {},
-                                                    undefined, allEndPoints);
+                                                    null, allEndPoints);
         if (!deepCopyTree) {
             console.info("Tree Empty!");
             return;
@@ -582,30 +482,24 @@ window.DagFunction = (function($, DagFunction) {
         // Step 1. From deepCopied tree, get list of all xid for children of
         // start node (s)
         var startNodes = [];
-        for (var i = 0; i<paramNodes.length; i++) {
-            // Translate paramNodes from table names to nodes
-            var xid = findXidByDstTableName(treeNodeArray, paramNodes[i]);
-            if (xid === -1) {
-                console.error("Parameterized table not found!");
-                return;
-            }
-            // The following call cannot fail due to the previous call suceeding
-            startNodes[i] = findTreeNodeInNodeArray(xid, treeNodeArray);
+        for (var i = 0; i < paramNodes.length; i++) {
+            startNodes[i] = findTreeNodeInNodeArray(paramNodes[i], treeNodeArray);
         }
+
         if (doNotRun) {
             console.log(startNodes);
             return;
         }
 
-        var involvedXids = getAllXidFromStart(deepCopyTree, startNodes);
-        if (involvedXids.length === 0) {
+        var involvedNames = getAllNamesFromStart(deepCopyTree, startNodes);
+        if (involvedNames.length === 0) {
             console.info("No involved xids.");
             return;
         }
-        // Step 2. Remove nodes from treeNodeArray that is not in involvedXids
+        // Step 2. Remove nodes from treeNodeArray that is not in involvedNames
         var treeNodesToRerun = [];
-        for (var i = 0; i<treeNodeArray.length; i++) {
-            if (treeNodeArray[i].value.dagNodeId in involvedXids) {
+        for (var i = 0; i < treeNodeArray.length; i++) {
+            if (treeNodeArray[i].value.name in involvedNames) {
                 treeNodesToRerun.push(treeNodeArray[i]);
             }
         }
@@ -617,37 +511,26 @@ window.DagFunction = (function($, DagFunction) {
 
         // Step 3. From start of treeNodeArray, start renaming all nodes
         var translation = {};
-        var randomQueryNum = Math.ceil(Math.random()*10000);
-        for (var i = 0; i<treeNodesToRerun.length; i++) {
+        var randomQueryNum = Math.ceil(Math.random() * 10000);
+        for (var i = 0; i < treeNodesToRerun.length; i++) {
             var destTableStruct = {};
             var originTableStruct = [];
-            if (treeNodesToRerun[i].value.api === XcalarApisT.XcalarApiJoin) {
-                destTableStruct = treeNodesToRerun[i].value.struct.joinTable;
-                originTableStruct.push(treeNodesToRerun[i].value.struct.
-                                       leftTable);
-                originTableStruct.push(treeNodesToRerun[i].value.struct.
-                                       rightTable);
-            } else if (treeNodesToRerun[i].value.api ===
-                                                   XcalarApisT.XcalarApiIndex) {
-                destTableStruct = treeNodesToRerun[i].value.struct.dstTable;
-                originTableStruct.push(treeNodesToRerun[i].value.struct.source);
-            } else {
-                destTableStruct = treeNodesToRerun[i].value.struct.dstTable;
-                originTableStruct.push(treeNodesToRerun[i].value.source);
+
+            destTableStruct = treeNodesToRerun[i].value.struct;
+            for (var j = 0; j < treeNodesToRerun[i].parents.length; j++) {
+                originTableStruct.push(treeNodesToRerun[i].parents[j].value.struct);
             }
+
             if (i > 0) {
-                updateSourceName(originTableStruct, translation);
+                updateSourceName(destTableStruct, translation);
             }
 
             updateDestinationName(destTableStruct, translation, randomQueryNum);
         }
 
-        var finalTreeValue = treeNodesToRerun[treeNodesToRerun.length-1].value;
-        if (finalTreeValue.api === XcalarApisT.XcalarApiJoin) {
-            finalTableName = finalTreeValue.struct.joinTable.tableName;
-        } else {
-            finalTableName = finalTreeValue.struct.dstTable.tableName;
-        }
+        var finalTreeValue = treeNodesToRerun[treeNodesToRerun.length - 1].value;
+        var finalTableName = finalTreeValue.struct.dest;
+
         var sql = {
             "operation": SQLOps.Query,
             "tableName": tableName,
@@ -660,20 +543,14 @@ window.DagFunction = (function($, DagFunction) {
             "sql": sql,
             "steps": 1
         });
+
+        var entireString =  getXcalarQueryCli(treeNodesToRerun);
         xcHelper.lockTable(tableId, txId);
-        getXcalarQueryCli(treeNodesToRerun)
-        .then(concatAllCli)
-        .then(function(entireString) {
-            var queryName = "Rerun" + tableName +
-                            Math.ceil(Math.random()*10000);
-            return XcalarQueryWithCheck(queryName, entireString, txId);
-        })
+
+        var queryName = "Rerun" + tableName + Math.ceil(Math.random() * 10000);
+        XcalarQueryWithCheck(queryName, entireString, txId)
         .then(function() {
             console.log(finalTableName);
-            Transaction.done(txId, {
-                "msgTable": xcHelper.getTableId(finalTableName),
-                "sql": sql
-            });
 
             var worksheet = WSManager.getWSFromTable(tableId);
             xcHelper.unlockTable(tableId);
@@ -681,33 +558,89 @@ window.DagFunction = (function($, DagFunction) {
                                     gTables[tableId].tableCols, [tableName],
                                     worksheet, txId);
         })
+        .then(function() {
+            xcHelper.unlockTable(tableId, txId);
+            Transaction.done(txId, {
+                "msgTable": xcHelper.getTableId(finalTableName),
+                "sql": sql
+            });
+        })
         .fail(function(error) {
+            xcHelper.unlockTable(tableId, txId);
             console.error(error);
             Transaction.fail(txId, {
                 "failMsg": StatusMessageTStr.StoredProcFailed,
                 "error": error
             });
         });
+
+        function updateSourceName(struct, translation) {
+
+            if ("source" in struct) {
+                if (typeof struct.source === "string") {
+                    if (translation[struct.source]) {
+                        struct.source = translation[struct.source];
+                    }
+                } else {
+                    for (var i = 0; i < struct.source.length; i++) {
+                        if (translation[struct.source[i]]) {
+                            struct.source[i] = translation[struct.source[i]];
+                        }
+                    }
+                }
+            }
+        }
+
+        function updateDestinationName(struct, translation, randomQueryNum) {
+            if (struct.dest in translation) {
+                struct.dest = translation[struct.dest];
+            } else {
+                var tableName = xcHelper.getTableName(struct.dest);
+                // var newTableName = tableName + Authentication.getHashId();
+                var newTableName = tableName + Math.round(Math.random() * 10000);
+                translation[struct.dest] = newTableName;
+                struct.dest = newTableName;
+            }
+        }
+
+        function modifyValueArrayWithParameters(valArray, params) {
+            for (var p in params) {
+                var tValue = findTreeValueInValArray(p, valArray);
+                var struct = tValue.struct;
+                var param = params[p];
+                for (var key in param) {
+                    var sub = param[key];
+                    var keyArray = key.split(".");
+                    var obj = struct;
+                    for (var i = 0; i < keyArray.length; i++) {
+                        if (keyArray[i] in obj) {
+                            if (i === keyArray.length - 1) {
+                                obj[keyArray[i]] = sub;
+                            } else {
+                                obj = obj[keyArray[i]];
+                            }
+                        } else {
+                            console.error("No such param!");
+                            return (false);
+                        }
+                    }
+                }
+            }
+            return (true);
+        }
     };
 
-    function concatAllCli() {
-        queryString = globalArray.join(";");
-        console.log(queryString.replace(";", ";\n"));
-        return (queryString);
-    }
-
     function getXcalarQueryCli(orderedArray) {
-        var promiseArray = [];
         globalArray = [];
-        for (var i = 0; i<orderedArray.length; i++) {
-            var nodeValue = orderedArray[i].value;
-            var workItem = new WorkItem();
-            workItem.input = new XcalarApiTableInputT();
-            workItem.input[nodeValue.inputName] = nodeValue.struct;
-            workItem.api = nodeValue.api;
-            promiseArray.push(populateGlobalArray.bind(this, workItem));
+
+        for (var i = 0; i < orderedArray.length; i++) {
+            var query = {
+                "operation": XcalarApisTStr[orderedArray[i].value.api],
+                "args": orderedArray[i].value.struct
+            };
+            globalArray.push(query);
         }
-        return PromiseHelper.chain(promiseArray);
+        return JSON.stringify(globalArray);
     }
 
     function populateGlobalArray(workItem) {
@@ -859,7 +792,7 @@ window.DagFunction = (function($, DagFunction) {
 
     function getSets(trees) {
         var sets = [trees[0]];
-        if (trees.length> 1) {
+        if (trees.length > 1) {
             for (var i = 1; i < trees.length; i++) {
                 var exportSrc = trees[i].parents[0];
                 if (exportSrc.children.length === 1) {
@@ -921,3 +854,4 @@ window.DagFunction = (function($, DagFunction) {
 
     return DagFunction;
 }(jQuery, {}));
+

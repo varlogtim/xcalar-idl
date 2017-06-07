@@ -754,8 +754,12 @@ window.OperationsView = (function($, OperationsView) {
     // restore: boolean, if true, will not clear the form from it's last state
     // restoreTime: time when previous operation took place
     // triggerColNum: colNum that triggered the opmodal
+    // prefill: object, used to prefill the form
     OperationsView.show = function(currTableId, currColNums, operator,
                                    options) {
+        if (isOpen) {
+            return PromiseHelper.reject();
+        }
         options = options || {};
 
         if (options.restoreTime && options.restoreTime !== formOpenTime) {
@@ -780,16 +784,16 @@ window.OperationsView = (function($, OperationsView) {
             resetForm();
             if (options.triggerColNum != null) {
                 colNum = options.triggerColNum;
-            } else {
+            } else if (currColNums && currColNums.length) {
                 colNum = currColNums[0];
             }
-            currentCol = gTables[tableId].getCol(colNum);
-            colName = currentCol.getFrontColName(true);
-            isNewCol = currentCol.isNewCol;
+            if (currColNums && currColNums.length) {
+                currentCol = gTables[tableId].getCol(colNum);
+                colName = currentCol.getFrontColName(true);
+                isNewCol = currentCol.isNewCol;
+            }
         }
-
-        $operationsView.find('.title').text(operatorName);
-        $operationsView.find('.submit').text(operatorName.toUpperCase());
+        updateFormTitles(options);
 
         // highlight active column
         if (currColNums && currColNums.length === 1) {
@@ -836,7 +840,7 @@ window.OperationsView = (function($, OperationsView) {
             UDF.list()
             .then(function(listXdfsObj) {
                 udfUpdateOperatorsMap(listXdfsObj.fnDescs);
-                operationsViewShowHelper(options.restore);
+                operationsViewShowHelper(options.restore, null, options);
                 deferred.resolve();
             })
             .fail(function(error) {
@@ -844,7 +848,7 @@ window.OperationsView = (function($, OperationsView) {
                 deferred.reject();
             });
         } else {
-            operationsViewShowHelper(options.restore, currColNums);
+            operationsViewShowHelper(options.restore, currColNums, options);
             deferred.resolve();
         }
         return (deferred.promise());
@@ -855,6 +859,20 @@ window.OperationsView = (function($, OperationsView) {
             closeOpSection();
         }
     };
+
+    function updateFormTitles(options) {
+        var titleName = operatorName;
+        var submitText;
+        if (options.prefill) {
+            titleName  = "EDIT " + titleName;
+            submitText = "SAVE";
+        } else {
+            submitText = operatorName.toUpperCase();
+        }
+        $operationsView.find('.title').text(titleName);
+        $operationsView.find('.submit').text(submitText);
+    }
+
 
     // for functions dropdown list
     // forceUpdate is a boolean, if true, we trigger an update even if
@@ -944,7 +962,7 @@ window.OperationsView = (function($, OperationsView) {
     }
 
     // functions that get called after list udfs is called during op view show
-    function operationsViewShowHelper(restore, colNums) {
+    function operationsViewShowHelper(restore, colNums, options) {
         var aggs = Aggregates.getNamedAggs();
         aggNames = [];
         for (var i in aggs) {
@@ -952,16 +970,16 @@ window.OperationsView = (function($, OperationsView) {
         }
 
         if (!restore) {
-            var tableCols = gTables[tableId].tableCols;
-            var colNames = [];
-            tableCols.forEach(function(col) {
-                // skip data column
-                if (!col.isDATACol() && !col.isEmptyCol()) {
-                    // Add $ since this is the current format of column
-                    colNames.push('$' + col.name);
-                }
-            });
-            colNames.concat(aggNames);
+            // var tableCols = gTables[tableId].tableCols;
+            // var colNames = [];
+            // tableCols.forEach(function(col) {
+            //     // skip data column
+            //     if (!col.isDATACol() && !col.isEmptyCol()) {
+            //         // Add $ since this is the current format of column
+            //         colNames.push('$' + col.name);
+            //     }
+            // });
+            // colNames.concat(aggNames);
 
             populateInitialCategoryField(operatorName);
             fillInputPlaceholder(0);
@@ -1005,6 +1023,48 @@ window.OperationsView = (function($, OperationsView) {
         enableInputs();
         formHelper.removeWaitingBG();
         formHelper.refreshTabbing();
+
+        if (options.prefill) {
+            if (operatorName === "map") {
+                $("#mapFilter").val(options.prefill.op).trigger("input");
+                $activeOpSection.find(".functionsMenu").find("li").filter(function() {
+                    return $(this).text() === options.prefill.op;
+                }).click();
+            } else {
+                $activeOpSection.find(".functionsInput").val(options.prefill.op).change();
+            }
+
+            var params = options.prefill.args;
+            var $args = $activeOpSection.find(".arg:visible:not(.gbOnArg)"); // handle checkboxes ex. contains
+            for (var i = 0; i < params.length; i++) {
+                if ($args.eq(i).length) {
+                    var arg = params[i];
+                    if (arg.indexOf("'") !== 0 && arg.indexOf('"') !== 0) {
+                        if (isNaN(arg) && arg.indexOf("(") === -1 &&
+                            arg !== "true" && arg !== "false" &&
+                            arg !== "t" && arg !== "f") {
+                            // it's a column
+                            arg = gColPrefix + arg;
+                        }
+                    } else {
+                        var quote = arg[0];
+                        if (arg.lastIndexOf(quote) === arg.length - 1) {
+                            arg = arg.slice(1, -1);
+                        }
+                    }
+                    $args.eq(i).val(arg);
+                } else {
+                    break;
+                }
+            }
+            if (options.prefill.newField) {
+                $activeOpSection.find(".colNameRow .arg:visible").val(options.prefill.newField);
+            }
+            if (options.prefill.dest) {
+                $activeOpSection.find(".newTableName:visible").val(options.prefill.dest);
+            }
+            checkIfStringReplaceNeeded(true);
+        }
     }
 
     function populateGroupOnFields(colNums) {
@@ -1615,7 +1675,7 @@ window.OperationsView = (function($, OperationsView) {
         $activeOpSection.find('.newTableNameRow').removeClass('inactive');
 
 
-        var defaultValue; // to autofill first arg
+        var defaultValue = ""; // to autofill first arg
 
         if ((firstArgExceptions[category] &&
             firstArgExceptions[category].indexOf(func) !== -1) ||
@@ -1623,9 +1683,7 @@ window.OperationsView = (function($, OperationsView) {
         {
             // do not give default value if not the first group of args
             defaultValue = "";
-        } else if (isNewCol) {
-            defaultValue = "";
-        } else {
+        } else if (!isNewCol && colName) {
             defaultValue = gColPrefix + colName;
         }
 
@@ -2814,12 +2872,14 @@ window.OperationsView = (function($, OperationsView) {
                             });
                         } else {
                             allColTypes.push({});
+                            if (!$("#container").hasClass("dfEditState")) {
                             errorText = xcHelper.replaceMsg(
-                            ErrWRepTStr.InvalidCol, {
-                                "name": frontColName
-                            });
-                            $errorInput = $input;
-                            isPassing = false;
+                                ErrWRepTStr.InvalidCol, {
+                                    "name": frontColName
+                                });
+                                $errorInput = $input;
+                                isPassing = false;
+                            }
                         }
                     }
 
@@ -3148,15 +3208,25 @@ window.OperationsView = (function($, OperationsView) {
 
         var startTime = Date.now();
 
-        xcFunction.filter(filterColNum, tableId, {
-            filterString: filterString,
-            formOpenTime: formOpenTime
-        })
-        .then(deferred.resolve)
-        .fail(function(error) {
-            submissionFailHandler(startTime, error);
-            deferred.reject();
-        });
+        if ($("#container").hasClass("dfEditState")) {
+            DagEdit.store({
+                args: {
+                        "eval": [{"evalString": filterString, "newField": ""}]
+                    }
+            });
+            deferred.resolve();
+        } else {
+            xcFunction.filter(filterColNum, tableId, {
+                filterString: filterString,
+                formOpenTime: formOpenTime
+            })
+            .then(deferred.resolve)
+            .fail(function(error) {
+                submissionFailHandler(startTime, error);
+                deferred.reject();
+            });
+        }
+
 
         return deferred.promise();
     }
@@ -3248,13 +3318,38 @@ window.OperationsView = (function($, OperationsView) {
             options.isIncSamples = false;
         }
 
-        var startTime = Date.now();
-        xcFunction.groupBy(tableId, gbArgs, groupByCols, options)
-        .then(deferred.resolve)
-        .fail(function(error) {
-            submissionFailHandler(startTime, error);
-            deferred.reject();
-        });
+        if ($("#container").hasClass("dfEditState")) {
+            var evals = [];
+            for (var i = 0; i < gbArgs.length; i++) {
+                var op = gbArgs[i].operator;
+                op = op.slice(0, 1).toLowerCase() + op.slice(1);
+                var evalStr = op + "(" + gbArgs[i].aggColName + ")";
+                evals.push({
+                    "evalString": evalStr,
+                    "newField": gbArgs[i].newColName
+                    });
+            }
+
+            DagEdit.store({
+                args: {
+                        "eval": evals,
+                        "icv": icvMode,
+                        "includeSample": isIncSample,
+                        "newKeyField": ""
+                    },
+                indexFields: groupByCols.slice()
+            });
+            deferred.resolve();
+        } else {
+            var startTime = Date.now();
+            xcFunction.groupBy(tableId, gbArgs, groupByCols, options)
+            .then(deferred.resolve)
+            .fail(function(error) {
+                submissionFailHandler(startTime, error);
+                deferred.reject();
+            });
+        }
+
         return deferred.promise();
     }
 
@@ -3330,13 +3425,25 @@ window.OperationsView = (function($, OperationsView) {
         var hasWeirdQuotes = (mapStr.indexOf("“") > -1 ||
                               mapStr.indexOf("”") > -1);
 
-        xcFunction.map(colNum, tableId, newColName, mapStr, mapOptions, icvMode)
-        .then(deferred.resolve)
-        .fail(function(error) {
-            submissionFailHandler(startTime, error,
-                                  {"hasWeirdQuotes": hasWeirdQuotes});
-            deferred.reject();
-        });
+        if ($("#container").hasClass("dfEditState")) {
+            DagEdit.store({
+                args: {
+                        "eval": [{"evalString": mapStr, "newField": newColName}],
+                        "icv": icvMode
+                    }
+            });
+            deferred.resolve();
+        } else {
+            xcFunction.map(colNum, tableId, newColName, mapStr, mapOptions, icvMode)
+            .then(deferred.resolve)
+            .fail(function(error) {
+                submissionFailHandler(startTime, error,
+                                      {"hasWeirdQuotes": hasWeirdQuotes});
+                deferred.reject();
+            });
+        }
+
+
         return deferred.promise();
     }
     //show alert to go back to op view

@@ -574,6 +574,7 @@
     };
 
     // extract op and arguments from a string delimited by delimiter
+    // delim is optional and will default to ,
     xcHelper.extractOpAndArgs = function(string, delim) {
         // For example, eq("agwe", 3)
         // You will call this function with delim=','
@@ -591,7 +592,7 @@
         var singleQuote = false; // ' is true, " is false
         var curArg = "";
         var braceCount = 0; // track nested functions
-
+        delim = delim || ",";
         for (i = 0; i < argString.length; i++) {
             switch (argString[i]) {
                 case ('"'):

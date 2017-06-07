@@ -177,12 +177,16 @@ html.firefox, html.microsoft {
             background-color: @color-bg-dusk-blue;
             border-bottom-right-radius: 3px;
             display: inline-block;
+            z-index: @z-index-dfPanel + 1;
             float: left;
             .hint .icon {
                 font-size: 16px;
                 padding-top: 2px;
                 padding-left: 2px;
             }
+        }
+        .descriptionArea {
+            pointer-events: none;
         }
     }
 
@@ -372,6 +376,10 @@ html.firefox, html.microsoft {
     &.selected {
         box-shadow: inset 0px 0px 9px 0px @color-border-softBlue, 0px 1px 4px 0px @color-border-softBlue;
         border: 1px solid @color-border-select-blue;
+
+        .header {
+            border-bottom: 1px solid @color-font-select-blue;
+        }
         .tableTitleArea {
             color: @color-font-select-blue;
         }
@@ -425,11 +433,13 @@ html.firefox, html.microsoft {
         display: inline-block;
         float: left;
         margin-top: 2px;
+        min-width: ~"calc(100% - 300px)";
 
         .tableName {
             display: inline-block;
             background: none;
             .text-selection;
+            min-width: ~"calc(100% - 100px)";
         }
     }
 
@@ -447,6 +457,18 @@ html.firefox, html.microsoft {
             .icon {
                 font-size: 22px;
             }
+        }
+        .runBtn, .endEdit {
+            display: none;
+        }
+        .runBtn, .editBtn {
+            .icon {
+                font-size: 16px;
+            }
+        }
+
+        .editBtn {
+            display: none !important; // XXX unhide when dataflow editing is ready!
         }
     }
 
@@ -1261,3 +1283,86 @@ html.firefox, html.microsoft {
         }
     }
 }
+
+#container.dfEditState {
+    #dagPanel {
+        .dagWrap {
+            opacity: 0.3;
+            pointer-events: none;
+            &.editMode {
+                opacity: 1;
+                pointer-events: initial;
+                .addDataFlow, .startEdit, .saveImageBtn, .newTabImageBtn {
+                    display: none;
+                }
+                .runBtn, .endEdit {
+                    display: block;
+                }
+
+                .paramMixin {
+                    border: 3px solid @color-bg-select-blue;
+                    position: absolute;
+                    content: " ";
+                }
+
+                .actionType {
+                    cursor: pointer;
+                    &:after {
+                        top: -2px;
+                        left: 14px;
+                        border-radius: 7px;
+                        height: 38px;
+                        width: 106px;
+                        .paramMixin;
+                        pointer-events: none;
+                    }
+                    // &.hasParam:after {
+                    //     .hasParamMixin;
+                    // }
+                }
+
+                .actionType {
+                    &.index {
+                        cursor: default;
+                        &:after {
+                            content: none;
+                        }
+                    }
+                }
+
+            }
+        }
+
+        // .actionTypeWrap {
+        //     cursor: pointer;
+        //     border: 1px solid @color-bg-select-blue;
+        // }
+
+    }
+
+    #operationsView {
+        .tableListSection {
+            cursor: not-allowed;
+            .dropDownList {
+                pointer-events: none;
+            }
+        }
+    }
+
+    #colMenu, #tableMenu {
+        li, .divider {
+            display: none !important;
+        }
+    }
+    // &.projectState {
+    //     #colMenu, #tableMenu {
+    //         .exitProject {
+    //             display: list-item !important;
+    //         }
+    //     }
+    // }
+    &.dfEditState {
+
+    }
+}
+

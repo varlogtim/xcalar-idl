@@ -86,6 +86,24 @@ window.Dag = (function($, Dag) {
                         'class="btn btn-small saveImageBtn">' +
                             '<i class="icon xi-save_img"></i>' +
                         '</div>' +
+                        '<div data-toggle="tooltip" data-container="body" ' +
+                        'data-placement="top" title="' +
+                            'Edit' + '" ' +
+                        'class="btn btn-small editBtn startEdit">' +
+                            '<i class="icon xi-edit"></i>' +
+                        '</div>' +
+                         '<div data-toggle="tooltip" data-container="body" ' +
+                        'data-placement="top" title="' +
+                            'Exit editing mode' + '" ' +
+                        'class="btn btn-small editBtn endEdit">' +
+                            '<i class="icon xi-undo-highlight"></i>' +
+                        '</div>' +
+                        '<div data-toggle="tooltip" data-container="body" ' +
+                        'data-placement="top" title="' +
+                            'Run' + '" ' +
+                        'class="btn btn-small runBtn">' +
+                            '<i class="icon xi-run"></i>' +
+                        '</div>' +
                     '</div>' +
                 '</div>' +
                 '</div>';
@@ -875,8 +893,14 @@ window.Dag = (function($, Dag) {
             }, 300);
         });
 
-        $dagWrap.on("click", ".tagHeader", function() {
-            Dag.toggleTaggedGroup($dagWrap, $(this));
+        $dagWrap.on("click", ".tagHeader", function(event) {
+            if ($("#container").hasClass("dfEditState")) {
+                if ($(event.target).closest(".groupTagIcon").length) {
+                    Dag.toggleTaggedGroup($dagWrap, $(this));
+                }
+            } else {
+                Dag.toggleTaggedGroup($dagWrap, $(this));
+            }
         });
 
         $dagWrap.on("mouseenter", ".groupTagIcon", function() {

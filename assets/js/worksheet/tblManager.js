@@ -246,8 +246,9 @@ window.TblManager = (function($, TblManager) {
                 // in case table showed up in temp list during its formation
                 TableList.removeTable(table.getName(), TableType.Orphan);
             }
-
-            if ($('.xcTable:visible').length === 1) {
+            var $visibleTables = $('.xcTable:visible');
+            if ($visibleTables.length === 1 &&
+                $visibleTables.is("#xcTable-" + tableId)) {
                 TblFunc.focusTable(tableId);
             }
 
@@ -353,6 +354,69 @@ window.TblManager = (function($, TblManager) {
             deferred.resolve();
         })
         .fail(deferred.reject);
+
+        return deferred.promise();
+    };
+
+    // searches for this table in active and temp list and brings it to the
+    // active WS if needed and focuses on it
+    TblManager.findAndFocusTable = function(tableName) {
+        var deferred = jQuery.Deferred();
+
+        var wsId;
+        var tableType;
+        var tableId = xcHelper.getTableId(tableName);
+        if (gTables[tableId]) {
+            if (gTables[tableId].status === TableType.Active) {
+                $('#workspaceTab').click();
+                wsId = WSManager.getWSFromTable(tableId);
+                $('#worksheetTab-' + wsId).trigger(fakeEvent.mousedown);
+
+                if ($("#dagPanel").hasClass('full')) {
+                    $('#dagPulloutTab').click();
+                }
+                var $tableWrap = $('#xcTableWrap-' + tableId);
+                xcHelper.centerFocusedTable($tableWrap, false)
+                .then(function() {
+                    deferred.resolve();
+                });
+                $tableWrap.mousedown();
+                return deferred.promise();
+            } else if (WSManager.getWSFromTable(tableId) == null) {
+                tableType = TableType.Orphan;
+            } else if (gTables[tableId].status === TableType.Orphan) {
+                tableType = TableType.Orphan;
+            } else if (gTables[tableId].status === TableType.Undone) {
+                tableType = TableType.Undone;
+            } else {
+                tableType = TableType.Orphan;
+            }
+
+            //xx currently we won't allow focusing on undone tables
+            if (tableType === TableType.Undone) {
+                deferred.reject({tableType: tableType});
+            } else {
+                $('#workspaceTab').click();
+                wsId = WSManager.getActiveWS();
+                WSManager.moveInactiveTable(tableId, wsId, tableType, true)
+                .then( deferred.resolve)
+                .fail(deferred.reject);
+            }
+        } else {
+            XcalarGetTables(tableName)
+            .then(function(ret) {
+                if (ret.numNodes > 0) {
+                    $('#workspaceTab').click();
+                    wsId = WSManager.getActiveWS();
+                    WSManager.moveInactiveTable(tableId, wsId, TableType.Orphan,
+                                                true)
+                    .then(deferred.resolve)
+                    .fail(deferred.reject);
+                } else {
+                    deferred.reject();
+                }
+            });
+        }
 
         return deferred.promise();
     };
@@ -2203,6 +2267,7 @@ window.TblManager = (function($, TblManager) {
         $thead.on("mousedown", ".flexContainer, .dragArea", function(event) {
             var $el = $(this);
             if ($("#container").hasClass("columnPicker") ||
+                $("#container").hasClass("dfEditState") ||
                 ($("#mainFrame").hasClass("modalOpen") && !event.bypassModal)) {
                 // not focus when in modal unless bypassModa is true
                 return;
@@ -2560,6 +2625,7 @@ window.TblManager = (function($, TblManager) {
             var $el = $td.children('.clickable');
 
             if ($("#container").hasClass('columnPicker') ||
+                $("#container").hasClass('dfEditState') ||
                 $("#mainFrame").hasClass("modalOpen"))
             {
                 // not focus when in modal
@@ -2712,6 +2778,8 @@ window.TblManager = (function($, TblManager) {
         var clicks = 0;
         var dblClickTimer;
         var $lastTd;
+
+        // used for double clicks
         $tbody.on("mousedown", "td", function(event) {
             if (event.which !== 1) {
                 return;
@@ -2775,6 +2843,7 @@ window.TblManager = (function($, TblManager) {
                 return false;
             }
             if ($("#container").hasClass('columnPicker') ||
+                $("#container").hasClass('dfEditState') ||
                 $("#mainFrame").hasClass("modalOpen"))
             {
                 $el.trigger('click');

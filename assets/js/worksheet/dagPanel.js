@@ -17,6 +17,7 @@ window.DagPanel = (function($, DagPanel) {
 
         setupDagPanelSliding();
         setupDagTableDropdown();
+        setupDagOpDropdown();
         setupRightClickDropdown();
         Dag.setupDagSchema();
         setupDataFlowBtn();
@@ -565,6 +566,7 @@ window.DagPanel = (function($, DagPanel) {
                 $menu.find('.revertTable').removeClass('unavailable');
             }
 
+            xcHelper.enableMenuItem($menu.find("li"));
             TblMenu.showDagAndTableOptions($menu, null, $dagTable);
 
             if (tableNoDelete) {
@@ -588,6 +590,40 @@ window.DagPanel = (function($, DagPanel) {
             positionAndShowDagTableDropdown($dagTable, $menu, $(event.target));
             xcMenu.addKeyboardNavigation($menu);
             $dagTable.addClass("selected");
+        });
+    }
+
+    function setupDagOpDropdown() {
+        var $menu = $dagPanel.find('.dagOperationDropDown');
+        xcMenu.add($menu);
+        dagOpDropDownActions($menu);
+
+        $dagPanel.on('click', '.actionTypeWrap', function(event) {
+            if (!$("#container").hasClass("dfEditState")) {
+                return;
+            }
+            $('.menu').hide().removeClass('leftColMenu');
+            xcMenu.removeKeyboardNavigation();
+            $('#dagSchema').removeClass("active");
+
+            var $opIcon = $(this);
+            if ($opIcon.closest(".actionType.index").length) {
+                return;
+            }
+
+            var $dagTable = $opIcon.closest(".dagTableWrap").find(".dagTable");
+            var tableName = $opIcon.closest(".actionType").data("table");
+            var tableId = xcHelper.getTableId(tableName);
+            var table = gTables[tableId];
+
+
+            positionAndShowDagTableDropdown($opIcon, $menu, $(event.target));
+            xcMenu.addKeyboardNavigation($menu);
+            $menu.data('tablename', tableName);
+            $menu.data('tableId', tableId);
+            $menu.data('nodeId', $opIcon.closest(".actionType").data("id"));
+            $menu.data('opIcon', $opIcon.closest(".actionType"));
+            // $dagTable.addClass("selected");
         });
     }
 
@@ -638,8 +674,7 @@ window.DagPanel = (function($, DagPanel) {
 
     function setupDataFlowBtn() {
         $dagPanel.on('click', '.addDataFlow', function() {
-            var self = this;
-            var $dagWrap = $(self).closest(".dagWrap");
+            var $dagWrap = $(this).closest(".dagWrap");
             addDataFlowAction($dagWrap);
         });
 
@@ -653,6 +688,28 @@ window.DagPanel = (function($, DagPanel) {
         $dagPanel.on('click', '.newTabImageBtn', function() {
             var $dagWrap = $(this).closest('.dagWrap');
             DagPanel.newTabImageAction($dagWrap);
+        });
+
+        $dagPanel.on('click', '.editBtn', function() {
+            var $dagWrap = $(this).closest('.dagWrap');
+            $dagWrap.toggleClass("editMode");
+
+            if (!$dagWrap.hasClass("selected")) {
+                var tableId = $dagWrap.data("id");
+                TblFunc.focusTable(tableId);
+            }
+
+            DagEdit.toggle();
+        });
+
+        $dagPanel.on("click", ".runBtn", function() {
+            var $dagWrap = $(this).closest(".dagWrap");
+            var tableId = $dagWrap.data("id");
+            var tableName = gTables[tableId].getName();
+            var edits = DagEdit.getInfo();
+            DagFunction.runProcedureWithParams(tableName, edits);
+            $dagWrap.toggleClass("editMode");
+            $("#container").toggleClass("dfEditState");
         });
     }
 
@@ -976,6 +1033,37 @@ window.DagPanel = (function($, DagPanel) {
             }
 
             Dag.generateComplementTable($menu.data('tablename'));
+        });
+    }
+
+    function dagOpDropDownActions($menu) {
+        $menu.on('mouseup', 'li', function(event) {
+            if (event.which !== 1) {
+                return;
+            }
+            var action = $(this).data('action');
+            if (!action) {
+                return;
+            }
+
+            var tableId = $menu.data("tableId");
+            var nodeId = $menu.data("nodeId");
+
+            switch (action) {
+                case ("editOp"):
+                    var $dagWrap = $menu.data("opIcon").closest(".dagWrap");
+                    var allDagInfo = $dagWrap.data("allDagInfo");
+
+                    var node = allDagInfo.nodeIdMap[nodeId];
+                    DagEdit.editOp(node);
+                    break;
+                case ("none"):
+                    // do nothing;
+                    break;
+                default:
+                    console.warn('menu action not recognized: ' + action);
+                    break;
+            }
         });
     }
 

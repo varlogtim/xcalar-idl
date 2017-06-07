@@ -1600,6 +1600,7 @@ window.DagDraw = (function($, DagDraw) {
                 iconClass += "-lessthan-equalto";
                 break;
             case ("filternot"):
+            case ("filterneq"):
                 iconClass += "-not-equal";
                 break;
             case ("filterregex"):
@@ -1854,7 +1855,6 @@ window.DagDraw = (function($, DagDraw) {
 
         info.tooltip = info.tooltip.replace(/"/g, "&quot;");
         info.text = info.text.replace(/"/g, "&quot;");
-        info.opText = info.opText.replace(/"/g, "&quot;");
 
         return (info);
     }

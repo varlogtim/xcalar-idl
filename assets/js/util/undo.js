@@ -100,7 +100,27 @@ window.Undo = (function($, Undo) {
         return (deferred.promise());
     };
 
-    undoFuncs[SQLOps.Query] = undoFuncs[SQLOps.Filter];
+    undoFuncs[SQLOps.Query] =function(options) {
+        var deferred = jQuery.Deferred();
+        var newTableId = xcHelper.getTableId(options.newTableName);
+        var worksheet = WSManager.getWSFromTable(newTableId);
+        var refreshOptions = {
+            isUndo: true,
+            replacingDest: TableType.Undone
+        };
+
+
+        TblManager.refreshTable([options.tableName], null,
+                                [options.newTableName], worksheet, null,
+                                refreshOptions)
+        .then(function() {
+            deferred.resolve();
+        })
+        .fail(function() {
+            deferred.reject();
+        });
+        return (deferred.promise());
+    };
 
     undoFuncs[SQLOps.Map] = function(options, isMostRecent) {
         var deferred = jQuery.Deferred();
@@ -146,7 +166,11 @@ window.Undo = (function($, Undo) {
             TblManager.sendTableToUndone(tableId, {'remove': true})
             .then(function() {
                 if (isMostRecent && joinOptions.formOpenTime) {
-                    JoinView.show(null, null, true, joinOptions.formOpenTime);
+                    var joinOpts = {
+                        restore: true,
+                        restoreTime: joinOptions.formOpenTime
+                    };
+                    JoinView.show(null, null, joinOpts);
                 }
                 deferred.resolve();
             })
@@ -219,7 +243,11 @@ window.Undo = (function($, Undo) {
         .then(function() {
             if (isSelfJoin) {
                 if (isMostRecent && joinOptions.formOpenTime) {
-                    JoinView.show(null, null, true, joinOptions.formOpenTime);
+                    var joinOpts = {
+                        restore: true,
+                        restoreTime: joinOptions.formOpenTime
+                    };
+                    JoinView.show(null, null, joinOpts);
                 }
                 deferred.resolve();
             } else {
@@ -233,7 +261,11 @@ window.Undo = (function($, Undo) {
                                         secondRefreshOptions)
                 .then(function() {
                     if (isMostRecent && joinOptions.formOpenTime) {
-                        JoinView.show(null, null, true, joinOptions.formOpenTime);
+                        var joinOpts = {
+                            restore: true,
+                            restoreTime: joinOptions.formOpenTime
+                        };
+                        JoinView.show(null, null, joinOpts);
                     }
                     deferred.resolve();
                 })

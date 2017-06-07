@@ -377,7 +377,8 @@ window.TableList = (function($, TableList) {
     };
 
     // adding or deleting tables from different lists
-    TableList.tableBulkAction = function(action, tableType, wsId, destWS) {
+    TableList.tableBulkAction = function(action, tableType, wsId, destWS,
+        resolveAfterAnim) {
         var deferred = jQuery.Deferred();
         var validAction = ["add", "delete"];
 
@@ -487,7 +488,17 @@ window.TableList = (function($, TableList) {
                         deferred.reject(failures.join("\n"));
                     } else {
                         if (tableType !== TableType.WSHidden) {
-                            focusOnLastTable(tables);
+                            if (resolveAfterAnim) {
+                                focusOnLastTable(tables)
+                                .then(function() {
+                                    deferred.resolve();
+                                });
+                            } else {
+                                focusOnLastTable(tables);
+                                deferred.resolve(tables, ws);
+                            }
+                        } else {
+                            deferred.resolve(tables, ws);
                         }
                         var finalTables = tables.map(function(name) {
                             if (tableRenameMap[name]) {
@@ -1810,6 +1821,7 @@ window.TableList = (function($, TableList) {
     }
 
     function focusOnLastTable(tableNames) {
+
         if (!$("#workspaceTab").hasClass("active")) {
             $("#workspaceTab").click();
         }
@@ -1821,9 +1833,13 @@ window.TableList = (function($, TableList) {
         if (tableIsInActiveWS) {
             var $lastTable = $('.xcTableWrap:not(.inActive)').last();
             if ($lastTable.length > 0) {
-                xcHelper.centerFocusedTable($lastTable.data("id"), true);
+                var deferred = jQuery.Deferred();
+                xcHelper.centerFocusedTable($lastTable.data("id"), true)
+                .then(deferred.resolve);
+                return deferred.promise();
             }
         }
+        return PromiseHelper.resolve();
     }
 
     function checkIfTablesInActiveWS(tableNames) {

@@ -2543,3 +2543,33 @@ describe("Dag Panel Test", function() {
         });
     });
 });
+
+// describe("Dag edit test", function() {
+//     it("parsing eval string should work", function() {
+//         var fn = DagPanel.__testOnly__.parseEvalStr;
+//         var res;
+
+//         res = fn("eq(a, b)");
+//         expect(res.params[0]).to.equal("a");
+//         expect(res.params[1]).to.equal("b");
+
+//         res = fn("eq(test(a, b), c)");
+//         expect(res.params[0]).to.equal("test(a, b)");
+//         expect(res.params[1]).to.equal("c");
+
+//         res = fn("eq(test\"(a, b)\", c)");
+//         expect(res.params[0]).to.equal("test\"(a, b)\"");
+//         expect(res.params[1]).to.equal("c");
+
+//         res = fn("eq(\"te,st\", c)");
+//         expect(res.params[0]).to.equal("\"te,st\"");
+//         expect(res.params[1]).to.equal("c");
+
+//         res = fn("eq('te,st', c)");
+//         expect(res.params[0]).to.equal("'te,st'");
+//         expect(res.params[1]).to.equal("c");
+
+//         res = fn("eq(\"a\")");
+//         expect(res.params[0]).to.equal("\"a\"");
+//     });
+// });

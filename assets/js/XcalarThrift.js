@@ -2646,7 +2646,12 @@ XcalarQuery = function(queryName, queryString, txId) {
         "load --url file:///var/tmp/gdelt --format csv --name test"
         "filter yelpUsers 'regex(user_id,\"--O\")'"
         New Format:
-            JSON.stringify([{"operation":"XcalarApiFilter","args":{"source":"gdelt#LR0","dest":"test","eval":[{"evalString":"eq(gdelt::column1, \"20080514\")","newField":null}]}}])
+            JSON.stringify([{"operation":"XcalarApiFilter",
+                            "args":{"source":"gdelt#LR0",
+                                    "dest":"test",
+                                    "eval":[{"evalString":"eq(gdelt::column1, \"20080514\")","newField":null}]
+                                    }
+                            }])
     */
     if (tHandle == null) {
         return PromiseHelper.resolve(null);

@@ -565,7 +565,14 @@ window.JoinView = (function($, JoinView) {
         }
     };
 
-    JoinView.show = function(tableId, colNums, restore, restoreTime) {
+    // JoinView.show = function(tableId, colNums, restore, restoreTime) {
+    JoinView.show = function(tableId, colNums, options) {
+        if (isOpen) {
+            return;
+        }
+        options = options || {};
+        var restoreTime = options.restoreTime;
+        var restore = options.restore;
         if (restoreTime && restoreTime !== formHelper.getOpenTime()) {
             // if restoreTime and formOpenTime do not match, it means we're
             // trying to restore a form to a state that's already been
@@ -2070,7 +2077,7 @@ window.JoinView = (function($, JoinView) {
                     className: "",
                     func: function() {
                         focusOnTable(rTableId);
-                        JoinView.show(null , null , true);
+                        JoinView.show(null , null, {restore: true});
                         StatusMessage.removePopups();
                     }
                 });
@@ -2180,7 +2187,7 @@ window.JoinView = (function($, JoinView) {
     function addClause(noAnimation, tableId, colNum) {
 
         var progCol;
-        if (tableId) {
+        if (tableId && colNum != null) {
             progCol = gTables[tableId].getCol(colNum);
             if (validTypes.indexOf(progCol.getType()) === -1) {
                 return;
@@ -2201,7 +2208,7 @@ window.JoinView = (function($, JoinView) {
         }
 
         var $div = $newClause.insertBefore($joinView.find('.addClause'));
-        if (tableId) {
+        if (tableId && colNum != null) {
             var colName = progCol.getFrontColName(true);
             $div.find('.arg').eq(0).val(colName);
         } else if (gTables[tableIds[0]]) {
