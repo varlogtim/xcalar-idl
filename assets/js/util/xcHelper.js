@@ -3355,19 +3355,17 @@ window.xcHelper = (function($, xcHelper) {
         }
         promise
         .always(function(foundType) {
-            // XXX backend doesn't support this fully so just resolve null
             if (foundType) {
-                // deferred.resolve(foundType);
-                deferred.resolve(null);
+                deferred.resolve(foundType);
             } else {
-                // deferred.resolve(DfFieldTypeT.DfString); // default to string
+                // let backend guess the type
                 deferred.resolve(null);
             }
         });
         return deferred.promise();
     };
 
-        // converts "string" to 1 via DfFieldTypeT
+    // example: converts "string" to 1 via DfFieldTypeT
     function translateFrontTypeToBackType(frontType) {
         var type;
         switch (frontType) {
