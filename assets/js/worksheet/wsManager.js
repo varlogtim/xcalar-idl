@@ -1179,6 +1179,9 @@ window.WSManager = (function($, WSManager) {
             if (!$tab.hasClass("active") && !$tab.hasClass("locked")) {
                 WSManager.switchWS(wsId);
             }
+            if ($tab.hasClass("locked")) {
+                return;
+            }
             xcHelper.dropdownOpen($wsMenu, $tabMenu, {
                 "offsetX": -7,
                 "floating": true,

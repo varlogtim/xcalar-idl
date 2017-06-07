@@ -195,6 +195,10 @@ window.JSONModal = (function($, JSONModal) {
         $jsonArea.on({
             "click": function(event) {
                 var $el = $(this);
+                if ($el.closest(".projectMode").length &&
+                    $el.closest(".prefixedType").length) {
+                    return;
+                }
                 selectJsonKey($el, event);
             }
         }, ".jKey, .arrayEl");
