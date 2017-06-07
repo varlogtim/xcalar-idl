@@ -10133,6 +10133,7 @@ XcalarApiOpDetailsT = function(args) {
   this.numWorkTotal = null;
   this.cancelled = null;
   this.errorStats = null;
+  this.numRowsTotal = null;
   if (args) {
     if (args.numWorkCompleted !== undefined) {
       this.numWorkCompleted = args.numWorkCompleted;
@@ -10145,6 +10146,9 @@ XcalarApiOpDetailsT = function(args) {
     }
     if (args.errorStats !== undefined) {
       this.errorStats = args.errorStats;
+    }
+    if (args.numRowsTotal !== undefined) {
+      this.numRowsTotal = args.numRowsTotal;
     }
   }
 };
@@ -10191,6 +10195,13 @@ XcalarApiOpDetailsT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 5:
+      if (ftype == Thrift.Type.I64) {
+        this.numRowsTotal = input.readI64().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -10220,6 +10231,11 @@ XcalarApiOpDetailsT.prototype.write = function(output) {
   if (this.errorStats !== null && this.errorStats !== undefined) {
     output.writeFieldBegin('errorStats', Thrift.Type.STRUCT, 4);
     this.errorStats.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.numRowsTotal !== null && this.numRowsTotal !== undefined) {
+    output.writeFieldBegin('numRowsTotal', Thrift.Type.I64, 5);
+    output.writeI64(this.numRowsTotal);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -12732,6 +12748,7 @@ XcalarApiDagNodeT = function(args) {
   this.elapsed = null;
   this.inputSize = null;
   this.input = null;
+  this.numRowsTotal = null;
   if (args) {
     if (args.name !== undefined) {
       this.name = args.name;
@@ -12774,6 +12791,9 @@ XcalarApiDagNodeT = function(args) {
     }
     if (args.input !== undefined) {
       this.input = args.input;
+    }
+    if (args.numRowsTotal !== undefined) {
+      this.numRowsTotal = args.numRowsTotal;
     }
   }
 };
@@ -12892,6 +12912,13 @@ XcalarApiDagNodeT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 15:
+      if (ftype == Thrift.Type.I64) {
+        this.numRowsTotal = input.readI64().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -12971,6 +12998,11 @@ XcalarApiDagNodeT.prototype.write = function(output) {
   if (this.input !== null && this.input !== undefined) {
     output.writeFieldBegin('input', Thrift.Type.STRUCT, 14);
     this.input.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.numRowsTotal !== null && this.numRowsTotal !== undefined) {
+    output.writeFieldBegin('numRowsTotal', Thrift.Type.I64, 15);
+    output.writeI64(this.numRowsTotal);
     output.writeFieldEnd();
   }
   output.writeFieldStop();

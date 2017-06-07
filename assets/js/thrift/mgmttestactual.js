@@ -22419,6 +22419,7 @@ XcalarApiOpDetailsT = function(args) {
   this.numWorkTotal = null;
   this.cancelled = null;
   this.errorStats = null;
+  this.numRowsTotal = null;
   if (args) {
     if (args.numWorkCompleted !== undefined) {
       this.numWorkCompleted = args.numWorkCompleted;
@@ -22431,6 +22432,9 @@ XcalarApiOpDetailsT = function(args) {
     }
     if (args.errorStats !== undefined) {
       this.errorStats = args.errorStats;
+    }
+    if (args.numRowsTotal !== undefined) {
+      this.numRowsTotal = args.numRowsTotal;
     }
   }
 };
@@ -22477,6 +22481,13 @@ XcalarApiOpDetailsT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 5:
+      if (ftype == Thrift.Type.I64) {
+        this.numRowsTotal = input.readI64().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -22506,6 +22517,11 @@ XcalarApiOpDetailsT.prototype.write = function(output) {
   if (this.errorStats !== null && this.errorStats !== undefined) {
     output.writeFieldBegin('errorStats', Thrift.Type.STRUCT, 4);
     this.errorStats.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.numRowsTotal !== null && this.numRowsTotal !== undefined) {
+    output.writeFieldBegin('numRowsTotal', Thrift.Type.I64, 5);
+    output.writeI64(this.numRowsTotal);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -25018,6 +25034,7 @@ XcalarApiDagNodeT = function(args) {
   this.elapsed = null;
   this.inputSize = null;
   this.input = null;
+  this.numRowsTotal = null;
   if (args) {
     if (args.name !== undefined) {
       this.name = args.name;
@@ -25060,6 +25077,9 @@ XcalarApiDagNodeT = function(args) {
     }
     if (args.input !== undefined) {
       this.input = args.input;
+    }
+    if (args.numRowsTotal !== undefined) {
+      this.numRowsTotal = args.numRowsTotal;
     }
   }
 };
@@ -25178,6 +25198,13 @@ XcalarApiDagNodeT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 15:
+      if (ftype == Thrift.Type.I64) {
+        this.numRowsTotal = input.readI64().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -25257,6 +25284,11 @@ XcalarApiDagNodeT.prototype.write = function(output) {
   if (this.input !== null && this.input !== undefined) {
     output.writeFieldBegin('input', Thrift.Type.STRUCT, 14);
     this.input.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.numRowsTotal !== null && this.numRowsTotal !== undefined) {
+    output.writeFieldBegin('numRowsTotal', Thrift.Type.I64, 15);
+    output.writeI64(this.numRowsTotal);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -29381,7 +29413,7 @@ StatusTStr = {0 : 'Success',
 318 : 'Target session was not inactive',
 319 : 'Session user name is invalid',
 320 : 'Session has an unrecoverable error',
-321 : 'Session user already exists',
+321 : 'This user\'s session is present on another node',
 322 : 'The delete operation is not permitted',
 323 : 'Failed to load user-defined module/application',
 324 : 'A module with the given name already exists',
@@ -29949,9 +29981,9 @@ XcalarApiServiceClient.prototype.recv_queueWork = function() {
 
 
 XcalarApiVersionT = {
-  'XcalarApiVersionSignature' : 171543330
+  'XcalarApiVersionSignature' : 247012036
 };
-XcalarApiVersionTStr = {171543330 : 'a398b22a31b750ebf928f00a2eb3b580'
+XcalarApiVersionTStr = {247012036 : 'eb91ac4c493545dd10442caa74b02556'
 };
 // Async extension for XcalarApiService.js
 XcalarApiServiceClient.prototype.queueWorkAsync = function(workItem) {
