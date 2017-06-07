@@ -28,6 +28,11 @@ window.DF = (function($, DF) {
         .then(function(list) {
             for (var i = 0; i < list.length; i++) {
                 var retName = list[i].scheduleMain.retName;
+                if (dataflows[retName] == null) {
+                    console.error("error case");
+                    continue;
+                }
+
                 allOptions = $.extend({}, list[i].scheduleMain.options,
                              list[i].scheduleMain.substitutions,
                              list[i].scheduleMain.timingInfo);

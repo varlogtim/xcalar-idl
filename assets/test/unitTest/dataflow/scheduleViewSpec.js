@@ -10,6 +10,7 @@ describe("Schedule related Test", function() {
     });
 
     describe("Time related function Test", timeRelatedFunctionTest);
+    describe("Schedule Event Test", scheduleEventTest);
     describe("View related function Test", viewRelatedFunctionTest);
     after(function() {
         DF.refresh = oldRefresh;
@@ -487,6 +488,167 @@ function timeRelatedFunctionTest() {
     }
 }
 
+function scheduleEventTest() {
+    var $scheduleDetail;
+    var $historySection;
+    var $detailsSection;
+    var dfName;
+
+    before(function() {
+        $scheduleDetail = $("#scheduleDetail");
+        $historySection = $("#scheduleTable .historySection");
+        $detailsSection = $("#scheduleTable .detailsSection");
+        dfName = xcHelper.randName("testSchedule");
+        Scheduler.show(dfName);
+    });
+
+    it("should cancel form", function() {
+        $scheduleDetail.removeClass("withoutSchedule")
+                           .addClass("withSchedule");
+        $("#modScheduleForm-cancel").click();
+        expect($scheduleDetail.hasClass("withSchedule")).to.be.false;
+        expect($scheduleDetail.hasClass("withoutSchedule")).to.be.true;
+    });
+
+    it("should refresh loading scheulde should have not result", function() {
+        var $scheduleResults = $("#scheduleResults");
+        $scheduleResults.addClass("loading");
+        $scheduleResults.data("df", dfName);
+        $("#modScheduleForm-refresh").click();
+        expect($historySection.html()).to.contains(SchedTStr.Notrun);
+        $scheduleResults.removeClass("loading");
+        $scheduleResults.removeData("df");
+    });
+
+    it("should click to pause schedule", function(done) {
+        var oldGet = DF.getSchedule;
+        var oldList = XcalarListSchedules;
+        var oldResume = XcalarResumeSched;
+        var oldSuccess = xcHelper.showSuccess;
+        var test = false;
+
+        xcHelper.showSuccess = function() {
+            test = true;
+        };
+
+        DF.getSchedule = function() {
+            return {"isPaused": true};
+        };
+
+        XcalarListSchedules = function() {
+            return PromiseHelper.resolve([{
+                "scheduleMain": {
+                    "options": {
+                        "isPaused": true
+                    },
+                    "timingInfo": {
+                        "startTime": 123
+                    }
+                }
+            }]);
+        };
+
+        XcalarPauseSched = function() {
+            return PromiseHelper.resolve();
+        };
+
+        $("#modScheduleForm-pause").click();
+
+        UnitTest.testFinish(function() { return test === true; })
+        .then(function() {
+            expect($scheduleDetail.hasClass("pauseState")).to.be.true;
+            $scheduleDetail.removeClass("pauseState");
+            done();
+        })
+        .fail(function() {
+            done("fail");
+        })
+        .always(function() {
+            xcHelper.showSuccess = oldSuccess;
+            XcalarPauseSched = oldResume;
+            XcalarListSchedules = oldList;
+            DF.getSchedule = oldGet;
+        });
+    });
+
+    it("should click to resume schedule", function(done) {
+        var oldGet = DF.getSchedule;
+        var oldList = XcalarListSchedules;
+        var oldResume = XcalarResumeSched;
+        var oldSuccess = xcHelper.showSuccess;
+        var test = false;
+
+        xcHelper.showSuccess = function() {
+            test = true;
+        };
+
+        DF.getSchedule = function() {
+            return {};
+        };
+
+        XcalarListSchedules = function() {
+            return PromiseHelper.resolve([{
+                "scheduleMain": {
+                    "options": {
+                        "isPaused": true
+                    },
+                    "timingInfo": {
+                        "startTime": 123
+                    }
+                }
+            }]);
+        };
+
+        XcalarResumeSched = function() {
+            return PromiseHelper.resolve();
+        };
+
+        $scheduleDetail.addClass("pauseState");
+        $("#modScheduleForm-resume").click();
+
+        UnitTest.testFinish(function() { return test === true; })
+        .then(function() {
+            expect($scheduleDetail.hasClass("pauseState")).to.be.false;
+            done();
+        })
+        .fail(function() {
+            done("fail");
+        })
+        .always(function() {
+            xcHelper.showSuccess = oldSuccess;
+            XcalarResumeSched = oldResume;
+            XcalarListSchedules = oldList;
+            DF.getSchedule = oldGet;
+        });
+    });
+
+    it("should click to switch tab", function() {
+        var $tab = $scheduleDetail.find(".tab.default");
+        $tab.removeClass("active");
+        $tab.click();
+        expect($tab.hasClass("active")).to.be.true;
+        // click again has no use
+        $tab.click();
+        expect($tab.hasClass("active")).to.be.true;
+    });
+
+    it("should click historySection to view detail", function() {
+        $historySection.html('<div class="row"></div>');
+        $detailsSection.html('<div class="record"></div>');
+        var $row = $historySection.find(".row").eq(0);
+        $row.click();
+        expect($row.hasClass("chosen")).to.be.true;
+        expect($detailsSection.find(".record").eq(0).hasClass("chosen"))
+        .to.be.true;
+    });
+
+    after(function() {
+        $historySection.html("");
+        $detailsSection.html("");
+        Scheduler.hide();
+    });
+}
+
 function viewRelatedFunctionTest() {
     var oldGetRetinaFunc;
     var oldDeleteRetinaFunc;
@@ -574,7 +736,7 @@ function viewRelatedFunctionTest() {
         assert.isFalse($scheduleDetail.is(":visible"));
     });
 
-    it("Should show schedule detail view correctly", function() {
+    it("should show schedule detail view correctly", function() {
         Scheduler.show(dfName);
         var $scheduleInfos = $("#scheduleInfos");
         assert.isTrue($scheduleInfos.is(":visible"));
@@ -603,10 +765,52 @@ function viewRelatedFunctionTest() {
         UnitTest.hasAlertWithText(SchedTStr.NoExportParam);
     });
 
-    it("Should show schedule result correctly", function(done) {
+    it("should show schedule result if scheulde is loading", function(done) {
+        var $scheduleResults = $("#scheduleResults");
+        $scheduleResults.addClass("loading");
+        $scheduleResults.data("df", dfName);
+        $("#scheduleTable .historySection").html("");
+
         Scheduler.__testOnly__.showScheduleResult()
         .then(function() {
-            var html = $("#scheduleTable .mainSection").html();
+            var html = $("#scheduleTable .historySection").html();
+            expect(html).to.be.empty;
+            done();
+        })
+        .fail(function() {
+            done("fail");
+        })
+        .always(function() {
+            $scheduleResults.removeClass("loading");
+            $scheduleResults.removeData("df");
+        });
+    });
+
+    it("should show fail case for schedule result", function(done) {
+        var oldList = XcalarListSchedules;
+        XcalarListSchedules = function() {
+            return PromiseHelper.reject("test");
+        };
+
+        Scheduler.__testOnly__.showScheduleResult()
+        .then(function() {
+            done("fail");
+        })
+        .fail(function(error) {
+            var html = $("#scheduleTable .historySection").html();
+            expect(html).contains(SchedTStr.ListSchedFail);
+            expect(error).to.equal("test");
+            done();
+        })
+        .always(function() {
+            XcalarListSchedules = oldList;
+        });
+    });
+
+    it("should show schedule result correctly", function(done) {
+        Scheduler.__testOnly__.showScheduleResult()
+        .then(function() {
+            var html = $("#scheduleTable .historySection").html();
             expect(html).contains(SchedTStr.Notrun);
             done();
         })
@@ -615,16 +819,40 @@ function viewRelatedFunctionTest() {
         });
     });
 
-    it("Should delete schedule correctly", function(done) {
+    it("should handle remove fail case", function(done) {
+        var oldRemove = DF.removeScheduleFromDataflow;
+        DF.removeScheduleFromDataflow = function() {
+            return PromiseHelper.reject("test");
+        };
+
+        $scheduleDetail.addClass("locked");
+        Scheduler.__testOnly__.removeSchedule(dfName)
+        .then(function() {
+            done("fail");
+        })
+        .fail(function(error) {
+            expect(error).to.equal("test");
+            expect($scheduleDetail.hasClass("locked")).to.be.false;
+            done();
+        })
+        .always(function() {
+            DF.removeScheduleFromDataflow = oldRemove;
+        });
+    });
+
+    it("should delete schedule correctly", function(done) {
         expect(DF.getSchedule(dfName)).to.not.equal(null);
         expect($("#alertModal:visible").length).to.equal(0);
         $("#modScheduleForm-delete").click();
         expect($("#alertModal:visible").length).to.not.equal(0);
         $("#alertModal .cancel").click();
         Scheduler.__testOnly__.removeSchedule(dfName)
-        .always(function() {
+        .then(function() {
             expect(DF.getSchedule(dfName)).to.equal(null);
             done();
+        })
+        .fail(function() {
+            done("fail");
         });
     });
 
@@ -711,6 +939,42 @@ function viewRelatedFunctionTest() {
         Scheduler.__testOnly__.validateCron(false);
     });
 
+    it("should update schedule", function(done) {
+        var fakeSchedule = {};
+        var oldGet = DF.getSchedule;
+        var oldList = XcalarListSchedules;
+
+        DF.getSchedule = function() {
+            return fakeSchedule;
+        };
+        XcalarListSchedules = function() {
+            return PromiseHelper.resolve([{
+                "scheduleMain": {
+                    "options": {
+                        "isPaused": true
+                    },
+                    "timingInfo": {
+                        "startTime": 123
+                    }
+                }
+            }]);
+        };
+
+        Scheduler.__testOnly__.updateSchedule()
+        .then(function() {
+            expect(fakeSchedule.isPaused).to.be.true;
+            expect(fakeSchedule.startTime).to.equal(123);
+            done();
+        })
+        .fail(function() {
+            done("fail");
+        })
+        .always(function() {
+            XcalarListSchedules = oldList;
+            DF.getSchedule = oldGet;
+        });
+    });
+
     it("should save schedule", function() {
         expect(DF.getSchedule(dfName)).to.equal(null);
         $("#modScheduleForm-save").click();
@@ -727,6 +991,7 @@ function viewRelatedFunctionTest() {
         StatusBox.forceHide();
         DF.removeDataflow("df1")
         .always(function() {
+            Scheduler.hide();
             done();
         });
     });

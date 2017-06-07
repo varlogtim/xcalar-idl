@@ -200,7 +200,7 @@ window.Scheduler = (function(Scheduler, $) {
             })
             .then(function() {
                 xcHelper.showSuccess(SuccessTStr.PauseSched);
-                $("#scheduleDetail").addClass("pauseState");
+                $scheduleDetail.addClass("pauseState");
                 showScheduleSettings();
             })
             .fail(function(error) {
@@ -216,7 +216,7 @@ window.Scheduler = (function(Scheduler, $) {
             })
             .then(function() {
                 xcHelper.showSuccess(SuccessTStr.ResumeSched);
-                $("#scheduleDetail").removeClass("pauseState");
+                $scheduleDetail.removeClass("pauseState");
                 showScheduleSettings();
             })
             .fail(function(error) {
@@ -351,9 +351,8 @@ window.Scheduler = (function(Scheduler, $) {
                 deferred.reject();
             }
         })
-        .fail(function(error) {
-            deferred.reject(error);
-        });
+        .fail(deferred.reject);
+
         return deferred.promise();
     }
 
@@ -1157,6 +1156,7 @@ window.Scheduler = (function(Scheduler, $) {
         Scheduler.__testOnly__.simulateCron = simulateCron;
         Scheduler.__testOnly__.getUTCStr = getUTCStr;
         Scheduler.__testOnly__.validateCron = validateCron;
+        Scheduler.__testOnly__.updateSchedule = updateSchedule;
         Scheduler.__testOnly__.showScheduleResult = showScheduleResult;
     }
     /* End Of Unit Test Only */
