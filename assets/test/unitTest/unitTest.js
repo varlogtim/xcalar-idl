@@ -15,7 +15,7 @@ assert = chai.assert;
 
 var testDatasets = {
     "sp500": {
-        "path": "nfs:///netstore/datasets/sp500.csv",
+        "path": "file:///netstore/datasets/sp500.csv",
         "url": "netstore/datasets/sp500.csv",
         "format": "CSV",
         "fieldDelim": "\t",
@@ -27,7 +27,7 @@ var testDatasets = {
     },
 
     "schedule": {
-        "path": "nfs:///netstore/datasets/indexJoin/schedule/",
+        "path": "file:///netstore/datasets/indexJoin/schedule/",
         "url": "netstore/datasets/indexJoin/schedule/",
         "format": "JSON",
         "moduleName": "",
@@ -36,7 +36,7 @@ var testDatasets = {
     },
 
     "fakeYelp": {
-        "path": "nfs:///netstore/datasets/unittest/test_yelp.json",
+        "path": "file:///netstore/datasets/unittest/test_yelp.json",
         "url": "netstore/datasets/unittest/test_yelp.json",
         "format": "JSON",
         "moduleName": "",

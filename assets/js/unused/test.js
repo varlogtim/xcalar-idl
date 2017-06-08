@@ -90,7 +90,6 @@ function testMainScreen() {
     }
 
     return (true);
-    
 }
 
 function testLoadHelper() {
@@ -127,7 +126,7 @@ function testLoadHelper() {
         }
     }
 
-    $("#fileBrowser").val("nfs:///var/tmp/yelp/user");
+    $("#fileBrowser").val("file:///var/tmp/yelp/user");
     $("#selectFile").click();
 
     if ($("#filePathBox").width() <= $("#filePathSelector").width() ||

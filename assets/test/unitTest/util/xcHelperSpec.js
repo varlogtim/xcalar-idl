@@ -1823,7 +1823,7 @@ describe("xcHelper Test", function() {
         var thirdPart = 'join --leftTable "c.index#Vi35" --rightTable ' +
                         '"d.index#Vi36" --joinType innerJoin ' +
                         '--joinTable "a#Vi34";';
-        var fourthPart = 'load --url "nfs:///schedule/" --format json ' +
+        var fourthPart = 'load --url "file:///schedule/" --format json ' +
                          '--size 0B --name "f264.schedule";';
         var fifthPart = '   '; // blank
 

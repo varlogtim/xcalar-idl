@@ -633,13 +633,11 @@ function XcalarLoad(url, format, datasetName, options, txId) {
         console.log("Max sample size set to: ", maxSampleSize);
     }
 
-    if (url.indexOf(FileProtocol.nfs) === 0 && !gEnableLocalFiles) {
-        url = url.replace(FileProtocol.nfs, "nfs:///");
-    }
-
     if (gDemoMemory) {
-        url = url.replace("nfs:///", "memory://");
+        url = url.replace("localfile:///", "memory://");
         url = url.replace("file:///", "memory://");
+    } else if (gEnableLocalFiles) {
+        url = url.replace("file:///", "localfile:///");
     }
 
     var workItem = xcalarLoadWorkItem(url, datasetName, formatType,
@@ -2724,7 +2722,7 @@ function XcalarGetRetina(retName) {
 
 // paramValue is what the parameterized part is called
 // For example, in load, the datasetUrl is parameterizable, and your url can
-// be something like "nfs:///<directory>/<subDir>/file<number>.csv" <- paramValue
+// be something like "file:///<directory>/<subDir>/file<number>.csv" <- paramValue
 // For eval string, you will pass in something like "filter(gt(column1, \"hello\""))"
 // replaced with "filter(<opera>(<colName>, <val>))"
 // val = \"hello\"

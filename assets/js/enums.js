@@ -147,7 +147,7 @@ var DSFormat = {
 var FileProtocol = {
     "nfs": "file:///",
     "hdfs": "hdfs://",
-    "file": "file:///",
+    "file": "localfile:///",
     "s3": "s3://"
 };
 

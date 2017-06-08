@@ -11,7 +11,7 @@
         "pointArgs": {
             "name":"schedule1555",
             "format":"JSON",
-            "path":"nfs:///netstore/datasets/indexJoin/schedule/",
+            "path":"file:///netstore/datasets/indexJoin/schedule/",
             "fieldDelim":"",
             "lineDelim":"\n",
             "hasHeader":false,
@@ -29,7 +29,7 @@
             "id":"undoTestUser.12345.schedule1555"
         }
     },
-    "cli":"load --url \"nfs:///var/tmp/qa/indexJoin/schedule\" --format json --size 0B  --name \"undoTestUser.schedule1555\";",
+    "cli":"load --url \"file:///var/tmp/qa/indexJoin/schedule\" --format json --size 0B  --name \"undoTestUser.schedule1555\";",
     "timestamp":1460667878742},
 
     {"title":"Create Table",
@@ -320,7 +320,7 @@
         "pointArgs": {
             "name":"testyelp",
             "format":"JSON",
-            "path":"nfs:///netstore/datasets/unittest/test_yelp.json",
+            "path":"file:///netstore/datasets/unittest/test_yelp.json",
             "fieldDelim":"",
             "lineDelim":"\n",
             "hasHeader":false,
@@ -338,7 +338,7 @@
             "id":"undoTestUser.12345.testyelp"
         }
     },
-    "cli":"load --url \"nfs:///netstore/datasets/unittest/test_yelp.json\" --format json --size 0B  --name \"undoTestUser.testyelp\";",
+    "cli":"load --url \"file:///netstore/datasets/unittest/test_yelp.json\" --format json --size 0B  --name \"undoTestUser.testyelp\";",
     "timestamp":1460602525951},
 
     {"title":"Create Table",
@@ -600,7 +600,7 @@
         "pointArgs": {
             "name":"testyelp",
             "format":"JSON",
-            "path":"nfs:///netstore/datasets/unittest/test_yelp.json",
+            "path":"file:///netstore/datasets/unittest/test_yelp.json",
             "fieldDelim":"",
             "lineDelim":"\n",
             "hasHeader":false,
@@ -618,7 +618,7 @@
             "id":"undoTestUser.12345.testyelp"
         }
     },
-    "cli":"load --url \"nfs:///netstore/datasets/unittest/test_yelp.json\" --format json --size 0B  --name \"undoTestUser.testyelp\";",
+    "cli":"load --url \"file:///netstore/datasets/unittest/test_yelp.json\" --format json --size 0B  --name \"undoTestUser.testyelp\";",
     "timestamp":1460602525951},
 
     {"title":"Create Table",

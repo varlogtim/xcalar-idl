@@ -453,11 +453,11 @@ module.exports = {
         "TableInstr": "To create a table from dataset, select columns, choose a worksheet, modify the table name and then click \"CREATE NEW TABLE\" button. You can also click the \"Select Columns Later\" button and pull out columns after the table is created."
     },
 
-// keep in sync with the FileProtocol in enums.js
+    // keep in sync with the FileProtocol in enums.js
     "FileProtocol": {
         "nfs": "file:///",
         "hdfs": "hdfs://",
-        "file": "file:///",
+        "file": "localfile:///",
         "s3": "s3://"
     },
 

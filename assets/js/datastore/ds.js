@@ -1033,7 +1033,7 @@ window.DS = (function ($, DS) {
 
                     obj = $.extend(obj, {
                         "format": format,
-                        "path": ds.url.replace("nfs:///", FileProtocol.nfs),
+                        "path": ds.url,
                         "unlistable": !ds.isListable
                     });
 
