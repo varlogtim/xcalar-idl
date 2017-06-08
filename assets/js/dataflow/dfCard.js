@@ -70,17 +70,22 @@ window.DFCard = (function($, DFCard) {
         return $list;
     };
 
+    DFCard.getActiveDF = function() {
+        var $activeGroup = $dfMenu.find(".listBox.selected");
+        var activeGroupName = null;
+
+        if ($activeGroup.length) {
+            activeGroupName = $activeGroup.find(".groupName").text();
+        }
+        return activeGroupName;
+    };
+
     DFCard.refreshDFList = function(clear, noFocus) {
         if (clear) {
             $dfCard.find('.cardMain').empty();
         }
         var dataflows = DF.getAllDataflows();
-        var $activeGroup = $dfMenu.find('.listBox.selected');
-        var activeGroupName;
-
-        if ($activeGroup.length) {
-            activeGroupName = $activeGroup.find('.groupName').text();
-        }
+        var activeGroupName = DFCard.getActiveDF();
 
         if ($.isEmptyObject(dataflows)) {
             var hint = '<div class="hint no-selection">' +

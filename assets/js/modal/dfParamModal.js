@@ -926,7 +926,7 @@ window.DFParamModal = (function($, DFParamModal){
         })
         .then(function() {
             // show success message??
-            xcHelper.sendSocketMessage("refreshDataflow");
+            DF.commitAndBroadCast(retName);
             xcHelper.showSuccess(SuccessTStr.OperationParameterized);
             deferred.resolve();
         })

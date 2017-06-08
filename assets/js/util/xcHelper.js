@@ -3314,13 +3314,6 @@ window.xcHelper = (function($, xcHelper) {
         }
     };
 
-    xcHelper.sendSocketMessage = function(args) {
-        KVStore.commit()
-        .always(function() {
-            XcSocket.sendMessage(args);
-        });
-    };
-
     xcHelper.getKeyType = function(key, tableName) {
         var deferred = jQuery.Deferred();
         var tableId = xcHelper.getTableId(tableName);

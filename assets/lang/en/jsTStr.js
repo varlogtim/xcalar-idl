@@ -736,7 +736,9 @@ DFTStr = {
     'Scheduled': 'Scheduled',
     "SlightSkew": "Slight skew",
     "HeavySkew": "Heavy skew",
-    'InvalidTarget': 'Target not found.'
+    'InvalidTarget': 'Target not found.',
+    "Refresh": "Refresh Dataflow",
+    "RefreshMsg": "The dataflow you are working on is modified by other users"
 };
 
 DSTStr = {

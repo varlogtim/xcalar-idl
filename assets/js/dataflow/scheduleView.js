@@ -325,7 +325,7 @@ window.Scheduler = (function(Scheduler, $) {
                 Scheduler.hide();
                 $("#dfViz").removeClass("withSchedule");
             }
-            KVStore.commit();
+            DF.commitAndBroadCast(dataflowName);
             deferred.resolve();
         })
         .fail(function(error) {

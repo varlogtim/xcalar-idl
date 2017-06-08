@@ -335,7 +335,7 @@ SuccessTStr = {
 "Saved": '保存成功！',
 "SaveDF": '数据流保存成功！',
 "SaveParam": '参数保存成功',
-"OperationParameterized": "Operation Parameterized!",
+"OperationParameterized": "操作参数化成功!",
 "SaveSettings": '设置保存成功！',
 "Sched": 'Schedule添加成功！',
 "StopCluster": '集群关闭！',
@@ -573,9 +573,7 @@ SchedTStr = {
 'NewSched': '新建调度器',
 "Notrun": "未运行",
 "Success": "成功",
-"NoExportParam": "The export location is not properly parameterized and " +
-                        "may be overwritten in subsequent runs." +
-                        " Do you want to continue?"
+"NoExportParam": "导出路径未参数化，多次运行会失败，除非导出文件在运行后被转移。您确定要继续吗？"
 };
 DFTStr = {
 "CannotCreate": '无法创建批量数据流',
@@ -614,10 +612,12 @@ DFTStr = {
 "InvalidExportPath": "导出文件名不能含有/",
 'RunDFInstr': '请注意以下警告:',
 'WarnSysParam': '直接运行批量数据流时，系统参数无效，会以空字符替换。',
-'Scheduled': 'Scheduled',
-'InvalidTarget': 'Target not found.',
-"SlightSkew": "Slight skew",
-"HeavySkew": "Heavy skew"
+'InvalidTarget': '无法找到目标',
+'Scheduled': "已添加调度器",
+"SlightSkew": "轻度偏移",
+"HeavySkew": "重度偏移",
+"Refresh": "刷新数据流",
+"RefreshMsg": "当前数据流已被其他用户更改"
 };
 DSTStr = {
 'UnknownUser': '未知用户',

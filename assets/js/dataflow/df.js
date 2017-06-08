@@ -106,6 +106,13 @@ window.DF = (function($, DF) {
         return deferred.promise();
     };
 
+    DF.commitAndBroadCast = function(modifiedDataflow) {
+        KVStore.commit()
+        .always(function() {
+            XcSocket.sendMessage("refreshDataflow", modifiedDataflow);
+        });
+    };
+
     DF.getAllDataflows = function() {
         return (dataflows);
     };
@@ -156,7 +163,7 @@ window.DF = (function($, DF) {
             }
             // XXX TODO add sql
             DFCard.addDFToList(dataflowName);
-            xcHelper.sendSocketMessage("refreshDataflow");
+            DF.commitAndBroadCast(dataflowName);
             deferred.resolve();
         })
         .fail(function(error) {
@@ -178,7 +185,6 @@ window.DF = (function($, DF) {
         })
         .then(function() {
             resolveDelete();
-            xcHelper.sendSocketMessage("refreshDataflow");
             deferred.resolve();
         })
         .fail(function(error) {
@@ -189,7 +195,7 @@ window.DF = (function($, DF) {
                 deferred.resolve();
             } else {
                 if (hasRemoveSched) {
-                    KVStore.commit();
+                    DF.commitAndBroadCast(dataflowName);
                 }
                 deferred.reject(error);
             }
@@ -199,7 +205,7 @@ window.DF = (function($, DF) {
 
         function resolveDelete() {
             delete dataflows[dataflowName];
-            KVStore.commit();
+            DF.commitAndBroadCast(dataflowName);
         }
     };
 
@@ -226,7 +232,7 @@ window.DF = (function($, DF) {
                 XcalarCreateSched(dataflowName, dataflowName,
                     substitutions, options, timingInfo)
                 .then(function() {
-                    xcHelper.sendSocketMessage("refreshDataflow");
+                    DF.commitAndBroadCast(dataflowName);
                     deferred.resolve();
                 })
                 .fail(deferred.reject);
@@ -242,7 +248,7 @@ window.DF = (function($, DF) {
                             substitutions, options, timingInfo);
                 })
                 .then(function() {
-                    xcHelper.sendSocketMessage("refreshDataflow");
+                    DF.commitAndBroadCast(dataflowName);
                     deferred.resolve();
                 })
                 .fail(deferred.reject);
@@ -284,7 +290,6 @@ window.DF = (function($, DF) {
         XcalarDeleteSched(dataflowName)
         .then(function() {
             dataflow.schedule = null;
-            xcHelper.sendSocketMessage("refreshDataflow");
             deferred.resolve();
         })
         .fail(deferred.reject);

@@ -20,8 +20,8 @@ window.XcSocket = (function(XcSocket, $) {
         return connected;
     };
 
-    XcSocket.sendMessage = function(msg) {
-        socket.emit(msg, Support.getUser(), function() {
+    XcSocket.sendMessage = function(msg, arg) {
+        socket.emit(msg, arg, function() {
             console.log("Send " + msg + " to all clients");
         });
     };
@@ -56,9 +56,9 @@ window.XcSocket = (function(XcSocket, $) {
             Admin.updateLoggedInUsers(users);
         });
 
-        socket.on("refreshDataflow", function() {
-            DataflowPanel.hasNewChange();
-            DataflowPanel.refresh();
+        socket.on("refreshDataflow", function(dfName) {
+            // console.log("dataflow", dfName, "refreshed");
+            DataflowPanel.refresh(dfName);
         });
     }
 

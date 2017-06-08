@@ -32,8 +32,8 @@ module.exports = function(server) {
             }
         });
 
-        socket.on("refreshDataflow", function() {
-            socket.broadcast.emit("refreshDataflow");
+        socket.on("refreshDataflow", function(dfName) {
+            socket.broadcast.emit("refreshDataflow", dfName);
         });
     });
 };
