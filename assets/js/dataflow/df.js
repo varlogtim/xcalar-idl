@@ -26,7 +26,7 @@ window.DF = (function($, DF) {
                 paramPromises.push(dataflows[retName].updateParameters({}));
             }
             var def = PromiseHelper.when.apply(this, paramPromises);
-            return  PromiseHelper.alwaysResolve(def);
+            return PromiseHelper.alwaysResolve(def);
         })
         .then(function() {
             return XcalarListSchedules();
@@ -128,6 +128,7 @@ window.DF = (function($, DF) {
             delete deepCopy[df].nodeIds;
             delete deepCopy[df].retinaNodes;
             delete deepCopy[df].columns;
+            delete deepCopy[df].schedule;
         }
         return deepCopy;
     };

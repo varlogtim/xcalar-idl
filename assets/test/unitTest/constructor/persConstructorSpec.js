@@ -2969,7 +2969,7 @@ describe("Persistent Constructor Test", function() {
         });
     });
 
-    describe.skip("DF Constructor Test", function() {
+    describe("DF Constructor Test", function() {
         var dataFlow;
         var retinaNode;
 
@@ -3010,7 +3010,7 @@ describe("Persistent Constructor Test", function() {
             expect(df.getParameterizedNode(123)).to.be.exist;
         });
 
-        it("DF should add Parameter", function() {
+        it("DF should add Parameter", function(done) {
             var df = new Dataflow("testDF");
             expect(df).to.have.property("parameters")
             .and.to.an("Array");
@@ -3030,6 +3030,7 @@ describe("Persistent Constructor Test", function() {
             expect(params[0]).to.have.property("parameterValue")
             .and.to.be.null;
 
+            var oldList = XcalarListParametersInRetina;
             XcalarListParametersInRetina = function() {
                 return PromiseHelper.resolve({
                     "name": "a",
@@ -3039,19 +3040,28 @@ describe("Persistent Constructor Test", function() {
             df.updateParameters([{
                 "name": "a",
                 "val": "c"
-            }]);
-            expect(df.getParameter("a")).to.equal("c");
+            }])
+            .then(function() {
+                expect(df.getParameter("a")).to.equal("c");
 
-            expect(df.checkParamInUse("a")).to.be.false;
-            df.addParameterizedNode(123, {
-                "paramType": "test",
-                "paramValue": "test",
-                "paramQuery": ["load <a>"]
+                expect(df.checkParamInUse("a")).to.be.false;
+                df.addParameterizedNode(123, {
+                    "paramType": "test",
+                    "paramValue": "test",
+                    "paramQuery": ["load <a>"]
+                });
+                expect(df.checkParamInUse("a")).to.be.true;
+
+                df.removeParameter("a");
+                expect(df.getParameter("a")).not.to.be.exist;
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                XcalarListParametersInRetina = oldList;
             });
-            expect(df.checkParamInUse("a")).to.be.true;
-
-            df.removeParameter("a");
-            expect(df.getParameter("a")).not.to.be.exist;
         });
     });
 

@@ -2256,7 +2256,7 @@
             nodeIds: (obj, not pesist) map of dagNames and dagIds
             retinaNodes: (obj, not persist) retina node info from backend
             parameterizedNodes: (obj) map of dagNodeIds to parameterized structs
-            schedule: (SchedObj) schedule of the dataflow
+            schedule: (SchedObj) schedule of the dataflow (not persist)
         */
         function Dataflow<%= v %>(name, options) {
             options = options || {};
@@ -2353,9 +2353,9 @@
                 var usedParamNames = {};
                 if (!jQuery.isEmptyObject(params)) {
                     params.forEach(function(param) {
-                    var name = param.name;
-                    var val  = param.val;
-                    xcAssert((parameters.includes(name) ||
+                        var name = param.name;
+                        var val  = param.val;
+                        xcAssert((parameters.includes(name) ||
                         systemParams.hasOwnProperty(name)), "Invalid name");
                         paramMap[name] = val;
                     });
