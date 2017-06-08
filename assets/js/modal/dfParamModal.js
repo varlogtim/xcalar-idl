@@ -399,7 +399,7 @@ window.DFParamModal = (function($, DFParamModal){
                                 // Query:
         options = options || {};
         if (type === "dataStore") {
-            defaultText +=  '<div class="templateRow">' +
+            defaultText += '<div class="templateRow">' +
                                 '<div>' +
                                     DFTStr.PointTo + ':' +
                                 '</div>' +
@@ -434,7 +434,7 @@ window.DFParamModal = (function($, DFParamModal){
             if (path[path.length - 1] !== "/") {
                 path += "/";
             }
-            defaultText +=  '<div class="templateRow">' +
+            defaultText += '<div class="templateRow">' +
                                 '<div>' +
                                     DFTStr.ExportTo + ':' +
                                 '</div>' +
@@ -947,7 +947,6 @@ window.DFParamModal = (function($, DFParamModal){
                     } else {
                         var filterText = $.trim($oldVals.eq(1).text());
                         var str1 = $.trim($oldVals.eq(0).text());
-                        var additionalArgs = "";
                         var arg;
                         paramQuery = [str1, filterText];
                         for (var i = 2; i < $oldVals.length; i++) {
@@ -1209,7 +1208,7 @@ window.DFParamModal = (function($, DFParamModal){
         // parameterization by moving the template values to the new values,
         // and setting the template values to the ones that are stored inside
         // paramMap.
-        console.log(retinaNode);
+        // console.log(retinaNode);
         if (retinaNode != null && retinaNode.paramValue != null) {
             var $templateVals = $dfParamModal.find(".template .boxed");
             var i = 0;

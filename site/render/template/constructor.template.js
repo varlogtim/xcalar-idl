@@ -2351,7 +2351,7 @@
                 var paramMap = this.paramMap;
                 var parameters = this.parameters;
                 var usedParamNames = {};
-                if (!jQuery.isEmptyObject(params)) {
+                if (params != null && params instanceof Array) {
                     params.forEach(function(param) {
                         var name = param.name;
                         var val  = param.val;
@@ -2365,8 +2365,9 @@
                     var usedParams = data.parameters;
                     for (var i = 0; i < usedParams.length; i++) {
                         var param = usedParams[i];
-                        usedParamNames[param.parameterName] = "";
+                        usedParamNames[param.parameterName] = true;
                         if (!paramMap.hasOwnProperty(param.parameterName)) {
+                            console.error("param not in front meta!");
                             deferred.reject();
                             return;
                         }
@@ -2378,10 +2379,8 @@
                     }
                     deferred.resolve();
                 })
-                .fail(function(error) {
-                    console.log("Error" + error);
-                    deferred.reject();
-                });
+                .fail(deferred.reject);
+
                 return deferred.promise();
             },
 

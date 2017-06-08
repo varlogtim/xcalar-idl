@@ -4,7 +4,7 @@ window.DF = (function($, DF) {
     DF.restore = function(retMeta) {
         var deferred = jQuery.Deferred();
         var numRetinas;
-        var paramPromises =[];
+
         XcalarListRetinas()
         .then(function(list) {
             numRetinas = list.numRetinas;
@@ -23,12 +23,8 @@ window.DF = (function($, DF) {
                     console.warn("No meta for dataflow", retName);
                     dataflows[retName] = new Dataflow(retName);
                 }
-                paramPromises.push(dataflows[retName].updateParameters({}));
             }
-            var def = PromiseHelper.when.apply(this, paramPromises);
-            return PromiseHelper.alwaysResolve(def);
-        })
-        .then(function() {
+
             return XcalarListSchedules();
         })
         .then(function(list) {
@@ -44,18 +40,15 @@ window.DF = (function($, DF) {
                              list[i].scheduleMain.timingInfo);
                 dataflows[retName].schedule = new SchedObj(allOptions);
             }
-            var promise;
             DFCard.refreshDFList(true, true);
             if (numRetinas > 0) {
                 var firstDFName = $("#dfMenu").find(".groupName").eq(0).text();
-                promise = DF.updateDF(firstDFName);
+                return DF.updateDF(firstDFName);
             } else {
-                promise = PromiseHelper.resolve();
+                return PromiseHelper.resolve();
             }
-            promise
-            .then(deferred.resolve)
-            .fail(deferred.reject);
         })
+        .then(deferred.resolve)
         .fail(deferred.reject);
 
         return deferred.promise();
@@ -315,13 +308,16 @@ window.DF = (function($, DF) {
 
     DF.updateDF = function(dfName) {
         var deferred = jQuery.Deferred();
+        var df = dataflows[dfName];
 
         XcalarGetRetina(dfName)
         .then(function(retStruct) {
             updateDFInfo(retStruct);
             addColumns(dfName);
-            deferred.resolve();
+
+            return df.updateParameters();
         })
+        .then(deferred.resolve)
         .fail(deferred.reject);
 
         return deferred.promise();
