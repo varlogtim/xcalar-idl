@@ -2256,7 +2256,7 @@
             nodeIds: (obj, not pesist) map of dagNames and dagIds
             retinaNodes: (obj, not persist) retina node info from backend
             parameterizedNodes: (obj) map of dagNodeIds to parameterized structs
-            schedule: (SchedObj) schedule of the dataflow (not persist)
+            schedule: (SchedObj, not persist) schedule of the dataflow
         */
         function Dataflow<%= v %>(name, options) {
             options = options || {};
@@ -2274,6 +2274,14 @@
 
         __extends(Dataflow<%= v %>, _super, {
             <% if (isCurCtor) {%>
+            addNodeId: function(tableName, nodeId) {
+                this.nodeIds[tableName] = nodeId;
+            },
+
+            getNodeId: function(tableName) {
+                return this.nodeIds[tableName];
+            },
+
             addParameterizedNode: function(dagNodeId, oldParamNode, paramInfo) {
                 this.parameterizedNodes[dagNodeId] = new RetinaNode(oldParamNode);
                 this.updateParameterizedNode(dagNodeId, paramInfo);
@@ -2290,7 +2298,7 @@
 
                 if (!tableName) {
                     console.info("update must be called after add. Noop.");
-                    return;
+                    return null;
                 }
 
                 var $nodeOrAction = $("#dataflowPanel")
@@ -2309,6 +2317,10 @@
 
             updateParameterizedNode: function(dagNodeId, paramInfo) {
                 var $tableNode = this.colorNodes(dagNodeId);
+                if ($tableNode == null) {
+                    // error case
+                    return;
+                }
                 if (paramInfo.paramType === XcalarApisT.XcalarApiExport) {
                     var $elem = $tableNode.find(".tableTitle");
                     $elem.text(paramInfo.paramValue[0]);
@@ -2331,19 +2343,6 @@
 
             getParameter: function(paramName) {
                 return this.paramMap[paramName];
-            },
-
-            getAllParameters: function() {
-                var res = [];
-                var paramMap = this.paramMap;
-                for (var paramName in paramMap) {
-                    var param = new XcalarApiParameterT();
-                    param.parameterName = paramName;
-                    param.parameterValue = paramMap[paramName];
-                    res.push(param);
-                }
-
-                return res;
             },
 
             updateParameters: function(params) {

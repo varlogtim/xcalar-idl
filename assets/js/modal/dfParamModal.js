@@ -103,7 +103,7 @@ window.DFParamModal = (function($, DFParamModal){
                         $currentIcon.data('tablename');
         var dfName = DFCard.getCurrentDF();
         var df = DF.getDataflow(dfName);
-        var id = df.nodeIds[tableName];
+        var id = df.getNodeId(tableName);
 
         $iconTrigger = $currentIcon; // Set cache
 

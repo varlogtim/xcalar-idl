@@ -2267,7 +2267,7 @@ describe("xcHelper Test", function() {
             });
             xcHelper.getKeyType("col", "test#fakeId")
             .then(function(res) {
-                expect(res).to.equal(null);
+                expect(res).to.equal(7);
                 delete gTables["fakeId"];
                 done();
             })
@@ -2291,7 +2291,7 @@ describe("xcHelper Test", function() {
 
             xcHelper.getKeyType("col2", "test#fakeId")
             .then(function(res) {
-                expect(res).to.equal(null);
+                expect(res).to.equal(4);
                 delete gTables["fakeId"];
                 done();
             })

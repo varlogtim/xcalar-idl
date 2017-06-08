@@ -2906,6 +2906,8 @@ describe("Persistent Constructor Test", function() {
     describe("Dataflow Constructor Test", function() {
         var df;
         var sched;
+        var nodeId;
+        var $node;
 
         before(function() {
             df = new Dataflow("testRet");
@@ -2923,10 +2925,14 @@ describe("Persistent Constructor Test", function() {
                 "recur": 10,
                 "created": createTime
             };
+
             sched = new SchedObj(options);
+            nodeId = xcHelper.randName("testNode");
+            $node = $('<div data-id="' + nodeId + '"></div>');
+            $("#dataflowPanel").append($node);
         });
 
-        it("Should have 10 attributes", function() {
+        it("should have 10 attributes", function() {
             expect(df).to.be.an.instanceof(Dataflow);
             expect(Object.keys(df).length).to.equal(9);
             expect(df).to.have.property("version")
@@ -2949,99 +2955,28 @@ describe("Persistent Constructor Test", function() {
             .and.to.be.null;
         });
 
-        it("Should set schedule", function() {
-            df.setSchedule(sched);
-            expect(df).to.have.property("schedule")
-            .and.to.an.instanceof(SchedObj);
-        });
-
-        it("Should get schedule", function() {
-            expect(df.getSchedule()).to.equal(sched);
-        });
-
-        it("Should know if has schedule", function() {
-            expect(df.hasSchedule()).to.be.true;
-        });
-
-        it("Should remove schedule", function() {
-            df.removeSchedule();
-            expect(df.hasSchedule()).to.be.false;
-        });
-    });
-
-    describe.skip("DF Constructor Test", function() {
-        var dataFlow;
-        var retinaNode;
-
-        before(function() {
-            retinaNode = new RetinaNode({
-                "paramType": "testType",
-                "paramValue": "testVal",
-                "paramQuery": ["testQuery"]
-            });
-        });
-
-        it("Dataflow should be a constructor", function() {
-            var df = new Dataflow("testDF");
-            expect(df).to.be.an("object");
-            expect(df).to.have.property("name").and.to.equal("testDF");
-        });
-
-        it("DF should add RetinaNode", function() {
-            var df = new Dataflow("testDF");
-            expect(df).to.have.property("retinaNodes")
-            .and.to.an("Object");
-
-            expect(df.getParameterizedNode(123)).not.to.be.exist;
-
-            df.addParameterizedNode(123, retinaNode, {});
-            expect(df.getParameterizedNode(123)).to.be.exist;
-        });
-
-        it("DF should add Parameter", function(done) {
-            var df = new Dataflow("testDF");
-            expect(df).to.have.property("parameters")
-            .and.to.an("Array");
-
-            expect(df).to.have.property("paramMap")
-            .and.to.an("Object");
-
+        it("should get parameter", function() {
             expect(df.parameters.length).to.equal(0);
             expect(df.getParameter("a")).not.to.be.exist;
-            expect(df.addParameter("a"));
-            expect(df.getParameter("a")).to.be.null;
-            var params = df.getAllParameters();
-            expect(params.length).to.equal(1);
-            expect(params[0]).to.be.an("object");
-            expect(params[0]).to.have.property("parameterName")
-            .and.to.equal("a");
-            expect(params[0]).to.have.property("parameterValue")
-            .and.to.be.null;
+        });
 
+        it("shoulde add parameter", function() {
+            df.addParameter("a");
+            expect(df.parameters[0]).to.equal("a");
+            expect(df.getParameter("a")).not.to.be.exist;
+        });
+
+        it("shoulde update parameter", function(done) {
             var oldList = XcalarListParametersInRetina;
             XcalarListParametersInRetina = function() {
                 return PromiseHelper.resolve({
-                    "name": "a",
-                    "val": ""
+                    "parameters": [{"parameterName": "a"}]
                 });
             };
-            df.updateParameters([{
-                "name": "a",
-                "val": "c"
-            }])
+
+            df.updateParameters([{"name": "a", "val": "c"}])
             .then(function() {
                 expect(df.getParameter("a")).to.equal("c");
-
-                expect(df.checkParamInUse("a")).to.be.false;
-                df.addParameterizedNode(123, {
-                    "paramType": "test",
-                    "paramValue": "test",
-                    "paramQuery": ["load <a>"]
-                });
-                expect(df.checkParamInUse("a")).to.be.true;
-
-                df.removeParameter("a");
-                expect(df.getParameter("a")).not.to.be.exist;
                 done();
             })
             .fail(function() {
@@ -3050,6 +2985,63 @@ describe("Persistent Constructor Test", function() {
             .always(function() {
                 XcalarListParametersInRetina = oldList;
             });
+        });
+
+        it("shoulde checkParamInUse", function() {
+            expect(df.checkParamInUse("a")).to.be.false;
+        });
+
+        it("should getNodeId", function() {
+            expect(df.getNodeId("testTable")).not.to.exist;
+        });
+
+        it("should getParameterizedNode", function() {
+            expect(df.getParameterizedNode(nodeId)).not.to.exist;
+        });
+
+        it("should add node id", function() {
+            df.addNodeId("testTable", nodeId);
+            expect(df.getNodeId("testTable")).to.equal(nodeId);
+        });
+
+        it("should add parameterizedNode", function() {
+            df.addParameterizedNode(nodeId, {
+                "paramType": "test",
+                "paramValue": "test",
+                "paramQuery": ["load <a>"]
+            }, {"paramValue": "testVal"});
+            expect(df.checkParamInUse("a")).to.be.true;
+            expect($node.data("paramValue")).to.equal("testVal");
+            expect(df.getParameterizedNode(nodeId)).to.exist;
+        });
+
+        it("should remove parameter", function() {
+            df.removeParameter("a");
+            expect(df.getParameter("a")).not.to.be.exist;
+            expect(df.parameters.length).to.equal(0);
+        });
+
+        it("should set schedule", function() {
+            df.setSchedule(sched);
+            expect(df).to.have.property("schedule")
+            .and.to.an.instanceof(SchedObj);
+        });
+
+        it("should get schedule", function() {
+            expect(df.getSchedule()).to.equal(sched);
+        });
+
+        it("should know if has schedule", function() {
+            expect(df.hasSchedule()).to.be.true;
+        });
+
+        it("should remove schedule", function() {
+            df.removeSchedule();
+            expect(df.hasSchedule()).to.be.false;
+        });
+
+        after(function() {
+            $node.remove();
         });
     });
 

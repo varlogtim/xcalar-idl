@@ -357,7 +357,7 @@ window.DF = (function($, DF) {
 
         for (var i = 0; i < retina.retinaDag.numNodes; i++) {
             var tableName = nodes[i].name.name;
-            dataflow.nodeIds[tableName] = nodes[i].dagNodeId;
+            dataflow.addNodeId(tableName, nodes[i].dagNodeId);
         }
     }
 
