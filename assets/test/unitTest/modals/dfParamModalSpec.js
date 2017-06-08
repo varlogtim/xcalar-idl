@@ -70,7 +70,7 @@ describe("DFParamModal Test", function() {
             expect($modal.find(".template .boxed").length).to.equal(2);
             expect($modal.find(".template").text()).to.equal("Export As:export-" + tableName + ".csvTarget:Default");
             expect($modal.find("input").eq(0).val()).to.equal("");
-            expect($modal.find("input").length).to.equal(9);
+            expect($modal.find("input").length).to.equal(8);
         });
 
         describe("export submit with invalid file name", function() {

@@ -438,12 +438,11 @@ window.DFParamModal = (function($, DFParamModal){
                                 '<div>' +
                                     DFTStr.ExportTo + ':' +
                                 '</div>' +
-
                                 '<div class="boxed large">' +
                                     xcHelper.escapeHTMLSpecialChar(paramValue[0]) +
                                 '</div>' +
                             '</div>' +
-                            '<div class="templateRow">' +
+                            '<div class="templateRow" style="display:none">' +
                                 '<div>' +
                                     'Target' + ':' +
                                 '</div>' +
@@ -456,13 +455,14 @@ window.DFParamModal = (function($, DFParamModal){
                                     DFTStr.ExportTo + ':' +
                                 '</div>' +
                                 getParameterInputHTML(0, "medium-small") +
-                            '</div>' +
-                            '<div class="innerEditableRow" data-op="export">' +
-                                '<div class="static">' +
-                                    'Target' + ':' +
-                                '</div>' +
-                                getParameterInputHTML(1, "medium-small") +
                             '</div>';
+                            // XXX temporarily disabled
+                            // '<div class="innerEditableRow" data-op="export">' +
+                            //     '<div class="static">' +
+                            //         'Target' + ':' +
+                            //     '</div>' +
+                            //     getParameterInputHTML(1, "medium-small") +
+                            // '</div>';
         } else { // not a datastore but a table
             paramValue = paramValue[0];
             if (!checkForOneParen(paramValue)) {
@@ -894,14 +894,19 @@ window.DFParamModal = (function($, DFParamModal){
             return deferred.promise();
         }
 
+        if (hasInvalidExportTarget(params)) {
+            deferred.reject();
+            return deferred.promise();
+        }
+
         var retName = $dfParamModal.data("df");
         var df = DF.getDataflow(retName);
         var dagNodeId = $dfParamModal.data("id");
         var paramInfo;
         updateRetina()
-        .then(function(paramInfomation) {
+        .then(function(paramInformation) {
             // store meta
-            paramInfo = paramInfomation;
+            paramInfo = paramInformation;
             return df.updateParameters(params);
         })
         .then(function() {
@@ -983,7 +988,7 @@ window.DFParamModal = (function($, DFParamModal){
             var paramValue;
             var paramValues = {};
             var paramQuery;
-            // var paramInput = new XcalarApiParamInputT();
+            var error = false;
             switch (operation) {
                 case ("filter"):
                     paramType = XcalarApisT.XcalarApiFilter;
@@ -1029,7 +1034,9 @@ window.DFParamModal = (function($, DFParamModal){
                 case ("export"):
                     paramType = XcalarApisT.XcalarApiExport;
                     var fileName = $.trim($editableDivs.eq(0).val());
-                    var targetName = $.trim($editableDivs.eq(1).val());
+                    // XXX temporarily disabled
+                    // var targetName = $.trim($editableDivs.eq(1).val());
+                    var targetName = "Default";
 
                     paramValues.fileName = fileName;
                     paramValues.targetName = targetName;
@@ -1037,17 +1044,18 @@ window.DFParamModal = (function($, DFParamModal){
                     var target = DSExport.getTarget(paramTargetName);
                     if (target) {
                         paramValues.targetType = target.type;
+                        paramQuery = [fileName, targetName, paramValues.targetType];
                     } else {
-                        paramValues.targetType = null;
+                        error = "target not found";
                     }
-                    paramQuery = [fileName, targetName, paramValues.targetType];
                     break;
                 default:
                     deferred.reject("currently not supported");
                     break;
             }
-
-            if (paramType == null) {
+            if (error) {
+                deferred.reject(error);
+            } else if (paramType == null) {
                 deferred.reject("currently not supported");
             } else {
                 closeDFParamModal();
@@ -1131,7 +1139,7 @@ window.DFParamModal = (function($, DFParamModal){
         }
 
         var $input = $dfParamModal.find(".editableTable")
-                                .find("input.editableParamDiv");
+                                .find("input.editableParamDiv").eq(0);
         var val =  $input.val();
         for (var i = 0; i < params.length; i++) {
             var name = xcHelper.escapeRegExp(params[i].name);
@@ -1147,6 +1155,27 @@ window.DFParamModal = (function($, DFParamModal){
             return true;
         } else {
             return false;
+        }
+    }
+
+    function hasInvalidExportTarget(params) {
+        // XXX skip until 8744 is fixed
+        return false;
+        var type = $iconTrigger.data("type");
+        if (type !== "export") {
+            return false;
+        }
+
+        var $input = $dfParamModal.find(".editableTable")
+                                .find("input.editableParamDiv").eq(1);
+        var targetName =  $input.val();
+        var paramTargetName = getTargetName(targetName, params);
+        var target = DSExport.getTarget(paramTargetName);
+        if (target) {
+            return false;
+        } else {
+            StatusBox.show(DFTStr.InvalidTarget, $input);
+            return true;
         }
     }
 
@@ -1208,7 +1237,7 @@ window.DFParamModal = (function($, DFParamModal){
         // parameterization by moving the template values to the new values,
         // and setting the template values to the ones that are stored inside
         // paramMap.
-        // console.log(retinaNode);
+
         if (retinaNode != null && retinaNode.paramValue != null) {
             var $templateVals = $dfParamModal.find(".template .boxed");
             var i = 0;

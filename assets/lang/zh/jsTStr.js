@@ -615,6 +615,7 @@ DFTStr = {
 'RunDFInstr': '请注意以下警告:',
 'WarnSysParam': '直接运行批量数据流时，系统参数无效，会以空字符替换。',
 'Scheduled': 'Scheduled',
+'InvalidTarget': 'Target not found.',
 "SlightSkew": "Slight skew",
 "HeavySkew": "Heavy skew"
 };
