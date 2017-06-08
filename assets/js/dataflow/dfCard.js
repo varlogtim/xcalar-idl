@@ -696,7 +696,8 @@ window.DFCard = (function($, DFCard) {
         var $loadNodes = $wrap.find(".dagTable.dataStore");
         $loadNodes.each(function(idx, val) {
             var $val = $(val);
-            var paramValue = [$val.data("url"), $val.data("pattern")];
+            var paramValue = [decodeURI($val.data("url")),
+                              decodeURI($val.data("pattern"))];
             $val.data("paramValue", paramValue);
         });
 
