@@ -3792,8 +3792,8 @@ PromiseHelper = (function(PromiseHelper, $) {
     retinaExportParamType = XcalarApisT.XcalarApiExport;
     retinaExportParam = new XcalarApiParamExportT();
     retinaExportParam.fileName  = "retinaDstFile.csv";
-    retinaExportParam.targetName = "";
-    retinaExportParam.targetType = 0;
+    retinaExportParam.targetName = "Default";
+    retinaExportParam.targetType = 1;
 
     // Format
     // addTestCase(testFn, testName, timeout, TestCaseEnabled, Witness)
