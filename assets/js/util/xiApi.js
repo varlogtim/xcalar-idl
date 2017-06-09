@@ -133,14 +133,13 @@ window.XIApi = (function(XIApi, $) {
         }
 
         XcalarAggregate(evalStr, dstAggName, tableName, txId)
-        .then(function(value, dstDagName) {
+        .then(function(val, dstDagName) {
             deleteHelper(dstDagName)
             .always(function() {
                 var passed = false;
                 var val;
                 var err;
                 try {
-                    val = JSON.parse(value);
                     passed = true;
                 } catch (error) {
                     err = error;

@@ -811,7 +811,9 @@ window.xcFunction = (function($, xcFunction) {
 
         XcalarExport(tableName, exportName, targetName, numCols, backColumns,
                      frontColumns, keepOrder, options, txId)
-        .then(function() {
+        .then(function(retStruct) {
+            // XXX retStruct is unused. retStruct.timeTaken contains how long
+            // the operation took to run
             var ext = "";
             if (options.format === DfFormatTypeT.DfFormatCsv) {
                 ext = ".csv";
