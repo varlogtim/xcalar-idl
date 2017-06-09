@@ -297,7 +297,7 @@ describe("SQL Test", function() {
             $undo.removeClass("disabled");
             $undo.click();
             expect(test).to.be.true;
-        
+
             if (isDisabled) {
                 $undo.addClass("disabled");
             }
@@ -307,6 +307,7 @@ describe("SQL Test", function() {
         it("should click to trigger redo", function() {
             var curRedo = SQL.redo;
             var $redo = $("#redo");
+            $redo.removeClass("repeatable");
             var isDisabled = $redo.hasClass("disabled");
             var test = false;
 
@@ -325,6 +326,26 @@ describe("SQL Test", function() {
             if (isDisabled) {
                 $redo.addClass("disabled");
             }
+
+            SQL.redo = curRedo;
+        });
+
+        it("should click to trigger repeat", function() {
+            var curRedo = SQL.redo;
+            var $redo = $("#redo");
+            var test = false;
+
+            SQL.repeat = function() {
+                test = true;
+            };
+
+            $redo.removeClass("repeatable");
+            $redo.click();
+            expect(test).to.be.false;
+            // case 2
+            $redo.addClass("repeatable");
+            $redo.click();
+            expect(test).to.be.true;
 
             SQL.redo = curRedo;
         });

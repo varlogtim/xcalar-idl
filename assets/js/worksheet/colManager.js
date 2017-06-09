@@ -192,12 +192,24 @@ window.ColManager = (function($, ColManager) {
 
     ColManager.changeType = function(colTypeInfos, tableId) {
         var deferred = jQuery.Deferred();
-
-        var numColInfos = colTypeInfos.length;
         var worksheet = WSManager.getWSFromTable(tableId);
         var table = gTables[tableId];
         var tableName = table.getName();
         var curTableName = tableName;
+
+        // filter out any invalid types
+        for (var i = colTypeInfos.length - 1; i >=0 ; i--) {
+            var progCol = table.getCol(colTypeInfos[i].colNum);
+            var type = progCol.getType();
+            if (type === ColumnType.object || type === ColumnType.array ||
+                (progCol.isKnownType() && type === colTypeInfos[i].type)) {
+                    colTypeInfos.splice(i, 1);
+            }
+        }
+        var numColInfos = colTypeInfos.length;
+        if (!numColInfos) {
+            return PromiseHelper.resolve(tableId);
+        }
 
         var sql = {
             "operation": SQLOps.ChangeType,
@@ -305,6 +317,7 @@ window.ColManager = (function($, ColManager) {
         }
     };
 
+    // currently only works on 1 column at a time
     ColManager.splitCol = function(colNum, tableId, delimiter, numColToGet, isAlertOn) {
         // isAlertOn is a flag to alert too many column will generate
         // when do replay, this flag is null, so no alert
@@ -469,8 +482,16 @@ window.ColManager = (function($, ColManager) {
                     TblManager.setOrphanTableMeta(newTableName, newTableCols);
                     return PromiseHelper.resolve(null);
                 } else {
+                    var newColNums = [];
+                    for (var i = 0; i < numColToGet; i++) {
+                        newColNums.push(newColNum - i);
+                    }
+                    var options = {
+                        selectCol: newColNums
+                    };
                     return TblManager.refreshTable([newTableName], newTableCols,
-                                                [tableName], worksheet, txId);
+                                                [tableName], worksheet, txId,
+                                                options);
                 }
             })
             .then(function() {
@@ -915,6 +936,7 @@ window.ColManager = (function($, ColManager) {
         var $table = $("#xcTable-" + tableId);
         var table = gTables[tableId];
         var colNames = [];
+        var colNumsMinimized = [];
         var widthDiff = 0;
         var tableWidth = $table.width();
         var promises = [];
@@ -926,6 +948,11 @@ window.ColManager = (function($, ColManager) {
 
         colNums.forEach(function(colNum) {
             var progCol = table.getCol(colNum);
+            if (progCol.hasMinimized()) {
+                return;
+            } else {
+                colNumsMinimized.push(colNum);
+            }
 
             var $th = $table.find("th.col" + colNum);
             var originalColWidth = $th.outerWidth();
@@ -955,7 +982,7 @@ window.ColManager = (function($, ColManager) {
             }
         });
 
-        if (!gMinModeOn && !noAnim) {
+        if (!gMinModeOn && !noAnim && colNumsMinimized.length) {
             TblFunc.moveTableTitlesAnimated(tableId, tableWidth, widthDiff, 250);
         }
 
@@ -963,15 +990,16 @@ window.ColManager = (function($, ColManager) {
 
         PromiseHelper.when.apply(window, promises)
         .done(function() {
-            TblFunc.matchHeaderSizes($table);
-            SQL.add(SQLTStr.MinimizeCols, {
-                "operation": SQLOps.MinimizeCols,
-                "tableName": table.getName(),
-                "tableId": tableId,
-                "colNames": colNames,
-                "colNums": colNums
-            });
-
+            if (colNumsMinimized.length) {
+                TblFunc.matchHeaderSizes($table);
+                SQL.add(SQLTStr.MinimizeCols, {
+                    "operation": SQLOps.MinimizeCols,
+                    "tableName": table.getName(),
+                    "tableId": tableId,
+                    "colNames": colNames,
+                    "colNums": colNumsMinimized
+                });
+            }
             deferred.resolve();
         });
 
@@ -986,14 +1014,20 @@ window.ColManager = (function($, ColManager) {
         var widthDiff = 0;
         var colNames = [];
         var promises = [];
+        var colNumsMaximized = [];
         if (colNums.length > 8) { // too much lag if multile columns
             noAnim = true;
         }
 
         colNums.forEach(function(colNum) {
             var progCol = table.getCol(colNum);
-            var originalColWidth = progCol.getWidth();
+            if (progCol.hasMinimized()) {
+                colNumsMaximized.push(colNum);
+            } else {
+                return;
+            }
 
+            var originalColWidth = progCol.getWidth();
             widthDiff += (originalColWidth - gHiddenColumnWidth);
             progCol.maximize();
             colNames.push(progCol.getFrontColName());
@@ -1023,20 +1057,22 @@ window.ColManager = (function($, ColManager) {
                                 TooltipTStr.ViewColumnOptions);
         });
 
-        if (!gMinModeOn && !noAnim) {
+        if (!gMinModeOn && !noAnim && colNumsMaximized.length) {
             TblFunc.moveTableTitlesAnimated(tableId, tableWidth, -widthDiff);
         }
 
         PromiseHelper.when.apply(window, promises)
         .done(function() {
-            TblFunc.matchHeaderSizes($table);
-            SQL.add(SQLTStr.MaximizeCols, {
-                "operation": SQLOps.MaximizeCols,
-                "tableName": table.getName(),
-                "tableId": tableId,
-                "colNames": colNames,
-                "colNums": colNums
-            });
+            if (colNumsMaximized.length) {
+                TblFunc.matchHeaderSizes($table);
+                SQL.add(SQLTStr.MaximizeCols, {
+                    "operation": SQLOps.MaximizeCols,
+                    "tableName": table.getName(),
+                    "tableId": tableId,
+                    "colNames": colNames,
+                    "colNums": colNums
+                });
+            }
 
             deferred.resolve();
         });

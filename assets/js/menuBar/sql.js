@@ -82,12 +82,20 @@ window.SQL = (function($, SQL) {
             SQL.undo();
         });
 
-        $redo.click(function() {
-            if ($(this).hasClass("disabled")) {
-                return;
+        $redo.mousedown(function() {
+            if ($(this).hasClass("repeatable")) {
+                $('.menu').hide();
+                xcMenu.removeKeyboardNavigation();
+                return false;// prevents columns from being deselected
             }
+        });
 
-            SQL.redo();
+        $redo.click(function() {
+            if ($(this).hasClass("repeatable")) {
+                SQL.repeat();
+            } else if (!$(this).hasClass("disabled")) {
+                SQL.redo();
+            }
         });
 
         $textarea.on("click", ".collapsed", function(event) {
@@ -398,6 +406,24 @@ window.SQL = (function($, SQL) {
         return deferred.promise();
     };
 
+    SQL.repeat = function() {
+        var deferred = jQuery.Deferred();
+        var logLen = logs.length;
+        if (!logLen || logCursor !== logLen - 1) {
+            return PromiseHelper.resolve();
+        } else {
+            $redo.removeClass("repeatable");
+            var sql = logs[logCursor];
+            Repeat.run(sql)
+            .always(function() {
+                updateUndoRedoState();
+                xcTooltip.refresh($redo);
+                deferred.resolve();
+            });
+            return deferred.promise();
+        }
+    };
+
     SQL.redo = function(step) {
         var deferred = jQuery.Deferred();
         xcAssert((isRedo === false), "Doing other undo/redo operation?");
@@ -510,7 +536,10 @@ window.SQL = (function($, SQL) {
 
             var lastRedoMessage = $redo.data("lastmessage");
             var lastRedoState = $redo.data("laststate");
-            if (lastRedoState !== "disabled") {
+            $redo.removeClass("repeatable");
+            if (lastRedoState === "disabled repeatable") {
+                $redo.addClass("disabled repeatable");
+            } else if (lastRedoState !== "disabled") {
                 $redo.removeClass("disabled");
             }
 
@@ -798,14 +827,29 @@ window.SQL = (function($, SQL) {
 
         if (next === logs.length) {
             // when nothing to redo
+            var tooltip = TooltipTStr.NoRedo;
+            var repeatable = false;
+            if (logs.length) {
+                var opName = logs[logs.length - 1].getOperation();
+                if (Repeat.isValidOperation(opName)) {
+                    tooltip = "Repeat: " + logs[logs.length - 1].getTitle();
+                    repeatable = true;
+                }
+            }
+            if (repeatable) {
+                $redo.addClass("repeatable");
+            } else {
+                $redo.removeClass("repeatable");
+            }
             $redo.addClass("disabled")
-                 .data("lastmessage", TooltipTStr.NoRedo)
-                 .data("laststate", "disabled");
-            xcTooltip.changeText($redo, TooltipTStr.NoRedo);
+                 .data("lastmessage", tooltip)
+                 .data("laststate", "disabled repeatable");
+            xcTooltip.changeText($redo, tooltip);
 
         } else if (getUndoType(logs[next]) !== UndoType.Valid) {
             console.error("Have invalid sql to redo", sql);
             $redo.addClass("disabled")
+                 .removeClass("repeatable")
                  .data("lastmessage", TooltipTStr.NoRedo)
                  .data("laststate", "disabled");
             xcTooltip.changeText($redo, TooltipTStr.NoRedo);
@@ -815,7 +859,7 @@ window.SQL = (function($, SQL) {
                 "op": logs[next].getTitle()
             });
 
-            $redo.removeClass("disabled")
+            $redo.removeClass("disabled repeatable")
                  .data("lastmessage", redoTitle)
                  .data("laststate", "enabled");
             xcTooltip.changeText($redo, redoTitle);

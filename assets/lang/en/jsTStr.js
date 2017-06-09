@@ -69,7 +69,7 @@ TooltipTStr = {
     'SuggKey': 'Suggested Key',
     'NoWSToMV': 'No worksheet to move to',
     'NoUndoNoOp': 'No operation to undo',
-    'NoRedo': 'No operation to redo',
+    'NoRedo': 'No operation to redo or repeat',
     'UnhideWS': 'Unhide worksheet',
     'LockedTableUndo': 'Cannot undo while table is locked',
     'LockedTableRedo': 'Cannot redo while table is locked',

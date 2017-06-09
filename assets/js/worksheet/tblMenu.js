@@ -455,12 +455,17 @@ window.TblMenu = (function(TblMenu, $) {
             var decimals = [];
             var table = gTables[tableId];
 
-            colNums.forEach(function(colNum) {
+            for (var i = 0; i < colNums.length; i++) {
+                var colNum = colNums[i];
                 var progCol = table.getCol(colNum);
                 if (progCol.getType() === ColumnType.float) {
                     decimals.push(decimal);
+                } else {
+                    // remove columns that are not floats
+                    colNums.splice(i, 1);
+                    i--;
                 }
-            });
+            }
 
             return decimals;
         }
@@ -942,8 +947,7 @@ window.TblMenu = (function(TblMenu, $) {
         var type = progCol.getType();
 
         if (type !== "string") {
-            xcFunction.sort(colNum, tableId, order);
-            return;
+            return xcFunction.sort(colNum, tableId, order);
         }
 
         var $tds = $("#xcTable-" + tableId).find("tbody td.col" + colNum);
@@ -957,6 +961,7 @@ window.TblMenu = (function(TblMenu, $) {
 
         var suggType = xcSuggest.suggestType(datas, type, 0.9);
         if (suggType === "integer" || suggType === "float") {
+            var deferred = jQuery.Deferred();
             var instr = xcHelper.replaceMsg(IndexTStr.SuggInstr, {
                 "type": suggType
             });
@@ -965,21 +970,28 @@ window.TblMenu = (function(TblMenu, $) {
                 "title": IndexTStr.SuggTitle,
                 "instr": instr,
                 "msg": IndexTStr.SuggMsg,
+                "onCancel": deferred.reject,
                 "buttons": [{
                     "name": IndexTStr.NoCast,
                     "func": function() {
-                        xcFunction.sort(colNum, tableId, order);
+                        xcFunction.sort(colNum, tableId, order)
+                        .then(deferred.resolve)
+                        .fail(deferred.reject);
                     }
                 },
                 {
                     "name": IndexTStr.CastToNum,
                     "func": function() {
-                        xcFunction.sort(colNum, tableId, order, suggType);
+                        xcFunction.sort(colNum, tableId, order, suggType)
+                        .then(deferred.resolve)
+                        .fail(deferred.reject);
                     }
-                }]
+                }
+                ]
             });
+            return deferred.promise();
         } else {
-            xcFunction.sort(colNum, tableId, order);
+            return xcFunction.sort(colNum, tableId, order);
         }
     }
 
@@ -1012,6 +1024,8 @@ window.TblMenu = (function(TblMenu, $) {
 
         return (cells);
     }
+
+    TblMenu.sortColumn = sortColumn;
 
 
     /* Unit Test Only */

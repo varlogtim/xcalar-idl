@@ -238,6 +238,13 @@ window.Redo = (function($, Redo) {
         return PromiseHelper.resolve(null);
     };
 
+    redoFuncs[SQLOps.TextAlign] = function(options) {
+        focusTableHelper(options);
+        ColManager.textAlign(options.colNums, options.tableId,
+                             options.cachedAlignment);
+        return PromiseHelper.resolve(null);
+    };
+
     redoFuncs[SQLOps.ChangeFormat] = function(options) {
         focusTableHelper(options);
         ColManager.format(options.colNums, options.tableId, options.formats);
@@ -336,13 +343,6 @@ window.Redo = (function($, Redo) {
     redoFuncs[SQLOps.RemoveBookmark] = function(options) {
         focusTableHelper(options);
         TblManager.unbookmarkRow(options.rowNum, options.tableId);
-        return PromiseHelper.resolve(null);
-    };
-
-    redoFuncs[SQLOps.TextAlign] = function(options) {
-        focusTableHelper(options);
-        ColManager.textAlign(options.colNums, options.tableId,
-                             options.cachedAlignment);
         return PromiseHelper.resolve(null);
     };
 

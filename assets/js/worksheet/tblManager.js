@@ -846,6 +846,9 @@ window.TblManager = (function($, TblManager) {
         var $table = $('#xcTable-' + tableId);
         var tableHeight = $table.height();
         var $tableWrap = $('#xcTableWrap-' + tableId);
+        if ($tableWrap.hasClass("tableHidden")) {
+            return;
+        }
         $tableWrap.addClass('tableHidden');
         var $dropdown = $tableWrap.find('.tableTitle .dropdownBox');
         xcTooltip.changeText($dropdown, tableName);
@@ -864,6 +867,9 @@ window.TblManager = (function($, TblManager) {
 
     TblManager.unHideTable = function(tableId) {
         var $tableWrap = $('#xcTableWrap-' + tableId);
+        if (!$tableWrap.hasClass("tableHidden")) {
+            return;
+        }
         $tableWrap.removeClass('tableHidden');
         var $dropdown = $tableWrap.find('.tableTitle .dropdownBox');
         xcTooltip.changeText($dropdown, TooltipTStr.ViewTableOptions);
