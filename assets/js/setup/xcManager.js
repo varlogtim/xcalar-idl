@@ -1180,6 +1180,11 @@ window.xcManager = (function(xcManager, $) {
                 }
             }
 
+            if ($("#functionArea .CodeMirror").hasClass("CodeMirror-focused") ||
+                $(document.activeElement).is("input")) {
+                return false;
+            }
+
             var tableId = gActiveTableId;
             var $lastTarget = gMouseEvents.getLastMouseDownTarget();
             var isInMainFrame = !$lastTarget.context ||
