@@ -3258,7 +3258,6 @@ window.Dag = (function($, Dag) {
             tableIndex = tables[i];
             tableNode = nodes[tableIndex];
             tableName = tableNode.name;
-
             var table;
             if (tableNode.numParents > 0) {
                 table = gTables[xcHelper.getTableId(tableName)];
@@ -3322,7 +3321,7 @@ window.Dag = (function($, Dag) {
                 var $dagTable = $dagWrap
                         .find('.dagTable[data-index="' + tableIndex + '"]');
                 if ($dagTable.hasClass('Dropped')) {
-                    findColumnSource(sourceColNamesCopy, $dagWrap, tableIndex,
+                    findColumnSource(sourceColNames, $dagWrap, tableIndex,
                                      nodes, curColName);
                 } else {
                     // table has no data, could be orphaned
