@@ -1025,7 +1025,7 @@ window.DSParser = (function($, DSParser) {
     }
 
     function parseNoProtocolPath(path) {
-        var protocol = FileProtocol.file.slice(0, FileProtocol.file.length - 1);
+        var protocol = FileProtocol.nfs.slice(0, FileProtocol.nfs.length - 1);
         return (protocol + path);
     }
 
