@@ -2237,6 +2237,20 @@
         function RetinaNode<%= v %>(options) {
             var self = _super.call(this, options);
             <%= addVersion %>
+
+            if (<%= checkFunc %>(options)) {
+                // changing paramValue from string to array of values
+                if (!Array.isArray(self.paramValue)) {
+                    self.paramValue = [self.paramValue];
+                    if (self.paramType === XcalarApisT.XcalarApiBulkLoad) {
+                        self.paramValue.push("");
+                    } else if (self.paramType ===
+                        XcalarApisT.XcalarApiExport)
+                    {
+                        self.paramValue.push("Default");
+                    }
+                }
+            }
             return self;
         }
 
