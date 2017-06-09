@@ -206,6 +206,10 @@ window.DSCart = (function($, DSCart) {
             numSteps++;
         }
 
+        if (worksheet === "xc-new") {
+            worksheet = WSManager.addWS(null, srcName);
+        }
+
         // add sql
         var sql = {
             "operation": SQLOps.IndexDS,
@@ -217,11 +221,6 @@ window.DSCart = (function($, DSCart) {
             "sortedByLineNum": sortByLineNum,
             "htmlExclude": ["worksheet"]
         };
-
-        // this should happen after sql(or the worksheet attr is wrong)
-        if (worksheet === "xc-new") {
-            worksheet = WSManager.addWS(null, srcName);
-        }
 
         var items = cart.items;
         var prefix = cart.getPrefix();
