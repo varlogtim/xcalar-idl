@@ -1983,6 +1983,7 @@ window.TblManager = (function($, TblManager) {
             }
             xcTooltip.refresh($(".lockedTableIcon .iconPart"), 100);
             QueryManager.cancelQuery(txId);
+            xcTooltip.hideAll();
         });
 
         $xcTableWrap.mousedown(function() {
