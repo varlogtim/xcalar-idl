@@ -6,9 +6,15 @@ describe("DFParamModal Test", function() {
     var $dfWrap;
     var prefix;
     var colName;
+    var oldRefresh;
 
     before(function(done) {
         $modal = $("#dfParamModal");
+        oldRefresh = DF.refresh;
+        // refresh is async and affect the meta, should disabled
+        DF.refresh = function() {
+            return PromiseHelper.resolve();
+        };
 
         testDfName = xcHelper.randName("unitTestParamDF");
         var testDSObj = testDatasets.fakeYelp;
@@ -194,6 +200,9 @@ describe("DFParamModal Test", function() {
             DFParamModal.show($dfWrap.find(".actionType.filter"))
             .then(function() {
                 done();
+            })
+            .fail(function() {
+                done("fail");
             });
         });
 
@@ -237,7 +246,6 @@ describe("DFParamModal Test", function() {
             expect($dummyWrap.text()).to.equal("");
 
             startDrag();
-
             expect($modal.find("input.editableParamDiv").eq(0).is(":visible")).to.be.false;
             expect($dummyWrap.is(":visible")).to.be.true;
             expect($dummyWrap.find(".line").length).to.equal(3);
@@ -267,10 +275,6 @@ describe("DFParamModal Test", function() {
         it("paramDragEnd should work", function() {
             var $dummyWrap = $modal.find("input.editableParamDiv").eq(0).siblings(".dummyWrap");
             expect($dummyWrap.is(":visible")).to.be.true;
-            // var e = jQuery.Event("dragend");
-            // XXX need to get this working with removeChild node
-            // DFParamModal.paramDragEnd(e);
-            // expect($dummyWrap.is(":visible")).to.be.false;
         });
 
         function startDrag() {
@@ -480,6 +484,7 @@ describe("DFParamModal Test", function() {
         DFCard.__testOnly__.deleteDataflow(testDfName)
         .always(function() {
             Alert.forceClose();
+            DF.refresh = oldRefresh;
             UnitTest.deleteAllTables()
             .then(function() {
                 UnitTest.deleteDS(testDs)

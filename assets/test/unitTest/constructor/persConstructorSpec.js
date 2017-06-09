@@ -2798,7 +2798,7 @@ describe("Persistent Constructor Test", function() {
         it("Should have 4 arrtibues", function() {
             var retinaNode = new RetinaNode({
                 "paramType": "testType",
-                "paramValue": "testVal",
+                "paramValue": ["testVal"],
                 "paramQuery": ["testQuery"]
             });
 
@@ -2809,7 +2809,8 @@ describe("Persistent Constructor Test", function() {
             expect(retinaNode).to.have.property("paramType")
             .and.to.equal("testType");
             expect(retinaNode).to.have.property("paramValue")
-            .and.to.equal("testVal");
+            .and.to.be.an("array");
+            expect(retinaNode.paramValue[0]).to.be.equal("testVal");
             expect(retinaNode).to.have.property("paramQuery")
             .and.to.be.an("array");
             expect(retinaNode.paramQuery[0]).to.equal("testQuery");

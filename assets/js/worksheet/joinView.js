@@ -1468,8 +1468,8 @@ window.JoinView = (function($, JoinView) {
                                                             joinKeyInputs,
                                                             curDestBackName);
                 if (!dataToSubmit.isValid) {
-                    console.log("Tried to submit invalid mlInputData:",
-                                JSON.stringify(dataToSubmit));
+                    // console.log("Tried to submit invalid mlInputData:",
+                    //             JSON.stringify(dataToSubmit));
                     return null;
                 } else {
                     dataPerClause.push(dataToSubmit);

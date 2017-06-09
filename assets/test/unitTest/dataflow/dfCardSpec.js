@@ -182,13 +182,11 @@ describe("DFCard Test", function() {
 
         it("param delete should work", function() {
             var df = DF.getDataflow(testDfName);
-            expect(df.paramMap.hasOwnProperty("test")).to.be.true;
             expect(df.parameters.length).to.equal(1);
             expect($("#retLists").find(".row").eq(0).hasClass("unfilled")).to.be.false;
             expect($("#retLists").find(".row").eq(0).text()).to.be.equal("test");
 
             $("#retLists").find(".paramDelete").eq(0).click();
-            expect(df.parameters.length).to.equal(0);
             expect(df.paramMap.hasOwnProperty("test")).to.be.false;
             expect($("#retLists").find(".row").eq(0).hasClass("unfilled")).to.be.true;
             expect($("#retLists").find(".row").eq(0).text()).to.be.equal("");
@@ -243,10 +241,9 @@ describe("DFCard Test", function() {
 
             DFParamModal.show($dfWrap.find(".dagTable").last())
             .then(function() {
-                $("#dfParamModal").find(".editableTable input.editableParamDiv").eq(0)
-                                .val(testDfName + Date.now() + ".csv");
-                 $("#dfParamModal").find(".editableTable input.editableParamDiv").eq(1)
-                                .val("Default");
+                var $inputs = $("#dfParamModal").find(".editableTable input.editableParamDiv");
+                $inputs.eq(0).val(testDfName + Date.now() + ".csv");
+                $inputs.eq(1).val("Default");
 
                 DFParamModal.__testOnly__.storeRetina()
                 .then(function() {

@@ -1329,8 +1329,14 @@ window.XIApi = (function(XIApi, $) {
                 tempCols = [];
                 for (var i = 0; i < pulledRColNames.length; i++) {
                     var colNum = table.getColNumByBackName(pulledRColNames[i]) - 1;
+                    if (colNum < 0) {
+                        // error case
+                        console.error("cannot find column");
+                        continue;
+                    }
+
                     if (rRename && rRename.length > 0) {
-                        for (var j = 0; j<rRename.length; j++) {
+                        for (var j = 0; j < rRename.length; j++) {
                             if (rRename[j].orig === rCols[colNum].backName)
                             {
                                 rCols[colNum].backName = rRename[j].new;

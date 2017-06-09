@@ -610,7 +610,10 @@ describe("Dag Panel Test", function() {
                     });
                     expect($li.length).to.equal(1);
 
-                    expect($("#dagSchema .nodeInfo").is(":visible")).to.be.true;
+                    expect($("#dagSchema .nodeInfoContent").is(":visible")).to.be.false;
+                    $("#dagSchema .rowCount .expand").click();
+                    expect($("#dagSchema .nodeInfoContent").is(":visible")).to.be.true;
+
                     var $nodeLis = $("#dagSchema").find(".nodeInfoContent li");
                     expect($nodeLis.length).to.be.gt(0);
                     expect($nodeLis.eq(0).children().eq(0).text()).to.equal("0");
@@ -1580,7 +1583,7 @@ describe("Dag Panel Test", function() {
             var nodes = {
                 "0": {name: "tName1"},
                 "1": {name: "tName2"},
-            }
+            };
             var res = fn("after", node, nodes);
             expect(res.length).to.equal(1);
             expect(res[0]).to.equal(1);
@@ -1639,10 +1642,10 @@ describe("Dag Panel Test", function() {
             //self join
             node.renameMap = [{oldName: "before", newName: "after", type: 0}];
             node.numLeftColumns = 0;
-             var nodes = {
+            nodes = {
                 "0": {name: "tName1"},
                 "1": {name: "tName1"},
-            }
+            };
             res = fn("before", node, nodes);
             expect(res.length).to.equal(2);
             expect(res[0]).to.equal(0);
@@ -1672,7 +1675,7 @@ describe("Dag Panel Test", function() {
 
             res = fn("after::colName", node);
             expect(res).to.equal("before::colName");
-        })
+        });
 
         it("getIconHtml", function() {
             var fn = Dag.__testOnly__.getIconHtml;

@@ -33,13 +33,13 @@ window.xcSuggest = (function($, xcSuggest) {
             try {
                 suggestResults = suggestJoinKeyML(featuresPerColumn);
                 if (suggestResults.maxScore <= -50) {
-                    xcConsole.log("ML Engine scores poorly: " +
+                    console.log("ML Engine scores poorly: " +
                         JSON.stringify(suggestResults) +
                         "\nSwitching to heuristic.");
                     suggestResults = undefined;
                 }
             } catch (err) {
-                xcConsole.log("ML Engine failed with error: " + err +
+                console.error("ML Engine failed with error: " + err +
                     "\nSwitching to heuristic.");
                 suggestResults = undefined;
             }
@@ -48,7 +48,7 @@ window.xcSuggest = (function($, xcSuggest) {
         if (suggestResults === undefined) {
             suggestResults = suggestJoinKeyHeuristic(featuresPerColumn);
         }
-        console.log("Suggest results: " + JSON.stringify(suggestResults));
+        // console.log("Suggest results: " + JSON.stringify(suggestResults));
         return suggestResults;
     };
 
