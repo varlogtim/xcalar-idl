@@ -1722,3 +1722,24 @@
         }
     }
 }
+
+#userMemPopup {
+    .titleContentWrap {
+        .textOverflowOneLine;
+    }
+    .content {
+        white-space: pre;
+        height: ~"calc(100% - 24px)";
+        width: 100%;
+        overflow: auto;
+        font-family: @font-code;
+        padding: 10px;
+
+        > .jsonBlock {
+            margin-left: 14px;
+        }
+        .error {
+            color: @color-table-red;
+        }
+    }
+}

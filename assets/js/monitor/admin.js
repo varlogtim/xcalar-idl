@@ -151,8 +151,12 @@ window.Admin = (function($, Admin) {
             refreshUserList();
         });
 
-        $userList.on('click', '.userLi', function() {
-            var username = $(this).text().trim();
+        $userList.on('click', '.userLi', function(event) {
+            if ($(event.target).closest(".memory").length) {
+                return;
+            }
+            var $li = $(this).closest(".userLi");
+            var username = $li.text().trim();
             var title = MonitorTStr.UseXcalarAs;
             var msg = xcHelper.replaceMsg(MonitorTStr.SwitchUserMsg, {
                 username: username
@@ -165,6 +169,134 @@ window.Admin = (function($, Admin) {
                 }
             });
         });
+
+        $("#userMemPopup").draggable({
+            handle: '#userMemPopupTitle',
+            cursor: '-webkit-grabbing',
+            containment: "window"
+        });
+
+        $("#userMemPopup").resizable({
+            handles: "n, e, s, w, se",
+            minHeight: 300,
+            minWidth: 300,
+            containment: "document"
+        });
+
+        $userList.on("click", ".userLi .memory", function() {
+            var $popup = $("#userMemPopup");
+            var $li = $(this).closest(".userLi");
+            var username = $li.text().trim();
+
+            var popupId = Math.floor(Math.random() * 100000);
+            $popup.data("id", popupId);
+            $popup.find(".content").empty();
+            $popup.find(".titleContentWrap").text(username);
+            positionMemPopup($popup);
+
+            $(document).on('mousedown.hideMemPopup', function(event) {
+                if ($(event.target).closest('#userMemPopup').length === 0) {
+                    hideMemPopup();
+                }
+            });
+
+            var promise = getMemUsage();
+            xcHelper.showRefreshIcon($popup, false, promise);
+
+            promise
+            .then(function(data) {
+                if ($popup.data("id") !== popupId) {
+                    return;
+                }
+                var html = xcHelper.prettifyJson(data);
+                html = "{\n" + html + "}";
+                $popup.find(".content").html(html);
+            })
+            .fail(function(error) {
+                if ($popup.data("id") !== popupId) {
+                    return;
+                }
+                var type = typeof error;
+                var msg;
+
+                if (type === "object") {
+                    msg = error.error || AlertTStr.ErrorMsg;
+                } else {
+                    msg = error;
+                }
+                var errorDiv = "<div class='error'>" +
+                                    msg +
+                                "</div>";
+                $popup.find(".content").html(errorDiv);
+            });
+        });
+
+        $("#userMemPopup").on("click", ".close", function() {
+            hideMemPopup();
+        });
+    }
+
+    function positionMemPopup($popup) {
+        $popup.show();
+
+        var defaultWidth = 600;
+        var defaultHeight = 600;
+        $popup.height("auto");
+        $popup.width("auto");
+        var height = Math.min(defaultHeight, $popup.height());
+        var width = Math.min(defaultWidth, $popup.width());
+        height = Math.max(height, 400);
+        width = Math.max(width, 400);
+        $popup.height(height);
+        $popup.width(width);
+        var winWidth = $(window).width();
+        var winHeight = $(window).height();
+        $popup.css({
+            left: (winWidth - width) / 2,
+            top: (winHeight - height) / 2
+        });
+    }
+
+    function getMemUsage() {
+        var deferred  = jQuery.Deferred();
+        xcalarApiGetMemoryUsage(tHandle, userIdName, userIdUnique)
+        .then(function(origData) {
+            var data;
+            if (origData && origData.userMemory &&
+                origData.userMemory.sessionMemory)
+            {
+                data = {};
+                var mem = origData.userMemory.sessionMemory;
+                for (var i = 0; i < mem.length; i++) {
+                    var totalMem = 0;
+                    var sess = {
+                        "Total Memory": 0,
+                        "Breakdown": {}
+                    };
+                    for (var j = 0; j < mem[i].tableMemory.length; j++) {
+                        totalMem += mem[i].tableMemory[j].totalBytes;
+                        sess.Breakdown[mem[i].tableMemory[j].tableName] =
+                                            mem[i].tableMemory[j].totalBytes;
+                    }
+                    sess["Total Memory"] = xcHelper.sizeTranslator(totalMem);
+
+                    data[mem[i].sessionName] = sess;
+                }
+            } else {
+                data = origData;
+            }
+            deferred.resolve(data);
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    function hideMemPopup() {
+        var $popup = $("#userMemPopup");
+        $popup.hide();
+        $popup.find(".content").empty();
+        $(document).off(".hideMemPopup");
     }
 
     function addMonitorMenuSupportListeners() {
@@ -226,6 +358,13 @@ window.Admin = (function($, Admin) {
                         ' data-container="body"' +
                         ' data-placement="top"' +
                         ' data-title="' + TooltipTStr.LoggedIn + '">' +
+                        '</span>' +
+                        '<span class="memory"' +
+                            ' data-toggle="tooltip"' +
+                            ' data-container="body"' +
+                            ' data-placement="top"' +
+                            ' data-title="View memory usage">' +
+                            '<i class="icon xi-menu-info"></i>' +
                         '</span>' +
                     '</li>';
         }
