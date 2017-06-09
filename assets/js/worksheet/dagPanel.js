@@ -2258,7 +2258,7 @@ window.Dag = (function($, Dag) {
                 getSchemaNumRows($schema, schemaId, tableName, table);
             }
         } else {
-            $schema.find(".nodeInfo").addClass("xc-hidden");
+            $schema.addClass("noNodeInfo");
             numRows = "...";
             getSchemaNumRows($schema, schemaId, tableName);
         }
@@ -2318,10 +2318,10 @@ window.Dag = (function($, Dag) {
     function getSchemaNodeInfo($schema, table, sortByNode, sortReverse) {
         $schema.removeClass('heavySkew slightSkew');
         if (!table.backTableMeta) {
-            $schema.find(".nodeInfo").addClass("xc-hidden");
+            $schema.addClass("noNodeInfo");
             return;
         }
-        $schema.find(".nodeInfo").removeClass("xc-hidden");
+         $schema.removeClass("noNodeInfo");
         var meta = table.backTableMeta;
         var html = "<ul>";
         var totalRows = table.resultSetCount;
