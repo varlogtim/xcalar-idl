@@ -92,9 +92,9 @@ window.TestSuite = (function($, TestSuite) {
 
     TestSuite.add = function(testFn, testName, timeout, testCaseEnabled) {
         testCases.push({
-            "testFn"         : testFn,
-            "testName"       : testName,
-            "timeout"        : timeout,
+            "testFn": testFn,
+            "testName": testName,
+            "timeout": timeout,
             "testCaseEnabled": testCaseEnabled
         });
     };
@@ -195,7 +195,7 @@ window.TestSuite = (function($, TestSuite) {
                     })(testCases[ii], ii + 1) // Invoking trapFn
                 );
             }
-        } catch(err) {
+        } catch (err) {
             if (err === "testSuite bug") {
                 endRun();
             }
@@ -258,10 +258,10 @@ window.TestSuite = (function($, TestSuite) {
             }
             gMinModeOn = minModeCache;
             finalDeferred.resolve({
-                "pass" : passes,
-                "fail" : fails,
-                "skip" : skips,
-                "time" : totTime / 1000,
+                "pass": passes,
+                "fail": fails,
+                "skip": skips,
+                "time": totTime / 1000,
                 "error": failReason
             });
         }
@@ -829,10 +829,9 @@ window.TestSuite = (function($, TestSuite) {
                 // Code below assumes only 1 fatPtr. If more than one, please
                 // augment check accordingly
                 var fatPtrPrefix = gTables[tableId].backTableMeta.valueAttrs
-                                                   .filter(function(element) {
-                                       return (element.type ==
-                                               DfFieldTypeT.DfFatptr);
-                                       })[0].name;
+                .filter(function(element) {
+                    return (element.type === DfFieldTypeT.DfFatptr);
+                })[0].name;
 
                 var $args = $section.find(".arg");
                 $args.eq(0).val(gColPrefix + fatPtrPrefix + "::Year");
@@ -1251,9 +1250,9 @@ window.TestSuite = (function($, TestSuite) {
             assert($(".barArea .xlabel:contains('272')").length > 0);
             $("#profileModal .genAgg").click();
             return checkExists("#profileModal .genAgg:not(:visible)", 30000);
-         })
-         .then(function() {
-             assert($(".infoSection .min").eq(0).text() ===
+        })
+        .then(function() {
+            assert($(".infoSection .min").eq(0).text() ===
                     Number(1).toLocaleString());
             assert($(".infoSection .count").text() ===
                     Number(1953).toLocaleString());
@@ -1265,9 +1264,9 @@ window.TestSuite = (function($, TestSuite) {
                     Number(12).toLocaleString());
 
             $("#profileModal .sortSection .asc").click();
-            return checkExists("#profileModal[data-state='finished']", 30000,
-                               {"asserts": [
-                              ".barArea:first-child .xlabel:contains('134')"]});
+            return checkExists("#profileModal[data-state='finished']", 30000, {
+                "asserts": [".barArea:first-child .xlabel:contains('134')"]
+            });
         })
         .then(function() {
             assert($(".barArea .xlabel").eq(0).text() === "134");
@@ -1426,19 +1425,16 @@ window.TestSuite = (function($, TestSuite) {
             console.log(dfName);
 
             return checkExists("#dagModleParamList .row:first .paramName:contains('" +
-                    paramName + "')")
+                    paramName + "')");
         })
         .then(function() {
             $('#dagModleParamList').find('.row:first .paramVal').val(fileName);
             $dfParamModal.find(".modalBottom .confirm").click();
 
-            checkExists(".dagTable.export.hasParam")
-            .then(function() {
-                TestSuite.pass(deferred, testName, currentTestNumber);
-            })
-            .fail(function(error) {
-                TestSuite.fail(deferred, testName, currentTestNumber, error);
-            });
+            return checkExists(".dagTable.export.hasParam");
+        })
+        .then(function() {
+            TestSuite.pass(deferred, testName, currentTestNumber);
         })
         .fail(function(error) {
             TestSuite.fail(deferred, testName, currentTestNumber, error);
@@ -1464,6 +1460,9 @@ window.TestSuite = (function($, TestSuite) {
             } else {
                 TestSuite.fail(deferred, testName, currentTestNumber);
             }
+        })
+        .fail(function(error) {
+            TestSuite.fail(deferred, testName, currentTestNumber, error);
         });
     }
 
@@ -1521,6 +1520,9 @@ window.TestSuite = (function($, TestSuite) {
             .then(function() {
                 $("#alertActions .confirm").click();
                 TestSuite.pass(deferred, testName, currentTestNumber);
+            })
+            .fail(function(error) {
+                TestSuite.fail(deferred, testName, currentTestNumber, error);
             });
         }, 100);
     }
@@ -1548,10 +1550,9 @@ window.TestSuite = (function($, TestSuite) {
         .then(function() {
             TestSuite.pass(deferred, testName, currentTestNumber);
         })
-        .fail(function() {
-            TestSuite.fail(deferred, testName, currentTestNumber);
+        .fail(function(error) {
+            TestSuite.fail(deferred, testName, currentTestNumber, error);
         });
-
     }
 
     function addDFToSchedTest(deferred, testName, currentTestNumber) {
@@ -1747,7 +1748,6 @@ window.DemoTestSuite = (function($, DemoTestSuite) {
         var colNum = 1;
         var progCol = table.getCol(colNum);
         var colName = progCol.getBackColName();
-        var colType = progCol.getType();
         var val = $table.find(".row0 .col1 .originalData").text();
         if (progCol.isNumberCol()) {
             val = Number(val);

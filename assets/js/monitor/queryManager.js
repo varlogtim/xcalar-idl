@@ -208,32 +208,39 @@ window.QueryManager = (function(QueryManager, $) {
         }
     };
 
-    QueryManager.removeQuery = function(id, userTriggered) {
-        if (!queryLists[id]) {
-            return;
-        }
-        if (userTriggered) {
-            // do not allow user to click on trash if not started or processing
-            var state = queryLists[id].state;
-            if (state === QueryStateT.qrNotStarted ||
-                state === QueryStateT.qrProcessing) {
-                return;
-            }
-        }
-        clearIntervalHelper(id);
-        // we may not want to immediately delete canceled queries because
-        // we may be waiting for the operation to return and clean up some
-        // intermediate tables
-        if (queryLists[id].state === QueryStatus.Cancel) {
-            canceledQueries[id] = queryLists[id];
+    QueryManager.removeQuery = function(ids, userTriggered) {
+        if (!(ids instanceof Array)) {
+            ids = [ids];
         }
 
-        delete queryLists[id];
-        var $query = $queryList.find('.query[data-id="' + id + '"]');
-        if ($query.hasClass('active')) {
-            setDisplayToDefault();
-        }
-        $query.remove();
+        ids.forEach(function(id) {
+            if (!queryLists[id]) {
+                return;
+            }
+            if (userTriggered) {
+                // do not allow user to click on trash if not started or processing
+                var state = queryLists[id].state;
+                if (state === QueryStateT.qrNotStarted ||
+                    state === QueryStateT.qrProcessing) {
+                    return;
+                }
+            }
+            clearIntervalHelper(id);
+            // we may not want to immediately delete canceled queries because
+            // we may be waiting for the operation to return and clean up some
+            // intermediate tables
+            if (queryLists[id].state === QueryStatus.Cancel) {
+                canceledQueries[id] = queryLists[id];
+            }
+
+            delete queryLists[id];
+            var $query = $queryList.find('.query[data-id="' + id + '"]');
+            if ($query.hasClass('active')) {
+                setDisplayToDefault();
+            }
+            $query.remove();
+        });
+
         xcTooltip.hideAll();
     };
 
@@ -1437,10 +1444,12 @@ window.QueryManager = (function(QueryManager, $) {
 
                 switch (action) {
                     case ("deleteAll"):
+                        var ids = [];
                         $queryList.find(".checkbox.checked").each(function() {
                             var id = $(this).closest(".query").data("id");
-                            QueryManager.removeQuery(id, true);
+                            ids.push(id);
                         });
+                        QueryManager.removeQuery(ids, true);
                         $querySideBar.removeClass("bulkOptionsOpen");
                         break;
                     case ("clearAll"):
@@ -1722,7 +1731,6 @@ window.QueryManager = (function(QueryManager, $) {
         clearTimeout(queryCheckList[id]);
         delete queryCheckList[id];
     }
-
 
     function setDisplayToDefault() {
         updateQueryTextDisplay("", true);
