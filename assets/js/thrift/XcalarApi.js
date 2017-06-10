@@ -398,6 +398,7 @@ xcalarPreview = runEntity.xcalarPreview = function(thriftHandle, url, fileNamePa
         //  "thisDataSize" :
         //  "totalDataSize" :
         //  }
+        previewOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
         deferred.resolve(previewOutput);
     })
     .fail(function(error) {
@@ -456,6 +457,7 @@ xcalarLoad = runEntity.xcalarLoad = function(thriftHandle, url, name, format, ma
         if (status != StatusT.StatusOk) {
             deferred.reject(status, loadOutput);
         }
+        loadOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
         deferred.resolve(loadOutput);
     })
     .fail(function(error) {
@@ -518,6 +520,7 @@ xcalarIndexDataset = runEntity.xcalarIndexDataset = function(thriftHandle, datas
         if (status != StatusT.StatusOk) {
             deferred.reject(status);
         }
+        indexOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
         deferred.resolve(indexOutput);
     })
     .fail(function(error) {
@@ -576,6 +579,7 @@ xcalarIndexTable = runEntity.xcalarIndexTable = function(thriftHandle, srcTableN
         if (status != StatusT.StatusOk) {
             deferred.reject(status);
         }
+        indexOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
         deferred.resolve(indexOutput);
     })
     .fail(function(error) {
@@ -1482,6 +1486,7 @@ xcalarJoin = runEntity.xcalarJoin = function(thriftHandle, leftTableName, rightT
         if (status != StatusT.StatusOk) {
             deferred.reject(status);
         }
+        joinOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
         deferred.resolve(joinOutput);
     })
     .fail(function(error) {
@@ -1537,6 +1542,7 @@ xcalarProject = runEntity.xcalarProject = function(thriftHandle, numColumns, col
         if (status != StatusT.StatusOk) {
             deferred.reject(status);
         }
+        projectOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
         deferred.resolve(projectOutput);
     })
     .fail(function(error) {
@@ -1585,6 +1591,7 @@ xcalarFilter = runEntity.xcalarFilter = function(thriftHandle, filterStr, srcTab
         if (status != StatusT.StatusOk) {
             deferred.reject(status);
         }
+        filterOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
         deferred.resolve(filterOutput);
     })
     .fail(function(error) {
@@ -1637,6 +1644,7 @@ xcalarGroupByWithWorkItem = runEntity.xcalarGroupByWithWorkItem = function(thrif
         if (status != StatusT.StatusOk) {
             deferred.reject(status);
         }
+        groupByOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
         deferred.resolve(groupByOutput);
     })
     .fail(function(error) {
@@ -1672,6 +1680,7 @@ xcalarGroupBy = runEntity.xcalarGroupBy = function(thriftHandle, srcTableName, d
         if (status != StatusT.StatusOk) {
             deferred.reject(status);
         }
+        groupByOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
         deferred.resolve(groupByOutput);
     })
     .fail(function(error) {
@@ -1788,6 +1797,8 @@ xcalarDeleteDagNodes = runEntity.xcalarDeleteDagNodes = function(thriftHandle, n
         if (status != StatusT.StatusOk) {
             deferred.reject(status, deleteDagNodesOutput);
         }
+        deleteDagNodesOutput.timeElapsed =
+            result.output.hdr.elapsed.milliseconds;
         deferred.resolve(deleteDagNodesOutput);
     })
     .fail(function(error) {
@@ -1883,6 +1894,7 @@ xcalarApiMapWithWorkItem = runEntity.xcalarApiMapWithWorkItem = function(thriftH
         if (status != StatusT.StatusOk) {
             deferred.reject(status);
         }
+        mapOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
         deferred.resolve(mapOutput);
     })
     .fail(function(error) {
@@ -1917,6 +1929,7 @@ xcalarApiMap = runEntity.xcalarApiMap = function(thriftHandle, newFieldName, eva
         if (status != StatusT.StatusOk) {
             deferred.reject(status);
         }
+        mapOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
         deferred.resolve(mapOutput);
     })
     .fail(function(error) {
@@ -1967,6 +1980,7 @@ xcalarApiGetRowNum = runEntity.xcalarApiGetRowNum = function(thriftHandle, newFi
         if (status != StatusT.StatusOk) {
             deferred.reject(status);
         }
+        getRowNumOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
         deferred.resolve(getRowNumOutput);
     })
     .fail(function(error) {
@@ -2001,7 +2015,8 @@ xcalarAggregate = runEntity.xcalarAggregate = function(thriftHandle, srcTableNam
                     ", aggregateEvalStr = " + aggregateEvalStr + ")");
     }
 
-    var workItem = xcalarAggregateWorkItem(srcTableName, dstTableName, aggregateEvalStr);
+    var workItem = xcalarAggregateWorkItem(srcTableName, dstTableName,
+                                           aggregateEvalStr);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
@@ -2014,7 +2029,9 @@ xcalarAggregate = runEntity.xcalarAggregate = function(thriftHandle, srcTableNam
         if (status != StatusT.StatusOk) {
             deferred.reject(status);
         }
-        deferred.resolve(aggregateOutput.jsonAnswer);
+        aggregateOutput = JSON.parse(aggregateOutput.jsonAnswer);
+        aggregateOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
+        deferred.resolve(aggregateOutput);
     })
     .fail(function(error) {
         console.log("xcalarAggregate() caught exception:", error);
@@ -2166,7 +2183,7 @@ xcalarExport = runEntity.xcalarExport = function(thriftHandle, tableName, target
         console.log("xcalarExport(tableName = " + tableName +
                     ", target.type = " + ExTargetTypeTStr[target.type] +
                     ", target.name = " + target.name +
-                    ", createRule = " + createRule +
+                    ", createRgitkule = " + createRule +
                     ", specInput = " + JSON.stringify(specInput) +
                     ", sorted = " + sorted +
                     ", numColumns = " + numColumns +
@@ -2188,7 +2205,9 @@ xcalarExport = runEntity.xcalarExport = function(thriftHandle, tableName, target
         if (status != StatusT.StatusOk) {
             deferred.reject(status);
         }
-        deferred.resolve(status);
+        var exportOutput = {status: status};
+        exportOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
+        deferred.resolve(exportOutput);
     })
     .fail(function(error) {
         console.log("xcalarExport() caught exception:", error);
@@ -2478,7 +2497,7 @@ xcalarExecuteRetina = runEntity.xcalarExecuteRetina = function(thriftHandle, ret
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
-        var retinaOutput = result.output.outputResult.retinaOutput;
+        var retinaOutput = result.output.outputResult.executeRetinaOutput;
         var status = result.output.hdr.status;
 
         if (result.jobStatus != StatusT.StatusOk) {
@@ -2487,6 +2506,7 @@ xcalarExecuteRetina = runEntity.xcalarExecuteRetina = function(thriftHandle, ret
         if (status != StatusT.StatusOk) {
             deferred.reject(status);
         }
+        retinaOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
         deferred.resolve(retinaOutput);
     })
     .fail(function(error) {
@@ -2634,7 +2654,7 @@ xcalarUpdateLicenseWorkItem = runEntity.xcalarUpdateLicenseWorkItem = function(l
     workItem.api = XcalarApisT.XcalarApiUpdateLicense;
 
     return(workItem);
-}
+};
 
 xcalarUpdateLicense = runEntity.xcalarUpdateLicense = function(thriftHandle, licenseKey) {
     var deferred = jQuery.Deferred();
@@ -2662,7 +2682,7 @@ xcalarUpdateLicense = runEntity.xcalarUpdateLicense = function(thriftHandle, lic
     });
 
     return(deferred.promise());
-}
+};
 
 xcalarKeyAppendWorkItem = runEntity.xcalarKeyAppendWorkItem = function(scope, key, suffix) {
     var workItem = new WorkItem();
@@ -3225,6 +3245,7 @@ xcalarApiSessionSwitch = runEntity.xcalarApiSessionSwitch = function(thriftHandl
         if (status != StatusT.StatusOk) {
             deferred.reject(status);
         }
+        result.timeElapsed = result.output.hdr.elapsed.milliseconds;
         deferred.resolve(result);
     })
     .fail(function(error) {
@@ -3619,8 +3640,11 @@ xcalarApiSupportGenerate = runEntity.xcalarApiSupportGenerate = function(thriftH
             status != StatusT.StatusNsNotFound) {
             deferred.reject(status);
         }
-
-        deferred.resolve(result.output.outputResult.supportGenerateOutput);
+        var supportGenerateOutput =
+            result.output.outputResult.supportGenerateOutput;
+        supportGenerateOutput.timeElapsed =
+            result.output.hdr.elapsed.milliseconds;
+        deferred.resolve(supportGenerateOutput);
     })
     .fail(function(error) {
         console.log("xcalarApiSupportGenerate() caught exception: ", error);
@@ -3850,6 +3874,8 @@ xcalarApiDeleteDatasets = runEntity.xcalarApiDeleteDatasets = function (thriftHa
         if (status != StatusT.StatusOk) {
             deferred.reject(status);
         }
+        deleteDatasetsOutput.timeElapsed =
+            result.output.hdr.elapsed.milliseconds;
 
         deferred.resolve(deleteDatasetsOutput);
     })
@@ -3895,7 +3921,9 @@ xcalarDemoFileCreate = runEntity.xcalarDemoFileCreate = function(thriftHandle, f
 
         // demoFileOutput has a outputJson field which is a json formatted string
         // with a field called 'error' if something went wrong
-        deferred.resolve(JSON.parse(demoFileOutput.outputJson));
+        demoFileOutput = JSON.parse(demoFileOutput.outputJson);
+        demoFileOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
+        deferred.resolve(demoFileOutput);
     })
     .fail(function(error) {
         console.log("xcalarDemoFileCreate() caught exception:", error);
@@ -3932,7 +3960,10 @@ xcalarDemoFileAppend = runEntity.xcalarDemoFileAppend = function(thriftHandle, f
 
         // demoFileOutput has a outputJson field which is a json formatted string
         // with a field called 'error' if something went wrong
-        deferred.resolve(JSON.parse(demoFileOutput.outputJson));
+
+        demoFileOutput = JSON.parse(demoFileOutput.outputJson);
+        demoFileOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
+        deferred.resolve(demoFileOutput);
     })
     .fail(function(error) {
         console.log("xcalarDemoFileAppend() caught exception:", error);
@@ -3966,7 +3997,9 @@ xcalarDemoFileDelete = runEntity.xcalarDemoFileDelete = function(thriftHandle, f
 
         // demoFileOutput has a outputJson field which is a json formatted string
         // with a field called 'error' if something went wrong
-        deferred.resolve(JSON.parse(demoFileOutput.outputJson));
+        demoFileOutput = JSON.parse(demoFileOutput.outputJson);
+        demoFileOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
+        deferred.resolve(demoFileOutput);
     })
     .fail(function(error) {
         console.log("xcalarDemoFileDelete() caught exception:", error);

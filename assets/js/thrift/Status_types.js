@@ -584,7 +584,9 @@ StatusT = {
   'StatusInvalidStatsProtocol' : 575,
   'StatusStatStreamPartialFailure' : 576,
   'StatusLogLevelSetInvalid' : 577,
-  'StatusConnectionWrongHandshake' : 578
+  'StatusConnectionWrongHandshake' : 578,
+  'StatusQueryOnAnotherNode' : 579,
+  'StatusAppInstanceStartError' : 580
 };
 StatusTStr = {0 : 'Success',
 1 : 'Operation not permitted',
@@ -1164,5 +1166,7 @@ StatusTStr = {0 : 'Success',
 575 : 'Invalid number of bytes sent in payload',
 576 : 'Encountered partial failure in stats stream, cleaning up',
 577 : 'Log level is too large',
-578 : 'Client performed a handshake we didn\'t understand'
+578 : 'Client performed a handshake we didn\'t understand',
+579 : 'Query\'s metadata is on another node. Please go to that node',
+580 : 'App instance start error'
 };

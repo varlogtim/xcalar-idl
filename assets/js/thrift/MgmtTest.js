@@ -1169,12 +1169,11 @@ PromiseHelper = (function(PromiseHelper, $) {
                     .done(function(aggregateOutput) {
                         console.log("aggStr: " + aggStr + ", tableName: \"" +
                                     groupByTableName + "\", output: " +
-                                    aggregateOutput);
-                        var answer = JSON.parse(aggregateOutput);
-                        if (answer.Value != expectedAggOutput.sum) {
+                                    JSON.stringify(aggregateOutput));
+                        if (aggregateOutput.Value != expectedAggOutput.sum) {
                             failed = true;
                             raceFailedReason += "Returned answer: " +
-                                                answer.Value +
+                                                aggregateOutput.Value +
                                                 " Expected answer: " +
                                                 expectedAggOutput.sum;
                         }
@@ -1222,9 +1221,10 @@ PromiseHelper = (function(PromiseHelper, $) {
         function aggDoneFn(aggOutput, aggOp) {
             if (aggOutput !== null) {
                 console.log("Aggregate on \"" + startTableName + "\" done. " +
-                            aggEvalStr[aggOp] + " = " + aggOutput);
-                indexAndAggregateOutput["aggOutput" + aggOp] = aggOutput;
-                var answer = JSON.parse(aggOutput).Value;
+                            aggEvalStr[aggOp] + " = " +
+                            JSON.stringify(aggOutput));
+                indexAndAggregateOutput["aggOutput" + aggOp] = JSON.stringify(aggOutput);
+                var answer = aggOutput.Value;
                 if (answer !== expectedAggOutput[aggOp]) {
                     failed = true;
                     raceFailedReason += "Aggregate returned wrong answer (" +
@@ -1981,8 +1981,9 @@ PromiseHelper = (function(PromiseHelper, $) {
         aggrTable = "aggrTable";
         xcalarAggregate(thriftHandle, origStrTable, aggrTable, "sum(fans)")
         .done(function(aggregateOutput) {
-            console.log("jsonAnswer: " + aggregateOutput + "\n");
-            var jsonAnswer = JSON.parse(aggregateOutput);
+            console.log("jsonAnswer: " + JSON.stringify(aggregateOutput) +
+                        "\n");
+            var jsonAnswer = aggregateOutput;
             test.assert(jsonAnswer.Value === 114674, undefined,
                         "jsonAnswer !== 114674");
             test.pass();
@@ -2164,7 +2165,8 @@ PromiseHelper = (function(PromiseHelper, $) {
                      target, specInput,
                      ExExportCreateRuleT.ExExportDeleteAndReplace,
                      true, numColumns, columns)
-        .then(function(status) {
+        .then(function(retStruct) {
+            var status = retStruct.status;
             printResult(status);
             test.pass();
         })
@@ -2229,7 +2231,7 @@ PromiseHelper = (function(PromiseHelper, $) {
                          ExExportCreateRuleT.ExExportDeleteAndReplace,
                          true, numColumns,
                          columns, "yelp/reviews-votes.funny-export-cancel")
-            .then(function(status) {
+            .then(function(retStruct) {
                 console.log("Export succeeded when it was supposed to be cancelled. Trying again");
                 isExportDone=true;
                 if (isCancelDone === true) {
@@ -2310,7 +2312,8 @@ PromiseHelper = (function(PromiseHelper, $) {
                      target, specInput,
                      ExExportCreateRuleT.ExExportCreateOnly,
                      true, numColumns, columns)
-        .then(function(status) {
+        .then(function(retStruct) {
+            var status = retStruct.status;
             printResult(status);
             test.pass();
         })
@@ -2335,15 +2338,35 @@ PromiseHelper = (function(PromiseHelper, $) {
         dstTable.target = new XcalarApiNamedInputT();
         dstTable.target.name = "yelp/user-votes.funny-gt900-average";
         dstTable.target.isTable = true;
+        var innerDeferred;
         xcalarMakeRetina(thriftHandle, retinaName, [dstTable])
         .then(function(status) {
             printResult(status);
             test.pass();
         })
         .fail(function(reason) {
-            reason = "makeRetina failed with status: " + StatusTStr[reason];
-            test.fail(reason);
+            if (reason === StatusT.StatusRetinaAlreadyExists) {
+                innerDeferred = xcalarApiDeleteRetina(thriftHandle, retinaName);
+            } else {
+                reason = "makeRetina failed with status: " + StatusTStr[reason];
+                test.fail(reason);
+            }
         });
+
+        if (innerDeferred) {
+            innerDeferred
+            .then(function() {
+                xcalarMakeRetina(thriftHandle, retinaName, [dstTable]);
+            })
+            .then(function(status) {
+                printResult(status);
+                test.pass();
+            })
+            .fail(function(reason) {
+                reason = "makeRetina failed with status: " + StatusTStr[reason];
+                test.fail(reason);
+            });
+        }
     }
 
     function testListRetinas(test) {
@@ -2692,6 +2715,13 @@ PromiseHelper = (function(PromiseHelper, $) {
             test.pass();
         })
         .fail(test.fail);
+    }
+
+    // Witness to bug 8711
+    function testApiMapInPlaceReplace(test) {
+        var evalString = "string(user_id2)";
+        test.trivial(xcalarApiMap(thriftHandle, "castUserId", evalString,
+                                  "user_id2", "inplaceReplace"));
     }
 
     // Witness to bug 238
@@ -3793,7 +3823,7 @@ PromiseHelper = (function(PromiseHelper, $) {
     retinaExportParam = new XcalarApiParamExportT();
     retinaExportParam.fileName  = "retinaDstFile.csv";
     retinaExportParam.targetName = "Default";
-    retinaExportParam.targetType = 1;
+    retinaExportParam.targetType = ExTargetTypeT.ExTargetSFType;
 
     // Format
     // addTestCase(testFn, testName, timeout, TestCaseEnabled, Witness)
@@ -3916,6 +3946,9 @@ PromiseHelper = (function(PromiseHelper, $) {
 
     // Witness to bug 2020
     addTestCase(testApiMapStringToString, "cast string to string", defaultTimeout, TestCaseEnabled, "2020");
+
+    // Witness to bug 8711
+    addTestCase(testApiMapInPlaceReplace, "in place map replace", defaultTimeout, TestCaseEnabled, "8711");
 
     addTestCase(testUpdateLicense, "license update", defaultTimeout, TestCaseEnabled, "");
 

@@ -13645,6 +13645,7 @@ XcalarApiQueryStateOutputT = function(args) {
   this.numFailedWorkItem = null;
   this.elapsed = null;
   this.queryGraph = null;
+  this.queryNodeId = null;
   if (args) {
     if (args.queryState !== undefined) {
       this.queryState = args.queryState;
@@ -13669,6 +13670,9 @@ XcalarApiQueryStateOutputT = function(args) {
     }
     if (args.queryGraph !== undefined) {
       this.queryGraph = args.queryGraph;
+    }
+    if (args.queryNodeId !== undefined) {
+      this.queryNodeId = args.queryNodeId;
     }
   }
 };
@@ -13744,6 +13748,13 @@ XcalarApiQueryStateOutputT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 9:
+      if (ftype == Thrift.Type.I32) {
+        this.queryNodeId = input.readI32().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -13793,6 +13804,11 @@ XcalarApiQueryStateOutputT.prototype.write = function(output) {
   if (this.queryGraph !== null && this.queryGraph !== undefined) {
     output.writeFieldBegin('queryGraph', Thrift.Type.STRUCT, 8);
     this.queryGraph.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.queryNodeId !== null && this.queryNodeId !== undefined) {
+    output.writeFieldBegin('queryNodeId', Thrift.Type.I32, 9);
+    output.writeI32(this.queryNodeId);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
