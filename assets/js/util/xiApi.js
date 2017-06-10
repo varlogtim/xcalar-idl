@@ -137,7 +137,6 @@ window.XIApi = (function(XIApi, $) {
             deleteHelper(dstDagName)
             .always(function() {
                 var passed = false;
-                var val;
                 var err;
                 try {
                     passed = true;
