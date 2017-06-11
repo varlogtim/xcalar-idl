@@ -177,7 +177,8 @@ CommonTxtTstr = {
     'XDBUsage': 'XDB Usage',
     'Retry': 'Retry',
     'Overwrite': 'Overwrite',
-    'NoResult': 'No Results Found'
+    'NoResult': 'No Results Found',
+    'deleting': 'deleting'
 };
 
 ErrTStr = {
@@ -699,8 +700,7 @@ DFTStr = {
     "Default": "Export to file system",
     "DelDF": "Permanently Delete Dataflow",
     "DelDF2": "Delete dataflow",
-    "DelDFMsg": "Are you sure you want to permanently delete " +
-                     "this dataflow? This action cannot be undone.",
+    "DelDFMsg": "Are you sure you want to permanently delete this dataflow? This action cannot be undone.",
     "DFTitle": "DATAFLOW",
     "DownloadErr": "Download Failed",
     "ExportTo": "Export As",

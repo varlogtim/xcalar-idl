@@ -522,6 +522,19 @@ window.DFCard = (function($, DFCard) {
         var deferred = jQuery.Deferred();
         var $card = $dfCard.find('.dagWrap[data-dataflowName="' + dfName + '"]');
         var $list = DFCard.getDFList(dfName);
+        var html = '<div class="animatedEllipsisWrapper">' +
+                        '<div class="text">' +
+                            '(' + CommonTxtTstr.deleting +
+                        '</div>' +
+                        '<div class="animatedEllipsis">' +
+                            '<div>.</div>' +
+                            '<div>.</div>' +
+                            '<div>.</div>' +
+                        '</div>' +
+                        '<div class="text">)</div>' +
+                    '</div>';
+        var $deleteInfo = $(html);
+        $("#dfViz .cardHeader .title").append($deleteInfo);
 
         Scheduler.hide();
 
@@ -544,6 +557,7 @@ window.DFCard = (function($, DFCard) {
             xcHelper.showFail(FailTStr.RmDF);
             $card.removeClass("deleting");
             $list.removeClass("deleting");
+            $deleteInfo.remove();
             deferred.reject(error);
         });
 

@@ -167,7 +167,8 @@ CommonTxtTstr = {
 'XDBUsage': 'XDB使用率',
 'Retry': '重试',
 'Overwrite': '覆盖',
-'NoResult': '无搜索结果'
+'NoResult': '无搜索结果',
+'deleting': '删除中'
 };
 ErrTStr = {
 'Error': '错误',
