@@ -22,6 +22,13 @@ require("jsdom").env("", function(err, window) {
 });
 
 var defaultHostsFile = "/etc/xcalar/default.cfg";
+
+var defaultXcalarctl = process.env.XLRDIR ?
+    process.env.XLRDIR + "/bin/xcalarctl" : "/opt/xcalar/bin/xcalarctl";
+var defaultStartCommand = defaultXcalarctl + " start"
+var defaultStopCommand = defaultXcalarctl + " stop"
+var defaultStatusCommand = defaultXcalarctl + " status"
+
 var logPath = "/var/log/Xcalar.log";
 
 var bufferSize = 1024 * 1024;
@@ -319,8 +326,7 @@ function xcalarStart() {
     // only support root user
     // var command = 'service xcalar start';
     // support non-root user
-    var command = "/opt/xcalar/bin/xcalarctl start";
-    return executeCommand(command);
+    return executeCommand(defaultStartCommand);
 }
 
 function xcalarStop() {
@@ -328,8 +334,7 @@ function xcalarStop() {
     // only support root user
     // var command = 'service xcalar stop';
     // support non-root user
-    var command = "/opt/xcalar/bin/xcalarctl stop";
-    return executeCommand(command);
+    return executeCommand(defaultStopCommand);
 }
 
 function getOperatingSystem() {
@@ -343,8 +348,7 @@ function xcalarStatus() {
     // only support root user
     // var command = 'service xcalar status';
     // support non-root user
-    var command = "/opt/xcalar/bin/xcalarctl status";
-    return executeCommand(command);
+    return executeCommand(defaultStatusCommand);
 }
 
 // Remove session files
@@ -478,29 +482,27 @@ function executeCommand(command) {
 }
 
 function isComplete(command, data) {
-    switch (command) {
-        case "/opt/xcalar/bin/xcalarctl start" :
-            if ((data.indexOf('xcmonitor started') !== -1) ||
-                (data.indexOf('xcmonitor already running') !== -1)) {
-                return true;
-            } else {
-                return false;
-            }
-            break;
-        case "/opt/xcalar/bin/xcalarctl stop" :
-            if (data.indexOf('Stopping remaining Xcalar processes') !== -1) {
-                return true;
-            } else {
-                return false;
-            }
-            break;
-        default :
+    if (command === defaultStartCommand) {
+        if ((data.indexOf('xcmonitor started') !== -1) ||
+            (data.indexOf('xcmonitor already running') !== -1)) {
             return true;
+        } else {
+            return false;
+        }
+    } else if (command === defaultStopCommand) {
+        if (data.indexOf('Stopping remaining Xcalar processes') !== -1) {
+            return true;
+        } else {
+            return false;
+        }
+    } else {
+        return true;
     }
 }
 // Other commands
 function getXlrRoot() {
-    var cfgLocation = "/etc/xcalar/default.cfg";
+    var cfgLocation =  process.env.XCE_CONFIG ?
+        process.env.XCE_CONFIG : defaultHostsFile;
     var deferred = jQuery.Deferred();
     var defaultLoc = "/mnt/xcalar";
     var cfg = fs.readFile(cfgLocation, 'utf8', function(err, data) {

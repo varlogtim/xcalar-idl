@@ -1,7 +1,8 @@
 var fs = require('fs');
 var exec = require('child_process').exec;
 var Status = require('./supportStatusFile').Status;
-var guiDir = "/var/www/xcalar-gui";
+var guiDir = process.env.XCE_HTTP_ROOT ?
+    process.env.XCE_HTTP_ROOT : "/var/www/xcalar-gui";
 
 var validate = function(name, version) {
     if (name == null || name.length === 0) {

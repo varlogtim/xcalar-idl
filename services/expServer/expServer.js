@@ -18,9 +18,10 @@ require("jsdom").env("", function(err, window) {
     require("shelljs/global");
     var ldap = require("ldapjs");
     var exec = require("child_process").exec;
+    var guiDir = process.env.XCE_HTTP_ROOT ?
+        process.env.XCE_HTTP_ROOT : "/var/www/xcalar-gui";
     try {
         var AWS = require("aws-sdk");
-        var guiDir = "/var/www/xcalar-gui";
         if (fs.existsSync("./awsWriteConfig.json")) {
             AWS.config.loadFromPath(guiDir + "/services/expServer/awsWriteConfig.json");
         } else {
@@ -40,7 +41,7 @@ require("jsdom").env("", function(err, window) {
     var Status = require('./supportStatusFile').Status;
     var httpStatus = require('./../../assets/js/httpStatus.js').httpStatus;
 
-    var basePath = "/var/www/xcalar-gui/assets/extensions/";
+    var basePath = guiDir + "/assets/extensions/";
     var app = express();
 
     app.use(bodyParser.urlencoded({extended: false}));
