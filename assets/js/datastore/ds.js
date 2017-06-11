@@ -1876,7 +1876,6 @@ window.DS = (function ($, DS) {
         if (ds.moveTo(targetDS, -1)) {
             $grid.attr("data-dsParentId", targetId)
                 .data("dsParentId", targetId);
-            DS.goToDir(targetId);
             refreshDS();
             UserSettings.logChange();
         }
@@ -1930,7 +1929,6 @@ window.DS = (function ($, DS) {
         if (ds.moveTo(grandPaDs, -1)) {
             $grid.attr("data-dsParentId", grandPaId)
                     .data("dsParentId", grandPaId);
-            DS.goToDir(grandPaId);
             refreshDS();
             UserSettings.logChange();
         }
