@@ -3166,7 +3166,7 @@ var XcSubQuery = (function() {
                     deferred.resolve(pct);
                 })
                 .fail(function(error) {
-                    console.error(error);
+                    console.error(error, self.dstTable, self.name);
                     deferred.reject();
                 });
             }

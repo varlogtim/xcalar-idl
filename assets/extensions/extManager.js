@@ -228,7 +228,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             deferred.resolve();
         })
         .fail(function(error) {
-            console.error(error);
+            console.error(error, src + " could not be loaded.");
             // still resolve it
             deferred.resolve();
         });

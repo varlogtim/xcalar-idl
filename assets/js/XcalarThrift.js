@@ -977,7 +977,7 @@ function XcalarExport(tableName, exportName, targetName, numColumns,
         if (Transaction.checkAndSetCanceled(txId)) {
             deferred.reject(StatusTStr[StatusT.StatusCanceled]);
         } else {
-            Transaction.log(txId, ret2, null, ret1.timeElapsed);
+            Transaction.log(txId, ret2, options.handleName, ret1.timeElapsed);
             // XXX There is a bug here that backend actually needs to fix
             // We must drop the export node on a successful export.
             // Otherwise you will not be able to delete your dataset
@@ -1039,7 +1039,8 @@ function XcalarDestroyDataset(dsName, txId) {
         var def1 = xcalarDeleteDagNodes(tHandle, dsName, SourceTypeT.SrcDataset);
         var def2 = XcalarGetQuery(workItem);
         def2.then(function(query) {
-            Transaction.startSubQuery(txId, 'delete dataset', dsName, query);
+            Transaction.startSubQuery(txId, 'delete dataset', dsName + "drop",
+                                      query);
         });
 
         jQuery.when(def1, def2)
@@ -1048,7 +1049,8 @@ function XcalarDestroyDataset(dsName, txId) {
             // deletion not triggered by the user (i.e. clean up)
             console.log(txId, delDagNodesRes);
             if (txId != null) {
-                Transaction.log(txId, query, null, delDagNodesRes.timeElapsed);
+                Transaction.log(txId, query, dsName + "drop",
+                                delDagNodesRes.timeElapsed);
             }
             innerDeferred.resolve();
         })
@@ -1209,7 +1211,7 @@ function XcalarDeleteTable(tableName, txId, isRetry) {
     var def2 = XcalarGetQuery(workItem);
 
     def2.then(function(query) {
-        Transaction.startSubQuery(txId, 'drop table', tableName, query);
+        Transaction.startSubQuery(txId, 'drop table', tableName + "drop", query);
     });
 
     jQuery.when(def1, def2)
@@ -1220,7 +1222,7 @@ function XcalarDeleteTable(tableName, txId, isRetry) {
             // txId may be null if deleting an undone table or performing a
             // deletion not triggered by the user (i.e. clean up)
             if (txId != null) {
-                Transaction.log(txId, ret2, null, ret1.timeElapsed);
+                Transaction.log(txId, ret2, tableName + "drop", ret1.timeElapsed);
             }
             deferred.resolve(ret1);
         }
