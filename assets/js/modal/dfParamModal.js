@@ -10,7 +10,7 @@ window.DFParamModal = (function($, DFParamModal){
     var dropdownHelper;
     var filterFnMap = {}; // stores fnName: numArgs
 
-    var paramListTrLen = 7;
+    var paramListTrLen = 3;
     var trTemplate =
         '<div class="row unfilled">' +
             '<div class="cell paramNameWrap textOverflowOneLine">' +
@@ -114,6 +114,11 @@ window.DFParamModal = (function($, DFParamModal){
 
         $dfParamModal.removeClass('type-dataStore type-filter type-export');
         $dfParamModal.addClass('type-' + type);
+        if (type === "dataStore") {
+            $dfParamModal.height(630);
+        } else {
+            $dfParamModal.height(550);
+        }
 
         var paramValue = $currentIcon.data('paramValue');
 
@@ -442,7 +447,7 @@ window.DFParamModal = (function($, DFParamModal){
                                     xcHelper.escapeHTMLSpecialChar(paramValue[0]) +
                                 '</div>' +
                             '</div>' +
-                            '<div class="templateRow" style="display:none">' +
+                            '<div class="templateRow" style="display:none;">' +
                                 '<div>' +
                                     'Target' + ':' +
                                 '</div>' +

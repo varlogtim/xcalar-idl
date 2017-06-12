@@ -1403,6 +1403,7 @@ window.TestSuite = (function($, TestSuite) {
         $retPopup.find(".newParam").val(paramName);
         $retPopup.find(".addParam").click();
         $retTab.trigger(fakeEvent.mousedown);
+        $("#dfParamModal .draggableParams.systemParams").addClass("hint");
 
         // Add parameter to export
         var $df = $('#dfViz .dagWrap[data-dataflowname="' + dfName +
@@ -1411,7 +1412,7 @@ window.TestSuite = (function($, TestSuite) {
         $dfViz.find(".createParamQuery").trigger(fakeEvent.mouseup);
         var $dfParamModal = $("#dfParamModal");
 
-        checkExists("#dfParamModal:visible")
+        checkExists("#dfParamModal .draggableParams.systemParams:not(.hint)")
         .then(function() {
             $dfParamModal.find(".editableRow .defaultParam").click();
             var $draggablePill = $dfParamModal.find('.draggableDiv').eq(0);
