@@ -143,6 +143,19 @@ window.DSPreview = (function($, DSPreview) {
             }
         });
 
+        var contentScrollTimer;
+        var contentIsScrolling = false;
+        $("#importDataForm-content").scroll(function() {
+            if (!contentIsScrolling) {
+                StatusBox.forceHide();
+            }
+            contentIsScrolling = true;
+            clearInterval(contentScrollTimer);
+            contentScrollTimer = setTimeout(function() {
+                contentIsScrolling = false;
+            }, 500);
+        });
+
         setupForm();
     };
 
