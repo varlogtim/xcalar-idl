@@ -938,6 +938,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             addHintDropdown($list, $field.index());
         }
         $input.focus();
+        formHelper.refreshTabbing();
     }
 
     function removeClause($inputWrap) {
@@ -945,6 +946,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         var subIndex = getInputSubIndex($inputWrap);
         removeHintDropdown(index, subIndex);
         $inputWrap.remove();
+        formHelper.refreshTabbing();
     }
 
     function getArgHtml(arg, tableList) {
