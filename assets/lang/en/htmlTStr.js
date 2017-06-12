@@ -606,7 +606,7 @@ module.exports = {
         "upload": "UPLOAD",
         "uploadHeader": "Upload Dataflow",
         "uploadInstr": "Upload a previously downloaded dataflow into Xcalar. Your file should be of the format .tar.gz",
-        "overwriteUdf": "Overwrite Udfs of the same module name with those inside this dataflow"
+        "overwriteUdf": "Overwrite UDFs of the same module name with those inside this dataflow"
     },
 
     "sched": {

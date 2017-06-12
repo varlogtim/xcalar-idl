@@ -389,7 +389,7 @@ describe("DSPreview Test", function() {
         });
 
         it("DSPreview.toggleXcUDFs should work", function() {
-            var isHide = UserSettings.getPref("hideXcUDF");
+            var isHide = UserSettings.getPref("hideXcUDF") || false;
             var $li = $("<li>_xcalar_test</li>");
             $("#udfArgs-moduleList").append($li);
             DSPreview.toggleXcUDFs(!isHide);
@@ -1159,7 +1159,8 @@ describe("DSPreview Test", function() {
             expect(validateForm()).not.to.be.null;
             assert.isFalse($statusBox.is(":visible"));
 
-            $dsName.val("test");
+            var name = xcHelper.randName("test");
+            $dsName.val(name);
         });
 
         it("Should validate format", function() {
@@ -1394,19 +1395,19 @@ describe("DSPreview Test", function() {
                 test2 = true;
             };
 
-            var isHidden = $("#preview-file").hasClass("xc-hidden");
-            $("#preview-file").addClass("xc-hidden");
+            var isFolder = DSPreview.__testOnly__.get().isViewFolder;
+            DSPreview.__testOnly__.set(null, null, false)
             $("#preview-parser").click();
             expect(test1).to.be.true;
             expect(test2).to.be.false;
 
-            $("#preview-file").removeClass("xc-hidden");
+            DSPreview.__testOnly__.set(null, null, true);
             $("#preview-parser").click();
             expect(test1).to.be.true;
             expect(test2).to.be.true;
 
-            if (isHidden) {
-                $("#preview-file").addClass("xc-hidden");
+            if (isFolder) {
+                DSPreview.__testOnly__.set(null, null, true);
             }
             DSParser.show = oldParser;
             PreviewFileModal.show = oldSelect;

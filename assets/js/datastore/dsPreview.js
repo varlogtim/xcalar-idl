@@ -2623,13 +2623,17 @@ window.DSPreview = (function($, DSPreview) {
             return {
                 "loadArgs": loadArgs,
                 "highlighter": highlighter,
-                "detectArgs": detectArgs
+                "detectArgs": detectArgs,
+                "isViewFolder": isViewFolder
             };
         };
 
-        DSPreview.__testOnly__.set = function(newData, newHighlight) {
+        DSPreview.__testOnly__.set = function(newData, newHighlight, isFolder) {
             highlighter = newHighlight || "";
             rawData = newData || null;
+            if (isFolder != null) {
+                isViewFolder = isFolder;
+            }
         };
     }
     /* End Of Unit Test Only */
