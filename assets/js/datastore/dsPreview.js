@@ -36,6 +36,7 @@ window.DSPreview = (function($, DSPreview) {
     var lastUDFModule = null;
     var lastUDFFunc = null;
     var backToFormCard = false;
+    var isViewFolder = false;
     var tempParserUDF;
 
     // constant
@@ -178,23 +179,27 @@ window.DSPreview = (function($, DSPreview) {
             setDefaultDSName(loadURL);
         }
 
+        var module = null;
+        var func = null;
+
         if (loadArgs.getFormat() === formatMap.EXCEL) {
             toggleFormat("EXCEL");
-            return previewData({
-                "module": excelModule,
-                "func": excelFunc
-            });
+            module = excelModule;
+            func = excelFunc;
         } else if (restore) {
-            return previewData({
-                "module": options.moduleName,
-                "func": options.funcName
-            });
+            module = options.moduleName;
+            func = options.funcName;
         } else {
             // all other rest format first
             // otherwise, cannot detect speical format(like special json)
             loadArgs.setFormat(null);
-            return previewData();
         }
+
+        return previewData({
+            "module": module,
+            "func": func,
+            "checkFolder": true
+        });
     };
 
     DSPreview.changePreviewFile = function(path, noDetect) {
@@ -1286,7 +1291,7 @@ window.DSPreview = (function($, DSPreview) {
     }
 
     function isPreviewSingleFile() {
-        return $("#preview-file").hasClass("xc-hidden");
+        return !isViewFolder;
     }
 
     function clearPreviewTable() {
@@ -1332,12 +1337,13 @@ window.DSPreview = (function($, DSPreview) {
         return deferred.promise();
     }
 
-    function previewData(udfOptions, noDetect, fromChangeFile) {
+    function previewData(options, noDetect, fromChangeFile) {
         var deferred = jQuery.Deferred();
 
-        udfOptions = udfOptions || {};
-        var udfModule = udfOptions.module || null;
-        var udfFunc = udfOptions.func || null;
+        options = options || {};
+        var udfModule = options.module || null;
+        var udfFunc = options.func || null;
+        var udfQuery = options.udfQuery || null;
 
         var loadURL = loadArgs.getPath();
         var dsName = $("#dsForm-dsName").val();
@@ -1400,21 +1406,25 @@ window.DSPreview = (function($, DSPreview) {
             initialLoadArgStr = loadArgs.getArgStr();
         }
 
-        var promise;
-        if (hasUDF) {
-            promise = loadDataWithUDF(txId, urlToPreview, dsName, {
-                "moduleName": udfModule,
-                "funcName": udfFunc,
-                "isRecur": isRecur,
-                "maxSampleSize": previewSize,
-                "fileNamePattern": pattern,
-                "udfQuery": udfOptions.udfQuery
-            });
-        } else {
-            promise = loadData(urlToPreview, pattern, isRecur);
-        }
+        var def = options.checkFolder
+                  ? checkIsFolder(loadURL)
+                  : PromiseHelper.resolve();
 
-        promise
+        def
+        .then(function() {
+            if (hasUDF) {
+                return loadDataWithUDF(txId, urlToPreview, dsName, {
+                    "moduleName": udfModule,
+                    "funcName": udfFunc,
+                    "isRecur": isRecur,
+                    "maxSampleSize": previewSize,
+                    "fileNamePattern": pattern,
+                    "udfQuery": udfQuery
+                });
+            } else {
+                return loadData(urlToPreview, pattern, isRecur);
+            }
+        })
         .then(function(result) {
             if (!result) {
                 var error = DSTStr.NoRecords + '\n' + DSTStr.NoRecrodsHint;
@@ -1451,6 +1461,48 @@ window.DSPreview = (function($, DSPreview) {
 
             errorHandler(error);
             deferred.reject(error);
+        });
+
+        return deferred.promise();
+    }
+
+    function checkIsFolder(path) {
+        var deferred =jQuery.Deferred();
+        // Note: for all error case, we set isViewFolder to be true
+        // to allow user change the pattern
+        isViewFolder = true;
+
+        if (path.endsWith("/")) {
+            path = path.substring(0, path.length - 1);
+        }
+
+        var lastIndex = path.lastIndexOf("/");
+        if (lastIndex < 0) {
+            console.error("error case");
+            isViewFolder = true;
+            return PromiseHelper.resolve();
+        }
+
+        var url = path.substring(0, lastIndex + 1);
+        var fileName = path.substring(lastIndex + 1, path.length)
+        XcalarListFiles(url)
+        .then(function(res) {
+            var numFiles = res.numFiles;
+            var files = res.files;
+            for (var i = 0; i < numFiles; i++) {
+                var file = files[i];
+                if (file.name === fileName) {
+                    isViewFolder = file.attr.isDirectory;
+                    break;
+                }
+            }
+            deferred.resolve();
+        })
+        .fail(function(error) {
+            console.error("list files failed", error);
+            // still resolve
+            isViewFolder = true;
+            deferred.resolve();
         });
 
         return deferred.promise();
@@ -1793,7 +1845,7 @@ window.DSPreview = (function($, DSPreview) {
             udfFunc = res.udfFunc;
         }
 
-        var udfOptions = {
+        var options = {
             "module": udfModule,
             "func": udfFunc,
             "udfQuery": udfQuery
@@ -1801,7 +1853,7 @@ window.DSPreview = (function($, DSPreview) {
 
         clearPreviewTable()
         .then(function() {
-            return previewData(udfOptions, noDetect, fromChangeFile);
+            return previewData(options, noDetect, fromChangeFile);
         })
         .fail(errorHandler);
     }
