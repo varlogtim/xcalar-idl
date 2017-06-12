@@ -967,6 +967,42 @@ describe("DSObj Test", function() {
         });
     });
 
+    describe("XcalarLoad test", function() {
+        it("should return an object if fails with 502 error", function(done) {
+            var cachedLoadFn = xcalarLoad;
+            var cachedGetQueryFn = XcalarGetQuery;
+            var cachedGetDatasetsFn = XcalarGetDatasets;
+            var getDatasetsCalled = false;
+            xcalarLoad = function() {
+                return PromiseHelper.reject({status: 502});
+            };
+            XcalarGetQuery = function() {
+                return PromiseHelper.resolve("someString");
+            };
+            XcalarGetDatasets = function() {
+                getDatasetsCalled = true;
+                return PromiseHelper.resolve({
+                    datasets: [{name:"testDS", loadIsComplete: true}]
+                });
+            }
+            XcalarLoad("file:///test", "JSON", "testDS")
+            .then(function(ret) {
+                expect(getDatasetsCalled).to.be.true;
+                expect(ret).to.be.an("object");
+                done();
+            })
+            .fail(function() {
+                debugger;
+                done("failed");
+            })
+            .always(function() {
+                xcalarLoad = cachedLoadFn;
+                XcalarGetQuery = cachedGetQueryFn;
+                XcalarGetDatasets = cachedGetDatasetsFn;
+            })
+        });
+    });
+
     after(function() {
         xcTooltip.hideAll(); // toggle list view test may have tooltip
         $mainTabCache.click();

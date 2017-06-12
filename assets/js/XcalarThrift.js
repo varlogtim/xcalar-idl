@@ -554,8 +554,9 @@ function XcalarLoad(url, format, datasetName, options, txId) {
                     def1.reject(thriftError);
                 } else {
                     if (loadDone) {
-                        Transaction.log(txId1, sqlString1);
-                        def1.resolve();
+                        Transaction.log(txId1, sqlString1,
+                                        parseDS(datasetName));
+                        def1.resolve({});
                     } else {
                         setTimeout(checkIter.bind(null, def1, sqlString1,
                                                   dsName1, txId1), 1000);
@@ -663,6 +664,7 @@ function XcalarLoad(url, format, datasetName, options, txId) {
         }
     })
     .fail(function(error1, error2) {
+        // 502 = Bad Gateway server error
         if (error1 && typeof(error1) === "object" &&
             (("status" in error1 && error1.status === 502) ||
             (error1.length > 0 && error1[0].status === 502))) {
@@ -677,6 +679,10 @@ function XcalarLoad(url, format, datasetName, options, txId) {
                 });
             } else if (typeof (error2) === "string") {
                 checkForDatasetLoad(deferred, error2, datasetName, txId);
+            } else {
+                Transaction.checkAndSetCanceled(txId);
+                var thriftError = thriftLog("XcalarLoad", error1, error2);
+                deferred.reject(thriftError);
             }
         } else {
             Transaction.checkAndSetCanceled(txId);

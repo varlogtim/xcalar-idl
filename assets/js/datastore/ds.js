@@ -538,6 +538,12 @@ window.DS = (function ($, DS) {
             return XcalarLoad.apply(this, args);
         })
         .then(function(ret) {
+            // if ret.numBytes doesn't exist, size will be set later by calling
+            // XcalarGetDatasetMeta
+            var bytes = null;
+            if (ret) {
+                bytes = ret.numBytes;
+            }
             dsObj.setSize(ret.numBytes);
             finishPoint();
 
