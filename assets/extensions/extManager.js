@@ -11,6 +11,8 @@ window.ExtensionManager = (function(ExtensionManager, $) {
     var formHelper;
     var hintMenu = [];
     var inputSuggest;
+    var shouldRestore = false;
+    var formOpenTime;
 
     function removeExt(extName) {
         for (var i = 0; i < extFileNames.length; i++) {
@@ -269,11 +271,24 @@ window.ExtensionManager = (function(ExtensionManager, $) {
          // Might not support in 1.0
     };
 
-    ExtensionManager.openView = function(colNum, tableId) {
+    ExtensionManager.openView = function(colNum, tableId, options) {
+        options = options || {};
+        if (options.restoreTime && options.restoreTime !== formOpenTime) {
+            // if restoreTime and formOpenTime do not match, it means we're
+            // trying to restore a form to a state that's already been
+            // overwritten
+            return;
+        }
+
         if (colNum != null && tableId != null) {
             var table = gTables[tableId];
             triggerCol = table.getCol(colNum);
             $extTriggerTableDropdown.find(".text").val(table.getName());
+        }
+
+        if (options.restoreTime) {
+            // mark the restore
+            shouldRestore = true;
         }
 
         var $tab = $("#extensionTab");
@@ -282,6 +297,12 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             $tab.click();
             return;
         }
+
+        formOpenTime = Date.now();
+        if (!shouldRestore) {
+            cleanup();
+        }
+        shouldRestore = false;
 
         if (!isViewOpen) {
             isViewOpen = true;
@@ -295,13 +316,16 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         }
 
         isViewOpen = false;
-        clearArgs();
         $lastInputFocused = null;
         triggerCol = null;
-        $extTriggerTableDropdown.find(".text").val("");
         formHelper.clear();
-        hintMenu = [];
     };
+
+    function cleanup() {
+        clearArgs();
+        $extTriggerTableDropdown.find(".text").val("");
+        hintMenu = [];
+    }
 
     /*
     options: {
@@ -538,8 +562,8 @@ window.ExtensionManager = (function(ExtensionManager, $) {
 
             $extLists.find(".func.selected").removeClass("selected");
             $func.addClass("selected");
-            if (!$('#workspaceTab').hasClass('active')) {
-                MainMenu.openPanel('workspacePanel');
+            if (!$("#workspaceTab").hasClass("active")) {
+                MainMenu.openPanel("workspacePanel");
             }
 
             centerFuncList($func);
@@ -775,6 +799,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         }
 
         ExtensionManager.trigger(tableId, modName, fnName, args, {
+            "formOpenTime": formOpenTime,
             "closeTab": true
         });
     }

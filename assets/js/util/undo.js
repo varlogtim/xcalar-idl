@@ -287,7 +287,7 @@ window.Undo = (function($, Undo) {
                                         refreshOptions);
     };
 
-    undoFuncs[SQLOps.Ext] = function(options) {
+    undoFuncs[SQLOps.Ext] = function(options, isMostRecent) {
         // XXX As extension can do anything, it may need fix
         // as we add more extensions and some break the current code
 
@@ -296,9 +296,10 @@ window.Undo = (function($, Undo) {
         // var tableId = options.tableId;
         var newTables = options.newTables || [];
         var replace = options.replace || {};
-
+        var extOptions = options.options || {};
         // undo new append table, just hide newTables
         var promises = [];
+        var deferred = jQuery.Deferred();
 
         for (var i = 0; i < newTables.length; i++) {
             var newTableId = xcHelper.getTableId(newTables[i]);
@@ -330,7 +331,19 @@ window.Undo = (function($, Undo) {
             }
         }
 
-        return PromiseHelper.chain(promises);
+        PromiseHelper.chain(promises)
+        .then(function() {
+            if (isMostRecent) {
+                ExtensionManager.openView(null, null, {
+                    "restoreTime": extOptions.formOpenTime
+                });
+            }
+
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
     };
     /* END BACKEND OPERATIONS */
 
