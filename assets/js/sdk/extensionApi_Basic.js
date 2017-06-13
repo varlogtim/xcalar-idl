@@ -45,7 +45,15 @@ if (window.XcSDK.Extension == null) {
 window.XcSDK.Extension.prototype = (function() {
     // inner helper function
     function deleteTempTable(txId, tableName) {
-        return XIApi.deleteTableAndMeta(txId, tableName);
+        var deferred = jQuery.Deferred();
+        XIApi.deleteTableAndMeta(txId, tableName)
+        .then(function() {
+            Dag.makeInactive(tableName, true);
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
     }
 
     var prototype = {
