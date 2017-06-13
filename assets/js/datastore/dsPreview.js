@@ -294,7 +294,12 @@ window.DSPreview = (function($, DSPreview) {
         // setup udf
         $("#dsForm-refresh").click(function() {
             $(this).blur();
-            refreshPreview(true);
+            var format = loadArgs.getFormat();
+            if (format == null) {
+                refreshPreview(false, null, true);
+            } else {
+                refreshPreview(true);
+            }
         });
 
         // set up format dropdownlist
@@ -850,7 +855,7 @@ window.DSPreview = (function($, DSPreview) {
         return headers;
     }
 
-    function validateForm() {
+    function validateForm(skipFormatCheck) {
         var $dsName = $("#dsForm-dsName");
         var dsName = $dsName.val().trim();
         // validate name
@@ -911,7 +916,7 @@ window.DSPreview = (function($, DSPreview) {
             "$ele": $formatText,
             "error": ErrTStr.NoEmptyList,
             "check": function() {
-                return (!isUseUDF() && (format == null));
+                return (!isUseUDF() && !skipFormatCheck && (format == null));
             }
         }]);
 
@@ -1840,8 +1845,8 @@ window.DSPreview = (function($, DSPreview) {
         }
     }
 
-    function refreshPreview(noDetect, fromChangeFile) {
-        var res = validateForm();
+    function refreshPreview(noDetect, fromChangeFile, skipFormatCheck) {
+        var res = validateForm(skipFormatCheck);
         if (res == null) {
             return;
         }
