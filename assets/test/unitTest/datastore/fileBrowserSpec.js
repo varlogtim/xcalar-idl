@@ -749,9 +749,7 @@ describe("File Browser Test", function() {
 
         it("Should go into folder when enter on path", function(done) {
             var $input = $pathSection.find(".text");
-            $input.val("");
-            var $grid = findGrid("netstore");
-            $grid.click();
+            $input.val("netstore");
 
             var e = jQuery.Event("keyup", {"which": keyCode.Enter});
             $input.trigger(e);

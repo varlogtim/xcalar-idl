@@ -76,7 +76,7 @@ describe("DFParamModal Test", function() {
             expect($modal.find(".template .boxed").length).to.equal(2);
             expect($modal.find(".template").text()).to.equal("Export As:export-" + tableName + ".csvTarget:Default");
             expect($modal.find("input").eq(0).val()).to.equal("");
-            expect($modal.find("input").length).to.equal(8);
+            expect($modal.find("input").length).to.equal(4);
         });
 
         describe("export submit with invalid file name", function() {
@@ -214,7 +214,7 @@ describe("DFParamModal Test", function() {
             expect($modal.find(".template .boxed").length).to.equal(3);
             expect($modal.find(".template").text()).to.equal("filter:" + colName + "bygt3");
             expect($modal.find("input").eq(0).val()).to.equal("");
-            expect($modal.find("input").length).to.equal(10);
+            expect($modal.find("input").length).to.equal(6);
         });
 
         it("filter dropdown should be correct", function() {

@@ -46,6 +46,79 @@ window.FileBrowser = (function($, FileBrowser) {
             upperFileLimit = subUpperFileLimit;
         }
 
+        addContainerEvents();
+        addSortMenuEvents();
+        addPathSectionEvents();
+        addSearchSectionEvents();
+        addBrowserMenuEvents();
+
+        fileBrowserScrolling();
+    };
+
+    FileBrowser.restore = function() {
+        // restore list view if saved
+        var isListView = UserSettings.getPref('browserListView');
+        if (isListView) {
+            toggleView(true, true);
+        }
+    };
+
+    FileBrowser.show = function(protocol, path) {
+        var deferred = jQuery.Deferred();
+
+        clearAll();
+        DSForm.switchView(DSForm.View.Browser);
+
+        addKeyBoardEvent();
+        fileBrowserId = xcHelper.randName("browser");
+
+        if (protocol == null) {
+            // this is an error case
+            console.error("No protocol!!");
+            protocol = FileProtocol.nfs;
+        }
+
+        var res = changeProtocol(protocol, path);
+        protocol = res[0];
+        path = res[1];
+        path = getPathWithProtocol(protocol, path);
+
+        var paths = parsePath(path);
+        setPath(getShortPath(paths[paths.length - 1]));
+
+        retrievePaths(path)
+        .then(function() {
+            measureDSIconHeight();
+            deferred.resolve();
+        })
+        .fail(function(error) {
+            if (error.error === oldBrowserError) {
+                // when it's an old deferred
+                deferred.reject(error);
+                return;
+            } else if (error.status === StatusT.StatusIO ||
+                        path === defaultPath) {
+                loadFailHandler(error, path);
+                deferred.reject(error);
+            } else {
+                retrievePaths(defaultPath)
+                .then(function() {
+                    redirectHandler(path);
+                    deferred.resolve();
+                })
+                .fail(function(innerError) {
+                    if (innerError.error !== oldBrowserError) {
+                        loadFailHandler(innerError, path);
+                    }
+                    deferred.reject(innerError);
+                });
+            }
+        });
+
+        return deferred.promise();
+    };
+
+    function addContainerEvents() {
         $fileBrowser.on("click", "input", function() {
             hideBrowserMenu();
         });
@@ -142,7 +215,9 @@ window.FileBrowser = (function($, FileBrowser) {
                 sortAction($title, false);
             }
         });
+    }
 
+    function addSortMenuEvents() {
         // toggle sort menu, should use mousedown for toggle
         var $sortMenu = $("#fileBrowserSortMenu");
         var $sortSection = $("#fileBrowserSort");
@@ -187,11 +262,12 @@ window.FileBrowser = (function($, FileBrowser) {
             "onSelect": goToPath,
             "container": "#fileBrowser"
         }).setupListeners();
+    }
 
+    function addPathSectionEvents() {
         var timer;
         $pathSection.on({
             "keyup": function(event) {
-                // assume what inputed should be a path
                 clearTimeout(timer);
 
                 var key = event.which;
@@ -204,30 +280,18 @@ window.FileBrowser = (function($, FileBrowser) {
                 var path = defaultPath + $(this).val();
 
                 if (key === keyCode.Enter) {
-                    var $grid = $container.find('.grid-unit.active');
-                    if ($grid.length > 0) {
-                        // this is the case that user input file:///var/tmp,
-                        // it focus on tmp and then press enter
-                        $grid.trigger("dblclick");
+                    if (!path.endsWith("/")) {
+                        path += "/";
                     }
+
+                    pathInput(path);
                     return false;
                 }
 
                 timer = setTimeout(function() {
-                    // if (path.charAt(path.length - 1) !== "/") {
-                    //     path += "/";
-                    // }
-
-                    if (path === getCurrentPath()) {
-                        // when the input path is still equal to current path
-                        // do not retrievePath
-                        return;
+                    if (path.endsWith("/")) {
+                        pathInput(path);
                     }
-
-                    retrievePaths(path, true)
-                    .fail(function() {
-                        showNoFileError();
-                    });
                 }, 400);
 
                 return false;
@@ -241,7 +305,40 @@ window.FileBrowser = (function($, FileBrowser) {
                 $pathSection.removeClass("focused");
             }
         }, ".text");
+    }
 
+    function pathInput(path) {
+        if (path === getCurrentPath()) {
+            // when the input path is still equal to current path
+            // do not retrievePath
+            return PromiseHelper.resolve();
+        }
+
+        var deferred = jQuery.Deferred();
+
+        retrievePaths(path)
+        .then(deferred.resolve)
+        .fail(function(error) {
+            showPathError();
+            deferred.reject(error);
+        });
+
+        return deferred.promise();
+    }
+
+    function showPathError() {
+        var $input = $("#fileBrowserPath .text");
+        var width = $input.width();
+        var textWidth = xcHelper.getTextWidth($input);
+        var offset = width - textWidth - 50; // padding 50px
+
+        StatusBox.show(ErrTStr.InvalidFilePath, $input, false, {
+            "side": "right",
+            "offsetX": offset
+        });
+    }
+
+    function addSearchSectionEvents() {
         // search bar
         var $searchSection = $("#fileBrowserSearch");
         $searchSection.on("input", "input", function() {
@@ -255,74 +352,46 @@ window.FileBrowser = (function($, FileBrowser) {
             // stop event propogation
             return false;
         });
+    }
 
-        addBrowserMenuListener();
+    function addBrowserMenuEvents() {
+        var $fileBrowserMenu = $("#fileBrowserMenu");
+        xcMenu.add($fileBrowserMenu);
 
-        fileBrowserScrolling();
-    };
+        $fileBrowserMain[0].oncontextmenu = function(event) {
+            var $target = $(event.target);
+            var $grid = $target.closest(".grid-unit");
 
-    FileBrowser.restore = function() {
-        // restore list view if saved
-        var isListView = UserSettings.getPref('browserListView');
-        if (isListView) {
-            toggleView(true, true);
-        }
-    };
-
-    FileBrowser.show = function(protocol, path) {
-        var deferred = jQuery.Deferred();
-
-        clearAll();
-        DSForm.switchView(DSForm.View.Browser);
-
-        addKeyBoardEvent();
-        fileBrowserId = xcHelper.randName("browser");
-
-        if (protocol == null) {
-            // this is an error case
-            console.error("No protocol!!");
-            protocol = FileProtocol.nfs;
-        }
-
-        var res = changeProtocol(protocol, path);
-        protocol = res[0];
-        path = res[1];
-        path = getPathWithProtocol(protocol, path);
-
-        var paths = parsePath(path);
-        setPath(getShortPath(paths[paths.length - 1]));
-
-        retrievePaths(path)
-        .then(function() {
-            measureDSIconHeight();
-            deferred.resolve();
-        })
-        .fail(function(error) {
-            if (error.error === oldBrowserError) {
-                // when it's an old deferred
-                deferred.reject(error);
+            if ($grid.length ===0) {
                 return;
-            } else if (error.status === StatusT.StatusIO ||
-                        path === defaultPath) {
-                loadFailHandler(error, path);
-                deferred.reject(error);
-            } else {
-                retrievePaths(defaultPath)
-                .then(function() {
-                    redirectHandler(path);
-                    deferred.resolve();
-                })
-                .fail(function(innerError) {
-                    if (innerError.error !== oldBrowserError) {
-                        loadFailHandler(innerError, path);
-                    }
-                    deferred.reject(innerError);
-                });
             }
-        });
+            // focuse on grid
+            $grid.click();
 
-        return deferred.promise();
-    };
+            var classes = "";
+            if (isDS($grid)) {
+                classes = "dsOpts";
+            } else {
+                classes = "folderOpts";
+            }
+
+            xcHelper.dropdownOpen($target, $fileBrowserMenu, {
+                "classes": classes,
+                "floating": true
+            });
+            return false;
+        };
+
+        $fileBrowserMenu.on("mouseup", ".preview", function() {
+            var $grid = getFocusedGridEle();
+            previewDS($grid);
+        });
+    }
+
+    function hideBrowserMenu() {
+        $("#fileBrowserMenu").hide();
+        $("#fileBrowserSortMenu").hide();
+    }
 
     function fileBrowserScrolling() {
         var scrollTimer;
@@ -1388,45 +1457,6 @@ window.FileBrowser = (function($, FileBrowser) {
         var gridName = getGridUnitName($grid);
         var url = currentPath + gridName;
         FilePreviewer.show(url);
-    }
-
-    function addBrowserMenuListener() {
-        var $fileBrowserMenu = $("#fileBrowserMenu");
-        xcMenu.add($fileBrowserMenu);
-
-        $fileBrowserMain[0].oncontextmenu = function(event) {
-            var $target = $(event.target);
-            var $grid = $target.closest(".grid-unit");
-
-            if ($grid.length ===0) {
-                return;
-            }
-            // focuse on grid
-            $grid.click();
-
-            var classes = "";
-            if (isDS($grid)) {
-                classes = "dsOpts";
-            } else {
-                classes = "folderOpts";
-            }
-
-            xcHelper.dropdownOpen($target, $fileBrowserMenu, {
-                "classes": classes,
-                "floating": true
-            });
-            return false;
-        };
-
-        $fileBrowserMenu.on("mouseup", ".preview", function() {
-            var $grid = getFocusedGridEle();
-            previewDS($grid);
-        });
-    }
-
-    function hideBrowserMenu() {
-        $("#fileBrowserMenu").hide();
-        $("#fileBrowserSortMenu").hide();
     }
 
     /* Unit Test Only */
