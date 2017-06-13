@@ -113,16 +113,16 @@ describe("DFCard Test", function() {
             $tab = $(".retTabSection").find(".retTab");
         });
 
-        it("popup should open and close", function() {
-            $tab.trigger(fakeEvent.mousedown);
-            expect($tab.hasClass("active")).to.be.true;
-            expect($tab.find(".retPopUp").is(":visible")).to.be.true;
+        // it("popup should open and close", function() {
+        //     $tab.trigger(fakeEvent.mousedown);
+        //     expect($tab.hasClass("active")).to.be.true;
+        //     expect($tab.find(".retPopUp").is(":visible")).to.be.true;
 
-            $tab.trigger(fakeEvent.mousedown);
+        //     $tab.trigger(fakeEvent.mousedown);
 
-            expect($tab.hasClass("active")).to.be.false;
-            expect($tab.find(".retPopUp").is(":visible")).to.be.false;
-        });
+        //     expect($tab.hasClass("active")).to.be.false;
+        //     expect($tab.find(".retPopUp").is(":visible")).to.be.false;
+        // });
 
         it("popup should not close when clicking inside of it", function() {
             $tab.trigger(fakeEvent.mousedown);
@@ -131,13 +131,13 @@ describe("DFCard Test", function() {
             expect($tab.find(".retPopUp").is(":visible")).to.be.true;
         });
 
-        it("popup should close when clicking on dfcard", function() {
-            expect($tab.find(".retPopUp").is(":visible")).to.be.true;
-            $(document).trigger(fakeEvent.mousedown);
-            expect($tab.find(".retPopUp").is(":visible")).to.be.true;
-            $("#dfViz").trigger(fakeEvent.mousedown);
-            expect($tab.find(".retPopUp").is(":visible")).to.be.false;
-        });
+        // it("popup should close when clicking on dfcard", function() {
+        //     expect($tab.find(".retPopUp").is(":visible")).to.be.true;
+        //     $(document).trigger(fakeEvent.mousedown);
+        //     expect($tab.find(".retPopUp").is(":visible")).to.be.true;
+        //     $("#dfViz").trigger(fakeEvent.mousedown);
+        //     expect($tab.find(".retPopUp").is(":visible")).to.be.false;
+        // });
 
         it("empty param submission should validate", function() {
             $tab.find(".newParam").val("");

@@ -24,7 +24,6 @@ window.DF = (function($, DF) {
                     dataflows[retName] = new Dataflow(retName);
                 }
             }
-
             return XcalarListSchedules();
         })
         .then(function(list) {
@@ -35,7 +34,7 @@ window.DF = (function($, DF) {
                     continue;
                 }
 
-                allOptions = $.extend({}, list[i].scheduleMain.options,
+                var allOptions = $.extend({}, list[i].scheduleMain.options,
                              list[i].scheduleMain.substitutions,
                              list[i].scheduleMain.timingInfo);
                 dataflows[retName].schedule = new SchedObj(allOptions);
@@ -94,11 +93,24 @@ window.DF = (function($, DF) {
 
                 // Populate export column information
                 addColumns(retName);
+                dataflows[retName].updateParamMapInUsed();
             }
+            return XcalarListSchedules();
+        })
+        .then(function(list) {
+            for (var i = 0; i < list.length; i++) {
+                var retName = list[i].scheduleMain.retName;
+                if (dataflows[retName] == null) {
+                    console.error("error case");
+                    continue;
+                }
 
-
+                var allOptions = $.extend({}, list[i].scheduleMain.options,
+                             list[i].scheduleMain.substitutions,
+                             list[i].scheduleMain.timingInfo);
+                dataflows[retName].schedule = new SchedObj(allOptions);
+            }
             DFCard.refreshDFList(true);
-
             deferred.resolve();
         })
         .fail(deferred.reject);
@@ -245,7 +257,7 @@ window.DF = (function($, DF) {
                     options = getOptions(allOptions);
                     timingInfo = getTimingInfo(allOptions);
                     return XcalarCreateSched(dataflowName, dataflowName,
-                            substitutions, options, timingInfo);
+                        substitutions, options, timingInfo);
                 })
                 .then(function() {
                     DF.commitAndBroadCast(dataflowName);
@@ -267,12 +279,10 @@ window.DF = (function($, DF) {
         var options = getOptions(dataflow.schedule);
         var timingInfo = getTimingInfo(dataflow.schedule);
         var substitutions = getSubstitutions(dataflowName);
-        // XcalarUpdateSched(dataflowName, dataflowName,
-        //     substitutions, options, timingInfo)
-        PromiseHelper.resolve()
-        .then(function() {
-            deferred.resolve();
-        })
+
+        XcalarUpdateSched(dataflowName, dataflowName,
+            substitutions, options, timingInfo)
+        .then(deferred.resolve)
         .fail(deferred.reject);
         return deferred.promise();
     };
@@ -319,8 +329,7 @@ window.DF = (function($, DF) {
         .then(function(retStruct) {
             updateDFInfo(retStruct);
             addColumns(dfName);
-
-            return df.updateParameters();
+            return df.updateParamMapInUsed();
         })
         .then(deferred.resolve)
         .fail(deferred.reject);
@@ -386,12 +395,16 @@ window.DF = (function($, DF) {
     function getSubstitutions(dataflowName) {
         var paramsArray = [];
         var dfObj = DF.getDataflow(dataflowName);
-        var parameters = dfObj.paramMap;
-        for (var param in parameters) {
+        var paramMap = dfObj.paramMap;
+        var paramMapInUsed = dfObj.paramMapInUsed;
+
+        for (var name in paramMap) {
             var p = new XcalarApiParameterT();
-            p.parameterName = param;
-            p.parameterValue = parameters[param];
-            paramsArray.push(p);
+            if (paramMapInUsed[name]) {
+                p.parameterName = name;
+                p.parameterValue = paramMap[name];
+                paramsArray.push(p);
+            }
         }
         return paramsArray;
     }

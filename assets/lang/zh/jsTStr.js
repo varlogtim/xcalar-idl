@@ -275,7 +275,8 @@ ErrTStr = {
 'InvalidColumn': '列名无效：<name>',
 'LicenseExpire': '您的Xcalar许可证到期时间为 \"<date>\"',
 'ExtNotFound': '扩展名<module>::<fn>未找到。',
-'NoEmptyMustRevert': '请填写该栏. 如果您想使用默认值, 请点击"默认值"按钮.'
+'NoEmptyMustRevert': '请填写该栏. 如果您想使用默认值, 请点击"默认值"按钮.',
+'InUsedNoDelete': '该参数正在使用中，删除失败'
 };
 ErrWRepTStr = {
 'FolderConflict': '具有相同名称的文件夹<name>已经存在，请选取其他名称。',
@@ -625,7 +626,9 @@ DFTStr = {
 "SlightSkew": "轻度偏移",
 "HeavySkew": "重度偏移",
 "Refresh": "刷新数据流",
-"RefreshMsg": "当前数据流已被其他用户更改"
+"RefreshMsg": "当前数据流已被其他用户更改",
+"AddValues": "赋值",
+"ParamNoValue": "请为当前数据流使用的所有参数赋值"
 };
 DSTStr = {
 'UnknownUser': '未知用户',

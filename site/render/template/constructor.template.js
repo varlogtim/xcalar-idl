@@ -2235,6 +2235,7 @@
             paramQuery: (array) list of param's query
         */
         function RetinaNode<%= v %>(options) {
+
             var self = _super.call(this, options);
             <%= addVersion %>
 
@@ -2253,7 +2254,6 @@
             }
             return self;
         }
-
         __extends(RetinaNode<%= v %>, _super);
 
         return RetinaNode<%= v %>;
@@ -2267,6 +2267,7 @@
             columns: (array, not persist) Columns to export
             parameters: (array) array of parameters in Dataflow
             paramMap: (obj) map for parameters
+            paramMapInUsed: (obj) map to record whether parameter is used
             nodeIds: (obj, not pesist) map of dagNames and dagIds
             retinaNodes: (obj, not persist) retina node info from backend
             parameterizedNodes: (obj) map of dagNodeIds to parameterized structs
@@ -2282,12 +2283,14 @@
                 var restoreInfos = Dataflow<%= v %>.restoreInfos(options, version);
                 self.parameterizedNodes = restoreInfos.parameterizedNodes;
                 self.schedule = restoreInfos.schedule;
+                self.paramMapInUsed = restoreInfos.paramMapInUsed || {};
             }
             return self;
         }
 
         __extends(Dataflow<%= v %>, _super, {
             <% if (isCurCtor) {%>
+
             addNodeId: function(tableName, nodeId) {
                 this.nodeIds[tableName] = nodeId;
             },
@@ -2353,6 +2356,8 @@
             addParameter: function(name) {
                 xcAssert(!this.paramMap.hasOwnProperty(name), "Invalid name");
                 this.parameters.push(name);
+                this.paramMap[name] = null;
+                this.paramMapInUsed[name] = false;
             },
 
             getParameter: function(paramName) {
@@ -2360,41 +2365,68 @@
             },
 
             updateParameters: function(params) {
-                var deferred = jQuery.Deferred();
                 var paramMap = this.paramMap;
                 var parameters = this.parameters;
+                var paramMapInUsed = this.paramMapInUsed;
+
                 var usedParamNames = {};
                 if (params != null && params instanceof Array) {
                     params.forEach(function(param) {
                         var name = param.name;
                         var val  = param.val;
-                        xcAssert((parameters.includes(name) ||
-                        systemParams.hasOwnProperty(name)), "Invalid name");
+                        xcAssert(parameters.includes(name)
+                            || systemParams.hasOwnProperty(name),"Invalid name");
+                        if (!parameters.includes(name)) {
+                            parameters.push(name);
+                        }
                         paramMap[name] = val;
+                        paramMapInUsed[name] = true;
                     });
+                }
+            },
+
+            updateParamMapInUsed: function() {
+                var parameters = this.parameters;
+                var paramMap = this.paramMap;
+                var paramMapInUsed = this.paramMapInUsed;
+                var deferred = jQuery.Deferred();
+
+                for (var name in paramMapInUsed) {
+                    paramMapInUsed[name] = false;
                 }
                 XcalarListParametersInRetina(this.name)
                 .then(function(data) {
-                    var usedParams = data.parameters;
-                    for (var i = 0; i < usedParams.length; i++) {
-                        var param = usedParams[i];
-                        usedParamNames[param.parameterName] = true;
-                        if (!paramMap.hasOwnProperty(param.parameterName)) {
-                            console.error("param not in front meta!");
-                            deferred.reject();
-                            return;
+                    var params = data.parameters;
+                    for (var i = 0; i < params.length; i++) {
+                        var name = params[i].parameterName;
+                        paramMapInUsed[name] = true;
+                        if (!paramMap.hasOwnProperty(name)) {
+                            paramMap[name] = systemParams.hasOwnProperty(name)?
+                                             systemParams[name] : null;
                         }
-                    }
-                    for (var paramName in paramMap) {
-                        if (!usedParamNames.hasOwnProperty(paramName)) {
-                            delete paramMap[paramName];
+                        if (!parameters.includes(name)) {
+                            parameters.push(name);
                         }
                     }
                     deferred.resolve();
                 })
                 .fail(deferred.reject);
-
                 return deferred.promise();
+            },
+
+            allUsedParamsWithValues: function() {
+                var parameters = this.parameters;
+                var paramMap = this.paramMap;
+                var paramMapInUsed = this.paramMapInUsed;
+
+                for (var name in paramMapInUsed) {
+                    if (!paramMap.hasOwnProperty(name)
+                        || paramMap[name] === null) {
+                        console.error("param not in front meta!");
+                        return false;
+                    }
+                }
+                return true;
             },
 
             checkParamInUse: function(paramName) {
@@ -2409,7 +2441,6 @@
                         }
                     }
                 }
-
                 return false;
             },
 
@@ -2420,6 +2451,7 @@
 
                 this.parameters.splice(index, 1);
                 delete this.paramMap[name];
+                delete this.paramMapInUsed[name];
             },
 
             // Function for modify schedule in the object

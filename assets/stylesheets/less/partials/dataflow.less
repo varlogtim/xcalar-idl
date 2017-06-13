@@ -123,8 +123,8 @@
                 }
 
                 .retPopUp {
-                    .position(absolute, @top: 33px, @left: -332px);
-                    .size(@width: 468px, @height: 301px);
+                    .position(absolute, @top: 33px, @left: -428px);
+                    .size(@width: 648px, @height: 301px);
                     display: none;
                     box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.2);
                     padding: 10px 8px;
@@ -134,7 +134,7 @@
                         .size(@width: 100%, @height: 30px);
                         margin-bottom: 6px;
 
-                        .input-box(@w: 223px, @h: 30px);
+                        .input-box(@w: 333px, @h: 30px);
 
                         > input, > button {
                             display: inline-block;
@@ -160,20 +160,39 @@
 
                         &.paramValWrap {
                             .size(@width: 179px);
+                            padding: 0px 0px 0px 0px;
+                            input {
+                                .size(@width: 100%, @height: 100%);
+                                float: left;
+                                border: solid 1px transparent;
+                                background: transparent;
+                                &:focus {
+                                    background-color: white;
+                                    border: solid 1px @color-font-softBlue;
+                                }
+                            }
                         }
 
-                        &.paramActionWrap {
+                        &.paramActionWrap, &.paramNoValueWrap {
                             text-align: center;
-                            .size(@width: 80px);
+                            .size(@width: 90px);
+                            .checkbox {
+                                .size(@width: 15px, @height: 15px);
+                                .position(relative, @top: 2px);
+                            }
                         }
                     }
 
                     .tableContainer {
                         .tableWrapper {
-                            .size(@width: 452px);
+                            .size(@width: 562px);
 
-                            .unfilled .paramDelete {
+                            .unfilled .paramDelete, .unfilled .checkbox {
                                 display: none;
+                            }
+
+                            .unfilled .paramVal {
+                                pointer-events: none;
                             }
 
                             .paramActionWrap {
@@ -183,6 +202,12 @@
                                     transform: translate(-50%, -50%);
                                 }
                             }
+                        }
+                    }
+
+                    .tableHeader {
+                        .cell {
+                            text-align: center;
                         }
                     }
                 }

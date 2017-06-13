@@ -297,6 +297,7 @@ ErrTStr = {
     'BundleFailed': 'Submit Bundle Failed',
     'NoEmptyMustRevert': 'Please fill out this field. If you want to use the ' +
                        'original value, please click the "Default value" icon.',
+    'InUsedNoDelete': 'This parameter is currently in use. Delete is not supported.',
 
     // With replace
     'WorkbookExists': 'A workbook named <workbookName> already exists. Please' +
@@ -745,7 +746,9 @@ DFTStr = {
     "HeavySkew": "Heavy skew",
     'InvalidTarget': 'Target not found.',
     "Refresh": "Refresh Dataflow",
-    "RefreshMsg": "The dataflow you are working on is modified by other users"
+    "RefreshMsg": "The dataflow you are working on is modified by other users",
+    "AddValues": "Add Values",
+    "ParamNoValue": "Please assign values to all the parameters being used in the current dataflow."
 };
 
 DSTStr = {

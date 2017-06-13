@@ -89,11 +89,14 @@ window.UploadDataflowCard = (function($, UploadDataflowCard) {
                 "isUpload": true,
                 "noClick": true
             });
-
+            var df = DF.getDataflow(retName);
             closeCard();
             // Click on the newly uploaded dataflow
+            return df.updateParamMapInUsed();
+        })
+        .then(function() {
             $(".groupName:contains('" + retName + "')").closest(".dataFlowGroup")
-                                                        .click();
+                                                       .click();
             deferred.resolve();
         })
         .fail(deferred.reject)

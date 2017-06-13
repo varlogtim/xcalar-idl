@@ -289,6 +289,7 @@ module.exports = {
     "dataflow": {
         "DataflowTitle": "批量数据流",
         "action": "操作",
+        "noValue": "空值",
         "create": "创建",
         "dfName": "批量数据流名称",
         "dfs": "数据流",

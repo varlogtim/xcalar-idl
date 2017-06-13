@@ -125,11 +125,17 @@ window.DFParamModal = (function($, DFParamModal){
         getExportInfo(type)
         .always(function(info) {
             setupInputText(paramValue, type, info);
+            $("#dfParamModal .editableRow .defaultParam").click();
+            $("#dfParamModal input.editableParamDiv").each(function() {
+                checkInputForParam($(this));
+            });
             var draggableInputs = "";
             validParams = [];
             DF.getDataflow(dfName).parameters.forEach(function(paramName) {
-                draggableInputs += generateDraggableParams(paramName);
-                validParams.push(paramName);
+                if (!systemParams.hasOwnProperty(paramName)) {
+                    draggableInputs += generateDraggableParams(paramName);
+                    validParams.push(paramName);
+                }
             });
 
             if (draggableInputs === "") {
@@ -645,7 +651,7 @@ window.DFParamModal = (function($, DFParamModal){
         });
     }
 
-    function addParamToLists(paramName, paramVal, isRestore, isSystemParam) {
+    function addParamToLists(paramName, paramVal, isSystemParam) {
         var $row = $paramLists.find(".unfilled:first");
 
         if ($row.length === 0) {
@@ -656,7 +662,7 @@ window.DFParamModal = (function($, DFParamModal){
 
         $row.find(".paramName").text(paramName)
             .end()
-            .find(".paramVal").val(paramVal).removeAttr("disabled")
+            .find(".paramVal").val(paramVal === null ? "" : paramVal).removeAttr("disabled")
             .end()
             .removeClass("unfilled");
         if (isSystemParam) {
@@ -664,7 +670,7 @@ window.DFParamModal = (function($, DFParamModal){
         } else {
             $row.addClass("currParams");
         }
-        if (isRestore && paramVal === "") {
+        if (paramVal === "") {
             // When it's from restore and val is empty, it mease
             // previously this param is saved as "allow empty"
             $row.find(".checkbox").addClass("checked");
@@ -747,11 +753,11 @@ window.DFParamModal = (function($, DFParamModal){
             });
             if (!$paramFound.length) {
                 if (validParams.indexOf(param) !== -1) {
-                    var df = DF.getDataflow($dfParamModal.data("df"));
-                    var paramVal = df.getParameter(param) || "";
-                    addParamToLists(param, paramVal, false, false);
+                    var df = DF.getDataflow(DFCard.getCurrentDF());
+                    var paramVal = df.getParameter(param);
+                    addParamToLists(param, paramVal, false);
                 } else if (systemParams.hasOwnProperty(param)) {
-                    addParamToLists(param, CommonTxtTstr.DefaultVal, false, true);
+                    addParamToLists(param, CommonTxtTstr.DefaultVal, true);
                 }
             }
         }
@@ -911,9 +917,7 @@ window.DFParamModal = (function($, DFParamModal){
         .then(function(paramInformation) {
             // store meta
             paramInfo = paramInformation;
-            return df.updateParameters(params);
-        })
-        .then(function() {
+            df.updateParameters(params);
             DFCard.updateRetinaTab(retName);
             if (!df.getParameterizedNode(dagNodeId)) {
                 var val = genOrigQueryStruct();
@@ -922,6 +926,9 @@ window.DFParamModal = (function($, DFParamModal){
                 // Only updates view. Doesn't change any stored information
                 df.updateParameterizedNode(dagNodeId, paramInfo);
             }
+            return df.updateParamMapInUsed();
+        })
+        .then(function() {
             if (DF.hasSchedule(retName)) {
                 return DF.updateScheduleForDataflow(retName);
             } else {
@@ -1299,15 +1306,16 @@ window.DFParamModal = (function($, DFParamModal){
 
             // keep the order of paramName the in df.parameters
             df.parameters.forEach(function(paramName) {
-                if (nameMap.hasOwnProperty(paramName)) {
-                    addParamToLists(paramName, paramMap[paramName], true, false);
+                if (nameMap.hasOwnProperty(paramName)
+                    && (!systemParams.hasOwnProperty(paramName))) {
+                    addParamToLists(paramName, paramMap[paramName], false);
                 }
             });
 
             for (var systemParam in systemParams) {
                 if (nameMap.hasOwnProperty(systemParam)) {
                     addParamToLists(systemParam, CommonTxtTstr.DefaultVal,
-                    true, true);
+                    true);
                 }
             }
         }

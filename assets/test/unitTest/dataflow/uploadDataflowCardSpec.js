@@ -169,24 +169,24 @@ describe("Upload Dataflow Test", function() {
             });
         });
 
-        it("should upload the df", function(done) {
-            $("#dfName").val("file");
+        // it("should upload the df", function(done) {
+        //     $("#dfName").val("file");
 
-            XcalarImportRetina = function() {
-                return PromiseHelper.resolve();
-            };
+        //     XcalarImportRetina = function() {
+        //         return PromiseHelper.resolve();
+        //     };
 
-            UploadDataflowCard.__testOnly__.submitForm()
-            .then(function() {
-                expect(isAddDF).to.be.true;
-                expect(successMsg).to.equal(SuccessTStr.Upload);
-                assert.isFalse($card.is(":visible"));
-                done();
-            })
-            .fail(function() {
-                done("fail");
-            });
-        });
+        //     UploadDataflowCard.__testOnly__.submitForm()
+        //     .then(function() {
+        //         expect(isAddDF).to.be.true;
+        //         expect(successMsg).to.equal(SuccessTStr.Upload);
+        //         assert.isFalse($card.is(":visible"));
+        //         done();
+        //     })
+        //     .fail(function() {
+        //         done("fail");
+        //     });
+        // });
 
         after(function() {
             FileReader = oldReader;

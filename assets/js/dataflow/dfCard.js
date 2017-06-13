@@ -13,11 +13,17 @@ window.DFCard = (function($, DFCard) {
 
     var retinaTrLen = 7;
     var retinaTr = '<div class="row unfilled">' +
-                        '<div class="cell paramNameWrap">' +
-                            '<div class="paramName textOverflowOneLine"></div>' +
+                        '<div class="cell paramNameWrap textOverflowOneLine">' +
+                            '<div class="paramName"></div>' +
                         '</div>' +
-                        '<div class="cell paramValWrap">' +
-                            '<div class="paramVal textOverflowOneLine"></div>' +
+                        '<div class="cell paramValWrap textOverflowOneLine">' +
+                            '<input class="paramVal" spellcheck="false"/>' +
+                        '</div>' +
+                        '<div class="cell paramNoValueWrap">' +
+                            '<div class="checkbox">' +
+                                '<i class="icon xi-ckbox-empty fa-15"></i>' +
+                                '<i class="icon xi-ckbox-selected fa-15"></i>' +
+                            '</div>' +
                         '</div>' +
                         '<div class="cell paramActionWrap">' +
                             '<i class="paramDelete icon xi-close fa-15 xc-action">' +
@@ -179,7 +185,10 @@ window.DFCard = (function($, DFCard) {
 
         $row.find(".paramName").text(name);
         if (val != null) {
-            $row.find(".paramVal").text(val);
+            $row.find(".paramVal").val(val);
+            if (val === "") {
+                $row.find(".checkbox").addClass("checked");
+            }
         }
 
         $row.removeClass("unfilled");
@@ -211,7 +220,10 @@ window.DFCard = (function($, DFCard) {
             if ($target.closest('#statusBox').length) {
                 return;
             }
-            $retTabSection.find(".retTab").removeClass("active");
+            if ($retTabSection.find(".retTab").hasClass("active")) {
+                event.stopPropagation();
+                saveParam(currentDataflow);
+            }
             if ($target.closest(".advancedOpts").length === 0) {
                 $dfCard.find(".advancedOpts.active").removeClass("active");
             }
@@ -227,6 +239,7 @@ window.DFCard = (function($, DFCard) {
             if (xdpMode === XcalarMode.Mod) {
                 return showLicenseTooltip(this);
             }
+            DFCard.updateRetinaTab(DFCard.getCurrentDF());
             $('.menu').hide();
             event.stopPropagation();
             var $dagWrap = $dfCard.find('.cardMain').find(".dagWrap:visible");
@@ -244,6 +257,10 @@ window.DFCard = (function($, DFCard) {
                 // open tab
                 $tab.addClass('active');
             }
+        });
+
+        $retTabSection.on('click', '.checkbox', function() {
+            $(this).toggleClass("checked");
         });
 
         $retTabSection[0].oncontextmenu = function(e) {
@@ -319,7 +336,15 @@ window.DFCard = (function($, DFCard) {
         // delete retina para
         $retTabSection.on("click", ".paramDelete", function(event) {
             event.stopPropagation();
-            deleteParamFromRetina($(this).closest(".row"));
+            var $row = $(this).closest(".row");
+            var name = $row.find(".paramName").text();
+            var df = DF.getDataflow(DFCard.getCurrentDF());
+            if (df.paramMapInUsed[name]) {
+                StatusBox.show(ErrTStr.InUsedNoDelete,
+                    $row.find(".paramActionWrap"), false, {'side': 'left'});
+                return false;
+            }
+            deleteParamFromRetina($row);
         });
     }
 
@@ -452,8 +477,20 @@ window.DFCard = (function($, DFCard) {
         $dfCard.on('click', '.addScheduleToDataflow', function() {
             // doesn't have schedule, show schedule
             var dfName = $listSection.find(".selected .groupName").text();
-            xcTooltip.hideAll();
-            Scheduler.show(dfName);
+            var df = DF.getDataflow(dfName);
+            if (df.allUsedParamsWithValues()) {
+                xcTooltip.hideAll();
+                Scheduler.show(dfName);
+            } else {
+                Alert.show({
+                    "title": DFTStr.AddValues,
+                    "msg": DFTStr.ParamNoValue,
+                    "isAlert": true,
+                    "onCancel": function() {
+                        $('#dfViz .retTabSection .retTab').trigger('mousedown');
+                    }
+                });
+            }
         });
 
         $('#uploadDataflowButton').click(function() {
@@ -467,22 +504,34 @@ window.DFCard = (function($, DFCard) {
             var $btn = $(this);
             var retName = $("#dfMenu .listSection")
                                 .find(".selected .groupName").text();
-            if ($btn.hasClass('canceling') || canceledRuns[retName]) {
-                return;
-            }
-            if ($btn.hasClass('running')) {
-                var txId = $btn.closest(".dagWrap").data("txid");
-                DFCard.cancelDF(retName, txId);
-            } else {
-                $btn.addClass("running");
-                xcTooltip.changeText($btn, DFTStr.Cancel);
-                xcTooltip.refresh($btn);
+            var df = DF.getDataflow(retName);
+            if (df.allUsedParamsWithValues()) {
+                if ($btn.hasClass('canceling') || canceledRuns[retName]) {
+                    return;
+                }
+                if ($btn.hasClass('running')) {
+                    var txId = $btn.closest(".dagWrap").data("txid");
+                    DFCard.cancelDF(retName, txId);
+                } else {
+                    $btn.addClass("running");
+                    xcTooltip.changeText($btn, DFTStr.Cancel);
+                    xcTooltip.refresh($btn);
 
-                runDF(retName)
-                .always(function() {
-                    delete canceledRuns[retName];
-                    $btn.removeClass("running canceling");
-                    xcTooltip.changeText($btn, DFTStr.Run);
+                    runDF(retName)
+                    .always(function() {
+                        delete canceledRuns[retName];
+                        $btn.removeClass("running canceling");
+                        xcTooltip.changeText($btn, DFTStr.Run);
+                    });
+                }
+            } else {
+                Alert.show({
+                    "title": DFTStr.AddValues,
+                    "msg": DFTStr.ParamNoValue,
+                    "isAlert": true,
+                    "onCancel": function() {
+                        $('#dfViz .retTabSection .retTab').trigger('mousedown');
+                    }
                 });
             }
         });
@@ -1532,6 +1581,48 @@ window.DFCard = (function($, DFCard) {
         xcTooltip.add($(elem), {"title": TooltipTStr.OnlyInOpMode});
         xcTooltip.refresh($(elem));
         console.log("Wrong license type");
+    }
+
+    function saveParam(dataflowName) {
+        var df = DF.getDataflow(dataflowName);
+        var paramMap = df.paramMap;
+        var paramMapInUsed = df.paramMapInUsed;
+        var toUpdate = {};
+        var hasInvalidRow = false;
+
+        $("#dfViz #retLists").find(".row:not(.unfilled)").each(function() {
+            var $row = $(this);
+            if (!hasInvalidRow) {
+                var name = $row.find(".paramName").text();
+                var val = $.trim($row.find(".paramVal").val());
+                var check = $row.find(".checkbox").hasClass("checked");
+                if (val === "" && (!check) && paramMapInUsed[name]) {
+                    StatusBox.show(ErrTStr.NoEmptyMustRevert,
+                        $row.find(".paramVal"), false, {'side': 'left'});
+                    hasInvalidRow = true;
+                    return;
+                }
+                toUpdate[name] = (val === "") ? (check ? "" : null) : val;
+            }
+        });
+        if (!hasInvalidRow) {
+            var usedParamHasChange = false;
+            for (var name in toUpdate) {
+                if (paramMap[name] !== toUpdate[name]) {
+                    paramMap[name] = toUpdate[name];
+                    if (paramMapInUsed[name]) {
+                        usedParamHasChange = true;
+                    }
+                }
+            }
+            $retTabSection.find(".retTab").removeClass("active");
+            if (usedParamHasChange) {
+                if (DF.hasSchedule(dataflowName)) {
+                    DF.updateScheduleForDataflow(dataflowName);
+                }
+                DF.commitAndBroadCast(dataflowName);
+            }
+        }
     }
 
     /* Unit Test Only */

@@ -607,6 +607,7 @@ module.exports = {
         "inputNewParam": "Input New Parameter",
         "val": "Value",
         "action": "Action",
+        "noValue": "No Value",
         "slightSkew": "Slight skew",
         "heavySkew": "Heavy skew",
         // For uploader
