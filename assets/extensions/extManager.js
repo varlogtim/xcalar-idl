@@ -835,7 +835,11 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             if ($list.hasClass("hintDropdown")) {
                 addHintDropdown($list, index);
             } else if ($list.hasClass("argDropdown")) {
-                addTableDropdown($list);
+                if ($list.find(".argument").hasClass("type-table")) {
+                    addTableDropdown($list);
+                } else {
+                    addArgDropdown($list);
+                }
             }
         });
 
@@ -901,6 +905,16 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         }).setupListeners();
     }
 
+    function addArgDropdown($list) {
+        new MenuHelper($list, {
+            "onSelect": function($li) {
+                $li.closest(".dropDownList").find("input").val($li.text());
+            },
+            "container": "#extension-ops .argSection",
+            "bounds": "#extension-ops .argSection"
+        }).setupListeners();
+    }
+
     function updateTableList(modName, refresh) {
         var $extArgs = $extOpsView.find(".extArgs");
         var tableList = WSManager.getTableList();
@@ -926,7 +940,6 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                 }
             }
         }
-
         return tableList;
     }
 
