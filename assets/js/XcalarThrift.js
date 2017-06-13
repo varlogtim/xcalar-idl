@@ -3481,6 +3481,26 @@ function XcalarApiTop(measureIntervalInMs) {
     return (deferred.promise());
 }
 
+function XcalarApiGetMemoryUsage(userName, userId) {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return PromiseHelper.resolve(null);
+    }
+
+    var deferred = jQuery.Deferred();
+    if (insertError(arguments.callee, deferred)) {
+        return (deferred.promise());
+    }
+
+    xcalarApiGetMemoryUsage(tHandle, userName, userId)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarApiGetMemoryUsage", error);
+        SQL.errorLog("XcalarApiGetMemoryUsage", null, null, thriftError);
+        deferred.reject(thriftError);
+    });
+    return (deferred.promise());
+}
+
 function XcalarGetAllTableMemory() {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);

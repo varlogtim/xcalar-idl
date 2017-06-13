@@ -200,7 +200,7 @@ window.Admin = (function($, Admin) {
                 }
             });
 
-            var promise = getMemUsage();
+            var promise = getMemUsage(username);
             xcHelper.showRefreshIcon($popup, false, promise);
 
             promise
@@ -257,9 +257,10 @@ window.Admin = (function($, Admin) {
         });
     }
 
-    function getMemUsage() {
+    function getMemUsage(username) {
         var deferred  = jQuery.Deferred();
-        xcalarApiGetMemoryUsage(tHandle, userIdName, userIdUnique)
+        var userId = Support.getUserIdUnique(username);
+        XcalarApiGetMemoryUsage(username, userId)
         .then(function(origData) {
             var data;
             if (origData && origData.userMemory &&

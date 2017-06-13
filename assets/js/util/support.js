@@ -38,6 +38,8 @@ window.Support = (function(Support, $) {
         }
     };
 
+    Support.getUserIdUnique = getUserIdUnique;
+
     function stripCharFromUserName(name, ch) {
         var atIndex = name.indexOf(ch);
         if (atIndex > 0) {
