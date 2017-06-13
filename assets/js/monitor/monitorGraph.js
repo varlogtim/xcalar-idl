@@ -75,7 +75,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
     };
 
     MonitorGraph.start = function() {
-        datasets = [[0], [0], [0]];
+        datasets = [[0], [0], [0], [0]];
 
         $('#ramTab, #cpuTab').addClass('on');
 
@@ -229,31 +229,38 @@ window.MonitorGraph = (function($, MonitorGraph) {
             return this;
         };
 
-        var cpu = new StatsObj();
+        var usrCpu = new StatsObj();
+        var childCpu = new StatsObj();
         var ram = new StatsObj();
         var xdb = new StatsObj();
         var network = new StatsObj(); // For network, send is used, recv is tot
 
         for (var i = 0; i < numNodes; i++) {
-            // cpu
             var node = apiTopResult.topOutputPerNode[i];
-            var cpuPct = node.parentCpuUsageInPercent;
-            // var cpuPct = node.childrenCpuUsageInPercent;
-            cpuPct = Math.round(cpuPct * 100) / 100;
-            cpu.used.push(cpuPct);
-            cpu.sumUsed += cpuPct;
-            cpu.sumTot += 100;
 
+            // childNodeCpu - inner donut
+            var childCpuPct = node.childrenCpuUsageInPercent;
+            childCpuPct = Math.round(childCpuPct * 100) / 100;
+            childCpu.used.push(childCpuPct);
+            childCpu.sumUsed += childCpuPct;
+            childCpu.sumTot += 100;
+
+            // usrNodeCpu - outer, primary donut
+            var usrCpuPct = node.parentCpuUsageInPercent;
+            usrCpuPct = Math.round(usrCpuPct * 100) / 100;
+            usrCpu.used.push(usrCpuPct);
+            usrCpu.sumUsed += usrCpuPct;
+            usrCpu.sumTot += 100;
 
             // 2 memory graphs
-            var ramUsed = node.memUsedInBytes;
+            var ramUsed = node.memUsedInBytes; // inner donut
             var ramTot = Math.ceil(node.memUsedInBytes * 100 /
                                    node.memUsageInPercent);
             ram.used.push(ramUsed);
             ram.tot.push(ramTot);
             ram.sumUsed += ramUsed;
             ram.sumTot += ramTot;
-            var xdbUsed = node.xdbUsedBytes;
+            var xdbUsed = node.xdbUsedBytes; // outer primary donut
             var xdbTot = node.xdbTotalBytes;
             xdb.used.push(xdbUsed);
             xdb.tot.push(xdbTot);
@@ -269,23 +276,23 @@ window.MonitorGraph = (function($, MonitorGraph) {
             network.sumTot += networkTot;
         }
 
-        var allStats = [cpu, ram, xdb, network];
+        var allStats = [childCpu, usrCpu, ram, xdb, network];
         return (allStats);
     }
 
     function updateGraph(allStats, numNodes) {
-        var numGraphs = 3;
+        var numGraphs = 4;
         var rightYMaxUnit;
         for (var i = 0; i < numGraphs; i++) {
             var xVal = allStats[i].sumUsed;
 
-            if (i === 0) { // cpu %
+            if (i < 2) { // cpu %
                 xVal /= numNodes;
                 xVal = Math.min(100, xVal);
             }
 
-            if (i === 1 || i === 2) { // memory
-                if (i === 1) {
+            if (i > 1) { // memory
+                if (i === 2) {
                     rightYMaxUnit = xcHelper.sizeTranslator(allStats[i].sumTot,
                                                         true)[1];
                 }
@@ -294,8 +301,8 @@ window.MonitorGraph = (function($, MonitorGraph) {
             }
             datasets[i].push(xVal);
         }
-        var yMax = xcHelper.sizeTranslator(allStats[1].sumTot, true)[0];
-        yMax = [100, yMax, yMax];
+        var yMax = xcHelper.sizeTranslator(allStats[2].sumTot, true)[0];
+        yMax = [100, 100, yMax, yMax];
 
         redraw(newWidth, gridRight, numGraphs, yMax, rightYMaxUnit);
 

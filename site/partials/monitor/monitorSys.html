@@ -36,7 +36,7 @@
         </div>
       </div>
 
-      <div class="graphSection xdbMode">
+      <div class="graphSection xdbMode usrMode">
         <div id="graphWrap">
           <div id="graph">
             <div id="grids"></div>
@@ -67,7 +67,7 @@
     <!-- bottom section -->
     <div class="bottomSection flex-container flex-row">
       <!-- donut0 cpu -->
-      <div class="donutSection">
+      <div class="donutSection cpuDonut usrMode">
         <div id="donut0" class="donut">
           <div class="donutInfo first">
             <span class="percent userSize">
@@ -79,7 +79,28 @@
         <div id="donutStats0" class="statsSection">
           <div class="statsTopHeading">
             <span class="title"><%= dicts.monitor.CPU %></span>
-            <span class="user"></span>
+            <span class="user">Childnode</span>
+          </div>
+          <div class="statsHeadingBar small open">
+            <span class="percent">%</span>
+            <span class="num avgNum">0</span>
+          </div>
+          <div class="listWrap open">
+            <ul class="small"></ul>
+          </div>
+        </div>
+        <div id="donut1" class="donut">
+          <div class="donutInfo first">
+            <span class="percent userSize">
+              <span class="num">0</span>
+              <span class="unit">%</span>
+            </span>
+          </div>
+        </div>
+        <div id="donutStats1" class="statsSection">
+          <div class="statsTopHeading">
+            <span class="title"><%= dicts.monitor.CPU %></span>
+            <span class="user">Usrnode</span>
           </div>
           <div class="statsHeadingBar small open">
             <span class="percent">%</span>
@@ -92,7 +113,7 @@
       </div>
       <!-- donut1 & donut2 memory-->
       <div class="donutSection ramDonut xdbMode">
-        <div id="donut1" class="donut">
+        <div id="donut2" class="donut">
           <div class="donutInfo">
             <span class="userSize">
               <span class="num">1</span>
@@ -105,7 +126,7 @@
             </span>
           </div>
         </div>
-        <div id="donutStats1" class="statsSection ramStats">
+        <div id="donutStats2" class="statsSection ramStats">
           <div class="statsTopHeading">
               <span class="title"><%= dicts.monitor.RAM %></span>
               <span class="user"><%= dicts.monitor.UTotal %> / <%= dicts.monitor.GTotal %></span>
@@ -123,7 +144,7 @@
             <ul></ul>
           </div>
         </div>
-        <div id="donut2" class="donut">
+        <div id="donut3" class="donut">
           <div class="donutInfo">
             <span class="userSize">
               <span class="num">1</span>
@@ -136,7 +157,7 @@
             </span>
           </div>
         </div>
-        <div id="donutStats2" class="statsSection xdbStats">
+        <div id="donutStats3" class="statsSection xdbStats">
           <div class="statsTopHeading">
               <span class="title"><%= dicts.monitor.XDB %></span>
               <span class="user"><%= dicts.monitor.UTotal %> / <%= dicts.monitor.GTotal %></span>
@@ -157,7 +178,7 @@
       </div>
       <!-- donut3 network -->
       <div class="donutSection">
-        <div id="donut3" class="donut">
+        <div id="donut4" class="donut">
           <div class="donutInfo">
             <span class="userSize network">
               <i class="icon xi-up fa-15"></i>
@@ -172,7 +193,7 @@
             </span>
           </div>
         </div>
-        <div id="donutStats3" class="statsSection">
+        <div id="donutStats4" class="statsSection">
           <div class="statsTopHeading">
             <span class="title"><%= dicts.monitor.NETWORK %></span>
             <span class="user"><%= dicts.monitor.NSent %> / <%= dicts.monitor.NRecv %></span>

@@ -61,6 +61,19 @@ window.MonitorPanel = (function($, MonitorPanel) {
                              .text(MonitorTStr.RAM);
             }
         });
+
+        $monitorPanel.find(".cpuDonut .donut").click(function() {
+            var $donutSection = $(this).closest(".donutSection");
+            $donutSection.toggleClass("usrMode");
+            $monitorPanel.find(".graphSection").toggleClass("usrMode");
+            // if ($donutSection.hasClass("usrMode")) {
+            //     $monitorPanel.find(".graphSwitches .row").eq(0).find(".text")
+            //                  .text("CPU - Usrnode");
+            // } else {
+            //     $monitorPanel.find(".graphSwitches .row").eq(0).find(".text")
+            //                  .text("CPU - Childnode");
+            // }
+        });
     };
 
     MonitorPanel.active = function() {
@@ -84,19 +97,19 @@ window.MonitorPanel = (function($, MonitorPanel) {
             var used;
             var total;
 
-            if (index === 0) {
+            if (index < 2) {
                 used = allStats[index].sumUsed / numNodes;
                 total = allStats[index].sumTot / numNodes;
             } else {
                 used = allStats[index].sumUsed;
                 total = allStats[index].sumTot;
             }
-            if (index === 3) {
-                updateDonutMidText('#donut3 .userSize .num',
+            if (index === 4) {
+                updateDonutMidText('#donut4 .userSize .num',
                                 allStats[index].sumUsed,
                                 defDurationForD3Anim, index);
 
-                updateDonutMidText('#donut3 .totalSize .num',
+                updateDonutMidText('#donut4 .totalSize .num',
                                 allStats[index].sumTot,
                                 defDurationForD3Anim, index);
             } else {
@@ -167,7 +180,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
     }
 
     function initializeDonuts() {
-        var numDonuts = 3;
+        var numDonuts = 4;
         var radius = diameter / 2;
         var outerDonutRadius = radius + donutThickness;
         var arc = d3.svg.arc()
@@ -182,7 +195,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
         var svg;
 
         for (var i = 0; i < numDonuts; i++) {
-            if (i === 2) {
+            if (i % 2) {
                 svg = makeSvg("#donut" + i, diameter + (donutThickness * 2), outerDonutRadius);
                 drawPath(svg, pie, outerArc);
             } else {
@@ -199,15 +212,14 @@ window.MonitorPanel = (function($, MonitorPanel) {
                     .innerRadius(outerSmallRadius)
                     .outerRadius(outerSmallRadius - (donutThickness - 3));
         for (var i = 0; i < numDonuts; i++) {
-
-            if (i === 2) {
-                svg = makeSvg("#donut" + i, diameter + (donutThickness * 2), outerDonutRadius);
+            if (i % 2) {
+                svg = makeSvg("#donut" + i, diameter + (donutThickness * 2),
+                                outerDonutRadius);
                 drawPath(svg, pie, outerArc);
             } else {
                 svg = makeSvg("#donut" + i, diameter, radius);
                 drawPath(svg, pie, arc);
             }
-
         }
 
         function makeSvg (selector, diam, rad) {
@@ -237,7 +249,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
         var duration = defDurationForD3Anim;
         var pie = d3.layout.pie().sort(null);
         var userSize = val;
-        if (index === 0) {
+        if (index < 2) { // cpu
             val = Math.min(100, val); // cpu percentage may be over 100%
         } else {
             val = Math.min(val, total);
@@ -248,7 +260,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
         var paths = donut.selectAll("path").data(pie(data));
         var radius = diameter / 2;
         var rad = radius;
-        if (index === 2) {
+        if (index % 2) {
             rad = radius + donutThickness;
         }
         var arc = d3.svg.arc()
@@ -263,7 +275,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
         updateDonutMidText("#donut" + index + " .userSize .num", userSize,
                             duration, index);
 
-        if (index !== 0) {
+        if (index > 1) {
             updateDonutMidText('#donut' + index + ' .totalSize .num', total,
                                 duration, index);
         }
@@ -290,7 +302,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
                 var size = xcHelper.sizeTranslator(num, true);
                 var i;
 
-                if (index !== 0) {
+                if (index > 1) {
                     startNum = xcHelper.textToBytesTranslator(startNum + type);
                     i = d3.interpolate(startNum, num);
                 } else {
@@ -300,10 +312,10 @@ window.MonitorPanel = (function($, MonitorPanel) {
                 return (function(t) {
                     var size = xcHelper.sizeTranslator(i(t), true);
                     num = parseFloat(size[0]).toFixed(1);
-                    if (num >= 10 || index === 0) {
+                    if (num >= 10 || index < 2) {
                         num = Math.round(num);
                     }
-                    if (index !== 0) {
+                    if (index > 1) {
                         $sizeType.html(size[1]);
                     }
                     this.textContent = num;
@@ -317,7 +329,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
         var $statsSection = $(el).next();
         var listHTML = "";
 
-        if (index === 0) {
+        if (index < 2) {
             var avgUsed = Math.round((stats.sumUsed / numNodes) * 100) / 100;
             $statsSection.find('.statsHeadingBar .avgNum').text(avgUsed);
 
@@ -335,7 +347,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
             var sumTotal = xcHelper.sizeTranslator(stats.sumTot, true);
             var sumUsed = xcHelper.sizeTranslator(stats.sumUsed, true);
 
-            if (index === 3) {
+            if (index === 4) {
                 $statsSection.find('.statsHeadingBar .totNum')
                              .text(sumTotal[0] + sumTotal[1] + "ps");
                 $statsSection.find('.statsHeadingBar .avgNum')
@@ -353,7 +365,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
                 var usedUnits;
                 var totalUnits;
 
-                if (index === 3) {
+                if (index === 4) {
                     usedUnits = used[1] + "ps";
                     totalUnits = total[1] + "ps";
                 } else {

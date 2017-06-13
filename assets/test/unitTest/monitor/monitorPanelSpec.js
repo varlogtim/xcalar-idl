@@ -14,8 +14,8 @@ describe("Monitor Panel Test", function() {
             var isxdbMode = $monitorPanel.find(".donutSection")
                                          .eq(1).hasClass("xdbMode");
             expect(isxdbMode).to.be.true;
-            expect($("#donutStats2").is(":visible")).to.be.true;
-            expect($("#donutStats1").is(":visible")).to.be.false;
+            expect($("#donutStats3").is(":visible")).to.be.true;
+            expect($("#donutStats2").is(":visible")).to.be.false;
             var text = $monitorPanel.find(".graphSwitches .row").eq(1)
                                     .find(".text").text();
             expect(text).to.equal("XDB");
@@ -26,8 +26,8 @@ describe("Monitor Panel Test", function() {
             isxdbMode = $monitorPanel.find(".donutSection")
                                      .eq(1).hasClass("xdbMode");
             expect(isxdbMode).to.be.false;
-            expect($("#donutStats2").is(":visible")).to.be.false;
-            expect($("#donutStats1").is(":visible")).to.be.true;
+            expect($("#donutStats3").is(":visible")).to.be.false;
+            expect($("#donutStats2").is(":visible")).to.be.true;
             text = $monitorPanel.find(".graphSwitches .row").eq(1)
                                     .find(".text").text();
             expect(text).to.equal("RAM");
@@ -38,8 +38,8 @@ describe("Monitor Panel Test", function() {
             isxdbMode = $monitorPanel.find(".donutSection")
                                      .eq(1).hasClass("xdbMode");
             expect(isxdbMode).to.be.true;
-            expect($("#donutStats2").is(":visible")).to.be.true;
-            expect($("#donutStats1").is(":visible")).to.be.false;
+            expect($("#donutStats3").is(":visible")).to.be.true;
+            expect($("#donutStats2").is(":visible")).to.be.false;
 
             text = $monitorPanel.find(".graphSwitches .row").eq(1)
                                     .find(".text").text();
@@ -50,14 +50,14 @@ describe("Monitor Panel Test", function() {
     describe("toggling graph switches", function() {
         it("switching should work", function() {
             $monitorPanel.find(".graphSwitch").eq(0).click();
-            expect($monitorPanel.find(".area0").css("display")).to.equal("none");
+            expect($monitorPanel.find(".area1").css("display")).to.equal("none");
             $monitorPanel.find(".graphSwitch").eq(0).click();
-            expect($monitorPanel.find(".area0").css("display")).to.not.equal("none");
+            expect($monitorPanel.find(".area1").css("display")).to.not.equal("none");
 
             $monitorPanel.find(".graphSwitch").eq(1).click();
-            expect($monitorPanel.find(".area2").css("display")).to.equal("none");
+            expect($monitorPanel.find(".area3").css("display")).to.equal("none");
             $monitorPanel.find(".graphSwitch").eq(1).click();
-            expect($monitorPanel.find(".area2").css("display")).to.not.equal("none");
+            expect($monitorPanel.find(".area3").css("display")).to.not.equal("none");
         });
     });
 
