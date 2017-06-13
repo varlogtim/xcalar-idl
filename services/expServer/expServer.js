@@ -18,8 +18,8 @@ require("jsdom").env("", function(err, window) {
     require("shelljs/global");
     var ldap = require("ldapjs");
     var exec = require("child_process").exec;
-    var guiDir = process.env.XCE_HTTP_ROOT ?
-        process.env.XCE_HTTP_ROOT : "/var/www/xcalar-gui";
+    var guiDir = (process.env.XCE_HTTP_ROOT ?
+        process.env.XCE_HTTP_ROOT : "/var/www") + "/gui";
     try {
         var AWS = require("aws-sdk");
         if (fs.existsSync("./awsWriteConfig.json")) {
