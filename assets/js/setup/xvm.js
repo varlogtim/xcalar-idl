@@ -3,6 +3,9 @@ window.XVM = (function(XVM) {
     var majorVersion = "1";
     var minorVersion = "1";
     var revisionVersion = "3";
+    if (!window.gBuildNumber) {
+        gBuildNumber = "git";
+    }
     var fullVersion = majorVersion + "." + minorVersion + "." +
                         revisionVersion + "-" + gBuildNumber;
                         // build number is generated during the build process by
