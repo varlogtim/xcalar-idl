@@ -167,7 +167,7 @@ window.XcSDK.Extension.prototype = (function() {
         },
 
         stripColumnName: function(colName) {
-            return xcHelper.stripeColName(colName);
+            return xcHelper.stripColName(colName);
         },
 
         "getConstant": function(aggName) {

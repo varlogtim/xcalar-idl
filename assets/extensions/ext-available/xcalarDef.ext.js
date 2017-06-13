@@ -327,11 +327,11 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
                 return winGenRowNum(self, tableAfterSort);
             })
             .then(function(tableWithRowNum, rowNumColTmp) {
-                // Step 3: Project the columns we want to window on. Converts
+                // Step 3: For the columns we want to window on, converts
                 // fatptr columns to immediates
                 rowNumCol = rowNumColTmp;
                 rowNumTable = tableWithRowNum;
-                return winProject(self, tableWithRowNum);
+                return winConvert(self, tableWithRowNum);
             })
             .then(function(tableAfterProject) {
                 // Step 4: Generate the columns for lag and lead.
@@ -378,7 +378,7 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
                         winColFinal.lag.push(col);
                     }
 
-                    newTableName = self.createTableName(null, "_window");
+                    newTableName = self.createTempTableName(null, "_window");
                     rTable = tableNames.lag[i];
                     rCol = rowNumColNames.lag[i];
                     lTableInfo = {
@@ -413,7 +413,7 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
                         winColFinal.lead.push(col);
                     }
 
-                    newTableName = self.createTableName(null, "_window");
+                    newTableName = self.createTempTableName(null, "_window");
                     rTable = tableNames.lead[i];
                     rCol = rowNumColNames.lead[i];
                     lTableInfo = {
@@ -498,8 +498,9 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
         var deferred = XcSDK.Promise.deferred();
         var srcTable = ext.getTriggerTable().getName();
         var colName = colToSort.getName();
+        var dstTable = ext.createTempTableName();
 
-        ext.sort(direction, colName, srcTable)
+        ext.sort(direction, colName, srcTable, dstTable)
         .then(deferred.resolve)
         .fail(function(error, sorted) {
             if (sorted) {
@@ -516,20 +517,22 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
     function winGenRowNum(ext, srcTable) {
         var deferred = XcSDK.Promise.deferred();
         var newColName = "orig_order_" + ext.getAttribute("randNumber");
+        var dstTable = ext.createTempTableName();
 
-        ext.genRowNum(srcTable, newColName)
-        .then(function(newTableName) {
-            return ext.index(newColName, newTableName);
+        ext.genRowNum(srcTable, newColName, dstTable)
+        .then(function(tableAfterGenRowNum) {
+            var newTable = ext.createTempTableName();
+            return ext.index(newColName, tableAfterGenRowNum, newTable);
         })
-        .then(function(newTableName) {
-            deferred.resolve(newTableName, newColName);
+        .then(function(tableAfterIndex) {
+            deferred.resolve(tableAfterIndex, newColName);
         })
         .fail(deferred.reject);
 
         return deferred.promise();
     }
 
-    function winProject(ext, srcTable) {
+    function winConvert(ext, srcTable) {
         var deferred = XcSDK.Promise.deferred();
 
         var winColFinal = ext.getAttribute("winColFinal");
@@ -547,7 +550,7 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
                 mapStr = winCols[i].getTypeForCast() +
                     "(" + winCols[i].getName() + ")";
 
-                newTableName = ext.createTableName(null, "_project");
+                newTableName = ext.createTempTableName(null, "_convert");
                 newColName = prefix + "_" + winCols[i].getParsedName();
                 newColName = ext.stripColumnName(newColName);
 
@@ -571,10 +574,7 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
 
         XcSDK.Promise.chain(defChain)
         .then(function() {
-            return (ext.project(winColNames, newTableName));
-        })
-        .then(function(tableAfterProject) {
-            deferred.resolve(tableAfterProject);
+            deferred.resolve(newTableName);
         })
         .fail(deferred.reject);
 
@@ -583,7 +583,6 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
 
     function windLagLeadMap(ext, state, index, srcTable, rowNumCol) {
         var deferred = XcSDK.Promise.deferred();
-
 
         var tableNames = ext.getAttribute("tableNames");
         var rowNumColNames = ext.getAttribute("rowNumColNames");
@@ -610,11 +609,20 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
             throw "Error Case!";
         }
 
-        var newTableName = ext.createTableName(null, tableNameSuffix);
+        var newTableName = ext.createTempTableName(null, tableNameSuffix);
+        var colsToProject = [newColName];
+        var winColFinal = ext.getAttribute("winColFinal");
+        winColFinal.cur.forEach(function(col) {
+            colsToProject.push(col.getName());
+        });
 
         ext.map(mapStr, srcTable, newColName, newTableName)
-        .then(function() {
-            return ext.index(newColName, newTableName);
+        .then(function(tableAfterMap) {
+            // project to only have rowNumCol and winCols
+            return ext.project(colsToProject, tableAfterMap);
+        })
+        .then(function(tableAfterProject) {
+            return ext.index(newColName, tableAfterProject);
         })
         .then(function(tableAfterIndex) {
             // cache tableName and colName for later user
