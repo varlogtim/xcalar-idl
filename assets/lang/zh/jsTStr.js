@@ -168,7 +168,8 @@ CommonTxtTstr = {
 'Retry': '重试',
 'Overwrite': '覆盖',
 'NoResult': '无搜索结果',
-'deleting': '删除中'
+'deleting': '删除中',
+'ClickToExpand': 'Click to expand'
 };
 ErrTStr = {
 'Error': '错误',
@@ -556,7 +557,8 @@ MonitorTStr = {
 'SupportTools': '支持工具',
 'System': '系统',
 'UseXcalarAs': '使用Xcalar作为',
-'XDB': 'DB',
+'XDB': 'XDB',
+'UserNotExists': 'User no longer exists',
 'ParamConfigFailMsg': '无法将参数<b><name></b> 设置成 <b><value></b>。',
 'DefaultWithVal': '恢复为默认值：<value>',
 'NodeConfirmMsg': '您确定要打开集群吗？',

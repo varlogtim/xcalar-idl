@@ -178,7 +178,8 @@ CommonTxtTstr = {
     'Retry': 'Retry',
     'Overwrite': 'Overwrite',
     'NoResult': 'No Results Found',
-    'deleting': 'deleting'
+    'deleting': 'deleting',
+    'ClickToExpand': 'Click to expand'
 };
 
 ErrTStr = {
@@ -666,6 +667,7 @@ MonitorTStr = {
     'System': 'System',
     'UseXcalarAs': 'Use Xcalar As',
     'XDB': 'XDB',
+    'UserNotExists': 'User no longer exists',
     // with replace
     'ParamConfigFailMsg': 'Could not set parameter <b><name></b> to ' +
                           '<b><value></b>.',

@@ -77,6 +77,27 @@ window.Admin = (function($, Admin) {
         return deferred.promise();
     };
 
+    Admin.removeUser = function(username) {
+        var deferred = jQuery.Deferred();
+        KVStore.get(userListKey, gKVScope.GLOB)
+        .then(function(value) {
+            if (value == null) {
+                return PromiseHelper.resolve();
+            } else {
+                parseStrIntoUserList(value);
+                if (userList.indexOf(username) > -1) {
+                    return removeUserName(username);
+                } else {
+                    return PromiseHelper.resolve();
+                }
+            }
+        })
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    };
+
     Admin.getUserList = function() {
         if (Admin.isAdmin()) {
             return userList;
@@ -194,9 +215,14 @@ window.Admin = (function($, Admin) {
             $popup.find(".titleContentWrap").text(username);
             positionMemPopup($popup);
 
-            $(document).on('mousedown.hideMemPopup', function(event) {
-                if ($(event.target).closest('#userMemPopup').length === 0) {
-                    hideMemPopup();
+            $(document).on("mousedown.hideMemPopup", function(event) {
+                var $target = $(event.target)
+                if ($target.closest("#userMemPopup").length === 0) {
+                    if ($target.closest(".memory").length) {
+                        $(document).off(".hideMemPopup");
+                    } else {
+                        hideMemPopup();
+                    }
                 }
             });
 
@@ -211,6 +237,23 @@ window.Admin = (function($, Admin) {
                 var html = xcHelper.prettifyJson(data);
                 html = "{\n" + html + "}";
                 $popup.find(".content").html(html);
+                var $breakdown = $popup.find(".content")
+                                      .find('.jsonBlock[data-key="Breakdown"]');
+                $breakdown.each(function() {
+                    var $bd = $(this);
+                    if (!$bd.find(".emptyObj").length) {
+                        $bd.addClass("breakdown");
+                        var toggle = '<div class="toggleBreakdown xc-action">' +
+                                        '<i class="icon xi-arrow-down"></i>' +
+                                     '</div>';
+                        $bd.prepend(toggle);
+                        var ellipsis = '<div class="ellipsis xc-action" ' +
+                        'data-tipclasses="highZindex" data-toggle="tooltip" ' +
+                        'data-placement="top" data-container="body" title="' +
+                        CommonTxtTstr.ClickToExpand + '">...</div>';
+                        $bd.find(".jObj").before(ellipsis);
+                    }
+                });
             })
             .fail(function(error) {
                 if ($popup.data("id") !== popupId) {
@@ -218,9 +261,13 @@ window.Admin = (function($, Admin) {
                 }
                 var type = typeof error;
                 var msg;
+                var notExists = false;
 
                 if (type === "object") {
                     msg = error.error || AlertTStr.ErrorMsg;
+                    if (error.status === StatusT.StatusSessionNotFound) {
+                        notExists = true;
+                    }
                 } else {
                     msg = error;
                 }
@@ -228,15 +275,31 @@ window.Admin = (function($, Admin) {
                                     msg +
                                 "</div>";
                 $popup.find(".content").html(errorDiv);
+                if (notExists) {
+                    $li.addClass("notExists");
+                    xcTooltip.add($li, {
+                        title: MonitorTStr.UserNotExists
+                    });
+                    Admin.removeUser(username);
+                }
             });
         });
 
         $("#userMemPopup").on("click", ".close", function() {
             hideMemPopup();
         });
+
+        $("#userMemPopup").on("click", ".toggleBreakdown, .ellipsis",
+            function() {
+            $(this).closest(".breakdown").toggleClass("active");
+            xcTooltip.hideAll();
+        });
     }
 
     function positionMemPopup($popup) {
+        if ($popup.is(":visible")) {
+            return;
+        }
         $popup.show();
 
         var defaultWidth = 600;
@@ -274,6 +337,9 @@ window.Admin = (function($, Admin) {
                         "Total Memory": 0,
                         "Breakdown": {}
                     };
+                    mem[i].tableMemory.sort(function(a, b) {
+                        return xcHelper.sortVals(a.tableName, b.tableName);
+                    });
                     for (var j = 0; j < mem[i].tableMemory.length; j++) {
                         totalMem += mem[i].tableMemory[j].totalBytes;
                         sess.Breakdown[mem[i].tableMemory[j].tableName] =
@@ -343,6 +409,24 @@ window.Admin = (function($, Admin) {
             userList.push(username);
             deferred.resolve();
         })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    function removeUserName(username) {
+        var deferred = jQuery.Deferred();
+        for (var i = 0; i < userList.length; i++) {
+            if (userList[i] === username) {
+                userList.splice(i, 1);
+                break;
+            }
+        }
+        var entry = JSON.stringify(userList);
+         // strip "[" and "]" and add comma
+        entry = entry.substring(1, entry.length - 1) + ",";
+        XcalarKeyPut(userListKey, entry, true, gKVScope.GLOB)
+        .then(deferred.resolve)
         .fail(deferred.reject);
 
         return deferred.promise();
