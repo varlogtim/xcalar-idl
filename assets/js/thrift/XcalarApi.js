@@ -2183,7 +2183,7 @@ xcalarExport = runEntity.xcalarExport = function(thriftHandle, tableName, target
         console.log("xcalarExport(tableName = " + tableName +
                     ", target.type = " + ExTargetTypeTStr[target.type] +
                     ", target.name = " + target.name +
-                    ", createRgitkule = " + createRule +
+                    ", createRule = " + createRule +
                     ", specInput = " + JSON.stringify(specInput) +
                     ", sorted = " + sorted +
                     ", numColumns = " + numColumns +
@@ -2401,7 +2401,6 @@ xcalarGetRetina = runEntity.xcalarGetRetina = function(thriftHandle, retinaName)
     });
     return (deferred.promise());
 };
-
 xcalarUpdateRetinaWorkItem = runEntity.xcalarUpdateRetinaWorkItem = function(retinaName, dagNodeId, paramType,
                                     paramValue) {
     var workItem = new WorkItem();
@@ -2454,6 +2453,60 @@ xcalarUpdateRetina = runEntity.xcalarUpdateRetina = function(thriftHandle, retin
     })
     .fail(function(error) {
         console.log("xcalarUpdateRetina() caught exception:", error);
+        deferred.reject(error);
+    });
+
+    return (deferred.promise());
+};
+
+xcalarUpdateRetinaExportWorkItem = runEntity.xcalarUpdateRetinaExportWorkItem = function(retinaName, dagNodeId,
+                                                                                         target, specInput,
+                                                                                         createRule, sorted) {
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiInputT();
+    workItem.input.updateRetinaExportInput = new XcalarApiUpdateRetinaExportInputT();
+    workItem.input.updateRetinaExportInput.meta = new ExExportMetaT();
+
+    workItem.api = XcalarApisT.XcalarApiUpdateRetinaExport;
+    workItem.input.updateRetinaExportInput.retinaName = retinaName;
+    workItem.input.updateRetinaExportInput.dagNodeId = dagNodeId;
+    workItem.input.updateRetinaExportInput.meta.target = target;
+    workItem.input.updateRetinaExportInput.meta.specificInput = specInput;
+    workItem.input.updateRetinaExportInput.meta.sorted = sorted;
+    workItem.input.updateRetinaExportInput.meta.createRule = createRule;
+    workItem.input.updateRetinaExportInput.meta.numColumns = 0;
+
+    return (workItem);
+};
+
+xcalarUpdateRetinaExport = runEntity.xcalarUpdateRetinaExport = function(thriftHandle, retinaName, dagNodeId,
+                                                                         target, specInput,
+                                                                         createRule, sorted) {
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarUpdateRetinaExport(retinaName = " + retinaName + ", " +
+                    "dagNodeId = " + dagNodeId +
+                    ", target.type = " + ExTargetTypeTStr[target.type] +
+                    ", target.name = " + target.name +
+                    ", createRule = " + createRule +
+                    ", specInput = " + JSON.stringify(specInput) +
+                    ", sorted = " + sorted + ")");
+    }
+    var workItem = xcalarUpdateRetinaExportWorkItem(retinaName, dagNodeId,
+                                                    target, specInput, createRule,
+                                                    sorted);
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        var status = (result.jobStatus != StatusT.StatusOk) ?
+                     result.jobStatus : result.output.hdr.status;
+        if (status != StatusT.StatusOk) {
+            deferred.reject(status);
+        }
+        deferred.resolve(status);
+    })
+    .fail(function(error) {
+        console.log("xcalarUpdateRetinaExport() caught exception:", error);
         deferred.reject(error);
     });
 

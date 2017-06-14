@@ -5234,6 +5234,89 @@ XcalarApiUpdateRetinaInputT.prototype.write = function(output) {
   return;
 };
 
+XcalarApiUpdateRetinaExportInputT = function(args) {
+  this.retinaName = null;
+  this.dagNodeId = null;
+  this.meta = null;
+  if (args) {
+    if (args.retinaName !== undefined) {
+      this.retinaName = args.retinaName;
+    }
+    if (args.dagNodeId !== undefined) {
+      this.dagNodeId = args.dagNodeId;
+    }
+    if (args.meta !== undefined) {
+      this.meta = args.meta;
+    }
+  }
+};
+XcalarApiUpdateRetinaExportInputT.prototype = {};
+XcalarApiUpdateRetinaExportInputT.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.STRING) {
+        this.retinaName = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 2:
+      if (ftype == Thrift.Type.STRING) {
+        this.dagNodeId = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 3:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.meta = new ExExportMetaT();
+        this.meta.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+XcalarApiUpdateRetinaExportInputT.prototype.write = function(output) {
+  output.writeStructBegin('XcalarApiUpdateRetinaExportInputT');
+  if (this.retinaName !== null && this.retinaName !== undefined) {
+    output.writeFieldBegin('retinaName', Thrift.Type.STRING, 1);
+    output.writeString(this.retinaName);
+    output.writeFieldEnd();
+  }
+  if (this.dagNodeId !== null && this.dagNodeId !== undefined) {
+    output.writeFieldBegin('dagNodeId', Thrift.Type.STRING, 2);
+    output.writeString(this.dagNodeId);
+    output.writeFieldEnd();
+  }
+  if (this.meta !== null && this.meta !== undefined) {
+    output.writeFieldBegin('meta', Thrift.Type.STRUCT, 3);
+    this.meta.write(output);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
 XcalarApiAddParameterToRetinaInputT = function(args) {
   this.retinaName = null;
   this.parameter = null;
@@ -11980,6 +12063,7 @@ XcalarApiInputT = function(args) {
   this.updateLicenseInput = null;
   this.memoryUsageInput = null;
   this.logLevelSetInput = null;
+  this.updateRetinaExportInput = null;
   if (args) {
     if (args.loadInput !== undefined) {
       this.loadInput = args.loadInput;
@@ -12193,6 +12277,9 @@ XcalarApiInputT = function(args) {
     }
     if (args.logLevelSetInput !== undefined) {
       this.logLevelSetInput = args.logLevelSetInput;
+    }
+    if (args.updateRetinaExportInput !== undefined) {
+      this.updateRetinaExportInput = args.updateRetinaExportInput;
     }
   }
 };
@@ -12778,6 +12865,14 @@ XcalarApiInputT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 75:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.updateRetinaExportInput = new XcalarApiUpdateRetinaExportInputT();
+        this.updateRetinaExportInput.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -13142,6 +13237,11 @@ XcalarApiInputT.prototype.write = function(output) {
   if (this.logLevelSetInput !== null && this.logLevelSetInput !== undefined) {
     output.writeFieldBegin('logLevelSetInput', Thrift.Type.STRUCT, 74);
     this.logLevelSetInput.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.updateRetinaExportInput !== null && this.updateRetinaExportInput !== undefined) {
+    output.writeFieldBegin('updateRetinaExportInput', Thrift.Type.STRUCT, 75);
+    this.updateRetinaExportInput.write(output);
     output.writeFieldEnd();
   }
   output.writeFieldStop();

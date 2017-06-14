@@ -114,7 +114,8 @@ XcalarApisT = {
   'XcalarApiAddParameterToRetina' : 105,
   'XcalarApiGetMemoryUsage' : 106,
   'XcalarApiLogLevelSet' : 107,
-  'XcalarApiFunctionInvalid' : 108
+  'XcalarApiUpdateRetinaExport' : 108,
+  'XcalarApiFunctionInvalid' : 109
 };
 XcalarApisTStr = {0 : 'XcalarApiUnknown',
 1 : 'XcalarApiGetVersion',
@@ -224,5 +225,6 @@ XcalarApisTStr = {0 : 'XcalarApiUnknown',
 105 : 'XcalarApiAddParameterToRetina',
 106 : 'XcalarApiGetMemoryUsage',
 107 : 'XcalarApiLogLevelSet',
-108 : 'XcalarApiFunctionInvalid'
+108 : 'XcalarApiUpdateRetinaExport',
+109 : 'XcalarApiFunctionInvalid'
 };

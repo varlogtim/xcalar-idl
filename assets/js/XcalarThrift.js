@@ -2782,6 +2782,30 @@ function XcalarUpdateRetina(retName, dagNodeId, paramType, paramValues, txId) {
     return deferred.promise();
 }
 
+// Don't call this for now. When bohan's change for 8137 is fixed, we will
+// no longer call updateRetina for export changes and instead switch to this
+function XcalarUpdateRetinaExport(retName, dagNodeId, target, specInput,
+                                  createRule, sorted) {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return PromiseHelper.resolve(null);
+    }
+
+    var deferred = jQuery.Deferred();
+    if (insertError(arguments.callee, deferred)) {
+        return (deferred.promise());
+    }
+
+    xcalarUpdateRetinaExport(tHandle, retName, dagNodeId, target, specInput,
+        createRule, sorted)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarUpdateRetinaExport", error);
+        SQL.errorLog("Update Retina Export Node", null, null, thriftError);
+        deferred.reject(thriftError);
+    });
+    return (deferred.promise());
+}
+
 // XXX TODO SQL.ADD
 // param has 2 string values: param.parameterName, param.parameterValue
 // params is an array of param.

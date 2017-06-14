@@ -2477,6 +2477,68 @@ PromiseHelper = (function(PromiseHelper, $) {
         return (testGetRetina(2, test));
     }
 
+    function testUpdateRetinaExport(test) {
+        var specInput = new ExInitExportSpecificInputT();
+        specInput.sfInput = new ExInitExportSFInputT();
+        specInput.sfInput.fileName = "yelp-mgmtdTest" +
+                                     Math.floor(Math.random()*10000) + ".csv";
+        specInput.sfInput.splitRule = new ExSFFileSplitRuleT();
+        specInput.sfInput.splitRule.type = ExSFFileSplitTypeT.ExSFFileSplitNone;
+        specInput.sfInput.headerType = ExSFHeaderTypeT.ExSFHeaderSeparateFile;
+        specInput.sfInput.format = DfFormatTypeT.DfFormatCsv;
+        specInput.sfInput.formatArgs = new ExInitExportFormatSpecificArgsT();
+        specInput.sfInput.formatArgs.csv = new ExInitExportCSVArgsT();
+        specInput.sfInput.formatArgs.csv.fieldDelim = ",";
+        specInput.sfInput.formatArgs.csv.recordDelim = "\n";
+        specInput.sfInput.formatArgs.csv.quoteDelim = "\"";
+
+        var target = new ExExportTargetHdrT();
+        target.type = ExTargetTypeT.ExTargetSFType;
+        target.name = "Default";
+
+        xcalarUpdateRetinaExport(thriftHandle, retinaName,
+                                 retinaExportDagNodeId,
+                                 target, specInput,
+                                 ExExportCreateRuleT.ExExportDeleteAndReplace,
+                                 true)
+        .then(function(status) {
+            xcalarGetRetina(thriftHandle, retinaName)
+            .then(function(getRetinaOutput) {
+                for (var ii = 0; ii < getRetinaOutput.retina.retinaDag.numNodes;
+                     ii++) {
+                    if (getRetinaOutput.retina.retinaDag.node[ii].dagNodeId === retinaExportDagNodeId) {
+                        var exportMeta = getRetinaOutput.retina.retinaDag.node[ii].input.exportInput.meta;
+                        printResult(exportMeta);
+
+                        test.assert(exportMeta.specificInput.sfInput.fileName
+                                    == specInput.sfInput.fileName,
+                                   undefined, "fileNames do not match");
+                        test.assert(exportMeta.specificInput.sfInput.splitRule.type
+                                    == specInput.sfInput.splitRule.type,
+                                   undefined, "splitRules do not match");
+                        test.assert(exportMeta.specificInput.sfInput.headerType
+                                    == specInput.sfInput.headerType,
+                                   undefined, "headerTypes do not match");
+                        test.assert(exportMeta.specificInput.sfInput.formatArgs.csv.fieldDelim
+                                    == specInput.sfInput.formatArgs.csv.fieldDelim,
+                                   undefined, "fieldDelims do not match");
+                        test.assert(exportMeta.target.type == target.type,
+                                   undefined, "targetTypes do not match");
+                        test.assert(exportMeta.target.name == target.name,
+                                   undefined, "targetNames do not match");
+                        test.assert(exportMeta.sorted == true,
+                                   undefined, "sortedness does not match");
+                        test.assert(exportMeta.createRule == ExExportCreateRuleT.ExExportDeleteAndReplace,
+                                   undefined, "createRules do not match");
+                    }
+                }
+                test.pass();
+            })
+            .fail(test.fail);
+        })
+        .fail(test.fail);
+    }
+
     function testUpdateRetina(test) {
 
         xcalarUpdateRetina(thriftHandle, retinaName,
@@ -3923,6 +3985,7 @@ PromiseHelper = (function(PromiseHelper, $) {
     addTestCase(testMakeRetina, "makeRetina", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testListRetinas, "listRetinas", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testGetRetina1, "getRetina - iter 1 / 2", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testUpdateRetinaExport, "updateRetinaExport", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testUpdateRetina, "updateRetina", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testGetRetina2, "getRetina - iter 2 / 2", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testExecuteRetina, "executeRetina", defaultTimeout, TestCaseEnabled, "");
