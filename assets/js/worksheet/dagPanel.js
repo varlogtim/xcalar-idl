@@ -2088,10 +2088,9 @@ window.Dag = (function($, Dag) {
             var sourceColNames = getSourceColNames(progCol.func);
             $('.columnOriginInfo').remove();
             $dagPanel.find('.highlighted').removeClass('highlighted');
-            addRenameColumnInfo(progCol, index, $dagWrap);
             highlightColumnSource($dagWrap, index);
             findColumnSource(sourceColNames, $dagWrap, index, nodes, backName,
-                            progCol.isEmptyCol());
+                            progCol.isEmptyCol(), true, index);
             $(document).mousedown(closeDagHighlight);
         });
 
@@ -3223,38 +3222,19 @@ window.Dag = (function($, Dag) {
         $(document).off('mousedown', closeDagHighlight);
     }
 
-    function addRenameColumnInfo(col, index, $dagWrap) {
-        var name = col.name;
-        var backName = col.getBackColName();
-        if (name !== backName) {
-            var msg = 'renamed ' + backName + ' to ' + name;
-            $dagWrap.find(".columnOriginInfo[data-rename='" + msg + "']")
-                    .remove();
-
-            var $dagTable = $dagWrap.find('.dagTable[data-index="' + index +
-                                            '"]');
-            var rect = $dagTable[0].getBoundingClientRect();
-            var top = rect.top - 35;
-            var left = rect.left;
-            top -= $('#dagPanel').offset().top + 15;
-            $dagWrap.append('<div class="columnOriginInfo " ' +
-                'data-rename="' + msg + '" ' +
-                'style="top: ' + top + 'px;left: ' + left + 'px">' + msg +
-                '</div>');
-        }
-    }
-
     // sourceColNames is an array of the names we're searching for lineage
     // index is the table's dataflow graph data-index
     // nodes is an array of all the tables. nodes[index] gets the table info
     //          with nodes[0] being the most recent table on the far right
+    // target is the index of the last descendent node known to contain the col
     function findColumnSource(sourceColNames, $dagWrap, index, nodes,
-                              curColName, isEmptyCol) {
+                              curColName, isEmptyCol, prevFound, target) {
         var tables = getSourceTables(curColName, nodes[index], nodes);
         curColName = getRenamedColName(curColName, nodes[index]);
         var tableIndex;
         var tableNode;
         var tableName;
+        var found = false;
         // look through the parent tables
         for (var i = 0; i < tables.length; i++) {
             tableIndex = tables[i];
@@ -3288,9 +3268,12 @@ window.Dag = (function($, Dag) {
                     if (!foundSameColName && backColName === curColName) {
                         foundSameColName = true;
                         srcNames = getSourceColNames(cols[j].func);
-                        highlightColumnHelper($dagWrap, cols[j], srcNames,
-                                                    tableIndex, nodes,
-                                                    backColName);
+                        found = true;
+                        var isEmpty = cols[j].isEmptyCol();
+                        findColumnSource(srcNames, $dagWrap, tableIndex,
+                                            nodes, backColName,
+                                            isEmpty, found, target);
+
                         colCreatedHere = cols[j].isEmptyCol() && !isEmptyCol;
                         if (colCreatedHere) {
                             // this table is where the column became non-empty,
@@ -3303,14 +3286,18 @@ window.Dag = (function($, Dag) {
                         // table doesn't have column of that name but check if
                         // table has column that matches target column's
                         // derivatives
-                        var colNameIndex = sourceColNamesCopy.indexOf(backColName);
+                        var colNameIndex = sourceColNamesCopy
+                                                        .indexOf(backColName);
                         if (colNameIndex > -1) {
                             srcNames = getSourceColNames(cols[j].func);
 
                             sourceColNamesCopy.splice(colNameIndex, 1);
-                            highlightColumnHelper($dagWrap, cols[j], srcNames,
-                                                        tableIndex, nodes,
-                                                        backColName);
+                            var isEmpty = cols[j].isEmptyCol();
+                            found = true;
+                            findColumnSource(srcNames, $dagWrap, tableIndex,
+                                            nodes, backColName,
+                                            isEmpty, found, target);
+
                         }
                     }
 
@@ -3323,14 +3310,23 @@ window.Dag = (function($, Dag) {
                 var $dagTable = $dagWrap
                         .find('.dagTable[data-index="' + tableIndex + '"]');
                 if ($dagTable.hasClass('Dropped')) {
+                    var newTarget = target;
+                    if (prevFound) {
+                        newTarget = index;
+                    }
                     findColumnSource(sourceColNames, $dagWrap, tableIndex,
-                                     nodes, curColName);
+                                     nodes, curColName, false, false, newTarget);
                 } else {
                     // table has no data, could be orphaned
                 }
-            } else if (!isEmptyCol) {
-                highlightColumnSource($dagWrap, tableIndex);
+            } else if (!isEmptyCol && prevFound) {
+                // has no parents, must be a dataset
+                highlightDroppedSources($dagWrap, tableIndex, nodes, target);
+                found = true;
             }
+        }
+        if (!found && prevFound) {
+            highlightDroppedSources($dagWrap, index, nodes, target);
         }
     }
 
@@ -3377,18 +3373,9 @@ window.Dag = (function($, Dag) {
         return node.parents;
     }
 
-    function highlightColumnHelper($dagWrap, col, srcColNames, index, nodes,
-                                    curColName) {
-        var isEmpty = col.isEmptyCol();
-        highlightColumnSource($dagWrap, index);
-        addRenameColumnInfo(col, index, $dagWrap);
-        findColumnSource(srcColNames, $dagWrap, index, nodes, curColName,
-                        isEmpty);
-    }
-
     function highlightColumnSource($dagWrap, index) {
         var $dagTable = $dagWrap.find('.dagTable[data-index="' + index + '"]');
-        $dagTable.addClass('highlighted');
+        $dagTable.addClass("highlighted");
 
         // XX showing column name on each table is disabled
 
@@ -3404,6 +3391,17 @@ window.Dag = (function($, Dag) {
         //         '" style="top: ' + top + 'px;left: ' + left + 'px">' +
         //         name + '</div>');
         // }
+    }
+
+    function highlightDroppedSources($dagWrap, index, nodes, target) {
+        if (index === target) {
+            return;
+        }
+        var node = nodes[index];
+        highlightColumnSource($dagWrap, index);
+        if (node.child > -1) {
+            highlightDroppedSources($dagWrap, node.child, nodes, target);
+        }
     }
 
     function drawDagNode(dagNode, storedInfo, dagArray, index,

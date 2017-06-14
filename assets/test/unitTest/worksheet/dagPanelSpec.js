@@ -1565,7 +1565,7 @@ describe("Dag Panel Test", function() {
             var fn = Dag.__testOnly__.findColumnSource;
             var sourceColNames = [prefix + gPrefixSign + "average_stars"];
 
-            fn(sourceColNames, $dagWrap, index, nodes, "agg_result", false);
+            fn(sourceColNames, $dagWrap, index, nodes, "agg_result", false, true, index);
             expect($dagWrap.find(".highlighted").length).to.equal(3);
             expect($dagWrap.find(".highlighted").eq(0).data("index")).to.equal(5);
             expect($dagWrap.find(".highlighted").last().data("index")).to.equal(1);
