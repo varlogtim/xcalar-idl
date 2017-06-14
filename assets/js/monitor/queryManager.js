@@ -156,9 +156,11 @@ window.QueryManager = (function(QueryManager, $) {
         updateQueryBar(id, 100);
         updateStatusDetail({
             "start": getQueryTime(mainQuery.getTime()),
-            "elapsed": getElapsedTimeStr(mainQuery.getElapsedTime()),
-            "opTime": getElapsedTimeStr(mainQuery.getOpTime(), null, true),
-            "total": getElapsedTimeStr(mainQuery.getElapsedTime())
+            "elapsed": xcHelper.getElapsedTimeStr(mainQuery.getElapsedTime(),
+                                                    null, true),
+            "opTime": xcHelper.getElapsedTimeStr(mainQuery.getOpTime()),
+            "total": xcHelper.getElapsedTimeStr(mainQuery.getElapsedTime(),
+                                                null, true)
         }, id);
         updateOutputSection(id);
     };
@@ -359,9 +361,11 @@ window.QueryManager = (function(QueryManager, $) {
         updateQueryBar(id, null, false, true, true);
         updateStatusDetail({
             "start": getQueryTime(mainQuery.getTime()),
-            "elapsed": getElapsedTimeStr(mainQuery.getElapsedTime(), true),
-            "opTime": getElapsedTimeStr(mainQuery.getOpTime(), true, true),
-            "total": getElapsedTimeStr(mainQuery.getElapsedTime())
+            "elapsed": xcHelper.getElapsedTimeStr(mainQuery.getElapsedTime(),
+                                                  true, true),
+            "opTime": xcHelper.getElapsedTimeStr(mainQuery.getOpTime(), true),
+            "total": xcHelper.getElapsedTimeStr(mainQuery.getElapsedTime(),
+                                                null, true)
         }, id);
         updateOutputSection(id, true);
         var $query = $('.query[data-id="' + id + '"]');
@@ -762,15 +766,17 @@ window.QueryManager = (function(QueryManager, $) {
         var elapsedTime;
         var opTime;
         if (mainQuery.getState() === QueryStatus.Done) {
-            totalTime = getElapsedTimeStr(mainQuery.getElapsedTime());
+            totalTime = xcHelper.getElapsedTimeStr(mainQuery.getElapsedTime(),
+                                                    null, true);
             elapsedTime = totalTime;
-            opTime = getElapsedTimeStr(mainQuery.getOpTime(), null, true);
+            opTime = xcHelper.getElapsedTimeStr(mainQuery.getOpTime());
         } else {
             if (mainQuery !== null) {
                 mainQuery.setElapsedTime();
             }
-            elapsedTime = getElapsedTimeStr(mainQuery.getElapsedTime(), true);
-            opTime = getElapsedTimeStr(mainQuery.getOpTime(), true, true);
+            elapsedTime = xcHelper.getElapsedTimeStr(mainQuery.getElapsedTime(),
+                                                     true, true);
+            opTime = xcHelper.getElapsedTimeStr(mainQuery.getOpTime(), true);
         }
         updateHeadingSection(mainQuery);
         updateStatusDetail({
@@ -1019,9 +1025,12 @@ window.QueryManager = (function(QueryManager, $) {
                 mainQuery.setElapsedTime();
                 updateStatusDetail({
                     "start": getQueryTime(mainQuery.getTime()),
-                    "elapsed": getElapsedTimeStr(mainQuery.getElapsedTime(), true),
-                    "opTime": getElapsedTimeStr(mainQuery.getOpTime(), true, true),
-                    "total": getElapsedTimeStr(mainQuery.getElapsedTime()),
+                    "elapsed": xcHelper.getElapsedTimeStr(mainQuery.getElapsedTime(),
+                                                          true, true),
+                    "opTime": xcHelper.getElapsedTimeStr(mainQuery.getOpTime(),
+                                                          true),
+                    "total": xcHelper.getElapsedTimeStr(mainQuery.getElapsedTime(),
+                                                        null, true),
                 }, id);
             }
             deferred.resolve();
@@ -1201,45 +1210,6 @@ window.QueryManager = (function(QueryManager, $) {
     function getQueryTime(time) {
         return xcHelper.getTime(null, time) + " " +
                xcHelper.getDate(null, null, time);
-    }
-
-    // milliSeconds - integer
-    // round - boolean, if true will round to nearest second
-    function getElapsedTimeStr(milliSeconds, round, acceptZero) {
-        if ((!milliSeconds && !acceptZero) || typeof milliSeconds === "string")
-        {
-            return CommonTxtTstr.NA;
-        }
-        var s = Math.floor(milliSeconds / 1000);
-        var seconds = Math.floor(s) % 60;
-        var minutes = Math.floor((s % 3600) / 60);
-        var hours = Math.floor(s / 3600);
-        var timeString = '';
-        if (hours > 0) {
-            timeString += hours + "h ";
-        }
-        if (minutes > 0) {
-            timeString += minutes + "m ";
-        }
-
-        if (milliSeconds < 1000) {
-            timeString += milliSeconds + "ms";
-        } else {
-            timeString += seconds;
-            if (milliSeconds < 60000 && !round) {// between 1 and 60 seconds
-                var mills = milliSeconds % (seconds * 1000);
-
-                if (milliSeconds < 10000) {
-                    timeString += "." + Math.floor(mills / 10);
-                    // timeString += "." + (milliSeconds % 100);
-                } else {
-                    timeString += "." + Math.floor(mills / 100);
-                }
-            }
-            timeString += "s";
-        }
-
-        return (timeString);
     }
 
     function addEventHandlers() {
@@ -1759,7 +1729,6 @@ window.QueryManager = (function(QueryManager, $) {
      /* Unit Test Only */
     if (window.unitTestMode) {
         QueryManager.__testOnly__ = {};
-        QueryManager.__testOnly__.getElapsedTimeStr = getElapsedTimeStr;
         QueryManager.__testOnly__.queryLists = queryLists;
         QueryManager.__testOnly__.queryCheckLists = queryCheckList;
         QueryManager.__testOnly__.canceledQueries = canceledQueries;

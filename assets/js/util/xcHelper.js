@@ -3406,6 +3406,47 @@ window.xcHelper = (function($, xcHelper) {
         return deferred.promise();
     }
 
+    // milliSeconds - integer
+    // round - boolean, if true will round to nearest second when value
+    //                  is greater than 1second. 3120 becomes 3s instead of 3.12
+    // rejectZero - 0 to be treated as N/A
+    xcHelper.getElapsedTimeStr = function(milliSeconds, round, rejectZero) {
+        if ((!milliSeconds && rejectZero) || typeof milliSeconds === "string")
+        {
+            return CommonTxtTstr.NA;
+        }
+        var s = Math.floor(milliSeconds / 1000);
+        var seconds = Math.floor(s) % 60;
+        var minutes = Math.floor((s % 3600) / 60);
+        var hours = Math.floor(s / 3600);
+        var timeString = '';
+        if (hours > 0) {
+            timeString += hours + "h ";
+        }
+        if (minutes > 0) {
+            timeString += minutes + "m ";
+        }
+
+        if (milliSeconds < 1000) {
+            timeString += milliSeconds + "ms";
+        } else {
+            timeString += seconds;
+            if (milliSeconds < 60000 && !round) {// between 1 and 60 seconds
+                var mills = milliSeconds % (seconds * 1000);
+
+                if (milliSeconds < 10000) {
+                    timeString += "." + Math.floor(mills / 10);
+                    // timeString += "." + (milliSeconds % 100);
+                } else {
+                    timeString += "." + Math.floor(mills / 100);
+                }
+            }
+            timeString += "s";
+        }
+
+        return (timeString);
+    };
+
     /*
     options: {
         mouseCoors: {x: float, y: float},

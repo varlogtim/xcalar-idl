@@ -169,7 +169,9 @@ CommonTxtTstr = {
 'Overwrite': '覆盖',
 'NoResult': '无搜索结果',
 'deleting': '删除中',
-'ClickToExpand': 'Click to expand'
+'ClickToExpand': 'Click to expand',
+'time': 'time',
+'rows': 'rows'
 };
 ErrTStr = {
 'Error': '错误',

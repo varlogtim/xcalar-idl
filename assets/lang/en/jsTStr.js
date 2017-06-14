@@ -179,7 +179,9 @@ CommonTxtTstr = {
     'Overwrite': 'Overwrite',
     'NoResult': 'No Results Found',
     'deleting': 'deleting',
-    'ClickToExpand': 'Click to expand'
+    'ClickToExpand': 'Click to expand',
+    'time': 'time',
+    'rows': 'rows'
 };
 
 ErrTStr = {

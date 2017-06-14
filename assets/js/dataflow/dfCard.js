@@ -761,7 +761,11 @@ window.DFCard = (function($, DFCard) {
                         '.export .dagTableIcon, .actionType.filter';
         }
 
-        xcTooltip.add($('#dfViz').find(selector), {
+        var $icons = $('#dfViz').find(selector).filter(function() {
+            return ($(this).siblings(".progressInfo").length === 0);
+        });
+
+        xcTooltip.add($icons, {
             "title": CommonTxtTstr.ClickToOpts
         });
     }
@@ -1193,7 +1197,8 @@ window.DFCard = (function($, DFCard) {
     function startStatusCheck(retName) {
         retinasInProgress[retName] = true;
         var $dagWrap = getDagWrap(retName);
-        var createdState = DgDagStateTStr[DgDagStateTStr.DgDagStateCreated];
+        $dagWrap.addClass("inProgress");
+        var createdState = DgDagStateTStr[DgDagStateT.DgDagStateCreated];
         $dagWrap.find('.dagTable').removeClass(dagStateClasses)
                                   .addClass(createdState);
         $dagWrap.data("pct", 0);
@@ -1249,18 +1254,34 @@ window.DFCard = (function($, DFCard) {
         var progressBar = '<div class="progressBarWrap" data-pct="0">' +
                             '<div class="progressBar"></div>' +
                          '</div>';
+        var progressInfo;
         for (var i = 0; i < nodes.length; i++) {
             tableName = getTableNameFromStatus(nodes[i]);
             state = DgDagStateTStr[nodes[i].state];
             $dagTable = $dagWrap.find('.dagTable[data-tablename="' + tableName +
                                       '"]');
-
+            $dagTable.find(".progressInfo").remove();
+            progressInfo = "";
             $dagTable.removeClass(dagStateClasses).addClass(state);
+            var $barWrap = $dagTable.find(".progressBarWrap");
+            var time = nodes[i].elapsed.milliseconds;
+            time = xcHelper.getElapsedTimeStr(time);
             if (nodes[i].state === DgDagStateT.DgDagStateReady) {
                 numCompleted++;
-            }
-            var $barWrap = $dagTable.find(".progressBarWrap");
-            if (nodes[i].state === DgDagStateT.DgDagStateProcessing) {
+                progressInfo = '<div class="progressInfo" >' +
+                                    '<div class="rows"><span class="label">' +
+                                        CommonTxtTstr.rows +
+                                        ':</span><span class="value">' +
+                                        nodes[i].numRowsTotal +
+                                        '</span></div>' +
+                                    '<div class="time"><span class="label">' +
+                                        CommonTxtTstr.time +
+                                     ':</span><span class="value">' + time +
+                                     '</span></div>' +
+                                 '</div>';
+                xcTooltip.remove($dagTable.find(".dagTableIcon, .dataStoreIcon"));
+                $barWrap.remove();
+            } else if (nodes[i].state === DgDagStateT.DgDagStateProcessing) {
                 if (!$barWrap.length) {
                     $dagTable.append(progressBar);
                     $barWrap = $dagTable.find(".progressBarWrap");
@@ -1275,9 +1296,19 @@ window.DFCard = (function($, DFCard) {
                                                     "linear");
                     $barWrap.data("pct", nodePct);
                 }
+                progressInfo = '<div class="progressInfo" >' +
+                                    '<div class="pct"><span class="pct">'
+                                        + nodePct + '%</span></div>' +
+                                    '<div class="time"><span class="label">' +
+                                        CommonTxtTstr.time +
+                                        ':</span><span class="value">' + time +
+                                    '</span></div>' +
+                                 '</div>';
+                xcTooltip.remove($dagTable.find(".dagTableIcon, .dataStoreIcon"));
             } else {
                 $barWrap.remove();
             }
+            $dagTable.append(progressInfo);
         }
         var pct;
         if (isComplete) {
@@ -1308,6 +1339,11 @@ window.DFCard = (function($, DFCard) {
         }
 
         delete retinasInProgress[retName];
+        var $dagWrap = getDagWrap(retName);
+        $dagWrap.removeClass("inProgress");
+        if (isComplete) {
+            xcTooltip.remove($dagWrap.find(".dagTableIcon, .dataStoreIcon"));
+        }
 
         if (updateStatus) {
             getAndUpdateRetinaStatuses(retName, false, isComplete);
