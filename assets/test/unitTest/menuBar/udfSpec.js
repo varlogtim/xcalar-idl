@@ -244,7 +244,7 @@ describe("UDF Test", function() {
         });
 
         it("UDF.toggleXcUDFs should work", function() {
-            var isHide = UserSettings.getPref("hideXcUDF");
+            var isHide = UserSettings.getPref("hideXcUDF") || false;
             var $li = $("<li>_xcalar_test</li>");
             $("#udf-fnMenu").append($li);
             UDF.toggleXcUDFs(!isHide);
