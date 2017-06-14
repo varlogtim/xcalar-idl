@@ -270,7 +270,8 @@ window.ColManager = (function($, ColManager) {
 
                 var mapOptions = {
                     "replaceColumn": true,
-                    "resize": true
+                    "resize": true,
+                    "type": colType
                 };
                 var srcTableId = xcHelper.getTableId(srcTable);
                 var srcTableCols = gTables[srcTableId].tableCols;
@@ -460,8 +461,10 @@ window.ColManager = (function($, ColManager) {
             .then(function() {
                 var curTableId   = xcHelper.getTableId(curTableName);
                 var curTableCols = gTables[curTableId].tableCols;
+                var mapColOptions = {type: ColumnType.string};
                 var newTableCols = xcHelper.mapColGenerate(++newColNum,
-                                        fieldName, mapString, curTableCols);
+                                        fieldName, mapString, curTableCols,
+                                        mapColOptions);
                 if (index < numColToGet) {
                     TblManager.setOrphanTableMeta(newTableName, newTableCols);
                     return PromiseHelper.resolve(null);

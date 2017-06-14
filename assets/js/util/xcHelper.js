@@ -704,7 +704,13 @@ window.xcHelper = (function($, xcHelper) {
         }
     };
 
-    xcHelper.mapColGenerate = function(colNum, colName, mapStr, tableCols, options) {
+    // options: {
+    //  replaceColumn: boolean, if true, will replace existing col with new one
+    //  resize: boolean, if true, will adjust column size to colname
+    //  type: string, if provided, will set column type
+    // }
+    xcHelper.mapColGenerate = function(colNum, colName, mapStr, tableCols,
+                                       options) {
         options = options || {};
         var copiedCols = xcHelper.deepCopy(tableCols);
         var sizedToHeader;
@@ -727,13 +733,8 @@ window.xcHelper = (function($, xcHelper) {
                 cellWidth = xcHelper.getDefaultColWidth(colName);
             }
 
-            // backend will return an escaped name and then we'll have to use
-            // an escaped version of that escaped name to access it =)
-            // var escapedName = xcHelper.escapeColName(colName.replace(/\./g, "\\."));
-            var escapedName = colName;
-
             var newProgCol = ColManager.newCol({
-                "backName": escapedName,
+                "backName": colName,
                 "name": colName,
                 "width": cellWidth,
                 "userStr": '"' + colName + '" = map(' + mapStr + ')',
