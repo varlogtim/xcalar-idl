@@ -553,7 +553,9 @@ window.TblManager = (function($, TblManager) {
                 rejectHandler(tableNames);
             } else {
                 if (!noLog) {
-                    Transaction.done(txId);
+                    Transaction.done(txId, {
+                        "title": TblTStr.Del
+                    });
                 }
 
                 if (tableType === TableType.Undone) {
@@ -573,7 +575,8 @@ window.TblManager = (function($, TblManager) {
                 if (!noLog) {
                     sql.tables = res.successTables;
                     Transaction.done(txId, {
-                        "sql": sql
+                        "sql": sql,
+                        "title": TblTStr.Del
                     });
 
                     if (res.fails && !noAlert) {

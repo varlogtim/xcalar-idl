@@ -1431,7 +1431,9 @@ window.DagPanel = (function($, DagPanel) {
                 .then(function() {
                     Dag.makeInactive(tableName, true);
                     // delete table will change meta, so should commit
-                    Transaction.done(txId);
+                    Transaction.done(txId, {
+                        "title": TblTStr.Del
+                    });
                 })
                 .fail(function(error) {
                     Transaction.fail(txId, {
@@ -2321,7 +2323,7 @@ window.Dag = (function($, Dag) {
             $schema.addClass("noNodeInfo");
             return;
         }
-         $schema.removeClass("noNodeInfo");
+        $schema.removeClass("noNodeInfo");
         var meta = table.backTableMeta;
         var html = "<ul>";
         var totalRows = table.resultSetCount;
