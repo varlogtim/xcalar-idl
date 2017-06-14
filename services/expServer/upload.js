@@ -1,8 +1,8 @@
 var fs = require('fs');
 var exec = require('child_process').exec;
 var Status = require('./supportStatusFile').Status;
-var guiDir = process.env.XCE_HTTP_ROOT ?
-    process.env.XCE_HTTP_ROOT : "/var/www/xcalar-gui";
+var guiDir = (process.env.XCE_HTTP_ROOT ?
+    process.env.XCE_HTTP_ROOT : "/var/www") + "/xcalar-gui";
 
 var validate = function(name, version) {
     if (name == null || name.length === 0) {
@@ -29,7 +29,8 @@ function uploadContent(req, res) {
         var awsTmp = require('aws-sdk');
         var s3Tmp = new awsTmp.S3();
     } else {
-        return res.send({"status": Status.Error, "logs": "You're not permitted to upload"});
+        return res.send({"status": Status.Error,
+            "logs": "You're not permitted to upload"});
     }
     var tmpPrefix = "/tmp/app" + getRandomInt(0, 1000) + "/";
     deleteFolderRecursive(tmpPrefix);
@@ -45,39 +46,46 @@ function uploadContent(req, res) {
         var name = req.body.name;
         var version = req.body.version;
         if (!validate(name, version)) {
-            return res.send({"status": Status.Error, "logs": "Validation fails: wrong input"});
+            return res.send({"status": Status.Error,
+                "logs": "Validation fails: wrong input"});
         }
-        if (filePath1 == null || filePath1.length == 0 || savedAsName1.length == 0) {
-            return res.send({"status": "Error", "logs": "Please specify at least one file & save as"});
+        if (!filePath1 || filePath1.length === 0 || savedAsName1.length === 0) {
+            return res.send({"status": "Error",
+                "logs": "Please specify at least one file & save as"});
         }
         var execString = "cp " + filePath1 + " " + tmpPrefix + savedAsName1;
         var out = exec(execString);
 
         out.on('close', function(code) {
-            if (code != 0 && code != 1) {
+            if (code !== 0 && code !== 1) {
                 console.log("Failed to upload");
                 console.log("Error code is " + code);
                 return res.send({"status": Status.Error, "code": code});
             }
             console.log("Copying first file to local /tmp");
-            if (filePath2 != null && filePath2.length != 0 && savedAsName2.length != 0) {
-                var execString = "cp " + filePath2 + " " + tmpPrefix + savedAsName2;
+            if (!filePath2 && filePath2.length !== 0 &&
+                savedAsName2.length !== 0) {
+                var execString = "cp " + filePath2 + " " + tmpPrefix +
+                    savedAsName2;
                 var out = exec(execString);
                 out.on('close', function(code) {
-                    if (code != 0 && code != 1) {
+                    if (code !== 0 && code !== 1) {
                         console.log("Failed to upload");
                         console.log("Error code is " + code);
                         return res.send({"status": Status.Error, "code": code});
                     }
                     console.log("Copying second file to local /tmp");
-                    if (filePath3 != null && filePath3.length != 0 && savedAsName3.length != 0) {
-                        var execString = "cp " + filePath3 + " " + tmpPrefix + savedAsName3;
+                    if (!filePath3 && filePath3.length !== 0 &&
+                        savedAsName3.length !== 0) {
+                        var execString = "cp " + filePath3 + " " + tmpPrefix +
+                            savedAsName3;
                         var out = exec(execString);
                         out.on('close', function(code) {
-                            if (code != 0 && code != 1) {
+                            if (code !== 0 && code !== 1) {
                                 console.log("Failed to upload");
                                 console.log("Error code is " + code);
-                                return res.send({"status": Status.Error, "code": code});
+                                return res.send({"status": Status.Error,
+                                    "code": code});
                             }
                             console.log("Copying third file to local /tmp");
                             gzipAndUpload(name, version, tmpPrefix, s3Tmp)
@@ -101,16 +109,17 @@ function uploadContent(req, res) {
             // code(1) means files were changed while being archived
         });
     });
-};
+}
 
-var gzipAndUpload = function(name, version, tmpPrefix, s3Tmp) {
+function gzipAndUpload(name, version, tmpPrefix, s3Tmp) {
     var tmpTarGz = tmpPrefix+"tmp.tar.gz";
     var deferred = jQuery.Deferred();
     gzip(tmpTarGz, tmpPrefix)
     .then(function() {
         console.log("Succeeded to tar");
         fs.readFile(tmpTarGz, function(err, data) {
-            upload('extensions/'+name+"/"+version+"/"+name+'-'+version+'.tar.gz', data, s3Tmp)
+            upload('extensions/' + name + "/" + version + "/" + name + '-' +
+                version + '.tar.gz', data, s3Tmp)
             .then(function() {
                 console.log("Uploaded .tar.gz");
                 deleteFolderRecursive(tmpPrefix);
@@ -122,7 +131,7 @@ var gzipAndUpload = function(name, version, tmpPrefix, s3Tmp) {
     return deferred.promise();
 }
 
-var deleteFolderRecursive = function(path) {
+function deleteFolderRecursive(path) {
   if ( fs.existsSync(path) ) {
       fs.readdirSync(path).forEach(function(file,index){
       var curPath = path + "/" + file;
@@ -134,9 +143,9 @@ var deleteFolderRecursive = function(path) {
     });
     fs.rmdirSync(path);
   }
-};
+}
 
-var create = function(dir) {
+function create(dir) {
     var deferred = jQuery.Deferred();
     fs.access(dir, function(err) {
         if (err) {
@@ -149,14 +158,15 @@ var create = function(dir) {
     return deferred.promise();
 }
 
-var gzip = function(fileName, tmpPrefix) {
+function gzip(fileName, tmpPrefix) {
     var deferred = jQuery.Deferred();
-    var execString = "tar -czf " + fileName + " -C " + tmpPrefix + " . --exclude \"*.tar.gz\" --warning=no-file-changed";
+    var execString = "tar -czf " + fileName + " -C " + tmpPrefix +
+        " . --exclude \"*.tar.gz\" --warning=no-file-changed";
     var out = exec(execString);
 
     out.on('close', function(code) {
         // code(1) means files were changed while being archived
-        if (code == 0 || code == 1) {
+        if (code === 0 || code === 1) {
             console.log("Succeeded to tar gz");
             deferred.resolve(Status.Done);
         } else {
@@ -169,11 +179,13 @@ var gzip = function(fileName, tmpPrefix) {
 }
 
 function uploadMeta(req, res) {
+    var s3Tmp;
     if (fs.existsSync("./awsWriteConfig.json")) {
         var awsTmp = require('aws-sdk');
-        var s3Tmp = new awsTmp.S3();
+        s3Tmp = new awsTmp.S3();
     } else {
-        return res.send({"status": Status.Error, "logs": "You're not permitted to upload"});
+        return res.send({"status": Status.Error,
+            "logs": "You're not permitted to upload"});
     }
     var name = req.body.name;
     var version = req.body.version;
@@ -184,7 +196,6 @@ function uploadMeta(req, res) {
     var repository_url = req.body.repository_url;
     var author = req.body.author;
     var category = req.body.category;
-    var imageUrl = req.body.imageUrl;
     var website = req.body.website;
     var imagePath = req.body.path;
     dataToSent = {
@@ -199,14 +210,14 @@ function uploadMeta(req, res) {
         "imageUrl": imageUrl,
         "website": website,
         "image": ""
-    }
-    if (imagePath.length != 0) {
+    };
+    if (imagePath.length !== 0) {
         fs.readFile(imagePath, function(err, data) {
             if (err) {
                 return res.send({"status": Status.Error, "logs": err});
             }
             image = data.toString("base64");
-            dataToSent["image"] = image
+            dataToSent.image = image;
             var file = 'extensions/'+name+"/"+version+"/"+name+'.txt';
             upload(file, JSON.stringify(dataToSent), s3Tmp)
             .then(function(data) {
@@ -220,15 +231,15 @@ function uploadMeta(req, res) {
             return res.send(data);
         });
     }
-};
+}
 
-var upload = function(file, content, s3Tmp) {
+function upload(file, content, s3Tmp) {
     var deferred = jQuery.Deferred();
-    params = {
+    var params = {
         Bucket: 'marketplace.xcalar.com',
         Key: file,
         Body: content
-    }
+    };
     s3Tmp.putObject(params, function(err, data) {
         if (err) console.log(err, err.stack); // an error occurred
         else {
