@@ -116,6 +116,13 @@ window.UploadDataflowCard = (function($, UploadDataflowCard) {
             submitForm();
         });
 
+        // hit enter on name input submits form
+        $dfName.on("keypress", function(event) {
+            if (event.which === keyCode.Enter) {
+                submitForm();
+            }
+        });
+
         // click browse button
         $("#dataflow-fakeBrowse").click(function() {
             $(this).blur();

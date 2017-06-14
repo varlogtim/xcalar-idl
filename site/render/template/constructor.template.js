@@ -2596,10 +2596,17 @@
                         var lastSubQuery = subQueries[subQueries.length - 1];
                         if (this.outputTableState === "exported") {
                             this.outputTableName = lastSubQuery.exportFileName;
+                            return this.outputTableName;
                         } else {
-                            this.outputTableName = lastSubQuery.dstTable;
+                            for (var i = subQueries.length - 1; i >= 0; i--) {
+                                if (subQueries[i].name.indexOf("drop") !== 0) {
+                                    this.outputTableName = subQueries[i]
+                                                                .dstTable;
+                                    return this.outputTableName;
+                                }
+                            }
+                            return null;
                         }
-                        return this.outputTableName;
                     }
                 } else {
                     return null;
