@@ -3909,13 +3909,13 @@ window.Dag = (function($, Dag) {
                 break;
             case ('loadInput'):
                 info.url = value.dataset.url;
-                var loadInfo = value;
+                var loadInfo = xcHelper.deepCopy(value);
                 info.loadInfo = loadInfo;
-                loadInfo.url = value.dataset.url;
-                loadInfo.format = DfFormatTypeTStr[value.dataset.formatType];
-                loadInfo.name = value.dataset.name;
+                loadInfo.url = loadInfo.dataset.url;
+                loadInfo.format = DfFormatTypeTStr[loadInfo.dataset.formatType];
+                loadInfo.name = loadInfo.dataset.name;
                 if (loadInfo.loadArgs) {
-                    loadInfo.loadArgs.udf = value.loadArgs.udfLoadArgs
+                    loadInfo.loadArgs.udf = loadInfo.loadArgs.udfLoadArgs
                                                     .fullyQualifiedFnName;
                     delete loadInfo.loadArgs.udfLoadArgs;
                 }
