@@ -34,20 +34,20 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             continue;
             // XXX This part is not run because we are currently blindly
             // reuploading everything
-            var extPrefix = extFileNames[j].substring(0,
-                                                   extFileNames[j].length - 4);
-            var found = false;
-            for (var i = 0; i < udfFunctions.length; i++) {
-                if (udfFunctions[i].indexOf(extPrefix + ":") !== -1) {
-                    found = true;
-                    console.log("Found ext python: " + extPrefix);
-                    break;
-                }
-            }
-            if (!found) {
-                console.log("Did not find ext python: " + extPrefix);
-                needReupload.push(extFileNames[j]);
-            }
+            // var extPrefix = extFileNames[j].substring(0,
+            //                                        extFileNames[j].length - 4);
+            // var found = false;
+            // for (var i = 0; i < udfFunctions.length; i++) {
+            //     if (udfFunctions[i].indexOf(extPrefix + ":") !== -1) {
+            //         found = true;
+            //         console.log("Found ext python: " + extPrefix);
+            //         break;
+            //     }
+            // }
+            // if (!found) {
+            //     console.log("Did not find ext python: " + extPrefix);
+            //     needReupload.push(extFileNames[j]);
+            // }
         }
         return (needReupload);
     }
@@ -55,38 +55,56 @@ window.ExtensionManager = (function(ExtensionManager, $) {
     function loadAndStorePython(extName) {
         // python name need to be lowercase
         var pyModName = extName.substring(0, extName.length - 4).toLowerCase();
-        var innerDef = jQuery.Deferred();
-        var data;
+        var deferred = jQuery.Deferred();
+
         jQuery.ajax({
             type: "GET",
             url: "assets/extensions/ext-enabled/" + extName + ".py"
         })
         .then(function(response, status, xhr) {
             // Success case
-            data = response;
-            // Returns a promise
-            // only upload non-empty python
-            if (!isEmptyPython(data)) {
-                return XcalarUploadPython(pyModName, data);
-            }
+            var data = response;
+            return uploadPython(pyModName, data);
         },
         function(error, status, xhr) {
             // Fail case
             console.error("Python file not found!");
         })
-        .then(function() {
-            if (!isEmptyPython(data)) {
-                UDF.storePython(pyModName, data);
-            }
-            innerDef.resolve();
-        })
+        .then(deferred.resolve)
         .fail(function() {
             console.error("Extension failed to upload. Removing: " + extName);
             // Remove extension from list
             removeExt(extName);
-            innerDef.reject();
+            deferred.reject();
         });
-        return innerDef.promise();
+        return deferred.promise();
+    }
+
+    function uploadPython(pyModName, data) {
+        // only upload non-empty python
+        if (isEmptyPython(data)) {
+            return PromiseHelper.resolve();
+        }
+
+        var deferred = jQuery.Deferred();
+
+        XcalarUploadPython(pyModName, data)
+        .then(function() {
+            UDF.storePython(pyModName, data);
+            deferred.resolve();
+        })
+        .fail(function(error) {
+            if (typeof error === "object" &&
+                error.status === StatusT.StatusUdfModuleInUse)
+            {
+                // udf in use case, don't faill the promise
+                deferred.resolve();
+            } else {
+                deferred.reject(error);
+            }
+        });
+
+        return deferred.promise();
     }
 
     function isEmptyPython(data) {
