@@ -27,9 +27,6 @@ var paths = {
     helpUserGuide: 'assets/help/user/Content/Home.htm',
     helpUserContent: 'assets/help/user/Content/',
     helpUserSearch: 'assets/help/user/Content/SearchInsight.htm#search-',
-    helpAdminGuide: 'assets/help/admin/Content/Home.htm',
-    helpAdminContent: 'assets/help/admin/Content/',
-    helpAdminSearch: 'assets/help/admin/Content/SearchInsight.htm#search-',
     favicon: "assets/images/xc-favicon.png",
     faviconUnsave: "assets/images/xc-favicon-unsave.gif",
 };

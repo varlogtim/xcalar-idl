@@ -102,4 +102,3 @@ if __name__ == "__main__":
         catFilesTogether()
         replacePathsInHtml()
     genSearchInsight("prod/assets/help/user/Content/Search.htm")
-    genSearchInsight("prod/assets/help/admin/Content/Search.htm")
