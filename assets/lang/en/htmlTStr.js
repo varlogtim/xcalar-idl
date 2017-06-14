@@ -171,6 +171,7 @@ module.exports = {
         "Format": "Format",
         "GB": "Group by",
         "GenIcv": "Create erroneous rows table",
+        "GetInfo": "Get info",
         "HideCol": "Hide column",
         "HideNewCol": "Delete column",
         "HideColPlura": "Hide columns",
@@ -521,7 +522,12 @@ module.exports = {
         "SearchHint": "Regex Search",
         "toggleHex": "Toggle between file browser window and hex dump view",
         "Offset": "Offset",
-        "SkipToOffset": "Skip to"
+        "SkipToOffset": "Skip to",
+        "Count": "Items",
+        "ModifiedDate": "Modified",
+        "Kind": "Kind",
+        "Folder": "Folder",
+        "Dataset": "Dataset"
     },
 
     "dsFormat": {

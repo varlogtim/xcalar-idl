@@ -513,6 +513,7 @@ window.xcManager = (function(xcManager, $) {
         LicenseModal.setup();
         SupTicketModal.setup();
         AboutModal.setup();
+        FileInfoModal.setup();
         PreviewFileModal.setup();
     }
 

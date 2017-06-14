@@ -386,6 +386,11 @@ window.FileBrowser = (function($, FileBrowser) {
             var $grid = getFocusedGridEle();
             previewDS($grid);
         });
+
+        $fileBrowserMenu.on("mouseup", ".getInfo", function() {
+            var $grid = getFocusedGridEle();
+            getFolderInfo($grid);
+        });
     }
 
     function hideBrowserMenu() {
@@ -1149,7 +1154,8 @@ window.FileBrowser = (function($, FileBrowser) {
 
             html +=
                 '<div title="' + escName + '" class="' +
-                    gridClass + visibilityClass + ' grid-unit">' +
+                    gridClass + visibilityClass + ' grid-unit" ' +
+                    'data-index="' + i + '">' +
                     '<i class="gridIcon icon ' + iconClass + '"></i>' +
                     '<div class="label fileName" data-name="' + escName + '">' +
                         name +
@@ -1457,6 +1463,22 @@ window.FileBrowser = (function($, FileBrowser) {
         var gridName = getGridUnitName($grid);
         var url = currentPath + gridName;
         FilePreviewer.show(url);
+    }
+
+    function getFolderInfo($grid) {
+        var index = Number($grid.data("index"));
+        var file = curFiles[index];
+        var name = file.name;
+        var path = getCurrentPath() + name;
+        var mTime = file.attr.mtime;
+        var isFolder = file.attr.isDirectory;
+
+        FileInfoModal.show({
+            "path": path,
+            "name": name,
+            "modified": mTime,
+            "isFolder": isFolder
+        });
     }
 
     /* Unit Test Only */

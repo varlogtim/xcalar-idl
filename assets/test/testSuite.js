@@ -1252,15 +1252,15 @@ window.TestSuite = (function($, TestSuite) {
             return checkExists("#profileModal .genAgg:not(:visible)", 30000);
         })
         .then(function() {
-            assert($(".infoSection .min").eq(0).text() ===
+            assert($("#profileModal .infoSection .min").eq(0).text() ===
                     Number(1).toLocaleString());
-            assert($(".infoSection .count").text() ===
+            assert($("#profileModal .infoSection .count").text() ===
                     Number(1953).toLocaleString());
-            assert($(".infoSection .average").text() ===
+            assert($("#profileModal .infoSection .average").text() ===
                     Number(6.506912).toLocaleString());
-            assert($(".infoSection .sum").text() ===
+            assert($("#profileModal .infoSection .sum").text() ===
                     Number(12708).toLocaleString());
-            assert($(".infoSection .max").eq(0).text() ===
+            assert($("#profileModal .infoSection .max").eq(0).text() ===
                     Number(12).toLocaleString());
 
             $("#profileModal .sortSection .asc").click();

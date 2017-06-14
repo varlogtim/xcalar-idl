@@ -1,0 +1,44 @@
+<!-- File Info Modal -->
+<div id="fileInfoModal" class="modalContainer xc-viewMode">
+  <header class="modalHeader">
+    <div class="close">
+      <i class="icon xi-close"></i>
+    </div>
+  </header>
+  <!-- modalMain -->
+  <section class="modalMain">
+    <div class="loadSection xc-loadView">
+      include "../../util/animatedEllipsis.html"
+    </div>
+    <div class="topSection xc-contentView text-selection">
+      <div class="leftPart">
+        <i class="icon xi-folder folder"></i>
+        <i class="icon xi_data ds"></i>
+      </div>
+      <div class="rightPart name">
+        <span class="text"></span>
+      </div>
+    </div>
+    <div class="infoSection xc-contentView text-selection">
+      <div class="kind">
+        <span class="label"><%= dicts.fileBrowser.Kind %>:</span>
+        <span class="text folder"><%= dicts.fileBrowser.Folder %></span>
+        <span class="text ds"><%= dicts.fileBrowser.Dataset %></span>
+      </div>
+      <div class="path">
+        <span class="label"><%= dicts.common.Path %>:</span>
+        <span class="text"></span>
+      </div>
+      <div class="count">
+        <span class="label"><%= dicts.fileBrowser.Count %>:</span>
+        <span class="text"></span>
+      </div>
+      <div class="modified">
+        <span class="label"><%= dicts.fileBrowser.ModifiedDate %>:</span>
+        <span class="text"></span>
+      </div>
+    </div>
+    </div>
+  </section>
+</div>
+<!-- End of File Info Modal -->

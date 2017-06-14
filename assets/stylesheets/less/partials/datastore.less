@@ -1452,7 +1452,14 @@ table.datasetTable {
 
 #fileBrowserMenu {
     &.folderOpts {
-        .preview {
+        li:not(.folderOpt) {
+            pointer-events: none;
+            opacity: @opacity-disabled;
+        }
+    }
+
+    &.dsOpts {
+        li:not(.dsOpt) {
             pointer-events: none;
             opacity: @opacity-disabled;
         }

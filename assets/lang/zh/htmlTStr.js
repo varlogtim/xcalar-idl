@@ -52,6 +52,7 @@ module.exports = {
         "Format": "格式",
         "GB": "组",
         "GenIcv": "生成完整性约束冲突异常表",
+        "GetInfo": "详细信息",
         "HideCol": "隐藏列",
         "HideColPlura": "隐藏列",
         "HideNewCol": "删除列",
@@ -477,7 +478,12 @@ module.exports = {
         "filePathHint": "点击查看历史记录",
         "header": "浏览数据源",
         "instr": "选择数据源，然后单击“下一步”按钮。",
-        "toggleHex": "切换浏览器/hex dump"
+        "toggleHex": "切换浏览器/hex dump",
+        "Count": "文件数",
+        "ModifiedDate": "更改时间",
+        "Kind": "种类",
+        "Folder": "文件夹",
+        "Dataset": "数据集"
     },
     "installer": {
         "installWizard": "安装向导",
