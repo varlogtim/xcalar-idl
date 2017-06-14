@@ -35,6 +35,7 @@ window.UploadDataflowCard = (function($, UploadDataflowCard) {
                                entireString)
             .then(function() {
                 xcHelper.showSuccess(SuccessTStr.Upload);
+                UDF.refreshWithoutClearing(true);
                 deferred.resolve();
             })
             .fail(function(error) {

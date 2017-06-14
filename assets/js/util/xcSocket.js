@@ -59,6 +59,8 @@ window.XcSocket = (function(XcSocket, $) {
         socket.on("refreshDataflow", function(dfName) {
             // console.log("dataflow", dfName, "refreshed");
             DataflowPanel.refresh(dfName);
+            UDF.refreshWithoutClearing(); // In the event that there's new
+                                          // UDF added
         });
     }
 

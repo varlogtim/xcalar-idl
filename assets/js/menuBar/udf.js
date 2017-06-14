@@ -66,6 +66,10 @@ window.UDF = (function($, UDF) {
         return refreshUDF(isInBg);
     };
 
+    UDF.refreshWithoutClearing = function() {
+        return refreshUDF(true, true);
+    };
+
     UDF.list = function() {
         return XcalarListXdfs("*", "User*");
     };
@@ -84,7 +88,7 @@ window.UDF = (function($, UDF) {
         }
     };
 
-    function initializeUDFList(isSetup) {
+    function initializeUDFList(isSetup, doNotClear) {
         var deferred = jQuery.Deferred();
 
         // update udf
@@ -120,11 +124,11 @@ window.UDF = (function($, UDF) {
             for (var key in oldStoredUDF) {
                 delete storedUDF[key];
             }
-            updateUDF();
+            updateUDF(doNotClear);
             deferred.resolve(listXdfsObj);
         })
         .fail(function(error) {
-            updateUDF(); // stil update
+            updateUDF(doNotClear); // stil update
             deferred.reject(error);
         });
 
@@ -391,7 +395,7 @@ window.UDF = (function($, UDF) {
         };
     }
 
-    function refreshUDF(isInBg) {
+    function refreshUDF(isInBg, doNotClear) {
         var deferred = jQuery.Deferred();
         var $udfManager = $("#udf-manager");
         $udfManager.addClass("loading");
@@ -399,7 +403,7 @@ window.UDF = (function($, UDF) {
             xcHelper.showRefreshIcon($udfManager);
         }
 
-        initializeUDFList()
+        initializeUDFList(false, doNotClear)
         .then(function(listXdfsObj) {
             DSPreview.update(listXdfsObj);
             FnBar.updateOperationsMap(listXdfsObj.fnDescs, true);
@@ -414,14 +418,14 @@ window.UDF = (function($, UDF) {
         return deferred.promise();
     }
 
-    function updateUDF() {
+    function updateUDF(doNotClear) {
         // store by name
         var moduleNames = Object.keys(storedUDF).sort();
-        updateTemplateList(moduleNames);
+        updateTemplateList(moduleNames, doNotClear);
         updateManager(moduleNames);
     }
 
-    function updateTemplateList(moduleNames) {
+    function updateTemplateList(moduleNames, doNotClear) {
         var $input = $("#udf-fnList input");
         var $blankFunc = $("#udf-fnMenu").find('li[name=blank]');
         var selectedModule = $input.val();
@@ -451,7 +455,7 @@ window.UDF = (function($, UDF) {
         $blankFunc.siblings().remove();
         $blankFunc.after(html);
 
-        if (!hasSelectedModule) {
+        if (!hasSelectedModule && !doNotClear) {
             dropdownHint.clearInput();
             $blankFunc.trigger(fakeEvent.mouseup);
         }
@@ -575,14 +579,14 @@ window.UDF = (function($, UDF) {
         xcAssert(storedUDF.hasOwnProperty(moduleName), "Delete UDF error");
 
         XcalarDeletePython(moduleName)
-        .then(resolve)
+        .then(deleteUDFResolve)
         .fail(function(error) {
             // assume deletion if module is not listed
             if (error && error.status === StatusT.StatusUdfModuleNotFound) {
                 XcalarListXdfs(moduleName + ":*", "User*")
                 .then(function(listXdfsObj) {
                     if (listXdfsObj.numXdfs === 0) {
-                        resolve();
+                        deleteUDFResolve();
                     } else {
                         Alert.error(UDFTStr.DelFail, error);
                     }
@@ -596,7 +600,7 @@ window.UDF = (function($, UDF) {
             }
         });
 
-        function resolve() {
+        function deleteUDFResolve() {
             delete storedUDF[moduleName];
             updateUDF();
 
