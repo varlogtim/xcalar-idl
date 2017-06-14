@@ -50,18 +50,3 @@ if __name__ == "__main__":
     fout.write("var helpHashTags = ")
     fout.write(json.dumps(d, indent=2))
     fout.write(";\n")
-
-    hashTagTree = xcalarTags()
-    hashTagTree.getTagsFromFolder("../help/admin/", "htm")
-    d = hashTagTree.hashDict
-    # hashTagTree.prettyPrint()
-    fout = open(newFile, "a")
-    fout.write("var adminCsLookup = ")
-    fout.write(json.dumps(d, indent=2))
-    fout.write(";\n")
-    d = []
-    for key in hashTagTree.helpTopics:
-        d.append({"url": key, "title": hashTagTree.helpTopics[key]})
-    fout.write("var adminHelpHashTags = ")
-    fout.write(json.dumps(d, indent=2))
-    fout.write(";\n")
