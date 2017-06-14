@@ -4,7 +4,7 @@
 {
 	/* Search Styles */
 
-	.search-filter
+	.search-bar .search-filter
 	{
 		font-size: 1em;
 	}
@@ -326,23 +326,21 @@
 		
 	}
 
-	._Skins_HomeSearchBar.mc-component .search-field
+	.search-bar._Skins_HomeSearchBar.mc-component .search-field
 	{
 		background-color: #ffffff;
 	}
 
-	._Skins_HomeSearchBar.mc-component .search-filter
+	.search-bar._Skins_HomeSearchBar.mc-component .search-filter
 	{
 		background-repeat: no-repeat;
 		background-position: center center;
 		background: #ffffff url('Images/FilterOutline.png') no-repeat center center;
 	}
 
-	._Skins_HomeSearchBar.mc-component .search-submit
+	.search-bar._Skins_HomeSearchBar.mc-component .search-submit
 	{
-		background-repeat: no-repeat;
-		background-position: center center;
-		background: transparent url('Images/SearchIcon.png') no-repeat center center;
+		
 	}
 
 	._Skins_HomeSearchBar.mc-component .search-filter-content
@@ -351,14 +349,19 @@
 		background-color: #ffffff;
 	}
 
-	._Skins_HomeSearchBar.mc-component .search-filter.open
+	.search-bar._Skins_HomeSearchBar.mc-component .search-filter.open
 	{
 		background-repeat: no-repeat;
 		background-position: center center;
 		background-color: #ffffff;
 	}
 
-	._Skins_HomeSearchBar.mc-component .search-filter.selected
+	.search-bar._Skins_HomeSearchBar.mc-component .search-filter:hover
+	{
+		background-color: #ffffff;
+	}
+
+	.search-bar._Skins_HomeSearchBar.mc-component .search-filter.selected
 	{
 		background-repeat: no-repeat;
 		background-position: center center;
@@ -370,24 +373,38 @@
 		background-color: #ffffff;
 	}
 
-	._Skins_HomeSearchBar.mc-component .search-field::-webkit-input-placeholder
+	.search-bar._Skins_HomeSearchBar.mc-component .search-field::-webkit-input-placeholder
 	{
 		
 	}
 
-	._Skins_HomeSearchBar.mc-component .search-field::-moz-placeholder
+	.search-bar._Skins_HomeSearchBar.mc-component .search-field::-moz-placeholder
 	{
 		
 	}
 
-	._Skins_HomeSearchBar.mc-component .search-field:-moz-placeholder
+	.search-bar._Skins_HomeSearchBar.mc-component .search-field:-moz-placeholder
 	{
 		
 	}
 
-	._Skins_HomeSearchBar.mc-component .search-field:-ms-input-placeholder
+	.search-bar._Skins_HomeSearchBar.mc-component .search-field:-ms-input-placeholder
 	{
 		
+	}
+
+	.search-bar.search-bar-container._Skins_HomeSearchBar.mc-component .search-submit
+	{
+		background-repeat: no-repeat;
+		background-position: center center;
+		background: transparent url('Images/SearchIcon.png') no-repeat center center;
+	}
+
+	.search-bar.search-bar-container._Skins_HomeSearchBar.mc-component .search-submit:hover
+	{
+		background-repeat: no-repeat;
+		background-position: center center;
+		background-color: transparent;
 	}
 }
 
