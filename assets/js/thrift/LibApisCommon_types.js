@@ -11991,6 +11991,59 @@ XcalarApiShutdownInputT.prototype.write = function(output) {
   return;
 };
 
+XcalarApiGetIpAddrInputT = function(args) {
+  this.nodeId = null;
+  if (args) {
+    if (args.nodeId !== undefined) {
+      this.nodeId = args.nodeId;
+    }
+  }
+};
+XcalarApiGetIpAddrInputT.prototype = {};
+XcalarApiGetIpAddrInputT.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.I64) {
+        this.nodeId = input.readI64().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 0:
+        input.skip(ftype);
+        break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+XcalarApiGetIpAddrInputT.prototype.write = function(output) {
+  output.writeStructBegin('XcalarApiGetIpAddrInputT');
+  if (this.nodeId !== null && this.nodeId !== undefined) {
+    output.writeFieldBegin('nodeId', Thrift.Type.I64, 1);
+    output.writeI64(this.nodeId);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
 XcalarApiInputT = function(args) {
   this.loadInput = null;
   this.indexInput = null;
@@ -12064,6 +12117,7 @@ XcalarApiInputT = function(args) {
   this.memoryUsageInput = null;
   this.logLevelSetInput = null;
   this.updateRetinaExportInput = null;
+  this.getIpAddrInput = null;
   if (args) {
     if (args.loadInput !== undefined) {
       this.loadInput = args.loadInput;
@@ -12280,6 +12334,9 @@ XcalarApiInputT = function(args) {
     }
     if (args.updateRetinaExportInput !== undefined) {
       this.updateRetinaExportInput = args.updateRetinaExportInput;
+    }
+    if (args.getIpAddrInput !== undefined) {
+      this.getIpAddrInput = args.getIpAddrInput;
     }
   }
 };
@@ -12873,6 +12930,14 @@ XcalarApiInputT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 76:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.getIpAddrInput = new XcalarApiGetIpAddrInputT();
+        this.getIpAddrInput.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -13242,6 +13307,11 @@ XcalarApiInputT.prototype.write = function(output) {
   if (this.updateRetinaExportInput !== null && this.updateRetinaExportInput !== undefined) {
     output.writeFieldBegin('updateRetinaExportInput', Thrift.Type.STRUCT, 75);
     this.updateRetinaExportInput.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.getIpAddrInput !== null && this.getIpAddrInput !== undefined) {
+    output.writeFieldBegin('getIpAddrInput', Thrift.Type.STRUCT, 76);
+    this.getIpAddrInput.write(output);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -15142,6 +15212,59 @@ XcalarApiGetMemoryUsageOutputT.prototype.write = function(output) {
   return;
 };
 
+XcalarApiGetIpAddrOutputT = function(args) {
+  this.ipAddr = null;
+  if (args) {
+    if (args.ipAddr !== undefined) {
+      this.ipAddr = args.ipAddr;
+    }
+  }
+};
+XcalarApiGetIpAddrOutputT.prototype = {};
+XcalarApiGetIpAddrOutputT.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.STRING) {
+        this.ipAddr = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 0:
+        input.skip(ftype);
+        break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+XcalarApiGetIpAddrOutputT.prototype.write = function(output) {
+  output.writeStructBegin('XcalarApiGetIpAddrOutputT');
+  if (this.ipAddr !== null && this.ipAddr !== undefined) {
+    output.writeFieldBegin('ipAddr', Thrift.Type.STRING, 1);
+    output.writeString(this.ipAddr);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
 XcalarApiOutputResultT = function(args) {
   this.getVersionOutput = null;
   this.statusOutput = null;
@@ -15196,6 +15319,7 @@ XcalarApiOutputResultT = function(args) {
   this.appReapOutput = null;
   this.demoFileOutput = null;
   this.memoryUsageOutput = null;
+  this.getIpAddrOutput = null;
   if (args) {
     if (args.getVersionOutput !== undefined) {
       this.getVersionOutput = args.getVersionOutput;
@@ -15355,6 +15479,9 @@ XcalarApiOutputResultT = function(args) {
     }
     if (args.memoryUsageOutput !== undefined) {
       this.memoryUsageOutput = args.memoryUsageOutput;
+    }
+    if (args.getIpAddrOutput !== undefined) {
+      this.getIpAddrOutput = args.getIpAddrOutput;
     }
   }
 };
@@ -15795,6 +15922,14 @@ XcalarApiOutputResultT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 55:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.getIpAddrOutput = new XcalarApiGetIpAddrOutputT();
+        this.getIpAddrOutput.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -16069,6 +16204,11 @@ XcalarApiOutputResultT.prototype.write = function(output) {
   if (this.memoryUsageOutput !== null && this.memoryUsageOutput !== undefined) {
     output.writeFieldBegin('memoryUsageOutput', Thrift.Type.STRUCT, 54);
     this.memoryUsageOutput.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.getIpAddrOutput !== null && this.getIpAddrOutput !== undefined) {
+    output.writeFieldBegin('getIpAddrOutput', Thrift.Type.STRUCT, 55);
+    this.getIpAddrOutput.write(output);
     output.writeFieldEnd();
   }
   output.writeFieldStop();

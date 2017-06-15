@@ -566,6 +566,9 @@ PromiseHelper = (function(PromiseHelper, $) {
         test.trivial(xcalarLogLevelSet(thriftHandle, 2, true));
     }
 
+    function testGetIpAddrNode0(test) {
+        test.trivial(xcalarGetIpAddr(thriftHandle, 0));
+    }
 
     function testPreview(test) {
         var url = "nfs://" + qaTestDir + "/yelp/user";
@@ -4055,6 +4058,8 @@ PromiseHelper = (function(PromiseHelper, $) {
     addTestCase(testShutdown, "shutdown", defaultTimeout, TestCaseEnabled, "98");
     addTestCase(testLogLevelSetCrit, "loglevelset LOG_CRIT true", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testLogLevelSetDebug, "loglevelset LOG_DEBUG false", defaultTimeout, TestCaseEnabled, "");
+
+    addTestCase(testGetIpAddrNode0, "getipaddr 0", defaultTimeout, TestCaseEnabled, "");
 
     runTestSuite(testCases);
 

@@ -24277,6 +24277,59 @@ XcalarApiShutdownInputT.prototype.write = function(output) {
   return;
 };
 
+XcalarApiGetIpAddrInputT = function(args) {
+  this.nodeId = null;
+  if (args) {
+    if (args.nodeId !== undefined) {
+      this.nodeId = args.nodeId;
+    }
+  }
+};
+XcalarApiGetIpAddrInputT.prototype = {};
+XcalarApiGetIpAddrInputT.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.I64) {
+        this.nodeId = input.readI64().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 0:
+        input.skip(ftype);
+        break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+XcalarApiGetIpAddrInputT.prototype.write = function(output) {
+  output.writeStructBegin('XcalarApiGetIpAddrInputT');
+  if (this.nodeId !== null && this.nodeId !== undefined) {
+    output.writeFieldBegin('nodeId', Thrift.Type.I64, 1);
+    output.writeI64(this.nodeId);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
 XcalarApiInputT = function(args) {
   this.loadInput = null;
   this.indexInput = null;
@@ -24350,6 +24403,7 @@ XcalarApiInputT = function(args) {
   this.memoryUsageInput = null;
   this.logLevelSetInput = null;
   this.updateRetinaExportInput = null;
+  this.getIpAddrInput = null;
   if (args) {
     if (args.loadInput !== undefined) {
       this.loadInput = args.loadInput;
@@ -24566,6 +24620,9 @@ XcalarApiInputT = function(args) {
     }
     if (args.updateRetinaExportInput !== undefined) {
       this.updateRetinaExportInput = args.updateRetinaExportInput;
+    }
+    if (args.getIpAddrInput !== undefined) {
+      this.getIpAddrInput = args.getIpAddrInput;
     }
   }
 };
@@ -25159,6 +25216,14 @@ XcalarApiInputT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 76:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.getIpAddrInput = new XcalarApiGetIpAddrInputT();
+        this.getIpAddrInput.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -25528,6 +25593,11 @@ XcalarApiInputT.prototype.write = function(output) {
   if (this.updateRetinaExportInput !== null && this.updateRetinaExportInput !== undefined) {
     output.writeFieldBegin('updateRetinaExportInput', Thrift.Type.STRUCT, 75);
     this.updateRetinaExportInput.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.getIpAddrInput !== null && this.getIpAddrInput !== undefined) {
+    output.writeFieldBegin('getIpAddrInput', Thrift.Type.STRUCT, 76);
+    this.getIpAddrInput.write(output);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -27428,6 +27498,59 @@ XcalarApiGetMemoryUsageOutputT.prototype.write = function(output) {
   return;
 };
 
+XcalarApiGetIpAddrOutputT = function(args) {
+  this.ipAddr = null;
+  if (args) {
+    if (args.ipAddr !== undefined) {
+      this.ipAddr = args.ipAddr;
+    }
+  }
+};
+XcalarApiGetIpAddrOutputT.prototype = {};
+XcalarApiGetIpAddrOutputT.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.STRING) {
+        this.ipAddr = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 0:
+        input.skip(ftype);
+        break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+XcalarApiGetIpAddrOutputT.prototype.write = function(output) {
+  output.writeStructBegin('XcalarApiGetIpAddrOutputT');
+  if (this.ipAddr !== null && this.ipAddr !== undefined) {
+    output.writeFieldBegin('ipAddr', Thrift.Type.STRING, 1);
+    output.writeString(this.ipAddr);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
 XcalarApiOutputResultT = function(args) {
   this.getVersionOutput = null;
   this.statusOutput = null;
@@ -27482,6 +27605,7 @@ XcalarApiOutputResultT = function(args) {
   this.appReapOutput = null;
   this.demoFileOutput = null;
   this.memoryUsageOutput = null;
+  this.getIpAddrOutput = null;
   if (args) {
     if (args.getVersionOutput !== undefined) {
       this.getVersionOutput = args.getVersionOutput;
@@ -27641,6 +27765,9 @@ XcalarApiOutputResultT = function(args) {
     }
     if (args.memoryUsageOutput !== undefined) {
       this.memoryUsageOutput = args.memoryUsageOutput;
+    }
+    if (args.getIpAddrOutput !== undefined) {
+      this.getIpAddrOutput = args.getIpAddrOutput;
     }
   }
 };
@@ -28081,6 +28208,14 @@ XcalarApiOutputResultT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 55:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.getIpAddrOutput = new XcalarApiGetIpAddrOutputT();
+        this.getIpAddrOutput.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -28355,6 +28490,11 @@ XcalarApiOutputResultT.prototype.write = function(output) {
   if (this.memoryUsageOutput !== null && this.memoryUsageOutput !== undefined) {
     output.writeFieldBegin('memoryUsageOutput', Thrift.Type.STRUCT, 54);
     this.memoryUsageOutput.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.getIpAddrOutput !== null && this.getIpAddrOutput !== undefined) {
+    output.writeFieldBegin('getIpAddrOutput', Thrift.Type.STRUCT, 55);
+    this.getIpAddrOutput.write(output);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -28865,7 +29005,8 @@ XcalarApisT = {
   'XcalarApiGetMemoryUsage' : 106,
   'XcalarApiLogLevelSet' : 107,
   'XcalarApiUpdateRetinaExport' : 108,
-  'XcalarApiFunctionInvalid' : 109
+  'XcalarApiGetIpAddr' : 109,
+  'XcalarApiFunctionInvalid' : 110
 };
 XcalarApisTStr = {0 : 'XcalarApiUnknown',
 1 : 'XcalarApiGetVersion',
@@ -28976,7 +29117,8 @@ XcalarApisTStr = {0 : 'XcalarApiUnknown',
 106 : 'XcalarApiGetMemoryUsage',
 107 : 'XcalarApiLogLevelSet',
 108 : 'XcalarApiUpdateRetinaExport',
-109 : 'XcalarApiFunctionInvalid'
+109 : 'XcalarApiGetIpAddr',
+110 : 'XcalarApiFunctionInvalid'
 };
 //
 // Autogenerated by Thrift Compiler (0.9.2)
@@ -29626,7 +29768,9 @@ StatusT = {
   'StatusLogLevelSetInvalid' : 577,
   'StatusConnectionWrongHandshake' : 578,
   'StatusQueryOnAnotherNode' : 579,
-  'StatusAppInstanceStartError' : 580
+  'StatusAppInstanceStartError' : 580,
+  'StatusApisRecvTimeout' : 581,
+  'StatusIpAddrTooLong' : 582
 };
 StatusTStr = {0 : 'Success',
 1 : 'Operation not permitted',
@@ -30208,7 +30352,9 @@ StatusTStr = {0 : 'Success',
 577 : 'Log level is too large',
 578 : 'Client performed a handshake we didn\'t understand',
 579 : 'Query\'s metadata is on another node. Please go to that node',
-580 : 'App instance start error'
+580 : 'App instance start error',
+581 : 'Timed out waiting for api',
+582 : 'IP address is too long'
 };
 //
 // Autogenerated by Thrift Compiler (0.9.2)
@@ -30519,9 +30665,9 @@ XcalarApiServiceClient.prototype.recv_queueWork = function() {
 
 
 XcalarApiVersionT = {
-  'XcalarApiVersionSignature' : 69355151
+  'XcalarApiVersionSignature' : 130981694
 };
-XcalarApiVersionTStr = {69355151 : '422468ff237e06ef6f9ff36c84223e17'
+XcalarApiVersionTStr = {130981694 : '7ce9f3e25ab3301daeb463dd5b17c15e'
 };
 // Async extension for XcalarApiService.js
 XcalarApiServiceClient.prototype.queueWorkAsync = function(workItem) {
@@ -34727,6 +34873,45 @@ xcalarLogLevelSet = runEntity.xcalarLogLevelSet = function(thriftHandle, logLeve
     return (deferred.promise());
 };
 
+xcalarGetIpAddrWorkItem = runEntity.xcalarGetIpAddrWorkItem = function(nodeId) {
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiInputT();
+    workItem.input.getIpAddrInput = new XcalarApiGetIpAddrInputT();
+
+    workItem.api = XcalarApisT.XcalarApiGetIpAddr;
+    workItem.input.getIpAddrInput.nodeId = nodeId;
+    return (workItem);
+};
+
+xcalarGetIpAddr = runEntity.xcalarGetIpAddr = function(thriftHandle, nodeId) {
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarGetIpAddr(nodeId = " + nodeId.toString() + ")");
+    }
+
+    var workItem = xcalarGetIpAddrWorkItem(nodeId);
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        var getIpAddrOutput = result.output.outputResult.getIpAddrOutput;
+
+        var status = result.output.hdr.status;
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            deferred.reject(status);
+        }
+        deferred.resolve(getIpAddrOutput);
+    })
+    .fail(function(error) {
+        console.log("xcalarGetIpAddr() caught exception:", error);
+        deferred.reject(error);
+    });
+
+    return (deferred.promise());
+};
+
 XcalarApiLicenseUpdateWorkItem = runEntity.xcalarApiLicenseUpdateWorkItem = function(paramName, paramValue) {
     // NOOP
     return ("NOT_IMPLEMENTED");
@@ -35339,6 +35524,9 @@ PromiseHelper = (function(PromiseHelper, $) {
         test.trivial(xcalarLogLevelSet(thriftHandle, 2, true));
     }
 
+    function testGetIpAddrNode0(test) {
+        test.trivial(xcalarGetIpAddr(thriftHandle, 0));
+    }
 
     function testPreview(test) {
         var url = "nfs://" + qaTestDir + "/yelp/user";
@@ -38828,6 +39016,8 @@ PromiseHelper = (function(PromiseHelper, $) {
     addTestCase(testShutdown, "shutdown", defaultTimeout, TestCaseEnabled, "98");
     addTestCase(testLogLevelSetCrit, "loglevelset LOG_CRIT true", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testLogLevelSetDebug, "loglevelset LOG_DEBUG false", defaultTimeout, TestCaseEnabled, "");
+
+    addTestCase(testGetIpAddrNode0, "getipaddr 0", defaultTimeout, TestCaseEnabled, "");
 
     runTestSuite(testCases);
 

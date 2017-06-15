@@ -4101,6 +4101,45 @@ xcalarLogLevelSet = runEntity.xcalarLogLevelSet = function(thriftHandle, logLeve
     return (deferred.promise());
 };
 
+xcalarGetIpAddrWorkItem = runEntity.xcalarGetIpAddrWorkItem = function(nodeId) {
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiInputT();
+    workItem.input.getIpAddrInput = new XcalarApiGetIpAddrInputT();
+
+    workItem.api = XcalarApisT.XcalarApiGetIpAddr;
+    workItem.input.getIpAddrInput.nodeId = nodeId;
+    return (workItem);
+};
+
+xcalarGetIpAddr = runEntity.xcalarGetIpAddr = function(thriftHandle, nodeId) {
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarGetIpAddr(nodeId = " + nodeId.toString() + ")");
+    }
+
+    var workItem = xcalarGetIpAddrWorkItem(nodeId);
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        var getIpAddrOutput = result.output.outputResult.getIpAddrOutput;
+
+        var status = result.output.hdr.status;
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            deferred.reject(status);
+        }
+        deferred.resolve(getIpAddrOutput);
+    })
+    .fail(function(error) {
+        console.log("xcalarGetIpAddr() caught exception:", error);
+        deferred.reject(error);
+    });
+
+    return (deferred.promise());
+};
+
 XcalarApiLicenseUpdateWorkItem = runEntity.xcalarApiLicenseUpdateWorkItem = function(paramName, paramValue) {
     // NOOP
     return ("NOT_IMPLEMENTED");

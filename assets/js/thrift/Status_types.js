@@ -586,7 +586,9 @@ StatusT = {
   'StatusLogLevelSetInvalid' : 577,
   'StatusConnectionWrongHandshake' : 578,
   'StatusQueryOnAnotherNode' : 579,
-  'StatusAppInstanceStartError' : 580
+  'StatusAppInstanceStartError' : 580,
+  'StatusApisRecvTimeout' : 581,
+  'StatusIpAddrTooLong' : 582
 };
 StatusTStr = {0 : 'Success',
 1 : 'Operation not permitted',
@@ -1168,5 +1170,7 @@ StatusTStr = {0 : 'Success',
 577 : 'Log level is too large',
 578 : 'Client performed a handshake we didn\'t understand',
 579 : 'Query\'s metadata is on another node. Please go to that node',
-580 : 'App instance start error'
+580 : 'App instance start error',
+581 : 'Timed out waiting for api',
+582 : 'IP address is too long'
 };

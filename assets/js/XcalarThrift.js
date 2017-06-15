@@ -420,6 +420,28 @@ function XcalarGetLicense() {
     return deferred.promise();
 }
 
+function XcalarGetNodeName(nodeId) {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return PromiseHelper.resolve(null);
+    }
+
+    var deferred = jQuery.Deferred();
+    if (insertError(arguments.callee, deferred)) {
+        return (deferred.promise());
+    }
+
+    xcalarGetIpAddr(tHandle, nodeId)
+    .then(function(ret) {
+        deferred.resolve(ret.ipAddr);
+    })
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarGetNodeName", error);
+        deferred.reject(thriftError);
+    });
+
+    return deferred.promise();
+}
+
 function XcalarUpdateLicense(newLicense) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
