@@ -32,9 +32,9 @@ window.Admin = (function($, Admin) {
         $userList = $menuPanel.find('.userList');
 
         if (Admin.isAdmin()) {
-            addMonitorMenuUserListListeners();
+            addUserListListeners();
             addMonitorMenuSupportListeners();
-            refreshUserList();
+            refreshUserList(true);
             setupAdminStatusBar();
             MonitorLog.setup();
         }
@@ -73,27 +73,6 @@ window.Admin = (function($, Admin) {
             console.warn(err);
             deferred.reject(err);
         });
-
-        return deferred.promise();
-    };
-
-    Admin.removeUser = function(username) {
-        var deferred = jQuery.Deferred();
-        KVStore.get(userListKey, gKVScope.GLOB)
-        .then(function(value) {
-            if (value == null) {
-                return PromiseHelper.resolve();
-            } else {
-                parseStrIntoUserList(value);
-                if (userList.indexOf(username) > -1) {
-                    return removeUserName(username);
-                } else {
-                    return PromiseHelper.resolve();
-                }
-            }
-        })
-        .then(deferred.resolve)
-        .fail(deferred.reject);
 
         return deferred.promise();
     };
@@ -142,7 +121,7 @@ window.Admin = (function($, Admin) {
         StatusMessage.updateLocation();
     };
 
-    function addMonitorMenuUserListListeners() {
+    function addUserListListeners() {
         searchHelper = new SearchBar($("#adminUserSearch"), {
             "$list": $userList.find('ul'),
             "removeSelected": function() {
@@ -164,19 +143,22 @@ window.Admin = (function($, Admin) {
                 .removeClass('hasArrows');
             });
         });
-        $menuPanel.find('.refreshUserList').click(function() {
+        $menuPanel.find(".refreshUserList").click(function() {
             searchHelper.clearSearch(function() {
                 clearUserListFilter();
             });
-            xcHelper.showRefreshIcon($userList);
-            refreshUserList();
+
+            var sortedByUsage = $userList.hasClass("sortedByUsage");
+
+            var promise = refreshUserList(false, sortedByUsage);
+            xcHelper.showRefreshIcon($userList, false, promise);
         });
 
-        $userList.on('click', '.userLi', function(event) {
-            if ($(event.target).closest(".memory").length) {
+        $userList.on('click', '.userLi .useAs', function(event) {
+            var $li = $(this).closest(".userLi");
+            if ($li.hasClass("self")) {
                 return;
             }
-            var $li = $(this).closest(".userLi");
             var username = $li.text().trim();
             var title = MonitorTStr.UseXcalarAs;
             var msg = xcHelper.replaceMsg(MonitorTStr.SwitchUserMsg, {
@@ -231,6 +213,16 @@ window.Admin = (function($, Admin) {
 
             promise
             .then(function(data) {
+                var totalMem = 0;
+                for (var sess in data) {
+                    totalMem += xcHelper.textToBytesTranslator(
+                                                    data[sess]["Total Memory"]);
+                }
+                $li.data("memval", totalMem);
+                var memText = xcHelper.sizeTranslator(totalMem, true);
+                memText = MonitorTStr.MemUsage + ": " + memText[0] + " " +
+                         memText[1];
+                xcTooltip.changeText($li.find(".memory"), memText);
                 if ($popup.data("id") !== popupId) {
                     return;
                 }
@@ -280,7 +272,6 @@ window.Admin = (function($, Admin) {
                     xcTooltip.add($li, {
                         title: MonitorTStr.UserNotExists
                     });
-                    Admin.removeUser(username);
                 }
             });
         });
@@ -293,6 +284,45 @@ window.Admin = (function($, Admin) {
             function() {
             $(this).closest(".breakdown").toggleClass("active");
             xcTooltip.hideAll();
+        });
+
+        $userList.on("click", ".sortOption", function() {
+            var sortByName = $(this).hasClass("sortName");
+            if (sortByName) {
+                if ($userList.hasClass("sortedByName")) {
+                    return;
+                } else {
+                    $userList.addClass("sortedByName").removeClass("sortedByUsage");
+                }
+            } else { // sort by date
+                if ($userList.hasClass("sortedByUsage")) {
+                    return;
+                } else {
+                    $userList.addClass("sortedByUsage").removeClass("sortedByName");
+                }
+            }
+
+            if (sortByName) {
+                var userMemList = [];
+                $userList.find("li").each(function() {
+                    var $li = $(this);
+                    userMemList.push({
+                        username: $li.find(".text").text(),
+                        memText: $li.find(".memory").data("title")
+                    });
+                });
+                userMemList.sort(function(a, b) {
+                    return xcHelper.sortVals(a.username, b.username);
+                });
+                userList = [];
+                for (var i = 0; i < userMemList.length; i++) {
+                    userList.push(userMemList[i].username);
+                }
+                setupUserListMenu(userMemList);
+            } else {
+                var promise = refreshUserList(false, true);
+                xcHelper.showRefreshIcon($userList, false, promise);
+            }
         });
     }
 
@@ -323,7 +353,7 @@ window.Admin = (function($, Admin) {
     function getMemUsage(username) {
         var deferred  = jQuery.Deferred();
         var userId = Support.getUserIdUnique(username);
-        XcalarApiGetMemoryUsage(username, userId)
+        XcalarGetMemoryUsage(username, userId)
         .then(function(origData) {
             var data;
             if (origData && origData.userMemory &&
@@ -356,6 +386,64 @@ window.Admin = (function($, Admin) {
         })
         .fail(deferred.reject);
 
+        return deferred.promise();
+    }
+
+    function getAllUsersMemory(sortByUsage) {
+        var deferred = jQuery.Deferred();
+        var userId;
+        var username;
+        var promises = [];
+        for (var i = 0; i < userList.length; i++) {
+            username = userList[i];
+            userId = Support.getUserIdUnique(username);
+            promises.push(XcalarGetMemoryUsage(username, userId));
+        }
+        PromiseHelper.when.apply(window, promises)
+        .always(function() {
+            var users = arguments;
+            var data;
+            var tempUserList = [];
+            var memText;
+            for (var i = 0; i < users.length; i++) {
+                data = users[i];
+                if (data && data.userMemory &&
+                    data.userMemory.sessionMemory)
+                {
+                    var mem = data.userMemory.sessionMemory;
+                    var totalMem = 0;
+                    for (var j = 0; j < mem.length; j++) {
+                        for (var k = 0; k < mem[j].tableMemory.length; k++) {
+                            totalMem += mem[j].tableMemory[k].totalBytes;
+                        }
+                    }
+                    username = data.userMemory.userName;
+                    memText = xcHelper.sizeTranslator(totalMem, true);
+                    memText = memText[0] + " " + memText[1];
+                    tempUserList.push({
+                        username: username,
+                        memVal: totalMem,
+                        memText: memText
+                    });
+                }
+            }
+            if (sortByUsage) {
+                tempUserList.sort(function(a, b) {
+                    return b.memVal - a.memVal;
+                });
+            } else {
+                tempUserList.sort(function(a, b) {
+                    return xcHelper.sortVals(a.username, b.username);
+                });
+            }
+
+            userList = [];
+            for (var i = 0; i < tempUserList.length; i++) {
+                userList.push(tempUserList[i].username);
+            }
+            setupUserListMenu(tempUserList);
+            deferred.resolve();
+        });
         return deferred.promise();
     }
 
@@ -414,47 +502,41 @@ window.Admin = (function($, Admin) {
         return deferred.promise();
     }
 
-    function removeUserName(username) {
-        var deferred = jQuery.Deferred();
-        for (var i = 0; i < userList.length; i++) {
-            if (userList[i] === username) {
-                userList.splice(i, 1);
-                break;
-            }
-        }
-        var entry = JSON.stringify(userList);
-         // strip "[" and "]" and add comma
-        entry = entry.substring(1, entry.length - 1) + ",";
-        XcalarKeyPut(userListKey, entry, true, gKVScope.GLOB)
-        .then(deferred.resolve)
-        .fail(deferred.reject);
-
-        return deferred.promise();
-    }
-
-    function setupUserListMenu() {
+    function setupUserListMenu(userMemList) {
         var html = "";
+        var memTip = MonitorTStr.ViewMem;
         for (var i = 0; i < userList.length; i++) {
+            if (userMemList) {
+                memTip = MonitorTStr.MemUsage + ": " +userMemList[i].memText;
+            }
             html += '<li class="userLi">' +
-                        '<i class="icon xi-user fa-12"></i>' +
-                        '<span class="text">' + userList[i] + '</span>' +
                         '<span class="status"' +
                         ' data-toggle="tooltip"' +
                         ' data-container="body"' +
                         ' data-placement="top"' +
                         ' data-title="' + TooltipTStr.LoggedIn + '">' +
                         '</span>' +
-                        '<span class="memory"' +
+                        '<i class="icon xi-user fa-11"></i>' +
+                        '<span class="text">' + userList[i] + '</span>' +
+                        '<span class="useAs xc-action"' +
                             ' data-toggle="tooltip"' +
                             ' data-container="body"' +
                             ' data-placement="top"' +
-                            ' data-title="View memory usage">' +
+                            ' data-title="Use Xcalar as this user">' +
+                            '<i class="icon xi-monitor"></i>' +
+                        '</span>' +
+                        '<span class="memory xc-action"' +
+                            ' data-toggle="tooltip"' +
+                            ' data-container="body"' +
+                            ' data-placement="top"' +
+                            ' data-title="' + memTip + '">' +
                             '<i class="icon xi-menu-info"></i>' +
                         '</span>' +
                     '</li>';
         }
 
         $userList.find('ul').html(html);
+        updateLoggedInUsersList();
     }
 
     function updateLoggedInUsersList() {
@@ -465,6 +547,11 @@ window.Admin = (function($, Admin) {
                 $li.addClass("loggedIn");
             } else {
                 $li.removeClass("loggedIn");
+            }
+            if (name === userIdName) {
+                $li.addClass("self");
+                var msg = MonitorTStr.YouAreUsing + name;
+                xcTooltip.changeText($li.find(".useAs"), msg);
             }
         });
     }
@@ -477,7 +564,7 @@ window.Admin = (function($, Admin) {
         updateLoggedInUsersList();
     };
 
-    function refreshUserList() {
+    function refreshUserList(firstTime, sortByUsage) {
         var deferred = jQuery.Deferred();
         KVStore.get(userListKey, gKVScope.GLOB)
         .then(function(value) {
@@ -486,10 +573,14 @@ window.Admin = (function($, Admin) {
             } else {
                 parseStrIntoUserList(value);
             }
-            setupUserListMenu();
-            updateLoggedInUsersList();
-            deferred.resolve();
+            if (!firstTime) {
+                return getAllUsersMemory(sortByUsage);
+            } else {
+                setupUserListMenu();
+                return PromiseHelper.resolve();
+            }
         })
+        .then(deferred.resolve)
         .fail(deferred.reject);
         return deferred.promise();
     }
@@ -584,7 +675,6 @@ window.Admin = (function($, Admin) {
             $("#adminStatusBar").hide();
         }
     }
-
 
     function startNode() {
         supportPrep('startNode')

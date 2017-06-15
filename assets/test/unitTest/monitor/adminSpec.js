@@ -1,10 +1,12 @@
 describe("Admin Test", function() {
     var cachedGetItem;
+    var $userList;
 
     before(function() {
         UnitTest.onMinMode();
         cachedGetItem = xcLocalStorage.getItem;
         var wasAdmin = xcLocalStorage.getItem("admin") === "true";
+        $userList = $("#monitorMenu-setup .userList");
 
         xcLocalStorage.getItem = function(item) {
             if (item === "admin") {
@@ -18,6 +20,8 @@ describe("Admin Test", function() {
         if (!wasAdmin) {
             Admin.initialize();
         }
+        $("#monitorTab").click();
+        $("#setupButton").click();
     });
 
     describe("check initial state", function() {
@@ -90,7 +94,6 @@ describe("Admin Test", function() {
         });
 
         it("filtering userlist should work", function() {
-            var $userList = $('#monitorMenu-setup .userList');
             var listLen = $userList.find(".userLi").length;
             expect(listLen).to.be.gt(0);
             var ownName = Support.getUser();
@@ -112,13 +115,18 @@ describe("Admin Test", function() {
         it("switch user should work", function() {
             var cachedunload = xcManager.unload;
             xcManager.unload = function() { return null; };
-            var $userList = $('#monitorMenu-setup .userList');
             var ownName = Support.getUser();
             var $ownLi = $userList.find(".userLi").filter(function() {
                 return $(this).find(".text").text() === ownName;
             });
-            $ownLi.click();
+
+            $ownLi.find(".useAs").click();
             expect(xcSessionStorage.getItem("usingAs")).to.not.equal("true");
+
+            expect($("#alertModal").is(":visible")).to.be.false;
+            expect($ownLi.hasClass("self")).to.be.true;
+            $ownLi.removeClass("self");
+            $ownLi.find(".useAs").click();
 
             UnitTest.hasAlertWithTitle(MonitorTStr.UseXcalarAs, {confirm: true});
             expect(xcSessionStorage.getItem("usingAs")).to.equal("true");
@@ -127,8 +135,133 @@ describe("Admin Test", function() {
             $("#adminStatusBar").find(".xi-close").click();
             expect(xcSessionStorage.getItem("usingAs")).to.not.equal("true");
             xcManager.unload = cachedunload;
+            $ownLi.addClass("self");
         });
 
+        it("get memory should work", function(done) {
+            var cachedFn = XcalarGetMemoryUsage;
+            XcalarGetMemoryUsage = function() {
+                return PromiseHelper.resolve({fakeData: "test"});
+            };
+            var ownName = Support.getUser();
+            var $ownLi = $userList.find(".userLi").filter(function() {
+                return $(this).find(".text").text() === ownName;
+            });
+
+            expect($("#userMemPopup").is(":visible")).to.be.false;
+            $ownLi.find(".memory").click();
+
+            expect($("#userMemPopup").is(":visible")).to.be.true;
+            UnitTest.testFinish(function() {
+                return ($("#userMemPopup").find(".content").text()
+                                    .indexOf('"fakeData": "test"') > 0);
+            })
+            .then(function() {
+                var text = $("#userMemPopup").find(".content").text();
+                expect(text.indexOf('Breakdown')).to.equal(-1);
+                XcalarGetMemoryUsage = function() {
+                    var data = {
+                        userMemory: {
+                            sessionMemory: [{
+                                sessionName: 'sessA',
+                                tableMemory: [{
+                                    totalBytes: 1,
+                                    tableName: 'tableA'
+                                },
+                                {
+                                    totalBytes: 2,
+                                    tableName: 'tableB'
+                                }]
+                            }]
+                        }
+                    };
+                    return PromiseHelper.resolve(data);
+                };
+                $ownLi.find(".memory").mousedown(); // off handler
+                $ownLi.find(".memory").click();
+                expect($("#userMemPopup").is(":visible")).to.be.true;
+                return UnitTest.testFinish(function() {
+                    return ($("#userMemPopup").find(".content").text()
+                                    .indexOf("sessA") > 0);
+                });
+            })
+            .then(function() {
+                var text = $("#userMemPopup").find(".content").text();
+                expect(text.indexOf("tableMemory")).to.equal(-1);
+                expect(text.indexOf('"Total Memory": "3B"')).to.be.gt(-1);
+                expect(text.indexOf('Breakdown')).to.be.gt(-1);
+                expect($ownLi.find(".memory").data("originalTitle")).to.equal("Memory usage: 3 B");
+                expect($("#userMemPopup").find(".breakdown .jObj").is(":visible")).to.be.false;
+                $("#userMemPopup").find(".toggleBreakdown").click();
+                expect($("#userMemPopup").find(".breakdown .jObj").is(":visible")).to.be.true;
+
+                $(document).mousedown();
+                expect($("#userMemPopup").is(":visible")).to.be.false;
+                expect($("#userMemPopup").find(".content").text()).to.equal("");
+                XcalarGetMemoryUsage = cachedFn;
+                done();
+            });
+        });
+
+        it("get memory with failure should work", function(done) {
+            var cachedFn = XcalarGetMemoryUsage;
+            XcalarGetMemoryUsage = function() {
+                return PromiseHelper.reject({error: "testError", status: StatusT.StatusSessionNotFound});
+            };
+            var ownName = Support.getUser();
+            var $ownLi = $userList.find(".userLi").filter(function() {
+                return $(this).find(".text").text() === ownName;
+            });
+
+            expect($("#userMemPopup").is(":visible")).to.be.false;
+            $ownLi.find(".memory").click();
+            expect($("#userMemPopup").is(":visible")).to.be.true;
+            UnitTest.testFinish(function() {
+                return ($("#userMemPopup").find(".content").text() === "testError");
+            })
+            .then(function() {
+                XcalarGetMemoryUsage = cachedFn;
+                expect($ownLi.hasClass("notExists")).to.be.true;
+                $("#userMemPopup").find(".close").click();
+                expect($("#userMemPopup").is(":visible")).to.be.false;
+                done();
+            });
+        });
+
+        it("sorting user list by name should work", function() {
+            var fakeLi = '<li><div class="text">0000</div><div class="memory" data-title"5 MB"></div></li>';
+            $userList.find("ul").append(fakeLi);
+            expect($userList.find("li").eq(0).find(".text").text()).to.not.equal("0000");
+            expect($userList.find("li").last().find(".text").text()).to.equal("0000");
+            expect($userList.hasClass("sortedByName")).to.be.true;
+            expect($userList.hasClass("sortedByUsage")).to.be.false;
+
+            $userList.find(".sortName").click();
+            expect($userList.find("li").eq(0).find(".text").text()).to.not.equal("0000");
+            expect($userList.find("li").last().find(".text").text()).to.equal("0000");
+
+            $userList.removeClass("sortedByName").addClass("sortedByUsage");
+            $userList.find(".sortName").click();
+            expect($userList.find("li").eq(0).find(".text").text()).to.equal("0000");
+            expect($userList.find("li").last().find(".text").text()).to.not.equal("0000");
+            expect($userList.hasClass("sortedByName")).to.be.true;
+        });
+
+        it("sorting user list by memory should work", function() {
+            var cachedGet = KVStore.get;
+            var getCalled = false;
+            KVStore.get = function() {
+                getCalled = true;
+                return PromiseHelper.reject();
+            };
+            $userList.find(".sortUsage").click();
+            expect(getCalled).to.be.true;
+            getCalled = false;
+            $userList.find(".sortUsage").click();
+            expect($userList.hasClass("sortedByUsage")).to.be.true;
+            expect($userList.hasClass("sortedByName")).to.be.false;
+            KVStore.get = cachedGet;
+        });
         it("refreshUserList button should work", function() {
             var cachedFn = KVStore.get;
             KVStore.get = function() {
@@ -145,7 +278,8 @@ describe("Admin Test", function() {
     });
 
     describe("admin functions", function() {
-        it("admin.showSuport should work", function() {
+        it("admin.showSupport should work", function() {
+            $("#workspaceTab").click();
             expect($("#monitor-setup").is(":visible")).to.be.false;
             Admin.showSupport();
             expect($("#monitor-setup").is(":visible")).to.be.true;

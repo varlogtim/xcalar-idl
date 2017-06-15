@@ -133,8 +133,6 @@
     .transition(0.2s all);
     position: absolute;
     bottom: @height-bottomBar;
-    // left: ~"calc(100% - 20px)";
-    // right: auto;
 
     &.active {
         .position(absolute, @right: 0px);
@@ -188,6 +186,11 @@
 
 //  main menu in monitor/setup panel
 #monitorMenu-setup {
+    .preference {
+        li {
+            cursor: pointer;
+        }
+    }
     .userList {
         position: relative;
         .flex-display !important;
@@ -195,15 +198,25 @@
         .flex(1 1 auto);
         margin-top: 10px;
 
+        .xi-user {
+            margin-left: 1px;
+        }
+
         .userLi {
             position: relative;
-            .memory {
-                .position(absolute, @right: 30px, @top: 0px);
-                line-height: 28px;
-                width: 20px;
+            padding-right: 11px;
+            .memory, .useAs {
+                float: right;
+                .size(24px, 20px);
+                line-height: 16px;
                 text-align: center;
                 .icon {
                     font-size: 14px;
+                }
+            }
+            .useAs {
+                .icon {
+                    font-size: 15px;
                 }
             }
             .status {
@@ -212,32 +225,40 @@
 
             .text {
                 .textOverflowOneLine;
-                .size(@max-width: ~"calc(100% - 64px)");
+                .size(@max-width: ~"calc(100% - 76px)");
             }
 
             &.loggedIn {
-                padding-right: 15px;
-
                 .status {
                     display: inline-block;
-                    float: right;
-                    .size(10px, 10px);
-                    .rounded(10px);
-                    .vertical-align;
+                    .position(absolute, @top: 12px, @left: 6px);
+                    .size(7px, 7px);
+                    .rounded(7px);
                     background-color: @color-bg-apple-green;
-                }
 
-                .text {
-                    .size(@max-width: ~"calc(100% - 45px)");
+                    &:after { // used to increase area for tooltip
+                        content: "";
+                        .position(absolute, @top: -3px, @left: 7px);
+                        .size(16px, 12px);
+                        z-index: 1;
+                    }
                 }
             }
+
             &.notExists {
                 opacity: @opacity-disabled;
+            }
+
+            &.self {
+                .useAs {
+                    opacity: @opacity-disabled;
+                    cursor: default;
+                }
             }
         }
 
         .refreshUserList {
-            .position(absolute, @top: -2px, @right: 15px);
+            .position(absolute, @top: -2px, @right: 9px);
             .size(25px, 25px);
             text-align: center;
             .icon {
@@ -291,18 +312,56 @@
                 top: 15px;
             }
         }
+
+        &.sortedByName {
+            .sortUsage {
+                opacity: @opacity-unhover;
+                cursor: pointer;
+            }
+        }
+        &.sortedByUsage {
+            .sortName {
+                opacity: @opacity-unhover;
+                cursor: pointer;
+            }
+        }
     }
 
-    li {
-        cursor: pointer;
+    .sortSection {
+        color: @color-white;
+        text-align: right;
+        text-transform: uppercase;
+        font-size: 10px;
+        height: 16px;
+        margin: 4px 15px 10px 0px;
+        cursor: default;
+
+        > span {
+            opacity: @opacity-unhover;
+        }
+
+        .sortOption {
+            opacity: @opacity-hint;
+        }
+
+        .divider {
+            height: 100%;
+            width: 1px;
+            margin: 0 3px;
+            background-color: @color-white;
+            display: inline-block;
+            .position(relative, 3px, 0px);
+            vertical-align: bottom;
+        }
     }
+
 
     .xc-expand-list {
-        .searchbarArea, .refreshUserList {
+        .searchbarArea, .refreshUserList, .sortSection {
             display: none;
         }
         &.active {
-            .searchbarArea, .refreshUserList {
+            .searchbarArea, .refreshUserList, .sortSection {
                 display: block;
             }
         }

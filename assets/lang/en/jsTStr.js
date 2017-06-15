@@ -669,7 +669,10 @@ MonitorTStr = {
     'System': 'System',
     'UseXcalarAs': 'Use Xcalar As',
     'XDB': 'XDB',
-    'UserNotExists': 'User no longer exists',
+    'UserNotExists': 'No sessions found for this user',
+    'ViewMem': 'View memory usage',
+    'MemUsage': 'Memory usage',
+    'YouAreUsing': 'You are using Xcalar as ',
     // with replace
     'ParamConfigFailMsg': 'Could not set parameter <b><name></b> to ' +
                           '<b><value></b>.',

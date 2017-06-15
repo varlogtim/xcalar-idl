@@ -962,6 +962,9 @@ window.xcHelper = (function($, xcHelper) {
     xcHelper.textToBytesTranslator = function(numText) {
         // accepts parameters in the form of "23GB" or "56.2 mb"
         // and converts them to bytes
+        if (!numText) {
+            return "";
+        }
         var units  = ["B", "KB", "MB", "GB", "TB", "PB"];
         var num = parseFloat(numText);
         var text = numText.match(/[a-zA-Z]+/)[0].toUpperCase();

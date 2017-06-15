@@ -588,6 +588,7 @@ module.exports = {
         "LastCheckTime": "检测时间",
         "LicenseKey": "注册码",
         "MemoryThresholdHint": "在出现内存警告之前的内存使用百分比",
+        "memoryUsage": "memory usage",
         "Monitor": "监控",
         "Monitors": "监控器",
         "Statistics": "监控数据",

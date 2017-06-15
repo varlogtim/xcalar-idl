@@ -41,12 +41,12 @@
       </li>
     </ul>
   </div>
-  <div class="adminOnly userList listWrap xc-expand-list active">
+  <div class="adminOnly userList listWrap xc-expand-list active sortedByName">
     <div class="listInfo no-selection">
       <span class="expand">
         <i class="icon xi-arrow-down fa-7"></i>
       </span>
-      <span class="text"><%= dicts.monitor.UseAs %></span>
+      <span class="text"><%= dicts.monitor.Users %></span>
     </div>
     <div class="refreshUserList">
       <i class="icon xi-refresh refresh xc-action fa-18" data-toggle="tooltip" data-placement="top" data-container="body" data-original-title="<%= dicts.common.Refresh %>"></i>
@@ -62,6 +62,12 @@
           <div class="downArrow iconWrap"><i class="icon xi-down"></i></div>
         </div>
       </div>
+    </div>
+    <div class="sortSection">
+        <span class="label"><%= dicts.common.SortBy %>:&nbsp;</span>
+        <span class="sortName sortOption"><%= dicts.common.Name %></span>
+        <span class="divider"></span>
+        <span class="sortUsage sortOption"><%= monitor.memoryUsage %></span>
     </div>
     <ul class="no-selection">
     </ul>

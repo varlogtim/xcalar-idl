@@ -381,6 +381,7 @@ module.exports = {
         "LastCheckTime": "Last Check Time",
         "LicenseKey": "License Key",
         "MemoryThresholdHint": "Percentage of memory used before warning to drop tables",
+        "memoryUsage": "memory usage",
         "memThreshold": "MEMORY UTILIZATION THRESHOLD",
         "Monitor": "Monitor",
         "Monitors": "Monitors",

@@ -3509,7 +3509,7 @@ function XcalarApiTop(measureIntervalInMs) {
     return (deferred.promise());
 }
 
-function XcalarApiGetMemoryUsage(userName, userId) {
+function XcalarGetMemoryUsage(userName, userId) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
