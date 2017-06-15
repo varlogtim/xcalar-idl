@@ -1378,8 +1378,8 @@ window.DFCard = (function($, DFCard) {
     };
 
     function getDagWrap(dataflowName) {
-        return $("#dataflowPanel").find(".dagWrap[data-dataflowName=" +
-                                        dataflowName + "]");
+        return $("#dataflowPanel").find('.dagWrap[data-dataflowName="' +
+                                        dataflowName + '"]');
     }
 
     function parseFileName(exportInfo, paramArray) {
