@@ -112,12 +112,12 @@ window.DFParamModal = (function($, DFParamModal){
             "df": dfName
         });
 
-        $dfParamModal.removeClass('type-dataStore type-filter type-export');
-        $dfParamModal.addClass('type-' + type);
-        if (type === "dataStore") {
-            $dfParamModal.height(630);
-        } else {
+        $dfParamModal.removeClass("type-dataStore type-filter type-export");
+        $dfParamModal.addClass("type-" + type);
+        if (type === "filter") {
             $dfParamModal.height(550);
+        } else {
+            $dfParamModal.height(630);
         }
 
         var paramValue = $currentIcon.data('paramValue');
@@ -447,7 +447,7 @@ window.DFParamModal = (function($, DFParamModal){
                                     xcHelper.escapeHTMLSpecialChar(paramValue[0]) +
                                 '</div>' +
                             '</div>' +
-                            '<div class="templateRow" style="display:none;">' +
+                            '<div class="templateRow">' +
                                 '<div>' +
                                     'Target' + ':' +
                                 '</div>' +
@@ -460,14 +460,13 @@ window.DFParamModal = (function($, DFParamModal){
                                     DFTStr.ExportTo + ':' +
                                 '</div>' +
                                 getParameterInputHTML(0, "medium-small") +
+                            '</div>' +
+                            '<div class="innerEditableRow" data-op="export">' +
+                                '<div class="static">' +
+                                    'Target' + ':' +
+                                '</div>' +
+                                getParameterInputHTML(1, "medium-small") +
                             '</div>';
-                            // XXX temporarily disabled
-                            // '<div class="innerEditableRow" data-op="export">' +
-                            //     '<div class="static">' +
-                            //         'Target' + ':' +
-                            //     '</div>' +
-                            //     getParameterInputHTML(1, "medium-small") +
-                            // '</div>';
         } else { // not a datastore but a table
             paramValue = paramValue[0];
             if (!checkForOneParen(paramValue)) {
@@ -1039,9 +1038,7 @@ window.DFParamModal = (function($, DFParamModal){
                 case ("export"):
                     paramType = XcalarApisT.XcalarApiExport;
                     var fileName = $.trim($editableDivs.eq(0).val());
-                    // XXX temporarily disabled
-                    // var targetName = $.trim($editableDivs.eq(1).val());
-                    var targetName = "Default";
+                    var targetName = $.trim($editableDivs.eq(1).val());
 
                     paramValues.fileName = fileName;
                     paramValues.targetName = targetName;
@@ -1164,8 +1161,6 @@ window.DFParamModal = (function($, DFParamModal){
     }
 
     function hasInvalidExportTarget(params) {
-        // XXX skip until 8744 is fixed
-        return false;
         var type = $iconTrigger.data("type");
         if (type !== "export") {
             return false;
