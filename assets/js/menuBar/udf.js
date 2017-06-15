@@ -695,8 +695,9 @@ window.UDF = (function($, UDF) {
                     xcHelper.showSuccess(SuccessTStr.UploadUDF);
 
                     refreshUDF(true);
-                    var $uploadedFunc = $("#udf-fnMenu").find("li[data-title=" +
-                                                              moduleName + "]");
+                    var $uploadedFunc = $("#udf-fnMenu")
+                                    .find('li[data-title="' + moduleName +
+                                           '"]');
                     $uploadedFunc.trigger(fakeEvent.mouseup);
                     deferred.resolve();
                 })
