@@ -66,6 +66,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
         var comment = $modal.find('.xc-textArea').val().trim();
         var ticketObj = {
             "type": issueType,
+            "server": document.location.href,
             "comment": comment,
             "xiLog": SQL.getAllLogs(),
             "userIdName": userIdName,

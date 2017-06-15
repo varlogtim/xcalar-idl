@@ -21,13 +21,13 @@ require("jsdom").env("", function(err, window) {
     var guiDir = (process.env.XCE_HTTP_ROOT ?
         process.env.XCE_HTTP_ROOT : "/var/www") + "/xcalar-gui";
     try {
-        var AWS = require("aws-sdk");
-        if (fs.existsSync("./awsWriteConfig.json")) {
-            AWS.config.loadFromPath(guiDir + "/services/expServer/awsWriteConfig.json");
-        } else {
-            AWS.config.loadFromPath(guiDir + "/services/expServer/awsReadConfig.json");
-        }
-        var s3 = new AWS.S3();
+        var aws = require("aws-sdk");
+        var s3 = new aws.S3();
+        aws.config.update({
+            accessKeyId: 'AKIAJIVAAB7VSKQBZ6VQ',
+            secretAccessKey: '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',
+            region: 'us-west-2'
+        });
     } catch (error) {
         console.log(error);
         console.log("Fail to set up AWS!");

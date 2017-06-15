@@ -25,9 +25,9 @@ var defaultHostsFile = "/etc/xcalar/default.cfg";
 
 var defaultXcalarctl = process.env.XLRDIR ?
     process.env.XLRDIR + "/bin/xcalarctl" : "/opt/xcalar/bin/xcalarctl";
-var defaultStartCommand = defaultXcalarctl + " start"
-var defaultStopCommand = defaultXcalarctl + " stop"
-var defaultStatusCommand = defaultXcalarctl + " status"
+var defaultStartCommand = defaultXcalarctl + " start";
+var defaultStopCommand = defaultXcalarctl + " stop";
+var defaultStatusCommand = defaultXcalarctl + " status";
 
 var logPath = "/var/log/Xcalar.log";
 
@@ -555,44 +555,27 @@ function isValidEmail(emailAddress) {
 
 function submitTicket(contents) {
     var deferredOut = jQuery.Deferred();
-    var customerName = JSON.parse(contents).userIdName;
-    var subject = "Ticket from " + encodeURIComponent(customerName);
-    contents = encodeURIComponent(contents);
-    email = "xi@xcalar.com";
-    if (isValidEmail(customerName)) {
-        email = customerName;
-    }
-    var out = cp.exec('curl https://myxcalar.zendesk.com/api/v2/tickets.json ' +
-               '-d \'{"ticket": {"requester": {"name": "' + customerName +
-               '", "email": "' + email + '"}, "submitter_id": 410989, ' +
-               '"subject": "' + subject + '", "comment": { "body": "' +
-               contents + '" }}}\' -H "Content-Type: application/json" -v ' +
-               '-u dshetty@xcalar.com/token:5b4NoJkwc36w2BRww0H9FQjdhXbZpnaLfrr7oZej -X POST');
-    var acked = false;
-    out.stderr.on('data', function(data) {
-        var lines = data.split("\n");
-        var i = 0;
-        for (; i<lines.length; i++) {
-            var line = lines[i];
-            if (line.indexOf("X-Zendesk-Request-Id") > -1) {
-                acked = true;
-                var retMsg = {"status": httpStatus.OK,
-                    "logs": lines};
-                console.log("Acked");
-                deferredOut.resolve(retMsg);
-                return;
-            }
-        }
+
+    var aws = require('aws-sdk');
+    aws.config.update({
+      accessKeyId: 'AKIAJIVAAB7VSKQBZ6VQ',
+      secretAccessKey: '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',
+      region: 'us-west-2'
     });
-    out.on('close', function() {
-        if (!acked) {
-            var retMsg = {"status": httpStatus.BadRequest,
-                "error": "Failed to submit ticket"};
-            acked = true;
-            console.log("Failed to submit ticket");
-            deferredOut.reject(retMsg);
+
+    var sns = new aws.SNS();
+    sns.publish({
+        Message: contents,
+        TopicArn: 'arn:aws:sns:us-west-2:559166403383:raw-zendesk-topic'
+    }, function (err, data) {
+        if (err) {
+            console.log(err.stack);
+            deferredOut.reject(err);
             return;
         }
+        console.log(data);
+        deferredOut.resolve({"status": httpStatus.OK,
+                             "logs": JSON.stringify(data)});
     });
     return deferredOut.promise();
 }
