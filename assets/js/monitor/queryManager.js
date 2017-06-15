@@ -482,6 +482,7 @@ window.QueryManager = (function(QueryManager, $) {
                 "sqlNum": queries[i].sqlNum,
                 "elapsedTime": queries[i].elapsedTime,
                 "opTime": queries[i].opTime,
+                "opTimeAdded": queries[i].opTimeAdded,
                 "outputTableName": queries[i].outputTableName,
                 "outputTableState": queries[i].outputTableState,
                 "state": queries[i].state,
@@ -1469,6 +1470,7 @@ window.QueryManager = (function(QueryManager, $) {
                     "time": queryObj.time,
                     "elapsedTime": queryObj.elapsedTime,
                     "opTime": queryObj.opTime,
+                    "opTimeAdded": queryObj.opTimeAdded,
                     "outputTableName": queryObj.getOutputTableName(),
                     "outputTableState": queryObj.getOutputTableState(),
                     "state": queryObj.state

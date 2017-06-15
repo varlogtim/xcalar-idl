@@ -963,17 +963,11 @@ function XcalarExport(tableName, exportName, targetName, numColumns,
                                 options.createRule, keepOrder, numColumns,
                                 columns, options.handleName);
 
-        var def2;
-        if (target.type === ExTargetTypeT.ExTargetSFType &&
-            options.format === DfFormatTypeT.DfFormatCsv) {
-            def2 = XcalarGetQuery(workItem);
-            def2.then(function(query) {
-                Transaction.startSubQuery(txId, 'Export', options.handleName,
-                                          query);
-            });
-        } else {
-            def2 = PromiseHelper.resolve("N/A");
-        }
+        var def2 = XcalarGetQuery(workItem);
+        def2.then(function(query) {
+            Transaction.startSubQuery(txId, 'Export', options.handleName,
+                                      query);
+        });
 
         return jQuery.when(def1, def2);
     })

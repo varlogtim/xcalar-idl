@@ -2554,6 +2554,7 @@
             <%= addVersion %>
             if (<%= checkFunc %>(options)) {
                 self.opTime = options.opTime || 0;
+                self.opTimeAdded = options.opTimeAdded || false;
             }
 
             return self;
