@@ -20,16 +20,17 @@ describe("FileInfoModal Test", function() {
         FileInfoModal.show({
             "path": "file:///test",
             "name": "test",
-            "modified": 12345,
-            "isFolder": false
+            "modified": "testDate",
+            "isFolder": false,
+            "size": "testSize"
         });
 
         assert.isTrue($modal.is(":visible"));
         expect($modal.data("path")).to.equal("file:///test");
         expect($modal.find(".name .text").text()).to.equal("test");
         expect($modal.find(".path .text").text()).to.equal("file:///test");
-        expect($modal.find(".modified .text").text())
-        .to.equal(xcHelper.timeStampTranslator(12345));
+        expect($modal.find(".modified .text").text()).to.equal("testDate");
+        expect($modal.find(".size .text").text()).to.equal("testSize");
         expect($modal.find(".count .text").text()).to.equal("--");
     });
 
@@ -37,8 +38,9 @@ describe("FileInfoModal Test", function() {
         FileInfoModal.show({
             "path": "file:///test",
             "name": "test",
-            "modified": 12345,
-            "isFolder": false
+            "modified": "testDate",
+            "isFolder": false,
+            "size": "testSize"
         });
         expect($modal.data("path")).to.equal("file:///test");
     });
@@ -55,7 +57,7 @@ describe("FileInfoModal Test", function() {
         FileInfoModal.show({
             "path": "file:///testFolder",
             "name": "testFolder",
-            "modified": 54321,
+            "modified": "testDate2",
             "isFolder": true
         });
 
@@ -67,9 +69,9 @@ describe("FileInfoModal Test", function() {
             expect($modal.find(".name .text").text()).to.equal("testFolder");
             expect($modal.find(".path .text").text())
             .to.equal("file:///testFolder");
-            expect($modal.find(".modified .text").text())
-            .to.equal(xcHelper.timeStampTranslator(54321));
+            expect($modal.find(".modified .text").text()).to.equal("testDate2");
             expect($modal.find(".count .text").text()).to.equal("100");
+            expect($modal.find(".size .text").text()).to.equal("--");
             done();
         })
         .fail(function() {
@@ -87,7 +89,7 @@ describe("FileInfoModal Test", function() {
         FileInfoModal.show({
             "path": "file:///testFolder2",
             "name": "testFolder2",
-            "modified": 54321,
+            "modified": "testDate2",
             "isFolder": true
         });
 

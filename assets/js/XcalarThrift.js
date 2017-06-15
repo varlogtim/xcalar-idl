@@ -95,10 +95,14 @@ function thriftLog() {
                 status === StatusT.StatusConnRefused) {
                 // This is bad, connection was lost so UI cannot do anything
                 // LOCK THE SCREEN
-                alertError = {"error": ThriftTStr.CCNBE};
-                Alert.error(ThriftTStr.CCNBEErr, alertError, {
-                    "lockScreen": true
-                });
+                if (!xcManager.isInSetup()) {
+                    // set up time has it's own handler
+                    alertError = {"error": ThriftTStr.CCNBE};
+                    Alert.error(ThriftTStr.CCNBEErr, alertError, {
+                        "lockScreen": true
+                    });
+                }
+
                 SQL.backup();
                 return thriftError;
             }

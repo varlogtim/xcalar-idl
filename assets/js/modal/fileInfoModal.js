@@ -38,13 +38,11 @@ window.FileInfoModal = (function($, FileInfoModal) {
     };
 
     function setBasicInfo(options) {
-        var attrs = ["name", "path"];
+        var attrs = ["name", "path", "size", "modified"];
         attrs.forEach(function(attr) {
-            $modal.find("." + attr + " .text").text(options[attr]);
+            var val = options[attr] || "--";
+            $modal.find("." + attr + " .text").text(val);
         });
-
-        var mTime = xcHelper.timeStampTranslator(options.modified) || "N/A";
-        $modal.find(".modified .text").text(mTime);
     }
 
     function getFolderCount(path, isFolder) {

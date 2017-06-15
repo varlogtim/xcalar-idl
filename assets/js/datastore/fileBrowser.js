@@ -1470,13 +1470,15 @@ window.FileBrowser = (function($, FileBrowser) {
         var file = curFiles[index];
         var name = file.name;
         var path = getCurrentPath() + name;
-        var mTime = file.attr.mtime;
+        var mTime = xcHelper.timeStampTranslator(file.attr.mtime);
         var isFolder = file.attr.isDirectory;
+        var size = isFolder ? null : xcHelper.sizeTranslator(file.attr.size);
 
         FileInfoModal.show({
             "path": path,
             "name": name,
             "modified": mTime,
+            "size": size,
             "isFolder": isFolder
         });
     }
