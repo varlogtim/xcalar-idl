@@ -25,7 +25,6 @@ var httpStatus = require('./../../assets/js/httpStatus.js').httpStatus;
 // Tail Xcalar.log
 function tailLog(requireLineNum, filePath, fileName) {
     var deferredOut = jQuery.Deferred();
-    var logPath;
     function checkLineNum(requireLineNum) {
         var deferred = jQuery.Deferred();
         var requireLineNum = Number(requireLineNum);
@@ -336,14 +335,17 @@ function getPath(filePath, fileName) {
 
     function getFileName() {
         var deferred = jQuery.Deferred();
-        if (fileName === "node.*.out" || fileName === "node.*.err") {
+        if (fileName === "node.*.out" || fileName === "node.*.err"
+            || fileName === "node.*.log") {
             getNodeId()
             .then(function(nodeID) {
                 console.log("NodeID: " + nodeID);
                 if (fileName === "node.*.out") {
                     deferred.resolve("node." + nodeID + ".out");
-                } else {
+                } else if (fileName === "node.*.err") {
                     deferred.resolve("node." + nodeID + ".err");
+                } else {
+                    deferred.resolve("node." + nodeID + ".log");
                 }
             })
             .fail(function(err) {

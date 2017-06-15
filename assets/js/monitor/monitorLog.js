@@ -1,6 +1,7 @@
 window.MonitorLog = (function(MonitorLog, $) {
     var $logCard;
     var colorNum = 8;
+    var defaultXcalarLogPath = "/var/log/xcalar/";
 
     MonitorLog.setup = function() {
         $logCard = $("#monitorLogCard");
@@ -56,8 +57,8 @@ window.MonitorLog = (function(MonitorLog, $) {
         var $recentLogsGroup = $logCard.find(".recentLogsGroup");
         var $input = $recentLogsGroup.find(".xc-input");
         var lastNRow = $recentLogsGroup.find(".lastRow .xc-input").val().trim();
-        var filePath = $recentLogsGroup.find(".logFolder .xc-input").val().trim();
         var fileName = $recentLogsGroup.find(".logName .xc-input").val().trim();
+        var filePath = getFilePath();
         $input.blur();
 
         var isValid = xcHelper.validate([
@@ -113,6 +114,18 @@ window.MonitorLog = (function(MonitorLog, $) {
         });
     }
 
+    function getFilePath() {
+        var filePath = defaultXcalarLogPath;
+        $("#configCard .formRow .paramName").each(function() {
+            if ($(this).val() === "XcalarLogCompletePath") {
+                filePath = $(this).closest(".formRow").find(".flexGroup .curVal").val();
+                // stop loop
+                return false;
+            }
+        });
+        return filePath;
+    }
+
     function removeSessionFiles() {
         var $inputGroup = $logCard.find(".removeSessGroup");
         var $input = $inputGroup.find(".xc-input");
@@ -156,10 +169,9 @@ window.MonitorLog = (function(MonitorLog, $) {
         var $streamBtns = $logCard.find(".streamBtns");
         $streamBtns.addClass("xc-disabled");
         $("#monitorLogCard .recentLogsGroup .xc-input").prop('disabled', true);
-        var filePath = $("#monitorLogCard .recentLogsGroup .logFolder .xc-input")
-                       .val().trim();
         var fileName = $("#monitorLogCard .recentLogsGroup .logName .xc-input")
                        .val().trim();
+        var filePath = getFilePath();
         XFTSupportTools.monitorLogs(filePath, fileName, function(err) {
             $streamBtns.removeClass('xc-disabled streaming');
             var msg;
