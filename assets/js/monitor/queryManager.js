@@ -174,7 +174,8 @@ window.QueryManager = (function(QueryManager, $) {
             mainQuery.addOpTime(time);
         }
 
-        if (mainQuery.subQueries[0].getName() === "index from DS") {
+        if (mainQuery.subQueries.length &&
+            mainQuery.subQueries[0].getName() === "index from DS") {
             DSCart.queryDone(mainQuery.getId());
             return;
         }
