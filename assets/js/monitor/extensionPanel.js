@@ -3,6 +3,7 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
     var $extLists; // $("#extension-lists");
     var extSet;
     var isFirstTouch = true;
+    var extInInstall = null;
 
     ExtensionPanel.setup = function() {
         $panel = $("#extensionInstallPanel");
@@ -148,23 +149,32 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
     function installExtension(ext, $submitBtn) {
         var url = xcHelper.getAppUrl();
         xcHelper.disableSubmit($submitBtn);
+        xcHelper.toggleBtnInProgress($submitBtn);
+
+        extInInstall = ext.getName();
         $.ajax({
             "type": "POST",
             "dataType": "JSON",
             "url": url + "/downloadExtension",
             "data": {name: ext.getName(), version: ext.getVersion()},
         })
-        .then(function(data) {
+        .then(function() {
             // Now we need to enable after installing
-            console.log(data);
+            // console.log(data);
             return enableExtension(ext.getName());
         })
         .then(function() {
-            refreshAfterInstall(ext);
-            xcHelper.enableSubmit($submitBtn);
-            xcHelper.showSuccess(SuccessTStr.ExtDownload);
+            // need to toggle back progress then can the text be changed
+            xcHelper.toggleBtnInProgress($submitBtn);
+            if (extInInstall === ext.getName()) {
+                refreshAfterInstall();
+                xcHelper.showSuccess(SuccessTStr.ExtDownload);
+            } else {
+                $submitBtn.addClass("installed").text(ExtTStr.Installed);
+            }
         })
         .fail(function(error) {
+            xcHelper.toggleBtnInProgress($submitBtn);
             Alert.error(ErrTStr.ExtDownloadFailure, JSON.stringify(error));
         })
         .always(function() {
