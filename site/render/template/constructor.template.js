@@ -2299,12 +2299,12 @@
                 return this.nodeIds[tableName];
             },
 
-            addParameterizedNode: function(dagNodeId, oldParamNode, paramInfo) {
+            addParameterizedNode: function(dagNodeId, oldParamNode, paramInfo, noParams) {
                 this.parameterizedNodes[dagNodeId] = new RetinaNode(oldParamNode);
-                this.updateParameterizedNode(dagNodeId, paramInfo);
+                this.updateParameterizedNode(dagNodeId, paramInfo, noParams);
             },
 
-            colorNodes: function(dagNodeId) {
+            colorNodes: function(dagNodeId, noParams) {
                 var tableName;
                 for (var name in this.nodeIds) {
                     if (this.nodeIds[name] === dagNodeId) {
@@ -2328,12 +2328,16 @@
                 if ($nodeOrAction.hasClass("export")) {
                     $nodeOrAction = $nodeOrAction.next(".dagTable");
                 }
-                $nodeOrAction.addClass("hasParam");
+                if (noParams) {
+                    $nodeOrAction.removeClass("hasParam");
+                } else {
+                    $nodeOrAction.addClass("hasParam");
+                }
                 return $nodeOrAction;
             },
 
-            updateParameterizedNode: function(dagNodeId, paramInfo) {
-                var $tableNode = this.colorNodes(dagNodeId);
+            updateParameterizedNode: function(dagNodeId, paramInfo, noParams) {
+                var $tableNode = this.colorNodes(dagNodeId, noParams);
                 if ($tableNode == null) {
                     // error case
                     return;
@@ -2344,7 +2348,11 @@
                     var text = xcHelper.convertToHtmlEntity(paramInfo.paramValue[0]);
                     xcTooltip.changeText($elem, text);
                 } else if (paramInfo.paramType === XcalarApisT.XcalarApiFilter) {
-                    $tableNode.find(".parentsTitle").text("<Parameterized>");
+                    if (noParams) {
+                        $tableNode.find(".parentsTitle").text($tableNode.data("column"));
+                    } else {
+                        $tableNode.find(".parentsTitle").text("<Parameterized>");
+                    }
                 }
                 $tableNode.data("paramValue", paramInfo.paramValue);
             },

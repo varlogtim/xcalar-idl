@@ -341,6 +341,7 @@ SuccessTStr = {
 "SaveDF": '数据流保存成功！',
 "SaveParam": '参数保存成功',
 "OperationParameterized": "操作参数化成功!",
+"ChangesSaved": "Changes Saved!",
 "SaveSettings": '设置保存成功！',
 "Sched": 'Schedule添加成功！',
 "StopCluster": '集群关闭！',

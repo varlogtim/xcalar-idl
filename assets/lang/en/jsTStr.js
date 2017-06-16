@@ -385,6 +385,7 @@ SuccessTStr = {
     "SaveDF": "Dataflow Saved!",
     "SaveParam": "Parameters Saved!",
     "OperationParameterized": "Operation Parameterized!",
+    "ChangesSaved": "Changes Saved!",
     "SaveSettings": "Settings Saved!",
     "Sched": "Schedule Added!",
     "StopCluster": "Cluster Stopped!",

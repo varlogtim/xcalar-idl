@@ -802,12 +802,17 @@ window.DFCard = (function($, DFCard) {
         $dfCard.find(selector).addClass("parameterizable");
 
         for (var nodeId in dataflow.parameterizedNodes) {
-            var $tableNode = dataflow.colorNodes(nodeId);
-            var type = dataflow.parameterizedNodes[nodeId]
-                           .paramType;
-            if (type === XcalarApisT.XcalarApiFilter) {
-                $tableNode.find(".parentsTitle")
-                          .text("<Parameterized>");
+            var $tables = $wrap.find('[data-id="' + nodeId + '"]');
+            var paramVal = $tables.data("paramValue");
+
+            if (isParameterized(paramVal)) {
+                var $tableNode = dataflow.colorNodes(nodeId);
+                var type = dataflow.parameterizedNodes[nodeId]
+                               .paramType;
+                if (type === XcalarApisT.XcalarApiFilter) {
+                    $tableNode.find(".parentsTitle")
+                              .text("<Parameterized>");
+                }
             }
         }
 
@@ -1675,18 +1680,19 @@ window.DFCard = (function($, DFCard) {
                 df.addParameterizedNode(dagNodeId, val, paramInfo);
             }
         }
+    }
 
-        function isParameterized(paramValue) {
-            if (paramValue !== undefined) {
-                for (var i = 0; i < paramValue.length; i++) {
-                    if (typeof paramValue[i] === 'string'
-                        && paramValue[i].indexOf('<') !== -1) {
-                        return true;
-                    }
+
+    function isParameterized(paramValue) {
+        if (paramValue !== undefined) {
+            for (var i = 0; i < paramValue.length; i++) {
+                if (typeof paramValue[i] === 'string'
+                    && paramValue[i].indexOf('<') !== -1) {
+                    return true;
                 }
             }
-            return false;
         }
+        return false;
     }
 
     /* Unit Test Only */

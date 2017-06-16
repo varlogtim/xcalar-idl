@@ -926,12 +926,13 @@ window.DFParamModal = (function($, DFParamModal){
             paramInfo = paramInformation;
             df.updateParameters(params);
             DFCard.updateRetinaTab(retName);
+            var noParams = params.length === 0;
             if (!df.getParameterizedNode(dagNodeId)) {
                 var val = genOrigQueryStruct();
-                df.addParameterizedNode(dagNodeId, val, paramInfo);
+                df.addParameterizedNode(dagNodeId, val, paramInfo, noParams);
             } else {
                 // Only updates view. Doesn't change any stored information
-                df.updateParameterizedNode(dagNodeId, paramInfo);
+                df.updateParameterizedNode(dagNodeId, paramInfo, noParams);
             }
             return df.updateParamMapInUsed();
         })
@@ -945,7 +946,13 @@ window.DFParamModal = (function($, DFParamModal){
         .then(function() {
             // show success message??
             DF.commitAndBroadCast(retName);
-            xcHelper.showSuccess(SuccessTStr.OperationParameterized);
+            var successMsg;
+            if (params.length) {
+                successMsg = SuccessTStr.OperationParameterized;
+            } else {
+                successMsg = SuccessTStr.ChangesSaved;
+            }
+            xcHelper.showSuccess(successMsg);
             deferred.resolve();
         })
         .fail(function(error) {
@@ -991,6 +998,7 @@ window.DFParamModal = (function($, DFParamModal){
                     paramQuery = [fileName, targetName];
                     break;
             }
+
             return {
                 "paramType": paramType,
                 "paramValue": paramQuery
