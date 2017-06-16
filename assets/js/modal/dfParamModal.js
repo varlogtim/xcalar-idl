@@ -67,7 +67,17 @@ window.DFParamModal = (function($, DFParamModal){
         });
 
         $dfParamModal.on('click', '.checkbox', function() {
-            $(this).toggleClass("checked");
+            var $checkbox = $(this);
+            $checkbox.toggleClass("checked");
+            if ($checkbox.hasClass("checked")) {
+                // remove value from input if click on "no value" box
+                $checkbox.closest(".row").find(".paramVal").val("");
+            }
+        });
+
+        $dfParamModal.on("input", ".paramVal", function() {
+            // remove "no value" check if the input has text
+            $(this).closest(".row").find(".checkbox").removeClass("checked");
         });
 
         $dfParamModal.on('keypress', '.editableParamDiv', function(event) {
@@ -126,9 +136,6 @@ window.DFParamModal = (function($, DFParamModal){
         .always(function(info) {
             setupInputText(paramValue, type, info);
             $("#dfParamModal .editableRow .defaultParam").click();
-            $("#dfParamModal input.editableParamDiv").each(function() {
-                checkInputForParam($(this));
-            });
             var draggableInputs = "";
             validParams = [];
             DF.getDataflow(dfName).parameters.forEach(function(paramName) {

@@ -260,7 +260,23 @@ window.DFCard = (function($, DFCard) {
         });
 
         $retTabSection.on('click', '.checkbox', function() {
-            $(this).toggleClass("checked");
+            var $checkbox = $(this);
+            $checkbox.toggleClass("checked");
+            if ($checkbox.hasClass("checked")) {
+                // remove value from input if click on "no value" box
+                $checkbox.closest(".row").find(".paramVal").val("");
+            }
+        });
+
+        $retTabSection.on("input", ".paramVal", function() {
+            // remove "no value" check if the input has text
+            $(this).closest(".row").find(".checkbox").removeClass("checked");
+        });
+
+        $retTabSection.on("keypress", ".paramVal", function(event) {
+            if (event.which === keyCode.Enter) {
+                $(this).blur();
+            }
         });
 
         $retTabSection[0].oncontextmenu = function(e) {
@@ -1597,7 +1613,7 @@ window.DFCard = (function($, DFCard) {
                 var val = $.trim($row.find(".paramVal").val());
                 var check = $row.find(".checkbox").hasClass("checked");
                 if (val === "" && (!check) && paramMapInUsed[name]) {
-                    StatusBox.show(ErrTStr.NoEmptyMustRevert,
+                    StatusBox.show(ErrTStr.NoEmptyOrCheck,
                         $row.find(".paramVal"), false, {'side': 'left'});
                     hasInvalidRow = true;
                     return;
@@ -1616,6 +1632,7 @@ window.DFCard = (function($, DFCard) {
                 }
             }
             $retTabSection.find(".retTab").removeClass("active");
+            StatusBox.forceHide();
             if (usedParamHasChange) {
                 if (DF.hasSchedule(dataflowName)) {
                     DF.updateScheduleForDataflow(dataflowName);

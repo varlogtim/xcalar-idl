@@ -39,10 +39,9 @@ window.StatusBox = (function($, StatusBox){
             $doc.mousedown(hideStatusBox);
             $doc.keydown(hideStatusBox);
         }
+        $statusBox.removeClass();
         if (options.highZindex) {
             $statusBox.addClass('highZindex');
-        } else {
-            $statusBox.removeClass('highZindex');
         }
 
         // position the message
