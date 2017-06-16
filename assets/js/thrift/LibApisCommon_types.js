@@ -11557,12 +11557,16 @@ XcalarApiGetMemoryUsageInputT.prototype.write = function(output) {
 XcalarApiLogLevelSetInputT = function(args) {
   this.logLevel = null;
   this.logFlush = null;
+  this.logFlushLevel = null;
   if (args) {
     if (args.logLevel !== undefined) {
       this.logLevel = args.logLevel;
     }
     if (args.logFlush !== undefined) {
       this.logFlush = args.logFlush;
+    }
+    if (args.logFlushLevel !== undefined) {
+      this.logFlushLevel = args.logFlushLevel;
     }
   }
 };
@@ -11594,6 +11598,13 @@ XcalarApiLogLevelSetInputT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 3:
+      if (ftype == Thrift.Type.I32) {
+        this.logFlushLevel = input.readI32().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -11613,6 +11624,11 @@ XcalarApiLogLevelSetInputT.prototype.write = function(output) {
   if (this.logFlush !== null && this.logFlush !== undefined) {
     output.writeFieldBegin('logFlush', Thrift.Type.BOOL, 2);
     output.writeBool(this.logFlush);
+    output.writeFieldEnd();
+  }
+  if (this.logFlushLevel !== null && this.logFlushLevel !== undefined) {
+    output.writeFieldBegin('logFlushLevel', Thrift.Type.I32, 3);
+    output.writeI32(this.logFlushLevel);
     output.writeFieldEnd();
   }
   output.writeFieldStop();

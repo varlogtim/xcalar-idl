@@ -23843,12 +23843,16 @@ XcalarApiGetMemoryUsageInputT.prototype.write = function(output) {
 XcalarApiLogLevelSetInputT = function(args) {
   this.logLevel = null;
   this.logFlush = null;
+  this.logFlushLevel = null;
   if (args) {
     if (args.logLevel !== undefined) {
       this.logLevel = args.logLevel;
     }
     if (args.logFlush !== undefined) {
       this.logFlush = args.logFlush;
+    }
+    if (args.logFlushLevel !== undefined) {
+      this.logFlushLevel = args.logFlushLevel;
     }
   }
 };
@@ -23880,6 +23884,13 @@ XcalarApiLogLevelSetInputT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 3:
+      if (ftype == Thrift.Type.I32) {
+        this.logFlushLevel = input.readI32().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -23899,6 +23910,11 @@ XcalarApiLogLevelSetInputT.prototype.write = function(output) {
   if (this.logFlush !== null && this.logFlush !== undefined) {
     output.writeFieldBegin('logFlush', Thrift.Type.BOOL, 2);
     output.writeBool(this.logFlush);
+    output.writeFieldEnd();
+  }
+  if (this.logFlushLevel !== null && this.logFlushLevel !== undefined) {
+    output.writeFieldBegin('logFlushLevel', Thrift.Type.I32, 3);
+    output.writeI32(this.logFlushLevel);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -30665,9 +30681,9 @@ XcalarApiServiceClient.prototype.recv_queueWork = function() {
 
 
 XcalarApiVersionT = {
-  'XcalarApiVersionSignature' : 130981694
+  'XcalarApiVersionSignature' : 6208261
 };
-XcalarApiVersionTStr = {130981694 : '7ce9f3e25ab3301daeb463dd5b17c15e'
+XcalarApiVersionTStr = {6208261 : '05ebb053e2ddf85c776b02febbca9411'
 };
 // Async extension for XcalarApiService.js
 XcalarApiServiceClient.prototype.queueWorkAsync = function(workItem) {
@@ -35517,11 +35533,11 @@ PromiseHelper = (function(PromiseHelper, $) {
     }
 
     function testLogLevelSetDebug(test) {
-        test.trivial(xcalarLogLevelSet(thriftHandle, 7, false));
+        test.trivial(xcalarLogLevelSet(thriftHandle, 7, 0));
     }
 
     function testLogLevelSetCrit(test) {
-        test.trivial(xcalarLogLevelSet(thriftHandle, 2, true));
+        test.trivial(xcalarLogLevelSet(thriftHandle, 2, 1));
     }
 
     function testGetIpAddrNode0(test) {
@@ -39014,8 +39030,9 @@ PromiseHelper = (function(PromiseHelper, $) {
     addTestCase(testBulkDeleteConstants, "bulk delete constant node", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testBulkDeleteDataset, "bulk delete datasets", defaultTimeout, TestCaseEnabled, "2314");
     addTestCase(testShutdown, "shutdown", defaultTimeout, TestCaseEnabled, "98");
-    addTestCase(testLogLevelSetCrit, "loglevelset LOG_CRIT true", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testLogLevelSetDebug, "loglevelset LOG_DEBUG false", defaultTimeout, TestCaseEnabled, "");
+    // Use 0 for NoFlush, 1 for FlushGlobal, 2 for FlushLocal
+    addTestCase(testLogLevelSetCrit, "loglevelset LOG_CRIT 1", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testLogLevelSetDebug, "loglevelset LOG_DEBUG 0", defaultTimeout, TestCaseEnabled, "");
 
     addTestCase(testGetIpAddrNode0, "getipaddr 0", defaultTimeout, TestCaseEnabled, "");
 

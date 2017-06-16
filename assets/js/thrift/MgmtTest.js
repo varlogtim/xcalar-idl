@@ -559,11 +559,11 @@ PromiseHelper = (function(PromiseHelper, $) {
     }
 
     function testLogLevelSetDebug(test) {
-        test.trivial(xcalarLogLevelSet(thriftHandle, 7, false));
+        test.trivial(xcalarLogLevelSet(thriftHandle, 7, 0));
     }
 
     function testLogLevelSetCrit(test) {
-        test.trivial(xcalarLogLevelSet(thriftHandle, 2, true));
+        test.trivial(xcalarLogLevelSet(thriftHandle, 2, 1));
     }
 
     function testGetIpAddrNode0(test) {
@@ -4056,8 +4056,9 @@ PromiseHelper = (function(PromiseHelper, $) {
     addTestCase(testBulkDeleteConstants, "bulk delete constant node", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testBulkDeleteDataset, "bulk delete datasets", defaultTimeout, TestCaseEnabled, "2314");
     addTestCase(testShutdown, "shutdown", defaultTimeout, TestCaseEnabled, "98");
-    addTestCase(testLogLevelSetCrit, "loglevelset LOG_CRIT true", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testLogLevelSetDebug, "loglevelset LOG_DEBUG false", defaultTimeout, TestCaseEnabled, "");
+    // Use 0 for NoFlush, 1 for FlushGlobal, 2 for FlushLocal
+    addTestCase(testLogLevelSetCrit, "loglevelset LOG_CRIT 1", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testLogLevelSetDebug, "loglevelset LOG_DEBUG 0", defaultTimeout, TestCaseEnabled, "");
 
     addTestCase(testGetIpAddrNode0, "getipaddr 0", defaultTimeout, TestCaseEnabled, "");
 
