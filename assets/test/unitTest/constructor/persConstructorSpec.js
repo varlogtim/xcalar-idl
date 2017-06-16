@@ -2935,7 +2935,7 @@ describe("Persistent Constructor Test", function() {
 
         it("should have 10 attributes", function() {
             expect(df).to.be.an.instanceof(Dataflow);
-            expect(Object.keys(df).length).to.equal(9);
+            expect(Object.keys(df).length).to.equal(10);
             expect(df).to.have.property("version")
             .and.to.equal(currentVersion);
             expect(df).to.have.property("name")
@@ -2967,7 +2967,7 @@ describe("Persistent Constructor Test", function() {
             expect(df.getParameter("a")).not.to.be.exist;
         });
 
-        it("shoulde update parameter", function(done) {
+        it("shoulde update parameter", function() {
             var oldList = XcalarListParametersInRetina;
             XcalarListParametersInRetina = function() {
                 return PromiseHelper.resolve({
@@ -2976,16 +2976,8 @@ describe("Persistent Constructor Test", function() {
             };
 
             df.updateParameters([{"name": "a", "val": "c"}])
-            .then(function() {
-                expect(df.getParameter("a")).to.equal("c");
-                done();
-            })
-            .fail(function() {
-                done("fail");
-            })
-            .always(function() {
-                XcalarListParametersInRetina = oldList;
-            });
+            expect(df.getParameter("a")).to.equal("c")
+            XcalarListParametersInRetina = oldList;
         });
 
         it("shoulde checkParamInUse", function() {
@@ -3212,7 +3204,7 @@ describe("Persistent Constructor Test", function() {
 
     // XX incomplete since the change where monitor query bars are working
     describe("XcQuery Constructor Test", function() {
-        it("Should have 18 attributes", function() {
+        it("Should have 19 attributes", function() {
             var xcQuery = new XcQuery({
                 "name": "test",
                 "fullName": "full test",
@@ -3223,7 +3215,7 @@ describe("Persistent Constructor Test", function() {
             });
 
             expect(xcQuery).to.be.an.instanceof(XcQuery);
-            expect(Object.keys(xcQuery).length).to.equal(18);
+            expect(Object.keys(xcQuery).length).to.equal(19);
             expect(xcQuery).to.have.property("version")
             .and.to.equal(currentVersion);
             expect(xcQuery).to.have.property("name")
@@ -3262,6 +3254,8 @@ describe("Persistent Constructor Test", function() {
             .and.to.equal(0);
             expect(xcQuery).to.have.property("opTime")
             .and.to.equal(0);
+            expect(xcQuery).to.have.property("opTimeAdded")
+            .and.to.be.false;
         });
 
         it("XcQuery OOP function should work", function() {

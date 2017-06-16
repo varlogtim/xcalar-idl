@@ -4,7 +4,7 @@ describe("FileInfoModal Test", function() {
 
     before(function() {
         UnitTest.onMinMode();
-        XcalarListFiles = oldListFiles;
+        oldListFiles = XcalarListFiles;
         $modal = $("#fileInfoModal");
     });
 

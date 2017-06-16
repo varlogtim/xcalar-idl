@@ -75,8 +75,9 @@ describe("DFParamModal Test", function() {
         it("inputs should be correct", function() {
             expect($modal.find(".template .boxed").length).to.equal(2);
             expect($modal.find(".template").text()).to.equal("Export As:export-" + tableName + ".csvTarget:Default");
-            expect($modal.find("input").eq(0).val()).to.equal("");
-            expect($modal.find("input").length).to.equal(4);
+            expect($modal.find("input").eq(0).val()).to.equal("export-" + tableName + ".csv");
+            expect($modal.find("input").eq(1).val()).to.equal("Default");
+            expect($modal.find("input").length).to.equal(5);
         });
 
         describe("export submit with invalid file name", function() {
@@ -213,7 +214,9 @@ describe("DFParamModal Test", function() {
         it("inputs should be correct", function() {
             expect($modal.find(".template .boxed").length).to.equal(3);
             expect($modal.find(".template").text()).to.equal("filter:" + colName + "bygt3");
-            expect($modal.find("input").eq(0).val()).to.equal("");
+            expect($modal.find("input").eq(0).val()).to.equal(colName);
+            expect($modal.find("input").eq(1).val()).to.equal("gt");
+            expect($modal.find("input").eq(2).val()).to.equal("3");
             expect($modal.find("input").length).to.equal(6);
         });
 
