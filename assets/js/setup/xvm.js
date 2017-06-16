@@ -1,8 +1,8 @@
 // XVM = Xcalar Version Manager
 window.XVM = (function(XVM) {
     var majorVersion = "1";
-    var minorVersion = "1";
-    var revisionVersion = "3";
+    var minorVersion = "2";
+    var revisionVersion = "0";
     if (!window.gBuildNumber) {
         gBuildNumber = "git";
     }
