@@ -10,6 +10,12 @@ window.FileInfoModal = (function($, FileInfoModal) {
             "center": {"verticalQuartile": true}
         });
 
+        $modal.resizable({
+            "handles": "e, w",
+            "minWidth": 400,
+            "containment": "document",
+        });
+
         $modal.on("click", ".close", closeModal);
     };
 
@@ -86,7 +92,7 @@ window.FileInfoModal = (function($, FileInfoModal) {
         var $labels = $modal.find(".infoSection .label");
         var width = 55; // minumim width
         $labels.each(function() {
-            var w = $(this).width();
+            var w = $(this).width() + 2; // padding 2px
             width = Math.max(width, w);
         });
 

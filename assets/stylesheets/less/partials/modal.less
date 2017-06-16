@@ -3410,7 +3410,8 @@ html.microsoft {
 }
 
 #fileInfoModal {
-    .size(@width: 400px, @height: auto);
+    width: 400px;
+    height: auto !important;
     bottom: auto;
     box-shadow: 0px 1px 4px 0px rgba(0, 0, 0, 0.3);
 
@@ -3481,6 +3482,8 @@ html.microsoft {
 
         .infoSection {
             padding: 0 15px;
+            word-break: break-all;
+
             > div {
                 margin-top: 7px;
                 text-align: left;
