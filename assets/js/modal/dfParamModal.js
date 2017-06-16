@@ -1251,7 +1251,6 @@ window.DFParamModal = (function($, DFParamModal){
         // parameterization by moving the template values to the new values,
         // and setting the template values to the ones that are stored inside
         // paramMap.
-
         if (retinaNode != null && retinaNode.paramValue != null) {
             var $templateVals = $dfParamModal.find(".template .boxed");
             var i = 0;

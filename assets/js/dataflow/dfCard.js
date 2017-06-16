@@ -470,6 +470,11 @@ window.DFCard = (function($, DFCard) {
             })
             .fail(function() {
                 console.error(arguments);
+            })
+            .always(function() {
+                if ($.isEmptyObject(df.parameterizedNodes)) {
+                    restoreParameterizedNode(dataflowName);
+                }
             });
         });
 
@@ -1639,6 +1644,48 @@ window.DFCard = (function($, DFCard) {
                 }
                 DF.commitAndBroadCast(dataflowName);
             }
+        }
+    }
+
+    function restoreParameterizedNode(dataflowName) {
+        var df = DF.getDataflow(dataflowName);
+        $dagWrap = $(getDagWrap(dataflowName));
+        for (var key in df.nodeIds) {
+            var dagNodeId = df.nodeIds[key];
+            var dagNode = $dagWrap.find('[data-id="' + dagNodeId + '"]');
+            var paramVal = $(dagNode).data().paramValue;
+            var type = $(dagNode).data().type;
+            if (isParameterized(paramVal)) {
+                var paramType;
+
+                if (type === "filter") {
+                    paramType = XcalarApisT.XcalarApiFilter;
+                } else if (type === "dataStore") {
+                    paramType = XcalarApisT.XcalarApiBulkLoad;
+                } else if (ype === "export"){
+                    paramType = XcalarApisT.XcalarApiExport;
+                }
+
+                var val = {
+                    "paramType": paramType,
+                    "paramValue": paramVal
+                };
+
+                var paramInfo = val;
+                df.addParameterizedNode(dagNodeId, val, paramInfo);
+            }
+        }
+
+        function isParameterized(paramValue) {
+            if (paramValue !== undefined) {
+                for (var i = 0; i < paramValue.length; i++) {
+                    if (typeof paramValue[i] === 'string'
+                        && paramValue[i].indexOf('<') !== -1) {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
     }
 
