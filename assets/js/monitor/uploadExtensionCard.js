@@ -38,7 +38,9 @@ window.UploadExtensionCard = (function($, UploadExtensionCard) {
 
             uploadExt(base64Str)
             .then(function() {
+                clear();
                 xcHelper.showSuccess(SuccessTStr.Upload);
+                $("#refreshExt").click();
                 deferred.resolve();
             })
             .fail(function(error) {
@@ -98,8 +100,7 @@ window.UploadExtensionCard = (function($, UploadExtensionCard) {
             }
             var path = $(this).val().replace(/C:\\fakepath\\/i, '');
             file = $browserBtn[0].files[0];
-            extName = path.substring(0, path.indexOf(".")).toLowerCase()
-                              .replace(/ /g, "");
+            extName = path.substring(0, path.indexOf(".")).replace(/ /g, "");
             $extPath.val(path);
             if (path.indexOf(".tar.gz") > 0) {
                 $card.find(".confirm").removeClass("btn-disabled");
@@ -129,13 +130,17 @@ window.UploadExtensionCard = (function($, UploadExtensionCard) {
 
     function closeCard() {
         $card.addClass("xc-hidden");
+        clear();
+        unlockCard();
+    }
+
+    function clear() {
         file = "";
         extName = null;
         $extPath.val("");
         $card.find(".confirm").addClass("btn-disabled");
         $browserBtn.val("");
         xcTooltip.enable($card.find(".buttonTooltipWrap"));
-        unlockCard();
     }
 
     return (UploadExtensionCard);

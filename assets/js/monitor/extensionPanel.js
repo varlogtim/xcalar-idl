@@ -9,6 +9,10 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
         $panel = $("#extensionInstallPanel");
         $extLists = $("#extension-lists");
 
+        $("#refreshExt").click(function() {
+            refreshAfterInstall();
+        });
+
         $panel.on("click", ".item .more", function() {
             $(this).closest(".item").toggleClass("fullSize");
         });

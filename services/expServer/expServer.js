@@ -753,19 +753,24 @@ require("jsdom").env("", function(err, window) {
 
     app.post("/uploadExtension", function(req, res) {
         var tarFile = req.body.targz;
-        writeTarGzWithCleanup({status: Status.Ok,
-                               data: req.body.targz},
-                               req.body.name, "0.0.1")
+        writeTarGzWithCleanup({
+            status: Status.Ok,
+            data: req.body.targz
+        }, req.body.name, "0.0.1")
         .then(function() {
+            console.log("intall extension finishes, enabling it");
             return enableExtension(req.body.name);
         })
         .then(function() {
+            console.log("enable installed extension finishes");
             res.jsonp({status:Status.Ok});
         })
         .fail(function(err) {
             console.log("Error: " + err);
-            res.jsonp({status: Status.Error,
-                       error: err});
+            res.jsonp({
+                status: Status.Error,
+                error: err
+            });
         });
     });
 
@@ -780,20 +785,19 @@ require("jsdom").env("", function(err, window) {
                 return innerDeferred.reject(ret);
             }
 
-            xcConsole.log(retStruct.data.length);
-
             var zipFile = new Buffer(retStruct.data, 'base64');
             var zipPath = basePath + "ext-available/" + name + "-" + version +
                           ".tar.gz";
-            xcConsole.log(zipPath);
+            xcConsole.log("add extension to", zipPath);
             fs.writeFile(zipPath, zipFile, function(error) {
                 if (error) {
                     innerDeferred.reject(error);
                 }
-                xcConsole.log("Writing");
+                xcConsole.log("untar", zipPath);
                 var out = exec("tar -zxf " + zipPath + " -C " + basePath +
                                "ext-available/");
                 out.on('close', function(code) {
+                    console.log("untar finishes");
                     if (code) {
                         innerDeferred.reject(code);
                     } else {
@@ -813,7 +817,9 @@ require("jsdom").env("", function(err, window) {
                         // regardless of status, this is a successful install.
                         // we simply console log if the deletion went wrong.
                 if (err) {
-                    console.log("Deletion of .tar.gz failed: " + err);
+                    xcConsole.log("Deletion of .tar.gz failed: " + err);
+                } else {
+                    xcConsole.log("remove .tar.gz finishes");
                 }
                 deferred.resolve();
             });
@@ -869,6 +875,7 @@ require("jsdom").env("", function(err, window) {
         fs.readdir(basePath + "ext-" + type + "/", function(err, files) {
             var extFiles = [];
             if (err) {
+                console.log("get extension files error", err);
                 deferred.reject(err);
             }
             for (var i = 0; i < files.length; i++) {
@@ -949,7 +956,8 @@ require("jsdom").env("", function(err, window) {
                 }
             }
             if (filesRemaining.length === 0) {
-                return deferred.reject("Extension already enabled");
+                deferred.reject("Extension already enabled");
+                return;
             }
             // Create symlinks in the ext-enabled folder
             var str = "";
@@ -957,7 +965,7 @@ require("jsdom").env("", function(err, window) {
                 str += "ln -s " + "../ext-available/" + filesRemaining[i] +
                       " " + basePath + "ext-enabled/" + filesRemaining[i] + ";";
             }
-            console.log(str);
+            // console.log(str);
             var out = exec(str);
             out.on('close', function(code) {
                 if (code) {
@@ -966,7 +974,9 @@ require("jsdom").env("", function(err, window) {
                     deferred.resolve();
                 }
             });
-        });
+        })
+        .fail(deferred.reject);
+
         return deferred.promise();
     }
 
@@ -980,8 +990,10 @@ require("jsdom").env("", function(err, window) {
         })
         .fail(function(err) {
             console.log("Error: " + err);
-            res.jsonp({status:Status.Error,
-                       error: err});
+            res.jsonp({
+                status:Status.Error,
+                error: err
+            });
         });
     });
 
