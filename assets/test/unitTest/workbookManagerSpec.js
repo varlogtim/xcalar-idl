@@ -241,12 +241,19 @@ describe("WorkbookManager Test", function() {
                 fnCalled = true;
                 return PromiseHelper.resolve({
                     numCompletedWorkItem: 2,
-                    queryGraph: {numNodes: 4, node: [
-                            {state: DgDagStateT.DgDagStateReady},
-                            {state: DgDagStateT.DgDagStateReady},
-                            {state: DgDagStateT.DgDagStateProcessing, api:15},
-                            {state: 0},
-                        ]}
+                    queryGraph: {
+                        numNodes: 4,
+                        node: [{
+                            state: DgDagStateT.DgDagStateReady
+                        }, {
+                            state: DgDagStateT.DgDagStateReady
+                        }, {
+                            state: DgDagStateT.DgDagStateProcessing,
+                            api: 15
+                        }, {
+                            state: 0
+                        }]
+                    }
                 });
             };
             WorkbookManager.__testOnly__.changeIntTime(200, 100);
@@ -254,7 +261,7 @@ describe("WorkbookManager Test", function() {
             cycle("testName", 200);
 
             UnitTest.testFinish(function() {
-               return fnCalled === true;
+                return fnCalled === true;
             })
             .then(function() {
                 expect($("#initialLoadScreen").hasClass("sessionProgress")).to.be.true;

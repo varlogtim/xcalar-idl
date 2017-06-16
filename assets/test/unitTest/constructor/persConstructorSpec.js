@@ -2946,6 +2946,8 @@ describe("Persistent Constructor Test", function() {
             .and.to.be.an("array");
             expect(df).to.have.property("paramMap")
             .and.to.be.an("object");
+            expect(df).to.have.property("paramMapInUsed")
+            .and.to.be.an("object");
             expect(df).to.have.property("nodeIds")
             .and.to.be.an("object");
             expect(df).to.have.property("parameterizedNodes")
@@ -2968,6 +2970,13 @@ describe("Persistent Constructor Test", function() {
         });
 
         it("shoulde update parameter", function() {
+            df.updateParameters([{"name": "a", "val": "c"}]);
+            expect(df.getParameter("a")).to.equal("c");
+            expect(df.paramMapInUsed.a).to.be.true;
+        });
+
+        it("shoulde update parameter", function(done) {
+            delete df.paramMapInUsed.a;
             var oldList = XcalarListParametersInRetina;
             XcalarListParametersInRetina = function() {
                 return PromiseHelper.resolve({
@@ -2975,9 +2984,17 @@ describe("Persistent Constructor Test", function() {
                 });
             };
 
-            df.updateParameters([{"name": "a", "val": "c"}])
-            expect(df.getParameter("a")).to.equal("c")
-            XcalarListParametersInRetina = oldList;
+            df.updateParamMapInUsed()
+            .then(function() {
+                expect(df.paramMapInUsed.a).to.be.true;
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                XcalarListParametersInRetina = oldList;
+            });
         });
 
         it("shoulde checkParamInUse", function() {

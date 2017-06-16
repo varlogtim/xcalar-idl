@@ -1064,7 +1064,7 @@ describe('TableMenu Test', function() {
             it('digitsToRound invalid', function() {
                 var cachedFunc = ColManager.roundToFixed;
                 var called = false;
-                ColManager.roundToFixed = function(colNums, tId, decimals) {
+                ColManager.roundToFixed = function() {
                     called = true;
                 };
 
@@ -1449,7 +1449,6 @@ describe('TableMenu Test', function() {
 
             $table.find("th.col12 .header").addClass("type-integer");
 
-            var cellText = $table.find('td.col12').eq(0).text();
             var cachedFunc = xcFunction.filter;
             var called = false;
             xcFunction.filter = function(colNum, tId, options) {

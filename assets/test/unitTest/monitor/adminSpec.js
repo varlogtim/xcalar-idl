@@ -167,8 +167,7 @@ describe("Admin Test", function() {
                                 tableMemory: [{
                                     totalBytes: 1,
                                     tableName: 'tableA'
-                                },
-                                {
+                                }, {
                                     totalBytes: 2,
                                     tableName: 'tableB'
                                 }]

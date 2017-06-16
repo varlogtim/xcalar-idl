@@ -1159,8 +1159,7 @@ describe("DSPreview Test", function() {
             expect(validateForm()).not.to.be.null;
             assert.isFalse($statusBox.is(":visible"));
 
-            var name = xcHelper.randName("test");
-            $dsName.val(name);
+            $dsName.val(xcHelper.randName("test"));
         });
 
         it("Should validate format", function() {
@@ -1396,7 +1395,7 @@ describe("DSPreview Test", function() {
             };
 
             var isFolder = DSPreview.__testOnly__.get().isViewFolder;
-            DSPreview.__testOnly__.set(null, null, false)
+            DSPreview.__testOnly__.set(null, null, false);
             $("#preview-parser").click();
             expect(test1).to.be.true;
             expect(test2).to.be.false;

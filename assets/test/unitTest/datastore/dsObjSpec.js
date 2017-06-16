@@ -982,9 +982,13 @@ describe("DSObj Test", function() {
             XcalarGetDatasets = function() {
                 getDatasetsCalled = true;
                 return PromiseHelper.resolve({
-                    datasets: [{name:"testDS", loadIsComplete: true}]
+                    datasets: [{
+                        name: "testDS",
+                        loadIsComplete: true
+                    }]
                 });
-            }
+            };
+
             XcalarLoad("file:///test", "JSON", "testDS")
             .then(function(ret) {
                 expect(getDatasetsCalled).to.be.true;
@@ -999,7 +1003,7 @@ describe("DSObj Test", function() {
                 xcalarLoad = cachedLoadFn;
                 XcalarGetQuery = cachedGetQueryFn;
                 XcalarGetDatasets = cachedGetDatasetsFn;
-            })
+            });
         });
     });
 
