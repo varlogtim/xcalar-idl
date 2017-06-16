@@ -1486,7 +1486,6 @@ window.Dag = (function($, Dag) {
     var $dagPanel;
     var scrollPosition = -1;
     var dagAdded = false;
-    var dagPanelLeft;
 
     // constants
     var dagTableHeight = 40;
@@ -2120,8 +2119,6 @@ window.Dag = (function($, Dag) {
         $dagSchema.find(".close").click(function() {
             hideSchema();
         });
-
-        dagPanelLeft = $('#dagPanelContainer').offset().left || 65;
 
         $dagSchema.draggable({
             handle: '#dagSchemaTitle',
@@ -2960,8 +2957,7 @@ window.Dag = (function($, Dag) {
         var minLen = 20; // minimum text length needed for overflow;
 
         if (words.length === 1) {
-            var width = ctx.measureText(words[0]).width;
-            if (width > maxWidth) {
+            if (ctx.measureText(words[0]).width > maxWidth) {
                 var textLen = xcHelper.getMaxTextLen(ctx, text, maxWidth - 7,
                                                      minLen, text.length);
                 line = text.slice(0, textLen) + "...";
@@ -2971,8 +2967,7 @@ window.Dag = (function($, Dag) {
         } else {
             for (var n = 0; n < words.length; n++) {
                 var testLine = line + words[n] + ' ';
-                var width = ctx.measureText(testLine).width;
-                if (width > maxWidth && n > 0) {
+                if (ctx.measureText(testLine).width > maxWidth && n > 0) {
                     ctx.fillText(line, x, y);
                     line = words[n] + ' ';
                     y += lineHeight;
@@ -2996,6 +2991,8 @@ window.Dag = (function($, Dag) {
             var groupInfo = $dagWrap.data('allDagInfo').groups[index];
             var group = groupInfo.group;
             var $groupOutline = $expandIcon.next();
+            var expandIconRight;
+            var newRight;
 
             if (!$expandIcon.hasClass('expanded')) {
                 var canExpand = checkCanExpand(group, depth, index, $dagWrap);
@@ -3008,9 +3005,9 @@ window.Dag = (function($, Dag) {
                 } else {
                     $expandIcon.addClass('expanded');
                     $groupOutline.addClass('expanded');
-                    var expandIconRight = parseFloat($expandIcon.css('right'));
-                    var newRight = expandIconRight +
-                                             (group.length * dagTableWidth) - 24;
+                    expandIconRight = parseFloat($expandIcon.css('right'));
+                    newRight = expandIconRight +
+                               (group.length * dagTableWidth) - 24;
                     $expandIcon.css('right', newRight);
                     expandGroup(groupInfo, $dagWrap, $expandIcon);
                     xcTooltip.changeText($expandIcon, TooltipTStr.ClickCollapse);
@@ -3018,10 +3015,10 @@ window.Dag = (function($, Dag) {
             } else {
                 $expandIcon.removeClass('expanded');
                 $groupOutline.removeClass('expanded');
-                var expandIconRight = parseFloat($expandIcon.css('right'));
-                var newRight = expandIconRight -
-                                             (group.length * dagTableWidth) +
-                                             Math.round(0.11 * dagTableWidth);
+                expandIconRight = parseFloat($expandIcon.css('right'));
+                newRight = expandIconRight -
+                           (group.length * dagTableWidth) +
+                           Math.round(0.11 * dagTableWidth);
                 $expandIcon.css('right', newRight);
 
                 $groupOutline = $expandIcon.next();
@@ -3234,6 +3231,7 @@ window.Dag = (function($, Dag) {
         var tableIndex;
         var tableNode;
         var tableName;
+        var isEmpty;
         var found = false;
         // look through the parent tables
         for (var i = 0; i < tables.length; i++) {
@@ -3269,7 +3267,7 @@ window.Dag = (function($, Dag) {
                         foundSameColName = true;
                         srcNames = getSourceColNames(cols[j].func);
                         found = true;
-                        var isEmpty = cols[j].isEmptyCol();
+                        isEmpty = cols[j].isEmptyCol();
                         findColumnSource(srcNames, $dagWrap, tableIndex,
                                             nodes, backColName,
                                             isEmpty, found, target);
@@ -3292,7 +3290,7 @@ window.Dag = (function($, Dag) {
                             srcNames = getSourceColNames(cols[j].func);
 
                             sourceColNamesCopy.splice(colNameIndex, 1);
-                            var isEmpty = cols[j].isEmptyCol();
+                            isEmpty = cols[j].isEmptyCol();
                             found = true;
                             findColumnSource(srcNames, $dagWrap, tableIndex,
                                             nodes, backColName,
@@ -3889,6 +3887,7 @@ window.Dag = (function($, Dag) {
         var parenIndex;
         var filterType;
         var evalStr;
+        var commaIndex;
         var value = dagNode.input[key];
         var info = {};
         info.type = "unknown";
@@ -3966,7 +3965,7 @@ window.Dag = (function($, Dag) {
                                        " is " + filterType + " " +
                                        filterValue + ".";
                         } else {
-                            var commaIndex = filterStr.indexOf(',');
+                            commaIndex = filterStr.indexOf(',');
                             if (commaIndex !== -1) {
                                 info.column = filterStr
                                               .slice(parenIndex + 1, commaIndex)
@@ -3987,9 +3986,8 @@ window.Dag = (function($, Dag) {
                                        " is " + filterType + " " +
                                        filterValue + ".";
                     }
-
                 } else {
-                    var commaIndex = filterStr.indexOf(',');
+                    commaIndex = filterStr.indexOf(',');
                     if (commaIndex !== -1) {
                         info.column = filterStr
                                       .slice(parenIndex + 1, commaIndex)

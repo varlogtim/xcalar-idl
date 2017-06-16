@@ -2369,7 +2369,6 @@
                 var parameters = this.parameters;
                 var paramMapInUsed = this.paramMapInUsed;
 
-                var usedParamNames = {};
                 if (params != null && params instanceof Array) {
                     params.forEach(function(param) {
                         var name = param.name;
@@ -2415,7 +2414,6 @@
             },
 
             allUsedParamsWithValues: function() {
-                var parameters = this.parameters;
                 var paramMap = this.paramMap;
                 var paramMapInUsed = this.paramMapInUsed;
 

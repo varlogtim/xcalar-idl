@@ -301,11 +301,11 @@ window.Undo = (function($, Undo) {
         var promises = [];
         var deferred = jQuery.Deferred();
 
-        for (var i = 0; i < newTables.length; i++) {
-            var newTableId = xcHelper.getTableId(newTables[i]);
+        newTables.forEach(function(newTableName) {
+            var newTableId = xcHelper.getTableId(newTableName);
             promises.push(TblManager.sendTableToUndone.bind(window, newTableId,
                                                             {'remove': true}));
-        }
+        });
 
         for (var table in replace) {
             var oldTables = replace[table];
@@ -735,12 +735,12 @@ window.Undo = (function($, Undo) {
         var tables = options.tables;
         var archivedTables = options.archivedTables;
         var promises = [];
+        var $lists = $("#archivedTableListSection .tableInfo");
 
         if (delType === DelWSType.Empty) {
             makeWorksheetHelper();
             WSManager.addNoSheetTables(archivedTables, wsId);
 
-            var $lists = $("#archivedTableListSection .tableInfo");
             archivedTables.forEach(function(tableId) {
                 // reArchive the table
                 $lists.filter(function() {
@@ -780,7 +780,6 @@ window.Undo = (function($, Undo) {
                                                 {"isUndo": true}));
             });
 
-            var $lists = $("#archivedTableListSection .tableInfo");
             archivedTables.forEach(function(tableId) {
                 // reArchive the table
                 $lists.filter(function() {

@@ -961,19 +961,22 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         return tableList;
     }
 
-    function selectTriggerTableDropdown($li, noAnim) {
+    function selectTriggerTableDropdown($li, isSetUp) {
         var tableName = $li.text();
         var $input = $extTriggerTableDropdown.find(".text");
 
         if ($input.val() !== tableName) {
             // if switch table, then no trigger col
-            triggerCol = null;
+            if (!isSetUp) {
+                triggerCol = null;
+            }
+
             $input.val(tableName);
             $li.addClass("selected")
                 .siblings().removeClass("selected");
 
             var tableId = xcHelper.getTableId(tableName);
-            var anim = !noAnim;
+            var anim = !isSetUp;
             // this animation will mess up focus if true
             // in setup time
             xcHelper.centerFocusedTable(tableId, anim);

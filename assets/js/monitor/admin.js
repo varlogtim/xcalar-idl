@@ -154,7 +154,7 @@ window.Admin = (function($, Admin) {
             xcHelper.showRefreshIcon($userList, false, promise);
         });
 
-        $userList.on('click', '.userLi .useAs', function(event) {
+        $userList.on('click', '.userLi .useAs', function() {
             var $li = $(this).closest(".userLi");
             if ($li.hasClass("self")) {
                 return;
@@ -198,7 +198,7 @@ window.Admin = (function($, Admin) {
             positionMemPopup($popup);
 
             $(document).on("mousedown.hideMemPopup", function(event) {
-                var $target = $(event.target)
+                var $target = $(event.target);
                 if ($target.closest("#userMemPopup").length === 0) {
                     if ($target.closest(".memory").length) {
                         $(document).off(".hideMemPopup");
@@ -281,7 +281,7 @@ window.Admin = (function($, Admin) {
         });
 
         $("#userMemPopup").on("click", ".toggleBreakdown, .ellipsis",
-            function() {
+        function() {
             $(this).closest(".breakdown").toggleClass("active");
             xcTooltip.hideAll();
         });

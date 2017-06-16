@@ -541,10 +541,10 @@ window.DS = (function ($, DS) {
             // if ret.numBytes doesn't exist, size will be set later by calling
             // XcalarGetDatasetMeta
             var bytes = null;
-            if (ret) {
+            if (ret != null) {
                 bytes = ret.numBytes;
             }
-            dsObj.setSize(ret.numBytes);
+            dsObj.setSize(bytes);
             finishPoint();
 
             if (createTabe) {

@@ -690,6 +690,7 @@ function XcalarLoad(url, format, datasetName, options, txId) {
         }
     })
     .fail(function(error1, error2) {
+        var thriftError;
         // 502 = Bad Gateway server error
         if (error1 && typeof(error1) === "object" &&
             (("status" in error1 && error1.status === 502) ||
@@ -707,7 +708,7 @@ function XcalarLoad(url, format, datasetName, options, txId) {
                 checkForDatasetLoad(deferred, error2, datasetName, txId);
             } else {
                 Transaction.checkAndSetCanceled(txId);
-                var thriftError = thriftLog("XcalarLoad", error1, error2);
+                thriftError = thriftLog("XcalarLoad", error1, error2);
                 deferred.reject(thriftError);
             }
         } else {
@@ -726,7 +727,7 @@ function XcalarLoad(url, format, datasetName, options, txId) {
                     });
                 }
             }
-            var thriftError = thriftLog("XcalarLoad", error1[0], error2);
+            thriftError = thriftLog("XcalarLoad", error1[0], error2);
             deferred.reject(thriftError, loadError);
         }
     });

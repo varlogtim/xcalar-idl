@@ -1502,7 +1502,7 @@ window.DSPreview = (function($, DSPreview) {
         }
 
         var url = path.substring(0, lastIndex + 1);
-        var fileName = path.substring(lastIndex + 1, path.length)
+        var fileName = path.substring(lastIndex + 1, path.length);
         XcalarListFiles(url)
         .then(function(res) {
             var numFiles = res.numFiles;
