@@ -3516,7 +3516,7 @@ function XcalarApiTop(measureIntervalInMs) {
         return (deferred.promise());
     }
 
-    xcalarApiTop(tHandle, measureIntervalInMs)
+    xcalarApiTop(tHandle, measureIntervalInMs, 0)
     .then(deferred.resolve)
     .fail(function(error) {
         var thriftError = thriftLog("XcalarApiTop", error);

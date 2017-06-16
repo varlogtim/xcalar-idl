@@ -12297,6 +12297,11 @@ XcalarApiKeyScopeT = {
   'XcalarApiKeyScopeUser' : 2,
   'XcalarApiKeyScopeSession' : 3
 };
+XcalarApiTopRequestTypeT = {
+  'XcalarApiTopRequestTypeInvalid' : 0,
+  'GetCpuAndNetworkTopStats' : 1,
+  'GetAllTopStats' : 2
+};
 XcalarApiException = function(args) {
   this.status = null;
   if (args) {
@@ -20592,9 +20597,17 @@ XcalarApiSingleQueryT.prototype.write = function(output) {
 
 XcalarApiTopInputT = function(args) {
   this.measureIntervalInMs = null;
+  this.cacheValidityInMs = null;
+  this.topStatsRequestType = null;
   if (args) {
     if (args.measureIntervalInMs !== undefined) {
       this.measureIntervalInMs = args.measureIntervalInMs;
+    }
+    if (args.cacheValidityInMs !== undefined) {
+      this.cacheValidityInMs = args.cacheValidityInMs;
+    }
+    if (args.topStatsRequestType !== undefined) {
+      this.topStatsRequestType = args.topStatsRequestType;
     }
   }
 };
@@ -20619,9 +20632,20 @@ XcalarApiTopInputT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
-      case 0:
+      case 2:
+      if (ftype == Thrift.Type.I64) {
+        this.cacheValidityInMs = input.readI64().value;
+      } else {
         input.skip(ftype);
-        break;
+      }
+      break;
+      case 3:
+      if (ftype == Thrift.Type.I32) {
+        this.topStatsRequestType = input.readI32().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -20636,6 +20660,16 @@ XcalarApiTopInputT.prototype.write = function(output) {
   if (this.measureIntervalInMs !== null && this.measureIntervalInMs !== undefined) {
     output.writeFieldBegin('measureIntervalInMs', Thrift.Type.I64, 1);
     output.writeI64(this.measureIntervalInMs);
+    output.writeFieldEnd();
+  }
+  if (this.cacheValidityInMs !== null && this.cacheValidityInMs !== undefined) {
+    output.writeFieldBegin('cacheValidityInMs', Thrift.Type.I64, 2);
+    output.writeI64(this.cacheValidityInMs);
+    output.writeFieldEnd();
+  }
+  if (this.topStatsRequestType !== null && this.topStatsRequestType !== undefined) {
+    output.writeFieldBegin('topStatsRequestType', Thrift.Type.I32, 3);
+    output.writeI32(this.topStatsRequestType);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -20653,6 +20687,9 @@ XcalarApiTopOutputPerNodeT = function(args) {
   this.networkSendInBytesPerSec = null;
   this.xdbUsedBytes = null;
   this.xdbTotalBytes = null;
+  this.parentCpuUsageInPercent = null;
+  this.childrenCpuUsageInPercent = null;
+  this.numCores = null;
   if (args) {
     if (args.nodeId !== undefined) {
       this.nodeId = args.nodeId;
@@ -20680,6 +20717,15 @@ XcalarApiTopOutputPerNodeT = function(args) {
     }
     if (args.xdbTotalBytes !== undefined) {
       this.xdbTotalBytes = args.xdbTotalBytes;
+    }
+    if (args.parentCpuUsageInPercent !== undefined) {
+      this.parentCpuUsageInPercent = args.parentCpuUsageInPercent;
+    }
+    if (args.childrenCpuUsageInPercent !== undefined) {
+      this.childrenCpuUsageInPercent = args.childrenCpuUsageInPercent;
+    }
+    if (args.numCores !== undefined) {
+      this.numCores = args.numCores;
     }
   }
 };
@@ -20760,6 +20806,27 @@ XcalarApiTopOutputPerNodeT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 10:
+      if (ftype == Thrift.Type.DOUBLE) {
+        this.parentCpuUsageInPercent = input.readDouble().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 11:
+      if (ftype == Thrift.Type.DOUBLE) {
+        this.childrenCpuUsageInPercent = input.readDouble().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 12:
+      if (ftype == Thrift.Type.I64) {
+        this.numCores = input.readI64().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -20814,6 +20881,21 @@ XcalarApiTopOutputPerNodeT.prototype.write = function(output) {
   if (this.xdbTotalBytes !== null && this.xdbTotalBytes !== undefined) {
     output.writeFieldBegin('xdbTotalBytes', Thrift.Type.I64, 9);
     output.writeI64(this.xdbTotalBytes);
+    output.writeFieldEnd();
+  }
+  if (this.parentCpuUsageInPercent !== null && this.parentCpuUsageInPercent !== undefined) {
+    output.writeFieldBegin('parentCpuUsageInPercent', Thrift.Type.DOUBLE, 10);
+    output.writeDouble(this.parentCpuUsageInPercent);
+    output.writeFieldEnd();
+  }
+  if (this.childrenCpuUsageInPercent !== null && this.childrenCpuUsageInPercent !== undefined) {
+    output.writeFieldBegin('childrenCpuUsageInPercent', Thrift.Type.DOUBLE, 11);
+    output.writeDouble(this.childrenCpuUsageInPercent);
+    output.writeFieldEnd();
+  }
+  if (this.numCores !== null && this.numCores !== undefined) {
+    output.writeFieldBegin('numCores', Thrift.Type.I64, 12);
+    output.writeI64(this.numCores);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -28870,6 +28952,8 @@ XcalarApisConstantsT = {
   'XcalarApiMaxNumParameters' : 20,
   'XcalarApiDefaultTopIntervalInMs' : 100,
   'XcalarApiMaxTopIntervalInMs' : 10000,
+  'XcalarApiDefaultCacheValidityInMs' : 0,
+  'XcalarApiMaxCacheValidityInMs' : 5000,
   'XcalarApiMaxUdfModuleNameLen' : 255,
   'XcalarApiMaxUdfFuncNameLen' : 255,
   'XcalarApiMaxUdfSourceLen' : 10485760,
@@ -28889,6 +28973,8 @@ XcalarApisConstantsTStr = {4096 : 'XcalarApiMaxEvalStringLen',
 20 : 'XcalarApiMaxNumParameters',
 100 : 'XcalarApiDefaultTopIntervalInMs',
 10000 : 'XcalarApiMaxTopIntervalInMs',
+0 : 'XcalarApiDefaultCacheValidityInMs',
+5000 : 'XcalarApiMaxCacheValidityInMs',
 255 : 'XcalarApiMaxUdfModuleNameLen',
 255 : 'XcalarApiMaxUdfFuncNameLen',
 10485760 : 'XcalarApiMaxUdfSourceLen',
@@ -30681,9 +30767,9 @@ XcalarApiServiceClient.prototype.recv_queueWork = function() {
 
 
 XcalarApiVersionT = {
-  'XcalarApiVersionSignature' : 6208261
+  'XcalarApiVersionSignature' : 25722626
 };
-XcalarApiVersionTStr = {6208261 : '05ebb053e2ddf85c776b02febbca9411'
+XcalarApiVersionTStr = {25722626 : '1887f02b4af60ad44148aa4d2136ebe6'
 };
 // Async extension for XcalarApiService.js
 XcalarApiServiceClient.prototype.queueWorkAsync = function(workItem) {
@@ -33681,13 +33767,16 @@ xcalarKeyDelete = runEntity.xcalarKeyDelete = function(thriftHandle, scope, key)
     return (deferred.promise());
 };
 
-xcalarApiTopWorkItem = runEntity.xcalarApiTopWorkItem = function(measureIntervalInMs) {
+xcalarApiTopWorkItem = runEntity.xcalarApiTopWorkItem = function(measureIntervalInMs, cacheValidityInMs) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.topInput = new XcalarApiTopInputT();
 
     workItem.api = XcalarApisT.XcalarApiTop;
     workItem.input.topInput.measureIntervalInMs = measureIntervalInMs;
+    // any concurent top command in the same second will be served
+    // from the same top result collected from usrnodes in mgmtd
+    workItem.input.topInput.cacheValidityInMs = cacheValidityInMs;
     return (workItem);
 };
 
@@ -36443,7 +36532,7 @@ PromiseHelper = (function(PromiseHelper, $) {
         .then(function(statOutput) {
             printResult(statOutput);
 
-            test.assert(statOutput.numStats == 30, undefined,
+            test.assert(statOutput.numStats == 39, undefined,
                         "Wrong number of stats returned");
             for (var i = 0, stat = null; i < statOutput.numStats; i ++) {
                 stat = statOutput.stats[i];
@@ -38088,7 +38177,8 @@ PromiseHelper = (function(PromiseHelper, $) {
     }
 
     function testTop(test) {
-        xcalarApiTop(thriftHandle, XcalarApisConstantsT.XcalarApiDefaultTopIntervalInMs)
+        xcalarApiTop(thriftHandle, XcalarApisConstantsT.XcalarApiDefaultTopIntervalInMs,
+                        XcalarApisConstantsT.XcalarApiDefaultCacheValidityInMs)
         .done(function(topOutput) {
             var ii;
             printResult(topOutput);
@@ -38102,6 +38192,9 @@ PromiseHelper = (function(PromiseHelper, $) {
                 console.log("\tnetworkSendInBytesPerSec: ", topOutput.topOutputPerNode[ii].networkSendInBytesPerSec);
                 console.log("\txdbUsedBytes: ", topOutput.topOutputPerNode[ii].xdbUsedBytes);
                 console.log("\txdbTotalBytes: ", topOutput.topOutputPerNode[ii].xdbTotalBytes);
+                console.log("\txdbTotalBytes: ", topOutput.topOutputPerNode[ii].parentCpuUsageInPercent);
+                console.log("\txdbTotalBytes: ", topOutput.topOutputPerNode[ii].childrenCpuUsageInPercent);
+                console.log("\txdbTotalBytes: ", topOutput.topOutputPerNode[ii].numCores);
                 console.log("\n\n");
             }
             test.pass();

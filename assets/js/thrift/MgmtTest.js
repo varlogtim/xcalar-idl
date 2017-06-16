@@ -1469,7 +1469,7 @@ PromiseHelper = (function(PromiseHelper, $) {
         .then(function(statOutput) {
             printResult(statOutput);
 
-            test.assert(statOutput.numStats == 30, undefined,
+            test.assert(statOutput.numStats == 39, undefined,
                         "Wrong number of stats returned");
             for (var i = 0, stat = null; i < statOutput.numStats; i ++) {
                 stat = statOutput.stats[i];
@@ -3114,7 +3114,8 @@ PromiseHelper = (function(PromiseHelper, $) {
     }
 
     function testTop(test) {
-        xcalarApiTop(thriftHandle, XcalarApisConstantsT.XcalarApiDefaultTopIntervalInMs)
+        xcalarApiTop(thriftHandle, XcalarApisConstantsT.XcalarApiDefaultTopIntervalInMs,
+                        XcalarApisConstantsT.XcalarApiDefaultCacheValidityInMs)
         .done(function(topOutput) {
             var ii;
             printResult(topOutput);
@@ -3128,6 +3129,9 @@ PromiseHelper = (function(PromiseHelper, $) {
                 console.log("\tnetworkSendInBytesPerSec: ", topOutput.topOutputPerNode[ii].networkSendInBytesPerSec);
                 console.log("\txdbUsedBytes: ", topOutput.topOutputPerNode[ii].xdbUsedBytes);
                 console.log("\txdbTotalBytes: ", topOutput.topOutputPerNode[ii].xdbTotalBytes);
+                console.log("\txdbTotalBytes: ", topOutput.topOutputPerNode[ii].parentCpuUsageInPercent);
+                console.log("\txdbTotalBytes: ", topOutput.topOutputPerNode[ii].childrenCpuUsageInPercent);
+                console.log("\txdbTotalBytes: ", topOutput.topOutputPerNode[ii].numCores);
                 console.log("\n\n");
             }
             test.pass();

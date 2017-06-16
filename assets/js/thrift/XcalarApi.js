@@ -2893,13 +2893,16 @@ xcalarKeyDelete = runEntity.xcalarKeyDelete = function(thriftHandle, scope, key)
     return (deferred.promise());
 };
 
-xcalarApiTopWorkItem = runEntity.xcalarApiTopWorkItem = function(measureIntervalInMs) {
+xcalarApiTopWorkItem = runEntity.xcalarApiTopWorkItem = function(measureIntervalInMs, cacheValidityInMs) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.topInput = new XcalarApiTopInputT();
 
     workItem.api = XcalarApisT.XcalarApiTop;
     workItem.input.topInput.measureIntervalInMs = measureIntervalInMs;
+    // any concurent top command in the same second will be served
+    // from the same top result collected from usrnodes in mgmtd
+    workItem.input.topInput.cacheValidityInMs = cacheValidityInMs;
     return (workItem);
 };
 
