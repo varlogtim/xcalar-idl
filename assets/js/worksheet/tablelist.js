@@ -474,7 +474,7 @@ window.TableList = (function($, TableList) {
         var tables = tablesAndLis.tables;
         var lis = tablesAndLis.lis;
         if (!tables.length) {
-            deferred.reject("Error: table not found");
+            deferred.resolve();
             return deferred.promise();
         }
 
