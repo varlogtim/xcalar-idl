@@ -652,7 +652,7 @@ window.ColManager = (function($, ColManager) {
             colNames.push(progCol.getFrontColName(true));
             progCol.setDecimal(newDecimal);
 
-            updateFormatAndDecimal(tableId, colNums);
+            updateFormatAndDecimal(tableId, colNum);
         });
 
         SQL.add(SQLTStr.RoundToFixed, {
