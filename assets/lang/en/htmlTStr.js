@@ -281,7 +281,8 @@ module.exports = {
         "NameHint": "Module name (lowercase)",
         "SelectTemplate": "Select Module",
         "Template": "Modify",
-        "Udf": "UDF"
+        "Udf": "UDF",
+        "Udfs": "UDFs"
     },
 
     "bottomMenu": {

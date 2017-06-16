@@ -1104,7 +1104,9 @@ window.DagPanel = (function($, DagPanel) {
             filterString: evalStr,
             complement: true
         };
-        var srcTableId = $tableWrap.prev().find(".dagTable").data("id");
+        // find previous dagTable and get id;
+        var srcTableId = $tableWrap.prevAll(".dagTableWrap:first")
+                                   .find(".dagTable").data("id");
         $tableIcon.addClass("generatingComplement");
 
         xcFunction.filter(1, srcTableId, fltOption)

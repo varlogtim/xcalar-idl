@@ -133,6 +133,11 @@ window.UploadDataflowCard = (function($, UploadDataflowCard) {
             return false;
         });
 
+        $retPath.mousedown(function() {
+            $browserBtn.click();
+            return false;
+        });
+
         // display the chosen file's path
         // NOTE: the .change event fires for chrome for both cancel and select
         // but cancel doesn't necessarily fire the .change event on other

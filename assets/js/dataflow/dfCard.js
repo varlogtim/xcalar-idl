@@ -1347,7 +1347,7 @@ window.DFCard = (function($, DFCard) {
                                     '<div class="rows"><span class="label">' +
                                         CommonTxtTstr.rows +
                                         ':</span><span class="value">' +
-                                        nodes[i].numRowsTotal +
+                                    xcHelper.numToStr(nodes[i].numRowsTotal) +
                                         '</span></div>' +
                                     '<div class="time"><span class="label">' +
                                         CommonTxtTstr.time +

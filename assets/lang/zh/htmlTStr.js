@@ -156,7 +156,8 @@ module.exports = {
         "NameHint": "模块名称（英文小写）",
         "SelectTemplate": "选择模块",
         "Template": "修改",
-        "Udf": "UDF"
+        "Udf": "UDF",
+        "Udfs": "UDFs"
     },
     "about": {
         "BackVersion": "XCE 版本",
