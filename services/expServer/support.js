@@ -483,8 +483,8 @@ function executeCommand(command) {
 
 function isComplete(command, data) {
     if (command === defaultStartCommand) {
-        if ((data.indexOf('xcmonitor started') !== -1) ||
-            (data.indexOf('xcmonitor already running') !== -1)) {
+        if ((data.indexOf('xcmgmtd started') !== -1) ||
+            (data.indexOf('Usrnode already running') !== -1)) {
             return true;
         } else {
             return false;
