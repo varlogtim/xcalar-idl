@@ -1,0 +1,3 @@
+[submodule "assets/js/constructor/xcalar-idl"]
+	path = assets/js/constructor/xcalar-idl
+	url = ssh://gerrit.int.xcalar.com:29418/xcalar/xcalar-idl
