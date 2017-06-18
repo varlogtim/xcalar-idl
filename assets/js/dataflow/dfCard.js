@@ -295,7 +295,7 @@ window.DFCard = (function($, DFCard) {
         // create new parameters to retina
         $retTabSection.on('click', '.addParam', function(event) {
             event.stopPropagation();
-            var $btn = $(this);
+            var $btn = $(this).blur();
             var $input = $btn.prev('.newParam');
             var paramName = $input.val().trim();
 
@@ -496,6 +496,7 @@ window.DFCard = (function($, DFCard) {
         });
 
         $dfCard.on('click', '.addScheduleToDataflow', function() {
+            $(this).blur();
             // doesn't have schedule, show schedule
             var dfName = $listSection.find(".selected .groupName").text();
             var df = DF.getDataflow(dfName);
@@ -522,7 +523,7 @@ window.DFCard = (function($, DFCard) {
             if (xdpMode === XcalarMode.Mod) {
                 return showLicenseTooltip(this);
             }
-            var $btn = $(this);
+            var $btn = $(this).blur();
             var retName = $("#dfMenu .listSection")
                                 .find(".selected .groupName").text();
             var df = DF.getDataflow(retName);

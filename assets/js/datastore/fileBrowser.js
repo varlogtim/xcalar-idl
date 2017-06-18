@@ -179,7 +179,8 @@ window.FileBrowser = (function($, FileBrowser) {
             backToForm();
         });
 
-        $("#fileBrowserRefresh").click(function(event){
+        $("#fileBrowserRefresh").click(function(event) {
+            $(this).blur();
             // the first option in pathLists
             var $curPath = $pathLists.find("li").eq(0);
             xcHelper.showRefreshIcon($fileBrowserMain);
@@ -188,13 +189,14 @@ window.FileBrowser = (function($, FileBrowser) {
         });
 
         // Up to parent folder
-        $("#fileBrowserUp").click(function(event){
+        $("#fileBrowserUp").click(function(event) {
+            $(this).blur();
             event.stopPropagation();
             goUpPath();
         });
 
         // toggle between listview and gridview
-        $("#fileBrowserGridView").click(function(event){
+        $("#fileBrowserGridView").click(function(event) {
             event.stopPropagation();
             toggleView();
         });

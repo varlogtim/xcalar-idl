@@ -111,7 +111,7 @@ window.Scheduler = (function(Scheduler, $) {
         });
 
         $timePicker.on("click", ".btn", function() {
-            var $btn = $(this);
+            var $btn = $(this).blur();
             var isIncrease = $btn.hasClass("increase");
             var type;
             if ($btn.hasClass("hour")) {
@@ -144,6 +144,7 @@ window.Scheduler = (function(Scheduler, $) {
 
         // advanced Mode
         $("#modScheduleForm-simulate").click(function() {
+            $(this).blur();
             validateCron();
         });
 
@@ -193,34 +194,22 @@ window.Scheduler = (function(Scheduler, $) {
         });
 
         $("#modScheduleForm-pause").click(function() {
-            $(this).blur();
-            XcalarPauseSched(currentDataFlowName)
-            .then(function() {
-                return updateSchedule();
-            })
-            .then(function() {
-                xcHelper.showSuccess(SuccessTStr.PauseSched);
-                $scheduleDetail.addClass("pauseState");
-                showScheduleSettings();
-            })
-            .fail(function(error) {
-                console.log("error", error);
+            var $btn = $(this).blur();
+            xcHelper.disableSubmit($btn);
+
+            pauseSchedule(currentDataFlowName)
+            .always(function() {
+                xcHelper.enableSubmit($btn);
             });
         });
 
         $("#modScheduleForm-resume").click(function() {
-            $(this).blur();
-            XcalarResumeSched(currentDataFlowName)
-            .then(function() {
-                return updateSchedule();
-            })
-            .then(function() {
-                xcHelper.showSuccess(SuccessTStr.ResumeSched);
-                $scheduleDetail.removeClass("pauseState");
-                showScheduleSettings();
-            })
-            .fail(function(error) {
-                console.log("error", error);
+            var $btn = $(this).blur();
+            xcHelper.disableSubmit($btn);
+
+            resumeSchedule(currentDataFlowName)
+            .always(function() {
+                xcHelper.enableSubmit($btn);
             });
         });
 
@@ -352,6 +341,48 @@ window.Scheduler = (function(Scheduler, $) {
             }
         })
         .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    function pauseSchedule(dataflowName) {
+        var deferred = jQuery.Deferred();
+
+        XcalarPauseSched(dataflowName)
+        .then(function() {
+            return updateSchedule();
+        })
+        .then(function() {
+            xcHelper.showSuccess(SuccessTStr.PauseSched);
+            $scheduleDetail.addClass("pauseState");
+            showScheduleSettings();
+            deferred.resolve();
+        })
+        .fail(function(error) {
+            console.log("pause schedule failed", error);
+            deferred.reject(error);
+        });
+
+        return deferred.promise();
+    }
+
+    function resumeSchedule(dataflowName) {
+        var deferred = jQuery.Deferred();
+
+        XcalarResumeSched(dataflowName)
+        .then(function() {
+            return updateSchedule();
+        })
+        .then(function() {
+            xcHelper.showSuccess(SuccessTStr.ResumeSched);
+            $scheduleDetail.removeClass("pauseState");
+            showScheduleSettings();
+            deferred.resolve();
+        })
+        .fail(function(error) {
+            console.log("resume schedule failed", error);
+            deferred.reject(error);
+        });
 
         return deferred.promise();
     }
