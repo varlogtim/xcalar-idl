@@ -152,7 +152,6 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
 
     function installExtension(ext, $submitBtn) {
         var url = xcHelper.getAppUrl();
-        xcHelper.disableSubmit($submitBtn);
         xcHelper.toggleBtnInProgress($submitBtn);
 
         extInInstall = ext.getName();
@@ -180,9 +179,6 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
         .fail(function(error) {
             xcHelper.toggleBtnInProgress($submitBtn);
             Alert.error(ErrTStr.ExtDownloadFailure, JSON.stringify(error));
-        })
-        .always(function() {
-            xcHelper.enableSubmit($submitBtn);
         });
     }
 

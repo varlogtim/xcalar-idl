@@ -195,21 +195,21 @@ window.Scheduler = (function(Scheduler, $) {
 
         $("#modScheduleForm-pause").click(function() {
             var $btn = $(this).blur();
-            xcHelper.disableSubmit($btn);
+            xcHelper.toggleBtnInProgress($btn);
 
             pauseSchedule(currentDataFlowName)
             .always(function() {
-                xcHelper.enableSubmit($btn);
+                xcHelper.toggleBtnInProgress($btn);
             });
         });
 
         $("#modScheduleForm-resume").click(function() {
             var $btn = $(this).blur();
-            xcHelper.disableSubmit($btn);
+            xcHelper.toggleBtnInProgress($btn);
 
             resumeSchedule(currentDataFlowName)
             .always(function() {
-                xcHelper.enableSubmit($btn);
+                xcHelper.toggleBtnInProgress($btn);
             });
         });
 
@@ -359,7 +359,7 @@ window.Scheduler = (function(Scheduler, $) {
             deferred.resolve();
         })
         .fail(function(error) {
-            console.log("pause schedule failed", error);
+            console.error("pause schedule failed", error);
             deferred.reject(error);
         });
 
@@ -380,7 +380,7 @@ window.Scheduler = (function(Scheduler, $) {
             deferred.resolve();
         })
         .fail(function(error) {
-            console.log("resume schedule failed", error);
+            console.error("resume schedule failed", error);
             deferred.reject(error);
         });
 

@@ -1125,28 +1125,17 @@ window.xcHelper = (function($, xcHelper) {
         return ($waitingIcon);
     };
 
-    xcHelper.toggleBtnInProgress = function($btn, isIconBtn) {
-        var text;
+    xcHelper.toggleBtnInProgress = function($btn) {
         var html;
 
         if ($btn.hasClass("btnInProgress")) {
-            text = $btn.find(".text").text().trim();
-
-            if (isIconBtn) {
-                // when it's icon button
-                html = '<span class="icon"></span>' +
-                        '<span class="text">' +
-                            text +
-                        '</span>';
-            } else {
-                // when it's normal button
-                html = text;
-            }
-
-            $btn.html(html).removeClass("btnInProgress");
-
+            html = $btn.data("oldhtml");
+            $btn.html(html)
+                .removeClass("btnInProgress")
+                .removeData("oldhtml");
         } else {
-            text = $btn.text().trim();
+            var text = $btn.text();
+            var oldhtml = $btn.html();
             html = '<div class="animatedEllipsisWrapper">' +
                         '<div class="text">' +
                             text +
@@ -1157,7 +1146,9 @@ window.xcHelper = (function($, xcHelper) {
                           '<div>.</div>' +
                         '</div>' +
                     '</div>';
-            $btn.html(html).addClass("btnInProgress");
+            $btn.html(html)
+                .addClass("btnInProgress")
+                .data("oldhtml", oldhtml);
         }
     };
 

@@ -677,15 +677,16 @@ window.UDF = (function($, UDF) {
         }
 
         function uploadHelper(type) {
-            var isIconBtn = true;
             var $fnUpload = $("#udf-fnUpload");
             var hasToggleBtn = false;
 
             // if upload finish with in 1 second, do not toggle
             var timer = setTimeout(function() {
                 hasToggleBtn = true;
-                xcHelper.toggleBtnInProgress($fnUpload, isIconBtn);
+                xcHelper.toggleBtnInProgress($fnUpload);
             }, 1000);
+
+            xcHelper.disableSubmit($fnUpload);
 
             if (type === "UDF") {
                 XcalarUploadPython(moduleName, entireString)
@@ -722,6 +723,7 @@ window.UDF = (function($, UDF) {
                     } else {
                         clearTimeout(timer);
                     }
+                    xcHelper.enableSubmit($fnUpload);
                 });
             } else {
                 XcalarAppSet(moduleName, "Python", "Import", entireString)
@@ -740,6 +742,7 @@ window.UDF = (function($, UDF) {
                     } else {
                         clearTimeout(timer);
                     }
+                    xcHelper.enableSubmit($fnUpload);
                 });
             }
         }

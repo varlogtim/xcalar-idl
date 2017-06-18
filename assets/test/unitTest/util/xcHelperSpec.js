@@ -864,8 +864,8 @@ describe("xcHelper Test", function() {
         expect($btn.text()).to.equal("test");
         // true
         $btn = $('<button>' +
+                    '<i class="icon"></i>' +
                     '<span class="text">test</span>' +
-                    '<span class="icon"></span>' +
                 '</button>');
         xcHelper.toggleBtnInProgress($btn, true);
         expect($btn.hasClass("btnInProgress")).to.be.true;
