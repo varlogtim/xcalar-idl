@@ -256,10 +256,10 @@ module.exports = {
         "OnlyInOpMode": "Feature only available in Operational mode",
         "SystemGood": "All Systems Good",
         "CSHelp": "Click to open up Xcalar Help for more information",
-        "ProfileSortInc": "Ascending by occurrence",
-        "ProfileSortDec": "Descending by occurrence",
-        "ProfileSortAsc": "Ascending alphabetically by label",
-        "ProfileSortDesc": "Descending alphabetically by label",
+        "ProfileSortInc": "Ascending by frequency",
+        "ProfileSortDec": "Descending by frequency",
+        "ProfileSortAsc": "Ascending alphabetically by value",
+        "ProfileSortDesc": "Descending alphabetically by value",
         "ChooseUdfModule": "Please choose a module first" // used in jststr
     },
 

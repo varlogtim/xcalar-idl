@@ -570,8 +570,8 @@ ExportTStr = {
 ProfileTStr = {
     'Instr': 'Hover over the bars to see details. Use the scroll bar and ' +
             'input box to view more data.',
-    'LoadInstr': 'Please wait for the data preparation, you can close the ' +
-                 'modal and view it later.',
+    'LoadInstr': 'Profile will run in the background even if the window ' +
+                 'is closed.',
     'InvalidBucket': 'Invalid Bucket Size',
     // With replace
     'Info': "Profile of column: <b><col></b>, type: <b><type></b>."
