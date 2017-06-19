@@ -448,9 +448,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                     "sql": sql
                 });
 
-                ids.forEach(function(tableId) {
-                    xcHelper.lockTable(tableId, txId);
-                });
+                lockTables(ids, txId);
 
                 hasStart = true;
                 return ext.run(txId);
@@ -460,9 +458,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                 return ext.runAfterFinish();
             })
             .then(function(finalTables, finalReplaces) {
-                ids.forEach(function(tableId) {
-                    xcHelper.unlockTable(tableId);
-                });
+                unlockTables(ids);
 
                 sql.newTables = finalTables;
                 sql.replace = finalReplaces;
@@ -493,7 +489,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                 }
 
                 if (hasStart) {
-                    xcHelper.unlockTable(tableId);
+                    unlockTables(ids);
 
                     Transaction.fail(txId, {
                         "failMsg": StatusMessageTStr.ExtFailed,
@@ -508,7 +504,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         } catch (error) {
             console.error(error.stack);
             if (hasStart) {
-                xcHelper.unlockTable(tableId);
+                unlockTables(ids);
 
                 Transaction.fail(txId, {
                     "failMsg": StatusMessageTStr.ExtFailed,
@@ -539,6 +535,18 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         }
 
         return ids;
+    }
+
+    function lockTables(ids, txId) {
+        ids.forEach(function(tableId) {
+            xcHelper.lockTable(tableId, txId);
+        });
+    }
+
+    function unlockTables(ids) {
+        ids.forEach(function(tableId) {
+            xcHelper.unlockTable(tableId);
+        });
     }
 
     function addEventListeners() {

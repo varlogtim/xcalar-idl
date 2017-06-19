@@ -241,6 +241,8 @@ window.DFCard = (function($, DFCard) {
             }
             DFCard.updateRetinaTab(DFCard.getCurrentDF());
             $('.menu').hide();
+            StatusBox.forceHide();
+
             event.stopPropagation();
             var $dagWrap = $dfCard.find('.cardMain').find(".dagWrap:visible");
             if (!$dagWrap.length) {

@@ -744,7 +744,8 @@ window.Admin = (function($, Admin) {
             Alert.show({
                 "title": MonitorTStr.ClusterStatus,
                 "msg": logs,
-                "isAlert": true
+                "isAlert": true,
+                "sizeToText": true
             });
         })
         .fail(function(err) {
