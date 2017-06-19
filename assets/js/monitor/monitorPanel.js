@@ -6,6 +6,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
     var defDurationForD3Anim = 800;
     var graphIsActive = false;
     var $monitorPanel;
+    var ramIndex = 2; // the index of the ram or memUsed donut
 
     MonitorPanel.setup = function() {
         $monitorPanel = $("#monitor-system");
@@ -97,7 +98,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
             var used;
             var total;
 
-            if (index < 2) {
+            if (index < ramIndex) {
                 used = allStats[index].sumUsed / numNodes;
                 total = allStats[index].sumTot / numNodes;
             } else {
@@ -249,7 +250,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
         var duration = defDurationForD3Anim;
         var pie = d3.layout.pie().sort(null);
         var userSize = val;
-        if (index < 2) { // cpu
+        if (index < ramIndex) { // cpu
             val = Math.min(100, val); // cpu percentage may be over 100%
         } else {
             val = Math.min(val, total);
@@ -312,7 +313,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
                 return (function(t) {
                     var size = xcHelper.sizeTranslator(i(t), true);
                     num = parseFloat(size[0]).toFixed(1);
-                    if (num >= 10 || index < 2) {
+                    if (num >= 10 || index < ramIndex) {
                         num = Math.round(num);
                     }
                     if (index > 1) {
@@ -329,7 +330,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
         var $statsSection = $(el).next();
         var listHTML = "";
 
-        if (index < 2) {
+        if (index < ramIndex) {
             var avgUsed = Math.round((stats.sumUsed / numNodes) * 100) / 100;
             $statsSection.find('.statsHeadingBar .avgNum').text(avgUsed);
 

@@ -8,6 +8,8 @@ window.MonitorGraph = (function($, MonitorGraph) {
     var xGridVals;
     var svg;
     var graphCycle;
+    var numGraphs = 4;
+    var ramIndex = 2; // the index of the ram or memUsed donut
 
     var pointsPerGrid = 10;
     var shiftWidth = xGridWidth / pointsPerGrid;
@@ -27,36 +29,24 @@ window.MonitorGraph = (function($, MonitorGraph) {
         $monitorPanel.find('.graphSwitch').click(function() {
             var $switch = $(this);
             var index = $(this).parent().index();
-
-            if (index > 1) {
-                return;
+            $switch.toggleClass("on");
+            if (index === 0) {
+                $monitorPanel.find(".graphSection").toggleClass("hideCPU");
+            } else {
+                $monitorPanel.find(".graphSection").toggleClass("hideRam");
             }
 
-            if ($switch.hasClass('on')) {
-                $switch.removeClass('on');
-                if (index === 0) {
-                    $monitorPanel.find(".graphSection").addClass("hideCPU");
-                } else {
-                    $monitorPanel.find(".graphSection").addClass("hideRam");
-                }
-            } else {
-                $switch.addClass('on');
-                if (index === 0) {
-                    $monitorPanel.find(".graphSection").removeClass("hideCPU");
-                } else {
-                    $monitorPanel.find(".graphSection").removeClass("hideRam");
-                }
-                var $area = $monitorPanel.find('.area' + index);
-                var $line = $monitorPanel.find('.line' + index);
+            // move graphs in front of others
+            if ($switch.hasClass("on")) {
+                var graphIndex1 = index * 2;
+                var graphIndex2 = graphIndex1 + 1;
 
-                // bring this line and area in front of the others
-                $monitorPanel.find('.mainSvg').children().append($line, $area);
-                if (index === 1) {
-                    $area = $monitorPanel.find('.area2');
-                    $line = $monitorPanel.find('.line2');
-                    $monitorPanel.find('.mainSvg').children()
-                                                  .append($line, $area);
-                }
+                var $graph1 = $monitorPanel.find('.line' + graphIndex1 +
+                                                 ', .area' + graphIndex1);
+                var $graph2 = $monitorPanel.find('.line' + graphIndex2 +
+                                                 ', .area' + graphIndex2);
+                $monitorPanel.find('.mainSvg').children()
+                                              .append($graph1, $graph2);
             }
         });
 
@@ -70,12 +60,16 @@ window.MonitorGraph = (function($, MonitorGraph) {
                 $area.css('opacity', 0.8);
             }
 
+            // move graphs in front of others
             $('.mainSvg').children().append($line, $area);
         });
     };
 
     MonitorGraph.start = function() {
-        datasets = [[0], [0], [0], [0]];
+        datasets = [];
+        for (var i = 0; i < numGraphs; i++) {
+            datasets.push([0]);
+        }
 
         $('#ramTab, #cpuTab').addClass('on');
 
@@ -253,6 +247,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
             usrCpu.sumTot += 100;
 
             // 2 memory graphs
+            // memUsed - inner donut
             var ramUsed = node.memUsedInBytes; // inner donut
             var ramTot = Math.ceil(node.memUsedInBytes * 100 /
                                    node.memUsageInPercent);
@@ -260,6 +255,8 @@ window.MonitorGraph = (function($, MonitorGraph) {
             ram.tot.push(ramTot);
             ram.sumUsed += ramUsed;
             ram.sumTot += ramTot;
+
+            // xdb memory - outer, primary donut
             var xdbUsed = node.xdbUsedBytes; // outer primary donut
             var xdbTot = node.xdbTotalBytes;
             xdb.used.push(xdbUsed);
@@ -281,30 +278,29 @@ window.MonitorGraph = (function($, MonitorGraph) {
     }
 
     function updateGraph(allStats, numNodes) {
-        var numGraphs = 4;
-        var rightYMaxUnit;
+        var unit;
+        var largestMem = 0;
+        var yMaxes = [];
+        var yMax;
+        var units = [];
         for (var i = 0; i < numGraphs; i++) {
             var xVal = allStats[i].sumUsed;
 
-            if (i < 2) { // cpu %
+            if (i < ramIndex) { // cpu %
                 xVal /= numNodes;
                 xVal = Math.min(100, xVal);
-            }
-
-            if (i > 1) { // memory
-                if (i === 2) {
-                    rightYMaxUnit = xcHelper.sizeTranslator(allStats[i].sumTot,
-                                                        true)[1];
-                }
-
-                xVal = xcHelper.sizeTranslator(xVal, true, rightYMaxUnit)[0];
+                yMax = 100;
+            } else { // memory
+                unit = xcHelper.sizeTranslator(allStats[i].sumTot, true)[1];
+                xVal = xcHelper.sizeTranslator(xVal, true, unit)[0];
+                yMax = xcHelper.sizeTranslator(allStats[i].sumTot, true)[0];
+                units.push(unit);
             }
             datasets[i].push(xVal);
+            yMaxes.push(yMax);
         }
-        var yMax = xcHelper.sizeTranslator(allStats[2].sumTot, true)[0];
-        yMax = [100, 100, yMax, yMax];
 
-        redraw(newWidth, gridRight, numGraphs, yMax, rightYMaxUnit);
+        redraw(newWidth, gridRight, yMaxes, units);
 
         $('.xLabelsWrap').width(newWidth);
         svgWrap.attr("width", newWidth);
@@ -362,7 +358,6 @@ window.MonitorGraph = (function($, MonitorGraph) {
     }
 
     function setupLabelsPathsAndScales() {
-        var numGraphs = datasets.length;
         var xAxis;
 
         xGridVals = [];
@@ -435,36 +430,44 @@ window.MonitorGraph = (function($, MonitorGraph) {
         }
     }
 
-    function drawRightYAxis(yMax, unit) {
-        var yScale = d3.scale.linear()
-                            .domain([0, yMax[1]])
+    function drawRightYAxes(yMaxes, units) {
+        $("#rightYAxis").empty();
+        for (var i = 0; i < yMaxes.length; i++) {
+            var yMax = yMaxes[i];
+            var yScale = d3.scale.linear()
+                            .domain([0, yMax])
                             .range([height, 0]);
 
-        var yAxisStart = yMax[1] / 5;
-        var yAxisMax = yMax[1] + 1;
-        var yAxisSteps = yMax[1] / 5;
+            var yAxisStart = yMax / 5;
+            var yAxisMax = yMax + 1;
+            var yAxisSteps = yMax / 5;
 
-        var yAxis = d3.svg.axis()
-                        .scale(yScale)
-                        .orient("right")
-                        .innerTickSize(0)
-                        .tickValues(d3.range(yAxisStart,
-                                             yAxisMax, yAxisSteps));
-
-        d3.select("#rightYAxis").append("svg")
-                                .attr("width", 40)
-                                .attr("height", height + 30)
-                                .attr("class", "rightYAxisWrap")
-                                .append("g")
-                                .attr("transform",
-                                      "translate(-2,8)")
-                                .call(yAxis);
-        $('#rightYAxis').append("<span>0 (" + unit + ")</span>");
+            var yAxis = d3.svg.axis()
+                            .scale(yScale)
+                            .orient("right")
+                            .innerTickSize(0)
+                            .tickValues(d3.range(yAxisStart, yAxisMax,
+                                                 yAxisSteps));
+            d3.select("#rightYAxis").append("div")
+                                    .attr("class", "rightYAxisWrap")
+                                    .append("svg")
+                                    .attr("width", 40)
+                                    .attr("height", height + 30)
+                                    .attr("class", "")
+                                    .append("g")
+                                    .attr("transform", "translate(-2,8)")
+                                    .call(yAxis);
+            $('#rightYAxis').find(".rightYAxisWrap").eq(i)
+                            .append('<span class="unit">0 (' + units[i] +
+                                    ')</span>')
+                            .append('<span class="type">XDB</span>');
+        }
     }
 
-    function redraw(newWidth, gridRight, numGraphs, yMax, unit) {
+    function redraw(newWidth, gridRight, yMaxes, units) {
         if (firstTime) {
-            drawRightYAxis(yMax, unit);
+            var rightYMaxes = [yMaxes[ramIndex], yMaxes[ramIndex + 1]];
+            drawRightYAxes(rightYMaxes, units);
             firstTime = false;
         }
 
@@ -472,7 +475,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
 
             var tempYScale = d3.scale
                             .linear()
-                            .domain([0, yMax[i]])
+                            .domain([0, yMaxes[i]])
                             .range([height, 0]);
 
             var line = d3.svg.line()
@@ -543,6 +546,17 @@ window.MonitorGraph = (function($, MonitorGraph) {
             $errorScreen.empty().addClass("xc-hidden");
         }
     }
+
+    /* Unit Test Only */
+    if (window.unitTestMode) {
+        MonitorGraph.__testOnly__ = {};
+        MonitorGraph.__testOnly__.updateGraph = getStatsAndUpdateGraph;
+        MonitorGraph.__testOnly__.reset = function(dSets) {
+            firstTime = true;
+            datasets = dSets;
+        };
+    }
+    /* End Of Unit Test Only */
 
     return (MonitorGraph);
 

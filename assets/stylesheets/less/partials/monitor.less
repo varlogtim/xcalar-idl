@@ -403,6 +403,12 @@
                     .area.area3 {
                         display: block;
                     }
+                    .rightYAxisWrap:first-child {
+                        display: none;
+                    }
+                    .rightYAxisWrap:last-child {
+                        display: block;
+                    }
                 }
                 &.hideCPU {
                     .line0, .area0, .line1, .area1, .yAxis.left  {
@@ -449,9 +455,12 @@
                             text-align: left;
                             height: 210px;
 
-                            span {
-                                position: absolute;
-                                bottom: -42px;
+                            .unit {
+                                .position(absolute, @bottom: -42px);
+                            }
+                            .type {
+                                .position(absolute, @bottom: -62px);
+                                display: none; // XXX temporarily hide
                             }
 
                             svg {
@@ -468,6 +477,10 @@
                             }
                         }
                     }
+                }
+
+                .rightYAxisWrap:last-child {
+                    display: none;
                 }
 
                 #graph {
@@ -579,7 +592,6 @@
                         opacity: 0.6;
                     }
                 }
-
 
                 .graphText {
                     .size(@width: 100%, @height: 80%);
