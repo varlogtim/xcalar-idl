@@ -432,8 +432,8 @@ xcalarLoad = runEntity.xcalarLoad = function(thriftHandle, url, name, format, ma
                     ", format = " +
                     DfFormatTypeTStr[format] + ", maxSampleSize = " +
                     maxSampleSize.toString() + ", recursive = " +
-		    loadArgs.recursive + ", fileNamePattern = " +
-		    loadArgs.fileNamePattern + ")");
+            loadArgs.recursive + ", fileNamePattern = " +
+            loadArgs.fileNamePattern + ")");
         if (format === DfFormatTypeT.DfFormatCsv) {
             console.log("loadArgs.csv.recordDelim = " + loadArgs.csv.recordDelim + ", " +
                         "loadArgs.csv.fieldDelim = " + loadArgs.csv.fieldDelim + ", " +
@@ -2027,7 +2027,7 @@ xcalarAggregate = runEntity.xcalarAggregate = function(thriftHandle, srcTableNam
             status = result.jobStatus;
         }
         if (status != StatusT.StatusOk) {
-            deferred.reject(status);
+            return deferred.reject(status);
         }
         aggregateOutput = JSON.parse(aggregateOutput.jsonAnswer);
         aggregateOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
@@ -2893,16 +2893,13 @@ xcalarKeyDelete = runEntity.xcalarKeyDelete = function(thriftHandle, scope, key)
     return (deferred.promise());
 };
 
-xcalarApiTopWorkItem = runEntity.xcalarApiTopWorkItem = function(measureIntervalInMs, cacheValidityInMs) {
+xcalarApiTopWorkItem = runEntity.xcalarApiTopWorkItem = function(measureIntervalInMs) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.topInput = new XcalarApiTopInputT();
 
     workItem.api = XcalarApisT.XcalarApiTop;
     workItem.input.topInput.measureIntervalInMs = measureIntervalInMs;
-    // any concurent top command in the same second will be served
-    // from the same top result collected from usrnodes in mgmtd
-    workItem.input.topInput.cacheValidityInMs = cacheValidityInMs;
     return (workItem);
 };
 
@@ -3972,7 +3969,7 @@ xcalarDemoFileCreate = runEntity.xcalarDemoFileCreate = function(thriftHandle, f
             status = result.jobStatus;
         }
         if (status != StatusT.StatusOk) {
-            deferred.reject(status);
+            return deferred.reject(status);
         }
 
         // demoFileOutput has a outputJson field which is a json formatted string
@@ -4011,7 +4008,7 @@ xcalarDemoFileAppend = runEntity.xcalarDemoFileAppend = function(thriftHandle, f
             status = result.jobStatus;
         }
         if (status != StatusT.StatusOk) {
-            deferred.reject(status);
+            return deferred.reject(status);
         }
 
         // demoFileOutput has a outputJson field which is a json formatted string
@@ -4048,7 +4045,7 @@ xcalarDemoFileDelete = runEntity.xcalarDemoFileDelete = function(thriftHandle, f
             status = result.jobStatus;
         }
         if (status != StatusT.StatusOk) {
-            deferred.reject(status);
+            return deferred.reject(status);
         }
 
         // demoFileOutput has a outputJson field which is a json formatted string
@@ -4098,45 +4095,6 @@ xcalarLogLevelSet = runEntity.xcalarLogLevelSet = function(thriftHandle, logLeve
     })
     .fail(function(error) {
         console.log("xcalarLogLevelSet() caught exception:", error);
-        deferred.reject(error);
-    });
-
-    return (deferred.promise());
-};
-
-xcalarGetIpAddrWorkItem = runEntity.xcalarGetIpAddrWorkItem = function(nodeId) {
-    var workItem = new WorkItem();
-    workItem.input = new XcalarApiInputT();
-    workItem.input.getIpAddrInput = new XcalarApiGetIpAddrInputT();
-
-    workItem.api = XcalarApisT.XcalarApiGetIpAddr;
-    workItem.input.getIpAddrInput.nodeId = nodeId;
-    return (workItem);
-};
-
-xcalarGetIpAddr = runEntity.xcalarGetIpAddr = function(thriftHandle, nodeId) {
-    var deferred = jQuery.Deferred();
-    if (verbose) {
-        console.log("xcalarGetIpAddr(nodeId = " + nodeId.toString() + ")");
-    }
-
-    var workItem = xcalarGetIpAddrWorkItem(nodeId);
-
-    thriftHandle.client.queueWorkAsync(workItem)
-    .then(function(result) {
-        var getIpAddrOutput = result.output.outputResult.getIpAddrOutput;
-
-        var status = result.output.hdr.status;
-        if (result.jobStatus != StatusT.StatusOk) {
-            status = result.jobStatus;
-        }
-        if (status != StatusT.StatusOk) {
-            deferred.reject(status);
-        }
-        deferred.resolve(getIpAddrOutput);
-    })
-    .fail(function(error) {
-        console.log("xcalarGetIpAddr() caught exception:", error);
         deferred.reject(error);
     });
 
