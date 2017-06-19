@@ -284,6 +284,7 @@ window.Admin = (function($, Admin) {
         function() {
             $(this).closest(".breakdown").toggleClass("active");
             xcTooltip.hideAll();
+            xcHelper.removeSelectionRange();
         });
 
         $userList.on("click", ".sortOption", function() {

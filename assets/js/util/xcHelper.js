@@ -1659,6 +1659,7 @@ window.xcHelper = (function($, xcHelper) {
     // options:
     //      onlyIfOffScreen: boolean, if true, will only animate table if visible
     //      alignLeft: boolean, if true, will align table to left of screen
+    //      noClear: boolean, if true, will not deselect text
     xcHelper.centerFocusedTable = function(tableWrapOrId, animate, options) {
         var deferred = jQuery.Deferred();
         var $tableWrap;
@@ -1745,7 +1746,9 @@ window.xcHelper = (function($, xcHelper) {
             $('#mainFrame').animate({scrollLeft: scrollPosition}, 500,
                                 function() {
                                     TblManager.alignTableEls();
-                                    xcHelper.removeSelectionRange();
+                                    if (!options.noClear) {
+                                        xcHelper.removeSelectionRange();
+                                    }
                                     deferred.resolve();
                                 });
         } else {
@@ -3547,8 +3550,9 @@ window.xcHelper = (function($, xcHelper) {
 
         // adjust menu height and position it properly
         positionAndShowMenu(menuId, $menu, $dropdownIcon, options);
-        var navOptions = {};
-        navOptions.allowSelection = options.allowSelection;
+        var navOptions = {
+            allowSelection: options.allowSelection
+        };
         xcMenu.addKeyboardNavigation($menu, $subMenu, navOptions);
     };
 
