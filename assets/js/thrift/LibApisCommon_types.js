@@ -16317,12 +16317,16 @@ XcalarApiOutputResultT.prototype.write = function(output) {
 XcalarApiOutputHeaderT = function(args) {
   this.status = null;
   this.elapsed = null;
+  this.log = null;
   if (args) {
     if (args.status !== undefined) {
       this.status = args.status;
     }
     if (args.elapsed !== undefined) {
       this.elapsed = args.elapsed;
+    }
+    if (args.log !== undefined) {
+      this.log = args.log;
     }
   }
 };
@@ -16355,6 +16359,13 @@ XcalarApiOutputHeaderT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 3:
+      if (ftype == Thrift.Type.STRING) {
+        this.log = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -16374,6 +16385,11 @@ XcalarApiOutputHeaderT.prototype.write = function(output) {
   if (this.elapsed !== null && this.elapsed !== undefined) {
     output.writeFieldBegin('elapsed', Thrift.Type.STRUCT, 2);
     this.elapsed.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.log !== null && this.log !== undefined) {
+    output.writeFieldBegin('log', Thrift.Type.STRING, 3);
+    output.writeString(this.log);
     output.writeFieldEnd();
   }
   output.writeFieldStop();

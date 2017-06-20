@@ -2921,7 +2921,6 @@ xcalarApiTop = runEntity.xcalarApiTop = function(thriftHandle, measureIntervalIn
         var status = result.output.hdr.status;
 
         if (result.jobStatus != StatusT.StatusOk) {
-            topOutput = new XcalarApiTopOutputT();
             status = result.jobStatus;
         }
         if (status != StatusT.StatusOk) {
