@@ -200,21 +200,21 @@ window.Support = (function(Support, $) {
                 $memoryAlert.removeClass("red").removeClass("yellow");
             }
 
-            if (shouldAlert) {
+            var percent = Math.round(avgMemUsage * 100) + "%";
+            var usageText = "<br>" + CommonTxtTstr.XDBUsage + ": " + percent;
+            if (true) {
                 // we want user to drop table first and only when no tables
                 // let them drop ds
                 if (jQuery.isEmptyObject(gTables) && gOrphanTables.length === 0)
                 {
-                    text = TooltipTStr.LowMemInDS;
+                    text = TooltipTStr.LowMemInDS + usageText;
                     $memoryAlert.removeClass("tableAlert");
                 } else {
-                    text = TooltipTStr.LowMemInTable;
+                    text = TooltipTStr.LowMemInTable + usageText;
                     $memoryAlert.addClass("tableAlert");
                 }
             } else {
-                var percent = Math.round(avgMemUsage * 100);
-                text = TooltipTStr.SystemGood + "<br>" +
-                        CommonTxtTstr.XDBUsage + ": " + percent + "%";
+                text = TooltipTStr.SystemGood + usageText;
             }
 
             xcTooltip.changeText($memoryAlert, text);
