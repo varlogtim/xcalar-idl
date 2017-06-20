@@ -707,6 +707,8 @@ window.Installer = (function(Installer, $) {
         // Send to backend for checking. clear up screen until we get ack / deny
         $(".credentialSection").hide();
         $(".credentialSection").prev().hide();
+        $(".installationDirectorySection").hide();
+        $(".installationDirectorySection").prev().hide();
         $("#numServers").prop("disabled", "true");
         // Remove all empty hostnames from screen. This happens when they don't
         // use all the licenses they bought
@@ -738,6 +740,8 @@ window.Installer = (function(Installer, $) {
         .fail(function() {
             $(".credentialSection").show();
             $(".credentialSection").prev().show();
+            $(".installationDirectorySection").show();
+            $(".installationDirectorySection").prev().show();
             $(".row:not(.header)").show();
             $(".row:not(.header) .hostname input").prop("disabled", false);
             $("#numServers").prop("disabled", false);
