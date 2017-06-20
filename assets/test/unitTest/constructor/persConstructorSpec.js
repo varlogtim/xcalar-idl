@@ -1506,7 +1506,7 @@ describe("Persistent Constructor Test", function() {
                     "keyAttr": {
                         "name": "xcalarRecordNum",
                         "type": 5,
-                        "valueArrayIndex": -1
+                        "valueArrayIndex": 2
                     },
                     "ordering": 1,
                     "valueAttrs": [{
@@ -1517,6 +1517,10 @@ describe("Persistent Constructor Test", function() {
                         "name": "prefix::backTestCol",
                         "type": DfFieldTypeT.DfBoolean,
                         "valueArrayIndex": 1
+                    }, {
+                        "name": "xcalarRecordNum",
+                        "type": DfFieldTypeT.DfUInt64,
+                        "valueArrayIndex": 2
                     }]
                 });
             };

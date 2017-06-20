@@ -483,6 +483,21 @@ describe("xcHelper Test", function() {
 
         res = xcHelper.getTableKeyFromMeta(tableMeta);
         expect(res).to.equal("test");
+
+        // case 3
+        tableMeta = {
+            "keyAttr": {
+                "name": "test",
+                "valueArrayIndex": -1
+            },
+            "valueAttrs": [{
+                "name": "user",
+                "type": DfFieldTypeT.DfString
+            }]
+        };
+
+        res = xcHelper.getTableKeyFromMeta(tableMeta);
+        expect(res).to.be.null;
     });
 
     it("xcHelper.deepCopy should work", function() {

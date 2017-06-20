@@ -608,8 +608,9 @@ window.xcHelper = (function($, xcHelper) {
             valueAttrs[valueArrayIndex].type === DfFieldTypeT.DfFatptr)
         {
             prefixOfKey = valueAttrs[valueArrayIndex].name;
+        } else if (valueArrayIndex < 0) {
+            return null;
         }
-
         keyName = xcHelper.getPrefixColName(prefixOfKey, keyName);
         return keyName;
     };
