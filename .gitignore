@@ -18,6 +18,7 @@ install-tarball.html
 testSuite.html
 undoredoTest.html
 dashboard.html
+install-tarball.html
 /assets/htmlFiles/*
 *~
 /js/

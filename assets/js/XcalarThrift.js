@@ -3955,6 +3955,7 @@ function XcalarSupportGenerate() {
     var deferred = jQuery.Deferred();
     xcalarApiSupportGenerate(tHandle)
     .then(function(ret) {
+        // deferred.resolve(ret.bundlePath, ret.supportBundleSent, ret.supportId);
         deferred.resolve(ret.bundlePath, ret.supportId);
     })
     .fail(function(error) {
