@@ -346,6 +346,7 @@ Thrift.TXHRTransport.prototype = {
         }
 
         xreq.open('POST', this.url, !!async);
+        xreq.setRequestHeader('Connection', 'keep-alive');
         xreq.send(this.send_buf);
         if (async && callback) {
             return;
