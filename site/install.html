@@ -121,13 +121,17 @@
                 <span>STEP 2</span>
                 <span>SET UP XDP ROOT DIRECTORY</span>
               </div>
-              <div class="hint">
-                <span></span>
-                <span>Choose the option that best describes your situation. If this is a brand new install, please select "Xcalar Deployed Shared Storage" or "Existing Shared Storage to be Mounted"</span>
-              </div>
+              <% if (dicts.isTarballInstaller == null) { %>
+                <div class="hint">
+                  <span></span>
+                  <span>Choose the option that best describes your situation. If this is a brand new install, please select "Xcalar Deployed Shared Storage" or "Existing Shared Storage to be Mounted"</span>
+                </div>
+              <% } %>
             </div>
             <div class="section nfsSection">
               <div class="radioButtonGroup" id="nfsOption">
+
+                <% if (dicts.isTarballInstaller == null) { %>
                 <div class="radioButton nfsOption active" data-option="xcalarNfs">
                   <div class="radio">
                     <i class="icon xi-radio-selected"></i>
@@ -135,6 +139,7 @@
                   </div>
                   <div class="label">Xcalar Deployed Shared Storage</div>
                 </div>
+
                 <div class="radioButton nfsOption" data-option="customerNfs">
                   <div class="radio">
                     <i class="icon xi-radio-selected"></i>
@@ -142,6 +147,7 @@
                   </div>
                   <div class="label">Existing Shared Storage to be Mounted</div>
                 </div>
+
                 <div class="customerNfsOptions">
                   <div class="nfsMountPoint nfsSubOption">
                     <input class="input" id="nfsServer" placeholder="[Server]">
@@ -154,25 +160,29 @@
                     <div class="bar">Username</div>
                   </div>
                   <div class="nfsUser nfsSubOption">
-                  <input class="input" id="nfsUserGroup" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" placeholder="[user_group]  (optional)">
-                  <div class="bar">Group</div>
+                    <input class="input" id="nfsUserGroup" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" placeholder="[user_group]  (optional)">
+                    <div class="bar">Group</div>
+                  </div>
                 </div>
-              </div>
-                <div class="radioButton nfsOption" data-option="readyNfs">
+                <% } %>
+
+                <div class="radioButton nfsOption <%=dicts.isTarballInstaller ? 'active':'' %>" data-option="readyNfs">
                   <div class="radio">
                     <i class="icon xi-radio-selected"></i>
                     <i class="icon xi-radio-empty"></i>
                   </div>
                   <div class="label">Existing Shared Storage Already Mounted</div>
                 </div>
-              </div>
-                <div class="readyNfsOptions">
+
+                <div class="readyNfsOptions" <%=dicts.isTarballInstaller ? 'style="display:block"':'' %>>
                   <div class="nfsMountPoint nfsSubOption">
                     <input class="input" id="nfsMountPointReady" type="text" autocorrect="off" autocapitalize="off" placeholder="[Mount Point]">
                     <div class="bar">Path</div>
                   </div>
                 </div>
+              </div>
             </div>
+
             <div class="section error">
               <div class="leftBar">&nbsp;</div>
               <span>Unknown Error<br></span>
@@ -255,6 +265,28 @@
                 <textarea rows="30" cols="68" autocomplete="off" placeholder="[Private SSH Key]"></textarea>
               </div>
             </div>
+
+            <% if (dicts.isTarballInstaller) { %>
+              <div class="title hidden">
+                <div class="step">
+                  <span>STEP 3C</span>
+                  <span>Installation Directory</span>
+                </div>
+                <div class="hint">
+                  <span></span>
+                  <span>Input where Xcalar should be installed on all nodes</span>
+                </div>
+              </div>
+              <div class="section installationDirectorySection hidden">
+                <div class="installationDirectory">
+                  <div class="inputWrap">
+                    <input class="input" name="useless" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" placeholder="[/opt/xcalar/]" value="/opt/xcalar/">
+                    <div class="bar">Installation Directory</div>
+                  </div>
+                </div>
+              </div>
+            <% } %>
+
             <div class="section error">
               <div class="leftBar">&nbsp;</div>
               <span>Unknown Error<br></span>
@@ -284,6 +316,7 @@
             </div>
             <div class="section ldapSection">
               <div class="radioButtonGroup" id="ldapDep">
+                <% if (dicts.isTarballInstaller == null) { %>
                 <div class="radioButton ldapDepOption active" data-option="xcalarLdap">
                   <div class="radio">
                     <i class="icon xi-radio-selected"></i>
@@ -311,14 +344,15 @@
                     </div>
                   </div>
                 </div>
-                <div class="radioButton ldapDepOption" data-option="customerLdap">
+                <% } %>
+                <div class="radioButton ldapDepOption <%=dicts.isTarballInstaller ? 'active':'' %>"data-option="customerLdap">
                   <div class="radio">
                     <i class="icon xi-radio-selected"></i>
                     <i class="icon xi-radio-empty"></i>
                   </div>
                   <div class="label">Existing LDAP</div>
                 </div>
-                <div class="ldapParams customerLdapOptions hidden">
+                <div class="ldapParams customerLdapOptions <%=dicts.isTarballInstaller ? '':'hidden'%>">
                   <div class="radioButtonGroup" id="AD">
                     <div class="radioButton AD active" data-option="true">
                       <div class="radio">

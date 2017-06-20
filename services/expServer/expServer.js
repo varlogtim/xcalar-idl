@@ -117,7 +117,8 @@ require("jsdom").env("", function(err, window) {
 
     function genExecString(hostnameLocation, hasPrivHosts,
                            credentialLocation, isPassword,
-                           username, port, nfsOption) {
+                           username, port, nfsOption,
+                           installationDirectory) {
         var execString = " -h " + hostnameLocation;
         execString += " -l " + username;
         if (hasPrivHosts) {
@@ -149,6 +150,9 @@ require("jsdom").env("", function(err, window) {
                 // Xcalar Root Already mounted
                 execString += " --nfs-reuse " + nfsOption.nfsReuse;
             }
+        }
+        if (installationDirectory) {
+            execString += " --install-dir " + installationDirectory;
         }
         return execString;
     }
@@ -457,8 +461,8 @@ require("jsdom").env("", function(err, window) {
                                          credentialLocation,
                                          isPassword, credArray.username,
                                          credArray.port,
-                                         credArray.nfsOption);
-
+                                         credArray.nfsOption,
+                                         credArray.installationDirectory);
             execString += cliArguments;
             initStepArray();
 

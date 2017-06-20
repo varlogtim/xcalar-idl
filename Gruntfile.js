@@ -19,7 +19,7 @@ destMap = {
     "login.html": "assets/htmlFiles/login.html",
     "dologout.html": "assets/htmlFiles/dologout.html",
     "tableau.html": "assets/htmlFiles/tableau.html",
-    "install.html": "install.html",
+    "install.html": ["install.html", "install-tarball.html"],
     "dashboard.html": "dashboard.html",
     "testSuite.html": "testSuite.html",
     "undoredoTest.html": "undoredoTest.html",
@@ -33,15 +33,20 @@ htmlMinOptions = {};
 count = 0;
 for (var src in destMap) {
   var dest = destMap[src];
-  if (noPrettify.indexOf(src) === -1) {
-    prettifyOptions["html" + count] = {
-      "src": dest,
-      "dest": dest
-    };
-    count++;
+  if (typeof dest === "string") {
+    if (noPrettify.indexOf(src) === -1) {
+      prettifyOptions["html" + count] = {
+        "src": dest,
+        "dest": dest
+      };
+      count++;
+    }
+    htmlMinOptions[dest] = dest;
+  } else {
+    for (var i = 0; i < dest.length; i++) {
+      htmlMinOptions[dest[i]] = dest[i];
+    }
   }
-
-  htmlMinOptions[dest] = dest;
 }
 
 module.exports = function(grunt) {

@@ -6,7 +6,8 @@ window.Installer = (function(Installer, $) {
         "privHostNames": [],
         "username": "",
         "port": 22,
-        "credentials": {} // Either password or sshKey
+        "credentials": {}, // Either password or sshKey
+        "installationDirectory": null
     };
 
     var installStatus = {
@@ -23,7 +24,6 @@ window.Installer = (function(Installer, $) {
     // var installationCancelApi = "/xdp/installation/cancel";
     var ldapInstallApi = "/ldap/installation";
     var ldapConfigApi = "/ldap/config";
-
     // var statusApi;
     var checkInterval = 2000; // How often to check for status
 
@@ -310,6 +310,7 @@ window.Installer = (function(Installer, $) {
 
         $(".hostnameSection").removeClass("hidden");
         $(".credentialSection").removeClass("hidden");
+        $(".installationDirectorySection").removeClass("hidden");
         $(".title").removeClass("hidden");
         $("#installButton").removeClass("hidden");
         $("#serversButton").addClass("hidden");
@@ -553,7 +554,15 @@ window.Installer = (function(Installer, $) {
 
         finalStruct.hostnames = allHosts;
         finalStruct.privHostNames = allPrivHosts;
-
+        if ($(".installationDirectory input").length > 0) {
+            var directory = $(".installationDirectory input").val().trim();
+            if (directory === "") {
+                deferred.reject("Empty Installation Directory",
+                                "Please assign a value to Installation Directory");
+                return deferred.promise();
+            }
+            finalStruct.installationDirectory = directory;
+        }
         // Execute array
         executeFinalArray()
         .then(function() {
