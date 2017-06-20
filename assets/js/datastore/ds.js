@@ -1198,6 +1198,12 @@ window.DS = (function ($, DS) {
             // pre-check if it's the grid that focusing on
             var dsid = $dsListFocusTrakcer.data("dsid");
             var $grid = DS.getGrid(dsid);
+            var $selectedGrids = $gridView.find(".grid-unit.selected");
+            if (event.which === keyCode.Delete && $selectedGrids.length) {
+                DS.remove($selectedGrids);
+                return;
+            }
+
             if ($grid == null || !$grid.hasClass("active")) {
                 return;
             }
@@ -1418,6 +1424,7 @@ window.DS = (function ($, DS) {
                      .addClass("selected");
             });
         }
+        focsueOnTracker();
     }
 
     function setupMenuActions() {
