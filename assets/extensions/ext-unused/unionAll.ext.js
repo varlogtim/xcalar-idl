@@ -7,6 +7,14 @@ window.UExtUnionAll = (function(UExtUnionAll) {
             "type": "table",
             "name": "Bottom Table",
             "fieldClass": "tableTwo",
+        },
+        {
+            "type": "string",
+            "name": "Final Table Name",
+            "fieldClass": "finalTableName",
+            "typeCheck": {
+                "allowEmpty": true
+            }
         }
         ],
     }];
@@ -84,7 +92,7 @@ window.UExtUnionAll = (function(UExtUnionAll) {
         };
 
 
-        function combineColumns(ext, errMapConditionArgs) {
+        function combineColumns(ext, errMapConditionArgs, tableOneName) {
             // this merges a single pair of columns from each table after the
             // join statement.
 
@@ -104,8 +112,12 @@ window.UExtUnionAll = (function(UExtUnionAll) {
             // if prefix field, this converts to a derived field name format
             var newColName = currColName.replace('::', '_');
             if (newColName === currColName) {
-                // is derived field, strip the '_1'
+                // is derived field, strip the '_x'
                 newColName = newColName.slice(0, newColName.length - 2);
+            } else {
+                // is prefix field, make sure our new name is unique
+                newColName = ext.createUniqueCol(tableOneName, newColName,
+                    true);
             }
             var fnToUse;
 
@@ -132,10 +144,8 @@ window.UExtUnionAll = (function(UExtUnionAll) {
                 errMapConditionArgs.tableToUse = tableAfterMap;
                 // the new column will eventually be projected
                 errMapConditionArgs.colsToProject.push(newColName);
-                return tableAfterMap;
-                // return newTable.addToWorksheet();
+                deferred.resolve(tableAfterMap);
             })
-            .then(deferred.resolve)
             .fail(deferred.reject);
 
             errMapConditionArgs.cnt++;
@@ -174,10 +184,10 @@ window.UExtUnionAll = (function(UExtUnionAll) {
 
             //generate Row numbers for table 1
             var tableOnePromise = ext.map('int(1)', tableOneName,
-                rowColOne);
+                rowColOne, ext.createTempTableName());
 
             var tableTwoPromise = ext.map('int(2)', tableTwoName,
-                rowColTwo);
+                rowColTwo, ext.createTempTableName());
 
             XcSDK.Promise.when(tableOnePromise, tableTwoPromise)
             .then(function(tableOneUniqueRowNum, tableTwoUniqueRowNum) {
@@ -185,12 +195,12 @@ window.UExtUnionAll = (function(UExtUnionAll) {
                 // and and all data in one table
 
                 // resolve naming conlicts
-                // add '_+1 to every col in tableOne and '_+2' to every col in
+                // add '_1' to every col in tableOne and '_2' to every col in
                 // tableTwo to get unique names.
                 var renameMapOne = [];
                 var renameMapTwo = [];
-                var appendStrTableOne = '_1';
-                var appendStrTableTwo = '_2';
+                var appendStrTableOne = '_x';
+                var appendStrTableTwo = '_y';
 
                 // change all derived fields
                 tableOne.getImmediatesMeta().forEach(function(col) {
@@ -238,10 +248,12 @@ window.UExtUnionAll = (function(UExtUnionAll) {
                 };
 
                 //can allow the user to enter whether to keep tables
-                //options = {}
+                var options = {
+                    "clean": true
+                };
 
                 return ext.join(XcSDK.Enums.JoinType.FullOuterJoin,
-                    leftTableInfo, rightTableInfo, {});
+                    leftTableInfo, rightTableInfo, options);
             })
             .then(function(tableAfterJoin) {
                 // exclude 'DATA' column
@@ -249,16 +261,22 @@ window.UExtUnionAll = (function(UExtUnionAll) {
                 errMapConditionArgs.tableToUse = tableAfterJoin;
                 var stopCondition =
                     "args[1].cnt >= args[1].threshold";
-                return XcSDK.Promise.while(combineColumns,
-                    [ext, errMapConditionArgs], stopCondition,
+                return XcSDK.Promise.while(combineColumns, [ext,
+                    errMapConditionArgs, tableOneName], stopCondition,
                     errMapConditionArgs);
             })
             .then(function() {
                 // can allow the user to enter optional argument for table name
-                var newTableName = ext.createTableName(null, null,
-                    ext.tableNameRoot + '_union_' + tableTwoName);
+                var finalTableName;
+                if (args.finalTableName) {
+                    finalTableName = ext.createTableName(null, null,
+                        args.finalTableName);
+                } else {
+                    finalTableName = ext.createTableName(null, null,
+                        ext.tableNameRoot + '_union_' + tableTwoName);
+                }
                 return ext.project(errMapConditionArgs.colsToProject,
-                    errMapConditionArgs.tableToUse, newTableName);
+                    errMapConditionArgs.tableToUse, finalTableName);
             })
             .then(function(tableAfterProject) {
                 var table = ext.getTable(tableAfterProject);
