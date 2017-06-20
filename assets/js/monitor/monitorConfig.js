@@ -18,7 +18,14 @@ window.MonitorConfig = (function(MonitorConfig, $) {
             for (var i = 0; i < params.length; i++) {
                 // making default sample size a user setting
                 if (params[i].paramName !== "DsDefaultSampleSize") {
-                    paramsCache[params[i].paramName.toLowerCase()] = params[i];
+                    var paramName = params[i].paramName.toLowerCase();
+                    if (paramsCache.hasOwnProperty(paramName)) {
+                        // XXX there is a backend error that case this
+                        // should remove it after the fix
+                        console.error("error case");
+                    } else {
+                        paramsCache[paramName] = params[i];
+                    }
                 }
             }
 
@@ -28,9 +35,7 @@ window.MonitorConfig = (function(MonitorConfig, $) {
 
             deferred.resolve(res);
         })
-        .fail(function(error) {
-            deferred.reject(error);
-        });
+        .fail(deferred.reject);
         return deferred.promise();
     };
 
@@ -293,7 +298,9 @@ window.MonitorConfig = (function(MonitorConfig, $) {
 
     function addInputRow() {
         var html = getInputRowHtml();
-        $placeholder.before(html);
+        var $row = $(html);
+        $placeholder.before($row);
+        $row.find("input").eq(0).focus();
         setTimeout(function() {
             $placeholder.prev().removeClass('animating');
         }, 0);
@@ -331,14 +338,14 @@ window.MonitorConfig = (function(MonitorConfig, $) {
                     ':</span>' +
                     '<input type="text" class="xc-input paramName" ' +
                     'data-value="' + paramName + '" ' + paramNameDisabledProp +
-                    ' value="' + paramName + '">' +
+                    ' value="' + paramName + '" spellcheck="false">' +
                   '</label>' +
                   '<div class="flexGroup">' +
                       '<label class="argWrap">' +
                         '<span class="text">' + MonitorTStr.CurVal +
                         ':</span>' +
                         '<input type="text" class="xc-input curVal readonly" ' +
-                        'readonly value="' + curVal + '">' +
+                        'readonly value="' + curVal + '" spellcheck="false">' +
                       '</label>' +
                       '<label class="argWrap">' +
                         '<span class="text">' + MonitorTStr.NewVal +
@@ -348,12 +355,12 @@ window.MonitorConfig = (function(MonitorConfig, $) {
                         'readonly value="' + newVal + '" ' +
                         'data-toggle="tooltip" data-container="body" ' +
                         'data-original-title="' + TooltipTStr.ParamValNoChange +
-                        '">';
+                        '" spellcheck="false">';
         } else {
             html += '<input type="text" class="xc-input newVal" ' +
                     'data-original-title="' + TooltipTStr.ParamValNoChange +
                     '" data-container="body" ' +
-                    'value="' + newVal + '">';
+                    'value="' + newVal + '" spellcheck="false">';
         }
 
         html += '</label>';
