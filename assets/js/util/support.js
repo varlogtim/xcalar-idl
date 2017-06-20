@@ -420,6 +420,17 @@ window.Support = (function(Support, $) {
         });
     };
 
+    Support.getRunTimeBreakdown = function(dfName) {
+        XcalarQueryState(dfName)
+        .then(function(ret) {
+            var nodeArray = ret.queryGraph.node;
+            for (var i = 0; i < nodeArray.length; i++) {
+                console.log(XcalarApisTStr[nodeArray[i].api] + ": " +
+                            nodeArray[i].elapsed.milliseconds + "ms");
+            }
+        });
+    };
+
     //Support.uploadLRQ = function(lrqName, overwriteUDF, )
 
     function sessionHoldCheck() {
