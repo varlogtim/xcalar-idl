@@ -112,11 +112,11 @@ window.Admin = (function($, Admin) {
     Admin.showSupport = function() {
         Alert.forceClose();
 
-        MainMenu.openPanel('monitorPanel');
-        $('#setupButton').click();
+        MainMenu.openPanel("monitorPanel", "setupButton");
         MainMenu.open(true);
         MonitorGraph.stop();
         $('#container').addClass('supportOnly');
+        $("#container").removeClass("monitorMode setupMode");
         $('#configCard').addClass('xc-hidden');
         StatusMessage.updateLocation();
     };
@@ -254,11 +254,16 @@ window.Admin = (function($, Admin) {
                 var type = typeof error;
                 var msg;
                 var notExists = false;
+                var isEmpty = false;
 
                 if (type === "object") {
                     msg = error.error || AlertTStr.ErrorMsg;
                     if (error.status === StatusT.StatusSessionNotFound) {
-                        notExists = true;
+                        if (username === userIdName) {
+                            isEmpty = true;
+                        } else {
+                            notExists = true;
+                        }
                     }
                 } else {
                     msg = error;
@@ -272,6 +277,9 @@ window.Admin = (function($, Admin) {
                     xcTooltip.add($li, {
                         title: MonitorTStr.UserNotExists
                     });
+                } else if (isEmpty) {
+                    memText = MonitorTStr.MemUsage + ": 0 B";
+                    xcTooltip.changeText($li.find(".memory"), memText);
                 }
             });
         });
@@ -425,6 +433,14 @@ window.Admin = (function($, Admin) {
                         username: username,
                         memVal: totalMem,
                         memText: memText
+                    });
+                } else if (userList[i] === userIdName &&
+                    data && data.status === StatusT.StatusSessionNotFound) {
+                    // is self and has no session
+                    tempUserList.push({
+                        username: userIdName,
+                        memVal: 0,
+                        memText: "0B"
                     });
                 }
             }

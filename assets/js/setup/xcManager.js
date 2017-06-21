@@ -118,9 +118,6 @@ window.xcManager = (function(xcManager, $) {
         var locationText = StatusMessageTStr.Error;
         var isNotNullObj = error && (typeof error === "object");
 
-        $("#userMenu").find(".setup").hide(); // XXX temporarily doesn't work
-        // from the workbook view
-
         if (error === WKBKTStr.NoWkbk){
             // when it's new workbook
             $("#initialLoadScreen").hide();
@@ -492,6 +489,7 @@ window.xcManager = (function(xcManager, $) {
     function setupUserBox() {
         var $menu = $("#userMenu");
         xcMenu.add($menu);
+        $("#userName").text(Support.getFullUsername());
 
         $("#userNameArea").click(function() {
             var $target = $(this);
@@ -524,12 +522,14 @@ window.xcManager = (function(xcManager, $) {
                 return;
             }
             // visible to admin only
-            MainMenu.openPanel('monitorPanel');
-            $('#setupButton').click();
-            MainMenu.open(true);
+            if ($("#container").hasClass("noWorkbook")) {
+                Workbook.goToSetup();
+            } else {
+                MainMenu.openPanel("monitorPanel", "setupButton");
+                MainMenu.open(true);
+            }
+            
         });
-
-        $("#userName").text(Support.getFullUsername());
 
         $("#logout").mouseup(function(event) {
             if (event.which !== 1) {

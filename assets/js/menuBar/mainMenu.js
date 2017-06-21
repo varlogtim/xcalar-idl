@@ -147,6 +147,10 @@ window.MainMenu = (function($, MainMenu) {
         prevState.$activeWorkspaceMenu.removeClass("xc-hidden");
     };
 
+    MainMenu.tempNoAnim = function() {
+        checkAnim(true);
+    };
+
     function setupResizable() {
         var $menuPanel = $mainMenu;
         var minWidth = defaultWidth + 3;
@@ -338,7 +342,7 @@ window.MainMenu = (function($, MainMenu) {
         if ($("#bottomMenu").hasClass("open") && !BottomMenu.isPoppedOut()) {
             noAnim = true;
         }
-        checkAnim(noAnim, true);
+        checkAnim(noAnim);
         $mainMenu.addClass("open").removeClass("closed");
         $mainMenu.width(currWidth);
 

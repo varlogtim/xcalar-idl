@@ -204,6 +204,8 @@ describe("Admin Test", function() {
 
         it("get memory with failure should work", function(done) {
             var cachedFn = XcalarGetMemoryUsage;
+            var cachedUserId = userIdName;
+            userIdName = "unitTestUserName";
             XcalarGetMemoryUsage = function() {
                 return PromiseHelper.reject({error: "testError", status: StatusT.StatusSessionNotFound});
             };
@@ -220,6 +222,7 @@ describe("Admin Test", function() {
             })
             .then(function() {
                 XcalarGetMemoryUsage = cachedFn;
+                userIdName = cachedUserId;
                 expect($ownLi.hasClass("notExists")).to.be.true;
                 $("#userMemPopup").find(".close").click();
                 expect($("#userMemPopup").is(":visible")).to.be.false;

@@ -101,7 +101,7 @@ body {
             //behind the worbook panel
         }
 
-        &.monitorMode {
+        &.monitorMode, &.setupMode {
             #mainMenu {
                 left: 0px;
                 z-index: 31;
@@ -119,9 +119,6 @@ body {
 
                     .menuSection {
                         display: none;
-                        &.monitor {
-                            display: block !important;
-                        }
                     }
                 }
             }
@@ -157,10 +154,6 @@ body {
 
                 .monitorSection {
                     display: none !important;
-
-                    &#monitor-system {
-                        display: block !important;
-                    }
                 }
             }
 
@@ -168,7 +161,42 @@ body {
                 display: none !important;
             }
         }
-
+        &.monitorMode {
+            #mainMenu {
+                #monitorMenu {
+                    .menuSection {
+                        &.monitor {
+                            display: block !important;
+                        }
+                    }
+                }
+            }
+            #monitorPanel {
+               .monitorSection {
+                    &#monitor-system {
+                        display: block !important;
+                    }
+                }
+            }
+        }
+        &.setupMode {
+            #mainMenu {
+                #monitorMenu {
+                    .menuSection {
+                        &.setup {
+                            display: block !important;
+                        }
+                    }
+                }
+            }
+            #monitorPanel {
+               .monitorSection {
+                    &#monitor-setup {
+                        display: block !important;
+                    }
+                }
+            }
+        }
     }
 }
 

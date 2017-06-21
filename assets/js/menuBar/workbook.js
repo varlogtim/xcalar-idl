@@ -31,7 +31,7 @@ window.Workbook = (function($, Workbook) {
             if ($container.hasClass("workbookMode")) {
                 if (!$workbookPanel.is(":visible")) {
                     // on monitor view or something else
-                    $container.removeClass("monitorMode");
+                    $container.removeClass("monitorMode setupMode");
                     if (!wasMonitorActive) {
                         MonitorPanel.inActive();
                     }
@@ -51,7 +51,7 @@ window.Workbook = (function($, Workbook) {
                     // default, exit the workbook
                     closeWorkbookPanel();
                     Workbook.hide();
-                    $container.removeClass("monitorMode");
+                    $container.removeClass("monitorMode setupMode");
                 }
             } else {
                 Workbook.show();
@@ -118,9 +118,9 @@ window.Workbook = (function($, Workbook) {
     };
 
     Workbook.goToMonitor = function() {
+        $("#container").removeClass("setupMode");
         $("#container").addClass("monitorMode");
-        $("#mainMenu").addClass("noAnim");
-        $("#container").addClass("noMenuAnim");
+        MainMenu.tempNoAnim();
 
         if (!MonitorPanel.isGraphActive()) {
             wasMonitorActive = false;
@@ -128,11 +128,16 @@ window.Workbook = (function($, Workbook) {
         } else {
             wasMonitorActive = true;
         }
+    };
 
-        setTimeout(function() {
-            $("#mainMenu").removeClass("noAnim");
-            $("#container").removeClass("noMenuAnim");
-        }, 200);
+    Workbook.goToSetup = function() {
+        $("#container").removeClass("monitorMode");
+        $("#container").addClass("setupMode");
+        MainMenu.tempNoAnim();
+        if ($("#monitor-setup").hasClass("firstTouch")) {
+            $("#monitor-setup").removeClass("firstTouch");
+            MonitorConfig.refreshParams(true);
+        }
     };
 
     function resetWorkbook() {
@@ -187,7 +192,7 @@ window.Workbook = (function($, Workbook) {
 
         // from monitor to workbook panel
         $("#monitorPanel").find(".backToWB").click(function() {
-            $("#container").removeClass("monitorMode");
+            $("#container").removeClass("monitorMode setupMode");
             if (!wasMonitorActive) {
                 MonitorPanel.inActive();
             }
