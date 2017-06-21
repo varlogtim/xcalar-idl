@@ -3955,8 +3955,10 @@ function XcalarSupportGenerate() {
     var deferred = jQuery.Deferred();
     xcalarApiSupportGenerate(tHandle)
     .then(function(ret) {
-        // deferred.resolve(ret.bundlePath, ret.supportBundleSent, ret.supportId);
-        deferred.resolve(ret.bundlePath, ret.supportId);
+        console.log("Support bundle path: " + ret.bundlePath);
+        console.log("Support bundle id: " + ret.supportId);
+        console.log("Support bundle set: " + ret.supportBundleSent);
+        deferred.resolve(ret.bundlePath, ret.supportId, ret.supportBundleSent);
     })
     .fail(function(error) {
         var thriftError = thriftLog("XcalarSupportGenerate", error);

@@ -9903,10 +9903,14 @@ XcalarApiDeleteDhtInputT.prototype.write = function(output) {
 
 XcalarApiSupportGenerateOutputT = function(args) {
   this.supportId = null;
+  this.supportBundleSent = null;
   this.bundlePath = null;
   if (args) {
     if (args.supportId !== undefined) {
       this.supportId = args.supportId;
+    }
+    if (args.supportBundleSent !== undefined) {
+      this.supportBundleSent = args.supportBundleSent;
     }
     if (args.bundlePath !== undefined) {
       this.bundlePath = args.bundlePath;
@@ -9935,6 +9939,13 @@ XcalarApiSupportGenerateOutputT.prototype.read = function(input) {
       }
       break;
       case 2:
+      if (ftype == Thrift.Type.BOOL) {
+        this.supportBundleSent = input.readBool().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 3:
       if (ftype == Thrift.Type.STRING) {
         this.bundlePath = input.readString().value;
       } else {
@@ -9957,8 +9968,13 @@ XcalarApiSupportGenerateOutputT.prototype.write = function(output) {
     output.writeString(this.supportId);
     output.writeFieldEnd();
   }
+  if (this.supportBundleSent !== null && this.supportBundleSent !== undefined) {
+    output.writeFieldBegin('supportBundleSent', Thrift.Type.BOOL, 2);
+    output.writeBool(this.supportBundleSent);
+    output.writeFieldEnd();
+  }
   if (this.bundlePath !== null && this.bundlePath !== undefined) {
-    output.writeFieldBegin('bundlePath', Thrift.Type.STRING, 2);
+    output.writeFieldBegin('bundlePath', Thrift.Type.STRING, 3);
     output.writeString(this.bundlePath);
     output.writeFieldEnd();
   }

@@ -4043,10 +4043,8 @@ PromiseHelper = (function(PromiseHelper, $) {
     // Witness to bug Xc-2371
     addTestCase(indexAggregateRaceTest, "index-aggregate race test", defaultTimeout, TestCaseEnabled, "2371");
 
-    // XXX Re-enable when waitpid bug is fixed
-    addTestCase(testSupportGenerate, "support generate", defaultTimeout, TestCaseDisabled, "");
+    addTestCase(testSupportGenerate, "support generate", defaultTimeout, TestCaseEnabled, "");
 
-    // Re-enabled with delete DHT added
     addTestCase(testCreateDht, "create DHT test", defaultTimeout, TestCaseEnabled, "");
 
     addTestCase(testDemoFile, "demo file ops test", defaultTimeout, TestCaseEnabled, "");
