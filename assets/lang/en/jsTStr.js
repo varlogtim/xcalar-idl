@@ -405,7 +405,8 @@ SuccessTStr = {
     "ExtRemove": "Extension Successfully Removed!",
     "ExtEnable": "Extension Successfully Enabled!",
     "ExtDisable": "Extension Successfully Disabled!",
-    "Profile": "Profile Image Saved Successfully!"
+    "Profile": "Profile Image Saved Successfully!",
+    "BundleUploaded": "Bundle generated! Uploaded: "
 };
 
 FailTStr = {

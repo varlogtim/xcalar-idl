@@ -361,7 +361,8 @@ SuccessTStr = {
 "ExtRemove": '成功删除扩展！',
 "ExtEnable": '成功启用扩展！',
 "ExtDisable": '成功禁用扩展！',
-"Profile": '数据剖面图图片保存成功！'
+"Profile": '数据剖面图图片保存成功！',
+"BundleUploaded": '支持捆绑包生成成功，上载：'
 };
 FailTStr = {
 "Profile": '保存数据剖面图图像失败。',

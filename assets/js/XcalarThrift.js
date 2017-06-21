@@ -3955,6 +3955,8 @@ function XcalarSupportGenerate() {
     var deferred = jQuery.Deferred();
     xcalarApiSupportGenerate(tHandle)
     .then(function(ret) {
+        xcHelper.showSuccess(SuccessTStr.BundleUploaded +
+                             ret.supportBundleSent);
         console.log("Support bundle path: " + ret.bundlePath);
         console.log("Support bundle id: " + ret.supportId);
         console.log("Support bundle set: " + ret.supportBundleSent);
