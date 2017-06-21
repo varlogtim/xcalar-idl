@@ -1339,7 +1339,10 @@ window.QueryManager = (function(QueryManager, $) {
                     $queryList.find(".checkbox").removeClass("checked");
                 } else {
                     $querySideBar.addClass("bulkOptionsOpen");
-                    $queryList.find(".checkbox").addClass("checked");
+                    $queryList.find(".checkbox").filter(function() {
+                        return !$(this).closest(".processing").length &&
+                            $(this).is(":visible");
+                    }).addClass("checked");
                     xcTooltip.hideAll();
                 }
             }
@@ -1553,7 +1556,8 @@ window.QueryManager = (function(QueryManager, $) {
                         break;
                     case ("selectAll"):
                         $queryList.find(".checkbox").filter(function() {
-                            return !$(this).closest(".processing").length;
+                            return !$(this).closest(".processing").length &&
+                                $(this).is(":visible");
                         }).addClass("checked");
                         break;
                     default:
