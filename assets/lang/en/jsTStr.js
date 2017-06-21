@@ -706,7 +706,7 @@ DFTStr = {
     "CannotCreateMsg": "Cannot create a batch dataflow from a table " +
                         "originating from a dataflow.",
     "AdvancedOpts": "Advanced Export Options",
-    "Default": "Export to file system",
+    "Default": "Export to export target",
     "DelDF": "Permanently Delete Dataflow",
     "DelDF2": "Delete dataflow",
     "DelDFMsg": "Are you sure you want to permanently delete this dataflow? This action cannot be undone.",
