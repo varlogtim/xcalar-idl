@@ -202,7 +202,7 @@ window.Support = (function(Support, $) {
 
             var percent = Math.round(avgMemUsage * 100) + "%";
             var usageText = "<br>" + CommonTxtTstr.XDBUsage + ": " + percent;
-            if (true) {
+            if (shouldAlert) {
                 // we want user to drop table first and only when no tables
                 // let them drop ds
                 if (jQuery.isEmptyObject(gTables) && gOrphanTables.length === 0)
