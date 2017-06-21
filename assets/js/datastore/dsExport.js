@@ -27,20 +27,6 @@ window.DSExport = (function($, DSExport) {
         setupGridMenu();
         xcMenu.add($gridMenu);
 
-        // set placeholder path val
-        DSExport.getDefaultPath()
-        .then(function(dPath) {
-            if (dPath.length) {
-                dPath = dPath.slice(1);
-            } else {
-                dPath = DSExportTStr.DefaultPath;
-            }
-            var msg = xcHelper.replaceMsg(DSExportTStr.URLPlaceholder, {
-                target: dPath
-            });
-            $("#exportURL").attr("placeholder", msg);
-        });
-
         $("#dsExport-refresh").click(function() {
             DSExport.refresh();
         });
@@ -287,9 +273,12 @@ window.DSExport = (function($, DSExport) {
                     $("#exportURL").closest(".formatSpecificRow")
                                    .addClass("active");
                 }
+                var hasPlaceholder = false;
                 if (type === "UDF") {
                     $form.find(".udfSelectorRow").addClass("active");
+                    hasPlaceholder = true;
                 }
+                changePathInputPlaceholder(hasPlaceholder);
                 StatusBox.forceHide();
             },
             "container": "#exportDataForm"
@@ -456,6 +445,25 @@ window.DSExport = (function($, DSExport) {
                     break;
             }
             clearSelectedGrid();
+        });
+    }
+
+    function changePathInputPlaceholder(hasPlaceholder) {
+        if (!hasPlaceholder) {
+            $("#exportURL").attr("placeholder", "");
+            return;
+        }
+        DSExport.getDefaultPath()
+        .then(function(dPath) {
+            if (dPath.length) {
+                dPath = dPath.slice(1);
+            } else {
+                dPath = DSExportTStr.DefaultPath;
+            }
+            var msg = xcHelper.replaceMsg(DSExportTStr.URLPlaceholder, {
+                target: dPath
+            });
+            $("#exportURL").attr("placeholder", msg);
         });
     }
 

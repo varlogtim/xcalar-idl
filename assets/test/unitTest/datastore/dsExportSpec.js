@@ -29,6 +29,7 @@ describe("DSExport Test", function() {
         it("DSExport.toggleXcUDFs should work", function() {
             var $udfModule = $("#exportDataForm").find(".udfModuleListWrap");
             var isHide = UserSettings.getPref("hideXcUDF");
+            isHide = isHide || false;
             var $li = $("<li>_xcalar_test</li>");
             $udfModule.append($li);
             DSExport.toggleXcUDFs(!isHide);
@@ -213,6 +214,7 @@ describe("DSExport Test", function() {
             .to.be.true;
             expect($form.find(".udfSelectorRow").hasClass("active"))
             .to.be.false;
+            expect($("#exportURL").attr("placeholder")).to.equal("");
 
             // open menu
             $targetTypeList.trigger(fakeEvent.click);
@@ -225,6 +227,7 @@ describe("DSExport Test", function() {
             expect($("#exportURL").closest(".formRow").hasClass("active"))
             .to.be.true;
             expect($form.find(".udfSelectorRow").hasClass("active")).to.be.true;
+            expect($("#exportURL").attr("placeholder").indexOf("will default to")).to.equal(0);
         });
 
         after(function() {
