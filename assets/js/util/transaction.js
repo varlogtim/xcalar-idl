@@ -132,7 +132,7 @@ window.Transaction = (function(Transaction, $) {
         // add error sql
         var error = options.error;
         var sql = options.sql || txLog.getSQL();
-        var cli = txLog.getCli();
+        var cli = txLog.getCli(); //
         var title = options.title || failMsg;
         if (!title) {
             title = txLog.getOperation();
@@ -140,7 +140,7 @@ window.Transaction = (function(Transaction, $) {
         title = xcHelper.capitalize(title);
 
         SQL.errorLog(title, sql, cli, error);
-        QueryManager.fail(txId);
+        QueryManager.fail(txId, error);
 
         // add alert(optional)
         if (!options.noAlert) {

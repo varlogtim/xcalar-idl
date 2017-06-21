@@ -3161,6 +3161,7 @@ var XcSubQuery = (function() {
                     if (isNaN(pct)) {
                         pct = 0;
                     } else {
+                        pct = Math.max(0, pct);
                         pct = parseFloat((100 * pct).toFixed(2));
                     }
                     deferred.resolve(pct);

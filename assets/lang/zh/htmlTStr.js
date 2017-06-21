@@ -572,6 +572,7 @@ module.exports = {
     },
     "monitor": {
         "AutoRefresh": "自动刷新",
+        "CancelOperation": "Cancel operation",
         "CPU": "CPU",
         "Config": "配置",
         "ConfigParam": "配置参数",
@@ -608,6 +609,7 @@ module.exports = {
         "RAM": "RAM",
         "RecentQueries": "最近的操作",
         "ReleaseMem": "释放内存",
+        "RemoveOperation": "Remove operation",
         "RestartNode": "重启群集",
         "SETTINGS": "设置",
         "SETUP": "建立",

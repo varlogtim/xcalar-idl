@@ -360,6 +360,7 @@ module.exports = {
 
     "monitor": {
         "AutoRefresh": "Auto Refresh",
+        "CancelOperation": "Cancel operation",
         "Config": "Configuration",
         "ConfigParam": "Configure Parameters",
         "ConfigParamName": "Config Parameter Name", // in jststr
@@ -401,6 +402,7 @@ module.exports = {
         "RAM": "RAM",
         "RecentQueries": "Recent Operations",
         "ReleaseMem": "Release Memory",
+        "RemoveOperation": "Remove operation",
         "RestartNode": "Restart Cluster",
         "SETTINGS": "SETTINGS",
         "Settings": "Settings",

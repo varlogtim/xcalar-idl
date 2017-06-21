@@ -278,6 +278,7 @@
             .font(@size: 12px);
             .textOverflowOneLine;
             text-align: right;
+            text-transform: lowercase;
         }
     }
 
@@ -670,7 +671,7 @@
                             .nomargin-padding;
                             margin: 0 auto;
                             &.network {
-                                width: 80px;
+                                width: 90px;
                                 margin: 0;
                             }
                         }
@@ -704,7 +705,8 @@
                                 color: @color-bg-graph-three;
                             }
                             &.userSize, &.totalSize {
-                                i, span {
+                                i {
+                                    .position(absolute, @left: 0px);
                                     &.xi-down {
                                         padding-top: 5px;
                                         padding-left: 1px;
@@ -714,7 +716,6 @@
                                         padding-top: 5px;
                                         padding-right: 10px;
                                     }
-                                    float: left;
                                 }
                             }
                         }
@@ -882,11 +883,14 @@
 
                 #donut4 {
                     .font(@color: @color-bg-graph-three);
+                    width: 90px;
                     .donutInfo {
-                        width: 130px;
+                        width: 90px;
+                        text-align: right;
                     }
                     .network {
                         white-space: nowrap;
+                        margin-right: 0px;
                     }
                 }
 
@@ -1148,6 +1152,7 @@
                 display: none;
                 position: absolute;
                 bottom: 10px;
+                text-transform: capitalize;
             }
         }
 
@@ -1256,6 +1261,9 @@
         .queryRow {
             padding-left: 10px;
             padding-right: 10px;
+            &.errorRow {
+                color: @color-table-red;
+            }
         }
         .queryRow:hover {
             background-color: @color-bg-white-nine;
