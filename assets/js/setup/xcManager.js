@@ -126,6 +126,8 @@ window.xcManager = (function(xcManager, $) {
             $("#initialLoadScreen").hide();
             Workbook.forceShow();
             locationText = StatusMessageTStr.Viewing + " " + WKBKTStr.Location;
+            // start socket (no workbook is also a valid login case)
+            XcSocket.init();
 
             if (firstTimeUser) {
                 Admin.addNewUser();
@@ -268,7 +270,7 @@ window.xcManager = (function(xcManager, $) {
 
     xcManager.forceLogout = function() {
         xcManager.removeUnloadPrompt();
-        logoutRedirect();
+        logoutRedirect(true);
     };
 
     xcManager.removeUnloadPrompt = function() {
@@ -1259,8 +1261,12 @@ window.xcManager = (function(xcManager, $) {
         }
     }
 
-    function logoutRedirect() {
+    function logoutRedirect(releaseHold) {
         xcSessionStorage.removeItem("xcalar-username");
+        if (releaseHold) {
+            var username = Support.getUser();
+            xcSessionStorage.removeItem(username);
+        }
         window.location = paths.dologout;
     }
 
