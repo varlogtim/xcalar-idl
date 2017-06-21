@@ -615,6 +615,7 @@ module.exports = {
         "SETUP": "建立",
         "SYS": "系统",
         "Settings": "设置",
+        "SettingsInstr": "You can customize your environment using the options to the right. Any changes made will be applied across all workbooks.",
         "Setup": "设置",
         "StartNode": "启动集群",
         "StartTime": "开始时间",

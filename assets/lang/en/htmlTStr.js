@@ -406,6 +406,7 @@ module.exports = {
         "RestartNode": "Restart Cluster",
         "SETTINGS": "SETTINGS",
         "Settings": "Settings",
+        "SettingsInstr": "You can customize your environment using the options to the right. Any changes made will be applied across all workbooks.",
         "SETUP": "SETUP",
         "Setup": "Setup",
         "showDataCol": "SHOW DATA COLUMN ON NEW TABLE CREATION",
