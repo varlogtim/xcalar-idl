@@ -394,7 +394,9 @@ window.Alert = (function($, Alert){
         var $section = $("#alertContent");
         var diff = $section.find(".text").height() - $section.height();
         if (diff > 0) {
-            $modal.height($modal.height() + diff);
+            var height = Math.min($modal.height() + diff, $(window).height());
+            $modal.height(height);
+            modalHelper.center({"verticalQuartile": true});
         }
     }
 
