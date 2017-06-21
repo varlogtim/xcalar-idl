@@ -25,6 +25,12 @@ var defaultHostsFile = "/etc/xcalar/default.cfg";
 
 var defaultXcalarctl = process.env.XLRDIR ?
     process.env.XLRDIR + "/bin/xcalarctl" : "/opt/xcalar/bin/xcalarctl";
+var defaultHttpPort = process.env.XCE_HTTP_PORT ?
+    process.env.XCE_HTTP_PORT : 80;
+var defaultHttpsPort = process.env.XCE_HTTPS_PORT ?
+    process.env.XCE_HTTPS_PORT : 443;
+// we need to fix this eventually, but for now ignore untrusted certs
+process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
 var defaultStartCommand = defaultXcalarctl + " start";
 var defaultStopCommand = defaultXcalarctl + " stop";
 var defaultStatusCommand = defaultXcalarctl + " status";
@@ -229,7 +235,7 @@ function sendCommandToSlaves(action, slaveUrl, content, hosts) {
 
         var options = {
             host: hostName,
-            port: content.isHTTP ? 80 : 443,
+            port: content.isHTTP ? defaultHttpPort : defaultHttpsPort,
             path: '/app' + slaveUrl,
             method: action,
             headers: {
