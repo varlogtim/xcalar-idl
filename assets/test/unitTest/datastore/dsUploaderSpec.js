@@ -7,7 +7,7 @@ describe("DSUploader Test", function() {
 
     before(function() {
         Alert.forceClose();
-        // go to the data store tab,
+        // go to the datasets tab,
         // or some UI effect like :visible cannot test
         $mainTabCache = $(".topMenuBarTab.active");
 

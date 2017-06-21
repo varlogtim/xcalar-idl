@@ -192,8 +192,8 @@ module.exports = {
         "collapseAll": "收缩",
         "copySqlBtn": "复制日志",
         "copySqlBtnTip": "复制日志",
-        "dsTutor1": "数据仓库教程 - 第1部分",
-        "dsTutor2": "数据仓库教程 - 第2部分",
+        "dsTutor1": "数据集教程 - 第1部分",
+        "dsTutor2": "数据集教程 - 第2部分",
         "expandAll": "展开",
         "helpCategories": "类别",
         "noRes": "无帮助结果",
@@ -561,7 +561,7 @@ module.exports = {
         "Help": "帮助",
         "HelpDocs": "帮助文档",
         "LogOut": "登出",
-        "ds": "数据仓库",
+        "ds": "数据集",
         "exts": "插件",
         "monitor": "监控器",
         "tutorUser": "约翰·史密斯",
@@ -797,13 +797,13 @@ module.exports = {
     },
     "tutor": {
         "datastoreTut1": {
-            "tab": "查看数据仓库"
+            "tab": "查看数据集"
         },
         "datastoreTut1Demo": {
-            "tab": "查看数据仓库"
+            "tab": "查看数据集"
         },
         "datastoreTut2": {
-            "tab": "查看数据仓库"
+            "tab": "查看数据集"
         },
         "meta": {},
         "user": "约翰·史密斯",
@@ -839,7 +839,7 @@ module.exports = {
     },
     "ws": {
         "ActiveList": "激活表",
-        "ActiveTableInstr": "要将表添加到工作表中，请在<b>数据仓库</b>面板中导入数据集，然后从此数据集中生成表并添加到当前工作表中。",
+        "ActiveTableInstr": "要将表添加到工作表中，请在<b>数据集</b>面板中导入数据集，然后从此数据集中生成表并添加到当前工作表中。",
         "ActiveWS": "激活的工作表",
         "ConstAbbr": "聚合",
         "ConstList": "聚合",

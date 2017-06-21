@@ -593,6 +593,7 @@ DFTStr = {
 "DelDF": '永久删除数据流',
 "DelDFMsg": '您确定要永久删除此数据流吗？此操作无法撤消。',
 "DFTitle": '数据流',
+"BatchDF": "批量数据流",
 "DownloadErr": '下载失败',
 "ExportTo": '导出为',
 "FindTable": '导出表<table>至工作表中',
@@ -727,6 +728,7 @@ DSExportTStr = {
 };
 WSTStr = {
 'SearchTableAndColumn': '搜索表或列',
+'Ws': '工作表',
 'WSName': '工作表名称',
 'WSHidden': '工作表被隐藏',
 'InvalidWSName': '无效的工作表名称',

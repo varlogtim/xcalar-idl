@@ -11,7 +11,7 @@ var WalkThroughTStr = {
         'w1-topMenu': 'This is the top menu. The buttons here change the contents of what you are viewing.',
         'w1-workbookBut': 'This is your workbook browser button. Click to open if you want to switch to another workbook. Your current workbook will be automatically saved.',
         'w1-workspaceBut': 'This shows your current workbook\'s active worksheet. You can have multiple worksheets in a single workbook.',
-        'w1-datastoresBut': 'This is the data stores button. Click this button to import new datasets and add them to your worksheet.',
+        'w1-datastoresBut': 'This is the datasets button. Click this button to import new datasets and add them to your worksheet.',
         'w1-monitorBut': 'This is your monitor button, where you will be able to view the progress of your running queries and your machine’s statistics.',
         'w1-df': 'This is your dataflow button, where you will be able to manage your dataflows and run them.',
         'w1-activeWs': 'This is your current active worksheet. You can rename it by double-clicking the current name or by clicking the ellipsis on the right.',
@@ -35,14 +35,14 @@ var WalkThroughTStr = {
                    'w2-redetect', 'w2-dsConfirm'],
         'w2-newDs': 'Click this button to import a new dataset then follow the steps on the right panel.',
         'w2-browseDs': 'The browse button will enable you to browse through your files to select the dataset.',
-        'w2-dsPath': 'You can also enter the path for your dataset here.',
+        'w2-dsPath': 'You can also enter the path for your data source here.',
         'w2-next': 'If you have entered a path manually, click on NEXT to continue',
         'w2-dsName': 'A default name for your dataset will be generated after you select the dataset. You may choose your own name if desired. The dataset name maybe 1 to 255 characters in length. The characters A-Z, a-z, 0-9 and ‘_’ are allowed.',
         'w2-dsFormat': 'You can click on the dropdown button to choose the format of your dataset.',
         'w2-dsOptions': 'Depending on the format of the dataset, there may be additional options for you to select.',
         'w2-refresh': 'If you have chosen a UDF or changed a delimiter and you would like to see how your dataset looks like now, click this button to refresh your tabular preview.',
         'w2-redetect': 'If you want Xcalar to redetect the format for your file and fill in the form, click on this button.',
-        'w2-dsConfirm': 'After you are satisfied with your selections, click on refresh preview to make sure that the selection is valid and then click on finalize.'
+        'w2-dsConfirm': 'After you are satisfied with your selections, click this button to finalize.'
     },
     'w3': {
         // Datastore Demo Part 2

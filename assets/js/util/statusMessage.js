@@ -195,7 +195,7 @@ window.StatusMessage = (function($, StatusMessage) {
                     // and will breaak it if not do the check
                     if (ws) {
                         $("#pageStatusMenu").html(WSManager.getWSLists(true));
-                        panelName = "Worksheet: " + WSManager.getWSName(ws) +
+                        panelName = WSTStr.Ws + ": " + WSManager.getWSName(ws) +
                                     '<div class="menuIcon xc-action clickable" ' +
                                     'data-toggle="tooltip" ' +
                                     'data-placement="top" ' +
@@ -205,17 +205,17 @@ window.StatusMessage = (function($, StatusMessage) {
                                         '<i class="icon xi-list-view"></i>' +
                                     '</div>';
                     } else {
-                        panelName = "Worksheet";
+                        panelName = WSTStr.Ws;
                     }
                     break;
                 case ("dataflowTab"):
-                    panelName = "Dataflow";
+                    panelName = DFTStr.BatchDF;
                     break;
                 case ("dataStoresTab"):
-                    panelName = "Data Stores";
+                    panelName = DSTStr.DS;
                     break;
                 case ("monitorTab"):
-                    panelName = "Monitor";
+                    panelName = MonitorTStr.Monitor;
                     break;
                 default:
                     break;
@@ -383,7 +383,7 @@ window.StatusMessage = (function($, StatusMessage) {
                     '<div class="close">+</div></div>');
 
         if (operation === SQLOps.DSPoint) {
-            // only display notification if not on data store tab
+            // only display notification if not on datasets tab
             if (!$('#dataStoresTab').hasClass('active')) {
                 $popups = $('.tableDonePopup.datastoreNotify');
                 if ($popups.length !== 0) {

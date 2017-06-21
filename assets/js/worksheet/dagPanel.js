@@ -3540,7 +3540,7 @@ window.Dag = (function($, Dag) {
         } else {
             tooltipTxt = CommonTxtTstr.ClickToOpts;
         }
-        // check for data store
+        // check for datastes
         if (dagOrigin === "") {
             var url = dagInfo.url;
             var pattern = "";

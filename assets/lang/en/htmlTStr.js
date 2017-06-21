@@ -302,8 +302,8 @@ module.exports = {
         "InPageHelp": "IN-PAGE HELP",
         "Walkthrough": "Start a Walkthrough",
         "wkbkTutor": "Workbook Tutorial",
-        "dsTutor1": "Data Stores Tutorial - Part 1",
-        "dsTutor2": "Data Stores Tutorial - Part 2",
+        "dsTutor1": "Datasets Tutorial - Part 1",
+        "dsTutor2": "Datasets Tutorial - Part 2",
         "collapseAll": "Collapse all",
         "expandAll": "Expand all"
     },
@@ -344,7 +344,7 @@ module.exports = {
         "active": "Add To Worksheet",
         "archive": "Hide Tables",
         "filterOrphan": "Filter Temporary Tables",
-        "ActiveTableInstr": "To add a table to the worksheet, import a dataset in the <b>Data Stores</b> panel and select this dataset to add as a table in the current worksheet.",
+        "ActiveTableInstr": "To add a table to the worksheet, import a dataset in the <b>Datastes</b> panel and select this dataset to add as a table in the current worksheet.",
         "HideTableInstr": "To hide a table, right click the title bar for an active table to display a menu. Then select <b>Hide Table</b>.",
         "TempTableInstr": "This section contains tables that are no longer active after an operation is performed.",
         "ConstTableInstr": "This section contains named aggregate values created through a table column's <b>Aggregate</b> operation."
@@ -883,13 +883,13 @@ module.exports = {
             // leave it empty, it will be overwritten by render.js
         },
         "datastoreTut1": {
-            "tab": "Viewing Data Stores"
+            "tab": "Viewing Datasets"
         },
         "datastoreTut1Demo": {
-            "tab": "Viewing Data Stores"
+            "tab": "Viewing Datasets"
         },
         "datastoreTut2": {
-            "tab": "Viewing Data Stores"
+            "tab": "Viewing Datasets"
         },
         "workbookTut": {
             "tab": "Viewing Worksheet"

@@ -711,6 +711,7 @@ DFTStr = {
     "DelDF2": "Delete dataflow",
     "DelDFMsg": "Are you sure you want to permanently delete this dataflow? This action cannot be undone.",
     "DFTitle": "DATAFLOW",
+    "BatchDF": "Batch Dataflow",
     "DownloadErr": "Download Failed",
     "ExportTo": "Export As",
     "FindTable": "The final table <table> is in the active worksheet",
@@ -754,7 +755,7 @@ DFTStr = {
 
 DSTStr = {
     'UnknownUser': 'Unknown User',
-    'DS': 'DATASET',
+    'DS': 'Datasets',
     'IN': 'DATASETS',
     'OUT': 'EXPORT TARGETS',
     'Export': 'EXPORT FORM',
@@ -859,6 +860,7 @@ DSExportTStr = {
 
 WSTStr = {
     'SearchTableAndColumn': 'Search for a table or column',
+    'Ws': 'Worksheet',
     'WSName': 'Worksheet Name',
     'WSHidden': 'worksheet is hidden',
     'InvalidWSName': 'Invalid worksheet name',
