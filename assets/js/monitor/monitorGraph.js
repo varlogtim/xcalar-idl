@@ -251,9 +251,9 @@ window.MonitorGraph = (function($, MonitorGraph) {
 
             // 2 memory graphs
             // memUsed - inner donut
-            var ramUsed = node.memUsedInBytes; // inner donut
-            var ramTot = Math.ceil(node.memUsedInBytes * 100 /
-                                   node.memUsageInPercent);
+            var ramUsed = Math.round(node.totalAvailableMemInBytes *
+                                    (node.memUsageInPercent / 100));
+            var ramTot = node.totalAvailableMemInBytes;
             ram.used.push(ramUsed);
             ram.tot.push(ramTot);
             ram.sumUsed += ramUsed;
@@ -264,8 +264,8 @@ window.MonitorGraph = (function($, MonitorGraph) {
             var xdbTot = node.xdbTotalBytes;
             xdb.used.push(xdbUsed);
             xdb.tot.push(xdbTot);
-            xdb.sumTot += xdbTot;
             xdb.sumUsed += xdbUsed;
+            xdb.sumTot += xdbTot;
 
             // network
             var networkUsed = node.networkSendInBytesPerSec;

@@ -21,7 +21,7 @@ describe("Monitor Graph Test", function() {
                         "parentCpuUsageInPercent": 10,
 
                         "memUsageInPercent": 60,
-                        "memUsedInBytes": 120 * GB,
+                        "totalAvailableMemInBytes": 200 * GB,
 
                         "xdbUsedBytes": 40 * MB,
                         "xdbTotalBytes": 50 * MB,
