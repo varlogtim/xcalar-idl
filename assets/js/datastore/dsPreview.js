@@ -1806,6 +1806,11 @@ window.DSPreview = (function($, DSPreview) {
     }
 
     function getFileToPreviewInUDF(url, isRecur, pattern) {
+        if (!isViewFolder) {
+            // single file case
+            return PromiseHelper.resolve(url);
+        }
+
         var deferred = jQuery.Deferred();
 
         XcalarListFilesWithPattern(url, isRecur, pattern)
@@ -1815,6 +1820,9 @@ window.DSPreview = (function($, DSPreview) {
                 var fileURL;
                 if (res.numFiles === 1 && url.endsWith(fileName)) {
                     // when select a single file
+                    fileURL = url;
+                } else if (res.numFiles === 1 && fileName === ".") {
+                    // we see this issue in Bug 8959, just in case
                     fileURL = url;
                 } else {
                     // when select a folder

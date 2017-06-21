@@ -592,6 +592,7 @@ describe("DSPreview Test", function() {
         });
 
         it("Should get url of single file", function(done) {
+            DSPreview.__testOnly__.set(null, null, false);
             XcalarListFilesWithPattern = function() {
                 return PromiseHelper.resolve({
                     "numFiles": 1,
@@ -610,6 +611,7 @@ describe("DSPreview Test", function() {
         });
 
         it("Should get url of file in folder", function(done) {
+            DSPreview.__testOnly__.set(null, null, true);
             XcalarListFilesWithPattern = function() {
                 return PromiseHelper.resolve({
                     "numFiles": 1,
@@ -628,6 +630,7 @@ describe("DSPreview Test", function() {
         });
 
         it("Should handle error data", function(done) {
+            DSPreview.__testOnly__.set(null, null, true);
             XcalarListFilesWithPattern = function() {
                 return PromiseHelper.resolve(null);
             };
@@ -644,6 +647,7 @@ describe("DSPreview Test", function() {
         });
 
         it("Should handle reject case", function(done) {
+            DSPreview.__testOnly__.set(null, null, true);
             XcalarListFilesWithPattern = function() {
                 return PromiseHelper.reject();
             };
