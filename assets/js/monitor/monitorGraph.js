@@ -180,10 +180,13 @@ window.MonitorGraph = (function($, MonitorGraph) {
         XcalarApiTop()
         .then(function(result) {
             if (prevIteration !== curIteration) {
-                return PromiseHelper.resolve();
+                return deferred.resolve();
             }
             apiTopResult = result;
             numNodes = result.numNodes;
+            if (!numNodes) {
+                return deferred.reject();
+            }
             var allStats = processNodeStats(apiTopResult, numNodes);
             updateGraph(allStats, numNodes);
             MonitorPanel.updateDonuts(allStats, numNodes);
