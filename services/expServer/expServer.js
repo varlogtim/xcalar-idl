@@ -1206,10 +1206,6 @@ require("jsdom").env("", function(err, window) {
         upload.uploadContent(req, res);
     });
 
-    app.post("/uploadMeta", function(req, res) {
-        upload.uploadMeta(req, res);
-    });
-
     app.post('/getTimezoneOffset', function(req, res) {
         var timezoneOffset = new Date().getTimezoneOffset();
         console.log("Server timezone offset: " + timezoneOffset);

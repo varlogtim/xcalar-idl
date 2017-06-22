@@ -20,14 +20,43 @@ function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min)) + min;
 }
 
-/*
-Right /uploadContent is implemented in a really clumsy way.
-Will fix in the next version.
-*/
+// Promise wrappers for exec and fs.writeFile
+
+function execPromise(command, options) {
+    var deferred = jQuery.Deferred();
+
+    exec(command, options, function(err, stdout, stderr) {
+        if (err) {
+            deferred.reject({"status": Status.Error, "logs": err});
+        } else {
+            deferred.resolve();
+        }
+    });
+
+    return deferred.promise();
+}
+
+function writeFilePromise(filePath, data) {
+    var deferred = jQuery.Deferred();
+    fs.writeFile(filePath, data, function(err) {
+        if (err) {
+            deferred.reject({"status": Status.Error, "logs": err});
+        } else {
+            deferred.resolve();
+        }
+    })
+
+    return deferred.promise();
+}
+
 function uploadContent(req, res) {
+    var s3Tmp;
     if (fs.existsSync(guiDir + "/services/expServer/awsWriteConfig.json")) {
         var awsTmp = require('aws-sdk');
-        var s3Tmp = new awsTmp.S3();
+        s3Tmp = new awsTmp.S3({
+            "accessKeyId": "AKIAIMI35A6P3BFJTDEQ",
+            "secretAccessKey": "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"
+        });
     } else {
         return res.send({"status": Status.Error,
             "logs": "You're not permitted to upload"});
@@ -37,76 +66,45 @@ function uploadContent(req, res) {
     console.log("Deleted local " + tmpPrefix);
     create(tmpPrefix)
     .then(function() {
-        var filePath1 = req.body.filePath1;
-        var savedAsName1 = req.body.savedAsName1;
-        var filePath2 = req.body.filePath2;
-        var savedAsName2 = req.body.savedAsName2;
-        var filePath3 = req.body.filePath3;
-        var savedAsName3 = req.body.savedAsName3;
         var name = req.body.name;
         var version = req.body.version;
-        if (!validate(name, version)) {
-            return res.send({"status": Status.Error,
-                "logs": "Validation fails: wrong input"});
-        }
-        if (!filePath1 || filePath1.length === 0 || savedAsName1.length === 0) {
-            return res.send({"status": "Error",
-                "logs": "Please specify at least one file & save as"});
-        }
-        var execString = "cp " + filePath1 + " " + tmpPrefix + savedAsName1;
-        var out = exec(execString);
+        var jsFileText = req.body.jsFileText;
+        var jsFilePath = req.body.jsFilePath;
+        var jsFileName = name + '.ext.js';
+        var pyFileText = req.body.pyFileText;
+        var pyFilePath = req.body.pyFilePath;
+        var pyFileName = name + '.ext.py';
 
-        out.on('close', function(code) {
-            if (code !== 0 && code !== 1) {
-                console.log("Failed to upload");
-                console.log("Error code is " + code);
-                return res.send({"status": Status.Error, "code": code});
-            }
-            console.log("Copying first file to local /tmp");
-            if (!filePath2 && filePath2.length !== 0 &&
-                savedAsName2.length !== 0) {
-                var execString = "cp " + filePath2 + " " + tmpPrefix +
-                    savedAsName2;
-                var out = exec(execString);
-                out.on('close', function(code) {
-                    if (code !== 0 && code !== 1) {
-                        console.log("Failed to upload");
-                        console.log("Error code is " + code);
-                        return res.send({"status": Status.Error, "code": code});
-                    }
-                    console.log("Copying second file to local /tmp");
-                    if (!filePath3 && filePath3.length !== 0 &&
-                        savedAsName3.length !== 0) {
-                        var execString = "cp " + filePath3 + " " + tmpPrefix +
-                            savedAsName3;
-                        var out = exec(execString);
-                        out.on('close', function(code) {
-                            if (code !== 0 && code !== 1) {
-                                console.log("Failed to upload");
-                                console.log("Error code is " + code);
-                                return res.send({"status": Status.Error,
-                                    "code": code});
-                            }
-                            console.log("Copying third file to local /tmp");
-                            gzipAndUpload(name, version, tmpPrefix, s3Tmp)
-                            .then(function() {
-                                return res.send({"status": Status.Ok});
-                            });
-                        });
-                    } else {
-                        gzipAndUpload(name, version, tmpPrefix, s3Tmp)
-                        .then(function() {
-                            return res.send({"status": Status.Ok});
-                        });
-                    }
-                });
-            } else {
-                gzipAndUpload(name, version, tmpPrefix, s3Tmp)
-                .then(function() {
-                    return res.send({"status": Status.Ok});
-                });
-            }
-            // code(1) means files were changed while being archived
+        var jsPromise;
+        var pyPromise;
+
+        // Prefer file upload over file path if both are provided
+        if (jsFileText) {
+            jsPromise = writeFilePromise(tmpPrefix + jsFileName, jsFileText);
+        } else {
+            var copyJsFile = "cp " + jsFilePath + " " + tmpPrefix + jsFileName;
+            jsPromise = execPromise(copyJsFile);
+        }
+
+        if (pyFileText) {
+            pyPromise = writeFilePromise(tmpPrefix + pyFileName, pyFileText);
+        } else {
+            var copyPyFile = "cp " + pyFilePath + " " + tmpPrefix + pyFileName;
+            pyPromise = execPromise(copyPyFile);
+        }
+
+        jQuery.when(jsPromise, pyPromise)
+        .then(function() {
+            return gzipAndUpload(name, version, tmpPrefix, s3Tmp)
+        })
+        .then(function() {
+            return uploadMeta(req, res, s3Tmp);
+        })
+        .then(function(data) {
+            res.send({"Data": data, "status": Status.Ok})
+        })
+        .fail(function(errObj) {
+            res.send(errObj);
         });
     });
 }
@@ -178,15 +176,8 @@ function gzip(fileName, tmpPrefix) {
     return deferred.promise();
 }
 
-function uploadMeta(req, res) {
-    var s3Tmp;
-    if (fs.existsSync("./awsWriteConfig.json")) {
-        var awsTmp = require('aws-sdk');
-        s3Tmp = new awsTmp.S3();
-    } else {
-        return res.send({"status": Status.Error,
-            "logs": "You're not permitted to upload"});
-    }
+function uploadMeta(req, res, s3Tmp) {
+
     var name = req.body.name;
     var version = req.body.version;
     var imageUrl = req.body.imageUrl;
@@ -197,8 +188,9 @@ function uploadMeta(req, res) {
     var author = req.body.author;
     var category = req.body.category;
     var website = req.body.website;
-    var imagePath = req.body.path;
-    dataToSent = {
+    var imagePath = req.body.imgPath;
+    var imageBinary = req.body.imgBinary;
+    var dataToSend = {
         "appName": name,
         "version": version,
         "description": description,
@@ -211,25 +203,28 @@ function uploadMeta(req, res) {
         "website": website,
         "image": ""
     };
-    if (imagePath.length !== 0) {
+
+    var file = 'extensions/'+name+"/"+version+"/"+name+'.txt';
+    var image;
+    // Prefer file upload over file path if both are provided
+    if (imageBinary) {
+        dataToSend.image = imageBinary;
+        return upload(file, JSON.stringify(dataToSend), s3Tmp)
+    } else {
+        var deferred = jQuery.Deferred();
         fs.readFile(imagePath, function(err, data) {
             if (err) {
-                return res.send({"status": Status.Error, "logs": err});
+                console.log("here")
+                deferred.reject({"status": Status.Error, "logs": err});
+            } else {
+                image = data.toString("base64");
+                dataToSend.image = image;
+                upload(file, JSON.stringify(dataToSend), s3Tmp)
+                .then(deferred.resolve)
+                .fail(deferred.reject);
             }
-            image = data.toString("base64");
-            dataToSent.image = image;
-            var file = 'extensions/'+name+"/"+version+"/"+name+'.txt';
-            upload(file, JSON.stringify(dataToSent), s3Tmp)
-            .then(function(data) {
-                return res.send(data);
-            });
         });
-    } else {
-        var file = 'extensions/'+name+"/"+version+"/"+name+'.txt';
-        upload(file, JSON.stringify(dataToSent), s3Tmp)
-        .then(function(data) {
-            return res.send(data);
-        });
+        return deferred.promise();
     }
 }
 
