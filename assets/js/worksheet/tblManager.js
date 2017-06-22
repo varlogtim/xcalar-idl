@@ -24,7 +24,7 @@ window.TblManager = (function($, TblManager) {
     TblManager.refreshTable = function(newTableNames, tableCols, oldTableNames,
                                        worksheet, txId, options)
     {
-        if (txId != null && Transaction.checkAndSetCanceled(txId)) {
+        if (txId != null && Transaction.checkCanceled(txId)) {
             return PromiseHelper.reject(StatusTStr[StatusT.StatusCanceled]);
         }
 
@@ -67,7 +67,7 @@ window.TblManager = (function($, TblManager) {
         promise
         .then(function() {
             if (txId != null) {
-                if (Transaction.checkAndSetCanceled(txId)) {
+                if (Transaction.checkCanceled(txId)) {
                     deferred.reject(StatusTStr[StatusT.StatusCanceled]);
                     return;
                 } else {

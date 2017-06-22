@@ -8,7 +8,7 @@ describe("DSExport Test", function() {
     var testTargetName = "unitTestTarget";
     var url = "mnt/nfsshare/xcalar/export";
 
-    before(function() {
+    before(function(done) {
         UnitTest.onMinMode();
         $nameInput = $("#targetName");
         $submitBtn = $("#exportFormSubmit");
@@ -23,7 +23,13 @@ describe("DSExport Test", function() {
         if (!$("#datastoreMenu").is(":visible")) {
             $("#outButton").click();
         }
+        DSExport.getDefaultPath()
+        .then(function(path) {
+            url = path;
+            done();
+        });
     });
+
 
     describe("DSExport Basic Api Test", function() {
         it("DSExport.toggleXcUDFs should work", function() {

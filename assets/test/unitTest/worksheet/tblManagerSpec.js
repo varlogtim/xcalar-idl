@@ -5,8 +5,8 @@ describe("TableManager Test", function() {
 
     describe("Basic Function Test", function() {
         it("TblManager.refreshTable should handle transaction error", function(done) {
-            var oldFunc = Transaction.checkAndSetCanceled;
-            Transaction.checkAndSetCanceled = function() {
+            var oldFunc = Transaction.checkCanceled;
+            Transaction.checkCanceled = function() {
                 return true;
             };
 
@@ -19,7 +19,7 @@ describe("TableManager Test", function() {
                 done();
             })
             .always(function() {
-                Transaction.checkAndSetCanceled = oldFunc;
+                Transaction.checkCanceled = oldFunc;
             });
         });
 

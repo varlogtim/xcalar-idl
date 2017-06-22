@@ -4,11 +4,13 @@ describe("xcManager Test", function() {
         var oldAlert;
         var oldAlertError;
         var title;
+        var oldSocketInit;
 
         before(function() {
             handleSetupFail = xcManager.__testOnly__.handleSetupFail;
             oldAlert = Alert.show;
             oldAlertError = Alert.error;
+            oldSocketInit = XcSocket.init;
             Alert.show = function(options) {
                 title = options.title;
             };
@@ -16,6 +18,8 @@ describe("xcManager Test", function() {
             Alert.error = function(error) {
                 title = error;
             };
+
+            XcSocket.init = function(){};
         });
 
         it("should handle no wkbk error", function() {
@@ -94,6 +98,7 @@ describe("xcManager Test", function() {
         after(function() {
             Alert.show = oldAlert;
             Alert.error = oldAlertError;
+            XcSocket.init = oldSocketInit;
         });
     });
 

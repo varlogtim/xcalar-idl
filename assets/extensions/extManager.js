@@ -389,16 +389,22 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         var txId;
         // in case args is changed by ext writer
         var copyArgs = xcHelper.deepCopy(args);
+        var srcTableNames = getTablesFromArgs(args, true);
+        if (!notTableDependent) {
+            srcTableNames.push(tableName);
+        }
+
         var sql = {
             "operation": SQLOps.Ext,
             "tableName": tableName,
             "tableId": tableId,
+            "srcTables": srcTableNames,
             "module": module,
             "func": func,
             "args": copyArgs,
             "options": options,
             "worksheet": worksheet,
-            "htmlExclude": ["args", "options"]
+            "htmlExclude": ["args", "srcTables", "options"]
         };
 
         // Note Use try catch in case user has come error in extension code
@@ -420,7 +426,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                     }
                 }
             }
-            var ids = getTableIdFromArgs(args);
+            var ids = getTablesFromArgs(args);
             if (!notTableDependent) {
                 ids.push(tableId);
             }
@@ -520,21 +526,26 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         return deferred.promise();
     };
 
-    function getTableIdFromArgs(args) {
-        var ids = [];
+    // fullNames: boolean, if true - returns names, otherwise returns ids
+    function getTablesFromArgs(args, fullNames) {
+        var tables = [];
         for (var arg in args) {
             var sdkTable = args[arg];
             if (sdkTable instanceof XcSDK.Table) {
                 var tableName = sdkTable.getName();
-                var tableId = xcHelper.getTableId(tableName);
-                var table = gTables[tableId];
-                if (table != null && table.isActive()) {
-                    ids.push(tableId);
+                if (fullNames) {
+                    tables.push(tableName);
+                } else {
+                    var tableId = xcHelper.getTableId(tableName);
+                    var table = gTables[tableId];
+                    if (table != null && table.isActive()) {
+                        tables.push(tableId);
+                    }
                 }
             }
         }
 
-        return ids;
+        return tables;
     }
 
     function lockTables(ids, txId) {

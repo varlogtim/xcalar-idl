@@ -1,4 +1,4 @@
-describe('DFCreateView', function() {
+describe('DFCreateView Test', function() {
     var testDs;
     var tableName;
     var $dfView;
@@ -126,33 +126,33 @@ describe('DFCreateView', function() {
             $newNameInput.val("");
             expect(validate('')).to.be.false;
             // need to check duplicate df names
-            $newNameInput.val('z');
-            expect(validate('z')).to.be.true;
-            $newNameInput.val('a2');
-            expect(validate('a2')).to.be.true;
-            $newNameInput.val('B2');
-            expect(validate('B2')).to.be.true;
-            $newNameInput.val('B_2');
-            expect(validate('B_2')).to.be.true;
-            $newNameInput.val('B_2');
-            expect(validate('B-2')).to.be.true;
+            $newNameInput.val('tz');
+            expect(validate('tz')).to.be.true;
+            $newNameInput.val('ta2');
+            expect(validate('ta2')).to.be.true;
+            $newNameInput.val('tB2');
+            expect(validate('tB2')).to.be.true;
+            $newNameInput.val('tB_2');
+            expect(validate('tB_2')).to.be.true;
+            $newNameInput.val('tB_2');
+            expect(validate('tB-2')).to.be.true;
 
-            $newNameInput.val('B*2');
-            expect(validate('B*2')).to.be.false;
-            $newNameInput.val('b c');
-            expect(validate('b c')).to.be.false;
-            $newNameInput.val('B$c');
-            expect(validate('b$c')).to.be.false;
-            $newNameInput.val('$c');
-            expect(validate('$c')).to.be.false;
-            $newNameInput.val('a.b');
-            expect(validate('a.b')).to.be.false;
-            $newNameInput.val('a"b');
-            expect(validate('a"b')).to.be.false;
-            $newNameInput.val("a'b");
-            expect(validate("a'b")).to.be.false;
-            $newNameInput.val('a(b)');
-            expect(validate('a(b)')).to.be.false;
+            $newNameInput.val('tB*2');
+            expect(validate('tB*2')).to.be.false;
+            $newNameInput.val('tb c');
+            expect(validate('tb c')).to.be.false;
+            $newNameInput.val('tB$c');
+            expect(validate('tb$c')).to.be.false;
+            $newNameInput.val('t$c');
+            expect(validate('t$c')).to.be.false;
+            $newNameInput.val('ta.b');
+            expect(validate('ta.b')).to.be.false;
+            $newNameInput.val('ta"b');
+            expect(validate('ta"b')).to.be.false;
+            $newNameInput.val("ta'b");
+            expect(validate("ta'b")).to.be.false;
+            $newNameInput.val('ta(b)');
+            expect(validate('ta(b)')).to.be.false;
 
             expect($("#statusBox").is(":visible")).to.be.true;
             StatusBox.forceHide();

@@ -276,7 +276,7 @@ window.QueryManager = (function(QueryManager, $) {
         }
 
         Transaction.cancel(id);
-        unlockSrcTables(mainQuery, prevState);
+        unlockSrcTables(mainQuery);
 
         // unfinished tables will be dropped when Transaction.fail is reached
         var onlyFinishedTables = true;
@@ -1672,29 +1672,37 @@ window.QueryManager = (function(QueryManager, $) {
         return html;
     }
 
-    // xx can some of the src tables be simultaneously used by another operation
+    // XXX can some of the src tables be simultaneously used by another operation
     // and need to remain locked?
-    function unlockSrcTables(mainQuery, state) {
-        var queryStr = mainQuery.getQuery();
-        var srcTables = [];
+    function unlockSrcTables(mainQuery) {
+        var srcTables = {};
 
+        // check original source tables
+        if (mainQuery.srcTables) {
+            for (var i = 0; i < mainQuery.srcTables.length; i++) {
+                srcTables[mainQuery.srcTables[i]] = true;
+            }
+        }
+
+        // scan query strings for other source tables in case they were missed
+        var queryStr = mainQuery.getQuery();
         if (queryStr) {
             var queries = xcHelper.parseQuery(queryStr);
             for (var i = 0; i < queries.length; i++) {
                 if (queries[i].srcTables) {
                     for (var j = 0; j < queries[i].srcTables.length; j++) {
-                        srcTables.push(queries[i].srcTables[j]);
+                        srcTables[queries[i].srcTables[j]] = true;
                     }
                 }
             }
-        } else if (state === QueryStateT.qrNotStarted && mainQuery.srcTables) {
-            srcTables = mainQuery.srcTables;
         }
 
         var tableId;
-        for (var i = 0; i < srcTables.length; i++) {
-            tableId = xcHelper.getTableId(srcTables[i]);
-            xcHelper.unlockTable(tableId);
+        for (var table in srcTables) {
+            tableId = xcHelper.getTableId(table);
+            if (tableId) {
+                xcHelper.unlockTable(tableId);
+            }
         }
     }
 
@@ -1813,6 +1821,7 @@ window.QueryManager = (function(QueryManager, $) {
         QueryManager.__testOnly__.queryLists = queryLists;
         QueryManager.__testOnly__.queryCheckLists = queryCheckList;
         QueryManager.__testOnly__.canceledQueries = canceledQueries;
+        QueryManager.__testOnly__.unlockSrcTables = unlockSrcTables;
     }
     /* End Of Unit Test Only */
 

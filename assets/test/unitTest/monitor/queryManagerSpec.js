@@ -202,6 +202,33 @@ describe('QueryManager Test', function() {
             done();
         });
 
+        it("unlockSrcTables should work", function() {
+            var cachedUnlock = xcHelper.unlockTable;
+            var tables = [];
+            xcHelper.unlockTable = function(tId) {
+                tables.push(tId);
+            };
+            var fn = QueryManager.__testOnly__.unlockSrcTables;
+            var fakeQuery = new XcQuery({
+                "srcTables": ["table#1a", "table#2b", "table#2b"] // duplicate on purpose
+            });
+            var firstPart = 'map --eval "concat(\\"1\\", \\"2\\")" --srctable "A#Vi5" ' +
+                        '--fieldName "B" --dsttable "A#Vi25";';
+            var secondPart = 'join --leftTable "c.index#Vi35" --rightTable ' +
+                        '"d.index#Vi36" --joinType innerJoin ' +
+                        '--joinTable "a#Vi34";';
+            fakeQuery.queryStr = firstPart + secondPart;
+
+            fn(fakeQuery);
+            expect(tables.length).to.equal(5);
+            expect(tables[0]).to.equal("1a");
+            expect(tables[1]).to.equal("2b");
+            expect(tables[2]).to.equal("Vi5");
+            expect(tables[3]).to.equal("Vi35");
+            expect(tables[4]).to.equal("Vi36");
+            xcHelper.unlockTable = cachedUnlock;
+        });
+
         it('QueryManager.removeQuery should work', function() {
             var queryListLen = $queryList.find(".xc-query").length;
             expect(queryLists[1]).to.be.an.object;

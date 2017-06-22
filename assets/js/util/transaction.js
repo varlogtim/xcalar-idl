@@ -1,7 +1,6 @@
 window.Transaction = (function(Transaction, $) {
     var txCache = {};
     var canceledTxCache = {};
-    var pendingCancelTxCache = {};
     var disabledCancels = {};
     var txIdCount = 0;
     var isDeleting = false;
@@ -108,7 +107,7 @@ window.Transaction = (function(Transaction, $) {
         if (!isValidTX(txId)) {
             return;
         }
-        if (canceledTxCache[txId] || pendingCancelTxCache[txId]) {
+        if (canceledTxCache[txId]) {
             // transaction failed due to a cancel
             QueryManager.cleanUpCanceledTables(txId);
             return;
@@ -151,18 +150,13 @@ window.Transaction = (function(Transaction, $) {
         transactionCleaner();
     };
 
-    Transaction.pendingCancel = function(txId) {
-        if (!isValidTX(txId)) {
-            return;
-        }
-        pendingCancelTX(txId);
-    };
-
     Transaction.disableCancel = function(txId) {
         // when a replaceTable is called in the worksheet, we disable the
         // ability to cancel because it's too late at this point
         if (isValidTX(txId)) {
             disabledCancels[txId] = true;
+            // this is used in Transaction.isCancelable to check if a transaction
+            // can be canceled
         }
     };
 
@@ -172,6 +166,10 @@ window.Transaction = (function(Transaction, $) {
 
     Transaction.cancel = function(txId, options) {
         if (!isValidTX(txId)) {
+            return;
+        }
+        if (txId in canceledTxCache) {
+            console.error("cancel on transaction " + txId + " already done.");
             return;
         }
         options = options || {};
@@ -240,19 +238,6 @@ window.Transaction = (function(Transaction, $) {
         return (txId in canceledTxCache);
     };
 
-    Transaction.checkAndSetCanceled = function(txId) {
-        if (canceledTxCache[txId]) {
-            return true;
-        } else if (pendingCancelTxCache[txId]) {
-            // if we're checking then cancel must have worked so we process it
-            Transaction.cancel(txId);
-            // Transaction.cleanUpCanceledTables(txId);
-            return true;
-        } else {
-            return false;
-        }
-    };
-
     Transaction.cleanUpCanceledTables = function(txId) {
         QueryManager.cleanUpCanceledTables(txId);
     };
@@ -286,13 +271,8 @@ window.Transaction = (function(Transaction, $) {
         canceledTxCache[txId] = true;
     }
 
-    function pendingCancelTX(txId) {
-        pendingCancelTxCache[txId] = true;
-    }
-
     function removeTX(txId) {
         delete disabledCancels[txId];
-        delete pendingCancelTxCache[txId];
         delete txCache[txId];
     }
 
@@ -314,12 +294,17 @@ window.Transaction = (function(Transaction, $) {
         }
     }
 
+    // only used to determine which tables to unlock when canceling
     function getSrcTables(sql) {
         var tables = [];
         if (!sql) {
             return tables;
         }
-        if (sql.tableName) {
+        if (sql.srcTables) {
+            for (var i = 0; i < sql.srcTables.length; i++) {
+                tables.push(sql.srcTables[i]);
+            }
+        } else if (sql.tableName) {
             tables.push(sql.tableName);
         } else if (sql.tableId && gTables[sql.tableId]) {
             tables.push(gTables[sql.tableId].getName());
@@ -329,7 +314,6 @@ window.Transaction = (function(Transaction, $) {
                 tables.push(sql.rTableName);
             }
         }
-
         return tables;
     }
 
