@@ -1673,7 +1673,7 @@ window.DFCard = (function($, DFCard) {
                     paramType = XcalarApisT.XcalarApiFilter;
                 } else if (type === "dataStore") {
                     paramType = XcalarApisT.XcalarApiBulkLoad;
-                } else if (ype === "export"){
+                } else if (type === "export"){
                     paramType = XcalarApisT.XcalarApiExport;
                 }
 
