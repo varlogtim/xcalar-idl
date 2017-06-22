@@ -19,7 +19,7 @@ $(document).ready(function() {
         showSplashScreen();
     }
 
-    var lastUsername = xcLocalStorage.getItem("lastUsername");
+    var lastUsername = xcLocalStorage.getItem("lastUsername").toLowerCase();
     if (lastUsername && lastUsername.length) {
         $("#loginNameBox").val(lastUsername);
     }
@@ -31,12 +31,12 @@ $(document).ready(function() {
             // submit was already triggered
             return;
         }
-        var username = $("#loginNameBox").val().trim();
+        var username = $("#loginNameBox").val().trim().toLowerCase();
         if (username === "") {
             return;
         }
 
-        console.log("username:", username);
+        // console.log("username:", username);
         var pass = $('#loginPasswordBox').val().trim();
         var str = {"xipassword": pass, "xiusername": username};
 
@@ -77,9 +77,8 @@ $(document).ready(function() {
 
         function submit() {
             isSubmitDisabled = false;
-            var fullUsername = username;
             xcSessionStorage.setItem("xcalar-username", username);
-            xcLocalStorage.setItem("lastUsername", fullUsername);
+            xcLocalStorage.setItem("lastUsername", username);
             // XXX this redirect is only for temporary use
             window.location = paths.indexAbsolute;
         }
