@@ -1366,6 +1366,9 @@ window.DFCard = (function($, DFCard) {
                 }
                 var nodePct = Math.round(100 * nodes[i].numWorkCompleted /
                                      nodes[i].numWorkTotal);
+                if (isNaN(nodePct)) {
+                    nodePct = 0;
+                }
                 var lastPct = $barWrap.data("pct");
                 if (nodePct && nodePct !== lastPct) {
                     $barWrap.find(".progressBar").animate(

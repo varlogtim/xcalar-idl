@@ -179,8 +179,12 @@ window.Support = (function(Support, $) {
 
                 highestMemUsage = Math.max(highestMemUsage, xdbUsage);
             }
+            var avgUsg  = used / total;
+            if (isNaN(avgUsg)) {
+                avgUsg = 0;
+            }
 
-            handleMemoryUsage(highestMemUsage, used / total);
+            handleMemoryUsage(highestMemUsage, avgUsg);
         }
 
         function handleMemoryUsage(highestMemUsage, avgMemUsage) {

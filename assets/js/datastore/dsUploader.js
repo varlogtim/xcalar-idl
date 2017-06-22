@@ -430,9 +430,13 @@ window.DSUploader = (function($, DSUploader) {
         var $icon = getDSIcon(name);
         $icon.find(".fileName").html(name + " (" + CommonTxtTstr.Uploading +
                                      ")");
+        var pct = Math.floor(100 * sizeCompleted / file.size);
+        if (isNaN(pct)) {
+            pct = 0;
+        }
         var sizeProgress = xcHelper.sizeTranslator(sizeCompleted) + "/" +
-                           xcHelper.sizeTranslator(file.size) + " (" +
-                           Math.floor(100 * sizeCompleted / file.size) +"%)";
+                           xcHelper.sizeTranslator(file.size) + " (" + pct +
+                           "%)";
 
         $icon.find(".fileSize").html(sizeProgress);
         fileObj.sizeCompleted = sizeCompleted;
