@@ -23,7 +23,8 @@ destMap = {
     "dashboard.html": "dashboard.html",
     "testSuite.html": "testSuite.html",
     "undoredoTest.html": "undoredoTest.html",
-    "extensionUploader.html": "assets/htmlFiles/extensionUploader.html"
+    "extensionUploader.html": "assets/htmlFiles/extensionUploader.html",
+    "userManagement.html": "assets/htmlFiles/userManagement.html"
 };
 
 var noPrettify = ["datastoreTut1.html", "datastoreTut1DemoMode.html", "datastoreTut2.html", "workbookTut.html"];
@@ -106,7 +107,8 @@ module.exports = function(grunt) {
           'assets/stylesheets/css/installer.css': 'assets/stylesheets/less/installer.less',
           'assets/stylesheets/css/dashboard.css': 'assets/stylesheets/less/dashboard.less',
           'assets/stylesheets/css/xu.css': 'assets/stylesheets/less/xu.less',
-          'assets/stylesheets/css/testSuite.css': 'assets/stylesheets/less/testSuite.less'
+          'assets/stylesheets/css/testSuite.css': 'assets/stylesheets/less/testSuite.less',
+          'assets/stylesheets/css/userManagement.css': 'assets/stylesheets/less/userManagement.less'
         }
       }
     },
