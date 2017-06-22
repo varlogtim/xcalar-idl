@@ -40,6 +40,19 @@ window.XcSDK.Table.prototype = {
 
     //     return cols;
     // },
+
+    getColsAsArray: function() {
+        var cols = [];
+        var tableCols = this.tableCols;
+        for (var i = 0, len = tableCols.length; i < len; i++) {
+            var progCol = tableCols[i];
+            var col = new XcSDK.Column(progCol.getBackColName(),
+                progCol.getType());
+            cols.push(col);
+        }
+        return cols;
+    },
+
     getColNamesAsArray: function() {
         var cols = [];
         var tableCols = this.tableCols;

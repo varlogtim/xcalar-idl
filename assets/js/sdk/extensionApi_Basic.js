@@ -87,10 +87,10 @@ window.XcSDK.Extension.prototype = (function() {
         },
 
         "getTable": function(tableName) {
-            var newTables = this.newTables;
-            for (var i = 0, len = newTables.length; i < len; i++) {
-                if (newTables[i].getName() === tableName) {
-                    return newTables[i];
+            var tables = this.newTables.concat(this.table);
+            for (var i = 0, len = tables.length; i < len; i++) {
+                if (tables[i].getName() === tableName) {
+                    return tables[i];
                 }
             }
             return null;
