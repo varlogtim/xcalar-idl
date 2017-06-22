@@ -753,15 +753,16 @@ window.DFCard = (function($, DFCard) {
         // and a retina dag. For example, it colors parameterized nodes.
         // It also adds extra classes to the dag that is needed for parameteri-
         // zation later.
-        var $action = $wrap.find(".actionType.export");
-        var $exportTable = $action.next(".dagTable");
+        var $exportAction = $wrap.find(".actionType.export");
+        var exportId = $exportAction.attr("data-id");
+        var $exportTable = $exportAction.next(".dagTable");
 
         var i = 0;
         var dataflow = DF.getDataflow(dataflowName);
         var retNodes = dataflow.retinaNodes;
         var paramValue = '';
         for (i = 0; i < retNodes.length; i++) {
-            if (retNodes[i].dagNodeId === $action.attr("data-id")) {
+            if (retNodes[i].dagNodeId === exportId) {
                 var meta = retNodes[i].input.exportInput.meta;
                 var specInput = meta.specificInput;
                 var fileName = specInput.sfInput.fileName ||
@@ -769,6 +770,7 @@ window.DFCard = (function($, DFCard) {
                              // 3 should have a non "" value
                              //xx specInput.odbcInput.tableName no longer exists
                 paramValue = [fileName, meta.target.name, meta.target.type];
+                // uploaded retinas do not have params in export node
             }
         }
 
@@ -806,6 +808,9 @@ window.DFCard = (function($, DFCard) {
 
         for (var nodeId in dataflow.parameterizedNodes) {
             var $tables = $wrap.find('[data-id="' + nodeId + '"]');
+            if ($tables.hasClass("export")) {
+                $tables = $tables.next(".dagTable");
+            }
             var paramVal = $tables.data("paramValue");
 
             if (isParameterized(paramVal)) {
@@ -1660,15 +1665,18 @@ window.DFCard = (function($, DFCard) {
 
     function restoreParameterizedNode(dataflowName) {
         var df = DF.getDataflow(dataflowName);
-        $dagWrap = $(getDagWrap(dataflowName));
+        var $dagWrap = $(getDagWrap(dataflowName));
         for (var key in df.nodeIds) {
             var dagNodeId = df.nodeIds[key];
-            var dagNode = $dagWrap.find('[data-id="' + dagNodeId + '"]');
-            var paramVal = $(dagNode).data().paramValue;
-            var type = $(dagNode).data().type;
+            var $dagNode = $dagWrap.find('[data-id="' + dagNodeId + '"]');
+            if ($dagNode.hasClass("export")) {
+                $dagNode = $dagNode.next(".dagTable");
+            }
+            var paramVal = $dagNode.data().paramValue;
+            var type = $dagNode.data().type;
+            // uploaded retinas do not have params in export node / paramVal
             if (isParameterized(paramVal)) {
                 var paramType;
-
                 if (type === "filter") {
                     paramType = XcalarApisT.XcalarApiFilter;
                 } else if (type === "dataStore") {
