@@ -676,6 +676,8 @@ MonitorTStr = {
     'ViewMem': 'View memory usage',
     'MemUsage': 'Memory usage',
     'YouAreUsing': 'You are using Xcalar as ',
+    "Restart": "Restart Xcalar",
+    "RestartMsg": "Please restart Xcalar to apply the change",
     // with replace
     'ParamConfigFailMsg': 'Could not set parameter <b><name></b> to ' +
                           '<b><value></b>.',

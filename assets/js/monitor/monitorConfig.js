@@ -161,12 +161,13 @@ window.MonitorConfig = (function(MonitorConfig, $) {
         }
     }
 
-
     //xx need to handle submitting duplicate rows
     function submitForm() {
         var errorFound;
         var promises = [];
         var rows = [];
+        var needRestart = false;
+
         $configCard.find('.formRow').each(function() {
             var $row = $(this);
             if ($row.hasClass('placeholder') || $row.hasClass('uneditable')) {
@@ -177,7 +178,6 @@ window.MonitorConfig = (function(MonitorConfig, $) {
             var newVal = $newValInput.val().trim();
             var $nameInput = $row.find('.paramName');
             var paramObj = getParamObjFromInput($nameInput);
-            var pName;
 
             if (!paramObj) {
                 errorFound = {
@@ -187,7 +187,8 @@ window.MonitorConfig = (function(MonitorConfig, $) {
                 return false;
             }
 
-            pName = paramObj.paramName;
+            var pName = paramObj.paramName;
+            needRestart = needRestart || paramObj.restartRequired;
 
             if (!newVal.length) {
                 errorFound = {
@@ -208,9 +209,21 @@ window.MonitorConfig = (function(MonitorConfig, $) {
         if (promises.length) {
             PromiseHelper.when.apply(window, promises)
             .then(function() {
-                xcHelper.showSuccess(SuccessTStr.SaveParam);
+                if (needRestart) {
+                    var msg = SuccessTStr.SaveParam + " " +
+                              MonitorTStr.RestartMsg;
+                    Alert.show({
+                        "title": MonitorTStr.Restart,
+                        "msg": msg,
+                        "isAlert": true
+                    });
+                } else {
+                    xcHelper.showSuccess(SuccessTStr.SaveParam);
+                }
             })
             .fail(function() {
+                // XXX also need to handle partial failures better
+                // (alert restarat if necessary)
                 submitFailHandler(arguments, rows);
             })
             .always(function() {
