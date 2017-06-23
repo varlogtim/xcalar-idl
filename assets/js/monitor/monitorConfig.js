@@ -63,7 +63,7 @@ window.MonitorConfig = (function(MonitorConfig, $) {
 
         $configCard.on('blur', '.paramName', function() {
             var $nameInput = $(this);
-            $nameInput.val($nameInput.data('value'));
+            $nameInput.val($nameInput.attr('data-value'));
         });
 
         $configCard.on("change", ".paramName", function() {
@@ -130,7 +130,7 @@ window.MonitorConfig = (function(MonitorConfig, $) {
                 return;
             }
 
-            $nameInput.data('value', paramObj.paramName)
+            $nameInput.attr('data-value', paramObj.paramName)
                       .prop('readonly', true)
                       .val(paramObj.paramName);
             $curValInput.val(paramObj.paramValue);
@@ -152,7 +152,7 @@ window.MonitorConfig = (function(MonitorConfig, $) {
             var defValTooltip = getDefaultTooltip(paramObj);
             xcTooltip.changeText($formRow.find('.defaultParam'), defValTooltip);
         } else {
-            $nameInput.data('value', val);
+            $nameInput.attr('data-value', val);
             $curValInput.val('');
             if (!onChangeTriggered) {
                 showAddParamError(ErrTStr.ConfigParamNotFound, $nameInput);
@@ -331,8 +331,18 @@ window.MonitorConfig = (function(MonitorConfig, $) {
         setTimeout(function() {
             $placeholder.prev().removeClass('animating');
         }, 0);
-        var $mainContent = $('#monitorPanel').children('.mainContent');
-        $mainContent.scrollTop($mainContent.height());
+
+        // position scrollbar
+        var rowHeight = $configCard.find(".formRow").eq(0).outerHeight();
+        var winHeight = $(window).height();
+        var bottomBuffer = $("#statusBar").height() + 20;
+        var posDiff = ($placeholder.offset().top + rowHeight + bottomBuffer) -
+                       winHeight;
+        if (posDiff > 0) {
+            var $mainContent = $('#monitorPanel').children('.mainContent');
+            var top = $mainContent.scrollTop();
+            $mainContent.animate({scrollTop: top + posDiff + 20});
+        }
     }
 
     function getInputRowHtml(paramObj) {
@@ -358,7 +368,7 @@ window.MonitorConfig = (function(MonitorConfig, $) {
         }
         var html = '<div class="formRow clearfix ' + rowClassNames + '">' +
                     '<div class="removeRow">' +
-                        '<i class="icon xi-close fa-12"></i>' +
+                        '<i class="icon xi-close fa-14"></i>' +
                     '</div>' +
                   '<label class="argWrap">' +
                     '<span class="text">' + MonitorTStr.ConfigParamName +
