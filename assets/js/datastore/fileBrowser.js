@@ -63,6 +63,10 @@ window.FileBrowser = (function($, FileBrowser) {
         }
     };
 
+    FileBrowser.clear = function() {
+        clearAll();
+    };
+
     FileBrowser.show = function(protocol, path) {
         var deferred = jQuery.Deferred();
 

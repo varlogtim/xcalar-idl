@@ -90,6 +90,7 @@ window.DSForm = (function($, DSForm) {
     DSForm.hide = function() {
         $("#dsFormView").addClass("xc-hidden");
         DSPreview.clear();
+        FileBrowser.clear();
     };
 
     DSForm.clear = function() {
