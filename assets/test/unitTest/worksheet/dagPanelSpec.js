@@ -1695,13 +1695,13 @@ describe("Dag Panel Test", function() {
             expect(res.indexOf("filter-not-equal")).to.be.gt(-1);
 
             res = fn("filter", {type: "filterlike"});
-            expect(res.indexOf("oldIcon")).to.be.gt(-1);
+            expect(res.indexOf("filter")).to.be.gt(-1);
 
             res = fn("filter", {type: "filterothers"});
-            expect(res.indexOf("oldIcon")).to.be.gt(-1);
+            expect(res.indexOf("filter")).to.be.gt(-1);
 
             res = fn("filter", {type: "other"});
-            expect(res.indexOf("oldIcon")).to.be.gt(-1);
+            expect(res.indexOf("filter")).to.be.gt(-1);
         });
 
         it("getJoinIconClass", function() {

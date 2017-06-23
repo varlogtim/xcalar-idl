@@ -124,7 +124,6 @@
 
                 .retPopUp {
                     .position(absolute, @top: 33px, @right: 0px);
-                    .size(@height: 301px);
                     display: none;
                     box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.2);
                     padding: 10px 8px;
@@ -134,7 +133,7 @@
                         .size(@width: 100%, @height: 30px);
                         margin-bottom: 6px;
 
-                        .input-box(@w: 333px, @h: 30px);
+                        .input-box(@w: 310px, @h: 30px);
 
                         > input, > button {
                             display: inline-block;
@@ -175,7 +174,8 @@
 
                         &.paramActionWrap, &.paramNoValueWrap {
                             text-align: center;
-                            .size(@width: 90px);
+                            .size(@width: 80px);
+                            padding: 0px 4px;
                             .checkbox {
                                 .size(@width: 15px, @height: 15px);
                                 .position(relative, @top: 2px);
@@ -185,7 +185,7 @@
 
                     .tableContainer {
                         .tableWrapper {
-                            .size(@width: 562px);
+                            .size(@width: 542px);
 
                             .unfilled .paramDelete, .unfilled .checkbox {
                                 display: none;

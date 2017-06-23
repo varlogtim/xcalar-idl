@@ -11,10 +11,10 @@ window.DFCard = (function($, DFCard) {
     var retinaCheckInterval = 2000;
     var retinasInProgress = {};
 
-    var retinaTrLen = 7;
+    var retinaTrLen = 5;
     var retinaTr = '<div class="row unfilled">' +
                         '<div class="cell paramNameWrap textOverflowOneLine">' +
-                            '<div class="paramName"></div>' +
+                            '<div class="paramName textOverflowOneLine"></div>' +
                         '</div>' +
                         '<div class="cell paramValWrap textOverflowOneLine">' +
                             '<input class="paramVal" spellcheck="false"/>' +
@@ -60,17 +60,34 @@ window.DFCard = (function($, DFCard) {
 
     DFCard.addDFToList = function(dataflowName) {
         var html = getDFListItemHtml(dataflowName);
+        var $listItems = $listSection.find(".groupName");
+        var added = false;
 
-        $dfMenu.find('.listSection').append(html);
+        $listItems.each(function() {
+            var $name = $(this);
+            var name = $name.text();
+            if (xcHelper.sortVals(name, dataflowName) > 0) {
+                $name.closest(".listWrap").before(html);
+                added = true;
+                return false;
+            }
+        });
+
+        if (!added) {
+            $listSection.append(html);
+        }
+
         var numDfs = DF.getNumDataflows();
         $dfMenu.find('.numGroups').text(numDfs);
-        if (numDfs === 1) {
-            DFCard.focusFirstDF();
-        }
+
+        $listSection.find('.listBox').removeClass('selected');
+        var $dataflowLi = DFCard.getDFList(dataflowName).find(".listBox");
+        $dataflowLi.addClass('selected');
+        focusOnDF(dataflowName);
     };
 
     DFCard.getDFList = function(dataflowName) {
-        var $list = $dfMenu.find(".listWrap").filter(function() {
+        var $list = $listSection.find(".listWrap").filter(function() {
             return ($(this).find(".groupName").text() === dataflowName);
         });
         return $list;
@@ -105,16 +122,22 @@ window.DFCard = (function($, DFCard) {
             $dfCard.find('.cardMain').html(hint);
             $dfCard.find('.leftSection .title').text("");
             $dfMenu.find('.numGroups').text(0);
-            $dfMenu.find('.listSection').html("");
+            $listSection.html("");
             return;
         }
         var html = "";
         var numFlows = 0;
+        var dataflowList = [];
         for (var dfName in dataflows) {
-            html += getDFListItemHtml(dfName);
-            numFlows++;
+            dataflowList.push(dfName);
         }
-        $dfMenu.find('.listSection').html(html);
+        var numFlows = dataflowList.length;
+        dataflowList = dataflowList.sort(xcHelper.sortVals);
+        for (var i = 0; i < numFlows; i++) {
+            html += getDFListItemHtml(dataflowList[i]);
+        }
+
+        $listSection.html(html);
         $dfMenu.find('.numGroups').text(numFlows);
         if (noFocus) {
             return;
@@ -399,85 +422,8 @@ window.DFCard = (function($, DFCard) {
             $dataflowLi.addClass('selected');
 
             var dataflowName = $dataflowLi.find('.groupName').text();
-            currentDataflow = dataflowName;
-            $header.text(dataflowName);
 
-            $("#dataflowView .dagWrap").addClass('xc-hidden');
-
-            var df = DF.getDataflow(dataflowName);
-            var promise;
-            var html;
-            var $dagWrap = getDagWrap(dataflowName);
-            if ($.isEmptyObject(df.retinaNodes) && !$dagWrap.length) {
-                promise = DF.updateDF(dataflowName);
-                $retTabSection.find(".retTab").removeClass("active");
-                html = '<div class="dagWrap clearfix" '+
-                           'data-dataflowName="' + dataflowName + '"></div>';
-                $dfCard.find(".cardMain").append(html);
-                $dagWrap = getDagWrap(dataflowName);
-                xcHelper.showRefreshIcon($dagWrap, false, promise);
-            } else {
-                promise = PromiseHelper.resolve();
-                $dagWrap = getDagWrap(dataflowName);
-                if (!$dagWrap.length) {
-                    html = '<div class="dagWrap clearfix" '+
-                           'data-dataflowName="' + dataflowName + '"></div>';
-                    $dfCard.find(".cardMain").append(html);
-                }
-            }
-            $dagWrap.removeClass("xc-hidden");
-
-            if (DF.hasSchedule(dataflowName)) {
-                Scheduler.show(dataflowName);
-                $("#dfViz").addClass("withSchedule");
-            } else {
-                Scheduler.hide();
-                $("#dfViz").removeClass("withSchedule");
-            }
-
-            promise
-            .then(function() {
-                var $dagWrap = getDagWrap(dataflowName);
-                if ($.isEmptyObject(df.retinaNodes) || !$dagWrap.length) {
-                    return; // may have gotten cleared
-                }
-                if (!$dagWrap.find(".dagImage").length) {
-                    // first time creating image
-                    drawDF(dataflowName);
-                    $dagWrap = getDagWrap(dataflowName);
-                    $dagWrap.removeClass("xc-hidden");
-                    var width = $dagWrap.find('canvas').attr('width');
-                    $dagWrap.find('.dagImageWrap').scrollLeft(width);
-                    if (XVM.getLicenseMode() === XcalarMode.Demo &&
-                        dataflowName === currentDataflow) {
-                        var $name = $dagWrap.find(".dagTable.export " +
-                                                 ".exportTableName");
-                        var exportName = xcHelper.getTableName($name.text());
-                        var $option = $dagWrap.find(".advancedOpts " +
-                                                    "[data-option='import']");
-                        $option.click();
-                        $option.find("input").val(exportName);
-                        $name.text(exportName);
-                        xcTooltip.changeText($name, exportName);
-                    }
-                }
-
-                if (dataflowName === currentDataflow) {
-                    $dagWrap.removeClass("xc-hidden");
-                    DFCard.updateRetinaTab(dataflowName);
-                    enableDagTooltips();
-                } else {
-                    $dagWrap.addClass("xc-hidden");
-                }
-            })
-            .fail(function() {
-                console.error(arguments);
-            })
-            .always(function() {
-                if ($.isEmptyObject(df.parameterizedNodes)) {
-                    restoreParameterizedNode(dataflowName);
-                }
-            });
+            focusOnDF(dataflowName);
         });
 
         $listSection.on('click', '.downloadDataflow', function() {
@@ -511,7 +457,7 @@ window.DFCard = (function($, DFCard) {
                     "msg": DFTStr.ParamNoValue,
                     "isAlert": true,
                     "onCancel": function() {
-                        $('#dfViz .retTabSection .retTab').trigger('mousedown');
+                        $dfCard.find('.retTabSection .retTab').trigger('mousedown');
                     }
                 });
             }
@@ -526,8 +472,7 @@ window.DFCard = (function($, DFCard) {
                 return showLicenseTooltip(this);
             }
             var $btn = $(this).blur();
-            var retName = $("#dfMenu .listSection")
-                                .find(".selected .groupName").text();
+            var retName = $listSection.find(".selected .groupName").text();
             var df = DF.getDataflow(retName);
             if (df.allUsedParamsWithValues()) {
                 if ($btn.hasClass('canceling') || canceledRuns[retName]) {
@@ -554,7 +499,7 @@ window.DFCard = (function($, DFCard) {
                     "msg": DFTStr.ParamNoValue,
                     "isAlert": true,
                     "onCancel": function() {
-                        $('#dfViz .retTabSection .retTab').trigger('mousedown');
+                        $dfCard.find('.retTabSection .retTab').trigger('mousedown');
                     }
                 });
             }
@@ -607,7 +552,7 @@ window.DFCard = (function($, DFCard) {
                         '<div class="text">)</div>' +
                     '</div>';
         var $deleteInfo = $(html);
-        $("#dfViz .cardHeader .title").append($deleteInfo);
+        $dfCard.find(".cardHeader .title").append($deleteInfo);
 
         Scheduler.hide();
 
@@ -834,7 +779,7 @@ window.DFCard = (function($, DFCard) {
     }
 
     function enableDagTooltips() {
-        var $tooltipTables = $('#dfViz').find('.dagTableIcon');
+        var $tooltipTables = $dfCard.find('.dagTableIcon');
         xcTooltip.disable($tooltipTables);
         var selector;
         if (XVM.getLicenseMode() === XcalarMode.Mod) {
@@ -844,7 +789,7 @@ window.DFCard = (function($, DFCard) {
                         '.export .dagTableIcon, .actionType.filter';
         }
 
-        var $icons = $('#dfViz').find(selector).filter(function() {
+        var $icons = $dfCard.find(selector).filter(function() {
             return ($(this).siblings(".progressInfo").length === 0);
         });
 
@@ -1627,7 +1572,7 @@ window.DFCard = (function($, DFCard) {
         var toUpdate = {};
         var hasInvalidRow = false;
 
-        $("#dfViz #retLists").find(".row:not(.unfilled)").each(function() {
+        $("#retLists").find(".row:not(.unfilled)").each(function() {
             var $row = $(this);
             if (!hasInvalidRow) {
                 var name = $row.find(".paramName").text();
@@ -1696,7 +1641,6 @@ window.DFCard = (function($, DFCard) {
         }
     }
 
-
     function isParameterized(paramValue) {
         if (paramValue !== undefined) {
             for (var i = 0; i < paramValue.length; i++) {
@@ -1707,6 +1651,88 @@ window.DFCard = (function($, DFCard) {
             }
         }
         return false;
+    }
+
+    function focusOnDF(dataflowName) {
+        currentDataflow = dataflowName;
+        $header.text(dataflowName);
+
+        $dfView.find(".dagWrap").addClass('xc-hidden');
+
+        var df = DF.getDataflow(dataflowName);
+        var promise;
+        var html;
+        var $dagWrap = getDagWrap(dataflowName);
+        if ($.isEmptyObject(df.retinaNodes) && !$dagWrap.length) {
+            promise = DF.updateDF(dataflowName);
+            $retTabSection.find(".retTab").removeClass("active");
+            html = '<div class="dagWrap clearfix" '+
+                       'data-dataflowName="' + dataflowName + '"></div>';
+            $dfCard.find(".cardMain").append(html);
+            $dagWrap = getDagWrap(dataflowName);
+            xcHelper.showRefreshIcon($dagWrap, false, promise);
+        } else {
+            promise = PromiseHelper.resolve();
+            $dagWrap = getDagWrap(dataflowName);
+            if (!$dagWrap.length) {
+                html = '<div class="dagWrap clearfix" '+
+                       'data-dataflowName="' + dataflowName + '"></div>';
+                $dfCard.find(".cardMain").append(html);
+            }
+        }
+        $dagWrap.removeClass("xc-hidden");
+
+        if (DF.hasSchedule(dataflowName)) {
+            Scheduler.show(dataflowName);
+            $dfCard.addClass("withSchedule");
+        } else {
+            Scheduler.hide();
+            $dfCard.removeClass("withSchedule");
+        }
+
+        promise
+        .then(function() {
+            var $dagWrap = getDagWrap(dataflowName);
+            if ($.isEmptyObject(df.retinaNodes) || !$dagWrap.length) {
+                return; // may have gotten cleared
+            }
+            if (!$dagWrap.find(".dagImage").length) {
+                // first time creating image
+                drawDF(dataflowName);
+                $dagWrap = getDagWrap(dataflowName);
+                $dagWrap.removeClass("xc-hidden");
+                var width = $dagWrap.find('canvas').attr('width');
+                $dagWrap.find('.dagImageWrap').scrollLeft(width);
+                if (XVM.getLicenseMode() === XcalarMode.Demo &&
+                    dataflowName === currentDataflow) {
+                    var $name = $dagWrap.find(".dagTable.export " +
+                                             ".exportTableName");
+                    var exportName = xcHelper.getTableName($name.text());
+                    var $option = $dagWrap.find(".advancedOpts " +
+                                                "[data-option='import']");
+                    $option.click();
+                    $option.find("input").val(exportName);
+                    $name.text(exportName);
+                    xcTooltip.changeText($name, exportName);
+                }
+            }
+
+            if (dataflowName === currentDataflow) {
+                $dagWrap.removeClass("xc-hidden");
+                DFCard.updateRetinaTab(dataflowName);
+                enableDagTooltips();
+            } else {
+                $dagWrap.addClass("xc-hidden");
+            }
+        })
+        .fail(function() {
+            console.error(arguments);
+        })
+        .always(function() {
+            if ($.isEmptyObject(df.parameterizedNodes)) {
+                restoreParameterizedNode(dataflowName);
+            }
+        });
     }
 
     /* Unit Test Only */

@@ -614,6 +614,7 @@ module.exports = {
         "noValue": "No Value",
         "slightSkew": "Slight skew",
         "heavySkew": "Heavy skew",
+        "Columns": "Columns",
         // For uploader
         "upload": "UPLOAD",
         "uploadHeader": "Upload Dataflow",

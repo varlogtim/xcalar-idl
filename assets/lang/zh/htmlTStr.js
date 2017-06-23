@@ -306,6 +306,7 @@ module.exports = {
         "params": "参数",
         "slightSkew": "Slight skew",
         "heavySkew": "Heavy skew",
+        "Columns": "Columns",
         "upload": "上传",
         "uploadHeader": "上传数据流",
         "uploadInstr": "将以前下载的数据流上传到Xcalar。您的文件的格式应为.tar.gz",
