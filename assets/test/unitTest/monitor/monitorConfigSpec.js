@@ -42,10 +42,7 @@ describe("MonitorConfig Test", function() {
             UnitTest.hasStatusBoxWithError(ErrTStr.ConfigParamNotFound);
 
             $paramName.val("buffercachepercentoftotalmem").trigger(fakeEvent.enter);
-            expect($paramName.val()).to.equal("BufferCachePercentOfTotalMem");
-            expect($paramName.closest(".formRow").hasClass("nameIsSet")).to.be.true;
-            expect($paramName.closest(".formRow").find(".newVal").val()).to.not.equal("");
-            expect($paramName.closest(".formRow").hasClass("uneditable")).to.be.false;
+            UnitTest.hasStatusBoxWithError(ErrTStr.ConfigParamExists);
 
             $paramName.val("buffercachememlocking").trigger(fakeEvent.enter);
             expect($paramName.val()).to.equal("BufferCacheMemLocking");
@@ -53,10 +50,11 @@ describe("MonitorConfig Test", function() {
             expect($paramName.closest(".formRow").find(".newVal").val()).to.equal("");
             expect($paramName.closest(".formRow").hasClass("uneditable")).to.be.true;
         });
+
         it("submit fail should work", function() {
             var $paramName = $configCard.find('.paramName').last();
             $paramName.closest(".formRow").removeClass("uneditable");
-            $paramName.val("buffercachepercentoftotalmem").trigger(fakeEvent.enter);
+            $paramName.val("xdbminpagesize").trigger(fakeEvent.enter);
 
             var cachedFn = XcalarSetConfigParams;
             var configCalled = false;

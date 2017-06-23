@@ -278,6 +278,7 @@ ErrTStr = {
     'RetinaFormat': 'File must be of the format .tar.gz',
     'RetinaFailed': 'Failed to upload retina',
     'ConfigParamNotFound': 'Parameter not found.',
+    'ConfigParamExists': 'Parameter already exists',
     'SchedHourWrong': 'Hour must be between 1 and 12',
     'SchedMinWrong': 'Minute must be between 0 and 59',
     'OutputNotFoundMsg': 'Output is not available.',

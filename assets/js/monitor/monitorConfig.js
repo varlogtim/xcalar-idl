@@ -32,7 +32,6 @@ window.MonitorConfig = (function(MonitorConfig, $) {
             if (firstTouch) {
                 setupVisibleParamsList();
             }
-
             deferred.resolve(res);
         })
         .fail(deferred.reject);
@@ -106,6 +105,11 @@ window.MonitorConfig = (function(MonitorConfig, $) {
         return paramsCache[$nameInput.val().toLowerCase().trim()];
     }
 
+    function hasParam(paramName) {
+        var $row = $configCard.find('input[data-value="' + paramName + '"]');
+        return ($row.length > 0);
+    }
+
     function submitParamName($nameInput, onChangeTriggered) {
         var val = $nameInput.val().trim();
 
@@ -113,13 +117,19 @@ window.MonitorConfig = (function(MonitorConfig, $) {
             return;
         }
 
-        // var valLower = val.toLowerCase();
         var $formRow = $nameInput.closest('.formRow');
         var $curValInput = $formRow.find('.curVal');
         var $newValInput = $formRow.find('.newVal');
         var paramObj = getParamObjFromInput($nameInput);
 
         if (paramObj) {
+            if (hasParam(paramObj.paramName)) {
+                if (!onChangeTriggered) {
+                    showAddParamError(ErrTStr.ConfigParamExists, $nameInput);
+                }
+                return;
+            }
+
             $nameInput.data('value', paramObj.paramName)
                       .prop('readonly', true)
                       .val(paramObj.paramName);
@@ -130,7 +140,7 @@ window.MonitorConfig = (function(MonitorConfig, $) {
                 if ($newValInput.val() === "") {
                     $newValInput.val(paramObj.paramValue);
                 }
-                $newValInput.prop('readonly', false).focus();
+                $newValInput.prop('readonly', false);
             } else {
                 $formRow.addClass('uneditable');
                 $newValInput.addClass('readonly')
@@ -139,29 +149,36 @@ window.MonitorConfig = (function(MonitorConfig, $) {
                 $formRow.find('.defaultParam').addClass('xc-hidden');
                 xcTooltip.enable($newValInput);
             }
-            var defValTooltip;
-            if (paramObj && paramObj.hasOwnProperty('defaultValue')) {
-                defValTooltip = xcHelper.replaceMsg(
-                                            MonitorTStr.DefaultWithVal,
-                                            {value: paramObj.defaultValue});
-            } else {
-                defValTooltip = CommonTxtTstr.RevertDefaultVal;
-            }
-            xcTooltip.changeText($formRow.find('.defaultParam'),
-                                 defValTooltip);
+            var defValTooltip = getDefaultTooltip(paramObj);
+            xcTooltip.changeText($formRow.find('.defaultParam'), defValTooltip);
         } else {
             $nameInput.data('value', val);
             $curValInput.val('');
             if (!onChangeTriggered) {
-                StatusBox.show(ErrTStr.ConfigParamNotFound, $nameInput, false, {
-                    "offsetX": -5,
-                    "side": "top"
-                });
+                showAddParamError(ErrTStr.ConfigParamNotFound, $nameInput);
             }
         }
     }
 
-    //xx need to handle submitting duplicate rows
+    function getDefaultTooltip(paramObj) {
+        var defValTooltip;
+        if (paramObj && paramObj.hasOwnProperty('defaultValue')) {
+            defValTooltip = xcHelper.replaceMsg(MonitorTStr.DefaultWithVal, {
+                value: paramObj.defaultValue
+            });
+        } else {
+            defValTooltip = CommonTxtTstr.RevertDefaultVal;
+        }
+        return defValTooltip;
+    }
+
+    function showAddParamError(error, $nameInput) {
+        StatusBox.show(error, $nameInput, false, {
+            "offsetX": -5,
+            "side": "top"
+        });
+    }
+
     function submitForm() {
         var errorFound;
         var promises = [];
@@ -246,9 +263,6 @@ window.MonitorConfig = (function(MonitorConfig, $) {
                     $errorRow = rows[i];
                 }
             }
-            // else {
-            //     partialFail = true;
-            // }
         }
         // xx not sure how to show all the errored rows if multiple
         var paramName = $errorRow.find('.paramName').val();
@@ -378,14 +392,7 @@ window.MonitorConfig = (function(MonitorConfig, $) {
 
         html += '</label>';
         if (!uneditable) {
-            var defValTooltip;
-            if (paramObj && paramObj.hasOwnProperty('defaultValue')) {
-                defValTooltip = xcHelper.replaceMsg(
-                                            MonitorTStr.DefaultWithVal,
-                                            {value: paramObj.defaultValue});
-            } else {
-                defValTooltip = CommonTxtTstr.RevertDefaultVal;
-            }
+            var defValTooltip = getDefaultTooltip(paramObj);
             html +=
                 '<div class="defaultParam iconWrap xc-action" ' +
                     'data-toggle="tooltip" data-container="body" ' +

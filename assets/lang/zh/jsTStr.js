@@ -254,6 +254,7 @@ ErrTStr = {
 'RetinaFormat': '仅支持.tar.gz格式',
 'RetinaFailed': '上传 Retina 失败',
 'ConfigParamNotFound': '参数未找到。',
+'ConfigParamExists': '参数已存在',
 'SchedHourWrong': '小时必须介于1到12之间',
 'SchedMinWrong': '分钟必须在0到59之间',
 'OutputNotFoundMsg': '输出不可用。',
