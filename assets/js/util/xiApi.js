@@ -126,7 +126,9 @@ window.XIApi = (function(XIApi, $) {
         var toDelete = false;
 
         if (!isValidAggName(dstAggName)) {
-            console.error("invalid agg name");
+            if (dstAggName != null) {
+                console.error("invalid agg name");
+            }
             var nameRoot = xcHelper.getTableName(tableName);
             dstAggName = xcHelper.randName(nameRoot + "-agg");
             toDelete = true;
@@ -1664,7 +1666,9 @@ window.XIApi = (function(XIApi, $) {
         var isValid = isCorrectTableNameFormat(tableName);
 
         if (!isValid) {
-            console.error("incorrect table name format");
+            if (tableName != null) {
+                console.error("incorrect table name format");
+            }
             return false;
         }
 
@@ -1677,7 +1681,9 @@ window.XIApi = (function(XIApi, $) {
             isValid = xcHelper.isValidTableName(namePart);
         }
         if (!isValid) {
-            console.error("incorrect table name format");
+            if (tableName != null) {
+                console.error("incorrect table name format");
+            }
         }
         return isValid;
     }

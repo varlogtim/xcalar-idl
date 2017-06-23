@@ -1460,19 +1460,17 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             arg = $input.val(); // We cannot trim in this case
         }
 
-        if (typeCheck.allowEmpty) {
+        if (typeCheck.allowEmpty && arg.length === 0) {
             if (argType === "string") {
                 return ({
                     "valid": true,
                     "arg": arg
                 });
             } else {
-                if (arg.length === 0) {
-                    return ({
-                        "valid": true,
-                        "arg": undefined
-                    });
-                }
+                return ({
+                    "valid": true,
+                    "arg": undefined
+                });
             }
         }
 
@@ -1521,7 +1519,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                 return { "vaild": false };
             }
         } else if (argType === "string") {
-            if (typeCheck.newColumnName) {
+            if (typeCheck.newColumnName === true) {
                 var tableId = getAssociateTable(args, typeCheck, extTableId);
                 if (tableId != null && gTables.hasOwnProperty(tableId)) {
                     var table = gTables[tableId];
@@ -1534,6 +1532,11 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                         StatusBox.show(error, $input);
                         return { "vaild": false };
                     }
+                }
+            } else if (typeCheck.newTableName === true) {
+                if (!xcHelper.isValidTableName(arg)) {
+                    StatusBox.show(ErrTStr.InvalidTableName, $input);
+                    return { "vaild": false };
                 }
             }
         }

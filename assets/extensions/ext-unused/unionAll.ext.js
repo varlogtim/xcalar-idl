@@ -13,7 +13,8 @@ window.UExtUnionAll = (function(UExtUnionAll) {
             "name": "Final Table Name",
             "fieldClass": "finalTableName",
             "typeCheck": {
-                "allowEmpty": true
+                "allowEmpty": true,
+                "newTableName": true
             }
         }
         ],

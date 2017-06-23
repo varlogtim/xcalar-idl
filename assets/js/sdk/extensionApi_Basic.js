@@ -57,36 +57,36 @@ window.XcSDK.Extension.prototype = (function() {
     }
 
     var prototype = {
-        "getUsername": function() {
+        getUsername: function() {
             return userIdName;
         },
 
         // user interface
-        "beforeStart": function() {
+        beforeStart: function() {
             // interface for user to implement
             return PromiseHelper.resolve();
         },
 
-        "start": function() {
+        start: function() {
             // interface for user to implement
             return PromiseHelper.resolve();
         },
 
-        "afterFinish": function() {
+        afterFinish: function() {
             // interface for user to implement
             return PromiseHelper.resolve();
         },
 
         // getter and setter function for inner attribute
-        "getArgs": function() {
+        getArgs: function() {
             return this.args;
         },
 
-        "getTriggerTable": function() {
+        getTriggerTable: function() {
             return this.table;
         },
 
-        "getTable": function(tableName) {
+        getTable: function(tableName) {
             var tables = this.newTables.concat(this.table);
             for (var i = 0, len = tables.length; i < len; i++) {
                 if (tables[i].getName() === tableName) {
@@ -96,7 +96,7 @@ window.XcSDK.Extension.prototype = (function() {
             return null;
         },
 
-        "setAttribute": function(attrName, value) {
+        setAttribute: function(attrName, value) {
             if (this.attrs.hasOwnProperty(attrName)) {
                 var error = attrName + " already exits in extension";
                 throw error;
@@ -105,18 +105,18 @@ window.XcSDK.Extension.prototype = (function() {
             this.attrs[attrName] = value;
         },
 
-        "getAttribute": function(attrName) {
+        getAttribute: function(attrName) {
             return this.attrs[attrName];
         },
 
-        "createUniqueCol": function(tableName, colName, onlyCheckPulledCols) {
+        createUniqueCol: function(tableName, colName, onlyCheckPulledCols) {
             var tableId = xcHelper.getTableId(tableName);
             return xcHelper.getUniqColName(tableId, colName,
                 onlyCheckPulledCols);
         },
 
         // some helper function for table name and column name
-        "createTableName": function(prefix, suffix, sourceName) {
+        createTableName: function(prefix, suffix, sourceName) {
             // currently we only allow users to add prefix and suffix
             var name;
             if (sourceName != null) {
@@ -138,7 +138,7 @@ window.XcSDK.Extension.prototype = (function() {
             return name;
         },
 
-        "createTempTableName": function(prefix, suffix) {
+        createTempTableName: function(prefix, suffix) {
             if (prefix == null) {
                 prefix = ".temp";
             } else {
@@ -148,7 +148,7 @@ window.XcSDK.Extension.prototype = (function() {
             return this.createTableName(prefix, suffix);
         },
 
-        "createNewTable": function(tableName) {
+        createNewTable: function(tableName) {
             var self = this;
             var newTables = self.newTables;
             for (var i = 0, len = newTables; i < len; i++) {
@@ -162,7 +162,7 @@ window.XcSDK.Extension.prototype = (function() {
             return newTable;
         },
 
-        "createColumnName": function() {
+        createColumnName: function() {
             return xcHelper.randName("randCol");
         },
 
@@ -170,7 +170,7 @@ window.XcSDK.Extension.prototype = (function() {
             return xcHelper.stripColName(colName);
         },
 
-        "getConstant": function(aggName) {
+        getConstant: function(aggName) {
             return gAggVarPrefix + aggName;
         },
 
@@ -179,7 +179,7 @@ window.XcSDK.Extension.prototype = (function() {
         },
 
         // basically execution function
-        "initialize": function(tableName, worksheet, args) {
+        initialize: function(tableName, worksheet, args) {
             // Important: User cannot change this function!!!
             this.args = args;
             this.worksheet = worksheet;
@@ -192,7 +192,7 @@ window.XcSDK.Extension.prototype = (function() {
             this.attrs = {};
         },
 
-        "runBeforeStart": function(extButton) {
+        runBeforeStart: function(extButton) {
             // Important: User cannot change this function!!!
             // it will check args to make sure all args exists
             // and then call beforeStart
@@ -222,7 +222,7 @@ window.XcSDK.Extension.prototype = (function() {
             }
         },
 
-        "run": function(txId) {
+        run: function(txId) {
             // Important: User cannot change this function!!!
             if (txId == null) {
                 return PromiseHelper.reject(ErrTStr.InvalidExtParam);
@@ -241,7 +241,7 @@ window.XcSDK.Extension.prototype = (function() {
             }
         },
 
-        "runAfterFinish": function() {
+        runAfterFinish: function() {
             // Important: User cannot change this function!!!
             // this will trigger afterFinish()
             // and delete all tables that starts with .temp

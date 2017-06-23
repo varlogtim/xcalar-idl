@@ -86,13 +86,15 @@ window.UExtHello = (function(UExtHello) {
      *                the argument. Different type of arguments accept
      *                different attributes. Here is a checklist:
      *
-     *   6.1 Attributes of typeCheck for column type argument:
+     *   6.1 Attributes of typeCheck for all types of argument:
+     *       allowEmpty: Optional, when set to be true, XI will allow the
+     *                   argument to be empty. Otherwise, XI will prevent
+     *                   value in this field.
+     *
+     *   6.2 Attributes of typeCheck for column type argument:
      *       columnType: Optional, an array to restrict the column argument's
      *                   type, each element in the array can be
      *                   "number", "string", "boolean"...
-     *       newColumnName: Optional, for string type of field only,
-     *                      when set true, will check if any column,
-     *                      for this table exists
      *       multiColumn: Optional, when set true, the field can accept more
      *                    than one column as input. Otherwise, only allow
      *                    one column as input.
@@ -105,11 +107,8 @@ window.UExtHello = (function(UExtHello) {
      *                   must be type table. For other case, XI will
      *                   not check, extension writer should
      *                   be responsible for invalid column value.
-     *       allowEmpty: Optional, when set to be true, XI will allow the argument
-     *                   to be empty. Otherwise, XI will prevent value in
-     *                   this field.
      *
-     *   6.2 Attributes of typeCheck for number type argument:
+     *   6.3 Attributes of typeCheck for number type argument:
      *       integer: Optional, when set true, only allow the arguement to be
      *                integer. Float value is not allowed.
      *       max: Optional, when set to a valid number, the argument's value
@@ -118,6 +117,12 @@ window.UExtHello = (function(UExtHello) {
      *       min: Optional, when set to a valid number, the argument's value
      *            can not be less than it. Any invalid value may make extension
      *            has unexpected behavior.
+     *
+     *   6.4 Attributes of typeCheck for string type argument:
+     *       newColumnName: Optional, when set true, will check if any column,
+     *                      for this table exists.
+     *       newTableName: Optional, when set true, will check if it's a
+     *                     valid table name.
      *
      *  7) variableArg: Optional, when set to true, will allow to add multiple
      *                  args for the field, typeCheck will run all inputs
