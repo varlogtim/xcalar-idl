@@ -161,7 +161,6 @@ window.XVM = (function(XVM) {
                 err = {"error": ThriftTStr.Update};
                 console.error(error);
             }
-            passed = true;
             if (passed) {
                 deferred.resolve();
             } else {
