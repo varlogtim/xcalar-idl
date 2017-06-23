@@ -1293,7 +1293,9 @@ window.ColManager = (function($, ColManager) {
             "tableId": tableId,
             "colNum": colNum,
             "colNums": colNums,
-            "rowNum": rowNum
+            "rowNum": rowNum,
+            "colNames": colNames,
+            "htmlExclude": ["colNames"]
         });
     };
 
