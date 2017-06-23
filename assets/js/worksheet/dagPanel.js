@@ -2545,6 +2545,7 @@ window.Dag = (function($, Dag) {
         img.onload = function() {
             deferred.resolve();
         };
+        img.onerror = img.onload;
         return (deferred.promise());
     }
 
@@ -2801,6 +2802,8 @@ window.Dag = (function($, Dag) {
             deferred.resolve();
         };
 
+        img.onerror = img.onload;
+
         return (deferred.promise());
     }
 
@@ -2891,6 +2894,19 @@ window.Dag = (function($, Dag) {
                     ctx.drawImage(dagIcon, iconLeft, iconTop);
                     deferred.resolve();
                 };
+                dagIcon.onerror = function() {
+                    var otherIcon = new Image();
+                    otherIcon.src = paths.dfIcons + "xi-unknown.png";
+
+                    otherIcon.onload = function() {
+                        console.log('backup');
+                        ctx.drawImage(otherIcon, iconLeft, iconTop);
+                        deferred.resolve();
+                    };
+                    otherIcon.onerror = function() {
+                        deferred.resolve();
+                    };
+                };
             }
 
             // first line text
@@ -2923,6 +2939,8 @@ window.Dag = (function($, Dag) {
                 deferred.resolve();
             }
         };
+
+        rectImage.onerror = rectImage.onload;
         return (deferred.promise());
     }
 
@@ -3837,10 +3855,8 @@ window.Dag = (function($, Dag) {
             case ("filterregex"):
             case ("filterlike"):
             case ("filterothers"):
-                iconClass = "oldIcon";
                 break;
             default:
-                iconClass = "oldIcon";
                 break;
         }
         return iconClass;
