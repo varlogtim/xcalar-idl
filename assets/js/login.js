@@ -19,8 +19,9 @@ $(document).ready(function() {
         showSplashScreen();
     }
 
-    var lastUsername = xcLocalStorage.getItem("lastUsername").toLowerCase();
+    var lastUsername = xcLocalStorage.getItem("lastUsername");
     if (lastUsername && lastUsername.length) {
+        lastUsername = lastUsername.toLowerCase();
         $("#loginNameBox").val(lastUsername);
     }
 
