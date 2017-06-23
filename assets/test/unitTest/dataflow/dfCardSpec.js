@@ -193,10 +193,10 @@ describe("DFCard Test", function() {
         });
 
         it("adding parameter when rows are filled should work", function() {
-            expect($("#retLists").find(".row").length).to.equal(7);
+            expect($("#retLists").find(".row").length).to.equal(5);
             $("#retLists").find(".row").removeClass("unfilled");
             DFCard.__testOnly__.addParamToRetina("name", "val");
-            expect($("#retLists").find(".row").length).to.equal(8);
+            expect($("#retLists").find(".row").length).to.equal(6);
             $("#retLists").find(".row").last().remove();
         });
     });

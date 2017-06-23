@@ -2319,14 +2319,14 @@
                 }
 
                 var $nodeOrAction = $("#dataflowPanel")
-                                    .find('[data-id="' + dagNodeId + '"]');
+                                    .find('[data-nodeid="' + dagNodeId + '"]');
                 // Exception is for export.
                 // XXX Consider attaching the id to the table
                 // node instead of the operation during draw dag.
                 // I think it will clean
                 // up a lot of the exception cases here
-                if ($nodeOrAction.hasClass("export")) {
-                    $nodeOrAction = $nodeOrAction.next(".dagTable");
+                if ($nodeOrAction.prev().hasClass("filter")) {
+                    $nodeOrAction = $nodeOrAction.prev();
                 }
                 if (noParams) {
                     $nodeOrAction.removeClass("hasParam");

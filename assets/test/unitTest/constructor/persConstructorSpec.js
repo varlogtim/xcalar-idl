@@ -2933,7 +2933,7 @@ describe("Persistent Constructor Test", function() {
 
             sched = new SchedObj(options);
             nodeId = xcHelper.randName("testNode");
-            $node = $('<div data-id="' + nodeId + '"></div>');
+            $node = $('<div data-nodeid="' + nodeId + '"></div>');
             $("#dataflowPanel").append($node);
         });
 

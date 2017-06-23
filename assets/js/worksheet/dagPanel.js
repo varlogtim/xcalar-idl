@@ -3547,6 +3547,7 @@ window.Dag = (function($, Dag) {
                                                 dagArray);
         var dagInfo = getDagNodeInfo(dagNode, key, parentNames, index,
                                      parentChildMap, dagArray);
+        var nodeId = dagInfo.id;
         var state = dagInfo.state;
         var tableName = getDagName(dagNode);
         setRenames(key, dagNode, nodeInfo);
@@ -3588,6 +3589,7 @@ window.Dag = (function($, Dag) {
                         'data-index="' + index + '" ' +
                         'data-type="dataStore" ' +
                         'data-id="' + id + '" ' +
+                        'data-nodeid="' + nodeId + '" ' +
                         'data-url="' + encodeURI(url) + '" ' +
                         'data-pattern="' + encodeURI(pattern) + '">' +
                             '<div class="dataStoreIcon" ' +
@@ -3617,9 +3619,11 @@ window.Dag = (function($, Dag) {
             var tableId = xcHelper.getTableId(tableName);
 
             if (dagNode.api === XcalarApisT.XcalarApiExport) {
-                html += '<div class="dagTable typeTable ' + state + '" ' +
+                html += '<div class="dagTable typeTable export ' + state +
+                        '" ' +
                         'data-tablename="' + tableName + '" ' +
                         'data-index="' + index + '" ' +
+                        'data-nodeid="' + nodeId + '" ' +
                         'data-id="' + tableId + '">' +
                             '<div class="dagTableIcon ' + icv + '" ' +
                             'data-toggle="tooltip" ' +
@@ -3644,10 +3648,10 @@ window.Dag = (function($, Dag) {
                                 tableName +
                             '</span>';
             } else {
-
                 html += '<div class="dagTable typeTable ' + state + '" ' +
                             'data-tablename="' + tableName + '" ' +
                             'data-index="' + index + '" ' +
+                            'data-nodeid="' + nodeId + '" ' +
                             'data-id="' + tableId + '">' +
                                 '<div class="dagTableIcon ' + icv + '" ' +
                                 'data-toggle="tooltip" ' +

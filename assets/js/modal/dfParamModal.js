@@ -3,7 +3,7 @@ window.DFParamModal = (function($, DFParamModal){
 
     var $paramLists;    // $("#dagModleParamList")
     var $editableRow;   // $dfParamModal.find(".editableRow")
-    var $iconTrigger;   // Which icon triggered this modal
+    var type;   // dataStore, filter, or export
 
     var validParams = [];
     var modalHelper;
@@ -108,14 +108,12 @@ window.DFParamModal = (function($, DFParamModal){
 
     DFParamModal.show = function($currentIcon) {
         var deferred = jQuery.Deferred();
-        var type = $currentIcon.data('type');
+        type = $currentIcon.data('type');
         var tableName = $currentIcon.data('table') || // For aliased tables
                         $currentIcon.data('tablename');
         var dfName = DFCard.getCurrentDF();
         var df = DF.getDataflow(dfName);
         var id = df.getNodeId(tableName);
-
-        $iconTrigger = $currentIcon; // Set cache
 
         $dfParamModal.data({
             "id": id,
@@ -134,7 +132,7 @@ window.DFParamModal = (function($, DFParamModal){
 
         getExportInfo(type)
         .always(function(info) {
-            setupInputText(paramValue, type, info);
+            setupInputText(paramValue, info);
             $("#dfParamModal .editableRow .defaultParam").click();
             var draggableInputs = "";
             validParams = [];
@@ -411,7 +409,7 @@ window.DFParamModal = (function($, DFParamModal){
 
     // options:
     //      defaultPath: string, for export
-    function setupInputText(paramValue, type, options) {
+    function setupInputText(paramValue, options) {
         var defaultText = ""; // The html corresponding to Current Query:
         var editableText = ""; // The html corresponding to Parameterized
                                 // Query:
@@ -434,7 +432,7 @@ window.DFParamModal = (function($, DFParamModal){
                                 '</div>' +
                             '</div>';
 
-            editableText += '<div class="innerEditableRow" data-op="load">' +
+            editableText += '<div class="innerEditableRow">' +
                                 '<div class="static">' +
                                     DFTStr.PointTo + ':' +
                                 '</div>' +
@@ -468,13 +466,13 @@ window.DFParamModal = (function($, DFParamModal){
                                     xcHelper.escapeHTMLSpecialChar(paramValue[1]) +
                                 '</div>' +
                             '</div>';
-            editableText += '<div class="innerEditableRow" data-op="export">' +
+            editableText += '<div class="innerEditableRow">' +
                                 '<div class="static">' +
                                     DFTStr.ExportTo + ':' +
                                 '</div>' +
                                 getParameterInputHTML(0, "medium-small") +
                             '</div>' +
-                            '<div class="innerEditableRow" data-op="export">' +
+                            '<div class="innerEditableRow">' +
                                 '<div class="static">' +
                                     'Target' + ':' +
                                 '</div>' +
@@ -490,7 +488,7 @@ window.DFParamModal = (function($, DFParamModal){
                                 xcHelper.escapeHTMLSpecialChar(paramValue) +
                             '</div>';
 
-                editableText += '<div class="static" data-op="' + type + '">' +
+                editableText += '<div class="static">' +
                                 'Filter' + ':' +
                             '</div>' +
                             getParameterInputHTML(0, "large");
@@ -503,7 +501,7 @@ window.DFParamModal = (function($, DFParamModal){
                                         retStruct.args[0]) +
                                 '</div>';
 
-                editableText += '<div class="static" data-op="' + type + '">' +
+                editableText += '<div class="static">' +
                                     type + ':' +
                                 '</div>';
 
@@ -822,7 +820,6 @@ window.DFParamModal = (function($, DFParamModal){
         var $paramPart = $dfParamModal.find(".editableTable");
         var $editableDivs = $paramPart.find('input.editableParamDiv');
         var $paramInputs = $dfParamModal.find('input.editableParamDiv');
-        var type = $iconTrigger.data('type');
         var isValid = true;
         var params;
         // check for valid brackets or invalid characters
@@ -1008,14 +1005,12 @@ window.DFParamModal = (function($, DFParamModal){
         // will close the modal if passes checks
         function updateRetina() {
             var deferred = jQuery.Deferred();
-            var operation = $paramPart.find(".editableRow").children().first()
-                                                                    .data("op");
             var paramType = null;
             var paramValue;
             var paramValues = {};
             var paramQuery;
             var error = false;
-            switch (operation) {
+            switch (type) {
                 case ("filter"):
                     paramType = XcalarApisT.XcalarApiFilter;
                     if ($editableDivs.length === 1) {
@@ -1049,7 +1044,7 @@ window.DFParamModal = (function($, DFParamModal){
                     paramValues.filterStr = paramValue;
                     paramQuery = [paramValue];
                     break;
-                case ("load"):
+                case ("dataStore"):
                     paramType = XcalarApisT.XcalarApiBulkLoad;
                     var url = $.trim($editableDivs.eq(0).val());
                     var pattern = $.trim($editableDivs.eq(1).val());
@@ -1157,7 +1152,6 @@ window.DFParamModal = (function($, DFParamModal){
 
     // returns true if doesn't have .extension
     function hasInvalidExportPath(params) {
-        var type = $iconTrigger.data("type");
         if (type !== "export") {
             return false;
         }
@@ -1183,7 +1177,6 @@ window.DFParamModal = (function($, DFParamModal){
     }
 
     function hasInvalidExportTarget(params) {
-        var type = $iconTrigger.data("type");
         if (type !== "export") {
             return false;
         }

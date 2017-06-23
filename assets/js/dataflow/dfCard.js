@@ -669,7 +669,7 @@ window.DFCard = (function($, DFCard) {
         xcHelper.optionButtonEvent($dfCard.find(".advancedOpts"),
             function(selOption, $selRadioButton) {
                 var $dagNode = getDagWrap(dataflowName)
-                               .find(".actionType.export").next(".dagTable");
+                               .find(".dagTable.export");
                 $dagNode.attr("data-advancedopts", selOption);
                 if (selOption === "import") {
                     $(".advancedOpts input").focus();
@@ -697,14 +697,13 @@ window.DFCard = (function($, DFCard) {
         // and a retina dag. For example, it colors parameterized nodes.
         // It also adds extra classes to the dag that is needed for parameteri-
         // zation later.
-        var $exportAction = $wrap.find(".actionType.export");
-        var exportId = $exportAction.attr("data-id");
-        var $exportTable = $exportAction.next(".dagTable");
+        var $exportTable = $wrap.find(".export.dagTable");
+        var exportId = $exportTable.attr("data-nodeid");
 
-        var i = 0;
         var dataflow = DF.getDataflow(dataflowName);
         var retNodes = dataflow.retinaNodes;
         var paramValue = '';
+        var i = 0;
         for (i = 0; i < retNodes.length; i++) {
             if (retNodes[i].dagNodeId === exportId) {
                 var meta = retNodes[i].input.exportInput.meta;
@@ -751,9 +750,9 @@ window.DFCard = (function($, DFCard) {
         $dfCard.find(selector).addClass("parameterizable");
 
         for (var nodeId in dataflow.parameterizedNodes) {
-            var $tables = $wrap.find('[data-id="' + nodeId + '"]');
-            if ($tables.hasClass("export")) {
-                $tables = $tables.next(".dagTable");
+            var $tables = $wrap.find('[data-nodeid="' + nodeId + '"]');
+            if ($tables.prev().hasClass("filter")) {
+                $tables = $tables.prev();
             }
             var paramVal = $tables.data("paramValue");
 
@@ -824,7 +823,8 @@ window.DFCard = (function($, DFCard) {
             }
         };
 
-        var selector = '.dagTable.export, .dagTable.dataStore, .actionType';
+        var selector = '.dagTable.export, .dagTable.dataStore,' +
+                       ' .actionType.filter';
 
         // Attach styling to all nodes that have a dropdown
         $dfCard.find(selector).addClass("parameterizable");
@@ -839,11 +839,6 @@ window.DFCard = (function($, DFCard) {
             $('.leftColMenu').removeClass('leftColMenu');
             $currentIcon = $(this);
 
-            if ($currentIcon.hasClass('actionType')) {
-                if (!$currentIcon.find('.dagIcon').hasClass('filter')) {
-                    return;
-                }
-            }
             $menu.find("li").hide();
 
             if (XVM.getLicenseMode() !== XcalarMode.Mod) {
@@ -1613,9 +1608,9 @@ window.DFCard = (function($, DFCard) {
         var $dagWrap = $(getDagWrap(dataflowName));
         for (var key in df.nodeIds) {
             var dagNodeId = df.nodeIds[key];
-            var $dagNode = $dagWrap.find('[data-id="' + dagNodeId + '"]');
-            if ($dagNode.hasClass("export")) {
-                $dagNode = $dagNode.next(".dagTable");
+            var $dagNode = $dagWrap.find('[data-nodeid="' + dagNodeId + '"]');
+            if ($dagNode.prev().hasClass("filter")) {
+                $dagNode = $dagNode.prev();
             }
             var paramVal = $dagNode.data().paramValue;
             var type = $dagNode.data().type;

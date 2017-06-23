@@ -668,8 +668,32 @@ function viewRelatedFunctionTest() {
             var fakeRetInfo = {
                 "retina": {
                     "retinaDag": {
-                        "numNodes": 1,
+                        "numNodes": 2,
                         "node": [{
+                            "name": {"name": "test2"},
+                            "dagNodeId": "104398",
+                            "api": 33,
+                            "numParent": 1,
+                            "input": {
+                                "exportInput": {
+                                    "meta": {
+                                        "specificInput": {
+                                            "sfInput": {
+                                                "fileName": "fileName"
+                                            }
+                                        },
+                                        "columns": [],
+                                        "target": {
+                                            "name": "Default",
+                                            "type": 1
+                                        }
+                                    }
+                                },
+                                "mapInput": {},
+                                "groupByInput": {}
+                            }
+                        },
+                        {
                             "name": {"name": "test"},
                             "dagNodeId": "104399",
                             "api": 2,
@@ -679,8 +703,16 @@ function viewRelatedFunctionTest() {
                                         "url": "test",
                                         "formatType": 0,
                                         "name": "test"
+                                    },
+                                    "loadArgs": {
+                                        "fileNamePattern": "",
+                                        "udfLoadArgs": {
+                                            "fullyQualifiedFnName": ""
+                                        }
                                     }
-                                }
+                                },
+                                "mapInput": {},
+                                "groupByInput": {}
                             }
                         }],
                     },
