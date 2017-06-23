@@ -637,12 +637,21 @@ describe("File Browser Test", function() {
             var $curGrid = findGrid("netstore");
             expect($curGrid.hasClass("active")).to.be.true;
             var index = $curGrid.index();
+            var $nextGrid = $curGrid.next();
+            var nextGridIndex = $nextGrid.index();
+            var nextGridName = $nextGrid.find('.label').data("name");
             // reverse
             $nameLabel.click();
             expect($nameTitle.hasClass("select")).to.be.true;
             $curGrid = findGrid("netstore");
             expect($curGrid.hasClass("active")).to.be.true;
-            expect($curGrid.index()).not.to.equal(index);
+
+            if ($curGrid.index() === index) { // if grid is right in the middle
+                $nextGrid = findGrid(nextGridName);
+                expect($nextGrid.index()).to.equal(index - 1);
+            } else {
+                expect($curGrid.index()).not.to.equal(index);
+            }
 
             if (!isListView) {
                 // change back the view
