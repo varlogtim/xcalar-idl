@@ -126,7 +126,6 @@ window.DFCard = (function($, DFCard) {
             return;
         }
         var html = "";
-        var numFlows = 0;
         var dataflowList = [];
         for (var dfName in dataflows) {
             dataflowList.push(dfName);
@@ -1477,6 +1476,7 @@ window.DFCard = (function($, DFCard) {
             if (prefix) {
                 colName = prefix + "--" + parsedInfo.name;
             }
+            colName = xcHelper.escapeColName(colName);
             return colName;
         });
 
