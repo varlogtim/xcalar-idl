@@ -393,7 +393,7 @@ SuccessTStr = {
     "SubmitTicket": "Ticket Submitted!",
     "Target": "Target Added!",
     "RetrieveLogs": "Logs Retrieved!",
-    "RmDF": "Batched DF Successfully Removed!",
+    "RmDF": "Batch DF Successfully Removed!",
     "RmSched": "Schedule Successfully Deleted!",
     "PauseSched": "Schedule Successfully Paused!",
     "ResumeSched": "Schedule Successfully Resumed!",
@@ -414,7 +414,7 @@ FailTStr = {
     "Profile": "Saving Profile Image Failed.",
     "ProfileStats": "Generate Statistics Failed.",
     "SaveSettings": "Saving Settings Failed.",
-    "RmDF": "Remove Batched DF Failed.",
+    "RmDF": "Remove Batch DF Failed.",
     "RmSched": "Delete Schedule Failed.!"
 };
 
@@ -744,7 +744,7 @@ DFTStr = {
     'NoTExists': 'Dataflow <df> doesn\'t exist',
     'NoFields': 'No fields present',
     'RunDFInstr': 'Please pay attention to the following warning(s) for running batch dataflow:',
-    'WarnInMemTable': 'This will generate an in-memory table in your current workbook. Please note that you will NOT be able to create further batched dataflows from this table.',
+    'WarnInMemTable': 'This will generate an in-memory table in your current workbook. Please note that you will NOT be able to create further batch dataflows from this table.',
     'WarnSysParam': 'System parameters are not used when you run batch data flow directly, they will be replaced with empty strings.',
     'InvalidExportPath': 'Cannot contain / in the export file name',
     'Scheduled': 'Scheduled',
