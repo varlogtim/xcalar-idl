@@ -61,6 +61,8 @@ window.Scheduler = (function(Scheduler, $) {
 
         $dateInput.on({
             "focus": function() {
+                var now = new Date();
+                dataPickerUTCDisplay(now);
                 $(this).closest(".datePickerPart").addClass("active");
             },
             "focusout": function() {
@@ -1169,6 +1171,86 @@ window.Scheduler = (function(Scheduler, $) {
                 }
             }
             schedule.startTime = time.getTime();
+        }
+    }
+
+    function dataPickerUTCDisplay(dateObj) {
+        var date = dateObj.getUTCDate();
+        var month = dateObj.getUTCMonth();
+        var year = dateObj.getUTCFullYear();
+        var uiToday = parseInt($(".ui-datepicker-today").text());
+        var uiMonth = $(".ui-datepicker-today").data("month");
+        var uiYear = $(".ui-datepicker-today").data("year");
+        var uiBeforeReal = false;
+        var uiAfterReal = false;
+        if (year === uiYear) {
+            if (month === uiMonth) {
+                if (date === uiToday) {
+                    return;
+                } else if (date < uiToday) {
+                    uiAfterReal = true;
+                } else {
+                    uiBeforeReal = true;
+                }
+            } else if (month < uiMonth) {
+                uiAfterReal = true;
+            } else {
+                uiBeforeReal = true;
+            }
+        } else if (year < uiYear) {
+            uiAfterReal = true;
+        } else {
+            uiBeforeReal = true;
+        }
+        if (uiBeforeReal) {
+            $realToday = $(".ui-datepicker-today").next();
+            makeUnclickable($(".ui-datepicker-today"));
+        } else if (uiAfterReal) {
+            $realToday = $(".ui-datepicker-today").prev();
+            makeClickable($($realToday));
+        }
+
+        if (uiBeforeReal || uiAfterReal) {
+            $(".ui-datepicker-today").removeClass("ui-datepicker-today");
+            $(".ui-datepicker-days-cell-over")
+            .removeClass("ui-datepicker-days-cell-over");
+            $realToday.addClass("ui-datepicker-today");
+            $realToday.addClass("ui-datepicker-days-cell-over");
+        }
+
+        function makeClickable($ele) {
+            var uiDate = $ele.text();
+            $ele.removeClass("ui-datepicker-unselectable");
+            $ele.removeClass("ui-state-disabled");
+            $ele.attr("data-month", month);
+            $ele.attr("data-year", year);
+            $ele.attr('data-handler',"selectDay");
+            $ele.attr('data-event',"click");
+            $ele.find("span").remove();
+            var child = '<a class="ui-state-default ui-state-highlight"' +
+                        'href="#">'+ uiDate + '</a>';
+            $ele.html(child);
+            $ele.click(function() {
+                var date = $(this).text();
+                var month = $(this).data("month");
+                var year = $(this).data("year");
+                $dateInput.val((month + 1) + "/" + date + "/" + year);
+                $(".ui-datepicker-current-day").removeClass("ui-datepicker-current-day");
+                $ele.addClass("ui-datepicker-current-day");
+            });
+        }
+
+        function makeUnclickable($ele) {
+            var uiDate = $ele.text();
+            $ele.addClass("ui-datepicker-unselectable");
+            $ele.addClass("ui-state-disabled");
+            var html = '<td class=" ui-datepicker-unselectable ui-state-disabled "' +
+                       ($ele.hasClass("ui-datepicker-week-end") ?
+                       'ui-datepicker-week-end"': "") +
+                       '>' + '<span class="ui-state-default">' + uiDate +
+                       '</span></td>';
+            $ele.last().after(html);
+            $ele.remove();
         }
     }
 
