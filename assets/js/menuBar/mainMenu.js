@@ -292,7 +292,9 @@ window.MainMenu = (function($, MainMenu) {
                 // DataflowPanel.refresh();
                 if ($curTab.hasClass("firstTouch")) {
                     $curTab.removeClass("firstTouch");
-                    DFCard.focusFirstDF();
+                    if (!DFCard.getActiveDF()) {
+                        DFCard.focusFirstDF();
+                    }
                 }
                 break;
             case ("dataStoresTab"):
