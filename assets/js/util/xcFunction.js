@@ -814,33 +814,33 @@ window.xcFunction = (function($, xcFunction) {
         .then(function(retStruct) {
             // XXX retStruct is unused. retStruct.timeTaken contains how long
             // the operation took to run
-            var ext = "";
-            if (options.format === DfFormatTypeT.DfFormatCsv) {
-                ext = ".csv";
-            } else if (options.format === DfFormatTypeT.DfFormatSql) {
-                ext = ".sql";
-            }
             var instr = xcHelper.replaceMsg(ExportTStr.SuccessInstr, {
                 "table": tableName,
                 "location": targetName,
-                "file": exportName + ext
+                "file": exportName
             });
-            var msg = xcHelper.replaceMsg(ExportTStr.SuccessMsg, {
-                "file": exportName + ext,
-                "location": targetName
-            });
+
+            var msg = '<div class="exportInfo">' +
+                      '<div class="row">' +
+                        '<span class="label">' + ExportTStr.FolderName +
+                        ': </span>' +
+                        '<span class="field">' + exportName + '</span>' +
+                      '</div>' +
+                      '<div class="row">' +
+                        '<span class="label">' + ExportTStr.TargetName +
+                        ': </span>' +
+                        '<span class="field">' + targetName + '</span>' +
+                      '</div>' +
+                      '</div>';
+
             if (!dontShowModal) {
                 Alert.show({
                     "title": ExportTStr.Success,
-                    "msg": msg,
+                    "msgTemplate": msg,
                     "instr": instr,
                     "isAlert": true,
-                    "isCheckBox": true,
-                    "onCancel": function() {
-                        $('#alertContent').removeClass('leftAlign');
-                    }
+                    "isCheckBox": true
                 });
-                $('#alertContent').addClass('leftAlign');
             }
             Transaction.done(txId, {
                 "msgTable": xcHelper.getTableId(tableName)

@@ -132,7 +132,7 @@ window.Support = (function(Support, $) {
 
     Support.memoryCheck = function() {
         if (isCheckingMem) {
-            console.warn("Last time's  mem check not finish yet");
+            console.warn("Last time's mem check not finish yet");
             return PromiseHelper.resolve();
         }
 

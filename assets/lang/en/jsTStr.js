@@ -559,9 +559,10 @@ ExportTStr = {
     'InvalidType': 'Invalid type selected',
     'DisableHeader': 'Not available when appending to existing',
     'LocationNotFound': 'Export location not found',
+    'FolderName': 'Folder Name',
+    'TargetName': 'Target Name',
 
     // With replace
-    'SuccessMsg': 'File Name: <file>\n File Location: <location>',
     'SuccessInstr': 'Table \"<table>\" was succesfully exported to <location>' +
                     ' under the name: <file>',
     'ExportOfCol': 'Export columns of <table>',

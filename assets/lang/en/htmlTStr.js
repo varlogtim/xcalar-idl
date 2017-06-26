@@ -681,7 +681,7 @@ module.exports = {
         "colInstr": "Select the columns to export by checking the box next to the column name. Alternatively, you can also click on the column headers in the table directly. If a column cannot be selected, or you do not see it in the list below, then it cannot be exported.",
         "tableToExport": "Table to Export",
         "location": "Export Location",
-        "exportFilename": "Export Filename",
+        "exportFilename": "New Folder Name",
         "colsToExport": "Columns to export",
         "exportInOrder": "Preserve order (slow)",
         "restoreDefaults": "RESTORE DEFAULTS",
