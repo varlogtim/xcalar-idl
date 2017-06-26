@@ -1995,10 +1995,11 @@ window.OperationsView = (function($, OperationsView) {
         var tempText;
         var newText = "";
         var andOrIndices = [];
+        var $groups;
 
         if (operatorName === "map" || operatorName === "filter") {
             var oldText = $description.find('.descArgs').text();
-            var $groups = $activeOpSection.find(".group").filter(function() {
+            $groups = $activeOpSection.find(".group").filter(function() {
                 return ($(this).find('.argsSection.inactive').length === 0);
             });
             var numGroups = $groups.length;
@@ -2104,7 +2105,7 @@ window.OperationsView = (function($, OperationsView) {
                 return;
             }
 
-            var $groups = $activeOpSection.find(".group").filter(function() {
+            $groups = $activeOpSection.find(".group").filter(function() {
                 return (!$(this).find('.argsSection.inactive').length);
             });
 
@@ -3107,8 +3108,7 @@ window.OperationsView = (function($, OperationsView) {
         colTypeInfos = colTypeInfos || [];
         var gbArgs = [];
         var groupByCols = [];
-        var aggColIndex = args[0].length - 2;
-        for (var i = 0; i < aggColIndex; i++) {
+        for (var i = 0; i < args[0].length - 2; i++) {
             groupByCols.push(args[0][i].trim());
         }
 

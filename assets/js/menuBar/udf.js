@@ -66,7 +66,11 @@ window.UDF = (function($, UDF) {
         return refreshUDF(isInBg);
     };
 
-    UDF.refreshWithoutClearing = function() {
+    UDF.refreshWithoutClearing = function(clearCache) {
+        if (clearCache) {
+            storedUDF = {};
+        }
+
         return refreshUDF(true, true);
     };
 
@@ -458,6 +462,8 @@ window.UDF = (function($, UDF) {
         if (!hasSelectedModule && !doNotClear) {
             dropdownHint.clearInput();
             $blankFunc.trigger(fakeEvent.mouseup);
+        } else if (hasSelectedModule && doNotClear) {
+            inputUDFFuncList(selectedModule);
         }
     }
 

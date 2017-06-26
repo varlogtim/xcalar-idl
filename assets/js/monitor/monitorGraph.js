@@ -282,7 +282,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
 
     function updateGraph(allStats, numNodes) {
         var unit;
-        var largestMem = 0;
+        // var largestMem = 0;
         var yMaxes = [];
         var yMax;
         var units = [];

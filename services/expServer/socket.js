@@ -35,5 +35,9 @@ module.exports = function(server) {
         socket.on("refreshDataflow", function(dfName) {
             socket.broadcast.emit("refreshDataflow", dfName);
         });
+
+        socket.on("refreshUDFWithoutClear", function(overwriteUDF) {
+            socket.broadcast.emit("refreshUDFWithoutClear", overwriteUDF);
+        });
     });
 };

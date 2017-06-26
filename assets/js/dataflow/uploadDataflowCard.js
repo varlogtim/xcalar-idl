@@ -18,7 +18,7 @@ window.UploadDataflowCard = (function($, UploadDataflowCard) {
         $("#dataflowPanel").find(".mainContent").scrollTop(0);
     };
 
-    function readRetinaFromFile(file, moduleName) {
+    function readRetinaFromFile(file, retName) {
         var reader = new FileReader();
         var deferred = jQuery.Deferred();
 
@@ -29,17 +29,13 @@ window.UploadDataflowCard = (function($, UploadDataflowCard) {
             } else {
                 entireString = this.content;
             }
-
-            XcalarImportRetina(moduleName,
-                               $card.find(".checkbox").hasClass("checked"),
-                               entireString)
+            var overwriteUDF = $card.find(".checkbox").hasClass("checked");
+            XcalarImportRetina(retName, overwriteUDF, entireString)
             .then(function() {
-                xcHelper.showSuccess(SuccessTStr.Upload);
-                UDF.refreshWithoutClearing(true);
-                deferred.resolve();
+                deferred.resolve(overwriteUDF);
             })
             .fail(function(error) {
-                xcConsole.error(error);
+                console.error(error);
                 StatusBox.show(ErrTStr.RetinaFailed, $card.find(".confirm"),
                                false, {"side": "left"});
                 deferred.reject(error);
@@ -72,7 +68,13 @@ window.UploadDataflowCard = (function($, UploadDataflowCard) {
         }
 
         var deferred = jQuery.Deferred();
-        lockCard();
+        var $btn = $card.find(".confirm");
+        xcHelper.disableSubmit($btn);
+
+        var timer = setTimeout(function() {
+            lockCard();
+        }, 1000);
+
         XcalarListRetinas()
         .then(function(ret) {
             for (var i = 0; i < ret.retinaDescs.length; i++) {
@@ -84,12 +86,16 @@ window.UploadDataflowCard = (function($, UploadDataflowCard) {
 
             return readRetinaFromFile(file, retName);
         })
-        .then(function() {
+        .then(function(overwriteUDF) {
             DF.addDataflow(retName, new Dataflow(retName), null, {
                 "isUpload": true,
                 "noClick": true
             });
             var df = DF.getDataflow(retName);
+
+            xcHelper.showSuccess(SuccessTStr.Upload);
+            UDF.refreshWithoutClearing(overwriteUDF);
+            XcSocket.sendMessage("refreshUDFWithoutClear", overwriteUDF);
             closeCard();
             // Click on the newly uploaded dataflow
             return df.updateParamMapInUsed();
@@ -101,7 +107,9 @@ window.UploadDataflowCard = (function($, UploadDataflowCard) {
         })
         .fail(deferred.reject)
         .always(function() {
+            clearTimeout(timer);
             unlockCard();
+            xcHelper.enableSubmit($btn);
         });
 
         return deferred.promise();

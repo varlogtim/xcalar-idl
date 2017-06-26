@@ -864,7 +864,7 @@ window.QueryManager = (function(QueryManager, $) {
             elapsedTime = xcHelper.getElapsedTimeStr(mainQuery.getElapsedTime(),
                                                     null, true);
             opTime = xcHelper.getElapsedTimeStr(mainQuery.getOpTime());
-            if  (mainQuery.getState() === QueryStatus.Done) {
+            if (mainQuery.getState() === QueryStatus.Done) {
                 totalTime = elapsedTime;
             }
         } else {
@@ -1220,7 +1220,7 @@ window.QueryManager = (function(QueryManager, $) {
         }
 
         // .stop() stops any previous animation;
-        if (isCanceled  || isError) {
+        if (isCanceled || isError) {
             $progressBar.stop().width(progress);
             for (var i = 0; i < progressCircles.length; i++) {
                 progressCircles[i].update(parseInt(progress), 0);

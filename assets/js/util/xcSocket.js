@@ -59,8 +59,11 @@ window.XcSocket = (function(XcSocket, $) {
         socket.on("refreshDataflow", function(dfName) {
             // console.log("dataflow", dfName, "refreshed");
             DataflowPanel.refresh(dfName);
-            UDF.refreshWithoutClearing(); // In the event that there's new
-                                          // UDF added
+        });
+
+        socket.on("refreshUDFWithoutClear", function(overwriteUDF) {
+            // In the event that there's new UDF added or overwrite old UDF
+            UDF.refreshWithoutClearing(overwriteUDF);
         });
     }
 

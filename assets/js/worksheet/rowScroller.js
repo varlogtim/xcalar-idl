@@ -245,7 +245,7 @@ window.RowScroller = (function($, RowScroller) {
     }
 
     function infScrolling(tableId) {
-        var scrolling = false;
+        // var scrolling = false;
         var $xcTbodyWrap = $('#xcTbodyWrap-' + tableId);
         var needsFocusing = true;
         var focusTimer;
