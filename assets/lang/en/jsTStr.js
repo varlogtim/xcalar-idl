@@ -439,6 +439,7 @@ AlertTStr = {
     'NoExt': 'Unknown Extension',
     'CLOSE': 'CLOSE',
     'CANCEL': 'CANCEL',
+    'CONFIRM': 'CONFIRM',
     'CONFIRMATION': 'CONFIRMATION',
     'NoConnect': 'Not connected.',
     'Connecting': 'Connecting...',

@@ -636,10 +636,22 @@ window.WorkbookManager = (function($, WorkbookManager) {
             Alert.show({
                 "title": WKBKTStr.CancelTitle,
                 "msg": WKBKTStr.CancelMsg,
+                "hideButtons": ["cancel"],
+                "buttons": [{
+                    "name": AlertTStr.CLOSE,
+                    "className": "btn-cancel",
+                    func: function() {
+                        $loadScreen.removeClass("canceling alertOpen");
+                    }
+                }, {
+                    "name": AlertTStr.CONFIRM,
+                    func: function() {
+                        cancel();
+                    }
+                }],
                 "onCancel": function() {
                     $loadScreen.removeClass("canceling alertOpen");
                 },
-                "onConfirm": cancel,
                 "ultraHighZindex": true
             });
 
