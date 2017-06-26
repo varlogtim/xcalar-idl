@@ -119,11 +119,13 @@ body {
 #container {
     .size(@width: 100%, @height: 100%);
     .main {
-        .size(@width: 550px, @height:~"calc(100% - 170px)");
+        .size(@height:~"calc(100% - 170px)", @width: 50%);
+        min-width: 557px;
         margin: 0 auto;
         #loginForm {
-            .size(@width: 100%, @height: 198px);
+            .size(@width: 550px, @height: 198px);
             overflow: hidden;
+            margin: auto auto;
             .row-wrapper {
                 .size(@width: 100%, @height: 100%);
                 margin-top: 35px;
@@ -158,11 +160,12 @@ body {
         }
 
         #userForm {
-            .size(@width: 100%, @height: 530px);
+            .size(@width: 100%, @height: 80%);
+            min-height: 530px;
             margin: 0 auto;
             overflow: hidden;
             .userList {
-                .size(@width: 160px, @height: ~"calc(100% - 50px)");
+                .size(@width: 167px, @height: ~"calc(100% - 50px)");
                 margin: 24px 5px 25px 20px;
                 .row {
                     .size(@height: 30px);
@@ -181,9 +184,28 @@ body {
                     color: @color-font-greyish-brown;
                     text-align: left;
                     padding-left: 10px;
+                    .userID {
+                        .size(@width: ~"calc(100% - 21px)", @height: 100%);
+                        display: inline-block;
+                        float: left;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                    }
+                    .cancel {
+                        display: inline-block;
+                        float: left;
+                        margin-right: 3px;
+                        .size(@width: 18px, @height: 100%);
+                        i {
+                            font-size: 16px;
+                            color: @color-bg-unselect-gray;
+                            margin: auto 1px;
+                        }
+                    }
                 }
                 .content-wrapper {
-                    .size(@width: 100%, @height: ~"calc(100% - 50px)");
+                    .size(@height: ~"calc(100% - 50px)");
+                    background-color: @color-bg-white-seven;
                 }
                 .rows-wrapper {
                     .size(@width: 100%);
@@ -192,10 +214,12 @@ body {
                 }
             }
             .userInfo {
-                .size(@width: 335px, @height: ~"calc(100% - 50px)");
+                .size(@height: ~"calc(100% - 50px)", @width: ~"calc(100% - 227px)");
+                min-width: 335px;
                 margin: 24px 20px 25px 5px;
                 .row {
                     border: solid 1px @color-border-white-two;
+                    border-left: none;
                     border-top: none;
                     .size(@width: 100%, @height: 30px);
                     .attribute, .value, .title, .content {
@@ -213,13 +237,15 @@ body {
                             background-color: @color-white;
                             color: @color-font-greyish-brown;
                         }
-                        &.title {
-                            .size(@width: ~"calc(50% - 13px)");
+                        &.title, &.attribute{
+                            .size(@width: 165px);
                             .size(@height: 100%);
                         }
+                        &.value {
+                            .size(@width: ~"calc(100% - 202px)");
+                        }
                         &.content {
-                            .size(@width: ~"calc(50% - 26px)");
-                            border: solid 1px @color-border-white-two;;
+                            .size(@width: ~"calc(100% - 202px)");
                             line-height: 24px;
                             .size(@height: 80%);
                             margin: 2px;
@@ -232,6 +258,17 @@ body {
                         background-color: @color-border-white-two;
                         overflow: hidden;
                     }
+                    .checkbox {
+                        display: block;
+                        &.selected {
+                            .xi-ckbox-empty {
+                                display: none;
+                            }
+                            .xi-ckbox-selected {
+                                display: block;
+                            }
+                        }
+                    }
 
                     &.header {
                         background-color: @color-bg-tarawera-blue;
@@ -241,9 +278,9 @@ body {
                         float: left;
                     }
                 }
-                .delete, .save {
-                    display: inline-block;
-                    float: left;
+                .save {
+                    float: right;
+                    margin-right: 10px;
                 }
             }
             .userList, .userInfo {
@@ -253,19 +290,22 @@ body {
                 background-color: white;
                 border: solid 1px @color-border-white-two;
                 &.userList {
-                    .rows-wrapper {
-                        border-bottom: solid 1px @color-border-white-two;
+                    .content-wrapper {
+                        background-color: white;
                     }
                 }
                 .content-wrapper {
                     .size(@width: 100%, @height: ~"calc(100% - 66px)");
+                    background-color: @color-bg-white-seven;
                 }
                 .button-wrapper {
                     .size(@width: 100%, @height: 66px);
+                    background-color: @color-bg-white-seven;
+                    border-top: solid 1px @color-border-white-two;
                     .btn {
                         margin-top: 15px;
                         &.create {
-                            margin-left: 5px;
+                            margin-left: 9px;
                         }
                         &.save {
                             margin-left: 10px;
