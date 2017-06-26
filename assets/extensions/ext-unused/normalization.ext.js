@@ -349,7 +349,7 @@ window.UExtNormalization = (function(UExtNormalization) {
             "columns": colToJoin,
             "pulledColumns": currTable.getColNamesAsArray(),
             "rename": [ext.getJoinRenameMap(colToJoin,
-                ext.createUniqueCol(colToJoin), false)]
+                ext.createUniqueCol(srcTableName), false)]
             // concatenated column will always have the same name in both tables
         };
 

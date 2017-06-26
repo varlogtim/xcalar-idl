@@ -110,6 +110,9 @@ window.XcSDK.Extension.prototype = (function() {
         },
 
         createUniqueCol: function(tableName, colName, onlyCheckPulledCols) {
+            if (colName != null) {
+                colName = colName.replace('::', '_');
+            }
             var tableId = xcHelper.getTableId(tableName);
             return xcHelper.getUniqColName(tableId, colName,
                 onlyCheckPulledCols);
