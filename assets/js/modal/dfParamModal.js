@@ -922,6 +922,9 @@ window.DFParamModal = (function($, DFParamModal){
             // store meta
             paramInfo = paramInformation;
             df.updateParameters(params);
+            return PromiseHelper.alwaysResolve(df.updateParamMapInUsed());
+        })
+        .then(function() {
             DFCard.updateRetinaTab(retName);
             var noParams = params.length === 0;
             if (!df.getParameterizedNode(dagNodeId)) {
@@ -931,9 +934,7 @@ window.DFParamModal = (function($, DFParamModal){
                 // Only updates view. Doesn't change any stored information
                 df.updateParameterizedNode(dagNodeId, paramInfo, noParams);
             }
-            return df.updateParamMapInUsed();
-        })
-        .then(function() {
+
             if (DF.hasSchedule(retName)) {
                 return DF.updateScheduleForDataflow(retName);
             } else {
