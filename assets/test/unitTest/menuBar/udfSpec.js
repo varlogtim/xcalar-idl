@@ -105,6 +105,16 @@ describe("UDF Test", function() {
             expect(res.reason).to.equal("\'invalid syntax\'");
             expect(res.line).to.equal(12);
         });
+
+        it("inputUDFFuncList should work", function() {
+            var inputUDFFuncList = UDF.__testOnly__.inputUDFFuncList;
+            var module = xcHelper.randName("testModule");
+            inputUDFFuncList(module);
+            UnitTest.hasStatusBoxWithError(UDFTStr.NoTemplate);
+            // case 2
+            inputUDFFuncList("default");
+            expect(UDF.getEditor().getValue()).contains("convertFormats");
+        });
     });
 
     describe("Upload Error Handling Test", function() {
@@ -253,6 +263,48 @@ describe("UDF Test", function() {
             UDF.toggleXcUDFs(isHide);
             expect($li.hasClass("xcUDF")).to.be.equal(isHide);
             $li.remove();
+        });
+
+        it("UDF.refreshWithoutClearing should work", function(done) {
+            var oldFunc = XcalarListXdfs;
+            var editor = UDF.getEditor();
+            editor.setValue("test");
+            XcalarListXdfs = function() {
+                return PromiseHelper.reject("reject");
+            };
+
+            UDF.refreshWithoutClearing()
+            .then(function() {
+                done("fail");
+            })
+            .fail(function() {
+                expect(editor.getValue()).to.equal("test");
+                done();
+            })
+            .always(function() {
+                XcalarListXdfs = oldFunc;
+            });
+        });
+
+        it("UDF.refresh should work", function(done) {
+            var oldFunc = XcalarListXdfs;
+            var editor = UDF.getEditor();
+            editor.setValue("test2");
+            XcalarListXdfs = function() {
+                return PromiseHelper.reject("reject");
+            };
+
+            UDF.refresh()
+            .then(function() {
+                done("fail");
+            })
+            .fail(function() {
+                expect(editor.getValue()).not.to.equal("test2");
+                done();
+            })
+            .always(function() {
+                XcalarListXdfs = oldFunc;
+            });
         });
     });
 
