@@ -22,12 +22,12 @@ require("jsdom").env("", function(err, window) {
         process.env.XCE_HTTP_ROOT : "/var/www") + "/xcalar-gui";
     try {
         var aws = require("aws-sdk");
-        var s3 = new aws.S3();
         aws.config.update({
             accessKeyId: 'AKIAJIVAAB7VSKQBZ6VQ',
             secretAccessKey: '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',
             region: 'us-west-2'
         });
+        var s3 = new aws.S3();
     } catch (error) {
         console.log(error);
         console.log("Fail to set up AWS!");
