@@ -489,14 +489,14 @@ function executeCommand(command) {
 
 function isComplete(command, data) {
     if (command === defaultStartCommand) {
-        if ((data.indexOf('xcmgmtd started') !== -1) ||
-            (data.indexOf('Usrnode already running') !== -1)) {
+        if ((data.indexOf("xcmgmtd started") !== -1) ||
+            (data.indexOf("Usrnode already running") !== -1)) {
             return true;
         } else {
             return false;
         }
     } else if (command === defaultStopCommand) {
-        if (data.indexOf('Stopping remaining Xcalar processes') !== -1) {
+        if (data.indexOf("Stopped Xcalar") !== -1) {
             return true;
         } else {
             return false;
@@ -511,7 +511,7 @@ function getXlrRoot() {
         process.env.XCE_CONFIG : defaultHostsFile;
     var deferred = jQuery.Deferred();
     var defaultLoc = "/mnt/xcalar";
-    var cfg = fs.readFile(cfgLocation, 'utf8', function(err, data) {
+    var cfg = fs.readFile(cfgLocation, "utf8", function(err, data) {
         try {
             if (err) throw err;
             var lines = data.split("\n");
