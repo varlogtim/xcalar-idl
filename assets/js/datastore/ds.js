@@ -1391,7 +1391,7 @@ window.DS = (function ($, DS) {
         $gridView.find(".grid-unit:visible").each(function() {
             var grid = this;
             var $grid = $(grid);
-            if ($grid.hasClass("uneditable")) {
+            if ($grid.hasClass("uneditable") || $grid.hasClass("noAction")) {
                 // skip uneditable grid
                 return;
             }
