@@ -169,9 +169,9 @@ CommonTxtTstr = {
 'Overwrite': '覆盖',
 'NoResult': '无搜索结果',
 'deleting': '删除中',
-'ClickToExpand': 'Click to expand',
-'time': 'time',
-'rows': 'rows'
+'ClickToExpand': '点击展开',
+'time': '时间',
+'rows': '行数'
 };
 ErrTStr = {
 'Error': '错误',
@@ -189,7 +189,7 @@ ErrTStr = {
 'NoSpecialCharOrSpace': '请输入无特殊字符或空格的有效名称。',
 'NoSpecialCharInParam': '参数括号中不允许使用特殊字符或空格。',
 'UnclosedParamBracket': '检测到未关闭的参数括号。',
-"FilterTypeNoSupport": 'Filter type not currently supported.',
+"FilterTypeNoSupport": '不支持当前过滤类型。',
 'NoEmptyList': '请在下拉列表中选取一个选项',
 'NoEmptyFn': '无法上传空函数。',
 'NoEmptyOrCheck': '请输入或者选中该复选框保留空值。',
@@ -475,8 +475,8 @@ ExportTStr = {
 'InvalidType': '选择无效类型',
 'DisableHeader': '不支持将新数据将追加到现有数据',
 'LocationNotFound': '导出位置未找到',
-'FolderName': 'Folder Name',
-'TargetName': 'Target Name',
+'FolderName': '文件名',
+'TargetName': '导出名',
 'SuccessInstr': '表\<table>\" 已成功导出为路径 <location> 下的 <file> 文件',
 'ExportOfCol': '从表<table>中导出列',
 'ListTargFail': '列表目标失败',
