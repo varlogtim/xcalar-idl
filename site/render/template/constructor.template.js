@@ -2430,8 +2430,9 @@
                 var paramMapInUsed = this.paramMapInUsed;
 
                 for (var name in paramMapInUsed) {
-                    if (!paramMap.hasOwnProperty(name)
-                        || paramMap[name] === null) {
+                    if (paramMapInUsed[name]
+                        && (!paramMap.hasOwnProperty(name)
+                        || paramMap[name] === null)) {
                         console.error("param not in front meta!");
                         return false;
                     }

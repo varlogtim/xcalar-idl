@@ -236,36 +236,19 @@ window.DFCard = (function($, DFCard) {
 
     function setupRetinaTab() {
         $(".tabWrap").addClass(xdpMode);
-
-        $dfView.on("mousedown", function(event) {
-            var $target = $(event.target);
-            if ($target.closest('#statusBox').length) {
-                return;
-            }
-            if ($retTabSection.find(".retTab").hasClass("active")) {
-                event.stopPropagation();
-                saveParam(currentDataflow);
-            }
-            if ($target.closest(".advancedOpts").length === 0) {
-                $dfCard.find(".advancedOpts.active").removeClass("active");
-            }
-        });
         // Remove focus when click other places other than retinaArea
         // add new retina
-        $retTabSection.on('mousedown', '.retPopUp', function(event){
+        $retTabSection.on('click', '.retPopUp', function(event){
             event.stopPropagation();
         });
 
         // toggle open retina pop up
-        $retTabSection.on('mousedown', '.retTab', function(event) {
+        $retTabSection.on('click', '.retTab', function() {
             if (xdpMode === XcalarMode.Mod) {
                 return showLicenseTooltip(this);
             }
-            DFCard.updateRetinaTab(DFCard.getCurrentDF());
             $('.menu').hide();
             StatusBox.forceHide();
-
-            event.stopPropagation();
             var $dagWrap = $dfCard.find('.cardMain').find(".dagWrap:visible");
             if (!$dagWrap.length) {
                 return;
@@ -276,19 +259,43 @@ window.DFCard = (function($, DFCard) {
             var $tab = $(this);
             if ($tab.hasClass('active')) {
                 // close it tab
+                saveParam(currentDataflow);
+                closeRetTab();
                 $tab.removeClass('active');
             } else {
                 // open tab
+                DFCard.updateRetinaTab(DFCard.getCurrentDF());
                 $tab.addClass('active');
+                focusOnFirstInvalidValue(currentDataflow);
+
+                $("#container").on("mousedown", function(event) {
+                    var $target = $(event.target);
+                    if ($target.closest('#statusBox').length
+                        || $target.closest('.retPopUp').length
+                        || $target.closest('.retTab').length) {
+                        event.stopPropagation();
+                        return;
+                    } else {
+                        saveParam(currentDataflow);
+                        closeRetTab();
+                        if ($target.closest(".advancedOpts").length === 0) {
+                            $dfCard.find(".advancedOpts.active").removeClass("active");
+                        }
+                        $("#container").off("mousedown");
+                    }
+                });
             }
         });
 
         $retTabSection.on('click', '.checkbox', function() {
             var $checkbox = $(this);
             $checkbox.toggleClass("checked");
+            saveParam(currentDataflow);
+            StatusBox.forceHide();
             if ($checkbox.hasClass("checked")) {
                 // remove value from input if click on "no value" box
                 $checkbox.closest(".row").find(".paramVal").val("");
+                $checkbox.closest(".row").find(".paramVal").blur();
             }
         });
 
@@ -299,7 +306,8 @@ window.DFCard = (function($, DFCard) {
 
         $retTabSection.on("keypress", ".paramVal", function(event) {
             if (event.which === keyCode.Enter) {
-                $(this).blur();
+                saveParam(currentDataflow);
+                focusOnFirstInvalidValue(currentDataflow);
             }
         });
 
@@ -421,7 +429,6 @@ window.DFCard = (function($, DFCard) {
             $dataflowLi.addClass('selected');
 
             var dataflowName = $dataflowLi.find('.groupName').text();
-
             focusOnDF(dataflowName);
         });
 
@@ -1584,45 +1591,65 @@ window.DFCard = (function($, DFCard) {
 
     function saveParam(dataflowName) {
         var df = DF.getDataflow(dataflowName);
-        var paramMap = df.paramMap;
         var paramMapInUsed = df.paramMapInUsed;
-        var toUpdate = {};
-        var hasInvalidRow = false;
-
-        $("#retLists").find(".row:not(.unfilled)").each(function() {
-            var $row = $(this);
-            if (!hasInvalidRow) {
-                var name = $row.find(".paramName").text();
-                var val = $.trim($row.find(".paramVal").val());
-                var check = $row.find(".checkbox").hasClass("checked");
-                if (val === "" && (!check) && paramMapInUsed[name]) {
-                    StatusBox.show(ErrTStr.NoEmptyOrCheck,
-                        $row.find(".paramVal"), false, {'side': 'left'});
-                    hasInvalidRow = true;
-                    return;
+        var paramMap = df.paramMap;
+        var checkRes = paramValueCheck(dataflowName);
+        var toUpdate = checkRes.toUpdate;
+        var usedParamHasChange = false;
+        for (var name in toUpdate) {
+            if (paramMap[name] !== toUpdate[name]) {
+                paramMap[name] = toUpdate[name];
+                if (paramMapInUsed[name]) {
+                    usedParamHasChange = true;
                 }
-                toUpdate[name] = (val === "") ? (check ? "" : null) : val;
-            }
-        });
-        if (!hasInvalidRow) {
-            var usedParamHasChange = false;
-            for (var name in toUpdate) {
-                if (paramMap[name] !== toUpdate[name]) {
-                    paramMap[name] = toUpdate[name];
-                    if (paramMapInUsed[name]) {
-                        usedParamHasChange = true;
-                    }
-                }
-            }
-            $retTabSection.find(".retTab").removeClass("active");
-            StatusBox.forceHide();
-            if (usedParamHasChange) {
-                if (DF.hasSchedule(dataflowName)) {
-                    DF.updateScheduleForDataflow(dataflowName);
-                }
-                DF.commitAndBroadCast(dataflowName);
             }
         }
+        if (usedParamHasChange) {
+            if (DF.hasSchedule(dataflowName)) {
+                DF.updateScheduleForDataflow(dataflowName);
+            }
+            DF.commitAndBroadCast(dataflowName);
+        }
+    }
+
+    function focusOnFirstInvalidValue(dataflowName) {
+        StatusBox.forceHide();
+        var checkRes = paramValueCheck(dataflowName);
+        if (checkRes.hasInvalidRow) {
+            StatusBox.show(ErrTStr.NoEmptyOrCheck,
+                checkRes.firstInvalidVal, false, {'side': 'left'});
+            $(checkRes.firstInvalidVal).focus();
+        }
+    }
+
+    function paramValueCheck(dataflowName) {
+        var df = DF.getDataflow(dataflowName);
+        var paramMapInUsed = df.paramMapInUsed;
+        var hasInvalidRow = false;
+        var firstInvalidVal = null;
+        var toUpdate = {};
+        var checkRes = {};
+        $("#retLists").find(".row:not(.unfilled)").each(function() {
+            var $row = $(this);
+            var name = $row.find(".paramName").text();
+            var val = $.trim($row.find(".paramVal").val());
+            var check = $row.find(".checkbox").hasClass("checked");
+            if (val === "" && (!check) && paramMapInUsed[name] &&
+                (!hasInvalidRow)) {
+                hasInvalidRow = true;
+                firstInvalidVal = $row.find(".paramVal");
+            }
+            toUpdate[name] = (val === "") ? (check ? "" : null) : val;
+        });
+        checkRes.hasInvalidRow = hasInvalidRow;
+        checkRes.firstInvalidVal = firstInvalidVal;
+        checkRes.toUpdate = toUpdate;
+        return checkRes;
+    }
+
+    function closeRetTab() {
+        $retTabSection.find(".retTab").removeClass("active");
+        StatusBox.forceHide();
     }
 
     function restoreParameterizedNode(dataflowName) {
@@ -1682,7 +1709,7 @@ window.DFCard = (function($, DFCard) {
         var $dagWrap = getDagWrap(dataflowName);
         if ($.isEmptyObject(df.retinaNodes) && !$dagWrap.length) {
             promise = DF.updateDF(dataflowName);
-            $retTabSection.find(".retTab").removeClass("active");
+            closeRetTab();
             html = '<div class="dagWrap clearfix" '+
                        'data-dataflowName="' + dataflowName + '"></div>';
             $dfCard.find(".cardMain").append(html);
