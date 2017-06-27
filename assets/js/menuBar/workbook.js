@@ -28,7 +28,7 @@ window.Workbook = (function($, Workbook) {
             var $container = $("#container");
             var $dialogWrap = $("#dialogWrap");
 
-            if ($container.hasClass("workbookMode")) {
+            if (Workbook.isWBMode()) {
                 if (!$workbookPanel.is(":visible")) {
                     // on monitor view or something else
                     $container.removeClass("monitorMode setupMode");
@@ -138,6 +138,10 @@ window.Workbook = (function($, Workbook) {
             $("#monitor-setup").removeClass("firstTouch");
             MonitorConfig.refreshParams(true);
         }
+    };
+
+    Workbook.isWBMode = function() {
+        return $("#container").hasClass("workbookMode");
     };
 
     function resetWorkbook() {

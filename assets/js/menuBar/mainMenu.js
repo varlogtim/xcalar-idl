@@ -65,7 +65,7 @@ window.MainMenu = (function($, MainMenu) {
         }
         if ($tab) {
             var wasActive = true;
-            if (!$tab.hasClass("active")) {
+            if (!$tab.hasClass("active") || Workbook.isWBMode()) {
                 wasActive = false;
                 $tab.click();
             }
