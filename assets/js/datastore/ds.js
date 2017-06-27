@@ -764,7 +764,7 @@ window.DS = (function ($, DS) {
         var promises = [];
 
         dsIds.forEach(function(dsId) {
-            promises.push(removeOneSHelper(dsId, failures));
+            promises.push(removeOneDSHelper(dsId, failures));
         });
 
         PromiseHelper.when.apply(this, promises)
@@ -787,7 +787,7 @@ window.DS = (function ($, DS) {
         return deferred.promise();
     }
 
-    function removeOneSHelper(dsId, failures) {
+    function removeOneDSHelper(dsId, failures) {
         var dsObj = DS.getDSObj(dsId);
         var dsName = dsObj.getName();
         var err;

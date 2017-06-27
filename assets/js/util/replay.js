@@ -183,6 +183,7 @@ window.Replay = (function($, Replay) {
             for (var i = 0; i < activeTables.length; i++) {
                 delete activeTables[i].timeStamp;
                 delete activeTables[i].resultSetId;
+                activeTables[i].indexTables = {};
             }
 
             var wsMeta = xcHelper.deepCopy(WSManager.getAllMeta());

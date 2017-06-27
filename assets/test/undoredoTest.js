@@ -6,7 +6,7 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
     var yelpName;
     // kick off the replay and then the undo, then redo, then undo, then redo
     // operationTypes can be tableOps, frontEnd, or worksheet
-    UndoRedoTest.run = function(operationType) {
+    UndoRedoTest.run = function(operationType, clearTables, noAlert) {
         var deferred = jQuery.Deferred();
         if (operationType == null) {
             operationType = "tableOps";
@@ -26,9 +26,24 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
         XcalarGetTables()
         .then(function(ret) {
             if (ret.numNodes !== 0) {
-                alert("All tables must be dropped before starting " +
+                if (clearTables) {
+                    var def = jQuery.Deferred();
+
+                    deleteAllTables()
+                    .then(function() {
+                        deleteWorksheets();
+                        var authInfo = Authentication.getInfo();
+                        authInfo.idCount = 0;
+                        return fetchLogs();
+                    })
+                    .then(def.resolve)
+                    .fail(def.reject);
+                    return def.promise();
+                } else {
+                    alert("All tables must be dropped before starting " +
                     "undoredo test. " + ret.numNodes + " tables present.");
-                return PromiseHelper.reject();
+                    return PromiseHelper.reject();
+                }
             } else {
                 var authInfo = Authentication.getInfo();
                 authInfo.idCount = 0;
@@ -115,12 +130,18 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
         .then(deleteAllTables)
         .then(deleteDS)
         .then(function() {
+            deleteWorksheets();
             console.info('UNDO-REDO TEST PASSED');
-            alert('UNDO-REDO TEST PASSED');
+            if (!noAlert) {
+                alert('UNDO-REDO TEST PASSED');
+            }
+            deferred.resolve();
         })
         .fail(function() {
             console.error('UNDO-REDO TEST FAILED');
-            alert('UNDO-REDO TEST FAILED');
+            if (!noAlert) {
+                alert('UNDO-REDO TEST FAILED');
+            }
             deferred.reject();
         })
         .always(function() {
@@ -218,6 +239,7 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
         for (var i = 0; i < activeTables.length; i++) {
             delete activeTables[i].timeStamp;
             delete activeTables[i].resultSetId;
+            activeTables[i].indexTables = {};
         }
         var nonStringified = activeTables;
 
@@ -352,6 +374,7 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
             for (var i = 0; i < activeTables.length; i++) {
                 delete activeTables[i].timeStamp;
                 delete activeTables[i].resultSetId;
+                activeTables[i].indexTables = {};
             }
             var numTables = activeTables.length;
 
@@ -419,30 +442,39 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
     function deleteAllTables() {
         var deferred = jQuery.Deferred();
 
-        if (!DeleteTableModal.__testOnly__) {
-            deferred.resolve();
-            return deferred.promise();
-        }
-
         DeleteTableModal.show(true)
         .then(function() {
+            var def = jQuery.Deferred();
             $('#deleteTableModal').find('.listSection .checkbox')
                                   .addClass('checked');
-            return DeleteTableModal.__testOnly__.submitForm();
+            $("#deleteTableModal").find(".confirm").click();
+            $("#alertModal").find(".confirm").click();
+            var count = 0;
+
+            var interval = setInterval(function() {
+                if (!$("#deleteTableModal").find(".confirm").attr("disabled")) {
+                    clearInterval(interval);
+                    def.resolve();
+                } else {
+                    count++;
+                    if (count > 100) {
+                        clearInterval(interval);
+                        def.reject();
+                    }
+                }
+            }, 200);
+            return def.promise();
         })
         .then(function() {
-            return DeleteTableModal.__testOnly__.closeModal();
-        })
-        .then(deferred.resolve);
+            $("#deleteTableModal").find(".close").click();
+            deferred.resolve();
+        });
+
         return deferred.promise();
     }
 
     function deleteDS() {
         var deferred = jQuery.Deferred();
-        if (!DeleteTableModal.__testOnly__) {
-            deferred.resolve();
-            return deferred.promise();
-        }
 
         var dsName;
         if (opType === "worksheet") {
@@ -452,17 +484,34 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
         }
 
         var $grid = DS.getGridByName(dsName);
-        var dsId = $grid.data("dsid");
-        var dsObj = DS.getDSObj(dsId);
 
-        DS.__testOnly__.delDSHelper($grid, dsObj, {"failToShow": true})
-        .always(function() {
-            // now seems we have issue to delete ds because of ref count,
-            // this should be reolsved with now backend way to hanld ds
-            deferred.resolve();
-        });
+        DS.remove($grid);
+        $("#alertModal").find(".confirm").click();
+
+        var count = 0;
+        var interval = setInterval(function() {
+            var $grid = DS.getGridByName(dsName);
+            if (!$grid) {
+                clearInterval(interval);
+                deferred.resolve();
+            } else {
+                count++;
+                if (count > 100) {
+                    clearInterval(interval);
+                    deferred.reject();
+                }
+            }
+        }, 200);
 
         return deferred.promise();
+    }
+
+    function deleteWorksheets() {
+        var sheets = xcHelper.deepCopy(WSManager.getWSList());
+        for (var i = 1; i < sheets.length; i++) {
+            WSManager.delWS(sheets[i], DelWSType.Archive);
+        }
+        DSCart.refresh();
     }
 
     // tableOps, frontEndOps, and worksheetOps are lists of operations

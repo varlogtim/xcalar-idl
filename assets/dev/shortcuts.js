@@ -585,7 +585,7 @@ window.Shortcuts = (function($, Shortcuts) {
                     type = "tableOps";
                 }
             }
-            UndoRedoTest.run(type);
+            UndoRedoTest.run(type, true);
         }
     }
 

@@ -509,7 +509,7 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
                     } else if (error === ErrTStr.CannotDropLocked) {
                         noDelete = true;
                     }
-                    
+
                     var $gridUnit = $containers.find('.grid-unit')
                     .filter(function() {
                         $grid = $(this);

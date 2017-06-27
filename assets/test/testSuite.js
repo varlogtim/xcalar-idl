@@ -114,7 +114,7 @@ window.TestSuite = (function($, TestSuite) {
         });
     };
 
-    TestSuite.run = function(hasAnimation, toClean, noPopup, mode) {
+    TestSuite.run = function(hasAnimation, toClean, noPopup, mode, withUndo) {
         initializeTests();
         console.info("If you are on VPN / slow internet, please set " +
                     "gLongTestSuite = 2");
@@ -210,11 +210,32 @@ window.TestSuite = (function($, TestSuite) {
         errorCatchDeferred.fail(endRun);
 
         function endRun() {
-            if (toClean) {
-                cleanup()
-                .always(finish);
+            undoRedoTest()
+            .always(function() {
+                if (toClean) {
+                    cleanup()
+                    .always(finish);
+                } else {
+                    finish();
+                }
+            });
+        }
+
+        function undoRedoTest() {
+            var def = jQuery.Deferred();
+            if (!withUndo) {
+                return PromiseHelper.resolve();
             } else {
-                finish();
+                UndoRedoTest.run("frontEnd", true, true)
+                .then(function() {
+                    return UndoRedoTest.run("tableOps", true, true);
+                })
+                .then(function() {
+                    return UndoRedoTest.run("worksheet", true, true);
+                })
+                .then(def.resolve)
+                .fail(def.reject);
+                return def.promise();
             }
         }
 
