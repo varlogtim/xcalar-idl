@@ -26,6 +26,8 @@ require("jsdom").env("", function(err, window) {
 
     var guiDir = (process.env.XCE_HTTP_ROOT ?
         process.env.XCE_HTTP_ROOT : "/var/www") + "/xcalar-gui";
+    var serverPort = process.env.XCE_EXP_PORT ?
+        process.env.XCE_EXP_PORT : 12124;
     try {
         var aws = require("aws-sdk");
         aws.config.update({
@@ -1292,7 +1294,7 @@ require("jsdom").env("", function(err, window) {
 
         var httpServer = http.createServer(app);
         socket(httpServer);
-        var port = 12124;
+        var port = serverPort;
         httpServer.listen(port, function() {
             var hostname = process.env.DEPLOY_HOST;
             if (!hostname) {
