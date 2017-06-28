@@ -116,6 +116,9 @@ window.Admin = (function($, Admin) {
         MainMenu.open(true);
         MonitorGraph.stop();
         $('#container').addClass('supportOnly');
+        if ($("#container").hasClass("noWorkbook")) {
+            $("#container").addClass("noMenuBar");
+        }
         $("#container").removeClass("monitorMode setupMode");
         $('#configCard').addClass('xc-hidden');
         StatusMessage.updateLocation();

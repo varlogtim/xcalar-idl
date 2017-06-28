@@ -107,25 +107,18 @@
             display: none;
         }
         #mainMenu {
-            left: @width-menuBar;
+            z-index: 31;
+            .menuSection.setup {
+                display: block;
+            }
         }
 
         &.noWorkbook {
-            #mainMenu {
-                left: 0px;
-            }
             #statusBar {
                 display: none;
             }
             #monitorPanel {
-                .size(100%, 100%);
                 height: 100%;
-                > .topBar {
-                    padding-left: 68px;
-                }
-                > .mainContent {
-                    margin-left: @menuWidth + 10px;
-                }
             }
         }
     }

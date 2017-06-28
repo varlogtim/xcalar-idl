@@ -62,13 +62,37 @@ body {
 }
 
 #container {
-    &.noWorkbook {
+    // &.noMenuBar:not(.wkbkViewOpen):not(.workbookMode) {
+    &.noMenuBar {
+        @menuWidth: @width-bottomMenu - @width-sideMenuMinimized;
         #menuBar {
             display: none;
         }
         #mainMenu {
-            left: -@width-fullMenu; // do not show any of the main menu
+            left: 0px;
         }
+        #monitorMenu {
+            .minimizeBtn {
+                display: none;
+            }
+
+            .menuSection {
+                display: none;
+            }
+        }
+        .mainPanel {
+            width: 100%;
+            > .mainContent {
+                margin-left: @menuWidth + 10px;
+                background-color: @color-bg-body-gray;
+                .transition(0s all);
+            }
+            > .topBar {
+                padding-left: 68px;
+            }
+        }
+    }
+    &.noWorkbook {
         #dfPanelSwitch {
             display: none;
         }
@@ -88,7 +112,7 @@ body {
         }
     }
 
-    &.workbookMode {
+    &.workbookMode, &.switchingWkbk {
         @menuWidth: @width-bottomMenu - @width-sideMenuMinimized;
 
         #userBox {
@@ -105,8 +129,10 @@ body {
         }
 
         &.monitorMode, &.setupMode {
+            #initialLoadScreen {
+                display: none !important;
+            }
             #mainMenu {
-                left: 0px;
                 z-index: 31;
                 .mainContent {
                     display: block;
@@ -116,25 +142,16 @@ body {
                 }
                 #monitorMenu {
                     display: block;
-                    .minimizeBtn {
-                        display: none;
-                    }
-
-                    .menuSection {
-                        display: none;
-                    }
                 }
             }
 
             #monitorPanel {
                 z-index: @z-index-menuBar;
                 .position(absolute, @top: 0px);
-                .size(100%, 100%);
+                height: 100%;
                 display: block;
 
                 > .topBar {
-                    padding-left: 68px;
-                    // visibility: hidden;
                     .backToWB {
                         display: block;
                     }
@@ -148,11 +165,6 @@ body {
 
                 #extension-search {
                     display: none;
-                }
-
-                > .mainContent {
-                    margin-left: @menuWidth + 10px;
-                    background-color: @color-bg-body-gray;
                 }
 
                 .monitorSection {
@@ -283,10 +295,6 @@ body {
         }
     }
 
-    &.switchingWkbk .cancel {
-        display: block !important;
-    }
-
     &.alertOpen {
         &:after {
             content: "";
@@ -390,7 +398,68 @@ body {
             }
         }
     }
+}
 
+#container.switchingWkbk {
+    #initialLoadScreen .cancel {
+        display: block !important;
+    }
+    #userNameArea {
+        .xc-disabled;
+    }
+    #monitorMenu {
+        .support > ul { // disable release memory
+            li:last-child {
+                .xc-disabled;
+            }
+        }
+    }
+    &.monitorViewOpen:not(.wkbkViewOpen) {
+        @menuWidth: @width-bottomMenu - @width-sideMenuMinimized;
+        #initialLoadScreen {
+            display: none !important;
+        }
+        #mainMenu {
+            left: 0px;
+            z-index: 31;
+            .mainContent {
+                display: block;
+            }
+            .commonSection {
+                display: none;
+            }
+            #monitorMenu {
+                display: block;
+                .minimizeBtn {
+                    display: none;
+                }
+            }
+        }
+
+        #monitorPanel {
+            > .topBar {;
+                .backToWB {
+                    display: block;
+                }
+                .title {
+                    display: none;
+                }
+                .wkbkTitle {
+                    display: block;
+                }
+            }
+
+            > .mainContent {
+                margin-left: @menuWidth + 10px;
+                background-color: @color-bg-body-gray;
+            }
+        }
+    }
+    &.wkbkViewOpen {
+        #initialLoadScreen {
+            display: block !important;
+        }
+    }
 }
 
 #formWaitingBG {

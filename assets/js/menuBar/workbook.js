@@ -35,7 +35,15 @@ window.Workbook = (function($, Workbook) {
                     if (!wasMonitorActive) {
                         MonitorPanel.inActive();
                     }
-                } else if ($container.hasClass("noWorkbook")) {
+                } else if ($container.hasClass("noWorkbook") ||
+                           $container.hasClass("switchingWkbk")) {
+                    var msg = "";
+                    if ($container.hasClass("switchingWkbk")) {
+                        msg = WKBKTStr.WaitActivateFinish;
+                    } else {
+                        msg = WKBKTStr.NoActive;
+                    }
+                    $dialogWrap.find("span").text(msg);
                     // do not allow user to exit without entering a workbook
                     $workbookPanel.addClass("closeAttempt");
                     $dialogWrap.removeClass("doneCloseAttempt");
@@ -74,9 +82,11 @@ window.Workbook = (function($, Workbook) {
         if (isForceShow) {
             getWorkbookInfo(isForceShow);
             $workbookPanel.removeClass("hidden"); // no animation if force show
+            $("#container").addClass("wkbkViewOpen noMenuBar");
         } else {
             setTimeout(function() {
                 $workbookPanel.removeClass("hidden");
+                $("#container").addClass("wkbkViewOpen");
             }, 100);
         }
 
@@ -91,14 +101,15 @@ window.Workbook = (function($, Workbook) {
         }
         $workbookPanel.addClass("hidden");
         $workbookSection.find(".workbookBox").remove();
+        $("#container").removeClass("wkbkViewOpen");
 
         if (immediate) {
             $workbookPanel.hide();
-            $("#container").removeClass("workbookMode");
+            $("#container").removeClass("workbookMode noMenuBar");
         } else {
             setTimeout(function() {
                 $workbookPanel.hide();
-                $("#container").removeClass("workbookMode");
+                $("#container").removeClass("workbookMode noMenuBar");
             }, 400);
         }
 
@@ -108,7 +119,8 @@ window.Workbook = (function($, Workbook) {
 
     Workbook.forceShow = function() {
         // When it's forceShow, no older workbooks are displayed
-        $("#container").addClass("noWorkbook");
+        $("#container").addClass("noWorkbook noMenuBar");
+        $("#container").removeClass("wkbkViewOpen");
         Workbook.show(true);
 
         // Create a new workbook with the name already selected - Prompting
@@ -118,8 +130,8 @@ window.Workbook = (function($, Workbook) {
     };
 
     Workbook.goToMonitor = function() {
-        $("#container").removeClass("setupMode");
-        $("#container").addClass("monitorMode");
+        $("#container").removeClass("setupMode wkbkViewOpen");
+        $("#container").addClass("monitorMode noMenuBar");
         MainMenu.tempNoAnim();
 
         if (!MonitorPanel.isGraphActive()) {
@@ -132,7 +144,7 @@ window.Workbook = (function($, Workbook) {
 
     Workbook.goToSetup = function() {
         $("#container").removeClass("monitorMode");
-        $("#container").addClass("setupMode");
+        $("#container").addClass("setupMode noMenuBar");
         MainMenu.tempNoAnim();
         if ($("#monitor-setup").hasClass("firstTouch")) {
             $("#monitor-setup").removeClass("firstTouch");
@@ -197,6 +209,7 @@ window.Workbook = (function($, Workbook) {
         // from monitor to workbook panel
         $("#monitorPanel").find(".backToWB").click(function() {
             $("#container").removeClass("monitorMode setupMode");
+            $("#container").addClass("wkbkViewOpen");
             if (!wasMonitorActive) {
                 MonitorPanel.inActive();
             }
@@ -628,7 +641,7 @@ window.Workbook = (function($, Workbook) {
         WorkbookManager.pause(workbookId)
         .then(function() {
             updateWorkbookInfoWithReplace($workbookBox, workbookId);
-            $("#container").addClass("noWorkbook");
+            $("#container").addClass("noWorkbook noMenuBar");
         })
         .fail(function(error) {
             handleError(error, $workbookBox);

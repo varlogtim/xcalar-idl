@@ -620,6 +620,8 @@ WKBKTStr = {
     "CreateErr": "Error occurred when creating workbook",
     "CancelTitle": "Cancel Workbook Activation",
     "CancelMsg": "Are you sure you want to cancel activating this workbook?",
+    "WaitActivateFinish": "Please wait for workbook to activate.",
+    "NoActive": "No active worksheets. Please create one first.",
     // With replace
     'Conflict': 'Workbook "<name>" already exists, ' +
                 'please choose another name.',
@@ -640,7 +642,8 @@ WKBKTStr = {
     'DeactivateErr': 'Error occurred when deactivating workbook',
     'Pause': 'Pause Workbook',
     'PauseMsg': 'Are you sure you want to pause the workbook?',
-    'PauseErr': 'Error occurred when pausing workbook'
+    'PauseErr': 'Error occurred when pausing workbook',
+    'Refreshing': 'Refreshing in <time> seconds'
 };
 
 MonitorTStr = {

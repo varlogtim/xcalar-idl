@@ -223,23 +223,28 @@ window.WorkbookManager = (function($, WorkbookManager) {
                 return switchWorkBookHelper(wkbkSet.get(wkbkId).name, null);
             })
             .then(function() {
-                switchWorkbookAnimation();
                 activeWKBKId = wkbkId;
+                return switchWorkbookAnimation();
+            })
+            .then(function() {
                 xcHelper.reload();
                 deferred.resolve();
             })
             .fail(function(ret) {
                 if (ret && ret.status === StatusT.StatusSessionNotInact) {
-                    switchWorkbookAnimation(true);
-                    xcHelper.reload();
-                    deferred.resolve();
+                    switchWorkbookAnimation(true)
+                    .then(function() {
+                        xcHelper.reload();
+                        deferred.resolve();
+                    });
                 } else {
                     if (!ret) {
                         ret = {
                             error: "Error occurred while switching workbooks"
                         };
                     }
-                    $("#initialLoadScreen").hide().removeClass("switchingWkbk");
+                    $("#initialLoadScreen").hide();
+                    $("#container").removeClass("switchingWkbk");
                     endProgressCycle();
                     deferred.reject(ret);
                 }
@@ -274,15 +279,18 @@ window.WorkbookManager = (function($, WorkbookManager) {
             return XcalarKeyPut(activeWKBKKey, wkbkId, true, gKVScope.WKBK);
         })
         .then(function() {
-            switchWorkbookAnimation();
             xcManager.removeUnloadPrompt();
             activeWKBKId = wkbkId;
+            return switchWorkbookAnimation();
+        })
+        .then(function() {
             xcHelper.reload();
             deferred.resolve();
         })
         .fail(function(error) {
             console.error("Switch Workbook Fails", error);
-            $("#initialLoadScreen").hide().removeClass("switchingWkbk");
+            $("#initialLoadScreen").hide();
+            $("#container").removeClass("switchingWkbk");
             endProgressCycle();
             deferred.reject(error);
         })
@@ -293,12 +301,39 @@ window.WorkbookManager = (function($, WorkbookManager) {
         return deferred.promise();
     };
 
+    function countdown() {
+        if (!$("#monitorTopBar").find(".wkbkTitle").is(":visible")) {
+            return PromiseHelper.resolve();
+        }
+        var deferred = jQuery.Deferred();
+        var time = 3;
+        var msg = xcHelper.replaceMsg(WKBKTStr.Refreshing, {
+            time: time
+        });
+        $("#monitorTopBar").find(".wkbkTitle").text(msg);
+
+        var interval = setInterval(function() {
+            time--;
+            if (time > 0) {
+                var msg = xcHelper.replaceMsg(WKBKTStr.Refreshing, {
+                    time: time
+                });
+                $("#monitorTopBar").find(".wkbkTitle").text(msg);
+            } else {
+                clearInterval(interval);
+                deferred.resolve();
+            }
+        }, 1000);
+
+        return deferred.promise();
+    }
+
     function switchWorkBookHelper(toName, fromName) {
         var deferred = jQuery.Deferred();
         var queryName = Support.getUser() + ":" + toName;
         progressCycle(queryName, checkInterval);
-        $("#initialLoadScreen").addClass("switchingWkbk")
-                               .data("curquery", queryName);
+        $("#initialLoadScreen").data("curquery", queryName);
+        $("#container").addClass("switchingWkbk");
 
         XcalarSwitchToWorkbook(toName, fromName)
         .then(deferred.resolve)
@@ -318,14 +353,16 @@ window.WorkbookManager = (function($, WorkbookManager) {
             .fail(deferred.reject);
         })
         .always(function() {
-            $("#initialLoadScreen").removeClass("switchingWkbk canceling")
+            $("#initialLoadScreen").removeClass("canceling")
                                    .removeData("canceltime");
             $("#initialLoadScreen").find(".animatedEllipsisWrapper .text")
                                     .text(StatusMessageTStr.PleaseWait);
+            $("#container").removeClass("switchingWkbk");
         });
 
         function showAlert() {
-            $("#initialLoadScreen").hide().removeClass("switchingWkbk");
+            $("#initialLoadScreen").hide();
+            $("#container").removeClass("switchingWkbk");
             endProgressCycle();
 
             Alert.show({
@@ -1118,6 +1155,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
     }
 
     function switchWorkbookAnimation(failed) {
+        var deferred = jQuery.Deferred();
         if (!failed) {
             progressComplete();
         }
@@ -1125,7 +1163,13 @@ window.WorkbookManager = (function($, WorkbookManager) {
         $loadScreen.removeClass("canceling").removeData("canceltime");
         $loadScreen.find(".animatedEllipsisWrapper .text")
                    .text(StatusMessageTStr.PleaseWait);
-        Workbook.hide(true);
+
+        countdown()
+        .then(function() {
+            Workbook.hide(true);
+            deferred.resolve();
+        });
+        return deferred.promise();
     }
 
     function progressCycle(queryName, adjustTime, retry) {

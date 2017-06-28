@@ -504,6 +504,8 @@ WKBKTStr = {
 'HoldMsg': '您已经在其他地方登录了。继续登录可能会导致您丢失未保存的工作。',
 'Release': '继续登录',
 'WKBKnotExists': '没有工作簿存在',
+"WaitActivateFinish": "Please wait for workbook to activate.",
+"NoActive": "No active worksheets. Please create one first.",
 "Activate": '激活工作簿',
 "ReturnWKBK": '返回工作簿',
 "EditName": '编辑工作簿名称',
@@ -531,7 +533,8 @@ WKBKTStr = {
 'Pause': '暂停工作簿',
 'Paused': '暂停',
 'PauseMsg': '您确定要暂停工作簿吗？',
-'PauseErr': '暂停工作簿时出错'
+'PauseErr': '暂停工作簿时出错',
+'Refreshing': 'Refreshing in <time> seconds'
 };
 
 MonitorTStr = {

@@ -274,6 +274,7 @@ window.MainMenu = (function($, MainMenu) {
             TblFunc.hideOffScreenTables();
         }
         $(".mainPanel").removeClass("active");
+        $("#container").removeClass("monitorViewOpen");
         var curTab = $curTab.attr("id");
         $menuBar.find(".topMenuBarTab").removeClass("active");
         $curTab.addClass("active");
@@ -314,6 +315,7 @@ window.MainMenu = (function($, MainMenu) {
                 break;
             case ("monitorTab"):
                 $("#monitorPanel").addClass("active");
+                $("#container").addClass("monitorViewOpen");
                 MonitorPanel.active();
                 break;
             default:

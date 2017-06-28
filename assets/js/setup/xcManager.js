@@ -528,7 +528,7 @@ window.xcManager = (function(xcManager, $) {
                 MainMenu.openPanel("monitorPanel", "setupButton");
                 MainMenu.open(true);
             }
-            
+
         });
 
         $("#logout").mouseup(function(event) {
@@ -541,7 +541,8 @@ window.xcManager = (function(xcManager, $) {
 
     function setupMemoryAlert() {
         $("#memoryAlert").click(function() {
-            if ($("#container").hasClass("noWorkbook")) {
+            if ($("#container").hasClass("noWorkbook") ||
+                $("#container").hasClass("switchingWkbk")) {
                 Workbook.goToMonitor();
                 return;
             }
