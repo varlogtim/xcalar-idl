@@ -2344,14 +2344,18 @@
                 }
                 if (paramInfo.paramType === XcalarApisT.XcalarApiExport) {
                     var $elem = $tableNode.find(".tableTitle");
-                    $elem.text(paramInfo.paramValue[0]);
-                    var text = xcHelper.convertToHtmlEntity(paramInfo.paramValue[0]);
+                    var expName = xcHelper.stripCSVExt(paramInfo.paramValue[0]);
+                    $elem.text(expName);
+                    var text = xcHelper.convertToHtmlEntity(expName);
                     xcTooltip.changeText($elem, text);
-                } else if (paramInfo.paramType === XcalarApisT.XcalarApiFilter) {
+                } else if (paramInfo.paramType === XcalarApisT.XcalarApiFilter)
+                {
                     if (noParams) {
-                        $tableNode.find(".parentsTitle").text($tableNode.data("column"));
+                        $tableNode.find(".parentsTitle")
+                                  .text($tableNode.data("column"));
                     } else {
-                        $tableNode.find(".parentsTitle").text("<Parameterized>");
+                        $tableNode.find(".parentsTitle")
+                                  .text("<Parameterized>");
                     }
                 }
                 $tableNode.data("paramValue", paramInfo.paramValue);

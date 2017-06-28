@@ -682,9 +682,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
                     }
                 }, {
                     "name": AlertTStr.CONFIRM,
-                    func: function() {
-                        cancel();
-                    }
+                    func: cancel
                 }],
                 "onCancel": function() {
                     $loadScreen.removeClass("canceling alertOpen");

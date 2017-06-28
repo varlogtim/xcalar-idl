@@ -450,12 +450,14 @@ window.DFParamModal = (function($, DFParamModal){
             if (path[path.length - 1] !== "/") {
                 path += "/";
             }
+            var expName = xcHelper.stripCSVExt(xcHelper
+                                        .escapeHTMLSpecialChar(paramValue[0]));
             defaultText += '<div class="templateRow">' +
                                 '<div>' +
                                     DFTStr.ExportTo + ':' +
                                 '</div>' +
                                 '<div class="boxed large">' +
-                                    xcHelper.escapeHTMLSpecialChar(paramValue[0]) +
+                                    expName +
                                 '</div>' +
                             '</div>' +
                             '<div class="templateRow">' +
@@ -993,6 +995,7 @@ window.DFParamModal = (function($, DFParamModal){
                     paramType = XcalarApisT.XcalarApiExport;
                     var fileName = $.trim($oldVals.eq(0).text());
                     var targetName = $.trim($oldVals.eq(1).text());
+                    fileName += ".csv";
                     paramQuery = [fileName, targetName];
                     break;
             }
@@ -1056,6 +1059,7 @@ window.DFParamModal = (function($, DFParamModal){
                 case ("export"):
                     paramType = XcalarApisT.XcalarApiExport;
                     var fileName = $.trim($editableDivs.eq(0).val());
+                    fileName += ".csv";
                     var targetName = $.trim($editableDivs.eq(1).val());
 
                     paramValues.fileName = fileName;
@@ -1165,11 +1169,8 @@ window.DFParamModal = (function($, DFParamModal){
             var regex = new RegExp("<" + name + ">", "g");
             val = val.replace(regex, params[i].val);
         }
-        var index = val.indexOf(".");
-        if (index === -1 || index === (val.length - 1)) {
-            StatusBox.show(DFTStr.NoFileExt, $input);
-            return true;
-        } else if (val.includes("/")) {
+
+        if (val.includes("/")) {
             StatusBox.show(DFTStr.InvalidExportPath, $input);
             return true;
         } else {
@@ -1257,6 +1258,7 @@ window.DFParamModal = (function($, DFParamModal){
             var $templateVals = $dfParamModal.find(".template .boxed");
             var i = 0;
             var parameterizedVals = [];
+            var paramVal;
 
             $templateVals.each(function() {
                 parameterizedVals.push(decodeURI($(this).text()));
@@ -1269,7 +1271,12 @@ window.DFParamModal = (function($, DFParamModal){
                     $dfParamModal.find(".template").append(html);
                     $templateVals = $dfParamModal.find(".template .boxed");
                 }
-                $templateVals.eq(i).text(retinaNode.paramValue[i]);
+                paramVal = retinaNode.paramValue[i];
+                if (retinaNode.paramType === XcalarApisT.XcalarApiExport &&
+                    i === 0) {
+                    paramVal = xcHelper.stripCSVExt(paramVal);
+                }
+                $templateVals.eq(i).text(paramVal);
             }
             $dfParamModal.find(".template .boxed:gt(" +
                             (retinaNode.paramValue.length - 1) + ")").remove();

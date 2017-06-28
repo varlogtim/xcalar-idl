@@ -456,6 +456,13 @@ window.xcHelper = (function($, xcHelper) {
         return prefix;
     };
 
+    xcHelper.stripCSVExt = function(str) {
+        if (str.endsWith(".csv")) {
+            str = str.slice(0, -4);
+        }
+        return str;
+    };
+
     // must be in a "name" = function(args) format
     // will return the function(args) portion
     xcHelper.parseUserStr = function(userStr) {

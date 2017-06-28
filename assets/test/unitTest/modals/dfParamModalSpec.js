@@ -74,92 +74,13 @@ describe("DFParamModal Test", function() {
 
         it("inputs should be correct", function() {
             expect($modal.find(".template .boxed").length).to.equal(2);
-            expect($modal.find(".template").text()).to.equal("Export As:export-" + tableName + ".csvTarget:Default");
-            expect($modal.find("input").eq(0).val()).to.equal("export-" + tableName + ".csv");
+            expect($modal.find(".template").text()).to.equal("Export As:export-" + tableName + "Target:Default");
+            expect($modal.find("input").eq(0).val()).to.equal("export-" + tableName);
             expect($modal.find("input").eq(1).val()).to.equal("Default");
             expect($modal.find("input").length).to.equal(5);
         });
 
         describe("export submit with invalid file name", function() {
-            it("no extension should fail", function(done) {
-                $modal.find(".editableParamQuery input").eq(0).val("abc");
-                $modal.find(".editableParamQuery input").eq(1).val("Default");
-                DFParamModal.__testOnly__.storeRetina()
-                .then(function() {
-                    done("failed");
-                })
-                .fail(function(){
-                    UnitTest.hasStatusBoxWithError("Export file name must have an extension.");
-                    done();
-                });
-            });
-
-            it("no extension should fail", function(done) {
-                $modal.find(".editableParamQuery input").eq(0).val("abc.");
-                DFParamModal.__testOnly__.storeRetina()
-                .then(function() {
-                    done("failed");
-                })
-                .fail(function(){
-                    expect($modal.is(":visible")).to.be.true;
-                    UnitTest.hasStatusBoxWithError("Export file name must have an extension.");
-                    done();
-                });
-            });
-
-            it("extension in input", function(done) {
-                var cachedFn = XcalarUpdateRetina;
-                var called = false;
-                XcalarUpdateRetina = function() {
-                    called = true;
-                    return PromiseHelper.reject();
-                };
-
-                $modal.find(".editableParamQuery input").eq(0).val("abc.a");
-
-                DFParamModal.__testOnly__.storeRetina()
-                .then(function() {
-                    done("failed");
-                })
-                .fail(function(){
-                    expect(called).to.be.true;
-                    Alert.forceClose();
-                    XcalarUpdateRetina = cachedFn;
-                    expect($modal.is(":visible")).to.be.false;
-                    DFParamModal.show($dfWrap.find(".dagTable.export"))
-                    .then(function() {
-                        done();
-                    });
-                });
-            });
-
-            it("no extension in param should not work", function(done) {
-                var cachedFn = XcalarUpdateRetina;
-                var called = false;
-                XcalarUpdateRetina = function() {
-                    called = true;
-                    return PromiseHelper.reject();
-                };
-
-                $modal.find(".editableParamQuery input").eq(0).val("ab<test>c");
-                $modal.find(".editableParamQuery input").eq(1).val("Default");
-                $modal.find(".paramName").eq(0).text("test");
-                $modal.find(".paramVal").eq(0).val("csv");
-                $modal.find(".row").eq(0).removeClass("unfilled")
-                                                  .addClass("currParams");
-
-                DFParamModal.__testOnly__.storeRetina()
-                .then(function() {
-                    done("failed");
-                })
-                .fail(function(){
-                    expect(called).to.be.false;
-                    UnitTest.hasStatusBoxWithError("Export file name must have an extension.");
-                    XcalarUpdateRetina = cachedFn;
-                    done();
-                });
-            });
-
             it("extension in param should work", function(done) {
                 var cachedFn = XcalarUpdateRetina;
                 var called = false;

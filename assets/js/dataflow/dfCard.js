@@ -723,8 +723,9 @@ window.DFCard = (function($, DFCard) {
                     .attr("data-advancedOpts", "default");
 
         var $elem = $exportTable.find(".tableTitle");
-        $elem.text(paramValue[0]);
-        xcTooltip.changeText($elem, xcHelper.convertToHtmlEntity(paramValue[0]));
+        var expName = xcHelper.stripCSVExt(paramValue[0]);
+        $elem.text(expName);
+        xcTooltip.changeText($elem, xcHelper.convertToHtmlEntity(expName));
 
         // Data table moved so that the hasParam class is added correctly
         $wrap.find(".actionType.export").attr("data-table", "");
@@ -1107,12 +1108,15 @@ window.DFCard = (function($, DFCard) {
         })
         .then(function(finalTable) {
             var msg = DFTStr.RunDoneMsg;
-            var btns = [];
+            var btns = [{
+                "name": AlertTStr.CLOSE,
+                "className": "btn-cancel"
+            }];
             if (advancedOpts.activeSession) {
                 msg += "\n" + xcHelper.replaceMsg(DFTStr.FindTable, {
                     "table": finalTable
                 });
-                btns = [{
+                btns.push({
                     name: DFTStr.ViewTable,
                     func: function() {
                         MainMenu.openPanel("workspacePanel", null, {
@@ -1121,7 +1125,7 @@ window.DFCard = (function($, DFCard) {
                         var tableId = xcHelper.getTableId(finalTable);
                         xcHelper.centerFocusedTable(tableId, true);
                     }
-                }];
+                });
             }
 
             Transaction.done(txId, {
@@ -1132,6 +1136,7 @@ window.DFCard = (function($, DFCard) {
                 "title": DFTStr.RunDone,
                 "msg": msg,
                 "isAlert": true,
+                "hideButtons": ["cancel"],
                 "buttons": btns
             });
             deferred.resolve();

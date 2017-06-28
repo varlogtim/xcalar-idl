@@ -3619,6 +3619,7 @@ window.Dag = (function($, Dag) {
             var tableId = xcHelper.getTableId(tableName);
 
             if (dagNode.api === XcalarApisT.XcalarApiExport) {
+                var expName = xcHelper.stripCSVExt(tableName);
                 html += '<div class="dagTable typeTable export ' + state +
                         '" ' +
                         'data-tablename="' + tableName + '" ' +
@@ -3631,21 +3632,21 @@ window.Dag = (function($, Dag) {
                             'data-container="body" ' +
                             'title="' + tooltipTxt + '"' +
                             '></div>' +
-                            '<i class="icon xi-generate-sub"></i>'+
+                            '<i class="icon xi-data-out"></i>'+
                             '<i class="icon xi-table-2"></i>'+
                             '<span class="tableTitle exportFileName" ' +
                                 'data-toggle="tooltip" ' +
                                 'data-placement="bottom" ' +
                                 'data-container="body" ' +
-                                'title="' + tableName + '">' +
-                                tableName +
+                                'title="' + expName + '">' +
+                                expName +
                             '</span>' +
                             '<span class="tableTitle exportTableName" ' +
                                 'data-toggle="tooltip" ' +
                                 'data-placement="bottom" ' +
                                 'data-container="body" ' +
-                                'title="' + tableName + '">' +
-                                tableName +
+                                'title="' + expName + '">' +
+                                expName +
                             '</span>';
             } else {
                 html += '<div class="dagTable typeTable ' + state + '" ' +
