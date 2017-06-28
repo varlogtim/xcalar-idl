@@ -759,7 +759,7 @@ DFTStr = {
     'UpdateParamFail': 'Update Parameters Failed',
     'UploadLimitMsg': 'Cannot upload dataflow that is over 1MB.',
     'WarnInMemTable': 'This will generate an in-memory table in your current workbook. Please note that you will NOT be able to create further batch dataflows from this table.',
-    'WarnSysParam': 'System parameters are not used when you run batch data flow directly, they will be replaced with empty strings.'
+    'WarnSysParam': 'System parameters are not used when you run batch data flow directly, they will be ignored.'
 };
 
 DSTStr = {

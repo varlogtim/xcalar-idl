@@ -812,7 +812,7 @@ module.exports = {
         "BucketInstr": "Input range size",
         "AggSummary": "Aggregate Summary",
         "QuartileSummary": "Quartile Summary",
-        "QuartileInstr": "Quartile statistics can only be calculated when the column is sorted.",
+        "QuartileInstr": "Click to generate quartile statistics.",
         "QuartileWarn": "Warning: This operation may take a few moments to complete.",
         "fail": "Cannot profile the data",
         "Showing": "Showing",
