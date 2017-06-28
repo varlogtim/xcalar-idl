@@ -17,6 +17,11 @@ describe("DSObj Test", function() {
         UnitTest.onMinMode();
     });
 
+    function genUniqDSName(name) {
+        var validFunc = function(dsName) { return !DS.has(dsName); };
+        return xcHelper.uniqueRandName(name, validFunc, 10);
+    }
+
     describe("Basic Function Test", function() {
         it("Should get home folder", function() {
             var homeFolder = DS.getHomeDir();
@@ -53,14 +58,14 @@ describe("DSObj Test", function() {
         });
 
         it("DS.has should work", function() {
-            var testName = xcHelper.uniqueRandName("testSuites-dsObj", DS.has, 10);
+            var testName = genUniqDSName("testSuites-dsObj");
             expect(DS.has(testName)).to.be.false;
             expect(DS.has(null)).to.be.false;
         });
 
         it("Should add current user's ds", function() {
             var user = Support.getUser();
-            var dsName = xcHelper.uniqueRandName("dsobj", DS.has, 10);
+            var dsName = genUniqDSName("dsobj");
             var testName = user + "." + dsName;
             var ds = DS.addCurrentUserDS(testName, "CSV", "testPath");
 
@@ -77,7 +82,7 @@ describe("DSObj Test", function() {
         it("Should add other user's ds", function(done) {
             var homeFolder = DS.getHomeDir();
             var user = xcHelper.randName(Support.getUser());
-            var dsName = xcHelper.uniqueRandName("dsobj", DS.has, 10);
+            var dsName = genUniqDSName("dsobj");
             var testName = user + "." + dsName;
 
             var ds = DS.addOtherUserDS(testName, "CSV", "testPath");
@@ -260,7 +265,7 @@ describe("DSObj Test", function() {
         });
 
         it("Should rename the folder", function() {
-            var newName = xcHelper.uniqueRandName("testFolder", DS.has, 10);
+            var newName = genUniqDSName("testFolder");
             var isRenamed = DS.rename(testFolder.getId(), newName);
             expect(isRenamed).to.be.true;
             expect(testFolder.getName()).to.equal(newName);
@@ -275,7 +280,7 @@ describe("DSObj Test", function() {
 
         it("Should not rename folder to invalid name", function() {
             var oldName = testFolder.getName();
-            var newName = xcHelper.uniqueRandName("test*folder", DS.has, 10);
+            var newName = genUniqDSName("test*folder");
             var isRenamed = DS.rename(testFolder.getId(), newName);
             expect(isRenamed).to.be.false;
             expect(testFolder.getName()).to.equal(oldName);
@@ -323,7 +328,7 @@ describe("DSObj Test", function() {
                 return PromiseHelper.reject("test");
             };
 
-            var name = xcHelper.uniqueRandName("test", DS.has, 10);
+            var name = genUniqDSName("test");
             var dataset = testDatasets.sp500;
             var pointArgs = $.extend({}, dataset, {"name": name});
             DS.point(pointArgs)
@@ -341,7 +346,7 @@ describe("DSObj Test", function() {
         });
 
         it("Should import ds", function(done) {
-            var name = xcHelper.uniqueRandName("testSuites-dsObj-sp500", DS.has, 10);
+            var name = genUniqDSName("testSuites-dsObj-sp500");
             var dataset = testDatasets.sp500;
             var pointArgs = $.extend({}, dataset, {"name": name});
             DS.point(pointArgs)

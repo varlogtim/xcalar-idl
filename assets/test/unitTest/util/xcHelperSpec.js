@@ -598,21 +598,44 @@ describe("xcHelper Test", function() {
         expect(res.startsWith("test")).to.be.true;
     });
 
+    it("xcHelper.uniqueName should work", function() {
+        // case 1
+        var res = xcHelper.uniqueName("test");
+        expect(res).to.equal("test");
+
+        // case 2
+        var validFunc = function(name) { return name !== "test"; };
+        res = xcHelper.uniqueName("test", validFunc);
+        expect(res).to.equal("test_1");
+
+        // case 3
+        validFunc = function(name) { return name !== "test"; };
+        var nameGenFunc = function(cnt) { return "test-" + cnt};
+        res = xcHelper.uniqueName("test", validFunc, nameGenFunc);
+        expect(res).to.equal("test-1");
+
+        // case 3
+        validFunc = function() { return false; };
+        res = xcHelper.uniqueName("test", validFunc, null, 5);
+        expect(res.length).to.equal(9);
+        expect(res.startsWith("test")).to.be.true;
+    });
+
     it("xcHelper.uniqueRandName should work", function() {
         // case 1
         var res = xcHelper.uniqueRandName("test");
         expect(res.length).to.equal(9);
         expect(res.startsWith("test")).to.be.true;
         // case 2
-        var checkFunc = function() { return false; };
-        res = xcHelper.uniqueRandName("test", checkFunc, 1);
+        var validFunc = function() { return true; };
+        res = xcHelper.uniqueRandName("test", validFunc, 1);
         expect(res.length).to.equal(9);
         expect(res.startsWith("test")).to.be.true;
 
         // case 3
-        checkFunc = function() { return true; };
-        res = xcHelper.uniqueRandName("test", checkFunc);
-        expect(res.length).to.equal(9);
+        validFunc = function() { return false; };
+        res = xcHelper.uniqueRandName("test", validFunc);
+        expect(res.length).to.equal(14);
         expect(res.startsWith("test")).to.be.true;
     });
 

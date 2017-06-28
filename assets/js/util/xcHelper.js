@@ -798,31 +798,43 @@ window.xcHelper = (function($, xcHelper) {
         return (name + rand);
     };
 
-    xcHelper.uniqueRandName = function(name, checkFunc, checkCnt) {
-        // used in testsuite
-        var resName = xcHelper.randName(name);
-        if (!(checkFunc instanceof Function)) {
+    xcHelper.uniqueName = function(name, validFunc, nameGenFunc, maxTry) {
+        var resName = name;
+        if (!(validFunc instanceof Function)) {
             return resName;
         }
 
-        if (checkCnt == null) {
-            checkCnt = 10; // default value
+        if (maxTry == null) {
+            maxTry = 10; // default value
+        }
+
+        if (!(nameGenFunc instanceof Function)) {
+            nameGenFunc = function(cnt) {
+                // start from 1
+                return name + "_" + cnt;
+            };
         }
 
         var tryCnt = 0;
-
-        while (checkFunc(resName) && tryCnt < checkCnt) {
+        while (!validFunc(resName) && tryCnt < maxTry) {
             // should be low chance that still has name conflict
-            resName = xcHelper.randName(name);
             tryCnt++;
+            resName = nameGenFunc(tryCnt);
         }
 
-        if (tryCnt === checkCnt) {
+        if (tryCnt === maxTry) {
             console.error("Name Conflict!");
             return xcHelper.randName(name); // a hack result
         } else {
             return resName;
         }
+    };
+
+    // used in testsuite
+    xcHelper.uniqueRandName = function(name, validFunc, maxTry) {
+        var initialName = xcHelper.randName(name);
+        var nameGenFunc = function() { return xcHelper.randName(name); };
+        return xcHelper.uniqueName(initialName, validFunc, nameGenFunc, maxTry);
     };
 
     xcHelper.capitalize = function(s) {
@@ -1232,7 +1244,7 @@ window.xcHelper = (function($, xcHelper) {
                         'class="btn adminOnly adminSupport" ' +
                         'data-toggle="tooltip" ' +
                         'title="' + "Support Tools" + '">' +
-                            "Support Tools" +
+                            MonitorTStr.SupportTools +
                         '</button>';
                 $btn = $(html);
 

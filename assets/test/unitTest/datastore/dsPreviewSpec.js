@@ -1449,7 +1449,8 @@ describe("DSPreview Test", function() {
         });
 
         it("Should sumibt form and load ds", function(done) {
-            var testDS = xcHelper.uniqueRandName("testSuitesSp500", DS.has, 10);
+            var validFunc = function(dsName) { return !DS.has(dsName); };
+            var testDS = xcHelper.uniqueRandName("testSuitesSp500", validFunc, 10);
             $("#dsForm-dsName").val(testDS);
             var $grid;
             DSPreview.__testOnly__.submitForm()
