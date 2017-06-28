@@ -840,20 +840,33 @@ window.DFCard = (function($, DFCard) {
             $currentIcon = $(this);
 
             $menu.find("li").hide();
+            var $queryLi = $menu.find(".createParamQuery");
 
             if (XVM.getLicenseMode() !== XcalarMode.Mod) {
-                $menu.find('.createParamQuery').show();
+                $queryLi.show();
             }
 
             // If node is not export, hide showExportCols option
-            if ($(this).hasClass("export")) {
+            if ($currentIcon.hasClass("export")) {
                 $menu.find(".showExportCols").show();
-                if (!$(this).hasClass("parameterizable") ||
-                    XVM.getLicenseMode() === XcalarMode.Mod) {
-                    $menu.find(".createParamQuery").hide();
+
+                if (XVM.getLicenseMode() === XcalarMode.Mod) {
+                    $queryLi.hide();
                 } else {
-                    $menu.find(".createParamQuery").show();
+                    $queryLi.show();
+                    if ($currentIcon.hasClass("parameterizable")) {
+                        $queryLi.removeClass("unavailable");
+                        xcTooltip.remove($queryLi);
+                    } else {
+                        $queryLi.addClass("unavailable");
+                        xcTooltip.add($queryLi, {
+                            title: DFTStr.CannotParam
+                        });
+                    }
                 }
+            } else {
+                $queryLi.removeClass("unavailable");
+                xcTooltip.remove($queryLi);
             }
 
             positionAndInitMenu($currentIcon);
@@ -865,8 +878,12 @@ window.DFCard = (function($, DFCard) {
             if (event.which !== 1) {
                 return;
             }
+            var $li = $(this);
+            if ($li.hasClass("unavailable")) {
+                return;
+            }
             var $dagWrap = $dfCard.find(".dagWrap:visible");
-            var action = $(this).data("action");
+            var action = $li.data("action");
 
             switch (action) {
                 case ("createParamQuery"):

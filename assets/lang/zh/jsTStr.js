@@ -639,7 +639,8 @@ DFTStr = {
 "Refresh": "刷新数据流",
 "RefreshMsg": "当前数据流已被其他用户更改",
 "AddValues": "赋值",
-"ParamNoValue": "请为当前数据流使用的所有参数赋值"
+"ParamNoValue": "请为当前数据流使用的所有参数赋值",
+"CannotParam": "Cannot parameterize if exporting as a Xcalar table"
 };
 DSTStr = {
 'UnknownUser': '未知用户',
