@@ -762,7 +762,7 @@ window.xcSuggest = (function($, xcSuggest) {
             } else {
                 return ColumnType.integer;
             }
-        } else if (booleanHit / validData) {
+        } else if (booleanHit / validData >= confidentRate) {
             return ColumnType.boolean;
         } else {
             return ColumnType.string;

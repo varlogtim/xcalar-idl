@@ -712,6 +712,10 @@ describe("xcSuggest", function() {
                 "type": ColumnType.string,
                 "confidentRate": 0.1,
                 "expect": ColumnType.boolean
+            }, {
+                "data": ["CVX", "CVX", "BRK-A", "GOOG", "CSCO", "AAPL", "INTC", "INTC", "INTC", "DIS", "GE", "GE", "GE", "UTX", "UTX", "T", "WFC", "WFC"],
+                "type": ColumnType.string,
+                "expect": ColumnType.string
             }];
 
             tests.forEach(function(test) {
