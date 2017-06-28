@@ -21,7 +21,7 @@ import math
 from scipy.stats import beta, chi2, expon, poisson, norm
 
 
-defaultDateFmt = "%d/%m/%Y"
+defaultDateFmt = "%m/%d/%Y"
 defaultTimeFmt = "%H:%M:%S"
 
 ###
@@ -65,9 +65,6 @@ def __get_dates(inStream, delimiter, dateColNo, inputFormat):
         date_str = line.split(delimiter)[dateColNo]
         try:
             curr_date = datetime.strptime(date_str, inputFormat)
-            if curr_date.strftime(inputFormat) == "28/10/2014":
-                logging.warning(line)
-                logging.warning(date_str)
             if minDate == None or curr_date < minDate:
                 minDate = curr_date
             if maxDate == None or curr_date > maxDate:
