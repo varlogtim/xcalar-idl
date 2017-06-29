@@ -869,6 +869,8 @@ module.exports = {
     },
 
     "about": {
+        "BuildNumber": "Build Number",
+        "IDLVersion": "IDL Version",
         "FrontVersion": "XD Version",
         "BackVersion": "XCE Version",
         "ThriftSHA": "Thrift Version",
