@@ -3745,10 +3745,7 @@ window.OperationsView = (function($, OperationsView) {
     function addBoolCheckbox($input) {
         $input.closest(".row").addClass("boolOption").find(".inputWrap")
                                                      .addClass("semiHidden");
-        var html = '<div class="checkboxWrap boolArgWrap" ' +
-                        'data-container="body" ' +
-                        'data-toggle="tooltip" title="' +
-                        'tooltip goes here' + '">' +
+        var html = '<div class="checkboxWrap boolArgWrap">' +
                         '<span class="checkbox boolArg" >'+
                             '<i class="icon xi-ckbox-empty fa-13"></i>'+
                             '<i class="icon xi-ckbox-selected fa-13"></i>'+
