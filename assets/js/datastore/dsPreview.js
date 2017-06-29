@@ -1137,7 +1137,9 @@ window.DSPreview = (function($, DSPreview) {
 
     function applyFieldDelim(strToDelimit) {
         // may have error case
-        strToDelimit = strToDelimit.replace(/\t/g, "\\t").replace(/\n/g, "\\n");
+        strToDelimit = strToDelimit.replace(/\t/g, "\\t")
+                                   .replace(/\n/g, "\\n")
+                                   .replace(/\r/g, "\\r");
         highlighter = "";
 
         if (strToDelimit === "") {
@@ -1150,7 +1152,9 @@ window.DSPreview = (function($, DSPreview) {
     }
 
     function applyLineDelim(strToDelimit) {
-        strToDelimit = strToDelimit.replace(/\t/g, "\\t").replace(/\n/g, "\\n");
+        strToDelimit = strToDelimit.replace(/\t/g, "\\t")
+                                   .replace(/\n/g, "\\n")
+                                   .replace(/\r/g, "\\r");
 
         if (strToDelimit === "") {
             $lineText.val("Null").addClass("nullVal");
@@ -1169,18 +1173,23 @@ window.DSPreview = (function($, DSPreview) {
     function selectDelim($li) {
         var $input = $li.closest(".dropDownList").find(".text");
         var isField = ($input.attr("id") === "fieldText");
+        $input.removeClass("nullVal");
 
         switch ($li.attr("name")) {
-            case "default":
-                if (isField) {
-                    $input.val("\\t");
-                } else {
-                    $input.val("\\n");
-                }
-                $input.removeClass("nullVal");
+            case "tab":
+                $input.val("\\t");
                 break;
             case "comma":
-                $input.val(",").removeClass("nullVal");
+                $input.val(",");
+                break;
+            case "LF":
+                $input.val("\\n");
+                break;
+            case "CR":
+                $input.val("\\r");
+                break;
+            case "CRLF":
+                $input.val("\\r\\n");
                 break;
             case "null":
                 $input.val("Null").addClass("nullVal");
@@ -2495,7 +2504,7 @@ window.DSPreview = (function($, DSPreview) {
             return;
         }
 
-        applyLineDelim("\n");
+        // applyLineDelim("\n");
         applyQuote("\"");
 
         // step 0: check if should check UDF or not
@@ -2516,15 +2525,23 @@ window.DSPreview = (function($, DSPreview) {
         }
         toggleFormat(formatText, null);
 
-        // step 2: detect delimiter
+        // ste 2: detect line delimiter
         if (detectArgs.format === formatMap.CSV) {
-            detectArgs.fieldDelim = xcSuggest.detectDelim(rawData);
+            detectArgs.lineDelim = xcSuggest.detectLineDelimiter(rawData);
+            applyLineDelim(detectArgs.lineDelim);
+        } else {
+            applyLineDelim("\n");
+        }
+
+        // step 3: detect field delimiter
+        if (detectArgs.format === formatMap.CSV) {
+            detectArgs.fieldDelim = xcSuggest.detectFieldDelimiter(rawData);
 
             if (detectArgs.fieldDelim !== "") {
                 applyFieldDelim(detectArgs.fieldDelim);
             }
 
-            // step 3: detect header
+            // step 4: detect header
             detectArgs.hasHeader = detectHeader(rawData, lineDelim,
                                                 detectArgs.fieldDelim);
         } else if (detectArgs.format === formatMap.EXCEL) {
@@ -2539,7 +2556,7 @@ window.DSPreview = (function($, DSPreview) {
             toggleHeader(false);
         }
 
-        // step 4: update preview after detection
+        // step 5: update preview after detection
         getPreviewTable();
 
         if (showMessage) {

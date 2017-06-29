@@ -607,7 +607,32 @@ describe("xcSuggest", function() {
             });
         });
 
-        it("xcSuggest.detectDelim should work", function() {
+        it("xcSuggest.detectLineDelimiter should work", function() {
+            var tests = [{
+                "data": "a\r\nb\r\nc\r\nd",
+                "expect": "\r\n"
+            }, {
+                "data": "a\nb\nc\re",
+                "expect": "\n"
+            }, {
+                "data": "a\rb\rc\r\nd",
+                "expect": "\r"
+            }, {
+                "data": "a\r\nb\nc\rd",
+                "expect": "\n"
+            }, {
+                "data": "a,b|c,d",
+                "expect": ""
+            }];
+
+            tests.forEach(function(test) {
+                var rawStr = test.data;
+                expect(xcSuggest.detectLineDelimiter(rawStr))
+                .to.equal(test.expect);
+            });
+        });
+
+        it("xcSuggest.detectFieldDelimiter should work", function() {
             var tests = [{
                 "data": "a,b,c,d",
                 "expect": ","
@@ -636,7 +661,8 @@ describe("xcSuggest", function() {
 
             tests.forEach(function(test) {
                 var rawStr = test.data;
-                expect(xcSuggest.detectDelim(rawStr)).to.equal(test.expect);
+                expect(xcSuggest.detectFieldDelimiter(rawStr))
+                .to.equal(test.expect);
             });
         });
 

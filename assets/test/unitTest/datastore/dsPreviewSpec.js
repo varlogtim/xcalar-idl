@@ -917,7 +917,19 @@ describe("DSPreview Test", function() {
             expect(loadArgs.getLineDelim()).to.equal("");
 
             // test2
-            $ele.find('li[name="default"]').trigger(fakeEvent.mouseup);
+            $ele.find('li[name="CRLF"]').trigger(fakeEvent.mouseup);
+            expect($lineText.hasClass("nullVal")).to.be.false;
+            expect($lineText.val()).to.equal("\\r\\n");
+            expect(loadArgs.getLineDelim()).to.equal("\r\n");
+
+            // test3
+            $ele.find('li[name="CR"]').trigger(fakeEvent.mouseup);
+            expect($lineText.hasClass("nullVal")).to.be.false;
+            expect($lineText.val()).to.equal("\\r");
+            expect(loadArgs.getLineDelim()).to.equal("\r");
+
+            // test4
+            $ele.find('li[name="LF"]').trigger(fakeEvent.mouseup);
             expect($lineText.hasClass("nullVal")).to.be.false;
             expect($lineText.val()).to.equal("\\n");
             expect(loadArgs.getLineDelim()).to.equal("\n");
@@ -937,7 +949,7 @@ describe("DSPreview Test", function() {
             expect(loadArgs.getFieldDelim()).to.equal(",");
 
             // test 3
-            $ele.find('li[name="default"]').trigger(fakeEvent.mouseup);
+            $ele.find('li[name="tab"]').trigger(fakeEvent.mouseup);
             expect($fieldText.hasClass("nullVal")).to.be.false;
             expect($fieldText.val()).to.equal("\\t");
             expect(loadArgs.getFieldDelim()).to.equal("\t");

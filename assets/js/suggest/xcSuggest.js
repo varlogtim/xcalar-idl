@@ -575,7 +575,27 @@ window.xcSuggest = (function($, xcSuggest) {
         return isValid;
     }
 
-    xcSuggest.detectDelim = function(rawStr) {
+    xcSuggest.detectLineDelimiter = function(rawStr) {
+        var crlfCount = coutCharOccurrence(rawStr, "\r\n");
+        var lfCount = coutCharOccurrence(rawStr, "\n");
+        var crCount = coutCharOccurrence(rawStr, "\r");
+
+        if (crlfCount > 0 && crlfCount >= lfCount && crlfCount >= crCount) {
+            // when \r\n
+            return "\r\n";
+        } else if (crCount > 0 && crCount > lfCount) {
+            // when \r
+            return "\r";
+        } else if (lfCount > 0){
+            // when \n
+            return "\n";
+        } else {
+            // when all is 0
+            return "";
+        }
+    };
+
+    xcSuggest.detectFieldDelimiter = function(rawStr) {
         var commaCount = coutCharOccurrence(rawStr, ",");
         var tabCount = coutCharOccurrence(rawStr, "\\t");
         var pipCount = coutCharOccurrence(rawStr, "\\|");
