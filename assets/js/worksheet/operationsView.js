@@ -492,11 +492,7 @@ window.OperationsView = (function($, OperationsView) {
 
         $operationsView.on('click', '.checkboxSection', function() {
             var $checkbox = $(this).find('.checkbox');
-            if ($checkbox.hasClass('checked')) {
-                $checkbox.removeClass('checked');
-            } else {
-                $checkbox.addClass('checked');
-            }
+            $checkbox.toggleClass("checked");
 
              // incSample and keepInTable toggling
             if ($checkbox.closest('.gbCheckboxes').length) {
@@ -530,6 +526,18 @@ window.OperationsView = (function($, OperationsView) {
             }
 
             checkIfStringReplaceNeeded();
+        });
+
+        $operationsView.on("click", ".boolArgWrap", function() {
+            var $checkbox = $(this).find(".checkbox");
+            $checkbox.toggleClass("checked");
+            var $input = $checkbox.closest(".row").find(".arg");
+            if ($checkbox.hasClass("checked")) {
+                $input.val("true");
+            } else {
+                $input.val("");
+            }
+            updateStrPreview(true);
         });
 
         // empty options checkboxes
@@ -1684,7 +1692,7 @@ window.OperationsView = (function($, OperationsView) {
                 var keyLen = Object.keys(DfFieldTypeT).length;
                 typeId = Math.pow(2, keyLen + 1) - 1;
             }
-
+            types = parseType(typeId);
             var $input = $rows.eq(i).find('.arg');
             if (i === 0 && operatorName !== "group by") {
                 $input.val(defaultValue);
@@ -1703,10 +1711,13 @@ window.OperationsView = (function($, OperationsView) {
 
             // automatically show empty checkbox if optional detected
             if (description.indexOf('optional') > -1) {
-                showEmptyOptions($input);
+                if (types.length === 1 && types[0] === ColumnType.boolean) {
+                    addBoolCheckbox($input);
+                } else {
+                    showEmptyOptions($input);
+                }
             }
 
-            types = parseType(typeId);
             if (types.indexOf('string') === -1) {
                 $rows.eq(i).find('.emptyStrWrap').remove();
             }
@@ -2037,7 +2048,9 @@ window.OperationsView = (function($, OperationsView) {
                 $inputs.each(function() {
                     var $input = $(this);
                     var $row = $input.closest('.row');
-                    var noArgsChecked = $row.find('.noArg.checked').length > 0;
+                    var noArgsChecked = $row.find('.noArg.checked').length > 0 ||
+                                        ($row.hasClass("boolOption") &&
+                                    !$row.find(".boolArg").hasClass("checked"));
                     var val = $input.val();
 
                     val = parseColPrefixes(parseAggPrefixes(val));
@@ -2668,7 +2681,9 @@ window.OperationsView = (function($, OperationsView) {
             // Edge case. GUI-1929
 
             var $row = $input.closest('.row');
-            var noArgsChecked = $row.find('.noArg.checked').length > 0;
+            var noArgsChecked = $row.find('.noArg.checked').length > 0 ||
+                                ($row.hasClass("boolOption") &&
+                                !$row.find(".boolArg").hasClass("checked"));
             var emptyStrChecked = $row.find('.emptyStr.checked').length > 0;
 
             var arg = $input.val();
@@ -3664,7 +3679,9 @@ window.OperationsView = (function($, OperationsView) {
                 return;
             }
             var $row = $input.closest('.row');
-            var noArgsChecked = $row.find('.noArg.checked').length > 0;
+            var noArgsChecked = $row.find('.noArg.checked').length > 0 ||
+                                ($row.hasClass("boolOption") &&
+                                !$row.find(".boolArg").hasClass("checked"));
             var emptyStrChecked = $row.find('.emptyStr.checked').length > 0;
             var hasEmptyStrCheckedOption = $row.find('.emptyStr').length;
 
@@ -3723,6 +3740,21 @@ window.OperationsView = (function($, OperationsView) {
 
     function showEmptyOptions($input) {
         $input.closest('.row').find('.checkboxWrap').removeClass('xc-hidden');
+    }
+
+    function addBoolCheckbox($input) {
+        $input.closest(".row").addClass("boolOption").find(".inputWrap")
+                                                     .addClass("semiHidden");
+        var html = '<div class="checkboxWrap boolArgWrap" ' +
+                        'data-container="body" ' +
+                        'data-toggle="tooltip" title="' +
+                        'tooltip goes here' + '">' +
+                        '<span class="checkbox boolArg" >'+
+                            '<i class="icon xi-ckbox-empty fa-13"></i>'+
+                            '<i class="icon xi-ckbox-selected fa-13"></i>'+
+                        '</span>' +
+                    '</div>';
+        $input.closest(".row").append(html);
     }
 
     function hideEmptyOptions($input) {
