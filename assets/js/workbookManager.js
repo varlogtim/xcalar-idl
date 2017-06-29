@@ -1098,7 +1098,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
         PromiseHelper.when(def1, def2, def3)
         .then(deferred.resolve)
         .fail(function(error) {
-            xcConsole.error("Delete workbook fails!", error);
+            console.error("Delete workbook fails!", error);
             deferred.reject(error);
         });
 

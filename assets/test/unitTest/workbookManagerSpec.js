@@ -327,6 +327,15 @@ describe("WorkbookManager Test", function() {
     });
 
     describe("Upgrade API Test", function() {
+        it("WorkbookManager.getGlobalScopeKeys should work", function() {
+            var res = WorkbookManager.getGlobalScopeKeys();
+            expect(res).to.be.an("object");
+            expect(Object.keys(res).length).to.equal(3);
+            expect(res).to.ownProperty("gEphStorageKey");
+            expect(res).to.ownProperty("gPendingUploadsKey");
+            expect(res).to.ownProperty("gSettingsKey");
+        });
+
         it("WorkbookManager.upgrade should work", function() {
             // case 1
             var res = WorkbookManager.upgrade(null);
@@ -354,6 +363,41 @@ describe("WorkbookManager Test", function() {
             expect(res).to.have.property("global");
             expect(res).to.have.property("user");
             expect(res).to.have.property("wkbk");
+        });
+    });
+
+    describe("Cancel Workbook Replay Test", function() {
+        var $loadScreen;
+        before(function() {
+            $loadScreen = $("#initialLoadScreen");
+        });
+
+        it("should not show alert if already canceling", function() {
+            $loadScreen.addClass("canceling");
+            $loadScreen.find(".cancel").click();
+            assert.isFalse($("#alertModal").is(":visible"));
+            $loadScreen.removeClass("canceling");
+        });
+
+        it("should show alert", function() {
+            $loadScreen.find(".cancel").click();
+            UnitTest.hasAlertWithTitle(WKBKTStr.CancelTitle);
+        });
+
+        it("should show alert and confirm", function() {
+            var oldCancel = XcalarQueryCancel;
+            var test = false;
+            XcalarQueryCancel = function() {
+                test = true;
+                return PromiseHelper.resolve();
+            };
+            $loadScreen.find(".cancel").click();
+            UnitTest.hasAlertWithTitle(WKBKTStr.CancelTitle, {
+                "confirm": true
+            });
+
+            expect(test).to.equal(true);
+            XcalarQueryCancel = oldCancel;
         });
     });
 
@@ -523,6 +567,25 @@ describe("WorkbookManager Test", function() {
                 expect(error).to.be.an("object");
                 expect(error.error).to.equal("Cannot switch to same workbook");
                 done();
+            });
+        });
+
+        it("should reject if have error case", function(done) {
+            var oldCommit = KVStore.commit;
+            KVStore.commit = function() {
+                return PromiseHelper.reject("test");
+            };
+
+            WorkbookManager.switchWKBK(testWkbkId)
+            .then(function() {
+                done("fail");
+            })
+            .fail(function(error) {
+                expect(error).to.be.equal("test");
+                done();
+            })
+            .always(function() {
+                KVStore.commit = oldCommit;
             });
         });
 
