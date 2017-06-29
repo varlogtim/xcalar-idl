@@ -172,19 +172,23 @@
                                     </div>
                                     <div class="bodyProxyNarrow">
                                         <h1>Understanding UDFs</h1>
-                                        <p>Some built-in UDFs (user-defined functions) are included in default Python modules for you to enhance your operations. You can create additional UDFs to further extend the functions of XCE. </p>
+                                        <p>Some built-in UDFs (user-defined functions) are included in default Python modules for you to enhance your operations. You can create additional UDFs to further extend the functions of <span class="GeneralProductName2">Xcalar Compute Engine</span>. </p>
                                         <h2>When to run UDFs</h2>
                                         <p>You can run UDFs in these circumstances:</p>
                                         <ul>
                                             <li value="1">When you execute a Map operation, you can specify a UDF as a Map function.</li>
-                                            <li value="2">When you import data, you run a UDF to parse the data. A UDF run when <span class="GeneralProductName">Xcalar Design</span> imports a data source is called a streaming UDF.</li>
-                                            <div class="Example"><span class="label">EXAMPLE:</span>&#160;If you want to import data in a format  not natively supported by <span class="GeneralProductName3">Xcalar Data Platform</span>, run a streaming UDF to convert that particular format into a natively supported format. </div>
-                                            <div class="Example"><span class="label">EXAMPLE:</span>&#160;If your  data source uses a comma in field names, which is an illegal field name character in <span class="GeneralProductName">Xcalar Design</span>, run a streaming UDF to replace the comma when importing the data source.</div>
+                                            <li value="2">
+                                                <p>When you import data to <span class="GeneralProductName3short">Xcalar</span>, you run a UDF to parse the data. A UDF executed when data is imported from a data source is a streaming UDF.</p>
+                                                <div class="Example"><span class="label">EXAMPLE:</span>&#160;If you want to import data in a format  not natively supported by <span class="GeneralProductName3">Xcalar</span>, run a streaming UDF to convert that particular format into a natively supported format. </div>
+                                                <div class="Example"><span class="label">EXAMPLE:</span>&#160;If your  data source uses a comma in field names, which is an illegal field name character in <span class="GeneralProductName">Xcalar Design</span>, run a streaming UDF to replace the comma when importing the data source.</div>
+                                            </li>
+                                            <li value="3">When you export data from <span class="GeneralProductName3short">Xcalar</span>, you run a UDF to process the data when <span class="GeneralProductName3short">Xcalar</span> writes it out to a target. A UDF executed when data is exported is an export UDF.</li>
                                         </ul>
                                         <h2>Understanding UDF names</h2>
                                         <p>Functions are defined in modules. Therefore, to uniquely identify a UDF, both the module name and function name are needed. <span class="GeneralProductName">Xcalar Design</span> shows UDF names in the following format:</p>
                                         <p>module_name:function_name</p>
                                         <p>For example, if a module named <span class="UIelement">calendar</span> contains a function named <span class="UIelement">getWeekday</span>, the name for the UDF  is <span class="UIelement">calendar:getWeekday</span>.</p>
+                                        <div class="Note"><span class="label">IMPORTANT</span>: For an export UDF, the function you want to run during the export must be named main. For example, you can have a module named my_module containing several functions. But there must be a function named main in my_module that will be executed when you export data to the UDF. If the module does not contain a function named main, you cannot select the module as an export target.  </div>
                                         <h3><a name="UDF"></a>UDF naming conventions</h3>
                                         <p><span class="GeneralProductName">Xcalar Design</span> does not have restrictions on function names, but modules must follow the module naming conventions.</p>
                                         <p>The following list describes the naming conventions:</p>
@@ -197,14 +201,13 @@
                                         <p>The following list describes the UDF limitations and restrictions:</p>
                                         <ul>
                                             <li value="1">UDFs must be written in Python. </li>
-                                            <li value="2">The Python version supported by XCE is 2.7. Do not use code in the UDF that requires a Python 3 interpreter.</li>
+                                            <li value="2">The Python version supported by <span class="GeneralProductName2">Xcalar Compute Engine</span> is 2.7. Do not use code in the UDF that requires a Python 3 interpreter.</li>
                                             <li value="3">The data type for values returned by a UDF is always String. (UDFs, however, can accept arguments of different data types.)</li>
                                             <li value="4">Each UDF can have up to 16 parameters.</li>
                                             <li value="5">Python code errors occurring during operations are not reported in <span class="GeneralProductName">Xcalar Design</span>.</li>
-                                            <li value="6">UDFs do not have read or write access to the  file system including the data source that <span class="GeneralProductName2">Xcalar Compute Engine</span> imports data from. </li>
-                                            <li value="7">UDFs cannot make any non-local network requests. Point directly to network resources rather than connecting to them in the Python code.</li>
-                                            <li value="8">UDFs cannot be used for aggregate operations.</li>
+                                            <li value="6">UDFs cannot be used for aggregate operations.</li>
                                         </ul>
+                                        <div class="Note"><span class="label">NOTE</span>:&#160;UDFs have the same read and write privileges as the user that starts <span class="GeneralProductName3short">Xcalar</span>. UDFs do not need to have read or write access to the  file system including the data source that <span class="GeneralProductName3short">Xcalar</span> imports data from. </div>
                                         <h2>About importing Python libraries</h2>
                                         <p>Python libraries imported in the UDF must be installed on every node before you can upload the UDF. For example, if your UDF imports the PDFminer package, the package must be installed on every node of the cluster. Otherwise, your attempt to upload the UDF results in an upload error, indicating that there is no module named PDFminer.</p>
                                         <h2>About standard output in UDFs</h2>
@@ -216,10 +219,6 @@
                                             <li value="1">In a UDF, you cannot invoke another uploaded module. For example, if you created and uploaded a module named <span class="UIelement">calendar</span>, you cannot invoke <span class="UIelement">calendar</span> in another module named <span class="UIelement">calendar2</span>.</li>
                                             <li value="2">You can nest functions in a Python module. However, the nested function cannot be called as a UDF in <span class="GeneralProductName">Xcalar Design</span>. For example, if the <span class="UIelement">calendar</span> module defines a function named <span class="UIelement">function1</span>, which in turn defines a function named <span class="UIelement">function2</span>, the UDF&#160;named <span class="UIelement">calendar:function1</span> is available for you to use in <span class="GeneralProductName">Xcalar Design</span>, but <span class="UIelement">function2</span> is not.</li>
                                         </ul>
-                                        <h2>Understanding autogenerated UDFs</h2>
-                                        <p>In addition to writing UDFs yourself, you can instruct <span class="GeneralProductName">Xcalar Design</span> to generate a UDF based on your specifications. For example, you can use the visual parser to create streaming UDFs as described in <a href="C1_PointWithVisualParser.htm" class="MCXref xref" xrefformat="{para}">Using a visual parser to create a UDF</a>. </p>
-                                        <p>Because UDFs are shared among all users, you might see a long list of UDFs generated by <span class="GeneralProductName">Xcalar Design</span> in the <span class="UIelement">User Defined Function</span> panel, which might not be relevant to you. To reduce the clutter, you can use an option in the <span class="UIelement">General Settings</span> window that hides the autogenerated UDFs.&#160;For more information about changing a setting, see <a href="K_Monitor.htm#Setting" class="MCXref xref" xrefformat="{para}">Setting the environment for Xcalar Design</a>. The hidden UDFs continue to be available for you to use.</p>
-                                        <p>&#160;</p>
                                     </div>
                                     <p><a href="#Top">Go to top</a>
                                     </p>

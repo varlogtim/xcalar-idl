@@ -172,13 +172,24 @@
                                     </div>
                                     <div class="bodyProxyNarrow">
                                         <h1>Exporting a table</h1>
-                                        <p>Exporting a table means saving a table from <span class="GeneralProductName3short">XDP</span> as a file to a location where other applications (or <span class="GeneralProductName3short">XDP</span>) can access and use as a data source. You can save an entire table with all the columns or only selected columns. </p>
-                                        <p>Exporting a table to a file is not available in <span class="GeneralProductTrialVersion">Xcalar Cloud Preview</span>, which only allows exporting a table created by a batch dataflow to a new table in your worksheet. For more information about exporting to a table from a batch dataflow, see <a href="F_UseBatchDataflow.htm#Result" class="MCXref xref" xrefformat="{para}">Result of running a batch dataflow</a>.</p>
+                                        <p>The following list explains the meaning of exporting a table:</p>
+                                        <ul>
+                                            <li value="1">Saving data from a <span class="GeneralProductName3short">Xcalar</span> table as one or multiple files at a location where other applications (or <span class="GeneralProductName3short">Xcalar</span>) can access and use as a data source. </li>
+                                            <li value="2">Saving the result of a batch dataflow to another table in the active worksheet.</li>
+                                        </ul>
+                                        <p>You can export data from an entire table or from only selected columns of a table. </p>
                                         <div class="Note"><span class="label">NOTE:</span> Columns of the Array or Object type cannot be exported.</div>
-                                        <p>You can export a table in one of two ways:</p>
+                                        <h2>Availability of the export feature</h2>
+                                        <p>Exporting a table to a file system is not available in the following products:</p>
+                                        <ul>
+                                            <li value="1"><span class="GeneralProductTrialVersion">Xcalar Cloud Preview</span> only allows exporting a table created by a batch dataflow to a new table in your worksheet. It cannot export a table to a file system. For more information about exporting to a table from a batch dataflow, see <a href="F_UseBatchDataflow.htm#Result" class="MCXref xref" xrefformat="{para}">Default result of running a batch dataflow</a>.</li>
+                                            <li value="2"><span class="GeneralProductModeling">Xcalar in modeling mode</span> cannot run a batch dataflow. As a result, it can only export an active table to a file system. You cannot export the result of a batch dataflow if you use <span class="GeneralProductModeling">Xcalar in modeling mode</span>.</li>
+                                        </ul>
+                                        <h2>Methods for exporting</h2>
+                                        <p><span class="GeneralProductName">Xcalar Design</span> can export a table in one of the following ways:</p>
                                         <ul>
                                             <li value="1">Manually export a table from the table drop-down menu. </li>
-                                            <li value="2">Automatically export a table resulting from running a batch dataflow. For more information about batch dataflows, see <a href="F_UseBatchDataflow.htm" class="MCXref xref" xrefformat="{para}">Using batch dataflows</a>.</li>
+                                            <li value="2">Automatically export a table resulting from running a batch dataflow. You can start a batch dataflow manually or automatically through a schedule. For more information about batch dataflows, see <a href="F_UseBatchDataflow.htm" class="MCXref xref" xrefformat="{para}">Using batch dataflows</a>.</li>
                                         </ul>
                                         <h2><a name="Where"></a>Where tables are exported</h2>
                                         <p>Tables are exported to the default export target. The path to the default export target might vary from one <span class="GeneralCompanyNameShort">Xcalar</span> installation to another. To determine your default export target, follow these steps:</p>
@@ -186,12 +197,23 @@
                                             <li value="1">Click the <span class="UIelement">Export Targets</span> icon (under the <span class="UIelement">Datasets</span> icon)&#160;in the <span class="GeneralProductName">Xcalar Design</span> toolbar.</li>
                                             <li value="2">In the <span class="UIelement">Export Targets</span> panel,  click the icon for export target named Default.</li>
                                         </ol>
-                                        <p>You can create additional export targets for different export files. For each export target you create, you can specify both the location of the export directory  and whether a UDF is used to process the table before the table is saved to the export target. To create a target, see <a href="#Creating" class="MCXref xref" xrefformat="{para}">Creating an export target</a>.</p>
-                                        <p>When you export a table automatically by running a batch dataflow, the table can be exported to the default export target only. When you manually export a table, you can choose to use the default target or a user-defined target.</p>
+                                        <h2>Understanding user-defined export targets</h2>
+                                        <p>Creating an export target is necessary if one or both of these conditions are true:</p>
+                                        <ul>
+                                            <li value="1">You want export files to be saved at a location other than the default location.</li>
+                                            <li value="2">You want a table to be processed by a UDF&#160;when it is being exported. </li>
+                                        </ul>
+                                        <div class="Note"><span class="label">IMPORTANT:</span>&#160;The directory used as the export target must be a shared directory reachable by all <span class="GeneralProductName3short">Xcalar</span> nodes. Also, it must be writable by  <span class="GeneralProductName3short">Xcalar</span>. For example, to use /nas/xcalar_exports as a target, make sure that it is shared by all nodes and <span class="GeneralProductName3short">Xcalar</span> has write permission to it. Contact the <span class="GeneralProductName3short">Xcalar</span> cluster administrator to confirm that these requirements are met.</div>
+                                        <h2> Understanding export target types</h2>
+                                        <p>An export target can be one of the following types:</p>
+                                        <ul>
+                                            <li value="1">File system: <span class="GeneralProductName3short">Xcalar</span> exports data from an active table or from a batch dataflow to a file system that <span class="GeneralProductName3short">Xcalar</span> can write to. No UDF is run when the export takes place.</li>
+                                            <li value="2">UDF: When <span class="GeneralProductName3short">Xcalar</span> exports data from an active table or from a batch dataflow, it processes the data with a UDF. For the export target, you can specify the  file system to which the data is exported. The path to this file system is passed into the UDF for processing. A UDF used as an export target is called an export UDF. For an example of coding and applying an export UDF, see <a href="../D_Reference/H1_UdfExamples.htm#Example" class="MCXref xref" xrefformat="{para}">Example of using a UDF&#160;when exporting</a>.</li>
+                                        </ul>
                                         <h2>How export files are named</h2>
-                                        <p>If you manually export a table, a default name of the export file is provided in the <span class="UIelement">EXPORT&#160;TABLES</span>&#160;panel. If you run a batch dataflow to export the resultant table, the default export file name is shown below the  exported table icon of the batch dataflow graph. (The exported table icon is the last table icon in the graph.)</p>
-                                        <p>By default, <span class="GeneralProductName">Xcalar Design</span> displays an error if it detects a file name conflict when exporting a table. To avoid the name conflict, you must create a unique export file name. The procedure for creating or editing an export file name is described later in this section. </p>
-                                        <p>Exporting a table to an existing file does not generate an error if you override the default behavior. For example, when manually exporting a table, you can specify in the <span class="UIelement">EXPORT&#160;TABLE</span>&#160;panel that the newly exported table overwrites the existing file or appends to the existing file.</p>
+                                        <p>If you manually export a table, a default name of the export file is provided in the <span class="UIelement">EXPORT&#160;TABLES</span>&#160;panel. If you run a batch dataflow to export the resultant table, the default export folder name is shown below the  last icon of the batch dataflow graph. </p>
+                                        <p>By default, <span class="GeneralProductName">Xcalar Design</span> displays an error if it detects a file name conflict when exporting a table. To avoid the name conflict, you must create a unique export file name. Information about creating or editing an export file name is included in <a href="#Exportin" class="MCXref xref" xrefformat="{para}">Exporting a table from the table drop-down menu</a>. </p>
+                                        <p>When manually exporting a table, you can specify in the <span class="UIelement">EXPORT&#160;TABLE</span>&#160;panel that the newly exported table overwrites the existing file or appends to the existing file.</p>
                                         <div class="MCDropDown MCDropDown_Open dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the naming conventions:</a></span>
                                             <div class="MCDropDownBody dropDownBody">
                                                 <ul>
@@ -205,19 +227,13 @@
                                         <p>By default, tables are exported to csv files. You can, however, process a table with a UDF&#160;to save it to a file in another format. For example, if you want to export a table to a file to be used by Excel, you can use a UDF to parse the table so that it can be saved in the Excel file format. </p>
                                         <p>You must create an export target in advance if you want to use a UDF&#160;to process your table before saving it to an export file. Also, the UDF must be accessible to <span class="GeneralProductName">Xcalar Design</span>. For information about UDFs, see <a href="B_UDFUnderstand.htm" class="MCXref xref" xrefformat="{para}">Understanding UDFs</a>.</p>
                                         <h2><a name="Creating" class="ForCSH"></a>Creating an export target</h2>
-                                        <p>Creating an export target is necessary if one or both of these conditions are true:</p>
-                                        <ul>
-                                            <li value="1">You want export files to be saved at a location other than the default location.</li>
-                                            <li value="2">You want the exported table to be processed by a UDF&#160;before being saved. </li>
-                                        </ul>
                                         <p>Follow these steps to create an export target:</p>
                                         <ol>
                                             <li value="1">
-                                                <p>Create a file system that will be used as the export location. For example, create the directory /var/my_exportdir. </p>
-                                                <div class="Note"><span class="label">IMPORTANT:</span>&#160;This directory must be accessible to all nodes of your cluster.</div>
+                                                <p>Create a file system that will be used as the export location. For example, create the directory /nas/xcalar_exports. </p>
                                             </li>
                                             <li value="2">Click <img src="../Resources/Images/XD_assets/xd-datastores.png" /> to display two icons below it. Then click <img src="../Resources/Images/XD_assets/xd-datastores-out.png" /> to display the <span class="UIelement">Export Target</span> panel and the <span class="UIelement">Create Export Target</span> window as illustrated in the following screenshot:</li>
-                                            <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/datastores-icon-out.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1035" data-mc-height="578" src="../Resources/Images/XD_screenshots/datastores-icon-out_thumb_0_150.png" tabindex="" /></a>
+                                            <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/datastores-icon-out.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1082" data-mc-height="567" src="../Resources/Images/XD_screenshots/datastores-icon-out_thumb_0_150.png" tabindex="" /></a>
                                             </p>
                                             <li value="3">In the <span class="UIelement">Create Export Target</span> window, the information about the default export target is displayed. To create a target, click <img src="../Resources/Images/XD_assets/xd-create-export-target.png" /> in the <span class="UIelement">Export Targets</span> panel. The <span class="UIelement">Create Export Target</span> window now displays fields for you to define a new export target.</li>
                                             <li value="4">
@@ -232,15 +248,16 @@
                                                     </div>
                                                 </div>
                                             </li>
-                                            <li value="5">Enter the pathname of the export location created in step 1. Export files using this target will be saved to this location. </li>
-                                            <li value="6">
-                                                <p>(Optional) If you want the export file to be processed by a UDF, follow these steps:</p>
+                                            <li value="5">Select the export target type.</li>
+                                            <li value="6">Enter the path of the export folder created in step 1. Export files will be saved to this location. </li>
+                                            <li value="7">
+                                                <p> If the export target type is UDF, follow these steps:</p>
                                                 <ol style="list-style-type: lower-alpha;">
-                                                    <li value="1">Select UDF.</li>
-                                                    <li value="2">Enter the UDF&#160;module name and function name.</li>
+                                                    <li value="1">Select the UDF module.</li>
+                                                    <li value="2">Type the function name (if it is not already displayed), which must be main.</li>
                                                 </ol>
                                             </li>
-                                            <li value="7">Click <span class="UIelement">ADD</span>.</li>
+                                            <li value="8">Click <span class="UIelement">ADD</span>.</li>
                                         </ol>
                                         <h2>Displaying export target information</h2>
                                         <p>In the <span class="UIelement">Export Targets</span> panel, click an export target icon to display information about the target. </p>
@@ -248,7 +265,7 @@
                                         <p>In the window where the export target information is displayed, click DELETE to delete the target. </p>
                                         <p>Alternatively, right click an export target icon to display a pop-up menu, in which you can click <span class="UIelement">Delete Target</span>.</p>
                                         <div class="Note"><span class="label">NOTE</span>:&#160;You cannot edit an export target. To change the name or definition of an export target, delete and re-create it.</div>
-                                        <h2>Exporting a table from the table drop-down menu</h2>
+                                        <h2><a name="Exportin"></a>Exporting a table from the table drop-down menu</h2>
                                         <p>Follow these steps to export a table:</p>
                                         <ol>
                                             <li value="1">In your worksheet, locate the table that you want to export. Click the table title bar to display the table drop-down menu.</li>
@@ -279,6 +296,7 @@
                                         <p>For each CSV&#160;file, you can specify the field delimiter and record delimiter in a similar way as you specify these settings when importing a data source.</p>
                                         <h3>File</h3>
                                         <p>By default, the table is exported to a single file. You can specify that the table be exported to multiple files.&#160;You cannot, however, specify the exact number of files to be created. <span class="GeneralProductName">Xcalar Design</span> automatically decides the number of export files.</p>
+                                        <p>If your export target is a UDF, you cannot control whether data is exported to one or multiple files.</p>
                                         <div class="Note"><span class="label">NOTE:</span>&#160;Specifying <span class="UIelement">Multiple Files</span> does not always result in multiple export files. It is possible that the table is exported to a single file even if this option is selected.</div>
                                         <h3>Header</h3>
                                         <p>By default, the column headers are saved to each export file. You can specify that the headers be saved to a separate file, in which case the data rows are saved to a file or files without the headers.</p>
