@@ -2,12 +2,6 @@
 
 class RegionsPage extends Page {
 
-
-    private static $has_many = array(
-        'Regions' => 'Region',
-        );
-
-
     public function getCMSFields() {
         $fields = parent::getCMSFields();
         $fields->addFieldToTab('Root.Regions', GridField::create(
@@ -35,7 +29,10 @@ class RegionsPage_Controller extends Page_Controller {
         'htmlGeneration',
         'correctRecordGeneration',
         'inCorrectRecordGeneration',
-        'isAnswerCorrect'
+        'isAnswerCorrect',
+        'fetchRegionById',
+        'getTotalQuestionNumber',
+        'getAdventureName'
     );
 
     public function AnswerForm() {
@@ -58,14 +55,8 @@ class RegionsPage_Controller extends Page_Controller {
         return $this.redirectBack();
     }
 
-    public function ChildForm($pageID) {
-        $page = RegionsPage::get()->byID($pageID);
-        $controller = RegionsPage_Controller::create($page);
-        return $controller->AnswerForm();
-    }
-
-    public function getQuestion($currentQuestionId ) {
-        $regs = Region::get()->byId($currentQuestionId );
+    public function getQuestion($currentQuestionId) {
+        $regs = $this->fetchRegionById($currentQuestionId);
         $question = $regs->Question;
         return $question;
     }
@@ -89,22 +80,32 @@ class RegionsPage_Controller extends Page_Controller {
         $currTime = date("Y-m-d H:i:s", time());
         $res = "";
         $isCorrect = false;
-        $totalQuestionNum = 9;
-        $bottomQuestionId = 1;
-        $isFirstTime = true;
+        // How many question here totally?
+        $totalQuestionNum = $this->getTotalQuestionNumber();
+        // The id of the last question shown on the screen
+        $stage = $this->getCurrentUserStage($_SESSION["currentUserID"]);
+        if($stage == $totalQuestionNum) {
+            $bottomQuestionId = $stage;
+            $isFirstTime = false;
+        } else {
+            $bottomQuestionId = $stage + 1;
+            $isFirstTime = true;
+        }
 
         // With previous submit, check whether the last submit is valid
         if (isset($_POST["answerInput"])) {
             $isCorrect = false;
             $currentQuestionId  = $_POST["questionNumber"];
-            $userAnswer = strtolower($_POST["answerInput"]);
+            $userAnswer = trim(strtolower($_POST["answerInput"]));
             $isCorrect = $this->isAnswerCorrect($currentQuestionId, $userAnswer, $totalQuestionNum);
             $timeDiff = strtotime($currTime) - strtotime($_SESSION["lastSubmitTime"]);
             $timeDiff = $timeDiff / 60;
-            $_SESSION["answer".$currentQuestionId] = $_POST["answerInput"];
+
+            $this->saveUserAnswer($currentQuestionId, $_SESSION["currentUserID"], $_POST["answerInput"]);
 
             if ($isCorrect) {
                 $this->correctRecordGeneration($currentQuestionId, $timeDiff, $currTime);
+                $this->userStageUpdate($currentQuestionId, $_SESSION["currentUserID"], $currTime, $_SESSION["loginTime"]);
                 if ($currentQuestionId  < $totalQuestionNum) {
                     // show the next question
                     $bottomQuestionId = $currentQuestionId + 1;
@@ -125,14 +126,15 @@ class RegionsPage_Controller extends Page_Controller {
         }
 
         $_SESSION["lastSubmitTime"] = $currTime;
-        $res = $this->htmlGeneration($totalQuestionNum, $bottomQuestionId , $isFirstTime);
+        $stage = $this->getCurrentUserStage($_SESSION["currentUserID"]);
+        $res = $this->htmlGeneration($totalQuestionNum, $bottomQuestionId , $isFirstTime, $stage);
 
         return $res;
     }
 
     public function isAnswerCorrect ($currentQuestionId, $userAnswer, $totalQuestionNum) {
         $isCorrect = false;
-        $regs = Region::get()->byId($currentQuestionId);
+        $regs = $this->fetchRegionById($currentQuestionId);
         $correctAnswers = explode(",", strtolower($regs->Answer));
         $correctAnswerNum = count($correctAnswers);
         for ($i = 0; $i < $correctAnswerNum; $i++) {
@@ -141,7 +143,8 @@ class RegionsPage_Controller extends Page_Controller {
                 break;
             }
         }
-        if($currentQuestionId == $totalQuestionNum) {
+        $isOriginal = ($this->getAdventureName() == "Xcalar_Adventure_Original");
+        if($currentQuestionId == $totalQuestionNum && $isOriginal) {
             $isCorrect = true;
         }
         return $isCorrect;
@@ -154,7 +157,8 @@ class RegionsPage_Controller extends Page_Controller {
         $correctRecord->question_num = $currentQuestionId ;
         $correctRecord->time_taken = $timeDiff;
         $correctRecord->time_submitted = $currTime;
-        $correctRecord->answer =$_POST["answerInput"];
+        $correctRecord->answer = $_POST["answerInput"];
+        $correctRecord->adventure_name = $this->getAdventureName();
         $correctRecord->write();
 
         $currUser = LoginSubmission::get()->byID($_SESSION["currentUserID"]);
@@ -173,96 +177,7 @@ class RegionsPage_Controller extends Page_Controller {
         $incorrectRecord->time_taken = $timeDiff;
         $incorrectRecord->time_submitted = $currTime;
         $incorrectRecord->answer =$_POST["answerInput"];
+        $incorrectRecord->adventure_name = $this->getAdventureName();
         $incorrectRecord->write();
     }
-
-    // Generate Html
-    public function htmlGeneration($totalQuestionNum, $bottomQuestionId, $isFirstTime) {
-        $res = "";
-        for($i = 1; $i <= $bottomQuestionId; $i++) {
-            $regs = Region::get()->byId($i);
-            $description = $regs->Description;
-            $question = $regs->Question;
-            $userAnswer = "";
-
-            if ($i < $totalQuestionNum) {
-                $classType = "default";
-                $disabled = "";
-                $btnDisabled = "";
-                $btnQuestion = "";
-
-                // the previous answered questions are all shown correct
-                if ($i < $bottomQuestionId) {
-                    // show text input with correct answer
-                    $classType = "correct";
-                    $userAnswer = $_SESSION["answer".$i];
-                    $disabled = "disabled";
-                    $btnDisabled = "btn-disabled";
-
-                // show the bottom question
-                } else {
-                    if ($isFirstTime == false) {
-                        // show text input with error answer
-                        $classType = "incorrect";
-                        $userAnswer = $_SESSION["answer".$i];
-                    }
-                    $btnQuestion = "btnQuestion";
-                }
-
-                $res = $res.
-                '<div class="region">'.
-                    '<div class="description '. $btnQuestion. '" type="text">'.nl2br($description).'</div>'.
-                    '<div class="question '. $btnQuestion. '" type="text">'.nl2br($question).'</div>'.
-                    '<form action="'. $host . '" method="post">'.
-                        '<div class="entireInput '. $classType.'">'.
-                            '<input class="userInput" type="text" name="answerInput" value="'.$userAnswer.'"'.$disabled.'autocomplete="off">'.
-                            '<div class="userIcon">'.
-                                '<i class="icon xi-error"></i>'.
-                                '<i class="icon xi-success"></i>'.
-                            '</div>'.
-                            '<input type="hidden" name="questionNumber" value="'.$bottomQuestionId .'">'.
-                        '</div>'.
-                        '<button class="'. $classType . ' btn '. $btnDisabled.' " >SUBMIT</button> <br>'.
-                    '</form>'.
-                '</div>';
-
-            } else {
-                // show text area
-                $classType = "";
-                $append = "";
-                $disabled = "";
-                $btnDisabled = "";
-                $btnQuestion = "";
-
-                if($isFirstTime == false) {
-                    $userAnswer = $_SESSION["answer".$i];
-                    $classType = "correct";
-                    $append = '<p>You have completed the adventure Successfully! </p>';
-                    $disabled = "disabled";
-                    $btnDisabled = "btn-disabled";
-                } else {
-                    $btnQuestion = "btnQuestion";
-                }
-
-                $res = $res.
-                '<div class="region">'.
-                    '<div class="description '. $btnQuestion. '" type="text">'.nl2br($description).'</div>'.
-                    '<div class="question '. $btnQuestion.'" type="text">'.nl2br($question).'</div>'.
-                    '<form class="textareaForm" action="'.$host.'" method="post" id="formID">'.
-                    '<div class="textareaContainer">'.
-                    '<textarea class="textarea-lastQuestion '. $classType .'" name="answerInput" form="formID"' .$disabled.'>'. $userAnswer .'</textarea>'.
-                            '<input type="hidden" name="questionNumber" value="'.$bottomQuestionId .'">'.
-                            '<button class="btn-textarea '. $classType . ' btn '. $btnDisabled.' " >SUBMIT</button>'.
-                    '</div>'. $append.
-                    '</form>'.
-                '</div>';      
-            }
-
-        }
-
-        return $res;
-
-    }
-
-
 }

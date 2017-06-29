@@ -9,7 +9,9 @@ $databaseConfig = array(
 	'server' => 'localhost',
 	'username' => 'root',
 	'password' => 'root',
-	'database' => 'SS_xu',
+	'database' => 'SS_xu3',
 	'path' => ''
 );
 
+// Set the site locale
+i18n::set_locale('en_US');

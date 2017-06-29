@@ -28,7 +28,6 @@
 <div class="main" role="main">
   $Layout
 </div>
-<% include Footer %>
 
 <% require javascript('framework/thirdparty/jquery/jquery.js') %>
 <%-- Please move: Theme javascript (below) should be moved to mysite/code/page.php  --%>

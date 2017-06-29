@@ -27,20 +27,38 @@ class HomePage_Controller extends Page_Controller {
         }
 
         public function submit($data, $form) {
-            $submission = new LoginSubmission();
-            $form->saveInto($submission);
-            $userID = $submission->write();
-            // Store the user ID in the session
-            $_SESSION["currentUserID"] = $userID;
-            // Need this time to calculate when he started so that we can get how long he took for the first question.
-            date_default_timezone_set('America/Los_Angeles');
-            $_SESSION["loginTime"] = date("Y-m-d H:i:s", time());
+            $users = LoginSubmission::get()->filter(array(
+                'Name' => $data['Name'],
+                'Email' => $data['Email']
+            ));
 
-            // Set the default stage as 1
-            $currUser = LoginSubmission::get()->byID($userID);
-            $currUser->stage = 1;
-            $currUser->write();
-            $this->redirect("adventure/");
+            if ($users->exists()) {
+                $_SESSION["currentUserID"] = $users[0]->ID;
+            } else {
+                $submission = new LoginSubmission();
+                $form->saveInto($submission);
+                $userID = $submission->write();
+                // Store the user ID in the session
+                $_SESSION["currentUserID"] = $userID;
+                // Need this time to calculate when he started so that we can get how long he took for the first question.
+                date_default_timezone_set('America/Los_Angeles');
+                $_SESSION["loginTime"] = date("Y-m-d H:i:s", time());
+
+                // Set the default stage as 1
+                $currUser = LoginSubmission::get()->byID($userID);
+                // $currUser->stage = 1;
+                // Stage means how many questions have been answered
+                $currUser->stage_for_Original = 0;
+                $currUser->stage_for_adventure_2 = 0;
+                $currUser->write();
+                $answerOrigin = new AnswerForAdventureOriginal();
+                $answerOrigin->userID = $userID;
+                $answerOrigin->write();
+                $answerAdventure2 = new AnswerForAdventure2();
+                $answerAdventure2->userID = $userID;
+                $answerAdventure2->write();
+            }
+            $this->redirect("xcalar-adventure/");
         }
 
 }

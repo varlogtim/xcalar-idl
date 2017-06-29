@@ -5,6 +5,7 @@ class InCorrectResponses extends DataObject {
         'question_num' => 'Int',
         'time_taken' => 'Int',
         'time_submitted' => 'Text(100)',
-        'answer'=> 'Text(100)'
+        'answer'=> 'Text(100)',
+        'adventure_name'=> 'Text(100)'
     );
 }
