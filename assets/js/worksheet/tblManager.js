@@ -2016,7 +2016,6 @@ window.TblManager = (function($, TblManager) {
 
     function addRowListeners($trs) {
         var $jsonEle = $trs.find(".jsonElement");
-        $jsonEle.dblclick(showJSONModal);
         $jsonEle.on("click", ".pop", showJSONModal);
 
         $trs.find(".rowGrab").mousedown(function(event) {
@@ -2373,10 +2372,15 @@ window.TblManager = (function($, TblManager) {
                 return;
             }
             if ($td.hasClass('jsonElement')) {
-                $('.menu').hide();
-                xcMenu.removeKeyboardNavigation();
                 TblManager.unHighlightCells();
-                return;
+                if ($('#mainFrame').hasClass('modalOpen') &&
+                    !$td.closest('.xcTableWrap').hasClass('jsonModalOpen'))
+                {
+                    return;
+                }
+                if ($(event.target).closest(".pop").length) {
+                    return;
+                }
             }
 
             var colNum = xcHelper.parseColNum($td);
@@ -2497,8 +2501,56 @@ window.TblManager = (function($, TblManager) {
                         isUnSelect = true;
                     }
                 } else {
+                    if ($highlightBoxs.filter(function() {
+                        return $(this).closest(".jsonElement").length;
+                    }).length) {
+                        TblManager.unHighlightCells();
+                    }
                     TblManager.highlightCell($td, tableId, rowNum, colNum);
                 }
+            }
+        });
+
+        var clicks = 0;
+        var dblClickTimer;
+        var $lastTd;
+        $tbody.on("mousedown", "td", function(event) {
+            if (event.which !== 1) {
+                return;
+            }
+            var $td = $(this);
+            clicks++;
+            if (clicks === 2 && $td.is($lastTd)) {
+                clicks = 0;
+                clearTimeout(dblClickTimer);
+                var colNum = xcHelper.parseColNum($td);
+                if (colNum === 0) {
+                    return;
+                }
+                var progCol = gTables[tableId].getCol(colNum);
+                var type = progCol.getType();
+                var showModal = false;
+                if (type === ColumnType.object || type === ColumnType.array ||
+                    $td.hasClass("truncated")) {
+                    showModal = true;
+                } else if (type === ColumnType.mixed) {
+                    var cellType = ColManager.getCellType($td, tableId);
+                    if (cellType === ColumnType.object ||
+                        cellType === ColumnType.array) {
+                        showModal = true;
+                    }
+                }
+                if (showModal) {
+                    $('.menu').hide();
+                    xcMenu.removeKeyboardNavigation();
+                    JSONModal.show($td, {type: type});
+                }
+            } else {
+                clicks = 1;
+                $lastTd = $td;
+                dblClickTimer = setTimeout(function() {
+                    clicks = 0;
+                }, 500);
             }
         });
 

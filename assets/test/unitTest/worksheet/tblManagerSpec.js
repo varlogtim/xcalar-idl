@@ -883,9 +883,11 @@ describe("TableManager Test", function() {
                 $("#mainFrame").mousedown();
                 assert.isFalse($menu.is(":visible"));
 
-                // click on jsonElement not work
+                // click on jsonElement should work
                 $td = $tbody.find("td.jsonElement").eq(0);
                 $td.trigger(fakeEvent.mousedown);
+                assert.isTrue($menu.is(":visible"));
+                $("#mainFrame").mousedown();
                 assert.isFalse($menu.is(":visible"));
             });
 

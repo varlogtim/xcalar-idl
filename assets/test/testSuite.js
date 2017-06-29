@@ -1612,8 +1612,10 @@ window.TestSuite = (function($, TestSuite) {
         $('#workspaceTab').click();
         $('.worksheetTab').eq(1).trigger(fakeEvent.mousedown);
         $activeTable = $('.xcTable:visible').eq(0);
-        $activeTable.find('.jsonElement').eq(0).trigger("dblclick");
-        $activeTable.find('.jsonElement').eq(1).trigger("dblclick");
+        $activeTable.find('.jsonElement').eq(0).trigger(fakeEvent.mousedown);
+        $activeTable.find('.jsonElement').eq(0).trigger(fakeEvent.mousedown);
+        $activeTable.find('.jsonElement').eq(1).trigger(fakeEvent.mousedown);
+        $activeTable.find('.jsonElement').eq(1).trigger(fakeEvent.mousedown);
         checkExists(['#jsonModal .jsonWrap:eq(0)',
                     '#jsonModal .jsonWrap:eq(1)'])
         .then(function() {
@@ -1623,7 +1625,8 @@ window.TestSuite = (function($, TestSuite) {
             assert($jsonModal.find('.matched').eq(0).text() ===
                    $jsonModal.find('.matched').eq(1).text());
             // click on a 3rd column and compare matches
-            $activeTable.find('.jsonElement').eq(2).trigger("dblclick");
+            $activeTable.find('.jsonElement').eq(2).trigger(fakeEvent.mousedown);
+            $activeTable.find('.jsonElement').eq(2).trigger(fakeEvent.mousedown);
             $('#jsonModal .compareIcon').eq(2).trigger(fakeEvent.click);
             assert($jsonModal.find('.matched').eq(0).text() ===
                    $jsonModal.find('.matched').eq(2).text() &&
