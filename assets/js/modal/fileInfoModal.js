@@ -58,26 +58,22 @@ window.FileInfoModal = (function($, FileInfoModal) {
         }
 
         var deferred = jQuery.Deferred();
-        $modal.addClass("loading");
+        var $count = $modal.find(".count .text");
+        $count.text("...").addClass("animatedEllipsis");
 
         XcalarListFiles(path)
         .then(function(res) {
             if (isCurrentPath(path)) {
-                $modal.find(".count .text").text(res.numFiles);
+                $count.text(res.numFiles).removeClass("animatedEllipsis");
             }
             deferred.resolve();
         })
         .fail(function(error) {
             console.log("list file failed", error);
             if (isCurrentPath(path)) {
-                $modal.find(".count .text").text("--");
+                $count.text("--").removeClass("animatedEllipsis");
             }
             deferred.reject(error);
-        })
-        .always(function() {
-            if (isCurrentPath(path)) {
-                $modal.removeClass("loading");
-            }
         });
 
         return deferred.promise();
