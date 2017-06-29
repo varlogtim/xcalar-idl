@@ -246,6 +246,45 @@ describe("File Browser Test", function() {
             DSPreview.show = oldFunc;
         });
 
+        it("showPathError should work", function() {
+            FileBrowser.__testOnly__.showPathError();
+            UnitTest.hasStatusBoxWithError(ErrTStr.InvalidFilePath);
+        });
+
+        it("getFolderInfo should work", function() {
+            var oldFunc = FileInfoModal.show;
+            var test = null;
+            FileInfoModal.show = function(res) {
+                test = res;
+            };
+            var curFiles = FileBrowser.__testOnly__.getCurFiles();
+            curFiles[-1] = {
+                "name": "test",
+                "attr": {
+                    "mtime": 123,
+                    "isDirectory": false,
+                    "size": 456
+                }
+            };
+            var $grid = $('<div data-index="-1"></div>');
+            FileBrowser.__testOnly__.getFolderInfo($grid);
+            expect(test).to.be.an("object");
+            expect(test.path).to.be.equal("test");
+            expect(test.name).to.be.equal("test");
+            expect(test.modified).to.be.equal(xcHelper.timeStampTranslator(123));
+            expect(test.isFolder).to.be.equal(false);
+            expect(test.size).to.be.equal("456B");
+
+            FileInfoModal.show = oldFunc;
+            delete curFiles[-1];
+        });
+
+        it("oversizeHandler should work", function() {
+            FileBrowser.__testOnly__.oversizeHandler();
+            expect($("#innerFileBrowserContainer").text())
+            .to.contains(DSTStr.FileOversize);
+        });
+
         after(function() {
             $testGrid.remove();
         });
@@ -376,6 +415,12 @@ describe("File Browser Test", function() {
     });
 
     describe("Public API and basic behavior test", function() {
+        it("should clear filebrrowser", function() {
+            $("#fileBrowserUp").removeClass("disabled");
+            FileBrowser.clear();
+            expect($("#fileBrowserUp").hasClass("disabled"));
+        });
+
         it('Should show the filebrowser', function(done) {
             FileBrowser.show(FileProtocol.nfs)
             .then(function() {
@@ -638,7 +683,7 @@ describe("File Browser Test", function() {
             expect($curGrid.hasClass("active")).to.be.true;
             var index = $curGrid.index();
             var $nextGrid = $curGrid.next();
-            var nextGridIndex = $nextGrid.index();
+            // var nextGridIndex = $nextGrid.index();
             var nextGridName = $nextGrid.find('.label').data("name");
             // reverse
             $nameLabel.click();

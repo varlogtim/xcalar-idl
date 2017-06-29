@@ -1497,6 +1497,9 @@ window.FileBrowser = (function($, FileBrowser) {
     /* Unit Test Only */
     if (window.unitTestMode) {
         FileBrowser.__testOnly__ = {};
+        FileBrowser.__testOnly__.getCurFiles = function() {
+            return curFiles;
+        };
         FileBrowser.__testOnly__.getCurrentPath = getCurrentPath;
         FileBrowser.__testOnly__.getShortPath = getShortPath;
         FileBrowser.__testOnly__.getGridUnitName = getGridUnitName;
@@ -1509,8 +1512,11 @@ window.FileBrowser = (function($, FileBrowser) {
         FileBrowser.__testOnly__.focusOn = focusOn;
         FileBrowser.__testOnly__.isDS = isDS;
         FileBrowser.__testOnly__.previewDS = previewDS;
+        FileBrowser.__testOnly__.showPathError = showPathError;
+        FileBrowser.__testOnly__.getFolderInfo = getFolderInfo;
         FileBrowser.__testOnly__.findVerticalIcon = findVerticalIcon;
         FileBrowser.__testOnly__.redirectHandler = redirectHandler;
+        FileBrowser.__testOnly__.oversizeHandler = oversizeHandler;
         FileBrowser.__testOnly__.sumbitForm = sumbitForm;
     }
     /* End Of Unit Test Only */

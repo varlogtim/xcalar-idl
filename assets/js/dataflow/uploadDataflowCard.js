@@ -101,8 +101,8 @@ window.UploadDataflowCard = (function($, UploadDataflowCard) {
             return df.updateParamMapInUsed();
         })
         .then(function() {
-            $(".groupName:contains('" + retName + "')").closest(".dataFlowGroup")
-                                                       .click();
+            $("#dfMenu .groupName:contains('" + retName + "')")
+            .closest(".dataFlowGroup").click();
             deferred.resolve();
         })
         .fail(deferred.reject)
