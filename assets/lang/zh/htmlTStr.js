@@ -160,6 +160,8 @@ module.exports = {
         "Udfs": "UDFs"
     },
     "about": {
+        "BuildNumber": "版本号码",
+        "IDLVersion": "IDL 版本",
         "BackVersion": "XCE 版本",
         "FrontVersion": "XD 版本",
         "License": "证书过期",
@@ -693,7 +695,7 @@ module.exports = {
         "Corr": "计算相关性",
         "FitAll": "分段显示所有数据",
         "LAUNCH": "计算",
-        "QuartileInstr": "需对列进行排序才能获取四分位距信息",
+        "QuartileInstr": "点击获取四分位距信息",
         "QuartileSummary": "四分位距",
         "QuartileWarn": "警告：此操作可能需要一些时间才能完成。",
         "Range": "分段",

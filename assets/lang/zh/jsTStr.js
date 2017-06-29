@@ -631,7 +631,7 @@ DFTStr = {
 "WarnInMemTable": "此操作将在当前工作簿中生成表。注意：生成的表将无法创建批量数据流",
 "InvalidExportPath": "导出文件名不能含有/",
 'RunDFInstr': '请注意以下警告:',
-'WarnSysParam': '直接运行批量数据流时，系统参数无效，会以空字符替换。',
+'WarnSysParam': '直接运行批量数据流时，系统参数无效，会被省略。',
 'InvalidTarget': '无法找到目标',
 'Scheduled': "已添加调度器",
 "SlightSkew": "轻度偏移",
