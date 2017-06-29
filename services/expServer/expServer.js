@@ -1314,7 +1314,7 @@ require("jsdom").env("", function(err, window) {
             console.log("Ubuntu System");
             ca = '/etc/ssl/certs/XcalarInc_RootCA.pem';
         }
-        if (data.indexOf("ret hat") > -1 || data.indexOf("rethat") > -1) {
+        if (data.indexOf("red hat") > -1 || data.indexOf("redhat") > -1) {
             console.log("RHEL System");
             ca = '/etc/pki/tls/certs/XcalarInc_RootCA.pem';
         }
