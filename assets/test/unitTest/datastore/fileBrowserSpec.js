@@ -830,6 +830,7 @@ describe("File Browser Test", function() {
 
         it("Should have nothing happen if has invalid last target", function() {
             gMouseEvents.setMouseDownTarget($("body"));
+            $("#fileBrowserSearch").find("input").focus().trigger("focus");
             triggerKeyBoradEvent(78); // 78 = "n"
 
             var $grids = $fileBrowser.find(".grid-unit.active");

@@ -1232,7 +1232,12 @@ window.FileBrowser = (function($, FileBrowser) {
             var $lastTargParents = gMouseEvents.getLastMouseDownParents();
 
             hideBrowserMenu();
-            if ($target.is("input") ||
+            var $activeEl = $(document.activeElement);
+            if ($fileBrowser.is(":visible") && !$activeEl.is("textarea") &&
+                !$activeEl.is("input")) {
+                // filebrowser is visible and there's no cursor in an input so
+                // we assume user is trying to navigate folders
+            } else if ($target.is("input") ||
                 ($lastTarget != null &&
                 $lastTarget.length > 0 &&
                 !$lastTargParents.filter("#fileBrowser").length &&
