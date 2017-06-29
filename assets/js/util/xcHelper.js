@@ -1668,6 +1668,9 @@ window.xcHelper = (function($, xcHelper) {
 
     xcHelper.getFocusedTable = function() {
         var $table = $(".xcTableWrap .tblTitleSelected").closest(".xcTableWrap");
+        $table = $table.filter(function() {
+            return !$(this).hasClass("inActive");
+        });
         if ($table.length === 0) {
             return null;
         }
