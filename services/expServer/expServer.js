@@ -194,7 +194,7 @@ require("jsdom").env("", function(err, window) {
         }
         var retMsg;
         if (curStep.curStepStatus === installStatus.Error) {
-            support.masterExecuteAction("GET", "/installationLogs/slave", {isHTTP: true})
+            support.masterExecuteAction("GET", "/installationLogs/slave", {isHTTP: "true"})
             .always(function(message) {
                 retMsg = {"status": httpStatus.OK,
                           "curStepStatus": curStep.curStepStatus,

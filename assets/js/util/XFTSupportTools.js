@@ -123,7 +123,11 @@ window.XFTSupportTools = (function(XFTSupportTools, $) {
     };
 
     function isHTTP() {
-        return window.location.protocol === "http:";
+        if (window.location.protocol === "http:") {
+            return "true";
+        } else {
+            return "false";
+        }
     }
 
     function sendRequest(action, url, content) {

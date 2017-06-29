@@ -235,7 +235,7 @@ function sendCommandToSlaves(action, slaveUrl, content, hosts) {
 
         var options = {
             host: hostName,
-            port: content.isHTTP ? defaultHttpPort : defaultHttpsPort,
+            port: content.isHTTP === "true"? defaultHttpPort : defaultHttpsPort,
             path: '/app' + slaveUrl,
             method: action,
             headers: {
@@ -243,7 +243,7 @@ function sendCommandToSlaves(action, slaveUrl, content, hosts) {
                 'Content-Length': Buffer.byteLength(postData)
             }
         };
-        var protocol = content.isHTTP ? http: https;
+        var protocol = content.isHTTP === "true" ? http: https;
         var req = protocol.request(options, function(res) {
             var data = "";
             res.on('data', function(retData) {
