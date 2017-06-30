@@ -151,6 +151,7 @@ window.UDF = (function($, UDF) {
             },
             "theme": "rubyblue",
             "lineNumbers": true,
+            "lineWrapping": true,
             "indentWithTabs": false,
             "indentUnit": 4,
             "matchBrackets": true,
