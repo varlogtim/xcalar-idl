@@ -387,14 +387,15 @@ describe("UDF Test", function() {
         });
 
         it("Should not upload with long module", function() {
-            // 10485761 a
-            if (window.isSystemMac) { // some machines cannot handle this test
-                editor.setValue(new Array(10485762).join("a"));
-                $fnName.val(uploadModule);
-                $("#udf-fnUpload").click();
+            var oldLen = XcalarApisConstantsT.XcalarApiMaxUdfSourceLen;
+            XcalarApisConstantsT.XcalarApiMaxUdfSourceLen = 10;
 
-                UnitTest.hasStatusBoxWithError(ErrTStr.LargeFile);
-            }
+            editor.setValue("a".repeat(11));
+            $fnName.val(uploadModule);
+            $("#udf-fnUpload").click();
+
+            UnitTest.hasStatusBoxWithError(ErrTStr.LargeFile);
+            XcalarApisConstantsT.XcalarApiMaxUdfSourceLen = oldLen;
         });
 
         it("Should upload udf", function(done) {
