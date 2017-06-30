@@ -125,10 +125,10 @@ describe("DFCard Test", function() {
         // });
 
         it("popup should not close when clicking inside of it", function() {
-            $tab.trigger(fakeEvent.mousedown);
+            $tab.click();
             expect($tab.find(".retPopUp").is(":visible")).to.be.true;
-            $tab.find(".retPopup").trigger(fakeEvent.mouseddown);
-            expect($tab.find(".retPopUp").is(":visible")).to.be.true;
+            $tab.click();
+            expect($tab.find(".retPopUp").is(":visible")).to.be.false;
         });
 
         // it("popup should close when clicking on dfcard", function() {
