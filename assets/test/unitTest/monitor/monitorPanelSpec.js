@@ -76,7 +76,6 @@ describe("Monitor Panel Test", function() {
 
     describe("toggling graph switches", function() {
         it("switching should work", function() {
-            var $areas;
             var $area1 = $monitorPanel.find(".area1");
             var $area3 = $monitorPanel.find(".area3");
 

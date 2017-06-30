@@ -253,6 +253,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
 
         return deferred.promise();
     }
+
     // This registers an extension.
     // The extension must have already been added via addExtension
     ExtensionManager.registerExtension = function(extName) {

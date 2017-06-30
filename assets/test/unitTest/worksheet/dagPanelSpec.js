@@ -300,8 +300,6 @@ describe("Dag Panel Test", function() {
             groupTable.$dagWrap = $groupDagWrap;
 
             done();
-
-        //     // Now perform join
         })
         .fail(function() {
             done("failed");
@@ -883,6 +881,7 @@ describe("Dag Panel Test", function() {
                     done();
                 });
             });
+
             it("createBatchDataflow action should work", function() {
                 var $dfPanel = $("#dfCreateView");
                 expect($dfPanel.hasClass("xc-hidden")).to.be.true;
@@ -893,6 +892,7 @@ describe("Dag Panel Test", function() {
                 expect($dfPanel.hasClass("xc-hidden")).to.be.true;
             });
         });
+
         describe("Right click menu actions workshould on small dag.", function() {
             // Already tested save image, new tab image, and create dataflow
             it("Dag expandall and collapseall on small dag should fail", function() {
@@ -900,23 +900,23 @@ describe("Dag Panel Test", function() {
                 var nodes = $smallDagWrap.data("allDagInfo").nodes;
 
                 expect($smallDagWrap.find(".expandWrap").length).to.equal(0);
-                for (var nodeIdx in nodes) {
+                Object.keys(nodes).forEach(function(nodeIdx) {
                     expect(nodes[nodeIdx].isHidden).to.be.false;
-                }
+                });
                 Dag.collapseAll($smallDagWrap);
                 expect($smallDagWrap.find(".expandWrap").length).to.equal(0);
-                for (var nodeIdx in nodes) {
+                Object.keys(nodes).forEach(function(nodeIdx) {
                     expect(nodes[nodeIdx].isHidden).to.be.false;
-                }
+                });
                 Dag.expandAll($smallDagWrap);
                 expect($smallDagWrap.find(".expandWrap").length).to.equal(0);
-                for (var nodeIdx in nodes) {
+                Object.keys(nodes).forEach(function(nodeIdx) {
                     expect(nodes[nodeIdx].isHidden).to.be.false;
-                }
+                });
             });
         });
-        describe("Right click menu actions on large dag should work.", function() {
 
+        describe("Right click menu actions on large dag should work.", function() {
             it("expandAll and collapseAll should work", function() {
                 var nodes = $largeDagWrap.data("allDagInfo").nodes;
                 // NumNodes defined this way as nodes is an object with keys
@@ -924,34 +924,34 @@ describe("Dag Panel Test", function() {
                 var numNodes = Object.keys(nodes).length;
 
                 expect($largeDagWrap.find(".expandWrap").length).to.equal(1);
-                for (var nodeIdx in nodes) {
+                Object.keys(nodes).forEach(function(nodeIdx) {
                     if (nodeIdx === String(0) ||
                         nodeIdx === String(numNodes - 1)) {
                         expect(nodes[nodeIdx].isHidden).to.be.false;
                     } else {
                         expect(nodes[nodeIdx].isHidden).to.be.true;
                     }
-                }
+                });
                 Dag.expandAll($largeDagWrap);
                 expect($largeDagWrap.find(".expandWrap").length).to.equal(1);
-                for (var nodeIdx in nodes) {
+                Object.keys(nodes).forEach(function(nodeIdx) {
                     expect(nodes[nodeIdx].isHidden).to.be.false;
-                }
+                });
                 Dag.collapseAll($largeDagWrap);
                 expect($largeDagWrap.find(".expandWrap").length).to.equal(1);
-                for (var nodeIdx in nodes) {
+                Object.keys(nodes).forEach(function(nodeIdx) {
                     if (nodeIdx === String(0) ||
                         nodeIdx === String(numNodes - 1)) {
                         expect(nodes[nodeIdx].isHidden).to.be.false;
                     } else {
                         expect(nodes[nodeIdx].isHidden).to.be.true;
                     }
-                }
+                });
                 Dag.expandAll($largeDagWrap);
                 expect($largeDagWrap.find(".expandWrap").length).to.equal(1);
-                for (var nodeIdx in nodes) {
+                Object.keys(nodes).forEach(function(nodeIdx) {
                     expect(nodes[nodeIdx].isHidden).to.be.false;
-                }
+                });
             });
         });
     });
@@ -1008,6 +1008,7 @@ describe("Dag Panel Test", function() {
                 done();
             });
         });
+
         it("Expand/collapse and mouseovers should work", function(done) {
             Dag.expandAll($largeDagWrap);
             var $expander = $largeDagWrap.find(".expandWrap");
@@ -1077,10 +1078,12 @@ describe("Dag Panel Test", function() {
                 $menu.find(".focusTable").trigger(fakeEvent.mouseup);
                 expect(xcHelper.getFocusedTable()).to.equal(smallTableId);
             });
+
             it("Revert table should not work", function() {
                 $largeDagIcon.click();
                 expect($menu.find("li.revertTable").is(":visible")).to.be.false;
             });
+
             it("Schema support functions should work", function() {
                 // TODO*: Actually test something
                 $largeDagIcon.click();
@@ -1222,6 +1225,7 @@ describe("Dag Panel Test", function() {
                 });
             });
         });
+
         describe("Operations on second to last table should work", function() {
             var dagDepth;
             var $prevDagTable;
@@ -1315,6 +1319,7 @@ describe("Dag Panel Test", function() {
                     done("failed");
                 });
             });
+
             it("Delete second last table should work", function(done) {
                 $prevDagIcon.click();
                 expect($menu.find("li.deleteTable").hasClass("unavailable"))

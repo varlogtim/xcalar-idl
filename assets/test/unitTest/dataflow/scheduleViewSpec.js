@@ -692,8 +692,7 @@ function viewRelatedFunctionTest() {
                                 "mapInput": {},
                                 "groupByInput": {}
                             }
-                        },
-                        {
+                        }, {
                             "name": {"name": "test"},
                             "dagNodeId": "104399",
                             "api": 2,

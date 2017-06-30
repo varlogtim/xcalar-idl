@@ -44,7 +44,7 @@ window.UExtCompleteColumns = (function(UExtCompleteColumns) {
         .then(deferred.resolve)
         .fail(deferred.reject);
 
-        return deferred.promise()
+        return deferred.promise();
     }
 
     /*

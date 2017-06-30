@@ -610,7 +610,7 @@ describe("xcHelper Test", function() {
 
         // case 3
         validFunc = function(name) { return name !== "test"; };
-        var nameGenFunc = function(cnt) { return "test-" + cnt};
+        var nameGenFunc = function(cnt) { return "test-" + cnt; };
         res = xcHelper.uniqueName("test", validFunc, nameGenFunc);
         expect(res).to.equal("test-1");
 
