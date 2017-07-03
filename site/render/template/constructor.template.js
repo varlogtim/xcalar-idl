@@ -1178,10 +1178,20 @@
 
             // XXX this is only for version 2!!!
             if (<%= checkFunc %>(options)) {
-                if (self.baseSettings &&
-                    self.baseSettings.hasOwnProperty("skipSplash")) {
-                    delete self.baseSettings.skipSplash;
-                }
+                var defaultSettings = {
+                    "hideDataCol": false,
+                    "monitorGraphInterval": 3, // in seconds
+                    "commitInterval": 120, // in seconds
+                    "DsDefaultSampleSize": 10 * GB,
+                    "enableCreateTable": false,
+                    "hideSysOps": false,
+                    "hideXcUDF": false
+                };
+                defaultSettings = $.extend({}, defaultSettings,
+                                            userConfigParms);
+                self.baseSettings = $.extend({}, defaultSettings,
+                                            self.xcSettings,
+                                            self.adminSettings);
             }
 
             return self;
@@ -1198,6 +1208,9 @@
             updateAdminSettings: function(settings) {
                 var prevAdminSettings = this.adminSettings;
                 this.adminSettings = $.extend({}, prevAdminSettings, settings);
+            },
+            cleanAdminSettings: function() {
+                this.adminSettings = {};
             },
             updateXcSettings: function(settings) {
                 var prevXcSettings = this.xcSettings;

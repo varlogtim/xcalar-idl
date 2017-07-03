@@ -6,6 +6,7 @@ window.UserSettings = (function($, UserSettings) {
     var monIntervalSlider;
     var commitIntervalSlider;
     var genSettings;
+    var revertedToDefault = false;
 
     // oldUserInfos/userInfos contains settings such as if the user last had
     // list vs grid view on in the file browser, also contains general settings
@@ -24,7 +25,6 @@ window.UserSettings = (function($, UserSettings) {
 
         var dsInfo = userInfos.getDSInfo();
         genSettings = new GenSettings({}, prevSettings);
-
         var atStartup = true;
         DS.restore(dsInfo, atStartup)
         .then(function() {
@@ -49,7 +49,8 @@ window.UserSettings = (function($, UserSettings) {
 
         userPrefs.update();
         var userPrefHasChange = userPrefChangeCheck();
-        var shouldCommit = hasDSChange || userPrefHasChange;
+        var shouldCommit = hasDSChange || userPrefHasChange ||
+                           revertedToDefault;
         if (shouldCommit) {
             userInfos.update();
 
@@ -68,7 +69,7 @@ window.UserSettings = (function($, UserSettings) {
                 dsPromise = PromiseHelper.resolve();
             }
 
-            if (userPrefHasChange) {
+            if (userPrefHasChange || revertedToDefault) {
                 if (gXcSupport) {
                     genSettings.updateXcSettings(UserSettings
                                                  .getPref('general'));
@@ -99,6 +100,7 @@ window.UserSettings = (function($, UserSettings) {
             })
             .then(function() {
                 hasDSChange = false;
+                revertedToDefault = false;
                 saveLastPrefs();
                 if (showSuccess) {
                     xcHelper.showSuccess(SuccessTStr.SaveSettings);
@@ -157,6 +159,17 @@ window.UserSettings = (function($, UserSettings) {
         KVStore.logChange();
     };
 
+    UserSettings.revertDefault = function() {
+        var newPrefs = new UserPref();
+        userPrefs.general = newPrefs.general;
+        if (Admin.isAdmin()) {
+            genSettings = new GenSettings();
+        }
+        restoreSettingsPanel();
+        revertedToDefault = true;
+        UserSettings.logChange();
+    };
+
     function setup() {
         userPrefs = new UserPref();
         hasDSChange = false;
@@ -191,6 +204,15 @@ window.UserSettings = (function($, UserSettings) {
                         if (cachedPrefs[key][pref] !== userPrefs[key][pref]) {
                             shouldCommit = true;
                             break;
+                        }
+                    }
+                    if (!shouldCommit) {
+                        for (var pref in cachedPrefs[key]) {
+                            if (cachedPrefs[key][pref] !== userPrefs[key][pref])
+                            {
+                                shouldCommit = true;
+                                break;
+                            }
                         }
                     }
                     if (shouldCommit) {
@@ -307,6 +329,13 @@ window.UserSettings = (function($, UserSettings) {
         $("#userSettingsSave").click(function() {
             $("#autoSaveBtn").click();
         });
+
+        $("#userSettingsDefault").click(function() {
+            var sets = UserSettings;
+            var genSets = genSettings;
+            UserSettings.revertDefault();
+            $("#autoSaveBtn").click();
+        });
     }
 
     function updateDsPreviewLimitInput() {
@@ -352,14 +381,20 @@ window.UserSettings = (function($, UserSettings) {
 
         if (!hideDataCol) {
             $("#showDataColBox").addClass("checked");
+        } else {
+            $("#showDataColBox").removeClass("checked");
         }
 
         if (hideXcUDF) {
             $("#hideXcUDF").addClass("checked");
+        } else {
+            $("#hideXcUDF").removeClass("checked");
         }
 
         if (hideSysOps) {
             $("#hideSysOps").addClass("checked");
+        } else {
+            $("#hideSysOps").removeClass("checked");
         }
 
         if (showFile) {

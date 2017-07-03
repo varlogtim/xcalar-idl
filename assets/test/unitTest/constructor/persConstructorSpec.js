@@ -1755,7 +1755,7 @@ describe("Persistent Constructor Test", function() {
             var genSettings = new GenSettings();
             var baseSettings = genSettings.getBaseSettings();
 
-            expect(Object.keys(baseSettings).length).to.equal(4);
+            expect(Object.keys(baseSettings).length).to.equal(7);
             expect(baseSettings).to.have.property("hideDataCol")
             .and.to.be.false;
             expect(baseSettings).to.have.property("monitorGraphInterval")
@@ -1764,6 +1764,9 @@ describe("Persistent Constructor Test", function() {
             .and.to.equal(120);
             expect(baseSettings).to.have.property("DsDefaultSampleSize")
             .and.to.equal(10 * GB);
+            expect(baseSettings).to.have.property("enableCreateTable").and.to.be.false;
+            expect(baseSettings).to.have.property("hideSysOps").and.to.be.false;
+            expect(baseSettings).to.have.property("hideXcUDF").and.to.be.false;
         });
 
         it("GenSettings heirarchy should work", function() {
@@ -1787,11 +1790,14 @@ describe("Persistent Constructor Test", function() {
             expect(Object.keys(adminAndXc.xcSettings)).to.have.length(1);
 
             var baseSettings = genSettings.getBaseSettings();
-            expect(Object.keys(baseSettings)).to.have.length(4);
+            expect(Object.keys(baseSettings)).to.have.length(7);
             expect(baseSettings["hideDataCol"]).to.be.false;
             expect(baseSettings["monitorGraphInterval"]).to.equal(9);
             expect(baseSettings["commitInterval"]).to.equal(600);
             expect(baseSettings["DsDefaultSampleSize"]).to.equal(2000);
+            expect(baseSettings["enableCreateTable"]).to.be.false;
+            expect(baseSettings["hideSysOps"]).to.be.false;
+            expect(baseSettings["hideXcUDF"]).to.be.false;
         });
 
         it("Should update adminSettings", function() {
