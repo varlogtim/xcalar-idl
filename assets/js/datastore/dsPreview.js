@@ -194,12 +194,7 @@ window.DSPreview = (function($, DSPreview) {
 
         var module = null;
         var func = null;
-
-        if (loadArgs.getFormat() === formatMap.EXCEL) {
-            toggleFormat("EXCEL");
-            module = excelModule;
-            func = excelFunc;
-        } else if (restore) {
+        if (restore) {
             module = options.moduleName;
             func = options.funcName;
         } else {
@@ -1394,7 +1389,6 @@ window.DSPreview = (function($, DSPreview) {
         }
 
         var hasUDF = false;
-
         if (udfModule && udfFunc) {
             hasUDF = true;
         } else if (!udfModule && !udfFunc) {
@@ -1405,7 +1399,6 @@ window.DSPreview = (function($, DSPreview) {
             return PromiseHelper.reject("Error Case!");
         }
 
-        var urlToPreview = getURLToPreview(fromChangeFile);
         var $loadHiddenSection = $previeWrap.find(".loadHidden")
                                             .addClass("hidden");
         var $waitSection = $previeWrap.find(".waitSection")
@@ -1413,7 +1406,7 @@ window.DSPreview = (function($, DSPreview) {
         $previeWrap.find(".errorSection").addClass("hidden");
         var sql = {
             "operation": SQLOps.PreviewDS,
-            "dsPath": urlToPreview,
+            "dsPath": null,
             "dsName": dsName,
             "moduleName": udfModule,
             "funcName": udfFunc,
@@ -1428,17 +1421,37 @@ window.DSPreview = (function($, DSPreview) {
 
         setURL(loadURL, pattern);
 
-        var initialLoadArgStr;
-        if (!noDetect) {
-            initialLoadArgStr = loadArgs.getArgStr();
-        }
-
         var def = options.checkFolder
                   ? checkIsFolder(loadURL)
                   : PromiseHelper.resolve();
 
+        var urlToPreview;
+        var initialLoadArgStr;
+
         def
         .then(function() {
+            if (fromChangeFile) {
+                return PromiseHelper.resolve(loadArgs.getPreviewFile());
+            } else {
+                return getURLToPreview(loadURL, isRecur, pattern);
+            }
+        })
+        .then(function(url) {
+            urlToPreview = url;
+
+            if (!hasUDF && isExcel(url)) {
+                hasUDF = true;
+                udfModule = excelModule;
+                udfFunc = excelFunc;
+                toggleFormat("EXCEL");
+                sql.moduleName = udfModule;
+                sql.funcName = udfFunc;
+            }
+
+            if (!noDetect) {
+                initialLoadArgStr = loadArgs.getArgStr();
+            }
+
             if (hasUDF) {
                 return loadDataWithUDF(txId, urlToPreview, dsName, {
                     "moduleName": udfModule,
@@ -1457,6 +1470,8 @@ window.DSPreview = (function($, DSPreview) {
                 var error = DSTStr.NoRecords + '\n' + DSTStr.NoRecrodsHint;
                 return PromiseHelper.reject(error);
             }
+
+            setPreviewFile(urlToPreview);
             $waitSection.addClass("hidden");
             rawData = result;
 
@@ -1483,7 +1498,8 @@ window.DSPreview = (function($, DSPreview) {
         .fail(function(error) {
             Transaction.fail(txId, {
                 "error": error,
-                "noAlert": true
+                "noAlert": true,
+                "sql": sql
             });
 
             errorHandler(error);
@@ -1535,20 +1551,32 @@ window.DSPreview = (function($, DSPreview) {
         return deferred.promise();
     }
 
-    function getURLToPreview(fromChangeFile) {
-        var url;
-        var loadURL = loadArgs.getPath();
-        var advanceArgs = advanceOption.getArgs();
-
-        if (!fromChangeFile && advanceArgs != null &&
-            (advanceArgs.isRecur || advanceArgs.pattern))
-        {
-            // should use the whole url
-            url = loadURL;
+    function isExcel(url) {
+        if (loadArgs.getFormat() === formatMap.EXCEL ||
+            xcHelper.getFormat(url) === formatMap.EXCEL) {
+            return true;
         } else {
-            url = loadArgs.getPreviewFile() || loadURL;
+            return false;
         }
-        return url;
+    }
+
+    function getURLToPreview(url, isRecur, pattern) {
+        if (!isViewFolder) {
+            // single file case
+            return PromiseHelper.resolve(url);
+        }
+
+        var deferred = jQuery.Deferred();
+        XcalarPreview(url, pattern, isRecur, 1, 0)
+        .then(function(res) {
+            var path = url.endsWith("/") ? url : url + "/";
+            path += res.fileName;
+            setPreviewFile(path);
+            deferred.resolve(path);
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
     }
 
     function setDefaultDSName(loadURL) {
@@ -1667,16 +1695,6 @@ window.DSPreview = (function($, DSPreview) {
         var deferred = jQuery.Deferred();
         bufferData(loadURL, pattern, isRecur, numBytesRequest)
         .then(function(res) {
-            var fullURL = loadArgs.getPath();
-            if (fullURL.endsWith(res.fullPath)) {
-                // when fullPath is part of the url,
-                // which means it's a single file
-                setPreviewFile(fullURL);
-            } else {
-                var path = fullURL.endsWith("/") ? fullURL : fullURL + "/";
-                path += res.fileName;
-                setPreviewFile(path);
-            }
             deferred.resolve(res.buffer);
         })
         .fail(function(error) {
@@ -1741,15 +1759,8 @@ window.DSPreview = (function($, DSPreview) {
         };
      */
     function loadDataWithUDF(txId, loadURL, dsName, options) {
-        options = options || {};
-
         var deferred = jQuery.Deferred();
-        var urlToPreview;
-        var disablePreview;
         var format = formatMap.JSON;
-        var pattern = options.pattern;
-        var isRecur = options.isRecur;
-
         var defaultOptions = {
             "fieldDelim": "",
             "recordDelim": "\n",
@@ -1762,12 +1773,7 @@ window.DSPreview = (function($, DSPreview) {
         var tempDSName = getPreviewTableName(dsName);
         tableName = tempDSName;
 
-        getFileToPreviewInUDF(loadURL, isRecur, pattern)
-        .then(function(url, noPreview) {
-            urlToPreview = url;
-            disablePreview = noPreview;
-            return XcalarLoad(urlToPreview, format, tempDSName, options, txId);
-        })
+        XcalarLoad(loadURL, format, tempDSName, options, txId)
         .then(function() {
             return sampleData(tempDSName, rowsToFetch);
         })
@@ -1781,7 +1787,6 @@ window.DSPreview = (function($, DSPreview) {
             try {
                 var rows = parseRows(result);
                 buffer = JSON.stringify(rows);
-                setPreviewFile(urlToPreview, disablePreview);
                 passed = true;
             } catch (err) {
                 console.error(err.stack);
@@ -1810,44 +1815,6 @@ window.DSPreview = (function($, DSPreview) {
 
             return rows;
         }
-
-        return deferred.promise();
-    }
-
-    function getFileToPreviewInUDF(url, isRecur, pattern) {
-        if (!isViewFolder) {
-            // single file case
-            return PromiseHelper.resolve(url);
-        }
-
-        var deferred = jQuery.Deferred();
-
-        XcalarListFilesWithPattern(url, isRecur, pattern)
-        .then(function(res) {
-            if (res && res.numFiles > 0) {
-                var fileName = res.files[0].name;
-                var fileURL;
-                if (res.numFiles === 1 && url.endsWith(fileName)) {
-                    // when select a single file
-                    fileURL = url;
-                } else if (res.numFiles === 1 && fileName === ".") {
-                    // we see this issue in Bug 8959, just in case
-                    fileURL = url;
-                } else {
-                    // when select a folder
-                    fileURL = url.endsWith("/") ? url : url + "/";
-                    fileURL += fileName;
-                }
-                deferred.resolve(fileURL);
-            } else {
-                console.error("no file listed");
-                deferred.resolve(url, true);
-            }
-        })
-        .fail(function(error) {
-            console.error("list file fails", error);
-            deferred.resolve(url, true);
-        });
 
         return deferred.promise();
     }
@@ -2565,7 +2532,7 @@ window.DSPreview = (function($, DSPreview) {
     }
 
     function detectFormat(data, lineDelim) {
-        var path = loadArgs.getPath();
+        var path = loadArgs.getPreviewFile() || loadArgs.getPath();
         var format = xcHelper.getFormat(path);
         if (format === formatMap.EXCEL) {
             return format;
@@ -2638,7 +2605,7 @@ window.DSPreview = (function($, DSPreview) {
         DSPreview.__testOnly__.applyHighlight = applyHighlight;
         DSPreview.__testOnly__.clearPreviewTable = clearPreviewTable;
         DSPreview.__testOnly__.sampleData = sampleData;
-        DSPreview.__testOnly__.getFileToPreviewInUDF = getFileToPreviewInUDF;
+        DSPreview.__testOnly__.getURLToPreview = getURLToPreview;
         DSPreview.__testOnly__.loadDataWithUDF = loadDataWithUDF;
 
         DSPreview.__testOnly__.resetForm = resetForm;

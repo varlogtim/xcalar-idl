@@ -352,6 +352,73 @@ describe("DSPreview Test", function() {
                 XcalarFetchData = oldFetch;
             });
         });
+
+        it("getURLToPreview should work", function(done) {
+            var meta = DSPreview.__testOnly__.get();
+            var isViewFolder = meta.isViewFolder;
+            meta.loadArgs.set({"path": "file:///url"});
+            DSPreview.__testOnly__.set(null, null, true);
+            var oldPreview = XcalarPreview;
+            XcalarPreview = function() {
+                return PromiseHelper.resolve({"fileName": "test"});
+            };
+
+            DSPreview.__testOnly__.getURLToPreview("file:///url")
+            .then(function(path) {
+                expect(path).equal("file:///url/test");
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                XcalarPreview = oldPreview;
+                DSPreview.__testOnly__.set(null, null, isViewFolder);
+            });
+        });
+
+        it("getURLToPreview should return single file url", function(done) {
+            var meta = DSPreview.__testOnly__.get();
+            var isViewFolder = meta.isViewFolder;
+            meta.loadArgs.set({"path": "file:///url"});
+            DSPreview.__testOnly__.set(null, null, false);
+
+            DSPreview.__testOnly__.getURLToPreview("file:///test")
+            .then(function(path) {
+                expect(path).equal("file:///test");
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                DSPreview.__testOnly__.set(null, null, isViewFolder);
+            });
+        });
+
+        it("getURLToPreview should handle fail case", function(done) {
+            var meta = DSPreview.__testOnly__.get();
+            var isViewFolder = meta.isViewFolder;
+            meta.loadArgs.set({"path": "file:///url"});
+            DSPreview.__testOnly__.set(null, null, true);
+            var oldPreview = XcalarPreview;
+            XcalarPreview = function() {
+                return PromiseHelper.reject("test");
+            };
+
+            DSPreview.__testOnly__.getURLToPreview("file:///url")
+            .then(function() {
+                done("fail");
+            })
+            .fail(function(error) {
+                expect(error).to.equal("test");
+                done();
+            })
+            .always(function() {
+                XcalarPreview = oldPreview;
+                DSPreview.__testOnly__.set(null, null, isViewFolder);
+            });
+        });
     });
 
     describe("Preview Public API Test", function() {
@@ -575,99 +642,19 @@ describe("DSPreview Test", function() {
     });
 
     describe("Preview with UDF Function Test", function() {
-        var getFileToPreviewInUDF;
-        var oldList;
         var oldLoad;
         var oldMakeResultSet;
         var oldFetch;
         var oldSetFree;
 
         before(function() {
-            getFileToPreviewInUDF = DSPreview.__testOnly__.getFileToPreviewInUDF;
-            oldList = XcalarListFilesWithPattern;
             oldLoad = XcalarLoad;
             oldMakeResultSet = XcalarMakeResultSetFromDataset;
             oldSetFree = XcalarSetFree;
             oldFetch = XcalarFetchData;
         });
 
-        it("Should get url of single file", function(done) {
-            DSPreview.__testOnly__.set(null, null, false);
-            XcalarListFilesWithPattern = function() {
-                return PromiseHelper.resolve({
-                    "numFiles": 1,
-                    "files": [{"name": "test"}]
-                });
-            };
-
-            getFileToPreviewInUDF("test")
-            .then(function(fileURL) {
-                expect(fileURL).to.equal("test");
-                done();
-            })
-            .fail(function() {
-                done("fail");
-            });
-        });
-
-        it("Should get url of file in folder", function(done) {
-            DSPreview.__testOnly__.set(null, null, true);
-            XcalarListFilesWithPattern = function() {
-                return PromiseHelper.resolve({
-                    "numFiles": 1,
-                    "files": [{"name": "test2"}]
-                });
-            };
-
-            getFileToPreviewInUDF("test")
-            .then(function(fileURL) {
-                expect(fileURL).to.equal("test/test2");
-                done();
-            })
-            .fail(function() {
-                done("fail");
-            });
-        });
-
-        it("Should handle error data", function(done) {
-            DSPreview.__testOnly__.set(null, null, true);
-            XcalarListFilesWithPattern = function() {
-                return PromiseHelper.resolve(null);
-            };
-
-            getFileToPreviewInUDF("test")
-            .then(function(fileURL, noPreview) {
-                expect(fileURL).to.equal("test");
-                expect(noPreview).to.be.true;
-                done();
-            })
-            .fail(function() {
-                done("fail");
-            });
-        });
-
-        it("Should handle reject case", function(done) {
-            DSPreview.__testOnly__.set(null, null, true);
-            XcalarListFilesWithPattern = function() {
-                return PromiseHelper.reject();
-            };
-
-            getFileToPreviewInUDF("test")
-            .then(function(fileURL, noPreview) {
-                expect(fileURL).to.equal("test");
-                expect(noPreview).to.be.true;
-                done();
-            })
-            .fail(function() {
-                done("fail");
-            });
-        });
-
         it("should loadDataWithUDF handle error case", function(done) {
-            XcalarListFilesWithPattern = function() {
-                return PromiseHelper.reject("test");
-            };
-
             XcalarLoad = function() {
                 return PromiseHelper.reject("test");
             };
@@ -687,14 +674,6 @@ describe("DSPreview Test", function() {
 
         it("should loadDataWithUDF handle parse error", function(done) {
             loadArgs.set({"path": "test"});
-
-            XcalarListFilesWithPattern = function() {
-                return PromiseHelper.resolve({
-                    "numFiles": 1,
-                    "files": [{"name": "test"}]
-                });
-            };
-
             XcalarLoad = function() {
                 return PromiseHelper.resolve();
             };
@@ -727,13 +706,6 @@ describe("DSPreview Test", function() {
 
         it("should loadDataWithUDF", function(done) {
             loadArgs.set({"path": "test"});
-
-            XcalarListFilesWithPattern = function() {
-                return PromiseHelper.resolve({
-                    "numFiles": 1,
-                    "files": [{"name": "test"}]
-                });
-            };
 
             XcalarLoad = function() {
                 return PromiseHelper.resolve();
@@ -772,7 +744,6 @@ describe("DSPreview Test", function() {
         });
 
         after(function() {
-            XcalarListFilesWithPattern = oldList;
             XcalarLoad = oldLoad;
             XcalarSetFree = oldSetFree;
             XcalarMakeResultSetFromDataset = oldMakeResultSet;
