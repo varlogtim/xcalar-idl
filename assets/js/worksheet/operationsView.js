@@ -544,12 +544,22 @@ window.OperationsView = (function($, OperationsView) {
         $operationsView.on('click', '.emptyOptions .checkboxWrap', function() {
             var $checkbox = $(this).find('.checkbox');
             var $emptyOptsWrap = $(this).parent();
+
+            var $arg = $emptyOptsWrap.siblings(".inputWrap").find(".arg");
+            var $group = $checkbox.closest(".group");
+            var index = $group.find(".arg").index($arg);
+            var $sibArgs = $group.find(".arg:gt(" + index + ")");
+            $sibArgs = $sibArgs.filter(function() {
+                return !$(this).closest(".colNameRow").length;
+            });
+
             if ($checkbox.hasClass('checked')) {
                 $checkbox.removeClass('checked');
                 $emptyOptsWrap.siblings('.inputWrap')
                                .removeClass('semiHidden');
                 $emptyOptsWrap.siblings('.cast')
                               .removeClass('semiHidden');
+                $sibArgs.closest(".row").eq(0).removeClass("xc-hidden");
             } else {
                 $checkbox.addClass('checked');
                 if ($emptyOptsWrap.siblings('.inputWrap').length === 1) {
@@ -559,13 +569,23 @@ window.OperationsView = (function($, OperationsView) {
                     $emptyOptsWrap.siblings('.cast')
                                            .addClass('semiHidden');
                 }
-            }
 
-            // noArg and empty str toggling
-            if ($checkbox.hasClass('checked')) {
+                // noArg and empty str toggling
                 $checkbox.closest('.checkboxWrap').siblings()
                         .find('.checkbox').removeClass('checked');
 
+
+                showEmptyOptions($sibArgs);
+                $sibArgs.val("");
+                var $inputWraps = $sibArgs.closest(".inputWrap");
+                $inputWraps.addClass("semiHidden");
+                $inputWraps.siblings(".cast").addClass("semiHidden");
+                $inputWraps.siblings(".emptyOptions")
+                           .find(".noArgWrap .checkbox").addClass("checked");
+                $inputWraps.siblings(".emptyOptions")
+                           .find(".emptyStrWrap .checkbox")
+                           .removeClass("checked");
+                $inputWraps.closest(".row").addClass("xc-hidden");
             }
             checkIfStringReplaceNeeded();
         });
