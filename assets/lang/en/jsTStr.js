@@ -253,7 +253,7 @@ ErrTStr = {
     'InvalidFunction': 'Invalid function',
     'TooLong': 'Please use fewer than 255 characters.',
     'PrefixTooLong': 'Please use fewer than 32 characters.',
-    'NoTable': 'Table doesn\'t exist',
+    'NoTable': 'Table does not exist',
     'TablesNotDeleted': 'The following tables were not deleted:',
     'ConstsNotDeleted': 'The following aggregates were not deleted:',
     'NoTablesDeleted': 'No tables were deleted.',

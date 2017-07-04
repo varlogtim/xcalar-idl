@@ -688,7 +688,8 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             }
         });
 
-        $extArgs.on("focus", ".argument.type-column", function() {
+        $extArgs.on("focus", ".argument.type-column, .argument.type-table",
+            function() {
             $lastInputFocused = $(this);
         });
 
@@ -933,7 +934,11 @@ window.ExtensionManager = (function(ExtensionManager, $) {
     function addTableDropdown($list) {
         new MenuHelper($list, {
             "onOpen": function($curList) {
+                var tableName = $curList.find("input").val();
                 $curList.find('.list ul').html(WSManager.getTableList());
+                $curList.find("li").filter(function() {
+                    return ($(this).text() === tableName);
+                }).addClass("selected");
             },
             "onSelect": function($li) {
                 $li.closest(".dropDownList").find("input").val($li.text());
@@ -978,6 +983,10 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                 }
             }
         }
+        var tableName = $extTriggerTableDropdown.find("input").val();
+        $extTriggerTableDropdown.find("li").filter(function() {
+            return ($(this).text() === tableName);
+        }).addClass("selected");
         return tableList;
     }
 
@@ -1037,6 +1046,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         // for dropdowns
         var isDropdown = false;
         var isCheckbox = false;
+        var disabledProp = "disabled";
 
         var list = "";
         var descIcon = "";
@@ -1048,6 +1058,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                             '<i class="icon xi-show fa-16"></i>' +
                         '</div>';
             list = tableList;
+            disabledProp = "";
         } else if (argType === "boolean") {
             isCheckbox = true;
             inputClass += " checkbox";
@@ -1139,7 +1150,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                             '<input class="' + inputClass +'"' +
                             ' value="' + inputVal + '"' +
                             ' spellcheck="false"' +
-                            ' disabled>' +
+                            ' ' + disabledProp + ' type="text">' +
                             '<div class="iconWrapper">' +
                                 '<i class="icon xi-arrow-down"></i>' +
                             '</div>' +
