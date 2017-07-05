@@ -1084,7 +1084,7 @@ window.XIApi = (function(XIApi, $) {
             newFieldNames.push(colName + suffix);
             newTableNames.push(tableNamePart + Authentication.getHashId());
             newTypes.push(type);
-            resizeHeaders.push(progCol.sizedToHeader);
+            resizeHeaders.push(progCol.sizedTo === "header");
 
             if (colName === colToIndex) {
                 // if colToIndex is pulled out, it's renamed
@@ -1301,7 +1301,7 @@ window.XIApi = (function(XIApi, $) {
                             {
                                 lCols[colNum].backName = lRename[j].new;
                                 lCols[colNum].name = lRename[j].new;
-                                if (lCols[colNum].sizedToHeader) {
+                                if (lCols[colNum].sizedTo === "header") {
                                     var widthOptions = {
                                         defaultHeaderStyle: true
                                     };
@@ -1341,7 +1341,7 @@ window.XIApi = (function(XIApi, $) {
                             {
                                 rCols[colNum].backName = rRename[j].new;
                                 rCols[colNum].name = rRename[j].new;
-                                if (rCols[colNum].sizedToHeader) {
+                                if (rCols[colNum].sizedTo === "header") {
                                     var widthOptions = {
                                         defaultHeaderStyle: true
                                     };

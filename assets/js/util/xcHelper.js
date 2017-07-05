@@ -721,7 +721,7 @@ window.xcHelper = (function($, xcHelper) {
                                        options) {
         options = options || {};
         var copiedCols = xcHelper.deepCopy(tableCols);
-        var sizedToHeader;
+        var sizedTo;
         var widthOption = {"defaultHeaderStyle": true};
 
         if (colNum > 0) {
@@ -736,9 +736,10 @@ window.xcHelper = (function($, xcHelper) {
                 } else {
                     cellWidth = copiedCols[colNum - 1].width;
                 }
-                sizedToHeader = copiedCols[colNum - 1].sizedToHeader;
+                sizedTo = copiedCols[colNum - 1].sizedTo;
             } else {
                 cellWidth = xcHelper.getDefaultColWidth(colName);
+                sizedTo = "header";
             }
 
             var newProgCol = ColManager.newCol({
@@ -747,7 +748,7 @@ window.xcHelper = (function($, xcHelper) {
                 "width": cellWidth,
                 "userStr": '"' + colName + '" = map(' + mapStr + ')',
                 "isNewCol": false,
-                "sizedToHeader": sizedToHeader
+                "sizedTo": sizedTo
             });
 
             if (options.type) {
@@ -3733,21 +3734,13 @@ window.xcHelper = (function($, xcHelper) {
         var $lis = $subMenu.find(".typeList");
         $lis.removeClass("unavailable");
         xcTooltip.remove($lis);
-        if (options.multipleColNums) {
-            // $li.
-        } else if (progCol.isKnownType()) {
+        var isKnownType = progCol.isKnownType();
+        if (isKnownType && !options.multipleColNums) {
             var type = progCol.getType();
             var $li;
-
-            if (type === ColumnType.float) {
-                $li = $subMenu.find(".type-float");
-                $li.addClass("unavailable");
-                xcTooltip.add($li, {title: TooltipTStr.ColumnAlreadyFloat});
-            } else if (type === ColumnType.integer) {
-                $li = $subMenu.find(".type-integer");
-                $li.addClass("unavailable");
-                xcTooltip.add($li, {title: TooltipTStr.ColumnAlreadyInt});
-            }
+            $subMenu.find(".changeDataType").addClass("isKnownType");
+        } else {
+            $subMenu.find(".changeDataType").removeClass("isKnownType");
         }
     }
 
@@ -3882,11 +3875,7 @@ window.xcHelper = (function($, xcHelper) {
             if ($div.text().trim() !== "" && !$div.find('.undefined').length) {
                 // when  only one cell is selected
                 $jsonModalLi.removeClass("hidden");
-
-                // do not allow pullall from data cell
-                if (!options.isDataTd) {
-                    $unnestLi.removeClass("hidden");
-                }
+                $unnestLi.removeClass("hidden");
             }
         } else {
             if ($div.parent().hasClass('truncated')) {

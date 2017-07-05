@@ -23,7 +23,8 @@ window.ColManager = (function($, ColManager) {
             "func": {
                 "name": "pull",
                 "args": [backColName]
-            }
+            },
+            "sizedTo": "header"
         });
     };
 
@@ -47,8 +48,10 @@ window.ColManager = (function($, ColManager) {
     ColManager.addNewCol = function(colNum, tableId, direction, colOptions) {
         var defaultOptions = {
             "isNewCol": true,
-            "width": xcHelper.getDefaultColWidth("")
+            "width": xcHelper.getDefaultColWidth(""),
+            "sizedTo": "header"
         };
+
         var actulColOptions = $.extend(defaultOptions, colOptions);
         var progCol = ColManager.newCol(actulColOptions);
         addColHelper(colNum, tableId, progCol, {
@@ -593,7 +596,8 @@ window.ColManager = (function($, ColManager) {
         }
 
         $editableHead.val(newName).attr("value", newName);
-        if (!keepEditable && curCol.sizedToHeader) {
+        if (!keepEditable && (curCol.sizedTo === "header" ||
+            curCol.sizedTo === "all")) {
             TblFunc.autosizeCol($th, {
                 "dblClick": true,
                 "minWidth": 17,
@@ -769,7 +773,7 @@ window.ColManager = (function($, ColManager) {
                     "width": origCol.width,
                     "userStr": usrStr,
                     "isNewCol": false,
-                    "sizedToHeader": origCol.sizedToHeader
+                    "sizedTo": origCol.sizedTo
                 });
                 progCol.parseFunc();
                 if ((!args || !args.undo) && !parsePullColArgs(progCol) ) {

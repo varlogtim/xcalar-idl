@@ -878,6 +878,8 @@
 
             if (<%= checkFunc %>(options)) {
                 self.func = new ColFunc<%= v %>(options.func);
+                self.sizedTo = options.sizedTo || "auto";
+                delete self.sizedToHeader;
             }
             return self;
         }

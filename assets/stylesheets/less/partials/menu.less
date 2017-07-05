@@ -17,13 +17,18 @@
         text-align: center;
     }
 
-    .textAlign, .sort, .changeFormat {
+    .textAlign, .sort, .changeFormat, .typeList, .resize {
         .xi-tick {
             float: right;
-            margin-rigth: 2px;
+            margin-right: 2px;
             line-height: 16px;
             display: none;
         }
+    }
+    .typeList .xi-tick {
+        position: absolute;
+        right: 6px;
+        top: 5px;
     }
     .changeFormat.formatDefault {
         .xi-tick {
@@ -44,12 +49,37 @@
         display: block;
     }
 
+    &.type-integer .isKnownType .type-integer .xi-tick {
+        display: block;
+    }
+    &.type-float .isKnownType .type-float .xi-tick {
+        display: block;
+    }
+    &.type-string .isKnownType .type-string .xi-tick {
+        display: block;
+    }
+    &.type-boolean .isKnownType .type-boolean .xi-tick {
+        display: block;
+    }
+
+    &.sizedToheader .sizeToHeader .xi-tick {
+        display: block;
+    }
+    &.sizedTocontents .sizeToContents .xi-tick {
+        display: block;
+    }
+    &.sizedToall .sizeToFitAll .xi-tick {
+        display: block;
+    }
+
     &.sortedAsc li.sort .xi-tick {
         display: block;
     }
     &.sortedDesc .revSort .xi-tick {
         display: block;
     }
+
+
 
     &.format-percent {
         .changeFormat {
@@ -344,7 +374,7 @@
         }
     }
 
-    .splitCol li, .window li {
+    .splitCol li {
         .size(@height: 105px);
     }
 
@@ -466,10 +496,6 @@
         display: none;
     }
 
-    .window {
-        display: none;
-    }
-
     .unavailable {
         // pointer-events: none;
         cursor: default !important;
@@ -490,12 +516,6 @@
     .moveToWorksheet {
         &+ .tooltip {
             display: none !important;
-        }
-    }
-
-    &.type-integer, &.type-float, &.type-boolean {
-        .window {
-            display: block;
         }
     }
 
@@ -559,8 +579,8 @@
                 }
             }
         }
-        &.type-object, &.type-newColumn,
-        &.childOfArray, &.type-array, &.type-undefined {
+        &.type-object, &.type-newColumn, &.childOfArray, &.type-array,
+        &.type-undefined {
             .multiGroupby, .multiJoin {
                 display: none !important;
             }
@@ -600,18 +620,18 @@
         }
     }
 
-    &.type-string, &.type-array {
-        .type-string {
-            display: none;
-        }
-
+    &.type-string {
         .format {
             display: none;
         }
     }
 
+
     &.type-array {
         .aggregate {
+            display: none;
+        }
+        .format {
             display: none;
         }
     }
@@ -629,8 +649,7 @@
         display: none !important;
     }
 
-    &.type-object, &.type-newColumn,
-    &.childOfArray, &.type-array {
+    &.type-object, &.type-newColumn, &.childOfArray, &.type-array {
         .sort, .aggregate, .groupby, .filter, .join, .map, .operations,
         .profile, .corrAgg
         {
@@ -645,15 +664,8 @@
         }
     }
 
-    &.type-untitled { // when column head is editable for rename
-        .duplicate {
-            display: none;
-        }
-    }
-
     &.type-undefined, {
-        .sort, .aggregate, .groupby, .join, .operations,
-        .profile, .corrAgg
+        .sort, .aggregate, .groupby, .join, .operations, .profile, .corrAgg
         {
             display: none;
         }
@@ -666,26 +678,19 @@
     }
 
     &.type-object, &.type-array, &.type-undefined, &.type-newColumn {
-        .changeDataType, .hPartition, .format, .roundToFixed, .extensions {
+        .changeDataType, .format, .roundToFixed, .extensions {
             display: none;
         }
     }
 
     &.childOfArray {
-        .functions, .changeDataType, .hPartition, .window, .splitCol ,
-        .extensions {
+        .functions, .changeDataType,  .splitCol, .extensions {
             display: none;
         }
     }
 
     &.type-object, &.childOfArray, {
         .functionsDivider {
-            display: none;
-        }
-    }
-
-    &.type-boolean {
-        .type-boolean, .format {
             display: none;
         }
     }
@@ -705,6 +710,11 @@
         }
         .maximize {
             display: list-item;
+        }
+        .resize {
+            .xi-tick {
+                display: none !important;
+            }
         }
     }
 

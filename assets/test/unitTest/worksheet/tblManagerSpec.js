@@ -469,29 +469,29 @@ describe("TableManager Test", function() {
             var table = gTables[tableId];
             var progCol = table.getCol(1);
             // default to be true
-            expect(progCol.sizedToHeader).to.be.true;
-            TblManager.resizeColumns(tableId, "sizeToContents", 1);
-            expect(progCol.sizedToHeader).to.be.false;
+            expect(progCol.sizedTo).to.be.equal("header");
+            TblManager.resizeColumns(tableId, "contents", 1);
+            expect(progCol.sizedTo).to.equal("contents");
         });
 
         it("Should resize column to header", function() {
             var table = gTables[tableId];
             var progCol = table.getCol(1);
-            TblManager.resizeColumns(tableId, "sizeToHeader");
-            expect(progCol.sizedToHeader).to.be.true;
+            TblManager.resizeColumns(tableId, "header");
+            expect(progCol.sizedTo).to.equal("header");
         });
 
         it("Should resize column to fit all", function() {
             var table = gTables[tableId];
             var progCol = table.getCol(1);
-            progCol.sizedToHeader = false;
-            TblManager.resizeColumns(tableId, "sizeToFitAll", 1);
-            expect(progCol.sizedToHeader).to.be.true;
+            progCol.sizedTo = "contents";
+            TblManager.resizeColumns(tableId, "all", 1);
+            expect(progCol.sizedTo).to.equal("all");
         });
 
         it("Should throw error in invalid resize", function() {
             try {
-                TblManager.resizeColumns(tableId, "sizeToFitAll", 1);
+                TblManager.resizeColumns(tableId, "all", 1);
             } catch (error) {
                 expect(error).to.exist;
             }
@@ -501,13 +501,13 @@ describe("TableManager Test", function() {
             // use undo/redo to test it
             var table = gTables[tableId];
             var progCol = table.getCol(1);
-            expect(progCol.sizedToHeader).to.be.true;
-            TblManager.resizeColumns(tableId, "sizeToContents", 1);
-            expect(progCol.sizedToHeader).to.be.false;
+            expect(progCol.sizedTo).to.equal("all");
+            TblManager.resizeColumns(tableId, "contents", 1);
+            expect(progCol.sizedTo).to.equal("contents");
 
             SQL.undo()
             .then(function() {
-                expect(progCol.sizedToHeader).to.be.true;
+                expect(progCol.sizedTo).to.equal("all");
                 done();
             })
             .fail(function() {

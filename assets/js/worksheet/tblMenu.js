@@ -281,11 +281,11 @@ window.TblMenu = (function(TblMenu, $) {
             var resizeTo;
 
             if ($li.hasClass('sizeToHeader')) {
-                resizeTo = 'sizeToHeader';
+                resizeTo = 'header';
             } else if ($li.hasClass('sizeToFitAll')) {
-                resizeTo = 'sizeToFitAll';
+                resizeTo = 'all';
             } else {
-                resizeTo = 'sizeToContents';
+                resizeTo = 'contents';
             }
 
             // could be long process so we allow the menu to close first
@@ -587,11 +587,11 @@ window.TblMenu = (function(TblMenu, $) {
             var resizeTo;
 
             if ($li.hasClass('sizeToHeader')) {
-                resizeTo = 'sizeToHeader';
+                resizeTo = 'header';
             } else if ($li.hasClass('sizeToFitAll')) {
-                resizeTo = 'sizeToFitAll';
+                resizeTo = 'all';
             } else {
-                resizeTo = 'sizeToContents';
+                resizeTo = 'contents';
             }
 
             // could be long process so we allow the menu to close first
@@ -627,13 +627,7 @@ window.TblMenu = (function(TblMenu, $) {
                 });
             }
             var tableId = $colMenu.data('tableId');
-            ColManager.changeType(colTypeInfos, tableId)
-            .then(function(newTableId) {
-                if ($('.xcTable th.selectedCell').length === 0) {
-                    $('#xcTable-' + newTableId).find('th.col' + (colNum) +
-                                               ' .flexContainer').mousedown();
-                }
-            });
+            ColManager.changeType(colTypeInfos, tableId);
         });
 
         $subMenu.on('mouseup', 'li.sort', function(event) {

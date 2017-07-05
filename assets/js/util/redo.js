@@ -209,16 +209,19 @@ window.Redo = (function($, Redo) {
 
     redoFuncs[SQLOps.ResizeTableCols] = function(options) {
         focusTableHelper(options);
+        var  sizeTo = [];
+        for (var i = 0; i < options.newColumnWidths.length; i++) {
+            sizeTo.push(options.sizeTo);
+        }
         TblManager.resizeColsToWidth(options.tableId, options.columnNums,
-                                     options.newColumnWidths,
-                                     options.newWidthStates);
+                                     options.newColumnWidths, sizeTo);
         return PromiseHelper.resolve(null);
     };
 
     redoFuncs[SQLOps.DragResizeTableCol] = function(options) {
         focusTableHelper(options);
         TblAnim.resizeColumn(options.tableId, options.colNum, options.fromWidth,
-                             options.toWidth, options.newWidthState);
+                             options.toWidth, options.sizedTo);
         return PromiseHelper.resolve(null);
     };
 

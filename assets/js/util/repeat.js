@@ -247,9 +247,12 @@ window.Repeat = (function($, Repeat) {
 
     repeatFuncs[SQLOps.ResizeTableCols] = function(options, colNums, tableId) {
         if (!colNums.length) {
+            if (!options.allCols) {
+                return PromiseHelper.resolve(null);
+            }
             colNums = undefined;
         }
-        TblManager.resizeColumns(tableId, options.resizeTo, colNums);
+        TblManager.resizeColumns(tableId, options.sizeTo, colNums);
         return PromiseHelper.resolve(null);
     };
     // /* End of Table Operations */

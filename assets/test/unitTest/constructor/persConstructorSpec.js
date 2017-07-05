@@ -343,8 +343,8 @@ describe("Persistent Constructor Test", function() {
             .and.to.be.null;
             expect(progCol).to.have.property("decimal")
             .and.to.equal(10);
-            expect(progCol).to.have.property("sizedToHeader")
-            .and.to.be.true;
+            expect(progCol).to.have.property("sizedTo")
+            .and.to.equal("auto");
             expect(progCol).to.have.property("textAlign")
             .and.to.equal(ColTextAlign.Left);
             expect(progCol).to.have.property("userStr")

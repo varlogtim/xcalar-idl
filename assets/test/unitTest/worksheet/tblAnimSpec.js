@@ -1,4 +1,4 @@
-describe('TblAnim', function() {
+describe('TblAnim Test', function() {
     var testDs;
     var tableName;
     var tableId;
@@ -65,7 +65,7 @@ describe('TblAnim', function() {
 
             newX = 5;
             e = $.Event('mousemove', {pageX: newX});
-          
+
             TblAnim.__testOnly__.checkColResize(e);
 
             expect(gMouseStatus).to.equal('resizingCol');
@@ -95,7 +95,7 @@ describe('TblAnim', function() {
         it('endColResize should work', function() {
             expect(gMouseStatus).to.equal('resizingCol');
             expect($('#resizeCursor').length).to.equal(1);
-            expect(progCol.sizedToHeader).to.be.true;
+            expect(progCol.sizedTo).to.equal("header");
 
             TblAnim.__testOnly__.endColResize();
 
@@ -105,7 +105,7 @@ describe('TblAnim', function() {
             // based on onColResize width
             expect($th.outerWidth()).to.equal(startWidth + 10);
             expect($('#resizeCursor').length).to.equal(0);
-            expect(progCol.sizedToHeader).to.be.false;
+            expect(progCol.sizedTo).to.equal("auto");
         });
     });
 
@@ -129,11 +129,11 @@ describe('TblAnim', function() {
             var resize = TblAnim.__testOnly__.dblClickResize;
             var originalWidth = progCol.width;
             expect(startWidth).to.equal(originalWidth);
-            expect(progCol.sizedToHeader).to.be.false;
+            expect(progCol.sizedTo).to.equal("auto");
 
             gRescol.clicks = 2;
             resize($el, null, null);
-            expect(progCol.sizedToHeader).to.be.true;
+            expect(progCol.sizedTo).to.equal("header");
             expect(gRescol.clicks).to.equal(0);
             expect(progCol.width).to.equal(startWidth - 10);
             expect($th.outerWidth()).to.equal(startWidth - 10);
@@ -144,12 +144,12 @@ describe('TblAnim', function() {
         it('TblAnim.resizeColumn should work', function() {
             var $th = $table.find('th.col1');
             var initialWidth = $th.outerWidth();
-            TblAnim.resizeColumn(tableId, 1, initialWidth, 90, false);
+            TblAnim.resizeColumn(tableId, 1, initialWidth, 90, "auto");
             expect($th.outerWidth()).to.equal(90);
 
             var table = gTables[tableId];
             var progCol = table.tableCols[0];
-            expect(progCol.sizedToHeader).to.be.false;
+            expect(progCol.sizedTo).to.equal("auto");
         });
     });
 
@@ -188,7 +188,7 @@ describe('TblAnim', function() {
 
             var newX = 5;
             e = $.Event('mousemove', {pageX: newX});
-          
+
             TblAnim.__testOnly__.checkColResize(e);
 
             expect(gMouseStatus).to.equal('resizingCol');
@@ -197,9 +197,9 @@ describe('TblAnim', function() {
         });
 
         it('onColResize should work', function() {
-             
+
             expect($th.outerWidth()).to.equal(gRescol.newWidth);
-           
+
             // increasing width by 10px
             var newX = 10;
             var e = $.Event('mousemove', {pageX: newX});
@@ -243,7 +243,7 @@ describe('TblAnim', function() {
             expect(startHeight).to.equal(25);
 
             var e = $.Event('mousedown', {pageY: startY});
-           
+
             TblAnim.startRowResize($el, e);
 
             expect(gMouseStatus).to.equal("checkingRowMove");
@@ -267,7 +267,7 @@ describe('TblAnim', function() {
 
             newY = 5;
             e = $.Event('mousemove', {pageY: newY});
-          
+
             TblAnim.__testOnly__.checkRowResize(e);
 
             expect(gMouseStatus).to.equal('rowMove');
@@ -313,7 +313,7 @@ describe('TblAnim', function() {
             expect(rowObj[0][2]).to.undefined;
 
             expect($tr.hasClass('changedHeight')).to.be.true;
-            
+
             // based on onRowResize height
             expect($tr.outerHeight()).to.equal(35);
             expect($('#rowResizeCursor').length).to.equal(0);

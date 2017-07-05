@@ -1037,27 +1037,10 @@ window.TblManager = (function($, TblManager) {
     };
 
     TblManager.resizeColumns = function(tableId, resizeTo, columnNums) {
-        var sizeToHeader = false;
-        var fitAll = false;
-
-        switch (resizeTo) {
-            case 'sizeToHeader':
-                sizeToHeader = true;
-                break;
-            case 'sizeToFitAll':
-                sizeToHeader = true;
-                fitAll = true;
-                break;
-            case 'sizeToContents':
-                // leave false
-                break;
-            default:
-                throw "Error Case!";
-        }
-
         var table = gTables[tableId];
         var columns = [];
         var colNums = [];
+        var allCols = false;
         if (columnNums !== undefined) {
             if (typeof columnNums !== "object") {
                 colNums.push(columnNums);
@@ -1068,6 +1051,7 @@ window.TblManager = (function($, TblManager) {
                 columns.push(table.getCol(colNum));
             });
         } else {
+            allCols = true;
             columns = table.tableCols;
             colNums = columns.map(function(col, index) {
                 return index + 1;
@@ -1078,23 +1062,26 @@ window.TblManager = (function($, TblManager) {
         var $table = $('#xcTable-' + tableId);
         var oldColumnWidths = [];
         var newWidths = [];
-        var oldWidthStates = [];
-        var newWidthStates = [];
+        var oldSizedTo = [];
+        var wasHidden = [];
 
         for (var i = 0, numCols = columns.length; i < numCols; i++) {
-            $th = $table.find('th.col' + (colNums[i]));
-            oldWidthStates.push(columns[i].sizedToHeader);
-            columns[i].sizedToHeader = sizeToHeader;
-            newWidthStates.push(columns[i].sizedToHeader);
+            $th = $table.find('th.col' + colNums[i]);
             columns[i].maximize();
             oldColumnWidths.push(columns[i].width);
+            oldSizedTo.push(columns[i].sizedTo);
+            columns[i].sizedTo = resizeTo;
+            wasHidden.push($th.hasClass("userHidden"));
+            var $tds = $table.find("td.col" + colNums[i]);
+            $th.removeClass("userHidden");
+            $tds.removeClass("userHidden");
 
             newWidths.push(TblFunc.autosizeCol($th, {
                 "dblClick": true,
                 "minWidth": 17,
                 "unlimitedWidth": false,
-                "includeHeader": sizeToHeader,
-                "fitAll": fitAll,
+                "includeHeader": (resizeTo === "header" || resizeTo === "all"),
+                "fitAll": resizeTo === "all",
                 "multipleCols": true
             }));
         }
@@ -1105,20 +1092,21 @@ window.TblManager = (function($, TblManager) {
             "operation": SQLOps.ResizeTableCols,
             "tableName": table.tableName,
             "tableId": tableId,
-            "resizeTo": resizeTo,
+            "sizeTo": resizeTo,
             "columnNums": colNums,
             "oldColumnWidths": oldColumnWidths,
             "newColumnWidths": newWidths,
-            "oldWidthStates": oldWidthStates,
-            "newWidthStates": newWidthStates,
-            "htmlExclude": ["columnNums", "oldWidthStates",
-                            "newWidthStates", "oldColumnWidths",
-                            "newColumnWidths"]
+            "oldSizedTo": oldSizedTo,
+            "wasHidden": wasHidden,
+            "allCols": allCols,
+            "htmlExclude": ["columnNums", "oldColumnWidths", "newColumnWidths",
+                            "oldSizedTo", "wasHidden", "allCols"]
         });
     };
 
-    // only used for undo / redos
-    TblManager.resizeColsToWidth = function(tableId, colNums, widths, widthStates) {
+    // only used for undo / redos sizeToHeader/content/all
+    TblManager.resizeColsToWidth = function(tableId, colNums, widths, sizeTo,
+                                            wasHidden) {
         var $table = $('#xcTable-' + tableId);
         $table.find('.userHidden').removeClass('userHidden');
         var progCols = gTables[tableId].tableCols;
@@ -1129,9 +1117,19 @@ window.TblManager = (function($, TblManager) {
             if (!widths[i]) {
                 console.warn('not found');
             }
-            $table.find('th.col' + colNum).outerWidth(widths[i]);
+            var $th = $table.find('th.col' + colNum);
+            var width = widths[i];
+            if (wasHidden && wasHidden[i]) {
+                $th.addClass("userHidden");
+                $table.find("td.col" + colNum).addClass("userHidden");
+                progCols[colNum - 1].minimize();
+                width = gHiddenColumnWidth;
+            } else {
+                progCols[colNum - 1].maximize();
+            }
+            $th.outerWidth(width);
             progCols[colNum - 1].width = widths[i];
-            progCols[colNum - 1].sizedToHeader = widthStates[i];
+            progCols[colNum - 1].sizedTo = sizeTo[i];
         }
         TblFunc.matchHeaderSizes($table);
     };
@@ -2249,6 +2247,8 @@ window.TblManager = (function($, TblManager) {
             if (progCol.format) {
                 options.classes += " format-" + progCol.format;
             }
+
+            options.classes += " sizedTo" + progCol.sizedTo;
 
             if ($('th.selectedCell').length > 1) {
                 options.classes += " type-multiColumn";

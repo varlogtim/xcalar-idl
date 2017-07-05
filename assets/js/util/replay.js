@@ -419,7 +419,7 @@ window.Replay = (function($, Replay) {
         argsMap[SQLOps.PullCol] = ["colNum", "tableId", "pullColOptions"];
         argsMap[SQLOps.PullMultipleCols] = ["tableId", "colNum", "rowNum"];
         argsMap[SQLOps.SortTableCols] = ["tableId", "sortKey", "direction"];
-        argsMap[SQLOps.ResizeTableCols] = ["tableId", "resizeTo", "columnNums"];
+        argsMap[SQLOps.ResizeTableCols] = ["tableId", "sizeTo", "columnNums"];
         argsMap[SQLOps.DragResizeTableCol] = ["tableId", "colNum", "fromWidth",
                                                "toWidth"];
         argsMap[SQLOps.DragResizeRow] = ["rowNum", "tableId", "fromHeight",
@@ -884,7 +884,6 @@ window.Replay = (function($, Replay) {
 
     replayFuncs[SQLOps.DragResizeTableCol] = function(options) {
         var args = getArgs(options);
-        console.log('resized replay');
         TblAnim.resizeColumn.apply(window, args);
 
         return PromiseHelper.resolve(null);

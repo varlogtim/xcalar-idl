@@ -430,14 +430,14 @@ window.Undo = (function($, Undo) {
         focusTableHelper(options);
         TblManager.resizeColsToWidth(options.tableId, options.columnNums,
                                      options.oldColumnWidths,
-                                     options.oldWidthStates);
+                                     options.oldSizedTo, options.wasHidden);
         return PromiseHelper.resolve(null);
     };
 
     undoFuncs[SQLOps.DragResizeTableCol] = function(options) {
         focusTableHelper(options);
         TblAnim.resizeColumn(options.tableId, options.colNum, options.toWidth,
-                             options.fromWidth, options.oldWidthState);
+                             options.fromWidth, options.oldSizedTo);
         return PromiseHelper.resolve(null);
     };
 
