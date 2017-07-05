@@ -868,16 +868,18 @@ window.ExtensionManager = (function(ExtensionManager, $) {
 
         var $argSection = $extArgs.find(".argSection");
         $argSection.html(html);
-        $argSection.find(".dropDownList").each(function(index) {
+        $argSection.find(".field").each(function(index) {
             // should add one by one or the scroll will not work
-            var $list = $(this);
-            if ($list.hasClass("hintDropdown")) {
-                addHintDropdown($list, index);
-            } else if ($list.hasClass("argDropdown")) {
-                if ($list.find(".argument").hasClass("type-table")) {
-                    addTableDropdown($list);
-                } else {
-                    addArgDropdown($list);
+            var $list = $(this).find(".dropDownList");
+            if ($list.length !== 0) {
+                if ($list.hasClass("hintDropdown")) {
+                    addHintDropdown($list, index);
+                } else if ($list.hasClass("argDropdown")) {
+                    if ($list.find(".argument").hasClass("type-table")) {
+                        addTableDropdown($list);
+                    } else {
+                        addArgDropdown($list);
+                    }
                 }
             }
         });
