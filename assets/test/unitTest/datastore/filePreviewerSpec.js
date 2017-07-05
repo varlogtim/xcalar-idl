@@ -33,27 +33,27 @@ describe("File Previewer Test", function() {
     });
 
     describe("Previewer View Mode Test", function() {
-        it("Should enter hex mode", function() {
+        it("should enter hex mode", function() {
             FilePreviewer.__testOnly__.inHexMode();
             expect(FilePreviewer.__testOnly__.isInHexMode()).to.be.true;
             expect($fileBrowserPreview.hasClass("loading")).to.be.false;
             expect($fileBrowserPreview.hasClass("error")).to.be.false;
         });
 
-        it("Should enter preview mode", function() {
+        it("should enter preview mode", function() {
             FilePreviewer.__testOnly__.inPreviewMode();
             expect(FilePreviewer.__testOnly__.isInHexMode()).to.be.false;
             expect($fileBrowserPreview.hasClass("loading")).to.be.false;
             expect($fileBrowserPreview.hasClass("error")).to.be.false;
         });
 
-        it("Should enter error mode", function() {
+        it("should enter error mode", function() {
             FilePreviewer.__testOnly__.inErrorMode();
             expect($fileBrowserPreview.hasClass("loading")).to.be.false;
             expect($fileBrowserPreview.hasClass("error")).to.be.true;
         });
 
-        it("Should enter load mode", function(done) {
+        it("should enter load mode", function(done) {
             FilePreviewer.__testOnly__.inLoadMode();
             // the enter load mode need 1s
             setTimeout(function() {
@@ -69,14 +69,14 @@ describe("File Previewer Test", function() {
     });
 
     describe("Clean and Error Handle Test", function() {
-        it("Should handle error", function() {
+        it("should handle error", function() {
             FilePreviewer.__testOnly__.handleError({"error": "test"});
             expect($fileBrowserPreview.hasClass("error")).to.be.true;
             expect($fileBrowserPreview.find(".errorSection").text())
             .to.equal("test");
         });
 
-        it("Should clean up the view", function() {
+        it("should clean up the view", function() {
             FilePreviewer.__testOnly__.cleanPreviewer();
             var id = FilePreviewer.__testOnly__.getPreviewerId();
             expect(id).to.be.undefined;
@@ -88,12 +88,12 @@ describe("File Previewer Test", function() {
     });
 
     describe("Preview Html Code Test", function() {
-        it("Should get cell style", function() {
+        it("should get cell style", function() {
             var style = FilePreviewer.__testOnly__.getCellStyle();
             expect(style).to.equal("height:30px; line-height:30px;");
         });
 
-        it("Should get cell html", function() {
+        it("should get cell html", function() {
             if (isBrowserMicrosoft) {
                 return;
             }
@@ -110,14 +110,14 @@ describe("File Previewer Test", function() {
             expect($cell.text()).to.equal("<");
         });
 
-        it("Should get char html", function() {
+        it("should get char html", function() {
             var html = FilePreviewer.__testOnly__.getCharHtml("12345678", 8, 0);
             var $line = $(html);
             expect($line.find(".cell").length).to.equal(8);
             expect($line.text().length).to.equal(8);
         });
 
-        it("Should get char html", function() {
+        it("should get char html", function() {
             var html = FilePreviewer.__testOnly__.getCodeHtml("12345678", 8, 0);
             var $line = $(html);
             expect($line.find(".cell").length).to.equal(8);
@@ -131,10 +131,18 @@ describe("File Previewer Test", function() {
             FileBrowser.show(FileProtocol.nfs);
         });
 
-        it("Should not show preview with invalid url", function(done) {
+        it("FilePreviewer.isOpen should work", function() {
+            $fileBrowserPreview.removeClass("xc-hidden");
+            expect(FilePreviewer.isOpen()).to.be.true;
+            // case 2
+            $fileBrowserPreview.addClass("xc-hidden");
+            expect(FilePreviewer.isOpen()).to.be.false;
+        });
+
+        it("should not show preview with invalid url", function(done) {
             FilePreviewer.show("invalid url")
             .then(function() {
-                throw "invalid case";
+                done("fail");
             })
             .fail(function(error) {
                 expect(error).not.to.be.null;
@@ -142,7 +150,20 @@ describe("File Previewer Test", function() {
             });
         });
 
-        it("Should preview with valid url", function(done) {
+        it("should error when preview folder", function(done) {
+            var url = testDatasets.sp500.path;
+            FilePreviewer.show(url, true)
+            .then(function() {
+                expect($fileBrowserPreview.find(".errorSection").text())
+                .to.equal(ErrTStr.NoFolderPreview);
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        it("should preview with valid url", function(done) {
             var url = testDatasets.sp500.path;
             FilePreviewer.show(url)
             .then(function() {
@@ -150,12 +171,12 @@ describe("File Previewer Test", function() {
                 .not.equal("");
                 done();
             })
-            .fail(function(error) {
-                throw error;
+            .fail(function() {
+                done("fail");
             });
         });
 
-        it("Should update offset", function() {
+        it("should update offset", function() {
             if (isBrowserMicrosoft) {
                 return;
             }
@@ -170,7 +191,7 @@ describe("File Previewer Test", function() {
             expect($cell.hasClass("active")).to.be.true;
         });
 
-        it("Should not fetch invalid offset", function(done) {
+        it("should not fetch invalid offset", function(done) {
             FilePreviewer.__testOnly__.updateOffset(0, true);
 
             FilePreviewer.__testOnly__.fetchNewPreview(100000000)
@@ -181,11 +202,11 @@ describe("File Previewer Test", function() {
                 done();
             })
             .fail(function() {
-                throw "invalid case";
+                done("fail");
             });
         });
 
-        it("Should fetch valid offset", function(done) {
+        it("should fetch valid offset", function(done) {
             FilePreviewer.__testOnly__.updateOffset(0, true);
 
             FilePreviewer.__testOnly__.fetchNewPreview(2048)
@@ -194,11 +215,11 @@ describe("File Previewer Test", function() {
                 done();
             })
             .fail(function() {
-                throw "invalid case";
+                done("fail");
             });
         });
 
-        it("Should close previewer", function() {
+        it("should close previewer", function() {
             FilePreviewer.close();
             expect($fileBrowserPreview.hasClass("xc-hidden"))
             .to.be.true;

@@ -146,6 +146,9 @@ window.FileBrowser = (function($, FileBrowser) {
                 }
 
                 $grid.addClass("active");
+                if (FilePreviewer.isOpen()) {
+                    previewDS($grid);
+                }
             },
             "dblclick": function() {
                 var $grid = $(this);
@@ -1469,11 +1472,11 @@ window.FileBrowser = (function($, FileBrowser) {
         if ($grid.length === 0) {
             return;
         }
-
+        var isFolder = $grid.hasClass("folder");
         var currentPath = getCurrentPath();
         var gridName = getGridUnitName($grid);
         var url = currentPath + gridName;
-        FilePreviewer.show(url);
+        FilePreviewer.show(url, isFolder);
     }
 
     function getFolderInfo($grid) {

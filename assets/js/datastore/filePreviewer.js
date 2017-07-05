@@ -15,16 +15,25 @@ window.FilePreviewer = (function(FilePreviewer, $) {
         addEventListener();
     };
 
-    FilePreviewer.show = function(url) {
+    FilePreviewer.show = function(url, isFolder) {
         cleanPreviewer();
         setPreviewerId();
         $fileBrowserPreview.removeClass("xc-hidden");
-        return initialPreview(url);
+        if (isFolder) {
+            handleError(ErrTStr.NoFolderPreview);
+            return PromiseHelper.resolve();
+        } else {
+            return initialPreview(url);
+        }
     };
 
     FilePreviewer.close = function() {
         $fileBrowserPreview.addClass("xc-hidden");
         cleanPreviewer();
+    };
+
+    FilePreviewer.isOpen = function() {
+        return !$fileBrowserPreview.hasClass("xc-hidden");
     };
 
     function cleanPreviewer() {
@@ -98,7 +107,10 @@ window.FilePreviewer = (function(FilePreviewer, $) {
 
     function handleError(error) {
         inErrorMode();
-        $fileBrowserPreview.find(".errorSection").text(error.error);
+        if (typeof error === "object" && error.error) {
+            error = error.error;
+        }
+        $fileBrowserPreview.find(".errorSection").text(error);
     }
 
     function isValidId(previewerId) {

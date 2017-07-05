@@ -299,6 +299,7 @@ ErrTStr = {
     'NoEmptyMustRevert': 'Please fill out this field. If you want to use the ' +
                        'original value, please click the "Default value" icon.',
     'InUsedNoDelete': 'This parameter is currently in use. Delete is not supported.',
+    'NoFolderPreview': 'Cannot preview directory, please select a file.',
 
     // With replace
     'WorkbookExists': 'A workbook named <workbookName> already exists. Please' +
