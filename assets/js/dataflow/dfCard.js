@@ -1086,7 +1086,7 @@ window.DFCard = (function($, DFCard) {
         var targetName = exportInfo.meta.target.name;
         var targetType = exportInfo.meta.target.type;
         var fileName = parseFileName(exportInfo, paramsArray);
-        var advancedOpts = getAdvancedExportOption(retName);
+        var advancedOpts = DFCard.getAdvancedExportOption(retName);
         if (advancedOpts == null) {
             // error case
             return PromiseHelper.reject();
@@ -1467,7 +1467,7 @@ window.DFCard = (function($, DFCard) {
         return fileName;
     }
 
-    function getAdvancedExportOption(dataflowName) {
+    DFCard.getAdvancedExportOption = function(dataflowName, withoutHashId) {
         var activeSession = false;
         var newTableName = "";
 
@@ -1487,7 +1487,9 @@ window.DFCard = (function($, DFCard) {
         }
 
         if (newTableName) {
-            newTableName += Authentication.getHashId();
+            if (!withoutHashId) {
+                newTableName += Authentication.getHashId();
+            }
         }
 
         return {

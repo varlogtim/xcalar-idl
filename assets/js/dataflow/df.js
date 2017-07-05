@@ -238,7 +238,8 @@ window.DF = (function($, DF) {
         if (dataflow) {
             if (!dataflow.schedule) {
                 dataflow.schedule = new SchedObj(allOptions);
-                substitutions = getSubstitutions(dataflowName);
+                substitutions = getSubstitutions(dataflowName,
+                                    allOptions.activeSession);
                 options = getOptions(allOptions);
                 timingInfo = getTimingInfo(allOptions);
                 XcalarCreateSched(dataflowName, dataflowName,
@@ -253,7 +254,8 @@ window.DF = (function($, DF) {
                 schedule.update(allOptions);
                 XcalarDeleteSched(dataflowName)
                 .then(function() {
-                    substitutions = getSubstitutions(dataflowName);
+                    substitutions = getSubstitutions(dataflowName,
+                                        allOptions.activeSession);
                     options = getOptions(allOptions);
                     timingInfo = getTimingInfo(allOptions);
                     return XcalarCreateSched(dataflowName, dataflowName,
@@ -392,7 +394,7 @@ window.DF = (function($, DF) {
         }
     }
 
-    function getSubstitutions(dataflowName) {
+    function getSubstitutions(dataflowName, forceAddN) {
         var paramsArray = [];
         var dfObj = DF.getDataflow(dataflowName);
         var paramMap = dfObj.paramMap;
@@ -405,6 +407,12 @@ window.DF = (function($, DF) {
                 p.parameterValue = paramMap[name];
                 paramsArray.push(p);
             }
+        }
+        if (forceAddN && !paramMap.hasOwnProperty("N")) {
+            p = new XcalarApiParameterT();
+            p.parameterName = "N";
+            p.parameterValue = 0;
+            paramsArray.push(p);
         }
         return paramsArray;
     }
