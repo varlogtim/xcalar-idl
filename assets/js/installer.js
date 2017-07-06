@@ -893,7 +893,7 @@ window.Installer = (function(Installer, $) {
         // This function is called when everything is done.
         // Maybe we can remove the installer here?
         // Redirect to first node's index
-        $("form:visible .btn.next").val("LAUNCH XI").removeClass('next')
+        $("form:visible .btn.next").val("LAUNCH XD").removeClass('next')
                                                     .addClass("redirect");
         $(".redirect").click(function() {
             window.location = "http://" + finalStruct.hostnames[0];
