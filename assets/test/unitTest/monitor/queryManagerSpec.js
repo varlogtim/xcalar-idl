@@ -80,7 +80,7 @@ describe('QueryManager Test', function() {
             .to.equal("");
 
             var $queryLi = $queryList.find(".xc-query").last();
-            expect($queryList.find(".hint.xc-hidden").length).to.equal(1);
+            expect($queryList.find(".hint").length).to.equal(0);
             expect($queryList.find(".xc-query").length)
             .to.equal(queryListLen + 1);
             expect($queryLi.find(".name").text()).to.equal("testQuery");

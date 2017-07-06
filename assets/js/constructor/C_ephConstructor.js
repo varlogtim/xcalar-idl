@@ -3435,3 +3435,68 @@ RectSelction.prototype = {
         }
     }
 };
+
+
+function InfList($list, options) {
+    options = options || {};
+    var self = this;
+    self.$list = $list;
+    self.numToFetch = options.numToFetch || 20;
+    self.numInitial = options.numInitial || 40;
+    self.__init();
+
+    return self;
+}
+
+InfList.prototype = {
+    __init: function() {
+        var self = this;
+        var $list = self.$list;
+        var isMousedown = false;
+        var lastPosition = 0;
+
+        $list.on("mousedown", function() {
+            var $list = $(this);
+            isMousedown = true;
+            lastPosition = $list.scrollTop();
+            $(document).on("mouseup.listScroll", function() {
+                isMousedown = false;
+                $(document).off("mouseup.listScroll");
+                var curPosition = $list.scrollTop();
+                var height = $list[0].scrollHeight;
+                var curTopPct = curPosition / height;
+                // scroll up if near top 2% of textarea
+                if (curPosition === 0 ||
+                    (curTopPct < 0.02 && curPosition < lastPosition)) {
+                    scrollup($list);
+                }
+            });
+        });
+
+        $list.scroll(function() {
+            if ($list.scrollTop() === 0) {
+                if (isMousedown) {
+                    return;
+                }
+                scrollup();
+            }
+        });
+
+        function scrollup() {
+            var $hidden = $list.find(".infListHidden");
+            var numHidden = $hidden.length;
+            var prevHeight = $list[0].scrollHeight;
+            $hidden.filter(":gt(" + (numHidden - (self.numToFetch + 1)) + ")")
+                   .removeClass("infListHidden");
+            var top = $list[0].scrollHeight - prevHeight;
+            $list.scrollTop(top);
+        }
+    },
+
+    restore: function(selector) {
+        var $list = this.$list;
+        var $items = $list.find(selector);
+        var limit = $items.length - this.numInitial;
+        $items.filter(":lt(" + limit + ")").addClass("infListHidden");
+    }
+};

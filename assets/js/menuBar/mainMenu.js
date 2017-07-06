@@ -317,6 +317,10 @@ window.MainMenu = (function($, MainMenu) {
                 $("#monitorPanel").addClass("active");
                 $("#container").addClass("monitorViewOpen");
                 MonitorPanel.active();
+                if ($curTab.hasClass("firstTouch")) {
+                    $curTab.removeClass("firstTouch");
+                    QueryManager.scrollToFocused();
+                }
                 break;
             default:
                 $(".underConstruction").addClass("active");

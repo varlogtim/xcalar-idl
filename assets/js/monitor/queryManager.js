@@ -19,11 +19,12 @@ window.QueryManager = (function(QueryManager, $) {
 
     // constant
     var checkInterval = 2000; // check query every 2s
+    var infList;
 
     QueryManager.setup = function() {
         $queryList = $("#monitor-queryList");
         $queryDetail = $("#monitor-queryDetail");
-
+        infList = new InfList($queryList, {numInitial: 30});
         addEventHandlers();
     };
 
@@ -61,7 +62,7 @@ window.QueryManager = (function(QueryManager, $) {
 
         queryLists[id] = mainQuery;
         var $query = $(getQueryHTML(mainQuery));
-        $queryList.find(".hint").addClass("xc-hidden");
+        $queryList.find(".hint").remove();
         $queryList.append($query);
 
         focusOnQuery($query);
@@ -585,8 +586,11 @@ window.QueryManager = (function(QueryManager, $) {
         }
 
         if (html) {
-            $queryList.find('.hint').addClass('xc-hidden')
-                       .end().prepend(html);
+            $queryList.find('.hint').remove();
+            $queryList.append(html);
+            infList.restore(".query");
+
+            focusOnQuery($queryList.find(".query").last());
         }
     };
 
@@ -1593,6 +1597,7 @@ window.QueryManager = (function(QueryManager, $) {
         } else {
             $queries.removeClass("xc-hidden");
         }
+        QueryManager.scrollToFocused();
     }
 
     function getQueryHTML(xcQuery, restored) {

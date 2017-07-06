@@ -504,6 +504,7 @@
         .ui-resizable-handle {
             &.ui-resizable-e {
                 display: block !important;
+                right: -12px; // more space for scrollbar area
             }
         }
 
@@ -678,6 +679,7 @@
 
 #sql-MachineTextArea {
     padding: 10px;
+    padding-top: 6px;
     word-wrap: break-word;
 }
 
@@ -716,6 +718,10 @@
 
         .sqlKey {
             color: @color-sql-lightGray;
+        }
+        .sqlColon {
+            margin-left: 1px;
+            margin-right: 3px;
         }
 
         .title {

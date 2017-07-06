@@ -145,6 +145,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
                     $("#monitor-queries").addClass("active");
                     $menu.find(".menuSection.query").removeClass("xc-hidden");
                     title += MonitorTStr.Queries;
+                    QueryManager.scrollToFocused();
                     break;
                 case ("setupButton"):
                     $("#monitor-setup").addClass("active");

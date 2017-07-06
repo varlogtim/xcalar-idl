@@ -1836,4 +1836,57 @@ describe("Ephemeral Constructor Test", function() {
             expect($rect.length).to.equal(0);
         });
     });
+
+    describe("InfScroll Constructor Test", function() {
+        var $list;
+        var infList;
+        before(function() {
+            var lis = "";
+            for (var i = 0; i < 100; i++) {
+                lis += '<li style="height:100px;">Item</li>';
+            }
+            var list = '<ul id="infScrollList" ' +
+                'style="position:absolute; top:0px; left:0px; z-index:99999; ' +
+                'height: 500px; overflow:auto;">' + lis + '</ul>'
+            $("#container").append(list);
+            $list = $("#infScrollList");
+            infList = new InfList($list);
+        });
+
+        it("restore should work", function() {
+            expect($list.find("li:visible").length).to.equal(100);
+            infList.restore("li");
+            expect($list.find("li:visible").length).to.equal(40);
+            expect($list.find("li").eq(0).is(":visible")).to.be.false;
+        });
+
+        it("mouseup should work", function() {
+            expect($list.scrollTop()).to.equal(0);
+            $list.mousedown();
+            $(document).mouseup();
+            expect($list.scrollTop()).to.equal(2000);
+            expect($list.find("li:visible").length).to.equal(60);
+        });
+
+        it("scroll should work", function(done) {
+            expect($list.scrollTop()).to.equal(2000);
+            $list.scrollTop(0);
+            if (!ifvisible.now()) {
+                $list.scroll();
+            }
+            UnitTest.testFinish(function() {
+                return $list.find("li:visible").length === 80;
+            })
+            .then(function() {
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        after(function() {
+            $list.remove();
+        });
+    });
 });

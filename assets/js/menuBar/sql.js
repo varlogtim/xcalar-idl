@@ -33,6 +33,8 @@ window.SQL = (function($, SQL) {
     };
     var isCollapsed = false;
     var hasTriggerScrollToBottom = false;
+    var infList;
+    var infListMachine;
 
     SQL.setup = function() {
         $sqlButtons = $("#sqlButtonWrap");
@@ -108,6 +110,9 @@ window.SQL = (function($, SQL) {
         $textarea.on("click", ".title", function() {
             toggleSQLSize($(this).parent());
         });
+
+        infList = new InfList($textarea);
+        infListMachine = new InfList($machineTextarea);
 
         xcMenu.add($sqlMenu);
         setupMenuActions();
@@ -626,11 +631,15 @@ window.SQL = (function($, SQL) {
                     xcConsole.error("Loose old cursor track");
                     oldLogCursor = oldLogs.length - 1;
                 }
-
+                var sqls = [];
+                var now = Date.now();
                 for (var i = 0; i <= oldLogCursor; i++) {
                     var sql = new XcLog(oldLogs[i]);
-                    addLog(sql, true);
+                    sqls.push(sql);
                 }
+                addLog(sqls, true);
+                infList.restore(".sqlContentWrap");
+                infListMachine.restore(".cliWrap");
 
                 lastSavedCursor = logCursor;
                 if (logCursor < oldLogs.length - 1) {
@@ -712,17 +721,22 @@ window.SQL = (function($, SQL) {
                 console.error("Overwrite Sql fails!", error);
             });
         } else {
-            logCursor++;
-            logs[logCursor] = sql;
-
-            if (!isRestore) {
+            if (isRestore) {
+                for (var i = 0; i < sql.length; i++) {
+                    logCursor++;
+                    logs[logCursor] = sql[i];
+                    sqlToCommit += JSON.stringify(sql[i]) + ",";
+                }
+            } else {
+                logCursor++;
+                logs[logCursor] = sql;
                 sqlToCommit += JSON.stringify(sql) + ",";
                 // XXX FIXME: uncomment it if commit on errorLog only has bug
                 // localCommit();
             }
         }
 
-        showSQL(sql, logCursor);
+        showSQL(sql, logCursor, isRestore);
     }
 
     function getUndoType(sql) {
@@ -948,32 +962,43 @@ window.SQL = (function($, SQL) {
         xcLocalStorage.setItem(sqlLocalStoreKey, JSON.stringify(sqlCache));
     }
 
-    function showSQL(sql, cursor) {
+    function showSQL(sql, cursor, isRestore) {
         // some sql is overwritten because of undo and redo, should remove them
-        var $sqls = $($textarea.find(".sqlContentWrap").get().reverse());
-        $sqls.each(function() {
-            var $sql = $(this);
-            var sqlId = $sql.data("sql");
-            if (sqlId >= cursor) {
-                $sql.remove();
-            } else {
-                return false; // stop loop
-            }
-        });
+        var cliHtml = "";
+        var cliMachine = "";
+        if (!isRestore) {
+            var $sqls = $($textarea.find(".sqlContentWrap").get().reverse());
+            $sqls.each(function() {
+                var $sql = $(this);
+                var sqlId = $sql.data("sql");
+                if (sqlId >= cursor) {
+                    $sql.remove();
+                } else {
+                    return false; // stop loop
+                }
+            });
 
-        var $clis = $($machineTextarea.find(".cliWrap").get().reverse());
-        $clis.each(function() {
-            var $cli = $(this);
-            var cliId = $cli.data("cli");
-            if (cliId >= cursor) {
-                $cli.remove();
-            } else {
-                return false; // stop loop
+            var $clis = $($machineTextarea.find(".cliWrap").get().reverse());
+            $clis.each(function() {
+                var $cli = $(this);
+                var cliId = $cli.data("cli");
+                if (cliId >= cursor) {
+                    $cli.remove();
+                } else {
+                    return false; // stop loop
+                }
+            });
+            cliHtml = getCliHTML(sql, logCursor);
+            cliMachine = getCliMachine(sql, logCursor);
+        } else {
+            for (var i = 0; i < sql.length; i++) {
+                cliHtml += getCliHTML(sql[i], i);
+                cliMachine += getCliMachine(sql[i], i);
             }
-        });
+        }
 
-        $textarea.append(getCliHTML(sql, logCursor));
-        $machineTextarea.append(getCliMachine(sql, logCursor));
+        $textarea.append(cliHtml);
+        $machineTextarea.append(cliMachine);
     }
 
     function getCliHTML(sql, id) {
