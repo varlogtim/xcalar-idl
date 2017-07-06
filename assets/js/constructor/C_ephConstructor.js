@@ -3486,8 +3486,7 @@ InfList.prototype = {
             var $hidden = $list.find(".infListHidden");
             var numHidden = $hidden.length;
             var prevHeight = $list[0].scrollHeight;
-            $hidden.filter(":gt(" + (numHidden - (self.numToFetch + 1)) + ")")
-                   .removeClass("infListHidden");
+            $hidden.slice(-self.numToFetch).removeClass("infListHidden");
             var top = $list[0].scrollHeight - prevHeight;
             $list.scrollTop(top);
         }
@@ -3497,6 +3496,8 @@ InfList.prototype = {
         var $list = this.$list;
         var $items = $list.find(selector);
         var limit = $items.length - this.numInitial;
-        $items.filter(":lt(" + limit + ")").addClass("infListHidden");
+        if (limit > 0) {
+            $items.filter(":lt(" + limit + ")").addClass("infListHidden");
+        }
     }
 };
