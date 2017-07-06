@@ -1270,117 +1270,62 @@ window.XIApi = (function(XIApi, $) {
         }
     }
 
+    function getPulledColsAfterJoin(tableId, pulledColNames, renames) {
+        var pulledCols = [];
+        if (tableId == null || gTables[tableId] == null ||
+            gTables[tableId].tableCols == null) {
+            return pulledCols;
+        }
+
+        var table = gTables[tableId];
+        var cols = xcHelper.deepCopy(table.tableCols);
+        if (pulledColNames) {
+            for (var i = 0; i < pulledColNames.length; i++) {
+                var colNum = table.getColNumByBackName(pulledColNames[i]) - 1;
+                var col = cols[colNum];
+                if (renames && renames.length > 0) {
+                    for (var j = 0; j < renames.length; j++) {
+                        // when backName === srcColName, it's a derived field
+                        if (renames[j].orig === col.backName) {
+                            col.backName = renames[j].new;
+                            col.name = renames[j].new;
+                            if (col.sizedTo === "header") {
+                                var widthOptions = {"defaultHeaderStyle": true};
+                                var cellWidth = xcHelper.getTextWidth(null,
+                                                                renames[j].new,
+                                                                widthOptions);
+                                col.width = cellWidth;
+                            }
+                        }
+                    }
+                    replacePrefix(col, renames);
+                }
+                pulledCols.push(col);
+            }
+        } else {
+            pulledCols = cols;
+        }
+        return pulledCols;
+    }
+
+    function excludeDataCol(col) {
+        return col.name !== "DATA";
+    }
+
     // For xiApi.join, deepy copy of right table and left table columns
     function createJoinedColumns(lTableId, rTableId, pulledLColNames,
                                 pulledRColNames, lRename, rRename) {
         // Combine the columns from the 2 current tables
         // Note that we have to create deep copies!!
-        var newTableCols = [];
-        var lCols = [];
-        var rCols = [];
-        var index = 0;
-        var colName;
-        var dataCol = ColManager.newDATACol();
-        var tempCols;
-        var table;
+        var lCols = getPulledColsAfterJoin(lTableId, pulledLColNames, lRename);
+        var rCols = getPulledColsAfterJoin(rTableId, pulledRColNames, rRename);
 
-        // XXX this function and the one with rTableId can
-        // be combined into one
-        if (lTableId != null && gTables[lTableId] != null &&
-            gTables[lTableId].tableCols != null)
-        {
-            table = gTables[lTableId];
-            lCols = xcHelper.deepCopy(table.tableCols);
-            if (pulledLColNames) {
-                tempCols = [];
-                for (var i = 0; i < pulledLColNames.length; i++) {
-                    var colNum = table.getColNumByBackName(pulledLColNames[i]) - 1;
-                    if (lRename && lRename.length > 0) {
-                        for (var j = 0; j<lRename.length; j++) {
-                            if (lRename[j].orig === lCols[colNum].backName)
-                            {
-                                lCols[colNum].backName = lRename[j].new;
-                                lCols[colNum].name = lRename[j].new;
-                                if (lCols[colNum].sizedTo === "header") {
-                                    var widthOptions = {
-                                        defaultHeaderStyle: true
-                                    };
-                                    cellWidth = xcHelper.getTextWidth(null,
-                                                lRename[j].new,
-                                                widthOptions);
-                                    lCols[colNum].width = cellWidth;
-                                }
-                            }
-                        }
-                        replacePrefix(lCols[colNum], lRename);
-                    }
-                    tempCols.push(lCols[colNum]);
-                }
-                lCols = tempCols;
-            }
-        }
+        var lNewCols = lCols.filter(excludeDataCol);
+        var rNewCols = rCols.filter(excludeDataCol);
+        var newTableCols = lNewCols.concat(rNewCols);
+        newTableCols.push(ColManager.newDATACol());
 
-        if (rTableId != null && gTables[rTableId] != null &&
-            gTables[rTableId].tableCols != null)
-        {
-            table = gTables[rTableId];
-            rCols = xcHelper.deepCopy(table.tableCols);
-            if (pulledRColNames) {
-                tempCols = [];
-                for (var i = 0; i < pulledRColNames.length; i++) {
-                    var colNum = table.getColNumByBackName(pulledRColNames[i]) - 1;
-                    if (colNum < 0) {
-                        // error case
-                        console.error("cannot find column");
-                        continue;
-                    }
-
-                    if (rRename && rRename.length > 0) {
-                        for (var j = 0; j < rRename.length; j++) {
-                            if (rRename[j].orig === rCols[colNum].backName)
-                            {
-                                rCols[colNum].backName = rRename[j].new;
-                                rCols[colNum].name = rRename[j].new;
-                                if (rCols[colNum].sizedTo === "header") {
-                                    var widthOptions = {
-                                        defaultHeaderStyle: true
-                                    };
-                                    cellWidth = xcHelper.getTextWidth(null,
-                                                rRename[j].new,
-                                                widthOptions);
-                                    rCols[colNum].width = cellWidth;
-                                }
-                            }
-                        }
-                        replacePrefix(rCols[colNum], rRename);
-                    }
-                    tempCols.push(rCols[colNum]);
-                }
-                rCols = tempCols;
-            }
-        }
-
-        for (var i = 0; i < lCols.length; i++) {
-            colName = lCols[i].name;
-
-            if (colName !== "DATA") {
-                newTableCols[index] = lCols[i];
-                ++index;
-            }
-        }
-
-        for (var i = 0; i < rCols.length; i++) {
-            colName = rCols[i].name;
-
-            if (colName !== "DATA") {
-                newTableCols[index] = rCols[i];
-                ++index;
-            }
-        }
-
-        // now newTablCols.length is differenet from len
-        newTableCols.push(dataCol);
-        return (newTableCols);
+        return newTableCols;
     }
 
     function getGroupbyIndexedTable(txId, tableName, groupByCols) {
