@@ -660,11 +660,11 @@ describe("TableManager Test", function() {
                 gActiveTableId = null;
                 $title.removeClass("tblTitleSelected");
                 // case 1
-                $xcTableWrap.addClass("tableOpSection");
+                $xcTableWrap.addClass("tableLocked");
                 $xcTableWrap.mousedown();
                 expect(gActiveTableId).to.be.null;
                 // case 2
-                $xcTableWrap.removeClass("tableOpSection");
+                $xcTableWrap.removeClass("tableLocked");
                 $xcTableWrap.mousedown();
                 expect(gActiveTableId).to.equal(tableId);
                 expect($title.hasClass("tblTitleSelected")).to.be.true;

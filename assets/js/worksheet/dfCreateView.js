@@ -184,6 +184,9 @@ window.DFCreateView = (function($, DFCreateView) {
     }
 
     function selectCol(colNum) {
+        if (!gTables[tableId]) {
+            return;
+        }
         var colType = gTables[tableId].getCol(colNum).getType();
         if (validTypes.indexOf(colType) === -1) {
             return;

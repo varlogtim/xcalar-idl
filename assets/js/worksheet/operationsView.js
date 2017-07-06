@@ -860,8 +860,8 @@ window.OperationsView = (function($, OperationsView) {
 
     // listeners added whenever operation view opens
     function operationsViewShowListeners(restoring) {
-        $('.xcTable').on('mousedown', '.header, td.clickable',
-                          keepInputFocused);
+        $("#mainFrame").on("mousedown.keepInputFocused", ".xcTable .header, " +
+                        ".xcTable td.clickable", keepInputFocused);
 
         $(document).on('click.OpSection', function() {
             var $mousedownTarget = gMouseEvents.getLastMouseDownTarget();
@@ -998,12 +998,8 @@ window.OperationsView = (function($, OperationsView) {
         var $table = $('.xcTable');
         var $tableWrap = $('.xcTableWrap');
         if (isHide) {
-            $table.off('mousedown', '.header, td.clickable', keepInputFocused);
+            $("#mainFrame").off('mousedown.keepInputFocused');
             $('body').off('keydown', listHighlightListener);
-
-
-            $('.xcTableWrap').not('#xcTableWrap-' + tableId)
-                             .removeClass('tableOpSection');
             $tableWrap.removeClass('modalOpen');
         } else {
             $('body').on('keydown', listHighlightListener);

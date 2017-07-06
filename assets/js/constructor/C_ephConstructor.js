@@ -1670,6 +1670,9 @@ FormHelper.prototype = {
                 if (options.noEsc) {
                     return true;
                 }
+                if (!$form.is(":visible")) {
+                    return true;
+                }
                 $form.find(".close").click();
                 return false;
             }

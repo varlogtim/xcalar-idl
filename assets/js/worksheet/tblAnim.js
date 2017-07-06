@@ -947,7 +947,7 @@ window.TblAnim = (function($, TblAnim) {
 
     TblAnim.startTableDrag = function($el, e) {
         if ($el.closest('.noDrag').length || $('.xcTable').length === 1 ||
-            $el.closest('.columnPicker').length) {
+            $("#container").hasClass("columnPicker")) {
             return;
         }
         gMouseStatus = "checkingMovingTable";

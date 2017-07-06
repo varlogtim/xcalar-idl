@@ -488,7 +488,7 @@ describe("Repeat Test", function() {
 		});
 
 		it("resize table cols should work", function(done) {
-			TblManager.resizeColumns(tableId, "sizeToContents");
+			TblManager.resizeColumns(tableId, "contents");
 			TblFunc.focusTable(tableId2);
 			$(".selectedCell").removeClass("selectedCell");
 
@@ -497,7 +497,7 @@ describe("Repeat Test", function() {
 				var lastSql = SQL.viewLastAction(true);
 				expect(lastSql.title).to.equal("Resize Columns");
 				expect(lastSql.options.tableId).to.equal(tableId2);
-				expect(lastSql.options.resizeTo).to.equal("sizeToContents");
+				expect(lastSql.options.sizeTo).to.equal("contents");
 				done();
 			})
 			.fail(function() {

@@ -541,7 +541,7 @@ describe('TableMenu Test', function() {
                 var called = false;
                 TblManager.resizeColumns = function(tId, resizeTo) {
                     expect(tId).to.equal(tableId);
-                    expect(resizeTo).to.equal('sizeToHeader');
+                    expect(resizeTo).to.equal('header');
                     called = true;
                 };
 
@@ -562,7 +562,7 @@ describe('TableMenu Test', function() {
                 var called = false;
                 TblManager.resizeColumns = function(tId, resizeTo) {
                     expect(tId).to.equal(tableId);
-                    expect(resizeTo).to.equal('sizeToFitAll');
+                    expect(resizeTo).to.equal('all');
                     called = true;
                 };
 
@@ -582,7 +582,7 @@ describe('TableMenu Test', function() {
                 var called = false;
                 TblManager.resizeColumns = function(tId, resizeTo) {
                     expect(tId).to.equal(tableId);
-                    expect(resizeTo).to.equal('sizeToContents');
+                    expect(resizeTo).to.equal('contents');
                     called = true;
                 };
 
@@ -1159,7 +1159,7 @@ describe('TableMenu Test', function() {
                 var called = false;
                 TblManager.resizeColumns = function(tId, resizeTo, colNum) {
                     expect(tId).to.equal(tableId);
-                    expect(resizeTo).to.equal('sizeToHeader');
+                    expect(resizeTo).to.equal('header');
                     expect(colNum).to.equal(12);
                     called = true;
                 };
@@ -1180,7 +1180,7 @@ describe('TableMenu Test', function() {
                 var called = false;
                 TblManager.resizeColumns = function(tId, resizeTo, colNum) {
                     expect(tId).to.equal(tableId);
-                    expect(resizeTo).to.equal('sizeToFitAll');
+                    expect(resizeTo).to.equal('all');
                     expect(colNum).to.equal(12);
                     called = true;
                 };
@@ -1201,7 +1201,7 @@ describe('TableMenu Test', function() {
                 var called = false;
                 TblManager.resizeColumns = function(tId, resizeTo, colNum) {
                     expect(tId).to.equal(tableId);
-                    expect(resizeTo).to.equal('sizeToContents');
+                    expect(resizeTo).to.equal('contents');
                     expect(colNum).to.equal(12);
                     called = true;
                 };
@@ -1375,8 +1375,7 @@ describe('TableMenu Test', function() {
                 var cachedFunc = ColManager.roundToFixed;
                 var called = false;
                 ColManager.roundToFixed = function(colNums, tId, decimals) {
-                    expect(colNums[0]).to.equal(11);
-                    expect(colNums[1]).to.equal(12);
+                    expect(colNums.length).to.equal(0);
                     expect(tId).to.equal(tableId);
                     expect(decimals.length).to.equal(0);
                     called = true;

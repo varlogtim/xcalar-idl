@@ -6,7 +6,6 @@ window.ExportView = (function($, ExportView) {
     var $advancedSection; // $('#xportModal .advancedSection')
     var $colList;
 
-    var $selectableThs;
     var exportTableName;
     var tableId;
     var focusedThNum;
@@ -212,7 +211,7 @@ window.ExportView = (function($, ExportView) {
         $(document).on("keypress.exportView", function(event) {
             if (event.which === keyCode.Enter &&
                 gMouseEvents.getLastMouseDownTarget()
-                .closest('#exportView').length)
+                .closest('#exportView').length && $exportView.is(":visible"))
             {
                 submitForm();
             }
@@ -246,10 +245,6 @@ window.ExportView = (function($, ExportView) {
         var $tableWraps = $('.xcTableWrap');
         formHelper.hideView();
 
-        $('.xcTableWrap').not('#xcTableWrap-' + tableId)
-                             .removeClass('tableOpSection');
-
-
         $tableWraps.find('.modalHighlighted')
                   .removeClass('modalHighlighted');
 
@@ -258,8 +253,6 @@ window.ExportView = (function($, ExportView) {
         exportTargInfo = null;
         // leave target path as is
         $exportColumns.val("");
-        $('.exportable').removeClass('exportable');
-        $selectableThs = null;
         $(document).off(".exportView");
         $exportView.find('.checkbox').removeClass('checked');
         $exportView.find('.checked').removeClass('checked');
@@ -550,40 +543,9 @@ window.ExportView = (function($, ExportView) {
     }
 
     function addColumnSelectListeners() {
-        var $tables = $('.xcTable');
+        $("#mainFrame").on("mousedown.addColToExport", ".xcTable th",
+            function(event) {
 
-        // select ths that are not arrays or objects
-        var $ths = $tables.find('.header').filter(function() {
-            var $header = $(this);
-            var $th = $header.parent();
-            var colNum = xcHelper.parseColNum($th);
-            var tblId = $th.closest('.xcTable').data('id');
-            var table = gTables[tblId];
-
-            if (colNum <= 0) {
-                // row marker
-                return true;
-            }
-
-            var progCol = table.getCol(colNum);
-
-            if (gExportNoCheck) {
-                if (progCol.isEmptyCol() ||
-                    progCol.isDATACol()) {
-                    return false;
-                }
-                return true;
-            }
-
-            return validTypes.includes(progCol.getType());
-        }).parent();
-
-        $selectableThs = $ths.not('.rowNumHead');
-
-        // $ths.find('input').css('pointer-events', 'none');
-        $ths.addClass('exportable');
-
-        $ths.on('mousedown.addColToExport', function(event) {
             xcMenu.close($('#colMenu'));
             if ($(event.target).hasClass('colGrab')) {
                 return;
@@ -593,10 +555,21 @@ window.ExportView = (function($, ExportView) {
             gMouseEvents.setMouseDownTarget($(event.target));
         });
 
+        $("#mainFrame").on("click.addColToExport", ".xcTable th",
+            function(event) {
 
-        $tables.on('click.addColToExport', '.exportable', function(event) {
-            // var $table = $(this).closest('.xcTable');
+            var $th = $(this);
+            var colNum = xcHelper.parseColNum($th);
+            var tblId = $th.closest('.xcTable').data('id');
+            if (tblId !== tableId) {
+                return;
+            }
+            var table = gTables[tblId];
 
+            if (colNum === 0) {
+                selectAllCols();
+                return;
+            }
             // event.target is not reliable here for some reason so that is
             // why we're using last mousedown target
             var $mousedownTarg = gMouseEvents.getLastMouseDownTarget();
@@ -607,14 +580,16 @@ window.ExportView = (function($, ExportView) {
                 return;
             }
 
-            var $th = $(this);
+            var progCol = table.getCol(colNum);
 
-            if ($th.hasClass('rowNumHead')) {
-                selectAllCols();
+            if (gExportNoCheck) {
+                if (progCol.isEmptyCol() ||
+                    progCol.isDATACol()) {
+                    return;
+                }
+            } else if (!validTypes.includes(progCol.getType())) {
                 return;
             }
-
-            var colNum = xcHelper.parseColNum($th);
             var toHighlight = !$th.hasClass("modalHighlighted");
 
             if (event.shiftKey && focusedThNum != null) {
@@ -757,8 +732,7 @@ window.ExportView = (function($, ExportView) {
         // removes listeners and classes for .xcTable
         var $tables = $('.xcTable');
         var $ths = $tables.find('th');
-        $tables.off('click.addColToExport');
-        $ths.off('mousedown.addColToExport');
+        $("#mainFrame").off(".addColToExport");
         $ths.removeClass('modalHighlighted');
         $tables.find('td').removeClass('modalHighlighted');
 
@@ -768,15 +742,36 @@ window.ExportView = (function($, ExportView) {
     }
 
     function selectAllCols() {
+        var table = gTables[tableId];
+        if (!table) {
+            return;
+        }
+        var $selectableThs = $table.find("th").filter(function() {
+            var $th = $(this);
+            var colNum = xcHelper.parseColNum($th);
+            if (colNum <= 0) {
+                // row marker
+                return false;
+            }
+
+            var progCol = table.getCol(colNum);
+
+            if (gExportNoCheck) {
+                if (progCol.isEmptyCol() ||
+                    progCol.isDATACol()) {
+                    return false;
+                }
+                return true;
+            }
+
+            return validTypes.includes(progCol.getType());
+        });
         $selectableThs.each(function() {
             var colNum = xcHelper.parseColNum($(this));
-            var $table = $(this).closest('.xcTable');
-            var tblId = $table.data('id');
-            if (tblId === tableId) {
-                $(this).addClass('modalHighlighted');
-                $table.find('td.col' + colNum).addClass('modalHighlighted');
-            }
+            $(this).addClass('modalHighlighted');
+            $table.find('td.col' + colNum).addClass('modalHighlighted');
         });
+
         $exportView.find('.cols li').addClass('checked')
                    .find('.checkbox').addClass('checked');
         $exportView.find('.selectAllWrap').find('.checkbox')

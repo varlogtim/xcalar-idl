@@ -20,6 +20,11 @@ window.BottomMenu = (function($, BottomMenu) {
             console.error(error);
             Alert.error(ThriftTStr.SetupErr, error);
         }
+        $menuPanel[0].addEventListener(transitionEnd, function(event) {
+            if (!$menuPanel.hasClass("open")) {
+                $menuPanel.find(".bottomMenuContainer").hide();
+            }
+        });
     };
 
     // BottomMenu.clear = function() {
@@ -189,7 +194,7 @@ window.BottomMenu = (function($, BottomMenu) {
     }
 
     function closeMenu(topMenuOpening) {
-        $("#bottomMenu").removeClass("open");
+        $menuPanel.removeClass("open");
         $("#container").removeClass("bottomMenuOpen");
         isMenuOpen = false;
         // recenter table titles if on workspace panel
@@ -202,6 +207,7 @@ window.BottomMenu = (function($, BottomMenu) {
             xcHelper.menuAnimAligner(true);
         }
         popInModal(null, topMenuOpening);
+
         ExtensionManager.closeView();
     }
 
@@ -242,6 +248,8 @@ window.BottomMenu = (function($, BottomMenu) {
         var wasOpen = $menuPanel.hasClass("open");
         $sliderBtns.removeClass("active");
         $sliderBtns.eq(sectionIndex).addClass("active");
+
+        $menuPanel.find(".bottomMenuContainer").show();
 
         $menuSections.removeClass("active");
         // mark the section and open the menu

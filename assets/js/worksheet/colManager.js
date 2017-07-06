@@ -2033,10 +2033,8 @@ window.ColManager = (function($, ColManager) {
     function searchColNames(val, searchBar, initialTableId) {
         val = val.toLowerCase();
         var $functionArea = $('#functionArea');
-        var $headerInputs = $('.xcTableWrap:visible:not(.tableOpSection)')
-                            .find('.editableHead');
-        var $tableTitles = $('.xcTableWrap:visible:not(.tableOpSection)')
-                            .find('.tableTitle .text');
+        var $headerInputs = $('.xcTableWrap:visible').find('.editableHead');
+        var $tableTitles = $('.xcTableWrap:visible').find('.tableTitle .text');
         var $searchableFields = $headerInputs.add($tableTitles);
         if (val === "") {
             searchBar.clearSearch(function() {

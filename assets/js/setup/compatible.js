@@ -553,6 +553,23 @@ window.Compatible = (function($, Compatible) {
                 reader.readAsArrayBuffer(fileData);
             };
         }
+
+        (function() {
+            var fakeEl = document.createElement('fakeelement');
+            var transitions = {
+              'transition':'transitionend',
+              'OTransition':'oTransitionEnd',
+              'MozTransition':'transitionend',
+              'WebkitTransition':'webkitTransitionEnd'
+            };
+
+            for(var t in transitions){
+                if( fakeEl.style[t] !== undefined ) {
+                    window.transitionEnd = transitions[t];
+                    return;
+                }
+            }
+        }());
     }
 
     return (Compatible);

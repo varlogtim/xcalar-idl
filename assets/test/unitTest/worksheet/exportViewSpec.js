@@ -274,18 +274,15 @@ describe('ExportView Test', function() {
             expect($exportForm.find('.cols li.checked').length).to.equal(numCols);
 
             var $th = $("#xcTable-" + tableId).find('th.col1');
-            expect($th.hasClass('exportable')).to.be.true;
             expect($th.hasClass('modalHighlighted')).to.be.true;
 
             $th.click(); // deselect
 
-            expect($th.hasClass('exportable')).to.be.true;
             expect($th.hasClass('modalHighlighted')).to.be.false;
             expect($exportForm.find('.cols li').eq(0).hasClass('checked')).to.be.false;
 
             $th.click(); // select
 
-            expect($th.hasClass('exportable')).to.be.true;
             expect($th.hasClass('modalHighlighted')).to.be.true;
             expect($exportForm.find('.cols li').eq(0).hasClass('checked')).to.be.true;
         });

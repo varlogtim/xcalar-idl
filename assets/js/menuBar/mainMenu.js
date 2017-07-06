@@ -151,6 +151,18 @@ window.MainMenu = (function($, MainMenu) {
         checkAnim(true);
     };
 
+    MainMenu.closeForms = function() {
+        if (isFormOpen) {
+            ignoreRestoreState = true;
+            OperationsView.close();
+            JoinView.close();
+            ExportView.close();
+            SmartCastView.close();
+            DFCreateView.close();
+            ignoreRestoreState = false;
+        }
+    };
+
     function setupResizable() {
         var $menuPanel = $mainMenu;
         var minWidth = defaultWidth + 3;
@@ -213,15 +225,7 @@ window.MainMenu = (function($, MainMenu) {
         var $tabs = $menuBar.find(".topMenuBarTab");
 
         $tabs.click(function(event) {
-            if (isFormOpen) {
-                ignoreRestoreState = true;
-                OperationsView.close();
-                JoinView.close();
-                ExportView.close();
-                SmartCastView.close();
-                DFCreateView.close();
-                ignoreRestoreState = false;
-            }
+            // MainMenu.closeForms();
             Workbook.hide(true);
 
             var $curTab = $(this);

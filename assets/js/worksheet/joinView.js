@@ -479,6 +479,9 @@ window.JoinView = (function($, JoinView) {
                     if ($(event.target).is("#rowInput")) {
                         return;
                     }
+                    if (!$joinView.is(":visible")) {
+                        return;
+                    }
                     if ($joinView.hasClass('nextStep')) {
                         $('#joinTables').click();
                     } else {
