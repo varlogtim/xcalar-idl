@@ -444,6 +444,12 @@ window.DagPanel = (function($, DagPanel) {
                 $menu.removeClass("dataStoreMode");
             }
 
+            if ($dagTable.hasClass("unexpectedNode")) {
+                $menu.addClass("unexpectedNode");
+            } else {
+                $menu.removeClass("unexpectedNode");
+            }
+
             // if active table, hide "addTable" and show "focusTable"
             $('#activeTablesList').find('.tableInfo').each(function() {
                 var $li = $(this);
@@ -801,7 +807,7 @@ window.DagPanel = (function($, DagPanel) {
 
         var dagId = $menu.data('dagid');
         var $dagWrap = $('#dagWrap-' + dagId);
-        if ($dagWrap.hasClass('unsavable') || $dagWrap.hasClass("tooLarge")) {
+        if ($dagWrap.hasClass('unsavable') || $dagWrap.hasClass("error")) {
             $menu.find('.saveImage, .newTabImage').hide();
             $menu.find('.unsavable').show();
         } else {
@@ -1595,6 +1601,7 @@ window.Dag = (function($, Dag) {
             if (isFromRetina) {
                 $dagWrap.addClass('fromRetina');
             }
+
             Dag.createDagImage(dagObj.node, $dagWrap, {savable: true});
 
             Dag.focusDagForActiveTable(tableId);
@@ -1666,18 +1673,29 @@ window.Dag = (function($, Dag) {
         var dagOptions = {condensed: condensed};
         var isPrevHidden = false; // is parent node in a collapsed state
         var group = [];
-
-        var dagImageHtml = drawDagNode(node, storedInfo, nodeArray, index,
+        var dagImageHtml = "";
+        var hasError = false;
+        try {
+            dagImageHtml = drawDagNode(node, storedInfo, nodeArray, index,
                                        dagInfo, depth, condensedDepth,
                                        isPrevHidden, group, dagOptions).html;
+        } catch (err) {
+            console.error(err);
+            hasError = true;
+        }
+
 
         var height = storedInfo.height * dagTableOuterHeight + 30;
         var width = storedInfo.condensedWidth * dagTableWidth - 150;
-
-        if (height > canvasLimit || width > canvasLimit ||
+        if (hasError) {
+            dagImageHtml = '<div class="errorMsg">' + DFTStr.DFDrawError +
+                            '</div>';
+            $container.addClass('invalid error');
+        } else if (height > canvasLimit || width > canvasLimit ||
             (height * width > canvasAreaLimit)) {
-            dagImageHtml = '<div class="largeMsg">' + DFTStr.TooLarge + '</div>';
-            $container.addClass('tooLarge');
+            dagImageHtml = '<div class="errorMsg">' + DFTStr.TooLarge +
+                            '</div>';
+            $container.addClass('tooLarge error');
         } else {
             dagImageHtml = '<div class="dagImageWrap"><div class="dagImage" ' +
                         'style="height: ' + height + 'px;width: ' + width +
@@ -1686,7 +1704,7 @@ window.Dag = (function($, Dag) {
 
         $container.append(dagImageHtml);
 
-        if (!$container.hasClass('tooLarge')) {
+        if (!$container.hasClass('error')) {
             drawAllLines($container, dagInfo, numNodes, width, options);
         }
 
@@ -3568,21 +3586,25 @@ window.Dag = (function($, Dag) {
             var pattern = "";
             var id = dagInfo.id;
             var originalTableName = tableName;
-            var dsText;
+            var dsText = "";
             var outerClassNames = "";
             if (tableName.indexOf(gDSPrefix) === 0) {
                 tableName = tableName.substr(gDSPrefix.length);
             }
             if (dagNode.api === XcalarApisT.XcalarApiExecuteRetina) {
-                dsText = "";
                 outerClassNames = " retina";
                 icon = '<i class="icon xi-table-2"></i>';
                 id = xcHelper.getTableId(tableName);
-            } else {
+            } else if (dagNode.api  === XcalarApisT.XcalarApiBulkLoad) {
                 dsText = "Dataset ";
                 icon = '<i class="icon xi_data"></i>';
                 storedInfo.datasets[tableName] = dagInfo;
                 pattern = dagInfo.loadInfo.loadArgs.fileNamePattern;
+            } else {
+                console.error("unexpected node", "api: " + dagNode.api);
+                outerClassNames = " unexpectedNode";
+                icon = '<i class="icon xi-table-2"></i>';
+                id = xcHelper.getTableId(tableName);
             }
 
             html += '<div class="dagTable dataStore ' + state +

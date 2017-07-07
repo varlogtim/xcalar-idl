@@ -105,6 +105,7 @@ describe('TableMenu Test', function() {
                     expect(tId).to.equal(tableId);
                     expect(state).to.equal(TableType.Active);
                     called = true;
+                    return PromiseHelper.resolve();
                 };
 
                 $tableMenu.find('.deleteTable').trigger(rightMouseup);

@@ -634,6 +634,7 @@ DFTStr = {
 'RunDFInstr': '请注意以下警告:',
 'WarnSysParam': '直接运行批量数据流时，系统参数无效，会被省略。',
 'InvalidTarget': '无法找到目标',
+'DFDrawError': 'Invalid dataflow structure',
 'Scheduled': "已添加调度器",
 "SlightSkew": "轻度偏移",
 "HeavySkew": "重度偏移",

@@ -744,6 +744,7 @@ DFTStr = {
     'ExportFileExists': 'Export file already exists.',
     'InvalidExportPath': 'Cannot contain / in the export file name',
     'InvalidTarget': 'Target not found.',
+    'DFDrawError': 'Invalid dataflow structure',
     'NoDF1': 'No dataflows added',
     'NoDF2': 'Add a dataflow from the Dataflow Graph',
     'NoFields': 'No fields present',

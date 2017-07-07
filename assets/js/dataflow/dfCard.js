@@ -699,6 +699,9 @@ window.DFCard = (function($, DFCard) {
     }
 
     function applyDeltaTagsToDag(dataflowName, $wrap) {
+        if ($wrap.hasClass("error")) {
+            return PromiseHelper.reject();
+        }
         var deferred = jQuery.Deferred();
         // This function adds the different tags between a regular dag
         // and a retina dag. For example, it colors parameterized nodes.
@@ -875,6 +878,13 @@ window.DFCard = (function($, DFCard) {
             } else {
                 $queryLi.removeClass("unavailable");
                 xcTooltip.remove($queryLi);
+            }
+            if ($currentIcon.hasClass("unexpectedNode") ||
+                $currentIcon.next().hasClass("unexpectedNode")) {
+                $menu.find("li").hide();
+                $menu.addClass("unexpectedNode");
+            } else {
+                $menu.removeClass("unexpectedNode");
             }
 
             positionAndInitMenu($currentIcon);
@@ -1737,7 +1747,8 @@ window.DFCard = (function($, DFCard) {
         promise
         .then(function() {
             var $dagWrap = getDagWrap(dataflowName);
-            if ($.isEmptyObject(df.retinaNodes) || !$dagWrap.length) {
+            if ($.isEmptyObject(df.retinaNodes) || !$dagWrap.length ||
+                $dagWrap.hasClass("error")) {
                 return; // may have gotten cleared
             }
             if (!$dagWrap.find(".dagImage").length) {
@@ -1773,7 +1784,9 @@ window.DFCard = (function($, DFCard) {
             console.error(arguments);
         })
         .always(function() {
-            if ($.isEmptyObject(df.parameterizedNodes)) {
+            var $dagWrap = getDagWrap(dataflowName);
+            if ($.isEmptyObject(df.parameterizedNodes) &&
+                !$dagWrap.hasClass("error")) {
                 restoreParameterizedNode(dataflowName);
             }
         });

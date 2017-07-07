@@ -577,6 +577,7 @@ describe("Dag Panel Test", function() {
                     TblManager.deleteTables = function(tId) {
                         expect(tId).to.equal(smallTable.tableId);
                         cachedFnTriggered = true;
+                        return PromiseHelper.resolve();
                     };
                     expect(cachedFnTriggered).to.be.false;
                     $menu.find(".deleteTable").trigger(fakeEvent.mouseup);

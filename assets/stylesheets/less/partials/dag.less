@@ -336,14 +336,14 @@ html.firefox, html.microsoft {
         }
     }
 
-    &.unsavable, &.tooLarge {
-        .largeMsg {
-            padding: 30px;
-            text-align: center;
-        }
+    &.unsavable, &.error {
         .saveImageBtn, .newTabImageBtn {
             .xc-disabled;
         }
+    }
+    .errorMsg {
+        padding: 30px;
+        text-align: center;
     }
 
     .header {
@@ -617,10 +617,9 @@ html.firefox, html.microsoft {
                 .position(absolute, @top: 6px, @left: 2px);
             }
 
-            &.retina {
+            &.retina,  &.unexpectedNode {
                 .icon {
                     font-size: 15px;
-
                 }
             }
         }
@@ -1115,7 +1114,7 @@ html.firefox, html.microsoft {
     li.hidden {
         display: none;
     }
-    .dataStoreInfo {
+    .dataStoreInfo, .unexpectedInfo {
         display: none;
     }
     &.dataStoreMode {
@@ -1124,6 +1123,15 @@ html.firefox, html.microsoft {
         }
         .dataStoreInfo {
             display: list-item;
+        }
+    }
+    &.unexpectedNode {
+        li, .dataStoreInfo {
+            display: none;
+        }
+        .unexpectedInfo {
+            display: list-item;
+            .xc-disabled;
         }
     }
 }

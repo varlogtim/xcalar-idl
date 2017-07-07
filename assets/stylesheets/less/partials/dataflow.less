@@ -231,7 +231,7 @@
     .cardMain {
         padding-top: 5px;
         padding-bottom: 0px;
-        min-height: 160px;
+        min-height: 201px; // the height when 1 linear dataflow is present
 
         .header {
             margin-right: 30px;
@@ -257,7 +257,7 @@
 
             > .icon {
                 cursor: pointer;
-                margin-left: 5px;
+                padding-left: 5px;
                 .font(@color: @color-font-greyish-brown);
             }
 
@@ -753,6 +753,15 @@
                         padding-right: 0px;
                     }
                 }
+            }
+        }
+    }
+
+    .dagDropDown {
+        &.unexpectedNode {
+            .unexpectedInfo {
+                display: block !important;
+                .xc-disabled;
             }
         }
     }

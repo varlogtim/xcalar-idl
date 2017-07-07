@@ -229,6 +229,7 @@ module.exports = {
         "TxtAlignLeft": "Left align",
         "TxtAlignRight": "Right align",
         "TxtAlignWrap": "Wrap text",
+        "UnexpectedTable": "Unexpected table",
         "UnHideTbl": "Maximize table",
         "UnlockTbl": "Unlock table",
         "Unsavable": "Cannot save image",
