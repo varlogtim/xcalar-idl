@@ -2210,13 +2210,11 @@ window.DSPreview = (function($, DSPreview) {
             var jsonRow = json[i];
             for (var j = 0; j < colLen; j++) {
                 var val = jsonRow[headers[j]];
-                if (val == null) {
-                    val = "";
+                var fnf = false;
+                if (val === undefined) {
+                    fnf = true;
                 }
-                if (typeof val === "object") {
-                    val = JSON.stringify(val);
-                }
-
+                val = xcHelper.parseJsonValue(val, fnf);
                 html += '<td class="cell"><div class="innerCell">' + val +
                         '</div></td>';
             }
