@@ -27,12 +27,9 @@ window.XcSocket = (function(XcSocket, $) {
     };
 
     function getExpServerUrl(host) {
-        var port = "12124"; // XXX this is hard coded now
-        if (/.*:\/\/.*:.*/.test(host)) {
-            var index = host.lastIndexOf(":");
-            host = host.substring(0, index);
+        if (window.expHost) {
+            return window.expHost;
         }
-        host = host + ":" + port;
         return host;
     }
 

@@ -398,7 +398,8 @@ window.Support = (function(Support, $) {
     Support.downloadLog = function(targetUsername, targetWorkbookName) {
         var log;
         var errLog;
-        XcalarKeyLookup(targetUsername+"-wkbk-"+targetWorkbookName+"-gLog", 1)
+        XcalarKeyLookup(targetUsername + "-wkbk-" + targetWorkbookName +
+                        "-gLog-" + currentVersion, 1)
         .then(function(l) {
             log = l;
             return (XcalarKeyLookup(targetUsername + "-wkbk-" +
