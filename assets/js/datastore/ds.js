@@ -968,8 +968,12 @@ window.DS = (function ($, DS) {
         for (var i = 0; i < numDatasets; i++) {
             var dsName = datasets.datasets[i].name;
 
-            if (atStartUp && dsName.endsWith("-xcalar-preview")) {
-                // other users don' deal with it
+            if (dsName.endsWith("-xcalar-preview")) {
+                if (!atStartUp) {
+                    // if not the start up time, not deal with it
+                    continue;
+                }
+                // other users don't deal with it
                 if (xcHelper.parseDSName(dsName).user !== userPrefix) {
                     continue;
                 }
