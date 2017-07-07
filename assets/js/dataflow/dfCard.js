@@ -1605,7 +1605,7 @@ window.DFCard = (function($, DFCard) {
             }
         }
         if (usedParamHasChange) {
-            if (DF.hasSchedule(dataflowName)) {
+            if (DF.hasSchedule(dataflowName) && (!checkRes.hasInvalidRow)) {
                 DF.updateScheduleForDataflow(dataflowName);
             }
             DF.commitAndBroadCast(dataflowName);
