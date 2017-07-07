@@ -1542,16 +1542,17 @@ window.xcHelper = (function($, xcHelper) {
             return;
         }
         table.unlock();
-        if (table.isActive()) {
-            var $tableWrap = $("#xcTableWrap-" + tableId);
-            $tableWrap.find('.lockedTableIcon').remove();
-            $tableWrap.find('.tableCover').remove();
-            $tableWrap.removeClass('tableLocked');
-            $('#dagWrap-' + tableId).removeClass('locked');
+        // remove unlock icon even if table is inactive or not present just
+        // in case it might still be in the worksheet
+        var $tableWrap = $("#xcTableWrap-" + tableId);
+        $tableWrap.find('.lockedTableIcon').remove();
+        $tableWrap.find('.tableCover').remove();
+        $tableWrap.removeClass('tableLocked');
+        $('#dagWrap-' + tableId).removeClass('locked');
 
-            var $tbody = $tableWrap.find('.xcTbodyWrap');
-            $tbody.off('scroll.preventScrolling');
-        }
+        var $tbody = $tableWrap.find('.xcTbodyWrap');
+        $tbody.off('scroll.preventScrolling');
+
         $dagTables.removeClass('locked');
         if (!table.isNoDelete()) {
             // if noDelete, they still need the lock
