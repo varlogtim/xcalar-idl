@@ -130,9 +130,12 @@ window.Support = (function(Support, $) {
         return (deferred.promise());
     };
 
-    Support.memoryCheck = function() {
+    Support.memoryCheck = function(onlyCheckOnWarn) {
         if (isCheckingMem) {
             console.warn("Last time's mem check not finish yet");
+            return PromiseHelper.resolve();
+        } else if (onlyCheckOnWarn && !hasMemoryWarn()) {
+            // this case no need to check
             return PromiseHelper.resolve();
         }
 
@@ -223,6 +226,12 @@ window.Support = (function(Support, $) {
 
             xcTooltip.changeText($memoryAlert, text);
             return shouldAlert;
+        }
+
+        function hasMemoryWarn() {
+            var $memoryAlert = $("#memoryAlert");
+            return ($memoryAlert.hasClass("yellow") ||
+                    $memoryAlert.hasClass("red"));
         }
     };
 

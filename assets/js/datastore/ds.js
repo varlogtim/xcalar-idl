@@ -762,9 +762,10 @@ window.DS = (function ($, DS) {
         var deferred = jQuery.Deferred();
         var failures = [];
         var promises = [];
+        var datasets = [];
 
         dsIds.forEach(function(dsId) {
-            promises.push(removeOneDSHelper(dsId, failures));
+            promises.push(removeOneDSHelper(dsId, failures, datasets));
         });
 
         PromiseHelper.when.apply(this, promises)
@@ -780,6 +781,11 @@ window.DS = (function ($, DS) {
                 focsueOnTracker();
             }
 
+            if (datasets.length) {
+                // when has delete datsets
+                Support.memoryCheck(true);
+            }
+
             deferred.resolve();
         })
         .fail(deferred.reject); // should not have any reject case
@@ -787,7 +793,7 @@ window.DS = (function ($, DS) {
         return deferred.promise();
     }
 
-    function removeOneDSHelper(dsId, failures) {
+    function removeOneDSHelper(dsId, failures, datasets) {
         var dsObj = DS.getDSObj(dsId);
         var dsName = dsObj.getName();
         var err;
@@ -818,7 +824,10 @@ window.DS = (function ($, DS) {
                       ? DS.cancel($grid)
                       : delDSHelper($grid, dsObj, {"noAlert": true});
             def
-            .then(deferred.resolve)
+            .then(function() {
+                datasets.push(dsId);
+                deferred.resolve();
+            })
             .fail(function(error) {
                 if (typeof error === "object" && error.error) {
                     error = error.error;

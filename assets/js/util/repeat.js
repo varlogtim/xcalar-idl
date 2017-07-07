@@ -229,6 +229,9 @@ window.Repeat = (function($, Repeat) {
             "msg": msg,
             "onConfirm": function() {
                 TblManager.deleteTables(tableId, TableType.Active)
+                .then(function() {
+                    Support.memoryCheck(true);
+                })
                 .always(function() {
                     deferred.resolve(null);
                 });
@@ -257,11 +260,8 @@ window.Repeat = (function($, Repeat) {
     };
     // /* End of Table Operations */
 
-
-
-
     /* Worksheet Operations */
-    repeatFuncs[SQLOps.AddWS] = function(options) {
+    repeatFuncs[SQLOps.AddWS] = function() {
         WSManager.addWS();
         return PromiseHelper.resolve(null);
     };
@@ -277,7 +277,7 @@ window.Repeat = (function($, Repeat) {
     // repeatFuncs[SQLOps.MoveInactiveTableToWS] = function(options) {
     // };
 
-    repeatFuncs[SQLOps.HideWS] = function(options) {
+    repeatFuncs[SQLOps.HideWS] = function() {
         if (WSManager.getNumOfWS() > 1) {
             WSManager.hideWS(WSManager.getActiveWS());
         }

@@ -1366,7 +1366,10 @@ window.DagPanel = (function($, DagPanel) {
                 "title": TblTStr.Del,
                 "msg": msg,
                 "onConfirm": function() {
-                    TblManager.deleteTables(tableId, TableType.Active);
+                    TblManager.deleteTables(tableId, TableType.Active)
+                    .then(function() {
+                        Support.memoryCheck(true);
+                    });
                 }
             });
         } else if (table) {

@@ -55,7 +55,10 @@ window.TblMenu = (function(TblMenu, $) {
                 "title": TblTStr.Del,
                 "msg": msg,
                 "onConfirm": function() {
-                    TblManager.deleteTables(tableId, TableType.Active);
+                    TblManager.deleteTables(tableId, TableType.Active)
+                    .then(function() {
+                        Support.memoryCheck(true);
+                    });
                 }
             });
         });

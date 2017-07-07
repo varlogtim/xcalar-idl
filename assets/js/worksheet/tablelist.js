@@ -538,7 +538,10 @@ window.TableList = (function($, TableList) {
                 .fail(deferred.reject);
             } else if (action === "delete") {
                 TblManager.deleteTables(tables, tableType)
-                .then(deferred.resolve)
+                .then(function() {
+                    Support.memoryCheck(true);
+                    deferred.resolve();
+                })
                 .fail(deferred.reject)
                 .always(function() {
                     $tableList.find('.addTableBtn').removeClass('selected');
