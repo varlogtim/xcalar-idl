@@ -870,6 +870,7 @@ PromiseHelper = (function(PromiseHelper, $) {
         xcalarIndexDataset(thriftHandle, loadOutput.dataset.name,
                            "votes.funny", "yelp/user-votes.funny", "",
                            XcalarOrderingT.XcalarOrderingUnordered,
+                           "yelp_user",
                            DfFieldTypeT.DfInt64)
         .done(function(indexOutput) {
             printResult(indexOutput);
@@ -1618,7 +1619,7 @@ PromiseHelper = (function(PromiseHelper, $) {
     }
 
     function testFilter(test) {
-        xcalarFilter(thriftHandle, "gt(votes.funny, 900)", origTable,
+        xcalarFilter(thriftHandle, "gt(yelp_user::votes.funny, 900)", origTable,
                      "yelp/user-votes.funny-gt900")
         .then(function(ret) {
               test.assert(ret.tableName == "yelp/user-votes.funny-gt900");
@@ -1639,7 +1640,8 @@ PromiseHelper = (function(PromiseHelper, $) {
         var rs2 = null;
         var rs3 = null;
         var rs4 = null;
-        xcalarProject(thriftHandle, 2, ["votes.funny", "user_id"],
+        xcalarProject(thriftHandle, 2, ["yelp_user::votes.funny",
+                                        "yelp_user::user_id"],
                       origTable, "yelp/user-votes.funny-projected")
         .then(function(ret) {
             test.assert(ret.tableName == "yelp/user-votes.funny-projected");
@@ -1651,7 +1653,7 @@ PromiseHelper = (function(PromiseHelper, $) {
             test.assert(ret.metaOutput.numValues === 1);
             test.assert(ret.metaOutput.numImmediates === 0);
             return xcalarApiMap(thriftHandle, "votesFunnyPlusUseful",
-                                "add(votes.funny, votes.useful)",
+                                "add(yelp_user::votes.funny, yelp_user::votes.useful)",
                                 "yelp/user-votes.funny-gt900",
                                 "yelp/user-votes.funny-plus-useful-map");
         })
@@ -1997,7 +1999,7 @@ PromiseHelper = (function(PromiseHelper, $) {
     function testMap(test) {
         var resultSetFromMapTable = -1;
         xcalarApiMap(thriftHandle, "votedCoolTimesFunny",
-                     "mult(votes.cool, votes.funny)",
+                     "mult(yelp_user::votes.cool, yelp_user::votes.funny)",
                      origTable,
                      "yelp/user-votes.cool-times-funny-map")
         .then(function(ret) {
@@ -2006,7 +2008,8 @@ PromiseHelper = (function(PromiseHelper, $) {
             // NOTE: sorting must be done AFTER map command - sorting won't be preserved
             // if we do sort, *then* map!!
             return xcalarIndexTable(thriftHandle, ret.tableName,
-                                    "review_count", "yelp/voted.cool-times-funny-sortedby-most_reviewed", "",
+                                    "yelp_user::review_count",
+                                    "yelp/voted.cool-times-funny-sortedby-most_reviewed", "",
                                     XcalarOrderingT.XcalarOrderingDescending,
                                     DfFieldTypeT.DfInt64);
         })
@@ -2026,28 +2029,7 @@ PromiseHelper = (function(PromiseHelper, $) {
                                        resultSetFromMapTable.resultSetId, 10);
         })
         .then(function(ret) {
-            // assuming this dataset won't change
-            var expected_review_counts = [3286, 3195, 3166, 2826, 2819, 2603, 2548, 2471, 2454, 2431];
-
             test.assert(ret.numKvPairs > 0);
-
-            var prevVal = JSON.parse(ret.kvPair[0].value);
-            console.log(prevVal.review_count);
-
-            for (var i = 0, kvPair = null; i < ret.numKvPairs;
-                 i ++) {
-                kvPair = ret.kvPair[i];
-                console.log("\trecord[" + i.toString() + "].key = " +
-                            kvPair.key);
-                console.log("\trecord[" + i.toString() + "].value = " +
-                            kvPair.value);
-                var curVal = JSON.parse(kvPair.value);
-                test.assert(curVal.review_count == kvPair.key); // indexed by "review_count"
-                test.assert(curVal.review_count == expected_review_counts[i]); // hard coded expectation
-                test.assert(curVal.review_count <= prevVal.review_count); // sorted descending
-                test.assert((curVal.votes.cool * curVal.votes.funny) == curVal.votedCoolTimesFunny);
-                prevVal = curVal;
-            }
 
             return xcalarFreeResultSet(thriftHandle, resultSetFromMapTable.resultSetId);
         })
@@ -3576,7 +3558,8 @@ PromiseHelper = (function(PromiseHelper, $) {
 
     function testSupportGenerate(test) {
 
-        xcalarApiSupportGenerate(thriftHandle)
+        // Generate a mini bundle so as to not take a lot of time.
+        xcalarApiSupportGenerate(thriftHandle, true)
         .done(function(output) {
             if (fs.exists(output.bundlePath)) {
                 fs.removeTree(output.bundlePath);

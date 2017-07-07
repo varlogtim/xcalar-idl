@@ -2,7 +2,7 @@
 window.XVM = (function(XVM) {
     var majorVersion = "1";
     var minorVersion = "2";
-    var revisionVersion = "0";
+    var revisionVersion = "1";
     if (!window.gBuildNumber) {
         gBuildNumber = "git";
     }

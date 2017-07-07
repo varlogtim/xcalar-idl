@@ -589,7 +589,9 @@ StatusT = {
   'StatusAppInstanceStartError' : 580,
   'StatusApisRecvTimeout' : 581,
   'StatusIpAddrTooLong' : 582,
-  'StatusSupportBundleNotSent' : 583
+  'StatusSupportBundleNotSent' : 583,
+  'StatusInvalidBlobStreamProtocol' : 584,
+  'StatusStreamPartialFailure' : 585
 };
 StatusTStr = {0 : 'Success',
 1 : 'Operation not permitted',
@@ -1174,5 +1176,7 @@ StatusTStr = {0 : 'Success',
 580 : 'App instance start error',
 581 : 'Timed out waiting for api',
 582 : 'IP address is too long',
-583 : 'Support bundle was created but not sent to Xcalar'
+583 : 'Support bundle was created but not sent to Xcalar',
+584 : 'Encountered invalid stream protocol, cleaning up',
+585 : 'Encountered partial failure in blob stream, cleaning up'
 };

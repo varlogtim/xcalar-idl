@@ -226,6 +226,25 @@ xcalarSetConfigParam = runEntity.xcalarSetConfigParam = function(thriftHandle, p
     return (deferred.promise());
 };
 
+setUserIdAndName = runEntity.setUserIdAndName = function(name, id, hashFunc) {
+    id = Number(id);
+    if (id !== getUserIdUnique(name)) {
+        return false;
+    }
+
+    userIdUnique = id;
+    userIdName = name;
+
+    return true;
+
+    function getUserIdUnique(name) {
+        var hash = hashFunc(name);
+        var len = 5;
+        var id = parseInt("0x" + hash.substring(0, len)) + 4000000;
+        return id;
+    }
+};
+
 xcalarAppSetWorkItem = runEntity.xcalarAppSetWorkItem = function(name, hostType, duty, execStr) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
@@ -3670,19 +3689,24 @@ xcalarApiDeleteDht = runEntity.xcalarApiDeleteDht = function(thriftHandle, dhtNa
     return (deferred.promise());
 };
 
-xcalarApiSupportGenerateWorkItem = runEntity.xcalarApiSupportGenerateWorkItem = function() {
+xcalarApiSupportGenerateWorkItem = runEntity.xcalarApiSupportGenerateWorkItem = function(generateMiniBundle) {
     var workItem = new WorkItem();
+    workItem.input = new XcalarApiInputT();
+    workItem.input.supportGenerateInput = new XcalarApiSupportGenerateInputT();
+
     workItem.api = XcalarApisT.XcalarApiSupportGenerate;
+    workItem.input.supportGenerateInput.generateMiniBundle = generateMiniBundle;
+
     return (workItem);
 };
 
-xcalarApiSupportGenerate = runEntity.xcalarApiSupportGenerate = function(thriftHandle) {
+xcalarApiSupportGenerate = runEntity.xcalarApiSupportGenerate = function(thriftHandle, generateMiniBundle) {
     var deferred = jQuery.Deferred();
     if (verbose) {
-        console.log("xcalarApiSupportGenerate()");
+        console.log("xcalarApiSupportGenerate(): generateMiniBundle = " + generateMiniBundle);
     }
 
-    var workItem = xcalarApiSupportGenerateWorkItem();
+    var workItem = xcalarApiSupportGenerateWorkItem(generateMiniBundle);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
