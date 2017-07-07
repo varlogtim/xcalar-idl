@@ -84,7 +84,24 @@ window.MonitorConfig = (function(MonitorConfig, $) {
             resetDefaultParam($(this).closest('.formRow'));
         });
 
-        $('#paramSettingsSave').on("click", submitForm);
+        $('#paramSettingsSave').on("click", function() {
+            $(this).blur();
+            submitForm();
+        });
+
+        $configCard.on("click", ".resetAll", function() {
+            $(this).blur();
+            resetAllDefaultParams();
+        });
+    }
+
+    function resetAllDefaultParams() {
+        var $rows = $configCard.find(".formRow.nameIsSet:not(.uneditable)");
+        $rows.each(function() {
+            var $row = $(this);
+            var oldVal = $row.find(".curVal").val();
+            $row.find(".newVal").val(oldVal);
+        });
     }
 
     // fills in user's val input with default value

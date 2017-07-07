@@ -16,6 +16,17 @@ describe("MonitorConfig Test", function() {
         });
     });
 
+    describe("cancel params", function() {
+        it("cancel params should work", function() {
+            var $row = $configCard.find(".formRow.nameIsSet:not(.uneditable)")
+                                  .eq(0);
+            var oldVal = $row.find(".curVal").val();
+            $row.find(".newVal").val("abc");
+            $configCard.find(".resetAll").click();
+            expect($row.find(".newVal").val()).to.equal(oldVal);
+        });
+    });
+
     describe("submitParamName", function() {
         it("add row should work", function() {
             var numRows = $configCard.find(".formRow").length;
