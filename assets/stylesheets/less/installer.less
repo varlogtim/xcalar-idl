@@ -855,7 +855,7 @@ input:-webkit-autofill:focus {
     position: fixed;
     left: ~"calc(50% - 400px)";
     top: ~"calc(50% - 300px)";
-    .size(@height: 600px, @width: 800px);
+    .size(@width: 800px, @min-height: 760px);
     .modalHeader {
         background-color: @color-error-border;
         text-align: left;
@@ -894,9 +894,11 @@ input:-webkit-autofill:focus {
         background-color: @color-border-pinkish-grey2;
     }
     .formWrap {
+        .size(@width: 100%, @height: ~"calc(50% - 92px)");
+        min-height: 288px;
         padding: 10px 22px 10px 22px;
         .section {
-            min-height: 30px;
+            height: 30px;
             padding: 10px 0px 10px 0px;
             .name {
                 width: 110px;
@@ -911,10 +913,11 @@ input:-webkit-autofill:focus {
                 color: @color-font-greyish-brown;
             }
             &.errorMessage {
-                height: 100px;
+                // min-height: 200px;
+                height: ~"calc(100% - 60px)";
                 .text {
                     white-space: pre-wrap;
-                    overflow-y: scroll;
+                    overflow-y: auto;
                     height: 100%;
                 }
             }
@@ -938,17 +941,19 @@ input:-webkit-autofill:focus {
         }
     }
     .logWrap {
-        .size(@width: 100%, @height: ~"calc(100% - 362px)");
-        padding: 10px 22px 10px 22px;
+        .size(@width: 100%, @height: ~"calc(50% - 92px)");
+        min-height: 288px;
+        overflow: hidden;
         .logArea {
-            .size(@width: 100%, @height: 100%);
+            .size(@width: ~"calc(100% - 44px)", @height: ~"calc(100% - 10px)");
+            margin: 10px 22px 0px 22px;
             padding: 10px 20px 16px 20px;
             color: @color-font-greyish-brown;
             font-size: 14px;
             font-weight: 550;
             background-color: @color-bg-white-three;
             border: solid 1px @color-border-white-five;
-            overflow-y: scroll;
+            overflow-y: auto;
         }
         .msgRow {
             white-space: pre-wrap;
@@ -982,9 +987,20 @@ input:-webkit-autofill:focus {
         }
     }
     .modalBottom {
+        height: 56px;
         padding-right: 20px;
         .btn {
             margin-right: 0px;
+        }
+    }
+
+    &.hiddenLog {
+        min-height: 472px;
+        .formWrap {
+            .size(@width: 100%, @height: ~"calc(100% - 184px)");
+        }
+        .logWrap {
+            display: none;
         }
     }
 }

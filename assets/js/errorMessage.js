@@ -3,7 +3,7 @@ window.ErrorMessage = (function(ErrorMessage, $){
     var $modalBg; // $("#modalBackground")
     var colorNum = 8;
     // constant
-    var minHeight = 700;
+    var minHeight = 472;
     var minWidth  = 800;
 
     ErrorMessage.setup = function() {
@@ -54,7 +54,15 @@ window.ErrorMessage = (function(ErrorMessage, $){
         });
 
         $modal.on("click", ".showHideButton", function() {
-            $("#errorMessageModal .logWrap").toggleClass("xc-hidden");
+            var panelHeight = $modal.height();
+            var logWrapHeight = $modal.find(".logWrap").height();
+            $modal.toggleClass("hiddenLog");
+            logWrapHeight = Math.max(logWrapHeight, $modal.find(".logWrap").height());
+            if ($modal.hasClass("hiddenLog")) {
+                $modal.height(panelHeight - logWrapHeight);
+            } else {
+                $modal.height(panelHeight + logWrapHeight);
+            }
         });
     };
 
