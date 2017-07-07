@@ -242,7 +242,11 @@ window.Scheduler = (function(Scheduler, $) {
                        .removeClass("locked");
         $scheduleDetail.find(".scheduleHeading .heading").text(dataflowName);
         // show schedule settings as default
-        switchTab(0);
+        if (DF.hasSchedule(dataflowName)) {
+            switchTab(1);
+        } else {
+            switchTab(0);
+        }
         if (XVM.getLicenseMode() === XcalarMode.Mod) {
             lockCard();
         } else {
@@ -273,6 +277,7 @@ window.Scheduler = (function(Scheduler, $) {
 
     function switchTab(index) {
         var $tabs = $scheduleDetail.find(".tabArea .tab");
+        $tabs.show();
         $tabs.removeClass("active");
         $tabs.eq(index).addClass("active");
         if (index === 0) {
@@ -833,6 +838,14 @@ window.Scheduler = (function(Scheduler, $) {
 
             if (dataflowName === currentDataFlowName) {
                 $scheduleResults.removeData("df");
+            }
+
+            if (DF.hasSchedule(currentDataFlowName)) {
+                $scheduleDetail.addClass("withSchedule")
+                               .removeClass("withoutSchedule");
+            } else {
+                $scheduleDetail.addClass("withoutSchedule")
+                               .removeClass("withSchedule");
             }
         });
 
