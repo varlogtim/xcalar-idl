@@ -925,13 +925,12 @@ module.exports = {
         "installWizard": "INSTALL WIZARD",
         "uninstallWizard": "UNINSTALL WIZARD",
         "upgradeWizard": "UPGRADE WIZARD",
-        "installWizardContent": "The setup will install Xcalar on your " +
-                                "computer.",
-        "upgradeWizardContent": "Upgrade to a newer version of Xcalar. The " +
-                                "option to upgrade is only available when an " +
-                                "existing version exists and your Xcalar" +
-                                " cluster is powered off.",
-        "uninstallWizardContent": "Uninstall Xcalar from your cluster.",
+        "installWizardContent": "To install Xcalar on a target cluster.",
+        "upgradeWizardContent": "To upgrade a target cluster to a newer" +
+                                "version of Xcalar. The option to upgrade " +
+                                "is only available when an existing version " +
+                                "exists and the Xcalar cluster is powered off.",
+        "uninstallWizardContent": "To remove Xcalar from a target cluster.",
         "title": "Error",
         "instrUp": "An error has occured.",
         "instrDown": "Please review the following error(s).",

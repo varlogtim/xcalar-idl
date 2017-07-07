@@ -493,12 +493,12 @@ module.exports = {
     },
     "installer": {
         "installWizard": "安装向导",
-        "installWizardContent": "安装程序将在您的计算机上安装Xcalar。",
+        "installWizardContent": "安装程序将在您指定集群上安装Xcalar。",
         "select": "选择",
         "uninstallWizard": "卸载向导",
-        "uninstallWizardContent": "从您的计算机卸载Xcalar。",
+        "uninstallWizardContent": "从您指定集群上卸载Xcalar。",
         "upgradeWizard": "升级向导",
-        "upgradeWizardContent": "升级到最近版本的Xcalar。升级选项仅在当前Xcalar群集已存在并且关闭时可用。"
+        "upgradeWizardContent": "升级到最近版本的Xcalar。升级选项仅在当前Xcalar集群已存在并且关闭时可用。"
     },
     "joinView": {
         "ADDCLAUSE": "添加连接条件",
