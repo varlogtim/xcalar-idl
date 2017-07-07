@@ -1756,9 +1756,6 @@ table.datasetTable {
         width: ~"calc(100% + 17px)";
         overflow-x: hidden;
     }
-    .datasetTbodyWrap:not(*:root) { // selecting Chrome browsers
-        width: ~"calc(100% + 5px)";
-    }
 
     .previewBottom {
         .font(@size: 12px, @weight: 700);
@@ -1767,7 +1764,8 @@ table.datasetTable {
 }
 
 #previewTable {
-    width: 100%;
+    width: auto;
+    min-width: 175px;
     white-space: pre-wrap;
 
     // for both th and td
@@ -1798,6 +1796,7 @@ table.datasetTable {
 
     .truncMessage {
         .no-selection;
+        margin-right: 8px; // hack because table width causes text to get cut off
     }
 
     th {
