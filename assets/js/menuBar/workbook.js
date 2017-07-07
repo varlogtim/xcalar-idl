@@ -567,7 +567,7 @@ window.Workbook = (function($, Workbook) {
             "id": "",
             "name": ""
         });
-        var extraClasses = ["loading", "new", "animating"];
+        var extraClasses = ["loading", "new"];
         var html = createWorkbookCard(workbook, extraClasses);
 
         var $newCard = $(html);
@@ -579,10 +579,7 @@ window.Workbook = (function($, Workbook) {
             $newCard.removeClass("new");
         }, 100);
 
-        // this class hides the right bar tabs during the slide out
-        // so they don't come out when the cursor is hovering over
         setTimeout(function() {
-            $newCard.removeClass("animating");
             deferred.resolve($newCard);
         }, newBoxSlideTime);
 
@@ -599,7 +596,11 @@ window.Workbook = (function($, Workbook) {
         $updateCard.removeClass("loading")
             .find(".loadSection").remove()
             .end()
+            .addClass("finishedLoading")
             .find(animClasses).hide().fadeIn();
+        setTimeout(function() {
+            $updateCard.removeClass("finishedLoading");
+        }, 500);
     }
 
     function deleteWorkbookHelper($workbookBox) {
