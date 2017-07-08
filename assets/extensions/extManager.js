@@ -1552,6 +1552,11 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                     StatusBox.show(ErrTStr.InvalidTableName, $input);
                     return { "vaild": false };
                 }
+            } else if (typeCheck.newAggName === true) {
+                if (!xcHelper.isValidTableName(arg)) {
+                    StatusBox.show(ErrTStr.InvalidAggName, $input);
+                    return { "vaild": false };
+                }
             }
         }
 
