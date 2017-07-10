@@ -489,8 +489,8 @@ window.WSManager = (function($, WSManager) {
     WSManager.replaceTable = function(tableId, locationId, tablesToRm, options) {
         var ws;
         options = options || {};
-        // append table to the last of active tables
         if (locationId == null) {
+            // will be moved to active tables
             ws = worksheetGroup.get(tableIdToWSIdMap[tableId]);
             var srcTables;
             if (!ws || !ws.tempHiddenTables) {
@@ -504,12 +504,7 @@ window.WSManager = (function($, WSManager) {
             } else {
                 srcTables = ws.orphanedTables;
             }
-            if (options.position != null) {
-                toggleTableArchive(tableId, srcTables, ws.tables,
-                                    options.position);
-            } else {
-                toggleTableArchive(tableId, srcTables, ws.tables);
-            }
+            toggleTableArchive(tableId, srcTables, ws.tables, options.position);
 
             return;
         }
@@ -556,11 +551,11 @@ window.WSManager = (function($, WSManager) {
         $("#tableListSections .tableInfo").each(function() {
             var $li = $(this);
             if ($li.data("id") === tableId) {
-                var $workhseetInfo = $li.find(".worksheetInfo");
+                var $worksheetInfo = $li.find(".worksheetInfo");
 
-                $workhseetInfo.removeClass("worksheet-" + oldWSId)
+                $worksheetInfo.removeClass("worksheet-" + oldWSId)
                                 .addClass("worksheet-" + newWSId);
-                $workhseetInfo.text(wsName);
+                $worksheetInfo.text(wsName);
             }
         });
 

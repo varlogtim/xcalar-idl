@@ -576,7 +576,7 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
                         "Revert Table",
                         "Send Tables to Worksheet",
                         "Filter",
-/* add table from dag */ "Move Inactive Table To Worksheet",
+                        "Move Inactive Table To Worksheet",
                         "Create Worksheet",
                         "Create Worksheet",
                         "Delete Worksheet",
@@ -591,7 +591,8 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
                         "Create Table",
                         "Move Table to worksheet",
                         "Hide Worksheet",
-                        "Unhide Worksheet"];
+                        "Unhide Worksheet"
+                        ];
 
     var operationsMap = {
         tableOps: tableOps,

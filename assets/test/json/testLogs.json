@@ -307,7 +307,8 @@
     "worksheetIds":["k6"],
     "worksheetOrders": [0],
     "worksheetNames":["renamedSheet"]},
-    "timestamp":1460668921239}],
+    "timestamp":1460668921239}
+],
 
 "tableOperationLogs":
     [
@@ -991,10 +992,5 @@
     "tableName":"testyelp#dU0",
     "tableId":"dU0"},
     "timestamp":1460602917060}
-
-
-
-
 ]
-
 }

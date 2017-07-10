@@ -93,7 +93,7 @@ window.SQL = (function($, SQL) {
         });
 
         $redo.click(function() {
-            if ($(this).hasClass("repeatable")) {
+            if ($(this).hasClass("repeatable") && !$(this).hasClass("locked")) {
                 SQL.repeat();
             } else if (!$(this).hasClass("disabled")) {
                 SQL.redo();
@@ -381,7 +381,7 @@ window.SQL = (function($, SQL) {
         }
 
         isUndo = true;
-        $undo.addClass("disabled");
+        SQL.lockUndoRedo();
         var passed = false;
         PromiseHelper.chain(promises)
         .then(function() {
@@ -401,7 +401,7 @@ window.SQL = (function($, SQL) {
         })
         .always(function() {
             isUndo = false;
-
+            SQL.unlockUndoRedo();
             updateUndoRedoState();
             xcTooltip.refresh($undo);
             if (passed) {
@@ -463,7 +463,7 @@ window.SQL = (function($, SQL) {
         }
 
         isRedo = true;
-        $redo.addClass("disabled");
+        SQL.lockUndoRedo();
         var passed = false;
         PromiseHelper.chain(promises)
         .then(function() {
@@ -482,7 +482,7 @@ window.SQL = (function($, SQL) {
         })
         .always(function() {
             isRedo = false;
-
+            SQL.unlockUndoRedo();
             updateUndoRedoState();
             xcTooltip.refresh($redo);
             if (passed) {
@@ -514,10 +514,10 @@ window.SQL = (function($, SQL) {
     };
 
     SQL.lockUndoRedo = function() {
-        $undo.addClass("disabled");
+        $undo.addClass("disabled locked");
         xcTooltip.changeText($undo, TooltipTStr.LockedTableUndo);
 
-        $redo.addClass("disabled");
+        $redo.addClass("disabled locked");
         xcTooltip.changeText($redo, TooltipTStr.LockedTableRedo);
     };
 
@@ -533,6 +533,8 @@ window.SQL = (function($, SQL) {
         if (!hasLockedTables) {
             var lastUndoMessage = $undo.data("lastmessage");
             var lastUndoState = $undo.data("laststate");
+            $undo.removeClass("locked");
+            $redo.removeClass("locked");
             if (lastUndoState !== "disabled") {
                 $undo.removeClass("disabled");
             }
@@ -543,7 +545,10 @@ window.SQL = (function($, SQL) {
             var lastRedoState = $redo.data("laststate");
             $redo.removeClass("repeatable");
             if (lastRedoState === "disabled repeatable") {
-                $redo.addClass("disabled repeatable");
+                $redo.addClass("disabled");
+                if (lastRedoMessage !== TooltipTStr.NoRedo) {//XXX this is not a good check
+                    $redo.addClass("repeatable");
+                }
             } else if (lastRedoState !== "disabled") {
                 $redo.removeClass("disabled");
             }

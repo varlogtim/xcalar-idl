@@ -153,6 +153,7 @@ window.DagFunction = (function($, DagFunction) {
             tableType = "noSheet";
             wsId = WSManager.getActiveWS();
             worksheet = wsId;
+            WSManager.addNoSheetTables([tableId], wsId);
         } else if (gTables[tableId] && gTables[tableId].status ===
                     TableType.Orphan) {
             tableType = TableType.Orphan;
@@ -177,6 +178,9 @@ window.DagFunction = (function($, DagFunction) {
             xcHelper.unlockTable(tableId);
             xcHelper.unlockTable(oldTableId);
             var newTableId = xcHelper.getTableId(newTableName);
+            if (tableType === TableType.Archived || tableType === "noSheet") {
+                TableList.removeTable(tableId, TableType.Archived);
+            }
 
             var $tableWrap = $('#xcTableWrap-' + newTableId).mousedown();
             Dag.focusDagForActiveTable();

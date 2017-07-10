@@ -302,7 +302,6 @@ window.RowManager = (function($, RowManager) {
             for (var i = 0; i < numRows; i++) {
                 jsons.push(kvPairs[i].value);
             }
-
             deferred.resolve(jsons);
         })
         .fail(function(error) {

@@ -1516,7 +1516,7 @@ window.Dag = (function($, Dag) {
     var strokeWidth = 2; // 2px. make sure this is an even number. Or you have
                          // to start your path on a 0.5px thingy
 
-    Dag.construct = function(tableId, tablesToRemove) {
+    Dag.construct = function(tableId, tableToReplace, options) {
         var deferred = jQuery.Deferred();
         var table = gTables[tableId];
         var tableName = table.tableName;
@@ -1525,11 +1525,7 @@ window.Dag = (function($, Dag) {
         XcalarGetDag(tableName)
         .then(function(dagObj) {
             DagFunction.construct(dagObj, tableId);
-            if (tablesToRemove) {
-                for (var i = 0, len = tablesToRemove.length; i < len; i++) {
-                    $('#dagWrap-' + tablesToRemove[i]).remove();
-                }
-            }
+            var oldTableId = xcHelper.getTableId(tableToReplace);
             var isWorkspacePanelVisible = $('#workspacePanel')
                                             .hasClass('active');
             var isDagPanelVisible = !$('#dagPanel').hasClass('xc-hidden');
@@ -1547,9 +1543,24 @@ window.Dag = (function($, Dag) {
                 addDFTooltip = TooltipTStr.AddDataflow;
             }
 
+            var isTableInActiveWS = false;
+            var targetWS;
+            if (options.wsId) {
+                targetWS = options.wsId;
+            } else if (oldTableId) {
+                targetWS = WSManager.getWSFromTable(oldTableId);
+            } else {
+                targetWS = WSManager.getActiveWS();
+            }
+
+            if (WSManager.getActiveWS() === targetWS) {
+                isTableInActiveWS = true;
+            }
+            var dagClasses = isTableInActiveWS ? "" : "inActive";
+            dagClasses += " worksheet-" + targetWS;
             var outerDag =
-                '<div class="dagWrap clearfix" id="dagWrap-' +
-                    tableId + '" data-id="' + tableId + '">' +
+                '<div class="dagWrap clearfix ' + dagClasses +
+                   '" id="dagWrap-' + tableId + '" data-id="' + tableId + '">' +
                 '<div class="header clearfix">' +
                     '<div class="btn infoIcon">' +
                         '<i class="icon xi-info-rectangle"></i>' +
@@ -1583,17 +1594,25 @@ window.Dag = (function($, Dag) {
                     '</div>' +
                 '</div>' +
                 '</div>';
-            var position = WSManager.getTablePosition(tableId);
 
-            if (position === 0) {
-                $('.dagArea').find('.legendArea').after(outerDag);
+            if (options.atStartUp) {
+                $(".dagArea").append(outerDag);
+            } else if (oldTableId) {
+                var $oldDag =  $("#dagWrap-" + oldTableId);
+                $oldDag.after(outerDag);
             } else {
-                $prevDag = $dagPanel.find('.dagWrap:not(.dagWrapToRemove)')
-                                    .eq(position - 1);
-                if ($prevDag.length !== 0) {
-                    $prevDag.after(outerDag);
+                var position = xcHelper.getTableIndex(targetWS, options.position,
+                                             '.dagWrap');
+                if (position === 0) {
+                    $(".dagArea").find(".legendArea").after(outerDag);
                 } else {
-                    $('.dagArea').append(outerDag);
+                    var $prevDag = $(".dagWrap:not(.building)")
+                                                    .eq(position - 1);
+                    if ($prevDag.length) {
+                        $prevDag.after(outerDag);
+                    } else {
+                        $(".dagArea").append(xcTableWrap); // shouldn't happen
+                    }
                 }
             }
 
@@ -1623,15 +1642,14 @@ window.Dag = (function($, Dag) {
 
             dagAdded = true;
 
-            if (!WSManager.isTableInActiveWS(tableId)) {
-                $dagWrap.addClass('inActive');
-            }
             if (!isWorkspacePanelVisible) {
                 $('#workspacePanel').removeClass('active');
             }
             if (!isDagPanelVisible) {
                 $('#dagPanel').addClass('xc-hidden');
             }
+            $dagWrap.addClass("building");
+
             deferred.resolve();
         })
         .fail(function(error) {

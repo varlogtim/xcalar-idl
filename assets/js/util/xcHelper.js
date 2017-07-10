@@ -1510,6 +1510,7 @@ window.xcHelper = (function($, xcHelper) {
             $tbody.on('scroll.preventScrolling', function() {
                 $tbody.scrollTop(scrollTop);
             });
+            TableList.lockTable(tableId);
         }
         var lockHTML = '<div class="lockIcon"></div>';
         var $dagTables = $('#dagPanel').find('.dagTable[data-id="' + tableId +
@@ -1558,6 +1559,7 @@ window.xcHelper = (function($, xcHelper) {
             // if noDelete, they still need the lock
             $dagTables.find('.lockIcon').remove();
         }
+        TableList.unlockTable(tableId);
         WSManager.unlockTable(tableId);
         SQL.unlockUndoRedo();
     };
@@ -1841,6 +1843,31 @@ window.xcHelper = (function($, xcHelper) {
         } else if (itemOffsetTop < -5) {
             $list.scrollTop(scrollTop + itemOffsetTop - (listHeight / 2));
         }
+    };
+
+    xcHelper.getTableIndex = function(targetWS, position, selector) {
+        var targetIndex = WSManager.indexOfWS(targetWS);
+        var sheets = WSManager.getWSList();
+        var $allTables = $(selector + ":not(.building)");
+        var index = 0;
+        var found = false;
+        var $wsTables = $(selector + ":not(.building).worksheet-" +
+                                                            targetWS);
+        if ($wsTables.length) {
+            index = $allTables.index($wsTables.first());
+        } else {
+            for (var i = 0; i < targetIndex; i++) {
+                index += $(selector + ":not(.building).worksheet-" +
+                                                     sheets[i]).length;
+            }
+        }
+
+        if (position != null && $wsTables.length) {
+            index += position;
+        } else {
+            index += $wsTables.length;
+        }
+        return index;
     };
 
     xcHelper.createNextName = function(str, delimiter) {

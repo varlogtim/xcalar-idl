@@ -14,7 +14,6 @@ window.Undo = (function($, Undo) {
             var minModeCache = gMinModeOn;
             // do not use any animation
             gMinModeOn = true;
-
             undoFuncs[operation](options, isMostRecent)
             .then(deferred.resolve)
             .fail(function() {
@@ -515,10 +514,12 @@ window.Undo = (function($, Undo) {
             var tableName = tableNames[i];
             var refreshOptions = {
                 "isUndo": true,
-                "position": tablePos[i]
+                "position": tablePos[i],
+                "fromArchive": true
             };
+            var ws = WSManager.getWSFromTable(tableIds[i]);
             promises.push(TblManager.refreshTable.bind(this, [tableName], null,
-                [], null, null, refreshOptions));
+                [], ws, null, refreshOptions));
         }
 
         return PromiseHelper.chain(promises);
@@ -673,6 +674,7 @@ window.Undo = (function($, Undo) {
             "position": tablePos
         })
         .then(function() {
+            TableList.removeTable(tableId, TableType.Archived);
             WSManager.focusOnWorksheet(oldWS, false, tableId);
             deferred.resolve();
         })
@@ -775,9 +777,18 @@ window.Undo = (function($, Undo) {
             tables.forEach(function(tableId) {
                 WSManager.addTable(tableId);
                 var tableName = gTables[tableId].tableName;
-                promises.push(TblManager.refreshTable.bind(this, [tableName], null,
-                                                [], null, null,
-                                                {"isUndo": true}));
+                var promise = function() {
+                    var deferred = jQuery.Deferred();
+                    TblManager.refreshTable([tableName], null, [], null, null,
+                                                {"isUndo": true})
+                    .then(function() {
+                        TableList.removeTable(tableId, TableType.Archived);
+                        deferred.resolve();
+                    })
+                    .fail(deferred.reject);
+                    return deferred.promise();
+                };
+                promises.push(promise);
             });
 
             archivedTables.forEach(function(tableId) {
@@ -796,13 +807,14 @@ window.Undo = (function($, Undo) {
         }
 
         function makeWorksheetHelper() {
+            var firstLen = WSManager.getWSList().length;
+
             WSManager.addWS(wsId, wsName, wsIndex);
             var $tabs = $("#worksheetTabs .worksheetTab");
             var $tab = $tabs.eq(wsIndex);
             if (($tab.data("ws") !== wsId)) {
                 $("#worksheetTab-" + wsId).insertBefore($tab);
             }
-
         }
     };
     /* End of Worksheet Operation */

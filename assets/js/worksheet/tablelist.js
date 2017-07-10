@@ -4,6 +4,7 @@ window.TableList = (function($, TableList) {
     var pendingCount = 0; // number of pending refreshTable calls
     var canceledTables = {}; // stores tables that are canceled and should not
                             // appear in the orphaned list
+    var lockedTables = {}; // stores tables that are locked
     var days = [DaysTStr.Sunday, DaysTStr.Monday, DaysTStr.Tuesday,
             DaysTStr.Wednesday, DaysTStr.Thursday, DaysTStr.Friday,
             DaysTStr.Saturday];
@@ -107,8 +108,8 @@ window.TableList = (function($, TableList) {
 
         $tableListSections.on("click", ".selectAll", function() {
             var $section = $(this).closest(".tableListSection");
-            var $btns = $section.find(".tableInfo:not(.hiddenWS) " +
-                                ".addTableBtn:visible").addClass("selected");
+            var $btns = $section.find(".tableInfo:not(.hiddenWS):not(.locked)" +
+                                " .addTableBtn:visible").addClass("selected");
             if ($btns.length > 0) {
                 $section.find(".submit").removeClass("xc-hidden");
                 var $activateBtn = $section.find(".submit.active");
@@ -491,6 +492,7 @@ window.TableList = (function($, TableList) {
                         var innerDeferred = jQuery.Deferred();
 
                         if (tableType === TableType.Orphan) {
+                            TableList.lockTable(xcHelper.getTableId(tableName));
                             addOrphanedTable(tableName, destWS)
                             .then(function(ws){
                                 doneHandler($li, tableName);
@@ -501,20 +503,26 @@ window.TableList = (function($, TableList) {
                             .fail(function(error) {
                                 failHandler($li, tableName, error);
                                 innerDeferred.resolve(error);
+                            })
+                            .always(function() {
+                                TableList.unlockTable(xcHelper.getTableId(
+                                                                    tableName));
                             });
-                        } else {
+                        } else { // archived or hidden
                             var tableId = xcHelper.getTableId(tableName);
                             var table = gTables[tableId];
-                            table.beActive();
+                            TableList.lockTable(tableId);
                             table.updateTimeStamp();
 
                             TblManager.refreshTable([tableName], null, [], null)
                             .then(function() {
                                 doneHandler($li, tableName, hiddenWS);
+                                TableList.unlockTable(tableId);
                                 innerDeferred.resolve();
                             })
                             .fail(function(error) {
                                 failHandler($li, tableName, error);
+                                TableList.unlockTable(tableId);
                                 innerDeferred.resolve(error);
                             });
                         }
@@ -552,7 +560,10 @@ window.TableList = (function($, TableList) {
 
         return deferred.promise();
 
-        function doneHandler($li) {
+        function doneHandler($li, tableName, hiddenWS) {
+            if (hiddenWS) {
+                return;
+            }
             var $timeLine = $li.closest(".timeLine");
             if (gMinModeOn) {
                 handlerCallback();
@@ -609,6 +620,9 @@ window.TableList = (function($, TableList) {
                 var tableName;
                 // no adding back undone tables
                 if (table && table.getType() === TableType.Undone) {
+                    return;
+                }
+                if (lockedTables[tableId]) {
                     return;
                 }
 
@@ -769,7 +783,7 @@ window.TableList = (function($, TableList) {
     };
 
     // removes from list, no backend call
-    TableList.removeTable = function(tableIdOrName, type) {
+    TableList.removeTable = function(tableIdOrName, type, lock) {
         var tableType;
         var $li = $();
         var $listWrap;
@@ -777,31 +791,33 @@ window.TableList = (function($, TableList) {
             tableType = type;
         } else {
             var table = gTables[tableIdOrName];
-            if (!table) {
-                tableType = TableType.Orphan;
-            } else {
+            if (table) {
                 tableType = table.getType();
+            } else {
+                tableType = TableType.Orphan;
             }
         }
+        $listWrap = getListWrap(tableType);
 
-        if (tableType === TableType.Active) {
-            $listWrap = $("#activeTableListSection");
-            $li = $listWrap.find('.tableInfo[data-id="' + tableIdOrName + '"]');
-        } else if (tableType === TableType.Orphan) {
-            // if orphan, tableIdOrName is actually tableName
-            $listWrap = $('#orphanedTableListSection');
-            $li = $listWrap.find('.tableInfo[data-tablename="' +
+        if (tableType === TableType.Orphan) {
+            if (!xcHelper.getTableId(tableIdOrName)) {
+                $li = $listWrap.find('.tableInfo[data-id="' + tableIdOrName +
+                                    '"]');
+            } else {
+                $li = $listWrap.find('.tableInfo[data-tablename="' +
                                                     tableIdOrName + '"]');
-        } else if (tableType === TableType.Aggregate) {
-            $listWrap = $('#constantsListSection');
-            $li = $listWrap.find('.tableInfo[data-id="' + tableIdOrName + '"]');
+            }
         } else {
-            $listWrap = $('#archivedTableListSection');
             $li = $listWrap.find('.tableInfo[data-id="' + tableIdOrName + '"]');
         }
 
         var $timeLine = $li.closest(".timeLine");
-        $li.remove();
+        if (lock) {
+            $li.addClass("locked").find(".addTableBtn").removeClass("selected");
+        } else {
+            $li.remove();
+        }
+
         var $tableList = $listWrap.find('.tableLists');
 
         if ($timeLine.find('.tableInfo').length === 0) {
@@ -862,6 +878,26 @@ window.TableList = (function($, TableList) {
         }
     };
 
+    TableList.lockTable = function(tableId) {
+        lockedTables[tableId] = true;
+        TableList.removeTable(tableId, null, true);
+    };
+
+    TableList.unlockTable = function(tableId) {
+        var table = gTables[tableId];
+        var tableType;
+        if (table) {
+            tableType = table.getType();
+        } else {
+            tableType = TableType.Orphan;
+        }
+
+        var $listWrap = getListWrap(tableType);
+        var $li = $listWrap.find('.tableInfo[data-id="' + tableId + '"]');
+        $li.removeClass("locked");
+        delete lockedTables[tableId];
+    };
+
     TableList.checkTableInList = function(tableIdOrName, type) {
         // If type === orphaned, then it's name. Else it's id
         var tableType = TableType.Active; // Default
@@ -903,6 +939,22 @@ window.TableList = (function($, TableList) {
 
         return deferred.promise();
     };
+
+    function getListWrap(tableType) {
+        var $listWrap;
+        if (tableType === TableType.Orphan) {
+            $listWrap = $('#orphanedTableListSection');
+        } else {
+            if (tableType === TableType.Active) {
+                $listWrap = $("#activeTableListSection");
+            } else if (tableType === TableType.Aggregate) {
+                $listWrap = $('#constantsListSection');
+            } else {
+                $listWrap = $('#archivedTableListSection');
+            }
+        }
+        return $listWrap;
+    }
 
     function clearAll($section) {
         $section.find(".submit").addClass("xc-hidden")
@@ -1200,6 +1252,9 @@ window.TableList = (function($, TableList) {
                 tableNameTip = xcHelper.replaceMsg(TooltipTStr.UndoTableTip, {
                     "name": tableName
                 });
+            }
+            if (lockedTables[tableId]) {
+                liClass += " locked";
             }
             html += '<li class="clearfix tableInfo ' + liClass + '" ' +
                     'data-id="' + tableId + '"' +

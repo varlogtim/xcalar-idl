@@ -577,7 +577,7 @@ window.xcManager = (function(xcManager, $) {
         FnBar.setup();
     }
 
-    function restoreActiveTable(tableId, failures) {
+    function restoreActiveTable(tableId, worksheetId, failures) {
         var deferred = jQuery.Deferred();
         var table = gTables[tableId];
         var passedUpdate = false;
@@ -587,7 +587,11 @@ window.xcManager = (function(xcManager, $) {
         table.getMetaAndResultSet()
         .then(function() {
             passedUpdate = true;
-            return TblManager.parallelConstruct(tableId);
+            var options = {
+                wsId: worksheetId,
+                atStartUp: true
+            };
+            return TblManager.parallelConstruct(tableId, null, options);
         })
         .then(deferred.resolve)
         .fail(function(error) {
@@ -673,7 +677,7 @@ window.xcManager = (function(xcManager, $) {
                 worksheet.tables.forEach(function(tableId) {
                     if (checkIfHasTableMeta(tableId, backTableSet)) {
                         promises.push(restoreActiveTable.bind(window, tableId,
-                                                                failures));
+                                                worksheetId, failures));
                     }
                 });
 

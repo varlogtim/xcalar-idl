@@ -1291,8 +1291,6 @@ describe("Dag Panel Test", function() {
                     XcalarDeleteTable(largeTable.tableName)
                     .then(function() {
                         expect(largeTable.$dagWrap.hasClass("locked")).to.be.true;
-                        expect(largeTable.$dagWrap.hasClass("dagWrapToRemove"))
-                        .to.be.true;
                         // expect($dagPanel.find("#dagWrap-" + prevTableId).length).to.equal(1);
                         largeTable.$dagWrap = $dagPanel.find("#dagWrap-" + prevTableId);
                         expect(largeTable.$dagWrap.hasClass("selected")).to.be.true;
