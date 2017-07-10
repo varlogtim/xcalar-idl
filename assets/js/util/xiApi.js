@@ -510,9 +510,11 @@ window.XIApi = (function(XIApi, $) {
         var finalTable;
         var isMultiGroupby = (groupByCols.length > 1);
         var unstrippedIndexedColName;
+        var renamedGroupByCols = [];
 
         var finalCols = getFinalGroupByCols(tableName, groupByCols, gbArgs,
-                                            isIncSample, sampleCols);
+                                            isIncSample, sampleCols,
+                                            renamedGroupByCols);
         // tableName is the original table name that started xiApi.groupby
         getGroupbyIndexedTable(txId, tableName, groupByCols)
         .then(function(resTable, resCol, tempTablesInIndex) {
@@ -566,7 +568,8 @@ window.XIApi = (function(XIApi, $) {
             if (isMultiGroupby && !isIncSample) {
                 // multi group by should extract column from groupby table
                 return extractColFromMap(tableName, finalTableName, groupByCols,
-                                         indexedColName, finalCols, txId);
+                                         indexedColName, finalCols,
+                                         renamedGroupByCols, txId);
             } else {
                 return PromiseHelper.resolve(finalTableName, []);
             }
@@ -580,7 +583,7 @@ window.XIApi = (function(XIApi, $) {
             }
         })
         .then(function() {
-            deferred.resolve(finalTable, finalCols);
+            deferred.resolve(finalTable, finalCols, renamedGroupByCols);
         })
         .fail(deferred.reject);
 
@@ -1352,9 +1355,12 @@ window.XIApi = (function(XIApi, $) {
     }
 
     function getFinalGroupByCols(tableName, groupByCols, gbArgs,
-                                 isIncSample, sampleCols) {
+                                 isIncSample, sampleCols, renamedGroupByCols) {
         var dataCol = ColManager.newDATACol();
         var tableId = xcHelper.getTableId(tableName);
+        for (var i = 0; i < groupByCols.length; i++) {
+            renamedGroupByCols.push(groupByCols[i]);
+        }
 
         if (tableId == null || !gTables.hasOwnProperty(tableId)) {
             // in case we have no meta of the table
@@ -1364,20 +1370,16 @@ window.XIApi = (function(XIApi, $) {
 
         var table = gTables[tableId];
         var tableCols = table.tableCols;
-
-        var escapedNames = [];
+        var newColNames = {};
         var newProgCols = [];
         var numNewCols = gbArgs.length;
 
         gbArgs.forEach(function(gbArg) {
             var name = gbArg.newColName;
-            escapedNames.push(name);
+            newColNames[name] = true;
             newProgCols.push(ColManager.newPullCol(name, name));
         });
 
-        // xx kinda crazy but the backend returns a lot of \ slashes
-        // front name of a.b turns into a\.b in the backend and then
-        // we need to escape the \ and . in a\.b to access it so it becomes a\\\.b
         var numGroupByCols = groupByCols.length;
         var finalCols;
 
@@ -1420,11 +1422,33 @@ window.XIApi = (function(XIApi, $) {
             for (var i = 0; i < numGroupByCols; i++) {
                 var backColName = groupByCols[i];
                 var progCol = table.getColByBackName(backColName) || {};
-                var escapedName = xcHelper.stripColName(
-                    xcHelper.parsePrefixColName(backColName).name);
+                var parsedPrefixName = xcHelper.parsePrefixColName(backColName);
+                var escapedName = xcHelper.stripColName(parsedPrefixName.name);
+                var colName;
+                if (escapedName in newColNames) {
+                    var limit = 50;
+                    var tries = 0;
+                    var newName = parsedPrefixName.prefix + "_" + escapedName;
 
-                var colName = progCol.name || backColName;
+                    while (tries < limit) {
+                        if (newName in newColNames) {
+                            tries++;
+                            newName = escapedName + tries;
+                        } else {
+                            break;
+                        }
+                    }
+                    if (tries >= limit) {
+                        newName = xcHelper.randName(escapedName);
+                    }
+                    escapedName = newName;
+                    colName = escapedName;
+                } else {
+                    colName = progCol.name || backColName;
+                }
                 colName = xcHelper.stripColName(colName);
+                newColNames[escapedName] = true;
+                renamedGroupByCols[i] = escapedName;
 
                 finalCols[numNewCols + i] = ColManager.newCol({
                     "backName": escapedName,
@@ -1501,8 +1525,10 @@ window.XIApi = (function(XIApi, $) {
         return deferred.promise();
     }
 
+    // used after a multi-group by to split the concated column
     function extractColFromMap(srcTableName, groupbyTableName, groupByCols,
-                               indexedColName, finalTableCols, txId)
+                               indexedColName, finalTableCols,
+                               renamedGroupByCols, txId)
     {
         var deferred = jQuery.Deferred();
 
@@ -1553,7 +1579,8 @@ window.XIApi = (function(XIApi, $) {
             var isLastTable = (i === groupByCols.length - 1);
             tableCols = extractColGetColHelper(finalTableCols, i + 1);
 
-            var parsedName = xcHelper.parsePrefixColName(groupByCols[i]).name;
+            var parsedName = xcHelper.parsePrefixColName(renamedGroupByCols[i])
+                                                                        .name;
             parsedName = xcHelper.stripColName(parsedName);
             var args = {
                 "colName": parsedName,

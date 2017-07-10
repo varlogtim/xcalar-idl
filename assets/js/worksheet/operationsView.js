@@ -1767,8 +1767,7 @@ window.OperationsView = (function($, OperationsView) {
             if (categoryNum === FunctionCategoryT.FunctionCategoryUdf) {
                 autoGenColName = getAutoGenColName(tempName + "_udf");
             } else {
-                autoGenColName = getAutoGenColName(tempName + "_" +
-                                                   func);
+                autoGenColName = getAutoGenColName(tempName + "_" +  func);
             }
         }
 
@@ -3930,6 +3929,7 @@ window.OperationsView = (function($, OperationsView) {
 
         return newName;
     }
+
     function checkColNameUsedInInputs(name, $inputToIgnore) {
         name = xcHelper.stripColName(name);
         var $inputs = $activeOpSection.find(".colNameRow").find("input");

@@ -556,11 +556,11 @@ window.xcFunction = (function($, xcFunction) {
         };
 
         XIApi.groupBy(txId, gbArgs, groupByCols, tableName, groupByOpts)
-        .then(function(nTableName, nTableCols) {
+        .then(function(nTableName, nTableCols, renamedGBCols) {
             if (isJoin) {
                 var dataColNum = gTables[tableId].getColNumByBackName("DATA");
                 return groupByJoinHelper(nTableName, nTableCols, dataColNum,
-                                         isIncSample);
+                                         isIncSample, renamedGBCols);
             } else {
                 return PromiseHelper.resolve(nTableName, nTableCols);
             }
@@ -612,7 +612,8 @@ window.xcFunction = (function($, xcFunction) {
 
         // TODO when multi-groupby we can use the unsplit table instead of
         // splitting and then concatting again
-        function groupByJoinHelper(nTable, nCols, dataColNum, isIncSample) {
+        function groupByJoinHelper(nTable, nCols, dataColNum, isIncSample,
+                                    renamedGBCols) {
 
             var innerDeferred = jQuery.Deferred();
 
@@ -626,7 +627,7 @@ window.xcFunction = (function($, xcFunction) {
             var lCols = groupByCols;
             var rRename = [];
 
-            var rCols = groupByCols.map(function(colName) {
+            var rCols = renamedGBCols.map(function(colName) {
                 colName = xcHelper.stripColName(colName);
                 var parse = xcHelper.parsePrefixColName(colName);
                 var hasNameConflict;
