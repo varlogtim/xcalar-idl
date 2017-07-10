@@ -706,7 +706,14 @@ window.UDF = (function($, UDF) {
                     var $uploadedFunc = $("#udf-fnMenu")
                                     .find('li[data-title="' + moduleName +
                                            '"]');
-                    $uploadedFunc.trigger(fakeEvent.mouseup);
+                    // select list directly use
+                    // $uploadedFunc.trigger(fakeEvent.mouseup) will reset
+                    // the cusort, which might be ignoring
+                    if ($uploadedFunc.length) {
+                        $("#udf-fnList input").val(moduleName);
+                    } else {
+                        $("#udf-fnList input").val("");
+                    }
                     deferred.resolve();
                 })
                 .fail(function(error) {
