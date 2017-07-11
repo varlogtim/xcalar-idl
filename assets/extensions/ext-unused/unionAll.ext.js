@@ -63,6 +63,16 @@ window.UExtUnionAll = (function(UExtUnionAll) {
                 var typeOne = tableOne.tableCols[i].getType();
                 var typeTwo = tableTwo.tableCols[j].getType();
 
+                if (typeOne == "undefined") {
+                    return XcSDK.Promise.reject("Blank Column in Top Table " +
+                        "at index " + i);
+                }
+
+                if (typeTwo == "undefined") {
+                    return XcSDK.Promise.reject("Blank Column in Bottom Table "
+                        + "at index " + j);
+                }
+
                 if ((typeOne === 'string' && typeTwo !== 'string') ||
                     (typeTwo === 'string' && typeOne !== 'string')) {
 
