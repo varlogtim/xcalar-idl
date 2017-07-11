@@ -539,7 +539,7 @@ window.XIApi = (function(XIApi, $) {
                     // only do sample on first groupby
                     sample = false;
                 }
-                var newKeyFieldName = xcHelper.getPrefixColName(indexedColName)
+                var newKeyFieldName = xcHelper.parsePrefixColName(indexedColName)
                                               .name;
                 if (sample) {
                     // incSample does not take renames
