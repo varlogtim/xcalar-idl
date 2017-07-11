@@ -334,6 +334,10 @@ window.DSPreview = (function($, DSPreview) {
             }
         });
 
+        $csvDelim.on("click", ".iconWrapper", function() {
+            $(this).closest(".dropDownList").find(".text").focus();
+        });
+
         // quote
         $quote.on("input", function() {
             setQuote();
@@ -1199,6 +1203,7 @@ window.DSPreview = (function($, DSPreview) {
         } else {
             setLineDelim();
         }
+        $input.focus();
     }
 
     function setFieldDelim() {
