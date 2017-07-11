@@ -64,22 +64,32 @@ app.post("/getRows", function(req, res) {
     });
 });
 
+/*
+ * parameters: args, a stringfied json object, need to use JSON.parse to unnest
+ * args includes the following arguments:
+ *      gbArgs: an array of coumns to aggregate on, each element is an object,
+ *              which have the following attributes:
+ *              1) operator: aggregate function to apply, it should be one of the following:
+ *                           (Avg, Count, ListAgg, Max, MaxInteger,
+ *                           Min, MinInteger, Sum, SumInteger)
+ *              2) aggColName: column name to apply aggregate on
+ *              3) newColName: column name for the calculated result
+ *      groupByCols: an array of columns to group by
+ *      tableName: table to group by
+ *      newTableName: final name will be newTableName + randomNumber
+ */
 app.post("/groupBy", function(req, res) {
     var args = req.body.args;
     try {
         args = JSON.parse(args);
 
-        // operator should be one of the follwing:
-        // (Avg, Count, ListAgg, Max, MaxInteger, Min, MinInteger, Sum, SumInteger)
-        var operator = args.operator;
-        var groupByCols = args.groupByCols;   // an array of columns to group by
-        var aggColName = args.aggColName;     // column to apply aggregate on
+        var gbArgs = args.gbArgs;
+        var groupByCols = args.groupByCols;
         var tableName = args.tableName;
-        var newColName = args.newColName;     // new col name for the resultant agg col
-        var newTableName = args.newTableName; // newTableName (finalTable name will append a randNum after it)
+        var newTableName = args.newTableName;
 
         console.log("groupBy on", tableName);
-        xc.groupBy(operator, groupByCols, aggColName, tableName, newColName, newTableName)
+        xc.groupBy(gbArgs, groupByCols, tableName, newTableName)
         .then(function(finalTableName) {
             console.log("groupBy finishes", finalTableName);
             res.send(finalTableName);

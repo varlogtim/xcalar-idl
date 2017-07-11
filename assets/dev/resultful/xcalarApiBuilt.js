@@ -1582,18 +1582,6 @@ function getXcHelper($) {
         };
     };
 
-    xcHelper.getMultiJoinMapString = function(args) {
-        var mapStr = "";
-        var len = args.length;
-        for (var i = 0; i < len - 1; i++) {
-            mapStr += 'concat(string(' + args[i] + '), concat(".Xc.", ';
-        }
-
-        mapStr += 'string(' + args[len - 1] + ')';
-        mapStr += "))".repeat(len - 1);
-        return mapStr;
-    };
-
     xcHelper.getTableKeyFromMeta = function(tableMeta) {
         var keyAttr = tableMeta.keyAttr;
         var keyName = keyAttr.name;
@@ -1610,6 +1598,29 @@ function getXcHelper($) {
         }
         keyName = xcHelper.getPrefixColName(prefixOfKey, keyName);
         return keyName;
+    };
+
+    xcHelper.getJoinRenameMap = function(oldName, newName, type) {
+        if (!type) {
+            type = DfFieldTypeT.DfUnknown;
+        }
+        return {
+            "orig": oldName,
+            "new": newName,
+            "type": type
+        };
+    };
+
+    xcHelper.getMultiJoinMapString = function(args) {
+        var mapStr = "";
+        var len = args.length;
+        for (var i = 0; i < len - 1; i++) {
+            mapStr += 'concat(string(' + args[i] + '), concat(".Xc.", ';
+        }
+
+        mapStr += 'string(' + args[len - 1] + ')';
+        mapStr += "))".repeat(len - 1);
+        return mapStr;
     };
 
     return (xcHelper);
@@ -1889,6 +1900,47 @@ function XcalarMap(newFieldName, evalStr, srcTablename, dstTablename,
     return deferred.promise();
 }
 
+function XcalarJoin(left, right, dst, joinType, leftRename, rightRename, txId) {
+    if (tHandle == null) {
+        return PromiseHelper.resolve(null);
+    }
+    var coll = true;
+
+    var deferred = jQuery.Deferred();
+    var unsortedLeft = left;
+    var unsortedRight = right;
+
+    var leftRenameMap = [];
+    var rightRenameMap = [];
+    var map;
+    if (leftRename) {
+        for (var i = 0; i < leftRename.length; i++) {
+            map = new XcalarApiRenameMapT();
+            map.oldName = leftRename[i].orig;
+            map.newName = leftRename[i].new;
+            map.type = leftRename[i].type;
+            leftRenameMap.push(map);
+        }
+    }
+
+    if (rightRename) {
+        for (var i = 0; i < rightRename.length; i++) {
+            map = new XcalarApiRenameMapT();
+            map.oldName = rightRename[i].orig;
+            map.newName = rightRename[i].new;
+            map.type = rightRename[i].type;
+            rightRenameMap.push(map);
+        }
+    }
+
+    xcalarJoin(tHandle, unsortedLeft, unsortedRight, dst,
+                joinType, leftRenameMap, rightRenameMap, coll)
+    .then(deferred.resolve)
+    .fail(deferred.reject);
+
+    return deferred.promise();
+}
+
 function XcalarGroupBy(operator, newColName, oldColName, tableName,
                        newTableName, incSample, icvMode, newKeyFieldName, txId)
 {
@@ -1977,6 +2029,121 @@ XIApi.map = function(txId, mapStr, tableName, newColName, newTableName, icvMode)
 };
 
 /*
+    lTableInfo/rTableInfo: object with the following attrs:
+        columns: array of back colum names to join
+        pulledColumns: columns to pulled out (front col name)
+        tableName: table's name
+        reaname: array of rename object
+
+    rename map: object generate by
+    xcHelper.getJoinRenameMap(oldName, newName, type)
+    if it's fat ptr, pass in DfFieldTypeT.DfFatptr, othewise, pass in null
+
+        sample:
+            var lTableInfo = {
+                "tableName": "test#ab123",
+                "columns": ["test::colA", "test::colB"],
+                "pulledColumns": ["test::colA", "test::colB"],
+                "rename": [{
+                    "new": "test2",
+                    "old": "test",
+                    "type": DfFieldTypeT.DfFatptr
+                }]
+            }
+
+    options:
+        newTableName: string, final table's name, optional
+        clean: boolean, remove intermediate table if set true
+*/
+XIApi.join = function(txId, joinType, lTableInfo, rTableInfo, options) {
+    if (!(lTableInfo instanceof Object) ||
+        !(rTableInfo instanceof Object))
+    {
+        return PromiseHelper.reject("Invalid args in join");
+    }
+
+    var lTableName = lTableInfo.tableName;
+    var lColNames = lTableInfo.columns;
+    // var pulledLColNames = lTableInfo.pulledColumns;
+    var lRename = lTableInfo.rename || [];
+
+    var rTableName = rTableInfo.tableName;
+    var rColNames = rTableInfo.columns;
+    // var pulledRColNames = rTableInfo.pulledColumns;
+    var rRename = rTableInfo.rename || [];
+
+    if (lColNames == null || lTableName == null ||
+        rColNames == null || rTableName == null ||
+        joinType == null || txId == null ||
+        !(joinType in JoinOperatorTStr))
+    {
+        return PromiseHelper.reject("Invalid args in join");
+    }
+
+    if (!(lColNames instanceof Array)) {
+        lColNames = [lColNames];
+    }
+
+    if (!(rColNames instanceof Array)) {
+        rColNames = [rColNames];
+    }
+
+    if (lColNames.length < 1 || lColNames.length !== rColNames.length) {
+        return PromiseHelper.reject("Invalid args in join");
+    }
+
+    options = options || {};
+
+    var newTableName = options.newTableName;
+    var clean = options.clean || false;
+    var checkJoinKey = false; // not check join key
+    var deferred = jQuery.Deferred();
+    var lTable_index;
+    var rTable_index;
+    var tempTables = [];
+    var joinedCols;
+    // Step 1: check if it's a multi Join.
+    // If yes, should do a map to concat all columns
+    multiJoinCheck(lColNames, lTableName, rColNames, rTableName, txId)
+    .then(function(res) {
+        tempTables = tempTables.concat(res.tempTables);
+        // Step 2: index the left table and right table
+        return joinIndexCheck(res, checkJoinKey, txId);
+    })
+    .then(function(lInexedTable, rIndexedTable, tempTablesInIndex) {
+        lTable_index = lInexedTable;
+        rTable_index = rIndexedTable;
+        tempTables = tempTables.concat(tempTablesInIndex);
+        if (!isValidTableName(newTableName)) {
+            newTableName = getNewTableName(lTableName.substring(0, 5) +
+                                            "-" +
+                                            rTableName.substring(0, 5));
+        }
+        // Step 3: join left table and right table
+        return XcalarJoin(lInexedTable, rIndexedTable, newTableName,
+                            joinType, lRename, rRename, txId);
+    })
+    .then(function() {
+        if (checkJoinKey) {
+            // this is the table that has change all col name
+            lTableName = lTable_index;
+            rTableName = rTable_index;
+        }
+
+        joinedCols = [];
+        if (clean) {
+            return XIApi.deleteTableAndMetaInBulk(txId, tempTables, true);
+        }
+    })
+    .then(function() {
+        deferred.resolve(newTableName, joinedCols);
+    })
+    .fail(deferred.reject);
+
+    return deferred.promise();
+};
+
+/*
  * gbArgs: an array of objects with operator, aggColName, and newColName
  *         properties - for multi group by operations
  * options:
@@ -2017,12 +2184,14 @@ XIApi.groupBy = function(txId, gbArgs, groupByCols, tableName, options) {
     var indexedTable;
     var indexedColName;
     var finalTable;
-    var gbTableName = null;
     var isMultiGroupby = (groupByCols.length > 1);
     var unstrippedIndexedColName;
+    var renamedGroupByCols = [];
 
     var finalCols = getFinalGroupByCols(tableName, groupByCols, gbArgs,
-                                        isIncSample, sampleCols);
+                                        isIncSample, sampleCols,
+                                        renamedGroupByCols);
+    var groupByTables = [];
     // tableName is the original table name that started xiApi.groupby
     getGroupbyIndexedTable(txId, tableName, groupByCols)
     .then(function(resTable, resCol, tempTablesInIndex) {
@@ -2038,12 +2207,13 @@ XIApi.groupBy = function(txId, gbArgs, groupByCols, tableName, options) {
         }
         var promises = [];
 
-        gbTableName = finalTableName;
+        var gbTableName = finalTableName;
         var sample = isIncSample;
         for (var i = 0; i < gbArgs.length; i++) {
             if (gbArgs.length > 1) {
                 gbTableName = getNewTableName(finalTableName);
             }
+            groupByTables.push(gbTableName);
             if (i > 0) {
                 // only do sample on first groupby
                 sample = false;
@@ -2062,22 +2232,22 @@ XIApi.groupBy = function(txId, gbArgs, groupByCols, tableName, options) {
         return PromiseHelper.when.apply(null, promises);
     })
     .then(function() {
-        // var args = arguments;
-        // if (!isIncSample) {
-        //     indexedColName = xcHelper.parsePrefixColName(indexedColName)
-        //                              .name;
-        // }
+        var args = arguments;
+        if (!isIncSample) {
+            indexedColName = xcHelper.parsePrefixColName(indexedColName).name;
+        }
 
-        // return groupByJoinHelper(txId, indexedColName,
-        //                     unstrippedIndexedColName, finalTableName,
-        //                         gbArgs, args, isIncSample);
+        return groupByJoinHelper(txId, indexedColName,
+                            unstrippedIndexedColName, finalTableName,
+                                gbArgs, args, isIncSample);
     })
-    .then(function() {
-        finalTableName = gbTableName;
+    .then(function(retTableName) {
+        finalTableName = retTableName;
         if (isMultiGroupby && !isIncSample) {
             // multi group by should extract column from groupby table
             return extractColFromMap(tableName, finalTableName, groupByCols,
-                                     indexedColName, finalCols, txId);
+                                     indexedColName, finalCols,
+                                     renamedGroupByCols, txId);
         } else {
             return PromiseHelper.resolve(finalTableName, []);
         }
@@ -2085,13 +2255,20 @@ XIApi.groupBy = function(txId, gbArgs, groupByCols, tableName, options) {
     .then(function(resTable, tempTablesInMap) {
         finalTable = resTable;
         tempTables = tempTables.concat(tempTablesInMap);
+        if (groupByTables.length >= 2) {
+            // join case
+            for (var i = 0; i < groupByTables.length; i++) {
+                tempTables.push(groupByTables[i]);
+            }
+        }
+
         if (clean) {
             // remove intermediate table
             return XIApi.deleteTableAndMetaInBulk(txId, tempTables, true);
         }
     })
     .then(function() {
-        deferred.resolve(finalTable, finalCols);
+        deferred.resolve(finalTable, finalCols, renamedGroupByCols);
     })
     .fail(deferred.reject);
 
@@ -2233,12 +2410,43 @@ function getGroupbyIndexedTable(txId, tableName, groupByCols) {
 }
 
 function getFinalGroupByCols(tableName, groupByCols, gbArgs,
-                             isIncSample, sampleCols) {
+                             isIncSample, sampleCols, renamedGroupByCols) {
+    var numGroupByCols = groupByCols.length;
+    var newColNames = {};
+
+    for (var i = 0; i < numGroupByCols; i++) {
+        var backColName = groupByCols[i];
+        renamedGroupByCols.push(backColName);
+
+        var parsedPrefixName = xcHelper.parsePrefixColName(backColName);
+        var escapedName = xcHelper.stripColName(parsedPrefixName.name);
+        if (escapedName in newColNames) {
+            var limit = 50;
+            var tries = 0;
+            var newName = parsedPrefixName.prefix + "_" + escapedName;
+
+            while (tries < limit) {
+                if (newName in newColNames) {
+                    tries++;
+                    newName = escapedName + tries;
+                } else {
+                    break;
+                }
+            }
+            if (tries >= limit) {
+                newName = xcHelper.randName(escapedName);
+            }
+            escapedName = newName;
+        }
+        newColNames[escapedName] = true;
+        renamedGroupByCols[i] = escapedName;
+    }
     return [];
 }
 
 function extractColFromMap(srcTableName, groupbyTableName, groupByCols,
-                           indexedColName, finalTableCols, txId)
+                           indexedColName, finalTableCols,
+                           renamedGroupByCols, txId)
 {
     var deferred = jQuery.Deferred();
 
@@ -2269,7 +2477,7 @@ function extractColFromMap(srcTableName, groupbyTableName, groupByCols,
         var isLastTable = (i === groupByCols.length - 1);
         tableCols = extractColGetColHelper(finalTableCols, i + 1);
 
-        var parsedName = xcHelper.parsePrefixColName(groupByCols[i]).name;
+        var parsedName = xcHelper.parsePrefixColName(renamedGroupByCols[i]).name;
         parsedName = xcHelper.stripColName(parsedName);
         var args = {
             "colName": parsedName,
@@ -2318,9 +2526,169 @@ function extracColMapHelper(mapArgs, tableCols, isLastTable, txId) {
     return deferred.promise();
 }
 
+function groupByJoinHelper(txId, indexedColName, unstrippedIndexedColName,
+                                finalTableName, gbArgs,
+                                args, isIncSample) {
+    var deferred = jQuery.Deferred();
+    if (gbArgs.length < 2) {
+        return PromiseHelper.resolve(finalTableName);
+    }
+
+    var parsedIndexedColName = xcHelper.parsePrefixColName(
+                                indexedColName).name;
+    // the 2nd, 3rd etc group by table doesn't use isIncSample
+    // so we need the parsedColName
+
+    var promises = [];
+    var lCols = [indexedColName];
+    var rCols = [parsedIndexedColName];
+    finalTableName = args[0].tableName;
+    if (isIncSample) {
+        lCols = [unstrippedIndexedColName];
+    }
+
+    for (var i = 1; i < gbArgs.length; i++) {
+        var lTableInfo = {
+            "tableName": finalTableName,
+            "columns": lCols
+        };
+
+        var newName = xcHelper.randName(parsedIndexedColName + "_GB", 3);
+        var renameMap = xcHelper.getJoinRenameMap(parsedIndexedColName,
+                                              newName);
+
+        var rTableInfo = {
+            "tableName": args[i].tableName,
+            "columns": rCols,
+            "rename": [renameMap]
+        };
+
+        finalTableName = getNewTableName(finalTableName);
+        var joinOptions = {
+            newTableName: finalTableName
+        };
+        promises.push(XIApi.join.bind(null, txId,
+        JoinOperatorT.InnerJoin, lTableInfo, rTableInfo, joinOptions));
+    }
+
+    // TODO: instead of a chain of joining to the previous table, we can do
+    // A-B -> AB, C-D -> CD, then AB-CD -> ABCD
+    PromiseHelper.chain(promises)
+    .then(function() {
+        deferred.resolve(finalTableName);
+    })
+    .fail(deferred.reject);
+
+    return deferred.promise();
+}
+
+function multiJoinCheck(lColNames, lTableName, rColNames, rTableName, txId) {
+    var deferred = jQuery.Deferred();
+    var len = lColNames.length;
+    var tempTables = [];
+
+    if (len === 1) {
+        // single join
+        deferred.resolve({
+            "lTableName": lTableName,
+            "lColName": lColNames[0],
+            "rTableName": rTableName,
+            "rColName": rColNames[0],
+            "tempTables": tempTables
+        });
+    } else {
+        // multi join
+        // left cols
+        var lNewName = getNewTableName(lTableName);
+        var lColName = xcHelper.randName("leftJoinCol");
+        var lString = xcHelper.getMultiJoinMapString(lColNames);
+
+        // right cols
+        var rNewName = getNewTableName(rTableName);
+
+        var rString  = xcHelper.getMultiJoinMapString(rColNames);
+        var rColName = xcHelper.randName("rightJoinCol");
+
+        var deferred1 = XcalarMap(lColName, lString,
+                                  lTableName, lNewName, txId);
+        var deferred2 = XcalarMap(rColName, rString,
+                                  rTableName, rNewName, txId);
+
+        PromiseHelper.when(deferred1, deferred2)
+        .then(function() {
+            tempTables.push(lNewName);
+            tempTables.push(rNewName);
+
+            deferred.resolve({
+                "lTableName": lNewName,
+                "lColName": lColName,
+                "rTableName": rNewName,
+                "rColName": rColName,
+                "tempTables": tempTables
+            });
+        })
+        .fail(deferred.reject);
+    }
+
+    return deferred.promise();
+}
+
+function joinIndexCheck(joinInfo, checkJoinKey, txId) {
+    var deferred = jQuery.Deferred();
+    var deferred1;
+    var deferred2;
+    var lColName = joinInfo.lColName;
+    var rColName = joinInfo.rColName;
+    var lTableName = joinInfo.lTableName;
+    var rTableName = joinInfo.rTableName;
+
+    if (checkJoinKey) {
+        // when it's self join or globally enabled
+        // deferred1 = handleJoinKey(lColName, lTableName, txId, true);
+        // deferred2 = handleJoinKey(rColName, rTableName, txId, false);
+        deferred1 = PromiseHelper.reject("not supported in RESTful API");
+        deferred2 = PromiseHelper.reject("not supported in RESTful API");
+    } else if (lTableName === rTableName && lColName === rColName) {
+        // when it's self join
+        var defs = selfJoinIndex(lColName, lTableName, txId);
+        deferred1 = defs[0];
+        deferred2 = defs[1];
+    } else {
+        deferred1 = checkTableIndex(lColName, lTableName, txId);
+        deferred2 = checkTableIndex(rColName, rTableName, txId);
+    }
+
+    PromiseHelper.when(deferred1, deferred2)
+    .then(function(res1, res2) {
+        var lInexedTable = res1[0];
+        var rIndexedTable = res2[0];
+        var tempTables = res1[2].concat(res2[2]);
+        deferred.resolve(lInexedTable, rIndexedTable, tempTables);
+    })
+    .fail(deferred.reject);
+
+    return deferred.promise();
+}
+
+function selfJoinIndex(colName, tableName, txId) {
+    var deferred1 = jQuery.Deferred();
+    var deferred2 = jQuery.Deferred();
+
+    checkTableIndex(colName, tableName, txId)
+    .then(function() {
+        deferred1.resolve.apply(this, arguments);
+        deferred2.resolve.apply(this, arguments);
+    })
+    .fail(function() {
+        deferred1.reject.apply(this, arguments);
+        deferred2.reject.apply(this, arguments);
+    });
+
+    return [deferred1.promise(), deferred2.promise()];
+}
+
 function isValidTableName(tableName) {
     var isValid = isCorrectTableNameFormat(tableName);
-
     if (!isValid) {
         if (tableName != null) {
             console.error("incorrect table name format");
@@ -2348,10 +2716,12 @@ function isCorrectTableNameFormat(tableName) {
     if (tableName == null || tableName === "") {
         return false;
     }
-
-    var regex = "^.*#[a-zA-Z0-9]{2}[0-9]+$";
-    var regexp = new RegExp(regex);
-    return regexp.test(tableName);
+    // Note: in RESTful, we don't check table name format since it
+    // can not have hash tag
+    return true;
+    // var regex = "^.*#[a-zA-Z0-9]{2}[0-9]+$";
+    // var regexp = new RegExp(regex);
+    // return regexp.test(tableName);
 }
 
 function getNewTableName(tableName, affix, rand) {
@@ -2576,18 +2946,12 @@ function XcalarQueryCheck(queryName, canceling) {
     return deferred.promise();
 }
 
-exports.groupBy = function(operator, groupByCols, aggColName, tableName, newColName, newTableName) {
+exports.groupBy = function(gbArgs, groupByCols, tableName, newTableName) {
     var txId = xcHelper.randName("apiTXId");
     var options = {
         "newTableName": newTableName,
         "clean": true
     };
-
-    var gbArgs = [{
-        "aggColName": aggColName,
-        "operator": parseOpeartor(operator),
-        "newColName": newColName
-    }];
     return XIApi.groupBy(txId, gbArgs, groupByCols, tableName, options);
 };
 

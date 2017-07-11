@@ -111,8 +111,16 @@ function groupByTest() {
         return groupBy({
             "operator": "Avg",
             "aggColName": "lat_integer",
-            "groupByCols": ["lat_integer", "state"],
-            "newColName": "test",
+            "gbArgs": [{
+                "operator": "Avg",
+                "aggColName": "lat_integer",
+                "newColName": "lat_avg",
+            }, {
+                "operator": "Count",
+                "aggColName": "airports::state",
+                "newColName": "state_count",
+            }],
+            "groupByCols": ["state"],
             "tableName": srcTableName,
             "newTableName": dstTableName
         });

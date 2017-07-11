@@ -1491,23 +1491,23 @@ window.XIApi = (function(XIApi, $) {
         }
 
         for (var i = 1; i < gbArgs.length; i++) {
-            lTableInfo = {
+            var lTableInfo = {
                 "tableName": finalTableName,
                 "columns": lCols
             };
 
-            newName = xcHelper.randName(parsedIndexedColName + "_GB", 3);
-            renameMap = xcHelper.getJoinRenameMap(parsedIndexedColName,
+            var newName = xcHelper.randName(parsedIndexedColName + "_GB", 3);
+            var renameMap = xcHelper.getJoinRenameMap(parsedIndexedColName,
                                                   newName);
 
-            rTableInfo = {
+            var rTableInfo = {
                 "tableName": args[i].tableName,
                 "columns": rCols,
                 "rename": [renameMap]
             };
 
             finalTableName = getNewTableName(finalTableName);
-            joinOptions = {
+            var joinOptions = {
                 newTableName: finalTableName
             };
             promises.push(XIApi.join.bind(null, txId,
