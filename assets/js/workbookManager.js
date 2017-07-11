@@ -19,7 +19,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
         .then(activateWorkbook)
         .then(function(wkbkId) {
             activeWKBKId = wkbkId;
-            // retive key from username and wkbkId
+            // retrieve key from username and wkbkId
             setupKVStore(wkbkId);
             deferred.resolve();
         })
