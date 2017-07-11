@@ -70,23 +70,23 @@ var Thrift = {
      * @property {number}  UTF16  - Array of bytes representing a string of UTF16 encoded characters.
      */
     Type: {
-        'STOP' : 0,
-        'VOID' : 1,
-        'BOOL' : 2,
-        'BYTE' : 3,
-        'I08' : 3,
-        'DOUBLE' : 4,
-        'I16' : 6,
-        'I32' : 8,
-        'I64' : 10,
-        'STRING' : 11,
-        'UTF7' : 11,
-        'STRUCT' : 12,
-        'MAP' : 13,
-        'SET' : 14,
-        'LIST' : 15,
-        'UTF8' : 16,
-        'UTF16' : 17
+        'STOP': 0,
+        'VOID': 1,
+        'BOOL': 2,
+        'BYTE': 3,
+        'I08': 3,
+        'DOUBLE': 4,
+        'I16': 6,
+        'I32': 8,
+        'I64': 10,
+        'STRING': 11,
+        'UTF7': 11,
+        'STRUCT': 12,
+        'MAP': 13,
+        'SET': 14,
+        'LIST': 15,
+        'UTF8': 16,
+        'UTF16': 17
     },
 
     /**
@@ -98,10 +98,10 @@ var Thrift = {
      * @property {number}  ONEWAY    - Oneway RPC call from client to server with no response.
      */
     MessageType: {
-        'CALL' : 1,
-        'REPLY' : 2,
-        'EXCEPTION' : 3,
-        'ONEWAY' : 4
+        'CALL': 1,
+        'REPLY': 2,
+        'EXCEPTION': 3,
+        'ONEWAY': 4
     },
 
     /**
@@ -171,17 +171,17 @@ Thrift.TException.prototype.getMessage = function() {
  * @property {number}  UNSUPPORTED_CLIENT_TYPE - Unused.
  */
 Thrift.TApplicationExceptionType = {
-    'UNKNOWN' : 0,
-    'UNKNOWN_METHOD' : 1,
-    'INVALID_MESSAGE_TYPE' : 2,
-    'WRONG_METHOD_NAME' : 3,
-    'BAD_SEQUENCE_ID' : 4,
-    'MISSING_RESULT' : 5,
-    'INTERNAL_ERROR' : 6,
-    'PROTOCOL_ERROR' : 7,
-    'INVALID_TRANSFORM' : 8,
-    'INVALID_PROTOCOL' : 9,
-    'UNSUPPORTED_CLIENT_TYPE' : 10
+    'UNKNOWN': 0,
+    'UNKNOWN_METHOD': 1,
+    'INVALID_MESSAGE_TYPE': 2,
+    'WRONG_METHOD_NAME': 3,
+    'BAD_SEQUENCE_ID': 4,
+    'MISSING_RESULT': 5,
+    'INTERNAL_ERROR': 6,
+    'PROTOCOL_ERROR': 7,
+    'INVALID_TRANSFORM': 8,
+    'INVALID_PROTOCOL': 9,
+    'UNSUPPORTED_CLIENT_TYPE': 10
 };
 
 /**
@@ -1111,7 +1111,7 @@ Thrift.Protocol.prototype = {
         //get a fieldId
         for (var f in (this.rstack[this.rstack.length - 1])) {
             if (f === null) {
-              continue;
+                continue;
             }
 
             fid = parseInt(f, 10);
@@ -1453,6 +1453,8 @@ Thrift.Multiplexer.prototype.createClient = function (serviceName, SCl, transpor
 global.Thrift = Thrift;
 var jQuery;
 var $;
+var PromiseHelper;
+var xcHelper;
 
 require("jsdom").env("", function(err, window) {
     console.log("initting jQuery");
@@ -1465,7 +1467,325 @@ require("jsdom").env("", function(err, window) {
     jQuery.md5 = require('../../3rd/jQuery-MD5-master/jquery.md5.js').md5;
     global.jQuery = jQuery;
     global.$ = $ = jQuery;
+    PromiseHelper = getPromiseHelper(jQuery);
+    xcHelper = getXcHelper(jQuery);
 });
+
+function getXcHelper($) {
+    var xcHelper = {};
+    var gPrefixSign = '::';
+
+    xcHelper.capitalize = function(s) {
+        if (!s) {
+            return s;
+        }
+        return s[0].toUpperCase() + s.slice(1);
+    };
+
+    xcHelper.randName = function(name, digits) {
+        if (digits == null) {
+            digits = 5; // default
+        }
+
+        var max = Math.pow(10, digits);
+        var rand = Math.floor(Math.random() * max);
+
+        if (rand === 0) {
+            rand = 1;
+        }
+
+        function padZero(number, numDigits) {
+            number = number.toString();
+            return (number.length < numDigits) ?
+                    new Array(numDigits - number.length + 1).join('0') + number :
+                    number;
+        }
+
+        rand = padZero(rand, digits);
+        return (name + rand);
+    };
+
+    xcHelper.getTableName = function(wholeName) {
+        // get out tableName from tableName + hashId
+        var hashIndex = wholeName.lastIndexOf('#');
+        var tableName;
+        if (hashIndex > -1) {
+            tableName = wholeName.substring(0, hashIndex);
+        } else {
+            tableName = wholeName;
+        }
+        return tableName;
+    };
+
+    xcHelper.isStartWithLetter = function(str) {
+        if (str == null) {
+            return false;
+        }
+        return /^[a-zA-Z]/.test(str);
+    };
+
+    xcHelper.isValidTableName = function(str) {
+        if (str == null || str === "") {
+            return false;
+        }
+
+        // has to start with alpha character
+        if (!xcHelper.isStartWithLetter(str)) {
+            return false;
+        }
+
+        // cannot have any characters other than alphanumeric
+        // or _ -
+        return !/[^a-zA-Z\d\_\-]/.test(str);
+    };
+
+    xcHelper.stripColName = function(colName) {
+        var res = colName.split(/[\[\]\.\\]/g).filter(function(str) {
+            return (str !== "");
+        }).join("_");
+        return res;
+    };
+
+    // get a deep copy
+    xcHelper.deepCopy = function(obj) {
+        var string = JSON.stringify(obj);
+        var res;
+
+        try {
+            res = JSON.parse(string);
+        } catch (err) {
+            console.error(err, string);
+        }
+
+        return (res);
+    };
+
+    xcHelper.getPrefixColName = function(prefix, colName) {
+        if (prefix == null || prefix === "") {
+            return colName;
+        } else {
+            return prefix + gPrefixSign + colName;
+        }
+    };
+
+    xcHelper.parsePrefixColName = function(colName) {
+        var index = colName.indexOf(gPrefixSign);
+        var prefix = "";
+        if (index >= 0) {
+            prefix = colName.substring(0, index);
+            colName = colName.substring(index + gPrefixSign.length);
+        }
+
+        return {
+            "prefix": prefix,
+            "name": colName,
+        };
+    };
+
+    xcHelper.getMultiJoinMapString = function(args) {
+        var mapStr = "";
+        var len = args.length;
+        for (var i = 0; i < len - 1; i++) {
+            mapStr += 'concat(string(' + args[i] + '), concat(".Xc.", ';
+        }
+
+        mapStr += 'string(' + args[len - 1] + ')';
+        mapStr += "))".repeat(len - 1);
+        return mapStr;
+    };
+
+    xcHelper.getTableKeyFromMeta = function(tableMeta) {
+        var keyAttr = tableMeta.keyAttr;
+        var keyName = keyAttr.name;
+        var valueArrayIndex = keyAttr.valueArrayIndex;
+
+        var valueAttrs = tableMeta.valueAttrs || [];
+        var prefixOfKey = "";
+        if (valueArrayIndex >= 0 && valueAttrs[valueArrayIndex] != null &&
+            valueAttrs[valueArrayIndex].type === DfFieldTypeT.DfFatptr)
+        {
+            prefixOfKey = valueAttrs[valueArrayIndex].name;
+        } else if (valueArrayIndex < 0) {
+            return null;
+        }
+        keyName = xcHelper.getPrefixColName(prefixOfKey, keyName);
+        return keyName;
+    };
+
+    return (xcHelper);
+}
+
+function getPromiseHelper(jQuery) {
+    var PromiseHelper = {};
+    var gMutePromises = true;
+    /**
+    oneIter: Function that returns a promise. It represents one iteration of the
+    loop.
+    args: Arguments to apply to oneIter. Must be in an array
+    condition: This is what we are going to call eval on. So this is a string
+    that can take in arguments as in put and do whatever it wants with it. For
+    example, if oneIter returns an integer, and we want to terminate if the
+    integer is < 0.01(opaqueArgs.threshold), then
+    condition = "arguments[0] < opaqueArgs.threshold"
+    opaqueArgs: User can choose to use this argument in the condition. This
+    function will not touch this argument and will not use it unless the caller
+    manipulates it in side condition
+    */
+    PromiseHelper.deferred = function() {
+        return jQuery.Deferred();
+    };
+
+    PromiseHelper.doWhile = function(oneIter, args, condition, opaqueArgs) {
+        // XXX: Type check!
+        function doWork() {
+            return (oneIter.apply({}, args)
+                    .then(function() {
+                        if (!eval(condition)) {
+                            return doWork();
+                        }
+                    })
+                );
+        }
+        return doWork();
+    };
+
+    /**
+    Same thing as doWhile except that it checks for the condition first before
+    kicking into doWhile loop
+    */
+    PromiseHelper.while = function(oneIter, args, condition, opaqueArgs) {
+        if (!eval(condition)) {
+            return PromiseHelper.doWhile(oneIter, args, condition, opaqueArgs);
+        } else {
+            return PromiseHelper.resolve();
+        }
+    };
+
+    /**
+    Runs all promises in the argument in parallel and resolves when all of
+    them are complete or fails
+    */
+    PromiseHelper.when = function() {
+        var numProm = arguments.length;
+        if (numProm === 0) {
+            return PromiseHelper.resolve(null);
+        }
+        var mainDeferred = jQuery.Deferred();
+
+        var numDone = 0;
+        var returns = [];
+        var argument = arguments;
+        var hasFailures = false;
+
+        for (var t = 0; t < numProm; t++) {
+            whenCall(t);
+        }
+
+        function whenCall(i) {
+            argument[i].then(function() {
+                if (!gMutePromises) {
+                    console.log("Promise", i, "done!");
+                }
+                numDone++;
+                if (arguments.length === 0) {
+                    returns[i] = undefined;
+                } else if (arguments.length === 1) {
+                    returns[i] = arguments[0];
+                } else {
+                    returns[i] = arguments;
+                }
+
+                if (numDone === numProm) {
+                    if (!gMutePromises) {
+                        console.log("All done!");
+                    }
+                    if (hasFailures) {
+                        mainDeferred.reject.apply(jQuery, returns);
+                    } else {
+                        mainDeferred.resolve.apply(jQuery, returns);
+                    }
+                }
+            }, function() {
+                console.warn("Promise", i, "failed!");
+                numDone++;
+                if (arguments.length === 0) {
+                    returns[i] = undefined;
+                } else if (arguments.length === 1) {
+                    returns[i] = arguments[0];
+                } else {
+                    returns[i] = arguments;
+                }
+                hasFailures = true;
+                if (numDone === numProm) {
+                    console.log("All done!");
+                    mainDeferred.reject.apply(jQuery, returns);
+                }
+
+            });
+        }
+
+        return (mainDeferred.promise());
+    };
+
+    /**
+    Chains the promises such that only after promiseArray[i] completes, then
+    promiseArray[i+1] will start.
+    */
+    PromiseHelper.chain = function(promiseArray) {
+        // Takes an array of promise *generators*.
+        // This means that promisearray[i]() itself calls a promise.
+        // Reason for this being, promises start executing the moment they are
+        // called, so you need to prevent them from being called in the first place.
+        if (!promiseArray ||
+            !Array.isArray(promiseArray) ||
+            typeof promiseArray[0] !== "function") {
+            return PromiseHelper.resolve(null);
+        }
+        var head = promiseArray[0]();
+        for (var i = 1; i < promiseArray.length; i++) {
+            head = head.then(promiseArray[i]);
+        }
+        return (head);
+    };
+
+    PromiseHelper.chainHelper = function(promiseFunction, valueArr) {
+        // Takes a function that returns a promise, and an array of values
+        // to pass to that promise in a chain order..
+        var promiseGeneratorClosures = [];
+        for (var i = 0; i < valueArr.length; i++) {
+            var promiseClosure = (function(someArg) {
+                return (function() {
+                    return promiseFunction(someArg);
+                });
+            })(valueArr[i]);
+            promiseGeneratorClosures.push(promiseClosure);
+        }
+        return PromiseHelper.chain(promiseGeneratorClosures);
+    };
+
+    /* Always resolve when passed in promise is done */
+    PromiseHelper.alwaysResolve = function(def) {
+        var deferred = jQuery.Deferred();
+        def.always(deferred.resolve);
+        return deferred.promise();
+    };
+
+    /* return a promise with resvoled value */
+    PromiseHelper.resolve = function() {
+        var deferred = jQuery.Deferred();
+        deferred.resolve.apply(this, arguments);
+        return deferred.promise();
+    };
+
+    /* return a promise with rejected error */
+    PromiseHelper.reject = function() {
+        var deferred = jQuery.Deferred();
+        deferred.reject.apply(this, arguments);
+        return deferred.promise();
+    };
+
+    return (PromiseHelper);
+}
 
 require("../../assets/js/thrift/DagStateEnums_types.js");
 require("../../assets/js/thrift/DagTypes_types.js");
@@ -1486,19 +1806,600 @@ require("../../assets/js/thrift/UdfTypes_types.js");
 require("../../assets/js/thrift/XcalarApiService.js");
 require("../../assets/js/thrift/XcalarApiVersionSignature_types.js");
 require("../../assets/js/thrift/XcalarApiServiceAsync.js");
-
 var xcalarApi = require("../../assets/js/thrift/XcalarApi.js");
-var tHandle;
 
+function XcalarGetTableMeta(tableName) {
+    var deferred = jQuery.Deferred();
+    if (tHandle == null) {
+        deferred.resolve(0);
+    } else {
+        var isPrecise = false; // Set to true if you are collecting stats from
+                               // the backend about xdb pages and hashslots.
+        xcalarGetTableMeta(tHandle, tableName, isPrecise)
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+    }
+    return deferred.promise();
+}
+
+function searchTableMetaForKey(key, tableName) {
+    var deferred = jQuery.Deferred();
+    XcalarGetTableMeta(tableName)
+    .then(function(tableMeta) {
+        var colObjs = tableMeta.valueAttrs;
+        for (var i = 0; i < colObjs.length; i++) {
+            var colObj = colObjs[i];
+            if (colObj.name === key &&
+                colObj.type !== DfFieldTypeT.DfFatptr) {
+                deferred.resolve(colObj.type);
+                return;
+            }
+        }
+        deferred.resolve(null);
+    })
+    .fail(function() {
+        // just pass with null
+        deferred.resolve(null);
+    });
+
+    return deferred.promise();
+}
+
+function XcalarIndexFromTable(srcTablename, key, tablename, ordering, txId, unsorted) {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return PromiseHelper.resolve(null);
+    }
+
+    var deferred = jQuery.Deferred();
+    var dhtName = ""; // XXX TODO fill in later
+    var unsortedSrcTablename = srcTablename;
+
+    searchTableMetaForKey(key, unsortedSrcTablename)
+    .then(function(keyType) {
+        return xcalarIndexTable(tHandle, unsortedSrcTablename, key,
+                                tablename, dhtName, ordering, keyType);
+    })
+    .then(deferred.resolve)
+    .fail(deferred.reject);
+
+    return deferred.promise();
+}
+
+function XcalarMap(newFieldName, evalStr, srcTablename, dstTablename,
+                   txId, doNotUnsort, icvMode) {
+    if (tHandle == null) {
+        return PromiseHelper.resolve(null);
+    }
+
+    var deferred = jQuery.Deferred();
+    if (evalStr.length > XcalarApisConstantsT.XcalarApiMaxEvalStringLen) {
+        deferred.reject(thriftLog("XcalarMap", "Eval string too long"));
+        return deferred.promise();
+    }
+
+    var unsortedSrcTablename = srcTablename;
+
+    xcalarApiMap(tHandle, newFieldName, evalStr,
+                unsortedSrcTablename, dstTablename, icvMode)
+    .then(function(ret1, ret2) {
+        deferred.resolve(ret1);
+    })
+    .fail(deferred.reject);
+
+    return deferred.promise();
+}
+
+function XcalarGroupBy(operator, newColName, oldColName, tableName,
+                       newTableName, incSample, icvMode, newKeyFieldName, txId)
+{
+    var deferred = jQuery.Deferred();
+    var evalStr;
+
+    XIApi.genAggStr(oldColName, operator)
+    .then(function(res) {
+        evalStr = res;
+        if (evalStr === "") {
+            return PromiseHelper.reject("Wrong operator! " + operator);
+        } else if (evalStr.length > XcalarApisConstantsT.XcalarApiMaxEvalStringLen) {
+            return PromiseHelper.reject("Eval string too long");
+        }
+
+        return PromiseHelper.resolve(tableName);
+    })
+    .then(function(unsortedTableName) {
+        return xcalarGroupBy(tHandle, unsortedTableName, newTableName,
+                                 evalStr, newColName, incSample, icvMode,
+                                 newKeyFieldName);
+    })
+    .then(deferred.resolve)
+    .fail(deferred.reject);
+
+    return deferred.promise();
+}
+
+function XcalarDeleteTable(tableName, txId, isRetry) {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return PromiseHelper.resolve(null);
+    }
+    return xcalarDeleteDagNodes(tHandle, tableName, SourceTypeT.SrcTable);
+}
+
+// XIApi:
+var XIApi = {};
+XIApi.checkOrder = function(tableName) {
+    if (tableName == null) {
+        return PromiseHelper.reject("Invalid args in checkOrder");
+    }
+
+    var deferred = jQuery.Deferred();
+    XcalarGetTableMeta(tableName)
+    .then(function(tableMeta) {
+        var order = tableMeta.ordering;
+        var keyName = xcHelper.getTableKeyFromMeta(tableMeta);
+        deferred.resolve(order, keyName);
+    })
+    .fail(deferred.reject);
+
+    return deferred.promise();
+};
+
+XIApi.genAggStr = function(fieldName, op) {
+    var deferred = jQuery.Deferred();
+    if (op && op.length) {
+        op = op.slice(0, 1).toLowerCase() + op.slice(1);
+    }
+
+    var evalStr = op + "(" + fieldName + ")";
+    deferred.resolve(evalStr);
+    return deferred.promise();
+};
+
+XIApi.map = function(txId, mapStr, tableName, newColName, newTableName, icvMode) {
+    if (txId == null || mapStr == null ||
+        tableName == null || newColName == null)
+    {
+        return PromiseHelper.reject("Invalid args in map");
+    }
+
+    var deferred = jQuery.Deferred();
+
+    if (!isValidTableName(newTableName)) {
+        newTableName = getNewTableName(tableName);
+    }
+
+    XcalarMap(newColName, mapStr, tableName, newTableName, txId, false, icvMode)
+    .then(function() {
+        deferred.resolve(newTableName);
+    })
+    .fail(deferred.reject);
+
+    return deferred.promise();
+};
+
+/*
+ * gbArgs: an array of objects with operator, aggColName, and newColName
+ *         properties - for multi group by operations
+ * options:
+ *  isIncSample: true/false, include sample or not,
+ *               not specified is equal to false
+ *  sampleCols: array, sampleColumns to keep,
+ *              only used when isIncSample is true
+ *  icvMode: true/false, icv mode or not
+ *  newTableName: string, dst table name, optional
+ *  clean: true/false, if set true, will remove intermediate tables
+ */
+XIApi.groupBy = function(txId, gbArgs, groupByCols, tableName, options) {
+    if (txId == null || gbArgs == null || groupByCols == null ||
+        tableName == null || gbArgs[0].newColName == null ||
+        gbArgs[0].aggColName.length < 1 || gbArgs[0].operator == null)
+    {
+        return PromiseHelper.reject("Invalid args in groupby");
+    }
+
+    options = options || {};
+    var isIncSample = options.isIncSample || false;
+    var sampleCols = options.sampleCols || [];
+    var icvMode = options.icvMode || false;
+    var finalTableName = options.newTableName || null;
+    var clean = options.clean || false;
+
+    if (!(groupByCols instanceof Array)) {
+        groupByCols = [groupByCols];
+    }
+
+    if (groupByCols.length < 1) {
+        return PromiseHelper.reject("Invalid args in groupby groupByCols");
+    }
+
+    var deferred = jQuery.Deferred();
+
+    var tempTables = [];
+    var indexedTable;
+    var indexedColName;
+    var finalTable;
+    var gbTableName = null;
+    var isMultiGroupby = (groupByCols.length > 1);
+    var unstrippedIndexedColName;
+
+    var finalCols = getFinalGroupByCols(tableName, groupByCols, gbArgs,
+                                        isIncSample, sampleCols);
+    // tableName is the original table name that started xiApi.groupby
+    getGroupbyIndexedTable(txId, tableName, groupByCols)
+    .then(function(resTable, resCol, tempTablesInIndex) {
+        // table name may have changed after sort!
+        indexedTable = resTable;
+        unstrippedIndexedColName = resCol;
+        indexedColName = xcHelper.stripColName(resCol);
+        tempTables = tempTables.concat(tempTablesInIndex);
+
+        // get name from src table
+        if (finalTableName == null) {
+            finalTableName = getNewTableName(tableName, "-GB");
+        }
+        var promises = [];
+
+        gbTableName = finalTableName;
+        var sample = isIncSample;
+        for (var i = 0; i < gbArgs.length; i++) {
+            if (gbArgs.length > 1) {
+                gbTableName = getNewTableName(finalTableName);
+            }
+            if (i > 0) {
+                // only do sample on first groupby
+                sample = false;
+            }
+            var newKeyFieldName = xcHelper.parsePrefixColName(indexedColName)
+                                          .name;
+            if (sample) {
+                // incSample does not take renames
+                newKeyFieldName = null;
+            }
+            promises.push(XcalarGroupBy(gbArgs[i].operator,
+                gbArgs[i].newColName, gbArgs[i].aggColName,
+                indexedTable, gbTableName, sample, icvMode, newKeyFieldName,
+                txId));
+        }
+        return PromiseHelper.when.apply(null, promises);
+    })
+    .then(function() {
+        // var args = arguments;
+        // if (!isIncSample) {
+        //     indexedColName = xcHelper.parsePrefixColName(indexedColName)
+        //                              .name;
+        // }
+
+        // return groupByJoinHelper(txId, indexedColName,
+        //                     unstrippedIndexedColName, finalTableName,
+        //                         gbArgs, args, isIncSample);
+    })
+    .then(function() {
+        finalTableName = gbTableName;
+        if (isMultiGroupby && !isIncSample) {
+            // multi group by should extract column from groupby table
+            return extractColFromMap(tableName, finalTableName, groupByCols,
+                                     indexedColName, finalCols, txId);
+        } else {
+            return PromiseHelper.resolve(finalTableName, []);
+        }
+    })
+    .then(function(resTable, tempTablesInMap) {
+        finalTable = resTable;
+        tempTables = tempTables.concat(tempTablesInMap);
+        if (clean) {
+            // remove intermediate table
+            return XIApi.deleteTableAndMetaInBulk(txId, tempTables, true);
+        }
+    })
+    .then(function() {
+        deferred.resolve(finalTable, finalCols);
+    })
+    .fail(deferred.reject);
+
+    return deferred.promise();
+};
+
+// toIgnoreError: boolean, if set true, will always resolve
+// the promise even the call fails.
+XIApi.deleteTable = function(txId, tableName, toIgnoreError) {
+    if (txId == null || tableName == null) {
+        return PromiseHelper.reject("Invalid args in delete table");
+    }
+
+    var deferred = jQuery.Deferred();
+
+    XcalarDeleteTable(tableName, txId)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        if (toIgnoreError) {
+            deferred.resolve();
+        } else {
+            deferred.reject(error);
+        }
+    });
+
+    return deferred.promise();
+};
+
+XIApi.deleteTableAndMeta = function(txId, tableName, toIgnoreError) {
+    var deferred = jQuery.Deferred();
+
+    XIApi.deleteTable(txId, tableName, toIgnoreError)
+    .then(function() {
+        deferred.resolve();
+    })
+    .fail(function(error) {
+        console.error("Drop Table Failed!", error);
+        deferred.reject(error);
+    });
+
+    return deferred.promise();
+};
+
+XIApi.deleteTableAndMetaInBulk = function(txId, tables, toIgnoreError) {
+    var promises = [];
+    for (var i = 0, len = tables.length; i < len; i++) {
+        var def = XIApi.deleteTableAndMeta(txId, tables[i], toIgnoreError);
+        promises.push(def);
+    }
+    return PromiseHelper.when.apply(this, promises);
+};
+
+
+// check if table has correct index
+function checkTableIndex(colName, tableName, txId) {
+    var deferred = jQuery.Deferred();
+    var shouldIndex = true;
+    var tempTables = [];
+
+    XIApi.checkOrder(tableName)
+    .then(function(order, keyName) {
+        if (keyName === colName) {
+            if (order === XcalarOrderingT.XcalarOrderingAscending ||
+                order === XcalarOrderingT.XcalarOrderingDescending) {
+                return PromiseHelper.reject("Current RESTful API don't support groupBy on sorted column");
+            }
+
+            shouldIndex = false;
+        }
+        var unsortedTable = tableName;
+        if (shouldIndex) {
+            console.log(tableName, "not indexed correctly!");
+            // XXX In the future,we can check if there are other tables that
+            // are indexed on this key. But for now, we reindex a new table
+            var newTableName = getNewTableName(tableName, ".index");
+            XcalarIndexFromTable(unsortedTable, colName, newTableName,
+                                 XcalarOrderingT.XcalarOrderingUnordered,
+                                 txId)
+            .then(function() {
+                tempTables.push(newTableName);
+                deferred.resolve(newTableName, shouldIndex, tempTables);
+            })
+            .fail(function(error) {
+                if (error.code === StatusT.StatusAlreadyIndexed) {
+                    deferred.resolve(unsortedTable, false, tempTables);
+                } else {
+                    deferred.reject(error);
+                }
+            });
+        } else {
+            console.log(tableName, "indexed correctly!");
+            deferred.resolve(unsortedTable, shouldIndex, tempTables);
+        }
+    })
+    .fail(deferred.reject);
+
+    return deferred.promise();
+}
+
+function concatGroupByCols(txId, tableName, groupByCols) {
+    if (groupByCols.length <= 1) {
+        return PromiseHelper.resolve(groupByCols[0], tableName, []);
+    }
+
+    var deferred = jQuery.Deferred();
+    var mapStr = xcHelper.getMultiJoinMapString(groupByCols);
+    var groupByField = xcHelper.randName("multiGroupBy");
+
+    XIApi.map(txId, mapStr, tableName, groupByField)
+    .then(function(tableAfterMap) {
+        deferred.resolve(groupByField, tableAfterMap, [tableAfterMap]);
+    })
+    .fail(deferred.reject);
+
+    return deferred.promise();
+}
+
+function getGroupbyIndexedTable(txId, tableName, groupByCols) {
+    // From Jerene:
+    // 1. merge multi columns into one using concat xdf
+    // 2. sort this merged column
+    var deferred = jQuery.Deferred();
+    var groupByField;
+    var tempTables = [];
+
+    concatGroupByCols(txId, tableName, groupByCols)
+    .then(function(resCol, resTable, resTempTables) {
+        tempTables = resTempTables || [];
+        groupByField = resCol;
+        return checkTableIndex(resCol, resTable, txId);
+    })
+    .then(function(indexedTable, shouldIndex, temIndexTables) {
+        tempTables = tempTables.concat(temIndexTables);
+        deferred.resolve(indexedTable, groupByField, tempTables);
+    })
+    .fail(deferred.reject);
+
+    return deferred.promise();
+}
+
+function getFinalGroupByCols(tableName, groupByCols, gbArgs,
+                             isIncSample, sampleCols) {
+    return [];
+}
+
+function extractColFromMap(srcTableName, groupbyTableName, groupByCols,
+                           indexedColName, finalTableCols, txId)
+{
+    var deferred = jQuery.Deferred();
+
+    var numGroupByCols = groupByCols.length;
+    var groupByColTypes = new Array(numGroupByCols);
+
+    // XXX Jerene: Okay this is really dumb, but we have to keep mapping
+    var mapStrStarter = "cut(" + indexedColName + ", ";
+    var tableCols = extractColGetColHelper(finalTableCols, 0);
+
+    var promises = [];
+    var currTableName = groupbyTableName;
+    var tempTables = [];
+
+    for (var i = 0; i < numGroupByCols; i++) {
+        var mapStr = mapStrStarter + (i + 1) + ", " + '".Xc."' + ")";
+        // convert type
+        // XXX FIXME if need more other types
+        if (groupByColTypes[i] === "integer") {
+            mapStr = "int(" + mapStr + ")";
+        } else if (groupByColTypes[i] === "float") {
+            mapStr = "float(" + mapStr + ")";
+        } else if (groupByColTypes[i] === "boolean") {
+            mapStr = "bool(" + mapStr + ")";
+        }
+
+        var newTableName = getNewTableName(currTableName);
+        var isLastTable = (i === groupByCols.length - 1);
+        tableCols = extractColGetColHelper(finalTableCols, i + 1);
+
+        var parsedName = xcHelper.parsePrefixColName(groupByCols[i]).name;
+        parsedName = xcHelper.stripColName(parsedName);
+        var args = {
+            "colName": parsedName,
+            "mapString": mapStr,
+            "srcTableName": currTableName,
+            "newTableName": newTableName
+        };
+
+        promises.push(extracColMapHelper.bind(this, args, tableCols,
+                                              isLastTable, txId));
+        tempTables.push(currTableName);
+        currTableName = newTableName;
+    }
+    var lastTableName = currTableName;
+    PromiseHelper.chain(promises)
+    .then(function() {
+        deferred.resolve(lastTableName, tempTables);
+    })
+    .fail(deferred.reject);
+
+    return deferred.promise();
+}
+
+function extractColGetColHelper(tableCols, index) {
+    var newCols = xcHelper.deepCopy(tableCols);
+    newCols.splice(index + 1, newCols.length - index - 2);
+    // Note that after splice, newCols.length changes
+
+    return newCols;
+}
+
+function extracColMapHelper(mapArgs, tableCols, isLastTable, txId) {
+    var deferred = jQuery.Deferred();
+
+    var colName = mapArgs.colName;
+    var mapStr = mapArgs.mapString;
+    var srcTableName = mapArgs.srcTableName;
+    var newTableName = mapArgs.newTableName;
+
+    XcalarMap(colName, mapStr, srcTableName, newTableName, txId)
+    .then(function() {
+        deferred.resolve();
+    })
+    .fail(deferred.reject);
+
+    return deferred.promise();
+}
+
+function isValidTableName(tableName) {
+    var isValid = isCorrectTableNameFormat(tableName);
+
+    if (!isValid) {
+        if (tableName != null) {
+            console.error("incorrect table name format");
+        }
+        return false;
+    }
+
+    var namePart = xcHelper.getTableName(tableName);
+    // allow table name to start with dot
+    isValid = xcHelper.isValidTableName(namePart);
+    if (!isValid) {
+        // we allow name that has dot internally
+        namePart = namePart.replace(/\./g, "");
+        isValid = xcHelper.isValidTableName(namePart);
+    }
+    if (!isValid) {
+        if (tableName != null) {
+            console.error("incorrect table name format");
+        }
+    }
+    return isValid;
+}
+
+function isCorrectTableNameFormat(tableName) {
+    if (tableName == null || tableName === "") {
+        return false;
+    }
+
+    var regex = "^.*#[a-zA-Z0-9]{2}[0-9]+$";
+    var regexp = new RegExp(regex);
+    return regexp.test(tableName);
+}
+
+function getNewTableName(tableName, affix, rand) {
+    var nameRoot = xcHelper.getTableName(tableName);
+
+    if (affix != null) {
+        nameRoot += affix;
+    }
+
+    if (rand) {
+        nameRoot = xcHelper.randName(nameRoot);
+    }
+
+    return (nameRoot + Authentication.getHashId());
+}
+
+Authentication = {
+    getHashId: function() {
+        return xcHelper.randName("#api");
+    }
+};
+// End of XIApi
+
+
+
+function getUserIdUnique(name) {
+    var hash = jQuery.md5(name);
+    var len = 5;
+    var id = parseInt("0x" + hash.substring(0, len)) + 4000000;
+    return id;
+}
+
+var tHandle;
+var logInUser;
 // Setting up Xcalar
 exports.connect = function(hostname, username, id) {
     if (tHandle != null) {
-        return jQuery.Deferred().reject("Authentication fails").promise();
+        if (username !== logInUser) {
+            return jQuery.Deferred().reject("Authentication fails").promise();
+        } else {
+            return xcalarGetVersion(tHandle);
+        }
     }
     hostname = hostname + ":9090";
     var valid = xcalarApi.setUserIdAndName(username, id, jQuery.md5);
     if (valid) {
         tHandle = xcalarConnectThrift(hostname);
+        logInUser = username;
         return xcalarGetVersion(tHandle);
     } else {
         return jQuery.Deferred().reject("Authentication fails").promise();
@@ -1506,7 +2407,7 @@ exports.connect = function(hostname, username, id) {
 };
 
 exports.getTables = function(tableName) {
-    return xcalarListTables(tHandle, tableName, SourceTypeT.SrcTable)
+    return xcalarListTables(tHandle, tableName, SourceTypeT.SrcTable);
 };
 
 function XcalarFetchData(resultSetId, rowPosition, rowsToFetch, totalRows, data, tryCnt) {
@@ -1579,7 +2480,6 @@ exports.getRows = function(tableName, startRowNum, rowsToFetch) {
         return deferred.promise();
     }
 
-    var deferred = jQuery.Deferred();
     var resultSetId;
     var finalData;
 
@@ -1621,7 +2521,7 @@ exports.getRows = function(tableName, startRowNum, rowsToFetch) {
 
 exports.query = function(queryString) {
     var deferred = jQuery.Deferred();
-    var queryName = "query_restful" + Math.floor(Math.random() * 10000) + 1;
+    var queryName = "query_restful" + (Math.floor(Math.random() * 10000) + 1);
 
     xcalarQuery(tHandle, queryName, queryString, true)
     .then(function() {
@@ -1631,7 +2531,7 @@ exports.query = function(queryString) {
     .fail(deferred.reject);
 
     return deferred.promise();
-}
+};
 
 // used to check when a query finishes or when a queryCancel finishes
 function XcalarQueryCheck(queryName, canceling) {
@@ -1666,7 +2566,7 @@ function XcalarQueryCheck(queryName, canceling) {
             })
             .fail(function() {
                 if (canceling) {
-                    xcalarQueryDelete(tHandle, queryName)
+                    xcalarQueryDelete(tHandle, queryName);
                 }
                 deferred.reject.apply(this, arguments);
             });
@@ -1674,4 +2574,39 @@ function XcalarQueryCheck(queryName, canceling) {
     }
 
     return deferred.promise();
+}
+
+exports.groupBy = function(operator, groupByCols, aggColName, tableName, newColName, newTableName) {
+    var txId = xcHelper.randName("apiTXId");
+    var options = {
+        "newTableName": newTableName,
+        "clean": true
+    };
+
+    var gbArgs = [{
+        "aggColName": aggColName,
+        "operator": parseOpeartor(operator),
+        "newColName": newColName
+    }];
+    return XIApi.groupBy(txId, gbArgs, groupByCols, tableName, options);
+};
+
+function parseOpeartor(op) {
+    var AggrOp = {
+        "Max": "Max",
+        "Min": "Min",
+        "Avg": "Avg",
+        "Count": "Count",
+        "Sum": "Sum",
+        "MaxInteger": "MaxInteger",
+        "MinInteger": "MinInteger",
+        "SumInteger": "SumInteger",
+        "ListAgg": "ListAgg"
+    };
+    op = xcHelper.capitalize(op);
+    if (!AggrOp.hasOwnProperty(op)) {
+        return null;
+    } else {
+        return op;
+    }
 }
