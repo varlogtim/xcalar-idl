@@ -1570,7 +1570,7 @@ window.DSPreview = (function($, DSPreview) {
         XcalarPreview(url, pattern, isRecur, 1, 0)
         .then(function(res) {
             var path = url.endsWith("/") ? url : url + "/";
-            path += res.fileName;
+            path += res.relPath;
             setPreviewFile(path);
             deferred.resolve(path);
         })
