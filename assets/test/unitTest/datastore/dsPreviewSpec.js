@@ -1165,17 +1165,13 @@ describe("DSPreview Test", function() {
 
             // empty module test
             expect(validateForm()).to.be.null;
-            assert.isTrue($statusBox.is(":visible"));
-            expect($statusBox.find(".message").text()).to.equal(ErrTStr.NoEmptyList);
-            StatusBox.forceHide();
+            UnitTest.hasStatusBoxWithError(ErrTStr.NoEmptyList);
 
             // empty func test
             $udfModuleList.find("input").val("default");
             $udfFuncList.find("input").val("");
             expect(validateForm()).to.be.null;
-            assert.isTrue($statusBox.is(":visible"));
-            expect($statusBox.find(".message").text()).to.equal(ErrTStr.NoEmptyList);
-            StatusBox.forceHide();
+            UnitTest.hasStatusBoxWithError(ErrTStr.NoEmptyList);
 
             // valid test
             $udfFuncList.find("input").val("openExcel");
@@ -1183,6 +1179,35 @@ describe("DSPreview Test", function() {
 
             // remove UDF checkbox
             $udfCheckbox.find(".checkbox").click();
+            expect(validateForm()).not.to.be.null;
+        });
+
+        it("should validate delimiter", function() {
+            // invalid field delimiter
+            loadArgs.setFieldDelim({});
+            expect(validateForm()).to.be.null;
+            UnitTest.hasStatusBoxWithError(DSFormTStr.InvalidDelim);
+            loadArgs.setFieldDelim(",");
+
+            // invalid line delimiter
+            loadArgs.setLineDelim({});
+            expect(validateForm()).to.be.null;
+            UnitTest.hasStatusBoxWithError(DSFormTStr.InvalidDelim);
+
+            // invalid line delimiter
+            loadArgs.setLineDelim("ab");
+            expect(validateForm()).to.be.null;
+            UnitTest.hasStatusBoxWithError(DSFormTStr.InvalidLineDelim);
+
+            loadArgs.setLineDelim("\r\n");
+
+            // invalid quote
+            loadArgs.setQuote({});
+            expect(validateForm()).to.be.null;
+            UnitTest.hasStatusBoxWithError(DSFormTStr.InvalidQuote);
+
+            // valid case
+            loadArgs.setQuote('"');
             expect(validateForm()).not.to.be.null;
         });
 

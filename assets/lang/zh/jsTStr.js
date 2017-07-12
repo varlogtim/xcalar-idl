@@ -705,6 +705,7 @@ DSTStr = {
 DSFormTStr = {
 'Pattern': '模式',
 'InvalidDelim': '无效分隔符。',
+'InvalidLineDelim': '行分隔符只能为1个字符，（\\r\\n）除外。',
 'InvalidQuote': '不能有超过1个引号',
 'NoParseJSON': '无法将数据解析为json',
 'GoBack': '请点击返回按钮重新输入有效的路径或使用有效的路径模式',

@@ -554,6 +554,11 @@ function XcalarLoad(url, format, datasetName, options, txId) {
         }
     }
 
+    if (recordDelim === "\r\n") {
+        // we already turn on CRLF
+        recordDelim = "\n";
+    }
+
     function checkForDatasetLoad(def, sqlString, dsName, txId) {
         // Using setInterval will have issues because of the deferred
         // GetDatasets call inside here. Do not use it.

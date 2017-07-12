@@ -828,6 +828,7 @@ DSTStr = {
 DSFormTStr = {
     'Pattern': 'Pattern',
     'InvalidDelim': 'Invalid delimiter.',
+    'InvalidLineDelim': 'Line delimiter can only be 1 character except \\r\\n',
     'InvalidQuote': 'Cannot have more than 1 quote character',
     'NoParseJSON': 'Cannot parse data as json',
     'GoBack': 'Please click the \"BACK\" button to re-enter a valid path or use a valid path pattern',

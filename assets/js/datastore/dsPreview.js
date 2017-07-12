@@ -994,7 +994,15 @@ window.DSPreview = (function($, DSPreview) {
                     return (typeof lineDelim === "object");
                 }
             },
-
+            {
+                "$ele": $lineText,
+                "error": DSFormTStr.InvalidLineDelim,
+                "check": function() {
+                    return lineDelim &&
+                           lineDelim.length > 1 &&
+                           lineDelim !== "\r\n";
+                },
+            },
             {
                 "$ele": $quote,
                 "error": DSFormTStr.InvalidQuote,
