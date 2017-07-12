@@ -540,7 +540,7 @@ window.Compatible = (function($, Compatible) {
                 var binary = "";
                 var pt = this;
                 var reader = new FileReader();
-                reader.onload = function (e) {
+                reader.onload = function () {
                     var bytes = new Uint8Array(reader.result);
                     var length = bytes.byteLength;
                     for (var i = 0; i < length; i++) {
@@ -557,14 +557,14 @@ window.Compatible = (function($, Compatible) {
         (function() {
             var fakeEl = document.createElement('fakeelement');
             var transitions = {
-              'transition':'transitionend',
-              'OTransition':'oTransitionEnd',
-              'MozTransition':'transitionend',
-              'WebkitTransition':'webkitTransitionEnd'
+                'transition': 'transitionend',
+                'OTransition': 'oTransitionEnd',
+                'MozTransition': 'transitionend',
+                'WebkitTransition': 'webkitTransitionEnd'
             };
 
-            for(var t in transitions){
-                if( fakeEl.style[t] !== undefined ) {
+            for (var t in transitions){
+                if ( fakeEl.style[t] !== undefined ) {
                     window.transitionEnd = transitions[t];
                     return;
                 }

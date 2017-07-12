@@ -887,6 +887,7 @@ function XcalarExport(tableName, exportName, targetName, numColumns,
             console.error("Export target does not exist!");
             return PromiseHelper.reject("Export target is not on the target list");
         }
+
         for (var i = 0; i < out.targets.length; i++) {
             if (out.targets[i].hdr.name === targetName) {
                 target.type = out.targets[i].hdr.type;
@@ -2090,25 +2091,13 @@ function XcalarJoin(left, right, dst, joinType, leftRename, rightRename, txId) {
 
         var leftRenameMap = [];
         var rightRenameMap = [];
-        var map;
+
         if (leftRename) {
-            for (var i = 0; i < leftRename.length; i++) {
-                map = new XcalarApiRenameMapT();
-                map.oldName = leftRename[i].orig;
-                map.newName = leftRename[i].new;
-                map.type = leftRename[i].type;
-                leftRenameMap.push(map);
-            }
+            leftRenameMap = leftRename.map(renameInfoMap);
         }
 
         if (rightRename) {
-            for (var i = 0; i < rightRename.length; i++) {
-                map = new XcalarApiRenameMapT();
-                map.oldName = rightRename[i].orig;
-                map.newName = rightRename[i].new;
-                map.type = rightRename[i].type;
-                rightRenameMap.push(map);
-            }
+            rightRenameMap = rightRename.map(renameInfoMap);
         }
 
         var workItem = xcalarJoinWorkItem(unsortedLeft, unsortedRight, dst,
@@ -2137,6 +2126,14 @@ function XcalarJoin(left, right, dst, joinType, leftRename, rightRename, txId) {
     });
 
     return deferred.promise();
+
+    function renameInfoMap(renameInfo) {
+        var map = new XcalarApiRenameMapT();
+        map.oldName = renameInfo.orig;
+        map.newName = renameInfo.new;
+        map.type = renameInfo.type;
+        return map;
+    }
 }
 
 function XcalarGroupByWithInput(txId, inputStruct) {

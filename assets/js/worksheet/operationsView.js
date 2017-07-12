@@ -995,7 +995,7 @@ window.OperationsView = (function($, OperationsView) {
     }
 
     function toggleOperationsViewDisplay(isHide) {
-        var $table = $('.xcTable');
+        // var $table = $('.xcTable');
         var $tableWrap = $('.xcTableWrap');
         if (isHide) {
             $("#mainFrame").off('mousedown.keepInputFocused');
@@ -1767,7 +1767,7 @@ window.OperationsView = (function($, OperationsView) {
             if (categoryNum === FunctionCategoryT.FunctionCategoryUdf) {
                 autoGenColName = getAutoGenColName(tempName + "_udf");
             } else {
-                autoGenColName = getAutoGenColName(tempName + "_" +  func);
+                autoGenColName = getAutoGenColName(tempName + "_" + func);
             }
         }
 
@@ -1933,7 +1933,7 @@ window.OperationsView = (function($, OperationsView) {
         quotesNeeded = [];
 
         $activeOpSection.find('.group').each(function(i) {
-            var typeIds = [];
+            // var typeIds = [];
             var $inputs = $(this).find('.arg:visible');
             var existingTypes = getExistingTypes(i);
 

@@ -1850,7 +1850,7 @@ window.xcHelper = (function($, xcHelper) {
         var sheets = WSManager.getWSList();
         var $allTables = $(selector + ":not(.building)");
         var index = 0;
-        var found = false;
+        // var found = false;
         var $wsTables = $(selector + ":not(.building).worksheet-" +
                                                             targetWS);
         if ($wsTables.length) {
@@ -3764,8 +3764,8 @@ window.xcHelper = (function($, xcHelper) {
         xcTooltip.remove($lis);
         var isKnownType = progCol.isKnownType();
         if (isKnownType && !options.multipleColNums) {
-            var type = progCol.getType();
-            var $li;
+            // var type = progCol.getType();
+            // var $li;
             $subMenu.find(".changeDataType").addClass("isKnownType");
         } else {
             $subMenu.find(".changeDataType").removeClass("isKnownType");

@@ -209,7 +209,7 @@ window.Redo = (function($, Redo) {
 
     redoFuncs[SQLOps.ResizeTableCols] = function(options) {
         focusTableHelper(options);
-        var  sizeTo = [];
+        var sizeTo = [];
         for (var i = 0; i < options.newColumnWidths.length; i++) {
             sizeTo.push(options.sizeTo);
         }

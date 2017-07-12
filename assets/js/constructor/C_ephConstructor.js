@@ -3487,7 +3487,7 @@ InfList.prototype = {
 
         function scrollup() {
             var $hidden = $list.find(".infListHidden");
-            var numHidden = $hidden.length;
+            // var numHidden = $hidden.length;
             var prevHeight = $list[0].scrollHeight;
             $hidden.slice(-self.numToFetch).removeClass("infListHidden");
             var top = $list[0].scrollHeight - prevHeight;

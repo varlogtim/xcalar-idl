@@ -20,7 +20,7 @@ window.BottomMenu = (function($, BottomMenu) {
             console.error(error);
             Alert.error(ThriftTStr.SetupErr, error);
         }
-        $menuPanel[0].addEventListener(transitionEnd, function(event) {
+        $menuPanel[0].addEventListener(transitionEnd, function() {
             if (!$menuPanel.hasClass("open")) {
                 $menuPanel.find(".bottomMenuContainer").hide();
             }

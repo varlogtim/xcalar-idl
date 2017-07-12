@@ -114,7 +114,7 @@ window.TblAnim = (function($, TblAnim) {
         var rescol = gRescol;
         var isDatastore = rescol.isDatastore;
         var wasResized = true;
-        var widthState;
+        // var widthState;
         var prevSizedTo;
         $('#resizeCursor').remove();
         $('body').removeClass('tooltipOff');

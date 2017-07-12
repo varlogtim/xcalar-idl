@@ -205,8 +205,9 @@ window.ColManager = (function($, ColManager) {
             var progCol = table.getCol(colTypeInfos[i].colNum);
             var type = progCol.getType();
             if (type === ColumnType.object || type === ColumnType.array ||
-                (progCol.isKnownType() && type === colTypeInfos[i].type)) {
-                    colTypeInfos.splice(i, 1);
+                (progCol.isKnownType() && type === colTypeInfos[i].type))
+            {
+                colTypeInfos.splice(i, 1);
             }
         }
         var numColInfos = colTypeInfos.length;

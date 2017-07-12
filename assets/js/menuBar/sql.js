@@ -637,7 +637,7 @@ window.SQL = (function($, SQL) {
                     oldLogCursor = oldLogs.length - 1;
                 }
                 var sqls = [];
-                var now = Date.now();
+                // var now = Date.now();
                 for (var i = 0; i <= oldLogCursor; i++) {
                     var sql = new XcLog(oldLogs[i]);
                     sqls.push(sql);

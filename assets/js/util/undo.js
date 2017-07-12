@@ -807,7 +807,7 @@ window.Undo = (function($, Undo) {
         }
 
         function makeWorksheetHelper() {
-            var firstLen = WSManager.getWSList().length;
+            // var firstLen = WSManager.getWSList().length;
 
             WSManager.addWS(wsId, wsName, wsIndex);
             var $tabs = $("#worksheetTabs .worksheetTab");

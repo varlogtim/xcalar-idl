@@ -544,8 +544,7 @@ window.ExportView = (function($, ExportView) {
 
     function addColumnSelectListeners() {
         $("#mainFrame").on("mousedown.addColToExport", ".xcTable th",
-            function(event) {
-
+        function(event) {
             xcMenu.close($('#colMenu'));
             if ($(event.target).hasClass('colGrab')) {
                 return;
@@ -556,8 +555,7 @@ window.ExportView = (function($, ExportView) {
         });
 
         $("#mainFrame").on("click.addColToExport", ".xcTable th",
-            function(event) {
-
+        function(event) {
             var $th = $(this);
             var colNum = xcHelper.parseColNum($th);
             var tblId = $th.closest('.xcTable').data('id');

@@ -331,8 +331,8 @@ window.UserSettings = (function($, UserSettings) {
         });
 
         $("#userSettingsDefault").click(function() {
-            var sets = UserSettings;
-            var genSets = genSettings;
+            // var sets = UserSettings;
+            // var genSets = genSettings;
             UserSettings.revertDefault();
             $("#autoSaveBtn").click();
         });

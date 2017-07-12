@@ -1496,7 +1496,7 @@ window.DFCard = (function($, DFCard) {
             "activeSession": activeSession,
             "newTableName": newTableName
         };
-    }
+    };
 
     function projectAfterRunDF(tableName, exportInfo, txId) {
         var deferred = jQuery.Deferred();

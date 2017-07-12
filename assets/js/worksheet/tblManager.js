@@ -304,7 +304,7 @@ window.TblManager = (function($, TblManager) {
         var options = {"del": ArchiveTable.Keep};
         var tableNames = [];
         var tablePos = [];
-        var wsIds = [];
+        // var wsIds = [];
         var tables = [];
 
         for (var i = 0, len = tableIds.length; i < len; i++) {
@@ -1628,7 +1628,7 @@ window.TblManager = (function($, TblManager) {
         var table;
 
         if (!gTables.hasOwnProperty(tableId)) {
-            if(!tableCols || tableCols.length === 0) {
+            if (!tableCols || tableCols.length === 0) {
                  // at last have data col
                 tableCols = [ColManager.newDATACol()];
             }
@@ -1708,7 +1708,7 @@ window.TblManager = (function($, TblManager) {
 
         RowManager.getFirstPage(tableId)
         .then(function(jsonData) {
-            var oldId = xcHelper.getTableId(tableToReplace);
+            // var oldId = xcHelper.getTableId(tableToReplace);
             table.currentRowNumber = jsonData.length;
             if (table.resultSetCount === 0) {
                 options.isEmpty = true;

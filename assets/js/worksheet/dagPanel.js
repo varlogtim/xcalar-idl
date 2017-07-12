@@ -3613,7 +3613,7 @@ window.Dag = (function($, Dag) {
                 outerClassNames = " retina";
                 icon = '<i class="icon xi-table-2"></i>';
                 id = xcHelper.getTableId(tableName);
-            } else if (dagNode.api  === XcalarApisT.XcalarApiBulkLoad) {
+            } else if (dagNode.api === XcalarApisT.XcalarApiBulkLoad) {
                 dsText = "Dataset ";
                 icon = '<i class="icon xi_data"></i>';
                 storedInfo.datasets[tableName] = dagInfo;
