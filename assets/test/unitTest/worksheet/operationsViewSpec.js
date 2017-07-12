@@ -1777,7 +1777,7 @@ describe('OperationsView Test', function() {
                         str: 1
                     }, {
                         num: 2,
-                        str: "\"-\""
+                        str: "-"
                     }],
                     expectedMapStr: mapStr,
                     expectedCliMapStr: mapStr,
@@ -1839,13 +1839,13 @@ describe('OperationsView Test', function() {
                 for (var i = 0; i < args.length; i++) {
                     var argNum = args[i].num;
                     $argInputs.eq(argNum).val(args[i].str).trigger(fakeEvent.input);
-                    var previewStr = $strPreview.find('.descArgs').text();
                 }
 
                 var promise = function() {
                     var innerDeferred = jQuery.Deferred();
                     setTimeout(function() {
                         // quotes/parsing doesn't get applied til 200 ms after inputed
+                        var previewStr = $strPreview.find('.descArgs').text();
                         expect(previewStr).to.equal(expectedMapStr);
                         innerDeferred.resolve();
                     }, 250);

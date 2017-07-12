@@ -1932,57 +1932,22 @@ window.OperationsView = (function($, OperationsView) {
         }
         quotesNeeded = [];
 
-        $activeOpSection.find('.group').each(function() {
+        $activeOpSection.find('.group').each(function(i) {
             var typeIds = [];
-            var existingTypes = {};
             var $inputs = $(this).find('.arg:visible');
-
-            $inputs.each(function() {
-                var $input = $(this);
-                var arg = $input.val().trim();
-                var type = null;
-
-                // ignore new colname input
-                if ($input.closest(".dropDownList").hasClass("colNameSection"))
-                {
-                    return;
-                } else if (!$input.data("nofunc") && hasFuncFormat(arg)) {
-                    // skip
-                } else if (xcHelper.hasValidColPrefix(arg)) {
-                    arg = parseColPrefixes(arg);
-                    if (operatorName !== "map" ||
-                        $functionsList.find('.active').data('category') !==
-                        FunctionCategoryT.FunctionCategoryUdf)
-                    {
-                        type = getColumnTypeFromArg(arg);
-                    }
-                } else if (arg[0] === gAggVarPrefix) {
-                    // skip
-                } else {
-                    var parsedType = parseType($input.data('typeid'));
-                    if (parsedType.length === 6) {
-                        type = null;
-                    } else {
-                        var isString = formatArgumentInput(arg,
-                                                        $input.data('typeid'),
-                                                       existingTypes).isString;
-                        if (isString) {
-                            type = "string";
-                        }
-                    }
-                }
-
-                if (type != null) {
-                    existingTypes[type] = true;
-                }
-                typeIds.push($input.data('typeid'));
-            });
+            var existingTypes = getExistingTypes(i);
 
             $inputs.each(function(i) {
                 var $input = $(this);
                 var $row = $input.closest('.row');
                 var arg = $input.val().trim();
-                var parsedType = parseType(typeIds[i]);
+                var typeId;
+                var parsedType;
+                if (!$input.closest(".dropDownList").hasClass("colNameSection"))
+                {
+                    typeId = $input.data("typeid");
+                }
+                parsedType = parseType(typeId);
                 var emptyStrChecked = $row.find('.emptyStr.checked').length > 0;
                 if (emptyStrChecked && arg === "") {
                     quotesNeeded.push(true);
@@ -1994,17 +1959,22 @@ window.OperationsView = (function($, OperationsView) {
                             ($input.data("nofunc") || !hasFuncFormat(arg))) {
                     // one of the valid types is string
 
+
                     if (parsedType.length === 1) {
                         // if input only accepts strings
                         quotesNeeded.push(true);
                     } else if (existingTypes.hasOwnProperty("string")) {
-                        if (isNumberInQuotes(arg)) {
-                            quotesNeeded.push(false);
-                        } else {
-                            quotesNeeded.push(true);
-                        }
+                        quotesNeeded.push(true);
                     } else {
-                        quotesNeeded.push(false);
+                        if (formatArgumentInput(arg, typeId, {}).isString) {
+                            if (isNumberInQuotes(arg) || isBoolInQuotes(arg)) {
+                                quotesNeeded.push(false);
+                            } else {
+                                quotesNeeded.push(true);
+                            }
+                        } else {
+                            quotesNeeded.push(false);
+                        }
                     }
                 } else {
                     quotesNeeded.push(false);
@@ -2176,22 +2146,14 @@ window.OperationsView = (function($, OperationsView) {
                 gbColNewText = wrapText(gbColNewText);
                 $description.find(".groupByCols").html(gbColNewText);
             } else {
-                // var $aggColWrap = $description.find(".aggColSection");
-                // var $aggColSpans = $aggColWrap.find('span.char');
-
                 $groups.each(function(groupNum) {
                     var $aggColWrap = $description.find(".aggCols").eq(groupNum);
                     var $aggColSpans = $aggColWrap.find('span.char');
                     var aggColOldText = $aggColWrap.text();
 
-                    modifyDescText(aggColOldText, aggColNewText[groupNum], $aggColWrap,
-                                $aggColSpans);
+                    modifyDescText(aggColOldText, aggColNewText[groupNum],
+                                    $aggColWrap, $aggColSpans);
                 });
-
-
-                // modifyDescText(aggColOldText, aggColNewText, $aggColWrap,
-                //                 $aggColSpans);
-
                 var $gbColWrap = $description.find(".groupByCols");
                 var $gbColSpans = $gbColWrap.find('span.char');
                 modifyDescText(gbColOldText, gbColNewText, $gbColWrap,
@@ -2323,6 +2285,16 @@ window.OperationsView = (function($, OperationsView) {
         var $input;
         var type;
         var $group = $activeOpSection.find('.group').eq(groupNum);
+        var funcName;
+        if (operatorName === "filter") {
+            funcName = $group.find('.functionsInput').val().trim();
+        } else if (operatorName === "map") {
+            funcName = $functionsList.find('.active').text().trim();
+        }
+        if (funcName !== "eq" && funcName !== "neq") {
+            return existingTypes;
+        }
+
         $group.find('.arg:visible').each(function() {
             $input = $(this);
             arg = $input.val().trim();
@@ -2330,33 +2302,20 @@ window.OperationsView = (function($, OperationsView) {
 
             // col name field, do not add quote
             if ($input.closest(".dropDownList").hasClass("colNameSection")) {
-                arg = parseColPrefixes(arg);
-                type = getColumnTypeFromArg(arg);
+                return;
+            } else if (!$input.data("nofunc") && hasFuncFormat(arg)) {
+                // skip
             } else if (xcHelper.hasValidColPrefix(arg)) {
                 arg = parseColPrefixes(arg);
-
-                // Since there is currently no way for users to specify what
-                // col types they are expecting in the python functions, we will
-                // skip this type check if the function category is user defined
-                // function.
-                if (operatorName !== "map" ||
-                    $functionsList.find('.active').data('category') !==
-                    FunctionCategoryT.FunctionCategoryUdf)
-                {
-                    type = getColumnTypeFromArg(arg);
-                }
-
+                type = getColumnTypeFromArg(arg);
+            } else if (arg[0] === gAggVarPrefix) {
+                // skip
             } else {
-                var parsedType = parseType($input.data('typeid'));
-                if (parsedType.length === 6) {
-                    type = null;
-                } else {
-                    var isString = formatArgumentInput(arg,
-                                                      $input.data('typeid'),
-                                                       existingTypes).isString;
-                    if (isString) {
-                        type = "string";
-                    }
+                var isString = formatArgumentInput(arg,
+                                                $input.data('typeid'),
+                                               existingTypes).isString;
+                if (isString) {
+                    type = "string";
                 }
             }
 
@@ -2389,11 +2348,30 @@ window.OperationsView = (function($, OperationsView) {
         }
     }
 
+    // used in cases where arg could be type string and bool
+    function isBoolInQuotes(arg) {
+        if (arg[0] === "'" || arg[0] === '"') {
+            var quote = arg[0];
+            arg = arg.slice(1);
+            if (arg.length > 1 && arg[arg.length - 1] === quote) {
+                arg = arg.slice(0, arg.length - 1);
+                if (arg === "true" || arg === "false") {
+                    return true;
+                } else {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+
+        } else {
+            return false;
+        }
+    }
+
     function submitForm() {
         var deferred = jQuery.Deferred();
         var isPassing = true;
-       // disabling it early because there are
-        // async calls to follow that shouldn't be triggered multiple times
 
         if (!gTables[tableId]) {
             statusBoxShowHelper('Table no longer exists',
@@ -2840,13 +2818,10 @@ window.OperationsView = (function($, OperationsView) {
                     $errorInput = $input;
                     errorType = "invalidType";
                 } else {
-                    var parsedType = parseType(typeid);
-                    if (parsedType.length < 6) {
-                        var formatArgumentResults = formatArgumentInput(arg,
-                                                            typeid,
-                                                            existingTypes);
-                        arg = formatArgumentResults.value;
-                    }
+                    var formatArgumentResults = formatArgumentInput(arg,
+                                                        typeid,
+                                                        existingTypes);
+                    arg = formatArgumentResults.value;
                 }
             }
 
@@ -3421,6 +3396,7 @@ window.OperationsView = (function($, OperationsView) {
         return (str);
     }
 
+    // looks for columnNames and figures out column type
     function getColumnTypeFromArg(value) {
         // if value = "col1, col2", it only check col1
         value = value.split(",")[0];
@@ -3789,6 +3765,8 @@ window.OperationsView = (function($, OperationsView) {
         var shouldBeString  = (typeid & strShift) > 0;
         var shouldBeNumber = (typeid & numberShift) > 0;
         var shouldBeBoolean = (typeid & boolShift) > 0;
+        var isNumberAsString;
+        var isBoolAsString;
 
         if (shouldBeString) {
             // handle edge case
@@ -3807,9 +3785,15 @@ window.OperationsView = (function($, OperationsView) {
                     // when its number
                     value = parsedVal;
                 }
-            } else if (existingTypes.hasOwnProperty(ColumnType.string) &&
-                        isNumberInQuotes(value)) {
+            } else if (isNumberInQuotes(value)) {
+                if (shouldBeNumber) {
+                    isNumberAsString = true;
+                }
                 // keep value as is
+            } else if (isBoolInQuotes(value)) {
+                if (shouldBeBoolean) {
+                    isBoolAsString = true;
+                }
             } else if (shouldBeBoolean &&
                         (value === "true" || value === "false")) {
                 shouldBeString = false;
@@ -3820,9 +3804,11 @@ window.OperationsView = (function($, OperationsView) {
         value = parseAggPrefixes(value);
         value = parseColPrefixes(value);
         if (shouldBeString) {
-            // add quote if the field support string
-            value = "\"" + value + "\"";
-            // stringify puts in too many slashes
+            if (!isNumberAsString && !isBoolAsString) {
+                // add quote if the field support string
+                value = "\"" + value + "\"";
+                // stringify puts in too many slashes
+            }
         } else if (shouldBeNumber) {
             var tempValue = "" + value; // Force string to provide indexOf
             if (tempValue.indexOf(".") === 0) {
@@ -3987,7 +3973,7 @@ window.OperationsView = (function($, OperationsView) {
         val = val.trim();
         var valLen = val.length;
 
-        if (valLen < 4) { // must be at least this long: a(b)
+        if (valLen < 3) { // must be at least this long: a()
             return false;
         }
 
