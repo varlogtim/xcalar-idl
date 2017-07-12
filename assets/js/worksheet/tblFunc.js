@@ -365,6 +365,9 @@ window.TblFunc = (function(TblFunc, $) {
         var alreadyFocused = gActiveTableId === tableId;
         if (!alreadyFocused && gActiveTableId) {
             TblManager.unHighlightCells(gActiveTableId);
+            if (!$("#xcTable-" + tableId).find(".selectedCell").length) {
+                FnBar.clear();
+            }
         }
         var wsNum = WSManager.getActiveWS();
         $('.xcTableWrap.worksheet-' + wsNum).find('.tableTitle')

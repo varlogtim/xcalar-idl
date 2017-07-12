@@ -954,27 +954,50 @@ window.xcManager = (function(xcManager, $) {
                 return;
             }
 
-            // some code mirror elements don't have parents for some reason
-            // such as the pre tag
-            if (!$target.hasClass('fnbarPre') &&
-                !$target.hasClass('CodeMirror-cursor') &&
-                !$target.closest('.CodeMirror-hint').length &&
-                !$target.closest('.fnbarPre').length &&
-                !$target.closest('#functionArea').length &&
-                !$target.closest('.header').length &&
-                !($target.closest('pre').length &&
-                  $target.parents('html').length === 0)) {
-                if ($target.closest('.selectedCell').length !== 0) {
-                    return;
-                } else if ($target.attr('id') === 'mainFrame') {
-                    return;
-                } else if ($target.closest('.menu').length !== 0) {
-                    return;
-                }
-                $('.selectedCell').removeClass('selectedCell');
+            /*
+            The spots you can click on where the fnBar and column DO NOT get
+            cleared or deselected:
+                - selected column header
+                - selected column cells
+                - the function bar
+                - any menu list item
+                - worksheet scroll bar
+                - table scroll bar of the respective column's table
+                - the draggable resizing area on the right side of the left panel
+                - the draggable resizing area on the top of the QG panel
+                - the maximize/close buttons on the QG panel
+            */
+
+            if (!$target.closest(".header").length &&
+                !$target.closest(".selectedCell").length &&
+                !$target.closest(".menu").length &&
+                $target.attr("id") !== "mainFrame" &&
+                !$target.hasClass("ui-resizable-handle") &&
+                !($target.closest(".topButtons").length &&
+                    $target.closest("#dagPanel").length) &&
+                !$target.closest("#dfPanelSwitch").length &&
+                !($target.closest("li.column").length &&
+                 $target.closest("#activeTablesList").length) &&
+                !$target.closest(".tableScrollBar").length &&
+                !isTargetFnBar($target)) {
+
+                $(".selectedCell").removeClass("selectedCell");
                 FnBar.clear();
             }
         });
+
+        function isTargetFnBar($target) {
+            // some code mirror elements don't have parents for some reason
+            // such as the pre tag
+            var isCodeMirror = $target.hasClass("fnbarPre") ||
+                               $target.closest("#functionArea").length > 0 ||
+                               $target.hasClass("CodeMirror-cursor") ||
+                               $target.closest(".CodeMirror-hint").length > 0 ||
+                               $target.closest(".fnbarPre").length > 0 ||
+                               ($target.closest("pre").length > 0 &&
+                               $target.parents('html').length === 0);
+            return isCodeMirror;
+        }
 
         $(document).click(function(event) {
             gLastClickTarget = $(event.target);

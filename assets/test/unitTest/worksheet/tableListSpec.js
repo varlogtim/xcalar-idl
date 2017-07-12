@@ -108,13 +108,13 @@ describe('TableList Test', function() {
         XcalarGetConstants = function() {
             return PromiseHelper.resolve([{name: "unitTestConst"}]);
         };
-        
+
         // set these fake tables into the tablelist
         TableList.initialize()
         .then(function() {
             done();
         });
-       
+
     });
 
     describe('initial state', function() {
@@ -190,7 +190,7 @@ describe('TableList Test', function() {
     });
 
     describe("tableListBox sliding", function() {
-       
+
         it('one active table should exist', function() {
             expect($("#activeTablesList .tableListBox").length).to.equal(3);
         });
@@ -273,7 +273,7 @@ describe('TableList Test', function() {
             expect($("#activeTablesList").find(".addTableBtn.selected").length).to.equal(3);
             expect($("#activeTableListSection").find(".submit").is(":visible")).to.be.true;
         });
-       
+
         it("clear all should work", function() {
             expect($("#activeTablesList").find(".addTableBtn.selected").length).to.equal(3);
             expect($("#activeTableListSection").find(".submit").is(":visible")).to.be.true;
@@ -523,7 +523,7 @@ describe('TableList Test', function() {
 
             var $colLis = $("#activeTablesList").find(".column");
             expect($colLis.length).to.equal(6);
-            $colLis.eq(1).click();
+            $colLis.eq(1).mousedown();
 
             expect(centerCalled).to.be.true;
 
@@ -581,7 +581,7 @@ describe('TableList Test', function() {
             expect($listWrap.find('.addTableBtn.selected').length).to.equal(0);
             $li.siblings('.addTableBtn').click();
             expect($listWrap.find('.addTableBtn.selected').length).to.equal(1);
-            
+
             $input.val('e').trigger(fakeEvent.input);
             expect($listWrap.find('.addTableBtn.selected').length).to.equal(0);
             $input.val("").trigger(fakeEvent.input);
@@ -704,7 +704,7 @@ describe('TableList Test', function() {
             WSManager.getHiddenWSList = function() {
                 return [];
             };
-            
+
             var $activeListSection = $(".tableListSection").eq(0);
 
             $activeListSection.find(".sortName").click();

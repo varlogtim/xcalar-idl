@@ -249,7 +249,7 @@ window.TableList = (function($, TableList) {
             return tables;
         }
 
-        $("#activeTablesList").on("click", ".column", function() {
+        $("#activeTablesList").on("mousedown", ".column", function() {
             var $col = $(this);
             if ($(this).closest(".tableInfo").hasClass("hiddenWS")) {
                 return;
