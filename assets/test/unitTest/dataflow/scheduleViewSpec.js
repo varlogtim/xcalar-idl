@@ -772,6 +772,9 @@ function viewRelatedFunctionTest() {
         var $scheduleInfos = $("#scheduleInfos");
         assert.isTrue($scheduleInfos.is(":visible"));
 
+        expect($("#scheduleDetail .tab.detail").hasClass("active"))
+        .to.be.true;
+        $("#scheduleDetail .tab.default").click();
         if (!isBrowserMicrosoft) {
             assert.equal($scheduleInfos.find(".created .text").text(),
                     dateText + " 11:13 PM UTC");

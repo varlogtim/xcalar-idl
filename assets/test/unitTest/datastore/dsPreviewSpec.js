@@ -360,12 +360,12 @@ describe("DSPreview Test", function() {
             DSPreview.__testOnly__.set(null, null, true);
             var oldPreview = XcalarPreview;
             XcalarPreview = function() {
-                return PromiseHelper.resolve({"fileName": "test"});
+                return PromiseHelper.resolve({"relPath": "file/test"});
             };
 
             DSPreview.__testOnly__.getURLToPreview("file:///url")
             .then(function(path) {
-                expect(path).equal("file:///url/test");
+                expect(path).equal("file:///url/file/test");
                 done();
             })
             .fail(function() {

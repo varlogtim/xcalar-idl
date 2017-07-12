@@ -8,10 +8,17 @@ describe("xcSocket Test", function() {
 
     it("should get expServer url", function() {
         var getExpServerUrl = XcSocket.__testOnly__.getExpServerUrl;
-        var res = getExpServerUrl("http://test:9090");
-        expect(res).to.equal("http://test:12124");
+        var oldExpHost = window.expHost;
+
+        // case 1
+        window.expHost = null;
+        var res = getExpServerUrl("http://test");
+        expect(res).to.equal("http://test");
         // case 2
+        window.expHost = "http://test2";
         res = getExpServerUrl("http://test");
-        expect(res).to.equal("http://test:12124");
+        expect(res).to.equal("http://test2");
+
+        window.expHost = oldExpHost;
     });
 });
