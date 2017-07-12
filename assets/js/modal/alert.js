@@ -234,7 +234,8 @@ window.Alert = (function($, Alert){
         var $alertContent = $("#alertContent");
         var msgTemplate = options.msgTemplate || null;
         if (msgTemplate != null) {
-            $alertContent.find(".text").html(msgTemplate);
+            // put inside span so innerHtml isn't affected by flexbox
+            $alertContent.find(".text").html('<span>' + msgTemplate + '</span>');
         } else {
             var msg = options.msg || "";
             $alertContent.find(".text").empty().text(msg);
