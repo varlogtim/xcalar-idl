@@ -2052,6 +2052,7 @@ table.datasetTable {
     #lineDelim, #fieldDelim {
         input {
             cursor: text;
+            font-family: @font-code;
 
             &:focus {
                 outline: none;
@@ -2063,6 +2064,10 @@ table.datasetTable {
         .nullVal {
             font-style: italic;
         }
+    }
+
+    #dsForm-quote {
+        font-family: @font-code;
     }
 
     #promoteHeaderCheckbox, #genLineNumbersCheckbox {
