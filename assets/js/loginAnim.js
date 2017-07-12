@@ -1,9 +1,70 @@
 (function (lib, img, cjs, ss, an) {
 
 var p; // shortcut to reference prototypes
+lib.webFontTxtInst = {};
+var loadedTypekitCount = 0;
+var loadedGoogleCount = 0;
+var gFontsUpdateCacheList = [];
+var tFontsUpdateCacheList = [];
 lib.ssMetadata = [];
 
 
+
+lib.updateListCache = function (cacheList) {
+	for(var i = 0; i < cacheList.length; i++) {
+		if(cacheList[i].cacheCanvas)
+			cacheList[i].updateCache();
+	}
+};
+
+lib.addElementsToCache = function (textInst, cacheList) {
+	var cur = textInst;
+	while(cur != null && cur != exportRoot) {
+		if(cacheList.indexOf(cur) != -1)
+			break;
+		cur = cur.parent;
+	}
+	if(cur != exportRoot) {
+		var cur2 = textInst;
+		var index = cacheList.indexOf(cur);
+		while(cur2 != null && cur2 != cur) {
+			cacheList.splice(index, 0, cur2);
+			cur2 = cur2.parent;
+			index++;
+		}
+	}
+	else {
+		cur = textInst;
+		while(cur != null && cur != exportRoot) {
+			cacheList.push(cur);
+			cur = cur.parent;
+		}
+	}
+};
+
+lib.gfontAvailable = function(family, totalGoogleCount) {
+	lib.properties.webfonts[family] = true;
+	var txtInst = lib.webFontTxtInst && lib.webFontTxtInst[family] || [];
+	for(var f = 0; f < txtInst.length; ++f)
+		lib.addElementsToCache(txtInst[f], gFontsUpdateCacheList);
+
+	loadedGoogleCount++;
+	if(loadedGoogleCount == totalGoogleCount) {
+		lib.updateListCache(gFontsUpdateCacheList);
+	}
+};
+
+lib.tfontAvailable = function(family, totalTypekitCount) {
+	lib.properties.webfonts[family] = true;
+	var txtInst = lib.webFontTxtInst && lib.webFontTxtInst[family] || [];
+	for(var f = 0; f < txtInst.length; ++f)
+		lib.addElementsToCache(txtInst[f], tFontsUpdateCacheList);
+
+	loadedTypekitCount++;
+	if(loadedTypekitCount == totalTypekitCount) {
+		lib.updateListCache(tFontsUpdateCacheList);
+	}
+};
 // symbols:
 
 
@@ -155,27 +216,27 @@ p.nominalBounds = new cjs.Rectangle(-190.9,-1,220.5,220.5);
 
 	// Layer 2
 	this.shape = new cjs.Shape();
-	this.shape.graphics.lf(["rgba(31,93,122,0)","#1F5D7A","rgba(31,93,122,0)"],[0.357,0.49,0.624],-4.8,-25.4,4.9,25.5).s().p("A7rj8MA12gADIBhH8Mg12AADg");
+	this.shape.graphics.lf(["rgba(31,93,122,0)","#1F5D7A","rgba(31,93,122,0)"],[0.357,0.49,0.624],-4.8,-25.2,4.8,25.2).s().p("A7rj8MA12gADIBhH8Mg12AADg");
 	this.shape.setTransform(180.8,26.3);
 
 	this.shape_1 = new cjs.Shape();
-	this.shape_1.graphics.lf(["rgba(31,93,122,0)","#1F5D7A","rgba(31,93,122,0)"],[0.353,0.49,0.624],-4.8,-25.4,4.9,25.5).s().p("A7rj8MA12gADIBhH8Mg12AADg");
+	this.shape_1.graphics.lf(["rgba(31,93,122,0)","#1F5D7A","rgba(31,93,122,0)"],[0.353,0.49,0.624],-4.8,-25.2,4.8,25.3).s().p("A7rj8MA12gADIBhH8Mg12AADg");
 	this.shape_1.setTransform(180.8,26.3);
 
 	this.shape_2 = new cjs.Shape();
-	this.shape_2.graphics.lf(["rgba(31,93,122,0)","#1F5D7A","rgba(31,93,122,0)"],[0.349,0.49,0.627],-4.8,-25.4,4.9,25.5).s().p("A7rj8MA12gADIBhH8Mg12AADg");
+	this.shape_2.graphics.lf(["rgba(31,93,122,0)","#1F5D7A","rgba(31,93,122,0)"],[0.349,0.49,0.627],-4.8,-25.2,4.8,25.3).s().p("A7rj8MA12gADIBhH8Mg12AADg");
 	this.shape_2.setTransform(180.8,26.3);
 
 	this.shape_3 = new cjs.Shape();
-	this.shape_3.graphics.lf(["rgba(31,93,122,0)","#1F5D7A","rgba(31,93,122,0)"],[0.345,0.49,0.627],-4.8,-25.4,4.9,25.5).s().p("A7rj8MA12gADIBhH8Mg12AADg");
+	this.shape_3.graphics.lf(["rgba(31,93,122,0)","#1F5D7A","rgba(31,93,122,0)"],[0.345,0.49,0.627],-4.8,-25.3,4.8,25.3).s().p("A7rj8MA12gADIBhH8Mg12AADg");
 	this.shape_3.setTransform(180.8,26.3);
 
 	this.shape_4 = new cjs.Shape();
-	this.shape_4.graphics.lf(["rgba(31,93,122,0)","#1F5D7A","rgba(31,93,122,0)"],[0.345,0.49,0.631],-4.8,-25.4,4.9,25.5).s().p("A7rj8MA12gADIBhH8Mg12AADg");
+	this.shape_4.graphics.lf(["rgba(31,93,122,0)","#1F5D7A","rgba(31,93,122,0)"],[0.345,0.49,0.631],-4.8,-25.3,4.8,25.4).s().p("A7rj8MA12gADIBhH8Mg12AADg");
 	this.shape_4.setTransform(180.8,26.3);
 
 	this.shape_5 = new cjs.Shape();
-	this.shape_5.graphics.lf(["rgba(31,93,122,0)","#1F5D7A","rgba(31,93,122,0)"],[0.341,0.49,0.631],-4.8,-25.4,4.9,25.5).s().p("A7rj8MA12gADIBhH8Mg12AADg");
+	this.shape_5.graphics.lf(["rgba(31,93,122,0)","#1F5D7A","rgba(31,93,122,0)"],[0.341,0.49,0.631],-4.8,-25.3,4.9,25.4).s().p("A7rj8MA12gADIBhH8Mg12AADg");
 	this.shape_5.setTransform(180.8,26.3);
 
 	this.shape_6 = new cjs.Shape();
@@ -187,31 +248,31 @@ p.nominalBounds = new cjs.Rectangle(-190.9,-1,220.5,220.5);
 	this.shape_7.setTransform(180.8,26.3);
 
 	this.shape_8 = new cjs.Shape();
-	this.shape_8.graphics.lf(["rgba(63,116,141,0)","rgba(63,116,141,0.984)","rgba(63,116,141,0.141)","rgba(31,93,122,0)"],[0.286,0.435,0.643,0.686],-4.8,-23.8,4.9,34.8).s().p("A7rlYMA12gADIBhK0Mg12AADg");
+	this.shape_8.graphics.lf(["rgba(63,116,141,0)","rgba(63,116,141,0.984)","rgba(63,116,141,0.141)","rgba(31,93,122,0)"],[0.286,0.435,0.643,0.686],-5,-25.4,5,36.4).s().p("A7rlYMA12gADIBhK0Mg12AADg");
 	this.shape_8.setTransform(180.8,22.8);
 
 	this.shape_9 = new cjs.Shape();
-	this.shape_9.graphics.lf(["rgba(95,139,160,0)","rgba(95,139,160,0.969)","rgba(95,139,160,0.286)","rgba(31,93,122,0)"],[0.239,0.376,0.647,0.741],-4.8,-22.2,4.9,44.1).s().p("A7rm0MA12gAFIBhNvMg12AADg");
+	this.shape_9.graphics.lf(["rgba(95,139,160,0)","rgba(95,139,160,0.969)","rgba(95,139,160,0.286)","rgba(31,93,122,0)"],[0.239,0.376,0.647,0.741],-5.1,-25.5,5.2,47.3).s().p("A7rm0MA12gAFIBhNvMg12AADg");
 	this.shape_9.setTransform(180.8,19.2);
 
 	this.shape_10 = new cjs.Shape();
-	this.shape_10.graphics.lf(["rgba(127,162,179,0)","rgba(127,162,179,0.953)","rgba(127,162,179,0.427)","rgba(31,93,122,0)"],[0.192,0.322,0.655,0.792],-4.8,-20.7,4.9,53.3).s().p("A7roQMA12gAFIBhQmMg12AAFg");
+	this.shape_10.graphics.lf(["rgba(127,162,179,0)","rgba(127,162,179,0.953)","rgba(127,162,179,0.427)","rgba(31,93,122,0)"],[0.192,0.322,0.655,0.792],-5.3,-25.5,5.3,58.2).s().p("A7roQMA12gAFIBhQmMg12AAFg");
 	this.shape_10.setTransform(180.8,15.6);
 
 	this.shape_11 = new cjs.Shape();
-	this.shape_11.graphics.lf(["rgba(159,186,198,0)","rgba(159,186,198,0.933)","rgba(159,186,198,0.573)","rgba(31,93,122,0)"],[0.141,0.263,0.663,0.843],-4.8,-19,4.9,62.6).s().p("A7rpsMA12gAGIBhTgMg12AAFg");
+	this.shape_11.graphics.lf(["rgba(159,186,198,0)","rgba(159,186,198,0.933)","rgba(159,186,198,0.573)","rgba(31,93,122,0)"],[0.141,0.263,0.663,0.843],-5.4,-25.6,5.5,69.1).s().p("A7rpsMA12gAGIBhTgMg12AAFg");
 	this.shape_11.setTransform(180.8,12);
 
 	this.shape_12 = new cjs.Shape();
-	this.shape_12.graphics.lf(["rgba(191,209,217,0)","rgba(191,209,217,0.918)","rgba(191,209,217,0.714)","rgba(31,93,122,0)"],[0.094,0.208,0.671,0.894],-4.8,-17.4,4.9,71.9).s().p("A7rrIMA12gAHIBhWYMg12AAHg");
+	this.shape_12.graphics.lf(["rgba(191,209,217,0)","rgba(191,209,217,0.918)","rgba(191,209,217,0.714)","rgba(31,93,122,0)"],[0.094,0.208,0.671,0.894],-5.6,-25.6,5.6,80).s().p("A7rrIMA12gAHIBhWYMg12AAHg");
 	this.shape_12.setTransform(180.8,8.4);
 
 	this.shape_13 = new cjs.Shape();
-	this.shape_13.graphics.lf(["rgba(223,232,236,0)","rgba(223,232,236,0.902)","rgba(223,232,236,0.859)","rgba(31,93,122,0)"],[0.047,0.149,0.675,0.949],-4.8,-15.8,4.9,81.2).s().p("A7rskMA12gAIIBhZSMg12AAHg");
+	this.shape_13.graphics.lf(["rgba(223,232,236,0)","rgba(223,232,236,0.902)","rgba(223,232,236,0.859)","rgba(31,93,122,0)"],[0.047,0.149,0.675,0.949],-5.7,-25.6,5.8,91).s().p("A7rskMA12gAIIBhZSMg12AAHg");
 	this.shape_13.setTransform(180.8,4.8);
 
 	this.shape_14 = new cjs.Shape();
-	this.shape_14.graphics.lf(["rgba(255,255,255,0)","rgba(255,255,255,0.886)","#FFFFFF","rgba(31,93,122,0)"],[0,0.094,0.682,1],-4.8,-14.3,4.9,90.4).s().p("A7ruAMA12gAJIBhcLMg12AAIg");
+	this.shape_14.graphics.lf(["rgba(255,255,255,0)","rgba(255,255,255,0.886)","#FFFFFF","rgba(31,93,122,0)"],[0,0.094,0.682,1],-5.9,-25.7,5.9,101.8).s().p("A7ruAMA12gAJIBhcLMg12AAIg");
 	this.shape_14.setTransform(180.8,1.2);
 
 	var maskedShapeInstanceList = [this.shape,this.shape_1,this.shape_2,this.shape_3,this.shape_4,this.shape_5,this.shape_6,this.shape_7,this.shape_8,this.shape_9,this.shape_10,this.shape_11,this.shape_12,this.shape_13,this.shape_14];
@@ -227,7 +288,7 @@ p.nominalBounds = new cjs.Rectangle(28.2,0.8,301.1,51.2);
 
 
 // stage content:
-(lib.XD_transperent_BG = function(mode,startPosition,loop) {
+(lib.XD_transperent_BG_fixed = function(mode,startPosition,loop) {
 	this.initialize(mode,startPosition,loop,{});
 
 	// timeline functions:
@@ -282,6 +343,7 @@ lib.properties = {
 	fps: 24,
 	color: "#FFFFFF",
 	opacity: 0.00,
+	webfonts: {},
 	manifest: [
 		{src:"../images/login/stroke_blue.png?1487845710380", id:"stroke_blue"}
 	],
@@ -316,7 +378,7 @@ function handleComplete(evt) {
 	for(i=0; i<ssMetadata.length; i++) {
 		ss[ssMetadata[i].name] = new createjs.SpriteSheet( {"images": [queue.getResult(ssMetadata[i].name)], "frames": ssMetadata[i].frames} )
 	}
-	exportRoot = new lib.XD_transperent_BG();
+	exportRoot = new lib.XD_transperent_BG_fixed();
 	stage = new createjs.Stage(canvas);
 	stage.addChild(exportRoot);
 	//Registers the "tick" event listener.
