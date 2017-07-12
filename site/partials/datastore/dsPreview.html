@@ -51,7 +51,13 @@
         <!-- Preview Part -->
         <div class="datasetTbodyWrap loadHidden">
           <table id="previewTable" class="datasetTable dataTable"></table>
-          <div class="previewBottom"><%= dicts.dsPreview.EndOfPreview %></div>
+          <div class="previewBottom">
+            <span class="buttonSection action xc-action"><%= dicts.dsPreview.MoreRows %></span>
+            <div class="loadSection">
+              include "../../util/animatedEllipsis.html"
+            </div>
+            <div class="endSection"><%= dicts.dsPreview.EndOfPreview %></div>
+          </div>
         </div>
       </div>
     </div>

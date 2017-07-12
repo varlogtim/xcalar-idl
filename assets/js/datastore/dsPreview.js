@@ -38,9 +38,9 @@ window.DSPreview = (function($, DSPreview) {
     var backToFormCard = false;
     var isViewFolder = false;
     var tempParserUDF;
-
-    // constant
     var rowsToFetch = 40;
+    // constant
+    var defaultRowsToFech = 40;
     var minRowsToShow = 20;
     var numBytesRequest = 15000;
     var maxBytesRequest = 500000;
@@ -156,6 +156,12 @@ window.DSPreview = (function($, DSPreview) {
             }, 500);
         });
 
+        // preview
+        var $previewBottom = $previeWrap.find(".previewBottom");
+        $previewBottom.on("click", ".action", function() {
+            addMoreRowsToPreview();
+        });
+
         setupForm();
     };
 
@@ -204,15 +210,15 @@ window.DSPreview = (function($, DSPreview) {
         }
 
         return previewData({
-            "module": module,
-            "func": func,
-            "checkFolder": true
+            "udfModule": module,
+            "udfFunc": func,
+            "isFirstTime": true
         });
     };
 
     DSPreview.changePreviewFile = function(path, noDetect) {
         loadArgs.setPreviewFile(path);
-        refreshPreview(noDetect, true);
+        refreshPreview(noDetect);
     };
 
     DSPreview.update = function(listXdfsObj) {
@@ -291,7 +297,7 @@ window.DSPreview = (function($, DSPreview) {
             $(this).blur();
             var format = loadArgs.getFormat();
             if (format == null) {
-                refreshPreview(false, null, true);
+                refreshPreview(false, true);
             } else {
                 refreshPreview(true);
             }
@@ -618,6 +624,18 @@ window.DSPreview = (function($, DSPreview) {
         return false;
     }
 
+    function resetRowsToPreview() {
+        rowsToFetch = defaultRowsToFech;
+    }
+
+    function getRowsToPreivew() {
+        return rowsToFetch;
+    }
+
+    function addRowsToPreview(extraRowsToAdd) {
+        rowsToFetch += extraRowsToAdd;
+    }
+
     function resetForm() {
         $form.find("input").val("");
         $("#dsForm-skipRows").val("0");
@@ -641,6 +659,13 @@ window.DSPreview = (function($, DSPreview) {
         // to show \t, \ should be escaped
         $("#fieldText").val("Null").addClass("nullVal");
         $("#lineText").val("\\n").removeClass("nullVal");
+    }
+
+    function resetPreviewRows() {
+        resetRowsToPreview();
+        $previeWrap.find(".previewBottom")
+                   .removeClass("load")
+                   .removeClass("end");
     }
 
     function cleanTempParser(keepUDF) {
@@ -927,6 +952,7 @@ window.DSPreview = (function($, DSPreview) {
         var hasUDF = isUseUDF();
         var udfModule = "";
         var udfFunc = "";
+        var udfQuery = null; // not used yet
 
         if (format === "raw" &&
             $genLineNumCheckBox.find(".checkbox").hasClass("checked")) {
@@ -1050,6 +1076,9 @@ window.DSPreview = (function($, DSPreview) {
                 udfFunc = "convertNewLineJsonToArrayJson";
                 format = formatMap.JSON;
             }
+        } else if (format === formatMap.EXCEL) {
+            udfModule = excelModule;
+            udfFunc = excelFunc;
         }
 
         return {
@@ -1057,6 +1086,7 @@ window.DSPreview = (function($, DSPreview) {
             "format": format,
             "udfModule": udfModule,
             "udfFunc": udfFunc,
+            "udfQuery": udfQuery,
             "fieldDelim": fieldDelim,
             "lineDelim": lineDelim,
             "quote": quote,
@@ -1329,11 +1359,30 @@ window.DSPreview = (function($, DSPreview) {
         return !isViewFolder;
     }
 
+    function errorHandler(error) {
+        if (typeof error === "object") {
+            if (error.status === StatusT.StatusNoEnt ||
+                error.status === StatusT.StatusIsDir ||
+                error.status === StatusT.StatusAllFilesEmpty)
+            {
+                error = error.error + ", " + DSFormTStr.GoBack + ".";
+            } else {
+                error = error.error;
+            }
+        }
+
+        $previeWrap.find(".waitSection").addClass("hidden");
+        $previeWrap.find(".errorSection")
+                .html(error).removeClass("hidden");
+        $previeWrap.find(".loadHidden").addClass("hidden");
+    }
+
     function clearPreviewTable() {
         var deferred = jQuery.Deferred();
         applyHighlight(""); // remove highlighter
         $previewTable.removeClass("has-delimiter").empty();
         rawData = null;
+        resetPreviewRows();
 
         if (tableName != null) {
             var dsName = tableName;
@@ -1372,12 +1421,13 @@ window.DSPreview = (function($, DSPreview) {
         return deferred.promise();
     }
 
-    function previewData(options, noDetect, fromChangeFile) {
+    function previewData(options, noDetect) {
         var deferred = jQuery.Deferred();
 
         options = options || {};
-        var udfModule = options.module || null;
-        var udfFunc = options.func || null;
+        var isFirstTime = options.isFirstTime || false;
+        var udfModule = options.udfModule || null;
+        var udfFunc = options.udfFunc || null;
         var udfQuery = options.udfQuery || null;
 
         var loadURL = loadArgs.getPath();
@@ -1434,7 +1484,7 @@ window.DSPreview = (function($, DSPreview) {
 
         setURL(loadURL, pattern);
 
-        var def = options.checkFolder
+        var def = isFirstTime
                   ? checkIsFolder(loadURL)
                   : PromiseHelper.resolve();
 
@@ -1443,16 +1493,16 @@ window.DSPreview = (function($, DSPreview) {
 
         def
         .then(function() {
-            if (fromChangeFile) {
-                return PromiseHelper.resolve(loadArgs.getPreviewFile());
-            } else {
+            if (isFirstTime) {
                 return getURLToPreview(loadURL, isRecur, pattern);
+            } else {
+                return PromiseHelper.resolve(loadArgs.getPreviewFile());
             }
         })
         .then(function(url) {
             urlToPreview = url;
 
-            if (!hasUDF && isExcel(url)) {
+            if (isFirstTime && !hasUDF && isExcel(url)) {
                 hasUDF = true;
                 udfModule = excelModule;
                 udfFunc = excelFunc;
@@ -1661,54 +1711,24 @@ window.DSPreview = (function($, DSPreview) {
         });
     }
 
-    function sampleData(datasetName, rowsToFetch) {
-        var deferred = jQuery.Deferred();
-        var resultSetId;
-
-        XcalarMakeResultSetFromDataset(datasetName)
-        .then(function(result) {
-            resultSetId = result.resultSetId;
-            var totalEntries = result.numEntries;
-            if (totalEntries <= 0) {
-                return PromiseHelper.resolve(null);
-            } else {
-                return XcalarFetchData(resultSetId, 0, rowsToFetch,
-                                        totalEntries, []);
-            }
-        })
-        .then(function(result) {
-            // no need for resultSetId as we only need 40 samples
-            XcalarSetFree(resultSetId);
-            deferred.resolve(result);
-        })
-        .fail(deferred.reject);
-
-        return deferred.promise();
-    }
-
-    function errorHandler(error) {
-        if (typeof error === "object") {
-            if (error.status === StatusT.StatusNoEnt ||
-                error.status === StatusT.StatusIsDir ||
-                error.status === StatusT.StatusAllFilesEmpty)
-            {
-                error = error.error + ", " + DSFormTStr.GoBack + ".";
-            } else {
-                error = error.error;
-            }
-        }
-
-        $previeWrap.find(".waitSection").addClass("hidden");
-        $previeWrap.find(".errorSection")
-                .html(error).removeClass("hidden");
-        $previeWrap.find(".loadHidden").addClass("hidden");
-    }
-
     function loadData(loadURL, pattern, isRecur) {
         var deferred = jQuery.Deferred();
-        bufferData(loadURL, pattern, isRecur, numBytesRequest)
+        var buffer;
+
+        XcalarPreview(loadURL, pattern, isRecur, numBytesRequest, 0)
         .then(function(res) {
-            deferred.resolve(res.buffer);
+            if (res && res.buffer) {
+                buffer = res.buffer;
+                var rowsToShow = getRowsToPreivew();
+                return getDataFromPreview(loadURL, pattern, isRecur,
+                                          buffer, rowsToShow);
+            }
+        })
+        .then(function(extraBuffer) {
+            if (extraBuffer) {
+                buffer += extraBuffer;
+            }
+            deferred.resolve(buffer);
         })
         .fail(function(error) {
             if (typeof error === "object" &&
@@ -1730,34 +1750,121 @@ window.DSPreview = (function($, DSPreview) {
         return deferred.promise();
     }
 
-    function bufferData(loadURL, pattern, isRecur, numBytesRequest, isRetry) {
-        var deferred = jQuery.Deferred();
-        XcalarPreview(loadURL, pattern, isRecur, numBytesRequest)
-        .then(function(res) {
-            if (!isRetry && res.buffer != null) {
-                var d = res.buffer.split("\n");
-                var lines = d.length;
-                if (lines < minRowsToShow) {
-                    var maxBytesInLine = 0;
-                    for (var i = 0, len = d.length; i < len; i++) {
-                        maxBytesInLine = Math.max(maxBytesInLine, d[i].length);
-                    }
+    function getDataFromPreview(loadURL, pattern, isRecur, buffer, rowsToShow) {
+        var bytesNeed = getBytesNeed(buffer, rowsToShow);
+        if (bytesNeed <= 0) {
+            // when has enough cache to show rows
+            return PromiseHelper.resolve(null, true);
+        }
 
-                    var bytesNeed = maxBytesInLine * minRowsToShow;
-                    bytesNeed = Math.min(bytesNeed, maxBytesRequest);
-                    console.info("too small rows, request", bytesNeed);
-                    return bufferData(loadURL, pattern, isRecur,
-                                      bytesNeed, true);
-                }
+        var deferred = jQuery.Deferred();
+        var offSet = buffer.length;
+
+        console.info("too small rows, request", bytesNeed);
+        XcalarPreview(loadURL, pattern, isRecur, bytesNeed, offSet)
+        .then(function(res) {
+            var buffer = null;
+            if (res && res.buffer) {
+                buffer = res.buffer;
+            }
+            deferred.resolve(buffer);
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+
+        function getBytesNeed(data, totalRows) {
+            var format = loadArgs.getFormat();
+            var lineDelim = loadArgs.getLineDelim();
+            var rowData;
+
+            if (format !== "JSON") {
+                rowData = lineSplitHelper(data, lineDelim);
+            } else {
+                rowData = parseJSONByRow(data);
             }
 
-            return PromiseHelper.resolve(res);
+            var lines = rowData.length;
+            if (lines >= totalRows) {
+                return 0;
+            }
+
+            var maxBytesInLine = 0;
+            rowData.forEach(function(d) {
+                maxBytesInLine = Math.max(maxBytesInLine, d.length);
+            });
+            var bytes = maxBytesInLine * (totalRows - lines);
+            return Math.min(bytes, maxBytesRequest);
+        }
+    }
+
+    function getDataFromLoadUDF(datasetName, startRow, rowsToShow) {
+        var deferred = jQuery.Deferred();
+        var resultSetId;
+
+        var rowPosition = startRow - 1;
+
+        XcalarMakeResultSetFromDataset(datasetName)
+        .then(function(result) {
+            resultSetId = result.resultSetId;
+            var totalEntries = result.numEntries;
+            if (totalEntries <= 0 || rowPosition > totalEntries) {
+                return PromiseHelper.resolve(null);
+            } else {
+                return XcalarFetchData(resultSetId, rowPosition, rowsToShow,
+                                        totalEntries, []);
+            }
+        })
+        .then(function(res) {
+            // no need for resultSetId as we only need 40 samples
+            XcalarSetFree(resultSetId);
+            return parseResult(res);
         })
         .then(deferred.resolve)
         .fail(deferred.reject);
 
         return deferred.promise();
+
+        function parseResult(result) {
+            var innerDeferred = jQuery.Deferred();
+
+            if (!result) {
+                innerDeferred.resolve(null);
+                return innerDeferred.promise();
+            }
+            var passed;
+            var buffer;
+            try {
+                var rows = parseRows(result);
+                buffer = JSON.stringify(rows);
+                passed = true;
+            } catch (err) {
+                console.error(err.stack);
+            }
+
+            if (passed) {
+                innerDeferred.resolve(buffer);
+            } else {
+                innerDeferred.reject({"error": DSTStr.NoParse});
+            }
+
+            return innerDeferred.promise();
+        }
+
+        function parseRows(data) {
+            var rows = [];
+
+            for (var i = 0, len = data.length; i < len; i++) {
+                var value = data[i].value;
+                var row = $.parseJSON(value);
+                delete row.xcalarRecordNum;
+                rows.push(row);
+            }
+
+            return rows;
+        }
     }
+
 
     // load with UDF always return JSON format
     /*
@@ -1788,48 +1895,83 @@ window.DSPreview = (function($, DSPreview) {
 
         XcalarLoad(loadURL, format, tempDSName, options, txId)
         .then(function() {
-            return sampleData(tempDSName, rowsToFetch);
+            return getDataFromLoadUDF(tempDSName, 1, rowsToFetch);
         })
-        .then(function(result) {
-            if (!result) {
-                deferred.resolve(null);
-                return;
-            }
-            var passed;
-            var buffer;
-            try {
-                var rows = parseRows(result);
-                buffer = JSON.stringify(rows);
-                passed = true;
-            } catch (err) {
-                console.error(err.stack);
-            }
-
-            if (passed) {
-                deferred.resolve(buffer);
-            } else {
-                deferred.reject({"error": DSTStr.NoParse});
-            }
-        })
+        .then(deferred.resolve)
         .fail(function(error, loadError) {
             var displayError = loadError || error;
             deferred.reject(displayError);
         });
 
-        function parseRows(data) {
-            var rows = [];
+        return deferred.promise();
+    }
 
-            for (var i = 0, len = data.length; i < len; i++) {
-                var value = data[i].value;
-                var row = $.parseJSON(value);
-                delete row.xcalarRecordNum;
-                rows.push(row);
+    function addMoreRowsToPreview() {
+        var deferred = jQuery.Deferred();
+        var rowsToAdd = minRowsToShow;
+        var $section = $previewTable.closest(".datasetTbodyWrap");
+        var scrollPos = $section.scrollTop();
+        var $previewBottom = $section.find(".previewBottom").addClass("load");
+
+        fetchMoreRowsHelper(rowsToAdd)
+        .then(function(newBuffer, hasEnoughDataInCache) {
+            if (newBuffer) {
+                rawData += newBuffer;
             }
 
-            return rows;
-        }
+            if (!newBuffer && !hasEnoughDataInCache) {
+                // has no data to  fetch case
+                $previewBottom.addClass("end");
+            } else {
+                // update preview
+                addRowsToPreview(rowsToAdd);
+                getPreviewTable();
+                $previewTable.closest(".datasetTbodyWrap").scrollTop(scrollPos);
+            }
+        })
+        .then(deferred.resolve)
+        .fail(deferred.reject)
+        .always(function() {
+            $previewBottom.removeClass("load");
+        });
 
         return deferred.promise();
+    }
+
+    function fetchMoreRowsHelper(rowsToAdd) {
+        var isFromLoadUDF = (tableName != null);
+        if (isFromLoadUDF) {
+            return fetchMoreRowsFromLoadUDF(rowsToAdd);
+        } else {
+            return fetchMoreRowsFromPreview(rowsToAdd);
+        }
+    }
+
+    function fetchMoreRowsFromLoadUDF(rowsToAdd) {
+        var datasetName = tableName;
+        var startRow = getRowsToPreivew() + 1;
+        return getDataFromLoadUDF(datasetName, startRow, rowsToAdd);
+    }
+
+    function fetchMoreRowsFromPreview(rowsToAdd) {
+        var loadURL = loadArgs.getPreviewFile();
+        var buffer = rawData;
+
+        var advanceArgs = advanceOption.getArgs();
+        var isRecur = false;
+        var isRegex = false;
+        var pattern = null;
+
+        if (advanceArgs != null) {
+            isRecur = advanceArgs.isRecur;
+            isRegex = advanceArgs.isRegex;
+            pattern = xcHelper.getFileNamePattern(advanceArgs.pattern, isRegex);
+        } else {
+            console.error("error case");
+        }
+
+        var rowsToShow = getRowsToPreivew() + rowsToAdd;
+        return getDataFromPreview(loadURL, pattern, isRecur, buffer, rowsToShow);
     }
 
     function autoPreview() {
@@ -1842,33 +1984,15 @@ window.DSPreview = (function($, DSPreview) {
         }
     }
 
-    function refreshPreview(noDetect, fromChangeFile, skipFormatCheck) {
-        var res = validateForm(skipFormatCheck);
-        if (res == null) {
+    function refreshPreview(noDetect, skipFormatCheck) {
+        var formOptions = validateForm(skipFormatCheck);
+        if (formOptions == null) {
             return;
         }
 
-        var udfModule = "";
-        var udfFunc = "";
-        var udfQuery = null;
-
-        if (res.format === formatMap.EXCEL) {
-            udfModule = excelModule;
-            udfFunc = excelFunc;
-        } else {
-            udfModule = res.udfModule;
-            udfFunc = res.udfFunc;
-        }
-
-        var options = {
-            "module": udfModule,
-            "func": udfFunc,
-            "udfQuery": udfQuery
-        };
-
         clearPreviewTable()
         .then(function() {
-            return previewData(options, noDetect, fromChangeFile);
+            return previewData(formOptions, noDetect);
         })
         .fail(errorHandler);
     }
@@ -2113,11 +2237,10 @@ window.DSPreview = (function($, DSPreview) {
         .addClass("has-delimiter");
     }
 
-    function parseJSONData(datas) {
-        var startIndex = datas.indexOf("{");
-        var endIndex = datas.lastIndexOf("}");
+    function parseJSONByRow(data) {
+        var startIndex = data.indexOf("{");
+        var endIndex = data.lastIndexOf("}");
         if (startIndex === -1 || endIndex === -1) {
-            errorHandler(DSFormTStr.NoParseJSON);
             return null;
         }
 
@@ -2127,7 +2250,7 @@ window.DSPreview = (function($, DSPreview) {
         var hasQuote = false;
 
         for (var i = startIndex; i <= endIndex; i++) {
-            var c = datas.charAt(i);
+            var c = data.charAt(i);
             if (hasBackSlash) {
                 // skip
                 hasBackSlash = false;
@@ -2145,7 +2268,7 @@ window.DSPreview = (function($, DSPreview) {
                 } else if (c === "}") {
                     bracketCnt--;
                     if (bracketCnt === 0) {
-                        record.push(datas.substring(startIndex, i + 1));
+                        record.push(data.substring(startIndex, i + 1));
                         startIndex = -1;
                         // not show too much rows
                         if (record.length >= rowsToFetch) {
@@ -2161,7 +2284,16 @@ window.DSPreview = (function($, DSPreview) {
         }
 
         if (bracketCnt === 0 && startIndex >= 0 && startIndex <= endIndex) {
-            record.push(datas.substring(startIndex, endIndex + 1));
+            record.push(data.substring(startIndex, endIndex + 1));
+        }
+        return record;
+    }
+
+    function parseJSONData(data) {
+        var record = parseJSONByRow(data);
+        if (record == null) {
+            errorHandler(DSFormTStr.NoParseJSON);
+            return null;
         }
 
         var string = "[" + record.join(",") + "]";
@@ -2615,7 +2747,7 @@ window.DSPreview = (function($, DSPreview) {
         DSPreview.__testOnly__.detectExcelHeader = detectExcelHeader;
         DSPreview.__testOnly__.applyHighlight = applyHighlight;
         DSPreview.__testOnly__.clearPreviewTable = clearPreviewTable;
-        DSPreview.__testOnly__.sampleData = sampleData;
+        DSPreview.__testOnly__.getDataFromLoadUDF = getDataFromLoadUDF;
         DSPreview.__testOnly__.getURLToPreview = getURLToPreview;
         DSPreview.__testOnly__.loadDataWithUDF = loadDataWithUDF;
 

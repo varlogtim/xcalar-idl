@@ -291,35 +291,7 @@ describe("DSPreview Test", function() {
             expect($previewTable.find("tbody tr").length).to.equal(2);
         });
 
-        it("sampleData() should work", function(done) {
-            var oldMakeResultSet = XcalarMakeResultSetFromDataset;
-            XcalarMakeResultSetFromDataset = function() {
-                return PromiseHelper.resolve({
-                    "resultSetId": 1,
-                    "numEntries": 0
-                });
-            };
-
-            var oldSetFree = XcalarSetFree;
-            XcalarSetFree = function() {
-                return PromiseHelper.resolve();
-            };
-
-            DSPreview.__testOnly__.sampleData()
-            .then(function(res) {
-                expect(res).to.be.null;
-                done();
-            })
-            .fail(function() {
-                done("fail");
-            })
-            .always(function() {
-                XcalarSetFree = oldSetFree;
-                XcalarMakeResultSetFromDataset = oldMakeResultSet;
-            });
-        });
-
-        it("sampleData() should work 2", function(done) {
+        it("getDataFromLoadUDF() should fail", function(done) {
             var oldMakeResultSet = XcalarMakeResultSetFromDataset;
             XcalarMakeResultSetFromDataset = function() {
                 return PromiseHelper.resolve({
@@ -338,9 +310,74 @@ describe("DSPreview Test", function() {
                 return PromiseHelper.resolve("test");
             };
 
-            DSPreview.__testOnly__.sampleData()
+            DSPreview.__testOnly__.getDataFromLoadUDF()
+            .then(function() {
+                done("fail");
+            })
+            .fail(function(error) {
+                expect(error.error).to.equal(DSTStr.NoParse);
+                done();
+            })
+            .always(function() {
+                XcalarSetFree = oldSetFree;
+                XcalarMakeResultSetFromDataset = oldMakeResultSet;
+                XcalarFetchData = oldFetch;
+            });
+        });
+
+        it("getDataFromLoadUDF() should work", function(done) {
+            var oldMakeResultSet = XcalarMakeResultSetFromDataset;
+            XcalarMakeResultSetFromDataset = function() {
+                return PromiseHelper.resolve({
+                    "resultSetId": 1,
+                    "numEntries": 0
+                });
+            };
+
+            var oldSetFree = XcalarSetFree;
+            XcalarSetFree = function() {
+                return PromiseHelper.resolve();
+            };
+
+            DSPreview.__testOnly__.getDataFromLoadUDF()
             .then(function(res) {
-                expect(res).to.equal("test");
+                expect(res).to.be.null;
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                XcalarSetFree = oldSetFree;
+                XcalarMakeResultSetFromDataset = oldMakeResultSet;
+            });
+        });
+
+        it("getDataFromLoadUDF() should work 2", function(done) {
+            var oldMakeResultSet = XcalarMakeResultSetFromDataset;
+            XcalarMakeResultSetFromDataset = function() {
+                return PromiseHelper.resolve({
+                    "resultSetId": 1,
+                    "numEntries": 1
+                });
+            };
+
+            var oldSetFree = XcalarSetFree;
+            XcalarSetFree = function() {
+                return PromiseHelper.resolve();
+            };
+
+            var oldFetch = XcalarFetchData;
+            XcalarFetchData = function() {
+                return PromiseHelper.resolve([{
+                    "key": "0",
+                    "value": '{"column10":"Opportunity Source"}'
+                }]);
+            };
+
+            DSPreview.__testOnly__.getDataFromLoadUDF()
+            .then(function(res) {
+                expect(res).to.equal('[{"column10":"Opportunity Source"}]');
                 done();
             })
             .fail(function() {

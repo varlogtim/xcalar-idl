@@ -566,8 +566,9 @@ module.exports = {
         "Previewing": "Previewing",
         "RmHighlight": "Remove highlights",
         "ApplyHighlight": "Apply highlighted characters as field delimiter",
-        "EndOfPreview": "End of Preview",
-        "Tab": "Tab"
+        "EndOfPreview": "End of the file to preview",
+        "Tab": "Tab",
+        "MoreRows": "Show more rows"
     },
 
     "dsExport": {

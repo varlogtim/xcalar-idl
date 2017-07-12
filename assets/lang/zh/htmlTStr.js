@@ -413,10 +413,11 @@ module.exports = {
     },
     "dsPreview": {
         "ApplyHighlight": "应用高亮字符作为列分隔符",
-        "EndOfPreview": "预览结束",
+        "EndOfPreview": "文件预览结束",
         "Previewing": "数据预览",
         "RmHighlight": "清除高亮",
-        "Tab": "TAB建"
+        "Tab": "TAB建",
+        "MoreRows": "加载更多行"
     },
     "dsTable": {
         "CreatedBy": "创建者",

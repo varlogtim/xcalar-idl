@@ -1760,6 +1760,37 @@ table.datasetTable {
     .previewBottom {
         .font(@size: 12px, @weight: 700);
         margin: 5px 6px;
+
+        .buttonSection {
+            text-decoration: underline;
+            color: @color-font-softBlue;
+            .size(@width: 120px);
+            cursor: pointer;
+        }
+
+        .loadSection, .endSection {
+            display: none;
+        }
+
+        &.end {
+            .endSection {
+                display: inline-block;
+            }
+
+            .loadSection, .buttonSection {
+                display: none;
+            }
+        }
+
+        &.load {
+            .loadSection {
+                display: inline-block;
+            }
+
+            .endSection, .buttonSection {
+                display: none;
+            }
+        }
     }
 }
 
