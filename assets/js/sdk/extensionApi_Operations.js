@@ -218,7 +218,11 @@ window.XcSDK.Extension.prototype = (function() {
             XIApi.groupBy(txId, gbArgs, groupByCols, tableName, options)
             .then(function(dstTable, dstCols) {
                 self._addMeta(tableName, dstTable, dstCols);
-                deferred.resolve(dstTable, dstCols);
+                var dstColumnsSDK = dstCols.map(function(progcol) {
+                    return new XcSDK.Column(progcol.getBackColName(),
+                        progcol.getType());
+                });
+                deferred.resolve(dstTable, dstColumnsSDK);
             })
             .fail(deferred.reject);
 

@@ -288,8 +288,9 @@ window.UExtDistinct = (function(UExtDistinct) {
                 var modifiedGByColNames = [];
                 for (var i = 1; i <= groupByCols.length; i++) {
                     // get the modified names of the provided groubByCols after
-                    // the first group by.
-                    var colName = gByTableCols[i].backName;
+                    // the first group by. Start from (i = 1) because the first
+                    // column (i = 0) is the column created by the aggregate
+                    var colName = gByTableCols[i].getName();
                     modifiedGByColNames[i - 1] = colName;
                 }
 
