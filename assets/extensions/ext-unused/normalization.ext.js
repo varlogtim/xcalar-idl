@@ -27,6 +27,15 @@ window.UExtNormalization = (function(UExtNormalization) {
             "typeCheck": {
                 "allowEmpty": true,
             }
+        },
+        {
+            "type": "string",
+            "name": "Fact Table Name",
+            "fieldClass": "factTableName",
+            "typeCheck": {
+                "newTableName": true,
+                "allowEmpty": true
+            }
         }
         ],
     }];
@@ -240,7 +249,11 @@ window.UExtNormalization = (function(UExtNormalization) {
                     .then(function(maxCount) {
                         if (maxCount > 1) {
                             // id column is not unique, return error
-                            tempDeferred.reject(groupName + " ID Column not Unique");
+                            tempDeferred.reject('The Column "' + idCol.getName()
+                                + '" does not uniquely identify "' + groupName +
+                                '". Different "' +  groupName + '" values have '
+                                + 'the same Primary Key. Select another ' +
+                                "Primary Key or use the auto-generated one.");
                         } else {
                             // id column is unique
                             tempDeferred.resolve(tableWithIdCol);
@@ -437,6 +450,15 @@ window.UExtNormalization = (function(UExtNormalization) {
                 idCols = [idCols];
             }
 
+            var allCols = ext.getTriggerTable().getColsAsArray();
+            for (var i = 0; i < allCols.length; i++) {
+                var col = allCols[i];
+                if (col.getType() === "undefined") {
+                    return XcSDK.Promise.reject("Trigger table has an " +
+                        "undefined column at index " + i);
+                }
+            }
+
             // make sure length of groups and groupCols
             if (groups.length !== groupCols.length) {
                 return XcSDK.Promise.reject("The length of 'Dimension's Columns"
@@ -493,6 +515,9 @@ window.UExtNormalization = (function(UExtNormalization) {
             var columnsPerGroup = args.groupCols;
             var idCols = args.idCols;
 
+            var factTableName = args.factTableName ||
+                ext.tableNameRoot + "-factTable";
+
             if (!Array.isArray(groups)) {
                 groups = [groups];
             }
@@ -529,7 +554,7 @@ window.UExtNormalization = (function(UExtNormalization) {
                 var projectTableName = joinConditionArgs.latestTable.getName();
                 var projectCols = joinConditionArgs.colsToKeep;
                 var finalTableName = ext.createTableName(null, null,
-                    "factTable");
+                    factTableName);
                 return ext.project(
                     srcTable.getColNamesAsArray().concat(projectCols),
                     projectTableName, finalTableName);
