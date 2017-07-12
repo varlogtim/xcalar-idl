@@ -1268,6 +1268,10 @@ window.XIApi = (function(XIApi, $) {
                                                     rename[i].new);
                     col.userStr = '"' + col.name + '" = pull(' + rename[i].new +
                                   '::' + col.name + ')';
+                    if (col.sizedTo === "header") {
+                        col.width = xcHelper.getDefaultColWidth(col.name,
+                                                                col.prefix);
+                    }
                 }
             }
         }
@@ -1290,14 +1294,11 @@ window.XIApi = (function(XIApi, $) {
                     for (var j = 0; j < renames.length; j++) {
                         // when backName === srcColName, it's a derived field
                         if (renames[j].orig === col.backName) {
-                            col.backName = renames[j].new;
-                            col.name = renames[j].new;
+                            var newName = renames[j].new;
+                            col.backName = newName;
+                            col.name = newName;
                             if (col.sizedTo === "header") {
-                                var widthOptions = {"defaultHeaderStyle": true};
-                                var cellWidth = xcHelper.getTextWidth(null,
-                                                                renames[j].new,
-                                                                widthOptions);
-                                col.width = cellWidth;
+                                col.width = xcHelper.getDefaultColWidth(newName);
                             }
                         }
                     }
