@@ -784,7 +784,7 @@ module.exports = {
         "or": "or",
         "and": "and",
         "colsToKeep": "Columns to keep",
-        "incSampleTip": "Picks a sample record for each row and populates the values that are not involved in the group by operation with data from this record"
+        "incSampleTip": "After the groupby is done, a random sample is picked for each group. For the columns that are not part of the columns that are grouped on, their values are populated via the random sample record for that group."
     },
 
     "dfParam": {
