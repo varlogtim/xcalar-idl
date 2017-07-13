@@ -598,12 +598,17 @@ window.FnBar = (function(FnBar, $) {
             "removeSelected": function() {
                 $('.xcTable').find('.selectedCell')
                              .removeClass('selectedCell');
-                $('.xcTable').find('.modalHighlighted')
+                if (!$("#container").hasClass("joinState")) {
+                    $('.xcTable').find('.modalHighlighted')
                              .removeClass('modalHighlighted');
+                }
             },
             "highlightSelected": function($match) {
-                $('.xcTable').find('.modalHighlighted')
-                             .removeClass('modalHighlighted');
+                if (!$("#container").hasClass("joinState")) {
+                    $('.xcTable').find('.modalHighlighted')
+                                 .removeClass('modalHighlighted');
+                }
+
                 if ($match.is('th')) {
                     TblManager.highlightColumn($match);
                     $('#mainFrame').find('.tblTitleSelected')

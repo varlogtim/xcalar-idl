@@ -2571,6 +2571,10 @@ window.TblManager = (function($, TblManager) {
             if (event.which !== 1) {
                 return;
             }
+            if ($("#container").hasClass("columnPicker")) {
+                // not focus when in modal
+                return;
+            }
             var $td = $(this);
             clicks++;
             if (clicks === 2 && $td.is($lastTd)) {

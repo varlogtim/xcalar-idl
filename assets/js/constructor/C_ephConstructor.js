@@ -1694,10 +1694,10 @@ FormHelper.prototype = {
         var $headers = $(".xcTable").find(".header");
         var $arrayHeaders = $headers.filter(function() {
             return $(this).hasClass("type-array");
-        }).addClass("noColumnPicker");
+        }).addClass("noColumnPicker").attr("data-tipClasses", "invalidTypeTip");
         var $objHeaders = $headers.filter(function() {
             return $(this).hasClass("type-object");
-        }).addClass("noColumnPicker");
+        }).addClass("noColumnPicker").attr("data-tipClasses", "invalidTypeTip");
 
         xcTooltip.add($arrayHeaders, {
             title: ColTStr.NoOperateArray,
@@ -1735,6 +1735,7 @@ FormHelper.prototype = {
             });
 
             $otherHeaders.addClass("noColumnPicker");
+            $otherHeaders.attr("data-tipClasses", "invalidTypeTip");
 
             xcTooltip.add($otherHeaders, {
                 title: ColTStr.NoOperateGeneral,
@@ -1769,10 +1770,13 @@ FormHelper.prototype = {
                 }
 
                 if ($header.hasClass('noColumnPicker')) {
-                    return;
+                    if (!columnPicker.validTypeException ||
+                        !columnPicker.validTypeException()) {
+                        return;
+                    }
                 }
 
-                callback($target);
+                callback($target, event);
             });
 
             var headSelector = ".xcTheadWrap";
@@ -1872,7 +1876,8 @@ FormHelper.prototype = {
                                   .removeClass("focusable");
         $(".xcTableWrap").removeClass("columnPicker");
         var $noColPickers = $(".xcTable").find('.noColumnPicker')
-                                         .removeClass('noColumnPicker');
+                                         .removeClass('noColumnPicker')
+                                         .removeAttr("data-tipClasses");
         xcTooltip.remove($noColPickers);
         $("#mainFrame").off("click.columnPicker");
         $("#container").removeClass(self.state);

@@ -672,6 +672,30 @@
                 return -1;
             },
 
+            getColNumByFrontName: function(frontColName) {
+                var tableCols = this.tableCols || [];
+                var res = xcHelper.parsePrefixColName(frontColName);
+                var prefix = res.prefix;
+                var colName = res.name;
+
+                for (var i = 0, len = tableCols.length; i < len; i++) {
+                    var progCol = tableCols[i];
+
+                    if (progCol.isDATACol()) {
+                        // skip DATA column
+                        continue;
+                    }
+
+                    if (progCol.getPrefix() === prefix &&
+                        progCol.getFrontColName() === colName)
+                    {
+                        // check fronColName
+                        return (i + 1);
+                    }
+                }
+                return -1;
+            },
+
             getColByBackName: function(backColName) {
                 // get progCol from backColName
                 var tableCols = this.tableCols || [];

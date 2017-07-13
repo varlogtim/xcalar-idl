@@ -931,79 +931,119 @@ html.edge {
 }
 
 #container.columnPicker {
-    &.columnPicker {
-        .dataTable {
-            .dragArea {
-                display: none;
-            }
+    .dataTable {
+        .dragArea {
+            display: none;
+        }
 
-            .tableTitle {
-                .tableGrab {
-                    cursor: pointer;
-                }
-                .labelWrap .text {
-                    pointer-events: none;
-                }
+        .tableTitle {
+            .tableGrab {
+                cursor: pointer;
             }
-
-            th:first-child, td:first-child {
+            .labelWrap .text {
                 pointer-events: none;
             }
-            .rowGrab {
-                display: none;
-            }
+        }
 
-            th {
-                cursor: pointer; // xx may not want all headers to have this
+        th:first-child, td:first-child {
+            pointer-events: none;
+        }
+        .rowGrab {
+            display: none;
+        }
+
+        th {
+            cursor: pointer; // xx may not want all headers to have this
+            .editableHead {
+                cursor: pointer;
+            }
+            .header.noColumnPicker {
+                cursor: not-allowed;
                 .editableHead {
+                    pointer-events: none; // disables clicking and colname tooltip
+                    // and prevents clash with "not allowed" tooltip on .header
+                }
+            }
+        }
+
+        th.modalHighlighted {
+            .header {
+                // z-index: 2 !important;
+                .type.icon {
+                    color: @color-white;
+                }
+            }
+            .flexContainer{
+                background-color: @color-bg-select-blue;
+                input {
+                    color: @color-white !important;
+                    -webkit-text-fill-color: @color-white !important;
+                }
+            }
+        }
+
+        td.jsonElement {
+            pointer-events: none;
+        }
+
+        tbody tr {
+            &:nth-child(odd) {
+                td.modalHighlighted {
+                    background-color: @color-selectedCell-dark;
+                }
+            }
+            &:nth-child(even) {
+                td.modalHighlighted {
+                    background-color: @color-selectedCell-light;
+                }
+            }
+            &:hover {
+                td.modalHighlighted {
+                    background-color: @color-heather !important;
+                }
+            }
+        }
+    }
+    &.joinState {
+        .dataTable {
+            .joinOn {
+                .position(absolute, @top: -8px, @right: -5px);
+                height: 24px;
+                min-width: 24px;
+                line-height: 18px;
+                color: @color-white;
+                text-align: center;
+                border-radius: 100%;
+                border: 3px solid @color-white;
+                background: @color-bg-select-blue;
+                box-shadow: -1px 1px 2px rgba(0, 0, 0, 0.4);
+                z-index: 3;
+            }
+
+        }
+        .tableLocked {
+            .joinOn {
+                opacity: 0.5;
+            }
+        }
+    }
+    &.joinState2 {
+        .dataTable {
+            .rowNumHead {
+                pointer-events: initial !important;
+                input {
                     cursor: pointer;
                 }
-                .header.noColumnPicker {
-                    cursor: not-allowed;
-                    .editableHead {
-                        pointer-events: none; // disables clicking and colname tooltip
-                        // and prevents clash with "not allowed" tooltip on .header
-                    }
-                }
             }
-
-            th.modalHighlighted {
-                .header {
-                    // z-index: 2 !important;
-                    .type.icon {
-                        color: @color-white;
-                    }
-                }
-                .flexContainer{
-                    background-color: @color-bg-select-blue;
-                    input {
-                        color: @color-white !important;
-                        -webkit-text-fill-color: @color-white !important;
-                    }
-                }
+            .header.noColumnPicker {
+                cursor: pointer;
             }
-
-            td.jsonElement {
-                pointer-events: none;
+            .dataCol .header.noColumnPicker {
+                cursor: not-allowed;
             }
-
-            tbody tr {
-                &:nth-child(odd) {
-                    td.modalHighlighted {
-                        background-color: @color-selectedCell-dark;
-                    }
-                }
-                &:nth-child(even) {
-                    td.modalHighlighted {
-                        background-color: @color-selectedCell-light;
-                    }
-                }
-                &:hover {
-                    td.modalHighlighted {
-                        background-color: @color-heather !important;
-                    }
-                }
-            }
+        }
+        ~ .invalidTypeTip {
+            display: none !important;
         }
     }
 

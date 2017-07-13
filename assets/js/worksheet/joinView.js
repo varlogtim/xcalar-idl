@@ -20,9 +20,11 @@ window.JoinView = (function($, JoinView) {
     var allClashingFatPtrsCache;
     var lastSideClicked; // for column selector ("left" or "right")
     var focusedListNum;
+    var focusedThNum;
     var formOpenTime; // stores the last time the form was opened
 
     var validTypes = ['integer', 'float', 'string', 'boolean'];
+    var curTableIds = [];
 
     var formHelper;
     var multiClauseTemplate =
@@ -57,11 +59,19 @@ window.JoinView = (function($, JoinView) {
         var columnPicker = {
             "state": "joinState",
             "validColTypes": validTypes,
-            "colCallback": function($target) {
-                if ($lastInputFocused &&
-                    !$lastInputFocused.closest('.joinTableList').length) {
-                    xcHelper.fillInputFromCell($target, $lastInputFocused);
+            "validTypeException": function() {
+                return $joinView.hasClass("nextStep");
+            },
+            "colCallback": function($target, event) {
+                if ($joinView.hasClass("nextStep")) {
+                    colHeaderClick($target, event);
+                } else {
+                    if ($lastInputFocused &&
+                        !$lastInputFocused.closest('.joinTableList').length) {
+                        xcHelper.fillInputFromCell($target, $lastInputFocused);
+                    }
                 }
+
             },
             "headCallback": function($target) {
                 if (!$lastInputFocused) {
@@ -155,8 +165,9 @@ window.JoinView = (function($, JoinView) {
                 updatePreviewText();
                 var tableId = getTableIds(index);
                 xcHelper.centerFocusedTable(tableId, true, {noClear: true});
-            } else {
-                return;
+                deselectAllTableCols(curTableIds[index]);
+                curTableIds[index] = tableId;
+                selectAllTableCols(tableId);
             }
         }
 
@@ -216,6 +227,7 @@ window.JoinView = (function($, JoinView) {
         $joinView.on('focus', '.tableListSection .arg', function() {
             $lastInputFocused = $(this);
         });
+
         $joinView.on('change', '.tableListSection .arg', function() {
             var index = $joinView.find('.tableListSection .arg').index($(this));
             $joinView.find('.joinClause').each(function() {
@@ -230,7 +242,10 @@ window.JoinView = (function($, JoinView) {
                 TblFunc.focusTable(tableId);
                 activateClauseSection(index);
                 $joinView.find('.clause').eq(index).focus();
+                selectAllTableCols(tableId);
             } else {
+                deselectAllTableCols(curTableIds[index]);
+                curTableIds[index] = null;
                 deactivateClauseSection(index);
             }
         });
@@ -238,8 +253,12 @@ window.JoinView = (function($, JoinView) {
         $joinView.on('focus', '.clause', function() {
             $lastInputFocused = $(this);
         });
-        $joinView.on('input', '.clause', function() {
-            updatePreviewText();
+        $joinView.on('input', '.clause', function(event, other) {
+            var delay = true;
+            if (other && other.insertText) {
+                delay = false;
+            }
+            updatePreviewText(delay);
             checkNextBtn();
             isNextNew = true;
         });
@@ -262,7 +281,8 @@ window.JoinView = (function($, JoinView) {
             var toShift = event.shiftKey &&
                           (isLeftSide && lastSideClicked === "left" ||
                           !isLeftSide && lastSideClicked === "right");
-
+            var tIdx = isLeftSide ? 0 : 1;
+            var tableId = getTableIds(tIdx);
 
             if (toShift && focusedListNum != null) {
                 var start = Math.min(focusedListNum, colNum);
@@ -270,35 +290,16 @@ window.JoinView = (function($, JoinView) {
 
                 for (var i = start; i <= end; i++) {
                     if (toHighlight) {
-                        selectCol(i, $colList);
+                        selectCol(i, $colList, tableId);
                     } else {
-                        deselectCol(i, $colList);
+                        deselectCol(i, $colList, tableId);
                     }
                 }
             } else {
                 if (toHighlight) {
-                    selectCol(colNum, $colList);
+                    selectCol(colNum, $colList, tableId);
                 } else {
-                    deselectCol(colNum, $colList);
-                }
-            }
-
-            if ($li.siblings('.checked').length === 0) {
-                if ($li.closest('ul').hasClass('leftCols')) {
-                    $joinView.find('.leftColHeading .selectAll')
-                             .removeClass('checked');
-                } else {
-                    $joinView.find('.rightColHeading .selectAll')
-                             .removeClass('checked');
-                }
-            } else if ($li.siblings().length ===
-                       $li.siblings('.checked').length) {
-                if ($li.closest('ul').hasClass('leftCols')) {
-                    $joinView.find('.leftColHeading .selectAll')
-                             .addClass('checked');
-                } else {
-                    $joinView.find('.rightColHeading .selectAll')
-                             .addClass('checked');
+                    deselectCol(colNum, $colList, tableId);
                 }
             }
 
@@ -309,37 +310,16 @@ window.JoinView = (function($, JoinView) {
             }
 
             focusedListNum = colNum;
+            focusedThNum = null;
 
             resetRenames();
         });
 
-        function selectCol(colNum, $colList) {
-            $colList.find('li[data-colnum="' + colNum + '"]')
-                    .addClass('checked')
-                    .find('.checkbox').addClass('checked');
-        }
-
-        function deselectCol(colNum, $colList) {
-            $colList.find('li[data-colnum="' + colNum + '"]')
-                    .removeClass('checked')
-                    .find('.checkbox').removeClass('checked');
-        }
-
         $joinView.find('.selectAll').on('click', function() {
             var $checkbox = $(this);
             var index = $joinView.find('.selectAll').index($checkbox);
-            var $cols = $joinView.find('.columnsWrap ul').eq(index);
-
-            if ($checkbox.hasClass('checked')) {
-                $checkbox.removeClass('checked');
-                $cols.find('li').removeClass('checked')
-                     .find('.checkbox').removeClass('checked');
-            } else {
-                $checkbox.addClass('checked');
-                $cols.find('li').addClass('checked')
-                      .find('.checkbox').addClass('checked');
-            }
-            resetRenames();
+            var tableId = getTableIds(index);
+            toggleAllCols(!$checkbox.hasClass("checked"), tableId, index);
         });
 
         // smart suggest button
@@ -458,13 +438,19 @@ window.JoinView = (function($, JoinView) {
         formHelper.showView();
         formOpenTime = Date.now();
 
-        if (!restore) {
+        if (restore) {
+            if ($joinView.hasClass('nextStep')) {
+                $("#container").addClass("joinState2");
+            }
+            updatePreviewText();
+            restoreSelectedTableCols();
+        } else {
             resetJoinView();
             fillTableLists(tableId);
-            updatePreviewText();
             for (var i = 0; i < colNums.length; i++) {
                 addClause(true, tableId, colNums[i]);
             }
+            updatePreviewText();
             $rightTableDropdown.find("input").focus();
         }
         formHelper.setup();
@@ -502,13 +488,199 @@ window.JoinView = (function($, JoinView) {
         isOpen = false;
         lastSideClicked = null;
         focusedListNum = null;
+        focusedThNum = null;
         formHelper.hideView();
         formHelper.clear();
         $("body").off(".joinModal");
         $lastInputFocused = null;
         StatusBox.forceHide();// hides any error boxes;
         xcTooltip.hideAll();
+        $(".xcTableWrap").find('.modalHighlighted')
+                         .removeClass('modalHighlighted');
+        $("#container").removeClass("joinState2");
+        $(".xcTable").find(".joinOn").remove();
     };
+
+    function selectCol(colNum, $colList, tableId) {
+        if (!gTables[tableId]) {
+            return;
+        }
+        var $table = $("#xcTable-" + tableId);
+        $table.find(".col" + colNum).addClass("modalHighlighted");
+        $colList.find('li[data-colnum="' + colNum + '"]')
+                .addClass('checked')
+                .find('.checkbox').addClass('checked');
+
+        var $lis = $colList.find("li");
+        if ($lis.length === $lis.filter(".checked").length) {
+            if ($colList.hasClass('leftCols')) {
+                $joinView.find('.leftColHeading .selectAll')
+                         .addClass('checked');
+            } else {
+                $joinView.find('.rightColHeading .selectAll')
+                         .addClass('checked');
+            }
+        }
+    }
+
+    function deselectCol(colNum, $colList, tableId) {
+        var $table = $("#xcTable-" + tableId);
+
+        $colList.find('li[data-colnum="' + colNum + '"]')
+                .removeClass('checked')
+                .find('.checkbox').removeClass('checked');
+
+        // self join
+        if (curTableIds[0] === curTableIds[1]) {
+            var $sibList = $colList.siblings("ul");
+            if ($sibList.find('li[data-colnum="' + colNum + '"]')
+                .hasClass("checked")) {
+                return;
+            }
+        }
+        $table.find(".col" + colNum).removeClass("modalHighlighted");
+        var $lis = $colList.find("li");
+        if (!$lis.filter(".checked").length) {
+            if ($colList.hasClass('leftCols')) {
+                $joinView.find('.leftColHeading .selectAll')
+                         .removeClass('checked');
+            } else {
+                $joinView.find('.rightColHeading .selectAll')
+                         .removeClass('checked');
+            }
+        }
+    }
+
+    function toggleAllCols(selectAll, tableId, index) {
+        var $colList = $joinView.find('.columnsWrap ul').eq(index);
+        var $checkbox  = $joinView.find(".selectAll").eq(index);
+
+        if (selectAll) {
+            $checkbox.addClass('checked');
+            $colList.find('li').addClass('checked')
+                  .find('.checkbox').addClass('checked');
+            selectAllTableCols(tableId);
+        } else {
+            $checkbox.removeClass('checked');
+            $colList.find('li').removeClass('checked')
+                 .find('.checkbox').removeClass('checked');
+            if (curTableIds[0] === curTableIds[1]) {
+                var $sibList = $colList.siblings("ul");
+                var $table = $("#xcTable-" + tableId);
+                $sibList.find("li:not(.checked)").each(function() {
+                    var colNum = $(this).data("colnum");
+                    $table.find(".col" + colNum)
+                           .removeClass("modalHighlighted");
+                });
+            }
+            deselectAllTableCols(tableId);
+        }
+
+        resetRenames();
+    }
+
+    function selectAllTableCols(tableId) {
+        var $table = $("#xcTable-" + tableId);
+        var allCols = gTables[tableId].getAllCols();
+
+        for (var i = 0; i < allCols.length; i++) {
+            var progCol = allCols[i];
+            if (!progCol.isEmptyCol() && !progCol.isDATACol()) {
+                $table.find(".col" + (i + 1)).addClass("modalHighlighted");
+            }
+        }
+    }
+
+    function deselectAllTableCols(tableId) {
+        if (curTableIds[0] === curTableIds[1]) {
+            return;
+        }
+        var $table = $("#xcTable-" + tableId);
+        $table.find(".modalHighlighted").removeClass("modalHighlighted");
+    }
+
+    function colHeaderClick($target, event) {
+        var $cell = $target.closest("th");
+        if (!$cell.length) {
+           $cell = $target.closest("td");
+        }
+
+        var tableId = $cell.closest(".xcTable").data("id");
+        var tableIds = getTableIds();
+        var tIdx = tableIds.indexOf(tableId);
+        if (tIdx === -1) {
+            return;
+        }
+
+        var colNum = xcHelper.parseColNum($cell);
+        if (colNum === 0) {
+            toggleAllCols(true, tableId, tIdx);
+            return;
+        }
+
+        var isLeftSide = tIdx === 0;
+        var toShift = event.shiftKey &&
+                      (isLeftSide && lastSideClicked === "left" ||
+                      !isLeftSide && lastSideClicked === "right");
+
+        var toHighlight = !$cell.hasClass("modalHighlighted");
+        var $colList = isLeftSide ? $joinView.find(".leftCols") :
+                                    $joinView.find(".rightCols");
+        var isSelfJoin = curTableIds[0] === curTableIds[1];
+        var $sibList = $colList.siblings("ul");
+        // check side clicked
+        if (toShift && focusedThNum != null) {
+            var start = Math.min(focusedThNum, colNum);
+            var end = Math.max(focusedThNum, colNum);
+
+            for (var i = start; i <= end; i++) {
+                if (toHighlight) {
+                    selectCol(i, $colList, tableId);
+                    if (isSelfJoin) {
+                        selectCol(i, $sibList, tableId);
+                    }
+                } else {
+                    deselectCol(i, $colList, tableId);
+                    if (isSelfJoin) {
+                        deselectCol(i, $sibList, tableId);
+                    }
+                }
+            }
+        } else {
+            if (toHighlight) {
+                selectCol(colNum, $colList, tableId);
+                if (isSelfJoin) {
+                    selectCol(colNum, $sibList, tableId);
+                }
+            } else {
+                deselectCol(colNum, $colList, tableId);
+                if (isSelfJoin) {
+                    deselectCol(colNum, $sibList, tableId);
+                }
+            }
+        }
+
+        if (isLeftSide) {
+            lastSideClicked = "left";
+        } else {
+            lastSideClicked = "right";
+        }
+
+        focusedThNum = colNum;
+        focusedListNum = null;
+        resetRenames();
+    }
+
+    function restoreSelectedTableCols() {
+        $joinView.find(".columnsWrap ul").each(function(i) {
+            var tableId = curTableIds[i];
+            var $table = $("#xcTable-" + tableId);
+            $(this).find("li.checked").each(function() {
+                var colNum = $(this).data("colnum");
+                $table.find(".col" + colNum).addClass("modalHighlighted");
+            });
+        });
+    }
 
     function activateClauseSection(index) {
         $joinView.find('.joinClause').each(function() {
@@ -577,6 +749,7 @@ window.JoinView = (function($, JoinView) {
                 }
 
                 $joinView.addClass('nextStep');
+                $("#container").addClass("joinState2");
                 if ($joinTableName.val().trim() === "") {
                     $joinTableName.focus();
                 }
@@ -604,9 +777,11 @@ window.JoinView = (function($, JoinView) {
 
     function goToFirstStep() {
         $joinView.removeClass('nextStep');
+        $("#container").removeClass("joinState2");
         formHelper.refreshTabbing();
         lastSideClicked = null;
         focusedListNum = null;
+        focusedThNum = null;
     }
 
     function checkFirstView() {
@@ -829,6 +1004,8 @@ window.JoinView = (function($, JoinView) {
         $joinView.find('.leftCols').html(lHtml);
         $joinView.find('.rightCols').html(rHtml);
         $joinView.find('.selectAll').addClass('checked');
+        selectAllTableCols(tableIds[0]);
+        selectAllTableCols(tableIds[1]);
     }
 
     function resetRenames() {
@@ -997,7 +1174,7 @@ window.JoinView = (function($, JoinView) {
                 continue;
             }
 
-            html += '<li class="checked" data-colnum="' + i + '">' +
+            html += '<li class="checked" data-colnum="' + (i + 1) + '">' +
                         '<span class="text tooltipOverflow" ' +
                         'data-toggle="tooltip" data-container="body" ' +
                         'data-original-title="' +
@@ -1707,8 +1884,10 @@ window.JoinView = (function($, JoinView) {
 
         updatePreviewText();
         $joinView.removeClass('nextStep');
+         $("#container").removeClass("joinState2");
         updateJoinTableName();
         resetRenames();
+        curTableIds = [];
     }
 
     function updateJoinTableName() {
@@ -1739,6 +1918,8 @@ window.JoinView = (function($, JoinView) {
             $leftTableDropdown.find('li').filter(function() {
                 return ($(this).text() === tableName);
             }).addClass('selected');
+            selectAllTableCols(origTableId);
+            curTableIds = [origTableId, null];
         }
     }
 
@@ -1838,8 +2019,33 @@ window.JoinView = (function($, JoinView) {
         return JoinKeySuggestion.KeyNotFound;
     }
 
+    var joinOnNumTimer;
 
-    function updatePreviewText() {
+    function updateJoinOnNums(delay) {
+        var tableIds = getTableIds();
+        var lTable = gTables[tableIds[0]];
+        var rTable = gTables[tableIds[1]];
+        var $lTable = $("#xcTable-" + tableIds[0]);
+        var $rTable = $("#xcTable-" + tableIds[1]);
+        $(".xcTable").find(".joinOn").remove();
+        $joinView.find(".joinClause").each(function(i) {
+            var $joinClause = $(this);
+            lClause = $joinClause.find(".leftClause").val().trim();
+            rClause = $joinClause.find(".rightClause").val().trim();
+            if (lTable) {
+                 var lColNum = lTable.getColNumByFrontName(lClause);
+                 $lTable.find("th.col" + lColNum + ' .header')
+                   .append('<span class="joinOn">' + (i + 1) + '</span>');
+            }
+            if (rTable) {
+                var rColNum = rTable.getColNumByFrontName(rClause);
+                $rTable.find("th.col" + rColNum + ' .header')
+                   .append('<span class="joinOn">' + (i + 1) + '</span>');
+            }
+        });
+    }
+
+    function updatePreviewText(delay) {
         var joinType = $joinTypeSelect.find(".text").text();
         var lTableName = $leftTableDropdown.find(".text").val();
         var rTableName = $rightTableDropdown.find(".text").val();
@@ -1851,16 +2057,23 @@ window.JoinView = (function($, JoinView) {
         var pair;
         var lClause;
         var rClause;
+        clearTimeout(joinOnNumTimer);
+        if (delay) {
+            joinOnNumTimer = setTimeout(function() {
+                updateJoinOnNums();
+            }, 300);
+        } else {
+            updateJoinOnNums();
+        }
 
-        $joinView.find(".joinClause").each(function() {
 
+        $joinView.find(".joinClause").each(function(i) {
             var $joinClause = $(this);
             lClause = $joinClause.find(".leftClause").val().trim();
             rClause = $joinClause.find(".rightClause").val().trim();
             pair = [lClause, rClause];
             columnPairs.push(pair);
         });
-
 
         var numPairs = columnPairs.length;
         var leftColText;
