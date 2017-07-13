@@ -116,7 +116,8 @@ XcalarApisT = {
   'XcalarApiLogLevelSet' : 107,
   'XcalarApiUpdateRetinaExport' : 108,
   'XcalarApiGetIpAddr' : 109,
-  'XcalarApiFunctionInvalid' : 110
+  'XcalarApiTagDagNodes' : 110,
+  'XcalarApiFunctionInvalid' : 111
 };
 XcalarApisTStr = {0 : 'XcalarApiUnknown',
 1 : 'XcalarApiGetVersion',
@@ -228,5 +229,6 @@ XcalarApisTStr = {0 : 'XcalarApiUnknown',
 107 : 'XcalarApiLogLevelSet',
 108 : 'XcalarApiUpdateRetinaExport',
 109 : 'XcalarApiGetIpAddr',
-110 : 'XcalarApiFunctionInvalid'
+110 : 'XcalarApiTagDagNodes',
+111 : 'XcalarApiFunctionInvalid'
 };

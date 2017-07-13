@@ -2575,6 +2575,31 @@ function XcalarGetDag(tableName) {
     return (deferred.promise());
 }
 
+function XcalarTagDagNodes(tagName, dagNodeNames) {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return PromiseHelper.resolve(null);
+    }
+
+    var deferred = jQuery.Deferred();
+    if (insertError(arguments.callee, deferred)) {
+        return (deferred.promise());
+    }
+
+    if (typeof(dagNodeNames) === "string") {
+        dagNodeNames = [dagNodeNames];
+    }
+
+    xcalarTagDagNodes(tHandle, tagName, dagNodeNames.length, dagNodeNames)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarTagDagNodes", error);
+        SQL.errorLog("Tag Dag", null, null, thriftError);
+        deferred.reject(thriftError);
+    });
+
+    return (deferred.promise());
+}
+
 function XcalarListFilesWithPattern(url, isRecur, namePattern) {
     if (tHandle == null) {
         return PromiseHelper.resolve(null);

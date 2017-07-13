@@ -819,6 +819,48 @@ xcalarRenameNode = runEntity.xcalarRenameNode = function(thriftHandle, oldName, 
     return (deferred.promise());
 };
 
+xcalarTagDagNodesWorkItem = runEntity.xcalarTagDagNodesWorkItem = function(tag, numNodes, nodeNames) {
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiInputT();
+    workItem.input.tagDagNodesInput = new XcalarApiTagDagNodesInputT();
+    workItem.input.tagDagNodesInput.tag = tag;
+    workItem.input.tagDagNodesInput.numDagNodes = numNodes;
+    workItem.input.tagDagNodesInput.dagNodeNames = nodeNames;
+
+    workItem.api = XcalarApisT.XcalarApiTagDagNodes;
+    return (workItem);
+};
+
+xcalarTagDagNodes = runEntity.xcalarTagDagNodes = function(thriftHandle, tag, numNodes, nodeNames) {
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarTagDagNodes(tag = " + tag +
+                    ", nodeNames = " + nodeNames + ")");
+    }
+
+    var workItem = xcalarTagDagNodesWorkItem(tag, numNodes, nodeNames);
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        // statusOutput is a status
+        var status = result.output.hdr.status;
+
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            deferred.reject(status);
+        }
+        deferred.resolve(status);
+    })
+    .fail(function(error) {
+        console.log("xcalarTagDagNodes() caught exception:", error);
+        deferred.reject(error);
+    });
+
+    return (deferred.promise());
+};
+
 xcalarGetStatsByGroupIdWorkItem = runEntity.xcalarGetStatsByGroupIdWorkItem = function(nodeIdList, groupIdList) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
