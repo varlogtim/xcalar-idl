@@ -92,6 +92,30 @@ window.Profile = (function($, Profile, d3) {
             resetTooltip(rowToHover);
         });
 
+        /*
+        $modal.on("mouseover", ".arc", function(event) {
+            event.stopPropagation();
+            var rowToHover = null;
+            if (!$modal.hasClass("drawing")) {
+                rowToHover = d3.select(this).attr("data-rowNum");
+            }
+            resetTooltip(rowToHover);
+        });
+        
+
+        $modal.on("mouseover", ".arc", function(event) {
+            var xPos = event.screenX - 15;
+            var yPos = event.screenY - 40;
+            //console.log(xPos);
+            $(this).tooltip("show");
+
+            //var xPos = d3.mouse()[0] - 15;
+            //var yPos = d3.mouse()[1] - 40;
+            //xcTooltip.attr("transform", "translate(" + xPos + "," + yPos + ")");
+            //xcTooltip.select("text").text(d.data["statsGroupBy"]);
+        });
+        */
+
         // only trigger in padding area btw bars
         $modal.on("mouseover", ".groupbyChart", function(event) {
             event.stopPropagation();
@@ -1233,6 +1257,311 @@ window.Profile = (function($, Profile, d3) {
         return data;
     }
 
+    function midAngle(d) {       
+        return d["startAngle"] + (d["endAngle"] - d["startAngle"]) / 2;
+    }
+
+    function moveOverlappingLabels(labels, labelPositions) {
+            var prevRect;
+            var currRect;
+            var prevPos;
+            var currPos;
+            var intersectionLength;
+
+            labels.each(function(d, i) {
+                currRect = this;
+                currPos = labelPositions[i];
+
+                if (i > 0) {
+                    prevPos = labelPositions[i - 1];
+                    currRectXPos = d3.select(this).attr("transform");
+                    
+                    /*
+                    console.log(i);
+                    console.log(currRect.getBoundingClientRect());  
+                    console.log(prevRect.getBoundingClientRect());
+                    */
+
+                    // getting location of top and bottom of current and previous text labels
+                    var prevBottom = prevRect.getBoundingClientRect().bottom;
+                    var prevTop = prevRect.getBoundingClientRect().top;
+                    var currBottom = currRect.getBoundingClientRect().bottom;
+                    var currTop = currRect.getBoundingClientRect().top;
+
+                    if (currPos[0] > 0 && prevPos[0] > 0 && prevBottom > currTop) {
+                        intersectionLength = currTop - prevBottom;
+
+                        currPos[1] -= intersectionLength;
+                        d3.select(this)
+                          .attr("transform", "translate(" + currPos + ")");
+                          //console.log("Overlap!!!");
+
+                        // updates position value in array
+                        labelPositions[i] = currPos;
+                    }                                 
+                    else if (currPos[0] < 0 && prevPos[0] < 0 && prevTop < currBottom) {
+                        intersectionLength = currBottom - prevTop;  
+
+                        currPos[1] -= intersectionLength;
+
+                        d3.select(this)
+                          .attr("transform", "translate(" + currPos + ")");
+                          //console.log("Overlap!!!");
+
+                        // updates position value in array
+                        labelPositions[i] = currPos;
+                    }
+
+
+                    console.log("---------------------------");
+                }
+                prevRect = this;
+            })
+
+            return labels;
+        }
+
+    function buildPieChart(curStatsCol, initial, resize) {
+        if (!isModalVisible(curStatsCol)) {
+            return;
+        }
+       
+        var nullCount = curStatsCol.groupByInfo.nullCount;
+        var tableInfo = curStatsCol.groupByInfo.buckets[bucketNum];
+        var noBucket  = (bucketNum === 0) ? 1 : 0;
+        var noSort    = (order === sortMap.origin);
+        var xName = tableInfo.colName;
+        var yName = noBucket ? statsColName : bucketColName;
+        
+        var $section = $modal.find(".groupbyInfoSection");
+        var data = groupByData;
+        var dataLen = data.length;
+        
+        var sectionWidth = $section.width();
+        var marginBottom = 10;
+        var marginLeft = 20;
+        
+        var maxRectW = Math.floor(sectionWidth / 706 * 70);
+        var chartWidth  = Math.min(sectionWidth, maxRectW * data.length + marginLeft * 2);
+        var chartHeight = $section.height();
+
+        /*
+        var height = chartHeight - marginBottom;
+        var width  = chartWidth - marginLeft * 2;
+
+        // x range and y range
+        var maxHeight = Math.max(tableInfo.max, nullCount);
+        var x = d3.scale.ordinal()
+                        .rangeRoundBands([0, width], 0.1, 0)
+                        .domain(data.map(function(d) { return d[xName]; }));
+        var y = d3.scale.linear()
+                        .range([height, 0])
+                        .domain([-(maxHeight * 0.02), maxHeight]);
+        var xWidth = x.rangeBand();
+        // 6.2 is the width of a char in .xlabel
+        var charLenToFit = Math.max(1, Math.floor(xWidth / 6.2) - 1);
+        var left = (sectionWidth - chartWidth) / 2;
+        var chart;
+        var barAreas;
+        
+        //var data = [10, 40, 30, 60];
+        var data = groupByData;
+        var barAreas;
+        */
+        var data = groupByData;
+
+        var width = chartWidth,
+            height = chartHeight,
+            radius = Math.min(width, height) / 2;
+        
+        var color = d3.scale.category20c()
+            .domain([0,1,2,3,4,5,6,7,8,9,10,
+                     11,12,13,14,15,16,17,18,19]);
+        
+        var nextColor = 0;
+
+        var svg;
+        // sizes/positions pie chart on the page
+        //if (initial) {
+            $modal.find(".groupbyChart").empty();
+            svg = d3.select("#profileModal .groupbyChart")
+            .attr("width", '100%')
+            .attr("height", '100%')
+            .attr('viewBox','0 0 '+ Math.min(width,height) + ' ' + Math.min(width,height) )
+            .attr('preserveAspectRatio','xMinYMin')
+            .append("g")
+            .attr("transform", "translate(" + ((Math.min(width,height) / 2) + 50) + "," + Math.min(width,height) / 2 + ")");
+        //}
+
+        var pie = d3.layout.pie()
+            .sort(null)
+            .value(function(d) {
+                return d[yName];
+            })
+
+        var piedata = pie(data);       
+
+        var arc = d3.svg.arc()
+            .innerRadius(0)
+            .outerRadius(radius - 75);
+        
+        var outerArc = d3.svg.arc()
+            .innerRadius(radius * .7)
+            .outerRadius(radius * .7);
+
+        var arcOver = d3.svg.arc()
+            .outerRadius(radius * .75);
+        
+        var path = svg.selectAll("path")
+            .data(piedata)
+            .enter()
+            .append("path")
+            .attr("class", getTooltipAndClass)
+            .attr("fill", function(d) {         
+                if (nextColor == (data.length - 1) && color(nextColor) == color(0)) {
+                    return color(++nextColor);
+                }
+                return color(nextColor++);
+            })
+            .attr("d", arc);
+        
+        var labelPositions = [];
+
+        // sets initial positions of labels
+        var labels = svg.selectAll("text")
+            .data(piedata)
+            .enter()
+            .append("text")
+            .attr("text-anchor", "middle")
+            .style("font-size", "1em")
+            .attr("transform", function(d) {
+                var pos = outerArc.centroid(d);
+                pos[0] = radius * (midAngle(d) < Math.PI ? 1 : -1);
+                labelPositions.push(pos);
+                return "translate(" + pos + ")";
+            })
+            .text(function(d) {
+                return d.data[yName];
+            });       
+
+        // fixes any overlapping text
+        labels = moveOverlappingLabels(labels, labelPositions);
+
+        // adds lines from pie chart to labels
+        var polyline = svg.selectAll("polyline")
+            .data(piedata)
+            .enter()
+            .append("polyline")
+            .attr("points", function(d, i) {
+                var arcCent = arc.centroid(d);
+                var outerArcCent = outerArc.centroid(d);
+
+                arcCent[0] *= 1.25;
+                arcCent[1] *= 1.25;
+
+                outerArcCent[1] = labelPositions[i][1];
+
+                return [arcCent, outerArcCent, labelPositions[i]];
+            })
+            .style("fill", "none")
+            .style("stroke", "black")
+            .style("stroke-width", "1px");
+
+        function getTooltipAndClass(d) {
+            // a little weird method to setup tooltip
+            // may have better way
+            var title;
+            var isLogScale = (tableInfo.bucketSize < 0);
+            var lowerBound = getLowerBound(d.data[xName], tableInfo.bucketSize);
+
+            if (noBucket || d.type === "nullVal") {
+                // xName is the backColName, may differenet with frontColName
+                title = "Value: " +
+                        formatNumber(lowerBound, isLogScale, decimalNum) +
+                        "<br>";
+            } else {
+                var upperBound = getUpperBound(d.data[xName], tableInfo.bucketSize);
+                title = "Value: [" +
+                        formatNumber(lowerBound, isLogScale, decimalNum) +
+                        ", " +
+                        formatNumber(upperBound, isLogScale, decimalNum) +
+                        ")<br>";
+            }
+
+            if (percentageLabel && tableInfo.sum !== 0) {
+                var num = d.data[yName] / (tableInfo.sum + nullCount) * 100;
+                var per = num.toFixed(3);
+
+                if (num < 0.001) {
+                    // when the percentage is too small
+                    per = num.toExponential(2) + "%";
+                } else {
+                    per += "%";
+                }
+                title += "Percentage: " + per;
+            } else {
+                title += "Frequency: " + formatNumber(d.data[yName]);
+                //title += "Frequency: " + d.data["statsGroupBy"]; 
+            }
+
+            var options = $.extend({}, tooltipOptions, {
+                "title": title
+            });
+            $(this).tooltip("destroy");
+            $(this).tooltip(options);
+
+            return "arc";
+        }
+            
+    }
+
+        
+        //arcs.exit().remove();
+            /*
+            g.selectAll("text").data(pie(data))
+            .enter()
+            .append("text")
+            .attr("text-anchor", "middle")
+            .attr("transform", function(d) {
+                var pos = outerArc.centroid(d);
+                pos[0] = radius * (midAngle(d) < Math.PI ? 1 : -1);
+                return "translate(" + pos + ")";
+            })
+            .text(function(d) {
+                return d.data["statsGroupBy"];
+            });
+      
+        // adds tooltip here
+        
+
+        // g.on("mouseover", function() {
+        //         tooltip.style("display", null);
+        //     })
+        //     .on("mouseout", function() {
+        //         tooltip.style("display", "none");
+        //     })
+        //     .on("mousemove", function(d) {
+        //         var xPos = d3.mouse(this)[0] - 15;
+        //         var yPos = d3.mouse(this)[1] - 40;
+        //         tooltip.attr("transform", "translate(" + xPos + "," + yPos + ")");
+        //         tooltip.select("text").text(d.data["statsGroupBy"]);
+        //     });
+            /*
+          g.on("mouseover", function(d, i) {
+                console.log(d);
+                g.append("text")
+                .attr("dy", ".5em")
+                .style("text-anchor", "middle")
+                .style("font-size", 30)
+                .attr("class","label")
+                .text(d.data["statsGroupBy"]);
+          
+          })
+          .on("mouseout", function(d) {
+                g.select(".label").remove();
+          });
+            */
+          
     function buildGroupGraphs(curStatsCol, initial, resize) {
         if (!isModalVisible(curStatsCol)) {
             return;
