@@ -25,9 +25,9 @@ var httpStatus = require('./../../assets/js/httpStatus.js').httpStatus;
 // Tail Xcalar.log
 function tailLog(requireLineNum, filePath, fileName) {
     var deferredOut = jQuery.Deferred();
-    function checkLineNum(requireLineNum) {
+    function checkLineNum(requireLineNumInput) {
         var deferred = jQuery.Deferred();
-        var requireLineNum = Number(requireLineNum);
+        var requireLineNum = Number(requireLineNumInput);
         if (!isLogNumValid(requireLineNum)) {
             var retMsg = {
                 "status": Status.BadRequest, // Bad Request
@@ -156,8 +156,6 @@ function monitorLog(lastMonitor, filePath, fileName) {
 // Send delta Xcalar.log logs
 function sinceLastMonitorLog(lastMonitor, filePath, fileName) {
     var deferredOut = jQuery.Deferred();
-    var lines = "";
-    var logPath;
 
     getPath(filePath, fileName)
     .then(function(logPath, stat) {
@@ -330,7 +328,6 @@ function isLogNumValid(num) {
 }
 
 function getPath(filePath, fileName) {
-    var numDone = 0;
     var deferredOut = jQuery.Deferred();
 
     function getFileName() {
@@ -350,10 +347,10 @@ function getPath(filePath, fileName) {
             })
             .fail(function(err) {
                 var retMsg = {
-                        // Server Internal error
-                        "status": httpStatus.InternalServerError,
-                        "logs": "Can not get the Node ID " + err
-                    };
+                    // Server Internal error
+                    "status": httpStatus.InternalServerError,
+                    "logs": "Can not get the Node ID " + err
+                };
                 deferred.reject(retMsg);
             });
         } else {
@@ -382,14 +379,13 @@ function getNodeId() {
     var command = "/opt/xcalar/bin/xcalarctl status";
     var reg = /^Node\sID:\s([0-9]+)$/;
     var lineData = "";
-    var path;
     var out = cp.exec(command);
 
     out.stdout.on('data', function(data) {
         lineData += data;
     });
 
-    out.stdout.on('close', function(data) {
+    out.stdout.on('close', function() {
         var lines = lineData.split("\n");
         if (lines.length === 0) {
             deferredOut.reject();
@@ -416,19 +412,20 @@ function getNodeId() {
 function readFileStat(currFile) {
     var deferred = jQuery.Deferred();
     fs.stat(currFile, function(err, stat) {
+        var retMsg;
         if (err) {
             console.log(err);
-            var retMsg = {
+            retMsg = {
                 // Server Internal error
                 "status": httpStatus.InternalServerError,
                 "logs": "Fail to read file stat" + err
             };
             deferred.reject(retMsg);
         } else if (stat.size === 0) {
-            var retMsg = {
+            retMsg = {
                 // Server Internal error
                 "status": httpStatus.InternalServerError,
-                "logs": "File " + currFile + " have 0 size."
+                "logs": "File " + currFile + " is empty."
             };
             deferred.reject(retMsg);
         } else {

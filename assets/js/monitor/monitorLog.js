@@ -2,6 +2,9 @@ window.MonitorLog = (function(MonitorLog, $) {
     var $logCard;
     var colorNum = 8;
     var defaultXcalarLogPath = "/var/log/xcalar/";
+    var emptyString = "is empty";
+    var logsString = "Logs:";
+    var hasEmptyRecord = {};
 
     MonitorLog.setup = function() {
         $logCard = $("#monitorLogCard");
@@ -55,7 +58,7 @@ window.MonitorLog = (function(MonitorLog, $) {
 
     function getRecentLogs() {
         var $recentLogsGroup = $logCard.find(".recentLogsGroup");
-        var $input = $recentLogsGroup.find(".xc-input");
+        var $input = $recentLogsGroup.find(".xc-input").eq(1);
         var lastNRow = $recentLogsGroup.find(".lastRow .xc-input").val().trim();
         var fileName = $recentLogsGroup.find(".logName .xc-input").val().trim();
         var filePath = getFilePath();
@@ -167,19 +170,17 @@ window.MonitorLog = (function(MonitorLog, $) {
 
     function startMonitorLog() {
         var $streamBtns = $logCard.find(".streamBtns");
-        $streamBtns.addClass("xc-disabled");
         $("#monitorLogCard .recentLogsGroup .xc-input").prop('disabled', true);
+        $streamBtns.addClass("streaming");
         var fileName = $("#monitorLogCard .recentLogsGroup .logName .xc-input")
                        .val().trim();
         var filePath = getFilePath();
         XFTSupportTools.monitorLogs(filePath, fileName, function(err) {
-            $streamBtns.removeClass('xc-disabled streaming');
             var msg;
             if (err && err.logs) {
                 // unexpected error showed up
                 if (err.unexpectedError) {
                     msg = (err.logs === "error")? ErrTStr.Unknown : err.logs;
-                    // $streamBtns.removeClass("xc-disabled streaming");
                     Alert.error(MonitorTStr.StartStreamFail, msg);
                 } else {
                     // XXX This doesn't make sense. If they are all successful,
@@ -192,18 +193,13 @@ window.MonitorLog = (function(MonitorLog, $) {
 
                     // the reason for why all the nodes are success or
                     // fail is known and defined.
-                    $streamBtns.removeClass("xc-disabled")
-                               .addClass("streaming");
                     appendLog(err.logs);
                 }
             } else {
                 msg = ErrTStr.Unknown;
-                // $streamBtns.removeClass("xc-disabled streaming");
                 Alert.error(MonitorTStr.StartStreamFail, msg);
             }
-            $("#monitorLogCard .recentLogsGroup .xc-input").prop('disabled', false);
         }, function(ret) {
-            $streamBtns.removeClass("xc-disabled").addClass("streaming");
             if (ret && ret.logs) {
                 appendLog(ret.logs);
             }
@@ -212,23 +208,26 @@ window.MonitorLog = (function(MonitorLog, $) {
 
     function stopMonitorLog() {
         var $streamBtns = $logCard.find(".streamBtns");
-        // var $btn = $logCard.find(".stopStream");
-        $streamBtns.removeClass("xc-disabled streaming");
+        $streamBtns.removeClass("streaming");
         $("#monitorLogCard .recentLogsGroup .xc-input").prop('disabled', false);
         XFTSupportTools.stopMonitorLogs();
+        hasEmptyRecord = {};
     }
 
     function appendLog(msg) {
-        var row = '<div class="msgRow"></div>';
-        var $content = $logCard.find(".content");
-        var scrollHeight = $content[0].scrollHeight;
-        var curScrollTop = $content.scrollTop();
-        var contentHeight = $content.height();
-        $logCard.find(".content").append(row);
-        $logCard.find(".content").find(".msgRow").last()
-                .html(splitLogByHost(msg));
-        if (curScrollTop + contentHeight + 30 > scrollHeight) {
-            $content.scrollTop($content[0].scrollHeight);
+        var rowInfo = splitLogByHost(msg);
+        if (rowInfo !== "") {
+            var row = '<div class="msgRow"></div>';
+            var $content = $logCard.find(".content");
+            var scrollHeight = $content[0].scrollHeight;
+            var curScrollTop = $content.scrollTop();
+            var contentHeight = $content.height();
+            $logCard.find(".content").append(row);
+            $logCard.find(".content").find(".msgRow").last()
+                    .html(rowInfo);
+            if (curScrollTop + contentHeight + 30 > scrollHeight) {
+                $content.scrollTop($content[0].scrollHeight);
+            }
         }
     }
 
@@ -242,9 +241,35 @@ window.MonitorLog = (function(MonitorLog, $) {
                 continue;
             } else {
                 var color = "color" + colorId;
-                out += "<div class='" + color + "'>" +
-                       "Host:" + allNodes[i] +
-                       "</div>";
+                var secondRowStart = allNodes[i].indexOf("\n") + 1;
+                var hostName = allNodes[i].substring(0, secondRowStart);
+                var hostInfo = allNodes[i].substring(secondRowStart);
+                var hideThisRecord = false;
+                if (hostInfo.indexOf(emptyString) !== -1) {
+                    // if "... is empty" shows up the more than once, neglect this record
+                    if (hasEmptyRecord[hostName]) {
+                        hideThisRecord = true;
+                    } else {
+                        hasEmptyRecord[hostName] = true;
+                    }
+                } else {
+                    hasEmptyRecord[hostName] = false;
+                    // if no new log is generated, neglect this record
+                    if (hostInfo.indexOf(logsString) === -1) {
+                        hideThisRecord = true;
+                    }
+                }
+
+                if (!hideThisRecord) {
+                    out += "<div class='" + color + " recordForOneHost'>" +
+                                "<div class='hostName'>" +
+                                    "Host:" + hostName +
+                                "</div>" +
+                                "<div class='hostInfo'>" +
+                                    hostInfo +
+                                "</div>" +
+                            "</div>";
+                }
                 colorId++;
                 if (colorId >= colorNum) {
                     colorId -= colorNum;
