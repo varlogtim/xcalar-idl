@@ -432,8 +432,10 @@ window.Installer = (function(Installer, $) {
             } else {
                 finalStruct.nfsOption = {};
                 finalStruct.nfsOption.nfsServer = $("#nfsServer").val().trim();
-                finalStruct.nfsOption.nfsMountPoint = "/" + $("#nfsMountPoint")
-                                                                 .val().trim();
+                // avoid duplicate "/" at the head
+                var mountPoint = $("#nfsMountPoint").val().trim();
+                finalStruct.nfsOption.nfsMountPoint = (mountPoint.indexOf("/") === 0)?
+                                                       mountPoint : ("/" + mountPoint);
                 finalStruct.nfsOption.nfsUsername = $("#nfsUserName").val()
                                                                      .trim();
                 finalStruct.nfsOption.nfsGroup = $("#nfsUserGroup").val()
@@ -446,7 +448,7 @@ window.Installer = (function(Installer, $) {
                     "You must provide a valid NFS Mount Path");
             } else {
                 $("#sharedStorageForm .nfsSection").addClass("lock");
-                var path = "/" + $("#nfsMountPointReady").val().trim();
+                var path = $("#nfsMountPointReady").val().trim();
                 finalStruct.nfsOption = {};
                 finalStruct.nfsOption.nfsReuse = path;
                 $("#sharedStorageForm").removeClass("lock");
@@ -560,6 +562,10 @@ window.Installer = (function(Installer, $) {
                 deferred.reject("Empty Installation Directory",
                                 "Please assign a value to Installation Directory");
                 return deferred.promise();
+            }
+            // Remove the "/" at tail
+            if (directory.charAt(directory.length - 1) === "/") {
+                directory = directory.substring(0, directory.length - 1);
             }
             finalStruct.installationDirectory = directory;
         }
