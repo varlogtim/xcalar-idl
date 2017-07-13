@@ -1623,7 +1623,8 @@ window.ColManager = (function($, ColManager) {
         }
         if ($th.hasClass("selectedCell") ||
             $th.hasClass("modalHighlighted")) {
-            TblManager.highlightColumn($th, true);
+            TblManager.highlightColumn($th, true,
+                                        $th.hasClass("modalHighlighted"));
         }
         if (!progCol.isEmptyCol()) {
             $th.removeClass('newColumn');

@@ -402,7 +402,7 @@ window.OperationsView = (function($, OperationsView) {
             'focus': function() {
                 hideDropdowns();
             },
-            'input': function() {
+            'input': function(event, options) {
                 // Suggest column name
                 var $input = $(this);
                 if ($input.closest(".dropDownList")
@@ -423,6 +423,9 @@ window.OperationsView = (function($, OperationsView) {
                 argumentTimer = setTimeout(function() {
                     // XXX the first arg's list scroller won't be set up until
                     // 2nd part of form is filled, need to fix
+                    if (options && options.insertText) {
+                        return;
+                    }
                     if (!$input.hasClass('gbOnArg')) {
                         argSuggest($input);
                     }

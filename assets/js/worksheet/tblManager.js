@@ -1355,7 +1355,8 @@ window.TblManager = (function($, TblManager) {
         }
     }
 
-    TblManager.highlightColumn = function($el, keepOthersSelected) {
+    TblManager.highlightColumn = function($el, keepOthersSelected,
+                                          modalHighlight) {
         var index = xcHelper.parseColNum($el);
         var tableId = xcHelper.parseTableId($el.closest('.dataTable'));
         var $table = $('#xcTable-' + tableId);
@@ -1364,6 +1365,10 @@ window.TblManager = (function($, TblManager) {
         }
         $table.find('th.col' + index).addClass('selectedCell');
         $table.find('td.col' + index).addClass('selectedCell');
+        if (modalHighlight) {
+            $table.find('th.col' + index).addClass("modalHighlighted");
+            $table.find('td.col' + index).addClass("modalHighlighted");
+        }
     };
 
     function unhighlightColumn($el) {
@@ -1970,11 +1975,11 @@ window.TblManager = (function($, TblManager) {
         });
 
         // trigger open table menu on .tableGrab right-click
-        $xcTheadWrap.on('contextmenu', '.tableGrab', function(event) {
+        $xcTheadWrap.on('contextmenu', '.tableGrab, label.text', function(event) {
             var click = $.Event("click");
             click.rightClick = true;
             click.pageX = event.pageX;
-            $(event.target).siblings('.dropdownBox').trigger(click);
+            $xcTheadWrap.find(".dropdownBox").trigger(click);
             event.preventDefault();
         });
 

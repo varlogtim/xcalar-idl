@@ -598,13 +598,13 @@ window.FnBar = (function(FnBar, $) {
             "removeSelected": function() {
                 $('.xcTable').find('.selectedCell')
                              .removeClass('selectedCell');
-                if (!$("#container").hasClass("joinState")) {
+                if (!$("#container").hasClass("columnPicker")) {
                     $('.xcTable').find('.modalHighlighted')
                              .removeClass('modalHighlighted');
                 }
             },
             "highlightSelected": function($match) {
-                if (!$("#container").hasClass("joinState")) {
+                if (!$("#container").hasClass("columnPicker")) {
                     $('.xcTable').find('.modalHighlighted')
                                  .removeClass('modalHighlighted');
                 }
