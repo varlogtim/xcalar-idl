@@ -71,8 +71,6 @@ window.MonitorGraph = (function($, MonitorGraph) {
             datasets.push([0]);
         }
 
-        $('#ramTab, #cpuTab').addClass('on');
-
         setupLabelsPathsAndScales();
 
         setTimeout(function() {
