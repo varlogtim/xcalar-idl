@@ -544,6 +544,7 @@ window.OperationsView = (function($, OperationsView) {
         $operationsView.on('click', '.emptyOptions .checkboxWrap', function() {
             var $checkbox = $(this).find('.checkbox');
             var $emptyOptsWrap = $(this).parent();
+            var isNoArgsBox = $(this).hasClass("noArgWrap");
 
             var $arg = $emptyOptsWrap.siblings(".inputWrap").find(".arg");
             var $group = $checkbox.closest(".group");
@@ -559,7 +560,9 @@ window.OperationsView = (function($, OperationsView) {
                                .removeClass('semiHidden');
                 $emptyOptsWrap.siblings('.cast')
                               .removeClass('semiHidden');
-                $sibArgs.closest(".row").eq(0).removeClass("xc-hidden");
+                if (isNoArgsBox) {
+                    $sibArgs.closest(".row").eq(0).removeClass("xc-hidden");
+                }
             } else {
                 $checkbox.addClass('checked');
                 if ($emptyOptsWrap.siblings('.inputWrap').length === 1) {
@@ -574,18 +577,21 @@ window.OperationsView = (function($, OperationsView) {
                 $checkbox.closest('.checkboxWrap').siblings()
                         .find('.checkbox').removeClass('checked');
 
-
-                showEmptyOptions($sibArgs);
-                $sibArgs.val("");
-                var $inputWraps = $sibArgs.closest(".inputWrap");
-                $inputWraps.addClass("semiHidden");
-                $inputWraps.siblings(".cast").addClass("semiHidden");
-                $inputWraps.siblings(".emptyOptions")
-                           .find(".noArgWrap .checkbox").addClass("checked");
-                $inputWraps.siblings(".emptyOptions")
-                           .find(".emptyStrWrap .checkbox")
-                           .removeClass("checked");
-                $inputWraps.closest(".row").addClass("xc-hidden");
+                if (isNoArgsBox) {
+                       showEmptyOptions($sibArgs);
+                    $sibArgs.val("");
+                    var $inputWraps = $sibArgs.closest(".inputWrap");
+                    $inputWraps.addClass("semiHidden");
+                    $inputWraps.siblings(".cast").addClass("semiHidden");
+                    $inputWraps.siblings(".emptyOptions")
+                               .find(".noArgWrap .checkbox").addClass("checked");
+                    $inputWraps.siblings(".emptyOptions")
+                               .find(".emptyStrWrap .checkbox")
+                               .removeClass("checked");
+                    $inputWraps.closest(".row").addClass("xc-hidden");
+                } else {
+                    $sibArgs.closest(".row").eq(0).removeClass("xc-hidden");
+                }
             }
             checkIfStringReplaceNeeded();
         });
@@ -1368,8 +1374,6 @@ window.OperationsView = (function($, OperationsView) {
         updateArgumentSection(null, index);
 
         var $nextInput;
-
-
         var $inputs = $activeOpSection.find('.group').eq(index)
                                       .find('.arg:visible');
         if (operatorName === "aggregate") {
@@ -1732,6 +1736,8 @@ window.OperationsView = (function($, OperationsView) {
                 } else {
                     showEmptyOptions($input);
                 }
+            } else if (!isUDF()) {
+                $rows.eq(i).addClass("required").find(".noArgWrap").remove();
             }
 
             if (types.indexOf('string') === -1) {
@@ -2279,6 +2285,14 @@ window.OperationsView = (function($, OperationsView) {
         }
     }
 
+    function isUDF() {
+        if (operatorName !== "map") {
+            return false;
+        }
+        return $functionsList.find(".active").data("category") ===
+                                    FunctionCategoryT.FunctionCategoryUdf;
+    }
+
     function getExistingTypes(groupNum) {
         var existingTypes = {};
         var arg;
@@ -2724,10 +2738,7 @@ window.OperationsView = (function($, OperationsView) {
                 // col types they are expecting in the python functions, we will
                 // skip this type check if the function category is user defined
                 // function.
-                if (operatorName !== "map" ||
-                    $functionsList.find('.active').data('category') !==
-                    FunctionCategoryT.FunctionCategoryUdf)
-                {
+                if (operatorName !== "map" || !isUDF()) {
                     var types;
                     if (tempColNames.length > 1 &&
                         (operatorName !== "group by" ||
@@ -3692,18 +3703,19 @@ window.OperationsView = (function($, OperationsView) {
     }
 
     function handleInvalidBlanks(invalidInputs) {
-        var hasEmptyOption = invalidInputs[0].closest('.colNameSection')
-                                      .length === 0 &&
-                         invalidInputs[0].closest('.gbOnRow')
-                                        .length === 0;
+        var $input = invalidInputs[0];
+        var hasEmptyOption = !$input.closest('.colNameSection').length &&
+                             !$input.closest('.gbOnRow').length &&
+                             (!$input.closest(".required").length ||
+                              $input.closest(".row").find(".emptyStr").length);
         var errorMsg;
         if (hasEmptyOption) {
-            showEmptyOptions(invalidInputs[0]);
+            showEmptyOptions($input);
             errorMsg = ErrTStr.NoEmptyOrCheck;
         } else {
             errorMsg = ErrTStr.NoEmpty;
         }
-        statusBoxShowHelper(errorMsg, invalidInputs[0]);
+        statusBoxShowHelper(errorMsg, $input);
         formHelper.enableSubmit();
     }
 
@@ -3733,6 +3745,11 @@ window.OperationsView = (function($, OperationsView) {
         $input.closest('.row').find('.checkboxWrap').removeClass('xc-hidden');
     }
 
+    function hideEmptyOptions($input) {
+        $input.closest('.row').find('.checkboxWrap').addClass('xc-hidden')
+                              .find('.checkbox').removeClass('checked');
+    }
+
     function addBoolCheckbox($input) {
         $input.closest(".row").addClass("boolOption").find(".inputWrap")
                                                      .addClass("semiHidden");
@@ -3743,11 +3760,6 @@ window.OperationsView = (function($, OperationsView) {
                         '</span>' +
                     '</div>';
         $input.closest(".row").append(html);
-    }
-
-    function hideEmptyOptions($input) {
-        $input.closest('.row').find('.checkboxWrap').addClass('xc-hidden')
-                              .find('.checkbox').removeClass('checked');
     }
 
     function formatArgumentInput(value, typeid, existingTypes) {

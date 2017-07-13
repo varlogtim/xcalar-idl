@@ -520,7 +520,7 @@ describe('OperationsView Test', function() {
 
                         $input.trigger(fakeEvent.enter);
 
-                        expect($("#statusBox .message").text()).to.equal("Please fill out this field or keep it empty by checking the checkbox.");
+                        expect($("#statusBox .message").text()).to.equal("Please fill out this field.");
                         expect($("#statusBox").is(":visible")).to.be.true;
 
                         StatusBox.forceHide();
