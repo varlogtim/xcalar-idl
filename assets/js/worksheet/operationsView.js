@@ -1026,11 +1026,6 @@ window.OperationsView = (function($, OperationsView) {
         $lists.closest('.cast.new').removeClass('new');
         var castList = new MenuHelper($lists, {
             "onOpen": function($list) {
-                var $td = $list.parent();
-                var $ul = $list.find('ul');
-                var top = $td.offset().top + 30;
-                var left = $td.offset().left + 9;
-                $ul.css({'top': top, 'left': left});
                 StatusBox.forceHide();
             },
             "onSelect": function($li) {
@@ -1045,6 +1040,7 @@ window.OperationsView = (function($, OperationsView) {
                 } else {
                     casted = true;
                 }
+                $input.attr("data-casted", casted);
                 $input.closest('.row').find('.arg')
                                        .data('casted', casted)
                                        .data('casttype', type);
@@ -2991,7 +2987,8 @@ window.OperationsView = (function($, OperationsView) {
 
     // $input is an $argInput
     function resetCastOptions($input) {
-        $input.closest('.inputWrap').next().find('input').val('default');
+        $input.closest('.inputWrap').next().find('input').val('default')
+                                                .attr("data-casted", false);
         $input.data('casted', false);
         $input.data('casttype', null);
     }

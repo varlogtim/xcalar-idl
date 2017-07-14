@@ -1524,7 +1524,12 @@ window.Dag = (function($, Dag) {
 
         XcalarGetDag(tableName)
         .then(function(dagObj) {
-            DagFunction.construct(dagObj, tableId);
+            try {
+                DagFunction.construct(dagObj, tableId);
+            } catch (err) {
+                console.error(err);
+            }
+
             var oldTableId = xcHelper.getTableId(tableToReplace);
             var isWorkspacePanelVisible = $('#workspacePanel')
                                             .hasClass('active');

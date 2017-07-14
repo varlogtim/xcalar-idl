@@ -347,7 +347,8 @@ window.XIApi = (function(XIApi, $) {
 
     /*
         lTableInfo/rTableInfo: object with the following attrs:
-            columns: array of back colum names to join
+            columns: array of back colum names to join,
+            casts: array of cast types ["string", "boolean", null] etc
             pulledColumns: columns to pulled out (front col name)
             tableName: table's name
             reaname: array of rename object
@@ -381,11 +382,13 @@ window.XIApi = (function(XIApi, $) {
 
         var lTableName = lTableInfo.tableName;
         var lColNames = lTableInfo.columns;
+        var lCasts = lTableInfo.casts;
         var pulledLColNames = lTableInfo.pulledColumns;
         var lRename = lTableInfo.rename || [];
 
         var rTableName = rTableInfo.tableName;
         var rColNames = rTableInfo.columns;
+        var rCasts = rTableInfo.casts;
         var pulledRColNames = rTableInfo.pulledColumns;
         var rRename = rTableInfo.rename || [];
 
@@ -404,6 +407,18 @@ window.XIApi = (function(XIApi, $) {
         if (!(rColNames instanceof Array)) {
             rColNames = [rColNames];
         }
+        if (!lCasts) {
+            lCasts = new Array(lColNames.length);
+            rCasts = new Array(lColNames.length);
+        }
+
+        if (!(lCasts instanceof Array)) {
+            lCasts = [lCasts];
+        }
+
+        if (!(rCasts instanceof Array)) {
+            rCasts = [rCasts];
+        }
 
         if (lColNames.length < 1 || lColNames.length !== rColNames.length) {
             return PromiseHelper.reject("Invalid args in join");
@@ -421,7 +436,9 @@ window.XIApi = (function(XIApi, $) {
         var joinedCols;
         // Step 1: check if it's a multi Join.
         // If yes, should do a map to concat all columns
-        multiJoinCheck(lColNames, lTableName, rColNames, rTableName, txId)
+        // will also do casts during the concat map
+        multiJoinAndCastCheck(lColNames, lTableName, rColNames, rTableName,
+                             lCasts, rCasts, txId)
         .then(function(res) {
             tempTables = tempTables.concat(res.tempTables);
             // Step 2: index the left table and right table
@@ -850,36 +867,94 @@ window.XIApi = (function(XIApi, $) {
         return PromiseHelper.when.apply(this, promises);
     };
 
-    function multiJoinCheck(lColNames, lTableName, rColNames, rTableName, txId) {
+    function multiJoinAndCastCheck(lColNames, lTableName, rColNames, rTableName,
+                                  lCasts, rCasts, txId) {
         var deferred = jQuery.Deferred();
         var len = lColNames.length;
         var tempTables = [];
+        // left cols
+        var lTableId = xcHelper.getTableId(lTableName);
+        var rTableId = xcHelper.getTableId(rTableName);
+        var lCols = gTables[lTableId].tableCols;
+        var rCols = gTables[rTableId].tableCols;
 
-        if (len === 1) {
-            // single join
-            deferred.resolve({
-                "lTableName": lTableName,
-                "lColName": lColNames[0],
-                "rTableName": rTableName,
-                "rColName": rColNames[0],
-                "tempTables": tempTables
-            });
+        if (len === 1) {// single join
+            if (!lCasts[0] && !rCasts[0]) {
+                deferred.resolve({
+                    "lTableName": lTableName,
+                    "lColName": lColNames[0],
+                    "rTableName": rTableName,
+                    "rColName": rColNames[0],
+                    "tempTables": tempTables
+                });
+            } else {
+                var deferred1;
+                var deferred2;
+                var lNewName;
+                var rNewName;
+                var lColName;
+                var rColName;
+                if (lCasts[0]) {
+                    lNewName = getNewTableName(lTableName);
+                    var lString = xcHelper.castStrHelper(lColNames[0],
+                                                         lCasts[0]);
+                    lColName = xcHelper.randName("leftJoinCol");
+                    deferred1 = XcalarMap(lColName, lString, lTableName,
+                                          lNewName, txId);
+                } else {
+                    lNewName = lTableName;
+                    lColName = lColNames[0];
+                    deferred1 = PromiseHelper.resolve();
+                }
+                if (rCasts[0]) {
+                    rNewName = getNewTableName(rTableName);
+                    var rString = xcHelper.castStrHelper(rColNames[0],
+                                                         rCasts[0]);
+                    rColName = xcHelper.randName("rightJoinCol");
+                    deferred2 = XcalarMap(rColName, rString, rTableName,
+                                          rNewName, txId);
+                } else {
+                    rNewName = rTableName;
+                    rColName = rColNames[0];
+                    deferred2 = PromiseHelper.resolve();
+                }
+
+                PromiseHelper.when(deferred1, deferred2)
+                .then(function() {
+                    if (lCasts[0]) {
+                        TblManager.setOrphanTableMeta(lNewName, lCols);
+                        tempTables.push(lNewName);
+                    }
+                    if (rCasts[0]) {
+                        TblManager.setOrphanTableMeta(rNewName, rCols);
+                        tempTables.push(rNewName);
+                    }
+
+                    deferred.resolve({
+                        "lTableName": lNewName,
+                        "lColName": lColName,
+                        "rTableName": rNewName,
+                        "rColName": rColName,
+                        "tempTables": tempTables
+                    });
+                })
+                .fail(function() {
+                    var error = xcHelper.getPromiseWhenError(arguments);
+                    deferred.reject(error);
+                });
+            }
         } else {
             // multi join
-            // left cols
-            var lTableId = xcHelper.getTableId(lTableName);
-            var rTableId = xcHelper.getTableId(rTableName);
-            var lCols = gTables[lTableId].tableCols;
-            var rCols = gTables[rTableId].tableCols;
 
             var lNewName = getNewTableName(lTableName);
+            var lCastColNames = xcHelper.getJoinCastStrings(lColNames, lCasts);
+            var lString = xcHelper.getMultiJoinMapString(lCastColNames);
             var lColName = xcHelper.randName("leftJoinCol");
-            var lString = xcHelper.getMultiJoinMapString(lColNames);
 
             // right cols
             var rNewName = getNewTableName(rTableName);
-
-            var rString  = xcHelper.getMultiJoinMapString(rColNames);
+            var rCastColNames = xcHelper.getJoinCastStrings(rColNames, rCasts);
+            var rString = xcHelper.getMultiJoinMapString(rCastColNames);
             var rColName = xcHelper.randName("rightJoinCol");
 
             var deferred1 = XcalarMap(lColName, lString,

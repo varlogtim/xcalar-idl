@@ -48,6 +48,9 @@ describe("JoinView Test", function() {
 
             JoinView.show(tableId, [1]);
             done();
+        })
+        .fail(function() {
+            done("fail");
         });
     });
 
@@ -309,9 +312,9 @@ describe("JoinView Test", function() {
             expect(cols[7].isImmediate()).to.be.false;
             expect(checkRes).to.be.an("object");
             expect(checkRes.success).to.be.false;
-            expect(checkRes.types[0]).to.equal("integer");
-            expect(checkRes.types[1]).to.equal("string");
-            expect(checkRes.row).to.equal(0);
+            expect(checkRes.errors[0].types[0]).to.equal("integer");
+            expect(checkRes.errors[0].types[1]).to.equal("string");
+            expect(checkRes.errors[0].row).to.equal(0);
 
             checkRes = check([cols[7].backName], [cols[0].backName], [tableId, tableId]);
             expect(cols[0].getType()).to.equal("float");

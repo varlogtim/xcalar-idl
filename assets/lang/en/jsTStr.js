@@ -144,6 +144,7 @@ CommonTxtTstr = {
     'Copy': 'Copy',
     'CopyLog': 'Copy log',
     'Create': 'Create',
+    'Default': 'default',
     'DefaultVal': 'Default value',
     'RevertDefaultVal': 'Revert to default value',
     'Exit': 'Exit',

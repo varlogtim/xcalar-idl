@@ -285,6 +285,20 @@ window.xcHelper = (function($, xcHelper) {
         return mapStr;
     };
 
+    // for multi joins
+    xcHelper.getJoinCastStrings = function(colNames, casts) {
+        var castStrs = [];
+        for (var i = 0; i < colNames.length; i++) {
+            // no need to cast if casting to string, multi join part will do it
+            if (!casts[i] || casts[i] === ColumnType.string) {
+                castStrs.push(colNames[i]);
+            } else {
+                castStrs.push(xcHelper.castStrHelper(colNames[i], casts[i]));
+            }
+        }
+        return castStrs;
+    }
+
     xcHelper.getFilterOptions = function(operator, colName, uniqueVals, isExist) {
         var colVals = [];
 
@@ -2144,6 +2158,9 @@ window.xcHelper = (function($, xcHelper) {
             case ("string"):
                 mapStr += "string(";
                 break;
+            case (null):
+            case (undefined):
+                return colName;
             default:
                 console.warn("XXX no such operator! Will guess");
                 mapStr += colType + "(";

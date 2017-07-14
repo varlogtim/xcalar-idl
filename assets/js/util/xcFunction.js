@@ -343,8 +343,8 @@ window.xcFunction = (function($, xcFunction) {
     };
 
     // join two tables
-    xcFunction.join = function(joinStr, lJoinInfo, rJoinInfo,
-                                newTableName, options)
+    xcFunction.join = function(joinStr, lJoinInfo, rJoinInfo, newTableName,
+                               options)
     {
         var deferred = jQuery.Deferred();
         var joinType = joinLookUp[joinStr];
@@ -422,6 +422,7 @@ window.xcFunction = (function($, xcFunction) {
         var lTableInfo = {
             "tableName": lTableName,
             "columns": lColNames,
+            "casts": lJoinInfo.casts,
             "pulledColumns": lJoinInfo.pulledColumns,
             "rename": lJoinInfo.rename
         };
@@ -429,6 +430,7 @@ window.xcFunction = (function($, xcFunction) {
         var rTableInfo = {
             "tableName": rTableName,
             "columns": rColNames,
+            "casts": rJoinInfo.casts,
             "pulledColumns": rJoinInfo.pulledColumns,
             "rename": rJoinInfo.rename
         };

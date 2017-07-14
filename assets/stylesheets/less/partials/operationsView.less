@@ -65,6 +65,7 @@
     input {
         font-size: @standardFontSize;
         background-color: @color-white;
+        color: @color-font-darkGray;
     }
 
     .dropDownList {
@@ -531,6 +532,12 @@
                 line-height: 26px;
             }
 
+            .text {
+                &[data-casted=true] {
+                    color: @color-font-select-blue;
+                }
+            }
+
             .dropDownList {
                 width: ~"calc(100% - 50px)" !important;
 
@@ -548,8 +555,13 @@
                     width: ~"calc(100% - 27px)" !important;
                 }
 
+                li {
+                    color: @color-font-select-blue;
+                }
+
                 li.default {
                     font-style: italic;
+                    color: @color-font-gray36;
                 }
             }
 
@@ -564,6 +576,7 @@
                 overflow: visible;
             }
         }
+
         .inputWrap {
             float: left;
             width: 100%;
@@ -1105,15 +1118,6 @@
     .clauseContainer {
         .position(relative);
         .flex(0 0 auto);
-        overflow: hidden;
-
-        .tableText, .mainTable {
-            overflow: hidden;
-        }
-
-        .tableText {
-            padding: 0;
-        }
 
         .mainTable {
             .position(relative);
@@ -1130,13 +1134,58 @@
 
                 .joinClause {
                     .position(relative);
-                    .size(@width: 100%, @height: @listHeight);
+                    .size(@width: 100%);
+
+                    &.multi {
+                        margin-top: 8px;
+                    }
+
+                    .castRow {
+                        height: 0px;
+                        overflow: hidden;
+                        .transition(all 0.3s);
+
+                        &.showing {
+                            height: 26px;
+                            margin-top: 6px;
+                            div.text {
+                                padding-left: 12px;
+                            }
+                        }
+                        &.overflowVisible {
+                            overflow: visible;
+                        }
+                    }
+
+                    .cast {
+                        float: left;
+                        width: ~"calc(50% - 1px)";
+                        text-transform: capitalize;
+                        &:first-child {
+                            width: ~"calc(50% + 1px)";
+                        }
+                        input {
+                            text-transform: capitalize;
+                            &[data-casted=true] {
+                                color: @color-font-select-blue;
+                            }
+                        }
+
+                        li {
+                            color: @color-font-select-blue;
+                        }
+
+                        li.default {
+                            font-style: italic;
+                            color: @color-font-gray36;
+                        }
+                    }
 
                     .clause {
                         .size(@width: ~"calc(50% + 1px)", @height: @listHeight);
                         .font(@size: @standardFontSize, @line-height: @listHeight);
-                        padding: 0px 8px;
-                        text-align: center;
+                        padding: 0px 10px;
+                        text-align: left;
                         float: left;
                         outline: none;
                         border-bottom: 1px solid @color-border-pinkish-grey2;

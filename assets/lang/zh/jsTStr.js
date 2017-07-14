@@ -135,6 +135,7 @@ CommonTxtTstr = {
 'Copy': '复制',
 'CopyLog': '复制日志',
 'Create': '创建',
+'Default': 'default',
 'DefaultVal': '默认值',
 'RevertDefaultVal': '恢复为默认值',
 'Exit': '出口',
