@@ -50,17 +50,12 @@ function writeFilePromise(filePath, data) {
 }
 
 function uploadContent(req, res) {
-    var s3Tmp;
-    if (fs.existsSync(guiDir + "/services/expServer/awsWriteConfig.json")) {
-        var awsTmp = require('aws-sdk');
-        s3Tmp = new awsTmp.S3({
-            "accessKeyId": "AKIAIMI35A6P3BFJTDEQ",
-            "secretAccessKey": "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"
-        });
-    } else {
-        return res.send({"status": Status.Error,
-            "logs": "You're not permitted to upload"});
-    }
+    var awsTmp = require('aws-sdk');
+    var s3Tmp = new awsTmp.S3({
+        "accessKeyId": "AKIAIMI35A6P3BFJTDEQ",
+        "secretAccessKey": "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"
+    });
+
     var tmpPrefix = "/tmp/app" + getRandomInt(0, 1000) + "/";
     deleteFolderRecursive(tmpPrefix);
     console.log("Deleted local " + tmpPrefix);
@@ -71,22 +66,24 @@ function uploadContent(req, res) {
         var jsFileText = req.body.jsFileText;
         var jsFilePath = req.body.jsFilePath;
         var jsFileName = name + '.ext.js';
+        var jsFileObj = req.body.jsFileObj;
         var pyFileText = req.body.pyFileText;
         var pyFilePath = req.body.pyFilePath;
         var pyFileName = name + '.ext.py';
+        var pyFileObj = req.body.pyFileObj;
 
         var jsPromise;
         var pyPromise;
 
         // Prefer file upload over file path if both are provided
-        if (jsFileText) {
+        if (jsFileObj) {
             jsPromise = writeFilePromise(tmpPrefix + jsFileName, jsFileText);
         } else {
             var copyJsFile = "cp " + jsFilePath + " " + tmpPrefix + jsFileName;
             jsPromise = execPromise(copyJsFile);
         }
 
-        if (pyFileText) {
+        if (pyFileObj) {
             pyPromise = writeFilePromise(tmpPrefix + pyFileName, pyFileText);
         } else {
             var copyPyFile = "cp " + pyFilePath + " " + tmpPrefix + pyFileName;

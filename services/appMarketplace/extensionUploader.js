@@ -88,7 +88,8 @@ $(document).ready(function() {
 
     $("#uploadContent").submit(function(evt) {
         evt.preventDefault();
-
+        $("#uploadContent").addHidden("jsFileObj", jsFileObj);
+        $("#uploadContent").addHidden("pyFileObj", pyFileObj);
         var jsFilePromise = readFile(jsFileObj, "jsFileText", true);
         var pyFilePromise = readFile(pyFileObj, "pyFileText", true);
         var imgPromise = readFile(imgFileObj, "imgBinary", false);
