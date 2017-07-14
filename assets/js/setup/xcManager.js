@@ -1295,7 +1295,19 @@ window.xcManager = (function(xcManager, $) {
             var username = Support.getUser();
             xcSessionStorage.removeItem(username);
         }
-        window.location = paths.dologout;
+
+        var waadUser = null;
+        var waadAuthContext;
+        if (typeof waadConfig !== "undefined") {
+            waadAuthContext = new AuthenticationContext(waadConfig);
+            waadUser = waadAuthContext.getCachedUser();
+        }
+
+        if (waadUser != null) {
+            waadAuthContext.logOut();
+        } else {
+            window.location = paths.dologout;
+        }
     }
 
     function isRetinaDevice() {

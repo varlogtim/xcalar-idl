@@ -5,10 +5,28 @@ if (xcLocalStorage.getItem("noSplashLogin") === "true") {
     $("#splashContainer").hide();
 }
 
+var waadAuthContext;
+var waadLoggedIn = false;
+
 $(document).ready(function() {
     var hostname = "";
     var isSubmitDisabled = false;
     setupHostName();
+
+    waadSetup();
+
+    if (waadLoggedIn) {
+        var user = waadAuthContext.getCachedUser();
+        if (user.profile.hasOwnProperty("admin") && user.profile["admin"] == "true") {
+            xcLocalStorage.setItem("admin", true);
+        } else {
+            xcLocalStorage.removeItem("admin");
+        }
+
+        xcSessionStorage.setItem("xcalar-username", user.userName);
+        window.location = paths.indexAbsolute;
+        return;
+    }
 
     if (xcLocalStorage.getItem("noSplashLogin") === "true") {
         setTimeout(function() {
@@ -24,6 +42,15 @@ $(document).ready(function() {
         lastUsername = lastUsername.toLowerCase();
         $("#loginNameBox").val(lastUsername);
     }
+
+    $("#waadLoginForm").submit(function(event) {
+        if (typeof waadConfig === "undefined") {
+            alert("waadConfig not set. Contact your system administrator.");
+        } else {
+            waadAuthContext.login();
+        }
+        return false;
+    });
 
     $("#loginForm").submit(function(event) {
         // prevents form from having it's default action
@@ -117,6 +144,26 @@ $(document).ready(function() {
             }, 1000);
         });
     });
+
+    function waadSetup() {
+        if (typeof waadConfig === "undefined") {
+            return;
+        }
+
+        waadAuthContext = new AuthenticationContext(waadConfig);
+
+        // Check For & Handle Redirect From AAD After Login
+        var isCallback = waadAuthContext.isCallback(window.location.hash);
+        waadAuthContext.handleWindowCallback();
+        if (waadAuthContext.getLoginError()) {
+            alert(waadAuthContext.getLoginError());
+        }
+
+        if (isCallback && !waadAuthContext.getLoginError()) {
+            // This means we logged in successfully
+            waadLoggedIn = true;
+        }
+    }
 
     function showSplashScreen() {
         var animTime = 4200;

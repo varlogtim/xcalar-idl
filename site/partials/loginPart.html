@@ -89,19 +89,24 @@
           <%= dicts.login.alreadyAccount %> <a id="signup-login"><%= dicts.login.login %></a>
         </div>
       </form>
+      <!-- Login with Azure AD -->
+      <form id="waadLoginForm" autocomplete="off">
+        <input id="loginWAADButton" class="btn login" type="submit" value="WAAD Login">
+      </form>
     </div>
   </div>
 </div>
 <!-- <div id="insightVersion">Version: Current</div> -->
 <script src="../../3rd/bower_components/jquery/dist/jquery.min.js"></script>
 <script src="../../3rd/bower_components/crypto-js/crypto-js.js"></script>
+<script src="../../3rd/adal.js"></script>
 <script src="../js/thrift/XcalarApiVersionSignature_types.js"></script>
 <script src="../js/setup/compatible.js"></script>
 <script src="../js/setup/xvm.js"></script>
 <script src="../js/setup/paths.js"></script>
 <script src="../js/constructor/C_ephConstructor.js"></script>
-<script src="../js/login.js"></script>
 <script src="../js/config.js"></script>
+<script src="../js/login.js"></script>
 <script src="../js/login_globals.js"></script>
 <script src="../js/globalEnums.js"></script>
 <script src="../js/httpStatus.js"></script>
