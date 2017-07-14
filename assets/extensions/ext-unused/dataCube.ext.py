@@ -81,21 +81,3 @@ def state(dest):
         "TWF": "ID"
     }
     return d[dest]
-
-
-def pivotConcat(*args):
-    res = "("
-    for col in args:
-        res = res + str(col) + ","
-    res = res + ")";
-    return res
-
-
-def pivotParse(col, val):
-    startStr = '(' + val + ','
-    start = col.find(startStr)
-
-    if start < 0:
-        return None
-    end = col.find(',)', start)
-    return col[start + len(startStr) : end]
