@@ -248,23 +248,13 @@ describe('ExpServer function Test', function() {
                 });
     });
 
-    it('Should receive /uploadMeta request', function() {
-        return postRequest("POST", "/uploadMeta", {})
-                .then(function(data) {
-                    expect(data).to.equal("Fake response uploadMeta!");
-                })
-                .fail(function(data) {
-                    expect(data).to.equal("Fake response uploadMeta!");
-                });
-    });
-
     it('Should receive /login request', function() {
         return postRequest("POST", "/login", {})
                 .then(function(data) {
-                    expect(data).to.equal("Fake response uploadContent!");
+                    expect(data.logs).to.equal("Fake response login!");
                 })
                 .fail(function(data) {
-                    expect(data).to.equal("Fake response uploadContent!");
+                    expect(data.logs).to.equal("Fake response login!");
                 });
     });
 });
@@ -324,11 +314,11 @@ describe('Support function Test', function() {
 
     it('Should be completed', function() {
         var command = "/opt/xcalar/bin/xcalarctl start";
-        var data = 'xcmonitor started';
+        var data = 'xcmgmtd started';
         expect(support.isComplete(command, data)).to.equal(true);
 
         command = "/opt/xcalar/bin/xcalarctl start";
-        data = 'xcmonitor already running';
+        data = 'Usrnode already running';
         expect(support.isComplete(command, data)).to.equal(true);
 
         command = "/opt/xcalar/bin/xcalarctl start";
@@ -336,7 +326,7 @@ describe('Support function Test', function() {
         expect(support.isComplete(command, data)).to.equal(false);
 
         command = "/opt/xcalar/bin/xcalarctl stop";
-        data = 'Stopping remaining Xcalar processes';
+        data = 'Stopped Xcalar';
         expect(support.isComplete(command, data)).to.equal(true);
     });
 });

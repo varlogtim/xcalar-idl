@@ -52,6 +52,45 @@ var networkFactor = 5;
 var monitorFactor = 0.005;
 var tailUsers = new Map();
 
+var xcConsole = {
+        "verbose": function() {
+            return true;
+        },
+        "log": function(error) {
+            if (this.verbose()) {
+                console.log(getTimeStamp() + ":Xcalar ExpServer:" +
+                error.toString());
+            }
+            function getTimeStamp() {
+                var date = new Date();
+                return toISOString(date) + getTimezone(date);
+
+                function pad(number) {
+                    if (number < 10) {
+                        return '0' + number;
+                    }
+                    return number;
+                }
+
+                function toISOString(date) {
+                    return date.getFullYear() +
+                    '-' + pad(date.getMonth() + 1) +
+                    '-' + pad(date.getDate()) +
+                    'T' + pad(date.getHours()) +
+                    ':' + pad(date.getMinutes()) +
+                    ':' + pad(date.getSeconds()) +
+                    '.' + (date.getMilliseconds() / 1000).toFixed(6).slice(2, 8) +
+                    'Z';
+                }
+
+                function getTimezone(date) {
+                    var pattern = /-\d*/;
+                    return pattern.exec(date.toTimeString());
+                }
+            }
+        }
+    };
+
 // Get all the Hosts from file
 function readHostsFromFile(hostFile) {
     var deferred = jQuery.Deferred();
@@ -101,10 +140,11 @@ function masterExecuteAction(action, slaveUrl, content) {
     .then(function(hosts) {
         var deferred = jQuery.Deferred();
         var retMsg;
+        var logs;
         sendCommandToSlaves(action, slaveUrl, content, hosts)
         .then(function(results) {
-            var logs = generateLogs(action, slaveUrl, results);
-            var retMsg = {
+            logs = generateLogs(action, slaveUrl, results);
+            retMsg = {
                 // If every child node return with status 200, then master should
                 // return a 200 code
                 "status": httpStatus.OK,
@@ -117,8 +157,8 @@ function masterExecuteAction(action, slaveUrl, content) {
             deferred.resolve(retMsg);
         })
         .fail(function(results) {
-            var logs = generateLogs(action, slaveUrl, results);
-            var retMsg = {
+            logs = generateLogs(action, slaveUrl, results);
+            retMsg = {
                 // If some child nodes do not return with status 200, then master
                 // should return return a 404 uniformly
                 "status": httpStatus.NotFound,
@@ -197,7 +237,7 @@ function slaveExecuteAction(action, slaveUrl, content) {
         case "/installationLogs/slave":
             return readInstallerLog();
         default:
-            console.log("Should not be here!");
+            xcConsole.log("Should not be here!");
     }
 }
 
@@ -254,7 +294,7 @@ function sendCommandToSlaves(action, slaveUrl, content, hosts) {
                 res.setEncoding('utf8');
                 var retMsg;
                 try {
-                    var retMsg = JSON.parse(data);
+                    retMsg = JSON.parse(data);
                     if (retMsg.status !== httpStatus.OK) {
                         hasFailure = true;
                     }
@@ -328,7 +368,7 @@ function generateLogs(action, slaveUrl, results) {
 
 // Handle Xcalar Services
 function xcalarStart() {
-    console.log("Enter Xcalar Start");
+    xcConsole.log("Starting Xcalar");
     // only support root user
     // var command = 'service xcalar start';
     // support non-root user
@@ -336,7 +376,7 @@ function xcalarStart() {
 }
 
 function xcalarStop() {
-    console.log("Enter Xcalar Stop");
+    xcConsole.log("Stopping Xcalar");
     // only support root user
     // var command = 'service xcalar stop';
     // support non-root user
@@ -344,13 +384,13 @@ function xcalarStop() {
 }
 
 function getOperatingSystem() {
-    console.log("Getting operating system");
+    xcConsole.log("Getting operating system");
     var command = "cat /etc/*release";
     return executeCommand(command);
 }
 
 function xcalarStatus() {
-    console.log("Enter Xcalar Status");
+    xcConsole.log("Getting Xcalar Status");
     // only support root user
     // var command = 'service xcalar status';
     // support non-root user
@@ -385,7 +425,7 @@ function removeSessionFiles(filePath) {
         if (completePath === sessionPath) {
             completePath = completePath + '*';
         }
-        console.log("Remove file at: ", completePath);
+        xcConsole.log("Remove file at: " + completePath);
         var command = 'rm -rf ' + completePath;
         deferred.resolve(command);
         return deferred.promise();
@@ -395,8 +435,10 @@ function removeSessionFiles(filePath) {
     })
     .then(function() {
         var logs = "Remove " + filePath + " successfully!";
-        var retMsg = {"status": httpStatus.OK,
-                      "logs": logs};
+        var retMsg = {
+            "status": httpStatus.OK,
+            "logs": logs
+        };
         deferredOut.resolve(retMsg);
     })
     .fail(function(retMsg) {
@@ -405,7 +447,7 @@ function removeSessionFiles(filePath) {
     return deferredOut.promise();
 }
 
-function removeSHM(res) {
+function removeSHM() {
     var command = 'rm /dev/shm/xcalar-*';
     return executeCommand(command);
 }
@@ -454,15 +496,17 @@ function executeCommand(command) {
     }, timeout);
 
     out.stdout.on('data', function(data) {
-        console.log("data", data);
+        xcConsole.log(data);
         lines += data;
     });
 
-    out.stdout.on('close', function(data) {
+    out.stdout.on('close', function() {
         var result;
-        result = {"status": isComplete(command, lines) ? httpStatus.OK :
+        result = {
+            "status": isComplete(command, lines) ? httpStatus.OK :
             httpStatus.InternalServerError,
-            "logs": lines};
+            "logs": lines
+        };
         if (!isResolved) {
             if (result.status === httpStatus.OK) {
                 deferred.resolve(result);
@@ -511,7 +555,7 @@ function getXlrRoot() {
         process.env.XCE_CONFIG : defaultHostsFile;
     var deferred = jQuery.Deferred();
     var defaultLoc = "/mnt/xcalar";
-    var cfg = fs.readFile(cfgLocation, "utf8", function(err, data) {
+    fs.readFile(cfgLocation, "utf8", function(err, data) {
         try {
             if (err) throw err;
             var lines = data.split("\n");
@@ -564,9 +608,9 @@ function submitTicket(contents) {
 
     var aws = require('aws-sdk');
     aws.config.update({
-      accessKeyId: 'AKIAJIVAAB7VSKQBZ6VQ',
-      secretAccessKey: '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',
-      region: 'us-west-2'
+        accessKeyId: 'AKIAJIVAAB7VSKQBZ6VQ',
+        secretAccessKey: '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',
+        region: 'us-west-2'
     });
 
     var sns = new aws.SNS();
@@ -575,13 +619,15 @@ function submitTicket(contents) {
         TopicArn: 'arn:aws:sns:us-west-2:559166403383:raw-zendesk-topic'
     }, function (err, data) {
         if (err) {
-            console.log(err.stack);
+            xcConsole.log(err);
             deferredOut.reject(err);
             return;
         }
-        console.log(data);
-        deferredOut.resolve({"status": httpStatus.OK,
-                             "logs": JSON.stringify(data)});
+        xcConsole.log(data);
+        deferredOut.resolve({
+            "status": httpStatus.OK,
+            "logs": JSON.stringify(data)
+        });
     });
     return deferredOut.promise();
 }
@@ -615,15 +661,18 @@ function generateLastMonitorMap(results) {
 
 function readInstallerLog() {
     var deferred = jQuery.Deferred();
-    var installLog = "";
     fs.readFile('/tmp/xcalar/installer.log', 'utf8', function(err, data) {
         if (err) {
-            retMsg = {"status": httpStatus.InternalServerError,
-                      "error": err};
+            retMsg = {
+                "status": httpStatus.InternalServerError,
+                "error": err
+            };
             deferred.reject(retMsg);
         }
-        retMsg = {"status": httpStatus.OK,
-                  "logs": data};
+        retMsg = {
+            "status": httpStatus.OK,
+            "logs": data
+        };
         deferred.resolve(retMsg);
     });
     return deferred.promise();
@@ -646,3 +695,4 @@ exports.readHostsFromFile = readHostsFromFile;
 exports.removeSHM = removeSHM;
 exports.hasLogFile = hasLogFile;
 exports.unitTest = unitTest;
+exports.xcConsole = xcConsole;

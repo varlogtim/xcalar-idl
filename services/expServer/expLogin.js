@@ -12,6 +12,7 @@ var ldap = require('ldapjs');
 var ssf = require('./supportStatusFile');
 var httpStatus = require('./../../assets/js/httpStatus.js').httpStatus;
 var support = require('./support.js');
+var xcConsole = support.xcConsole;
 var Status = ssf.Status;
 var strictSecurity = false;
 
@@ -79,7 +80,6 @@ UserInformation.prototype = {
 function loginAuthentication(credArray) {
     var deferredOut = jQuery.Deferred();
     var hasBind = false;
-    var currentUser;
     var username;
     var password;
     var client_url;
@@ -150,10 +150,10 @@ function loginAuthentication(credArray) {
                 cert: trustedCerts,
                 rejectUnauthorized: strictSecurity
             };
-            console.log("Starting TLS...");
+            xcConsole.log("Starting TLS...");
             client.starttls(tlsOpts, [], function(err) {
                 if (err) {
-                    console.log("TLS startup error: " + err.message);
+                    xcConsole.log("Failure: TLS start " + err.message);
                     deferred.reject();
                 } else {
                     deferred.resolve();
@@ -170,11 +170,11 @@ function loginAuthentication(credArray) {
         hasBind = true;
         client.bind(username, password, function(error) {
             if (error) {
-                console.log("Bind Error! " + error.message);
+                xcConsole.log("Failure: Binding process " + error.message);
                 loginId++;
                 deferred.reject();
             } else {
-                console.log('Bind Successful!');
+                xcConsole.log('Success: Binding process finished!');
                 client.search(userDN, searchOpts, function(error, search) {
                     deferred.resolve(error, search, loginId);
                     loginId++;
@@ -186,18 +186,18 @@ function loginAuthentication(credArray) {
     .then(function(error, search, currLogin) {
         var deferred = jQuery.Deferred();
         search.on('searchEntry', function(entry) {
-            console.log('Searching entries.....');
+            xcConsole.log('Searching entries.....');
             writeEntry(entry, currLogin, activeDir,
                        adUserGroup, adAdminGroup);
         });
 
         search.on('error', function(error) {
-            console.log('Search error: ' + error.message);
+            xcConsole.log('Failure: Searching process' + error.message);
             deferred.reject();
         });
 
         search.on('end', function() {
-            console.log('Finished Search!');
+            xcConsole.log('Success: Search process finished!');
             client.unbind();
             deferred.resolve(currLogin);
         });
@@ -213,12 +213,14 @@ function loginAuthentication(credArray) {
         if (hasBind) {
             client.unbind();
         }
-        var message = {"status": httpStatus.OK,
-                       "firstName ": credArray["xiusername"],
-                       "mail": credArray["xiusername"],
-                       "isValid": false,
-                       "isAdmin": false,
-                       "isSupporter": false};
+        var message = {
+            "status": httpStatus.OK,
+            "firstName ": credArray["xiusername"],
+            "mail": credArray["xiusername"],
+            "isValid": false,
+            "isAdmin": false,
+            "isSupporter": false
+        };
         deferredOut.reject(message);
     });
     return deferredOut.promise();
@@ -261,27 +263,29 @@ function responseResult(loginId, activeDir) {
     var user = users.get(loginId);
     if (user.getEntryCount() >= 1) {
         if (user.getEntryCount() > 1) {
-            console.log("More than one matched user was found");
+            xcConsole.log("Alert: More than one matched user was found");
         }
         // The employeeType is defined when adding new user
         // "administrator" for administrators, "normal user"
         // for normal users.
         if ((activeDir) && (!user.getIsADUser())) {
-            console.log('User is not in the Xcalar user group.');
+            xcConsole.log('Failure: User is not in the Xcalar user group.');
             deferred.reject();
         } else {
             var isAdmin = user.isAdmin();
             var isSupporter = user.isSupporter();
-            var message = {"status": httpStatus.OK,
-                           "firstName ": user.firstName,
-                           "mail": user.mail,
-                           "isValid": true,
-                           "isAdmin": isAdmin,
-                           "isSupporter": isSupporter};
+            var message = {
+                "status": httpStatus.OK,
+                "firstName ": user.firstName,
+                "mail": user.mail,
+                "isValid": true,
+                "isAdmin": isAdmin,
+                "isSupporter": isSupporter
+            };
             deferred.resolve(message);
         }
     } else {
-        console.log("No matching user data found in LDAP directory");
+        xcConsole.log("Failure: No matching user data found in LDAP directory");
         deferred.reject();
     }
     return deferred.promise();
@@ -302,7 +306,7 @@ function setUpLdapConfigs() {
                 setup = true;
                 deferred.resolve();
             } catch (error) {
-                console.log(error);
+                xcConsole.log(error);
                 deferred.reject();
             }
         });

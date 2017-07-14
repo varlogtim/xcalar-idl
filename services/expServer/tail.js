@@ -15,6 +15,8 @@ var bufferSize = 1024 * 1024;
 var gMaxLogs = 500;
 
 var httpStatus = require('./../../assets/js/httpStatus.js').httpStatus;
+var support = require('./support.js');
+var xcConsole = support.xcConsole;
 // var logPath = "/var/log/Xcalar.log";
 
 //*** This file is broken into two parts due to different OS requiring different
@@ -126,15 +128,14 @@ function tailLog(requireLineNum, filePath, fileName) {
         return readFromEnd(new Buffer(bufferSize));
     })
     .then(function(lines, stat) {
-        if (lines) {
-            console.log("lines", lines);
-            console.log(lines.substring(0, lines.length - 1));
-        }
         var retMsg = {
             "status": httpStatus.OK,
             "logs": lines,
             "lastMonitor": stat.size
         };
+        if (lines) {
+            xcConsole.log(lines.substring(0, lines.length - 1));
+        }
         deferredOut.resolve(retMsg);
     })
     .fail(function(retMsg) {
@@ -156,7 +157,6 @@ function monitorLog(lastMonitor, filePath, fileName) {
 // Send delta Xcalar.log logs
 function sinceLastMonitorLog(lastMonitor, filePath, fileName) {
     var deferredOut = jQuery.Deferred();
-
     getPath(filePath, fileName)
     .then(function(logPath, stat) {
         var deferred = jQuery.Deferred();
@@ -211,15 +211,15 @@ function sinceLastMonitorLog(lastMonitor, filePath, fileName) {
         };
         return readRecentLogs();
     })
-    .then(function(lines, stat){
+    .then(function(lines, stat) {
+        if (lines) {
+            xcConsole.log(lines.substring(0, lines.length - 1));
+        }
         var retMsg = {
             "status": httpStatus.OK,
             "logs": lines,
             "lastMonitor": stat.size
         };
-        if (lines) {
-            console.log(lines.substring(0, lines.length - 1));
-        }
         deferredOut.resolve(retMsg);
     })
     .fail(function(retMsg) {
@@ -336,7 +336,7 @@ function getPath(filePath, fileName) {
             || fileName === "node.*.log") {
             getNodeId()
             .then(function(nodeID) {
-                console.log("NodeID: " + nodeID);
+                xcConsole.log("NodeID: " + nodeID);
                 if (fileName === "node.*.out") {
                     deferred.resolve("node." + nodeID + ".out");
                 } else if (fileName === "node.*.err") {
@@ -362,7 +362,7 @@ function getPath(filePath, fileName) {
     getFileName()
     .then(function(realName) {
         var logPath = path.join(filePath, realName);
-        console.log("Reading file stat: " + logPath);
+        xcConsole.log("Reading file stat: " + logPath);
         return readFileStat(logPath);
     })
     .then(function(currFile, stat) {
@@ -403,7 +403,7 @@ function getNodeId() {
     });
 
     out.stdout.on('error', function(err) {
-        console.log(err);
+        xcConsole.log(err);
         deferredOut.reject(err);
     });
     return deferredOut.promise();
@@ -414,7 +414,7 @@ function readFileStat(currFile) {
     fs.stat(currFile, function(err, stat) {
         var retMsg;
         if (err) {
-            console.log(err);
+            xcConsole.log(err);
             retMsg = {
                 // Server Internal error
                 "status": httpStatus.InternalServerError,
@@ -429,7 +429,6 @@ function readFileStat(currFile) {
             };
             deferred.reject(retMsg);
         } else {
-            console.log(currFile, stat.size);
             deferred.resolve(currFile, stat);
         }
     });

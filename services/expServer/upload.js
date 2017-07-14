@@ -3,6 +3,8 @@ var exec = require('child_process').exec;
 var Status = require('./supportStatusFile').Status;
 var guiDir = (process.env.XCE_HTTP_ROOT ?
     process.env.XCE_HTTP_ROOT : "/var/www") + "/xcalar-gui";
+var support = require('./support.js');
+var xcConsole = support.xcConsole;
 
 var validate = function(name, version) {
     if (name == null || name.length === 0) {
@@ -25,7 +27,7 @@ function getRandomInt(min, max) {
 function execPromise(command, options) {
     var deferred = jQuery.Deferred();
 
-    exec(command, options, function(err, stdout, stderr) {
+    exec(command, options, function(err) {
         if (err) {
             deferred.reject({"status": Status.Error, "logs": err});
         } else {
@@ -44,7 +46,7 @@ function writeFilePromise(filePath, data) {
         } else {
             deferred.resolve();
         }
-    })
+    });
 
     return deferred.promise();
 }
@@ -58,7 +60,7 @@ function uploadContent(req, res) {
 
     var tmpPrefix = "/tmp/app" + getRandomInt(0, 1000) + "/";
     deleteFolderRecursive(tmpPrefix);
-    console.log("Deleted local " + tmpPrefix);
+    xcConsole.log("Deleted local " + tmpPrefix);
     create(tmpPrefix)
     .then(function() {
         var name = req.body.name;
@@ -92,13 +94,13 @@ function uploadContent(req, res) {
 
         jQuery.when(jsPromise, pyPromise)
         .then(function() {
-            return gzipAndUpload(name, version, tmpPrefix, s3Tmp)
+            return gzipAndUpload(name, version, tmpPrefix, s3Tmp);
         })
         .then(function() {
             return uploadMeta(req, res, s3Tmp);
         })
         .then(function(data) {
-            res.send({"Data": data, "status": Status.Ok})
+            res.send({"Data": data, "status": Status.Ok});
         })
         .fail(function(errObj) {
             res.send(errObj);
@@ -111,14 +113,14 @@ function gzipAndUpload(name, version, tmpPrefix, s3Tmp) {
     var deferred = jQuery.Deferred();
     gzip(tmpTarGz, tmpPrefix)
     .then(function() {
-        console.log("Succeeded to tar");
+        xcConsole.log("Succeeded to tar");
         fs.readFile(tmpTarGz, function(err, data) {
             upload('extensions/' + name + "/" + version + "/" + name + '-' +
                 version + '.tar.gz', data, s3Tmp)
             .then(function() {
-                console.log("Uploaded .tar.gz");
+                xcConsole.log("Uploaded .tar.gz");
                 deleteFolderRecursive(tmpPrefix);
-                console.log("Deleted local " + tmpPrefix);
+                xcConsole.log("Deleted local " + tmpPrefix);
                 deferred.resolve(Status.Done);
             });
         });
@@ -127,17 +129,17 @@ function gzipAndUpload(name, version, tmpPrefix, s3Tmp) {
 }
 
 function deleteFolderRecursive(path) {
-  if ( fs.existsSync(path) ) {
-      fs.readdirSync(path).forEach(function(file,index){
-      var curPath = path + "/" + file;
-      if(fs.lstatSync(curPath).isDirectory()) { // recurse
-        deleteFolderRecursive(curPath);
-      } else { // delete file
-        fs.unlinkSync(curPath);
-      }
-    });
-    fs.rmdirSync(path);
-  }
+    if (fs.existsSync(path) ) {
+        fs.readdirSync(path).forEach(function(file){
+            var curPath = path + "/" + file;
+            if (fs.lstatSync(curPath).isDirectory()) { // recurse
+                deleteFolderRecursive(curPath);
+            } else { // delete file
+                fs.unlinkSync(curPath);
+            }
+        });
+        fs.rmdirSync(path);
+    }
 }
 
 function create(dir) {
@@ -162,11 +164,10 @@ function gzip(fileName, tmpPrefix) {
     out.on('close', function(code) {
         // code(1) means files were changed while being archived
         if (code === 0 || code === 1) {
-            console.log("Succeeded to tar gz");
+            xcConsole.log("Success: tar gz");
             deferred.resolve(Status.Done);
         } else {
-            console.log("Failed to tar gz");
-            console.log("Error code is " + code);
+            xcConsole.log("Failure: tar gz with code " + code);
             deferred.reject();
         }
     });
@@ -206,12 +207,11 @@ function uploadMeta(req, res, s3Tmp) {
     // Prefer file upload over file path if both are provided
     if (imageBinary) {
         dataToSend.image = imageBinary;
-        return upload(file, JSON.stringify(dataToSend), s3Tmp)
+        return upload(file, JSON.stringify(dataToSend), s3Tmp);
     } else {
         var deferred = jQuery.Deferred();
         fs.readFile(imagePath, function(err, data) {
             if (err) {
-                console.log("here")
                 deferred.reject({"status": Status.Error, "logs": err});
             } else {
                 image = data.toString("base64");
@@ -233,7 +233,7 @@ function upload(file, content, s3Tmp) {
         Body: content
     };
     s3Tmp.putObject(params, function(err, data) {
-        if (err) console.log(err, err.stack); // an error occurred
+        if (err) xcConsole.log(err); // an error occurred
         else {
             deferred.resolve(data);
         }

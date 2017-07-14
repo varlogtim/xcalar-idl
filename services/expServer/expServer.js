@@ -14,10 +14,16 @@ require("jsdom").env("", function(err, window) {
     var fs = require("fs");
     var path = require("path");
     var http = require("http");
-    var https = require("https");
     require("shelljs/global");
-    var ldap = require("ldapjs");
     var exec = require("child_process").exec;
+    var socket = require('./socket');
+    var support = require('./support');
+    var xcConsole = support.xcConsole;
+    var login = require('./expLogin');
+    var upload = require('./upload');
+    var Status = require('./supportStatusFile').Status;
+    var httpStatus = require('./../../assets/js/httpStatus.js').httpStatus;
+
     var guiDir = (process.env.XCE_HTTP_ROOT ?
         process.env.XCE_HTTP_ROOT : "/var/www") + "/xcalar-gui";
     try {
@@ -29,17 +35,8 @@ require("jsdom").env("", function(err, window) {
         });
         var s3 = new aws.S3();
     } catch (error) {
-        console.log(error);
-        console.log("Fail to set up AWS!");
+        xcConsole.log("Failure: set up AWS! " + error);
     }
-
-    var socket = require('./socket');
-    var tail = require('./tail');
-    var support = require('./support');
-    var login = require('./expLogin');
-    var upload = require('./upload');
-    var Status = require('./supportStatusFile').Status;
-    var httpStatus = require('./../../assets/js/httpStatus.js').httpStatus;
 
     var basePath = guiDir + "/assets/extensions/";
     var app = express();
@@ -55,30 +52,9 @@ require("jsdom").env("", function(err, window) {
         next();
     });
 
-    var verbose = true;
-    var xcConsole = {
-        "log": function() {
-            if (verbose) {
-                console.log.apply(this, arguments);
-            }
-        }
-    };
-
     // End of generic setup stuff
 
     // Start of installer calls
-    var finalStruct = {
-        "nfsOption": undefined, // Either empty struct (use ours) or
-                // { "nfsServer": "netstore.int.xcalar.com",
-                //   "nfsMountPoint": "/public/netstore",
-                //   "nfsUsername": "jyang",
-                //   "nfsGroup": "xcalarEmployee" }
-        "hostnames": [],
-        "privHostNames": [],
-        "username": "",
-        "port": 22,
-        "credentials": {} // Either password or sshKey
-    };
 
     var installStatus = {
         "Error": -1,
@@ -90,9 +66,7 @@ require("jsdom").env("", function(err, window) {
 
     var getNodeRegex = /\[([0-9]+)\]/;
     var getStatusRegex = /\[([A-Z]+)\]/;
-    var installerLocation = "";
     var cliArguments  = "";
-    var stepNum = 0;
 
     var scriptRoot = process.env.XCE_INSTALLER_ROOT;
     if (!scriptRoot) {
@@ -105,7 +79,7 @@ require("jsdom").env("", function(err, window) {
     var privHostnameLocation = path.join(scriptRoot, "/config/privHosts.txt");
     var ldapLocation = path.join(scriptRoot, "/config/ldapConfig.json");
     var credentialLocation = path.join(scriptRoot, "/tmp/key.txt");
-
+    var errorLog = "";
 
     function initStepArray() {
         curStep = {
@@ -194,22 +168,27 @@ require("jsdom").env("", function(err, window) {
         }
         var retMsg;
         if (curStep.curStepStatus === installStatus.Error) {
-            support.masterExecuteAction("GET", "/installationLogs/slave", {isHTTP: "true"})
+            support.masterExecuteAction("GET", "/installationLogs/slave",
+                {isHTTP: "true"})
             .always(function(message) {
-                retMsg = {"status": httpStatus.OK,
-                          "curStepStatus": curStep.curStepStatus,
-                          "retVal": ackArray,
-                          "errorLog": errorLog,
-                          "installationLogs": message.logs};
+                retMsg = {
+                    "status": httpStatus.OK,
+                    "curStepStatus": curStep.curStepStatus,
+                    "retVal": ackArray,
+                    "errorLog": errorLog,
+                    "installationLogs": message.logs
+                };
                 deferred.reject(retMsg);
             });
         } else {
-            retMsg = {"status": httpStatus.OK,
-                      "curStepStatus": curStep.curStepStatus,
-                      "retVal": ackArray};
+            retMsg = {
+                "status": httpStatus.OK,
+                "curStepStatus": curStep.curStepStatus,
+                "retVal": ackArray
+            };
             deferred.resolve(retMsg);
         }
-        console.log("Success: send status array");
+        xcConsole.log("Success: send status array");
         return deferred.promise();
     }
 
@@ -217,7 +196,7 @@ require("jsdom").env("", function(err, window) {
         var lines = dataBlock.split("\n");
         for (var i = 0; i<lines.length; i++) {
             var data = lines[i];
-            console.log("Start =="+data+"==");
+            xcConsole.log("Start ==" + data + "==");
             if (data.indexOf("Step [") === 0 || data.indexOf("STEP [") === 0) {
                 // New Step! Means all the old ones are done
                 curStep.stepString = data;
@@ -240,7 +219,6 @@ require("jsdom").env("", function(err, window) {
         return new Buffer(logs).toString('base64');
     }
 
-    var errorLog = "";
     function stdErrCallback(dataBlock) {
         errorLog += dataBlock + "\n";
     }
@@ -249,20 +227,21 @@ require("jsdom").env("", function(err, window) {
         var deferredOut = jQuery.Deferred();
         var fileLocation = licenseLocation;
         fs.writeFile(fileLocation, credArray.licenseKey, function(err) {
+            var retMsg;
             if (err) {
-                var retMsg = {"status": httpStatus.InternalServerError};
+                retMsg = {"status": httpStatus.InternalServerError};
                 deferredOut.reject(retMsg);
                 return;
             }
             var out = exec(scriptDir + '/01-* --license-file ' + fileLocation);
             out.stdout.on('data', function(data) {
                 if (data.indexOf("SUCCESS") > -1) {
-                    var retMsg = {"status": httpStatus.OK, "verified": true};
-                    console.log("Success: Checking License");
+                    retMsg = {"status": httpStatus.OK, "verified": true};
+                    xcConsole.log("Success: Check License");
                     deferredOut.resolve(retMsg);
                 } else if (data.indexOf("FAILURE") > -1) {
-                    var retMsg = {"status": httpStatus.OK, "verified": false};
-                    console.log("Error: Checking License");
+                    retMsg = {"status": httpStatus.OK, "verified": false};
+                    xcConsole.log("Failure: Check License");
                     deferredOut.reject(retMsg);
                 }
             });
@@ -271,7 +250,7 @@ require("jsdom").env("", function(err, window) {
     }
 
     app.get('/xdp/license/verification', function(req, res) {
-        console.log("Checking License");
+        xcConsole.log("Checking License");
         var credArray = req.query;
         checkLicense(credArray)
         .always(function(message) {
@@ -280,7 +259,7 @@ require("jsdom").env("", function(err, window) {
     });
 
     app.get("/xdp/installation/status", function(req, res) {
-        console.log("Check Status");
+        xcConsole.log("Checking Status");
         var credArray = req.query;
         createStatusArray(credArray)
         .always(function(message) {
@@ -289,16 +268,16 @@ require("jsdom").env("", function(err, window) {
     });
 
     app.post("/xdp/installation/start", function(req, res) {
-        console.log("Executing Installer");
+        xcConsole.log("Installing Xcalar");
         var credArray = req.body;
         installXcalar(credArray);
         // Immediately ack after starting
         res.send({"status": httpStatus.OK});
-        console.log("Immediately acking runInstaller");
+        xcConsole.log("Immediately acking runInstaller");
     });
 
     app.post("/xdp/installation/finish", function(req, res) {
-        console.log("Complete Installation");
+        xcConsole.log("completed Installation");
         completeInstallation()
         .always(function(message) {
             res.status(message.status).send(message);
@@ -306,12 +285,12 @@ require("jsdom").env("", function(err, window) {
     });
 
     app.post("/xdp/installation/cancel", function(req, res) {
-        console.log("Cancel install");
+        xcConsole.log("Cancelled installation");
         res.send({"status": httpStatus.OK});
     });
 
     app.post("/ldap/installation", function(req, res) {
-        console.log("Installing Ldap");
+        xcConsole.log("Installing Ldap");
         var credArray = req.body;
         installLdap(credArray.domainName,
                             credArray.password,
@@ -322,7 +301,7 @@ require("jsdom").env("", function(err, window) {
     });
 
     app.put("/ldap/config", function(req, res) {
-        console.log("Writing Ldap configurations");
+        xcConsole.log("Writing Ldap configurations");
         writeLdapConfig(req.body)
         .always(function(message) {
             res.status(message.status).send(message);
@@ -334,26 +313,27 @@ require("jsdom").env("", function(err, window) {
         var execString = scriptDir + "/ldap-install.sh ";
         execString += cliArguments; // Add all the previous stuff
         execString += genLdapExecString(domainName, password,companyName);
-        console.log(execString);
         out = exec(execString);
 
         var replied = false;
         out.stdout.on('data', function(data) {
-            console.log(data);
+            xcConsole.log(data);
         });
         var errorMessage = "ERROR: ";
         out.stderr.on('data', function(data) {
             errorMessage += data;
-            console.log("ERROR: " + data);
+            xcConsole.log("Error: " + data);
         });
 
         out.on('close', function(code) {
             // Exit code. When we fail, we return non 0
             if (code) {
-                console.log("Oh noes!");
+                xcConsole.log("Failure: " + code + " " + errorMessage);
                 if (!replied) {
-                    retMsg = {"status": httpStatus.InternalServerError,
-                              "logs": errorMessage};
+                    retMsg = {
+                        "status": httpStatus.InternalServerError,
+                        "logs": errorMessage
+                    };
                     deferredOut.reject(retMsg);
                 }
             } else {
@@ -375,7 +355,7 @@ require("jsdom").env("", function(err, window) {
                 deferredOut.resolve(message);
             });
         } catch (err) {
-            console.log(err);
+            xcConsole.log(err);
             var retMsg = {"status": httpStatus.InternalServerError,
                 "logs": JSON.stringify(err)};
             deferredOut.reject(retMsg);
@@ -474,9 +454,8 @@ require("jsdom").env("", function(err, window) {
             out.on('close', function(code) {
                 // Exit code. When we fail, we return non 0
                 if (code) {
-                    console.log("Oh noes!");
-                    console.log("execString: " + execString);
-                    console.log("stderr: " + errorLog);
+                    xcConsole.log("Failure: Executing " + execString +
+                                      " fails. " + errorLog);
                     curStep.curStepStatus = installStatus.Error;
                 } else {
                     curStep.curStepStatus = installStatus.Done;
@@ -484,15 +463,14 @@ require("jsdom").env("", function(err, window) {
             });
         })
         .fail(function(err) {
-            console.log("Fail to install Xcalar !!!");
-            console.log(err);
+            xcConsole.log("Failure: Xcalar installation fails. " + err);
             curStep.curStepStatus = installStatus.Error;
         });
     }
 
     // Single node commands
     app.delete("/sessionFiles", function(req, res) {
-        console.log("Remove Session Files");
+        xcConsole.log("Removing Session Files");
         var filename =  req.body.filename;
         support.removeSessionFiles(filename)
         .always(function(message) {
@@ -504,7 +482,7 @@ require("jsdom").env("", function(err, window) {
     });
 
     app.delete("/SHMFiles", function(req, res) {
-        console.log("Remove Files under folder SHM");
+        xcConsole.log("Removing Files under folder SHM");
         support.removeSHM()
         .always(function(message) {
             if (message.logs) {
@@ -515,7 +493,7 @@ require("jsdom").env("", function(err, window) {
     });
 
     app.get("/license", function(req, res) {
-        console.log("Get License");
+        xcConsole.log("Get License");
         support.getLicense()
         .always(function(message) {
             if (message.logs) {
@@ -526,7 +504,7 @@ require("jsdom").env("", function(err, window) {
     });
 
     app.post("/ticket", function(req, res) {
-        console.log("File Ticket");
+        xcConsole.log("File Ticket");
         var contents = req.body.contents;
         support.submitTicket(contents)
         .always(function(message) {
@@ -539,7 +517,7 @@ require("jsdom").env("", function(err, window) {
 
     // Master request
     app.post("/service/start", function(req, res) {
-        console.log("Start Xcalar Services as Master");
+        xcConsole.log("Starting Xcalar as Master");
         support.masterExecuteAction("POST", "/service/start/slave", req.body)
         .always(function(message) {
             if (message.logs) {
@@ -550,7 +528,7 @@ require("jsdom").env("", function(err, window) {
     });
 
     app.post("/service/stop", function(req, res) {
-        console.log("Stop Xcalar Service as Master");
+        xcConsole.log("Stopping Xcalar as Master");
         support.masterExecuteAction("POST", "/service/stop/slave", req.body)
         .always(function(message) {
             if (message.logs) {
@@ -564,7 +542,7 @@ require("jsdom").env("", function(err, window) {
     // restarts each node individually rather than the nodes as a cluster. This causes
     // the generation count on the nodes to be different.
     app.post("/service/restart", function(req, res) {
-        console.log("Restart Xcalar Services as Master");
+        xcConsole.log("Restarting Xcalar as Master");
         var message1;
         var message2;
         function stop() {
@@ -587,7 +565,7 @@ require("jsdom").env("", function(err, window) {
             message2.logs = message1.logs + message2.logs;
             return deferred.resolve().promise();
         })
-        .then(function(ret) {
+        .then(function() {
             if (message2.logs) {
                 message2.logs = convertToBase64(message2.logs);
             }
@@ -596,7 +574,7 @@ require("jsdom").env("", function(err, window) {
     });
 
     app.get("/service/status", function(req, res) {
-        console.log("Show Xcalar Services status as Master");
+        xcConsole.log("Getting Xcalar status as Master");
         // req.query for Ajax, req.body for sennRequest
         support.masterExecuteAction("GET", "/service/status/slave", req.query)
         .always(function(message) {
@@ -608,7 +586,7 @@ require("jsdom").env("", function(err, window) {
     });
 
     app.get("/logs", function(req, res) {
-        console.log("Fetch Recent Logs as Master");
+        xcConsole.log("Fetching Recent Logs as Master");
         support.masterExecuteAction("GET", "/logs/slave", req.query)
         .always(function(message) {
             if (message.logs) {
@@ -620,7 +598,7 @@ require("jsdom").env("", function(err, window) {
 
     // Slave request
     app.post("/service/start/slave", function(req, res) {
-        console.log("Start Xcalar Services as Slave");
+        xcConsole.log("Starting Xcalar as Slave");
         support.slaveExecuteAction("POST", "/service/start/slave")
         .always(function(message) {
             res.status(message.status).send(message);
@@ -628,7 +606,7 @@ require("jsdom").env("", function(err, window) {
     });
 
     app.post("/service/stop/slave", function(req, res) {
-        console.log("Stop Xcalar Services as Slave");
+        xcConsole.log("Stopping Xcalar as Slave");
         support.slaveExecuteAction("POST", "/service/stop/slave")
         .always(function(message) {
             res.status(message.status).send(message);
@@ -636,7 +614,7 @@ require("jsdom").env("", function(err, window) {
     });
 
     app.get("/service/status/slave", function(req, res) {
-        console.log("Show Xcalar Services status as Slave");
+        xcConsole.log("Getting Xcalar status as Slave");
         support.slaveExecuteAction("GET", "/service/status/slave")
         .always(function(message) {
             res.status(message.status).send(message);
@@ -644,7 +622,7 @@ require("jsdom").env("", function(err, window) {
     });
 
     app.get("/logs/slave", function(req, res) {
-        console.log("Fetch Recent Logs as Slave");
+        xcConsole.log("Fetching Recent Logs as Slave");
         support.slaveExecuteAction("GET", "/logs/slave", req.body)
         .always(function(message) {
             res.status(message.status).send(message);
@@ -652,7 +630,7 @@ require("jsdom").env("", function(err, window) {
     });
 
     app.get("/installationLogs/slave", function(req, res) {
-        console.log("Fetch Installation Logs as Slave");
+        xcConsole.log("Fetching Installation Logs as Slave");
         support.slaveExecuteAction("GET", "/installationLogs/slave")
         .always(function(message) {
             res.status(message.status).send(message);
@@ -663,24 +641,27 @@ require("jsdom").env("", function(err, window) {
         var deferredOut = jQuery.Deferred();
         var execString = scriptDir + "/deploy-shared-config.sh ";
         execString += cliArguments;
-        console.log(execString);
+        xcConsole.log(execString);
         out = exec(execString);
         out.stdout.on('data', function(data) {
-            console.log(data);
+            xcConsole.log(data);
         });
         var errorMessage = "ERROR: ";
         out.stderr.on('data', function(data) {
             errorMessage += data;
-            console.log("ERROR: " + data);
+            xcConsole.log("ERROR: " + data);
         });
         out.on('close', function(code) {
+            var retMsg;
             if (code) {
-                console.log("Copy failed");
-                var retMsg = {"status": httpStatus.InternalServerError,
-                              "reason": errorMessage};
+                xcConsole.log("Failure: Copy files.");
+                retMsg = {
+                    "status": httpStatus.InternalServerError,
+                    "reason": errorMessage
+                };
                 deferredOut.reject(retMsg);
             } else {
-                var retMsg = {"status": httpStatus.OK};
+                retMsg = {"status": httpStatus.OK};
                 deferredOut.resolve(retMsg);
             }
         });
@@ -698,79 +679,22 @@ require("jsdom").env("", function(err, window) {
     addition stuff like
     postData: // For Posts
     */
-    function sendRequest(options) {
-        var deferred = jQuery.Deferred();
-
-        if (!options || !options.host || !options.method) {
-            return jQuery.Deferred().reject("options not set");
-        }
-
-        var hostName = options.host;
-        var action = options.path;
-
-        if (options.method === "POST") {
-            if (!options.postData) {
-                options.postData = "{}";
-            }
-            options.headers = {
-                "Content-Type": "application/json",
-                "Content-Length": Buffer.byteLength(options.postData)
-            };
-        }
-
-        function afterSendHandler(res) {
-            res.setEncoding('utf8');
-            var totalData = "";
-            res.on('data', function(data) {
-                totalData += data;
-            });
-            res.on('end', function() {
-                xcConsole.log("ended");
-                deferred.resolve(totalData);
-            });
-        }
-
-        function afterErrorHandler(error) {
-            xcConsole.error(error);
-            retMsg = {
-                status: Status.Error,
-                error: error,
-                logs: error.message
-            };
-            deferred.reject(retMsg);
-        }
-
-        var req;
-        if (options.method === "GET") {
-            xcConsole.log("Received request for :" + hostName + action);
-            req = https.get(hostName + action, afterSendHandler);
-        } else if (options.method === "POST") {
-            req = https.request(options, afterSendHandler);
-        } else {
-            return jQuery.Deferred.reject("Only GET and POST for sendRequest");
-        }
-        req.on('error', afterErrorHandler);
-        req.end();
-
-        return deferred.promise();
-    }
 
     app.post("/uploadExtension", function(req, res) {
-        var tarFile = req.body.targz;
         writeTarGzWithCleanup({
             status: Status.Ok,
             data: req.body.targz
         }, req.body.name, "0.0.1")
         .then(function() {
-            console.log("intall extension finishes, enabling it");
+            xcConsole.log("Intall extension finishes, enabling it");
             return enableExtension(req.body.name);
         })
         .then(function() {
-            console.log("enable installed extension finishes");
-            res.jsonp({status:Status.Ok});
+            xcConsole.log("Enable installed extension finishes");
+            res.jsonp({status: Status.Ok});
         })
         .fail(function(err) {
-            console.log("Error: " + err);
+            xcConsole.log("Error: " + err);
             res.jsonp({
                 status: Status.Error,
                 error: err
@@ -785,14 +709,14 @@ require("jsdom").env("", function(err, window) {
                 if (retStruct.status !== Status.Ok) {
                     return innerDeferred.reject(retStruct);
                 }
-            } catch(e) {
+            } catch (e) {
                 return innerDeferred.reject(ret);
             }
 
             var zipFile = new Buffer(retStruct.data, 'base64');
             var zipPath = basePath + "ext-available/" + name + "-" + version +
                           ".tar.gz";
-            xcConsole.log("add extension to", zipPath);
+            xcConsole.log("Adding extension to " + zipPath);
             fs.writeFile(zipPath, zipFile, function(error) {
                 if (error) {
                     innerDeferred.reject(error);
@@ -801,7 +725,7 @@ require("jsdom").env("", function(err, window) {
                 var out = exec("tar -zxf " + zipPath + " -C " + basePath +
                                "ext-available/");
                 out.on('close', function(code) {
-                    console.log("untar finishes");
+                    xcConsole.log("Success: Untar finishes");
                     if (code) {
                         innerDeferred.reject(code);
                     } else {
@@ -821,9 +745,10 @@ require("jsdom").env("", function(err, window) {
                         // regardless of status, this is a successful install.
                         // we simply console log if the deletion went wrong.
                 if (err) {
-                    xcConsole.log("Deletion of .tar.gz failed: " + err);
+                    xcConsole.log("Failure: Failed to delete .tar.gz with err: "
+                                  + err);
                 } else {
-                    xcConsole.log("remove .tar.gz finishes");
+                    xcConsole.log("Success: Removed .tar.gz finishes. ");
                 }
                 deferred.resolve();
             });
@@ -834,8 +759,10 @@ require("jsdom").env("", function(err, window) {
 
     app.post("/downloadExtension", function(req, res) {
         if (!s3) {
-            return res.jsonp({status: Status.Error,
-                              logs: "s3 package not setup correctly!"});
+            return res.jsonp({
+                status: Status.Error,
+                logs: "s3 package not setup correctly!"
+            });
         }
         var download = function(appName, version) {
             var deferred = jQuery.Deferred();
@@ -848,8 +775,10 @@ require("jsdom").env("", function(err, window) {
                 if (err) {
                     deferred.reject(err);
                 } else {
-                    deferred.resolve({status: Status.Ok,
-                                      data: data.Body.toString('base64')});
+                    deferred.resolve({
+                        status: Status.Ok,
+                        data: data.Body.toString('base64')
+                    });
                 }
             });
             return deferred.promise();
@@ -867,9 +796,11 @@ require("jsdom").env("", function(err, window) {
             res.jsonp({status: Status.Ok});
         })
         .fail(function() {
-            xcConsole.log("Failed: "+arguments);
-            res.jsonp({status: Status.Error,
-                       logs: JSON.stringify(arguments)});
+            xcConsole.log("Failure: "+arguments);
+            res.jsonp({
+                status: Status.Error,
+                logs: JSON.stringify(arguments)
+            });
         });
     });
 
@@ -879,7 +810,7 @@ require("jsdom").env("", function(err, window) {
         fs.readdir(basePath + "ext-" + type + "/", function(err, files) {
             var extFiles = [];
             if (err) {
-                console.log("get extension files error", err);
+                xcConsole.log("get extension files error" + err);
                 deferred.reject(err);
             }
             for (var i = 0; i < files.length; i++) {
@@ -898,7 +829,7 @@ require("jsdom").env("", function(err, window) {
 
     app.post("/removeExtension", function(req, res) {
         var extName = req.body.name;
-        console.log("Removing extension: " + extName);
+        xcConsole.log("Removing extension: " + extName);
 
         getExtensionFiles(extName, "enabled")
         .then(function(files) {
@@ -932,9 +863,11 @@ require("jsdom").env("", function(err, window) {
             res.jsonp({status: Status.Ok});
         })
         .fail(function(err) {
-            console.log("remove extension failed with error: " + err);
-            res.jsonp({status: Status.Error,
-                       error: err});
+            xcConsole.log("remove extension failed with error: " + err);
+            res.jsonp({
+                status: Status.Error,
+                error: err
+            });
         });
     });
 
@@ -953,8 +886,9 @@ require("jsdom").env("", function(err, window) {
         })
         .then(function(files) {
             var filesRemaining = [];
+            var i;
             // Check whether the extension is already enabled
-            for (var i = 0; i < filesToEnable.length; i++) {
+            for (i = 0; i < filesToEnable.length; i++) {
                 if (files.indexOf(filesToEnable[i]) === -1) {
                     filesRemaining.push(filesToEnable[i]);
                 }
@@ -965,11 +899,11 @@ require("jsdom").env("", function(err, window) {
             }
             // Create symlinks in the ext-enabled folder
             var str = "";
-            for (var i = 0; i < filesRemaining.length; i++) {
+            for (i = 0; i < filesRemaining.length; i++) {
                 str += "ln -s " + "../ext-available/" + filesRemaining[i] +
                       " " + basePath + "ext-enabled/" + filesRemaining[i] + ";";
             }
-            // console.log(str);
+            // xcConsole.log(str);
             var out = exec(str);
             out.on('close', function(code) {
                 if (code) {
@@ -986,16 +920,16 @@ require("jsdom").env("", function(err, window) {
 
     app.post("/enableExtension", function(req, res) {
         var extName = req.body.name;
-        console.log("Enabling extension: " + extName);
+        xcConsole.log("Enabling extension: " + extName);
 
         enableExtension(extName)
         .then(function() {
-            res.jsonp({status:Status.Ok});
+            res.jsonp({status: Status.Ok});
         })
         .fail(function(err) {
-            console.log("Error: " + err);
+            xcConsole.log("Error: " + err);
             res.jsonp({
-                status:Status.Error,
+                status: Status.Error,
                 error: err
             });
         });
@@ -1003,14 +937,15 @@ require("jsdom").env("", function(err, window) {
 
     app.post("/disableExtension", function(req, res) {
         var extName = req.body.name;
-        console.log("Disabling extension: " + extName);
+        xcConsole.log("Disabling extension: " + extName);
 
         getExtensionFiles(extName, "enabled")
         .then(function(files) {
-            console.log(files);
+            xcConsole.log(files);
             var deferred = jQuery.Deferred();
             var toRemove = [];
-            for (var i = 0; i < files.length; i++) {
+            var i;
+            for (i = 0; i < files.length; i++) {
                 if (files[i].indexOf(extName + ".ext") === 0) {
                     toRemove.push(files[i]);
                 }
@@ -1019,7 +954,7 @@ require("jsdom").env("", function(err, window) {
                 return deferred.reject("Extension was not enabled");
             }
             var str = "";
-            for (var i = 0; i < toRemove.length; i++) {
+            for (i = 0; i < toRemove.length; i++) {
                 str += "rm " + basePath + "ext-enabled/" + toRemove[i] + ";";
             }
             var out = exec(str);
@@ -1036,13 +971,15 @@ require("jsdom").env("", function(err, window) {
             res.jsonp({status: Status.Ok});
         })
         .fail(function(err) {
-            res.jsonp({status: Status.Error,
-                       error: err});
+            res.jsonp({
+                status: Status.Error,
+                error: err
+            });
         });
     });
 
     app.post("/getAvailableExtension", function(req, res) {
-        console.log("Getting available extensions");
+        xcConsole.log("Getting available extensions");
         getExtensionFiles("", "available")
         .then(function(files) {
             var fileObj = {};
@@ -1053,21 +990,27 @@ require("jsdom").env("", function(err, window) {
                 }
                 fileObj[files[i].substr(0, files[i].length - 7)] = true;
             }
-            res.jsonp({status: Status.Ok,
-                       extensionsAvailable: Object.keys(fileObj)});
+            res.jsonp({
+                status: Status.Ok,
+                extensionsAvailable: Object.keys(fileObj)
+            });
         })
         .fail(function(err) {
-            res.jsonp({status: Status.Error,
-                       error: err});
+            res.jsonp({
+                status: Status.Error,
+                error: err
+            });
         });
     });
 
     app.post("/getEnabledExtensions", function(req, res) {
-        console.log("Getting installed extensions");
+        xcConsole.log("Getting installed extensions");
         fs.readdir(basePath + "ext-enabled/", function(err, allNames) {
             if (err) {
-                res.jsonp({status: Status.Error,
-                           log: JSON.stringify(err)});
+                res.jsonp({
+                    status: Status.Error,
+                    log: JSON.stringify(err)
+                });
                 return;
             }
             var htmlString = '<html>\n' +
@@ -1082,8 +1025,10 @@ require("jsdom").env("", function(err, window) {
                           '  <body>\n' +
                           '  </body>\n' +
                           '</html>';
-            res.jsonp({status: Status.Ok,
-                       data: htmlString});
+            res.jsonp({
+                status: Status.Ok,
+                data: htmlString
+            });
         });
     });
 
@@ -1109,10 +1054,8 @@ require("jsdom").env("", function(err, window) {
     var serverKeyFile = '/etc/ssl/certs/ca-certificates.crt'; */
 
     app.post('/login', function(req, res) {
-        console.log("Login process");
+        xcConsole.log("Login process");
         var credArray = req.body;
-        var hasError = false;
-        var errors = [];
         login.loginAuthentication(credArray)
         .always(function(message) {
             res.status(message.status).send(message);
@@ -1121,8 +1064,10 @@ require("jsdom").env("", function(err, window) {
 
     app.post("/listPackage", function(req, res) {
         if (!s3) {
-            return res.jsonp({status: Status.Error,
-                              logs: "s3 package not setup correctly!"});
+            return res.jsonp({
+                status: Status.Error,
+                logs: "s3 package not setup correctly!"
+            });
         }
         var fetchAllApps = function() {
             var deferredOnFetch = jQuery.Deferred();
@@ -1167,13 +1112,12 @@ require("jsdom").env("", function(err, window) {
             var processItemsDeferred = [];
             s3.listObjects(params, function(err, data) {
                 if (err) {
-                    console.log(err, err.stack); // an error occurred
+                    xcConsole.log(err); // an error occurred
                     deferredOnFetch.reject(err);
                 }
                 else {
                     var res = [];
                     var items = data.Contents;
-                    var pending = items.length;
                     items.forEach(function(item) {
                         fileName = item.Key;
                         processItemsDeferred.push(processItem(res, fileName));
@@ -1193,7 +1137,7 @@ require("jsdom").env("", function(err, window) {
         .then(function(data) {
             return res.send(data);
         })
-        .fail(function(err) {
+        .fail(function() {
             return res.send({"status": Status.Error, "logs": error});
         });
     });
@@ -1203,12 +1147,14 @@ require("jsdom").env("", function(err, window) {
     Will fix in the next version.
     */
     app.post("/uploadContent", function(req, res) {
+        xcConsole.log("Uploading content");
         upload.uploadContent(req, res);
     });
 
     app.post('/getTimezoneOffset', function(req, res) {
+        xcConsole.log("Getting Server Timezone Offset");
         var timezoneOffset = new Date().getTimezoneOffset();
-        console.log("Server timezone offset: " + timezoneOffset);
+        xcConsole.log("Server Timezone Offset: " + timezoneOffset);
         res.send({"offset": timezoneOffset});
     });
 
@@ -1220,12 +1166,12 @@ require("jsdom").env("", function(err, window) {
             output += data;
         });
         out.stderr.on('data', function(err) {
-            console.log("Get OS information failed!" + err);
+            xcConsole.log("Failure: Get OS information " + err);
             deferred.reject(output);
         });
         out.on('close', function(code) {
             if (code) {
-                console.log("Get OS information failed!" + code);
+                xcConsole.log("Failure: Get OS information " + code);
                 deferred.reject(output);
             } else {
                 deferred.resolve(output);
@@ -1245,55 +1191,68 @@ require("jsdom").env("", function(err, window) {
             support.submitTicket = fakeResponseSubmitTicket;
             support.masterExecuteAction = fakeResponseMasterExecuteAction;
             support.slaveExecuteAction = fakeResponseSlaveExecuteAction;
-            login.loginAuthentication = fakeResponseUploadContent;
+            login.loginAuthentication = fakeResponseLogin;
             upload.uploadContent = fakeResponseUploadContent;
-            upload.uploadMeta = fakeResponseUploadMeta;
         }
 
         function fakeResponseRSF(filePath) {
             var deferred = jQuery.Deferred();
-            var retMsg = {"status": httpStatus.OK,
-                          "logs": "Fake response remove Session Files!"};
+            var retMsg = {
+                "status": httpStatus.OK,
+                "logs": "Fake response remove Session Files!"
+            };
             return deferred.resolve(retMsg).promise();
         }
         function fakeResponseSHM() {
             var deferred = jQuery.Deferred();
-            var retMsg = {"status": httpStatus.OK,
-                          "logs": "Fake response remove SHM Files!"};
+            var retMsg = {
+                "status": httpStatus.OK,
+                "logs": "Fake response remove SHM Files!"
+            };
             return deferred.resolve(retMsg).promise();
         }
         function fakeResponseLicense(res) {
             var deferred = jQuery.Deferred();
-            var retMsg = {"status": httpStatus.OK,
-                          "logs": "Fake response get License!"};
+            var retMsg = {
+                "status": httpStatus.OK,
+                "logs": "Fake response get License!"
+            };
             return deferred.resolve(retMsg).promise();
         }
         function fakeResponseSubmitTicket(contents) {
             var deferred = jQuery.Deferred();
-            var retMsg = {"status": httpStatus.OK,
-                          "logs": "Fake response submit Ticket!"};
+            var retMsg = {
+                "status": httpStatus.OK,
+                "logs": "Fake response submit Ticket!"
+            };
             return deferred.resolve(retMsg).promise();
         }
         function fakeResponseMasterExecuteAction(action, slaveUrl, content) {
             var deferred = jQuery.Deferred();
-            var retMsg = {"status": httpStatus.OK,
-                          "logs": "Master: Fake response! " + slaveUrl};
+            var retMsg = {
+                "status": httpStatus.OK,
+                "logs": "Master: Fake response! " + slaveUrl
+            };
             return deferred.resolve(retMsg).promise();
         }
         function fakeResponseSlaveExecuteAction(action, slaveUrl, content) {
             var deferred = jQuery.Deferred();
-            var retMsg = {"status": httpStatus.OK,
-                          "logs": "Slave: Fake response! " + slaveUrl};
+            var retMsg = {
+                "status": httpStatus.OK,
+                "logs": "Slave: Fake response! " + slaveUrl
+            };
             return deferred.resolve(retMsg).promise();
         }
-        function fakeResponseLogin(credArray, res) {
-            res.send("Fake response login!");
+        function fakeResponseLogin(credArray) {
+            var deferred = jQuery.Deferred();
+            var retMsg = {
+                "status": httpStatus.OK,
+                "logs": "Fake response login!"
+            };
+            return deferred.resolve(retMsg).promise();
         }
         function fakeResponseUploadContent(req, res) {
             res.send("Fake response uploadContent!");
-        }
-        function fakeResponseUploadMeta(req, res) {
-            res.send("Fake response uploadMeta!");
         }
     }
     exports.unitTest = unitTest;
@@ -1303,32 +1262,32 @@ require("jsdom").env("", function(err, window) {
         data = data.toLowerCase();
         var ca = '';
         if (data.indexOf("centos") > -1) {
-            console.log("CentOS System");
+            xcConsole.log("Operation System: CentOS");
             ca = '/etc/pki/tls/certs/XcalarInc_RootCA.pem';
         }
         if (data.indexOf("ubuntu") > -1) {
-            console.log("Ubuntu System");
+            xcConsole.log("Operation System: Ubuntu");
             ca = '/etc/ssl/certs/XcalarInc_RootCA.pem';
         }
         if (data.indexOf("red hat") > -1 || data.indexOf("redhat") > -1) {
-            console.log("RHEL System");
+            xcConsole.log("Operation System: RHEL");
             ca = '/etc/pki/tls/certs/XcalarInc_RootCA.pem';
         }
         if (data.indexOf("oracle linux") > -1) {
-            console.log("Oracle Linux System");
+            xcConsole.log("Operation System: Oracle Linux");
             ca = '/etc/pki/tls/certs/XcalarInc_RootCA.pem';
         }
         if (ca !== '' && fs.existsSync(ca)) {
-            console.log('loading trusted certificates from ' + ca);
+            xcConsole.log('Loading trusted certificates from ' + ca);
             try {
                 require('ssl-root-cas').addFile(ca).inject();
-                console.log("Load CA successfully!");
+                xcConsole.log("Success: Loaded CA");
             } catch (e) {
-                console.log("Fail to load ca: " + ca + " !" +
+                xcConsole.log("Failure: Loaded ca: " + ca + " !" +
                     "https will not be enabled!");
             }
         } else {
-            console.log('Xcalar trusted certificate not found');
+            xcConsole.log('Xcalar trusted certificate not found');
         }
 
         var httpServer = http.createServer(app);
@@ -1339,7 +1298,7 @@ require("jsdom").env("", function(err, window) {
             if (!hostname) {
                 hostname = "localhost";
             }
-            console.log("All ready");
+            xcConsole.log("All ready");
         });
     });
 });
