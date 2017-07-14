@@ -24,7 +24,6 @@ destMap = {
     "testSuite.html": "testSuite.html",
     "undoredoTest.html": "undoredoTest.html",
     "extensionUploader.html": "services/appMarketplace/extensionUploader.html",
-    "extensionUploader.html": "assets/htmlFiles/extensionUploader.html",
     "userManagement.html": "assets/htmlFiles/userManagement.html"
 };
 
