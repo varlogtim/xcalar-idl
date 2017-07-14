@@ -483,6 +483,10 @@ window.QueryManager = (function(QueryManager, $) {
         });
     };
 
+    QueryManager.getQuery = function(id) {
+        return queryLists[id];
+    };
+
     QueryManager.getCache = function() {
         // used for saving query info for browser refresh
         // put minimal query properties into an array and order by start time
@@ -608,6 +612,15 @@ window.QueryManager = (function(QueryManager, $) {
         } else {
             $queryList.removeClass("hideSysOps");
         }
+    };
+
+    QueryManager.getAllDestTables = function(id, force) {
+        var tables = [];
+        var query = queryLists[id];
+        if (!query) {
+            return tables;
+        }
+        return query.getAllTableNames(force);
     };
 
     function runXcQuery(id, mainQuery, subQueries) {

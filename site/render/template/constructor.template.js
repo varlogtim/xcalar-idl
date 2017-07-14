@@ -2670,7 +2670,7 @@
 
             getOutputTableName: function() {
                 var subQueries = this.subQueries;
-                if (this.state === "done") {
+                if (this.state === QueryStatus.Done) {
                     if (this.outputTableName) {
                         return this.outputTableName;
                     }
@@ -2696,9 +2696,28 @@
                     return null;
                 }
             },
+            // excludes src tables
+            getAllTableNames: function(force) {
+                var tables = [];
+                var subQueries = this.subQueries;
+                if (force || this.state === QueryStatus.Done) {
+                    var finalTable = this.getOutputTableName();
+                    for (var i = subQueries.length - 1; i >= 0; i--) {
+                        tables.push(subQueries[i].dstTable);
+                    }
+                    for (var i = tables.length - 1; i >= 0; i--) {
+                        if (tables[i] === finalTable) {
+                            tables.splice(i, 1);
+                            tables.splice(0, 0, finalTable);
+                            break;
+                        }
+                    }
+                }
+                return tables;
+            },
 
             getOutputTableState: function() {
-                if (this.state === "done") {
+                if (this.state === QueryStatus.Done) {
                     return this.outputTableState;
                 } else {
                     return null;

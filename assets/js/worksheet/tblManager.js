@@ -6,6 +6,9 @@ window.TblManager = (function($, TblManager) {
         Inside oldTables, if there is an anchor table, we move it to the start
         of the array. If there is a need for more than 1 piece of information,
         then oldTables need to be an array of structs
+        txId is provided during a normal operation and is null during an undo,
+        redo, or repeat etc.
+
         Possible Options:
         -focusWorkspace: boolean to determine whether we should focus back on
                             workspace, we focus on workspace when adding a table
@@ -109,10 +112,11 @@ window.TblManager = (function($, TblManager) {
                 "from": options.from,
                 "replacingDest": options.replacingDest,
                 "ws": worksheet,
-                "fromArchive": options.fromArchive
+                "fromArchive": options.fromArchive,
+                "txId": txId
             };
 
-            return addTable([newTableName], tablesToReplace, tablesToRemove,
+            return addTable(newTableName, tablesToReplace, tablesToRemove,
                      addTableOptions);
         })
         .then(function() {
@@ -210,7 +214,8 @@ window.TblManager = (function($, TblManager) {
         afterStartup: boolean to indicate if the table is added after page load
         selectCol: number or array of numbers. column to be highlighted when
                     table is ready,
-        fromArchive: boolean, true if archive -> active
+        fromArchive: boolean, true if archive -> active,
+        txId: string, used for tagging operations before creating dag
     */
     TblManager.parallelConstruct = function(tableId, tableToReplace, options) {
         options = options || {};
@@ -1527,7 +1532,7 @@ window.TblManager = (function($, TblManager) {
         This function sets up new tables to be added to the display and
         removes old tables.
 
-        newTableNames is an array of tablenames to be added
+        newTableName is an string of tablename to be added
         tablesToReplace is an array of old tablenames to be replaced
         tablesToRemove is an array of tableIds to be removed later
 
@@ -1541,11 +1546,12 @@ window.TblManager = (function($, TblManager) {
         -replacingDest: string, where to send old tables that are being replaced
         -ws: string, worksheet id of where new table will go
         -fromArchive: boolean, true if archive -> active
+        -txId: string, used for tagging dag operations
     */
-    function addTable(newTableNames, tablesToReplace, tablesToRemove, options) {
+    function addTable(newTableName, tablesToReplace, tablesToRemove, options) {
         var deferred = jQuery.Deferred();
         //XX don't just get first array value
-        var newTableId = xcHelper.getTableId(newTableNames[0]);
+        var newTableId = xcHelper.getTableId(newTableName);
         var oldId = xcHelper.getTableId(tablesToReplace[0]);
         options = options || {};
 
@@ -1556,7 +1562,8 @@ window.TblManager = (function($, TblManager) {
             selectCol: options.selectCol,
             wsId: options.ws,
             position: options.position,
-            fromArchive: options.fromArchive
+            fromArchive: options.fromArchive,
+            txId: options.txId
         };
         TblManager.parallelConstruct(newTableId, tablesToReplace[0],
                                     parallelOptions)
@@ -1696,6 +1703,38 @@ window.TblManager = (function($, TblManager) {
             RowScroller.genFirstVisibleRowNum();
         });
     }
+
+    function createDag(tableId, tableToReplace, options) {
+        var deferred = jQuery.Deferred();
+        var promise;
+        if (options.txId != null) {
+            var txId = options.txId;
+            var tables = QueryManager.getAllDestTables(txId, true);
+            if (tables.length) {
+                var tagName = QueryManager.getQuery(txId).getName();
+                var tId = xcHelper.getTableId(tables[0]);
+                var tagName;
+                if (tId) {
+                    tagName += "#" + tId;
+                }
+                promise = XcalarTagDagNodes(tagName, tables);
+            } else {
+                promise = PromiseHelper.resolve();
+            }
+        } else {
+            promise = PromiseHelper.resolve();
+        }
+
+        PromiseHelper.alwaysResolve(promise)
+        .then(function() {
+            return Dag.construct(tableId, tableToReplace, options);
+        })
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
 
     /*
         Start the process of building table

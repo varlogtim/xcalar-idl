@@ -1516,6 +1516,11 @@ window.Dag = (function($, Dag) {
     var strokeWidth = 2; // 2px. make sure this is an even number. Or you have
                          // to start your path on a 0.5px thingy
 
+    /* options:
+        wsId: string, worksheet for dag image to belong to (used for placement)
+        position: integer, used to place dag image
+        atStartup: boolean, if true, will append instead of positioning image
+    */
     Dag.construct = function(tableId, tableToReplace, options) {
         var deferred = jQuery.Deferred();
         var table = gTables[tableId];
@@ -2943,7 +2948,7 @@ window.Dag = (function($, Dag) {
                     otherIcon.src = paths.dfIcons + "xi-unknown.png";
 
                     otherIcon.onload = function() {
-                        console.log('backup');
+                        console.log('backup image used');
                         ctx.drawImage(otherIcon, iconLeft, iconTop);
                         deferred.resolve();
                     };
@@ -3551,10 +3556,14 @@ window.Dag = (function($, Dag) {
 
     function drawDagTable(dagNode, dagArray, parentChildMap, index, coor,
                           isHidden, isPrevHidden, group, storedInfo, options) {
-        var dagOrigin = drawDagOperation(dagNode, dagArray, parentChildMap,
-                                         index);
+        var key = DagFunction.getInputType(XcalarApisTStr[dagNode.api]);
+        var parentNames = Dag.getDagSourceNames(parentChildMap, index,
+                                                dagArray);
+        var dagInfo = getDagNodeInfo(dagNode, key, parentNames, index,
+                                     parentChildMap, dagArray);
+        var dagOpHtml = getDagOperationHtml(dagNode, dagArray, parentChildMap,
+                                         index, dagInfo);
 
-        var icon;
         var top = Math.round(coor.y * dagTableOuterHeight);
         var right = Math.round(coor.x * dagTableWidth);
         var condensedRight = Math.round(coor.condensedX * dagTableWidth);
@@ -3567,8 +3576,21 @@ window.Dag = (function($, Dag) {
         nodeInfo.depth = coor.condensedX;
         nodeInfo.expandedDepth = coor.x;
         nodeInfo.condensedDepth = coor.condensedX;
+        setRenames(key, dagNode, nodeInfo);
+        var tableName = getDagName(dagNode);
+        nodeInfo.name = tableName;
         var html = "";
         var hiddenClass = "";
+        var classes = "";
+        var iconClasses = "";
+        var icon = "xi-table-2";
+        var dataAttrs = "";
+        var titleClasses = "";
+        var tableTitle = "";
+        var tableTitleTip = "";
+        var extraIcon = "";
+        var extraTitle = "";
+        var tooltipTxt = "";
         if (options.condensed && isHidden) {
             hiddenClass = " hidden";
             group.push(index);
@@ -3583,186 +3605,118 @@ window.Dag = (function($, Dag) {
 
         html += '<div class="dagTableWrap clearfix' + hiddenClass + '" ' +
                         'style="top:' + top + 'px;right: ' +
-                        tableWrapRight + 'px;">' + dagOrigin;
+                        tableWrapRight + 'px;">' + dagOpHtml;
 
-        var key = DagFunction.getInputType(XcalarApisTStr[dagNode.api]);
 
-        var parentNames = Dag.getDagSourceNames(parentChildMap, index,
-                                                dagArray);
-        var dagInfo = getDagNodeInfo(dagNode, key, parentNames, index,
-                                     parentChildMap, dagArray);
-        var nodeId = dagInfo.id;
-        var state = dagInfo.state;
-        var tableName = getDagName(dagNode);
-        setRenames(key, dagNode, nodeInfo);
-        nodeInfo.name = tableName;
-        var tooltipTxt;
-        if (state === DgDagStateTStr[DgDagStateT.DgDagStateDropped]) {
+
+        if (dagInfo.tag && xcHelper.getTableId(dagInfo.tag) !==
+                           xcHelper.getTableId(tableName)) {
+            // XXX disabled
+            // classes += "tagHidden ";
+        }
+        if (dagInfo.state === DgDagStateTStr[DgDagStateT.DgDagStateDropped]) {
             tooltipTxt = xcHelper.replaceMsg(TooltipTStr.DroppedTable,
                         {"tablename": tableName});
         } else {
             tooltipTxt = CommonTxtTstr.ClickToOpts;
         }
+        classes += dagInfo.state + " ";
+
         // check for datastes
-        if (dagOrigin === "") {
-            var url = dagInfo.url;
+        if (dagOpHtml === "") {
             var pattern = "";
-            var id = dagInfo.id;
+            var tId = dagInfo.id;
             var originalTableName = tableName;
             var dsText = "";
-            var outerClassNames = "";
             if (tableName.indexOf(gDSPrefix) === 0) {
                 tableName = tableName.substr(gDSPrefix.length);
             }
             if (dagNode.api === XcalarApisT.XcalarApiExecuteRetina) {
-                outerClassNames = " retina";
-                icon = '<i class="icon xi-table-2"></i>';
-                id = xcHelper.getTableId(tableName);
+                classes += "retina ";
+                tId = xcHelper.getTableId(tableName);
             } else if (dagNode.api === XcalarApisT.XcalarApiBulkLoad) {
                 dsText = "Dataset ";
-                icon = '<i class="icon xi_data"></i>';
+                icon = 'xi_data';
                 storedInfo.datasets[tableName] = dagInfo;
                 pattern = dagInfo.loadInfo.loadArgs.fileNamePattern;
             } else {
                 console.error("unexpected node", "api: " + dagNode.api);
-                outerClassNames = " unexpectedNode";
-                icon = '<i class="icon xi-table-2"></i>';
-                id = xcHelper.getTableId(tableName);
+                classes += "unexpectedNode ";
+                tId = xcHelper.getTableId(tableName);
             }
-
-            html += '<div class="dagTable dataStore ' + state +
-                        outerClassNames + '" ' +
-                        'data-tablename="' + tableName + '" ' +
-                        'data-table="' + originalTableName + '" ' +
-                        'data-index="' + index + '" ' +
+            classes += "dataStore ";
+            iconClasses += "dataStoreIcon ";
+            dataAttrs += 'data-table="' + originalTableName + '" ' +
                         'data-type="dataStore" ' +
-                        'data-id="' + id + '" ' +
-                        'data-nodeid="' + nodeId + '" ' +
-                        'data-url="' + encodeURI(url) + '" ' +
-                        'data-pattern="' + encodeURI(pattern) + '">' +
-                            '<div class="dataStoreIcon" ' +
-                            'data-toggle="tooltip" ' +
-                            'data-placement="top" ' +
-                            'data-container="body" ' +
-                            'title="' + tooltipTxt + '"></div>' +
-                            icon +
-                            '<span class="tableTitle" ' +
+                        'data-id="' + tId + '" ' +
+                        'data-url="' + encodeURI(dagInfo.url) + '" ' +
+                        'data-pattern="' + encodeURI(pattern) + '"';
+            tableTitle = dsText + tableName;
+            tableTitleTip = tableName;
+        } else {
+            if (dagNode.input.mapInput.icvMode ||
+                dagNode.input.groupByInput.icvMode) {
+                iconClasses += "icv ";
+                icon = "xi-table-error2";
+            }
+            classes += "typeTable ";
+            iconClasses += "dagTableIcon ";
+            var tableId = xcHelper.getTableId(tableName);
+            dataAttrs += 'data-id="' + tableId + '"';
+            titleClasses += "exportFileName ";
+
+            if (dagNode.api === XcalarApisT.XcalarApiExport) {
+                classes += "export ";
+                extraIcon = '<i class="icon xi-data-out"></i>';
+                tableTitle = xcHelper.stripCSVExt(tableName);
+                tableTitleTip = tableTitle;
+                extraTitle = '<span class="tableTitle exportTableName" ' +
+                                'data-toggle="tooltip" ' +
+                                'data-placement="bottom" ' +
+                                'data-container="body" ' +
+                                'title="' + tableTitleTip + '">' +
+                                tableTitle +
+                                '</span>';
+            } else {
+                tableTitle = tableName;
+                tableTitleTip = tableTitle;
+            }
+        }
+
+        html += '<div class="dagTable ' + classes + '" ' +
+                    'data-tablename="' +  tableName + '" ' +
+                    'data-index="' + index + '" ' +
+                    'data-nodeid="' + dagInfo.id + '" ' +
+                    dataAttrs + '>' +
+                        '<div class="' + iconClasses + '" ' +
+                        'data-toggle="tooltip" ' +
+                        'data-placement="top" ' +
+                        'data-container="body" ' +
+                        'title="' + tooltipTxt + '"' +
+                        '></div>' +
+                        extraIcon +
+                        '<i class="icon ' + icon + '"></i>'+
+                        '<span class="tableTitle ' + titleClasses + '" ' +
                             'data-toggle="tooltip" ' +
                             'data-placement="bottom" ' +
                             'data-container="body" ' +
-                            'data-original-title="' + tableName + '">' +
-                            dsText + tableName +
-                            '</span>';
-        } else {
-
-            var icv = "";
-            if (dagNode.input.mapInput.icvMode ||
-                dagNode.input.groupByInput.icvMode) {
-                icv = "icv";
-                icon = "xi-table-error2";
-            } else {
-                icon = "xi-table-2";
-            }
-
-            var tableId = xcHelper.getTableId(tableName);
-
-            if (dagNode.api === XcalarApisT.XcalarApiExport) {
-                var expName = xcHelper.stripCSVExt(tableName);
-                html += '<div class="dagTable typeTable export ' + state +
-                        '" ' +
-                        'data-tablename="' + tableName + '" ' +
-                        'data-index="' + index + '" ' +
-                        'data-nodeid="' + nodeId + '" ' +
-                        'data-id="' + tableId + '">' +
-                            '<div class="dagTableIcon ' + icv + '" ' +
-                            'data-toggle="tooltip" ' +
-                            'data-placement="top" ' +
-                            'data-container="body" ' +
-                            'title="' + tooltipTxt + '"' +
-                            '></div>' +
-                            '<i class="icon xi-data-out"></i>'+
-                            '<i class="icon xi-table-2"></i>'+
-                            '<span class="tableTitle exportFileName" ' +
-                                'data-toggle="tooltip" ' +
-                                'data-placement="bottom" ' +
-                                'data-container="body" ' +
-                                'title="' + expName + '">' +
-                                expName +
-                            '</span>' +
-                            '<span class="tableTitle exportTableName" ' +
-                                'data-toggle="tooltip" ' +
-                                'data-placement="bottom" ' +
-                                'data-container="body" ' +
-                                'title="' + expName + '">' +
-                                expName +
-                            '</span>';
-            } else {
-                html += '<div class="dagTable typeTable ' + state + '" ' +
-                            'data-tablename="' + tableName + '" ' +
-                            'data-index="' + index + '" ' +
-                            'data-nodeid="' + nodeId + '" ' +
-                            'data-id="' + tableId + '">' +
-                                '<div class="dagTableIcon ' + icv + '" ' +
-                                'data-toggle="tooltip" ' +
-                                'data-placement="top" ' +
-                                'data-container="body" ' +
-                                'title="' + tooltipTxt + '"' +
-                                '></div>' +
-                                '<i class="icon ' + icon + '"></i>'+
-                                '<span class="tableTitle exportFileName" ' +
-                                    'data-toggle="tooltip" ' +
-                                    'data-placement="bottom" ' +
-                                    'data-container="body" ' +
-                                    'title="' + tableName + '">' +
-                                    tableName +
-                                '</span>';
-            }
-
-        }
-        html += '</div></div>';
+                            'data-original-title="' + tableTitleTip + '">' +
+                            tableTitle+
+                        '</span>' +
+                        extraTitle +
+                    '</div>';
+        html += '</div>';
 
         if (isHidden && !isPrevHidden) {
-            var tooltip;
-            var groupLength = group.length;
-            if (groupLength === 1) {
-                tooltip = TooltipTStr.CollapsedTable;
-            } else {
-                tooltip = xcHelper.replaceMsg(TooltipTStr.CollapsedTables,
-                            {number: groupLength + ""});
-            }
-            var condensedId = parentChildMap[group[groupLength - 1]].child;
-            var groupWidth = group.length * dagTableWidth + 11;
-            // condensedId comes from the index of the child of rightmost
-            // hidden table
-            html += '<div class="expandWrap horz" ' +
-                            'style="top:' + (top + 5) + 'px;right:' +
-                                tableWrapRight + 'px;" ' +
-                            'data-depth="' + coor.condensedX + '" ' +
-                            'data-index="' + condensedId + '" ' +
-                            'data-toggle="tooltip" ' +
-                            'data-placement="top" ' +
-                            'data-container="body" ' +
-                            'data-size=' + groupLength + ' ' +
-                            'title="' + tooltip + '">...</div>';
-            html += '<div class="groupOutline" ' +
-                            'style="top:' + top + 'px;right:' +
-                                (tableWrapRight - groupOutlineOffset) +
-                                'px;width:' + groupWidth + 'px;" ' +
-                            'data-index="' + condensedId + '"></div>';
-            var groupCopy = [];
-            for (var i = 0; i < groupLength; i++) {
-                groupCopy.push(group[i]);
-            }
-            storedInfo.groups[condensedId] = {
-                "collapsed": true,
-                "group": groupCopy
-            };
-            group.length = 0;
+            html += getCollapsedHtml(group, parentChildMap, top, tableWrapRight,
+                                    coor, storedInfo);
         }
+
         return (html);
     }
 
-    function drawDagOperation(dagNode, dagArray, parentChildMap, index) {
+    function getDagOperationHtml(dagNode, dagArray, parentChildMap, index, info)
+    {
         var originHTML = "";
         var numParents = getDagnumParents(dagNode);
 
@@ -3778,9 +3732,6 @@ window.Dag = (function($, Dag) {
             }
             var key = DagFunction.getInputType(XcalarApisTStr[dagNode.api]);
             var operation = key.substring(0, key.length - 5);
-
-            var info = getDagNodeInfo(dagNode, key, parentNames, index,
-                                     parentChildMap, dagArray);
             var resultTableName = getDagName(dagNode);
             if (info.type === "sort") {
                 operation = "sort";
@@ -3804,7 +3755,6 @@ window.Dag = (function($, Dag) {
                                 '<div class="dagIcon ' + operation + ' ' +
                                     info.type + '">' +
                                     getIconHtml(operation, info);
-                                    // '<div class="icon"></div>';
             if (operation === 'groupBy') {
                 originHTML += '<div class="icon icon2 ' + info.type + '">' +
                               '</div>';
@@ -3827,6 +3777,49 @@ window.Dag = (function($, Dag) {
         }
 
         return (originHTML);
+    }
+
+    function getCollapsedHtml(group, parentChildMap, top, tableWrapRight, coor,
+                              storedInfo) {
+        var html = "";
+        var tooltip;
+        var groupLength = group.length;
+        if (groupLength === 1) {
+            tooltip = TooltipTStr.CollapsedTable;
+        } else {
+            tooltip = xcHelper.replaceMsg(TooltipTStr.CollapsedTables,
+                        {number: groupLength + ""});
+        }
+        var condensedId = parentChildMap[group[groupLength - 1]].child;
+        var groupWidth = group.length * dagTableWidth + 11;
+        // condensedId comes from the index of the child of rightmost
+        // hidden table
+        html += '<div class="expandWrap horz" ' +
+                        'style="top:' + (top + 5) + 'px;right:' +
+                            tableWrapRight + 'px;" ' +
+                        'data-depth="' + coor.condensedX + '" ' +
+                        'data-index="' + condensedId + '" ' +
+                        'data-toggle="tooltip" ' +
+                        'data-placement="top" ' +
+                        'data-container="body" ' +
+                        'data-size=' + groupLength + ' ' +
+                        'title="' + tooltip + '">...</div>';
+        html += '<div class="groupOutline" ' +
+                        'style="top:' + top + 'px;right:' +
+                            (tableWrapRight - groupOutlineOffset) +
+                            'px;width:' + groupWidth + 'px;" ' +
+                        'data-index="' + condensedId + '"></div>';
+        var groupCopy = [];
+        for (var i = 0; i < groupLength; i++) {
+            groupCopy.push(group[i]);
+        }
+        storedInfo.groups[condensedId] = {
+            "collapsed": true,
+            "group": groupCopy
+        };
+        group.length = 0;
+
+        return html;
     }
 
     function getIconHtml(operation, info) {
@@ -3967,6 +3960,7 @@ window.Dag = (function($, Dag) {
         info.column = "";
         info.id = dagNode.dagNodeId;
         info.state = DgDagStateTStr[dagNode.state];
+        info.tag = dagNode.tag;
 
         switch (key) {
             case ('aggregateInput'):
