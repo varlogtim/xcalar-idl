@@ -1091,14 +1091,8 @@ window.DFCard = (function($, DFCard) {
             // error case
             return PromiseHelper.reject();
         }
-
-        var txId = Transaction.start({
-            "operation": SQLOps.Retina,
-            "sql": SQLOps.Retina,
-            "steps": -1
-        });
+        var txId;
         var $dagWrap = getDagWrap(retName);
-        $dagWrap.data("txid", txId);
 
         var passedCheckBeforeRunDF = false;
         checkBeforeRunDF(advancedOpts.activeSession)
@@ -1109,6 +1103,12 @@ window.DFCard = (function($, DFCard) {
             return alertBeforeRunDF(hasSysParam, advancedOpts.activeSession);
         })
         .then(function() {
+            txId = Transaction.start({
+                "operation": SQLOps.Retina,
+                "sql": SQLOps.Retina,
+                "steps": -1
+            });
+            $dagWrap.data("txid", txId);
             passedCheckBeforeRunDF = true;
             var promise = XcalarExecuteRetina(retName, paramsArray,
                                               advancedOpts, txId);
@@ -1173,11 +1173,12 @@ window.DFCard = (function($, DFCard) {
             } else if (error !== cancelErr) {
                 Alert.error(DFTStr.RunFail, error);
             }
-
-            Transaction.fail(txId, {
-                "error": error,
-                "noAlert": true
-            });
+            if (passedCheckBeforeRunDF) {
+                Transaction.fail(txId, {
+                    "error": error,
+                    "noAlert": true
+                });
+            }
 
             deferred.reject(error);
         });

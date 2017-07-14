@@ -3483,10 +3483,12 @@ window.xcHelper = (function($, xcHelper) {
             timeString += seconds;
             if (milliSeconds < 60000 && !round) {// between 1 and 60 seconds
                 var mills = milliSeconds % (seconds * 1000);
-
-                if (milliSeconds < 10000) {
-                    timeString += "." + Math.floor(mills / 10);
-                    // timeString += "." + (milliSeconds % 100);
+                if (milliSeconds < 10000) { // single digit seconds ex. 9s
+                    var millStr = Math.floor(mills / 10); // 
+                    if (millStr < 10) {
+                        millStr = "0" + millStr;
+                    }
+                    timeString += "." + millStr;
                 } else {
                     timeString += "." + Math.floor(mills / 100);
                 }
