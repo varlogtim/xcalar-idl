@@ -26,8 +26,18 @@ window.XcSDK.Extension.prototype = (function() {
         },
         // dstAggName is optional and can be left blank (will autogenerate)
         aggregate: function(aggOp, colName, tableName, dstAggName) {
+            var deferred = jQuery.Deferred();
+            var self = this;
             var txId = this.txId;
-            return XIApi.aggregate(txId, aggOp, colName, tableName, dstAggName);
+            XIApi.aggregate(txId, aggOp, colName, tableName, dstAggName)
+            .then(function(value, dstDagName, toDelete) {
+                self._addAgg(value, tableName, colName, aggOp, dstAggName,
+                    dstDagName);
+                deferred.resolve(value, dstDagName, toDelete);
+            })
+            .fail(deferred.reject);
+
+            return deferred.promise();
         },
          // dstAggName is optional and can be left blank (will autogenerate)
         aggregateWithEvalStr: function(evalStr, tableName, dstAggName) {
@@ -344,7 +354,7 @@ window.XcSDK.Extension.prototype = (function() {
             return XIApi.appExecute(txId, name, isGlobal, inStr);
         },
 
-        // private function
+        // private functions
         _addMeta: function(srcTable, dstTable, dstCols, options) {
             // XXX options is later used to customize tableCols
             options = options || {};
@@ -355,6 +365,21 @@ window.XcSDK.Extension.prototype = (function() {
 
             TblManager.setOrphanTableMeta(dstTable, dstCols);
             this.newTables.push(new XcSDK.Table(dstTable, this.worksheet));
+
+        },
+
+        _addAgg: function(value, tableName, colName, aggOp, dstAggName, dstDagName) {
+            var origAggName = gAggVarPrefix + dstAggName;
+            var tableId = xcHelper.getTableId(tableName);
+            var aggRes = {
+                "value": value,
+                "dagName": dstDagName,
+                "aggName": origAggName,
+                "tableId": tableId,
+                "backColName": colName,
+                "op": aggOp
+            };
+            Aggregates.addAgg(aggRes, false);
         }
     };
 
