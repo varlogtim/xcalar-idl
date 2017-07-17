@@ -90,14 +90,14 @@
     }
 }
 
-#monitor-extension {
-    .flex-direction(column);
-    overflow: hidden; // for IE
+// #monitor-extension {
+//     .flex-direction(column);
+//     overflow: hidden; // for IE
 
-    &.active {
-        .flex-display !important;
-    }
-}
+//     &.active {
+//         .flex-display !important;
+//     }
+// }
 
 #extension-upload {
     .size(@width: 100%, @height: 260px);
@@ -145,11 +145,11 @@
 }
 
 #extensionInstallPanel {
-    .flex(0 1 auto);
-    .flex-display;
-    .flex-direction(column);
-    min-height: 0px; // for IE
-    overflow: hidden; // for IE
+    // .flex(0 1 auto);
+    // .flex-display;
+    // .flex-direction(column);
+    // min-height: 0px; // for IE
+    // overflow: hidden; // for IE
 
     &.admin {
         .install {
@@ -250,11 +250,13 @@
     }
 
     .category {
-        .flex(0 1 auto);
-        .flex-display;
-        .flex-direction(column);
-        min-height: 0px; // for IE
-        overflow: hidden; // for IE
+        overflow-x: hidden;
+        overflow-y: auto;
+        // .flex(0 1 auto);
+        // .flex-display;
+        // .flex-direction(column);
+        // min-height: 0px; // for IE
+        // overflow: hidden; // for IE
 
         .cardHeader {
             .flex(0 0 @height-card-header); // for IE;
@@ -262,10 +264,10 @@
 
         .items {
             padding: 0;
-            .flex(0 1 auto);
-            overflow-x: hidden;
-            overflow-y: auto;
-            position: relative; // for item scroll position
+            // .flex(0 1 auto);
+            // overflow-x: hidden;
+            // overflow-y: auto;
+            // position: relative; // for item scroll position
         }
 
         .item {
