@@ -1557,6 +1557,14 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                     StatusBox.show(ErrTStr.InvalidAggName, $input);
                     return { "vaild": false };
                 }
+                if (Aggregates.getNamedAggs().hasOwnProperty(arg)) {
+                    errMsg = xcHelper.replaceMsg(ErrWRepTStr.AggConflict, {
+                        "name": arg,
+                        "aggPrefix": gAggVarPrefix
+                    });
+                    StatusBox.show(errMsg, $input);
+                    return {"valid": false};
+                }
             }
         }
 
