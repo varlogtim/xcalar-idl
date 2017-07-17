@@ -264,6 +264,10 @@ window.QueryManager = (function(QueryManager, $) {
             console.warn('operation is done, cannot cancel');
             deferred.reject('operation is done, cannot cancel');
             return deferred.promise();
+        } else if (mainQuery.state === QueryStatus.Cancel ||
+                   mainQuery.state === QueryStatus.Error) {
+            deferred.reject("already canceled");
+            return deferred.promise();
         }
 
         var prevState = mainQuery.getState();

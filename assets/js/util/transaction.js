@@ -148,6 +148,7 @@ window.Transaction = (function(Transaction, $) {
         }
 
         transactionCleaner();
+        removeTX(txId);
     };
 
     Transaction.disableCancel = function(txId) {

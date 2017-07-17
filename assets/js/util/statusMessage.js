@@ -152,6 +152,9 @@ window.StatusMessage = (function($, StatusMessage) {
     };
 
     StatusMessage.cancel = function(msgId) {
+        if (!msgObjs[msgId]) {
+            return;
+        }
         var txt = msgObjs[msgId].operation[0].toUpperCase() +
                   msgObjs[msgId].operation.slice(1) + " canceled";
         var cancelHTML = '<span class="text fail">' + txt + '</span>' +

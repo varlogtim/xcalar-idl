@@ -1420,6 +1420,10 @@ window.DFCard = (function($, DFCard) {
 
         var $dagWrap = getDagWrap(retName);
         var $btn = $dagWrap.find(".runNowBtn");
+        if ($btn.hasClass("canceling")) {
+            deferred.resolve();
+            return deferred.promise();
+        }
         $btn.addClass('canceling');
         xcTooltip.changeText($btn, StatusMessageTStr.Canceling);
         xcTooltip.refresh($btn);
