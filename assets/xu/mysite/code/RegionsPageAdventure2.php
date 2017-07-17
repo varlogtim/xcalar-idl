@@ -50,6 +50,15 @@ class RegionsPageAdventure2_Controller extends RegionsPage_Controller {
             'userID' => $userID
         ));
         $userRecord = $userRecord[0];
+        if(!isset($userRecord)) {
+            $answerAdventure2 = new AnswerForAdventure2();
+            $answerAdventure2->userID = $userID;
+            $answerAdventure2->write();
+            $userRecord = AnswerForAdventure2::get()->filter(array(
+                'userID' => $userID
+            ));
+            $userRecord = $userRecord[0];
+        }
         $field = 'Answer'.$questionId;
         $userRecord->$field = $userAnswer;
         $userRecord->write();
@@ -121,5 +130,6 @@ class RegionsPageAdventure2_Controller extends RegionsPage_Controller {
             $res = $res . $append;
         }
         return $res;
+
     }
 }
