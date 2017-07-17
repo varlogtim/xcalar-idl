@@ -23,6 +23,10 @@ window.UExtBizRules = (function(UExtBizRules) {
         }
     };
 
+    UExtBizRules.configParams = {
+        "notTableDependent": true
+    };
+
     function bri() {
         var ext = new XcSDK.Extension();
         // Implement ext.beforeStart(), ext.start() and

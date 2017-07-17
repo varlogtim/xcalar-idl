@@ -140,6 +140,12 @@ window.UExtHello = (function(UExtHello) {
      *  }
      * }
      *
+     *  Instruction of UExtHello.configParams:
+     *      UExtHello.configParams is an object for extension configurations,
+     *      it can have the following attrubute:
+     *          notTableDependent: if set true, will not have the trigger table option
+     *
+     *
      */
     UExtHello.buttons = [{
         "buttonText": "Sum 3",
