@@ -637,7 +637,6 @@ window.SQL = (function($, SQL) {
                     oldLogCursor = oldLogs.length - 1;
                 }
                 var sqls = [];
-                // var now = Date.now();
                 for (var i = 0; i <= oldLogCursor; i++) {
                     var sql = new XcLog(oldLogs[i]);
                     sqls.push(sql);
@@ -692,6 +691,7 @@ window.SQL = (function($, SQL) {
         return deferred.promise();
     }
 
+    // if restore, sql is an array
     function addLog(sql, isRestore, willCommit) {
         // normal log
         if (shouldOverWrite || logCursor !== logs.length - 1) {
@@ -726,11 +726,10 @@ window.SQL = (function($, SQL) {
                 console.error("Overwrite Sql fails!", error);
             });
         } else {
-            if (isRestore) {
+            if (isRestore) { // if restore, sql is an array
                 for (var i = 0; i < sql.length; i++) {
                     logCursor++;
                     logs[logCursor] = sql[i];
-                    sqlToCommit += JSON.stringify(sql[i]) + ",";
                 }
             } else {
                 logCursor++;
@@ -967,6 +966,7 @@ window.SQL = (function($, SQL) {
         xcLocalStorage.setItem(sqlLocalStoreKey, JSON.stringify(sqlCache));
     }
 
+    // if isRestore, sql is an array of sqls
     function showSQL(sql, cursor, isRestore) {
         // some sql is overwritten because of undo and redo, should remove them
         var cliHtml = "";
