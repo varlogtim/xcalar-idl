@@ -159,7 +159,7 @@ window.DSPreview = (function($, DSPreview) {
         // preview
         var $previewBottom = $previeWrap.find(".previewBottom");
         $previewBottom.on("click", ".action", function() {
-            addMoreRowsToPreview();
+            showMoreRows();
         });
 
         setupForm();
@@ -1714,11 +1714,13 @@ window.DSPreview = (function($, DSPreview) {
     function loadData(loadURL, pattern, isRecur) {
         var deferred = jQuery.Deferred();
         var buffer;
+        var totalDataSize;
 
         XcalarPreview(loadURL, pattern, isRecur, numBytesRequest, 0)
         .then(function(res) {
             if (res && res.buffer) {
                 buffer = res.buffer;
+                totalDataSize = res.totalDataSize;
                 var rowsToShow = getRowsToPreivew();
                 return getDataFromPreview(loadURL, pattern, isRecur,
                                           buffer, rowsToShow);
@@ -1727,6 +1729,9 @@ window.DSPreview = (function($, DSPreview) {
         .then(function(extraBuffer) {
             if (extraBuffer) {
                 buffer += extraBuffer;
+            }
+            if (!totalDataSize || totalDataSize <= buffer.length) {
+                disableShowMoreRows();
             }
             deferred.resolve(buffer);
         })
@@ -1811,6 +1816,9 @@ window.DSPreview = (function($, DSPreview) {
             if (totalEntries <= 0 || rowPosition > totalEntries) {
                 return PromiseHelper.resolve(null);
             } else {
+                if (totalEntries <= rowsToShow) {
+                    disableShowMoreRows();
+                }
                 return XcalarFetchData(resultSetId, rowPosition, rowsToShow,
                                         totalEntries, []);
             }
@@ -1906,7 +1914,13 @@ window.DSPreview = (function($, DSPreview) {
         return deferred.promise();
     }
 
-    function addMoreRowsToPreview() {
+    function disableShowMoreRows() {
+        $previewTable.closest(".datasetTbodyWrap")
+                     .find(".previewBottom")
+                     .addClass("end");
+    }
+
+    function showMoreRows() {
         var deferred = jQuery.Deferred();
         var rowsToAdd = minRowsToShow;
         var $section = $previewTable.closest(".datasetTbodyWrap");
@@ -1920,8 +1934,8 @@ window.DSPreview = (function($, DSPreview) {
             }
 
             if (!newBuffer && !hasEnoughDataInCache) {
-                // has no data to  fetch case
-                $previewBottom.addClass("end");
+                // has no data to fetch case
+                disableShowMoreRows();
             } else {
                 // update preview
                 addRowsToPreview(rowsToAdd);
