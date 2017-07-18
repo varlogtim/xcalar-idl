@@ -92,7 +92,7 @@ window.Profile = (function($, Profile, d3) {
             resetTooltip(rowToHover);
         });
 
-        /*
+        /*        
         $modal.on("mouseover", ".arc", function(event) {
             event.stopPropagation();
             var rowToHover = null;
@@ -1292,8 +1292,9 @@ window.Profile = (function($, Profile, d3) {
                         intersectionLength = currTop - prevBottom;
 
                         currPos[1] -= intersectionLength;
+                        var move = [0, -1*intersectionLength];
                         d3.select(this)
-                          .attr("transform", "translate(" + currPos + ")");
+                          .attr("transform", "translate(" + move + ")");
                           //console.log("Overlap!!!");
 
                         // updates position value in array
@@ -1303,9 +1304,9 @@ window.Profile = (function($, Profile, d3) {
                         intersectionLength = currBottom - prevTop;  
 
                         currPos[1] -= intersectionLength;
-
+                        var move = [0, -1*intersectionLength];
                         d3.select(this)
-                          .attr("transform", "translate(" + currPos + ")");
+                          .attr("transform", "translate(" + move + ")");
                           //console.log("Overlap!!!");
 
                         // updates position value in array
@@ -1383,15 +1384,14 @@ window.Profile = (function($, Profile, d3) {
         var svg;
         // sizes/positions pie chart on the page
         //if (initial) {
-            $modal.find(".groupbyChart").empty();
+            $modal.find(".groupbyChart").empty().addClass("pieChart");
             svg = d3.select("#profileModal .groupbyChart")
             .attr("width", '100%')
             .attr("height", '100%')
             .attr('viewBox','0 0 '+ Math.min(width,height) + ' ' + Math.min(width,height) )
             .attr('preserveAspectRatio','xMinYMin')
             .append("g")
-            .attr("transform", "translate(" + ((Math.min(width,height) / 2) + 50) + "," + Math.min(width,height) / 2 + ")");
-        //}
+            .attr("transform", "translate(" + (width / 2) + "," + Math.min(width,height) / 2 + ")");
 
         var pie = d3.layout.pie()
             .sort(null)
@@ -1401,9 +1401,39 @@ window.Profile = (function($, Profile, d3) {
 
         var piedata = pie(data);       
 
+        function setPieRadius(dataLength, radius) {
+            if (dataLength <= 30) {
+                return radius * .7;
+            }
+            else if (dataLength <= 50) {
+                return radius * .5;
+            }
+            else if (dataLength < 80) {
+                return radius * .4;
+            }
+            else {
+                return radius * .3;
+            }
+        }
+
+        var calcRadius = setPieRadius(data.length, radius);
+
+        svg.append("circle")
+            .attr("fill", "black")
+            .attr("cy", 0)
+            .attr("cx", 0)
+            .attr("r", calcRadius)
+            .attr("width", '100%')
+            .attr("height", '100%')
+            .attr('viewBox','0 0 '+ Math.min(width,height) + ' ' + Math.min(width,height) )
+            .attr('preserveAspectRatio','xMinYMin')
+            .append("g")
+            .attr("transform", "translate(" + ((Math.min(width,height) / 2) + 50) + "," + Math.min(width,height) / 2 + ")");
+
+
         var arc = d3.svg.arc()
             .innerRadius(0)
-            .outerRadius(radius - 75);
+            .outerRadius(calcRadius);
         
         var outerArc = d3.svg.arc()
             .innerRadius(radius * .7)
@@ -1425,19 +1455,60 @@ window.Profile = (function($, Profile, d3) {
             })
             .attr("d", arc);
         
-        var labelPositions = [];
+        // iterate through piedata and count number of labels on each side
+        var rightCount = 0;
+        var leftCount = 0;
 
+        for (var i = 0; i < piedata.length; i++) {
+            if (piedata[i]["startAngle"] <= Math.PI) {
+                rightCount++;
+            }
+            else {
+                leftCount++;
+            }
+        }
+
+
+        function setFontSize(dataLength) {
+            var maxFontSize = (height - 30) / dataLength / 3;
+            if (maxFontSize > 18) {
+                return 18;
+            }
+            return maxFontSize;
+        }
+
+        var labelPositions = [];   
+
+        var fontSize = setFontSize(Math.max(rightCount, leftCount));
+        console.log("Font Size: " + fontSize);
         // sets initial positions of labels
         var labels = svg.selectAll("text")
             .data(piedata)
             .enter()
-            .append("text")
+            .append("g");
+            //.append("path");
+        labels.append("text")
             .attr("text-anchor", "middle")
-            .style("font-size", "1em")
+            .attr("class", "title")    
+            .style("font-size", fontSize + "px")
             .attr("transform", function(d) {
                 var pos = outerArc.centroid(d);
                 pos[0] = radius * (midAngle(d) < Math.PI ? 1 : -1);
                 labelPositions.push(pos);
+                return "translate(" + pos + ")";
+            })
+            .text(function(d) {
+                return formatNumber(d.data[xName]);
+            });
+        labels.append("text")
+            .attr("class", "value")
+            .style("font-size", fontSize + "px")
+            .attr("transform", function(d) {
+                var pos = outerArc.centroid(d);
+                pos[0] = radius * (midAngle(d) < Math.PI ? 1 : -1);
+                
+                pos[1] += fontSize;
+
                 return "translate(" + pos + ")";
             })
             .text(function(d) {
