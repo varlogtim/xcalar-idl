@@ -51,6 +51,7 @@ function thriftLog() {
         var thriftError = {};
         var error;
         var status;
+        var log = undefined;
 
         if (type === "number") {
             status = errRes;
@@ -58,6 +59,7 @@ function thriftLog() {
         } else if (type === "object") {
             status = errRes.status;
             error = StatusTStr[status];
+            log = errRes.log;
         } else {
             // when error is string
             error = errRes;
@@ -83,6 +85,7 @@ function thriftLog() {
             xcConsole.log(msg);
         }
 
+        thriftError.log = log;
         errorLists.push(thriftError);
         var alertError;
 
@@ -995,7 +998,7 @@ function XcalarExport(tableName, exportName, targetName, numColumns,
                                       query);
         });
 
-        return jQuery.when(def1, def2);
+        return PromiseHelper.when(def1, def2);
     })
     .then(function(ret1, ret2) {
         if (Transaction.checkCanceled(txId)) {
@@ -1013,7 +1016,12 @@ function XcalarExport(tableName, exportName, targetName, numColumns,
         }
     })
     .fail(function(error) {
-        var thriftError = thriftLog("XcalarExport", error);
+        var thriftError;
+        if (error instanceof Array) {
+            thriftError = thriftLog("XcalarExport",
+                {"status": error[0], "log": error[1]}
+            );
+        }
         deferred.reject(thriftError);
     });
 
@@ -3858,8 +3866,9 @@ function XcalarSwitchToWorkbook(toWhichWorkbook, fromWhichWorkbook) {
     .then(function(output) {
         deferred.resolve(output);
     })
-    .fail(function(error) {
-        var thriftError = thriftLog("XcalarSwitchToWorkbook", error);
+    .fail(function(error, log) {
+        var thriftError = thriftLog("XcalarSwitchToWorkbook",
+                            {"status": error, "log": log});
         SQL.errorLog("Switch Workbook", null, null, thriftError);
         deferred.reject(thriftError);
     });
