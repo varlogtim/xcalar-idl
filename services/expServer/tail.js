@@ -15,7 +15,7 @@ var bufferSize = 1024 * 1024;
 var gMaxLogs = 500;
 
 var httpStatus = require('./../../assets/js/httpStatus.js').httpStatus;
-var support = require('./support.js');
+var support = require('./expServerSupport.js');
 var xcConsole = support.xcConsole;
 // var logPath = "/var/log/Xcalar.log";
 

@@ -3,7 +3,7 @@ var exec = require('child_process').exec;
 var Status = require('./supportStatusFile').Status;
 var guiDir = (process.env.XCE_HTTP_ROOT ?
     process.env.XCE_HTTP_ROOT : "/var/www") + "/xcalar-gui";
-var support = require('./support.js');
+var support = require('./expServerSupport.js');
 var xcConsole = support.xcConsole;
 
 var validate = function(name, version) {

@@ -6,7 +6,7 @@ var actionRestart = "/service/restart";
 var actionStatus = "/service/status/slave";
 var actionCondRestart = "/service/condrestart";
 var hostFile = '/config/privHosts.txt';
-var support = require('./support');
+var support = require('./expServerSupport.js');
 var ssf = require('./supportStatusFile');
 var Status = ssf.Status;
 

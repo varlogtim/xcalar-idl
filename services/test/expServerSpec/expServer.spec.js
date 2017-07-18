@@ -5,7 +5,7 @@ var fs = require("fs");
 
 require("jquery");
 var expServer = require(__dirname + '/../../expServer/expServer.js');
-var support = require(__dirname + '/../../expServer/support.js');
+var support = require(__dirname + '/../../expServer/expServerSupport.js');
 
 function postRequest(action, url, str) {
     var deferred = jQuery.Deferred();
