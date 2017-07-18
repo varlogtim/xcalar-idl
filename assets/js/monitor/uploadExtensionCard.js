@@ -68,6 +68,7 @@ window.UploadExtensionCard = (function($, UploadExtensionCard) {
     function addCardEvents() {
         $("#uploadExtension").click(function() {
             $card.removeClass("xc-hidden");
+            $("#monitorPanel").find(".mainContent").scrollTop(0);
         });
 
         // click cancel or close button

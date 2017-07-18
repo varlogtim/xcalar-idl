@@ -134,6 +134,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
             var $menu = $("#monitorMenu");
             $menu.find(".menuSection").addClass("xc-hidden");
             var $extSearch = $("#extension-search").addClass("xc-hidden");
+            $monitorPanel.find(".mainContent").scrollTop(0);
 
             switch ($button.attr("id")) {
                 case ("systemButton"):

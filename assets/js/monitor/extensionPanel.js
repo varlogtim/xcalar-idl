@@ -85,18 +85,21 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
             }
 
             var $item = $(this);
-            // var $target = $(event.target);
-            // // scroll to extension in right card if found
-            // if (!$target.closest(".delete, .switch").length) {
-            //     var name = getExtNameFromList($item);
-            //     var $cardItem = $panel.find(".item .extensionName[data-name='" +
-            //                                 name + "']").closest(".item");
-            //     if ($cardItem.length) {
-            //         var itemTop = $cardItem.position().top;
-            //         var scrollTop = $panel.find(".items").scrollTop() + itemTop;
-            //         $panel.find(".items").animate({scrollTop: scrollTop}, 300);
-            //     }
-            // }
+            var $target = $(event.target);
+            // scroll to extension in right card if found
+            if (!$target.closest(".delete, .switch").length) {
+                var name = getExtNameFromList($item);
+                var $cardItem = $panel.find(".item .extensionName[data-name='" +
+                                            name + "']").closest(".item");
+                if ($cardItem.length) {
+                    var $container = $("#monitorPanel").find(".mainContent");
+                    var cardTop = $container.offset().top +
+                                  $panel.find(".cardHeader").height();
+                    var itemTop = $container.scrollTop() +
+                                   $cardItem.position().top - cardTop;
+                    $container.animate({scrollTop: itemTop}, 300);
+                }
+            }
 
             if ($item.hasClass("active")) {
                 return;
