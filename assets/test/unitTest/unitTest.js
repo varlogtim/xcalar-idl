@@ -70,7 +70,7 @@ window.UnitTest = (function(UnitTest, $) {
         $('#backXC').click(function() {
             var promise = TblManager.freeAllResultSetsSync();
             PromiseHelper.alwaysResolve(promise)
-            .then(Support.releaseSession)
+            .then(XcSupport.releaseSession)
             .then(function() {
                 xcManager.removeUnloadPrompt();
                 window.location = paths.indexAbsolute;

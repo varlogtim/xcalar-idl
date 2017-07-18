@@ -434,7 +434,7 @@ window.DFCard = (function($, DFCard) {
 
         $listSection.on('click', '.downloadDataflow', function() {
             var dfName = $(this).siblings('.groupName').text();
-            Support.downloadLRQ(dfName);
+            XcSupport.downloadLRQ(dfName);
             // XXX: Show something when the download has started
         });
 

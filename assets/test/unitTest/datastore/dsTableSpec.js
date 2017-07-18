@@ -98,7 +98,7 @@ describe("DSTable Test", function() {
                 // ds name matches
                 expect($("#dsInfo-title").text()).to.equal(testDS);
                 // it should be created by current user
-                expect($("#dsInfo-author").text()).to.equal(Support.getUser());
+                expect($("#dsInfo-author").text()).to.equal(XcSupport.getUser());
                 done();
             })
             .fail(function() {

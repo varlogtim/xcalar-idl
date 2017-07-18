@@ -1514,7 +1514,7 @@ window.WSManager = (function($, WSManager) {
                 // could be errors, could be successful tables
                 errors = arguments;
             }
-            Support.memoryCheck(true);
+            XcSupport.memoryCheck(true);
             deferred.resolve();
         })
         .fail(function(error) {

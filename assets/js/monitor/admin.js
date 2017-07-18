@@ -13,7 +13,7 @@ window.Admin = (function($, Admin) {
         if (xcLocalStorage.getItem("admin") === "true") {
             gAdmin = true;
             if (xcSessionStorage.getItem("usingAs") === "true" &&
-                xcSessionStorage.getItem("adminName") !== Support.getUser()) {
+                xcSessionStorage.getItem("adminName") !== XcSupport.getUser()) {
                 posingAsUser = true;
                 $('#container').addClass('posingAsUser');
             } else {
@@ -51,7 +51,7 @@ window.Admin = (function($, Admin) {
     // will not add user if already exists in kvstore
     Admin.addNewUser = function() {
         var deferred = jQuery.Deferred();
-        var username = Support.getUser();
+        var username = XcSupport.getUser();
 
         KVStore.get(userListKey, gKVScope.GLOB)
         .then(function(value) {
@@ -92,7 +92,7 @@ window.Admin = (function($, Admin) {
         xcSessionStorage.setItem("xcalar-username", username);
         if (xcSessionStorage.getItem("usingAs") !== "true") {
             xcSessionStorage.setItem("usingAs", true);
-            xcSessionStorage.setItem("adminName", Support.getUser());
+            xcSessionStorage.setItem("adminName", XcSupport.getUser());
         }
 
         xcManager.unload(false, true);
@@ -364,7 +364,7 @@ window.Admin = (function($, Admin) {
 
     function getMemUsage(username) {
         var deferred  = jQuery.Deferred();
-        var userId = Support.getUserIdUnique(username);
+        var userId = XcSupport.getUserIdUnique(username);
         XcalarGetMemoryUsage(username, userId)
         .then(function(origData) {
             var data;
@@ -408,7 +408,7 @@ window.Admin = (function($, Admin) {
         var promises = [];
         for (var i = 0; i < userList.length; i++) {
             username = userList[i];
-            userId = Support.getUserIdUnique(username);
+            userId = XcSupport.getUserIdUnique(username);
             promises.push(XcalarGetMemoryUsage(username, userId));
         }
         PromiseHelper.when.apply(window, promises)
@@ -671,7 +671,7 @@ window.Admin = (function($, Admin) {
         var $adminBar = $('#adminStatusBar');
 
         if (posingAsUser) {
-            $adminBar.find('.username').text(Support.getUser());
+            $adminBar.find('.username').text(XcSupport.getUser());
             var width = $adminBar.outerWidth() + 1;
             $adminBar.outerWidth(width);
             // giving adminBar a width so we can use position right with the

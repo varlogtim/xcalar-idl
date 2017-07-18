@@ -11,8 +11,8 @@ window.xcManager = (function(xcManager, $) {
 
         Compatible.check();
         setupThrift();
-        // Support.setup() get username, so need to be at very early time
-        Support.setup();
+        // XcSupport.setup() get username, so need to be at very early time
+        XcSupport.setup();
         XVM.setup();
 
         setupUserArea();
@@ -86,9 +86,9 @@ window.xcManager = (function(xcManager, $) {
             XcSocket.init();
 
             // get initial memory usage
-            Support.memoryCheck();
+            XcSupport.memoryCheck();
             // start heartbeat check
-            Support.heartbeatCheck();
+            XcSupport.heartbeatCheck();
             deferred.resolve();
         })
         .fail(function(error) {
@@ -165,7 +165,7 @@ window.xcManager = (function(xcManager, $) {
                     "name": WKBKTStr.Release,
                     "className": "cancel",
                     "func": function() {
-                        Support.forceReleaseSession();
+                        XcSupport.forceReleaseSession();
                     }
                 }],
                 "noCancel": true
@@ -249,7 +249,7 @@ window.xcManager = (function(xcManager, $) {
                 return TblManager.freeAllResultSetsSync();
             })
             .then(function() {
-                return Support.releaseSession();
+                return XcSupport.releaseSession();
             })
             .fail(function(error) {
                 console.error(error);
@@ -437,7 +437,7 @@ window.xcManager = (function(xcManager, $) {
         var deferred = jQuery.Deferred();
 
         WorkbookManager.setup()
-        .then(Support.holdSession)
+        .then(XcSupport.holdSession)
         .then(Authentication.setup)
         .then(KVStore.restore)
         .then(initializeTable)
@@ -489,7 +489,7 @@ window.xcManager = (function(xcManager, $) {
     function setupUserBox() {
         var $menu = $("#userMenu");
         xcMenu.add($menu);
-        $("#userName").text(Support.getFullUsername());
+        $("#userName").text(XcSupport.getFullUsername());
 
         $("#userNameArea").click(function() {
             var $target = $(this);
@@ -1293,7 +1293,7 @@ window.xcManager = (function(xcManager, $) {
     function logoutRedirect(releaseHold) {
         xcSessionStorage.removeItem("xcalar-username");
         if (releaseHold) {
-            var username = Support.getUser();
+            var username = XcSupport.getUser();
             xcSessionStorage.removeItem(username);
         }
 

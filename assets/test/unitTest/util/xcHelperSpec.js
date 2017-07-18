@@ -303,7 +303,7 @@ describe("xcHelper Test", function() {
 
     it("xcHelper.getUserPrefix should work", function() {
         var res = xcHelper.getUserPrefix();
-        expect(res).to.equal(Support.getUser());
+        expect(res).to.equal(XcSupport.getUser());
     });
 
     it("xcHelper.wrapDSName should work", function() {
@@ -313,7 +313,7 @@ describe("xcHelper Test", function() {
         var randId = nameParts[1];
         nameParts.splice(0, 2);
         var actualName = nameParts.join(".");
-        var expected = Support.getUser() + "." + "test";
+        var expected = XcSupport.getUser() + "." + "test";
         expect(userName + "." + actualName).to.equal(expected);
         expect(("" + randId).length).to.equal(5);
     });
@@ -1823,7 +1823,7 @@ describe("xcHelper Test", function() {
 
     it("xcHelper.getTempUDFPrefix should work", function() {
         var res = xcHelper.getTempUDFPrefix();
-        expect(res).to.equal("_xcalar_" + Support.getUser());
+        expect(res).to.equal("_xcalar_" + XcSupport.getUser());
     });
 
     it("xcHelper.sortVals should work", function() {

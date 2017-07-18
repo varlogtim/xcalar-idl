@@ -321,7 +321,7 @@ window.UserSettings = (function($, UserSettings) {
             minVal: 10,
             maxVal: 600,
             onChangeEnd: function() {
-                Support.heartbeatCheck();
+                XcSupport.heartbeatCheck();
                 UserSettings.logChange();
             }
         });

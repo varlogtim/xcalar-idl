@@ -307,7 +307,7 @@ describe("xcManager Test", function() {
             oldUnLock = Concurrency.unlock;
             oneTimeSetup = xcManager.__testOnly__.oneTimeSetup;
             UnitTest.onMinMode();
-            Support.stopHeartbeatCheck();
+            XcSupport.stopHeartbeatCheck();
 
             XcalarKeyPut = function(key, value) {
                 keyMap[key] = value;
@@ -472,7 +472,7 @@ describe("xcManager Test", function() {
             Concurrency.unlock = oldUnLock;
 
             UnitTest.offMinMode();
-            Support.restartHeartbeatCheck();
+            XcSupport.restartHeartbeatCheck();
         });
     });
 });

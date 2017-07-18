@@ -57,7 +57,7 @@ window.TblMenu = (function(TblMenu, $) {
                 "onConfirm": function() {
                     TblManager.deleteTables(tableId, TableType.Active)
                     .then(function() {
-                        Support.memoryCheck(true);
+                        XcSupport.memoryCheck(true);
                     });
                 }
             });

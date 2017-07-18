@@ -20,7 +20,7 @@ window.XVM = (function(XVM) {
     var numNodes = -1; // Set, but not used
 
     XVM.setup = function() {
-        kvVersionKey = "xcalar-version-" + Support.getUser();
+        kvVersionKey = "xcalar-version-" + XcSupport.getUser();
     };
 
     XVM.getVersion = function() {
@@ -242,7 +242,7 @@ window.XVM = (function(XVM) {
         kvVersion = new KVVersion(versionInfo);
         if (kvVersion.stripEmail) {
             // need to redo the username setup
-            Support.setup(true);
+            XcSupport.setup(true);
         }
     }
 

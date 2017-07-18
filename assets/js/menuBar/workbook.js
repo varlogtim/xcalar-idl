@@ -169,7 +169,7 @@ window.Workbook = (function($, Workbook) {
 
     function getNewWorkbookName() {
         var regex = new RegExp(/[a-zA-Z0-9-_]*/);
-        var un = regex.exec(Support.getUser())[0];
+        var un = regex.exec(XcSupport.getUser())[0];
         var defaultName = "untitled-" + un;
         var names = {};
         $workbookPanel.find(".workbookBox .workbookName").each(function() {
@@ -469,7 +469,7 @@ window.Workbook = (function($, Workbook) {
     function getWorkbookInfo(isForceMode) {
         var $welcomeMsg = $welcomeCard.find(".description");
         var $welcomeUser = $welcomeCard.find(".heading .username");
-        var user = Support.getUser();
+        var user = XcSupport.getUser();
         $welcomeUser.text(user);
 
         if (isForceMode) {
@@ -522,7 +522,7 @@ window.Workbook = (function($, Workbook) {
         $newWorkbookInput.blur();
         var $buttons = $newWorkbookInput.find("button").addClass("inActive");
 
-        Support.commitCheck()
+        XcSupport.commitCheck()
         .then(function() {
             var deferred1 = createLoadingCard($newWorkbookCard);
             var deferred2 = WorkbookManager.newWKBK(workbookName);

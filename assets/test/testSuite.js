@@ -104,7 +104,7 @@ window.TestSuite = (function($, TestSuite) {
         // free this session and then run unit test
         var promise = TblManager.freeAllResultSetsSync();
         PromiseHelper.alwaysResolve(promise)
-        .then(Support.releaseSession)
+        .then(XcSupport.releaseSession)
         .then(function() {
             xcManager.removeUnloadPrompt();
             window.location.href = paths.testAbsolute;

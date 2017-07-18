@@ -1,4 +1,4 @@
-window.Support = (function(Support, $) {
+window.XcSupport = (function(XcSupport, $) {
     var username;
     var fullUsername;
     var commitFlag;
@@ -19,7 +19,7 @@ window.Support = (function(Support, $) {
 
     var statsCache = {}; // Store temporary version of the Stats
 
-    Support.setup = function(stripEmail) {
+    XcSupport.setup = function(stripEmail) {
         try {
             username = xcSessionStorage.getItem("xcalar-username");
             fullUsername = username;
@@ -38,7 +38,7 @@ window.Support = (function(Support, $) {
         }
     };
 
-    Support.getUserIdUnique = getUserIdUnique;
+    XcSupport.getUserIdUnique = getUserIdUnique;
 
     function stripCharFromUserName(name, ch) {
         var atIndex = name.indexOf(ch);
@@ -48,19 +48,19 @@ window.Support = (function(Support, $) {
         return name;
     }
 
-    Support.getUser = function() {
+    XcSupport.getUser = function() {
         return username;
     };
 
-    Support.getFullUsername = function() {
+    XcSupport.getFullUsername = function() {
         return fullUsername;
     };
 
-    Support.holdSession = function() {
+    XcSupport.holdSession = function() {
         return sessionHoldCheck();
     };
 
-    Support.releaseSession = function() {
+    XcSupport.releaseSession = function() {
         var deferred = jQuery.Deferred();
         var promise;
 
@@ -86,7 +86,7 @@ window.Support = (function(Support, $) {
     };
 
     // in case you are hold forever
-    Support.forceReleaseSession = function() {
+    XcSupport.forceReleaseSession = function() {
         xcSessionStorage.removeItem(username);
         XcalarKeyPut(KVStore.commitKey, defaultCommitFlag, false, gKVScope.FLAG)
         .then(function() {
@@ -97,7 +97,7 @@ window.Support = (function(Support, $) {
         });
     };
 
-    Support.commitCheck = function(isFromHeatbeatCheck) {
+    XcSupport.commitCheck = function(isFromHeatbeatCheck) {
         var deferred = jQuery.Deferred();
         if (KVStore.commitKey == null ||
             WorkbookManager.getActiveWKBK() == null) {
@@ -130,7 +130,7 @@ window.Support = (function(Support, $) {
         return (deferred.promise());
     };
 
-    Support.memoryCheck = function(onlyCheckOnWarn) {
+    XcSupport.memoryCheck = function(onlyCheckOnWarn) {
         if (isCheckingMem) {
             console.warn("Last time's mem check not finish yet");
             return PromiseHelper.resolve();
@@ -235,7 +235,7 @@ window.Support = (function(Support, $) {
         }
     };
 
-    Support.heartbeatCheck = function() {
+    XcSupport.heartbeatCheck = function() {
         if (WorkbookManager.getActiveWKBK() == null) {
             console.info("no active workbook, not check");
             return;
@@ -258,12 +258,12 @@ window.Support = (function(Support, $) {
             }
 
             isChecking = true;
-            Support.commitCheck(true)
+            XcSupport.commitCheck(true)
             .then(function() {
                 // this one just commit tracker data
                 // can be paraell
                 xcTracker.commit();
-                return Support.memoryCheck();
+                return XcSupport.memoryCheck();
             })
             .then(function() {
                 return autoSave();
@@ -278,14 +278,14 @@ window.Support = (function(Support, $) {
         }, commitCheckInterval);
     };
 
-    Support.stopHeartbeatCheck = function() {
+    XcSupport.stopHeartbeatCheck = function() {
         clearInterval(commitCheckTimer);
         commitCheckTimer = null;
         heartbeatLock++;
         // console.log("lock to", heartbeatLock);
     };
 
-    Support.restartHeartbeatCheck = function() {
+    XcSupport.restartHeartbeatCheck = function() {
         if (heartbeatLock === 0) {
             console.error("wrong trigger, must combine with stopHeartbeatCheck");
             return;
@@ -297,10 +297,10 @@ window.Support = (function(Support, $) {
             return;
         }
 
-        return Support.heartbeatCheck();
+        return XcSupport.heartbeatCheck();
     };
 
-    Support.checkConnection = function() {
+    XcSupport.checkConnection = function() {
         checkConnection()
         .fail(function() {
             var error = {"error": ThriftTStr.CCNBE};
@@ -314,7 +314,7 @@ window.Support = (function(Support, $) {
         });
     };
 
-    Support.checkStats = function(stats) {
+    XcSupport.checkStats = function(stats) {
         var data = {};
         var deferred = jQuery.Deferred();
         getStatsMap()
@@ -395,7 +395,7 @@ window.Support = (function(Support, $) {
         return deferred.promise();
     };
 
-    Support.downloadLog = function(targetUsername, targetWorkbookName) {
+    XcSupport.downloadLog = function(targetUsername, targetWorkbookName) {
         var log;
         var errLog;
         XcalarKeyLookup(targetUsername + "-wkbk-" + targetWorkbookName +
@@ -415,8 +415,8 @@ window.Support = (function(Support, $) {
         });
     };
 
-    Support.downloadStats = function(stats) {
-        Support.checkStats(stats)
+    XcSupport.downloadStats = function(stats) {
+        XcSupport.checkStats(stats)
         .then(function(f) {
             xcHelper.downloadAsFile(userIdName + "-stats-" +
                                     xcHelper.getCurrentTimeStamp() + ".txt", f);
@@ -424,7 +424,7 @@ window.Support = (function(Support, $) {
         });
     };
 
-    Support.downloadLRQ = function(lrqName) {
+    XcSupport.downloadLRQ = function(lrqName) {
         XcalarExportRetina(lrqName)
         .then(function(a) {
             xcHelper.downloadAsFile(lrqName + ".tar.gz", a.retina, true);
@@ -434,7 +434,7 @@ window.Support = (function(Support, $) {
         });
     };
 
-    Support.getRunTimeBreakdown = function(dfName) {
+    XcSupport.getRunTimeBreakdown = function(dfName) {
         XcalarQueryState(dfName)
         .then(function(ret) {
             var nodeArray = ret.queryGraph.node;
@@ -444,8 +444,6 @@ window.Support = (function(Support, $) {
             }
         });
     };
-
-    //Support.uploadLRQ = function(lrqName, overwriteUDF, )
 
     function sessionHoldCheck() {
         var deferred = jQuery.Deferred();
@@ -542,7 +540,7 @@ window.Support = (function(Support, $) {
     }
 
     function commitMismatchHandler() {
-        Support.stopHeartbeatCheck();
+        XcSupport.stopHeartbeatCheck();
 
         // hide all modal
         $(".modalContainer:not(.locked)").hide();
@@ -612,5 +610,5 @@ window.Support = (function(Support, $) {
         return id;
     }
 
-    return (Support);
+    return (XcSupport);
 }({}, jQuery));

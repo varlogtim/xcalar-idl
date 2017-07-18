@@ -164,7 +164,7 @@ window.DSTable = (function($, DSTable) {
         var dsId = $dsTableContainer.data("id");
         var dsObj = DS.getDSObj(dsId);
         if (!noRetry && dsObj != null &&
-            dsObj.getUser() === Support.getUser()) {
+            dsObj.getUser() === XcSupport.getUser()) {
             $errorSection.find(".suggest").removeClass("xc-hidden");
         } else {
             $errorSection.find(".suggest").addClass("xc-hidden");

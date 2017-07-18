@@ -36,14 +36,14 @@ window.XcSocket = (function(XcSocket, $) {
     function addSocketEvent() {
         socket.on("connect", function() {
             connected = true;
-            socket.emit("registerUser", Support.getUser(), function() {
+            socket.emit("registerUser", XcSupport.getUser(), function() {
                 console.log("registerSuccess!");
             });
         });
 
         socket.on("userExisted", function(user) {
             console.log(user, "exists");
-            if (user === Support.getUser()) {
+            if (user === XcSupport.getUser()) {
                 xcManager.forceLogout();
             }
         });

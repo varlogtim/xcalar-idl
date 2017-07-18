@@ -1,7 +1,7 @@
 window.xcHelper = (function($, xcHelper) {
     xcHelper.reload = function() {
         // override heartbeat check function so that it cannot run during reload
-        Support.heartbeatCheck = function() {};
+        XcSupport.heartbeatCheck = function() {};
         location.reload();
     };
 
@@ -356,7 +356,7 @@ window.xcHelper = (function($, xcHelper) {
     };
 
     xcHelper.getUserPrefix = function() {
-        return Support.getUser();
+        return XcSupport.getUser();
     };
 
     xcHelper.wrapDSName = function(dsName) {
@@ -2574,7 +2574,7 @@ window.xcHelper = (function($, xcHelper) {
     };
 
     xcHelper.getTempUDFPrefix = function() {
-        return "_xcalar_" + Support.getUser();
+        return "_xcalar_" + XcSupport.getUser();
     };
 
     /**

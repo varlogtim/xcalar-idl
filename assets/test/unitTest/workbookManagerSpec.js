@@ -52,7 +52,7 @@ describe("WorkbookManager Test", function() {
 
         it("getWKBKId should work", function() {
             var res = WorkbookManager.__testOnly__.getWKBKId("test");
-            expect(res).to.equal(Support.getUser() + "-wkbk-test");
+            expect(res).to.equal(XcSupport.getUser() + "-wkbk-test");
         });
 
         it("delWKBKHelper should work", function(done) {
@@ -123,11 +123,11 @@ describe("WorkbookManager Test", function() {
 
         it("resetActiveWKBK should work", function(done) {
             var oldSetup = KVStore.setup;
-            var oldHold = Support.holdSession;
+            var oldHold = XcSupport.holdSession;
 
             KVStore.setup = function() {};
 
-            Support.holdSession = function() {
+            XcSupport.holdSession = function() {
                 return PromiseHelper.resolve();
             };
             // use the current workbook id
@@ -147,7 +147,7 @@ describe("WorkbookManager Test", function() {
             })
             .always(function() {
                 KVStore.setup = oldSetup;
-                Support.holdSession = oldHold;
+                XcSupport.holdSession = oldHold;
             });
         });
 

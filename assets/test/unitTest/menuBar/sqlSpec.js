@@ -180,7 +180,7 @@ describe("SQL Test", function() {
     describe("Clean, Add, Restore SQL Test", function() {
         before(function() {
             // should not have any auto commit during test
-            Support.stopHeartbeatCheck();
+            XcSupport.stopHeartbeatCheck();
         });
 
         it("SQL.add should work", function() {
@@ -256,7 +256,7 @@ describe("SQL Test", function() {
         });
 
         after(function() {
-            Support.restartHeartbeatCheck();
+            XcSupport.restartHeartbeatCheck();
         });
     });
 
@@ -276,7 +276,7 @@ describe("SQL Test", function() {
                 return PromiseHelper.resolve();
             };
 
-            Support.stopHeartbeatCheck();
+            XcSupport.stopHeartbeatCheck();
             SQL.add("test", {"operation": SQLOps.MinimizeCols}, "testCli", true);
         });
 
@@ -448,7 +448,7 @@ describe("SQL Test", function() {
             .always(function() {
                 Undo.run = oldUndo;
                 Redo.run = oldRedo;
-                Support.restartHeartbeatCheck();
+                XcSupport.restartHeartbeatCheck();
             });
         });
     });

@@ -134,7 +134,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
 
         var deferred = jQuery.Deferred();
         var copySrcName = isCopy ? copySrc.name : null;
-        var username = Support.getUser();
+        var username = XcSupport.getUser();
 
         XcalarNewWorkbook(wkbkName, isCopy, copySrcName)
         .then(function() {
@@ -266,7 +266,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
         }
 
         // should stop check since session is released
-        Support.stopHeartbeatCheck();
+        XcSupport.stopHeartbeatCheck();
 
         // to switch workbook, should release all ref count first
         $("#initialLoadScreen").show();
@@ -295,7 +295,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
             deferred.reject(error);
         })
         .always(function() {
-            Support.restartHeartbeatCheck();
+            XcSupport.restartHeartbeatCheck();
         });
 
         return deferred.promise();
@@ -330,7 +330,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
 
     function switchWorkBookHelper(toName, fromName) {
         var deferred = jQuery.Deferred();
-        var queryName = Support.getUser() + ":" + toName;
+        var queryName = XcSupport.getUser() + ":" + toName;
         progressCycle(queryName, checkInterval);
         $("#initialLoadScreen").data("curquery", queryName);
         $("#container").addClass("switchingWkbk");
@@ -423,7 +423,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
         }
 
         // should stop check since seesion is released
-        Support.stopHeartbeatCheck();
+        XcSupport.stopHeartbeatCheck();
 
         $("#initialLoadScreen").show();
         var deferred = jQuery.Deferred();
@@ -443,7 +443,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
         .always(function() {
             $("#initialLoadScreen").hide();
             endProgressCycle();
-            Support.restartHeartbeatCheck();
+            XcSupport.restartHeartbeatCheck();
         });
 
         return deferred.promise();
@@ -456,7 +456,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
         }
 
         // should stop check since seesion is released
-        Support.stopHeartbeatCheck();
+        XcSupport.stopHeartbeatCheck();
 
         $("#initialLoadScreen").show();
         var deferred = jQuery.Deferred();
@@ -472,7 +472,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
         .always(function() {
             $("#initialLoadScreen").hide();
             endProgressCycle();
-            Support.restartHeartbeatCheck();
+            XcSupport.restartHeartbeatCheck();
         });
 
         return deferred.promise();
@@ -539,7 +539,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
             promise = KVStore.commit();
         }
 
-        Support.stopHeartbeatCheck();
+        XcSupport.stopHeartbeatCheck();
 
         promise
         .then(function() {
@@ -578,7 +578,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
         })
         .fail(deferred.reject)
         .always(function() {
-            Support.restartHeartbeatCheck();
+            XcSupport.restartHeartbeatCheck();
         });
 
         return deferred.promise();
@@ -601,7 +601,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
         // 3. Remove KV store key for active workbook if deleted workbook is
         //    previously the active one
         // 4. Restart heart beat check
-        Support.stopHeartbeatCheck();
+        XcSupport.stopHeartbeatCheck();
 
         XcalarDeleteWorkbook(workbook.name)
         .then(function() {
@@ -640,7 +640,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
         .then(deferred.resolve)
         .fail(deferred.reject)
         .always(function() {
-            Support.restartHeartbeatCheck();
+            XcSupport.restartHeartbeatCheck();
         });
 
         return deferred.promise();
@@ -651,7 +651,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
     };
 
     function initializeVariable() {
-        var username = Support.getUser();
+        var username = XcSupport.getUser();
         // key that stores all workbook infos for the user
         wkbkKey = getWKbkKey(currentVersion);
         // key that stores the current active workbook Id
@@ -713,7 +713,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
     }
 
     function getWKbkKey(version) {
-        var username = Support.getUser();
+        var username = XcSupport.getUser();
         return generateKey(username, "workbookInfos", version);
     }
 
@@ -741,7 +741,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
     }
 
     function getUserScopeKeys(version) {
-        var username = Support.getUser();
+        var username = XcSupport.getUser();
         var gUserKey = generateKey(username, "gUser", version);
         var gAuthKey = generateKey(username, "authentication", version);
 
@@ -1036,7 +1036,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
 
         setupKVStore(newWKBKId);
         // rehold the session as KVStore's key changed
-        Support.holdSession()
+        XcSupport.holdSession()
         .then(function() {
             activeWKBKId = newWKBKId;
             return KVStore.put(activeWKBKKey, activeWKBKId, true, gKVScope.WKBK);
@@ -1148,7 +1148,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
     }
 
     function getWKBKId(wkbkName) {
-        var username = Support.getUser();
+        var username = XcSupport.getUser();
         return generateKey(username, "wkbk", wkbkName);
     }
 

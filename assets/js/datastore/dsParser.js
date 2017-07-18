@@ -1006,7 +1006,7 @@ window.DSParser = (function($, DSParser) {
         var options = {
             "format": format,
             "path": path,
-            "user": Support.getUser(),
+            "user": XcSupport.getUser(),
             "session": WorkbookManager.getActiveWKBK()
         };
         var inputStr = JSON.stringify(options);

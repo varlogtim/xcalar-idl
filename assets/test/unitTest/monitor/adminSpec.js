@@ -48,7 +48,7 @@ describe("Admin Test", function() {
             Admin.__testOnly__.refreshUserList()
             .always(function() {
                 var list = Admin.getUserList();
-                var ownName = Support.getUser();
+                var ownName = XcSupport.getUser();
                 expect(list.length).to.be.gt(0);
                 expect(list.indexOf(ownName)).to.be.gt(-1);
                 done();
@@ -58,14 +58,14 @@ describe("Admin Test", function() {
         it("adding user should work", function(done) {
             var cachedGet = KVStore.get;
             var cachedAppend = XcalarKeyAppend;
-            var cachedGetUser = Support.getUser;
+            var cachedGetUser = XcSupport.getUser;
             var userName = "randTest" + Date.now();
             var cachedList = xcHelper.deepCopy(Admin.getUserList());
 
             KVStore.get = function() {
                 return PromiseHelper.resolve('"fakeUser,"') ;
             };
-            Support.getUser = function() {
+            XcSupport.getUser = function() {
                 return userName;
             };
 
@@ -87,7 +87,7 @@ describe("Admin Test", function() {
                 }
 
                 KVStore.get = cachedGet;
-                Support.getUser = cachedGetUser;
+                XcSupport.getUser = cachedGetUser;
                 XcalarKeyAppend = cachedAppend;
                 done();
             });
@@ -96,7 +96,7 @@ describe("Admin Test", function() {
         it("filtering userlist should work", function() {
             var listLen = $userList.find(".userLi").length;
             expect(listLen).to.be.gt(0);
-            var ownName = Support.getUser();
+            var ownName = XcSupport.getUser();
             var $ownLi = $userList.find(".userLi").filter(function() {
                 return $(this).find(".text").text() === ownName;
             });
@@ -115,7 +115,7 @@ describe("Admin Test", function() {
         it("switch user should work", function() {
             var cachedunload = xcManager.unload;
             xcManager.unload = function() { return null; };
-            var ownName = Support.getUser();
+            var ownName = XcSupport.getUser();
             var $ownLi = $userList.find(".userLi").filter(function() {
                 return $(this).find(".text").text() === ownName;
             });
@@ -143,7 +143,7 @@ describe("Admin Test", function() {
             XcalarGetMemoryUsage = function() {
                 return PromiseHelper.resolve({fakeData: "test"});
             };
-            var ownName = Support.getUser();
+            var ownName = XcSupport.getUser();
             var $ownLi = $userList.find(".userLi").filter(function() {
                 return $(this).find(".text").text() === ownName;
             });
@@ -209,7 +209,7 @@ describe("Admin Test", function() {
             XcalarGetMemoryUsage = function() {
                 return PromiseHelper.reject({error: "testError", status: StatusT.StatusSessionNotFound});
             };
-            var ownName = Support.getUser();
+            var ownName = XcSupport.getUser();
             var $ownLi = $userList.find(".userLi").filter(function() {
                 return $(this).find(".text").text() === ownName;
             });

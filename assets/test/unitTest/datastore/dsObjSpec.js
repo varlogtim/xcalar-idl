@@ -10,7 +10,7 @@ describe("DSObj Test", function() {
     before(function(){
         $gridView = $("#dsListSection").find(".gridItems");
         $statusBox = $("#statusBox");
-        user = Support.getUser();
+        user = XcSupport.getUser();
 
         $mainTabCache = $(".topMenuBarTab.active");
         $("#dataStoresTab").click();
@@ -64,7 +64,7 @@ describe("DSObj Test", function() {
         });
 
         it("Should add current user's ds", function() {
-            var user = Support.getUser();
+            var user = XcSupport.getUser();
             var dsName = genUniqDSName("dsobj");
             var testName = user + "." + dsName;
             var ds = DS.addCurrentUserDS(testName, "CSV", "testPath");
@@ -81,7 +81,7 @@ describe("DSObj Test", function() {
 
         it("Should add other user's ds", function(done) {
             var homeFolder = DS.getHomeDir();
-            var user = xcHelper.randName(Support.getUser());
+            var user = xcHelper.randName(XcSupport.getUser());
             var dsName = genUniqDSName("dsobj");
             var testName = user + "." + dsName;
 

@@ -283,7 +283,7 @@ window.DS = (function ($, DS) {
             return null;
         }
         // now only check dataset name conflict
-        var user = Support.getUser();
+        var user = XcSupport.getUser();
         var $grid = $gridView.find('.grid-unit[data-dsname="' + dsName + '"]');
         var $ds = $grid.filter(function() {
             // only check the dataset in user's namespace
@@ -409,7 +409,7 @@ window.DS = (function ($, DS) {
             "id": homeDirId,
             "name": DSObjTerm.homeDir,
             "fullName": DSObjTerm.homeDir,
-            "user": Support.getUser(),
+            "user": XcSupport.getUser(),
             "parentId": DSObjTerm.homeParentId,
             "uneditable": false,
             "isFolder": true,
@@ -427,7 +427,7 @@ window.DS = (function ($, DS) {
 
         // pre-process
         options.name = options.name.trim();
-        options.user = options.user || Support.getUser();
+        options.user = options.user || XcSupport.getUser();
         options.parentId = options.parentId || curDirId;
         options.isFolder = options.isFolder || false;
         options.uneditable = options.uneditable || false;
@@ -783,7 +783,7 @@ window.DS = (function ($, DS) {
 
             if (datasets.length) {
                 // when has delete datsets
-                Support.memoryCheck(true);
+                XcSupport.memoryCheck(true);
             }
 
             deferred.resolve();

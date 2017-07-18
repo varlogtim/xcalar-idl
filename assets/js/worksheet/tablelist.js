@@ -547,7 +547,7 @@ window.TableList = (function($, TableList) {
             } else if (action === "delete") {
                 TblManager.deleteTables(tables, tableType)
                 .then(function() {
-                    Support.memoryCheck(true);
+                    XcSupport.memoryCheck(true);
                     deferred.resolve();
                 })
                 .fail(deferred.reject)

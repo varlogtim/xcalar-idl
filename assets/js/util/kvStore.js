@@ -76,7 +76,7 @@ window.KVStore = (function($, KVStore) {
 
     KVStore.put = function(key, value, persist, scope) {
         var deferred = jQuery.Deferred();
-        Support.commitCheck()
+        XcSupport.commitCheck()
         .then(function() {
             return XcalarKeyPut(key, value, persist, scope);
         })
@@ -114,7 +114,7 @@ window.KVStore = (function($, KVStore) {
             if (noCommitCheck) {
                 return PromiseHelper.resolve();
             } else {
-                return Support.commitCheck();
+                return XcSupport.commitCheck();
             }
         }
 
@@ -153,7 +153,7 @@ window.KVStore = (function($, KVStore) {
     KVStore.append = function(key, value, persist, scope) {
         var deferred = jQuery.Deferred();
 
-        Support.commitCheck()
+        XcSupport.commitCheck()
         .then(function() {
             return XcalarKeyAppend(key, value, persist, scope);
         })
@@ -191,7 +191,7 @@ window.KVStore = (function($, KVStore) {
         metaInfos.update();
         ephMetaInfos.update();
 
-        Support.stopHeartbeatCheck();
+        XcSupport.stopHeartbeatCheck();
 
         KVStore.put(KVStore.gStorageKey, JSON.stringify(metaInfos), true,
                     gKVScope.META)
@@ -223,7 +223,7 @@ window.KVStore = (function($, KVStore) {
             deferred.reject(error);
         })
         .always(function() {
-            Support.restartHeartbeatCheck();
+            XcSupport.restartHeartbeatCheck();
             // when there is no other commits
             if (currentCnt === commitCnt - 1) {
                 $autoSaveBtn.removeClass("saving");

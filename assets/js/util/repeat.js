@@ -230,7 +230,7 @@ window.Repeat = (function($, Repeat) {
             "onConfirm": function() {
                 TblManager.deleteTables(tableId, TableType.Active)
                 .then(function() {
-                    Support.memoryCheck(true);
+                    XcSupport.memoryCheck(true);
                 })
                 .always(function() {
                     deferred.resolve(null);
