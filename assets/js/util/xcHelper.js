@@ -1,6 +1,6 @@
 window.xcHelper = (function($, xcHelper) {
     xcHelper.reload = function() {
-        // in case heart beat check is trigger to break anything
+        // override heartbeat check function so that it cannot run during reload
         Support.heartbeatCheck = function() {};
         location.reload();
     };
