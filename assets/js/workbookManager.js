@@ -1161,10 +1161,11 @@ window.WorkbookManager = (function($, WorkbookManager) {
         $loadScreen.removeClass("canceling").removeData("canceltime");
         $loadScreen.find(".animatedEllipsisWrapper .text")
                    .text(StatusMessageTStr.PleaseWait);
-
         countdown()
         .then(function() {
+            MainMenu.close(true);
             Workbook.hide(true);
+
             deferred.resolve();
         });
         return deferred.promise();

@@ -607,7 +607,10 @@ window.TestSuite = (function($, TestSuite) {
 
             innerDeferred.resolve(tableName + hasName, prefix);
         })
-        .fail(innerDeferred.reject);
+        .fail(function() {
+            console.error("could not create table");
+            innerDeferred.reject.apply(this, arguments);
+        });
 
         return innerDeferred.promise();
     }
@@ -619,7 +622,7 @@ window.TestSuite = (function($, TestSuite) {
         $("#filePath").val(url);
         $("#dsForm-path").find(".confirm").click(); // go to the next step
 
-        checkExists(check, 5000)
+        checkExists(check, 20000)
         .then(function() {
             $("#dsForm-dsName").val(dsName);
             // auto detect should fill in the form

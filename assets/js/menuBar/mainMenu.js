@@ -1,9 +1,9 @@
 window.MainMenu = (function($, MainMenu) {
-    var extraDelay = 280; // +80 to anim time in case of lag
     var $menuBar; // $("#menuBar");
     var $mainMenu; // $("#mainMenu");
-    var slideTimeout; // setTimeout for setting closed state after animation finishes
+    var menuAction;
     var isMenuOpen = false;
+    var menuAnimCheckers = [];
     var closedOffset = 65; // in pixels, how much the panels are horizonally
     // offset when a menu is closed (includes 5px padding in .mainContent)
     var openOffset = 350; // when the menu is open
@@ -13,6 +13,7 @@ window.MainMenu = (function($, MainMenu) {
     var ignoreRestoreState = false; // boolean flag - if closing of a form is
     // triggered by the clicking of a mainMenu tab, we do not want to restore
     // the pre-form state of the menu so we turn the flag on temporarily
+    var clickable = true;
     MainMenu.setup = function() {
         $menuBar = $("#menuBar");
         $mainMenu = $("#mainMenu");
@@ -24,6 +25,9 @@ window.MainMenu = (function($, MainMenu) {
     MainMenu.close = function(noAnim, makeInactive) {
         closeMenu($menuBar.find(".topMenuBarTab.active"), noAnim,
                   makeInactive);
+        if (!noAnim) {
+            addAnimatingClass();
+        }
     };
 
     // checks main menu and bottom menu
@@ -41,7 +45,10 @@ window.MainMenu = (function($, MainMenu) {
     };
 
     MainMenu.open = function(noAnim) {
-        openMenu($menuBar.find(".topMenuBarTab.active"), noAnim);
+        var hasAnim = openMenu($menuBar.find(".topMenuBarTab.active"), noAnim);
+        if (hasAnim) {
+            addAnimatingClass();
+        }
     };
 
     MainMenu.openPanel = function(panelId, subTabId, options) {
@@ -214,10 +221,10 @@ window.MainMenu = (function($, MainMenu) {
 
     function setupBtns() {
         $mainMenu.find(".minimizeBtn").click(function() {
-            closeMenu($menuBar.find(".topMenuBarTab.active"));
+            MainMenu.close();
         });
         $mainMenu.find(".minimizedContent").click(function() {
-            openMenu($menuBar.find(".topMenuBarTab.active"));
+            MainMenu.open();
         });
     }
 
@@ -225,6 +232,9 @@ window.MainMenu = (function($, MainMenu) {
         var $tabs = $menuBar.find(".topMenuBarTab");
 
         $tabs.click(function(event) {
+            if (!clickable) {
+                return;
+            }
             // MainMenu.closeForms();
             Workbook.hide(true);
 
@@ -232,17 +242,27 @@ window.MainMenu = (function($, MainMenu) {
             var $target = $(event.target);
 
             if ($curTab.hasClass("active")) {
+                var hasAnim = true;
                 if ($target.closest(".mainTab").length) {
-                    toggleMenu($curTab);
+                    // clicking on active main tab
+                    hasAnim = toggleMenu($curTab);
                 } else if ($target.closest(".subTab").length) {
                     var $subTab = $target.closest(".subTab");
                     if ($subTab.hasClass("active")) {
-                        toggleMenu($curTab);
+                        // clicking on active sub tab
+                        hasAnim = toggleMenu($curTab);
                     } else if ($("#bottomMenu").hasClass("open")) {
                         openMenu($curTab, true);
+                        hasAnim = false;
+                    } else {
+                        hasAnim = false;
                     }
                     $curTab.find(".subTab").removeClass("active");
                     $subTab.addClass("active");
+
+                }
+                if (hasAnim) {
+                    addAnimatingClass();
                 }
 
                 return;
@@ -268,6 +288,26 @@ window.MainMenu = (function($, MainMenu) {
             xcHelper.hideSuccessBox();
             panelSwitchingHandler($curTab, lastTabId);
         });
+
+        $mainMenu[0].addEventListener(transitionEnd, function(event) {
+            if (!$(event.target).is("#mainMenu")) {
+                return;
+            }
+            for (var i = 0; i < menuAnimCheckers.length; i++) {
+                if (menuAnimCheckers[i]) {
+                    menuAnimCheckers[i].resolve();
+                }
+            }
+            menuAnimCheckers = [];
+        });
+    }
+
+
+    function checkMenuAnimFinish() {
+        var menuAnimDeferred = jQuery.Deferred();
+        menuAnimCheckers.push(menuAnimDeferred);
+
+        return menuAnimDeferred.promise();
     }
 
     function panelSwitchingHandler($curTab, lastTabId) {
@@ -363,12 +403,14 @@ window.MainMenu = (function($, MainMenu) {
         $("#container").addClass("mainMenuOpen");
         isMenuOpen = true;
         $curTab.addClass("mainMenuOpen");
-        clearTimeout(slideTimeout);
 
         // recenter table titles if on workspace panel
         if (!noAnim && $("#workspacePanel").hasClass("active")) {
-            xcHelper.menuAnimAligner();
+            xcHelper.menuAnimAligner(false, checkMenuAnimFinish);
+        } else {
+            menuAnimAlign = null;
         }
+        return !noAnim;
     }
 
     // makeInactive is used in "noWorkbook" mode
@@ -382,7 +424,7 @@ window.MainMenu = (function($, MainMenu) {
         $curTab.removeClass("mainMenuOpen");
         isMenuOpen = false;
 
-        setCloseTimer(noAnim);
+        setCloseClass(noAnim);
 
         if (makeInactive) {
             $curTab.removeClass("active");
@@ -390,7 +432,9 @@ window.MainMenu = (function($, MainMenu) {
 
         // recenter table titles if on workspace panel
         if (!noAnim && $("#workspacePanel").hasClass("active")) {
-            xcHelper.menuAnimAligner(true);
+            xcHelper.menuAnimAligner(true, checkMenuAnimFinish);
+        } else {
+            menuAnimAlign = null;
         }
     }
 
@@ -401,29 +445,49 @@ window.MainMenu = (function($, MainMenu) {
         if (noAnim) {
             $mainMenu.addClass("noAnim");
             $("#container").addClass("noMenuAnim");
+
+            // noAnim classes only need to take effect for a split second
+            // to get rid of transition animations
             setTimeout(function() {
                 $mainMenu.removeClass("noAnim");
                 $("#container").removeClass("noMenuAnim");
-            }, extraDelay);
+            }, 0);
+        } else {
+            menuAction = null;
         }
     }
 
     function toggleMenu($curTab) {
+        var hasAnim;
         if ($mainMenu.hasClass("open")) {
             closeMenu($curTab);
+            hasAnim = true;
         } else {
-            openMenu($curTab);
+            hasAnim = openMenu($curTab);
+        }
+        return hasAnim;
+    }
+
+    function setCloseClass(noAnim) {
+        if (noAnim) {
+            menuAction = null;
+            $mainMenu.addClass("closed");
+        } else {
+            checkMenuAnimFinish()
+            .then(function() {
+                $mainMenu.addClass("closed");
+            });
         }
     }
 
-    function setCloseTimer(noAnim) {
-        if (noAnim) {
-            $mainMenu.addClass("closed");
-        } else {
-            slideTimeout = setTimeout(function() {
-                $mainMenu.addClass("closed");
-            }, extraDelay);
-        }
+    function addAnimatingClass() {
+        clickable = false;
+        $menuBar.addClass("animating");
+        checkMenuAnimFinish()
+        .then(function() {
+            $menuBar.removeClass("animating");
+            clickable = true;
+        });
     }
 
     return (MainMenu);

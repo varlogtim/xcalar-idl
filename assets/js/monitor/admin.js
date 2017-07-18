@@ -411,6 +411,7 @@ window.Admin = (function($, Admin) {
             userId = XcSupport.getUserIdUnique(username);
             promises.push(XcalarGetMemoryUsage(username, userId));
         }
+
         PromiseHelper.when.apply(window, promises)
         .always(function() {
             var users = arguments;
@@ -586,6 +587,8 @@ window.Admin = (function($, Admin) {
 
     function refreshUserList(firstTime, sortByUsage) {
         var deferred = jQuery.Deferred();
+        $userList.addClass("refreshing");
+
         KVStore.get(userListKey, gKVScope.GLOB)
         .then(function(value) {
             if (value == null) {
@@ -601,7 +604,11 @@ window.Admin = (function($, Admin) {
             }
         })
         .then(deferred.resolve)
-        .fail(deferred.reject);
+        .fail(deferred.reject)
+        .always(function() {
+            $userList.removeClass("refreshing");
+        });
+
         return deferred.promise();
     }
 

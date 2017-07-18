@@ -795,10 +795,16 @@ describe("xcHelper Test", function() {
         assert.isTrue($("#successMessageWrap").is(":visible"));
         expect($("#successMessageWrap .textBox.success").text()).to
                                                                 .equal("Hello");
-        setTimeout(function() {
+        UnitTest.testFinish(function() {
+            return !$("#successMessageWrap").is(":visible");
+        })
+        .then(function() {
             assert.isFalse($("#successMessageWrap").is(":visible"));
             done();
-        }, 3000);
+        })
+        .fail(function() {
+            done("failed");
+        });
     });
 
     it("xcHelper.showSuccess should reset text", function(done) {
@@ -806,10 +812,16 @@ describe("xcHelper Test", function() {
         assert.isTrue($("#successMessageWrap").is(":visible"));
         expect($("#successMessageWrap .textBox.success").text()).to.not
                                                                 .equal("Hello");
-        setTimeout(function() {
+        UnitTest.testFinish(function() {
+            return !$("#successMessageWrap").is(":visible");
+        })
+        .then(function() {
             assert.isFalse($("#successMessageWrap").is(":visible"));
             done();
-        }, 3000);
+        })
+        .fail(function() {
+            done("failed");
+        });
     });
 
     it("xcHelper.showFail should work", function(done) {

@@ -1132,7 +1132,8 @@ window.xcManager = (function(xcManager, $) {
                 },
                 "stack": stack,
                 "txCache": xcHelper.deepCopy(Transaction.getCache()),
-                "browser": window.navigator.userAgent
+                "browser": window.navigator.userAgent,
+                "platform": window.navigator.platform,
             };
             xcConsole.log(msg, url + ":" + line + ":" + column);
 

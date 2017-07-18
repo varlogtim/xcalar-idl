@@ -1828,13 +1828,6 @@ FormHelper.prototype = {
             wasMenuOpen = true;
         } else {
             MainMenu.open();
-            // due to lag if many columns are present, do another table
-            // alignment 600 ms after menu opens
-            setTimeout(function() {
-                if (MainMenu.isMenuOpen("mainMenu")) {
-                    TblManager.alignTableEls();
-                }
-            }, 600);
         }
 
         return wasMenuOpen;

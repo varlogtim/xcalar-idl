@@ -1,9 +1,9 @@
 window.BottomMenu = (function($, BottomMenu) {
-    var extraDelay = 280; // +80 to anim time in case of lag
     var clickable = true;
     var $menuPanel; //$("#bottomMenu");
     var isMenuOpen = false;
     var isPoppedOut = false;
+    var menuAnimCheckers = [];
 
     BottomMenu.setup = function() {
         $menuPanel = $("#bottomMenu");
@@ -20,11 +20,21 @@ window.BottomMenu = (function($, BottomMenu) {
             console.error(error);
             Alert.error(ThriftTStr.SetupErr, error);
         }
-        $menuPanel[0].addEventListener(transitionEnd, function() {
+        $menuPanel[0].addEventListener(transitionEnd, function(event) {
+            if (!$(event.target).is("#bottomMenu")) {
+                return;
+            }
             if (!$menuPanel.hasClass("open")) {
                 $menuPanel.find(".bottomMenuContainer").hide();
             }
+            for (var i = 0; i < menuAnimCheckers.length; i++) {
+                if (menuAnimCheckers[i]) {
+                    menuAnimCheckers[i].resolve();
+                }
+            }
+            menuAnimCheckers = [];
         });
+
     };
 
     // BottomMenu.clear = function() {
@@ -204,17 +214,19 @@ window.BottomMenu = (function($, BottomMenu) {
         } else if ($("#workspacePanel").hasClass("active") && !isPoppedOut) {
             // do not need to adjust tables if closing menu when it's popped out
             // because mainFrame is already in it's expanded state
-            xcHelper.menuAnimAligner(true);
+            xcHelper.menuAnimAligner(true, checkMenuAnimFinish);
         }
         popInModal(null, topMenuOpening);
 
         ExtensionManager.closeView();
+        return !topMenuOpening;
     }
 
     function toggleSection(sectionIndex) {
         if (sectionIndex == null) {
             sectionIndex = 0;
         }
+        var hasAnim = true;
 
         var $menuSections = $menuPanel.find(".menuSection");
         // var $sliderBtns = $("#bottomMenuBarTabs .sliderBtn");
@@ -227,14 +239,19 @@ window.BottomMenu = (function($, BottomMenu) {
                 closeMenu();
             }
         } else {
-            openMenu(sectionIndex);
+            hasAnim = openMenu(sectionIndex);
         }
 
         // dealay the next click as the menu open/close has animation
-        clickable = false;
-        setTimeout(function() {
-            clickable = true;
-        }, extraDelay);
+        if (hasAnim) {
+            clickable = false;
+            $("#menuBar").addClass("animating");
+            checkMenuAnimFinish()
+            .then(function() {
+                $("#menuBar").removeClass("animating");
+                clickable = true;
+            });
+        }
     }
 
     function openMenu(sectionIndex) {
@@ -243,6 +260,7 @@ window.BottomMenu = (function($, BottomMenu) {
         var $menuSections = $menuPanel.find(".menuSection");
         var $sliderBtns = $("#bottomMenuBarTabs .sliderBtn");
         var $section = $menuSections.eq(sectionIndex);
+        var hasAnim = true;
 
 
         var wasOpen = $menuPanel.hasClass("open");
@@ -259,6 +277,7 @@ window.BottomMenu = (function($, BottomMenu) {
             isBottomMenuOpening = true;
             MainMenu.close(isBottomMenuOpening);
             noAnim();
+            hasAnim = false;
         }
 
         $menuPanel.addClass("open");
@@ -268,13 +287,15 @@ window.BottomMenu = (function($, BottomMenu) {
         // main menu was not open && bottom menu was not open
         if (!isBottomMenuOpening && !wasOpen) {
             if ($("#workspacePanel").hasClass("active")) {
-                xcHelper.menuAnimAligner();
+                xcHelper.menuAnimAligner(false, checkMenuAnimFinish);
             }
         } else {
             $("#container").addClass("noMenuAnim");
+            // only needed for a split second to remove animation effects
             setTimeout(function() {
                 $("#container").removeClass("noMenuAnim");
-            }, extraDelay);
+            }, 0);
+            hasAnim = false;
         }
 
         var sectionId = $section.attr("id");
@@ -311,13 +332,20 @@ window.BottomMenu = (function($, BottomMenu) {
         } else {
             ExtensionManager.closeView();
         }
+        return hasAnim;
     }
 
     function noAnim() {
         $menuPanel.addClass("noAnim");
         setTimeout(function() {
             $menuPanel.removeClass("noAnim");
-        }, extraDelay);
+        }, 0);
+    }
+
+    function checkMenuAnimFinish() {
+        var menuAnimDeferred = jQuery.Deferred();
+        menuAnimCheckers.push(menuAnimDeferred);
+        return menuAnimDeferred.promise();
     }
 
     function popOutModal() {
@@ -335,7 +363,7 @@ window.BottomMenu = (function($, BottomMenu) {
         });
         $("#container").addClass("bottomMenuOut");
         if ($("#workspacePanel").hasClass("active")) {
-            xcHelper.menuAnimAligner(true);
+            xcHelper.menuAnimAligner(true, checkMenuAnimFinish);
         }
     }
 
@@ -355,7 +383,7 @@ window.BottomMenu = (function($, BottomMenu) {
 
         // will move table titles if menu was popped out
         if (adjustTables && $("#workspacePanel").hasClass("active")) {
-            xcHelper.menuAnimAligner();
+            xcHelper.menuAnimAligner(false, checkMenuAnimFinish);
         }
     }
 

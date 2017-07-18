@@ -3096,7 +3096,7 @@ window.xcHelper = (function($, xcHelper) {
         }
     };
 
-    xcHelper.menuAnimAligner = function(close) {
+    xcHelper.menuAnimAligner = function(close, checkMenuAnimFinish) {
         var options;
         var openOffset = 350; // when the menu is open;
         var menuOffset = 285;
@@ -3114,13 +3114,15 @@ window.xcHelper = (function($, xcHelper) {
             "menuAnimating": true,
             "animSpeed": menuAnimTime
         });
-        setTimeout(function() {
+
+        checkMenuAnimFinish()
+        .then(function() {
             TblFunc.unhideOffScreenTables();
             TblManager.alignTableEls();
             $('#mainFrame').removeClass('scrollLocked');
             $('#dagScrollBarWrap').removeClass('xc-hidden');
             DagPanel.adjustScrollBarPositionAndSize();
-        }, menuAnimTime + extraDelay);
+        });
     };
 
 
@@ -3501,7 +3503,7 @@ window.xcHelper = (function($, xcHelper) {
             if (milliSeconds < 60000 && !round) {// between 1 and 60 seconds
                 var mills = milliSeconds % (seconds * 1000);
                 if (milliSeconds < 10000) { // single digit seconds ex. 9s
-                    var millStr = Math.floor(mills / 10); // 
+                    var millStr = Math.floor(mills / 10);
                     if (millStr < 10) {
                         millStr = "0" + millStr;
                     }

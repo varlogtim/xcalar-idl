@@ -189,11 +189,7 @@ window.UnitTest = (function(UnitTest, $) {
 
         var sortColumnsAtoZ = true;
         TestSuite.__testOnly__.createTable(dsName, sortColumnsAtoZ)
-        .then(function(tableName, prefix) {
-            setTimeout(function() {
-                deferred.resolve(tableName, prefix);
-            }, 500);
-        })
+        .then(deferred.resolve)
         .fail(deferred.reject);
 
         return deferred.promise();

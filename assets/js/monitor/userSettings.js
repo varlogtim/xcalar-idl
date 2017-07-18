@@ -427,7 +427,7 @@ window.UserSettings = (function($, UserSettings) {
 
     function restoreMainTabs() {
         // XX xi2 hack for making worksheet initial screen
-        $("#workspaceTab").click();
+        // $("#workspaceTab .mainTab").click();
     }
 
     UserSettings.restoreMainTabs = restoreMainTabs;

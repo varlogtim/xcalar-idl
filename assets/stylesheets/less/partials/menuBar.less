@@ -38,6 +38,10 @@
     margin-right: @width-sideMenuMinimized;
     padding-top: @height-homeBtn;
     color: @color-white;
+
+    &.animating > div {
+        pointer-events: none;
+    }
 }
 
 
@@ -149,10 +153,10 @@
 
 // ========== Start Top / Main Menu =======
 #mainMenu {
-    .position(absolute, @left: @width-menuBar - @width-topMenu + 10, @bottom: 0px);
+    .position(absolute, @left: @width-menuBar - @width-topMenu + @width-sideMenuMinimized, @bottom: 0px);
     .size(@width: @width-topMenu,  @height: ~"calc(100% - @{height-homeBtn})");
     z-index: @z-index-topMenu;
-    .transition(left 0.2s);
+    .transition(left @time-menuAnim);
     background-color: @color-bg-dusk-blue;
     color: @color-white;
 
@@ -167,7 +171,7 @@
             content: "";
             opacity: 0;
             z-index: -1;
-            .transition(opacity 0.2s);
+            .transition(opacity @time-menuAnim);
         }
         &.jsonModalOpen {
             z-index: @z-index-modal;
@@ -482,10 +486,10 @@
 
 // ========== Bottom Menu ==========
 #bottomMenu {
-    .position(absolute, @left: -@width-bottomMenu, @bottom: 0px);
+    .position(absolute, @left: @width-menuBar - @width-bottomMenu, @bottom: 0px);
     .size(@width: @width-bottomMenu,  @height: ~"calc(100% - @{height-homeBtn})");
     z-index: @z-index-bottomMenu;
-    .transition(left 0.2s);
+    .transition(left @time-menuAnim);
 
     ::-webkit-scrollbar-track {
         background: rgba(0, 0, 0, 0.3);
@@ -512,7 +516,7 @@
             content: "";
             opacity: 0;
             z-index: -1;
-            .transition(opacity 0.2s);
+            .transition(opacity @time-menuAnim);
         }
     }
 

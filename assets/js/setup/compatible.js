@@ -554,6 +554,7 @@ window.Compatible = (function($, Compatible) {
             };
         }
 
+        // check set up transitionEnd event
         (function() {
             var fakeEl = document.createElement('fakeelement');
             var transitions = {
@@ -564,7 +565,7 @@ window.Compatible = (function($, Compatible) {
             };
 
             for (var t in transitions){
-                if ( fakeEl.style[t] !== undefined ) {
+                if (fakeEl.style[t] !== undefined ) {
                     window.transitionEnd = transitions[t];
                     return;
                 }

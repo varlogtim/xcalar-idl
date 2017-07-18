@@ -153,7 +153,7 @@
     box-shadow: 0px 0px 1px rgba(0,0,0,0.2);
     cursor: default;
     .no-selection;
-    .transition(0.2s all);
+    .transition(@time-menuAnim all);
     position: absolute;
     bottom: @height-bottomBar;
 
@@ -221,6 +221,12 @@
         .flex(1 1 auto);
         margin-top: 10px;
         overflow: hidden;
+
+        &.refreshing {
+            .listInfo, .refreshUserList, .sortSection, ul {
+                pointer-events: none;
+            }
+        }
 
         .xi-user {
             margin-left: 1px;

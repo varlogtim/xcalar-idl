@@ -133,18 +133,44 @@ describe("Main Menu Test", function() {
             expect($mainMenu.width() < width).to.be.true;
         });
 
-        it("should toggle menu", function() {
-            var $tab = $menuBar.find(".topMenuBarTab.active");
-            $tab.find(".mainTab").click();
-            expect(MainMenu.isMenuOpen()).to.be.false;
-            // toggle back
-            $tab.find(".mainTab").click();
-            expect(MainMenu.isMenuOpen()).to.be.true;
+        it("should toggle menu", function(done) {
+            var $tab;
+            UnitTest.testFinish(function() {
+                return !$("#menuBar").hasClass("animating");
+            })
+            .then(function() {
+                $tab = $menuBar.find(".topMenuBarTab.active");
+                $tab.find(".mainTab").click();
+                expect(MainMenu.isMenuOpen()).to.be.false;
+
+                return UnitTest.testFinish(function() {
+                    return !$("#menuBar").hasClass("animating");
+                });
+            })
+            .then(function() {
+                // toggle back
+                $tab.find(".mainTab").click();
+                expect(MainMenu.isMenuOpen()).to.be.true;
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
         });
 
-        it("should click minimizeBtn to close menu", function() {
-            $mainMenu.find(".minimizeBtn").click();
-            expect(MainMenu.isMenuOpen()).to.be.false;
+        it("should click minimizeBtn to close menu", function(done) {
+            UnitTest.testFinish(function() {
+                return !$("#menuBar").hasClass("animating");
+            })
+            .then(function() {
+                $mainMenu.find(".minimizeBtn").click();
+                expect(MainMenu.isMenuOpen()).to.be.false;
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+
         });
     });
 });
