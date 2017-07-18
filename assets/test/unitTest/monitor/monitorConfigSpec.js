@@ -62,10 +62,27 @@ describe("MonitorConfig Test", function() {
             expect($paramName.closest(".formRow").hasClass("uneditable")).to.be.true;
         });
 
+        it("submit should handle not found case", function() {
+            var $paramName = $configCard.find('.paramName').last();
+            $paramName.closest(".formRow").removeClass("uneditable");
+            $paramName.val("").trigger(fakeEvent.enter);
+            $('#paramSettingsSave').click();
+            UnitTest.hasStatusBoxWithError(ErrTStr.ConfigParamNotFound);
+        });
+
+        it("submit should handle no empty case", function() {
+            var $paramName = $configCard.find('.paramName').last();
+            $paramName.closest(".formRow").removeClass("uneditable");
+            $paramName.val("buffercachememlocking");
+            $paramName.closest(".formRow").find(".newVal").val("").trigger(fakeEvent.enterKeydown);
+            $('#paramSettingsSave').click();
+            UnitTest.hasStatusBoxWithError(ErrTStr.NoEmpty);
+        });
+
         it("submit fail should work", function() {
             var $paramName = $configCard.find('.paramName').last();
             $paramName.closest(".formRow").removeClass("uneditable");
-            $paramName.val("xdbminpagesize").trigger(fakeEvent.enter);
+            $paramName.val("TestMode").trigger(fakeEvent.enter);
 
             var cachedFn = XcalarSetConfigParams;
             var configCalled = false;
@@ -78,16 +95,6 @@ describe("MonitorConfig Test", function() {
 
             expect(configCalled).to.be.true;
             UnitTest.hasAlertWithTitle(MonitorTStr.ParamConfigFailed);
-
-            $paramName.val("").trigger(fakeEvent.enter);
-            $('#paramSettingsSave').click();
-            UnitTest.hasStatusBoxWithError(ErrTStr.ConfigParamNotFound);
-
-            $paramName.val("buffercachememlocking");
-            $paramName.closest(".formRow").find(".newVal").val("").trigger(fakeEvent.enterKeydown);
-            $('#paramSettingsSave').click();
-            UnitTest.hasStatusBoxWithError(ErrTStr.NoEmpty);
-
             XcalarSetConfigParams = cachedFn;
         });
     });

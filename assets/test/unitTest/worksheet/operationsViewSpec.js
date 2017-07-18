@@ -1234,8 +1234,11 @@ describe('OperationsView Test', function() {
             $functionsInput.click();
             expect($functionsList.is(":visible")).to.be.true;
             var numLis = $functionsList.find('li:visible').length;
-            expect(numLis).to.be.gt(7);
-            expect(numLis).to.be.lt(12);
+            // expect(numLis).to.be.gt(7);
+            // expect(numLis).to.be.lt(12);
+            // XXX We want to hide minFloat, minInteger, minString...
+            // and only expose to user min
+            expect(numLis).to.equal(13);
 
             $functionsInput.click();
             expect($functionsList.is(":visible")).to.be.true;
@@ -1282,8 +1285,9 @@ describe('OperationsView Test', function() {
             $functionsInput.click();
             expect($functionsList.is(":visible")).to.be.true;
             var numLis = $functionsList.find('li:visible').length;
-            expect(numLis).to.be.gt(7);
-            expect(numLis).to.be.lt(12);
+            // expect(numLis).to.be.gt(7);
+            // expect(numLis).to.be.lt(12);
+            expect(numLis).to.equal(13);
 
             $functionsInput.click();
             expect($functionsList.is(":visible")).to.be.true;
