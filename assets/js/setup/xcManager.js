@@ -1131,7 +1131,8 @@ window.xcManager = (function(xcManager, $) {
                     "prevMouseDowns": prevTargetsHtml
                 },
                 "stack": stack,
-                "txCache": xcHelper.deepCopy(Transaction.getCache())
+                "txCache": xcHelper.deepCopy(Transaction.getCache()),
+                "browser": window.navigator.userAgent
             };
             xcConsole.log(msg, url + ":" + line + ":" + column);
 

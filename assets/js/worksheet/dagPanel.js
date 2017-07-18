@@ -613,13 +613,10 @@ window.DagPanel = (function($, DagPanel) {
                 success = window.navigator.msSaveBlob(blob, name);
                 deferred.resolve();
             } else {
-                success = downloadImage(canvas, tableName);
-            }
-            $dagWrap.find('canvas').eq(1).remove();
-            if (success) {
+                downloadImage(canvas, tableName);
                 deferred.resolve();
             }
-            deferred.reject();
+            $dagWrap.find('canvas').eq(1).remove();
         })
         .fail(deferred.reject);
         return deferred;
@@ -631,19 +628,21 @@ window.DagPanel = (function($, DagPanel) {
         .then(function() {
             var canvas = $dagWrap.find('canvas').eq(1)[0];
             var lnk = canvas.toDataURL("image/png");
+
             if (lnk.length < 8) {
                 // was not able to make url because image is
                 //probably too large
-                Alert.show({
-                    "title": ErrTStr.LargeImgTab,
-                    "msg": ErrTStr.LargeImgText,
-                    "isAlert": true
-                });
-                $dagWrap.addClass('unsavable');
+                saveImgError(canvas);
                 deferred.reject(ErrTStr.LargeImgText);
             } else {
-                var newTab = window.open(lnk);
-                deferred.resolve(newTab);
+                if ($('html').hasClass('microsoft')) { // for IE
+                    var win = window.open();
+                    win.document.write('<img src="' + lnk + '" />');
+                    deferred.resolve();
+                } else {
+                    var newTab = window.open(lnk);
+                    deferred.resolve(newTab);
+                }
             }
             $dagWrap.find('canvas').eq(1).remove();
         })
@@ -743,39 +742,47 @@ window.DagPanel = (function($, DagPanel) {
         /// the key here is to set the download attribute of the a tag
         lnk.download = filename;
 
-        /// convert canvas content to data-uri for link. When download
-        /// attribute is set the content pointed to by link will be
-        /// pushed as "download" in HTML5 capable browsers
-        lnk.href = canvas.toDataURL();
-        if (lnk.href.length < 8) {
-            // was not able to make url because image is probably too large
-            Alert.show({
-                "title": ErrTStr.LargeImgSave,
-                "msg": ErrTStr.LargeImgText,
-                "isAlert": true
-            });
-            $(canvas).closest('.dagWrap').addClass('unsavable');
-            return false;
-        }
+        canvas.toBlob(function(blob) {
+            var newImg = document.createElement('img');
+            var url = URL.createObjectURL(blob);
+            newImg.onload = function() {
+                lnk.href = url;
+                if (lnk.href.length < 8) {
+                    // was not able to make url because image is probably too large
+                    saveImgError(canvas);
+                } else if (document.createEvent) {
+                    e = document.createEvent("MouseEvents");
+                    e.initMouseEvent("click", true, true, window,
+                                     0, 0, 0, 0, 0, false, false, false,
+                                     false, 0, null);
+                    // dispatchEvent return value not related to success
+                    lnk.dispatchEvent(e);
+                } else if (lnk.fireEvent) {
+                    // fireevent has no return value
+                    lnk.fireEvent("onclick");
+                } else {
+                    // No event fired.
+                    return false;
+                }
 
-        /// create a "fake" click-event to trigger the download
-        if (document.createEvent) {
+                URL.revokeObjectURL(url);
+            };
 
-            e = document.createEvent("MouseEvents");
-            e.initMouseEvent("click", true, true, window,
-                             0, 0, 0, 0, 0, false, false, false,
-                             false, 0, null);
-            // dispatchEvent return value not related to success
-            lnk.dispatchEvent(e);
-        } else if (lnk.fireEvent) {
-            // fireevent has no return value
-            lnk.fireEvent("onclick");
-        } else {
-            // No event fired.
-            return false;
-        }
-        // Event fired, not sure if successful
-        return true;
+            newImg.onerror = function() {
+                saveImgError(canvas);
+            };
+
+            newImg.src = url;
+        });
+    }
+
+    function saveImgError(canvas) {
+        Alert.show({
+            "title": ErrTStr.LargeImgSave,
+            "msg": ErrTStr.LargeImgText,
+            "isAlert": true
+        });
+        $(canvas).closest('.dagWrap').addClass('unsavable');
     }
 
     function positionAndShowRightClickDropdown(e, $menu) {
