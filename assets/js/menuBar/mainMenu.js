@@ -23,9 +23,10 @@ window.MainMenu = (function($, MainMenu) {
     };
 
     MainMenu.close = function(noAnim, makeInactive) {
+        var wasClickable = clickable;
         closeMenu($menuBar.find(".topMenuBarTab.active"), noAnim,
                   makeInactive);
-        if (!noAnim) {
+        if (!noAnim && wasClickable) {
             addAnimatingClass();
         }
     };
@@ -45,8 +46,9 @@ window.MainMenu = (function($, MainMenu) {
     };
 
     MainMenu.open = function(noAnim) {
+        var wasClickable = clickable;
         var hasAnim = openMenu($menuBar.find(".topMenuBarTab.active"), noAnim);
-        if (hasAnim) {
+        if (hasAnim && wasClickable) {
             addAnimatingClass();
         }
     };
@@ -232,17 +234,13 @@ window.MainMenu = (function($, MainMenu) {
         var $tabs = $menuBar.find(".topMenuBarTab");
 
         $tabs.click(function(event) {
-            if (!clickable) {
-                return;
-            }
-            // MainMenu.closeForms();
             Workbook.hide(true);
 
             var $curTab = $(this);
             var $target = $(event.target);
 
             if ($curTab.hasClass("active")) {
-                var hasAnim = true;
+                var hasAnim = false;
                 if ($target.closest(".mainTab").length) {
                     // clicking on active main tab
                     hasAnim = toggleMenu($curTab);
@@ -264,42 +262,47 @@ window.MainMenu = (function($, MainMenu) {
                 if (hasAnim) {
                     addAnimatingClass();
                 }
+            } else { // this tab was inactive, will make active
+                var $lastActiveTab = $tabs.filter(".active");
+                var lastTabId = $lastActiveTab.attr("id");
+                $lastActiveTab.addClass("noTransition")
+                              .find(".icon")
+                              .addClass("noTransition");
+                // we dont want transition when active tab goes to inactive
+                setTimeout(function() {
+                    $tabs.removeClass("noTransition")
+                         .find(".icon")
+                         .removeClass("noTransition");
+                }, 100);
 
-                return;
-            }
-            var $lastActiveTab = $tabs.filter(".active");
-            var lastTabId = $lastActiveTab.attr("id");
-            $lastActiveTab.addClass("noTransition")
-                          .find(".icon")
-                          .addClass("noTransition");
-            // we dont want transition when active tab goes to inactive
-            setTimeout(function() {
-                $tabs.removeClass("noTransition")
-                     .find(".icon")
-                     .removeClass("noTransition");
-            }, 100);
+                var noAnim = true;
+                if ($curTab.hasClass("mainMenuOpen")) {
+                    openMenu($curTab, noAnim);
+                } else {
+                    closeMenu($curTab, noAnim);
+                }
+                xcHelper.hideSuccessBox();
+                panelSwitchingHandler($curTab, lastTabId);
 
-            var noAnim = true;
-            if ($curTab.hasClass("mainMenuOpen")) {
-                openMenu($curTab, noAnim);
-            } else {
-                closeMenu($curTab, noAnim);
             }
-            xcHelper.hideSuccessBox();
-            panelSwitchingHandler($curTab, lastTabId);
+
         });
 
         $mainMenu[0].addEventListener(transitionEnd, function(event) {
             if (!$(event.target).is("#mainMenu")) {
                 return;
             }
-            for (var i = 0; i < menuAnimCheckers.length; i++) {
-                if (menuAnimCheckers[i]) {
-                    menuAnimCheckers[i].resolve();
-                }
-            }
-            menuAnimCheckers = [];
+            resolveMenuAnim();
         });
+    }
+
+    function resolveMenuAnim() {
+        for (var i = 0; i < menuAnimCheckers.length; i++) {
+            if (menuAnimCheckers[i]) {
+                menuAnimCheckers[i].resolve();
+            }
+        }
+        menuAnimCheckers = [];
     }
 
 
@@ -395,6 +398,7 @@ window.MainMenu = (function($, MainMenu) {
             noAnim = true;
         }
         checkAnim(noAnim);
+        resolveMenuAnim();
         $mainMenu.addClass("open").removeClass("closed");
         $mainMenu.width(currWidth);
 

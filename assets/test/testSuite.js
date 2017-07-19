@@ -553,7 +553,6 @@ window.TestSuite = (function($, TestSuite) {
         var innerDeferred = jQuery.Deferred();
         var tableName;
         var header;
-
         checkExists(getFinishDSIcon(dsName))
         .then(function() {
             if (!$grid.hasClass("active")) {
@@ -1129,7 +1128,6 @@ window.TestSuite = (function($, TestSuite) {
         var wsId = WSManager.getWSByIndex(1);
         var ws = WSManager.getWSById(wsId);
         var lPrefix;
-
         loadDS(dsName, url, check)
         .then(function() {
             var innerDeferred = jQuery.Deferred();
@@ -1140,7 +1138,6 @@ window.TestSuite = (function($, TestSuite) {
                 .then(innerDeferred.resolve)
                 .fail(innerDeferred.reject);
             }, 1000);
-
             return innerDeferred.promise();
         })
         .then(function(tableName, resPrefix) {
@@ -1178,7 +1175,6 @@ window.TestSuite = (function($, TestSuite) {
             $("#joinView .btn.next").click();
             $("#joinTableNameInput").val(newName);
             $("#joinTables").click();
-
             return checkExists(".xcTableWrap .tableName[value*='" +
                                 newName + "']", 30000);
         })
@@ -1385,6 +1381,7 @@ window.TestSuite = (function($, TestSuite) {
         dfName = "testDf" + randInt(); // globals in the module
         $("#newDFNameInput").val(dfName);
 
+
         var $section = $("#dfCreateView");
         $section.find(".selectAllWrap").click();
         $section.find("li .text:contains('class_id')")
@@ -1393,7 +1390,6 @@ window.TestSuite = (function($, TestSuite) {
         $section.find("li .text:contains('teacher_id')")
                 .siblings(".checkbox").click();
         $section.find(".confirm").click();
-
         // got to scheduler panel
         $("#dataflowTab").click();
 
@@ -1530,7 +1526,7 @@ window.TestSuite = (function($, TestSuite) {
                     return PromiseHelper.reject();
                 } else {
                     console.log("Some bug here:");
-                    console.log($("#alertModal")[0]);
+                    console.log($("#alertContent .text").text(), $("#alertModal")[0]);
                     return PromiseHelper.resolve();
                     //TestSuite.fail(deferred, testName, currentTestNumber);
                 }
