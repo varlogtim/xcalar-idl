@@ -129,6 +129,11 @@ window.StatusBox = (function($, StatusBox){
         } else {
             open = true;
         }
+
+        if (options.detail) {
+            $statusBox.addClass("hasDetail");
+            $statusBox.find(".detailContent").text(options.detail);
+        }
     };
 
     StatusBox.forceHide = function() {
@@ -146,6 +151,12 @@ window.StatusBox = (function($, StatusBox){
             event.preventDefault();
             event.stopPropagation();
             StatusBox.forceHide();
+        });
+
+        $("#statusBox .detailAction").mousedown(function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            $("#statusBox .detail").toggleClass("expand");
         });
     }
 
@@ -175,6 +186,8 @@ window.StatusBox = (function($, StatusBox){
         $statusBox.removeClass();
         $statusBox.find('.titleText').text('');
         $statusBox.find('.message').text('');
+        $statusBox.find(".detail").removeClass("expand")
+                  .find(".detailContent").text("");
     }
 
     return (StatusBox);

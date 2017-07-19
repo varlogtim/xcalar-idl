@@ -623,18 +623,21 @@ window.Workbook = (function($, Workbook) {
 
     function handleError(error, $ele) {
         var errorText;
+        var log;
         if (typeof error === "object" && error.error != null) {
             if (error.status === StatusT.StatusCanceled) {
                 return;
             }
             errorText = error.error;
+            log = error.log;
         } else if (typeof error === "string") {
             errorText = error;
         } else {
             errorText = JSON.stringify(error);
         }
-
-        StatusBox.show(errorText, $ele);
+        StatusBox.show(errorText, $ele, false, {
+            "detail": log
+        });
     }
 
     function pauseWorkbook($workbookBox) {
