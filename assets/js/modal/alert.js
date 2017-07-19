@@ -21,6 +21,21 @@ window.Alert = (function($, Alert){
             }
         });
         alertList.setupListeners();
+
+        $("#alertDetail .detailAction").click(function() {
+            var $alertDetail = $("#alertDetail");
+            var $content = $alertDetail.find(".detailContent");
+            var h;
+            if ($alertDetail.hasClass("expand")) {
+                h = $content.height();
+                $modal.height($modal.height() - h);
+                $alertDetail.removeClass("expand");
+            } else {
+                $alertDetail.addClass("expand");
+                h = $content.height();
+                $modal.height($modal.height() + h);
+            }
+        });
     };
 
     Alert.show = function(options) {
@@ -135,10 +150,12 @@ window.Alert = (function($, Alert){
     Alert.error = function(title, error, options) {
         var type = typeof error;
         var msg;
+        var log = null;
 
         if (type === "object") {
             // if it's an try/catch error, code will also goes here
             msg = error.error || AlertTStr.ErrorMsg;
+            log = error.log;
         } else {
             msg = error;
         }
@@ -149,6 +166,7 @@ window.Alert = (function($, Alert){
         var alertOptions = {
             "title": title,
             "msg": msg,
+            "detail": log,
             "isAlert": true
         };
         alertOptions = $.extend(options, alertOptions);
@@ -239,6 +257,16 @@ window.Alert = (function($, Alert){
         } else {
             var msg = options.msg || "";
             $alertContent.find(".text").empty().text(msg);
+        }
+
+        if (options.detail != null) {
+            $modal.addClass("hasDetail");
+            $("#alertDetail").removeClass("expand")
+                             .find(".detailContent").text(options.detail);
+        } else {
+            $modal.removeClass("hasDetail");
+            $("#alertDetail").removeClass("expand")
+                             .find(".detailContent").text("");
         }
 
         // set alert instruction

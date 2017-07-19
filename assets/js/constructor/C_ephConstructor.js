@@ -3417,9 +3417,10 @@ RectSelction.prototype = {
 
         var bottom = top + h;
         var right = left + w;
-
+        // the $rect is absolute to the $container
+        // so if $container has scrollTop, the top need to consider it
         $rect.css("left", left)
-            .css("top", top)
+            .css("top", top + self.$container.scrollTop())
             .width(w)
             .height(h);
 

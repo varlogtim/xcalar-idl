@@ -1577,6 +1577,38 @@ html.microsoft {
         }
     }
 
+     &.hasDetail {
+        #alertDetail {
+            display: block;
+        }
+    }
+
+    #alertDetail {
+        display: none;
+        .size(@width: 100%);
+        padding: 0 20px 5px 20px;
+        max-height: 75px;
+
+        &.expand {
+            .detailContent {
+                display: block;
+            }
+        }
+
+        .detailTitle {
+            .font(@size: 12px, @color: @color-font-softBlue);
+            text-align: right;
+            text-decoration: underline;
+            margin: 3px 0;
+        }
+
+        .detailContent {
+            display: none;
+            .textOverflow;
+            word-break: break-all;
+        }
+    }
+
     #alertContent {
         .size(@width: 100%);
         padding: 5px 20px;
