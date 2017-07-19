@@ -434,8 +434,12 @@ window.Installer = (function(Installer, $) {
                 finalStruct.nfsOption.nfsServer = $("#nfsServer").val().trim();
                 // avoid duplicate "/" at the head
                 var mountPoint = $("#nfsMountPoint").val().trim();
-                finalStruct.nfsOption.nfsMountPoint = (mountPoint.indexOf("/") === 0)?
-                                                       mountPoint : ("/" + mountPoint);
+                mountPoint = (mountPoint.indexOf("/") === 0)? mountPoint : ("/" + mountPoint);
+                // Remove the "/" at tail
+                if (mountPoint.charAt(mountPoint.length - 1) === "/") {
+                    mountPoint = mountPoint.substring(0, mountPoint.length - 1);
+                }
+                finalStruct.nfsOption.nfsMountPoint = mountPoint;
                 finalStruct.nfsOption.nfsUsername = $("#nfsUserName").val()
                                                                      .trim();
                 finalStruct.nfsOption.nfsGroup = $("#nfsUserGroup").val()
