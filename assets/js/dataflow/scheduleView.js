@@ -611,7 +611,7 @@ window.Scheduler = (function(Scheduler, $) {
         var isValid;
         var currentTime;
         var options;
-        // var exportOption = null;
+        var exportOption = null;
 
         if (isSimpleMode()) {
             // Simple mode
@@ -667,7 +667,7 @@ window.Scheduler = (function(Scheduler, $) {
                 return PromiseHelper.reject();
             }
 
-            // exportOption = DFCard.getAdvancedExportOption(dataflowName, true);
+            exportOption = DFCard.getAdvancedExportOption(dataflowName, true);
             options = {
                 "startTime": startTime, // In milliseconds
                 "dateText": dateStr,       // String
@@ -675,10 +675,8 @@ window.Scheduler = (function(Scheduler, $) {
                 "repeat": repeat,       // element in scheduleFreq in Scheduler
                 "modified": currentTime,// In milliseconds
                 "created": currentTime,
-                "activeSession": false,
-                "newTableName": "",
-                // "activeSession": (exportOption === null) ? false : exportOption.activeSession,
-                // "newTableName": (exportOption === null) ? "" : exportOption.newTableName,
+                "activeSession": (exportOption === null) ? false : exportOption.activeSession,
+                "newTableName": (exportOption === null) ? "" : exportOption.newTableName,
                 "usePremadeCronString": false,
                 "premadeCronString": "",
                 "isPaused": false
@@ -691,7 +689,7 @@ window.Scheduler = (function(Scheduler, $) {
                 return PromiseHelper.reject();
             }
             currentTime = new Date().getTime();
-            // exportOption = DFCard.getAdvancedExportOption(dataflowName, true);
+            exportOption = DFCard.getAdvancedExportOption(dataflowName, true);
             options = {
                 "startTime": currentTime,  // In milliseconds
                 "dateText": "", // String
@@ -699,10 +697,8 @@ window.Scheduler = (function(Scheduler, $) {
                 "repeat": "N/A",
                 "modified": currentTime,
                 "created": currentTime,
-                "activeSession": false,
-                "newTableName": "",
-                // "activeSession": (exportOption === null) ? false : exportOption.activeSession,
-                // "newTableName": (exportOption === null) ? "" : exportOption.newTableName,
+                "activeSession": (exportOption === null) ? false : exportOption.activeSession,
+                "newTableName": (exportOption === null) ? "" : exportOption.newTableName,
                 "usePremadeCronString": true,
                 "premadeCronString": cronString,
                 "isPaused": false
