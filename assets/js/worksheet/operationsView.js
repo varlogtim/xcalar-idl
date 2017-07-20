@@ -581,7 +581,7 @@ window.OperationsView = (function($, OperationsView) {
                         .find('.checkbox').removeClass('checked');
 
                 if (isNoArgsBox) {
-                       showEmptyOptions($sibArgs);
+                    showEmptyOptions($sibArgs);
                     $sibArgs.val("");
                     var $inputWraps = $sibArgs.closest(".inputWrap");
                     $inputWraps.addClass("semiHidden");
@@ -1025,7 +1025,7 @@ window.OperationsView = (function($, OperationsView) {
         var $lists = $operationsView.find(".cast.new .dropDownList");
         $lists.closest('.cast.new').removeClass('new');
         var castList = new MenuHelper($lists, {
-            "onOpen": function($list) {
+            "onOpen": function() {
                 StatusBox.forceHide();
             },
             "onSelect": function($li) {

@@ -676,7 +676,7 @@ window.JoinView = (function($, JoinView) {
     function colHeaderClick($target, event) {
         var $cell = $target.closest("th");
         if (!$cell.length) {
-           $cell = $target.closest("td");
+            $cell = $target.closest("td");
         }
 
         var tableId = $cell.closest(".xcTable").data("id");
@@ -2010,7 +2010,7 @@ window.JoinView = (function($, JoinView) {
 
         updatePreviewText();
         $joinView.removeClass('nextStep');
-         $("#container").removeClass("joinState2");
+        $("#container").removeClass("joinState2");
         updateJoinTableName();
         resetRenames();
         curTableIds = [];
@@ -2147,7 +2147,7 @@ window.JoinView = (function($, JoinView) {
 
     var joinOnNumTimer;
 
-    function updateJoinOnNums(delay) {
+    function updateJoinOnNums() {
         var tableIds = getTableIds();
         var lTable = gTables[tableIds[0]];
         var rTable = gTables[tableIds[1]];
@@ -2159,9 +2159,9 @@ window.JoinView = (function($, JoinView) {
             lClause = $joinClause.find(".leftClause").val().trim();
             rClause = $joinClause.find(".rightClause").val().trim();
             if (lTable) {
-                 var lColNum = lTable.getColNumByFrontName(lClause);
-                 $lTable.find("th.col" + lColNum + ' .header')
-                   .append('<span class="joinOn">' + (i + 1) + '</span>');
+                var lColNum = lTable.getColNumByFrontName(lClause);
+                $lTable.find("th.col" + lColNum + ' .header')
+                       .append('<span class="joinOn">' + (i + 1) + '</span>');
             }
             if (rTable) {
                 var rColNum = rTable.getColNumByFrontName(rClause);

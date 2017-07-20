@@ -17,7 +17,9 @@ $(document).ready(function() {
 
     if (waadLoggedIn) {
         var user = waadAuthContext.getCachedUser();
-        if (user.profile.hasOwnProperty("admin") && user.profile["admin"] == "true") {
+        if (user.profile.hasOwnProperty("admin") &&
+            user.profile["admin"] === "true")
+        {
             xcLocalStorage.setItem("admin", true);
         } else {
             xcLocalStorage.removeItem("admin");

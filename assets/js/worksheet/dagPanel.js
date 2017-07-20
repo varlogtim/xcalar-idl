@@ -3691,7 +3691,7 @@ window.Dag = (function($, Dag) {
         }
 
         html += '<div class="dagTable ' + classes + '" ' +
-                    'data-tablename="' +  tableName + '" ' +
+                    'data-tablename="' + tableName + '" ' +
                     'data-index="' + index + '" ' +
                     'data-nodeid="' + dagInfo.id + '" ' +
                     dataAttrs + '>' +

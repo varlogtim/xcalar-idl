@@ -1704,36 +1704,36 @@ window.TblManager = (function($, TblManager) {
         });
     }
 
-    function createDag(tableId, tableToReplace, options) {
-        var deferred = jQuery.Deferred();
-        var promise;
-        if (options.txId != null) {
-            var txId = options.txId;
-            var tables = QueryManager.getAllDestTables(txId, true);
-            if (tables.length) {
-                var tagName = QueryManager.getQuery(txId).getName();
-                var tId = xcHelper.getTableId(tables[0]);
-                var tagName;
-                if (tId) {
-                    tagName += "#" + tId;
-                }
-                promise = XcalarTagDagNodes(tagName, tables);
-            } else {
-                promise = PromiseHelper.resolve();
-            }
-        } else {
-            promise = PromiseHelper.resolve();
-        }
+    // function createDag(tableId, tableToReplace, options) {
+    //     var deferred = jQuery.Deferred();
+    //     var promise;
+    //     if (options.txId != null) {
+    //         var txId = options.txId;
+    //         var tables = QueryManager.getAllDestTables(txId, true);
+    //         if (tables.length) {
+    //             var tagName = QueryManager.getQuery(txId).getName();
+    //             var tId = xcHelper.getTableId(tables[0]);
+    //             var tagName;
+    //             if (tId) {
+    //                 tagName += "#" + tId;
+    //             }
+    //             promise = XcalarTagDagNodes(tagName, tables);
+    //         } else {
+    //             promise = PromiseHelper.resolve();
+    //         }
+    //     } else {
+    //         promise = PromiseHelper.resolve();
+    //     }
 
-        PromiseHelper.alwaysResolve(promise)
-        .then(function() {
-            return Dag.construct(tableId, tableToReplace, options);
-        })
-        .then(deferred.resolve)
-        .fail(deferred.reject);
+    //     PromiseHelper.alwaysResolve(promise)
+    //     .then(function() {
+    //         return Dag.construct(tableId, tableToReplace, options);
+    //     })
+    //     .then(deferred.resolve)
+    //     .fail(deferred.reject);
 
-        return deferred.promise();
-    }
+    //     return deferred.promise();
+    // }
 
 
     /*
