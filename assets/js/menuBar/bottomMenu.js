@@ -27,14 +27,8 @@ window.BottomMenu = (function($, BottomMenu) {
             if (!$menuPanel.hasClass("open")) {
                 $menuPanel.find(".bottomMenuContainer").hide();
             }
-            for (var i = 0; i < menuAnimCheckers.length; i++) {
-                if (menuAnimCheckers[i]) {
-                    menuAnimCheckers[i].resolve();
-                }
-            }
-            menuAnimCheckers = [];
+            resolveMenuAnim();
         });
-
     };
 
     // BottomMenu.clear = function() {
@@ -44,6 +38,9 @@ window.BottomMenu = (function($, BottomMenu) {
 
     BottomMenu.close = function(topMenuOpening) {
         closeMenu(topMenuOpening);
+        if (topMenuOpening) {
+            resolveMenuAnim();
+        }
     };
 
     BottomMenu.isMenuOpen = function() {
@@ -339,7 +336,7 @@ window.BottomMenu = (function($, BottomMenu) {
         $menuPanel.addClass("noAnim");
         setTimeout(function() {
             $menuPanel.removeClass("noAnim");
-        }, 0);
+        }, 100);
     }
 
     function checkMenuAnimFinish() {
@@ -385,6 +382,15 @@ window.BottomMenu = (function($, BottomMenu) {
         if (adjustTables && $("#workspacePanel").hasClass("active")) {
             xcHelper.menuAnimAligner(false, checkMenuAnimFinish);
         }
+    }
+
+    function resolveMenuAnim() {
+        for (var i = 0; i < menuAnimCheckers.length; i++) {
+            if (menuAnimCheckers[i]) {
+                menuAnimCheckers[i].resolve();
+            }
+        }
+        menuAnimCheckers = [];
     }
 
     return (BottomMenu);

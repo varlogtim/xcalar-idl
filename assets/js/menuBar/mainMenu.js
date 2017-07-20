@@ -403,7 +403,9 @@ window.MainMenu = (function($, MainMenu) {
         $mainMenu.width(currWidth);
 
         var mainMenuOpening = true;
-        BottomMenu.close(mainMenuOpening);
+        if (BottomMenu.isMenuOpen()) {
+            BottomMenu.close(mainMenuOpening);
+        }
         $("#container").addClass("mainMenuOpen");
         isMenuOpen = true;
         $curTab.addClass("mainMenuOpen");

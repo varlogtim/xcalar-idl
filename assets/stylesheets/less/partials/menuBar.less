@@ -486,7 +486,7 @@
 
 // ========== Bottom Menu ==========
 #bottomMenu {
-    .position(absolute, @left: @width-menuBar - @width-bottomMenu, @bottom: 0px);
+    .position(absolute, @left: -295px, @bottom: 0px); // far left so we can't see visibile items
     .size(@width: @width-bottomMenu,  @height: ~"calc(100% - @{height-homeBtn})");
     z-index: @z-index-bottomMenu;
     .transition(left @time-menuAnim);

@@ -39,8 +39,17 @@ describe("Bottom Menu Test", function() {
     describe("UI Behavior Test", function() {
         var $bottomMenu;
 
-        before(function() {
+        before(function(done) {
             $bottomMenu = $("#bottomMenu");
+            UnitTest.testFinish(function() {
+                return !$("#menuBar").hasClass("animating");
+            })
+            .then(function() {
+                done();
+            })
+            .fail(function() {
+                done("failed");
+            });
         });
 
         it("should click to open bottom menu", function() {

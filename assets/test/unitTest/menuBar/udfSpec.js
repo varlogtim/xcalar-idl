@@ -13,11 +13,19 @@ describe("UDF Test", function() {
         UnitTest.onMinMode();
 
         if (!$tab.hasClass("active")) {
-            $tab.click();
-            // wait for menu bar to open
-            setTimeout(function() {
+            UnitTest.testFinish(function() {
+                return !$("#menuBar").hasClass("animating");
+            })
+            .then(function() {
+                $tab.click();
+                return !$("#menuBar").hasClass("animating");
+            })
+            .then(function() {
                 done();
-            }, waitTime);
+            })
+            .fail(function() {
+                done("fail");
+            });
         } else {
             done();
         }

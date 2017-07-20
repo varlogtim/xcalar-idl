@@ -47,7 +47,15 @@ describe("JoinView Test", function() {
             };
 
             JoinView.show(tableId, [1]);
-            done();
+            UnitTest.testFinish(function() {
+                return !$("#menuBar").hasClass("animating");
+            })
+            .then(function() {
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
         })
         .fail(function() {
             done("fail");
