@@ -872,8 +872,7 @@ window.Scheduler = (function(Scheduler, $) {
         var statusClass;
         if (statusStr === "Running") {
             statusClass = "processing";
-        } else if (statusStr === "Success" ||
-                   statusStr === "Export file already exists") {
+        } else if (statusStr === "Success") {
             statusClass = "success";
         } else {
             statusClass = "fail";
