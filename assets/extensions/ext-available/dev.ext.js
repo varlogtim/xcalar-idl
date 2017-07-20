@@ -126,6 +126,7 @@ window.UExtDev = (function(UExtDev) {
                 // the second unlock becomes a noop. But this is not future
                 // proof.
                 xcHelper.unlockTable(xcHelper.getTableId(srcTableName));
+                xcHelper.unlockTable(xcHelper.getTableId(rTableName));
             }
 
             var leftLimit = args.leftLimit;
