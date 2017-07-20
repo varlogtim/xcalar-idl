@@ -22,6 +22,8 @@ window.Workbook = (function($, Workbook) {
         addTopbarEvents();
         addWorkbookEvents();
 
+        var closeTimer = null;
+        var doneTimer = null;
         // open or close workbook view
         $("#homeBtn").click(function() {
             $(this).blur();
@@ -48,13 +50,15 @@ window.Workbook = (function($, Workbook) {
                     $workbookPanel.addClass("closeAttempt");
                     $dialogWrap.removeClass("doneCloseAttempt");
                     $dialogWrap.addClass("closeAttempt");
-                    setTimeout(function() {
+                    clearTimeout(closeTimer);
+                    clearTimeout(doneTimer);
+                    closeTimer = setTimeout(function() {
                         $workbookPanel.removeClass("closeAttempt");
                     }, 200);
-                    setTimeout(function() {
+                    doneTimer = setTimeout(function() {
                         $dialogWrap.removeClass("closeAttempt")
                                     .addClass("doneCloseAttempt");
-                    }, 1000);
+                    }, 2000);
                 } else {
                     // default, exit the workbook
                     closeWorkbookPanel();

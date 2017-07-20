@@ -110,7 +110,7 @@ module.exports = {
         "TxtAlignLeft": "向左对齐",
         "TxtAlignRight": "向右对齐",
         "TxtAlignWrap": "文本环绕",
-        "UnexpectedTable": "Unexpected table",
+        "UnexpectedTable": "未知表",
         "UnHideTbl": "最大化表",
         "UnlockTbl": "解锁",
         "Unsavable": "无法保存图像",

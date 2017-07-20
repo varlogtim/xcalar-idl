@@ -506,8 +506,8 @@ WKBKTStr = {
 'HoldMsg': '您已经在其他地方登录了。继续登录可能会导致您丢失未保存的工作。',
 'Release': '继续登录',
 'WKBKnotExists': '没有工作簿存在',
-"WaitActivateFinish": "Please wait for workbook to activate.",
-"NoActive": "No active worksheets. Please create one first.",
+"WaitActivateFinish": "工作簿机激活中",
+"NoActive": "没有被激活的工作簿，请创建或激活工作簿",
 "Activate": '激活工作簿',
 "ReturnWKBK": '返回工作簿',
 "EditName": '编辑工作簿名称',
@@ -536,7 +536,7 @@ WKBKTStr = {
 'Paused': '暂停',
 'PauseMsg': '您确定要暂停工作簿吗？',
 'PauseErr': '暂停工作簿时出错',
-'Refreshing': 'Refreshing in <time> seconds'
+'Refreshing': '在 <time> 秒后刷新'
 };
 
 MonitorTStr = {
@@ -643,7 +643,7 @@ DFTStr = {
 "RefreshMsg": "当前数据流已被其他用户更改",
 "AddValues": "赋值",
 "ParamNoValue": "请为当前数据流使用的所有参数赋值",
-"CannotParam": "Cannot parameterize if exporting as a Xcalar table"
+"CannotParam": "如果导出成Xcalar表，则无法参数化"
 };
 DSTStr = {
 'UnknownUser': '未知用户',
