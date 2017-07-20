@@ -73,7 +73,7 @@ window.PromiseHelper = (function(PromiseHelper, $) {
                 } else if (arguments.length === 1) {
                     returns[i] = arguments[0];
                 } else {
-                    returns[i] = arguments;
+                    returns[i] = Array.prototype.slice.call(arguments);
                 }
 
                 if (numDone === numProm) {
@@ -94,7 +94,7 @@ window.PromiseHelper = (function(PromiseHelper, $) {
                 } else if (arguments.length === 1) {
                     returns[i] = arguments[0];
                 } else {
-                    returns[i] = arguments;
+                    returns[i] = Array.prototype.slice.call(arguments);
                 }
                 hasFailures = true;
                 if (numDone === numProm) {

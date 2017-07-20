@@ -1018,9 +1018,12 @@ function XcalarExport(tableName, exportName, targetName, numColumns,
     .fail(function(error) {
         var thriftError;
         if (error instanceof Array) {
-            thriftError = thriftLog("XcalarExport",
-                {"status": error[0], "log": error[1]}
-            );
+            thriftError = thriftLog("XcalarExport", {
+                "status": error[0],
+                "log": error[1]
+            });
+        } else {
+            thriftError = thriftLog("XcalarExport", error);
         }
         deferred.reject(thriftError);
     });
