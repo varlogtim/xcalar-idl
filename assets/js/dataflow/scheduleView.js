@@ -243,8 +243,19 @@ window.Scheduler = (function(Scheduler, $) {
         $scheduleDetail.find(".scheduleHeading .heading").text(dataflowName);
         // show schedule settings as default
         if (DF.hasSchedule(dataflowName)) {
+            $scheduleDetail.addClass("withSchedule")
+                           .removeClass("withoutSchedule");
             switchTab(1);
+
+            var schedule = DF.getSchedule(currentDataFlowName);
+            if (schedule.isPaused) {
+                $scheduleDetail.addClass("pauseState");
+            } else {
+                $scheduleDetail.removeClass("pauseState");
+            }
         } else {
+            $scheduleDetail.removeClass("withSchedule")
+                           .addClass("withoutSchedule");
             switchTab(0);
         }
         if (XVM.getLicenseMode() === XcalarMode.Mod) {
