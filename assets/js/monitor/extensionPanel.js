@@ -495,7 +495,7 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
                             '</div>' +
                             '<div class="rightPart">' +
                                 '<a class="url" ' +
-                                'href="mailto:customerportal@xcalar.com" ' +
+                                'onclick="window.open(\'mailto:customerportal@xcalar.com\')" ' +
                                 'target="_top">' +
                                     ExtTStr.Report +
                                 '</a>' +
