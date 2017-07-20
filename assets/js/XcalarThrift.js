@@ -3201,7 +3201,7 @@ function XcalarUpdateSched(scheduleKey, retName, substitutions, options, timingI
 }
 
 
-function XcalarListSchedules(scheduleKey) {
+function XcalarListSchedules(scheduleKey, withResult) {
     // scheduleKey can be an *exact* schedule key,
     // or emptystring, in which case all schedules are listed
     // No support for patterns yet
@@ -3215,7 +3215,8 @@ function XcalarListSchedules(scheduleKey) {
     }
 
     var listInput = {
-        "scheduleKey": scheduleKey
+        "scheduleKey": scheduleKey,
+        "withResult": withResult
     };
 
     XcalarAppExecute("ScheduleList", true, JSON.stringify(listInput))

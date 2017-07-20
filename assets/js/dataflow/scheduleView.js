@@ -801,7 +801,7 @@ window.Scheduler = (function(Scheduler, $) {
         getOutputLocation()
         .then(function(res) {
             outputStr = res;
-            return XcalarListSchedules(currentDataFlowName);
+            return XcalarListSchedules(currentDataFlowName, true);
         })
         .then(function(data) {
             if (dataflowName !== currentDataFlowName) {
@@ -811,7 +811,8 @@ window.Scheduler = (function(Scheduler, $) {
             var scheduleInfo = data[0];
             histories = "";
             infos = "";
-            if (scheduleInfo && scheduleInfo.scheduleResults.length) {
+            if (scheduleInfo && scheduleInfo.scheduleResults &&
+                scheduleInfo.scheduleResults.length) {
                 scheduleInfo.scheduleResults.forEach(function(res, index) {
                     var record = getOneRecordHtml(res, outputStr, index);
                     histories = record.history + histories;
