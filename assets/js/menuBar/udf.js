@@ -58,9 +58,13 @@ window.UDF = (function($, UDF) {
 
     // used in extManager.js
     UDF.storePython = function(moduleName, entireString) {
-        storedUDF[moduleName] = entireString;
+        storePython(moduleName, entireString);
         updateUDF();
     };
+
+    function storePython(moduleName, entireString) {
+        storedUDF[moduleName] = entireString;
+    }
 
     UDF.refresh = function(isInBg) {
         return refreshUDF(isInBg);
@@ -698,17 +702,17 @@ window.UDF = (function($, UDF) {
             if (type === "UDF") {
                 XcalarUploadPython(moduleName, entireString)
                 .then(function() {
-                    UDF.storePython(moduleName, entireString);
+                    storePython(moduleName, entireString);
                     KVStore.commit();
                     xcHelper.showSuccess(SuccessTStr.UploadUDF);
 
-                    refreshUDF(true);
+                    refreshUDF(true, true);
                     var $uploadedFunc = $("#udf-fnMenu")
                                     .find('li[data-title="' + moduleName +
                                            '"]');
                     // select list directly use
                     // $uploadedFunc.trigger(fakeEvent.mouseup) will reset
-                    // the cusort, which might be ignoring
+                    // the cursor, which might be ignoring
                     if ($uploadedFunc.length) {
                         $("#udf-fnList input").val(moduleName);
                     } else {
