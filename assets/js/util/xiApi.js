@@ -875,8 +875,12 @@ window.XIApi = (function(XIApi, $) {
         // left cols
         var lTableId = xcHelper.getTableId(lTableName);
         var rTableId = xcHelper.getTableId(rTableName);
-        var lCols = gTables[lTableId].tableCols;
-        var rCols = gTables[rTableId].tableCols;
+        var lCols = null; // ok if null, only being used for setorphantablemeta
+        var rCols = null; // ok if null, only being used for setorphantablemeta
+        if (gTables[lTableId] && gTables[rTableId]) {
+            lCols = gTables[lTableId].tableCols;
+            rCols = gTables[rTableId].tableCols;
+        }
 
         if (len === 1) {// single join
             if (!lCasts[0] && !rCasts[0]) {
