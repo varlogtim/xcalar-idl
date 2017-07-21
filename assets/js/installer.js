@@ -32,6 +32,8 @@ window.Installer = (function(Installer, $) {
     var numServers = 4;
     var cancel = false;
     var done = false;
+    var port = 443;
+    var tarballPort = 8443;
 
     Installer.clearInterval = function() {
         if (intervalTimer) {
@@ -906,7 +908,12 @@ window.Installer = (function(Installer, $) {
         $("form:visible .btn.next").val("LAUNCH XD").removeClass('next')
                                                     .addClass("redirect");
         $(".redirect").click(function() {
-            window.location = "http://" + finalStruct.hostnames[0];
+            if ($(".installationDirectorySection").length !== 0) {
+                // tarball installer
+                window.location = "https://" + finalStruct.hostnames[0] + ":" + tarballPort;
+            } else {
+                window.location = "https://" + finalStruct.hostnames[0] + ":" + port;
+            }
         });
         $(".ldapSection").hide();
         $(".successSection").show();
