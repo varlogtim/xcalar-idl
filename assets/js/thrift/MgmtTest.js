@@ -204,7 +204,6 @@ PromiseHelper = (function(PromiseHelper, $) {
     var qaTestDir = system.env.QATEST_DIR;
     var envLicenseDir = system.env.XCE_LICENSEDIR;
     var envLicenseFile = system.env.XCE_LIC_FILE;
-    var numUsrnodes = 3;
 
     console.log("Qa test dir: " + qaTestDir);
     startNodesState = TestCaseEnabled;
@@ -385,18 +384,11 @@ PromiseHelper = (function(PromiseHelper, $) {
     }
 
     function testStartNodes(test) {
-        test.trivial(xcalarStartNodes(thriftHandle, numUsrnodes));
+        test.trivial(xcalarStartNodes(thriftHandle, 3));
     }
 
     function testGetNumNodes(test) {
-        xcalarGetNumNodes(thriftHandle)
-        .done(function(numNodes) {
-            test.assert(numNodes === numUsrnodes);
-            test.pass();
-        })
-        .fail(function(status) {
-            test.fail(StatusTStr[status]);
-        });
+        test.trivial(xcalarGetNumNodes(thriftHandle));
     }
 
     function testGetVersion(test) {
@@ -438,11 +430,11 @@ PromiseHelper = (function(PromiseHelper, $) {
                     ", Restart: " + getConfigParamsOutput.parameter[ii].restartRequired +
                     ", Default: " + getConfigParamsOutput.parameter[ii].defaultValue);
                 // All currently require restart
-                test.assert(getConfigParamsOutput.parameter[ii].restartRequired === true);
+                test.assert(getConfigParamsOutput.parameter[ii].restartRequired == true);
                 // Check one of them.
                 if (getConfigParamsOutput.parameter[ii].paramName == "TotalSystemMemory") {
-                    test.assert(getConfigParamsOutput.parameter[ii].changeable === false);
-                    test.assert(getConfigParamsOutput.parameter[ii].visible === false);
+                    test.assert(getConfigParamsOutput.parameter[ii].changeable == false);
+                    test.assert(getConfigParamsOutput.parameter[ii].visible == false);
                 }
             }
             test.pass();
@@ -498,7 +490,7 @@ PromiseHelper = (function(PromiseHelper, $) {
                                 ", Changeable: " + getConfigParamsOutput.parameter[ii].changeable +
                                 ", Restart: " + getConfigParamsOutput.parameter[ii].restartRequired +
                                 ", Default: " + getConfigParamsOutput.parameter[ii].defaultValue);
-                             test.assert(getConfigParamsOutput.parameter[ii].visible === true);
+                             test.assert(getConfigParamsOutput.parameter[ii].visible == true);
                              test.assert(getConfigParamsOutput.parameter[ii].paramValue == paramValueNew);
                              found = "true";
                              break;
@@ -522,15 +514,15 @@ PromiseHelper = (function(PromiseHelper, $) {
                                         ", Changeable: " + getConfigParamsOutput.parameter[ii].changeable +
                                         ", Restart: " + getConfigParamsOutput.parameter[ii].restartRequired +
                                         ", Default: " + getConfigParamsOutput.parameter[ii].defaultValue);
-                                    test.assert(getConfigParamsOutput.parameter[ii].visible === false);
+                                    test.assert(getConfigParamsOutput.parameter[ii].visible == false);
                                     test.assert(getConfigParamsOutput.parameter[ii].paramValue == paramValueOld);
                                     test.pass();
                                 }
                             }
-                        });
-                    });
-                });
-            });
+                        })
+                    })
+                })
+            })
         })
         .fail(function(reason) {
             test.fail(StatusTStr[reason]);
@@ -585,8 +577,8 @@ PromiseHelper = (function(PromiseHelper, $) {
         .then(function(result) {
             printResult(result);
             var previewOutput = result;
-            var preview = JSON.parse(previewOutput.outputJson);
-            console.log("\t yelp/user preview : " + preview.base64Data);
+            var preview = JSON.parse(previewOutput.outputJson)
+            console.log("\t yelp/user preview : " + preview["base64Data"]);
             var expectedStr = "[\n{\"yelping_s";
             console.log("\t expected encoded: " + btoa(expectedStr.substring(2,13)));
             console.log("\t expected len: " + expectedStr.length - 2);
@@ -760,7 +752,7 @@ PromiseHelper = (function(PromiseHelper, $) {
 
         xcalarLoad(thriftHandle, "nfs://" + qaTestDir + "/edgeCases/bad.json", "bad", DfFormatTypeT.DfFormatJson, 0, loadArgs)
         .then(function(result) {
-            test.fail("load succeeded when it should have failed");
+            test.fail("load succeeded when it should have failed")
         })
         .fail(function(status, result) {
             printResult(result);
@@ -926,7 +918,7 @@ PromiseHelper = (function(PromiseHelper, $) {
                 test.assert(key.indexOf("prefix::") === 0);
             }
 
-            return xcalarFreeResultSet(thriftHandle, resultSetId);
+            return xcalarFreeResultSet(thriftHandle, resultSetId)
         })
         .then(function(status) {
             printResult(status);
@@ -1885,7 +1877,7 @@ PromiseHelper = (function(PromiseHelper, $) {
     function testQueryCancel(test) {
         var cancelledTableName = "cancelledTable2";
         var query = "index --key votes.funny --dataset " + datasetPrefix +
-            "yelp" + " --dsttable " + cancelledTableName + " --sorted;";
+            "yelp" + " --dsttable " + cancelledTableName + " --sorted;"
 
         var queryNamePrefix = "testQueryCancel-";
         var time = 1000;
@@ -1994,6 +1986,23 @@ PromiseHelper = (function(PromiseHelper, $) {
             for (var ii = 0; ii < dagOutput.numNodes; ii++) {
                 if (dagOutput.node[ii].name.name == tableName) {
                     test.assert(dagOutput.node[ii].tag == "testTag");
+                }
+            }
+            test.pass();
+        })
+        .fail(test.fail);
+    }
+
+    function testCommentDagNodes(test) {
+        var tableName = "yelp/user-review_count"
+        xcalarCommentDagNodes(thriftHandle, "testComment", 1, [tableName])
+        .then(function() {
+            return xcalarDag(thriftHandle,  tableName);
+        })
+        .then(function(dagOutput) {
+            for (var ii = 0; ii < dagOutput.numNodes; ii++) {
+                if (dagOutput.node[ii].name.name == tableName) {
+                    test.assert(dagOutput.node[ii].comment == "testComment");
                 }
             }
             test.pass();
@@ -2665,7 +2674,7 @@ PromiseHelper = (function(PromiseHelper, $) {
                         test.pass();
                     })
                     .fail(function(status) {
-                        test.fail(StatusTStr[status]);
+                        test.fail(StatusTStr[status])
                     });
                 } else if (reason == StatusT.StatusQrQueryInUse) {
                     console.log("Retina did not get the chance to run.  Trying again");
@@ -3767,7 +3776,7 @@ PromiseHelper = (function(PromiseHelper, $) {
             return xcalarPreview(thriftHandle, url, "*", false, 100, 0);
         })
         .then(function(previewResult) {
-            var preview = JSON.parse(previewResult.outputJson);
+            var preview = JSON.parse(previewResult.outputJson)
             test.assert(atob(preview.base64Data) === fileContents);
             return xcalarDemoFileDelete(thriftHandle, testFileName);
         })
@@ -3983,6 +3992,7 @@ PromiseHelper = (function(PromiseHelper, $) {
     addTestCase(waitForDag, "waitForDag", defaultTimeout, TestCaseDisabled, "");
     addTestCase(testDag, "dag", defaultTimeout, TestCaseDisabled, "568");
     addTestCase(testTagDagNodes, "tag dag nodes", defaultTimeout, TestCaseEnabled, "9130");
+    addTestCase(testCommentDagNodes, "comment dag nodes", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testGroupBy, "groupBy", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testAggregate, "Aggregate", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testMakeResultSetFromAggregate, "result set of aggregate", defaultTimeout, TestCaseEnabled, "");

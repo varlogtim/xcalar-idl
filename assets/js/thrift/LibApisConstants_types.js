@@ -26,7 +26,8 @@ XcalarApisConstantsT = {
   'XcalarApiMaxFieldNameLen' : 255,
   'XcalarApiMaxAppNameLen' : 255,
   'XcalarApiMaxAppParamLen' : 255,
-  'XcalarApiMaxDagNodeTagLen' : 255
+  'XcalarApiMaxDagNodeTagLen' : 255,
+  'XcalarApiMaxDagNodeCommentLen' : 255
 };
 XcalarApisConstantsTStr = {4096 : 'XcalarApiMaxEvalStringLen',
 20 : 'XcalarApiMaxNumParameters',
@@ -48,5 +49,6 @@ XcalarApisConstantsTStr = {4096 : 'XcalarApiMaxEvalStringLen',
 255 : 'XcalarApiMaxFieldNameLen',
 255 : 'XcalarApiMaxAppNameLen',
 255 : 'XcalarApiMaxAppParamLen',
-255 : 'XcalarApiMaxDagNodeTagLen'
+255 : 'XcalarApiMaxDagNodeTagLen',
+255 : 'XcalarApiMaxDagNodeCommentLen'
 };

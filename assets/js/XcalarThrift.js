@@ -2611,6 +2611,31 @@ function XcalarTagDagNodes(tagName, dagNodeNames) {
     return (deferred.promise());
 }
 
+function XcalarCommentDagNodes(comment, dagNodeNames) {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return PromiseHelper.resolve(null);
+    }
+
+    var deferred = jQuery.Deferred();
+    if (insertError(arguments.callee, deferred)) {
+        return (deferred.promise());
+    }
+
+    if (typeof(dagNodeNames) === "string") {
+        dagNodeNames = [dagNodeNames];
+    }
+
+    xcalarCommentDagNodes(tHandle, comment, dagNodeNames.length, dagNodeNames)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarCommentDagNodes", error);
+        SQL.errorLog("Comment Dag", null, null, thriftError);
+        deferred.reject(thriftError);
+    });
+
+    return (deferred.promise());
+}
+
 function XcalarListFilesWithPattern(url, isRecur, namePattern) {
     if (tHandle == null) {
         return PromiseHelper.resolve(null);
