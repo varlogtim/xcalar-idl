@@ -21,11 +21,13 @@ window.AboutModal = (function($, AboutModal) {
         var frontVersion = XVM.getVersion();
         var frontVers = frontVersion.substring(0,
                              frontVersion.lastIndexOf("-")) + "-" + gGitVersion;
-        var buildNumber = frontVersion.substring(frontVersion.lastIndexOf("-") +
-                                                 1, frontVersion.length);
+        var buildNumber = gBuildNumber;
         var backVersionParts = XVM.getBackendVersion().split("-");
         var backVersion = backVersionParts[1] + "-" +
                           backVersionParts[backVersionParts.length - 2];
+        if (buildNumber === "git") {
+            buildNumber = backVersionParts[2];
+        }
         var idlVersion = backVersionParts[backVersionParts.length - 1];
         var thriftVersion = XVM.getSHA().substring(0, 8);
         // Both backend and front end must
