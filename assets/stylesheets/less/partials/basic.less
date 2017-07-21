@@ -110,6 +110,13 @@ body {
                 display: none !important;
             }
         }
+        #monitorMenu {
+            .support > ul { // disable release memory
+                li:last-child {
+                    .xc-disabled;
+                }
+            }
+        }
     }
 
     &.workbookMode, &.switchingWkbk {
