@@ -434,6 +434,9 @@ window.OperationsView = (function($, OperationsView) {
                 }, 200);
 
                 updateStrPreview();
+                if (options && options.insertText) {
+                    checkIfStringReplaceNeeded();
+                }
             }
         }, '.arg');
 
