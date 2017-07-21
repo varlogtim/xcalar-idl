@@ -708,7 +708,7 @@ window.DFCard = (function($, DFCard) {
         .then(deferred.resolve)
         .fail(deferred.reject);
 
-        Dag.addDagEventListeners($dagWrap);
+        Dag.addEventListeners($dagWrap);
         xcHelper.optionButtonEvent($dfCard.find(".advancedOpts"),
             function(selOption, $selRadioButton) {
                 var $dagNode = getDagWrap(dataflowName)
@@ -813,7 +813,7 @@ window.DFCard = (function($, DFCard) {
                 var type = dataflow.parameterizedNodes[nodeId]
                                .paramType;
                 if (type === XcalarApisT.XcalarApiFilter) {
-                    $tableNode.find(".parentsTitle")
+                    $tableNode.find(".opInfoText")
                               .text("<Parameterized>");
                 }
             }
@@ -1378,7 +1378,7 @@ window.DFCard = (function($, DFCard) {
             var $barWrap = $dagTable.find(".progressBarWrap");
             var time = nodes[i].elapsed.milliseconds;
             cumulativeOpTime += time;
-            
+
             time = xcHelper.getElapsedTimeStr(time);
             if (nodes[i].state === DgDagStateT.DgDagStateReady) {
                 numCompleted++;

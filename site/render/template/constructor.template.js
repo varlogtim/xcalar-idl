@@ -2708,10 +2708,26 @@
                 var tables = [];
                 var subQueries = self.subQueries;
                 if (force || self.state === QueryStatus.Done) {
+                    var droppedTables = [];
                     var finalTable = self.getOutputTableName();
                     for (var i = subQueries.length - 1; i >= 0; i--) {
-                        if (subQueries[i].name !== "drop table") {
+                        if (subQueries[i].name.indexOf("drop") !== 0) {
                             tables.push(subQueries[i].dstTable);
+                        } else {
+                            droppedTables.push(subQueries[i].dstTable);
+                        }
+                    }
+                    // XXX will not need to do this check once backend allows
+                    // tagging of dropped tables
+                    for (var i = 0; i < droppedTables.length; i++) {
+                        var droppedTable = droppedTables[i];
+                        if (droppedTable.endsWith("drop")) {
+                            droppedTable = droppedTable.slice(0,
+                                                       droppedTable.length - 4);
+                        }
+                        var indexOfDropped = tables.indexOf(droppedTable);
+                        if (indexOfDropped !== -1) {
+                            tables.splice(indexOfDropped, 1);
                         }
                     }
                     var indexOfFinalTable = tables.indexOf(finalTable);

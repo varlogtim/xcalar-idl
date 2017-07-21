@@ -221,6 +221,7 @@ window.TblManager = (function($, TblManager) {
         options = options || {};
         var deferred  = jQuery.Deferred();
         var deferred1 = startBuildTable(tableId, tableToReplace, options);
+        // var deferred2 = createDag(tableId, tableToReplace, options);
         var deferred2 = Dag.construct(tableId, tableToReplace, options);
         var table = gTables[tableId];
 
@@ -2644,7 +2645,6 @@ window.TblManager = (function($, TblManager) {
             }
         });
 
-        // right click the open colMenu
         $tbody[0].oncontextmenu = function(event) {
             var $el = $(event.target);
             var $td = $el.closest("td");

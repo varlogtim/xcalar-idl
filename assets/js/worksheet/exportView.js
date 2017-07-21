@@ -412,7 +412,8 @@ window.ExportView = (function($, ExportView) {
                     return true;
                 }
             }]);
-            return (deferred.promise());
+
+            return PromiseHelper.reject({"error": "invalid advanced options"});
         }
 
         formHelper.disableSubmit();

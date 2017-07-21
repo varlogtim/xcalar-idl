@@ -761,7 +761,7 @@ window.OperationsView = (function($, OperationsView) {
             // if restoreTime and formOpenTime do not match, it means we're
             // trying to restore a form to a state that's already been
             // overwritten
-            return;
+            return PromiseHelper.reject();
         }
         var deferred = jQuery.Deferred();
         isOpen = true;

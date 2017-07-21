@@ -38,7 +38,7 @@ describe('ExportView Test', function() {
                 return tableList;
             };
 
-            xcHelper.centerFocusedTable = function() {return;};
+            xcHelper.centerFocusedTable = function() {return PromiseHelper.resolve();};
 
             ExportView.show(tableId)
             .then(function() {
@@ -169,6 +169,7 @@ describe('ExportView Test', function() {
             xcHelper.centerFocusedTable = function(tId) {
                 expect(tId).to.equal(tableId);
                 fnCalled = true;
+                return PromiseHelper.resolve();
             };
 
             delete gTables[tableId];
@@ -178,7 +179,7 @@ describe('ExportView Test', function() {
             gTables[tableId] = table;
             $exportForm.find('.focusTable').click();
             expect(fnCalled).to.be.true;
-            xcHelper.centerFocusedTable = function() {return;};
+            xcHelper.centerFocusedTable = function() {return PromiseHelper.resolve();};
         });
 
         it('tableList menu should select table', function() {

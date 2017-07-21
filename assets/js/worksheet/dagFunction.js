@@ -1,19 +1,63 @@
 window.DagFunction = (function($, DagFunction) {
     var dagLineage = {};
     var globalArray = []; // Place to store all the lines of xccli
-    var TreeNode = function(left, right, value) {
-        this.leftAncestor = left;
-        this.rightAncestor = right;
+    var TreeNode = function(value) {
         this.value = value;
-        this.descendents = [];
+        this.parents = [];
+        this.children = [];
         return (this);
     };
 
-    var TreeValue = function(api, struct, dagNodeId, inputName) {
+    TreeNode.prototype = {
+        getVisibleParents: function() {
+            var parents = [];
+            search(this);
+
+            function search(node) {
+                for (var i = 0; i < node.parents.length; i++) {
+                    var parentNode = node.parents[i];
+                    if (parentNode.value.display.isHiddenTag ||
+                        parentNode.value.display.isHidden) {
+                        search(parentNode);
+                    } else {
+                        parents.push(parentNode);
+                    }
+                }
+            }
+            return parents;
+        },
+
+        getSourceNames: function(excludeTags) {
+            var parentNames = [];
+            var node = this;
+
+            if (excludeTags && node.value.display.tagHeader) {
+                var parents = node.getVisibleParents();
+                for (var i = 0; i < parents.length; i++) {
+                    parentNames.push(parents[i].value.name);
+                }
+            } else {
+                for (var i = 0; i < node.parents.length; i++) {
+                    var parent = node.parents[i];
+                    var parentName = parent.value.name;
+                    parentNames.push(parentName);
+                }
+            }
+
+            return parentNames;
+        }
+    };
+
+    var TreeValue = function(api, struct, dagNodeId, inputName, name, numParents, tag, state) {
         this.api = api;
         this.struct = struct;
         this.dagNodeId = dagNodeId;
         this.inputName = inputName;
+        this.name = name;
+        this.numParents = numParents;
+        this.tag = tag;
+        this.state = state;
+        this.display = {};
         return (this);
     };
 
@@ -21,19 +65,24 @@ window.DagFunction = (function($, DagFunction) {
         dagLineage = {};
     };
 
-    DagFunction.construct = function(getDagOutput, tableId) {
+    DagFunction.construct = function(nodes, tableId) {
         var valArray = [];
-        for (var i = 0; i<getDagOutput.node.length; i++) {
-            var apiString = XcalarApisTStr[getDagOutput.node[i].api];
+        for (var i = 0; i < nodes.length; i++) {
+            var apiString = XcalarApisTStr[nodes[i].api];
             var inputName = DagFunction.getInputType(apiString);
-            var inputStruct = getDagOutput.node[i].input[inputName];
-            var dagNodeId = getDagOutput.node[i].dagNodeId;
-            if (getDagOutput.node[i].api === XcalarApisT.XcalarApiBulkLoad) {
-                dagNodeId = getDagOutput.node[i].input.loadInput.dataset
-                                                                .datasetId;
-            }
-            valArray.push(new TreeValue(getDagOutput.node[i].api, inputStruct,
-                                        dagNodeId, inputName));
+            var inputStruct = nodes[i].input[inputName];
+            var dagNodeId = nodes[i].dagNodeId;
+            var name = nodes[i].name.name;
+            var numParents = nodes[i].numParent;
+            var tag = nodes[i].tag;
+            var state = nodes[i].state;
+
+            // XXX this sometimes has an id of "0", why do we use this method?
+            // if (nodes[i].api === XcalarApisT.XcalarApiBulkLoad) {
+            //     dagNodeId = nodes[i].input.loadInput.dataset.datasetId;
+            // }
+            valArray.push(new TreeValue(nodes[i].api, inputStruct, dagNodeId,
+                                    inputName, name, numParents, tag, state));
         }
         var allEndPoints = [];
         var lineageStruct = {};
@@ -47,6 +96,7 @@ window.DagFunction = (function($, DagFunction) {
         lineageStruct.endPoints = allEndPoints;
         lineageStruct.orderedPrintArray = getOrderedDedupedNodes(allEndPoints,
                                           "TreeNode");
+        lineageStruct.nodeIdMap = getIdMap(tree);
         if (tableId) {
             dagLineage[tableId] = lineageStruct;
         }
@@ -77,8 +127,6 @@ window.DagFunction = (function($, DagFunction) {
         inputVal += 'Input';
         return (inputVal);
     };
-
-
 
     DagFunction.getAll = function() {
         return (dagLineage);
@@ -319,9 +367,9 @@ window.DagFunction = (function($, DagFunction) {
         return (-1);
     }
 
-    function findTreeValueInValArray(dagId, valArray) {
-        for (var i = 0; i<valArray.length; i++) {
-            if (valArray[i].dagNodeId === dagId) {
+    function findTreeValueInValArray(name, valArray) {
+        for (var i = 0; i < valArray.length; i++) {
+            if (valArray[i].name === name) {
                 return (valArray[i]);
             }
         }
@@ -354,13 +402,13 @@ window.DagFunction = (function($, DagFunction) {
     }
 
     function getAllXidFromStart(tree, startTreeNodes) {
-        // Recursively go down the tree of all descendents until we hit the end
+        // Recursively go down the tree of all children until we hit the end
         // Returns list of all xids that we have seen in this traversal
         // This terminates due to the graph being a DAG
         function recurHelper(node, listSoFar) {
             listSoFar[node.value.dagNodeId] = 1; // We are only using the key
-            for (var i = 0; i<node.descendents.length; i++) {
-                recurHelper(node.descendents[i], listSoFar);
+            for (var i = 0; i < node.parents.length; i++) {
+                recurHelper(node.parents[i], listSoFar);
             }
         }
 
@@ -369,7 +417,6 @@ window.DagFunction = (function($, DagFunction) {
             recurHelper(startTreeNodes[i], listOfXids);
         }
         return listOfXids;
-
     }
 
     DagFunction.runProcedureWithParams = function(tableName, param, doNotRun) {
@@ -476,7 +523,7 @@ window.DagFunction = (function($, DagFunction) {
             console.info("Nothing to run!");
             return;
         }
-        // Step 1. From deepCopied tree, get list of all xid for descendents of
+        // Step 1. From deepCopied tree, get list of all xid for children of
         // start node (s)
         var startNodes = [];
         for (var i = 0; i<paramNodes.length; i++) {
@@ -620,19 +667,19 @@ window.DagFunction = (function($, DagFunction) {
         var printed = [];
         while (queue.length > 0) {
             var node = queue.shift();
-            var allAncestorsPrinted = true;
-            if ((node.leftAncestor &&
-                (printed.indexOf(node.leftAncestor) === -1)) ||
-                (node.rightAncestor &&
-                (printed.indexOf(node.rightAncestor) === -1))) {
-                allAncestorsPrinted = false;
+            var allParentsPrinted = true;
+            if ((node.parents[0] &&
+                (printed.indexOf(node.parents[0]) === -1)) ||
+                (node.parents[1] &&
+                (printed.indexOf(node.parents[1]) === -1))) {
+                allParentsPrinted = false;
             }
-            if (allAncestorsPrinted) {
+            if (allParentsPrinted) {
                 printed.push(node);
-                // Now add all descendents of node to queue
-                for (var i = 0; i<node.descendents.length; i++) {
-                    if (queue.indexOf(node.descendents[i]) === -1) {
-                        queue.push(node.descendents[i]);
+                // Now add all parents of node to queue
+                for (var i = 0; i < node.children.length; i++) {
+                    if (queue.indexOf(node.children[i]) === -1) {
+                        queue.push(node.children[i]);
                     }
                 }
             } else {
@@ -643,7 +690,7 @@ window.DagFunction = (function($, DagFunction) {
         if (type === "TreeNode") {
             return printed;
         } else if (type === "TreeValue") {
-            for (var i = 0; i<printed.length; i++) {
+            for (var i = 0; i < printed.length; i++) {
                 printed[i] = printed[i].value;
             }
             return printed;
@@ -653,73 +700,115 @@ window.DagFunction = (function($, DagFunction) {
         }
     }
 
-    function constructTree(node, valArray, alreadySeen, desc, endPoints) {
-        var leftOrigin = null;
-        var rightOrigin = null;
-        var leftNode = null;
-        var rightNode = null;
-        var leftTree = null;
-        var rightTree = null;
+    function constructTree(node, valArray, alreadySeen, child, endPoints) {
+        var parentTree = null;
+        var parentNames = [];
         if (!node) {
             return; // xx temporarily muting
             console.error(valArray);
             console.error(alreadySeen);
-            console.error(desc);
+            console.error(child);
             console.error(endPoints);
             return;
         }
 
-        var treeNode = new TreeNode(null, null, node);
-        if (node.api === XcalarApisT.XcalarApiJoin) {
-            // Join
-            leftOrigin = node.struct.leftTable.tableId;
-            rightOrigin = node.struct.rightTable.tableId;
-        } else if (node.api === XcalarApisT.XcalarApiBulkLoad ||
-                   node.api === XcalarApisT.XcalarApiExecuteRetina) {
-            // Load
-            leftOrigin = null;
-            rightOrigin = null;
+        var treeNode = new TreeNode(node);
+        if (node.numParents === 0) {
             endPoints.push(treeNode);
+        } else if (node.api === XcalarApisT.XcalarApiJoin) {
+            // Join
+            parentNames.push(node.struct.leftTable.tableName);
+            parentNames.push(node.struct.rightTable.tableName);
         } else if (node.api === XcalarApisT.XcalarApiIndex) {
             // Index
-            leftOrigin = node.struct.source.xid;
-            rightOrigin = null;
+            parentNames.push(node.struct.source.name);
         } else {
-            leftOrigin = node.struct.srcTable.tableId;
-            rightOrigin = null;
-        }
-
-        if (leftOrigin) {
-            if (leftOrigin in alreadySeen) {
-                leftTree = alreadySeen[leftOrigin];
-                leftTree.descendents.push(treeNode);
-            } else {
-                leftNode = findTreeValueInValArray(leftOrigin, valArray);
-                leftTree = constructTree(leftNode, valArray, alreadySeen,
-                                         treeNode, endPoints);
+            parentNames.push(node.struct.srcTable.tableName);
+            if (node.numParents > 1) {
+                var parsedParents = parseAggFromEvalStr(node.struct.evalStr);
+                for (var i = 0; i < parsedParents.length; i++) {
+                    parentNames.push(parsedParents[i]);
+                }
             }
         }
 
-        if (rightOrigin) {
-            if (rightOrigin in alreadySeen) {
-                rightTree = alreadySeen[rightOrigin];
-                rightTree.descendents.push(treeNode);
+        var parents = [];
+
+        for (var i = 0; i < parentNames.length; i++) {
+            var parentName = parentNames[i];
+            if (parentName in alreadySeen) {
+                parentTree = alreadySeen[parentName];
+                parentTree.children.push(treeNode);
             } else {
-                rightNode = findTreeValueInValArray(rightOrigin, valArray);
-                rightTree = constructTree(rightNode, valArray, alreadySeen,
-                                          treeNode, endPoints);
+                parentNode = findTreeValueInValArray(parentName, valArray);
+                parentTree = constructTree(parentNode, valArray, alreadySeen,
+                                            treeNode, endPoints);
+            }
+            parents.push(parentTree);
+        }
+
+        treeNode.parents = parents;
+
+        if (child) {
+            treeNode.children.push(child);
+        }
+        alreadySeen[node.name] = treeNode;
+        return (alreadySeen[node.name]);
+    }
+
+    // cretes a map of dagNodIds: node
+    function getIdMap(node) {
+        var idMap = {};
+        addToMap(node);
+
+        function addToMap(node) {
+            idMap[node.value.dagNodeId] = node;
+            for (var i = 0; i < node.parents.length; i++) {
+                if (!idMap[node.parents[i].value.dagNodeId]) {
+                    addToMap(node.parents[i]);
+                }
+            }
+        }
+        return idMap;
+    }
+
+    function parseAggFromEvalStr(evalStr) {
+        var tables = [];
+        if (!evalStr) {
+            return tables;
+        }
+        var func = {args: []};
+        try {
+            ColManager.parseFuncString(evalStr, func);
+            tables = getAggNamesFromFunc(func);
+        } catch (err) {
+            console.error("could not parse eval str", evalStr);
+        }
+        return tables;
+    }
+
+    function getAggNamesFromFunc(func) {
+        var names = [];
+
+        getNames(func.args);
+
+        function getNames(args) {
+            for (var i = 0; i < args.length; i++) {
+                if (typeof args[i] === "string") {
+                    if (args[i][0] !== "\"" &&
+                        args[i][args.length - 1] !== "\"" &&
+                        names.indexOf(args[i]) === -1 &&
+                        args[i][0] === gAggVarPrefix &&
+                        args[i].length > 1) {
+                        names.push(args[i].slice(1));
+                    }
+                } else if (typeof args[i] === "object") {
+                    getNames(args[i].args);
+                }
             }
         }
 
-        treeNode.leftAncestor = leftTree;
-        treeNode.rightAncestor = rightTree;
-        if (desc) {
-            treeNode.descendents = [desc];
-        } else {
-            treeNode.descendents = [];
-        }
-        alreadySeen[node.dagNodeId] = treeNode;
-        return (alreadySeen[node.dagNodeId]);
+        return (names);
     }
 
     return DagFunction;

@@ -1293,7 +1293,6 @@ window.XIApi = (function(XIApi, $) {
                     }
                 });
             } else {
-                QueryManager.addIndexTable(txId, unsortedTable);
                 console.log(tableName, "indexed correctly!");
                 deferred.resolve(unsortedTable, shouldIndex, tempTables);
             }

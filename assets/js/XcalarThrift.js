@@ -239,6 +239,7 @@ function getUnsortedTableName(tableName, otherTableName) {
     var deferred = jQuery.Deferred();
     var deferred1 = XcalarGetDag(tableName);
     var parentChildMap;
+    var node;
 
     if (!otherTableName) {
         var srcTableName = tableName;
@@ -256,12 +257,10 @@ function getUnsortedTableName(tableName, otherTableName) {
                     // Find parent and return parent's name
                     xcAssert(indexInput.source.isTable);
 
-                    parentChildMap = Dag.getParentChildDagMap(nodeArray.node);
-                    srcTableName = Dag.getDagSourceNames(parentChildMap, 0,
-                                                             nodeArray.node)[0];
-
-                    var hasReadyState = checkIfTableHasReadyState(
-                                  nodeArray.node[parentChildMap[0].parents[0]]);
+                    node = DagFunction.construct(nodeArray.node).tree;
+                    srcTablename = node.getSourceNames()[0];
+                    var hasReadyState = checkIfTableHasReadyState(node
+                                                                  .parents[0]);
 
                     if (!hasReadyState) {
                         var newId = Authentication.getHashId().split("#")[1];
@@ -306,11 +305,10 @@ function getUnsortedTableName(tableName, otherTableName) {
                     XcalarOrderingT.XcalarOrderingDescending) {
                     // Find parent and return parent's name
                     xcAssert(indexInput1.source.isTable);
-                    parentChildMap = Dag.getParentChildDagMap(na1.node);
-                    unsortedName1 = Dag.getDagSourceNames(parentChildMap, 0,
-                                                             na1.node)[0];
-                    t1hasReadyState = checkIfTableHasReadyState(
-                                        na1.node[parentChildMap[0].parents[0]]);
+                    node = DagFunction.construct(na1.node).tree;
+                    unsortedName1 = node.getSourceNames()[0];
+                    t1hasReadyState = checkIfTableHasReadyState(node
+                                                                .parents[0]);
                     console.log("Using unsorted table instead: " +
                                 srcTableName);
                 }
@@ -323,11 +321,10 @@ function getUnsortedTableName(tableName, otherTableName) {
                     XcalarOrderingT.XcalarOrderingDescending) {
                     // Find parent and return parent's name
                     xcAssert(indexInput2.source.isTable);
-                    parentChildMap = Dag.getParentChildDagMap(na2.node);
-                    unsortedName2 = Dag.getDagSourceNames(parentChildMap, 0,
-                                                             na2.node)[0];
-                    t2hasReadyState = checkIfTableHasReadyState(
-                                       na2.node[parentChildMap[0].parents[0]]);
+                    node = DagFunction.construct(na2.node).tree;
+                    unsortedName2 = node.getSourceNames()[0];
+                    t2hasReadyState = checkIfTableHasReadyState(node
+                                                                .parents[0]);
                     console.log("Using unsorted table instead: " +
                                 srcTableName);
                 }
@@ -371,11 +368,7 @@ function getUnsortedTableName(tableName, otherTableName) {
 }
 
 function checkIfTableHasReadyState(node) {
-    if (node.state !== DgDagStateT.DgDagStateReady) {
-        return false;
-    } else {
-        return true;
-    }
+    return (node.value.state === DgDagStateT.DgDagStateReady);
 }
 
 // ========================= MAIN FUNCTIONS  =============================== //

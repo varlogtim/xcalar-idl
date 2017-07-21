@@ -186,7 +186,7 @@ describe("Dag Panel Test", function() {
             aggTableId = xcHelper.getTableId(aggTableName);
             $dagWrap = $dagPanel.find(".dagWrap").filter(function(idx,
                                                                       dWrap) {
-                var dTableName = $(dWrap).find(".dagTable[data-index='0']")
+                var dTableName = $(dWrap).find(".dagTable").first()
                                         .data("tablename");
                 return (dTableName === aggTableName);
             });
@@ -209,7 +209,7 @@ describe("Dag Panel Test", function() {
 
             $dagWrapA = $dagPanel.find(".dagWrap").filter(function(idx,
                                                                       dWrap) {
-                var dTableName = $(dWrap).find(".dagTable[data-index='0']")
+                var dTableName = $(dWrap).find(".dagTable").first()
                                         .data("tablename");
                 return (dTableName === tableNameA);
             });
@@ -236,7 +236,7 @@ describe("Dag Panel Test", function() {
         .then(function() {
             $largeDagWrap = $dagPanel.find(".dagWrap").filter(function(idx,
                                                                         dWrap) {
-                var dTableName = $(dWrap).find(".dagTable[data-index='0']")
+                var dTableName = $(dWrap).find(".dagTable").first()
                                          .data("tablename");
                 return (dTableName === largeTableNames[largeTableNames.length - 1]);
             });
@@ -262,7 +262,7 @@ describe("Dag Panel Test", function() {
             groupTableId = xcHelper.getTableId(ret);
             $groupDagWrap = $dagPanel.find(".dagWrap").filter(function(idx,
                                                                     dWrap) {
-                var dTableName = $(dWrap).find(".dagTable[data-index='0']")
+                var dTableName = $(dWrap).find(".dagTable").first()
                                          .data("tablename");
                 return (dTableName === groupTableName);
             });
@@ -308,13 +308,13 @@ describe("Dag Panel Test", function() {
 
     describe("Dag icon names correct", function() {
         it("Above", function() {
-            expect(smallTable.$dagWrap.find(".dagTable span").last().text())
+            expect(smallTable.$dagWrap.find(".dagTable span").first().text())
             .to.equal(smallTable.tableName);
-            expect(aggTable.$dagWrap.find(".dagTable span").last().text())
+            expect(aggTable.$dagWrap.find(".dagTable span").first().text())
             .to.equal(aggTable.tableName);
-            expect(largeTable.$dagWrap.find(".dagTable span").last().text())
+            expect(largeTable.$dagWrap.find(".dagTable span").first().text())
             .to.equal(largeTable.tableName);
-            expect(groupTable.$dagWrap.find(".dagTable span").last().text())
+            expect(groupTable.$dagWrap.find(".dagTable span").first().text())
             .to.equal(groupTable.tableName);
         });
     });
@@ -506,7 +506,7 @@ describe("Dag Panel Test", function() {
         // test right-most table
         it("menu should open", function() {
             expect($menu.is(":visible")).to.be.false;
-            smallTable.$dagWrap.find(".dagTable").last().click();
+            smallTable.$dagWrap.find(".dagTable").first().click();
             expect($menu.is(":visible")).to.be.true;
             expect($menu.find("li:visible").length).to.equal(7);
             expect($menu.find("li.unavailable:visible").length).to.equal(1);
@@ -521,13 +521,13 @@ describe("Dag Panel Test", function() {
 
         it("menu should on noDrop table should be correct", function() {
             gTables[smallTable.tableId].addNoDelete();
-            smallTable.$dagWrap.find(".dagTable").last().click();
+            smallTable.$dagWrap.find(".dagTable").first().click();
             expect($menu.find("li.removeNoDelete").is(":visible")).to.be.true;
             expect($menu.find("li.addNoDelete").is(":visible")).to.be.false;
             expect($menu.find("li.deleteTable").hasClass("unavailable")).to.be.true;
 
             gTables[smallTable.tableId].removeNoDelete();
-            smallTable.$dagWrap.find(".dagTable").last().click();
+            smallTable.$dagWrap.find(".dagTable").first().click();
             expect($menu.find("li.removeNoDelete").is(":visible")).to.be.false;
             expect($menu.find("li.addNoDelete").is(":visible")).to.be.true;
             expect($menu.find("li.deleteTable").hasClass("unavailable")).to.be.false;
@@ -627,12 +627,12 @@ describe("Dag Panel Test", function() {
 
                 it("lockTable li should work", function() {
                     $menu.find(".addNoDelete").trigger(rightMouseup);
-                    expect(smallTable.$dagWrap.find(".dagTable").last()
+                    expect(smallTable.$dagWrap.find(".dagTable").first()
                         .find(".lockIcon").length)
                     .to.equal(0);
 
                     $menu.find(".addNoDelete").trigger(fakeEvent.mouseup);
-                    expect(smallTable.$dagWrap.find(".dagTable").last()
+                    expect(smallTable.$dagWrap.find(".dagTable").first()
                         .find(".lockIcon").length)
                     .to.equal(1);
                     expect(smallTable.$dagWrap.find(".dagTable.noDelete").length)
@@ -642,12 +642,12 @@ describe("Dag Panel Test", function() {
 
                 it("unlockTable li should work", function() {
                     $menu.find(".removeNoDelete").trigger(rightMouseup);
-                    expect(smallTable.$dagWrap.find(".dagTable").last()
+                    expect(smallTable.$dagWrap.find(".dagTable").first()
                         .find(".lockIcon").length)
                     .to.equal(1);
 
                     $menu.find(".removeNoDelete").trigger(fakeEvent.mouseup);
-                    expect(smallTable.$dagWrap.find(".dagTable").last()
+                    expect(smallTable.$dagWrap.find(".dagTable").first()
                         .find(".lockIcon").length)
                     .to.equal(0);
                     expect(smallTable.$dagWrap.find(".dagTable.noDelete").length)
@@ -657,10 +657,9 @@ describe("Dag Panel Test", function() {
             });
 
             describe("middle table", function() {
-                // test right-most table
                 it("menu should open", function() {
-                    smallTable.$dagWrap.find(".dagImage").last()
-                    .find(".dagTable .dagTableIcon").eq(0).click();
+                    smallTable.$dagWrap.find(".dagImage").first()
+                    .find(".dagTable .dagTableIcon").eq(1).click();
                     expect($menu.is(":visible")).to.be.true;
                     expect($menu.find("li:visible").length).to.equal(7);
                     expect($menu.find("li.unavailable:visible").length).to.equal(2);
@@ -712,7 +711,7 @@ describe("Dag Panel Test", function() {
 
             describe("datastore icon", function() {
                 it("menu should open", function() {
-                    smallTable.$dagWrap.find(".dagImage").last()
+                    smallTable.$dagWrap.find(".dagImage").first()
                     .find(".dagTable .dataStoreIcon").eq(0).click();
 
                     expect($menu.is(":visible")).to.be.true;
@@ -883,14 +882,22 @@ describe("Dag Panel Test", function() {
                 });
             });
 
-            it("createBatchDataflow action should work", function() {
+            it("createBatchDataflow action should work", function(done) {
                 var $dfPanel = $("#dfCreateView");
                 expect($dfPanel.hasClass("xc-hidden")).to.be.true;
                 DagPanel.__testOnly__.addDataFlowAction($smallDagWrap);
                 expect($dfPanel.hasClass("xc-hidden")).to.be.false;
+
+                UnitTest.testFinish(function() {
+                    return !$("#menuBar").hasClass("animating");
+                })
+                .always(function() {
+                    DFCreateView.close();
+                    expect($dfPanel.hasClass("xc-hidden")).to.be.true;
+                    done();
+                });
+
                 // TODO: ensure that the table name is correct.
-                DFCreateView.close();
-                expect($dfPanel.hasClass("xc-hidden")).to.be.true;
             });
         });
 
@@ -898,60 +905,62 @@ describe("Dag Panel Test", function() {
             // Already tested save image, new tab image, and create dataflow
             it("Dag expandall and collapseall on small dag should fail", function() {
                 // Notes: no hidden flags or anything like that
-                var nodes = $smallDagWrap.data("allDagInfo").nodes;
+                var nodes = $smallDagWrap.data("allDagInfo").nodeIdMap;
 
                 expect($smallDagWrap.find(".expandWrap").length).to.equal(0);
                 Object.keys(nodes).forEach(function(nodeIdx) {
-                    expect(nodes[nodeIdx].isHidden).to.be.false;
+                    expect(nodes[nodeIdx].value.display.isHidden).to.be.false;
                 });
                 Dag.collapseAll($smallDagWrap);
                 expect($smallDagWrap.find(".expandWrap").length).to.equal(0);
                 Object.keys(nodes).forEach(function(nodeIdx) {
-                    expect(nodes[nodeIdx].isHidden).to.be.false;
+                    expect(nodes[nodeIdx].value.display.isHidden).to.be.false;
                 });
                 Dag.expandAll($smallDagWrap);
                 expect($smallDagWrap.find(".expandWrap").length).to.equal(0);
                 Object.keys(nodes).forEach(function(nodeIdx) {
-                    expect(nodes[nodeIdx].isHidden).to.be.false;
+                    expect(nodes[nodeIdx].value.display.isHidden).to.be.false;
                 });
             });
         });
 
         describe("Right click menu actions on large dag should work.", function() {
             it("expandAll and collapseAll should work", function() {
-                var nodes = $largeDagWrap.data("allDagInfo").nodes;
+                var nodes = $largeDagWrap.data("allDagInfo").nodeIdMap;
                 // NumNodes defined this way as nodes is an object with keys
                 // named strings of numbers
                 var numNodes = Object.keys(nodes).length;
+                var tree = $largeDagWrap.data("allDagInfo").tree;
+                var dsId = $largeDagWrap.find(".dagTable").last().data("index");
 
                 expect($largeDagWrap.find(".expandWrap").length).to.equal(1);
                 Object.keys(nodes).forEach(function(nodeIdx) {
-                    if (nodeIdx === String(0) ||
-                        nodeIdx === String(numNodes - 1)) {
-                        expect(nodes[nodeIdx].isHidden).to.be.false;
+                    if (nodeIdx === String(tree.value.dagNodeId) ||
+                        nodeIdx === String(dsId)) {
+                        expect(nodes[nodeIdx].value.display.isHidden).to.be.false;
                     } else {
-                        expect(nodes[nodeIdx].isHidden).to.be.true;
+                        expect(nodes[nodeIdx].value.display.isHidden).to.be.true;
                     }
                 });
                 Dag.expandAll($largeDagWrap);
                 expect($largeDagWrap.find(".expandWrap").length).to.equal(1);
                 Object.keys(nodes).forEach(function(nodeIdx) {
-                    expect(nodes[nodeIdx].isHidden).to.be.false;
+                    expect(nodes[nodeIdx].value.display.isHidden).to.be.false;
                 });
                 Dag.collapseAll($largeDagWrap);
                 expect($largeDagWrap.find(".expandWrap").length).to.equal(1);
                 Object.keys(nodes).forEach(function(nodeIdx) {
-                    if (nodeIdx === String(0) ||
-                        nodeIdx === String(numNodes - 1)) {
-                        expect(nodes[nodeIdx].isHidden).to.be.false;
+                    if (nodeIdx === String(tree.value.dagNodeId) ||
+                        nodeIdx === String(dsId)) {
+                        expect(nodes[nodeIdx].value.display.isHidden).to.be.false;
                     } else {
-                        expect(nodes[nodeIdx].isHidden).to.be.true;
+                        expect(nodes[nodeIdx].value.display.isHidden).to.be.true;
                     }
                 });
                 Dag.expandAll($largeDagWrap);
                 expect($largeDagWrap.find(".expandWrap").length).to.equal(1);
                 Object.keys(nodes).forEach(function(nodeIdx) {
-                    expect(nodes[nodeIdx].isHidden).to.be.false;
+                    expect(nodes[nodeIdx].value.display.isHidden).to.be.false;
                 });
             });
         });
@@ -978,7 +987,7 @@ describe("Dag Panel Test", function() {
         it("Action mouseovers should work", function(done) {
             var createActionWrap = $smallDagWrap.find(".actionType.dropdownBox").eq(0);
             var reduceActionWrap = $smallDagWrap.find(".actionType.dropdownBox").eq(1);
-            var mapActionWrap = $largeDagWrap.find(".actionType.dropdownBox").last();
+            var mapActionWrap = $largeDagWrap.find(".actionType.dropdownBox").first();
 
             expect(createActionWrap.attr("aria-describedby")).to.be.undefined;
             createActionWrap.trigger(fakeEvent.mouseenter);
@@ -1056,7 +1065,7 @@ describe("Dag Panel Test", function() {
         before(function() {
             Dag.expandAll(largeTable.$dagWrap);
             $menu = $dagPanel.find(".dagTableDropDown");
-            $largeDagTable = largeTable.$dagWrap.find(".dagTable").last();
+            $largeDagTable = largeTable.$dagWrap.find(".dagTable").first();
             largeTableId = $largeDagTable.data("id");
             $largeDagIcon = $largeDagTable.find(".dagTableIcon");
         });
@@ -1064,7 +1073,7 @@ describe("Dag Panel Test", function() {
         describe("Operations on last table should work", function() {
             it("Focus table should work.", function() {
                 expect(largeTableId).to.equal(largeTable.tableId);
-                var $smallDagTable = smallTable.$dagWrap.find(".dagTable").last();
+                var $smallDagTable = smallTable.$dagWrap.find(".dagTable").first();
                 var smallTableId = $smallDagTable.data("id");
                 expect(smallTableId).to.equal(smallTable.tableId);
                 var $smallDagIcon = $smallDagTable.find(".dagTableIcon");
@@ -1109,7 +1118,7 @@ describe("Dag Panel Test", function() {
                 .then(function() {
                     $icvDagWrap = $(".dagWrap.selected");
                     expect($icvDagWrap.length).to.equal(1);
-                    $icvDagTable = $icvDagWrap.find(".dagTable").last();
+                    $icvDagTable = $icvDagWrap.find(".dagTable").first();
                     icvTableId = $icvDagTable.data("id");
                     $icvDagIcon = $icvDagTable.find(".dagTableIcon");
 
@@ -1207,7 +1216,7 @@ describe("Dag Panel Test", function() {
                 .then(function() {
                     $icvDagWrap = $(".dagWrap.selected");
                     expect($icvDagWrap.length).to.equal(1);
-                    $icvDagTable = $icvDagWrap.find(".dagTable").last();
+                    $icvDagTable = $icvDagWrap.find(".dagTable").first();
                     icvTableId = $icvDagTable.data("id");
                     $icvDagIcon = $icvDagTable.find(".dagTableIcon");
 
@@ -1236,7 +1245,7 @@ describe("Dag Panel Test", function() {
 
             beforeEach(function() {
                 dagDepth = largeTable.$dagWrap.data("allDagInfo").depth;
-                $prevDagTable = largeTable.$dagWrap.find(".dagTable").eq(dagDepth-2);
+                $prevDagTable = largeTable.$dagWrap.find(".dagTable").eq(1);
                 $prevDagIcon = $prevDagTable.find(".dagTableIcon");
                 prevTableId = $prevDagTable.data("id");
                 prevTableName = $prevDagTable.data("tablename");
@@ -1255,7 +1264,7 @@ describe("Dag Panel Test", function() {
                     var $dagWrapPrev = $("#dagWrap-" + prevTableId);
                     expect($dagWrapPrev.length).to.equal(1);
                     expect($dagWrapPrev.hasClass("selected")).to.be.true;
-                    $dagWrapPrev.find(".dagTable .dagTableIcon").last().click();
+                    $dagWrapPrev.find(".dagTable .dagTableIcon").first().click();
                     $menu.find(".archiveTable").trigger(fakeEvent.mouseup);
                     setTimeout(function() {
                         done();
@@ -1266,7 +1275,7 @@ describe("Dag Panel Test", function() {
             it("Revert table should work", function(done) {
                 var dagDepth = largeTable.$dagWrap.data("allDagInfo").depth;
                 var $prevDagTable = largeTable.$dagWrap.find(".dagTable")
-                                    .eq(dagDepth-2);
+                                    .eq(1);
                 var $prevDagIcon = $prevDagTable.find(".dagTableIcon");
                 var prevTableId = $prevDagTable.data("id");
                 expect(gTables[prevTableId].status).is.not.equal("active");
@@ -1297,7 +1306,7 @@ describe("Dag Panel Test", function() {
                         expect(largeTable.$dagWrap.hasClass("locked")).to.be.false;
                         expect(largeTable.$dagWrap.hasClass("dagWrapToRemove"))
                         .to.be.false;
-                        $largeDagTable = largeTable.$dagWrap.find(".dagTable").last();
+                        $largeDagTable = largeTable.$dagWrap.find(".dagTable").first();
                         largeTableId = $largeDagTable.data("id");
                         $largeDagIcon = $largeDagTable.find(".dagTableIcon");
                         expect(largeTableId).to.equal(largeTable.ancestorIds[0]);
@@ -1336,7 +1345,7 @@ describe("Dag Panel Test", function() {
                     expect(gTables[prevTableId]).to.not.be.undefined;
 
                     var numNodes = Object.keys(largeTable.$dagWrap
-                        .data("allDagInfo").nodes).length;
+                        .data("allDagInfo").nodeIdMap).length;
                     $("#alertModal .btn.confirm").click();
                     UnitTest.testFinish(function() {
                         return gTables[prevTableId] == null;
@@ -1351,7 +1360,7 @@ describe("Dag Panel Test", function() {
                         // Ensure following table is not changed
                         expect(gTables[largeTableId]).to.not.be.undefined;
                         expect(Object.keys(largeTable.$dagWrap
-                            .data("allDagInfo").nodes).length)
+                            .data("allDagInfo").nodeIdMap).length)
                         .to.equal(numNodes);
                         done();
                     });
@@ -1380,7 +1389,7 @@ describe("Dag Panel Test", function() {
                 .then(function() {
                     var $icvDagWrap = $(".dagWrap.selected");
                     expect($icvDagWrap.length).to.equal(1);
-                    var $icvDagTable = $icvDagWrap.find(".dagTable").last();
+                    var $icvDagTable = $icvDagWrap.find(".dagTable").first();
                     var icvTableId = $icvDagTable.data("id");
                     var $icvDagIcon = $icvDagTable.find(".dagTableIcon");
 
@@ -1407,7 +1416,7 @@ describe("Dag Panel Test", function() {
             });
 
             it("complement table", function(done) {
-                var $dagTable = $(".actionType.filter").eq(0).siblings(".dagTable");
+                var $dagTable = $(".actionType.filter").last().siblings(".dagTable");
                 var $icon = $dagTable.find(".dagTableIcon");
                 var origId = $dagTable.data("id");
                 var origTablename = $dagTable.data("tablename");
@@ -1481,9 +1490,9 @@ describe("Dag Panel Test", function() {
             var numTables = $tables.length;
 
             expect(numTables).to.be.gt(1);
-            $dagPanel.find(".parentsTitle").eq(0).closest(".actionType").attr("data-original-title", oldTableName);
-            $dagPanel.find(".parentsTitle").eq(0).closest(".actionType").attr("title", oldTableName);
-            $dagPanel.find(".parentsTitle").eq(0).text(oldTableName);
+            $dagPanel.find(".opInfoText").eq(0).closest(".actionType").attr("data-original-title", oldTableName);
+            $dagPanel.find(".opInfoText").eq(0).closest(".actionType").attr("title", oldTableName);
+            $dagPanel.find(".opInfoText").eq(0).text(oldTableName);
 
             Dag.renameAllOccurrences(oldTableName, newTableName);
 
@@ -1495,7 +1504,7 @@ describe("Dag Panel Test", function() {
             var $newTables = $("#dagPanel .dagTable").filter(function() {
                 return $(this).data("tablename") === newTableName;
             });
-            expect($dagPanel.find(".parentsTitle").eq(0).closest(".actionType").attr("data-original-title")).to.equal(newTableName);
+            expect($dagPanel.find(".opInfoText").eq(0).closest(".actionType").attr("data-original-title")).to.equal(newTableName);
             expect($newTables.length).to.equal(numTables);
 
             Dag.renameAllOccurrences(newTableName, oldTableName);
@@ -1559,109 +1568,114 @@ describe("Dag Panel Test", function() {
         });
 
         it("findColumnSource should work", function() {
-            aggTable;
             var prefix = aggTable.prefix;
             var $dagWrap = aggTable.$dagWrap;
-            var $dagTable = $dagWrap.find(".dagTable").last();
+            var tree = $dagWrap.data("allDagInfo").tree;
 
-            var index = $dagTable.data("index");
-            var nodes = $dagWrap.data("allDagInfo").nodes;
             var fn = Dag.__testOnly__.findColumnSource;
             var sourceColNames = [prefix + gPrefixSign + "average_stars"];
+            var storedInfo = {
+                foundTables: {},
+                droppedTables: {}
+            };
 
-            fn(sourceColNames, $dagWrap, index, nodes, "agg_result", false, true, index);
+            fn(sourceColNames, $dagWrap, tree, "agg_result", false, true, tree, storedInfo);
+
             expect($dagWrap.find(".highlighted").length).to.equal(3);
-            expect($dagWrap.find(".highlighted").eq(0).data("index")).to.equal(5);
-            expect($dagWrap.find(".highlighted").last().data("index")).to.equal(1);
+            expect($dagWrap.find(".highlighted").last().data("index")).to.equal($dagWrap.find(".dagTable").eq(3).data("index"));
+            expect($dagWrap.find(".highlighted").first().data("index")).to.equal(parseInt(tree.parents[0].value.dagNodeId));
         });
 
         it("getSourceTables should work", function() {
             var fn =  Dag.__testOnly__.getSourceTables;
+            var parent1 = {
+                value: {name: "tName1"},
+            };
+            var parent2 = {
+                value: {name: "tName2"},
+            };
             var node = {
-                renameMap: [
-                    {oldName: "before", newName: "after", type: 0}
-                ],
-                parents: [0, 1],
-                numLeftColumns: 0
+                value: {
+                    struct: {
+                        renameMap: [{oldName: "before", newName: "after", type: 0}],
+                        numLeftColumns: 0
+                    }
+                },
+                parents: [parent1, parent2],
             };
-            var nodes = {
-                "0": {name: "tName1"},
-                "1": {name: "tName2"},
-            };
-            var res = fn("after", node, nodes);
-            expect(res.length).to.equal(1);
-            expect(res[0]).to.equal(1);
 
-            node.numLeftColumns = 1;
-            res = fn("after", node, nodes);
+            var res = fn("after", node);
             expect(res.length).to.equal(1);
-            expect(res[0]).to.equal(0);
+            expect(res[0]).to.equal(parent2);
+
+            node.value.struct.numLeftColumns = 1;
+            res = fn("after", node);
+            expect(res.length).to.equal(1);
+            expect(res[0]).to.equal(parent1);
 
             // should not find a match
-            node.renameMap = [ {oldName: "before", newName: "after", type: 13}];
-            node.numLeftColumns = 0;
-            res = fn("after", node, nodes);
+            node.value.struct.renameMap = [ {oldName: "before", newName: "after", type: 13}];
+            node.value.struct.numLeftColumns = 0;
+            res = fn("after", node);
             expect(res.length).to.equal(2);
-            expect(res[0]).to.equal(0);
-            expect(res[1]).to.equal(1);
+            expect(res[0]).to.equal(parent1);
+            expect(res[1]).to.equal(parent2);
 
-            node.renameMap = [ {oldName: "before", newName: "after", type: 13}];
-            node.numLeftColumns = 0;
-            res = fn("after::colName", node, nodes);
+            node.value.struct.renameMap = [ {oldName: "before", newName: "after", type: 13}];
+            node.value.struct.numLeftColumns = 0;
+            res = fn("after::colName", node);
             expect(res.length).to.equal(1);
-            expect(res[0]).to.equal(1);
+            expect(res[0]).to.equal(parent2);
 
-            node.renameMap = [ {oldName: "before", newName: "after", type: 13}];
-            node.numLeftColumns = 1;
-            res = fn("after::colName", node, nodes);
+            node.value.struct.renameMap = [ {oldName: "before", newName: "after", type: 13}];
+            node.value.struct.numLeftColumns = 1;
+            res = fn("after::colName", node);
             expect(res.length).to.equal(1);
-            expect(res[0]).to.equal(0);
+            expect(res[0]).to.equal(parent1);
 
             // the case that this table's prefix didn't get renamed but another's
             // did
-            node.renameMap = [{oldName: "before", newName: "after", type: 13}];
-            node.numLeftColumns = 0;
-            res = fn("before::colName", node, nodes);
+            node.value.struct.renameMap = [{oldName: "before", newName: "after", type: 13}];
+            node.value.struct.numLeftColumns = 0;
+            res = fn("before::colName", node);
             expect(res.length).to.equal(1);
-            expect(res[0]).to.equal(0);
+            expect(res[0]).to.equal(parent1);
 
-            node.renameMap = [{oldName: "before", newName: "after", type: 13}];
-            node.numLeftColumns = 1;
-            res = fn("before::colName", node, nodes);
+            node.value.struct.renameMap = [{oldName: "before", newName: "after", type: 13}];
+            node.value.struct.numLeftColumns = 1;
+            res = fn("before::colName", node);
             expect(res.length).to.equal(1);
-            expect(res[0]).to.equal(1);
+            expect(res[0]).to.equal(parent2);
 
-            node.renameMap = [{oldName: "before", newName: "after", type: 0}];
-            node.numLeftColumns = 1;
-            res = fn("before", node, nodes);
+            node.value.struct.renameMap = [{oldName: "before", newName: "after", type: 0}];
+            node.value.struct.numLeftColumns = 1;
+            res = fn("before", node);
             expect(res.length).to.equal(1);
-            expect(res[0]).to.equal(1);
+            expect(res[0]).to.equal(parent2);
 
-            node.renameMap = [{oldName: "before", newName: "after", type: 0}];
-            node.numLeftColumns = 0;
-            res = fn("before", node, nodes);
+            node.value.struct.renameMap = [{oldName: "before", newName: "after", type: 0}];
+            node.value.struct.numLeftColumns = 0;
+            res = fn("before", node);
             expect(res.length).to.equal(1);
-            expect(res[0]).to.equal(0);
+            expect(res[0]).to.equal(parent1);
 
             //self join
-            node.renameMap = [{oldName: "before", newName: "after", type: 0}];
-            node.numLeftColumns = 0;
-            nodes = {
-                "0": {name: "tName1"},
-                "1": {name: "tName1"},
-            };
-            res = fn("before", node, nodes);
+            node.value.struct.renameMap = [{oldName: "before", newName: "after", type: 0}];
+            node.value.struct.numLeftColumns = 0;
+            node.parents = [parent1, parent1];
+
+            res = fn("before", node);
             expect(res.length).to.equal(2);
-            expect(res[0]).to.equal(0);
-            expect(res[1]).to.equal(1);
+            expect(res[0]).to.equal(parent1);
+            expect(res[1]).to.equal(parent1);
         });
 
         it("getRenamedColname should work", function() {
             var fn =  Dag.__testOnly__.getRenamedColName;
             var node = {
-                renameMap: [
+                value: {struct: {renameMap: [
                     {oldName: "before", newName: "after", type: 0}
-                ]
+                ]}}
             };
             var res = fn("after", node);
             expect(res).to.equal("before");
@@ -1672,7 +1686,7 @@ describe("Dag Panel Test", function() {
             res = fn("something", node);
             expect(res).to.equal("something");
 
-            node.renameMap = [{oldName: "before", newName: "after", type: 13}];
+            node.value.struct.renameMap = [{oldName: "before", newName: "after", type: 13}];
 
             res = fn("test::colName", node);
             expect(res).to.equal("test::colName");
@@ -1725,24 +1739,353 @@ describe("Dag Panel Test", function() {
 
         it("getDagNodeInfo", function() {
             var fn = Dag.__testOnly__.getDagNodeInfo;
-            var dagNode = {input: {filterInput: {filterStr: "not(eq(col, 2))"}}};
-            var res = fn(dagNode, "filterInput", ["parent"], 1, {});
+            var node = {value:
+                            {
+                                struct: {filterStr: "not(eq(col, 2))"},
+                                display: {},
+                                api: XcalarApisT.XcalarApiFilter
+                            },
+                        getSourceNames: function() {
+                            return ["parent"];
+                        }
+                    };
+
+            var res = fn(node, "filterInput");
             expect(res.type).to.equal("filternot");
             expect(res.tooltip).to.equal("Filtered table &quot;parent&quot;: not(eq(col, 2))");
 
-            dagNode = {input: {filterInput: {filterStr: "other(col, 2)"}}};
-            res = fn(dagNode, "filterInput", ["parent"], 1, {});
+            node.value.struct ={filterStr: "other(col, 2)"};
+            res = fn(node, "filterInput");
 
             expect(res.type).to.equal("filterother");
             expect(res.tooltip).to.equal("Filtered table &quot;parent&quot;: other(col, 2)");
             expect(res.column).to.equal("col");
 
-            dagNode = {input: {otherInput: {filterStr: "other(col, 2)"}}};
-            res = fn(dagNode, "otherInput", ["parent"], 1, {});
+            node.value.struct = {filterStr: "other(col, 2)"};
+            res = fn(node, "otherInput");
             expect(res.type).to.equal("other");
             expect(res.tooltip).to.equal("Other");
         });
     });
+
+    // order of tables is:
+    // aggTable - join this (13th column)
+    // smalltable
+    // largeTable - tablewrap doesn't match tableid
+    // group table - join this (2nd column);
+    //
+
+    // enable once tags are working in the backend
+    describe.skip("check table positioning and collapse/expand groups", function() {
+        var $joinDagWrap;
+        var dagInfo;
+        var nodes;
+        var tableHeight;
+        var tableWidth;
+        var topOffset;
+        var tree;
+
+        before(function(done) {
+            var lJoinInfo = {
+                casts: [null],
+                colNums: [13],
+                pulledColumns: [],
+                rename: [],
+                tableId: aggTable.tableId
+            };
+            var rJoinInfo = {
+                casts: [null],
+                colNums: [3],
+                pulledColumns: [],
+                rename: [],
+                tableId: groupTable.tableId
+            };
+            xcFunction.join("Inner Join", lJoinInfo, rJoinInfo, "joinedTable", {
+                keepTables: true
+            })
+            .always(function() {
+                $joinDagWrap = $("#dagPanel").find(".dagWrap").last();
+                dagInfo = $joinDagWrap.data("allDagInfo");
+                nodes = dagInfo.nodeIdMap;
+                tree = dagInfo.tree;
+                tableHeight = 70;
+                tableWidth = 214;
+                topOffset = tableHeight * 0.2;
+
+                done();
+            });
+        });
+
+        it("initial dagInfo should be correct", function() {
+            var dagInfo = $joinDagWrap.data("allDagInfo");
+            expect(dagInfo.depth).to.equal(19);
+            expect(dagInfo.condensedWidth).to.equal(1134);
+            expect(Object.keys(dagInfo.nodeIdMap).length).to.equal(29);
+            var nodeId = $joinDagWrap.find(".dagTable").eq(13).data("index");
+
+            expect(Object.keys(dagInfo.groups).length).to.equal(1);
+            expect(dagInfo.groups[nodeId]).to.be.an.object;
+            var group = dagInfo.groups[nodeId].group;
+            expect(group.length).to.equal(14);
+
+            expect(group[0].value.inputName).to.equal("filterInput");
+            expect(group[13].value.inputName).to.equal("mapInput");
+        });
+
+        it("initial layout should be correct", function() {
+            expect($joinDagWrap.find(".dagImage").outerWidth()).to.equal(dagInfo.condensedWidth);
+            expect($joinDagWrap.find(".dagTableWrap").length).to.equal(29);
+            expect($joinDagWrap.find(".dagTableWrap:not(.hidden):not(.tagHidden)").length).to.equal(9);
+            expect($joinDagWrap.find(".dagTableWrap.hidden").length).to.equal(14);
+            expect($joinDagWrap.find(".dagTableWrap.tagHidden").length).to.equal(6);
+
+            var $tableWraps = $joinDagWrap.find(".dagTableWrap");
+            expect($tableWraps.eq(0).css("top")).to.equal(topOffset + "px");
+            expect($tableWraps.eq(0).css("right")).to.equal("0px");
+            expect(tree.value.display.depth).to.equal(0);
+
+            expect($tableWraps.eq(1).hasClass("tagHidden")).to.be.true;
+            expect($tableWraps.eq(7).hasClass("tagHidden")).to.be.true;
+
+            expect($tableWraps.eq(2).hasClass("tagHidden")).to.be.false;
+            expect($tableWraps.eq(2).css("top")).to.equal(topOffset + "px");
+            expect($tableWraps.eq(2).css("right")).to.equal(tableWidth * 1 + "px");
+            expect(nodes[$tableWraps.eq(2).find(".dagTable").data("index")].value.display.depth).to.equal(1);
+
+            expect($tableWraps.eq(8).hasClass("tagHidden")).to.be.false;
+            expect($tableWraps.eq(8).css("top")).to.equal(tableHeight * 2 + topOffset + "px");
+            expect($tableWraps.eq(8).css("right")).to.equal(tableWidth * 1 + "px");
+            expect(nodes[$tableWraps.eq(8).find(".dagTable").data("index")].value.display.depth).to.equal(1);
+
+            // the aggregate table
+            expect($tableWraps.eq(6).hasClass("tagHidden")).to.be.false;
+            expect($tableWraps.eq(6).css("top")).to.equal(tableHeight * 1 + topOffset + "px");
+            expect($tableWraps.eq(6).css("right")).to.equal(tableWidth * 2 + "px");
+            expect(nodes[$tableWraps.eq(6).find(".dagTable").data("index")].value.display.depth).to.equal(2);
+
+            // the expand icon
+            expect($joinDagWrap.find(".expandWrap").length).to.equal(1);
+            expect($joinDagWrap.find(".expandWrap").data("depth")).to.equal(3);
+            expect($joinDagWrap.find(".expandWrap").css("top")).to.equal(tableHeight * 2 + topOffset + 5 + "px");
+
+
+            // table left of the expand icon
+            expect($tableWraps.eq(28).hasClass("tagHidden")).to.be.false;
+            expect($tableWraps.eq(28).css("top")).to.equal(tableHeight * 2 + topOffset + "px");
+            expect($tableWraps.eq(28).css("right")).to.equal(Math.round(tableWidth * 3.3) + "px");
+            expect(nodes[$tableWraps.eq(28).find(".dagTable").data("index")].value.display.depth).to.equal(3.3);
+
+            // top and left-most table aside from dataset
+            expect($tableWraps.eq(4).hasClass("tagHidden")).to.be.false;
+            expect($tableWraps.eq(4).css("top")).to.equal(tableHeight * 0 + topOffset + "px");
+            expect($tableWraps.eq(4).css("right")).to.equal(tableWidth * 4 + "px");
+            expect(nodes[$tableWraps.eq(4).find(".dagTable").data("index")].value.display.depth).to.equal(4);
+
+            // dataset
+            expect($tableWraps.eq(5).hasClass("tagHidden")).to.be.false;
+            expect($tableWraps.eq(5).css("top")).to.equal(tableHeight * 0 + topOffset + "px");
+            expect($tableWraps.eq(5).css("right")).to.equal(tableWidth * 5 + "px");
+            expect(nodes[$tableWraps.eq(5).find(".dagTable").data("index")].value.display.depth).to.equal(5);
+        });
+
+        it("expanded layout should be correct", function() {
+            $joinDagWrap.find(".expandWrap").click();
+
+            expect($joinDagWrap.find(".dagImage").outerWidth()).to.equal(3916);
+            expect($joinDagWrap.find(".dagTableWrap").length).to.equal(29);
+            expect($joinDagWrap.find(".dagTableWrap:not(.hidden):not(.tagHidden)").length).to.equal(23);
+            expect($joinDagWrap.find(".dagTableWrap.hidden").length).to.equal(0);
+            expect($joinDagWrap.find(".dagTableWrap.tagHidden").length).to.equal(6);
+
+            var $tableWraps = $joinDagWrap.find(".dagTableWrap");
+            expect($tableWraps.eq(0).css("top")).to.equal(topOffset + "px");
+            expect($tableWraps.eq(0).css("right")).to.equal("0px");
+            expect(tree.value.display.depth).to.equal(0);
+
+            expect($tableWraps.eq(1).hasClass("tagHidden")).to.be.true;
+            expect($tableWraps.eq(7).hasClass("tagHidden")).to.be.true;
+
+            expect($tableWraps.eq(2).hasClass("tagHidden")).to.be.false;
+            expect($tableWraps.eq(2).css("top")).to.equal(topOffset + "px");
+            expect($tableWraps.eq(2).css("right")).to.equal(tableWidth * 1 + "px");
+            expect(nodes[$tableWraps.eq(2).find(".dagTable").data("index")].value.display.depth).to.equal(1);
+
+            expect($tableWraps.eq(8).hasClass("tagHidden")).to.be.false;
+            expect($tableWraps.eq(8).css("top")).to.equal(tableHeight * 2 + topOffset + "px");
+            expect($tableWraps.eq(8).css("right")).to.equal(tableWidth * 1 + "px");
+            expect(nodes[$tableWraps.eq(8).find(".dagTable").data("index")].value.display.depth).to.equal(1);
+
+            // the aggregate table
+            expect($tableWraps.eq(6).hasClass("tagHidden")).to.be.false;
+            expect($tableWraps.eq(6).css("top")).to.equal(tableHeight * 1 + topOffset + "px");
+            expect($tableWraps.eq(6).css("right")).to.equal(tableWidth * 2 + "px");
+            expect(nodes[$tableWraps.eq(6).find(".dagTable").data("index")].value.display.depth).to.equal(2);
+
+            // the expand icon
+            expect($joinDagWrap.find(".expandWrap").length).to.equal(1);
+            expect($joinDagWrap.find(".expandWrap").data("depth")).to.equal(3);
+            expect($joinDagWrap.find(".expandWrap").css("top")).to.equal(tableHeight * 2 + topOffset + 5 + "px");
+            expect($joinDagWrap.find(".expandWrap").css("right")).to.equal("3614px");
+
+
+            // table left of the expand icon
+            expect($tableWraps.eq(28).hasClass("tagHidden")).to.be.false;
+            expect($tableWraps.eq(28).css("top")).to.equal(tableHeight * 2 + topOffset + "px");
+            expect(Math.round(parseFloat($tableWraps.eq(28).css("right")))).to.equal(tableWidth * 17);
+            expect(nodes[$tableWraps.eq(28).find(".dagTable").data("index")].value.display.depth).to.equal(17);
+
+            // top and left-most table aside from dataset
+            expect($tableWraps.eq(4).hasClass("tagHidden")).to.be.false;
+            expect($tableWraps.eq(4).css("top")).to.equal(tableHeight * 0 + topOffset + "px");
+            expect($tableWraps.eq(4).css("right")).to.equal(tableWidth * 4 + "px");
+            expect(nodes[$tableWraps.eq(4).find(".dagTable").data("index")].value.display.depth).to.equal(4);
+
+            // dataset
+            expect($tableWraps.eq(5).hasClass("tagHidden")).to.be.false;
+            expect($tableWraps.eq(5).css("top")).to.equal(tableHeight * 0 + topOffset + "px");
+            expect($tableWraps.eq(5).css("right")).to.equal(tableWidth * 18 + "px");
+            expect(nodes[$tableWraps.eq(5).find(".dagTable").data("index")].value.display.depth).to.equal(18);
+        });
+
+        it("condensed layout should be correct", function() {
+            $joinDagWrap.find(".expandWrap").click();
+            expect($joinDagWrap.find(".dagImage").outerWidth()).to.equal(dagInfo.condensedWidth);
+            expect($joinDagWrap.find(".dagTableWrap").length).to.equal(29);
+            expect($joinDagWrap.find(".dagTableWrap:not(.hidden):not(.tagHidden)").length).to.equal(9);
+            expect($joinDagWrap.find(".dagTableWrap.hidden").length).to.equal(14);
+            expect($joinDagWrap.find(".dagTableWrap.tagHidden").length).to.equal(6);
+
+            var $tableWraps = $joinDagWrap.find(".dagTableWrap");
+            expect($tableWraps.eq(0).css("top")).to.equal(topOffset + "px");
+            expect($tableWraps.eq(0).css("right")).to.equal("0px");
+            expect(tree.value.display.depth).to.equal(0);
+
+            expect($tableWraps.eq(1).hasClass("tagHidden")).to.be.true;
+            expect($tableWraps.eq(7).hasClass("tagHidden")).to.be.true;
+
+            expect($tableWraps.eq(2).hasClass("tagHidden")).to.be.false;
+            expect($tableWraps.eq(2).css("top")).to.equal(topOffset + "px");
+            expect($tableWraps.eq(2).css("right")).to.equal(tableWidth * 1 + "px");
+            expect(nodes[$tableWraps.eq(2).find(".dagTable").data("index")].value.display.depth).to.equal(1);
+
+            expect($tableWraps.eq(8).hasClass("tagHidden")).to.be.false;
+            expect($tableWraps.eq(8).css("top")).to.equal(tableHeight * 2 + topOffset + "px");
+            expect($tableWraps.eq(8).css("right")).to.equal(tableWidth * 1 + "px");
+            expect(nodes[$tableWraps.eq(8).find(".dagTable").data("index")].value.display.depth).to.equal(1);
+
+            // the aggregate table
+            expect($tableWraps.eq(6).hasClass("tagHidden")).to.be.false;
+            expect($tableWraps.eq(6).css("top")).to.equal(tableHeight * 1 + topOffset + "px");
+            expect($tableWraps.eq(6).css("right")).to.equal(tableWidth * 2 + "px");
+            expect(nodes[$tableWraps.eq(6).find(".dagTable").data("index")].value.display.depth).to.equal(2);
+
+            // the expand icon
+            expect($joinDagWrap.find(".expandWrap").length).to.equal(1);
+            expect($joinDagWrap.find(".expandWrap").data("depth")).to.equal(3);
+            expect($joinDagWrap.find(".expandWrap").css("top")).to.equal(tableHeight * 2 + topOffset + 5 + "px");
+
+
+            // table left of the expand icon
+            expect($tableWraps.eq(28).hasClass("tagHidden")).to.be.false;
+            expect($tableWraps.eq(28).css("top")).to.equal(tableHeight * 2 + topOffset + "px");
+            expect($tableWraps.eq(28).css("right")).to.equal(Math.round(tableWidth * 3.3) + "px");
+            expect(Math.round(nodes[$tableWraps.eq(28).find(".dagTable").data("index")].value.display.depth * 10) / 10).to.equal(3.3);
+
+            // top and left-most table aside from dataset
+            expect($tableWraps.eq(4).hasClass("tagHidden")).to.be.false;
+            expect($tableWraps.eq(4).css("top")).to.equal(tableHeight * 0 + topOffset + "px");
+            expect($tableWraps.eq(4).css("right")).to.equal(tableWidth * 4 + "px");
+            expect(nodes[$tableWraps.eq(4).find(".dagTable").data("index")].value.display.depth).to.equal(4);
+
+            // dataset
+            expect($tableWraps.eq(5).hasClass("tagHidden")).to.be.false;
+            expect($tableWraps.eq(5).css("top")).to.equal(tableHeight * 0 + topOffset + "px");
+            expect($tableWraps.eq(5).css("right")).to.equal(tableWidth * 5 + "px");
+            expect(nodes[$tableWraps.eq(5).find(".dagTable").data("index")].value.display.depth).to.equal(5);
+        });
+    });
+
+    describe.skip("tag tests", function() {
+        var $joinDagWrap;
+        var dagInfo;
+        var node;
+        var origNode
+
+        before(function() {
+            $joinDagWrap = $("#dagPanel").find(".dagWrap").last();
+            dagInfo = $joinDagWrap.data("allDagInfo");
+            node = dagInfo.tree;
+            origNode = node;
+        });
+
+
+        it("tables should be correctly tagged", function() {
+            var joinId = $joinDagWrap.data("id");
+            // join group
+            expect(node.value.display.tagHeader).to.be.true;
+            expect(node.value.display.isHiddenTag).to.be.false;
+            expect(node.value.tags.length).to.equal(1);
+            expect(node.value.tags[0]).to.equal("join#" + joinId);
+
+            var oldNode = node;
+            node = oldNode.parents[0];
+            expect(node.value.display.tagHeader).to.not.be.true;
+            expect(node.value.display.isHiddenTag).to.be.true;
+            expect(node.value.tags.length).to.equal(1);
+            expect(node.value.tags[0]).to.equal("join#" + joinId);
+
+            node = oldNode.parents[1];
+            expect(node.value.display.tagHeader).to.not.be.true;
+            expect(node.value.display.isHiddenTag).to.be.true;
+            expect(node.value.tags.length).to.equal(1);
+            expect(node.value.tags[0]).to.equal("join#" + joinId);
+
+            node = oldNode.parents[0].parents[0];
+            //  not part of group
+            expect(node.value.display.tagHeader).to.be.true;
+            expect(node.value.display.isHiddenTag).to.be.false;
+            expect(node.value.tags.length).to.equal(1);
+            expect(node.value.tags[0].indexOf("join#")).to.equal(-1);
+        });
+
+        it("getAllAncestors should work", function() {
+            var fn = Dag.__testOnly__.getTaggedAncestors;
+            node = origNode;
+            // join operation group
+            var group = fn(node, true);
+            expect(group.length).to.equal(3);
+            expect(group[0].value.inputName).to.equal("joinInput");
+            expect(group[1].value.inputName).to.equal("indexInput");
+            expect(group[2].value.inputName).to.equal("indexInput");
+        });
+
+        it("checkIsNodeHiddenTag() should work", function() {
+            var fn = Dag.__testOnly__.checkIsNodeHiddenTag;
+            var child1 = {
+                value: {tag: "a"}
+            };
+            var child2 = {
+                value: {tag: "a"}
+            };
+            var node = {
+                children: [child1, child2]
+            };
+
+            expect(fn(["a"], node)).to.be.true;
+            expect(fn(["b"], node)).to.be.false;
+
+            child1.value.tag = "a,b";
+            expect(fn(["a"], node)).to.be.true;
+            expect(fn(["a", "b"], node)).to.be.true;
+            expect(fn(["a", "b", "c"], node)).to.be.true;
+            expect(fn(["b"], node)).to.be.false;
+
+            child2.value.tag = "a,b";
+            expect(fn(["a"], node)).to.be.true;
+            expect(fn(["a", "b"], node)).to.be.true;
+        });
+    });
+
 
     after(function(done) {
         if ($("#dfPanelSwitch").hasClass("active")) {

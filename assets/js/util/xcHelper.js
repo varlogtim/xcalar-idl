@@ -1444,7 +1444,6 @@ window.xcHelper = (function($, xcHelper) {
         if (hashIndex > -1) {
             return wholeName.substring(hashIndex + 1);
         } else {
-            console.warn('Table name does not contain hashId');
             return null;
         }
     };
