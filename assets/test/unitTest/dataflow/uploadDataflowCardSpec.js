@@ -4,7 +4,7 @@ describe("Upload Dataflow Test", function() {
     var $retPath;
     var $dfName;
 
-    before(function() {
+    before(function(done) {
         $card = $("#uploadDataflowCard");
         $retPath = $card.find("#retinaPath");
         $dfName = $card.find("#dfName");
@@ -13,6 +13,15 @@ describe("Upload Dataflow Test", function() {
         if ($mainTabCache.attr("id") !== "dataflowTab") {
             $("#dataflowTab").click();
         }
+        UnitTest.testFinish(function() {
+            return $("#dfViz .cardMain").children().length !== 0;
+        })
+        .then(function() {
+            done();
+        })
+        .fail( function(){
+            done("fail");
+        });
     });
 
     describe("Upload Dataflow Api Test", function() {

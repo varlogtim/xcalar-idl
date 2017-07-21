@@ -9,42 +9,51 @@ describe("DFParamModal Test", function() {
     var oldRefresh;
 
     before(function(done) {
-        $modal = $("#dfParamModal");
-        oldRefresh = DF.refresh;
-        // refresh is async and affect the meta, should disabled
-        DF.refresh = function() {
-            return PromiseHelper.resolve();
-        };
+        $("#dataflowTab").click();
+        UnitTest.testFinish(function() {
+            return $("#dfViz .cardMain").children().length !== 0;
+        })
+        .then(function() {
+            $modal = $("#dfParamModal");
+            oldRefresh = DF.refresh;
+            // refresh is async and affect the meta, should disabled
+            DF.refresh = function() {
+                return PromiseHelper.resolve();
+            };
 
-        testDfName = xcHelper.randName("unitTestParamDF");
-        var testDSObj = testDatasets.fakeYelp;
-        UnitTest.addAll(testDSObj, "unitTestFakeYelp")
-        .always(function(ds, tName, tPrefix) {
-            testDs = ds;
-            tableName = tName;
-            oldTableName = tableName;
-            prefix = tPrefix;
-            tableId = xcHelper.getTableId(tableName);
-            colName = prefix + gPrefixSign + "average_stars";
+            testDfName = xcHelper.randName("unitTestParamDF");
+            var testDSObj = testDatasets.fakeYelp;
+            UnitTest.addAll(testDSObj, "unitTestFakeYelp")
+            .always(function(ds, tName, tPrefix) {
+                testDs = ds;
+                tableName = tName;
+                oldTableName = tableName;
+                prefix = tPrefix;
+                tableId = xcHelper.getTableId(tableName);
+                colName = prefix + gPrefixSign + "average_stars";
 
-            xcFunction.filter(1, tableId, {filterString: "gt(" + colName + ", 3)"})
-            .then(function(nTName) {
-                tableName = nTName;
-                tableId = xcHelper.getTableId(nTName);
-                var columns = [{backCol: colName, frontCol: "average_stars"}];
+                xcFunction.filter(1, tableId, {filterString: "gt(" + colName + ", 3)"})
+                .then(function(nTName) {
+                    tableName = nTName;
+                    tableId = xcHelper.getTableId(nTName);
+                    var columns = [{backCol: colName, frontCol: "average_stars"}];
 
-                DFCreateView.__testOnly__.saveDataFlow(testDfName, columns, tableName)
-                .then(function() {
-                    $("#dataflowTab .mainTab").click();
-                    $("#dfMenu").find(".listBox").filter(function() {
-                        return ($(this).find(".groupName").text() === testDfName);
-                    }).closest(".listBox").trigger("click");
+                    DFCreateView.__testOnly__.saveDataFlow(testDfName, columns, tableName)
+                    .then(function() {
+                        $("#dataflowTab .mainTab").click();
+                        $("#dfMenu").find(".listBox").filter(function() {
+                            return ($(this).find(".groupName").text() === testDfName);
+                        }).closest(".listBox").trigger("click");
 
-                    $dfWrap = $('#dfViz .dagWrap[data-dataflowname="' + testDfName + '"]');
+                        $dfWrap = $('#dfViz .dagWrap[data-dataflowname="' + testDfName + '"]');
 
-                    done();
+                        done();
+                    });
                 });
             });
+        })
+        .fail(function() {
+            done("fail");
         });
     });
 

@@ -1,11 +1,26 @@
 window.DF = (function($, DF) {
     var dataflows = {};
+    var restored = false;
+    var lastCreatedDF;
 
-    DF.restore = function(retMeta) {
+    DF.restore = function() {
         var deferred = jQuery.Deferred();
+        var retMeta;
         var numRetinas;
 
-        XcalarListRetinas()
+        KVStore.getEmataInfo()
+        .then(function(eMeta) {
+            var ephMetaInfos;
+            try {
+                ephMetaInfos = new EMetaConstructor(eMeta);
+            } catch (error) {
+                return PromiseHelper.reject();
+            }
+            if (ephMetaInfos) {
+                retMeta = ephMetaInfos.getDFMeta();
+                return XcalarListRetinas();
+            }
+        })
         .then(function(list) {
             numRetinas = list.numRetinas;
             for (var i = 0; i < list.numRetinas; i++) {
@@ -39,18 +54,39 @@ window.DF = (function($, DF) {
                              list[i].scheduleMain.timingInfo);
                 dataflows[retName].schedule = new SchedObj(allOptions);
             }
-            DFCard.refreshDFList(true, true);
+
             if (numRetinas > 0) {
-                var firstDFName = $("#dfMenu").find(".groupName").eq(0).text();
-                return DF.updateDF(firstDFName);
+                DFCard.refreshDFList(true, true);
+                var $listItem;
+                if (lastCreatedDF) {
+                    $listItem = DFCard.getDFListItem(lastCreatedDF);
+                    lastCreatedDF = null;
+                }
+                if (!$listItem || !$listItem.length) {
+                    $listItem = $("#dfMenu").find(".dataFlowGroup").eq(0);
+                }
+                $listItem.click();
             } else {
-                return PromiseHelper.resolve();
+                DFCard.refreshDFList(true);
             }
+            deferred.resolve();
         })
-        .then(deferred.resolve)
-        .fail(deferred.reject);
+        .fail(deferred.reject)
+        .always(function() {
+            restored = true;
+        });
 
         return deferred.promise();
+    };
+
+    DF.wasRestored = function() {
+        return restored;
+    };
+
+    // if df.restore hasn't been called, we will track the most recently
+    // created df so we can focus on it later
+    DF.setLastCreatedDF = function(dfName) {
+        lastCreatedDF = dfName;
     };
 
     DF.refresh = function(retMeta) {
@@ -175,7 +211,9 @@ window.DF = (function($, DF) {
             }
             // XXX TODO add sql
             DFCard.addDFToList(dataflowName);
-            DF.commitAndBroadCast(dataflowName);
+            // no need to commit to kvstore since there's no info stored
+            // in this new dataflow
+            XcSocket.sendMessage("refreshDataflow", dataflowName);
             deferred.resolve();
         })
         .fail(function(error) {

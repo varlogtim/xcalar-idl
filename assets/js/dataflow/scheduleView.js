@@ -320,7 +320,7 @@ window.Scheduler = (function(Scheduler, $) {
 
     function removeSchedule(dataflowName) {
         var deferred = jQuery.Deferred();
-        var $list = DFCard.getDFList(dataflowName);
+        var $list = DFCard.getDFListItem(dataflowName);
         var $icon = $list.find(".addScheduleToDataflow");
 
         $scheduleDetail.addClass("locked");
@@ -414,7 +414,7 @@ window.Scheduler = (function(Scheduler, $) {
                         'data-toggle="tooltip" data-placement="top" ' +
                         'data-container="body">' +
                     '</i>';
-        var $list = DFCard.getDFList(dataflowName);
+        var $list = DFCard.getDFListItem(dataflowName);
         $list.find(".iconWrap")
              .html(html);
     }

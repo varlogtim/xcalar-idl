@@ -10,18 +10,27 @@ describe("DFCard Test", function() {
     }
 
     before(function(done) {
-        oldRefresh = DataflowPanel.refresh;
-        DataflowPanel.refresh = function() {};
+        $("#dataflowTab").click();
+        UnitTest.testFinish(function() {
+            return $("#dfViz .cardMain").children().length !== 0;
+        })
+        .then(function() {
+            oldRefresh = DataflowPanel.refresh;
+            DataflowPanel.refresh = function() {};
 
-        UnitTest.onMinMode();
-        testDfName = xcHelper.randName("unitTestDF");
-        var testDSObj = testDatasets.fakeYelp;
-        UnitTest.addAll(testDSObj, "unitTestFakeYelp")
-        .always(function(ds, tName) {
-            testDs = ds;
-            tableName = tName;
-            tableId = xcHelper.getTableId(tableName);
-            done();
+            UnitTest.onMinMode();
+            testDfName = xcHelper.randName("unitTestDF");
+            var testDSObj = testDatasets.fakeYelp;
+            UnitTest.addAll(testDSObj, "unitTestFakeYelp")
+            .always(function(ds, tName) {
+                testDs = ds;
+                tableName = tName;
+                tableId = xcHelper.getTableId(tableName);
+                done();
+            });
+        })
+        .fail(function() {
+            done("fail");
         });
     });
 

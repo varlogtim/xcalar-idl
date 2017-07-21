@@ -59,6 +59,10 @@ window.DFCard = (function($, DFCard) {
     };
 
     DFCard.addDFToList = function(dataflowName) {
+        if (!DF.wasRestored()) {
+            DF.setLastCreatedDF(dataflowName);
+            return;
+        }
         var html = getDFListItemHtml(dataflowName);
         var $listItems = $listSection.find(".groupName");
         var added = false;
@@ -81,12 +85,12 @@ window.DFCard = (function($, DFCard) {
         $dfMenu.find('.numGroups').text(numDfs);
 
         $listSection.find('.listBox').removeClass('selected');
-        var $dataflowLi = DFCard.getDFList(dataflowName).find(".listBox");
+        var $dataflowLi = DFCard.getDFListItem(dataflowName).find(".listBox");
         $dataflowLi.addClass('selected');
         focusOnDF(dataflowName);
     };
 
-    DFCard.getDFList = function(dataflowName) {
+    DFCard.getDFListItem = function(dataflowName) {
         var $list = $listSection.find(".listWrap").filter(function() {
             return ($(this).find(".groupName").text() === dataflowName);
         });
@@ -138,9 +142,11 @@ window.DFCard = (function($, DFCard) {
 
         $listSection.html(html);
         $dfMenu.find('.numGroups').text(numFlows);
+
         if (noFocus) {
             return;
         }
+
         // must find it again because we refreshed the list
         var activeFound = false;
         if (activeGroupName) {
@@ -398,9 +404,9 @@ window.DFCard = (function($, DFCard) {
 
     function addListeners() {
         $dfMenu.on('click', '.refreshBtn', function() {
-            var $section = $("#dfMenu .dfList");
-            $section.addClass("disabled");
-            xcHelper.showRefreshIcon($section);
+            $dfMenu.addClass("disabled");
+            var $refreshIcon = xcHelper.showRefreshIcon($dfMenu, true);
+            var startTime = Date.now();
 
             KVStore.getEmataInfo()
             .then(function(eMeta) {
@@ -408,14 +414,22 @@ window.DFCard = (function($, DFCard) {
                 try {
                     ephMetaInfos = new EMetaConstructor(eMeta);
                 } catch (error) {
-                    return;
+                    return PromiseHelper.resolve();
                 }
                 if (ephMetaInfos) {
-                    DF.refresh(ephMetaInfos.getDFMeta());
+                    return DF.refresh(ephMetaInfos.getDFMeta());
                 }
             })
             .always(function() {
-                $section.removeClass("disabled");
+                $dfMenu.removeClass("disabled");
+                // XXX might be better to use a refreshIcon constructor to track
+                // this
+                var spinTime = Math.max(1500 - (Date.now() - startTime), 0);
+                setTimeout(function() {
+                    $refreshIcon.fadeOut(100, function() {
+                        $refreshIcon.remove();
+                    });
+                }, spinTime);
             });
         });
 
@@ -545,7 +559,7 @@ window.DFCard = (function($, DFCard) {
     function deleteDataflow(dfName) {
         var deferred = jQuery.Deferred();
         var $card = $dfCard.find('.dagWrap[data-dataflowName="' + dfName + '"]');
-        var $list = DFCard.getDFList(dfName);
+        var $list = DFCard.getDFListItem(dfName);
         var html = '<div class="animatedEllipsisWrapper">' +
                         '<div class="text">' +
                             '(' + CommonTxtTstr.deleting +

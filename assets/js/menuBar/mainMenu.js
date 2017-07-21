@@ -335,16 +335,6 @@ window.MainMenu = (function($, MainMenu) {
                                          TooltipTStr.CloseQG);
                 }
                 break;
-            case ("dataflowTab"):
-                $("#dataflowPanel").addClass("active");
-                // DataflowPanel.refresh();
-                if ($curTab.hasClass("firstTouch")) {
-                    $curTab.removeClass("firstTouch");
-                    if (!DFCard.getActiveDF()) {
-                        DFCard.focusFirstDF();
-                    }
-                }
-                break;
             case ("dataStoresTab"):
                 $("#datastorePanel").addClass("active");
                 DSTable.refresh();
@@ -367,6 +357,21 @@ window.MainMenu = (function($, MainMenu) {
                 if ($curTab.hasClass("firstTouch")) {
                     $curTab.removeClass("firstTouch");
                     QueryManager.scrollToFocused();
+                }
+                break;
+        case ("dataflowTab"):
+                $("#dataflowPanel").addClass("active");
+                if ($curTab.hasClass("firstTouch")) {
+                    $curTab.removeClass("firstTouch");
+                    var $dfList = $("#dfMenu .dfList");
+                    $dfList.addClass("disabled");
+                    var promise = DF.restore();
+                    xcHelper.showRefreshIcon($dfList, false, promise);
+
+                    promise
+                    .always(function() {
+                        $dfList.removeClass("disabled");
+                    });
                 }
                 break;
             default:

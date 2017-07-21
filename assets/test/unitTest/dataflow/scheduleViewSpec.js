@@ -1,12 +1,21 @@
 describe("Schedule related Test", function() {
     var oldRefresh;
 
-    before(function() {
+    before(function(done) {
         // go to the tab;
         $("#dataflowTab").click();
-        oldRefresh = DF.refresh;
-        // prevent others refresh it
-        DF.refresh = function() {};
+        UnitTest.testFinish(function() {
+            return $("#dfViz .cardMain").children().length !== 0;
+        })
+        .then(function() {
+             oldRefresh = DF.refresh;
+            // prevent others refresh it
+            DF.refresh = function() {};
+            done();
+        })
+        .fail(function() {
+            done("fail");
+        });
     });
 
     describe("Time related function Test", timeRelatedFunctionTest);

@@ -189,16 +189,23 @@ window.KVStore = (function($, KVStore) {
         xcHelper.disableSubmit($userSettingsSave);
 
         metaInfos.update();
-        ephMetaInfos.update();
+
 
         XcSupport.stopHeartbeatCheck();
 
         KVStore.put(KVStore.gStorageKey, JSON.stringify(metaInfos), true,
                     gKVScope.META)
         .then(function() {
-            return KVStore.put(KVStore.gEphStorageKey,
+            if (DF.wasRestored()) {
+                ephMetaInfos.update();
+                return KVStore.put(KVStore.gEphStorageKey,
                                 JSON.stringify(ephMetaInfos), false,
                                 gKVScope.EPHM);
+            } else {
+                // if df wasn't restored yet, we don't want to commit empty
+                // ephMetaInfos
+                return PromiseHelper.resolve();
+            }
         })
         .then(function() {
             return SQL.commit();
@@ -279,18 +286,13 @@ window.KVStore = (function($, KVStore) {
     KVStore.restore = function() {
         var deferred = jQuery.Deferred();
 
-        var gInfosE = {};
         var gInfosUser = {};
         var gInfosSetting = {};
         var gInfosMeta = {};
         var gPendingUploads = [];
         var isEmpty = false;
 
-        KVStore.getEmataInfo()
-        .then(function(eMeta) {
-            gInfosE = eMeta;
-            return getUserInfo();
-        })
+        getUserInfo()
         .then(function(userMeta) {
             gInfosUser = userMeta;
             return getSettingInfo();
@@ -322,7 +324,7 @@ window.KVStore = (function($, KVStore) {
             .then(function() {
                 try {
                     metaInfos = new METAConstructor(gInfosMeta);
-                    ephMetaInfos = new EMetaConstructor(gInfosE);
+                    ephMetaInfos = new EMetaConstructor({});
 
                     WSManager.restore(metaInfos.getWSMeta());
                     TPrefix.restore(metaInfos.getTpfxMeta());
@@ -330,14 +332,10 @@ window.KVStore = (function($, KVStore) {
                     TblManager.restoreTableMeta(metaInfos.getTableMeta());
                     DSCart.restore(metaInfos.getCartMeta());
                     Profile.restore(metaInfos.getStatsMeta());
-
-                    return DF.restore(ephMetaInfos.getDFMeta());
                 } catch (error) {
                     console.error(error.stack);
                     return PromiseHelper.reject(error);
                 }
-            })
-            .then(function() {
                 return DSUploader.restore(gPendingUploads);
             })
             .then(function() {

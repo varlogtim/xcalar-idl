@@ -373,18 +373,32 @@ window.DFCreateView = (function($, DFCreateView) {
 
         formHelper.disableSubmit();
 
-        // XXX This part is buggy,
-        // thrift call maybe slow, and next time open the modal
-        // the call may still not finish yet!!!
         saveFinished = false;
-        saveDataFlow(dfName, columns, gTables[tableId].tableName)
+
+        checkNoDuplicateDFName(dfName)
+        .then(function() {
+            closeDFView();
+            return saveDataFlow(dfName, columns, gTables[tableId].tableName);
+        })
         .then(function() {
             xcHelper.showSuccess(SuccessTStr.SaveDF);
             // refresh dataflow lists in modal and scheduler panel
             deferred.resolve();
         })
         .fail(function(error) {
-            Alert.error(DFTStr.DFCreateFail, error);
+            if (error === "duplicate name") {
+                xcHelper.validate([
+                {
+                    "$ele": $newNameInput,
+                    "error": ErrTStr.DFConflict,
+                    "check": function() {
+                        return true;
+                    }
+                }]);
+            } else {
+                Alert.error(DFTStr.DFCreateFail, error);
+            }
+
             deferred.reject();
         })
         .always(function() {
@@ -392,11 +406,18 @@ window.DFCreateView = (function($, DFCreateView) {
             saveFinished = true;
         });
 
-        closeDFView();
-
         return deferred.promise();
     }
 
+    function checkNoDuplicateDFName(dfName) {
+        var deferred = jQuery.Deferred();
+        XcalarGetRetina(dfName)
+        .then(function() {
+            deferred.reject("duplicate name");
+        })
+        .fail(deferred.resolve);
+        return deferred.promise();
+    }
 
     function closeDFView() {
         resetDFView();
