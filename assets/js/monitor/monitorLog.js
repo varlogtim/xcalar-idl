@@ -211,7 +211,6 @@ window.MonitorLog = (function(MonitorLog, $) {
         $streamBtns.removeClass("streaming");
         $("#monitorLogCard .recentLogsGroup .xc-input").prop('disabled', false);
         XFTSupportTools.stopMonitorLogs();
-        hasEmptyRecord = {};
     }
 
     function appendLog(msg) {
@@ -281,6 +280,7 @@ window.MonitorLog = (function(MonitorLog, $) {
 
     function clearLogs() {
         $logCard.find(".content").empty();
+        hasEmptyRecord = {};
     }
 
     return (MonitorLog);

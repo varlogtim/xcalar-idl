@@ -40,27 +40,32 @@ window.XFTSupportTools = (function(XFTSupportTools, $) {
                 .then(function(ret) {
                     console.info(ret);
                     lastReturnSucc = true;
-                    setLastMonitors(ret.updatedLastMonitorMap);
-                    if (typeof successCallback === "function") {
-                        successCallback(ret);
+                    if (monitorIntervalId !== undefined) {
+                        setLastMonitors(ret.updatedLastMonitorMap);
+                        if (typeof successCallback === "function") {
+                            successCallback(ret);
+                        }
                     }
                 })
                 .fail(function(err) {
                     console.warn(err);
                     lastReturnSucc = true;
-                    if (!err.updatedLastMonitorMap) {
-                        // connection error
-                        lastMonitorMap = {};
-                        clearInterval(monitorIntervalId);
-                    } else {
-                        // node failure case
-                        setLastMonitors(err.updatedLastMonitorMap);
-                    }
-                    // If not all nodes return successfully, getLog() will
-                    // enter here, then we should still keep watching the
-                    // successfully return logs.
-                    if (typeof errCallback === "function") {
-                        errCallback(err);
+                    if (monitorIntervalId !== undefined) {
+                        if (!err.updatedLastMonitorMap) {
+                            // connection error
+                            lastMonitorMap = {};
+                            clearInterval(monitorIntervalId);
+                            monitorIntervalId = undefined;
+                        } else {
+                            // node failure case
+                            setLastMonitors(err.updatedLastMonitorMap);
+                        }
+                        // If not all nodes return successfully, getLog() will
+                        // enter here, then we should still keep watching the
+                        // successfully return logs.
+                        if (typeof errCallback === "function") {
+                            errCallback(err);
+                        }
                     }
                 });
             }
@@ -70,6 +75,7 @@ window.XFTSupportTools = (function(XFTSupportTools, $) {
     XFTSupportTools.stopMonitorLogs = function() {
         clearInterval(monitorIntervalId);
         lastMonitorMap = {};
+        monitorIntervalId = undefined;
     };
 
     XFTSupportTools.clusterStart = function() {
