@@ -114,10 +114,14 @@ window.TestSuite = (function($, TestSuite) {
         });
     };
 
-    TestSuite.run = function(hasAnimation, toClean, noPopup, mode, withUndo) {
+    TestSuite.run = function(hasAnimation, toClean, noPopup, mode, withUndo,
+                             timeDilation) {
         initializeTests();
         console.info("If you are on VPN / slow internet, please set " +
                     "gLongTestSuite = 2");
+        if (timeDilation) {
+            slowInternetFactor = parseInt(timeDilation);
+        }
         var finalDeferred = jQuery.Deferred();
         var initialDeferred = jQuery.Deferred();
         var errorCatchDeferred = jQuery.Deferred();
@@ -155,6 +159,7 @@ window.TestSuite = (function($, TestSuite) {
             TestSuite.fail(errorCatchDeferred, null, null, error.stack);
         };
 
+        console.log(slowInternetFactor);
         // Start PromiseHelper.chaining the callbacks
         try {
             for (var ii = 0; ii < testCases.length; ii++) {
@@ -336,14 +341,14 @@ window.TestSuite = (function($, TestSuite) {
         if (noDilute) {
             timeLimit = timeLimit || defaultCheckTimeout;
         } else {
-            timeLimit = timeLimit * slowInternetFactor || defaultCheckTimeout;
+            timeLimit = (timeLimit || defaultCheckTimeout) * slowInternetFactor;
         }
         options = options || {};
 
         var intervalTime = 100;
         var timeElapsed = 0;
         var notExist = options.notExist; // if true, we're actualy doing a
-        // check to make sure the element DOESN"T exist
+        // check to make sure the element DOESN'T exist
         var optional = options.optional; // if true, existence of element is
         // optional and we return deferred.resolve regardless
         // (example: a confirm box that appears in some cases)
@@ -816,7 +821,9 @@ window.TestSuite = (function($, TestSuite) {
                 $("#udf-fnUpload").click();
 
                 return checkExists("#alertHeader:visible " +
-                                   ".text:contains('Duplicate Module')",
+                                   ".text:contains('Duplicate Module'), " +
+                                   "#alertContent:visible .text:contains" +
+                                   "('UDF Module currently in use')",
                                    3000, {optional: true,
                                           noDilute: true});
             })

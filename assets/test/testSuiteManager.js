@@ -16,6 +16,8 @@ window.TestSuiteManager = (function(TestSuiteManager) {
     var curRunRefreshRate = 1000;
     var metaRefreshRate = 5000;
 
+    var timeDilation = 1;
+
     TestSuiteManager.setup = function() {
         $(".run").click(function() {
             startRun();
@@ -86,6 +88,7 @@ window.TestSuiteManager = (function(TestSuiteManager) {
         var mode = params.mode;
         var hostname = parseHostName(params.host);
         var autoRun = params.auto;
+        timeDilation = params.timeDilation;
         var close = params.close;
 
         $("#numUsers").val(numUsers);
@@ -185,6 +188,9 @@ window.TestSuiteManager = (function(TestSuiteManager) {
             }
             if (mode !== "") {
                 urlString += "&mode=" + mode;
+            }
+            if (timeDilation != 1) {
+                urlString += "&timeDilation=" + timeDilation;
             }
             // Generate a random username
             var username = "ts-" + Math.ceil(Math.random() * 1000000);

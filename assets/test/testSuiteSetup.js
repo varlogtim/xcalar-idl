@@ -191,6 +191,7 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
         var animation = parseBooleanParam(params.animation);
         var noPopup = parseBooleanParam(params.noPopup);
         var mode = params.mode;
+        var timeDilation = params.timeDilation;
         var whichTest = params.whichTest;
 
         // console.log("delay", delay, "clean", clean, "animation", animation)
@@ -199,7 +200,8 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
             if (whichTest === "demo") {
                 deferred = DemoTestSuite.run();
             } else {
-                deferred = TestSuite.run(animation, clean, noPopup, mode);
+                deferred = TestSuite.run(animation, clean, noPopup, mode, false,
+                                         timeDilation);
             }
             deferred
             .then(function(res) {
