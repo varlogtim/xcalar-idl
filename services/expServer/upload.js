@@ -4,7 +4,7 @@ var Status = require('./supportStatusFile').Status;
 var guiDir = (process.env.XCE_HTTP_ROOT ?
     process.env.XCE_HTTP_ROOT : "/var/www") + "/xcalar-gui";
 var support = require('./expServerSupport.js');
-var xcConsole = support.xcConsole;
+var xcConsole = require('./expServerXcConsole.js').xcConsole;
 
 var validate = function(name, version) {
     if (name == null || name.length === 0) {

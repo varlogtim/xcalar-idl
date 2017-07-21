@@ -8,6 +8,7 @@ var https = require("https");
 
 var ssf = require("./supportStatusFile");
 var tail = require("./tail");
+var xcConsole = require('./expServerXcConsole.js').xcConsole;
 
 var Status = ssf.Status;
 var httpStatus = require("./../../assets/js/httpStatus.js").httpStatus;
@@ -51,45 +52,6 @@ var networkFactor = 5;
 // for monitorRecentLogs(), do not want to wait to long
 var monitorFactor = 0.005;
 var tailUsers = new Map();
-
-var xcConsole = {
-        "verbose": function() {
-            return true;
-        },
-        "log": function(error) {
-            if (this.verbose()) {
-                console.log(getTimeStamp() + ":Xcalar ExpServer:" +
-                error.toString());
-            }
-            function getTimeStamp() {
-                var date = new Date();
-                return toISOString(date) + getTimezone(date);
-
-                function pad(number) {
-                    if (number < 10) {
-                        return '0' + number;
-                    }
-                    return number;
-                }
-
-                function toISOString(date) {
-                    return date.getFullYear() +
-                    '-' + pad(date.getMonth() + 1) +
-                    '-' + pad(date.getDate()) +
-                    'T' + pad(date.getHours()) +
-                    ':' + pad(date.getMinutes()) +
-                    ':' + pad(date.getSeconds()) +
-                    '.' + (date.getMilliseconds() / 1000).toFixed(6).slice(2, 8) +
-                    'Z';
-                }
-
-                function getTimezone(date) {
-                    var pattern = /-\d*/;
-                    return pattern.exec(date.toTimeString());
-                }
-            }
-        }
-    };
 
 // Get all the Hosts from file
 function readHostsFromFile(hostFile) {
@@ -695,4 +657,3 @@ exports.readHostsFromFile = readHostsFromFile;
 exports.removeSHM = removeSHM;
 exports.hasLogFile = hasLogFile;
 exports.unitTest = unitTest;
-exports.xcConsole = xcConsole;

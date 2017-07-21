@@ -16,7 +16,7 @@ var gMaxLogs = 500;
 
 var httpStatus = require('./../../assets/js/httpStatus.js').httpStatus;
 var support = require('./expServerSupport.js');
-var xcConsole = support.xcConsole;
+var xcConsole = require('./expServerXcConsole.js').xcConsole;
 // var logPath = "/var/log/Xcalar.log";
 
 //*** This file is broken into two parts due to different OS requiring different

@@ -12,7 +12,7 @@ var ldap = require('ldapjs');
 var ssf = require('./supportStatusFile');
 var httpStatus = require('./../../assets/js/httpStatus.js').httpStatus;
 var support = require('./expServerSupport.js');
-var xcConsole = support.xcConsole;
+var xcConsole = require('./expServerXcConsole.js').xcConsole;
 var Status = ssf.Status;
 var strictSecurity = false;
 

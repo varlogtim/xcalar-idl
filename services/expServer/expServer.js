@@ -18,7 +18,7 @@ require("jsdom").env("", function(err, window) {
     var exec = require("child_process").exec;
     var socket = require('./socket');
     var support = require('./expServerSupport.js');
-    var xcConsole = support.xcConsole;
+    var xcConsole = require('./expServerXcConsole.js').xcConsole;
     var login = require('./expLogin');
     var upload = require('./upload');
     var Status = require('./supportStatusFile').Status;
