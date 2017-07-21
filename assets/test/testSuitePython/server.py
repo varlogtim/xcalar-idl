@@ -73,7 +73,8 @@ class Handler( BaseHTTPServer.BaseHTTPRequestHandler ):
         port = params.get("port", str(DEFAULT_SERVER_PORT))
         host = params.get("host", socket.gethostname())
         test = params.get("test", "testSuite")
-        testSuiteUrl = "http://"+host+"/test.html?test=" + test + "&auto=y&mode="+mode+"&host="+host+"&server="+socket.gethostname()+"%3A"+port+"&users="+users
+        timeDilation = params.get("timeDilation", "1")
+        testSuiteUrl = "http://"+host+"/test.html?test=" + test + "&auto=y&mode=" + mode + "&timeDilation=" + timeDilation + "&host=" + host + "&server=" + socket.gethostname() + "%3A" + port + "&users=" + users
         print testSuiteUrl
         sys.stdout.flush()
         CHROME_DRIVER_PATH = "/usr/bin/chromedriver"
