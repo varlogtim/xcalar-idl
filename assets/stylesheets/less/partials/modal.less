@@ -2324,6 +2324,46 @@ html.microsoft {
         path.arc:hover{
             opacity: .85;
         }
+        .arc {
+            &.selected {
+                &, &.hover {
+                    opacity: .85;
+                }
+            }
+
+            &.unselected {
+                opacity: 1;
+
+                &.hover {
+                    .bar {
+                        fill: @color-profile-bar;
+
+                        &.bar-nullVal {
+                            fill: @color-profile-bar-null;
+                        }
+                    }
+
+                    .bar-extra {
+                        fill: @color-table-col-darkGray;
+                        opacity: 1;
+                    }
+                }
+            }
+
+            &.selected {
+                &, &.hover {
+                    opacity: .85;
+                    stroke: @color-profile-bar-border-highlight;
+                    stroke-width: 2;                        
+                }
+            }
+            &.selecting {
+                &, &.hover {
+                    stroke: @color-profile-bar-border-highlight;
+                    stroke-width: 2;
+                }
+            }
+        }
 
         .errorSection {
             padding: 16px 20px;
