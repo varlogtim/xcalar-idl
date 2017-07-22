@@ -9,9 +9,9 @@ window.UExtMultiSort = (function(UExtMultiSort) {
             "name": "Columns",
             "fieldClass": "cols",
             "typeCheck": {
-                "columnType": ["number", "string", "boolean"],
-                "multiColumn": true
-            }
+                "columnType": ["number", "string", "boolean"]
+            },
+            "variableArg": true
         },
         {
             "type": "string",
