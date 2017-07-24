@@ -35,6 +35,22 @@ window.UExtUnionAll = (function(UExtUnionAll) {
     function unionAll() {
         var ext = new XcSDK.Extension();
 
+        function dropTempTable(tableName) {
+            var deferred = jQuery.Deferred();
+            XIApi.deleteTableAndMeta(ext.txId, tableName)
+            .then(function() {
+                Dag.makeInactive(tableName, true);
+                var i = ext.newTables.findIndex(function(table) {
+                    return table.getName() === tableName;
+                });
+                ext.newTables.splice(i, 1);
+                deferred.resolve();
+            })
+            .fail(deferred.reject);
+
+            return deferred.promise();
+        };
+
         ext.beforeStart = function() {
 
             var self = this;
@@ -139,6 +155,8 @@ window.UExtUnionAll = (function(UExtUnionAll) {
                 fnToUse = 'if';
             }
 
+            var tableToResolve;
+
             // if exists(colA) => return colA else colB
             // colA and colB occupy unique rows, this merges them to form a
             // new complete column with no blanks
@@ -147,15 +165,18 @@ window.UExtUnionAll = (function(UExtUnionAll) {
 
             ext.map(mapStr, currTable.getName(), newColName)
             .then(function(tableAfterMap) {
+                tableToResolve = tableAfterMap;
+                return dropTempTable(currTable.getName());
+            })
+            .then(function(tableAfterMap) {
                 var colToAdd = new XcSDK.Column(newColName);
-                var newTable = ext.getTable(tableAfterMap);
+                var newTable = ext.getTable(tableToResolve);
                 newTable.addCol(colToAdd);
-
                 //keep track of the latest table so we can modify it
-                errMapConditionArgs.tableToUse = tableAfterMap;
+                errMapConditionArgs.tableToUse = tableToResolve;
                 // the new column will eventually be projected
                 errMapConditionArgs.colsToProject.push(newColName);
-                deferred.resolve(tableAfterMap);
+                deferred.resolve(tableToResolve);
             })
             .fail(deferred.reject);
 
@@ -166,6 +187,7 @@ window.UExtUnionAll = (function(UExtUnionAll) {
         }
 
         ext.start = function() {
+
             var deferred = XcSDK.Promise.deferred();
 
             // struct to hold opaque arguments in the promise while loop
