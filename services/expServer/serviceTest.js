@@ -32,7 +32,7 @@ function testService(reverseOperation, targetOperation, preStatus, expectedStatu
     // Stop xcalar service
     .then(function(hosts) {
         sendRequest(reverseOperation)
-        .always(function(retMsg) {
+        .always(function() {
             deferredReverseOperation.resolve(hosts);
         });
     });
@@ -50,7 +50,7 @@ function testService(reverseOperation, targetOperation, preStatus, expectedStatu
     deferredStatus
     .then(function(goodNodes) {
         sendRequest(targetOperation)
-        .always(function(retMsg) {
+        .always(function() {
             deferredOperation.resolve(goodNodes);
         });
     });
@@ -212,7 +212,7 @@ function getStatusFromEachSlave(hosts) {
                     }
                 }
             },
-            error: function(error) {
+            error: function() {
                 numDone++;
                 if (numDone === hosts.length - 1) {
                     mainDeferred.reject(returns);
