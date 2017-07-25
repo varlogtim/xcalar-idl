@@ -195,6 +195,24 @@ window.XcSDK.Extension.prototype = (function() {
             this.attrs = {};
         },
 
+        dropTable: function(tableName) {
+            var deferred = jQuery.Deferred();
+            var self = this;
+            deleteTempTable(self.txId, tableName)
+            .then(function() {
+                // remove table from newTables so that runAfterFinish does not
+                // try to drop the table again after extension finishes
+                var i = self.newTables.findIndex(function(table) {
+                    return table.getName() === tableName;
+                });
+                self.newTables.splice(i, 1);
+                deferred.resolve();
+            })
+            .fail(deferred.reject);
+
+            return deferred.promise();
+        },
+
         runBeforeStart: function(extButton) {
             // Important: User cannot change this function!!!
             // it will check args to make sure all args exists

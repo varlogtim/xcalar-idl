@@ -35,7 +35,7 @@ window.UExtUnionAll = (function(UExtUnionAll) {
     function unionAll() {
         var ext = new XcSDK.Extension();
 
-        function dropTempTable(tableName) {
+        function dropTable(tableName) {
             var deferred = jQuery.Deferred();
             XIApi.deleteTableAndMeta(ext.txId, tableName)
             .then(function() {
@@ -166,7 +166,12 @@ window.UExtUnionAll = (function(UExtUnionAll) {
             ext.map(mapStr, currTable.getName(), newColName)
             .then(function(tableAfterMap) {
                 tableToResolve = tableAfterMap;
-                return dropTempTable(currTable.getName());
+                // drop table before map to conserve memory
+                if (ext.dropTable) {
+                    return ext.dropTable(currTable.getName())
+                } else {
+                    return dropTable(currTable.getName());
+                }
             })
             .then(function(tableAfterMap) {
                 var colToAdd = new XcSDK.Column(newColName);
