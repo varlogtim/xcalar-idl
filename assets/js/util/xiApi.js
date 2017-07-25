@@ -1492,7 +1492,9 @@ window.XIApi = (function(XIApi, $) {
             // a.b should not be escaped to a\.b
             var dataColNum = gTables[tableId].getColNumByBackName("DATA") - 1;
             newCols.push(tableCols[dataColNum]);
-            finalCols = xcHelper.deepCopy(newCols);
+            finalCols = newCols.map(function(col) {
+                return new ProgCol(col);
+            });
         } else {
             finalCols = newProgCols.map(function(progCol) {
                 return progCol;

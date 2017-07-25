@@ -76,8 +76,7 @@ window.UExtConditionalSelect = (function(UExtConditionalSelect) {
             var selectColNames = getColNames(args.selectCols);
             var groupByCols = getColNames(args.groupCols);
             var renamedSelectedCols = [];
-            // XXX step 0 hot patch
-            hotPatch(ext);
+
             // step 1: group by
             conditionalGroupby(ext, operator, groupByCols, sortColName)
             .then(function(tableAfterGroupby) {
@@ -273,34 +272,6 @@ window.UExtConditionalSelect = (function(UExtConditionalSelect) {
             cols.push(new XcSDK.Column(colToAdd));
         });
         return cols;
-    }
-
-    function hotPatch(ext) {
-        // XXX dstCols is not a ProgCol object, so need this hotPatch
-        ext.groupBy = function(operator, groupByCols, aggColName, tableName, newColName, options) {
-            var deferred = jQuery.Deferred();
-            var self = this;
-            var txId = self.txId;
-            options = options || {};
-            options.icvMode = false;
-            var gbArgs = [{
-                operator: operator,
-                aggColName: aggColName,
-                newColName: newColName
-            }];
-            XIApi.groupBy(txId, gbArgs, groupByCols, tableName, options)
-            .then(function(dstTable, dstCols) {
-                self._addMeta(tableName, dstTable, dstCols);
-                var dstColumnsSDK = dstCols.map(function(progcol) {
-                    return new XcSDK.Column(progcol.backName,
-                        progcol.type);
-                });
-                deferred.resolve(dstTable, dstColumnsSDK);
-            })
-            .fail(deferred.reject);
-
-            return deferred.promise();
-        };
     }
 
     return UExtConditionalSelect;

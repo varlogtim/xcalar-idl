@@ -208,7 +208,7 @@ window.XcSDK.Extension.prototype = (function() {
          * options:
          *  isIncSample: true/false, include sample or not,
          *               not specified is equal to false
-         *  sampleCols: array, sampleColumns to keep,
+         *  sampleCols: array of colNums, sampleColumns to keep,
          *              only used when isIncSample is true
          *  icvMode: true/false, icv mode or not
          *  newTableName: string, dst table name, optional

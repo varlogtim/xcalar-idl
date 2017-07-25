@@ -52,7 +52,6 @@ window.UExtDmetaphone = (function(UExtDmetaphone) {
 
         ext.start = function() {
             var deferred = XcSDK.Promise.deferred();
-
             var self = this;
             var args = self.getArgs();
 
@@ -69,9 +68,6 @@ window.UExtDmetaphone = (function(UExtDmetaphone) {
             var metaphoneCol = ext.createUniqueCol(srcTableName, "metaphone",
                                                    true);
             var metaphoneTable = ext.createTempTableName();
-
-            // XXX hotPatch
-            hotPatch(ext);
 
             ext.map(mapStr, srcTableName, metaphoneCol, metaphoneTable)
             .then(function(tableAfterMap) {
@@ -209,34 +205,6 @@ window.UExtDmetaphone = (function(UExtDmetaphone) {
         .fail(deferred.reject);
 
         return deferred.promise();
-    }
-
-    function hotPatch(ext) {
-        // XXX dstCols is not a ProgCol object, so need this hotPatch
-        ext.groupBy = function(operator, groupByCols, aggColName, tableName, newColName, options) {
-            var deferred = jQuery.Deferred();
-            var self = this;
-            var txId = self.txId;
-            options = options || {};
-            options.icvMode = false;
-            var gbArgs = [{
-                operator: operator,
-                aggColName: aggColName,
-                newColName: newColName
-            }];
-            XIApi.groupBy(txId, gbArgs, groupByCols, tableName, options)
-            .then(function(dstTable, dstCols) {
-                self._addMeta(tableName, dstTable, dstCols);
-                var dstColumnsSDK = dstCols.map(function(progcol) {
-                    return new XcSDK.Column(progcol.backName,
-                        progcol.type);
-                });
-                deferred.resolve(dstTable, dstColumnsSDK);
-            })
-            .fail(deferred.reject);
-
-            return deferred.promise();
-        };
     }
 
     return UExtDmetaphone;
