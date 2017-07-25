@@ -582,10 +582,6 @@ window.DagPanel = (function($, DagPanel) {
     }
 
     function addDataFlowAction($dagWrap) {
-        if ($dagWrap.hasClass('fromRetina')) {
-            return;
-        }
-
         var formBusy = $('#workspaceMenu').children().filter(function() {
             return !$(this).hasClass('xc-hidden') &&
                     !$(this).hasClass('menuSection');
@@ -594,8 +590,7 @@ window.DagPanel = (function($, DagPanel) {
         if (!formBusy) {
             var tableId = $dagWrap.data('id');
             DagFunction.focusTable(tableId);
-            if (!gTables[tableId].hasLock() &&
-                !$dagWrap.hasClass('fromRetina')) {
+            if (!gTables[tableId].hasLock()) {
                 DFCreateView.show($dagWrap);
             }
         }
@@ -832,14 +827,9 @@ window.DagPanel = (function($, DagPanel) {
         } else {
             $menu.find('.archiveTable, .deleteTable, .dataflow').show();
         }
-        if ($dagWrap.hasClass('fromRetina')) {
-            $menu.find('.dataflow').addClass('unavailable');
-            xcTooltip.changeText($menu.find('.dataflow'),
-                                DFTStr.CannotCreateMsg);
-        } else {
-            $menu.find('.dataflow').removeClass('unavailable');
-            xcTooltip.changeText($menu.find('.dataflow'), "");
-        }
+
+        $menu.find('.dataflow').removeClass('unavailable');
+        xcTooltip.changeText($menu.find('.dataflow'), "");
 
         $menu.removeClass('leftColMenu');
         $menu.find('.selected').removeClass('selected');
@@ -1552,13 +1542,8 @@ window.Dag = (function($, Dag) {
             if (!isDagPanelVisible) {
                 $('#dagPanel').removeClass('xc-hidden');
             }
-            var isFromRetina = checkNodeArrayForRetina(dagObj.node);
-            var addDFTooltip;
-            if (isFromRetina) {
-                addDFTooltip = DFTStr.CannotCreateMsg;
-            } else {
-                addDFTooltip = TooltipTStr.AddDataflow;
-            }
+
+            var addDFTooltip = TooltipTStr.AddDataflow;
 
             var isTableInActiveWS = false;
             var targetWS;
@@ -1634,9 +1619,6 @@ window.Dag = (function($, Dag) {
             }
 
             var $dagWrap = $('#dagWrap-' + tableId);
-            if (isFromRetina) {
-                $dagWrap.addClass('fromRetina');
-            }
 
             Dag.createDagImage(dagObj.node, $dagWrap, {savable: true});
 
@@ -2584,16 +2566,6 @@ window.Dag = (function($, Dag) {
                 }
             }
         });
-    }
-
-    function checkNodeArrayForRetina(nodeArray) {
-        var len = nodeArray.length;
-        for (var i = 0; i < len; i++) {
-            if (nodeArray[i].api === XcalarApisT.XcalarApiExecuteRetina) {
-                return true;
-            }
-        }
-        return false;
     }
 
     function loadImage(img) {

@@ -274,7 +274,7 @@ window.DFCard = (function($, DFCard) {
                 $tab.addClass('active');
                 focusOnFirstInvalidValue(currentDataflow);
 
-                $("#container").on("mousedown", function(event) {
+                $("#container").on("mousedown.retTab", function(event) {
                     var $target = $(event.target);
                     if ($target.closest('#statusBox').length
                         || $target.closest('.retPopUp').length
@@ -287,7 +287,7 @@ window.DFCard = (function($, DFCard) {
                         if ($target.closest(".advancedOpts").length === 0) {
                             $dfCard.find(".advancedOpts.active").removeClass("active");
                         }
-                        $("#container").off("mousedown");
+                        $("#container").off("mousedown.retTab");
                     }
                 });
             }
@@ -772,7 +772,7 @@ window.DFCard = (function($, DFCard) {
         var selector = '.dagTable.export, .dagTable.dataStore, ' +
                        '.actionType.filter';
         // Attach styling to all nodes that have a dropdown
-        $dfCard.find(selector).addClass("parameterizable");
+        $wrap.find(selector).addClass("parameterizable");
 
         for (var nodeId in dataflow.parameterizedNodes) {
             var $tables = $wrap.find('[data-nodeid="' + nodeId + '"]');
@@ -1105,8 +1105,10 @@ window.DFCard = (function($, DFCard) {
             // error case
             return PromiseHelper.reject();
         }
-        var txId;
+
         var $dagWrap = getDagWrap(retName);
+        var txId;
+        $dagWrap.find(".advancedOpts").removeClass("active");
 
         var passedCheckBeforeRunDF = false;
         checkBeforeRunDF(advancedOpts.activeSession)
@@ -1209,7 +1211,7 @@ window.DFCard = (function($, DFCard) {
         }
 
         function alertBeforeRunDF(hasSysParam, isToActiveSession) {
-            if (!hasSysParam && !isToActiveSession) {
+            if (!hasSysParam) {
                 return PromiseHelper.resolve();
             }
 
@@ -1218,10 +1220,6 @@ window.DFCard = (function($, DFCard) {
 
             if (hasSysParam) {
                 msgArray.push(DFTStr.WarnSysParam);
-            }
-
-            if (isToActiveSession) {
-                msgArray.push(DFTStr.WarnInMemTable);
             }
 
             msg = "";

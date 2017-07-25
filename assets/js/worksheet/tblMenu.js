@@ -161,9 +161,7 @@ window.TblMenu = (function(TblMenu, $) {
             }
             var tableId = $tableMenu.data('tableId');
             var $dagWrap = $('#dagWrap-' + tableId);
-            if (!$dagWrap.hasClass('fromRetina')) {
-                DFCreateView.show($dagWrap);
-            }
+            DFCreateView.show($dagWrap);
         });
 
         // SUBMENU CODE

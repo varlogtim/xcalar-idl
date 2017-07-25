@@ -4047,12 +4047,7 @@ window.xcHelper = (function($, xcHelper) {
         }
         var $dagWrap = $('#dagWrap-' + tableId);
 
-        if ($dagWrap.hasClass('fromRetina')) {
-            xcHelper.disableMenuItem($menu.find('.createDf'),
-                                     {title: DFTStr.CannotCreateMsg});
-        } else {
-            xcHelper.enableMenuItem($menu.find('.createDf'));
-        }
+        xcHelper.enableMenuItem($menu.find('.createDf'));
     }
 
     /* Unit Test Only */

@@ -39,10 +39,6 @@ window.DFCreateView = (function($, DFCreateView) {
         if (!saveFinished) { // did not finish saving from last form submit
             return;
         }
-        if ($dagWrap.hasClass('fromRetina')) {
-            Alert.error(DFTStr.CannotCreate, DFTStr.CannotCreateMsg);
-            return;
-        }
 
         isOpen = true;
         $curDagWrap = $dagWrap;
