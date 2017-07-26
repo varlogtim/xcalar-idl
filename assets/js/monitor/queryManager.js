@@ -85,9 +85,8 @@ window.QueryManager = (function(QueryManager, $) {
     };
 
     // queryName will be empty if subquery doesn't belong to a xcalarQuery
-    // options = {exportFileName: string}
-    QueryManager.addSubQuery = function(id, name, dstTable, query, queryName,
-                                       options) {
+    // options = {exportFileName: string, queryName: string, retName; string}
+    QueryManager.addSubQuery = function(id, name, dstTable, query, options) {
         if (!queryLists[id] || Transaction.checkCanceled(id)) {
             return;
         }
@@ -101,12 +100,13 @@ window.QueryManager = (function(QueryManager, $) {
             "dstTable": dstTable,
             "id": id,
             "index": mainQuery.subQueries.length,
-            "queryName": queryName,
-            "exportFileName": options.exportFileName
+            "queryName": options.queryName,
+            "exportFileName": options.exportFileName,
+            "retName": options.retName
         });
         mainQuery.addSubQuery(subQuery);
         if (mainQuery.currStep === mainQuery.subQueries.length - 1) {
-            if (queryName) {
+            if (options.queryName) {
                 outerQueryCheck(id);
             } else {
                 subQueryCheck(subQuery);
@@ -166,13 +166,26 @@ window.QueryManager = (function(QueryManager, $) {
         updateOutputSection(id);
     };
 
-    QueryManager.subQueryDone = function(id, dstTable, time) {
+    QueryManager.subQueryDone = function(id, dstTable, time, options) {
         if (!queryLists[id]) {
             return;
         }
+        options = options || {};
         var mainQuery = queryLists[id];
         if (time != null) {
-            mainQuery.addOpTime(time);
+            if (mainQuery.name === SQLOps.Retina && options.retName) {
+                mainQuery.setOpTime(time);
+            } else {
+                mainQuery.addOpTime(time);
+            }
+        }
+
+        // execute retina returned, should be on last step of the group of
+        // queries
+        if (options.retName) {
+            var lastQueryPos = getLastQueryPos(mainQuery, mainQuery.currStep);
+            setQueriesDone(mainQuery, mainQuery.currStep, lastQueryPos);
+            mainQuery.currStep = lastQueryPos;
         }
 
         if (mainQuery.subQueries.length &&
@@ -184,7 +197,8 @@ window.QueryManager = (function(QueryManager, $) {
         if (mainQuery.type === "xcFunction") {
             for (var i = 0; i < mainQuery.subQueries.length; i++) {
                 var subQuery = mainQuery.subQueries[i];
-                if (subQuery.dstTable === dstTable) {
+                if (subQuery.dstTable === dstTable || (options.retName &&
+                    mainQuery.currStep === i)) {
                     subQuery.state = QueryStatus.Done;
                     if (mainQuery.currStep === i) {
                         incrementStep(mainQuery);
@@ -347,7 +361,7 @@ window.QueryManager = (function(QueryManager, $) {
             return;
         }
         if (mainQuery.subQueries[0]) {
-            var retName = mainQuery.subQueries[0].dstTable;
+            var retName = mainQuery.subQueries[0].retName;
             DFCard.cancelDF(retName, id);
         }
     };
@@ -459,11 +473,12 @@ window.QueryManager = (function(QueryManager, $) {
                 query.state !== QueryStatus.Error) {
                 if (query.type === "xcFunction") {
                     for (var i = 0; i < query.subQueries.length; i++) {
-                        if (query.subQueries[i].state !== QueryStatus.Done) {
-                            if (query.subQueries[i].queryName) {
+                        var subQuery = query.subQueries[i];
+                        if (subQuery.state !== QueryStatus.Done) {
+                            if (subQuery.queryName) {
                                 outerQueryCheck(query.getId(), doNotAnimate);
                             } else {
-                                subQueryCheck(query.subQueries[i]);
+                                subQueryCheck(subQuery);
                             }
                             break;
                         }
@@ -775,7 +790,6 @@ window.QueryManager = (function(QueryManager, $) {
 
         var mainQuery = queryLists[id];
         var firstQueryPos = getFirstQueryPos(mainQuery);
-        var lastQueryPos = getLastQueryPos(mainQuery, firstQueryPos);
 
         var startTime = Date.now();
         check()
@@ -788,37 +802,64 @@ window.QueryManager = (function(QueryManager, $) {
             var deferred = jQuery.Deferred();
 
             var queryName = mainQuery.subQueries[mainQuery.currStep].queryName;
-            XcalarQueryState(queryName)
+            outerQueryCheckHelper(id, queryName)
             .then(function(res) {
+                if (mainQuery.state === QueryStatus.Error ||
+                    mainQuery.state === QueryStatus.Cancel ||
+                    mainQuery.state === QueryStatus.Done) {
+                    deferred.reject();
+                    return;
+                }
+
                 var numCompleted = res.numCompletedWorkItem;
                 // XXX need to accurately determine currStep based on
                 // numCompleted
+                var lastQueryPos = getLastQueryPos(mainQuery, firstQueryPos);
                 var currStep = Math.min(numCompleted + firstQueryPos,
                                         lastQueryPos);
-                mainQuery.currStep = currStep;
+                mainQuery.currStep = Math.max(mainQuery.currStep, currStep);
                 setQueriesDone(mainQuery, firstQueryPos, currStep);
                 var state = res.queryState;
                 if (state === QueryStateT.qrFinished) {
                     mainQuery.currStep++;
                     clearIntervalHelper(id);
-                    if (mainQuery.subQueries[mainQuery.currStep]) {
-                        if (mainQuery.subQueries[mainQuery.currStep].queryName) {
+                    var subQuery = mainQuery.subQueries[mainQuery.currStep];
+                    if (subQuery) {
+                        if (subQuery.queryName) {
                             outerQueryCheck(id, doNotAnimate);
                         } else {
-                            subQueryCheck(mainQuery.subQueries[mainQuery.currStep]);
+                            subQueryCheck(subQuery);
                         }
                     }
-                    deferred.reject();
+                    deferred.reject(); // ends cycle
                 } else if (state === QueryStateT.qrError ||
                            state === QueryStateT.qrCancelled) {
                     clearIntervalHelper(id);
                     updateQueryBar(id, res, true, false, doNotAnimate);
-                    deferred.reject();
+                    deferred.reject(); // ends cycle
                 } else {
-                    subQueryCheckHelper(mainQuery.subQueries[currStep], id,
+                    if (mainQuery.subQueries[currStep].retName) {
+                        var pct = parseFloat((100 * DFCard.getProgress(queryName).curOpPct)
+                                    .toFixed(2));
+                        updateQueryBar(id, pct, false, false, doNotAnimate);
+                        mainQuery.setElapsedTime();
+                        updateStatusDetail({
+                            "start": getQueryTime(mainQuery.getTime()),
+                            "elapsed": xcHelper.getElapsedTimeStr(
+                                        mainQuery.getElapsedTime(), true, true),
+                            "opTime": xcHelper.getElapsedTimeStr(
+                                        mainQuery.getOpTime(), true),
+                            "total": xcHelper.getElapsedTimeStr(
+                                        mainQuery.getElapsedTime(), null, true),
+                        }, id);
+                    } else {
+                        subQueryCheckHelper(mainQuery.subQueries[currStep], id,
                                         currStep, doNotAnimate);
-                    // only stop animation the first time, do not persist it
+                        // only stop animation the first time, do not persist it
+                    }
+
                     doNotAnimate = false;
+
                     deferred.resolve();
                 }
             })
@@ -832,6 +873,32 @@ window.QueryManager = (function(QueryManager, $) {
             });
 
             return deferred.promise();
+        }
+    }
+
+    function outerQueryCheckHelper(id, queryName) {
+        var mainQuery = queryLists[id];
+        var curSubQuery = mainQuery.subQueries[mainQuery.currStep];
+        if (curSubQuery.retName) {
+            // if retina doesn't exist in dfcard, we stil update the elapsed
+            // time, but the steps and % will be at 0
+            var progress = DFCard.getProgress(curSubQuery.retName);
+            var status;
+            if (progress.pct === 1) {
+                status = QueryStateT.qrFinished;
+            } else {
+                status = QueryStateT.qrProcessing;
+            }
+            var ret = {
+                numCompletedWorkItem: progress.numCompleted,
+                queryState: status
+            };
+            if (mainQuery.name === SQLOps.Retina && progress.opTime) {
+                mainQuery.setOpTime(progress.opTime);
+            }
+            return PromiseHelper.resolve(ret);
+        } else {
+            return XcalarQueryState(queryName);
         }
     }
 
@@ -1769,12 +1836,17 @@ window.QueryManager = (function(QueryManager, $) {
             numQueries = queries.length;
         }
 
+        var dstTable;
         for (var i = 0; i < numQueries; i++) {
-            if (queries[i].dstTable) {
-                if (queries[i].dstTable.indexOf(gDSPrefix) > -1) {
-                    dstDatasets.push(queries[i].dstTable);
+            dstTable = queries[i].dstTable;
+            if (dstTable) {
+                if (dstTable.indexOf(gRetSign) > -1) {
+                    continue;// ignore ret:tableName tables
+                }
+                if (dstTable.indexOf(gDSPrefix) > -1) {
+                    dstDatasets.push(dstTable);
                 } else {
-                    dstTables.push(queries[i].dstTable);
+                    dstTables.push(dstTable);
                 }
             }
         }

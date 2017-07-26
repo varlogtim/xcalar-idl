@@ -1683,7 +1683,7 @@ describe("Ephemeral Constructor Test", function() {
             });
 
             expect(xcSubQuery).to.be.an.instanceof(XcSubQuery);
-            expect(Object.keys(xcSubQuery).length).to.equal(9);
+            expect(Object.keys(xcSubQuery).length).to.equal(10);
             expect(xcSubQuery).to.have.property("name")
             .and.to.equal("test");
             expect(xcSubQuery).to.have.property("time")

@@ -63,6 +63,7 @@ var gMutePromises = true; // mutes .when() console logs
 var gAggVarPrefix = "^";
 var gColPrefix = '$';
 var gPrefixSign = '::';
+var gRetSign = ":";
 var gDSPrefix = '.XcalarDS.';
 var gHiddenColumnWidth = 15;
 var gTurnOnPrefix = true;

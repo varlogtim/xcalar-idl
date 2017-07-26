@@ -202,7 +202,7 @@ window.Transaction = (function(Transaction, $) {
     };
 
     // dstTableName is optional - only needed to trigger subQueryDone
-    Transaction.log = function(txId, cli, dstTableName, timeObj) {
+    Transaction.log = function(txId, cli, dstTableName, timeObj, options) {
         if (!isValidTX(txId)) {
             return;
         }
@@ -214,23 +214,26 @@ window.Transaction = (function(Transaction, $) {
         tx.addCli(cli);
 
         if (dstTableName || timeObj != null) {
-            QueryManager.subQueryDone(txId, dstTableName, timeObj);
+            QueryManager.subQueryDone(txId, dstTableName, timeObj, options);
         }
     };
 
-    Transaction.startSubQuery = function(txId, name, dstTable, query) {
+    Transaction.startSubQuery = function(txId, name, dstTable, query, options) {
+        options = options || {};
         var subQueries = xcHelper.parseQuery(query);
-        if (dstTable && subQueries.length === 1) {
-            var options = {
-                exportFileName: subQueries[0].exportFileName
-            };
-            QueryManager.addSubQuery(txId, name, dstTable, query, null,
-                                    options);
+        if (dstTable && subQueries.length === 1 && !options.retName) {
+            options.exportFileName = subQueries[0].exportFileName;
+            QueryManager.addSubQuery(txId, name, dstTable, query, options);
         } else if (subQueries.length) {
+            if (options.retName) {
+                options.queryName = dstTable;
+            } else {
+                options.queryName = name;
+            }
             for (var i = 0; i < subQueries.length; i++) {
                 QueryManager.addSubQuery(txId, subQueries[i].name,
                                             subQueries[i].dstTable,
-                                            subQueries[i].query, name);
+                                            subQueries[i].query, options);
             }
         }
     };

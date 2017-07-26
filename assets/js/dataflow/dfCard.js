@@ -193,14 +193,18 @@ window.DFCard = (function($, DFCard) {
         $dfMenu.find('.listBox').eq(0).trigger('click');
     };
 
-    DFCard.getPct = function(dfName) {
+    DFCard.getProgress = function(dfName) {
         var $dagWrap = getDagWrap(dfName);
-        if ($dagWrap.data("pct")) {
-            return $dagWrap.data("pct");
-        } else {
-            return 0;
-        }
-    };
+        var data = $dagWrap.data() || {};
+        var retData = {
+            pct: data.pct || 0,
+            curOpPct: data.oppct || 0,
+            opTime: data.optime || 0,
+            numCompleted: data.numcompleted || 0
+        };
+
+        return retData;
+    }
 
     function addParamToRetina(name, val) {
         var $row = $retLists.find(".unfilled:first");
@@ -1275,7 +1279,12 @@ window.DFCard = (function($, DFCard) {
         var createdState = DgDagStateTStr[DgDagStateT.DgDagStateCreated];
         $dagWrap.find('.dagTable').removeClass(dagStateClasses)
                                   .addClass(createdState);
-        $dagWrap.data("pct", 0);
+        $dagWrap.data({
+            pct: 0,
+            curoppct: 0,
+            optime: 0,
+            numcompleted: 0
+        });
         statusCheckInterval(retName, true);
     }
 
@@ -1329,6 +1338,8 @@ window.DFCard = (function($, DFCard) {
                             '<div class="progressBar"></div>' +
                          '</div>';
         var progressInfo;
+        var cumulativeOpTime = 0;
+        var curOpPct = 0;
         for (var i = 0; i < nodes.length; i++) {
             tableName = getTableNameFromStatus(nodes[i]);
             state = DgDagStateTStr[nodes[i].state];
@@ -1339,6 +1350,8 @@ window.DFCard = (function($, DFCard) {
             $dagTable.removeClass(dagStateClasses).addClass(state);
             var $barWrap = $dagTable.find(".progressBarWrap");
             var time = nodes[i].elapsed.milliseconds;
+            cumulativeOpTime += time;
+            
             time = xcHelper.getElapsedTimeStr(time);
             if (nodes[i].state === DgDagStateT.DgDagStateReady) {
                 numCompleted++;
@@ -1365,6 +1378,7 @@ window.DFCard = (function($, DFCard) {
                 if (isNaN(nodePct)) {
                     nodePct = 0;
                 }
+                curOpPct = nodePct / 100;
                 var lastPct = $barWrap.data("pct");
                 if (nodePct && nodePct !== lastPct) {
                     $barWrap.find(".progressBar").animate(
@@ -1374,8 +1388,8 @@ window.DFCard = (function($, DFCard) {
                     $barWrap.data("pct", nodePct);
                 }
                 progressInfo = '<div class="progressInfo" >' +
-                                    '<div class="pct"><span class="pct">'
-                                        + nodePct + '%</span></div>' +
+                                    '<div class="pct"><span class="pct">' +
+                                        nodePct + '%</span></div>' +
                                     '<div class="time"><span class="label">' +
                                         CommonTxtTstr.time +
                                         ':</span><span class="value">' + time +
@@ -1391,11 +1405,15 @@ window.DFCard = (function($, DFCard) {
         if (isComplete) {
             pct = 1;
         } else {
-            var numItems = nodes.length + 1; // +1 for the export operation
-            pct = numCompleted / numItems;
+            pct = numCompleted / nodes.length;
         }
 
-        $dagWrap.data("pct", pct);
+        $dagWrap.data({
+            pct: pct,
+            curoppct: curOpPct,
+            optime: cumulativeOpTime,
+            numcompleted: numCompleted
+        });
     }
 
     function getTableNameFromStatus(node) {

@@ -2898,8 +2898,12 @@ function XcalarExecuteRetina(retName, params, options, txId) {
     var def1 = xcalarExecuteRetina(tHandle, retName, params, activeSession,
                                    newTableName, queryName);
     var def2 = XcalarGetQuery(workItem);
+    var transactionOptions = {
+        retName: retName
+    };
     def2.then(function(query) {
-        Transaction.startSubQuery(txId, 'executeRetina', retName, query);
+        Transaction.startSubQuery(txId, SQLOps.Retina, retName, query,
+                                  transactionOptions);
     });
 
     jQuery.when(def1, def2)
@@ -2907,7 +2911,8 @@ function XcalarExecuteRetina(retName, params, options, txId) {
         if (Transaction.checkCanceled(txId)) {
             deferred.reject(StatusTStr[StatusT.StatusCanceled]);
         } else {
-            Transaction.log(txId, ret2, retName, ret1.timeElapsed);
+            Transaction.log(txId, ret2, retName, ret1.timeElapsed,
+                            transactionOptions);
             deferred.resolve(ret1);
         }
     })

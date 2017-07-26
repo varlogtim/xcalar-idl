@@ -133,7 +133,7 @@ describe('QueryManager Test', function() {
                         '--dsttable "destTable";';
 
             queryObj.currStep = 1;
-            QueryManager.addSubQuery(1, 'mapQuery', 'dstTable2', query, 'queryName');
+            QueryManager.addSubQuery(1, 'mapQuery', 'dstTable2', query, {queryName: 'queryName'});
             expect(queryObj.subQueries.length).to.equal(2);
             expect(getStatsCalled).to.be.false;
             expect(getQueryStateCalled).to.be.true;

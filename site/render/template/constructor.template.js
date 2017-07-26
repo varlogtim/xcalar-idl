@@ -2642,6 +2642,11 @@
                 this.opTime += time;
             },
 
+            setOpTime: function(time) {
+                this.opTimeAdded = true;
+                this.opTime = time;
+            },
+
             getOpTime: function() {
                 if (this.opTimeAdded) {
                     return this.opTime;
