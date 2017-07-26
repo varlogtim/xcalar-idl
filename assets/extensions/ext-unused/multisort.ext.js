@@ -43,7 +43,6 @@ window.UExtMultiSort = (function(UExtMultiSort) {
     modifiedCols: stores the map strings which give modified cols
     */
     function modifyColumn(ext, col, index, modifiedCols, srcTableName) {
-
         var deferred = XcSDK.Promise.deferred();
 
         var colName = col.getName();
@@ -83,8 +82,26 @@ window.UExtMultiSort = (function(UExtMultiSort) {
                     maxLen = maxNumber.toString().split(".")[0].length;
                     positiveCol = colName;
                 }
-                var padMapStr = 'multisort:padZeros(' + positiveCol + ', ' +
-                    maxLen + ')';
+
+                // so we have substring(str_of_zeros, 1, maxLen + 1 - no_of_digits)
+                // rather than substring(str_of_zeros, 0, maxLen - no_of_digits)
+                // as the later returns the whole string if maxLen == no_of_digits
+                // whereas we want it to return the empty string.
+                maxLen += 1;
+                // for padding, we need part before decimal for derived float
+                // columns and all numerical prefix columns
+                var cutMapStr;
+                if (colType === "integer" && col.getPrefix() === "") {
+                    cutMapStr = 'string(' + positiveCol + ')';
+                } else {
+                    cutMapStr = 'cut(string(' + positiveCol + '), 1, ".")';
+                }
+
+                // e.g. for a float column with max 4 digits before decimal:
+                // concat(substring("00000", 1, int(sub(5, len(cut(string(positiveCol), 1, "."))), 10)), string(positiveCol))
+                var padMapStr = 'concat(substring("' + "0".repeat(maxLen) +
+                    '", 1, int(sub(' + maxLen + ", len(" + cutMapStr +
+                    ')), 10)), string(' + positiveCol + "))";
                 // store the map strings, since the resultant columns are used
                 // in the concatenation step
                 modifiedCols[index] = padMapStr;
