@@ -2321,9 +2321,188 @@ html.microsoft {
             }
         }
 
-        path.arc:hover{
-            opacity: .85;
+        .arc {
+            opacity: 1;
+            &.color-1 {
+                fill : @color-arc-1;
+                &:hover  {
+                    fill : darken(@color-arc-1, 20%);
+                }
+            }
+            &.color-2 {
+                fill : @color-arc-2;
+                &:hover  {
+                    fill : darken(@color-arc-2, 20%);
+                }
+            }
+            &.color-3 {
+                fill : @color-arc-3;
+                &:hover  {
+                    fill : darken(@color-arc-3, 20%);
+                }
+            }
+            &.color-4 {
+                fill : @color-arc-4;
+                &:hover  {
+                    fill : darken(@color-arc-4, 20%);
+                }
+            }
+            &.color-5 {
+                fill : @color-arc-5;
+                &:hover  {
+                    fill : darken(@color-arc-5, 20%);
+                }
+            }
+            &.color-6 {
+                fill : @color-arc-6;
+                &:hover  {
+                    fill : darken(@color-arc-6, 20%);
+                }
+            }
+            &.color-7 {
+                fill : @color-arc-7;
+                &:hover  {
+                    fill : darken(@color-arc-7, 20%);
+                }
+            }
+            &.color-8 {
+                fill : @color-arc-8;
+                &:hover  {
+                    fill : darken(@color-arc-8, 20%);
+                }
+            }
+            &.color-9 {
+                fill : @color-arc-9;
+                &:hover  {
+                    fill : darken(@color-arc-9, 20%);
+                }
+            }
+            &.color-10 {
+                fill : @color-arc-10;
+                &:hover  {
+                    fill : darken(@color-arc-10, 20%);
+                }
+            }
+            &.other {
+                fill : @color-arc-other;
+                &:hover  {
+                    fill : darken(@color-arc-other, 20%);
+                }
+            }
+            &.nullVal {
+                fill : @color-profile-bar-null;
+                &:hover  {
+                    fill : darken(@color-profile-bar-null, 20%);
+                }
+            }
+
+            &.selected {
+                &, &.hover {
+                    stroke: @color-profile-bar-selected-border;
+                    stroke-width: 2;                        
+                }
+                &.color-1 {
+                    fill : darken(@color-arc-1, 20%);
+                }
+                &.color-2 {
+                    fill : darken(@color-arc-2, 20%);
+                }
+                &.color-3 {
+                    fill : darken(@color-arc-3, 20%);
+                }
+                &.color-4 {
+                    fill : darken(@color-arc-4, 20%);
+                }
+                &.color-5 {
+                    fill : darken(@color-arc-5, 20%);
+                }
+                &.color-6 {
+                    fill : darken(@color-arc-6, 20%);
+                }
+                &.color-7 {
+                    fill : darken(@color-arc-7, 20%);
+                }
+                &.color-8 {
+                    fill : darken(@color-arc-8, 20%);
+                }
+                &.color-9 {
+                    fill : darken(@color-arc-9, 20%);
+                }
+                &.color-10 {
+                    fill : darken(@color-arc-10, 20%);
+                }
+                &.other {
+                    fill : darken(@color-arc-other, 20%);
+                }
+                &.nullVal { 
+                    fill : darken(@color-profile-bar-null, 20%);
+                }
+            }
+
+            &.unselected {
+                opacity: .85;
+
+                &.hover {
+                    .bar {
+                        fill: @color-profile-bar;
+
+                        &.bar-nullVal {
+                            fill: @color-profile-bar-null;
+                        }
+                    }
+
+                    .bar-extra {
+                        fill: @color-table-col-darkGray;
+                        opacity: 1;
+                    }
+                }
+            }
+
+            &.selecting {
+                &, &.hover {
+                    stroke: @color-profile-bar-border-highlight;
+                    stroke-width: 2;
+                }
+                &.color-1 {
+                    fill : darken(@color-arc-1, 20%);
+                }
+                &.color-2 {
+                    fill : darken(@color-arc-2, 20%);
+                }
+                &.color-3 {
+                    fill : darken(@color-arc-3, 20%);
+                }
+                &.color-4 {
+                    fill : darken(@color-arc-4, 20%);
+                }
+                &.color-5 {
+                    fill : darken(@color-arc-5, 20%);
+                }
+                &.color-6 {
+                    fill : darken(@color-arc-6, 20%);
+                }
+                &.color-7 {
+                    fill : darken(@color-arc-7, 20%);
+                }
+                &.color-8 {
+                    fill : darken(@color-arc-8, 20%);
+                }
+                &.color-9 {
+                    fill : darken(@color-arc-9, 20%);
+                }
+                &.color-10 {
+                    fill : darken(@color-arc-10, 20%);
+                }
+                &.other {
+                    fill : darken(@color-arc-other, 20%);
+                }
+                &.nullVal { 
+                    fill : darken(@color-profile-bar-null, 20%);
+                }
+            }
+
         }
+        /*
         .arc {
             &.selected {
                 &, &.hover {
@@ -2364,7 +2543,7 @@ html.microsoft {
                 }
             }
         }
-
+        */
         .errorSection {
             padding: 16px 20px;
 

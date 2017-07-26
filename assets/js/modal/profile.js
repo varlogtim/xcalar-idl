@@ -37,7 +37,7 @@ window.Profile = (function($, Profile, d3) {
         "template": '<div class="bartip tooltip" role="tooltip">' +
                         '<div class="tooltip-arrow"></div>' +
                         '<div class="tooltip-inner"></div>' +
-                     '</div>'
+                    '</div>'
     };
     var statsColName = "statsGroupBy";
     var bucketColName = "bucketGroupBy";
@@ -63,6 +63,7 @@ window.Profile = (function($, Profile, d3) {
     var numRowsToFetch = defaultRowsToFetch;
     var filterDragging = false;
     var chartType = "bar";
+    var radius;
 
     Profile.setup = function() {
         $modal = $("#profileModal");
@@ -80,7 +81,7 @@ window.Profile = (function($, Profile, d3) {
             closeProfileModal();
         });
 
-        $modal.on("mouseenter", ".tooltipOverflow", function(){
+        $modal.on("mouseenter", ".tooltipOverflow", function() {
             xcTooltip.auto(this);
         });
 
@@ -93,19 +94,17 @@ window.Profile = (function($, Profile, d3) {
             }
             resetTooltip(rowToHover);
         });
-        
+
         $modal.on("click", ".graphSwitch", function(event) {
             if ($(this).hasClass("on")) {
                 $(this).removeClass("on");
-            }
-            else {
+            } else {
                 $(this).addClass("on");
             }
 
             if (chartType == "bar") {
                 chartType = "pie";
-            }
-            else if (chartType == "pie"){
+            } else if (chartType == "pie") {
                 $("#profile-chart .groupbyChart")
                     .removeAttr("viewBox")
                     .removeAttr("preserveAspectRatio");
@@ -118,7 +117,7 @@ window.Profile = (function($, Profile, d3) {
             event.stopPropagation();
             resetArcTooltip(this);
         });
-        
+
         $modal.on("mouseout", ".arc", function(event) {
             resetArcTooltip();
         });
@@ -127,11 +126,11 @@ window.Profile = (function($, Profile, d3) {
         $modal.on("mouseover", ".groupbyChart", function(event) {
             event.stopPropagation();
         });
-    
+
         $modal.on("mouseover", function() {
             resetTooltip();
         });
-        
+
         var $groupbySection = $modal.find(".groupbyInfoSection");
 
         $groupbySection.on("click", ".arc",
@@ -145,8 +144,8 @@ window.Profile = (function($, Profile, d3) {
                 return;
             }
             percentageLabel = !percentageLabel;
-            buildGroupGraphs(statsCol);
-            $(this).tooltip("show");
+            $(this).tooltip("hide");
+            buildGroupGraphs(statsCol, true);
         });
 
         $groupbySection.on("click", ".bar-extra, .bar, .xlabel",
@@ -187,8 +186,7 @@ window.Profile = (function($, Profile, d3) {
             }
             if (chartType == "bar") {
                 createFilterSelection(event.pageX, event.pageY);
-            }
-            else if (chartType == "pie") {
+            } else if (chartType == "pie") {
                 pieCreateFilterSelection(event.pageX, event.pageY);
             }
         });
@@ -268,8 +266,7 @@ window.Profile = (function($, Profile, d3) {
                 } else {
                     val = Number(val);
                     if (val < 0 || val > decimalLimit ||
-                        !Number.isInteger(val))
-                    {
+                        !Number.isInteger(val)) {
                         var err = xcHelper.replaceMsg(ErrWRepTStr.IntInRange, {
                             "lowerBound": 0,
                             "upperBound": decimalLimit
@@ -283,22 +280,6 @@ window.Profile = (function($, Profile, d3) {
                 updateDecimalInput(decimalNum);
             }
         });
-        /*
-        $("#profile-filterOption").on("mousedown", ".option", function(event) {
-            if (event.which !== 1) {
-                return;
-            }
-
-            var $option = $(this);
-            if ($option.hasClass("filter")) {
-                filterSelectedValues(FltOp.Filter);
-            } else if ($option.hasClass("exclude")) {
-                filterSelectedValues(FltOp.Exclude);
-            } else {
-                toggleFilterOption(true);
-            }
-        });
-        */
         $("#profile-filterOption").on("mousedown", ".option", function(event) {
             if (event.which !== 1) {
                 return;
@@ -307,22 +288,17 @@ window.Profile = (function($, Profile, d3) {
             if (chartType == "bar") {
                 if ($option.hasClass("filter")) {
                     filterSelectedValues(FltOp.Filter);
-                } 
-                else if ($option.hasClass("exclude")) {
+                } else if ($option.hasClass("exclude")) {
                     filterSelectedValues(FltOp.Exclude);
-                } 
-                else {
+                } else {
                     toggleFilterOption(true);
                 }
-            }
-            else if (chartType == "pie") {
+            } else if (chartType == "pie") {
                 if ($option.hasClass("filter")) {
                     pieFilterSelectedValues(FltOp.Filter);
-                } 
-                else if ($option.hasClass("exclude")) {
+                } else if ($option.hasClass("exclude")) {
                     pieFilterSelectedValues(FltOp.Exclude);
-                } 
-                else {
+                } else {
                     pieToggleFilterOption(true);
                 }
             }
@@ -460,8 +436,8 @@ window.Profile = (function($, Profile, d3) {
                 if (!isValid) {
                     return;
                 }
-                var bucketSize = (rangeOption === "range")
-                                 ? val
+                var bucketSize = (rangeOption === "range") 
+                                 ? val 
                                  : -val;
                 bucketData(bucketSize, statsCol);
                 cacheBucket(bucketSize);
@@ -693,7 +669,7 @@ window.Profile = (function($, Profile, d3) {
                     table = tableInfo.ascTable;
                 } else if (order === sortMap.desc) {
                     table = tableInfo.descTable;
-                } else if (order === sortMap.ztoa){
+                } else if (order === sortMap.ztoa) {
                     table = tableInfo.ztoaTable;
                 } else {
                     table = tableInfo.table;
@@ -746,12 +722,12 @@ window.Profile = (function($, Profile, d3) {
             if (aggVal == null && !isStartUp) {
                 // when aggregate is still running
                 $agg.html("...")
-                    .addClass("animatedEllipsis");
+                      .addClass("animatedEllipsis");
                 xcTooltip.changeText($agg, "...");
             } else {
                 var text = (aggVal != null) ? xcHelper.numToStr(aggVal) : "N/A";
                 $agg.removeClass("animatedEllipsis")
-                    .text(text);
+                      .text(text);
                 xcTooltip.changeText($agg, text);
             }
         });
@@ -1030,7 +1006,7 @@ window.Profile = (function($, Profile, d3) {
                 promises.push(getMedian.bind(this, tableResultsetId,
                                         upperRowStart, numEntries, upperKey));
                 promises.push(getMedian.bind(this, tableResultsetId, numEntries,
-                                             numEntries, fullKey));
+                                            numEntries, fullKey));
 
                 return PromiseHelper.chain(promises);
             })
@@ -1104,7 +1080,7 @@ window.Profile = (function($, Profile, d3) {
     }
 
     function runGroupby(table, curStatsCol, curBucketNum) {
-        var deferred  = jQuery.Deferred();
+        var deferred = jQuery.Deferred();
         if (curBucketNum !== 0) {
             return deferred.reject("Invalid bucket num").promise();
         }
@@ -1169,7 +1145,7 @@ window.Profile = (function($, Profile, d3) {
             groupbyTable = getNewName(tableName, ".profile.GB", true);
 
             var operator = AggrOp.Count;
-            var newColName  = statsColName;
+            var newColName = statsColName;
             var isIncSample = false;
 
             return XcalarGroupBy(operator, newColName, colName,
@@ -1321,13 +1297,13 @@ window.Profile = (function($, Profile, d3) {
         return data;
     }
 
-    function midAngle(d) {       
+    function midAngle(d) {
         return d["startAngle"] + (d["endAngle"] - d["startAngle"]) / 2;
     }
 
     function maxLabelWidth(labels) {
         var maxWidth = 0;
-        labels.each(function(){
+        labels.each(function() {
             var labelWidth = this.getBoundingClientRect().width;
             if (maxWidth < labelWidth) {
                 maxWidth = labelWidth;
@@ -1337,76 +1313,83 @@ window.Profile = (function($, Profile, d3) {
     }
 
     function moveOverlappingLabels(labels, labelPositions) {
-            var prevRect;
-            var currRect;
-            var prevPos;
-            var currPos;
-            var intersectionLength;
-            var maxWidth = maxLabelWidth(labels);
+        var prevRect;
+        var currRect;
+        var prevPos;
+        var currPos;
+        var intersectionLength;
+        var maxWidth = maxLabelWidth(labels) * 2;
 
-            // method could be cleaner, 
-            // some code in 'labels.each' should be moved to separate functions
-            labels.each(function(d, i) {
-                currRect = this;
-                currPos = labelPositions[i];
+        // method could be cleaner, 
+        // some code in 'labels.each' should be moved to separate functions
+        labels.each(function(d, i) {
+            currRect = this;
+            currPos = labelPositions[i];
 
-                if (currPos[0] > 0) {
-                    var move = [maxWidth, 0];
-                    labelPositions[i][0] += maxWidth;
+            if (currPos[0] > 0) {
+                var move = [maxWidth, 0];
+                labelPositions[i][0] += maxWidth;
+                d3.select(this)
+                    .attr("transform", "translate(" + move + ")")
+                    .attr("text-anchor", "end");
+            } else if (currPos[0] < 0) {
+                var move = [-1 * maxWidth, 0];
+                labelPositions[i][0] -= maxWidth;
+                d3.select(this)
+                    .attr("transform", "translate(" + move + ")")
+                    .attr("text-anchor", "start");
+            }
+
+            if (i > 0) {
+                prevPos = labelPositions[i - 1];
+                currRectXPos = d3.select(this).attr("transform");
+
+                // getting location of top and bottom of current and previous text labels
+                var prevBottom = prevRect.getBoundingClientRect().bottom;
+                var prevTop = prevRect.getBoundingClientRect().top;
+                var currBottom = currRect.getBoundingClientRect().bottom;
+                var currTop = currRect.getBoundingClientRect().top;
+                var groupByBox = $(".groupbyChart").get(0).getBoundingClientRect();
+
+                if (currPos[0] > 0 && prevPos[0] > 0 && prevBottom > currTop) {
+                    intersectionLength = currTop - prevBottom;
+                    currPos[1] -= intersectionLength;
+                    var move = [maxWidth, -1 * intersectionLength];
                     d3.select(this)
-                        .attr("transform", "translate(" + move + ")")
-                        .attr("text-anchor", "end");
-                }
-                else if (currPos[0] < 0) {
-                    var move = [-1 * maxWidth, 0];
-                    labelPositions[i][0] -= maxWidth;
+                        .attr("transform", "translate(" + move + ")");
+                    // updates position value in array
+                    labelPositions[i] = currPos;
+                } else if (currPos[0] < 0 && prevPos[0] < 0 && prevTop < currBottom) {
+                    intersectionLength = currBottom - prevTop;
+                    currPos[1] -= intersectionLength;
+                    var move = [-1 * maxWidth, -1 * intersectionLength];
                     d3.select(this)
-                      .attr("transform", "translate(" + move + ")")
-                      .attr("text-anchor", "start");
+                        .attr("transform", "translate(" + move + ")");
+                    // updates position value in array
+                    labelPositions[i] = currPos;
                 }
+            }
+            prevRect = this;
+        })
+        return labels;
+    }
 
-                if (i > 0) {
-                    prevPos = labelPositions[i - 1];
-                    currRectXPos = d3.select(this).attr("transform");
+    function getPieData(curStatsCol) {
+        var gbd = groupByData.slice();
 
-                    // getting location of top and bottom of current and previous text labels
-                    var prevBottom = prevRect.getBoundingClientRect().bottom;
-                    var prevTop = prevRect.getBoundingClientRect().top;
-                    var currBottom = currRect.getBoundingClientRect().bottom;
-                    var currTop = currRect.getBoundingClientRect().top;
-
-                    if (currPos[0] > 0 && prevPos[0] > 0 && prevBottom > currTop) {
-                        intersectionLength = currTop - prevBottom;
-                        currPos[1] -= intersectionLength;
-                        var move = [maxWidth, -1*intersectionLength];
-                        d3.select(this)
-                          .attr("transform", "translate(" + move + ")");
-                        // updates position value in array
-                        labelPositions[i] = currPos;
-                    }                                 
-                    else if (currPos[0] < 0 && prevPos[0] < 0 && prevTop < currBottom) {
-                        intersectionLength = currBottom - prevTop;  
-                        currPos[1] -= intersectionLength;
-                        var move = [-1 * maxWidth, -1*intersectionLength];
-                        d3.select(this)
-                          .attr("transform", "translate(" + move + ")");
-                        // updates position value in array
-                        labelPositions[i] = currPos;
-                    }
-                }
-                prevRect = this;
-            })
-            return labels;
+        var total = curStatsCol.groupByInfo.buckets[bucketNum]["sum"];
+        var sum = 0;
+        for (var i = 0; i < gbd.length; i++) {
+            sum += gbd[i]["statsGroupBy"];
         }
 
+        var otherSum = total - sum;
 
-    // temporarily declaring variables here for testing
-    
-    //var width, height, radius;
-    //var svg;
-    //var piedata;
+        if (otherSum > 0) {
+            var other = {"column2" : "Other",  "statsGroupBy" : otherSum, "section": "other"};
+            gbd.push(other);
+        }
 
-    function getPieData() {
         var yName = getYName();
         var pie = d3.layout.pie()
             .sort(null)
@@ -1414,7 +1397,7 @@ window.Profile = (function($, Profile, d3) {
                 return d[yName];
             })
 
-        return pie(groupByData);
+        return pie(gbd);
     }
 
     function getYName() {
@@ -1429,55 +1412,31 @@ window.Profile = (function($, Profile, d3) {
         var radius = (Math.min(width, height) / 2);
 
         svg = d3.select("#profileModal .groupbyChart")
-                .attr("width", '100%')
-                .attr("height", '100%')
-                .attr('viewBox', '0 0 ' + width + ' ' + height)
-                .attr('preserveAspectRatio', 'xMinYMin')
-                .append("g")
-                .attr("transform", "translate(" + (width / 2) + "," + Math.min(width, height) / 2 + ")");
-
-            var piedata = getPieData();            
-            svg.append("circle")
-                .attr("fill", "black")
-                .attr("cy", 0)
-                .attr("cx", 0)
-                .attr("r", radius)
-                .attr("width", '100%')
-                .attr("height", '100%')
-                .attr('viewBox', '0 0 ' + Math.min(width, height) + ' ' + Math.min(width, height))
-                .attr('preserveAspectRatio', 'xMinYMin')
-                .append("g")
-                .attr("transform", "translate(" + ((Math.min(width, height) / 2) + 50) + "," + Math.min(width, height) / 2 + ")");
+            .attr("width", width)
+            .attr("height", height)
+            .attr("style", "")
+            .append("g")
+            .attr("transform", "translate(" + (width / 2) + "," + Math.min(width, height) / 2 + ")");
 
         return svg;
-    }
-
-    function getPieColors() {
-        var color = d3.scale.ordinal()
-            .range(["#67b9a1", "#cfe8d1", "#14b3b3", "#97e9df", "#91b7b0",
-                "#d7fdb1", "#97cce9", "#5cb2e8", "#f7f7f7", "#ddeaf2"
-            ])
-            .domain([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
-        return color;
-    }
-
-    function setFontSize(dataLength, height) {
-        var maxFontSize = (height - 30) / dataLength / 3;
-        if (maxFontSize > 18) {
-            return 18;
-        }
-        return maxFontSize;
     }
 
     function buildGroupGraphs(curStatsCol, initial, resize) {
         if (chartType == "bar") {
             buildBarChart(curStatsCol, initial, resize);
-        }
-        else if (chartType == "pie") {
+        } else if (chartType == "pie") {
             buildPieChart(curStatsCol, initial, resize);
         }
-    } 
+    }
 
+    // returns max number of labels that will fit
+    function getMaxLabels(height) {
+        var fontSize = 13;
+        return Math.floor(height / (fontSize * 3));
+    }
+
+    // there should be a way to only only re-render the text/polylines
+    // when a rezise happens, right now everything gets re-rendered during resize
     function buildPieChart(curStatsCol, initial, resize) {
         if (!isModalVisible(curStatsCol)) {
             return;
@@ -1497,47 +1456,85 @@ window.Profile = (function($, Profile, d3) {
         var marginLeft = 20;
         var svg;
         var charLenToFit = 18;
-        // sizes/positions pie chart on the page
-        if (initial) {
-            $modal.find(".groupbyChart").empty().addClass("pieChart");
-            var piedata = getPieData();
-            var radius = (Math.min(sectionWidth, $section.height()) / 2);
+        var piedata = getPieData(curStatsCol);
+        radius = (Math.min(sectionWidth, $section.height()) / 2) * .9;
+        var arc = d3.svg.arc()
+            .innerRadius(0)
+            .outerRadius(radius);
+        var outerArc = d3.svg.arc()
+            .innerRadius(radius * .8)
+            .outerRadius(radius * .8);
 
-            var arc = d3.svg.arc()
-                .innerRadius(0)
-                .outerRadius(radius);
+        // could change to only regenerate/color piechart if initial
+        $modal.find(".groupbyChart").empty();
+        svg = drawPieChart(svg, arc);
+        var path = colorPieChart(svg, piedata, arc);
 
-            var outerArc = d3.svg.arc()
-                .innerRadius(radius * .7)
-                .outerRadius(radius * .7);
-
-            svg = drawPieChart(svg, arc);
-            var path = colorPieChart(svg, piedata, arc);
-            path.attr("class", getTooltipAndClass);
-
-            function colorPieChart(svg, piedata, arc) {
-                var color = getPieColors();
-                var nextColor = 0;
-                var path = svg.selectAll("path")
+        // appends arcs to 'path' and colors them
+        function colorPieChart(svg, piedata, arc) {
+            var isFirstColor = true;
+            var nextColor = 0;
+            var path = svg.selectAll("path")
                 .data(piedata)
                 .enter()
                 .append("path")
-                .attr("fill", function(d) {
-                    if (nextColor == (piedata.length - 1) && color(nextColor) == color(0)) {
-                        return color(++nextColor);
-                    }
-                    return color(nextColor++);
-                })
                 .attr("d", arc)
-                .attr("class", getTooltipAndClass);
+                .attr("class", function(d, i) {
+                    var className = getTooltipAndClass.apply(this, arguments) + " ";
+                    if (nextColor == 10) {  
+                        nextColor = 0;
+                    }
+                    if (piedata[i].data["type"] == "nullVal") {
+                        return className + "nullVal"
+                    }
+                    if (i == piedata.length - 1 && piedata[piedata.length - 1].data["section"] == "other") {
+                        return className + "other";
+                    }
+                    if (!isFirstColor && nextColor == 0) {
+                        return className + getColorClass(nextColor += 2);
+                    }
+                    isFirstColor = false;
+                    return className + getColorClass(++nextColor);
+                });
 
-                return path;
-            }
+            return path;
+        }
 
-            // iterate through piedata and count number of labels on each side
+        function getColorClass(nextColor) {
+            return "color-" + nextColor;
+        }
+
+        var labelPositions = [];
+
+        var usedPieData = [];
+        chooseAndAppendLabels(usedPieData);
+        var labels = d3.selectAll(".pieLabel");
+        // moves labels that overlap
+        labels = moveOverlappingLabels(labels, labelPositions);
+        
+        // adds lines from pie chart to labels
+        var arcCent;
+        var outerArcCent;
+        var polyline = svg.selectAll("polyline")
+            .data(usedPieData)
+            .enter()
+            .append("polyline")
+            .attr("points", function(d, i) {
+                arcCent = arc.centroid(d);
+                outerArcCent = outerArc.centroid(d);
+                arcCent[0] *= 1.1;
+                arcCent[1] *= 1.1;
+                outerArcCent[1] = labelPositions[i][1];
+                return [arcCent, outerArcCent, labelPositions[i]];
+            })
+            .style("fill", "none")
+            .style("stroke", "4f4f4f")
+            .style("stroke-width", "1px");
+
+        // chooses which labels to display
+        function chooseAndAppendLabels(usedPieData) {
             var rightCount = 0;
             var leftCount = 0;
-
             for (var i = 0; i < piedata.length; i++) {
                 if (piedata[i]["startAngle"] <= Math.PI) {
                     rightCount++;
@@ -1546,94 +1543,115 @@ window.Profile = (function($, Profile, d3) {
                 }
             }
 
-            var labelPositions = [];
+            var maxLabels = getMaxLabels($section.height());
+            var r = 0;
+            var l = 0;
+            var fontSize = 13;
+            if (rightCount > maxLabels) {
+                rightCount = maxLabels;
+            }
+            if (leftCount > maxLabels) {
+                leftCount = maxLabels;
+            }
+            var rightArcDiv = Math.PI / rightCount;
+            var leftArcDiv = Math.PI / leftCount;
+            var lastUsedArc = piedata[0];
+            var currMid;
+            for (var i = 0; i < piedata.length; i++) {
+                if (i > 0) {
+                    if (!roomForLabel(lastUsedArc, piedata[i], rightArcDiv, leftArcDiv , i)) {
+                        continue;
+                    }
+                }
+                currMid = midAngle(piedata[i]);
+                if ((currMid <= Math.PI && r < maxLabels) ||
+                    (currMid > Math.PI && l < maxLabels)) {
+                    var g = svg.append("g").classed("pieLabel", true);
+                    addLabels(g, piedata[i], fontSize);
+                    if (piedata[i]["startAngle"] <= Math.PI) {
+                        r++;
+                    } else {
+                        l++;
+                    }
+                    lastUsedArc = piedata[i];
+                    usedPieData.push(piedata[i]);
+                }
+            }
+        }
+        
+        /*
+            decides if there is room for a label on an arc
+            based on where the last label was placed
+        */
+        function roomForLabel(lastUsedArc, currArc, rightArcDiv, leftArcDiv, i) {
+            var lastMid = midAngle(lastUsedArc);
+            var currMid = midAngle(currArc);
 
-            var fontSize = setFontSize(Math.max(rightCount, leftCount), $section.height());
-            
-            // sets initial positions of labels
-            var labels = svg.selectAll("text")
-                .data(piedata)
-                .enter()
-                .append("g");
+            if ((lastMid < Math.PI && currMid < Math.PI) ||
+                (lastMid >= Math.PI && currMid >= Math.PI)) {
+                var rightSpace = (lastMid + rightArcDiv);
+                var leftSpace = (lastMid + leftArcDiv);
 
-            labels.append("text")
-                .attr("class", "title")
+                if (currMid < Math.PI &&
+                    i < piedata.length - 1 &&
+                    piedata[i]["endAngle"] < rightSpace) {
+                    return false;
+                }
+                if (currMid >= Math.PI &&
+                    i < piedata.length - 1 &&
+                    piedata[i]["endAngle"] < leftSpace) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        // appends labels to 'g'
+        // groups the 'value' and 'frequency' together
+        function addLabels(g, arc, fontSize) {
+            var mid = midAngle(arc);
+            g.append("text")
                 .style("font-size", fontSize + "px")
+                .style("fill", "4f4f4f")
                 .attr("transform", function(d) {
-                    var pos = outerArc.centroid(d);
-                    pos[0] = radius * (midAngle(d) < Math.PI ? 1 : -1);
+                    var pos = outerArc.centroid(arc);
+                    pos[0] = radius * (mid < Math.PI ? 1 : -1);
+                    if (mid < Math.PI) {
+                        pos[1] -= (fontSize * 1.5);
+                    } else {
+                        pos[1] -= fontSize * 1.5;
+                    }
                     labelPositions.push(pos);
+
                     return "translate(" + pos + ")";
                 })
-                .text(function(d) {
-                    return getXAxis(d);
+                .text(function() {
+                    if (arc.data["section"] == "other") {
+                        return "Other";
+                    }
+                    return getXAxis(arc);
                 });
 
-            labels.append("text")
-                .attr("class", "value")
+            g.append("text")
                 .style("font-size", fontSize + "px")
-                .style("fill", "#9b9b9b")
+                .style("fill", "9b9b9b")
                 .attr("transform", function(d) {
-                    var pos = outerArc.centroid(d);
-                    pos[0] = radius * (midAngle(d) < Math.PI ? 1 : -1);
-
+                    var pos = outerArc.centroid(arc);
+                    pos[0] = radius * (mid < Math.PI ? 1 : -1);
+                    if (mid < Math.PI) {
+                        pos[1] -= fontSize * 1.5;
+                    } else {
+                        pos[1] -= fontSize * 1.5;
+                    }
                     pos[1] += fontSize;
 
                     return "translate(" + pos + ")";
                 })
                 .text(function(d) {
-                    return d.data[yName];
+                    return getLabel(arc);
                 });
-
-            // fixes any overlapping text
-            labels = moveOverlappingLabels(labels, labelPositions);
-
-            // adds lines from pie chart to labels
-            var arcCent;
-            var outerArcCent;
-
-            var polyline = svg.selectAll("polyline")
-                .data(piedata)
-                .enter()
-                .append("polyline")
-                .attr("points", function(d, i) {
-                    arcCent = arc.centroid(d);
-                    outerArcCent = outerArc.centroid(d);
-
-                    arcCent[0] *= 1.25;
-                    arcCent[1] *= 1.25;
-
-                    outerArcCent[1] = labelPositions[i][1];
-
-                    return [arcCent, outerArcCent, labelPositions[i]];
-                })
-                .style("fill", "none")
-                .style("stroke", "black")
-                .style("stroke-width", "1px");
-
-            // should create black circles at ends of polylines on piechart
-            polyline.append("cicle")
-                .style("fill", "black")
-                .attr("cy", arcCent[0])
-                .attr("cx", arcCent[1])
-                .attr("r", 5);
-
         }
 
-        var pie = d3.layout.pie()
-                .sort(null)
-                .value(function(d) {
-                    return d[yName];
-                })
-
-        piedata = pie(data);
-
-        // updates tooltips after click
-        svg = d3.select("#profileModal .groupbyChart")
-                .selectAll(".arc")
-                .data(piedata)
-                .attr("class", getTooltipAndClass);
-        
         function getLabel(d) {
             var num = d.data[yName];
 
@@ -1663,7 +1681,7 @@ window.Profile = (function($, Profile, d3) {
             var lowerBound = getLowerBound(d.data[xName], tableInfo.bucketSize);
             var name = formatNumber(lowerBound, isLogScale, decimalNum);
 
-            if (!noBucket && !noSort && d.type !== "nullVal") {
+            if (!noBucket && !noSort && d.data["type"] !== "nullVal") {
                 var upperBound = getUpperBound(d.data[xName], tableInfo.bucketSize);
                 upperBound = formatNumber(upperBound, isLogScale, decimalNum);
                 name = "[" + name + "-" + upperBound + "]";
@@ -1683,7 +1701,9 @@ window.Profile = (function($, Profile, d3) {
             var isLogScale = (tableInfo.bucketSize < 0);
             var lowerBound = getLowerBound(d.data[xName], tableInfo.bucketSize);
 
-            if (noBucket || d.type === "nullVal") {
+            if (d.data["section"] == "other") {
+                title = "Value: Other<br>";
+            } else if (noBucket || d.data["type"] === "nullVal") {
                 // xName is the backColName, may differenet with frontColName
                 title = "Value: " +
                     formatNumber(lowerBound, isLogScale, decimalNum) +
@@ -1720,45 +1740,46 @@ window.Profile = (function($, Profile, d3) {
         }
     }
 
+    // returns the quadrant of the pie that a point lies in
     function getCornerQuadrant(corner, circleCenter) {
         if (corner[0] > circleCenter[0] && corner[1] < circleCenter[1]) {
             return 1;
-        }
-        else if (corner[0] > circleCenter[0] && corner[1] > circleCenter[1]) {
+        } else if (corner[0] > circleCenter[0] && corner[1] > circleCenter[1]) {
             return 2;
-        }
-        else if (corner[0] < circleCenter[0] && corner[1] > circleCenter[1]) {
+        } else if (corner[0] < circleCenter[0] && corner[1] > circleCenter[1]) {
             return 3;
         }
         return 4;
     }
 
+    // gets center of circle by calculating its position
+    // relative to the 'graphBox' 
     function getCenterOfCircle(bound) {
-        var profInfoSection = $("#profileModal .groupbyInfoSection").get(0).getBoundingClientRect();
+        var profileChart = $("#profile-chart").get(0).getBoundingClientRect();
         var graphBox = $("#profileModal .groupbyChart").get(0).getBoundingClientRect();
-        var circleBox = $("#profileModal .groupbyChart > g").get(0).getBoundingClientRect();
+        var circleBox = $(".groupbyInfoSection").get(0).getBoundingClientRect();
         var x = (circleBox.left - graphBox.left) + ((circleBox.right - circleBox.left) / 2);
-        var y = (circleBox.top + (graphBox.top - profInfoSection.top) - graphBox.top) + ((circleBox.bottom - circleBox.top) / 2);
+        var y = ((graphBox.bottom + graphBox.top) / 2) - profileChart.top;
+
         return [x, y];
     }
 
+    // main function for deciding which arcs are selected by the rectangle
     function getSelectedArcs(bound, top, right, bottom, left, piedata) {
         var topLeftCorner = [left, top];
         var topRightCorner = [right, top];
         var bottomLeftCorner = [left, bottom];
         var bottomRightCorner = [right, bottom];
         var rectDimensions = [top, bottom, left, right];
-        var circleBox = $("#profileModal .groupbyChart > g").get(0).getBoundingClientRect();
+        var circleBox = $(".groupbyInfoSection").get(0).getBoundingClientRect();
         var corners = [topLeftCorner, topRightCorner, bottomLeftCorner, bottomRightCorner];
         var circleCenter = getCenterOfCircle(bound);
-        var r = Math.min( (circleBox.bottom - circleBox.top) / 2, (circleBox.right - circleBox.left) / 2);
         var intersectsWithRect = [];
 
         // initially set all indicies in array to false
         for (var i = 0; i < piedata.length; i++) {
             intersectsWithRect.push(false);
         }
-
         for (var i = 0; i < piedata.length; i++) {
             // checks if center of circle is selected
             if (left <= circleCenter[0] && right >= circleCenter[0] &&
@@ -1766,15 +1787,13 @@ window.Profile = (function($, Profile, d3) {
                 intersectsWithRect[i] = true;
                 continue;
             }
-            
-            var sectorPointsIntersect = checkSectorLines(rectDimensions, piedata[i], circleCenter, r);
+            var sectorPointsIntersect = checkSectorLines(rectDimensions, piedata[i], circleCenter);
             if (sectorPointsIntersect) {
                 intersectsWithRect[i] = true;
                 continue;
             }
-
             for (var j = 0; j < corners.length; j++) {
-                if (pointLiesInArc(corners[j], circleCenter, piedata[i], r)) {
+                if (pointLiesInArc(corners[j], circleCenter, piedata[i])) {
                     intersectsWithRect[i] = true;
                     break;
                 }
@@ -1783,7 +1802,8 @@ window.Profile = (function($, Profile, d3) {
         return intersectsWithRect;
     }
 
-    function pointLiesInArc(corner, circleCenter, currArc, radius) {
+    // checks if a point (corner of selection box) lies in an arc
+    function pointLiesInArc(corner, circleCenter, currArc) {
         var quadrant = getCornerQuadrant(corner, circleCenter);
         var xDistance = Math.abs(corner[0] - circleCenter[0]);
         var yDistance = Math.abs(corner[1] - circleCenter[1]);
@@ -1794,65 +1814,58 @@ window.Profile = (function($, Profile, d3) {
         if (quadrant == 4) {
             calcAngle = Math.abs(Math.atan(yDistance / xDistance));
             actualAngle = calcAngle + (3 * Math.PI / 2);
-        }
-        else if (quadrant == 3) {
+        } else if (quadrant == 3) {
             calcAngle = Math.abs(Math.atan(xDistance / yDistance));
             actualAngle = calcAngle + Math.PI;
-        }
-        else if (quadrant == 2) {
+        } else if (quadrant == 2) {
             calcAngle = Math.abs(Math.atan(yDistance / xDistance));
             actualAngle = calcAngle + (Math.PI / 2);
-        }
-        else {
+        } else {
             calcAngle = Math.abs(Math.atan(xDistance / yDistance));
             actualAngle = calcAngle;
         }
-
-        if (distance <= radius && actualAngle >= currArc["startAngle"] && 
+        if (distance <= radius && actualAngle >= currArc["startAngle"] &&
             actualAngle <= currArc["endAngle"]) {
             return true;
         }
         return false;
     }
 
+    // returns the quadrant the 'currArc' is in
     function getPointQuadrant(currArc) {
         if (currArc >= 3 * Math.PI / 2) {
             return 4;
-        }
-        else if (currArc >= Math.PI) {
+        } else if (currArc >= Math.PI) {
             return 3;
-        }
-        else if (currArc >= Math.PI / 2) {
+        } else if (currArc >= Math.PI / 2) {
             return 2;
-        }
-        else {
+        } else {
             return 1;
         }
     }
 
+    // sets a points location to be relative to the location of the circle on the page 
     function accountForCircleCenter(point, currArc, circleCenter) {
-        var quad = getPointQuadrant(currArc); 
+        var quad = getPointQuadrant(currArc);
 
         if (quad == 1) {
             point[0] = Math.abs(circleCenter[0] + point[0]);
             point[1] = Math.abs(circleCenter[1] - point[1]);
-        }
-        else if (quad == 2) {
+        } else if (quad == 2) {
             point[0] += circleCenter[0];
             point[1] += circleCenter[1];
-        }
-        else if (quad == 3) {
+        } else if (quad == 3) {
             point[0] = Math.abs(circleCenter[0] - point[0]);
             point[1] = Math.abs(circleCenter[1] + point[1]);
-        }
-        else {
+        } else {
             point[0] = circleCenter[0] - point[0];
             point[1] = circleCenter[1] - point[1];
         }
         return point;
     }
 
-    function checkSectorLines(rectDimensions, currArc, circleCenter, radius) {
+    // checks if selection box intersects with sector lines
+    function checkSectorLines(rectDimensions, currArc, circleCenter) {
         var xPos1 = Math.abs(radius * Math.sin(currArc["startAngle"]));
         var yPos1 = Math.abs(radius * Math.cos(currArc["startAngle"]));
         var xPos2 = Math.abs(radius * Math.sin(currArc["endAngle"]));
@@ -1864,21 +1877,25 @@ window.Profile = (function($, Profile, d3) {
         p2 = accountForCircleCenter(p2, currArc["endAngle"], circleCenter);
         if (checkAllLineIntersections(circleCenter, p1, p2, rectDimensions)) {
             return true;
-        }        
+        }
         return false;
     }
 
+    // checks possible line intersections between sector lines and selection box lines
     function checkAllLineIntersections(circleCenter, p1, p2, rectDimensions) {
         var topLeft = [rectDimensions[2], rectDimensions[0]];
         var topRight = [rectDimensions[3], rectDimensions[0]];
         var bottomLeft = [rectDimensions[2], rectDimensions[1]];
         var bottomRight = [rectDimensions[3], rectDimensions[1]];
 
-        var rectLines = [[topLeft, bottomLeft], [topLeft, topRight], 
-                         [topRight, bottomRight], [bottomLeft, bottomRight]];
-
+        var rectLines = [
+            [topLeft, bottomLeft],
+            [topLeft, topRight],
+            [topRight, bottomRight],
+            [bottomLeft, bottomRight]
+        ];
         for (var i = 0; i < rectLines.length; i++) {
-            if (lineSegmentsIntersect(circleCenter, p1, rectLines[i][0], rectLines[i][1]) || 
+            if (lineSegmentsIntersect(circleCenter, p1, rectLines[i][0], rectLines[i][1]) ||
                 lineSegmentsIntersect(circleCenter, p2, rectLines[i][0], rectLines[i][1])) {
                 return true;
             }
@@ -1886,6 +1903,7 @@ window.Profile = (function($, Profile, d3) {
         return false;
     }
 
+    // checks if two line segments intersect
     function lineSegmentsIntersect(p1, p2, p3, p4) {
         var xDifference1 = p2[0] - p1[0];
         var yDifference1 = p2[1] - p1[1];
@@ -1893,7 +1911,7 @@ window.Profile = (function($, Profile, d3) {
         var yDifference2 = p4[1] - p3[1];
 
         var s = (-yDifference1 * (p1[0] - p3[0]) + xDifference1 * (p1[1] - p3[1])) / (-xDifference2 * yDifference1 + xDifference1 * yDifference2);
-        var t = ( xDifference2 * (p1[1] - p3[1]) - yDifference2 * (p1[0] - p3[0])) / (-xDifference2 * yDifference1 + xDifference1 * yDifference2);
+        var t = (xDifference2 * (p1[1] - p3[1]) - yDifference2 * (p1[0] - p3[0])) / (-xDifference2 * yDifference1 + xDifference1 * yDifference2);
 
         return (s >= 0 && s <= 1 && t >= 0 && t <= 1);
     }
@@ -1901,12 +1919,14 @@ window.Profile = (function($, Profile, d3) {
     function pieCreateFilterSelection(startX, startY) {
         $("#profile-filterOption").fadeOut(200);
         $modal.addClass("drawing")
-                .addClass("selecting");
+            .addClass("selecting");
 
         return new RectSelction(startX, startY, {
             "id": "profile-filterSelection",
             "$container": $("#profile-chart"),
-            "onStart": function() { filterDragging = true; },
+            "onStart": function() {
+                filterDragging = true;
+            },
             "onDraw": pieDrawFilterRect,
             "onEnd": pieEndDrawFilterRect
         });
@@ -1914,15 +1934,13 @@ window.Profile = (function($, Profile, d3) {
 
     function pieDrawFilterRect(bound, top, right, bottom, left) {
         var chart = d3.select("#profile-chart .groupbyChart");
-        var count = 0;       
-        var arcsToSelect = getSelectedArcs(bound, top, right, bottom, left, getPieData());
-        //console.log(arcsToSelect);
+        var count = 0;
+        var arcsToSelect = getSelectedArcs(bound, top, right, bottom, left, getPieData(statsCol));
         chart.selectAll(".arc").each(function(d, i) {
             var arc = d3.select(this);
             if (arcsToSelect[i]) {
                 arc.classed("selecting", true);
-            }
-            else {
+            } else {
                 arc.classed("selecting", false);
             }
         });
@@ -1936,21 +1954,21 @@ window.Profile = (function($, Profile, d3) {
         if (arcToSelect.size() === 0) {
             arcs.each(function() {
                 d3.select(this)
-                .classed("unselected", false)
-                .classed("selected", false);
+                    .classed("unselected", false)
+                    .classed("selected", false);
             });
         } else {
             arcs.each(function() {
                 var arcs = d3.select(this);
                 if (arcs.classed("selecting")) {
                     arcs
-                    .classed("selecting", false)
-                    .classed("unselected", false)
-                    .classed("selected", true);
-                } else if (!arcs.classed("selected")){
+                        .classed("selecting", false)
+                        .classed("unselected", false)
+                        .classed("selected", true);
+                } else if (!arcs.classed("selected")) {
                     arcs
-                    .classed("unselected", true)
-                    .classed("selected", false);
+                        .classed("unselected", true)
+                        .classed("selected", false);
                 }
             });
         }
@@ -1964,12 +1982,12 @@ window.Profile = (function($, Profile, d3) {
     }
 
     function resetArcTooltip(arc) {
-        $(".arc").tooltip("hide");        
+        $(".arc").tooltip("hide");
         if (arc != null) {
             $(arc).tooltip("show");
         }
     }
-    
+
     function pieToggleFilterOption(isHidden) {
         var $filterOption = $("#profile-filterOption");
         var chart = d3.select("#profile-chart .groupbyChart");
@@ -2089,8 +2107,8 @@ window.Profile = (function($, Profile, d3) {
 
         var nullCount = curStatsCol.groupByInfo.nullCount;
         var tableInfo = curStatsCol.groupByInfo.buckets[bucketNum];
-        var noBucket  = (bucketNum === 0) ? 1 : 0;
-        var noSort    = (order === sortMap.origin);
+        var noBucket = (bucketNum === 0) ? 1 : 0;
+        var noSort = (order === sortMap.origin);
         var xName = tableInfo.colName;
         var yName = noBucket ? statsColName : bucketColName;
 
@@ -2103,11 +2121,11 @@ window.Profile = (function($, Profile, d3) {
         var marginLeft = 20;
 
         var maxRectW = Math.floor(sectionWidth / 706 * 70);
-        var chartWidth  = Math.min(sectionWidth, maxRectW * data.length + marginLeft * 2);
+        var chartWidth = Math.min(sectionWidth, maxRectW * data.length + marginLeft * 2);
         var chartHeight = $section.height();
 
         var height = chartHeight - marginBottom;
-        var width  = chartWidth - marginLeft * 2;
+        var width = chartWidth - marginLeft * 2;
 
         // x range and y range
         var maxHeight = Math.max(tableInfo.max, nullCount);
@@ -2294,7 +2312,7 @@ window.Profile = (function($, Profile, d3) {
             .text(getXAxis);
 
         if (!noBucket && noSort) {
-            newbars.filter(function(d, i){ return i === dataLen - 1; })
+            newbars.filter(function(d, i) { return i === dataLen - 1; })
                 .append("text")
                 .attr("class", "tick last")
                 .attr("width", xWidth)
@@ -2431,8 +2449,7 @@ window.Profile = (function($, Profile, d3) {
 
     function resizeChart() {
         if (statsCol.groupByInfo &&
-            statsCol.groupByInfo.isComplete === true)
-        {
+            statsCol.groupByInfo.isComplete === true) {
             buildGroupGraphs(statsCol, null, true);
             var $scroller = $modal.find(".scrollSection .scroller");
             resizeScroller();
@@ -2571,7 +2588,7 @@ window.Profile = (function($, Profile, d3) {
         var $scrollBar = $section.find(".scrollBar");
         var $scroller = $scrollBar.find(".scroller");
 
-        var barWidth =  $scrollBar.width();
+        var barWidth = $scrollBar.width();
         var position = barWidth * percent;
 
         position = Math.max(0, position);
@@ -2591,7 +2608,7 @@ window.Profile = (function($, Profile, d3) {
         if (rowNum != null) {
             isFromInput = true;
             rowPercent = (totalRows === 1) ?
-                                        0 : (rowNum - 1) / (totalRows - 1);
+                                    0 : (rowNum - 1) / (totalRows - 1);
         } else {
             rowNum = Math.ceil(rowPercent * (totalRows - 1)) + 1;
         }
@@ -2625,7 +2642,7 @@ window.Profile = (function($, Profile, d3) {
             var oldLeft = getPosition(rowPercent);
             if (isFromInput) {
                 rowPercent = (totalRows === 1) ?
-                                        0 : (rowNum - 1) / (totalRows - 1);
+                                            0 : (rowNum - 1) / (totalRows - 1);
 
                 left = getPosition(rowPercent);
                 $scroller.addClass("scrolling")
@@ -2755,8 +2772,7 @@ window.Profile = (function($, Profile, d3) {
         var $lessBtn = $displayInput.find(".less").removeClass("xc-disabled");
 
         if ($activeRange.data("option") === "fitAll" ||
-            totalRows <= minRowsToFetch)
-        {
+            totalRows <= minRowsToFetch) {
             // case that cannot show more or less results
             rowsToShow = totalRows;
             $moreBtn.addClass("xc-disabled");
@@ -2769,8 +2785,7 @@ window.Profile = (function($, Profile, d3) {
             }
 
             if (numRowsToFetch >= maxRowsToFetch ||
-                numRowsToFetch >= totalRows)
-            {
+                numRowsToFetch >= totalRows) {
                 $moreBtn.addClass("xc-disabled");
             }
 
@@ -2941,8 +2956,8 @@ window.Profile = (function($, Profile, d3) {
 
     function getRangeOption() {
         var $rangeOption = $rangeSection.find(".dropDownList input");
-        var rangeOption = ($rangeOption.val().toLowerCase() === "range")
-                          ? "range"
+        var rangeOption = ($rangeOption.val().toLowerCase() === "range") 
+                          ? "range" 
                           : "rangeLog";
         return rangeOption;
     }
@@ -3035,8 +3050,8 @@ window.Profile = (function($, Profile, d3) {
             "steps": -1
         });
 
-        var bucketSizePromise = isFitAll
-                                ? getFitAllBucketSize(curStatsCol, txId)
+        var bucketSizePromise = isFitAll 
+                                ? getFitAllBucketSize(curStatsCol, txId) 
                                 : PromiseHelper.resolve(newBucketNum);
         bucketSizePromise
         .then(function(bucketSize) {
@@ -3053,7 +3068,7 @@ window.Profile = (function($, Profile, d3) {
             bucketNum = newBucketNum;
             curStatsCol.groupByInfo.isComplete = true;
             sql.bucketSize = bucketNum;
-            Transaction.done(txId, {"sql": sql});
+            Transaction.done(txId, { "sql": sql });
 
             if (!isModalVisible(curStatsCol)) {
                 return PromiseHelper.reject("old data");
@@ -3081,8 +3096,8 @@ window.Profile = (function($, Profile, d3) {
             // (max - min) / numRowsToFetch will get bucketSize 5
             // but range [100, 105) is the 21th size,
             // so we should do (max + min + numRowsToFetch) / numRowsToFetch
-            var bucketSize = (curStatsCol.aggInfo.max
-                              - curStatsCol.aggInfo.min
+            var bucketSize = (curStatsCol.aggInfo.max 
+                              - curStatsCol.aggInfo.min 
                               + numRowsToFetch) / numRowsToFetch;
             if (bucketSize >= 0.01) {
                 // have mostly two digits after decimal
@@ -3171,8 +3186,8 @@ window.Profile = (function($, Profile, d3) {
                                         txId);
         })
         .then(function() {
-            var operator    = AggrOp.Sum;
-            var newColName  = bucketColName;
+            var operator = AggrOp.Sum;
+            var newColName = bucketColName;
             var isIncSample = false;
 
             groupbyTable = getNewName(mapTable, ".groupby", true);
@@ -3276,7 +3291,7 @@ window.Profile = (function($, Profile, d3) {
             "onEnd": endDrawFilterRect
         });
     }
- 
+
     function drawFilterRect(bound, top, right, bottom, left) {
         var chart = getChart();
         chart.selectAll(".barArea").each(function() {
@@ -3315,7 +3330,7 @@ window.Profile = (function($, Profile, d3) {
                     .classed("selecting", false)
                     .classed("unselected", false)
                     .classed("selected", true);
-                } else if (!barArea.classed("selected")){
+                } else if (!barArea.classed("selected")) {
                     barArea
                     .classed("unselected", true)
                     .classed("selected", false);
@@ -3330,7 +3345,7 @@ window.Profile = (function($, Profile, d3) {
 
         toggleFilterOption();
     }
-    
+
     function toggleFilterOption(isHidden) {
         var $filterOption = $("#profile-filterOption");
         var chart = getChart();
@@ -3449,7 +3464,7 @@ window.Profile = (function($, Profile, d3) {
             xcFunction.filter(colNum, filterTableId, options);
         }
     }
-    
+
     function fltExist(operator, colName, fltStr) {
         if (operator === FltOp.Filter) {
             if (fltStr === "" || fltStr == null) {
@@ -3499,7 +3514,7 @@ window.Profile = (function($, Profile, d3) {
                     str += ")";
                 }
             }
-        } else if (operator === FltOp.Exclude){
+        } else if (operator === FltOp.Exclude) {
             if (len > 0) {
                 for (i = 0; i < len - 1; i++) {
                     lowerBound = getLowerBound(colVals[i], bucketSize);
@@ -3567,7 +3582,7 @@ window.Profile = (function($, Profile, d3) {
                 if (count > 1) {
                     // exclude [min, max]
                     str = "or(lt(" + colName + ", " + min + "), " +
-                             "gt(" + colName + ", " + max + "))";
+                              "gt(" + colName + ", " + max + "))";
                 } else if (count === 1) {
                     str = "neq(" + colName + ", " + min + ")";
                 }
@@ -3586,7 +3601,7 @@ window.Profile = (function($, Profile, d3) {
                 // should exclude [min, max)
                 if (count > 0) {
                     str = "or(lt(" + colName + ", " + min + "), " +
-                             "ge(" + colName + ", " + max + "))";
+                              "ge(" + colName + ", " + max + "))";
                 }
             } else {
                 return null;
@@ -3687,7 +3702,7 @@ window.Profile = (function($, Profile, d3) {
             xcHelper.showSuccess(SuccessTStr.Profile);
             deferred.resolve();
         })
-        .catch(function (error) {
+        .catch(function(error) {
             console.error(error);
             xcHelper.showFail(FailTStr.Profile);
             deferred.reject(error);
