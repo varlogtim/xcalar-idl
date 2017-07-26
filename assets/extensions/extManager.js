@@ -634,6 +634,9 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             if (!$lastInputFocused) {
                 return;
             }
+            if (!$lastInputFocused.hasClass("type-column")) {
+                return;
+            }
             if ($lastInputFocused.hasClass('multiColumn')) {
                 options.append = true;
             }
@@ -642,6 +645,10 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         };
         var headCallback = function($target) {
             if (!$lastInputFocused) {
+                return;
+            }
+            if (!$lastInputFocused.hasClass("type-table") &&
+                !$lastInputFocused.hasClass("type-string")) {
                 return;
             }
             xcHelper.fillInputFromCell($target, $lastInputFocused, "", {
@@ -688,8 +695,8 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             }
         });
 
-        $extArgs.on("focus", ".argument.type-column, .argument.type-table",
-            function() {
+        $extArgs.on("focus", ".argument.type-column, .argument.type-table, " +
+            ".argument.type-string", function() {
             $lastInputFocused = $(this);
         });
 
