@@ -1152,17 +1152,18 @@ window.QueryManager = (function(QueryManager, $) {
                 }
             } else {
                 updateQueryBar(id, res, false, false, doNotAnimate);
-                mainQuery.setElapsedTime();
-                updateStatusDetail({
-                    "start": getQueryTime(mainQuery.getTime()),
-                    "elapsed": xcHelper.getElapsedTimeStr(mainQuery.getElapsedTime(),
-                                                          true, true),
-                    "opTime": xcHelper.getElapsedTimeStr(mainQuery.getOpTime(),
-                                                          true),
-                    "total": xcHelper.getElapsedTimeStr(mainQuery.getElapsedTime(),
-                                                        null, true),
-                }, id);
             }
+
+            mainQuery.setElapsedTime();
+            updateStatusDetail({
+                "start": getQueryTime(mainQuery.getTime()),
+                "elapsed": xcHelper.getElapsedTimeStr(mainQuery.getElapsedTime(),
+                                                      true, true),
+                "opTime": xcHelper.getElapsedTimeStr(mainQuery.getOpTime(),
+                                                      true),
+                "total": xcHelper.getElapsedTimeStr(mainQuery.getElapsedTime(),
+                                                    null, true),
+            }, id);
             deferred.resolve();
         })
         .fail(function(error) {
