@@ -8,13 +8,15 @@ require("jsdom").env("", function(err, window) {
 });
 var fs = require('fs');
 var ldap = require('ldapjs');
-
-var ssf = require('./supportStatusFile.js');
-var httpStatus = require('../../assets/js/httpStatus.js').httpStatus;
-var support = require('./expServerSupport.js');
-var xcConsole = require('./expServerXcConsole.js').xcConsole;
+var express = require('express');
+var router = express.Router();
+var ssf = require('../supportStatusFile.js');
+var httpStatus = require('../../../assets/js/httpStatus.js').httpStatus;
+var support = require('../expServerSupport.js');
+var xcConsole = require('../expServerXcConsole.js').xcConsole;
 var Status = ssf.Status;
 var strictSecurity = false;
+
 
 var setup;
 var config;
@@ -114,7 +116,7 @@ function loginAuthentication(credArray) {
         username = credArray["xiusername"];
         password = credArray["xipassword"];
         client_url = config.ldap_uri.endsWith('/') ?
-                         config.ldap_uri : config.ldap_uri+'/';
+            config.ldap_uri : config.ldap_uri+'/';
         userDN = config.userDN;
         searchFilter = config.searchFilter;
         activeDir = (config.activeDir === 'true');
@@ -314,4 +316,14 @@ function setUpLdapConfigs() {
     return deferred.promise();
 }
 
-exports.loginAuthentication = loginAuthentication;
+
+router.post('/login', function(req, res) {
+    xcConsole.log("Login process");
+    var credArray = req.body;
+    loginAuthentication(credArray)
+    .always(function(message) {
+        res.status(message.status).send(message);
+    });
+});
+
+module.exports = router;

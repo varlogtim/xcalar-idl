@@ -19,12 +19,14 @@ require("jsdom").env("", function(err, window) {
     var socket = require('./socket.js');
     var support = require('./expServerSupport.js');
     var xcConsole = require('./expServerXcConsole.js').xcConsole;
-    var login = require('./expLogin.js');
     var upload = require('./upload.js');
     var Status = require('./supportStatusFile.js').Status;
     var httpStatus = require('../../assets/js/httpStatus.js').httpStatus;
+
+    var guiDir = (process.env.XCE_HTTP_ROOT ?
+        process.env.XCE_HTTP_ROOT : "/var/www") + "/xcalar-gui";
     var serverPort = process.env.XCE_EXP_PORT ?
-    process.env.XCE_EXP_PORT : 12124;
+        process.env.XCE_EXP_PORT : 12124;
 
     var app = express();
 
@@ -345,7 +347,8 @@ require("jsdom").env("", function(err, window) {
             xcConsole.log(err);
             var retMsg = {
                 "status": httpStatus.InternalServerError,
-                "logs": JSON.stringify(err)};
+                "logs": JSON.stringify(err)
+            };
             deferredOut.reject(retMsg);
         }
         return deferredOut.promise();
@@ -587,14 +590,8 @@ require("jsdom").env("", function(err, window) {
     var activeDir = false;
     var serverKeyFile = '/etc/ssl/certs/ca-certificates.crt'; */
 
-    app.post('/login', function(req, res) {
-        xcConsole.log("Login process");
-        var credArray = req.body;
-        login.loginAuthentication(credArray)
-        .always(function(message) {
-            res.status(message.status).send(message);
-        });
-    });
+    // Invoke the Login router
+    app.use(require('./route/login.js'));
 
     /*
     Right /uploadContent is implemented in a really clumsy way.
