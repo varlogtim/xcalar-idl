@@ -2370,7 +2370,7 @@ window.OperationsView = (function($, OperationsView) {
             var quote = arg[0];
             arg = arg.slice(1);
             if (arg.length > 1 && arg[arg.length - 1] === quote) {
-                arg = arg.slice(0, arg.length - 1);
+                arg = arg.slice(0, arg.length - 1).toLowerCase();
                 if (arg === "true" || arg === "false") {
                     return true;
                 } else {
@@ -3809,10 +3809,11 @@ window.OperationsView = (function($, OperationsView) {
                 if (shouldBeBoolean) {
                     isBoolAsString = true;
                 }
-            } else if (shouldBeBoolean &&
-                        (value === "true" || value === "false")) {
-                shouldBeString = false;
-                value = JSON.parse(value);
+            } else if (shouldBeBoolean) {
+                var valLower = ("" + value).toLowerCase();
+                if (valLower === "true" || valLower === "false") {
+                    shouldBeString = false;
+                }
             }
         }
 
