@@ -919,7 +919,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         hintMenu[index] = hintMenu[index] || [];
         var menuHelper = new MenuHelper($list, {
             "container": "#extension-ops .argSection",
-            "bounds": "#extension-ops .argSection"
+            "bounds": "#extension-ops .extArgs"
         });
 
         hintMenu[index].push(menuHelper);
@@ -953,7 +953,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                 $li.closest(".dropDownList").find("input").val($li.text());
             },
             "container": "#extension-ops .argSection",
-            "bounds": "#extension-ops .argSection"
+            "bounds": "#extension-ops .extArgs"
         }).setupListeners();
     }
 
@@ -963,7 +963,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                 $li.closest(".dropDownList").find("input").val($li.text());
             },
             "container": "#extension-ops .argSection",
-            "bounds": "#extension-ops .argSection"
+            "bounds": "#extension-ops .extArgs"
         }).setupListeners();
     }
 
