@@ -22,7 +22,7 @@ window.Repeat = (function($, Repeat) {
                 if (tableOperations.indexOf(operation) > -1) {
                     tableId = xcHelper.getFocusedTable();
                     if (!tableId) {
-                        return PromiseHelper.resolve();
+                        return PromiseHelper.reject();
                     }
                     $ths.each(function() {
                         colNums.push(xcHelper.parseColNum($(this)));
@@ -30,7 +30,7 @@ window.Repeat = (function($, Repeat) {
                 } else {
 
                     if (!$ths.length) {
-                        return PromiseHelper.resolve();
+                        return PromiseHelper.reject();
                     }
                     var $table = $ths.closest(".xcTable");
                     tableId = xcHelper.parseTableId($table);
@@ -58,7 +58,6 @@ window.Repeat = (function($, Repeat) {
         } else {
             console.warn("Unknown operation cannot repeat", operation);
             deferred.reject("Unknown operation");
-
         }
 
         return (deferred.promise());

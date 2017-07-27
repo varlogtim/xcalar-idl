@@ -307,7 +307,6 @@ describe("SQL Test", function() {
         it("should click to trigger redo", function() {
             var curRedo = SQL.redo;
             var $redo = $("#redo");
-            $redo.removeClass("repeatable");
             var isDisabled = $redo.hasClass("disabled");
             var test = false;
 
@@ -328,28 +327,6 @@ describe("SQL Test", function() {
             }
 
             SQL.redo = curRedo;
-        });
-
-        it("should click to trigger repeat", function() {
-            var curRedo = SQL.redo;
-            var curRepeat = SQL.repeat;
-            var $redo = $("#redo");
-            var test = false;
-
-            SQL.repeat = function() {
-                test = true;
-            };
-
-            $redo.removeClass("repeatable");
-            $redo.click();
-            expect(test).to.be.false;
-            // case 2
-            $redo.addClass("repeatable");
-            $redo.click();
-            expect(test).to.be.true;
-
-            SQL.redo = curRedo;
-            SQL.repeat = curRepeat;
         });
 
         it("SQL.isUndo should work", function() {

@@ -183,11 +183,11 @@ describe("Repeat Test", function() {
             var logsLen = SQL.getLogs().length;
             SQL.repeat()
             .then(function() {
-                expect(SQL.getLogs().length).to.equal(logsLen);
-                done();
+                done("failed");
             })
             .fail(function() {
-                done("failed");
+                expect(SQL.getLogs().length).to.equal(logsLen);
+                done();
             })
             .always(function() {
             });

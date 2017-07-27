@@ -1285,7 +1285,11 @@ window.xcManager = (function(xcManager, $) {
                 if (event.which === keyCode.Z) {
                     $('#undo').click();
                 } else if (event.which === keyCode.Y) {
-                    $('#redo').click();
+                    if ($("#redo").hasClass("disabled")) {
+                        SQL.repeat();
+                    } else {
+                        $('#redo').click();
+                    }
                 }
             }
         }
