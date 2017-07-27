@@ -4,6 +4,7 @@ describe("DSUploader Test", function() {
     var uploads;
     var $uploaderMain;
     var cachedGetLicense;
+    var fileName;
 
     before(function() {
         Alert.forceClose();
@@ -34,6 +35,7 @@ describe("DSUploader Test", function() {
         $("#dsUploader").removeClass('xc-hidden');
         DSUploader.initialize();
         $("#dataStoresTab").click();
+        fileName = xcHelper.randName("unitTest");
     });
 
     describe("initial state", function() {
@@ -149,7 +151,7 @@ describe("DSUploader Test", function() {
                 return {isDirectory: true};
             }};
             var e = {dataTransfer: {items: [item]}};
-            submit([{name: "unitTest2", size: 1 * GB}], e);
+            submit([{name: fileName, size: 1 * GB}], e);
             UnitTest.hasAlertWithText(DSTStr.InvalidFolderDesc);
         });
 
@@ -167,14 +169,16 @@ describe("DSUploader Test", function() {
             };
 
             var numFiles = $('#innerdsUploader').find('.grid-unit').length;
-            expect($("#innerdsUploader").find(".grid-unit").last().find('.fileName').text()).to.not.equal("unitTest2");
+            expect($("#innerdsUploader").find(".grid-unit").last().find('.fileName').text())
+            .to.not.equal(fileName);
 
-            DSUploader.__testOnly__.loadFile({name: "unitTest2", size: 1 * GB,
-                                                lastModified: Date.now()},
-                                                "unitTest2");
+            DSUploader.__testOnly__.loadFile({
+                name: fileName, size: 1 * GB,
+                lastModified: Date.now()
+            }, fileName);
             expect($("#innerdsUploader").find(".grid-unit").length).to.equal(numFiles + 1);
             var gridText = $("#innerdsUploader").find(".grid-unit").last().find('.fileName').text();
-            expect(gridText).to.equal("unitTest2 (Uploading)");
+            expect(gridText).to.equal(fileName + " (Uploading)");
 
             // wait for async xcalardemofilecreate call
             setTimeout(function() {
@@ -188,9 +192,9 @@ describe("DSUploader Test", function() {
         it('uploadFile should work', function(done) {
             var DSFileUploadCache = DSFileUpload;
             DSFileUpload = function(name, size, obj) {
-                expect(name).to.equal("unitTest2");
+                expect(name).to.equal(fileName);
                 expect(size).to.equal(4);
-                expect(obj.name).to.equal("unitTest2");
+                expect(obj.name).to.equal(fileName);
                 expect(obj.sizeCompleted).to.equal(0);
 
                 this.add = function(content, size) {
@@ -205,16 +209,17 @@ describe("DSUploader Test", function() {
                     return null;
                 };
             };
-            var fileObj = {name: "unitTest2",
-                           attr: {size: GB, mtime: Date.now()},
-                           status: "inProgress",
-                           sizeCompleted: 0
-                          };
-            var file = new File(["abcd"], "unitTest2");
-            expect(uploads).to.not.have.property('unitTest2');
+            var fileObj = {
+                name: fileName,
+                attr: {size: GB, mtime: Date.now()},
+                status: "inProgress",
+                sizeCompleted: 0
+            };
+            var file = new File(["abcd"], fileName);
+            expect(uploads).to.not.have.property(fileName);
             DSUploader.__testOnly__.uploadFile(fileObj, file);
-            expect(uploads).to.have.property('unitTest2');
-            delete uploads["unitTest2"];
+            expect(uploads).to.have.property(fileName);
+            delete uploads[fileName];
         });
 
         // no good way to test this
@@ -247,7 +252,7 @@ describe("DSUploader Test", function() {
             };
 
             var fileInfo = {
-                name: "unitTest2",
+                name: fileName,
                 attr: {size: GB, mTime: 0},
                 sizeCompleted: 0,
                 status: "inProgress"
@@ -257,19 +262,19 @@ describe("DSUploader Test", function() {
             $grid = $(html);
             $("#innerdsUploader").append($grid);
             var numGrids = $("#innerdsUploader").find(".grid-unit").length;
-            expect(uploads).to.not.have.property("unitTest2");
-            uploads["unitTest2"] = {
+            expect(uploads).to.not.have.property(fileName);
+            uploads[fileName] = {
                 cancel: function() {
                     uploadObjCancelTriggered = true;
                 }
             };
-            expect(uploads).to.have.property("unitTest2");
+            expect(uploads).to.have.property(fileName);
 
             // trigger the cancel
             DSUploader.__testOnly__.cancelUpload($grid);
             UnitTest.hasAlertWithTitle(DSTStr.CancelUpload, {confirm: true});
 
-            expect(uploads).to.not.have.property("unitTest2");
+            expect(uploads).to.not.have.property(fileName);
             expect(uploadObjCancelTriggered).to.be.true;
             expect(commitTriggered).to.be.true;
             expect($("#innerdsUploader").find(".grid-unit").length).to.equal(numGrids - 1);
@@ -286,7 +291,7 @@ describe("DSUploader Test", function() {
                 return PromiseHelper.resolve();
             };
 
-            var name = "unitTest2";
+            var name = fileName;
             var fileObj = {
                 name: name,
                 attr: {size: 5, mTime: 0},
@@ -311,7 +316,7 @@ describe("DSUploader Test", function() {
         });
 
         it("updateProgress should work", function() {
-            var name = "unitTest2";
+            var name = fileName;
             var fileObj = {
                 name: name,
                 attr: {size: 5, mTime: 0},
@@ -381,13 +386,13 @@ describe("DSUploader Test", function() {
                 return {isDirectory: true};
             }};
             var e = {dataTransfer: {items: [item]}};
-            submit([{name: "unitTest2", size: 1 * GB}], e);// name exists
+            submit([{name: fileName, size: 1 * GB}], e);// name exists
             UnitTest.hasAlertWithText(DSTStr.InvalidFolderDesc);
 
             uploads['test2'] = {};
             expect(Object.keys(uploads).length).to.equal(2);
 
-            submit([{name: "unitTest2", size: 1 * GB}], e);// name exists
+            submit([{name: fileName, size: 1 * GB}], e);// name exists
             UnitTest.hasAlertWithText(DSTStr.UploadLimitMsg);
 
             delete uploads['test1'];
@@ -609,48 +614,72 @@ describe("DSUploader Test", function() {
     });
 
     describe('actual file upload', function() {
+        var numNodes = 1;
+
+        before(function(done) {
+            xcalarGetNumNodes(tHandle)
+            .then(function(res) {
+                try {
+                    numNodes = res.output.outputResult.getNumNodesOutput.numNodes;
+                } catch (e) {
+                    console.error(e);
+                }
+
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
         it('file upload should work', function(done) {
+            if (numNodes > 1) {
+                console.log("skip actual file upload test");
+                done();
+                return;
+            }
+
             var numGrids = $uploaderMain.find(".grid-unit").length;
-            var file = new File(["abcd"], "unitTest2");
+            var file = new File(["abcd"], fileName);
             DSUploader.__testOnly__.submitFiles([file]);
 
             var $grid = $uploaderMain.find(".grid-unit").last();
             expect($uploaderMain.find(".grid-unit").length).to.equal(numGrids + 1);
-            expect($grid.find(".fileName").text()).to.equal("unitTest2 (Uploading)");
+            expect($grid.find(".fileName").text()).to.equal(fileName + " (Uploading)");
             expect($grid.hasClass("inProgress")).to.be.true;
 
-            var selector = "#dsUploaderMain .grid-unit .fileName:contains(unitTest2 (Uploading))";
+            var selector = "#dsUploaderMain .grid-unit .fileName:contains(" + fileName + " (Uploading))";
             TestSuite.__testOnly__.checkExists(selector, 10000, {notExist: true})
             .then(function() {
                 $grid = $uploaderMain.find(".grid-unit").last();
                 expect($grid.hasClass("inProgress")).to.be.false;
-                expect($grid.find(".fileName").text()).to.equal("unitTest2");
+                expect($grid.find(".fileName").text()).to.equal(fileName);
                 expect($grid.find(".fileSize").text()).to.equal("4B");
-                expect(uploads).to.not.have.property("unitTest2");
+                expect(uploads).to.not.have.property(fileName);
 
                 XcalarListFiles = cachedXcalarListFiles;
 
                 return DSUploader.refreshFiles();
             })
             .then(function() {
-                $grid = DSUploader.__testOnly__.getDSIcon("unitTest2");
+                $grid = DSUploader.__testOnly__.getDSIcon(fileName);
                 expect($grid.length).to.equal(1);
-                expect($grid.find(".fileName").text()).to.equal("unitTest2");
+                expect($grid.find(".fileName").text()).to.equal(fileName);
                 expect($grid.find(".fileSize").text()).to.equal("4B");
 
                 var options = {
-                    "path": "demo:///unitTest2",
+                    "path": "demo:///" + fileName,
                     "format": null,
                 };
 
                 return DSPreview.show(options, true);
             })
             .then(function() {
-                expect($("#preview-url").text()).to.equal("Path: demo:///unitTest2");
+                expect($("#preview-url").text()).to.equal("Path: demo:///" + fileName);
                 expect($('#previewTable').text()).to.equal("column01abcd");
                 DSUploader.show();
 
-                $grid = DSUploader.__testOnly__.getDSIcon("unitTest2");
+                $grid = DSUploader.__testOnly__.getDSIcon(fileName);
                 expect($grid.length).to.equal(1);
 
                 var promise = DSUploader.__testOnly__.deleteFileConfirm($grid);
@@ -658,18 +687,17 @@ describe("DSUploader Test", function() {
                 return promise;
             })
             .then(function() {
-                $grid = DSUploader.__testOnly__.getDSIcon("unitTest2");
+                $grid = DSUploader.__testOnly__.getDSIcon(fileName);
                 expect($grid.length).to.equal(0);
                 return DSUploader.refreshFiles();
             })
             .then(function() {
-                $grid = DSUploader.__testOnly__.getDSIcon("unitTest2");
+                $grid = DSUploader.__testOnly__.getDSIcon(fileName);
                 expect($grid.length).to.equal(0);
                 done();
             })
             .fail(function() {
-                expect("fail").to.equal("pass");
-                done();
+                done("fail");
             });
         });
     });
