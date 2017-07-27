@@ -114,9 +114,9 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
         $panel.addClass("wait");
         var url = xcHelper.getAppUrl();
         $.ajax({
-            "type": "POST",
+            "type": "GET",
             "dataType": "JSON",
-            "url": url + "/listPackage",
+            "url": url + "/extension/listPackage",
             "success": function(data) {
                 $panel.removeClass("wait");
                 try {
@@ -161,7 +161,7 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
         $.ajax({
             "type": "POST",
             "dataType": "JSON",
-            "url": url + "/downloadExtension",
+            "url": url + "/extension/download",
             "data": {name: ext.getName(), version: ext.getVersion()},
         })
         .then(function() {
@@ -191,9 +191,9 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
         $ext.addClass("xc-disabled");
 
         $.ajax({
-            "type": "POST",
+            "type": "DELETE",
             "dataType": "JSON",
-            "url": url + "/removeExtension",
+            "url": url + "/extension/remove",
             "data": {"name": extName}
         })
         .then(function() {
@@ -255,7 +255,7 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
         $.ajax({
             "type": "POST",
             "dataType": "JSON",
-            "url": url + "/enableExtension",
+            "url": url + "/extension/enable",
             "data": {name: extName},
             "success": function(data) {
                 console.log(data);
@@ -276,7 +276,7 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
         $.ajax({
             "type": "POST",
             "dataType": "JSON",
-            "url": url + "/disableExtension",
+            "url": url + "/extension/disable",
             "data": {name: extName},
             "success": function(data) {
                 console.log(data);
@@ -325,9 +325,9 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
         var deferred = jQuery.Deferred();
         var url = xcHelper.getAppUrl();
         $.ajax({
-            "type": "POST",
+            "type": "GET",
             "dataType": "JSON",
-            "url": url + "/getAvailableExtension",
+            "url": url + "/extension/getAvailable",
             "success": function(data) {
                 // {status: Status.Ok, extensionsAvailable: ["bizRules", "dev"]}
                 var passed = false;

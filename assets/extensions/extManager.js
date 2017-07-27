@@ -194,9 +194,9 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         });
 
         $.ajax({
-            "type": "POST",
+            "type": "GET",
             "dataType": "JSON",
-            "url": url + "/getEnabledExtensions",
+            "url": url + "/extension/getEnabled",
             "success": function(data) {
                 if (data.status === Status.Ok) {
                     innerDeferred.resolve(data.data);

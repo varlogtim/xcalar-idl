@@ -6,12 +6,12 @@ var timer = require("timers");
 var http = require("http");
 var https = require("https");
 
-var ssf = require("./supportStatusFile");
+var ssf = require("./supportStatusFile.js");
 var tail = require("./tail");
 var xcConsole = require('./expServerXcConsole.js').xcConsole;
 
 var Status = ssf.Status;
-var httpStatus = require("./../../assets/js/httpStatus.js").httpStatus;
+var httpStatus = require("../../assets/js/httpStatus.js").httpStatus;
 
 var jQuery;
 require("jsdom").env("", function(err, window) {

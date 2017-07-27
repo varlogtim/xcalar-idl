@@ -9,8 +9,8 @@ require("jsdom").env("", function(err, window) {
 var fs = require('fs');
 var ldap = require('ldapjs');
 
-var ssf = require('./supportStatusFile');
-var httpStatus = require('./../../assets/js/httpStatus.js').httpStatus;
+var ssf = require('./supportStatusFile.js');
+var httpStatus = require('../../assets/js/httpStatus.js').httpStatus;
 var support = require('./expServerSupport.js');
 var xcConsole = require('./expServerXcConsole.js').xcConsole;
 var Status = ssf.Status;

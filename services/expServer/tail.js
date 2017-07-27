@@ -14,7 +14,7 @@ require("jsdom").env("", function(err, window) {
 var bufferSize = 1024 * 1024;
 var gMaxLogs = 500;
 
-var httpStatus = require('./../../assets/js/httpStatus.js').httpStatus;
+var httpStatus = require('../../assets/js/httpStatus.js').httpStatus;
 var support = require('./expServerSupport.js');
 var xcConsole = require('./expServerXcConsole.js').xcConsole;
 // var logPath = "/var/log/Xcalar.log";

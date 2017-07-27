@@ -7,7 +7,7 @@ var actionStatus = "/service/status/slave";
 var actionCondRestart = "/service/condrestart";
 var hostFile = '/config/privHosts.txt';
 var support = require('./expServerSupport.js');
-var ssf = require('./supportStatusFile');
+var ssf = require('./supportStatusFile.js');
 var Status = ssf.Status;
 
 var hosts = [];
@@ -60,7 +60,7 @@ function testService(reverseOperation, targetOperation, preStatus, expectedStatu
     .then(function(goodNodes) {
         getStatusFromEachSlave(goodNodes)
         .always(function(retMsgArr) {
-            if(judgeExecution(expectedStatus, goodNodes, retMsgArr)) {
+            if (judgeExecution(expectedStatus, goodNodes, retMsgArr)) {
                 deferredOut.resolve();
             } else {
                 deferredOut.reject();
@@ -74,11 +74,11 @@ function testService(reverseOperation, targetOperation, preStatus, expectedStatu
 function findGoodNodes(isGoodNodesStarted, retMsgArr) {
     var goodNodes = [];
     for (var key in retMsgArr) {
-        if(retMsgArr[key].logs) {
-            if(isGoodNodesStarted && retMsgArr[key].logs.indexOf("Mgmtd started") != -1) {
+        if (retMsgArr[key].logs) {
+            if (isGoodNodesStarted && retMsgArr[key].logs.indexOf("Mgmtd started") !== -1) {
                 goodNodes.push(key);
             }
-            if(!isGoodNodesStarted && retMsgArr[key].logs.indexOf("Mgmtd not started") != -1) {
+            if (!isGoodNodesStarted && retMsgArr[key].logs.indexOf("Mgmtd not started") !== -1) {
                 goodNodes.push(key);
             }
         }
@@ -90,25 +90,25 @@ function judgeExecution(isGoodNodesStarted, goodNodes, retMsgArr) {
     var startNum = 0;
     var stopNum = 0;
 
-    if(retMsgArr) {
+    if (retMsgArr) {
         for (var key in retMsgArr) {
             var resSlave = retMsgArr[key];
-            if(resSlave["logs"].indexOf("Mgmtd started") != -1) {
+            if (resSlave["logs"].indexOf("Mgmtd started") !== -1) {
                 startNum++;
-            } else if (resSlave["logs"].indexOf("Mgmtd not started") != -1) {
+            } else if (resSlave["logs"].indexOf("Mgmtd not started") !== -1) {
                 stopNum++;
             }
         }
     }
 
-    if(isGoodNodesStarted) {
-        if(startNum != goodNodes.length) {
+    if (isGoodNodesStarted) {
+        if (startNum !== goodNodes.length) {
             return false;
         } else {
             return true;
         }
     } else {
-        if(stopNum != goodNodes.length) {
+        if (stopNum !== goodNodes.length) {
             return false;
         } else {
             return true;
@@ -167,8 +167,8 @@ function getHost() {
         support.readHostsFromFile(xlrRoot + hostFile)
         .always(function(hosts) {
             deferred.resolve(hosts);
-        })
-    })
+        });
+    });
     return deferred.promise();
 }
 
@@ -178,7 +178,7 @@ function getStatusFromEachSlave(hosts) {
     var returns = {};
     var hasFailure = false;
 
-    for(var i = 0; i < hosts.length; i++) {
+    for (var i = 0; i < hosts.length; i++) {
         postRequest(hosts[i]);
     }
 
@@ -205,7 +205,7 @@ function getStatusFromEachSlave(hosts) {
                 }
                 numDone++;
                 if (numDone === hosts.length) {
-                    if(hasFailure) {
+                    if (hasFailure) {
                         mainDeferred.reject(returns);
                     } else {
                         mainDeferred.resolve(returns);
@@ -234,7 +234,6 @@ function sendRequest(action, str) {
             var ret = data;
             var retMsg;
             if (ret.status === Status.Ok) {
-                var retMsg;
                 var status;
                 var logs;
                 if (ret.logs) {
