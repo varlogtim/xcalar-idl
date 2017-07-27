@@ -262,12 +262,15 @@ window.DagPanel = (function($, DagPanel) {
         });
 
         var dagPanelTop = 0;
+        var scrollTop = 0;
         $dagPanel.on('mousedown', '.ui-resizable-n', function() {
             dagPanelTop = $dagPanel.position().top;
+            scrollTop = $dagPanel.find(".dagArea").scrollTop();
         });
 
         var resizeTimer;
         var $xcTables;
+        var resizeStart;
 
         $dagPanel.resizable({
             handles: "n",
@@ -282,8 +285,13 @@ window.DagPanel = (function($, DagPanel) {
                 if (window.isBrowserMicrosoft) {
                     $xcTables = $('.xcTable');
                 }
+                resizeStart = true;
             },
             resize: function() {
+                if (resizeStart) {
+                    $dagPanel.find(".dagArea").scrollTop(scrollTop);
+                    resizeStart = false;
+                }
                 // hack still needed as of 9/12/2016
                 if (window.isBrowserMicrosoft) {
                     clearTimeout(resizeTimer);
@@ -330,8 +338,6 @@ window.DagPanel = (function($, DagPanel) {
                 $dagPanel.css('top', dagTopPct + '%');
                 $('#mainFrame').height(dagTopPct + '%');
                 $dagArea.css('height', 'calc(' + (100 - dagTopPct) + '% - 5px)');
-                // Refocus on table
-                Dag.focusDagForActiveTable(undefined, true);
 
                 if (window.isBrowserMicrosoft) {
                     // hack because rows become invisible in IE/EDGE
