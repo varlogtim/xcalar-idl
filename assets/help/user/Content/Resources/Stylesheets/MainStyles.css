@@ -183,8 +183,8 @@ ul
 
 ul ul
 {
-	list-style-image: url('../Images/XD_assets/xd-arrow-right.png');
-	/*Second level unordered list uses the right arrow as the bullet. */
+	/*Second level unordered list uses a circle as the bullet. */
+	list-style-type: circle;
 }
 
 MadCap|dropDownBody
@@ -222,21 +222,12 @@ span.SearchHighlight
 	background-color: #ede54b;
 }
 
-p.sampleCode
-{
-	font-family: 'Courier New';
-	margin-bottom: 0px;
-	margin-top: 0px;
-	padding-left: 20px;
-	background-color: f8f8f8;
-}
-
 div
 {
 	mc-hyphenate: never;
 }
 
-div.Code
+div.Code	/*This is for a block of sample code. */
 {
 	font-family: 'Courier New';
 	padding-left: 20px;
@@ -438,6 +429,11 @@ pre
 	{
 		mc-heading-level: 0;
 	}
+
+	h2.noPageBreak
+	{
+		page-break-before: avoid;
+	}
 }
 
 div.bodyProxyNarrow
@@ -491,3 +487,7 @@ a.ForCSH
 	
 }
 
+h2.noPageBreak	/*For print medium only. */
+{
+	
+}

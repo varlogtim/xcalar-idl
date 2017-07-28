@@ -60,6 +60,7 @@
 }
 
 </style>
+        <link href="../Resources/TableStyles/SimpleTable.css" rel="stylesheet" />
         <script src="../../Resources/Scripts/custom.modernizr.js">
         </script>
         <script src="../../Resources/Scripts/jquery.min.js">
@@ -171,41 +172,76 @@
                                         </div>
                                     </div>
                                     <div class="bodyProxyNarrow">
-                                        <h1>Using Setup (<span class="GeneralProductName3short">Xcalar</span> administrators only)</h1>
-                                        <p>As an <span class="GeneralProductName3short">Xcalar</span> administrator, if you click the Monitor icon (<img src="../Resources/Images/XD_assets/xd-monitor.png" />) in the <span class="GeneralProductName">Xcalar Design</span> menu, you can perform all functions described in <a href="K_Monitor.htm" class="MCXref xref" xrefformat="{para}">Using the Monitor</a>. In addition, you can click the Setup icon (<img src="../Resources/Images/XD_assets/xd-monitor-setup.png" />) to configure <span class="GeneralProductName2">Xcalar Compute Engine</span> parameters and to manage the cluster.</p>
-                                        <h2><a name="Configur"></a>Configuring parameters</h2>
-                                        <p>The <span class="GeneralProductName2">Xcalar Compute Engine</span> parameters define how your cluster works, and you can set the values for some of the parameters. In addition, <span class="GeneralCompanyNameShort">Xcalar</span> technical support might instruct you to fine-tune some parameters to improve performance to suit your particular environment. Parameter values set in the Monitor take effect immediately and are persistent across cluster restarts.</p>
-                                        <p>To configure <span class="GeneralProductName2">Xcalar Compute Engine</span> parameters, click <span class="UIelement">Configuration</span> in the <span class="UIelement">Setup</span> panel. To change the value of a parameter, simply enter a new value in the <span class="UIelement">New Value</span> field and then click <span class="UIelement">CONFIRM&#160;&amp;&#160;SAVE</span>. If you want to restore the parameter to its default value, click <img src="../Resources/Images/XD_assets/xd-param-default.png" />. </p>
-                                        <div class="Note"><span class="label">NOTE:</span>&#160;If a <span class="UIelement">Config Parameter Name</span> field does not contain a name, you can enter a parameter name in the field under the guidance of <span class="GeneralCompanyNameShort">Xcalar</span> technical support. Do not use this field unless you are told to do so by <span class="GeneralCompanyNameShort">Xcalar</span>.</div>
-                                        <p>The following list explains the parameters that can be configured:</p>
+                                        <h1>Using Setup (<span class="GeneralProductName3">Xcalar</span> administrators only)</h1>
+                                        <p>As a <span class="GeneralProductName3">Xcalar</span> administrator, you can click the Monitor icon (<img src="../Resources/Images/XD_assets/xd-monitor.png" />) in the <span class="GeneralProductName">Xcalar Design</span> menu to perform all functions described in <a href="K_Monitor.htm" class="MCXref xref">Using the Monitor</a>. In addition, you can click the Setup icon (<img src="../Resources/Images/XD_assets/xd-monitor-setup.png" />) to perform these tasks:</p>
                                         <ul>
-                                            <li value="1"><span class="UIelement">BufferCachePercentOfTotalMem</span>: <span class="GeneralProductName2">Xcalar Compute Engine</span> uses blocks of memory that can be allocated and freed quickly when running various processes.&#160;These memory blocks collectively form a buffer cache. This parameter specifies the percentage of total memory used as the buffer cache, which affects how much memory is left for dataset processing.&#160;The higher the buffer cache percentage, the less memory is available for <span class="GeneralProductName2">Xcalar Compute Engine</span> to use when trying to import data sources. <span class="GeneralCompanyNameShort">Xcalar</span> recommends that you leave the parameter at its default, which is 60%. Contact <span class="GeneralCompanyNameShort">Xcalar</span> to determine whether adjusting the parameter value results in better performance.</li>
-                                            <li value="2">
-                                                <p><span class="UIelement">MaxInteractiveDataSize</span>: It sets the maximum dataset size when the user selects <span class="UIelement">Entire file/folder</span> under <span class="UIelement">Advanced Options</span> in the <span class="UIelement">Import Data Source</span> window. The default is 1 TB; there is not an upper limit for this value. Both the current value and the new value are displayed in bytes. </p>
-                                                <p>For more information about <span class="UIelement">Advanced Options</span> in the <span class="UIelement">Import Data Source</span> window, see <a href="../A_GettingStarted/D_DetailedStepsForPointing.htm#Dataset" class="MCXref xref" xrefformat="{para}">Dataset size</a>.</p>
-                                            </li>
-                                            <li value="3"><span class="UIelement">XcalarRootCompletePath</span>: It displays the path to the root directory, which is /var/opt/xcalar. It cannot be changed.</li>
+                                            <li value="1">configuring <span class="GeneralProductName2">Xcalar Compute Engine</span> parameters.</li>
+                                            <li value="2">managing the cluster.</li>
+                                            <li value="3">managing users.</li>
+                                            <li value="4">viewing <span class="GeneralProductName3">Xcalar</span> log files.</li>
                                         </ul>
-                                        <h2>Using <span class="GeneralProductName">Xcalar Design</span> as another user</h2>
-                                        <p>You can switch to another user's account so that you can work on the user's behalf. You can perform all the operations that the user can perform, If the user is already logged in, switching to that user's account logs the user out of <span class="GeneralProductName">Xcalar Design</span>.</p>
-                                        <p>After you finish working in <span class="GeneralProductName">Xcalar Design</span> as a user, you can return to the administrator's account.</p>
-                                        <p>Follow these steps to use <span class="GeneralProductName">Xcalar Design</span> as another user:</p>
+                                        <p>You can use the Monitor or  the Setup icon without having an active workbook.</p>
+                                        <h2><a name="Configur"></a>Configuring parameters</h2>
+                                        <p>The <span class="GeneralProductName2">Xcalar Compute Engine</span> parameters affect how your cluster works. In certain circumstances, <span class="GeneralCompanyNameShort">Xcalar</span> technical support might instruct you to fine-tune some parameters to improve performance or to customize your cluster for your particular environment. The list of parameters shown in the Monitor might vary from one cluster to another. </p>
+                                        <div class="Note"><span class="label">IMPORTANT</span>: Leave the parameters at their defaults unless you are told otherwise by <span class="GeneralProductName3">Xcalar</span> technical support or by the instructions in this topic. The only exception is the <span class="UIelement">Constants.XcalarLogCompletePath</span> parameter, which you must set to a value appropriate for your environment. For information about this parameter, see <a href="#Paramete" class="MCXref xref">Parameter descriptions</a>. </div>
+                                        <p>If a <span class="UIelement">Config Parameter Name</span> field does not contain a name,  you can enter a parameter name in the field, but do so only if you are under the guidance of <span class="GeneralCompanyNameShort">Xcalar</span> technical support. </p>
+                                        <h3>When changes take effect</h3>
+                                        <p> Changes to parameter values take effect after you restart the cluster.</p>
+                                        <h3>Steps for changing parameter values</h3>
+                                        <p>If you are instructed by <span class="GeneralCompanyNameShort">Xcalar</span> to configure the parameters, follow these steps:</p>
                                         <ol>
-                                            <li value="1">In the <span class="UIelement">Setup</span> panel, click <span class="UIelement">Use Xcalar As</span> if a list of users is not already displayed. You can also click the <span class="UIelement">Refresh</span> icon to update the list.</li>
+                                            <li value="1">Click <span class="UIelement">Configuration</span> in the <span class="UIelement">Setup</span> panel. </li>
                                             <li value="2">
-                                                <p>Click a user name to switch to that user.</p>
-                                                <div class="Example"><span class="label">TIP:</span>&#160;You can type a partial user name in the <span class="UIelement">Search users</span> field to display only the user names that contain the string entered. For example, typing the string USER displays user1 and User2, but not john, in the list.</div>
-                                                <p>If the selected user is logged in, <span class="GeneralProductName">Xcalar Design</span> displays a confirmation message asking if you want to log out the user.</p>
-                                                <p>After you switch to the other user (for example, a user named test), a message similar to the following is displayed in the lower right corner of the <span class="GeneralProductName">Xcalar Design</span> window:</p>
-                                                <p class="userInput">This is what <span class="GeneralProductName">Xcalar Design</span> looks like to: test</p>
+                                                <p>In the <span class="UIelement">Configure Parameter</span> window,  enter the new value of a parameter in the <span class="UIelement">New Value</span> field and then click <span class="UIelement">CONFIRM&#160;&amp;&#160;SAVE</span>.</p>
+                                                <p> If you want to restore the parameter to its default value, click <img src="../Resources/Images/XD_assets/xd-param-default.png" />. </p>
                                             </li>
+                                            <li value="3">Restart the cluster to make the changes take effect.</li>
                                         </ol>
-                                        <p>To return to the administrator's account, click the <span class="UIelement">Cancel</span> icon as shown in the following screenshot:</p>
-                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/admin-as-another-user.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="650" data-mc-height="420" src="../Resources/Images/XD_screenshots/admin-as-another-user_thumb_0_150.png" tabindex="" /></a>
-                                        </p>
+                                        <h2><a name="Paramete"></a>Parameter descriptions</h2>
+                                        <p>The following table explains the parameters:</p>
+                                        <table style="width: 100%;mc-table-style: url('../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;" class="TableStyle-SimpleTable" cellspacing="0">
+                                            <col class="TableStyle-SimpleTable-Column-Column1" />
+                                            <col class="TableStyle-SimpleTable-Column-Column2" />
+                                            <thead>
+                                                <tr class="TableStyle-SimpleTable-Head-Header1">
+                                                    <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">Parameter</th>
+                                                    <th class="TableStyle-SimpleTable-HeadD-Column2-Header1">Description</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1"><span class="UIelement">Constants.XdbLocalSerDesPath</span>
+                                                    </td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">
+                                                        <p>(Only for <span class="GeneralProductOperationalizing">Xcalar in operational mode</span>) Full path to which <span class="GeneralProductName2">Xcalar Compute Engine</span> serializes data to a lower tier of the memory hierarchy if needed.</p>
+                                                        <div class="Note"><span class="label">IMPORTANT</span>:&#160;Always change this parameter from its default to a path backed by local disks. A path backed by SSDs (solid state drives) is strongly recommended for performance reasons.</div>
+                                                    </td>
+                                                </tr>
+                                                <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                    <td class="TableStyle-SimpleTable-BodyB-Column1-Body2"><span class="UIelement">Constants.SendSupportBundle</span>
+                                                    </td>
+                                                    <td class="TableStyle-SimpleTable-BodyA-Column2-Body2">
+                                                        <p>Boolean value specifying whether support bundles are automatically sent to <span class="GeneralCompanyNameShort">Xcalar</span> when you generate a support ticket. For information about support bundles, see <a href="K_Monitor.htm#Generati" class="MCXref xref">Generating a support ticket</a>.</p>
+                                                        <p>The default value is false, which means that support bundles are saved only in <var>XcalarRootCompletePath</var>/support, where <var>XcalarRootCompletePath</var> is the full path where <span class="GeneralProductName3">Xcalar</span> is installed. If <span class="GeneralCompanyNameShort">Xcalar</span> needs diagnostic information about your cluster for troubleshooting, you have to manually send it. </p>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
                                         <h2>Stopping and starting the cluster</h2>
-                                        <p> After you install <span class="GeneralProductName3short">Xcalar</span>, the cluster is started automatically. You need to start the cluster manually only after one or more nodes crash or after you stop the cluster for maintenance or troubleshooting.</p>
-                                        <p>To stop the cluster, click <span class="UIelement">Stop Cluster</span> under <span class="UIelement">Configuration</span> in the <span class="UIelement">Setup</span> panel. All nodes are stopped at the same time. The following list describes the effects of stopping the cluster:</p>
+                                        <p> After you install <span class="GeneralProductName3">Xcalar</span>, the cluster is started automatically. You need to start the cluster manually in these situations:</p>
+                                        <ul>
+                                            <li value="1">after the cluster crashes.</li>
+                                            <li value="2">after you stop the cluster for maintenance or troubleshooting.</li>
+                                            <li value="3">after you change a parameter value.</li>
+                                        </ul>
+                                        <h3>Steps for stopping the cluster</h3>
+                                        <p>To stop the cluster, follow these steps:</p>
+                                        <ol>
+                                            <li value="1">Click <span class="UIelement">Configuration</span> in the <span class="UIelement">Setup</span> panel to display a menu.</li>
+                                            <li value="2">Click <span class="UIelement">Stop Cluster</span>.</li>
+                                        </ol>
+                                        <h3>Results of stopping a cluster</h3>
+                                        <p>All nodes are stopped at the same time. The following list describes the effects of stopping the cluster:</p>
                                         <ul>
                                             <li value="1">
                                                 <p><span class="GeneralProductName">Xcalar Design</span> displays the following message for all the logged in users:</p>
@@ -214,17 +250,86 @@
                                             </li>
                                             <li value="2">Operations  in progress are canceled.</li>
                                         </ul>
-                                        <p>To restart the cluster, click <span class="UIelement">Start cluster</span> under <span class="UIelement">Configuration</span> in the <span class="UIelement">Setup</span> panel. The cluster can be started this way only if all of them are currently stopped. If one or more nodes are not stopped, the following message appears:</p>
-                                        <p class="CLIoutput">One of more of your XCE instances is currently running. Please restart the cluster instead.</p>
-                                        <p> To work around this error, click <span class="UIelement">Restart Cluster</span> under <span class="UIelement">Configuration</span> in the <span class="UIelement">Setup</span> panel.</p>
-                                        <h2>Updating license</h2>
-                                        <p>Follow these steps to update your license:</p>
+                                        <h3>Steps for starting the cluster</h3>
+                                        <p>The cluster can be started  if the cluster is currently stopped (that is, if all the nodes are stopped). To start the cluster, follow these steps:</p>
                                         <ol>
-                                            <li value="1">In the <span class="UIelement">Setup</span> panel, expand the list of commands under <span class="UIelement">Configuration</span> if it is not expanded already.</li>
-                                            <li value="2">Click <span class="UIelement">Update License</span>.</li>
-                                            <li value="3">In the <span class="UIelement">Update License</span> modal window, enter the license key.</li>
-                                            <li value="4">Click <span class="UIelement">CONFIRM</span>.</li>
+                                            <li value="1">Click <span class="UIelement">Configuration</span> in the <span class="UIelement">Setup</span> panel to display a menu.</li>
+                                            <li value="2">Click <span class="UIelement">Start Cluster</span>.</li>
                                         </ol>
+                                        <p>If the cluster is running or if some nodes are running, and you want to start the cluster again, click <span class="UIelement">Restart cluster</span>.</p>
+                                        <h2>Checking cluster status and updating the license</h2>
+                                        <p>In the Setup panel, you can click Cluster Status to display a modal window with status information.&#160;Report the information to <span class="GeneralCompanyNameShort">Xcalar</span> technical support if needed.</p>
+                                        <p>To update a license, click <span class="UIelement">Update License</span>. Paste the license key given to you by <span class="GeneralProductName3">Xcalar</span> in the modal window and then click <span class="UIelement">CONFIRM</span>.</p>
+                                        <h2>Managing users</h2>
+                                        <p>In the <span class="UIelement">Setup</span> panel, you can click <span class="UIelement">Users</span> to display a list of users that have logged in to the cluster. The user names are listed regardless of whether the users are currently logged in or whether the users have any workbooks.</p>
+                                        <p>You cannot edit the user list. You can, however, perform the following tasks:</p>
+                                        <ul>
+                                            <li value="1">sorting user names alphabetically by memory usage.</li>
+                                            <li value="2">hovering over a user's memory usage icon to display the amount of memory consumed by that user.</li>
+                                            <li value="3">clicking a user's memory usage icon to display the amount of memory used by the user's workbooks.</li>
+                                            <li value="4">logging in as another user.</li>
+                                        </ul>
+                                        <p>The following partial screenshot shows the <span class="UIelement">Setup</span> panel containing the user list:</p>
+                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/users-in-setup-panel.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="701" data-mc-height="651" src="../Resources/Images/XD_screenshots/users-in-setup-panel_thumb_0_150.png" tabindex="" /></a>
+                                        </p>
+                                        <p>The following screenshot shows the modal window that displays the memory used by the user's workbook. It includes a breakdown of memory consumed by the tables. The information helps you determine which tables to delete for the purpose of releasing memory.</p>
+                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/user-memory-consumption.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="984" data-mc-height="641" src="../Resources/Images/XD_screenshots/user-memory-consumption_thumb_0_150.png" tabindex="" /></a>
+                                        </p>
+                                        <p>As shown in the screenshot, you see a breakdown of memory consumed by each table. The information helps you determine which tables you can delete for the purpose of releasing memory. </p>
+                                        <h2>Logging in as another user</h2>
+                                        <p>You can switch to another user's account so that you can work on the user's behalf. You can perform all the operations that the user can perform, If the user is already logged in, switching to that user's account logs the user out of <span class="GeneralProductName">Xcalar Design</span>.</p>
+                                        <p>After you finish working in <span class="GeneralProductName">Xcalar Design</span> as a user, you can return to the administrator's account.</p>
+                                        <p>Follow these steps to use <span class="GeneralProductName">Xcalar Design</span> as another user:</p>
+                                        <ol>
+                                            <li value="1">
+                                                <p>In the <span class="UIelement">Setup</span> panel, click the <span class="UIelement">Use Xcalar as this user</span> icon as shown in the following partial screenshot:</p>
+                                                <p>
+                                                    <img src="../Resources/Images/XD_screenshots/user-login-as-another.png" />
+                                                </p>
+                                            </li>
+                                            <li value="2">
+                                                <p>Click <span class="UIelement">CONFIRM</span>&#160;in the Confirmation dialog box.</p>
+                                                <p>After you switch to the other user (for example, a user named user3), a message similar to the following is displayed in the lower right corner of the <span class="GeneralProductName">Xcalar Design</span> window:</p>
+                                                <p class="CLIoutput">This is what <span class="GeneralProductName">Xcalar Design</span> looks like to: user3</p>
+                                            </li>
+                                        </ol>
+                                        <p>To return to the administrator's account, click the <span class="UIelement">Cancel</span> icon as shown in the following screenshot:</p>
+                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/admin-as-another-user.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1008" data-mc-height="508" src="../Resources/Images/XD_screenshots/admin-as-another-user_thumb_0_150.png" tabindex="" /></a>
+                                        </p>
+                                        <h2>Understanding log messages</h2>
+                                        <p><span class="GeneralProductName3">Xcalar</span> logs are located in the directory named /var/log/xcalar. You can use <span class="GeneralProductName">Xcalar Design</span> to view log messages generated by each node, which are in a file named  /var/log/xcalar/node.X.log, where X is the node number. For example, on a two-node cluster, the log directory contains /var/log/xcalar/node.0.log and /var/log/xcalar/node.1.log.</p>
+                                        <div class="Note"><span class="label">NOTE</span>:&#160;If you want <span class="GeneralProductName3">Xcalar</span> logs to be saved at a different location, contact <span class="GeneralCompanyNameShort">Xcalar</span> for instructions on changing the path to the log directory.</div>
+                                        <p>You can view log messages through <span class="GeneralProductName">Xcalar Design</span> in one of two ways:</p>
+                                        <ul>
+                                            <li value="1">Viewing a specified number of recent messages.</li>
+                                            <li value="2">Streaming messages as they are generated.</li>
+                                        </ul>
+                                        <p>With either method, you can view messages from all nodes or from a particular node.</p>
+                                        <h2>Viewing recent log messages</h2>
+                                        <p>Follow these steps to view recent log messages:</p>
+                                        <ol>
+                                            <li value="1">Display the <span class="UIelement">Setup</span> panel in the Monitor. The <span class="UIelement">Logs</span> window is displayed below the <span class="UIelement">Configure Parameter</span> window. </li>
+                                            <li value="2">
+                                                <p>In the <span class="UIelement">Logs</span> window, type the log file name. To display messages for all nodes, you can type the following:</p>
+                                                <p class="userInput">node.*.log</p>
+                                            </li>
+                                            <li value="3">Enter the number of messages from each log file to display, which can be from 1 to 500. For example, if you enter 10, then 10 messages from each log file are displayed.</li>
+                                            <li value="4">Click the check mark icon to submit the values. The specified number of messages for each log file appear in the window immediately.</li>
+                                        </ol>
+                                        <h2>Streaming log messages</h2>
+                                        <p>Follow these steps to view log messages as they are generated:</p>
+                                        <ol>
+                                            <li value="1">Display the <span class="UIelement">Setup</span> panel in the Monitor. The <span class="UIelement">Logs</span> window is displayed below the <span class="UIelement">Configure Parameter</span> window. </li>
+                                            <li value="2">
+                                                <p>In the <span class="UIelement">Logs</span> window, type the log file name. To display messages for all nodes, you can type the following:</p>
+                                                <p class="userInput">node.*.log</p>
+                                            </li>
+                                            <li value="3">Click <span class="UIelement">Start Monitor Stream</span>. The log messages from the specified log files are displayed in real time. </li>
+                                            <li value="4">If you want to stop the streaming, click <span class="UIelement">Stop Stream</span>.</li>
+                                        </ol>
+                                        <div class="Note"><span class="label">NOTE</span>:&#160;If you previously set a number of messages to display, the value has no effect on message streaming.</div>
+                                        <h2>Clearing log messages</h2>
+                                        <p>To remove all log messages from the <span class="UIelement">Logs</span> window, click <span class="UIelement">CLEAR&#160;LOGS</span>. This button clears the messages from <span class="GeneralProductName">Xcalar Design</span> only. The messages remain in the log files on the nodes.</p>
                                     </div>
                                     <p><a href="#Top">Go to top</a>
                                     </p>

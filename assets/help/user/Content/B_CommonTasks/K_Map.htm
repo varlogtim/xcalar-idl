@@ -174,32 +174,43 @@
                                         <h1>Using the Map function to create new values</h1>
                                         <p>The Map function is divided into categories of functions that  create new values to help you derive meaning from your dataset. The new values can be based on one or multiple selected columns. For example, you can perform an arithmetic calculation from values in two selected columns to create a third column that contains the results of the calculation. The new value may also be generated without any input. For example, you can generate a column of unique, random values.</p>
                                         <p>This section describes the steps for performing a Map function. For descriptions of all Map functions, see <a href="../D_Reference/I_MapFunctions.htm" class="MCXref xref" xrefformat="{para}">Map functions</a>.</p>
-                                        <div class="Note"><span class="label">IMPORTANT</span>:&#160;Many  Map functions work in a similar way as Microsoft Excel functions. However, there might be differences such as differences in the  number of operands accepted.&#160;Do not assume that the  Map functions are identical to the Excel functions even though they share the same name. </div>
-                                        <h2>How a Map function works if input data type is Mixed, Array, or Object</h2>
-                                        <p>If you use a Mixed column as input to a Map function, the function is executed on the cells of a data type appropriate for the function. For all other cells, the function returns FNF. For example, if a Mixed column is the input for the div function, the division is performed only on numerical cells. FNF&#160;is displayed for each non-numerical cell in the resultant column.</p>
+                                        <div class="Note"><span class="label">IMPORTANT</span>:&#160;Many  Map functions work in a similar way as Microsoft Excel functions. However, there might be differences, such as differences in the  number of operands accepted.&#160;Do not assume that the  Map functions are identical to the Excel functions even though they share the same name. </div>
+                                        <h2>How a Map function works on Mixed, Array, or Object columns</h2>
+                                        <p>If you use a Mixed column as input to a Map function, the function is run on the cells of a data type appropriate for the function. For all other cells, the function returns FNF. For example, if a Mixed column is the input for the div function, the division is performed only on numerical cells. FNF&#160;is displayed for each non-numerical cell in the resultant column.</p>
                                         <p>If you use an Array or Object column as input to a Map function, the input value is treated as FNF. </p>
                                         <p>For more information about FNF, see <a href="P_UnderstandFNF.htm" class="MCXref xref" xrefformat="{para}">Working with a table containing FNF</a>.</p>
-                                        <div class="Note"><span class="label">NOTE</span>:&#160;You cannot start  a Map function from the column drop-down menu of an Array or Object column, but you can run the function from the function bar using a column of any type as input. For more information about using the function bar, see <a href="../C_AdvancedTasks/D_FunctionBar.htm" class="MCXref xref" xrefformat="{para}">Using the function  bar</a></div>
-                                        <h2>Creating a column by Map</h2>
-                                        <p>Follow these steps to create a column by the Map function:</p>
+                                        <div class="Note"><span class="label">NOTE</span>:&#160;You cannot start  a Map function from the column drop-down menu of an Array or Object column, but you can run the function from the function bar using a column of any type as input. For more information about using the function bar, see <a href="../C_AdvancedTasks/D_FunctionBar.htm" class="MCXref xref" xrefformat="{para}">Using the function  bar</a>.</div>
+                                        <h2>Creating a column</h2>
+                                        <p>Follow these steps to create a column with the Map operation:</p>
                                         <ol>
                                             <li value="1">
-                                                <p>Right click the header of the column that you want to create new values from. In the drop-down menu, select <span class="UIelement">Map…</span>. The <span class="UIelement">MAP</span>&#160;panel is displayed. </p>
-                                                <div class="MCDropDown MCDropDown_Open dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the general rules and tips for entering information in a <span class="GeneralProductName">Xcalar Design</span> panel.</a></span>
+                                                <p>Right click the header of the column from which you want to create new values. In the drop-down menu, select <span class="UIelement">Map…</span>. The <span class="UIelement">MAP</span>&#160;panel is displayed. </p>
+                                                <div class="MCDropDown MCDropDown_Open dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the rules and tips for entering information in a <span class="GeneralProductName">Xcalar Design</span> panel.</a></span>
                                                     <div class="MCDropDownBody dropDownBody">
                                                         <ul>
                                                             <li value="1">By default, the name of the column from which you start the function is displayed as an argument. If you want to use another column as an argument, you can change the argument to the name of another column.</li>
                                                             <li value="2">When typing a column name, always start with the dollar sign ($).</li>
                                                             <li value="3">When typing a column name, always include the prefix if one exists. (A derived column does not have a column name prefix.) </li>
                                                             <li value="4">If the panel calls for the resultant column name, type the name without preceding it with the dollar sign ($).</li>
-                                                            <li value="5">To avoid mistakes when typing a column name as an operand, place the insertion point in the argument field, move your mouse to the active table and click anywhere in the desired column. The column's name is automatically entered in the operand field.</li>
-                                                            <li value="6">If an operand accepts a column name, it also accepts an aggregate name that you created when you calculated the aggregate value for a column. </li>
+                                                            <li value="5">To avoid mistakes when typing a column name as an operand, place the insertion point in the argument field, move your cursor to the active table and click anywhere in the desired column. The column's name is automatically entered in the operand field.</li>
+                                                            <li value="6">If an operand accepts a column name, it also accepts the aggregate name that you created when you calculated the aggregate value for a column. </li>
                                                             <li value="7">When typing a decimal number for an operand, do not start with the decimal point. For example, type 0.5 instead of .5.</li>
                                                             <li value="8">If necessary,  click <img src="../Resources/Images/XD_assets/xd-show.png" /> in the panel to bring the specified table into focus. You can then scroll the table to make the desired column visible.</li>
-                                                            <li value="9">You can undo any typing with the undo key or key combination that you normally use in your browser.</li>
+                                                            <li value="9">When typing a string, do not enclose the string with double quote marks ("). </li>
+                                                            <li value="10">
+                                                                <p>When typing a string as input, escape the following characters with a backslash (\) if you want the characters to be interpreted literally:</p>
+                                                                <ul>
+                                                                    <li value="1">backslash (\)</li>
+                                                                    <li value="2">double quote mark (")</li>
+                                                                    <li value="3">dollar sign ($) if it is the first character</li>
+                                                                    <li value="4">caret (^) if it is the first character</li>
+                                                                </ul>
+                                                            </li>
+                                                            <li value="11">You can undo any typing with the undo key or key combination that you normally use in your browser.</li>
                                                         </ul>
                                                     </div>
                                                 </div>
+                                                <p>Boolean values are case-insensitive. For example, in an input field that accepts a Boolean value, you can type true, True, false, or False.</p>
                                             </li>
                                             <li value="2">
                                                 <p>In the <span class="UIelement">MAP</span> panel, follow these steps to select the function:</p>
@@ -216,7 +227,7 @@
                                             </li>
                                             <li value="3">Based on the description of the function, fill out the operand fields. </li>
                                             <li value="4">Accept the default name for the new column or enter a new name.</li>
-                                            <li value="5">(Optional)&#160;Select <span class="UIelement">Include only erroneous rows</span> if you want to filter the resultant table such that only erroneous rows are included. For more information about erroneous rows, see <a href="H_ErroneousRows.htm" class="MCXref xref" xrefformat="{para}">Creating a table with erroneous rows only</a>.</li>
+                                            <li value="5">(Optional)&#160;Select <span class="UIelement">Include only erroneous rows</span> if you want to filter the resultant table such that only erroneous rows are included. For more information about erroneous rows, see <a href="H_ErroneousRows.htm" class="MCXref xref" xrefformat="{para}">Creating a table with only erroneous rows</a>.</li>
                                             <li value="6">Click <span class="UIelement">MAP</span>.</li>
                                         </ol>
                                         <h3>Example of using the type-casting function</h3>
@@ -242,17 +253,17 @@
                                             <img src="../Resources/Images/XD_screenshots/map-change-data-type.png" />
                                         </p>
                                         <h2><a name="Using"></a>Using Map on an unpopulated column</h2>
-                                        <p>After you add a blank column to your table, the column contains no values and the column's data type is Unknown. You can initiate a Map function from such column. However, not all functions displayed in the <span class="UIelement">MAP</span> panel accepts an operand whose type is Unknown. The following partial screenshot shows an example of a newly added column containing no values. </p>
+                                        <p>After you add a blank column to your table, the column contains no values and the column's data type is Unknown. You can initiate a Map function from such a column. However, not all functions displayed in the <span class="UIelement">MAP</span> panel accepts an operand whose type is Unknown. The following partial screenshot shows an example of a newly added column containing no values. </p>
                                         <p>
                                             <img src="../Resources/Images/XD_screenshots/column-unknown-type.png" />
                                         </p>
                                         <h3>Result  of Map initiated from an unpopulated column</h3>
                                         <p>Typically a Map function creates a new column containing values based on the input column. But if you run a Map function from an unpopulated column, the resultant column replaces the unpopulated column. </p>
-                                        <p>For example, from the unpopulated column, you can start the <span class="UIelement">MAP</span>&#160;panel to create a column of a particular data type as illustrated in the following screenshot:</p>
+                                        <p>For example, from the unpopulated column, you can start the <span class="UIelement">MAP</span>&#160;panel to create a column of a particular data type, as illustrated in the following screenshot:</p>
                                         <p>
                                             <img src="../Resources/Images/XD_screenshots/blank-column-change-datatype.png" />
                                         </p>
-                                        <p>After the function is finished, the table contains a new column as illustrated in the following screenshot:</p>
+                                        <p>After the function is finished, the table contains a new column, as illustrated in the following screenshot:</p>
                                         <p>
                                             <img src="../Resources/Images/XD_screenshots/blank-column-cast-to-int.png" />
                                         </p>

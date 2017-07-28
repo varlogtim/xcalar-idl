@@ -6,7 +6,7 @@
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta charset="utf-8" />
         <meta name="description" content="" />
-        <meta name="author" content="" /><title>Creating a table with erroneous rows only</title>
+        <meta name="author" content="" /><title>Creating a table with only erroneous rows</title>
         <link href="../../Skins/Default/Stylesheets/Slideshow.css" rel="stylesheet" />
         <link href="../../Skins/Default/Stylesheets/TextEffects.css" rel="stylesheet" />
         <link href="../../Skins/Default/Stylesheets/Topic.css" rel="stylesheet" />
@@ -171,7 +171,7 @@
                                         </div>
                                     </div>
                                     <div class="bodyProxyNarrow">
-                                        <h1>Creating a table with erroneous rows only</h1>
+                                        <h1>Creating a table with only erroneous rows</h1>
                                         <p>Erroneous table rows are rows in which a function fails to produce a valid value.  These rows might be of interest because you can gain insights from erroneous data (for example, by finding unexpected values in an analysis of data for fraud detection) or because you want to cleanse data before performing further data transformation. Creating a table that contains only erroneous rows can help you locate some integrity constraint violations in your data source.</p>
                                         <h2>Examples of  erroneous rows</h2>
                                         <p>The following list describes the scenarios where <span class="GeneralProductName">Xcalar Design</span> detects invalid values and creates a table with erroneous rows only:</p>
@@ -189,7 +189,7 @@
                                             <li value="3">Divide by zero error</li>
                                         </ul>
                                         <h2>Functions for creating a table with erroneous rows only</h2>
-                                        <p>The Map and Group By functions enable you to create a table with erroneous rows only. This means that when you use the Map or Group By function to create a table, you can specify that the table includes only rows in which the function cannot produce a valid value.</p>
+                                        <p>The Map and Group By functions enable you to create a table with only erroneous rows. This means that when you use the Map or Group By function to create a table, you can specify that the table includes only rows in which the function cannot produce a valid value.</p>
                                         <p>This section assumes that you understand how to use the Map and Group By functions in <span class="GeneralProductName">Xcalar Design</span>. If not, familiarize yourself with these functions by reading the following topics:</p>
                                         <ul>
                                             <li value="1"><a href="K_Map.htm" class="MCXref xref" xrefformat="{para}">Using the Map function to create new values</a>
@@ -199,7 +199,7 @@
                                         <h3>Example of a Map function for creating a table with erroneous values</h3>
                                         <p>In the table created from a dataset with flight information, the column named ArrDelay contains the number of minutes for each flight's arrival delay. Suppose the initial data type for this column is String, you can use the <span class="UIelement">type-casting</span> function in the <span class="UIelement">MAP</span> panel to change its type to Integer. If you select <span class="UIelement">Include only erroneous rows</span> in the <span class="UIelement">MAP</span> panel, the resultant table contains only the rows where the function fails to produce a valid value.</p>
                                         <p>The following screenshot illustrates the <span class="UIelement">MAP</span> panel for changing the data type of a column. In this example, row 20 is where the type casting function encounters an error. The other rows in this screenshot will not be present in the resultant table.</p>
-                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/example-map-create-erroneous-rows.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="893" data-mc-height="876" src="../Resources/Images/XD_screenshots/example-map-create-erroneous-rows_thumb_0_150.png" tabindex="" /></a>
+                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/example-map-create-erroneous-rows.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="894" data-mc-height="876" src="../Resources/Images/XD_screenshots/example-map-create-erroneous-rows_thumb_0_150.png" tabindex="" /></a>
                                         </p>
                                         <p>The following screenshot illustrates the resultant table with only erroneous values in the ArrTime column.</p>
                                         <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/example-erroneous-column.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="815" data-mc-height="555" src="../Resources/Images/XD_screenshots/example-erroneous-column_thumb_0_150.png" tabindex="" /></a>

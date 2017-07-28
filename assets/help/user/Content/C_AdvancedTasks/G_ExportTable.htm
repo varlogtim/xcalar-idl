@@ -172,12 +172,12 @@
                                     </div>
                                     <div class="bodyProxyNarrow">
                                         <h1>Exporting a table</h1>
-                                        <p>The following list explains the meaning of exporting a table:</p>
+                                        <p>The following list explains what exporting a table means:</p>
                                         <ul>
-                                            <li value="1">Saving data from a <span class="GeneralProductName3short">Xcalar</span> table as one or multiple files at a location where other applications (or <span class="GeneralProductName3short">Xcalar</span>) can access and use as a data source. </li>
+                                            <li value="1">Saving data from a <span class="GeneralProductName3">Xcalar</span> table as one or multiple files to a location where other applications (or <span class="GeneralProductName3">Xcalar</span>) can access and use as a data source.</li>
                                             <li value="2">Saving the result of a batch dataflow to another table in the active worksheet.</li>
                                         </ul>
-                                        <p>You can export data from an entire table or from only selected columns of a table. </p>
+                                        <p>You can export data from an entire table or from selected columns of a table.</p>
                                         <div class="Note"><span class="label">NOTE:</span> Columns of the Array or Object type cannot be exported.</div>
                                         <h2>Availability of the export feature</h2>
                                         <p>Exporting a table to a file system is not available in the following products:</p>
@@ -186,13 +186,13 @@
                                             <li value="2"><span class="GeneralProductModeling">Xcalar in modeling mode</span> cannot run a batch dataflow. As a result, it can only export an active table to a file system. You cannot export the result of a batch dataflow if you use <span class="GeneralProductModeling">Xcalar in modeling mode</span>.</li>
                                         </ul>
                                         <h2>Methods for exporting</h2>
-                                        <p><span class="GeneralProductName">Xcalar Design</span> can export a table in one of the following ways:</p>
+                                        <p>You can export a table in one of two ways:</p>
                                         <ul>
                                             <li value="1">Manually export a table from the table drop-down menu. </li>
-                                            <li value="2">Automatically export a table resulting from running a batch dataflow. You can start a batch dataflow manually or automatically through a schedule. For more information about batch dataflows, see <a href="F_UseBatchDataflow.htm" class="MCXref xref" xrefformat="{para}">Using batch dataflows</a>.</li>
+                                            <li value="2">Automatically export a table resulting from running a batch dataflow. For more information about batch dataflows, see <a href="F_UseBatchDataflow.htm" class="MCXref xref" xrefformat="{para}">Using batch dataflows</a>.</li>
                                         </ul>
-                                        <h2><a name="Where"></a>Where tables are exported</h2>
-                                        <p>Tables are exported to the default export target. The path to the default export target might vary from one <span class="GeneralCompanyNameShort">Xcalar</span> installation to another. To determine your default export target, follow these steps:</p>
+                                        <h2><a name="Where"></a>Where tables are exported by default</h2>
+                                        <p>By default, tables are exported to an export target named Default. The path to this export target might vary from one <span class="GeneralProductName3">Xcalar</span> installation to another. To determine your default export target, follow these steps:</p>
                                         <ol>
                                             <li value="1">Click the <span class="UIelement">Export Targets</span> icon (under the <span class="UIelement">Datasets</span> icon)&#160;in the <span class="GeneralProductName">Xcalar Design</span> toolbar.</li>
                                             <li value="2">In the <span class="UIelement">Export Targets</span> panel,  click the icon for export target named Default.</li>
@@ -200,26 +200,27 @@
                                         <h2>Understanding user-defined export targets</h2>
                                         <p>Creating an export target is necessary if one or both of these conditions are true:</p>
                                         <ul>
-                                            <li value="1">You want export files to be saved at a location other than the default location.</li>
-                                            <li value="2">You want a table to be processed by a UDF&#160;when it is being exported. </li>
+                                            <li value="1">You want to save export files to  a location other than the default location.</li>
+                                            <li value="2">You want a table to be processed by a UDF when it is being exported.</li>
                                         </ul>
-                                        <div class="Note"><span class="label">IMPORTANT:</span>&#160;The directory used as the export target must be a shared directory reachable by all <span class="GeneralProductName3short">Xcalar</span> nodes. Also, it must be writable by  <span class="GeneralProductName3short">Xcalar</span>. For example, to use /nas/xcalar_exports as a target, make sure that it is shared by all nodes and <span class="GeneralProductName3short">Xcalar</span> has write permission to it. Contact the <span class="GeneralProductName3short">Xcalar</span> cluster administrator to confirm that these requirements are met.</div>
-                                        <h2> Understanding export target types</h2>
+                                        <div class="Note"><span class="label">IMPORTANT</span>: The directory used as the export target must be a shared directory reachable by all <span class="GeneralProductName3">Xcalar</span> nodes. Also, it must be writable by <span class="GeneralProductName3">Xcalar</span>. For example, to use /nas/xcalar_exports as a target, make sure that it is shared by all nodes and <span class="GeneralProductName3">Xcalar</span> has write permission to it. Contact the <span class="GeneralProductName3">Xcalar</span> cluster administrator to confirm that these requirements are met.</div>
+                                        <p>If the directory specified as the target does not exist, <span class="GeneralProductName3">Xcalar</span> creates the directory. For example, if /nas/xcalar_exports does not exist, it is created automatically during the export, provided that <span class="GeneralProductName3">Xcalar</span> has write permission to /nas and all nodes have access to the path. </p>
+                                        <h2>Understanding export target types</h2>
                                         <p>An export target can be one of the following types:</p>
                                         <ul>
-                                            <li value="1">File system: <span class="GeneralProductName3short">Xcalar</span> exports data from an active table or from a batch dataflow to a file system that <span class="GeneralProductName3short">Xcalar</span> can write to. No UDF is run when the export takes place.</li>
-                                            <li value="2">UDF: When <span class="GeneralProductName3short">Xcalar</span> exports data from an active table or from a batch dataflow, it processes the data with a UDF. For the export target, you can specify the  file system to which the data is exported. The path to this file system is passed into the UDF for processing. A UDF used as an export target is called an export UDF. For an example of coding and applying an export UDF, see <a href="../D_Reference/H1_UdfExamples.htm#Example" class="MCXref xref" xrefformat="{para}">Example of using a UDF&#160;when exporting</a>.</li>
+                                            <li value="1">File system: <span class="GeneralProductName3">Xcalar</span> exports data from an active table or from a batch dataflow to a file system that <span class="GeneralProductName3">Xcalar</span> can write to. No UDF is run when the export takes place.</li>
+                                            <li value="2">UDF: When <span class="GeneralProductName3">Xcalar</span> exports data from an active table or from a batch dataflow, it processes the data with a UDF. For the export target, you can specify the file system to which the data is exported. The path to this file system is passed into the UDF for processing. A UDF used as an export target is called an export UDF. For an example of coding and applying an export UDF, see <a href="../D_Reference/H1_UdfExamples.htm#Example" class="MCXref xref" xrefformat="{para}">Example of using a UDF when exporting</a>.</li>
                                         </ul>
                                         <h2>How export files are named</h2>
-                                        <p>If you manually export a table, a default name of the export file is provided in the <span class="UIelement">EXPORT&#160;TABLES</span>&#160;panel. If you run a batch dataflow to export the resultant table, the default export folder name is shown below the  last icon of the batch dataflow graph. </p>
-                                        <p>By default, <span class="GeneralProductName">Xcalar Design</span> displays an error if it detects a file name conflict when exporting a table. To avoid the name conflict, you must create a unique export file name. Information about creating or editing an export file name is included in <a href="#Exportin" class="MCXref xref" xrefformat="{para}">Exporting a table from the table drop-down menu</a>. </p>
-                                        <p>When manually exporting a table, you can specify in the <span class="UIelement">EXPORT&#160;TABLE</span>&#160;panel that the newly exported table overwrites the existing file or appends to the existing file.</p>
+                                        <p>If you manually export a table, a default name of the export file is provided in the <span class="UIelement">EXPORT&#160;TABLES</span>&#160;panel. If you run a batch dataflow to export the resultant table, the default export file name is shown below the  exported table icon of the batch dataflow graph. (The exported table icon is the last table icon in the graph.)</p>
+                                        <p>By default, <span class="GeneralProductName">Xcalar Design</span> displays an error if it detects a file name conflict when exporting a table. To avoid the name conflict, you must create a unique export file name. Information about creating or editing an export file name is included in <a href="#Exportin" class="MCXref xref" xrefformat="{para}">Exporting a table from the table drop-down menu</a>.</p>
+                                        <p>When manually exporting a table, you can specify in the <span class="UIelement">EXPORT TABLE</span> panel that the newly exported table overwrites the existing file or appends to the existing file.</p>
                                         <div class="MCDropDown MCDropDown_Open dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the naming conventions:</a></span>
                                             <div class="MCDropDownBody dropDownBody">
                                                 <ul>
                                                     <li value="1">Names are case-sensitive. </li>
-                                                    <li value="2">Length can be from 1 to 255 characters.</li>
-                                                    <li value="3"> Characters can be A-Z, a-z, 0-9, hyphen (-), and underscore (_).</li>
+                                                    <li value="2">Length must be from 1 to 255 characters.</li>
+                                                    <li value="3"> Characters must be A-Z, a-z, 0-9, hyphen (-), and underscore (_).</li>
                                                 </ul>
                                             </div>
                                         </div>
@@ -233,7 +234,7 @@
                                                 <p>Create a file system that will be used as the export location. For example, create the directory /nas/xcalar_exports. </p>
                                             </li>
                                             <li value="2">Click <img src="../Resources/Images/XD_assets/xd-datastores.png" /> to display two icons below it. Then click <img src="../Resources/Images/XD_assets/xd-datastores-out.png" /> to display the <span class="UIelement">Export Target</span> panel and the <span class="UIelement">Create Export Target</span> window as illustrated in the following screenshot:</li>
-                                            <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/datastores-icon-out.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1082" data-mc-height="567" src="../Resources/Images/XD_screenshots/datastores-icon-out_thumb_0_150.png" tabindex="" /></a>
+                                            <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/datastores-icon-out.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1083" data-mc-height="515" src="../Resources/Images/XD_screenshots/datastores-icon-out_thumb_0_150.png" tabindex="" /></a>
                                             </p>
                                             <li value="3">In the <span class="UIelement">Create Export Target</span> window, the information about the default export target is displayed. To create a target, click <img src="../Resources/Images/XD_assets/xd-create-export-target.png" /> in the <span class="UIelement">Export Targets</span> panel. The <span class="UIelement">Create Export Target</span> window now displays fields for you to define a new export target.</li>
                                             <li value="4">
@@ -242,16 +243,20 @@
                                                     <div class="MCDropDownBody dropDownBody">
                                                         <ul>
                                                             <li value="1">Names are case-sensitive. </li>
-                                                            <li value="2">Length can be from 1 to 255 characters.</li>
-                                                            <li value="3"> Characters can be A-Z, a-z, 0-9, hyphen (-), and underscore (_).</li>
+                                                            <li value="2">Length must be from 1 to 255 characters.</li>
+                                                            <li value="3"> Characters must be A-Z, a-z, 0-9, hyphen (-), and underscore (_).</li>
                                                         </ul>
                                                     </div>
                                                 </div>
                                             </li>
-                                            <li value="5">Select the export target type.</li>
-                                            <li value="6">Enter the path of the export folder created in step 1. Export files will be saved to this location. </li>
+                                            <li value="5">
+                                                <p>Select the export target type.</p>
+                                            </li>
+                                            <li value="6">
+                                                <p>Enter the path of the export folder created in step 1. Export files will be saved to this location.</p>
+                                            </li>
                                             <li value="7">
-                                                <p> If the export target type is UDF, follow these steps:</p>
+                                                <p>If the export target type is UDF, follow these steps:</p>
                                                 <ol style="list-style-type: lower-alpha;">
                                                     <li value="1">Select the UDF module.</li>
                                                     <li value="2">Type the function name (if it is not already displayed), which must be main.</li>
@@ -262,7 +267,7 @@
                                         <h2>Displaying export target information</h2>
                                         <p>In the <span class="UIelement">Export Targets</span> panel, click an export target icon to display information about the target. </p>
                                         <h2>Deleting an export target</h2>
-                                        <p>In the window where the export target information is displayed, click DELETE to delete the target. </p>
+                                        <p>In the window where the export target information is displayed, click <span class="UIelement">DELETE</span> to delete the target. </p>
                                         <p>Alternatively, right click an export target icon to display a pop-up menu, in which you can click <span class="UIelement">Delete Target</span>.</p>
                                         <div class="Note"><span class="label">NOTE</span>:&#160;You cannot edit an export target. To change the name or definition of an export target, delete and re-create it.</div>
                                         <h2><a name="Exportin"></a>Exporting a table from the table drop-down menu</h2>
@@ -274,8 +279,8 @@
                                                 <p>In the <span class="UIelement">EXPORT&#160;TABLE</span>&#160;panel, fill out the following information:</p>
                                                 <ul>
                                                     <li value="1">Table to Export:&#160;If the table displayed is not the one you want to export, use the Down arrow to display a list of tables in the active worksheet and select the table from the list.</li>
-                                                    <li value="2">Export filename:&#160;Specify a unique name for the export file.</li>
-                                                    <li value="3">Export Location:&#160;It is the export target to be used for exporting the table. Use the Down arrow to display a list of targets that you have created. Select the export target named Default if you want to use the default export target. To determine the location of the default export target, see <a href="#Where" class="MCXref xref" xrefformat="{para}">Where tables are exported</a>. </li>
+                                                    <li value="2">New Folder Name:&#160;Specify a unique name for the export file.</li>
+                                                    <li value="3">Export Location:&#160;This is the export target to be used for exporting the table. Use the Down arrow to display a list of targets that you have created. Select the export target named Default if you want to use the default export target. To determine the location of the default export target, see <a href="#Where" class="MCXref xref" xrefformat="{para}">Where tables are exported by default</a>. </li>
                                                     <li value="4">Columns to export:&#160;By default, all columns are exported. You can specify that only particular columns are included in the exported file. </li>
                                                 </ul>
                                             </li>
@@ -291,35 +296,27 @@
                                         </ol>
                                         <h2><a name="Advanced"></a>Advanced options for exporting a table</h2>
                                         <p>The advanced options in the <span class="UIelement">EXPORT&#160;TABLE</span>&#160;panel enables you to specify different ways to export a table:</p>
-                                        <h3>Type</h3>
-                                        <p>By default, the table is saved to a CSV file. You can specify that the export file be in SQL&#160;format.</p>
-                                        <p>For each CSV&#160;file, you can specify the field delimiter and record delimiter in a similar way as you specify these settings when importing a data source.</p>
+                                        <h3>Field Delimiter and Record Delimiter</h3>
+                                        <p>You can specify the field delimiter and record delimiter in the same way as you specify these settings when importing a data source.</p>
                                         <h3>File</h3>
                                         <p>By default, the table is exported to a single file. You can specify that the table be exported to multiple files.&#160;You cannot, however, specify the exact number of files to be created. <span class="GeneralProductName">Xcalar Design</span> automatically decides the number of export files.</p>
-                                        <p>If your export target is a UDF, you cannot control whether data is exported to one or multiple files.</p>
                                         <div class="Note"><span class="label">NOTE:</span>&#160;Specifying <span class="UIelement">Multiple Files</span> does not always result in multiple export files. It is possible that the table is exported to a single file even if this option is selected.</div>
                                         <h3>Header</h3>
                                         <p>By default, the column headers are saved to each export file. You can specify that the headers be saved to a separate file, in which case the data rows are saved to a file or files without the headers.</p>
                                         <h3>Overwrite</h3>
                                         <p>You can select one of the three ways of overwriting existing export files:</p>
                                         <ul>
-                                            <li value="1"><span class="UIelement">Do Not Overwrite</span>:&#160;By default, the table is exported to the file named in the export target, and if a table has been saved to the file, <span class="GeneralProductName">Xcalar Design</span> does not overwrite the file. It displays an error message that tells you to create a new export file name.</li>
+                                            <li value="1"><span class="UIelement">Do Not Overwrite</span>:&#160;By default, the table is exported to the file named in the export target. If a table has been saved to the file, <span class="GeneralProductName">Xcalar Design</span> does not overwrite the file. It displays an error message that tells you to create a new export file name.</li>
                                             <li value="2"><span class="UIelement">Overwrite Existing</span>:&#160;You can choose to overwrite the existing file. If the export file named in the export target already contains a table previously exported to the file, the contents of the export file is overwritten.<div class="Note"><span class="label">NOTE:</span>&#160;This option overwrites the contents of the entire directory to which a table was previously exported, regardless of how many export files are created as a result of exporting the current table. For example,  a directory named /mnt/xcalar/export/airlines contains multiple export files, which are named airlines-001.csv and airlines-002.csv. If you use airlines as the export file name to export the current table as a single file, the /mnt/xcalar/export/airlines directory will contain the export file named airlines.csv. The files named airlines-001.csv and airlines-002.csv no longer exist.</div></li>
                                             <li value="3">
-                                                <p><span class="UIelement">Append To Existing</span>:&#160;You can add the newly created export file to an export location that already contains export files. How the appending is done depends on whether the table is exported as a single file or multiple files as illustrated by the following example.</p>
+                                                <p><span class="UIelement">Append To Existing</span>:&#160;You can add the newly created export file to an export location that already contains export files. How the appending is done depends on whether the table is exported as a single file or multiple files, as illustrated by the following example.</p>
                                                 <div class="Example"><span class="label">EXAMPLE:</span>&#160;If the export target already contains airlines-001.csv and airlines-002.csv, exporting a table as multiple files creates airlines-003.csv and airlines-004.csv in this directory. If the export target already contains airlines.csv, exporting a table as a single file appends the exported table's rows to airlines.csv. </div>
                                                 <div class="Note"><span class="label">NOTE:</span>&#160;You cannot append a table being exported as a single file to multiple existing export files. Similarly, you cannot append a table being exported as multiple files to a single existing export file.</div>
                                             </li>
                                         </ul>
                                         <h2>Exporting a table when running a batch dataflow</h2>
-                                        <p>As the last step of running a batch dataflow, <span class="GeneralProductName">Xcalar Design</span> exports a table (or selected columns of a table) to a file located in the default export target. This step takes place automatically without your action.</p>
-                                        <p>For more information about  batch dataflows, see the following topics:</p>
-                                        <ul>
-                                            <li value="1"><a href="E_CreateBatchDataflow.htm" class="MCXref xref" xrefformat="{para}">Understanding and creating batch dataflows</a>
-                                            </li>
-                                            <li value="2"><a href="F_UseBatchDataflow.htm" class="MCXref xref" xrefformat="{para}">Using batch dataflows</a>
-                                            </li>
-                                        </ul>
+                                        <p>As the last step of running a batch dataflow, <span class="GeneralProductName">Xcalar Design</span> exports a table (or selected columns of a table). The procedure for running a batch dataflow is explained in <a href="F_UseBatchDataflow.htm" class="MCXref xref" xrefformat="{para}">Using batch dataflows</a>.</p>
+                                        <p>For more information about  the purpose of batch dataflows and how to create batch dataflows, see <a href="E_CreateBatchDataflow.htm" class="MCXref xref" xrefformat="{para}">Understanding and creating batch dataflows</a>.</p>
                                     </div>
                                     <p><a href="#Top">Go to top</a>
                                     </p>

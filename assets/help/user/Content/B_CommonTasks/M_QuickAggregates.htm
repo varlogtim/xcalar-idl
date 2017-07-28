@@ -172,7 +172,7 @@
                                     </div>
                                     <div class="bodyProxyNarrow">
                                         <h1>Determining aggregate values</h1>
-                                        <p>Determining an aggregate value means using values from rows in a column as input to calculate a new value. For example, based on values in the Salary column, you can run an aggregate function to determine the average salary. </p>
+                                        <p>Determining an aggregate value means using values from rows in a column as input to calculate a new value. For example, in a table showing employee salaries, you can run an aggregate function on the Salary column to determine the average salary. </p>
                                         <p>You can determine the aggregate values for numeric columns in one of two ways:</p>
                                         <ul>
                                             <li value="1">Calculate aggregate values for multiple selected columns in a table.</li>
@@ -183,44 +183,54 @@
                                         <p>Follow these steps to calculate aggregate values for all numeric columns in a table:</p>
                                         <ol>
                                             <li value="1">Select <span class="UIelement">Correlations…</span> in the table drop-down menu or in the column drop-down menu, depending on whether you want to see aggregate values for selected columns or all columns in the table. The <span class="UIelement">Correlation and Quick Aggregates</span> modal window is displayed. For more information about displaying the <span class="UIelement">Correlation and Quick Aggregates</span> modal window, see <a href="L_Correlation.htm" class="MCXref xref" xrefformat="{para}">Determining correlation between two values</a>.</li>
-                                            <li value="2">Click the <span class="UIelement">Quick Aggregate</span> vertical tab. The modal window displays the values resulting from common aggregate functions for all numeric columns.</li>
+                                            <li value="2">Click the <span class="UIelement">Quick Aggregate</span> vertical tab. The modal window displays the values resulting from the common aggregate functions for all numeric columns.</li>
                                         </ol>
                                         <h2><a name="Calculat"></a>Calculating aggregate values for a selected column</h2>
                                         <p>If you are only interested in viewing aggregate values for a single column, follow these steps:</p>
                                         <ol>
                                             <li value="1">Right click the header for the column. In the drop-down menu, select <span class="UIelement">Profile…</span>.</li>
-                                            <li value="2">In the <span class="UIelement">Profile</span> modal window, if the <span class="UIelement">Aggregate Summary</span> section does not display the aggregate values, click Generate. displays the values resulting from common aggregate functions for the column.</li>
+                                            <li value="2">In the <span class="UIelement">Profile</span> modal window, if the <span class="UIelement">Aggregate Summary</span> section does not display the aggregate values, click <span class="UIelement">Generate</span>, which displays the values resulting from common aggregate functions for the column.</li>
                                         </ol>
                                         <p>If you are interested in calculating one particular aggregate value in a selected column or if you plan to use the aggregate value as input for other functions, follow these steps:</p>
                                         <ol>
                                             <li value="1">
                                                 <p>Right click the header for the column. In the drop-down menu, select <span class="UIelement">Aggregate…</span>. The <span class="UIelement">AGGREGATE</span>&#160;panel is displayed.</p>
-                                                <div class="MCDropDown MCDropDown_Open dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the general rules and tips for entering information in a <span class="GeneralProductName">Xcalar Design</span> panel.</a></span>
+                                                <div class="MCDropDown MCDropDown_Open dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the rules and tips for entering information in a <span class="GeneralProductName">Xcalar Design</span> panel.</a></span>
                                                     <div class="MCDropDownBody dropDownBody">
                                                         <ul>
                                                             <li value="1">By default, the name of the column from which you start the function is displayed as an argument. If you want to use another column as an argument, you can change the argument to the name of another column.</li>
                                                             <li value="2">When typing a column name, always start with the dollar sign ($).</li>
                                                             <li value="3">When typing a column name, always include the prefix if one exists. (A derived column does not have a column name prefix.) </li>
                                                             <li value="4">If the panel calls for the resultant column name, type the name without preceding it with the dollar sign ($).</li>
-                                                            <li value="5">To avoid mistakes when typing a column name as an operand, place the insertion point in the argument field, move your mouse to the active table and click anywhere in the desired column. The column's name is automatically entered in the operand field.</li>
-                                                            <li value="6">If an operand accepts a column name, it also accepts an aggregate name that you created when you calculated the aggregate value for a column. </li>
+                                                            <li value="5">To avoid mistakes when typing a column name as an operand, place the insertion point in the argument field, move your cursor to the active table and click anywhere in the desired column. The column's name is automatically entered in the operand field.</li>
+                                                            <li value="6">If an operand accepts a column name, it also accepts the aggregate name that you created when you calculated the aggregate value for a column. </li>
                                                             <li value="7">When typing a decimal number for an operand, do not start with the decimal point. For example, type 0.5 instead of .5.</li>
                                                             <li value="8">If necessary,  click <img src="../Resources/Images/XD_assets/xd-show.png" /> in the panel to bring the specified table into focus. You can then scroll the table to make the desired column visible.</li>
-                                                            <li value="9">You can undo any typing with the undo key or key combination that you normally use in your browser.</li>
+                                                            <li value="9">When typing a string, do not enclose the string with double quote marks ("). </li>
+                                                            <li value="10">
+                                                                <p>When typing a string as input, escape the following characters with a backslash (\) if you want the characters to be interpreted literally:</p>
+                                                                <ul>
+                                                                    <li value="1">backslash (\)</li>
+                                                                    <li value="2">double quote mark (")</li>
+                                                                    <li value="3">dollar sign ($) if it is the first character</li>
+                                                                    <li value="4">caret (^) if it is the first character</li>
+                                                                </ul>
+                                                            </li>
+                                                            <li value="11">You can undo any typing with the undo key or key combination that you normally use in your browser.</li>
                                                         </ul>
                                                     </div>
                                                 </div>
                                             </li>
                                             <li value="2">Select the aggregate function. For example, to calculate the average for the column, select the avg function.</li>
                                             <li value="3">
-                                                <p>(Optional) in the <span class="UIelement">New Resultant Aggregate Name</span> field, type the name of the aggregate value. The caret (^) is automatically entered in the field because the name must be preceded by the caret. </p>
+                                                <p>(Optional) In the <span class="UIelement">New Resultant Aggregate Name</span> field, type the name of the aggregate value. The caret (^) is automatically entered in the field because the name must be preceded by the caret. </p>
                                                 <div class="Note"><span class="label">IMPORTANT:</span>&#160;If you plan to use an aggregate value in the future as input to a function such as a Map function, <span class="GeneralCompanyNameShort">Xcalar</span> strongly recommends that you assign a name to the value.&#160;In this way, you can use the name as an argument to the function. Do not use the actual aggregate value as the argument because the value might not be accurate when you run the function against the entire data source or when you use the function against another dataset.</div>
                                                 <div class="MCDropDown MCDropDown_Open dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the  naming conventions:</a></span>
                                                     <div class="MCDropDownBody dropDownBody">
                                                         <ul>
                                                             <li value="1">The name is case-sensitive. </li>
-                                                            <li value="2">Length can be from 1 to 255 characters.</li>
-                                                            <li value="3"> Characters can be A-Z, a-z, 0-9, hyphen (-), and underscore (_).</li>
+                                                            <li value="2">Length must be from 1 to 255 characters.</li>
+                                                            <li value="3"> Characters must be A-Z, a-z, 0-9, hyphen (-), and underscore (_).</li>
                                                             <li value="4">First character must be a letter.</li>
                                                         </ul>
                                                     </div>

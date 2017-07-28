@@ -179,24 +179,24 @@
                                                 <p>From the drop-down menu, select <span class="UIelement">Profile…</span>. The <span class="UIelement">Profile</span> window containing a bar graph is displayed. The bar graph shows the distribution of values in the column.</p>
                                             </li>
                                         </ol>
-                                        <div class="Example"><span class="label">TIP:</span>&#160;It might take a while for the bar graph to complete. You can close the window and re-select <span class="UIelement">Profile…</span> in the column drop-down menu later to view the finished bar graph.</div>
+                                        <div class="Example"><span class="label">TIP:</span>&#160;It might take a while for the bar graph to display. You can close the window and re-select <span class="UIelement">Profile…</span> in the column drop-down menu later to view the finished bar graph.</div>
                                         <div class="Note"><span class="label">NOTE:</span>&#160;Using <span class="UIelement">Profile</span> to determine the frequency of each value does not create a table. If you need to create a table to show the frequency of each value, use the Count function, which is one of the Group By functions. For more information about Group By functions, see <a href="J_GroupBy.htm" class="MCXref xref" xrefformat="{para}">Grouping data in a table</a>.</div>
                                         <h2>Sorting the bars in the graph</h2>
-                                        <p>You can sort the bars in the graph in different ways as illustrated in the following screenshot. In this examples, the values in the DayOfWeek column are sorted by name in ascending order.</p>
+                                        <p>You can sort the bars in the graph by occurrence and by name as illustrated in the following screenshot. In this examples, the values in the DayOfWeek column are sorted by name in ascending order.</p>
                                         <p>
                                             <img src="../Resources/Images/XD_screenshots/profile-sort.png" />
                                         </p>
-                                        <h2>Displaying frequency with range bracketing</h2>
-                                        <p>If the data type of a column is Integer or Float, you can  use the <span class="UIelement">Range Bucketing</span> drop-down menu to determine how the bars are displayed as described in the following list:</p>
+                                        <h2>Displaying frequency with range bucketing</h2>
+                                        <p>If the data type of a column is Integer or Float, you can  use the <span class="UIelement">Range bucketing</span> drop-down list to determine how the bars are displayed, as described in the following list:</p>
                                         <ul>
-                                            <li value="1">Select <span class="UIelement">Single</span> to  count occurrences of single values, in which case each bar represents the frequency of one value. </li>
-                                            <li value="2">To count the occurrences of values that fall in a range, select <span class="UIelement">Range</span> and enter the range size. Each range is represented by a bar in the graph. Enter a numeric value in the Range field and then press Enter. For example, 0.5 and 20 are valid values.</li>
-                                            <li value="3">If you want <span class="GeneralProductName">Xcalar Design</span> to choose the range size  such that all bars can fit in the window, select <span class="UIelement">Fit All</span>. </li>
+                                            <li value="1"> To  count occurrences of single values, select <span class="UIelement">Single</span>. Each bar in the graph represents the frequency of one value. </li>
+                                            <li value="2">To count the occurrences of the values that fall in a range, select <span class="UIelement">Range</span> and enter the range size. Each range is represented by a bar in the graph. Enter a numeric value in the Range field and then press Enter. For example, 0.5 and 20 are valid values.</li>
+                                            <li value="3">To instruct <span class="GeneralProductName">Xcalar Design</span> to choose the range size  so that all bars can fit in the window, select <span class="UIelement">Fit All</span>. </li>
                                         </ul>
-                                        <div class="Note"><span class="label">NOTE:</span>&#160;A bar is displayed only if there is at least one occurrence of the value represented by the bar. For example, if the range size is 50, and there are no occurrences of any value in the range of 0 to 50, the graph does not display a bar for this range.</div>
+                                        <div class="Note"><span class="label">NOTE:</span>&#160;A bar is displayed only if there is at least one occurrence of the value represented by the bar. For example, if the range size is 50, and there are no occurrences of any value between 0 and 50, the graph does not display a bar for this range.</div>
                                         <h2>Specifying the number of results displayed</h2>
-                                        <p>If you select <span class="UIelement">Fit All</span>, you cannot control the number of results displayed. Otherwise, you can increase or decrease the number of results displayed.&#160;The number is incremented by 10. The following screenshot shows where you can control the number of results.</p>
-                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/profile.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="939" data-mc-height="596" src="../Resources/Images/XD_screenshots/profile_thumb_0_150.png" tabindex="" /></a>
+                                        <p>If you select <span class="UIelement">Fit All</span> in the <span class="UIelement">Range bucketing</span> drop-down list, you cannot control the number of results displayed. Otherwise, you can increase or decrease the number of results displayed.&#160;The number is incremented by 10. The following screenshot shows where you can control the number of results.</p>
+                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/profile.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="942" data-mc-height="596" src="../Resources/Images/XD_screenshots/profile_thumb_0_150.png" tabindex="" /></a>
                                         </p>
                                         <div class="Note"><span class="label">NOTE:</span>&#160;The bar showing the frequency of the null value is always displayed first. It is not counted in the number of results shown. The number of results reflects only the bars for the non-null values.</div>
                                         <h2>Displaying counts or percentages</h2>
@@ -207,15 +207,19 @@
                                         <p>To filter or exclude a value in a column, follow the instructions in <a href="G_FilterValue.htm" class="MCXref xref" xrefformat="{para}">Filtering in a table column</a>. In addition, you can perform filtering after viewing the frequencies of various values in a column. The <span class="UIelement">Profile</span> window provides a convenient way to filter or exclude a value in the table. You can also filter or exclude a range of values.</p>
                                         <p>Follow these steps to filter or exclude a value through the <span class="UIelement">Profile</span> window:</p>
                                         <ol>
-                                            <li value="1">Place the cursor in the bar for the value to be filtered or excluded. Drag in any direction inside the bar. When you release the mouse button, a pop-up is displayed. To select multiple bars in the graph to filter or exclude more values, drag the mouse across the bars. You can select only contiguous bars.</li>
-                                            <li value="2">Select <span class="UIelement">Filter</span> in the pop-up to include only this value (or a range of values) in the column. Select <span class="UIelement">Exclude</span> to exclude this value (or a range of values)&#160;in the column. The <span class="UIelement">Profile</span> window is closed after you make the selection, and the column in the table is updated to reflect the filter operation.</li>
+                                            <li value="1">
+                                                <p>Place the cursor in the bar for the value to be filtered or excluded. Drag in any direction inside the bar. To select multiple bars, repeat this step for each bar.</p>
+                                                <div class="Note"><span class="label">TIP</span>:&#160;if the bars are contiguous, move the mouse  across them. </div>
+                                                <p>After you select the bars, a pop-up displays the options for you to filter or exclude the values. </p>
+                                            </li>
+                                            <li value="2">Select <span class="UIelement">Filter this value</span> in the pop-up to include only this value (or a range of values). Select <span class="UIelement">Exclude</span> to exclude this value (or a range of values). The <span class="UIelement">Profile</span> window is closed after you make the selection, and the column in the table is updated to reflect the filter operation.</li>
                                         </ol>
-                                        <p>The following screenshot provides an example showing how to filter or exclude two values.</p>
+                                        <p>The following screenshot provides an example of how to filter or exclude two values.</p>
                                         <p>
                                             <img src="../Resources/Images/XD_screenshots/profile-filter.png" />
                                         </p>
                                         <h2>Temporary tables resulting from the Profile window</h2>
-                                        <p>When you invoke the <span class="UIelement">Profile</span> window, temporary tables are created.&#160;These tables are mainly for <span class="GeneralProductName">Xcalar Design</span> to use for generating profile results more efficiently from the same column  at a later time. </p>
+                                        <p>When you invoke the <span class="UIelement">Profile</span> window, temporary tables are created.&#160;These tables are for <span class="GeneralProductName">Xcalar Design</span> to generate profile results more efficiently from the same column  at a later time. </p>
                                     </div>
                                     <p><a href="#Top">Go to top</a>
                                     </p>

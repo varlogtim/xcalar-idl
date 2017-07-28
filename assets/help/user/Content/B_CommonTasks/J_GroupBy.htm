@@ -175,8 +175,8 @@
                                         <h1>Grouping data in a table</h1>
                                         <p>You can use the Group By function  in a similar way as you would with the Group By clause in SQL. </p>
                                         <h2>Understanding the Group&#160;By operation</h2>
-                                        <p>Before starting the Group By operation, determine what aggregate functions to use for the calculation. For example, when you use a table containing airlines information, you might be interested in the average arrival delay time and the sum of distance. <span class="GeneralProductName">Xcalar Design</span> allows you to select more than one function to perform the Group By operation. </p>
-                                        <p>You also select the columns to group on. For example, from the airlines table, you might want to see the arrival delay time and the sum of distance grouped by day of the week and carrier name. In the resultant table, you can see the aggregate function results (average arrival delay and total distance) for each column being grouped on. For example, one row of the resultant table might show that on day 1, the total distance flown by the carrier named XE is 37845 with an average arrival delay of 58.2. </p>
+                                        <p>Before starting the Group By operation, determine what aggregate functions to use for the calculation. For example, when you use a table containing airlines information, you might be interested in the average arrival delay time and the sum of distance. You can select more than one function on which <span class="GeneralProductName3">Xcalar</span> performs the Group By operation. </p>
+                                        <p>You also select the columns to group on. For example, from the airlines table, you might want to see the arrival delay time and the sum of distance, which are grouped by the day of the week and the carrier name. In the resultant table, you can see the aggregate function results (average arrival delay and total distance) for each column that is grouped on. For example, one row of the resultant table might show that on day 1, the total distance flown by the carrier named XE is 37845 with an average arrival delay of 58.2. </p>
                                         <h2>Aggregate functions supported</h2>
                                         <p>The following aggregate functions are supported:</p>
                                         <ul>
@@ -191,7 +191,7 @@
                                             <li value="9">Sum integer</li>
                                         </ul>
                                         <h3><a name="Understa"></a>Understanding the listAgg (list aggregate) function</h3>
-                                        <p>The listAgg function is a string function. It concatenates all strings in a column. The maximum number of characters in the result is 16,000. If the result exceeds this limit, the following error message is displayed:</p>
+                                        <p>The listAgg function is a string function. It concatenates all strings in a column. The maximum number of characters in a result is 16,000. If the result exceeds this limit, the following error message is displayed:</p>
                                         <p class="CLIoutput">Error: Value too large for defined data type</p>
                                         <p>This function ignores null strings. For example, if a null string is concatenated with the string ABC, the result is ABC. </p>
                                         <h2>Grouping data by columns</h2>
@@ -199,29 +199,39 @@
                                         <ol>
                                             <li value="1">
                                                 <p>Right click the header of the column that you want to group by to display the drop-down menu. Then select <span class="UIelement">Group By…</span>.</p>
-                                                <div class="MCDropDown MCDropDown_Open dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the general rules and tips for entering information in a <span class="GeneralProductName">Xcalar Design</span> panel.</a></span>
+                                                <div class="MCDropDown MCDropDown_Open dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the rules and tips for entering information in a <span class="GeneralProductName">Xcalar Design</span> panel.</a></span>
                                                     <div class="MCDropDownBody dropDownBody">
                                                         <ul>
                                                             <li value="1">By default, the name of the column from which you start the function is displayed as an argument. If you want to use another column as an argument, you can change the argument to the name of another column.</li>
                                                             <li value="2">When typing a column name, always start with the dollar sign ($).</li>
                                                             <li value="3">When typing a column name, always include the prefix if one exists. (A derived column does not have a column name prefix.) </li>
                                                             <li value="4">If the panel calls for the resultant column name, type the name without preceding it with the dollar sign ($).</li>
-                                                            <li value="5">To avoid mistakes when typing a column name as an operand, place the insertion point in the argument field, move your mouse to the active table and click anywhere in the desired column. The column's name is automatically entered in the operand field.</li>
-                                                            <li value="6">If an operand accepts a column name, it also accepts an aggregate name that you created when you calculated the aggregate value for a column. </li>
+                                                            <li value="5">To avoid mistakes when typing a column name as an operand, place the insertion point in the argument field, move your cursor to the active table and click anywhere in the desired column. The column's name is automatically entered in the operand field.</li>
+                                                            <li value="6">If an operand accepts a column name, it also accepts the aggregate name that you created when you calculated the aggregate value for a column. </li>
                                                             <li value="7">When typing a decimal number for an operand, do not start with the decimal point. For example, type 0.5 instead of .5.</li>
                                                             <li value="8">If necessary,  click <img src="../Resources/Images/XD_assets/xd-show.png" /> in the panel to bring the specified table into focus. You can then scroll the table to make the desired column visible.</li>
-                                                            <li value="9">You can undo any typing with the undo key or key combination that you normally use in your browser.</li>
+                                                            <li value="9">When typing a string, do not enclose the string with double quote marks ("). </li>
+                                                            <li value="10">
+                                                                <p>When typing a string as input, escape the following characters with a backslash (\) if you want the characters to be interpreted literally:</p>
+                                                                <ul>
+                                                                    <li value="1">backslash (\)</li>
+                                                                    <li value="2">double quote mark (")</li>
+                                                                    <li value="3">dollar sign ($) if it is the first character</li>
+                                                                    <li value="4">caret (^) if it is the first character</li>
+                                                                </ul>
+                                                            </li>
+                                                            <li value="11">You can undo any typing with the undo key or key combination that you normally use in your browser.</li>
                                                         </ul>
                                                     </div>
                                                 </div>
                                             </li>
-                                            <li value="2">(Optional)In the <span class="UIelement">GROUP&#160;BY</span> panel, click <span class="UIelement">ADD&#160;ANOTHER&#160;COLUMN</span>&#160;to group on an additional column. For example, in the table about airlines, you can start the Group By function from the <span class="UIelement">Carrier</span> column and add the <span class="UIelement">DayOfWeek</span> column as a second column to group on. In the resultant table, data is grouped by both the <span class="UIelement">Carrier</span> and <span class="UIelement">DayOfWeek</span> columns.</li>
+                                            <li value="2">(Optional) In the <span class="UIelement">GROUP&#160;BY</span> panel, click <span class="UIelement">ADD&#160;ANOTHER&#160;COLUMN</span>&#160;to group on an additional column. For example, in the table about airlines, you can start the Group By function from the <span class="UIelement">Carrier</span> column and add the <span class="UIelement">DayOfWeek</span> column as a second column to group with. In the resultant table, data is grouped by both the <span class="UIelement">Carrier</span> and <span class="UIelement">DayOfWeek</span> columns.</li>
                                             <li value="3">
                                                 <p>In the <span class="UIelement">GROUP&#160;BY</span> panel, follow these steps to select the function to perform for the Group By operation:</p>
                                                 <ol style="list-style-type: lower-alpha;">
                                                     <li value="1">
-                                                        <p>Select the aggregate function to group.</p>
-                                                        <div class="MCDropDown MCDropDown_Open dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />(The following functions are supported:</a></span>
+                                                        <p>Select the aggregate function.</p>
+                                                        <div class="MCDropDown MCDropDown_Open dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following functions are supported:</a></span>
                                                             <div class="MCDropDownBody dropDownBody">
                                                                 <ul>
                                                                     <li value="1">avg</li>
@@ -252,7 +262,7 @@
                                             </li>
                                             <li value="6">In the <span class="UIelement">New table name</span> field, enter the name of the resultant table.</li>
                                             <li class="has-children" value="7">
-                                                <p>(Optional) Click <span class="UIelement">Advanced Options</span> to further customize the result of the Group By operation. The following table describes the options.</p>
+                                                <p>(Optional) Click <span class="UIelement">Advanced Options</span> to further customize the result of the Group By operation. The following table describes the options:</p>
                                                 <table class="TableStyle-SimpleTable" style="mc-table-style: url('../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;" cellspacing="0">
                                                     <col class="TableStyle-SimpleTable-Column-Column1" />
                                                     <col class="TableStyle-SimpleTable-Column-Column2" />
@@ -269,12 +279,12 @@
                                                         </tr>
                                                         <tr class="TableStyle-SimpleTable-Body-Body2">
                                                             <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Join table back to original</td>
-                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">This option joins the resultant table to the original table. The operation is a left outer join, with the original table being the left table. Joining back the table provides a convenient way to compare the values in the column resulting from the Group By operation to values in the original column.</td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">This option joins the resultant table to the original table. The operation is a left outer join, with the original table being the left table. Joining back the table provides a convenient way to compare the values in the column that results from the Group By operation to values in the original column.</td>
                                                         </tr>
                                                         <tr class="TableStyle-SimpleTable-Body-Body1">
                                                             <td class="TableStyle-SimpleTable-BodyB-Column1-Body1">Keep some columns</td>
                                                             <td class="TableStyle-SimpleTable-BodyA-Column2-Body1">
-                                                                <p>By default,  the resultant table contains only the new column created from the Group By function and the columns you group on. All columns in the resultant table, including the ones you group on, become derived columns.&#160;The Data Browser for the resultant table contains only the derived fields.</p>
+                                                                <p>By default,  the resultant table contains only the new column created from the Group By operation and the columns on which you group. All columns in the resultant table, including the columns on which you group, become derived columns.&#160;The Data Browser for the resultant table contains only the derived fields.</p>
                                                                 <p>This option enables you to select additional columns to include in the resultant table. The column created by the Group By function is a derived column. All prefixed columns retain the column prefix.</p>
                                                                 <div class="Note"><span class="label">NOTE:</span>&#160;This option is not applicable if you select <span class="UIelement">Join table back to original</span> because the table created by the Join operation automatically includes all the columns from the original table.</div>
                                                             </td>

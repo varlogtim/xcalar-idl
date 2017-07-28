@@ -67,7 +67,7 @@ xcalarGetNumNodes = runEntity.xcalarGetNumNodes = function(thriftHandle) {
         if (result.jobStatus != StatusT.StatusOk) {
             deferred.reject(result.jobStatus, log);
         }
-        deferred.resolve(result);
+        deferred.resolve(getNumNodesOutput);
     })
     .fail(function(error) {
         console.log("xcalarGetNumNodes() caught exception:", error);

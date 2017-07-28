@@ -174,7 +174,7 @@
                                     <div class="bodyProxyNarrow">
                                         <h1>Steps for <span class="GeneralProductTrialVersion">Xcalar Cloud Preview</span></h1>
                                         <p>This section describes the steps up to the point where you can start performing operations in tables presented in a  workbook.</p>
-                                        <div class="Note"><span class="label">IMPORTANT</span>:&#160;This topic is <em>not</em> applicable if you use <span class="GeneralProductFullVersion">Xcalar 1.2</span>. Information here is for users of the early-access version of <span class="GeneralCompanyNameShort">Xcalar</span>. To get started with <span class="GeneralProductFullVersion">Xcalar 1.2</span>, see <a href="C_EasySteps.htm" class="MCXref xref">Easy steps for Xcalar 1.2 (with default settings)</a> or <a href="D_DetailedStepsForPointing.htm" class="MCXref xref">Detailed steps for Xcalar 1.2 (with custom settings)</a>.</div>
+                                        <div class="Note"><span class="label">IMPORTANT</span>:&#160;This topic is <em>not</em> applicable if you use <span class="GeneralProductFullVersion">Xcalar 1.2.1</span>. Information here is for users of the early-access version of <span class="GeneralCompanyNameShort">Xcalar</span>. To get started with <span class="GeneralProductFullVersion">Xcalar 1.2.1</span>, see <a href="C_EasySteps.htm" class="MCXref xref">Easy steps for Xcalar 1.2.1 (with default settings)</a> or <a href="D_DetailedStepsForPointing.htm" class="MCXref xref">Detailed steps for Xcalar 1.2.1 (with custom settings)</a>.</div>
                                         <h2>Starting <span class="GeneralProductName">Xcalar Design</span></h2>
                                         <p>Point your browser to the URL&#160;given to you by <span class="GeneralCompanyNameShort">Xcalar</span> to start <span class="GeneralProductName">Xcalar Design</span>. Then use the username and password provided by <span class="GeneralCompanyNameShort">Xcalar</span> to log in.</p>
                                         <h2>Creating a workbook as your workspace</h2>
@@ -186,8 +186,8 @@
                                                     <div class="MCDropDownBody dropDownBody">
                                                         <ul>
                                                             <li value="1">The name is case-sensitive. </li>
-                                                            <li value="2">Length can be from 1 to 255 characters.</li>
-                                                            <li value="3"> Characters can be A-Z, a-z, 0-9, hyphen (-), and underscore (_).</li>
+                                                            <li value="2">Length must be from 1 to 255 characters.</li>
+                                                            <li value="3"> Characters must be A-Z, a-z, 0-9, hyphen (-), and underscore (_).</li>
                                                             <li value="4">First character must be a letter.</li>
                                                         </ul>
                                                     </div>
@@ -203,8 +203,9 @@
                                         <p> If the following assumptions are true, the easy steps in this section are sufficient for you to get started with <span class="GeneralProductName">Xcalar Design</span>. Otherwise, follow additional steps in <a href="#Pointing" class="MCXref xref">Importing the data source (optional steps)</a>.</p>
                                         <ul>
                                             <li value="1">
-                                                <p>The data format of your data source is natively supported by <span class="GeneralProductName3short">Xcalar</span>.</p>
+                                                <p>The data format of your data source is natively supported by <span class="GeneralProductName3">Xcalar</span>.</p>
                                                 <div class="Note"><span class="label">NOTE</span>:&#160;Unicode is supported for both delimiter-separated values and JSON that is UTF-8 encoded. UTF-16 or other encoding systems are not supported without UDFs.</div>
+                                                <div class="Note"><span class="label">NOTE</span>:&#160;Importing Excel data does not require you to specify a UDF, but <span class="GeneralProductName3">Xcalar</span> actually uses a UDF when importing the data.</div>
                                             </li>
                                             <li value="2">
                                                 <p>Field names in the data source do not contain illegal characters, which are the following characters.</p>
@@ -231,7 +232,7 @@
                                                 <p>In the <span class="UIelement">Add File / Create Dataset</span> window, upload a file to the <span class="GeneralCompanyNameShort">Xcalar</span> instance in one of two ways:</p>
                                                 <ul>
                                                     <li value="1">Click <span class="UIelement">BROWSE</span> as shown in the following screenshot. Then navigate to the data source file and select the file. </li>
-                                                    <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/xp-add-file-to-point.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="787" data-mc-height="284" src="../Resources/Images/XD_screenshots/xp-add-file-to-point_thumb_0_150.png" tabindex="" /></a>
+                                                    <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/xp-add-file-to-point.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="787" data-mc-height="285" src="../Resources/Images/XD_screenshots/xp-add-file-to-point_thumb_0_150.png" tabindex="" /></a>
                                                     </p>
                                                     <li value="2">Locate the data source file on your computer. Then drag and drop it into the <span class="UIelement">Add File / Create Dataset</span> window. The following screenshot shows an example of copying a file named MyData to the <span class="GeneralCompanyNameShort">Xcalar</span> instance.</li>
                                                     <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/xp-add-file-to-point-by-dragging.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="841" data-mc-height="650" src="../Resources/Images/XD_screenshots/xp-add-file-to-point-by-dragging_thumb_0_150.png" tabindex="" /></a>
@@ -241,7 +242,7 @@
                                             </li>
                                             <li value="2">
                                                 <p>In the list of uploaded data source files, select the file you want <span class="GeneralProductName">Xcalar Design</span> to import as shown in the following screenshot. You can click only one file at a time. </p>
-                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/xp-point-to-data-source.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1062" data-mc-height="567" src="../Resources/Images/XD_screenshots/xp-point-to-data-source_thumb_0_150.png" tabindex="" /></a>
+                                                <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/xp-point-to-data-source.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1064" data-mc-height="567" src="../Resources/Images/XD_screenshots/xp-point-to-data-source_thumb_0_150.png" tabindex="" /></a>
                                                 </p>
                                                 <p>The <span class="UIelement">Import Data Source</span> window is displayed. </p>
                                                 <div class="Note"><span class="label">NOTE</span>:&#160;The preview in this window enables you to verify that you have selected the intended data source file. You can position your mouse on a column header and drag it to resize the column. You can also use your mouse to scroll the rows.</div>
@@ -253,7 +254,7 @@
                                                 </p>
                                             </li>
                                             <li value="4">In the Dataset Preview window, select the columns to send to a worksheet, and then click <span class="UIelement">CREATE&#160;TABLE</span>.</li>
-                                            <div class="Note"><span class="label">NOTE</span>:&#160;Under certain circumstances, not all columns are included automatically in the <span class="UIelement">Dataset Preview</span>. For example, if a dataset contains 62 rows and the last 2 rows have a column that the first 60 rows do not have, this column is not included in the table in this step. You can, however, add this column later according to <a href="../B_CommonTasks/C_AddColumns.htm" class="MCXref xref">Adding columns from a dataset to a table</a>.</div>
+                                            <div class="Note"><span class="label">NOTE</span>:&#160;Under certain circumstances, not all the columns are included automatically in the <span class="UIelement">Dataset Preview</span>. For example, if a dataset contains 62 rows and the last 2 rows have a column that the first 60 rows do not have, this column is not included in the table in this step. You can, however, add this column later. For information about adding columns, see <a href="../B_CommonTasks/C_AddColumns.htm" class="MCXref xref">Adding columns from a dataset to a table</a>.</div>
                                         </ol>
                                         <h3><a name="Pointing"></a>Importing the data source (optional steps)</h3>
                                         <p>If you do not want to accept all the default values when importing the data source, or if your data needs parsing with a UDF, follow these additional steps:</p>
@@ -264,8 +265,8 @@
                                                     <div class="MCDropDownBody dropDownBody">
                                                         <ul>
                                                             <li value="1">The name is case-sensitive. </li>
-                                                            <li value="2">Length can be from 1 to 255 characters.</li>
-                                                            <li value="3"> Characters can be A-Z, a-z, 0-9, hyphen (-), and underscore (_).</li>
+                                                            <li value="2">Length must be from 1 to 255 characters.</li>
+                                                            <li value="3"> Characters must be A-Z, a-z, 0-9, hyphen (-), and underscore (_).</li>
                                                             <li value="4">First character must be a letter.</li>
                                                         </ul>
                                                     </div>
@@ -287,7 +288,7 @@
                                                     <li value="10">period (.)</li>
                                                 </ul>
                                                 <p>A UDF for parsing data when <span class="GeneralProductName">Xcalar Design</span> imports the data is called a streaming UDF. You can preview the results of the streaming UDF by clicking <span class="UIelement">REFRESH&#160;PREVIEW</span>. If you see unexpected results, you can select another UDF&#160;or no UDFs. For more information about UDFs, see <a href="../C_AdvancedTasks/B_UDFUnderstand.htm" class="MCXref xref">Understanding UDFs</a> and <a href="../C_AdvancedTasks/C_UDFTasks.htm" class="MCXref xref">Using UDFs</a>. </p>
-                                                <div class="Note"><span class="label">Recommendation</span>:&#160;A streaming UDF causes columns to be ordered differently than they are in the data source. See <a href="B2_PrepareDataSource.htm#Before" class="MCXref xref">Creating a first row as column headers</a> for preparing your data source to ensure that you can easily locate columns in a table in <span class="GeneralProductName">Xcalar Design</span>.</div>
+                                                <div class="Note"><span class="label">Recommendation</span>:&#160;A streaming UDF causes columns to be ordered differently than they are in the data source. See <a href="B2_PrepareDataSource.htm#Before" class="MCXref xref">Creating a first row as column headers</a> for preparing your data source to ensure that you can easily locate columns in a table in <span class="GeneralProductName">Xcalar Design</span>. </div>
                                             </li>
                                             <li value="3">
                                                 <p>The fields in the rest of the <span class="UIelement">Import Data Source</span> window tell <span class="GeneralProductName">Xcalar Design</span> about the data format and layout. <span class="GeneralProductName">Xcalar Design</span> automatically detects the format and layout of the data source, but you can override the default values. </p>
@@ -307,7 +308,7 @@
                                                             <td class="TableStyle-SimpleTable-BodyE-Column1-Body1"><span class="UIelement">Format</span>
                                                             </td>
                                                             <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">
-                                                                <p>It can be separated values, JSON, Excel, or Text.</p>
+                                                                <p>It can be separated values (such as csv), JSON, Excel, or Text.</p>
                                                                 <p>Depending on the format you select, some fields in this table might not be available. For example, for the Excel format, only <span class="UIelement">Promote First Row as Header</span> is available.</p>
                                                             </td>
                                                         </tr>
@@ -340,7 +341,7 @@
                                                             <td class="TableStyle-SimpleTable-BodyB-Column1-Body2"><span class="UIelement">Skip Rows</span>
                                                             </td>
                                                             <td class="TableStyle-SimpleTable-BodyA-Column2-Body2">
-                                                                <p>The number of rows  to omit at the beginning of each file when <span class="GeneralProductName3">Xcalar</span> imports the data source.&#160;Typically you omit rows if they do not contain data requiring analysis (for example, rows containing comments). If you import a directory with multiple files, the same number of rows are skipped in each file.</p>
+                                                                <p>The number of rows  to omit at the beginning of each file when <span class="GeneralProductName">Xcalar Design</span> imports the data source.&#160;Typically you omit rows if they do not contain data requiring analysis (for example, rows containing comments). If you import a directory with multiple files, the same number of rows are skipped in each file.</p>
                                                                 <p>If you use a UDF when importing a data source, the UDF parses the data before the rows are skipped.</p>
                                                             </td>
                                                         </tr>

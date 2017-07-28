@@ -172,28 +172,28 @@
                                     </div>
                                     <div class="bodyProxyNarrow">
                                         <h1>Understanding UDFs</h1>
-                                        <p>Some built-in UDFs (user-defined functions) are included in default Python modules for you to enhance your operations. You can create additional UDFs to further extend the functions of <span class="GeneralProductName2">Xcalar Compute Engine</span>. </p>
+                                        <p>Some built-in UDFs (user-defined functions) are included in default Python modules for you to enhance your operations. You can create additional UDFs to further extend the functions of <span class="GeneralProductName3">Xcalar</span>. </p>
                                         <h2>When to run UDFs</h2>
                                         <p>You can run UDFs in these circumstances:</p>
                                         <ul>
                                             <li value="1">When you execute a Map operation, you can specify a UDF as a Map function.</li>
-                                            <li value="2">
-                                                <p>When you import data to <span class="GeneralProductName3short">Xcalar</span>, you run a UDF to parse the data. A UDF executed when data is imported from a data source is a streaming UDF.</p>
-                                                <div class="Example"><span class="label">EXAMPLE:</span>&#160;If you want to import data in a format  not natively supported by <span class="GeneralProductName3">Xcalar</span>, run a streaming UDF to convert that particular format into a natively supported format. </div>
-                                                <div class="Example"><span class="label">EXAMPLE:</span>&#160;If your  data source uses a comma in field names, which is an illegal field name character in <span class="GeneralProductName">Xcalar Design</span>, run a streaming UDF to replace the comma when importing the data source.</div>
+                                            <li value="2">When you import a data source, you run a UDF to parse the data. A UDF run during an import is called a streaming UDF.</li>
+                                            <div class="Example"><span class="label">EXAMPLE:</span>&#160;If you want to import data in a format  not natively supported by <span class="GeneralProductName3">Xcalar</span>, run a streaming UDF to convert that particular format into a natively supported format. </div>
+                                            <div class="Example"><span class="label">EXAMPLE:</span>&#160;If your  data source uses a comma in field names, which is an illegal field name character in <span class="GeneralProductName">Xcalar Design</span>, run a streaming UDF to replace the comma when importing the data source.</div>
+                                            <li value="3">
+                                                <p>When you export data from <span class="GeneralProductName3">Xcalar</span>, you run a UDF to process the data when <span class="GeneralProductName3">Xcalar</span> writes it  to a target. A UDF run when data is exported is called an export UDF.</p>
                                             </li>
-                                            <li value="3">When you export data from <span class="GeneralProductName3short">Xcalar</span>, you run a UDF to process the data when <span class="GeneralProductName3short">Xcalar</span> writes it out to a target. A UDF executed when data is exported is an export UDF.</li>
                                         </ul>
                                         <h2>Understanding UDF names</h2>
                                         <p>Functions are defined in modules. Therefore, to uniquely identify a UDF, both the module name and function name are needed. <span class="GeneralProductName">Xcalar Design</span> shows UDF names in the following format:</p>
                                         <p>module_name:function_name</p>
                                         <p>For example, if a module named <span class="UIelement">calendar</span> contains a function named <span class="UIelement">getWeekday</span>, the name for the UDF  is <span class="UIelement">calendar:getWeekday</span>.</p>
-                                        <div class="Note"><span class="label">IMPORTANT</span>: For an export UDF, the function you want to run during the export must be named main. For example, you can have a module named my_module containing several functions. But there must be a function named main in my_module that will be executed when you export data to the UDF. If the module does not contain a function named main, you cannot select the module as an export target.  </div>
+                                        <div class="Note"><span class="label">IMPORTANT</span>: For an export UDF, the function you want to run during the export must be named main. For example, you can have a module named my_module containing several functions. But there must be a function named main in my_module that will be executed when you export data to the UDF. If the module does not contain a function named main, you cannot select the module as an export target.</div>
                                         <h3><a name="UDF"></a>UDF naming conventions</h3>
                                         <p><span class="GeneralProductName">Xcalar Design</span> does not have restrictions on function names, but modules must follow the module naming conventions.</p>
                                         <p>The following list describes the naming conventions:</p>
                                         <ul>
-                                            <li value="1">Characters can be a-z, 0-9, hyphen (-), and underscore (_).</li>
+                                            <li value="1">Characters must be a-z, 0-9, hyphen (-), and underscore (_).</li>
                                             <li value="2">Letters must be lowercase.</li>
                                             <li value="3">First character must be a letter or an underscore.</li>
                                         </ul>
@@ -201,17 +201,17 @@
                                         <p>The following list describes the UDF limitations and restrictions:</p>
                                         <ul>
                                             <li value="1">UDFs must be written in Python. </li>
-                                            <li value="2">The Python version supported by <span class="GeneralProductName2">Xcalar Compute Engine</span> is 2.7. Do not use code in the UDF that requires a Python 3 interpreter.</li>
+                                            <li value="2">The Python version supported by <span class="GeneralProductName3">Xcalar</span> is 2.7. Do not use code in the UDF that requires a Python 3 interpreter.</li>
                                             <li value="3">The data type for values returned by a UDF is always String. (UDFs, however, can accept arguments of different data types.)</li>
                                             <li value="4">Each UDF can have up to 16 parameters.</li>
                                             <li value="5">Python code errors occurring during operations are not reported in <span class="GeneralProductName">Xcalar Design</span>.</li>
                                             <li value="6">UDFs cannot be used for aggregate operations.</li>
                                         </ul>
-                                        <div class="Note"><span class="label">NOTE</span>:&#160;UDFs have the same read and write privileges as the user that starts <span class="GeneralProductName3short">Xcalar</span>. UDFs do not need to have read or write access to the  file system including the data source that <span class="GeneralProductName3short">Xcalar</span> imports data from. </div>
+                                        <div class="Note"><span class="label">NOTE</span>: UDFs have the same read and write privileges as the user that starts <span class="GeneralProductName3">Xcalar</span>. UDFs do not need to have read or write access to the file system including the data source from which <span class="GeneralProductName3">Xcalar</span> imports data.</div>
                                         <h2>About importing Python libraries</h2>
                                         <p>Python libraries imported in the UDF must be installed on every node before you can upload the UDF. For example, if your UDF imports the PDFminer package, the package must be installed on every node of the cluster. Otherwise, your attempt to upload the UDF results in an upload error, indicating that there is no module named PDFminer.</p>
                                         <h2>About standard output in UDFs</h2>
-                                        <p>All functions and statements that involve writing to standard output (stdout) are ignored by the Python interpreter. Do not use the print statement or the sys.stdout.write function to print debugging information in your UDF. If collecting debugging information is important to you,   <span class="GeneralCompanyNameShort">Xcalar</span> recommends that you use the Python logging facility, which is a standard Python library module. See your Python documentation for information about the facility.</p>
+                                        <p>All functions and statements that involve writing to standard output (stdout) are ignored by the Python interpreter. Do not use the print statement or the sys.stdout.write function to print debugging information in your UDF. If collecting debugging information is important to you,   <span class="GeneralCompanyNameShort">Xcalar</span> recommends that you use the Python logging facility, which is a standard Python library module. See your Python documentation for information about the Python logging facility.</p>
                                         <h2>Invoking modules or functions in a module</h2>
                                         <p>You can invoke third-party Python modules in UDFs, but they must be installed at a location accessible to the Python interpreter. That is, they must be on the Python search path.</p>
                                         <p>The following list describes the restrictions on invoking UDFs:</p>
@@ -219,6 +219,40 @@
                                             <li value="1">In a UDF, you cannot invoke another uploaded module. For example, if you created and uploaded a module named <span class="UIelement">calendar</span>, you cannot invoke <span class="UIelement">calendar</span> in another module named <span class="UIelement">calendar2</span>.</li>
                                             <li value="2">You can nest functions in a Python module. However, the nested function cannot be called as a UDF in <span class="GeneralProductName">Xcalar Design</span>. For example, if the <span class="UIelement">calendar</span> module defines a function named <span class="UIelement">function1</span>, which in turn defines a function named <span class="UIelement">function2</span>, the UDF&#160;named <span class="UIelement">calendar:function1</span> is available for you to use in <span class="GeneralProductName">Xcalar Design</span>, but <span class="UIelement">function2</span> is not.</li>
                                         </ul>
+                                        <h2>How to enter input for a UDF</h2>
+                                        <p>A UDF can accept input just as other Map functions, which you enter in the <span class="UIelement">MAP</span>&#160;panel.</p>
+                                        <div class="MCDropDown MCDropDown_Open dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the rules and tips for entering information in a <span class="GeneralProductName">Xcalar Design</span> panel.</a></span>
+                                            <div class="MCDropDownBody dropDownBody">
+                                                <ul>
+                                                    <li value="1">By default, the name of the column from which you start the function is displayed as an argument. If you want to use another column as an argument, you can change the argument to the name of another column.</li>
+                                                    <li value="2">When typing a column name, always start with the dollar sign ($).</li>
+                                                    <li value="3">When typing a column name, always include the prefix if one exists. (A derived column does not have a column name prefix.) </li>
+                                                    <li value="4">If the panel calls for the resultant column name, type the name without preceding it with the dollar sign ($).</li>
+                                                    <li value="5">To avoid mistakes when typing a column name as an operand, place the insertion point in the argument field, move your cursor to the active table and click anywhere in the desired column. The column's name is automatically entered in the operand field.</li>
+                                                    <li value="6">If an operand accepts a column name, it also accepts the aggregate name that you created when you calculated the aggregate value for a column. </li>
+                                                    <li value="7">When typing a decimal number for an operand, do not start with the decimal point. For example, type 0.5 instead of .5.</li>
+                                                    <li value="8">If necessary,  click <img src="../Resources/Images/XD_assets/xd-show.png" /> in the panel to bring the specified table into focus. You can then scroll the table to make the desired column visible.</li>
+                                                    <li value="9">When typing a string, do not enclose the string with double quote marks ("). </li>
+                                                    <li value="10">
+                                                        <p>When typing a string as input, escape the following characters with a backslash (\) if you want the characters to be interpreted literally:</p>
+                                                        <ul>
+                                                            <li value="1">backslash (\)</li>
+                                                            <li value="2">double quote mark (")</li>
+                                                            <li value="3">dollar sign ($) if it is the first character</li>
+                                                            <li value="4">caret (^) if it is the first character</li>
+                                                        </ul>
+                                                    </li>
+                                                    <li value="11">You can undo any typing with the undo key or key combination that you normally use in your browser.</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        <p>When you enter a string that cannot be interpreted as another data type (for example, <span class="UIelement">airlines</span>), do not surround the string with quote marks. If the input can be interpreted as a numeric or Boolean value, surround the input with quote marks to indicate that the input is meant be a string. In the following examples, the input is interpreted as a string:</p>
+                                        <ul>
+                                            <li value="1">"3"</li>
+                                            <li value="2">"true"</li>
+                                        </ul>
+                                        <p>Without the quote marks, <span class="UIelement">3</span> is interpreted as an integer, and <span class="UIelement">true</span> is interpreted as a Boolean value. </p>
+                                        <p>&#160;</p>
                                     </div>
                                     <p><a href="#Top">Go to top</a>
                                     </p>

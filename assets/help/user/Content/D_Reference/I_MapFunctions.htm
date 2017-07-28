@@ -174,10 +174,8 @@
                                     <div class="bodyProxyNarrow">
                                         <h1><a name="mapFunctions" class="ForCSH"></a>Map functions</h1>
                                         <p>This section describes the function categories supported by the Map operation. If the input type is shown as Any, the data type can be boolean, float, integer, or string.</p>
-                                        <p>For information about how to start a Map operation, see <a href="../B_CommonTasks/K_Map.htm" class="MCXref xref">Using the Map function to create new values</a>. </p>
-                                        <p>If you type a Map function in the function bar, remember to type the function name before the first argument. In the following example, the function name <span class="UIelement">gt</span> precedes the first argument. This function tests whether the first argument is greater than  3:</p>
-                                        <p class="userInput">map(gt(DayOfWeek_integer, 3)</p>
-                                        <div class="Note"><span class="label">NOTE</span>:&#160;Boolean values are treated as integers in a Map function. For example, you can apply the mult function to multiply a Boolean value by a number. </div>
+                                        <p>For information about how to start a Map operation, see <a href="../B_CommonTasks/K_Map.htm" class="MCXref xref">Using the Map function to create new values</a>.</p>
+                                        <div class="Note"><span class="label">NOTE</span>:&#160;Boolean values are treated as integers in a Map function. For example, you can apply the mult function to multiply a Boolean value by a number.</div>
                                         <h2>Arithmetic functions</h2>
                                         <table style="mc-table-style: url('../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;width: 100%;" class="TableStyle-SimpleTable" cellspacing="0">
                                             <col class="TableStyle-SimpleTable-Column-Column1" style="width: 82px;" />
@@ -370,7 +368,7 @@
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body1">
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">contains</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Tests if operand 1 contains operand 2.</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Tests if operand 1 contains operand 2. The pattern matching is case-sensitive by default. If you select the <span class="UIelement">IgnoreCase</span> option (that is, set the option to True), the pattern matching is case-insensitive.</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">String</td>
                                                     <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Boolean</td>
                                                 </tr>
@@ -393,7 +391,7 @@
                                                     <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">Boolean</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">gt</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Gt</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Tests if operand 1 is greater than operand 2.</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Integer, float, or boolean</td>
                                                     <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Boolean</td>
@@ -417,13 +415,13 @@
                                                     <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">Boolean</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">isInteger</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">isInt</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Tests if the input data type is integer.</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Any</td>
                                                     <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Boolean</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">isString</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">isStr</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Tests if the input data type is string.</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Any</td>
                                                     <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">Boolean</td>
@@ -539,7 +537,7 @@
                                                         <p>if</p>
                                                     </td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">
-                                                        <p>Tests if a condition (first argument)&#160;is true or false. If true, returns the value of the second argument; if false, returns the value of the third argument.</p>
+                                                        <p>Tests if a condition (first argument) is true or false. If true, returns the value of the second argument; if false, returns the value of the third argument.</p>
                                                         <p>If the first argument is a non-zero numeric value, it is considered to be True. If it is 0, it is considered to be False.</p>
                                                     </td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Boolean</td>
@@ -548,7 +546,9 @@
                                                 <tr class="TableStyle-SimpleTable-Body-Body1">
                                                     <td class="TableStyle-SimpleTable-BodyB-Column1-Body1">ifStr</td>
                                                     <td class="TableStyle-SimpleTable-BodyB-Column2-Body1">
-                                                        <p>Tests if a condition (first argument)&#160;is true or false. If true, returns the value of the second argument; if false, returns the value of the third argument.</p>
+                                                        <p>Tests if a condition (first argument) is true or false. If true, returns the value of the second argument; if false, returns the value of the third argument.
+
+</p>
                                                         <p>If the first argument is a non-zero numeric value, it is considered to be True. If it is 0, it is considered to be False.</p>
                                                     </td>
                                                     <td class="TableStyle-SimpleTable-BodyB-Column1-Body1">Boolean</td>
@@ -556,7 +556,7 @@
                                                 </tr>
                                             </tbody>
                                         </table>
-                                        <div class="Note"><span class="label">NOTE</span>:&#160;For the if or ifStr function, an output value specified  in the incorrect data type results in FNF (field not found). For example, for the if function, if you specify the string Correct for a true condition and Incorrect for the false condition, the function returns FNF because the appropriate output data type is integer.</div>
+                                        <div class="Note"><span class="label">NOTE</span>:&#160;For the if or ifStr function, an output value specified  in the incorrect data type results in FNF (field not found). For example, for the ifInt function, if you specify the string Correct for a true condition and Incorrect for the false condition, the function returns FNF because the appropriate output data type is integer.</div>
                                         <h2>String functions</h2>
                                         <table style="mc-table-style: url('../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;width: 100%;" class="TableStyle-SimpleTable" cellspacing="0">
                                             <col class="TableStyle-SimpleTable-Column-Column1" />
@@ -620,36 +620,51 @@
                                                     <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Integer</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">replace</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Searches for a string and replaces it with another string in a specified column.</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">lower</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Changes a string to lowercase.</td>
                                                     <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">String</td>
                                                     <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">String</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">rfind</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Same as the find function except that it returns the index of the last character of the search string.</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">replace</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">
+                                                        <p>Searches for a string and replaces it with another string in a specified column.</p>
+                                                        <p>The pattern matching is case-sensitive by default. If you select the <span class="UIelement">IgnoreCase</span> option (that is, set the option to True), the pattern matching is case-insensitive.</p>
+                                                    </td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">String</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">String</td>
+                                                </tr>
+                                                <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">rfind</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Same as the find function except that it returns the index of the last character of the search string.</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
                                                         <p>Column to search:&#160;String</p>
                                                         <p>String to find:&#160;String</p>
                                                         <p>Starting index:&#160;Integer or boolean</p>
                                                         <p>Ending index:&#160;Integer or boolean</p>
                                                     </td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Integer</td>
-                                                </tr>
-                                                <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">strip</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Eliminates the leading and trailing white space from the input string.</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">String</td>
-                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">String</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">Integer</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">substring</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1"> Creates a string from the source that starts at the start index (inclusive) and ends at the end index (exclusive). This  is the equivalent of the python command <code>str[startIdx:endIdx]</code>. To have the same effect as  <code>str[startIdx:]</code>, specify 0 for the end index. To have the same effect as <code>str[:endIdx]</code>, specify 0 for the start index. To index back from the end of the string, use a negative index value.</td>
-                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">strip</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Eliminates the leading and trailing white space from the input string.</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">String</td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">String</td>
+                                                </tr>
+                                                <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">substring</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body2"> Creates a string from the source that starts at the start index (inclusive) and ends at the end index (exclusive). This  is the equivalent of the python command <code>str[startIdx:endIdx]</code>. To have the same effect as  <code>str[startIdx:]</code>, specify 0 for the end index. To have the same effect as <code>str[:endIdx]</code>, specify 0 for the start index. To index back from the end of the string, use a negative index value.</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
                                                         <p>Column to search:&#160;String</p>
                                                         <p>Start index:&#160;Integer or boolean</p>
                                                         <p>End index:&#160;Integer or boolean</p>
                                                     </td>
+                                                    <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">String</td>
+                                                </tr>
+                                                <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">upper</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Changes a string to uppercase.</td>
+                                                    <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">String</td>
                                                     <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">String</td>
                                                 </tr>
                                                 <tr class="TableStyle-SimpleTable-Body-Body2">
@@ -829,7 +844,7 @@
                                         </table>
                                         <div class="Note"><span class="label">NOTE</span>:&#160;If the input is an empty string, the output of the float and int functions is 0, the output of the bool function is false, and the output of the string function is an empty string.</div>
                                         <h2>User-defined functions</h2>
-                                        <p>User-defined functions (UDFs)&#160;are the ones that you or other users of the cluster define and upload. <span class="GeneralProductName3short">Xcalar</span> is shipped with several <span class="GeneralCompanyNameShort">Xcalar</span>-defined UDFs in the default module. This section describes the <span class="GeneralCompanyNameShort">Xcalar</span>-defined UDFs.</p>
+                                        <p>User-defined functions (UDFs)&#160;are the ones that you or other users of the cluster define and upload. <span class="GeneralProductName3">Xcalar</span> is shipped with several <span class="GeneralCompanyNameShort">Xcalar</span>-defined UDFs in the default module. This section describes the <span class="GeneralCompanyNameShort">Xcalar</span>-defined UDFs.</p>
                                         <div class="Note"><span class="label">NOTE</span>:&#160;The data type of all UDF output is string.</div>
                                         <h3>convertFormats</h3>
                                         <table style="width: 100%;mc-table-style: url('../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;" class="TableStyle-SimpleTable" cellspacing="0">
@@ -902,7 +917,7 @@
                                             </tbody>
                                         </table>
                                         <h3>openExcel</h3>
-                                        <p>This function is not to be invoked by <span class="GeneralProductName3short">Xcalar</span> users. It is called by <span class="GeneralProductName">Xcalar Design</span> when you select the file format to be Excel during the dataset creation step. </p>
+                                        <p>This function is not to be invoked by <span class="GeneralProductName3">Xcalar</span> users. It is called by <span class="GeneralProductName">Xcalar Design</span> when you select the file format to be Excel during the dataset creation step. </p>
                                         <h3>convertExcelTime</h3>
                                         <table style="width: 100%;mc-table-style: url('../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;" class="TableStyle-SimpleTable" cellspacing="0">
                                             <col class="TableStyle-SimpleTable-Column-Column1" />
@@ -954,7 +969,7 @@
                                             </tbody>
                                         </table>
                                         <h3>now</h3>
-                                        <p>This function gets the current time of the <span class="GeneralProductName3short">Xcalar</span> cluster. The output represents the number of seconds since the epoch, in UTC. </p>
+                                        <p>This function gets the current time of the <span class="GeneralProductName3">Xcalar</span> cluster. The output represents the number of seconds since the epoch, in UTC. </p>
                                         <p>This function does not take any input.</p>
                                     </div>
                                     <p><a href="#Top">Go to top</a>

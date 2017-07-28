@@ -174,7 +174,7 @@
                                         <h1><a name="Using" class="ForCSH"></a>Using UDFs</h1>
                                         <p>This section describes the tasks related to UDFs (user-defined functions). To see examples of UDFs, see <a href="../D_Reference/H1_UdfExamples.htm" class="MCXref xref" xrefformat="{para}">User-defined function (UDF) examples</a>. </p>
                                         <h2>Creating a UDF in <span class="GeneralProductName">Xcalar Design</span></h2>
-                                        <p>UDFs are global. UDFs created by one  <span class="GeneralProductName">Xcalar Design</span> user can be used and edited by all other users. </p>
+                                        <p>UDFs are global. UDFs created by one  <span class="GeneralProductName">Xcalar Design</span> user can be used and edited by all other <span class="GeneralProductName">Xcalar Design</span> users. </p>
                                         <p>You define one or multiple UDFs in a Python module. You can create a module in these ways:</p>
                                         <ul>
                                             <li value="1">Type the code directly in <span class="GeneralProductName">Xcalar Design</span>.</li>
@@ -190,7 +190,7 @@
                                             <img src="../Resources/Images/XD_screenshots/udf-panel.png" />
                                         </p>
                                         <h3>Typing the code directly</h3>
-                                        <p>Follow these steps to write the UDF in the panel and then save it to <span class="GeneralProductName2">Xcalar Compute Engine</span>:</p>
+                                        <p>Follow these steps to write the UDF in the panel and then save it to <span class="GeneralProductName3">Xcalar</span>:</p>
                                         <ol>
                                             <li value="1">Select the <span class="UIelement">Editor</span> tab if it is not selected already.</li>
                                             <li value="2">Click the drop-down arrow to display a list of existing modules. Select one to use it as a template. Alternatively, select <span class="UIelement">Blank function</span> if you want to type in an empty file.</li>
@@ -225,14 +225,18 @@
                                             <li value="2">Click <img src="../Resources/Images/XD_assets/xd-download-udf-icon.png" /> to download the desired module to your computer.</li>
                                         </ol>
                                         <h2>Editing a UDF</h2>
+                                        <div class="Note"><span class="label">IMPORTANT:</span>&#160;Because UDFs are global and accessible to all <span class="GeneralProductName">Xcalar Design</span> users, remember to notify other users of the changes so that they are aware of the revision. Also, changing the code in a UDF might have significant impact on both workbook re-activation and batch dataflows. Make sure you understand the effects of changing a particular UDF before proceeding.</div>
                                         <p>Follow these steps to edit an existing UDF:</p>
                                         <ol>
                                             <li value="1">Select the <span class="UIelement">Manager</span> tab in the <span class="UIelement">User Defined Function</span> panel. A list of modules is displayed.</li>
-                                            <li value="2">Edit the module in one of two ways:<ul><li value="1">Click <img src="../Resources/Images/XD_assets/xd-edit-UDF-icon.png" /> to edit the desired module. Then edit the code in the <span class="UIelement">User Defined Function</span> panel. Add the edited module to <span class="GeneralProductName2">Xcalar Compute Engine</span> without changing its name.</li><li value="2">Click <img src="../Resources/Images/XD_assets/xd-download-udf-icon.png" /> to download the desired module to your computer. Then modify the module by using an editor on your computer. Upload the file after you finish editing it.</li></ul></li>
+                                            <li value="2">Edit the module in one of two ways:<ul><li value="1">Click <img src="../Resources/Images/XD_assets/xd-edit-UDF-icon.png" /> to edit the desired module. Then edit the code in the <span class="UIelement">User Defined Function</span> panel. Add the edited module to <span class="GeneralProductName3">Xcalar</span> without changing its name.</li><li value="2">Click <img src="../Resources/Images/XD_assets/xd-download-udf-icon.png" /> to download the desired module to your computer. Then modify the module by using an editor on your computer. Upload the file after you finish editing.</li></ul></li>
                                         </ol>
-                                        <div class="Note"><span class="label">IMPORTANT:</span>&#160;Because UDFs are global and accessible to all <span class="GeneralProductName">Xcalar Design</span> users, remember to notify other users of the changes so that they are aware of the revision.</div>
+                                        <h3>Effect of changing a UDF on workbook re-activation</h3>
+                                        <p>When you re-activate a workbook, <span class="GeneralProductName3">Xcalar</span> must re-create each table in the workbook  according to the information contained in the table's dataflow. If a dataflow contains a UDF that has been changed since the table was created, the table displayed in the re-activated workbook might contain values different from the original ones.</p>
+                                        <h3>Effects of changing a UDF on a batch dataflow</h3>
+                                        <p>If a batch dataflow contains a UDF and that UDF has been changed, <span class="GeneralProductName3">Xcalar</span> uses the modified UDF, not the original UDF when the batch dataflow was created, during the execution of the batch dataflow.</p>
                                         <h2>Deleting a module</h2>
-                                        <div class="Note"><span class="label">IMPORTANT</span>:&#160;Be sure you understand the effects of a UDF&#160;deletion before you proceed.&#160;You cannot undo a UDF deletion. See <a href="#Effects" class="MCXref xref" xrefformat="{para}">Effects of UDF deletion on workbooks and batch dataflows</a>for more information. </div>
+                                        <div class="Note"><span class="label">IMPORTANT</span>:&#160;Be sure you understand the effects of a UDF&#160;deletion before you proceed.&#160;You cannot undo a UDF deletion. For more information, see <a href="#Effects" class="MCXref xref" xrefformat="{para}">Effects of UDF deletion on workbooks and batch dataflows</a>. </div>
                                         <p>Follow these steps to delete a UDF&#160;module:</p>
                                         <ol>
                                             <li value="1">Select the <span class="UIelement">Manager</span> tab in the <span class="UIelement">User Defined Function</span> panel. A list of modules is displayed.</li>
@@ -252,7 +256,7 @@
                                             </li>
                                             <li value="2">
                                                 <p>When you try to run a batch dataflow:</p>
-                                                <p> If the batch dataflow contains the deleted UDF, <span class="GeneralProductName">Xcalar Design</span> displays an error message as shown in the following screenshot. The batch dataflow cannot be run until you re-create the UDF with the same name.</p>
+                                                <p> If the batch dataflow contains the deleted UDF, <span class="GeneralProductName">Xcalar Design</span> displays an error message, as shown in the following screenshot. The batch dataflow cannot be run until you re-create the UDF with the same name.</p>
                                                 <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/batch-dataflow-fail-function-not-found.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="801" data-mc-height="557" src="../Resources/Images/XD_screenshots/batch-dataflow-fail-function-not-found_thumb_0_150.png" tabindex="" /></a>
                                                 </p>
                                             </li>
@@ -261,7 +265,6 @@
                                                 <p>If the dataflow contains the deleted UDF, <span class="GeneralProductName">Xcalar Design</span> displays an error message. You cannot create a batch dataflow from a dataflow with a missing UDF.</p>
                                             </li>
                                         </ul>
-                                        <p>&#160;</p>
                                     </div>
                                     <p><a href="#Top">Go to top</a>
                                     </p>

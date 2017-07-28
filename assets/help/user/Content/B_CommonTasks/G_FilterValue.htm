@@ -172,8 +172,8 @@
                                     </div>
                                     <div class="bodyProxyNarrow">
                                         <h1>Filtering in a table column</h1>
-                                        <div class="Example"><span class="label">TIP:</span>&#160;You might want to count the occurrences of a value before filtering it. See <a href="E_CountOccurrencesOfValues.htm" class="MCXref xref" xrefformat="{para}">Counting occurrences of unique values in a column</a> about counting the number of times a value appears in a column. You can continue using the <span class="UIelement">Profile</span> modal window to perform the filtering as described in <a href="E_CountOccurrencesOfValues.htm#Filterin" class="MCXref xref" xrefformat="{para}">Filtering by using the Profile window</a></div>
-                                        <p>You can perform filtering in one of two ways:</p>
+                                        <div class="Example"><span class="label">TIP:</span>&#160;You might want to count the occurrences of a value before filtering it. See <a href="E_CountOccurrencesOfValues.htm" class="MCXref xref" xrefformat="{para}">Counting occurrences of unique values in a column</a> for information about counting the number of times a value appears in a column. You can continue using the <span class="UIelement">Profile</span> modal window to filter. For information about the <span class="UIelement">Profile</span> modal window, see <a href="E_CountOccurrencesOfValues.htm#Filterin" class="MCXref xref" xrefformat="{para}">Filtering by using the Profile window</a>.</div>
+                                        <p>You can filter a table column in one of two ways:</p>
                                         <ul>
                                             <li value="1">Select  values in a table column and use a table cell option to include or exclude them in the resultant table.</li>
                                             <li value="2">Use a column drop-down menu item to specify conditions for filtering values in the column. </li>
@@ -188,30 +188,40 @@
                                             </li>
                                             <li value="2">To include the selected value, click <span class="UIelement">Filter this value</span>; to exclude the selected values, click <span class="UIelement">Exclude this value</span>. (If multiple values are selected, the options are <span class="UIelement">Filter these values</span> and <span class="UIelement">Exclude these values</span>.)</li>
                                         </ol>
-                                        <p>The following screenshot shows the  cell options in the DayofMonth_integer column and the selected cells containing values that you can include or exclude.</p>
+                                        <p>The following screenshot shows the  cell options in the DayofMonth_integer column and the cells containing values that you can include or exclude.</p>
                                         <p>
                                             <img src="../Resources/Images/XD_screenshots/filter-multiple-values.png" />
                                         </p>
                                         <h2><a name="Filterin"></a>Filtering based on a condition</h2>
                                         <p>You can filter based on a condition. For example, for a selected column, you can filter depending on whether the string contains a particular substring.</p>
-                                        <p>You can also filter based on multiple conditions. To do so, follow the steps in <a href="#filterMultiple" class="MCXref xref" xrefformat="{para}">Filtering based on multiple conditions</a>. </p>
-                                        <p> To filter based on one condition, follow these steps:</p>
+                                        <p>You can also filter based on multiple conditions. For information about filtering on multiple conditions, see <a href="#filterMultiple" class="MCXref xref" xrefformat="{para}">Filtering based on multiple conditions</a>. </p>
+                                        <p> To filter based on a condition, follow these steps:</p>
                                         <ol>
                                             <li value="1">Right click the heading of the column containing the value to filter. A drop-down menu appears.</li>
                                             <li value="2">
                                                 <p>Select <span class="UIelement">Filter...</span> from the menu. The <span class="UIelement">FILTER</span> panel appears.</p>
-                                                <div class="MCDropDown MCDropDown_Open dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the general rules and tips for entering information in a <span class="GeneralProductName">Xcalar Design</span> panel.</a></span>
+                                                <div class="MCDropDown MCDropDown_Open dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the rules and tips for entering information in a <span class="GeneralProductName">Xcalar Design</span> panel.</a></span>
                                                     <div class="MCDropDownBody dropDownBody">
                                                         <ul>
                                                             <li value="1">By default, the name of the column from which you start the function is displayed as an argument. If you want to use another column as an argument, you can change the argument to the name of another column.</li>
                                                             <li value="2">When typing a column name, always start with the dollar sign ($).</li>
                                                             <li value="3">When typing a column name, always include the prefix if one exists. (A derived column does not have a column name prefix.) </li>
                                                             <li value="4">If the panel calls for the resultant column name, type the name without preceding it with the dollar sign ($).</li>
-                                                            <li value="5">To avoid mistakes when typing a column name as an operand, place the insertion point in the argument field, move your mouse to the active table and click anywhere in the desired column. The column's name is automatically entered in the operand field.</li>
-                                                            <li value="6">If an operand accepts a column name, it also accepts an aggregate name that you created when you calculated the aggregate value for a column. </li>
+                                                            <li value="5">To avoid mistakes when typing a column name as an operand, place the insertion point in the argument field, move your cursor to the active table and click anywhere in the desired column. The column's name is automatically entered in the operand field.</li>
+                                                            <li value="6">If an operand accepts a column name, it also accepts the aggregate name that you created when you calculated the aggregate value for a column. </li>
                                                             <li value="7">When typing a decimal number for an operand, do not start with the decimal point. For example, type 0.5 instead of .5.</li>
                                                             <li value="8">If necessary,  click <img src="../Resources/Images/XD_assets/xd-show.png" /> in the panel to bring the specified table into focus. You can then scroll the table to make the desired column visible.</li>
-                                                            <li value="9">You can undo any typing with the undo key or key combination that you normally use in your browser.</li>
+                                                            <li value="9">When typing a string, do not enclose the string with double quote marks ("). </li>
+                                                            <li value="10">
+                                                                <p>When typing a string as input, escape the following characters with a backslash (\) if you want the characters to be interpreted literally:</p>
+                                                                <ul>
+                                                                    <li value="1">backslash (\)</li>
+                                                                    <li value="2">double quote mark (")</li>
+                                                                    <li value="3">dollar sign ($) if it is the first character</li>
+                                                                    <li value="4">caret (^) if it is the first character</li>
+                                                                </ul>
+                                                            </li>
+                                                            <li value="11">You can undo any typing with the undo key or key combination that you normally use in your browser.</li>
                                                         </ul>
                                                     </div>
                                                 </div>
@@ -264,19 +274,19 @@
                                             <li value="6">Click <span class="UIelement">FILTER</span>.</li>
                                         </ol>
                                         <h3>Example of filtering values that meet  all conditions</h3>
-                                        <p>You can specify as many conditions as you want. The example in this section illustrates how to apply the AND&#160;operator to two functions.</p>
+                                        <p>You can specify as many conditions as you want. This example illustrates how to apply the AND&#160;operator to two functions.</p>
                                         <p>In the table named mail2, you can specify these conditions:</p>
                                         <ul>
                                             <li value="1">The value in the lineNumber column is between 50 and 80 (inclusive).</li>
                                             <li value="2">The value in the From column contains the substring Keith.</li>
                                         </ul>
                                         <p>Select the AND&#160;operator in the <span class="UIelement">FILTER</span>&#160;panel to indicate that a row must meet both conditions to be included in the resultant table. The following screenshots illustrate how to enter information in the&#160;<span class="UIelement">FILTER</span>&#160;panel to specify the conditions.</p>
-                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/filter-multiple-conditions.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="687" data-mc-height="716" src="../Resources/Images/XD_screenshots/filter-multiple-conditions_thumb_0_150.png" tabindex="" /></a>
+                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/filter-multiple-conditions.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="691" data-mc-height="716" src="../Resources/Images/XD_screenshots/filter-multiple-conditions_thumb_0_150.png" tabindex="" /></a>
                                         </p>
-                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/filter-multiple-conditions-lineNum-Keith.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="482" data-mc-height="770" src="../Resources/Images/XD_screenshots/filter-multiple-conditions-lineNum-Keith_thumb_0_150.png" tabindex="" /></a>
+                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/filter-multiple-conditions-lineNum-Keith.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="485" data-mc-height="770" src="../Resources/Images/XD_screenshots/filter-multiple-conditions-lineNum-Keith_thumb_0_150.png" tabindex="" /></a>
                                         </p>
                                         <p>The following partial screenshot illustrates the resultant table, which includes only rows that meet both specified conditions.</p>
-                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/filter-result-multiple-conditions-with-AND.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="551" data-mc-height="430" src="../Resources/Images/XD_screenshots/filter-result-multiple-conditions-with-AND_thumb_0_150.png" tabindex="" /></a>
+                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/filter-result-multiple-conditions-with-AND.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="551" data-mc-height="431" src="../Resources/Images/XD_screenshots/filter-result-multiple-conditions-with-AND_thumb_0_150.png" tabindex="" /></a>
                                         </p>
                                         <h3>Example of filtering values that meet  one of multiple conditions</h3>
                                         <p>You can specify as many conditions as you want. The example in this section illustrates how to apply the OR operator to two functions.</p>
@@ -286,12 +296,12 @@
                                             <li value="2">The value in the lineNumber column is between 70 and 80 (inclusive).</li>
                                         </ul>
                                         <p>Select the OR operator in the <span class="UIelement">FILTER</span>&#160;panel to indicate that a row must meet one of the specified conditions to be included in the resultant table. The following screenshots illustrate how to enter information in the&#160;<span class="UIelement">FILTER</span>&#160;panel to specify the conditions.</p>
-                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/filter-first-condition-between.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="683" data-mc-height="706" src="../Resources/Images/XD_screenshots/filter-first-condition-between_thumb_0_150.png" tabindex="" /></a>
+                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/filter-first-condition-between.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="687" data-mc-height="706" src="../Resources/Images/XD_screenshots/filter-first-condition-between_thumb_0_150.png" tabindex="" /></a>
                                         </p>
-                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/filter-multiple-conditions-lineNum-OR.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="492" data-mc-height="803" src="../Resources/Images/XD_screenshots/filter-multiple-conditions-lineNum-OR_thumb_0_150.png" tabindex="" /></a>
+                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/filter-multiple-conditions-lineNum-OR.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="494" data-mc-height="803" src="../Resources/Images/XD_screenshots/filter-multiple-conditions-lineNum-OR_thumb_0_150.png" tabindex="" /></a>
                                         </p>
                                         <p>The following partial screenshot illustrates the resultant table, which includes only rows that meet one of the specified conditions.</p>
-                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/filter-result-multiple-conditions-with-OR.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="438" data-mc-height="525" src="../Resources/Images/XD_screenshots/filter-result-multiple-conditions-with-OR_thumb_0_150.png" tabindex="" /></a>
+                                        <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/filter-result-multiple-conditions-with-OR.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="438" data-mc-height="526" src="../Resources/Images/XD_screenshots/filter-result-multiple-conditions-with-OR_thumb_0_150.png" tabindex="" /></a>
                                         </p>
                                     </div>
                                     <p><a href="#Top">Go to top</a>
