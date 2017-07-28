@@ -719,7 +719,7 @@ function XcalarLoad(url, format, datasetName, options, txId) {
             }
         } else {
             var loadError = null;
-            if (error1 && typeof(error1) === "object" && error1.length === 2) {
+            if (error1 && typeof(error1) === "object" && error1.length >= 2) {
                 // This has a valid error struct that we can use
                 console.error("error in point", error1[1]);
                 loadError = xcHelper.replaceMsg(DSTStr.LoadErr, {

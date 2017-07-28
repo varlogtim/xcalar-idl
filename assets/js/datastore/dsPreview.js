@@ -2580,7 +2580,6 @@ window.DSPreview = (function($, DSPreview) {
                         hiddenStrLen++;
                     } else {
                         tdData.push(xcHelper.escapeHTMLSpecialChar(d));
-                        // html += xcHelper.escapeHTMLSpecialChar(d);
                     }
 
                     strLen++;
@@ -2641,7 +2640,7 @@ window.DSPreview = (function($, DSPreview) {
         while (endQuote >= 0 && content[endQuote] !== quote) {
             endQuote--;
         }
-    
+
         if (endQuote >= 0) {
             var startQuote = endQuote - 1;
             while (startQuote >= 0 && content[startQuote] !== quote) {
