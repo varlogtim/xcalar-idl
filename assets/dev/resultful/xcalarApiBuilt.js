@@ -2352,7 +2352,7 @@ function checkTableIndex(colName, tableName, txId) {
                 deferred.resolve(newTableName, shouldIndex, tempTables);
             })
             .fail(function(error) {
-                if (error.code === StatusT.StatusAlreadyIndexed) {
+                if (error.status === StatusT.StatusAlreadyIndexed) {
                     deferred.resolve(unsortedTable, false, tempTables);
                 } else {
                     deferred.reject(error);

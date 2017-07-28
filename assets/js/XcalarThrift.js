@@ -50,42 +50,61 @@ function thriftLog() {
         var type = typeof errRes;
         var thriftError = {};
         var error;
-        var status;
-        var log = undefined;
+        var status;        // Error from other thriftLog output or caused by Xcalar operation fails
+        var log;           // Exist with xcalarStatus
+        var httpStatus;    // Error caused by http connection fails
+        var output;
 
         if (type === "number") {
+            // case that didn't handled in xcalarApi.js
             status = errRes;
-            error = StatusTStr[status];
         } else if (type === "object") {
-            status = errRes.status;
-            error = StatusTStr[status];
+            // Return by other thriftLog output XcalarApi.js
+            status = (errRes.status != null)
+                     ? errRes.status
+                     : errRes.xcalarStatus;
             log = errRes.log;
+            httpStatus = errRes.httpStatus;
+            output = errRes.output;
         } else {
-            // when error is string
+            // when error is string, Manually defined in xcalarThrift.js
             error = errRes;
         }
 
-        // special case when error is Success
-        if (status === StatusT.StatusOk) {
-            error = "Unknown Error";
+        if (status == null && httpStatus == null && error == null) {
+            console.log("not an error");
+            continue;
         }
 
         var msg;
 
         if (status != null) {
-            msg = title + " failed with status " + status + ": " + error;
-            thriftError.status = status;
+            // special case when error is Success
+            if (status === StatusT.StatusOk) {
+                error = "Unknown Error";
+            } else {
+                error = StatusTStr[status];
+            }
+            msg = title + " failed with status " + status + " : " +
+                  StatusTStr[status];
+        } else if (httpStatus != null) {
+            error = "Proxy Error with http status code: " + httpStatus;
+            msg = title + " failed with network exception. Http status : " +
+                  httpStatus;
         } else {
             msg = title + " failed: " + error;
         }
 
-        thriftError.error = "Error: " + error;
         if (status !== StatusT.StatusCanceled) {
             console.error('(╯°□°）╯︵ ┻━┻ ' + msg);
             xcConsole.log(msg);
         }
 
+        thriftError.status = status;
+        thriftError.httpStatus = httpStatus;
+        thriftError.error = "Error: " + error;
         thriftError.log = log;
+        thriftError.output = output;
         errorLists.push(thriftError);
         var alertError;
 
@@ -419,9 +438,10 @@ function XcalarGetLicense() {
 
     xcalarGetLicense(tHandle)
     .then(deferred.resolve)
-    .fail(function(ret) {
+    .fail(function(error) {
         console.error("Your license has not been properly set up!");
-        deferred.resolve(StatusTStr[ret]);
+        var thriftError = thriftLog("XcalarGetLicense", error);
+        deferred.reject(thriftError);
     });
 
     return deferred.promise();
@@ -704,11 +724,9 @@ function XcalarLoad(url, format, datasetName, options, txId) {
         }
     })
     .fail(function(error1, error2) {
-        var thriftError;
+        var thriftError = thriftLog("XcalarLoad", error1, error2);
         // 502 = Bad Gateway server error
-        if (error1 && typeof(error1) === "object" &&
-            (("status" in error1 && error1.status === 502) ||
-            (error1.length > 0 && error1[0].status === 502))) {
+        if (thriftError.httpStatus != null) {
             // Thrift time out
             // Just pretend like nothing happened and quietly listDatasets
             // in intervals until the load is complete. Then do the ack/fail
@@ -721,25 +739,23 @@ function XcalarLoad(url, format, datasetName, options, txId) {
             } else if (typeof (error2) === "string") {
                 checkForDatasetLoad(deferred, error2, datasetName, txId);
             } else {
-                thriftError = thriftLog("XcalarLoad", error1, error2);
                 deferred.reject(thriftError);
             }
         } else {
             var loadError = null;
-            if (error1 && typeof(error1) === "object" && error1.length >= 2) {
+            if (thriftError.output) {
                 // This has a valid error struct that we can use
-                console.error("error in point", error1[1]);
+                console.error("error in point", thriftError.output);
                 loadError = xcHelper.replaceMsg(DSTStr.LoadErr, {
-                    "error": parseLoadError(error1[1])
+                    "error": parseLoadError(thriftError.output)
                 });
 
-                if (error1[1].errorFile) {
+                if (thriftError.output.errorFile) {
                     loadError += " " + xcHelper.replaceMsg(DSTStr.LoadErrFile, {
-                        "file": error1[1].errorFile
+                        "file": thriftError.output.errorFile
                     });
                 }
             }
-            thriftError = thriftLog("XcalarLoad", error1[0], error2);
             deferred.reject(thriftError, loadError);
         }
     });
@@ -1025,16 +1041,8 @@ function XcalarExport(tableName, exportName, targetName, numColumns,
             });
         }
     })
-    .fail(function(error) {
-        var thriftError;
-        if (error instanceof Array) {
-            thriftError = thriftLog("XcalarExport", {
-                "status": error[0],
-                "log": error[1]
-            });
-        } else {
-            thriftError = thriftLog("XcalarExport", error);
-        }
+    .fail(function(error1, erro2) {
+        var thriftError = thriftLog("XcalarExport", error1, erro2);
         deferred.reject(thriftError);
     });
 
@@ -1103,13 +1111,14 @@ function XcalarDestroyDataset(dsName, txId) {
             innerDeferred.resolve();
         })
         .fail(function(error1, error2) {
-            if (error1 === StatusT.StatusDagNodeNotFound) {
+            if (typeof error1 === "object" &&
+                error1.xcalarStatus === StatusT.StatusDagNodeNotFound) {
                 // this error is allowed
                 innerDeferred.resolve();
             } else {
-                if (typeof error2 !== "number") {
-                    error2 = null;
-                }
+                // if (typeof error2 !== "number") {
+                //     error2 = null;
+                // }
                 innerDeferred.reject(error1, error2);
             }
         });
@@ -1290,12 +1299,12 @@ function XcalarDeleteTable(tableName, txId, isRetry) {
         }
     })
     .fail(function(error1, error2) {
-        if (!isRetry && error1 === StatusT.StatusDgNodeInUse) {
+        var thriftError = thriftLog("XcalarDeleteTable", error1, error2);
+        if (!isRetry && thriftError.status === StatusT.StatusDgNodeInUse) {
             forceDeleteTable(tableName, txId)
             .then(deferred.resolve)
             .fail(deferred.reject);
         } else {
-            var thriftError = thriftLog("XcalarDeleteTable", error1, error2);
             deferred.reject(thriftError);
         }
     });
@@ -2351,7 +2360,6 @@ function XcalarGroupBy(operator, newColName, oldColName, tableName,
         var thriftError = thriftLog("XcalarGroupBy", error1, error2);
         deferred.reject(thriftError);
     });
-
     return deferred.promise();
 }
 
@@ -2502,8 +2510,9 @@ function XcalarQueryState(queryName, statusesToIgnore) {
 
 function queryStateErrorStatusHandler(error, statusesToIgnore) {
     var thriftError;
-    if (statusesToIgnore && statusesToIgnore.indexOf(error) > -1) {
-        thriftError = {status: error, error: "Error:" + StatusTStr[error]};
+    var status = error.xcalarStatus;
+    if (statusesToIgnore && statusesToIgnore.indexOf(status) > -1) {
+        thriftError = {status: status, error: "Error:" + StatusTStr[status]};
     } else {
         thriftError = thriftLog("XcalarQueryState", error);
         Log.errorLog("XcalarQueryState", null, null, thriftError);
@@ -2605,8 +2614,10 @@ function XcalarQueryWithCheck(queryName, queryString, txId) {
 
 function queryErrorStatusHandler(error, statusesToIgnore, opOrQuery) {
     var thriftError;
-    if (statusesToIgnore && statusesToIgnore.indexOf(error) > -1) {
-        thriftError = {status: error, error: "Error:" + StatusTStr[error]};
+    if (statusesToIgnore && error
+        && (error.xcalarStatus !== undefined)
+        && statusesToIgnore.indexOf(error.xcalarStatus) > -1) {
+        thriftError = {status: error.xcalarStatus, error: "Error:" + StatusTStr[error.xcalarStatus]};
     } else {
         thriftError = thriftLog("XcalarCancel" + opOrQuery, error);
         Log.errorLog("Cancel " + opOrQuery, null, null, thriftError);
@@ -3487,15 +3498,15 @@ function XcalarKeyLookup(key, scope) {
     xcalarKeyLookup(tHandle, scope, key)
     .then(deferred.resolve)
     .fail(function(error) {
+        var thriftError = thriftLog("XcalarKeyLookup", error);
         // it's normal to find an unexisted key.
-        if (error === StatusT.StatusKvEntryNotFound) {
+        if (thriftError.status === StatusT.StatusKvEntryNotFound) {
             console.warn("Status", error, "Key, not found");
             deferred.resolve(null);
-        } else if (error === StatusT.StatusKvStoreNotFound) {
-            console.warn("Stataus", error, "kvStore, not found");
+        } else if (thriftError.status === StatusT.StatusKvStoreNotFound) {
+            console.warn("Status", error, "kvStore, not found");
             deferred.resolve(null);
         } else {
-            var thriftError = thriftLog("XcalarKeyLookup", error);
             Log.errorLog("Key Lookup", null, null, thriftError);
             deferred.reject(thriftError);
         }
@@ -3553,8 +3564,8 @@ function XcalarKeyDelete(key, scope) {
         var thriftError = thriftLog("XcalarKeyDelete", error);
         if (thriftError.status === StatusT.StatusKvEntryNotFound) {
             deferred.resolve();
-        } else if (error === StatusT.StatusKvStoreNotFound) {
-            console.warn("Stataus", error, "kvStore, not found");
+        } else if (thriftError.status === StatusT.StatusKvStoreNotFound) {
+            console.warn(thriftError, "kvStore, not found");
             deferred.resolve(null);
         } else {
             Log.errorLog("Key Delete", null, null, thriftError);
@@ -3580,7 +3591,7 @@ function XcalarKeySetIfEqual(scope, persist, keyCompare, oldValue, newValue) {
         var thriftError = thriftLog("XcalarKeySetIfEqual", error);
         if (thriftError.status === StatusT.StatusKvEntryNotFound) {
             deferred.resolve(null);
-        } else if (error === StatusT.StatusKvStoreNotFound) {
+        } else if (thriftError.status === StatusT.StatusKvStoreNotFound) {
             console.warn("Status", error, "kvStore, not found");
             deferred.resolve(null);
         } else {
@@ -3609,7 +3620,7 @@ function XcalarKeySetBothIfEqual(scope, persist, keyCompare, oldValue, newValue,
         var thriftError = thriftLog("XcalarKeySetBothIfEqual", error);
         if (thriftError.status === StatusT.StatusKvEntryNotFound) {
             deferred.resolve();
-        } else if (error === StatusT.StatusKvStoreNotFound) {
+        } else if (thriftError.status === StatusT.StatusKvStoreNotFound) {
             console.warn("Status", error, "kvStore, not found");
             deferred.resolve(null);
         } else {
@@ -3638,8 +3649,9 @@ function XcalarKeyAppend(key, stuffToAppend, persist, scope) {
     xcalarKeyAppend(tHandle, scope, key, stuffToAppend)
     .then(deferred.resolve)
     .fail(function(error) {
-        if (error === StatusT.StatusKvEntryNotFound ||
-            error === StatusT.StatusKvStoreNotFound)
+        var thriftError = thriftLog("XcalarKeyAppend", error);
+        if (thriftError.status === StatusT.StatusKvEntryNotFound ||
+            thriftError.status === StatusT.StatusKvStoreNotFound)
         {
             console.info("Append fails as key or kvStore not found, put key instead");
             // if append fails because key not found, put value instead
@@ -3647,7 +3659,6 @@ function XcalarKeyAppend(key, stuffToAppend, persist, scope) {
             .then(deferred.resolve)
             .fail(deferred.reject);
         } else {
-            var thriftError = thriftLog("XcalarKeyAppend", error);
             Log.errorLog("Key Append", null, null, thriftError);
             deferred.reject(thriftError);
         }
@@ -3787,41 +3798,42 @@ function XcalarUploadPython(moduleName, pythonStr) {
 
     xcalarApiUdfAdd(tHandle, UdfTypeT.UdfTypePython, moduleName, pythonStr)
     .then(deferred.resolve)
-    .fail(function(error, errorStruct) {
-        if (error && jQuery.isNumeric(error)) {
-            if (error === StatusT.StatusUdfModuleAlreadyExists) {
-                XcalarUpdatePython(moduleName, pythonStr)
-                .then(function() {
-                    deferred.resolve();
-                })
-                .fail(function(error2, errorStruct2) {
-                    if (errorStruct2 && errorStruct2.error &&
-                        errorStruct2.error.message &&
-                        errorStruct2.error.message.length > 0) {
-                        error2 = errorStruct2.error.message;
-                    }
-                    var thriftError = thriftLog("XcalarUpdateAfterUpload",
-                                      error2);
-                    Log.errorLog("Update of Upload Python", null, null,
-                                 thriftError);
-                    deferred.reject(thriftError);
-                });
-                return;
-                // here do the update call
-            } else if (error === StatusT.StatusUdfModuleEmpty) {
-                // This is not an error because extensions may upload
-                // empty udfs. So just go ahead and resolve
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarUploadPython", error);
+        if (thriftError.status === StatusT.StatusUdfModuleAlreadyExists) {
+            XcalarUpdatePython(moduleName, pythonStr)
+            .then(function() {
                 deferred.resolve();
-                return;
-            }
+            })
+            .fail(function(error2) {
+                if (error2 && error2.output
+                    && error2.output.error
+                    && error2.output.error.message
+                    && error2.output.error.message.length > 0) {
+                    error2 = error2.output.error.message;
+                }
+                thriftError = thriftLog("XcalarUpdateAfterUpload", error2);
+                Log.errorLog("Update of Upload Python", null, null,
+                             thriftError);
+                deferred.reject(thriftError);
+            });
+            return;
+            // here do the update call
+        } else if (thriftError.status === StatusT.StatusUdfModuleEmpty) {
+            // This is not an error because extensions may upload
+            // empty udfs. So just go ahead and resolve
+            deferred.resolve();
+            return;
         }
 
         // all other case
 
-        if (errorStruct && errorStruct.error.message.length > 0) {
-            error = errorStruct.error.message;
+        if (error && error.output && error.output.error &&
+            error.output.error.message &&
+            error.output.error.message.length > 0) {
+            error = error.output.error.message;
         }
-        var thriftError = thriftLog("XcalarUploadPython", error);
+        thriftError = thriftLog("XcalarUpdateAfterUpload", error);
         Log.errorLog("Upload Python", null, null, thriftError);
         deferred.reject(thriftError);
     });
@@ -3840,11 +3852,13 @@ function XcalarUpdatePython(moduleName, pythonStr) {
     xcalarApiUdfUpdate(tHandle, UdfTypeT.UdfTypePython, moduleName,
                        pythonStr)
     .then(deferred.resolve)
-    .fail(function(error, errorStruct) {
-        if (errorStruct && errorStruct.error.message.length > 0) {
-            error = errorStruct.error.message;
+    .fail(function(error) {
+        if (error && error.output
+            && error.output.error
+            && error.output.error.message
+            && error.output.error.message.length > 0) {
+            error = error.output.error.message;
         }
-
         var thriftError = thriftLog("XcalarUpdatePython", error);
         Log.errorLog("Update Python", null, null, thriftError);
         deferred.reject(thriftError);
@@ -4030,9 +4044,8 @@ function XcalarSwitchToWorkbook(toWhichWorkbook, fromWhichWorkbook) {
     .then(function(output) {
         deferred.resolve(output);
     })
-    .fail(function(error, log) {
-        var thriftError = thriftLog("XcalarSwitchToWorkbook",
-                            {"status": error, "log": log});
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarSwitchToWorkbook", error);
         Log.errorLog("Switch Workbook", null, null, thriftError);
         deferred.reject(thriftError);
     });
