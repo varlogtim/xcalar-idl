@@ -435,7 +435,7 @@ router.post("/ldap/installation", function(req, res) {
                 credArray.password,
                 credArray.companyName)
     .always(function(message) {
-    res.status(message.status).send(message);
+        res.status(message.status).send(message);
     });
 });
 
@@ -455,5 +455,10 @@ router.get("/installationLogs/slave", function(req, res) {
     });
 });
 
+function unitTest() {
+    exports.genExecString = genExecString;
+    exports.genLdapExecString = genLdapExecString;
+}
+exports.unitTest = unitTest;
 
-module.exports = router;
+exports.router = router;

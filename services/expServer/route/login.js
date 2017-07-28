@@ -315,8 +315,25 @@ function setUpLdapConfigs() {
     }
     return deferred.promise();
 }
+// Start of LDAP calls
+/*
+Example AD settings (now gotten from ldapConfig.json)
+var ldap_uri = 'ldap://pdc1.int.xcalar.com:389';
+var userDN = "cn=users,dc=int,dc=xcalar,dc=net";
+var useTLS = true;
+var searchFilter = "(&(objectclass=user)(userPrincipalName=%username%))";
+var activeDir = true;
+var serverKeyFile = '/etc/ssl/certs/ca-certificates.crt';
 
+Example OpenLDAP Settings (now gotten from ldapConfig.json)
 
+var ldap_uri = 'ldap://turing.int.xcalar.com:389';
+var userDN = "uid=%username%,ou=People,dc=int,dc=xcalar,dc=com";
+var useTLS = false;
+var searchFilter = "";
+var activeDir = false;
+var serverKeyFile = '/etc/ssl/certs/ca-certificates.crt';
+*/
 router.post('/login', function(req, res) {
     xcConsole.log("Login process");
     var credArray = req.body;
@@ -326,4 +343,20 @@ router.post('/login', function(req, res) {
     });
 });
 
-module.exports = router;
+function unitTest() {
+    responseReplace();
+    function responseReplace() {
+        login.loginAuthentication = fakeResponseLogin;
+    }
+    function fakeResponseLogin() {
+        var deferred = jQuery.Deferred();
+        var retMsg = {
+            "status": httpStatus.OK,
+            "logs": "Fake response login!"
+        };
+        return deferred.resolve(retMsg).promise();
+    }
+}
+exports.unitTest = unitTest;
+
+exports.router = router;

@@ -112,7 +112,7 @@ function masterExecuteAction(action, slaveUrl, content) {
                 "status": httpStatus.OK,
                 "logs": logs
             };
-            if (slaveUrl === "/logs/slave" && action === "GET" &&
+            if (slaveUrl === "/service/logs/slave" && action === "GET" &&
                 content.isMonitoring === "true") {
                 retMsg.updatedLastMonitorMap = generateLastMonitorMap(results);
             }
@@ -126,7 +126,7 @@ function masterExecuteAction(action, slaveUrl, content) {
                 "status": httpStatus.NotFound,
                 "logs": logs
             };
-            if (slaveUrl === "/logs/slave" && action === "GET" &&
+            if (slaveUrl === "/service/logs/slave" && action === "GET" &&
                 content.isMonitoring === "true") {
                 retMsg.updatedLastMonitorMap = generateLastMonitorMap(results);
             }
@@ -151,7 +151,7 @@ function slaveExecuteAction(action, slaveUrl, content) {
             return xcalarStop();
         case "/service/status/slave" :
             return xcalarStatus();
-        case "/logs/slave":
+        case "/service/logs/slave":
             {
                 var deferredOut = jQuery.Deferred();
                 // hasLogFile(logPath)
@@ -209,7 +209,7 @@ function sendCommandToSlaves(action, slaveUrl, content, hosts) {
     var returns = {};
     var hasFailure = false;
     for (var i = 0; i < hosts.length; i++) {
-        if (slaveUrl === "/logs/slave" && content.isMonitoring === "true") {
+        if (slaveUrl === "/service/logs/slave" && content.isMonitoring === "true") {
             addLastMonitorIndex(hosts[i], content);
         }
         postRequest(hosts[i], content);
@@ -280,7 +280,7 @@ function sendCommandToSlaves(action, slaveUrl, content, hosts) {
         });
         req.on('socket', function (socket) {
             // 2 is for restart command (need double time)
-            socket.setTimeout(action === "/logs/slave" ?
+            socket.setTimeout(action === "/service/logs/slave" ?
                 timeout * monitorFactor : 2 * timeout * expendFactor);
             socket.on('timeout', function() {
                 req.abort();

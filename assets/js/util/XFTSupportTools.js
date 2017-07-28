@@ -9,7 +9,7 @@ window.XFTSupportTools = (function(XFTSupportTools, $) {
     XFTSupportTools.getRecentLogs = function(requireLineNum, filePath,
         fileName) {
         var action = "GET";
-        var url = "/logs";
+        var url = "/service/logs";
         var content = {
             "requireLineNum": requireLineNum,
             "isMonitoring": false,
@@ -29,7 +29,7 @@ window.XFTSupportTools = (function(XFTSupportTools, $) {
             if (lastReturnSucc) {
                 lastReturnSucc = false;
                 var action = "GET";
-                var url = "/logs";
+                var url = "/service/logs";
                 var content = {
                     "lastMonitorMap": JSON.stringify(lastMonitorMap),
                     "isMonitoring": true,
@@ -104,26 +104,26 @@ window.XFTSupportTools = (function(XFTSupportTools, $) {
 
     XFTSupportTools.removeSessionFiles = function(filename) {
         var action = "DELETE";
-        var url = "/sessionFiles";
+        var url = "/service/sessionFiles";
         var content = {"filename": filename};
         return sendRequest(action, url, content);
     };
 
     XFTSupportTools.removeSHM = function() {
         var action = "DELETE";
-        var url = "/SHMFiles";
+        var url = "/service/SHMFiles";
         return sendRequest(action, url);
     };
 
     XFTSupportTools.getLicense = function() {
         var action = "GET";
-        var url = "/license";
+        var url = "/service/license";
         return sendRequest(action, url);
     };
 
     XFTSupportTools.fileTicket = function(inputStr) {
         var action = "POST";
-        var url = "/ticket";
+        var url = "/service/ticket";
         var content = {"contents": inputStr};
         return sendRequest(action, url, content);
     };

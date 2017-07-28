@@ -98,9 +98,9 @@ $(document).ready(function() {
         .then(function(jsOutput, pyOutput, imgOut) {
             var action;
             if (typeof expHost !== "undefined") {
-                action = expHost + '/uploadContent';
+                action = expHost + '/extension/publish';
             } else {
-                action = '/app/uploadContent';
+                action = '/app/extension/publish';
             }
             $("#uploadContent").attr("action", action);
             $("#uploadContent").get(0).submit();

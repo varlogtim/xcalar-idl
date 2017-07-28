@@ -1,4 +1,3 @@
-
 var express = require('express');
 var router = express.Router();
 var support = require('../expServerSupport.js');
@@ -9,6 +8,7 @@ var exec = require("child_process").exec;
 var guiDir = (process.env.XCE_HTTP_ROOT ?
     process.env.XCE_HTTP_ROOT : "/var/www") + "/xcalar-gui";
 var basePath = guiDir + "/assets/extensions/";
+var upload = require('../upload.js');
 
 try {
     var aws = require("aws-sdk");
@@ -460,7 +460,26 @@ router.get("/extension/listPackage", function(req, res) {
         return res.send({"status": Status.Error, "logs": error});
     });
 });
+/*
+Right /extension/publish (originally as /uploadContent) is implemented in a really clumsy way.
+Will fix in the next version.
+*/
+router.post("/extension/publish", function(req, res) {
+    xcConsole.log("Uploading content");
+    upload.uploadContent(req, res);
+});
 // End of marketplace calls
 
+function unitTest() {
+    responseReplace();
+    function responseReplace() {
+        upload.uploadContent = fakeResponseUploadContent;
+    }
+    function fakeResponseUploadContent(req, res) {
+        res.send("Fake response uploadContent!");
+    }
+}
+exports.unitTest = unitTest;
+
 // Export router
-module.exports = router;
+exports.router = router;
