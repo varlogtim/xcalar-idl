@@ -2054,6 +2054,7 @@ window.DSPreview = (function($, DSPreview) {
         var $tbody = $(getTbodyHTML(data, fieldDelim));
         var $trs = $tbody.find("tr");
         var maxTdLen = 0;
+        var fnf = xcHelper.parseJsonValue(null, true);
         // find the length of td and fill up empty space
         $trs.each(function() {
             maxTdLen = Math.max(maxTdLen, $(this).find("td").length);
@@ -2065,7 +2066,7 @@ window.DSPreview = (function($, DSPreview) {
             var trs = "";
 
             for (var j = 0, l = maxTdLen - $tds.length; j < l; j++) {
-                trs += "<td></td>";
+                trs += "<td>" + fnf + "</td>";
             }
 
             $tr.append(trs);
@@ -2518,6 +2519,7 @@ window.DSPreview = (function($, DSPreview) {
         var colStrLimit = 250; // max number of characters in delimited column
         var i = 0;
         var d;
+        var tdData = [];
 
         if (hasDelimiter) {
             // when has delimiter
@@ -2540,6 +2542,9 @@ window.DSPreview = (function($, DSPreview) {
                 }
 
                 if (isDelimiter) {
+                    tdData = stripQuote(tdData, quote);
+                    html += tdData.join("");
+                    tdData = [];
                     // skip delimiter
                     if (hiddenStrLen) {
                         html += "<span class='truncMessage'>...(" +
@@ -2574,16 +2579,22 @@ window.DSPreview = (function($, DSPreview) {
                     if (strLen > colStrLimit) {
                         hiddenStrLen++;
                     } else {
-                        html += xcHelper.escapeHTMLSpecialChar(d);
+                        tdData.push(xcHelper.escapeHTMLSpecialChar(d));
+                        // html += xcHelper.escapeHTMLSpecialChar(d);
                     }
 
                     strLen++;
                     ++i;
                 }
             }
+
+            tdData = stripQuote(tdData, quote);
+            html += tdData.join("");
+            tdData = [];
         } else {
             // when not apply delimiter
-            dataLen = Math.min(rawStrLimit, dataLen); // limit to 1000 characters
+            data = stripQuote(data, quote);
+            dataLen = Math.min(rawStrLimit, data.length); // limit to 1000 characters
             for (i = 0; i < dataLen; i++) {
                 d = data[i];
 
@@ -2618,6 +2629,31 @@ window.DSPreview = (function($, DSPreview) {
             html += '</div></td>';
         }
         return (html);
+    }
+
+    // Note: that's how backend to the import, only handle the ting in the quote
+    function stripQuote(content, quote) {
+        if (!quote) {
+            return content;
+        }
+
+        var endQuote = content.length - 1;
+        while (endQuote >= 0 && content[endQuote] !== quote) {
+            endQuote--;
+        }
+    
+        if (endQuote >= 0) {
+            var startQuote = endQuote - 1;
+            while (startQuote >= 0 && content[startQuote] !== quote) {
+                startQuote--;
+            }
+
+            if (startQuote >= 0) {
+                content = content.slice(startQuote + 1, endQuote);
+            }
+        }
+
+        return content;
     }
 
     function smartDetect(showMessage) {
