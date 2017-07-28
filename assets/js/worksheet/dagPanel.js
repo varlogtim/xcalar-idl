@@ -1726,6 +1726,9 @@ window.Dag = (function($, Dag) {
         }
 
         $container.append(dagImageHtml);
+        if ($container.find(".unexpectedNode").length) {
+            $container.addClass("hasUnexpectedNode");
+        }
 
         if (!$container.hasClass('error')) {
             drawAllLines($container, dagInfo, numNodes, width, options);

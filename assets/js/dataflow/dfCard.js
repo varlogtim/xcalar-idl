@@ -257,6 +257,9 @@ window.DFCard = (function($, DFCard) {
             if (xdpMode === XcalarMode.Mod) {
                 return showLicenseTooltip(this);
             }
+            if ($dfCard.hasClass("hasUnexpectedNode")) {
+                return showUnexpectedNodeTip(this);
+            }
             $('.menu').hide();
             StatusBox.forceHide();
             var $dagWrap = $dfCard.find('.cardMain').find(".dagWrap:visible");
@@ -468,6 +471,9 @@ window.DFCard = (function($, DFCard) {
         });
 
         $dfCard.on('click', '.addScheduleToDataflow', function() {
+            if ($dfCard.hasClass("hasUnexpectedNode")) {
+                return showUnexpectedNodeTip(this);
+            }
             $(this).blur();
             // doesn't have schedule, show schedule
             var dfName = $listSection.find(".selected .groupName").text();
@@ -494,6 +500,9 @@ window.DFCard = (function($, DFCard) {
         $dfCard.on("click", ".runNowBtn", function() {
             if (xdpMode === XcalarMode.Mod) {
                 return showLicenseTooltip(this);
+            }
+            if ($dfCard.hasClass("hasUnexpectedNode")) {
+                return showUnexpectedNodeTip(this);
             }
             var $btn = $(this).blur();
             var retName = $listSection.find(".selected .groupName").text();
@@ -533,6 +542,9 @@ window.DFCard = (function($, DFCard) {
         $dfCard.on("click", optsSelector, function() {
             if (xdpMode === XcalarMode.Mod) {
                 return showLicenseTooltip(this);
+            }
+            if ($dfCard.hasClass("hasUnexpectedNode")) {
+                return showUnexpectedNodeTip(this);
             }
             $(this).closest(".advancedOpts").toggleClass("active");
         });
@@ -683,6 +695,12 @@ window.DFCard = (function($, DFCard) {
         $dagWrap = getDagWrap(dataflowName);
         Dag.createDagImage(nodes, $dagWrap);
 
+        if ($dagWrap.hasClass("hasUnexpectedNode")) {
+            $dfCard.addClass("hasUnexpectedNode");
+        } else {
+            $dfCard.removeClass("hasUnexpectedNode");
+        }
+
         var promise = applyDeltaTagsToDag(dataflowName, $dagWrap);
 
         xcHelper.showRefreshIcon($dagWrap, false, promise);
@@ -710,6 +728,11 @@ window.DFCard = (function($, DFCard) {
         );
         if (XVM.getLicenseMode() === XcalarMode.Mod) {
             $dagWrap.find('.parameterizable:not(.export)')
+                    .addClass('noDropdown');
+        }
+
+        if ($dagWrap.hasClass("hasUnexpectedNode")) {
+            $dagWrap.find('.parameterizable')
                     .addClass('noDropdown');
         }
 
@@ -867,6 +890,10 @@ window.DFCard = (function($, DFCard) {
             xcMenu.removeKeyboardNavigation();
             $('.leftColMenu').removeClass('leftColMenu');
             $currentIcon = $(this);
+
+            if ($dfCard.hasClass("hasUnexpectedNode")) {
+                return;
+            }
 
             $menu.find("li").hide();
             var $queryLi = $menu.find(".createParamQuery");
@@ -1636,6 +1663,11 @@ window.DFCard = (function($, DFCard) {
         console.log("Wrong license type");
     }
 
+    function showUnexpectedNodeTip(elem) {
+        xcTooltip.add($(elem), {"title": TooltipTStr.UnexpectedNode});
+        xcTooltip.refresh($(elem));
+    }
+
     function saveParam(dataflowName) {
         var df = DF.getDataflow(dataflowName);
         var paramMapInUsed = df.paramMapInUsed;
@@ -1806,6 +1838,12 @@ window.DFCard = (function($, DFCard) {
                     $option.find("input").val(exportName);
                     $name.text(exportName);
                     xcTooltip.changeText($name, exportName);
+                }
+            } else {
+                if ($dagWrap.hasClass("hasUnexpectedNode")) {
+                    $dfCard.addClass("hasUnexpectedNode");
+                } else {
+                    $dfCard.removeClass("hasUnexpectedNode");
                 }
             }
 

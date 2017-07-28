@@ -109,6 +109,7 @@ TooltipTStr = {
     "NoActiveUndone": "Tables in an undo state cannot be added to the worksheet",
     "SysOperation": "System generated operation",
     "UDFNoMain": "UDF requires a 'main' function",
+    "UnexpectedNode": "Dataflow has an unexpected operation",
 
     // Sync with htmlTStr
     "IcvGenerating": "Erroneous rows(ER) table is generating",

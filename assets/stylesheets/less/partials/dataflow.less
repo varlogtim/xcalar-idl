@@ -778,6 +778,12 @@
             display: none;
         }
     }
+    &.hasUnexpectedNode {
+        .retTab, .runNowBtn, .addScheduleToDataflow, .advancedOpts {
+            opacity: @opacity-disabled;
+            cursor: default !important;
+        }
+    }
 }
 
 #uploadDataflowCard {

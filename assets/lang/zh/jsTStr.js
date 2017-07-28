@@ -106,6 +106,7 @@ TooltipTStr = {
 "NoActiveUndone": "被撤销的表无法添加至工作表",
 "SysOperation": "系统操作",
 "UDFNoMain": "UDF 需要包含'main'函数",
+"UnexpectedNode": "Dataflow has an unexpected operation",
 "IcvGenerating": '正在生成完整性约束冲突异常表',
 "IcvRestriction": '完整性约束冲突异常表仅适用于映射和分组',
 "IcvSourceDropped": '子孙表被移除，完整性约束冲突异常表不可被创建',
