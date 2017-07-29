@@ -76,7 +76,7 @@ module.exports = {
         "Size": "Size",
         "SortBy": "Sort by",
         "START": "START",
-        "Supports": "Supports",
+        "Supports": "Support",
         "Table": "Table",
         "Tables": "Tables",
         "Type": "Type",
@@ -373,7 +373,7 @@ module.exports = {
         "ElaspedTime": "Elapsed Time",
         "enableFile": "Enable file://",
         "GeneralSettings": "General Settings",
-        "GenSub": "Generate Support Bundle",
+        "GenSub": "File Support Ticket",
         "graphInterval": "MONITOR GRAPH INTERVAL",
         "commitInterval": "AUTOSAVE INTERVAL",
         "GTotal": "Total",
@@ -434,7 +434,7 @@ module.exports = {
     },
 
     "supportTicket": {
-        "GenSupTicket": "Generate Support Bundle",
+        "GenSub": "Generate Support Bundle",
         "GenSupInstr": "Please fill out the form below.",
         "TypeIssue": "Type of issue",
         "Comments": "Comments",
