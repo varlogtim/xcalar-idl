@@ -10,6 +10,9 @@ function addJsListener(evt) {
     jsFileObj = evt.target.files[0];
     if (jsFileObj) {
         $("#jsFilePath").prop("required", false);
+        // autofill project name so that the uploaded and provided file names
+        // will be the same, user can still change
+        $("#projectName").val((jsFileObj.name).split(".")[0]);
     } else {
         $("#jsFilePath").prop("required", true);
     }
@@ -88,22 +91,67 @@ $(document).ready(function() {
 
     $("#uploadContent").submit(function(evt) {
         evt.preventDefault();
-        $("#uploadContent").addHidden("jsFileObj", jsFileObj);
-        $("#uploadContent").addHidden("pyFileObj", pyFileObj);
-        var jsFilePromise = readFile(jsFileObj, "jsFileText", true);
-        var pyFilePromise = readFile(pyFileObj, "pyFileText", true);
-        var imgPromise = readFile(imgFileObj, "imgBinary", false);
 
-        jQuery.when(jsFilePromise, pyFilePromise, imgPromise)
-        .then(function(jsOutput, pyOutput, imgOut) {
-            var action;
-            if (typeof expHost !== "undefined") {
-                action = expHost + '/extension/publish';
-            } else {
-                action = '/app/extension/publish';
+        // get the names of the js file and py file being provided
+        var jsFileName;
+        if (jsFileObj) {
+            // if uploaded
+            jsFileName = jsFileObj.name;
+        } else {
+            // if path is provided
+            var splitName = jsFilePath.split("/");
+            jsFileName = splitName[splitName.length - 1];
+        }
+
+        var pyFileName;
+        if (pyFileObj) {
+            // if uploaded
+            pyFileName = pyFileObj.name;
+        } else {
+            // if path provided
+            var splitName = pyFilePath.split("/");
+            pyFileName = splitName[splitName.length - 1];
+        }
+
+        // get the names of the files that will be uploaded to S3
+        var projectName = $("#projectName").val();
+        var projectJsFileName = projectName + '.ext.js';
+        var projectPyFileName = projectName + '.ext.py';
+
+        var toUpload = false;
+
+        // confirm box if both pairs of file names are not the same
+        if (projectJsFileName !== jsFileName || projectPyFileName !== pyFileName) {
+            confirmStr = "The extension files will be uploaded as:\n" +
+                `${projectJsFileName}\n${projectPyFileName}\n\nThe provided` +
+                ` files are named:\n${jsFileName}\n${pyFileName}\n\n` +
+                "The extension files are named <Project Name>.ext.<js/py>." +
+                " Are you sure you want to continue upload?"
+            if (confirm(confirmStr) == true) {
+                toUpload = true;
             }
-            $("#uploadContent").attr("action", action);
-            $("#uploadContent").get(0).submit();
-        })
+        } else {
+            toUpload = true;
+        }
+
+        if (toUpload) {
+            $("#uploadContent").addHidden("jsFileObj", jsFileObj);
+            $("#uploadContent").addHidden("pyFileObj", pyFileObj);
+            var jsFilePromise = readFile(jsFileObj, "jsFileText", true);
+            var pyFilePromise = readFile(pyFileObj, "pyFileText", true);
+            var imgPromise = readFile(imgFileObj, "imgBinary", false);
+
+            jQuery.when(jsFilePromise, pyFilePromise, imgPromise)
+            .then(function(jsOutput, pyOutput, imgOut) {
+                var action;
+                if (typeof expHost !== "undefined") {
+                    action = expHost + '/extension/publish';
+                } else {
+                    action = '/app/extension/publish';
+                }
+                $("#uploadContent").attr("action", action);
+                $("#uploadContent").get(0).submit();
+            })
+        }
     })
 })
