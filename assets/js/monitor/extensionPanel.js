@@ -292,20 +292,20 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
     }
 
     function refreshAfterInstall() {
-        $panel.addClass("refreshing");
+        // $panel.addClass("refreshing");
         $extLists.addClass("refreshing");
 
         var promises = [];
         promises.push(ExtensionManager.install.bind(this));
         promises.push(generateInstalledExtList.bind(this));
         var promise = PromiseHelper.chain(promises);
-        xcHelper.showRefreshIcon($panel, true, promise);
+        xcHelper.showRefreshIcon($extLists, true, promise);
 
         promise
         .always(function() {
             $("#extension-search").val("");
             refreshExtension();
-            $panel.removeClass("refreshing");
+            // $panel.removeClass("refreshing");
             $extLists.removeClass("refreshing");
         });
     }
