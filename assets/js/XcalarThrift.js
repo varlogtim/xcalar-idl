@@ -3969,30 +3969,6 @@ function XcalarGetStatGroupIdMap(nodeId, numGroupId) {
     return deferred.promise();
 }
 
-function XcalarGetStatsByGroupId(nodeId, groupIdList) {
-    // nodeId is the node (be 0, 1, 2, 3, 4)
-    // groupIdList is an array of groupId return from XcalarGetStatGroupIdMap
-    if (tHandle == null) {
-        return PromiseHelper.resolve();
-    }
-
-    var deferred = jQuery.Deferred();
-
-    if (insertError(arguments.callee, deferred)) {
-        return deferred.promise();
-    }
-
-    xcalarGetStatsByGroupId(tHandle, nodeId, groupIdList)
-    .then(deferred.resolve)
-    .fail(function(error) {
-        var thriftError = thriftLog("XcalarGetStatsByGroupId", error);
-        SQL.errorLog("Get StatsByGroupId", null, null, thriftError);
-        deferred.reject(thriftError);
-    });
-
-    return deferred.promise();
-}
-
 function XcalarSupportGenerate() {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);

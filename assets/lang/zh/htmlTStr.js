@@ -798,7 +798,7 @@ module.exports = {
         "Comments": "注释",
         "GenBundleTip": "此操作需要一定时间，请保证网络连接正常",
         "GenSupInstr": "请填写下面的表格。",
-        "GenSupTicket": "生成支持票",
+        "GenSub": "生成支持票",
         "GenTicketBtn": "生成",
         "TypeIssue": "问题类型"
     },

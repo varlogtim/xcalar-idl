@@ -587,22 +587,6 @@ window.XcSupport = (function(XcSupport, $) {
         return deferred.promise();
     }
 
-    function getStat(nodeId, statsId, data) {
-        var deferred = jQuery.Deferred();
-
-        XcalarGetStatsByGroupId([nodeId], [statsId])
-        .then(function(res) {
-            if (!data[statsId]) {
-                data[statsId] = {};
-            }
-            data[statsId]["node" + nodeId] = res;
-            deferred.resolve();
-        })
-        .fail(deferred.reject);
-
-        return deferred.promise();
-    }
-
     function getUserIdUnique(name) {
         var hash = jQuery.md5(name);
         var len = 5;
