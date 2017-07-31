@@ -62,6 +62,9 @@ window.XcSocket = (function(XcSocket, $) {
             // In the event that there's new UDF added or overwrite old UDF
             UDF.refreshWithoutClearing(overwriteUDF);
         });
+        socket.on("refreshDSExport", function() {
+            DSExport.refresh();
+        });
     }
 
     /* Unit Test Only */

@@ -39,5 +39,8 @@ module.exports = function(server) {
         socket.on("refreshUDFWithoutClear", function(overwriteUDF) {
             socket.broadcast.emit("refreshUDFWithoutClear", overwriteUDF);
         });
+        socket.on("refreshDSExport", function() {
+            socket.broadcast.emit("refreshDSExport");
+        });
     });
 };
