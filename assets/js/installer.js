@@ -418,7 +418,8 @@ window.Installer = (function(Installer, $) {
         return (deferred.promise());
     }
     function checkLicense(license) {
-        return sendViaHttps("GET", licenseCheckingApi, {"licenseKey": license});
+        return sendViaHttps("POST", licenseCheckingApi,
+                            JSON.stringify({"licenseKey": license}));
     }
 
     function validateNfs() {
@@ -858,7 +859,7 @@ window.Installer = (function(Installer, $) {
                 clearInterval(intervalTimer);
                 deferred.reject("Cancelled", "Installation cancelled");
             } else {
-                sendViaHttps("GET", installationStatusApi, finalStruct)
+                sendViaHttps("POST", installationStatusApi, JSON.stringify(finalStruct))
                 .then(function(hints, ret) {
                     if (ret.curStepStatus === installStatus.Done) {
                         done = true;

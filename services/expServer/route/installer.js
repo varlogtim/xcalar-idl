@@ -388,18 +388,18 @@ function installXcalar(credArray) {
     });
 }
 
-router.get('/xdp/license/verification', function(req, res) {
+router.post('/xdp/license/verification', function(req, res) {
     xcConsole.log("Checking License");
-    var credArray = req.query;
+    var credArray = req.body;
     checkLicense(credArray)
     .always(function(message) {
         res.status(message.status).send(message);
     });
 });
 
-router.get("/xdp/installation/status", function(req, res) {
+router.post("/xdp/installation/status", function(req, res) {
     xcConsole.log("Checking Status");
-    var credArray = req.query;
+    var credArray = req.body;
     createStatusArray(credArray)
     .always(function(message) {
         res.status(message.status).send(message);
