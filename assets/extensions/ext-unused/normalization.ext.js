@@ -250,10 +250,10 @@ window.UExtNormalization = (function(UExtNormalization) {
                         if (maxCount > 1) {
                             // id column is not unique, return error
                             tempDeferred.reject('The Column "' + idCol.getName()
-                                + '" does not uniquely identify "' + groupName +
-                                '". Different "' +  groupName + '" values have '
-                                + 'the same Primary Key. Select another ' +
-                                "Primary Key or use the auto-generated one.");
+                            + '" does not uniquely identify "' + groupName +
+                            '". Different "' + groupName + '" values have ' +
+                            + 'the same Primary Key. Select another ' +
+                            "Primary Key or use the auto-generated one.");
                         } else {
                             // id column is unique
                             tempDeferred.resolve(tableWithIdCol);

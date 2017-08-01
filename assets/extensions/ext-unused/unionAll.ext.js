@@ -49,7 +49,7 @@ window.UExtUnionAll = (function(UExtUnionAll) {
             .fail(deferred.reject);
 
             return deferred.promise();
-        };
+        }
 
         ext.beforeStart = function() {
 
@@ -79,12 +79,12 @@ window.UExtUnionAll = (function(UExtUnionAll) {
                 var typeOne = tableOne.tableCols[i].getType();
                 var typeTwo = tableTwo.tableCols[j].getType();
 
-                if (typeOne == "undefined") {
+                if (typeOne === "undefined") {
                     return XcSDK.Promise.reject("Blank Column in Top Table " +
                         "at index " + i);
                 }
 
-                if (typeTwo == "undefined") {
+                if (typeTwo === "undefined") {
                     return XcSDK.Promise.reject("Blank Column in Bottom Table "
                         + "at index " + j);
                 }
@@ -168,12 +168,12 @@ window.UExtUnionAll = (function(UExtUnionAll) {
                 tableToResolve = tableAfterMap;
                 // drop table before map to conserve memory
                 if (ext.dropTable) {
-                    return ext.dropTable(currTable.getName())
+                    return ext.dropTable(currTable.getName());
                 } else {
                     return dropTable(currTable.getName());
                 }
             })
-            .then(function(tableAfterMap) {
+            .then(function() {
                 var colToAdd = new XcSDK.Column(newColName);
                 var newTable = ext.getTable(tableToResolve);
                 newTable.addCol(colToAdd);

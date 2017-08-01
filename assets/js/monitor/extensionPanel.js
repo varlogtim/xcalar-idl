@@ -27,7 +27,7 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
             if (url == null) {
                 return;
             } else {
-                if (!url.startsWith("http:")) {
+                if (!url.startsWith("http:") && !url.startsWith("https:")) {
                     url = "http://" + url;
                 }
                 window.open(url);
