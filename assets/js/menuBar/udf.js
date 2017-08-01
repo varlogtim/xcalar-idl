@@ -614,9 +614,8 @@ window.UDF = (function($, UDF) {
         function deleteUDFResolve() {
             delete storedUDF[moduleName];
             updateUDF();
-
             refreshUDF(true);
-
+            XcSocket.sendMessage("refreshUDFWithoutClear");
             xcHelper.showSuccess(SuccessTStr.DelUDF);
         }
     }
@@ -718,6 +717,7 @@ window.UDF = (function($, UDF) {
                     } else {
                         $("#udf-fnList input").val("");
                     }
+                    XcSocket.sendMessage("refreshUDFWithoutClear");
                     deferred.resolve();
                 })
                 .fail(function(error) {
@@ -747,6 +747,7 @@ window.UDF = (function($, UDF) {
                 XcalarAppSet(moduleName, "Python", "Import", entireString)
                 .then(function() {
                     xcHelper.showSuccess(SuccessTStr.UploadApp);
+                    XcSocket.sendMessage("refreshUDFWithoutClear");
                     deferred.resolve();
                 })
                 .fail(function(error) {
@@ -764,7 +765,6 @@ window.UDF = (function($, UDF) {
                 });
             }
         }
-
         return deferred.promise();
     }
 
