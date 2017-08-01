@@ -204,7 +204,7 @@ window.XcSupport = (function(XcSupport, $) {
         var yellowThreshold = 0.6;
         var redThreshold = 0.8;
         var shouldAlert = false;
-        var $memoryAlert = $("#memoryAlert");
+        var $memoryAlert = $("#memoryAlert").removeClass("inActive");
 
         if (highestMemUsage > redThreshold) {
             // when it's red, can stop loop immediately
