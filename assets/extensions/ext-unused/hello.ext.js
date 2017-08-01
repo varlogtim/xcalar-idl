@@ -123,6 +123,8 @@ window.UExtHello = (function(UExtHello) {
      *                      for this table exists.
      *       newTableName: Optional, when set true, will check if it's a
      *                     valid table name.
+     *       newAggName: Optional, when set true, will check if it's a
+     *                   valid agg name.
      *
      *  7) variableArg: Optional, when set to true, will allow to add multiple
      *                  args for the field, typeCheck will run all inputs

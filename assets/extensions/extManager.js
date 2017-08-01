@@ -695,8 +695,9 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             }
         });
 
-        $extArgs.on("focus", ".argument.type-column, .argument.type-table, " +
-            ".argument.type-string", function() {
+        var selector = ".argument.type-column, .argument.type-table, " +
+                       ".argument.type-string";
+        $extArgs.on("focus", selector, function() {
             $lastInputFocused = $(this);
         });
 
@@ -905,6 +906,10 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             }
         });
 
+        $argSection.find("input.aggName").each(function() {
+            xcHelper.addAggInputEvents($(this));
+        });
+
         formHelper.refreshTabbing();
         if (animating) {
             setTimeout(function() {
@@ -1091,6 +1096,10 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             } else if (arg.autofill != null) {
                 // when it's string
                 inputVal = getAutofillVal(arg.autofill);
+            }
+
+            if (typeCheck.newAggName) {
+                inputClass += " aggName";
             }
 
             if (arg.enums != null && arg.enums instanceof Array) {
@@ -1560,6 +1569,9 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                     return { "vaild": false };
                 }
             } else if (typeCheck.newAggName === true) {
+                arg = arg.startsWith(gAggVarPrefix)
+                      ? arg.substring(1)
+                      : arg;
                 if (!xcHelper.isValidTableName(arg)) {
                     StatusBox.show(ErrTStr.InvalidAggName, $input);
                     return { "vaild": false };

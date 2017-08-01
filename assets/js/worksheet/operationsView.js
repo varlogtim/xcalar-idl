@@ -1844,44 +1844,8 @@ window.OperationsView = (function($, OperationsView) {
                         .end()
                         .find('.description').text(description);
 
-        var $nameInput =  $rows.eq(numArgs).find('.arg');
-
-        // focus, blur, keydown, input listeners ensures the aggPrefix
-        // is always the first chracter in the colname input
-        // and is only visible when focused or changed
-        $nameInput.on('focus.aggPrefix', function() {
-            var $input = $(this);
-            if ($input.val().trim() === "") {
-                $input.val(gAggVarPrefix);
-            }
-        });
-        $nameInput.on('blur.aggPrefix', function() {
-            var $input = $(this);
-            if ($input.val().trim() === gAggVarPrefix) {
-                $input.val("");
-            }
-        });
-        $nameInput.on('keydown.aggPrefix', function(event) {
-            var $input = $(this);
-            if ($input.caret() === 0 &&
-                $input[0].selectionEnd === 0) {
-                event.preventDefault();
-                $input.caret(1);
-                return false;
-            }
-        });
-        $nameInput.on('input.aggPrefix', function() {
-            var $input = $(this);
-            var val = $input.val();
-            var trimmedVal = $input.val().trim();
-            if (trimmedVal[0] !== gAggVarPrefix) {
-                var caretPos = $input.caret();
-                $input.val(gAggVarPrefix + val);
-                if (caretPos === 0) {
-                    $input.caret(1);
-                }
-            }
-        });
+        var $nameInput = $rows.eq(numArgs).find('.arg');
+        xcHelper.addAggInputEvents($nameInput);
     }
 
     function findStringDiff(oldText, newText) {

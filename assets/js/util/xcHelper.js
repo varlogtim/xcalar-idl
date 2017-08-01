@@ -297,7 +297,7 @@ window.xcHelper = (function($, xcHelper) {
             }
         }
         return castStrs;
-    }
+    };
 
     xcHelper.getFilterOptions = function(operator, colName, uniqueVals, isExist) {
         var colVals = [];
@@ -3101,7 +3101,7 @@ window.xcHelper = (function($, xcHelper) {
         var openOffset = 350; // when the menu is open;
         var menuOffset = 285;
         var menuAnimTime = 200; // length of time menu takes to animate
-        var extraDelay = 80; // in case of lag
+        // var extraDelay = 80; // in case of lag
         if (close) {
             options = {marginRight: openOffset};
             menuOffset *= -1;
@@ -3313,6 +3313,48 @@ window.xcHelper = (function($, xcHelper) {
             return html;
         }
 
+    };
+
+    xcHelper.addAggInputEvents = function($aggInput) {
+        // focus, blur, keydown, input listeners ensures the aggPrefix
+        // is always the first chracter in the colname input
+        // and is only visible when focused or changed
+        $aggInput.on('focus.aggPrefix', function() {
+            var $input = $(this);
+            if ($input.val().trim() === "") {
+                $input.val(gAggVarPrefix);
+            }
+        });
+
+        $aggInput.on('blur.aggPrefix', function() {
+            var $input = $(this);
+            if ($input.val().trim() === gAggVarPrefix) {
+                $input.val("");
+            }
+        });
+
+        $aggInput.on('keydown.aggPrefix', function(event) {
+            var $input = $(this);
+            if ($input.caret() === 0 &&
+                $input[0].selectionEnd === 0) {
+                event.preventDefault();
+                $input.caret(1);
+                return false;
+            }
+        });
+
+        $aggInput.on('input.aggPrefix', function() {
+            var $input = $(this);
+            var val = $input.val();
+            var trimmedVal = $input.val().trim();
+            if (trimmedVal[0] !== gAggVarPrefix) {
+                var caretPos = $input.caret();
+                $input.val(gAggVarPrefix + val);
+                if (caretPos === 0) {
+                    $input.caret(1);
+                }
+            }
+        });
     };
 
     xcHelper.listHighlight = function($input, event, isArgInput) {
@@ -4045,7 +4087,7 @@ window.xcHelper = (function($, xcHelper) {
         } else {
             $subMenu.find('.moveRight').removeClass('unavailable');
         }
-        var $dagWrap = $('#dagWrap-' + tableId);
+        // var $dagWrap = $('#dagWrap-' + tableId);
 
         xcHelper.enableMenuItem($menu.find('.createDf'));
     }

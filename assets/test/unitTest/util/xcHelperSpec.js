@@ -2299,6 +2299,23 @@ describe("xcHelper Test", function() {
         expect(res).to.be.null;
     });
 
+    it("xcHelper.addAggInputEvents should work", function() {
+        var $input = $('<input val="">');
+        $('body').append($input);
+
+        xcHelper.addAggInputEvents($input);
+        $input.focus();
+        expect($input.val()).to.equal(gAggVarPrefix);
+        $input.blur();
+        expect($input.val()).to.equal("");
+        $input.val("^abc").trigger(fakeEvent.enterKeydown);
+        expect($input.val()).to.equal("^abc");
+        $input.val("test").trigger(fakeEvent.input);
+        expect($input.val()).to.equal("^test");
+
+        $input.remove();
+    });
+
     describe("xcHelper.getKeyType", function() {
         it("xcHelper.getKeyType on regular column should work", function(done) {
             var progCol1 = ColManager.newCol({
