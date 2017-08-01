@@ -558,7 +558,8 @@ window.WorkbookManager = (function($, WorkbookManager) {
                 "name": newName,
                 "created": srcWKBK.created,
                 "srcUser": srcWKBK.srcUser,
-                "curUser": srcWKBK.curUser
+                "curUser": srcWKBK.curUser,
+                "numWorksheets": srcWKBK.numWorksheets
             };
 
             var newWkbk = new WKBK(options);
