@@ -190,6 +190,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
             MonitorPanel.updateDonuts(allStats, numNodes);
             failCount = 0;
             toggleErrorScreen();
+            XcSupport.detectMemoryUsage(result);
             deferred.resolve();
         })
         .fail(function(error) {

@@ -141,14 +141,11 @@ window.XcSupport = (function(XcSupport, $) {
 
         var deferred = jQuery.Deferred();
 
-        var yellowThreshold = 0.6;
-        var redThreshold = 0.8;
-
         isCheckingMem = true;
 
         refreshTables()
         .then(XcalarApiTop)
-        .then(detectMemoryUsage)
+        .then(XcSupport.detectMemoryUsage)
         .then(deferred.resolve)
         .fail(deferred.reject)
         .always(function() {
@@ -158,74 +155,13 @@ window.XcSupport = (function(XcSupport, $) {
         return deferred.promise();
 
         function refreshTables() {
-            var innerDeferred = jQuery.Deferred();
-            // need it to detect if users have tables
-            TableList.refreshOrphanList(false)
-            .always(innerDeferred.resolve);
-
-            return innerDeferred.promise();
-        }
-
-        function detectMemoryUsage(topOutput) {
-            var highestMemUsage = 0;
-            var used = 0;
-            var total = 0;
-
-            var numNodes = topOutput.numNodes;
-
-            for (var i = 0; i < numNodes; i++) {
-                var node = topOutput.topOutputPerNode[i];
-                var xdbUsage = node.xdbUsedBytes / node.xdbTotalBytes;
-
-                used += node.xdbUsedBytes;
-                total += node.xdbTotalBytes;
-
-                highestMemUsage = Math.max(highestMemUsage, xdbUsage);
-            }
-            var avgUsg  = used / total;
-            if (isNaN(avgUsg)) {
-                avgUsg = 0;
-            }
-
-            handleMemoryUsage(highestMemUsage, avgUsg);
-        }
-
-        function handleMemoryUsage(highestMemUsage, avgMemUsage) {
-            var shouldAlert = false;
-            var $memoryAlert = $("#memoryAlert");
-
-            if (highestMemUsage > redThreshold) {
-                // when it's red, can stop loop immediately
-                $memoryAlert.addClass("red").removeClass("yellow");
-                shouldAlert = true;
-            } else if (highestMemUsage > yellowThreshold) {
-                // when it's yellow, should continue loop
-                // to see if it has any red case
-                $memoryAlert.addClass("yellow").removeClass("red");
-                shouldAlert = true;
+            if (jQuery.isEmptyObject(gTables) && gOrphanTables.length === 0) {
+                // no tables, need a refresh
+                var promise = TableList.refreshOrphanList(false);
+                return PromiseHelper.alwaysResolve(promise);
             } else {
-                $memoryAlert.removeClass("red").removeClass("yellow");
+                return PromiseHelper.resolve();
             }
-
-            var percent = Math.round(avgMemUsage * 100) + "%";
-            var usageText = "<br>" + CommonTxtTstr.XDBUsage + ": " + percent;
-            if (shouldAlert) {
-                // we want user to drop table first and only when no tables
-                // let them drop ds
-                if (jQuery.isEmptyObject(gTables) && gOrphanTables.length === 0)
-                {
-                    text = TooltipTStr.LowMemInDS + usageText;
-                    $memoryAlert.removeClass("tableAlert");
-                } else {
-                    text = TooltipTStr.LowMemInTable + usageText;
-                    $memoryAlert.addClass("tableAlert");
-                }
-            } else {
-                text = TooltipTStr.SystemGood + usageText;
-            }
-
-            xcTooltip.changeText($memoryAlert, text);
-            return shouldAlert;
         }
 
         function hasMemoryWarn() {
@@ -234,6 +170,75 @@ window.XcSupport = (function(XcSupport, $) {
                     $memoryAlert.hasClass("red"));
         }
     };
+
+    XcSupport.detectMemoryUsage = function(topOutput) {
+        var highestMemUsage = 0;
+        var used = 0;
+        var total = 0;
+
+        var numNodes = topOutput.numNodes;
+
+        for (var i = 0; i < numNodes; i++) {
+            var node = topOutput.topOutputPerNode[i];
+            var xdbUsage = node.xdbUsedBytes / node.xdbTotalBytes;
+
+            used += node.xdbUsedBytes;
+            total += node.xdbTotalBytes;
+
+            highestMemUsage = Math.max(highestMemUsage, xdbUsage);
+        }
+        var avgUsg = used / total;
+        if (isNaN(avgUsg)) {
+            avgUsg = 0;
+        }
+
+        var shouldAlert = handleMemoryUsage(highestMemUsage, avgUsg);
+        if (shouldAlert) {
+            return PromiseHelper.alwaysResolve(TableList.refreshOrphanList(false));
+        } else {
+            return PromiseHelper.resolve();
+        }
+    };
+
+    function handleMemoryUsage(highestMemUsage, avgMemUsage) {
+        var yellowThreshold = 0.6;
+        var redThreshold = 0.8;
+        var shouldAlert = false;
+        var $memoryAlert = $("#memoryAlert");
+
+        if (highestMemUsage > redThreshold) {
+            // when it's red, can stop loop immediately
+            $memoryAlert.addClass("red").removeClass("yellow");
+            shouldAlert = true;
+        } else if (highestMemUsage > yellowThreshold) {
+            // when it's yellow, should continue loop
+            // to see if it has any red case
+            $memoryAlert.addClass("yellow").removeClass("red");
+            shouldAlert = true;
+        } else {
+            $memoryAlert.removeClass("red").removeClass("yellow");
+        }
+
+        var percent = Math.round(avgMemUsage * 100) + "%";
+        var usageText = "<br>" + CommonTxtTstr.XDBUsage + ": " + percent;
+        if (shouldAlert) {
+            // we want user to drop table first and only when no tables
+            // let them drop ds
+            if (jQuery.isEmptyObject(gTables) && gOrphanTables.length === 0)
+            {
+                text = TooltipTStr.LowMemInDS + usageText;
+                $memoryAlert.removeClass("tableAlert");
+            } else {
+                text = TooltipTStr.LowMemInTable + usageText;
+                $memoryAlert.addClass("tableAlert");
+            }
+        } else {
+            text = TooltipTStr.SystemGood + usageText;
+        }
+
+        xcTooltip.changeText($memoryAlert, text);
+        return shouldAlert;
+    }
 
     XcSupport.heartbeatCheck = function() {
         if (WorkbookManager.getActiveWKBK() == null) {
