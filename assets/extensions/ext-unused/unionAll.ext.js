@@ -217,18 +217,36 @@ window.UExtUnionAll = (function(UExtUnionAll) {
 
             var totalCols = tableOneColNames.length;
 
-            var rowColOne = "ColumnOfOnes";
-            var rowColTwo = "ColumnOfTwos";
+            var rowColOne = ext.createUniqueCol(tableOneName, "RowColOne");
+            var rowColTwo = ext.createUniqueCol(tableTwoName, "RowColTwo");
 
-            //generate Row numbers for table 1
-            var tableOnePromise = ext.map('int(1)', tableOneName,
-                rowColOne, ext.createTempTableName());
+            var tableOneUniqueRowNum;
+            var tmpRowColTwo = ext.createColumnName();
 
-            var tableTwoPromise = ext.map('int(2)', tableTwoName,
-                rowColTwo, ext.createTempTableName());
+            // generate row numbers for table one
+            var tableOnePromise = ext.genRowNum(tableOneName, rowColOne,
+                ext.createTempTableName())
+                .then(function(tableOneAfterRowNum) {
+                    // store table with row numbers
+                    tableOneUniqueRowNum = tableOneAfterRowNum;
+                    // resolve with number of rows in table One
+                    return ext.getNumRows(tableOneUniqueRowNum);
+                });
+
+            // generate row numbers for table two
+            var tableTwoPromise = ext.genRowNum(tableTwoName, tmpRowColTwo,
+                    ext.createTempTableName());
 
             XcSDK.Promise.when(tableOnePromise, tableTwoPromise)
-            .then(function(tableOneUniqueRowNum, tableTwoUniqueRowNum) {
+            .then(function(numRowsOne, tableTwoRowNum) {
+                // add the number of rows in table one to the row number column
+                // in table two so that both tables have unique row numbers
+                var mapStr = "int(add(" + tmpRowColTwo + ", " + numRowsOne +
+                    "), 10)";
+                return ext.map(mapStr, tableTwoRowNum, rowColTwo,
+                    ext.createTempTableName());
+            })
+            .then(function(tableTwoUniqueRowNum) {
                 // perform a full outer join to get the required number of rows
                 // and and all data in one table
 
