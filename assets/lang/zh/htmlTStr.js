@@ -850,7 +850,7 @@ module.exports = {
         "ActiveWS": "激活的工作表",
         "ConstAbbr": "聚合",
         "ConstList": "聚合",
-        "ConstTableInstr": "此部分包含通过表列的<b>聚合</b>操作创建的聚合值。",
+        "ConstTableInstr": "此部分包含被命名的聚合值。",
         "HiddenWS": "隐藏的工作表",
         "HideTableInstr": "要隐藏表格，请右击激活表格，在弹出的菜单栏中选择<b>隐藏表</b>。",
         "InActiveList": "隐藏表",

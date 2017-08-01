@@ -348,7 +348,7 @@ module.exports = {
         "ActiveTableInstr": "To add a table to the worksheet, import a dataset in the <b>Datastes</b> panel and select this dataset to add as a table in the current worksheet.",
         "HideTableInstr": "To hide a table, right click the title bar for an active table to display a menu. Then select <b>Hide Table</b>.",
         "TempTableInstr": "This section contains tables that are no longer active after an operation is performed.",
-        "ConstTableInstr": "This section contains named aggregate values created through a table column's <b>Aggregate</b> operation."
+        "ConstTableInstr": "This section contains named aggregate values."
     },
 
     "queryGraph": {
