@@ -91,7 +91,7 @@ window.UExtMultiSort = (function(UExtMultiSort) {
                 // for padding, we need part before decimal for derived float
                 // columns and all numerical prefix columns
                 var cutMapStr;
-                if (colType === "integer" && col.getPrefix() === "") {
+                if (colType === "integer" && col.isDerivedField()) {
                     cutMapStr = 'string(' + positiveCol + ')';
                 } else {
                     cutMapStr = 'cut(string(' + positiveCol + '), 1, ".")';

@@ -51,5 +51,10 @@ window.XcSDK.Column.prototype = {
     getFrontName: function() {
         var name = this.frontColName || this.colName;
         return xcHelper.parsePrefixColName(name).name;
-    }
+    },
+
+    isDerivedField: function() {
+        // when it's a prefix, the type is a know type
+        return (this.getPrefix() === "");
+    },
 };
