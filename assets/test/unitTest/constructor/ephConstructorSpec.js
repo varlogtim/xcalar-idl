@@ -1276,13 +1276,14 @@ describe("Ephemeral Constructor Test", function() {
                 "author": "test user",
                 "image": "testImage",
                 "category": "test",
-                "main": "main"
+                "main": "main",
+                "website": "http://test.com"
             });
         });
 
         it("should be a constructor", function() {
             expect(extItem).to.be.an.instanceof(ExtItem);
-            expect(Object.keys(extItem).length).to.equal(7);
+            expect(Object.keys(extItem).length).to.equal(8);
         });
 
         it("should get name", function() {
@@ -1325,6 +1326,10 @@ describe("Ephemeral Constructor Test", function() {
             expect(extItem.getImage()).to.equal("");
         });
 
+        it("should get website", function() {
+            expect(extItem.getWebsite()).to.equal("http://test.com");
+        });
+
         it("should know if it's installed", function() {
             var $fakeItem = $('<div class="item">item1</div>');
             $("#extension-lists").append($fakeItem);
@@ -1339,7 +1344,7 @@ describe("Ephemeral Constructor Test", function() {
         });
     });
 
-    describe("Extension Constructor Test", function() {
+    describe("ExtCategory Constructor Test", function() {
         var extItem;
 
         before(function() {
@@ -1847,7 +1852,7 @@ describe("Ephemeral Constructor Test", function() {
             }
             var list = '<ul id="infScrollList" ' +
                 'style="position:absolute; top:0px; left:0px; z-index:99999; ' +
-                'height: 500px; overflow:auto;">' + lis + '</ul>'
+                'height: 500px; overflow:auto;">' + lis + '</ul>';
             $("#container").append(list);
             $list = $("#infScrollList");
             infList = new InfList($list);

@@ -22,7 +22,7 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
             installExtension(ext, $(this));
         });
 
-        $panel.on("click", ".item .url", function() {
+        $panel.on("click", ".item .website", function() {
             var url = $(this).data("url");
             if (url == null) {
                 return;
@@ -436,6 +436,8 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
         for (var i = 0; i < extLen; i++) {
             var ext = extensions[i];
             var btnText;
+            var website = ext.getWebsite();
+            var websiteEle = "";
 
             if (ext.isInstalled()) {
                 btnClass = "installed";
@@ -443,6 +445,15 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
             } else {
                 btnClass = "";
                 btnText = ExtTStr.Install;
+            }
+
+            if (website) {
+                websiteEle = '<a class="website url" ' +
+                            'data-url="' + website + '">' +
+                                ExtTStr.WEBSITE +
+                            '</a>';
+            } else {
+                websiteEle = "";
             }
 
             var image = ext.getImage();
@@ -494,6 +505,7 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
                                 '</div>' +
                             '</div>' +
                             '<div class="rightPart">' +
+                                websiteEle +
                                 '<a class="url" ' +
                                 'onclick="window.open(\'mailto:customerportal@xcalar.com\')" ' +
                                 'target="_top">' +

@@ -2707,6 +2707,7 @@ function ExtItem(options) {
     this.author = options.author;
     this.image = options.image;
     this.main = options.main;
+    this.website = options.website;
     // XXX quick hack, if we later want to have multiple category
     // then keep the structure, otherwise, can refactor to remove
     // category related code
@@ -2753,6 +2754,10 @@ ExtItem.prototype = {
 
     setImage: function(newImage) {
         this.image = newImage;
+    },
+
+    getWebsite: function() {
+        return this.website;
     },
 
     isInstalled: function() {

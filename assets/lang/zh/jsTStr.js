@@ -826,7 +826,8 @@ ExtTStr = {
 "XcCategory": 'Xcalar Extensions',
 'extListFail': '无法获得安装的插件列表',
 "InvalidTableName": "无效的表名，请使用插件提供的api生成表名",
-"AddClause": "添加参数"
+"AddClause": "添加参数",
+"WEBSITE": "网站"
 };
 DaysTStr = {
 'Sunday': '星期日',
