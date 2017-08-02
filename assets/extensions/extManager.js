@@ -351,6 +351,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         noNotification: boolean, to hide success message pop up
         noSql: boolean, if set true, not add to sql log,
         closeTab: boolean, if true, close view when pass before run check
+        formOpenTime: the open time of the form
     }
      */
     ExtensionManager.trigger = function(tableId, module, func, args, options) {
@@ -501,11 +502,12 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                     Transaction.fail(txId, {
                         "failMsg": StatusMessageTStr.ExtFailed,
                         "error": error,
-                        "sql": sql
+                        "sql": sql,
+                        "noAlert": true
                     });
-                } else {
-                    Alert.error(StatusMessageTStr.ExtFailed, error);
                 }
+
+                handleExtensionFail(error, options.formOpenTime);
                 deferred.reject(error);
             });
         } catch (error) {
@@ -516,16 +518,31 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                 Transaction.fail(txId, {
                     "failMsg": StatusMessageTStr.ExtFailed,
                     "error": error.toLocaleString(),
-                    "sql": sql
+                    "sql": sql,
+                    "noAlert": true
                 });
-            } else {
-                Alert.error(StatusMessageTStr.ExtFailed, error.toLocaleString());
             }
+
+            handleExtensionFail(error.toLocaleString(), options.formOpenTime);
             deferred.reject(error);
         }
 
         return deferred.promise();
     };
+
+    function handleExtensionFail(error, lastFormOpenTime) {
+        Alert.error(StatusMessageTStr.ExtFailed, error, {
+            "buttons": [{
+                "name": ExtTStr.MODIFY,
+                "className": "larger",
+                "func": function() {
+                    ExtensionManager.openView(null, null, {
+                        "restoreTime": lastFormOpenTime
+                    });
+                }
+            }]
+        });
+    }
 
     // fullNames: boolean, if true - returns names, otherwise returns ids
     function getTablesFromArgs(args, fullNames) {

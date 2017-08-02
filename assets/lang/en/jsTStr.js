@@ -975,6 +975,7 @@ ExtTStr = {
     "Installed": "INSTALLED",
     "More": "VIEW MORE",
     "Less": "HIDE DETAIL",
+    "MODIFY": "MODIFY EXTENSION",
     "XcCategory": "Xcalar Extensions",
     "extListFail": "Failed to get installed extensions list",
     "InvalidTableName": "Invalid table name, please use extension api to create a valid name",
