@@ -6,6 +6,7 @@ var support = require('../expServerSupport.js');
 var xcConsole = require('../expServerXcConsole.js').xcConsole;
 var Status = require('../supportStatusFile').Status;
 var httpStatus = require('../../../assets/js/httpStatus.js').httpStatus;
+var exec = require("child_process").exec;
 
 // Start of installer calls
 var installStatus = {
