@@ -159,7 +159,8 @@ window.UDF = (function($, UDF) {
             "indentWithTabs": false,
             "indentUnit": 4,
             "matchBrackets": true,
-            "autoCloseBrackets": true
+            "autoCloseBrackets": true,
+            "search": true
         });
 
         setupAutocomplete(editor);

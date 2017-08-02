@@ -73,6 +73,10 @@
   var queryDialog =
     'Search: <input type="text" style="width: 10em" class="CodeMirror-search-field"/> <span style="color: #888" class="CodeMirror-search-hint">(Use /re/ syntax for regexp search)</span>';
   function doSearch(cm, rev) {
+    if (!cm.getOption("search")) {
+      // this is a line modified for XD
+      return;
+    }
     var state = getSearchState(cm);
     if (state.query) return findNext(cm, rev);
     var q = cm.getSelection() || state.lastQuery;
