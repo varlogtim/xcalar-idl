@@ -339,7 +339,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
             for (var i = 0; i < numNodes; i++) {
                 listHTML += '<li>' +
                                 '<span class="name">' +
-                                    'Node ' + (i + 1) +
+                                    'Node ' + i +
                                 '</span>' +
                                 '<span class="statsNum">' +
                                     stats.used[i] + '%' +
@@ -378,7 +378,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
 
                 listHTML += '<li>' +
                                 '<span class="name">' +
-                                    'Node ' + (i + 1) +
+                                    'Node ' + i +
                                 '</span>' +
                                 '<span class="totalSize">' +
                                     total[0] + totalUnits +
