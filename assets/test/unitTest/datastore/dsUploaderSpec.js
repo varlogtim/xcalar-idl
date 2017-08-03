@@ -620,7 +620,7 @@ describe("DSUploader Test", function() {
             xcalarGetNumNodes(tHandle)
             .then(function(res) {
                 try {
-                    numNodes = res.output.outputResult.getNumNodesOutput.numNodes;
+                    numNodes = res.numNodes;
                 } catch (e) {
                     console.error(e);
                 }

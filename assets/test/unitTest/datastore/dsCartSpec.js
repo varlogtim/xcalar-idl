@@ -528,7 +528,7 @@ describe("DSCart Test", function() {
                 if (tableName != null) {
                     return UnitTest.deleteTable(tableName);
                 } else {
-                    return PromiseHepler.resolve();
+                    return PromiseHelper.resolve();
                 }
             }
         });

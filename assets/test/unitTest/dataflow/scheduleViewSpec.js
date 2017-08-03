@@ -8,7 +8,7 @@ describe("Schedule related Test", function() {
             return $("#dfViz .cardMain").children().length !== 0;
         })
         .then(function() {
-             oldRefresh = DF.refresh;
+            oldRefresh = DF.refresh;
             // prevent others refresh it
             DF.refresh = function() {};
             done();

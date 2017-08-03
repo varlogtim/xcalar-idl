@@ -5,7 +5,6 @@ describe("Repeat Test", function() {
     var tableId;
     var $table;
 
-    var testDs2;
     var tableName2;
     var prefix2;
     var tableId2;
@@ -34,7 +33,7 @@ describe("Repeat Test", function() {
             var cachedIndexFn = XcalarIndexFromTable;
             var cachedRefreshFn = TblManager.refreshTable;
             var indexCalled = false;
-            XcalarIndexFromTable = function(tableName) {
+            XcalarIndexFromTable = function() {
                 indexCalled = true;
                 return PromiseHelper.resolve();
             };
@@ -292,7 +291,7 @@ describe("Repeat Test", function() {
         });
 
         it("add new col should work", function(done) {
-            ColManager.addNewCol(1, tableId, 1)
+            ColManager.addNewCol(1, tableId, 1);
             TblManager.highlightColumn($table.find("th.col2"));
             SQL.repeat()
             .then(function() {
@@ -511,7 +510,7 @@ describe("Repeat Test", function() {
         it("add ws should work", function(done) {
             newWSId = WSManager.addWS();
             SQL.repeat()
-            .then(function(res) {
+            .then(function() {
                 var lastSql = SQL.viewLastAction(true);
                 expect(lastSql.title).to.equal("Create Worksheet");
                 expect(lastSql.options.worksheetId).to.not.equal(newWSId);
