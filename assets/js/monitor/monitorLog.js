@@ -4,6 +4,7 @@ window.MonitorLog = (function(MonitorLog, $) {
     var defaultXcalarLogPath = "/var/log/xcalar/";
     var emptyString = "is empty";
     var logsString = "Logs:";
+    var errorString = "Error:";
     var hasEmptyRecord = {};
 
     MonitorLog.setup = function() {
@@ -254,8 +255,13 @@ window.MonitorLog = (function(MonitorLog, $) {
                 } else {
                     hasEmptyRecord[hostName] = false;
                     // if no new log is generated, neglect this record
-                    if (hostInfo.indexOf(logsString) === -1) {
+                    if (hostInfo.indexOf(logsString) === -1
+                        && hostInfo.indexOf(errorString) === -1) {
                         hideThisRecord = true;
+                    }
+                    if (hostInfo.indexOf(errorString) !== -1) {
+                        // if error occurred on node, set color to red
+                        color = "color7";
                     }
                 }
 

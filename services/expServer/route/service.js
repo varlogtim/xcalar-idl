@@ -151,7 +151,7 @@ router.post("/service/ticket", function(req, res) {
 
 router.get("/service/logs", function(req, res) {
     xcConsole.log("Fetching Recent Logs as Master");
-    support.masterExecuteAction("GET", "/logs/slave", req.query)
+    support.masterExecuteAction("GET", "/service/logs/slave", req.query)
     .always(function(message) {
         if (message.logs) {
             message.logs = convertToBase64(message.logs);
@@ -162,7 +162,7 @@ router.get("/service/logs", function(req, res) {
 
 router.get("/service/logs/slave", function(req, res) {
     xcConsole.log("Fetching Recent Logs as Slave");
-    support.slaveExecuteAction("GET", "/logs/slave", req.body)
+    support.slaveExecuteAction("GET", "/service/logs/slave", req.body)
     .always(function(message) {
         res.status(message.status).send(message);
     });

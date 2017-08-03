@@ -263,7 +263,8 @@ function sendCommandToSlaves(action, slaveUrl, content, hosts) {
                 } catch (error) {
                     retMsg = {
                         status: httpStatus.InternalServerError,
-                        logs: error.message
+                        //logs: error.message
+                        error: "Error occurred on the node."
                     };
                     hasFailure = true;
                 }

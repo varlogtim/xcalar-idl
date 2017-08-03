@@ -32,7 +32,7 @@ function tailLog(requireLineNum, filePath, fileName) {
         var requireLineNum = Number(requireLineNumInput);
         if (!isLogNumValid(requireLineNum)) {
             var retMsg = {
-                "status": Status.BadRequest, // Bad Request
+                "status": httpStatus.BadRequest, // Bad Request
                 "logs": "Please enter a non-negative number less than 500"
             };
             deferred.reject(retMsg);
