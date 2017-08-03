@@ -235,6 +235,65 @@ window.DagFunction = (function($, DagFunction) {
         Dag.focusDagForActiveTable(undefined, true);
     };
 
+    // will always resolve
+    // used after a transaction is complete and before constructing dag
+    DagFunction.tagNodes = function(txId, tableId) {
+        var deferred = jQuery.Deferred();
+        var tables = QueryManager.getAllDstTables(txId, true);
+        if (!tables.length) {
+            return PromiseHelper.resolve();
+        }
+
+        var tagName = QueryManager.getQuery(txId).getName();
+        var tId = xcHelper.getTableId(tables[0]);
+        if (tId) {
+            tagName += "#" + tId;
+        }
+        retagIndexedTables(txId, tagName)
+        .then(function() {
+            return XcalarTagDagNodes(tagName, tables);
+        })
+        .always(deferred.resolve);
+
+        return deferred.promise();
+    };
+
+    // will always resolve
+    // get indexed tables that were used but not logged in a transaction
+    // and append tagName
+    function retagIndexedTables(txId, tagName) {
+        var deferred = jQuery.Deferred();
+        var indexTables = QueryManager.getIndexTables(txId);
+        var promises = [];
+        for (var i = 0; i < indexTables.length; i++) {
+            promises.push(XcalarGetDag(indexTables[i]));
+        }
+
+        PromiseHelper.when.apply(null, promises)
+        .then(function() {
+            var rets = arguments;
+            promises = [];
+            for (var i = 0; i < rets.length; i++) {
+                var nodes = rets[i];
+                if (nodes && nodes.node) {
+                    var tag = nodes.node[0].tag;
+                    var newTag;
+                    if (tag) {
+                        newTag = tag + "," + tagName;
+                    } else {
+                        newTag = tagName;
+                    }
+                    promises.push(XcalarTagDagNodes(newTag, indexTables[i]));
+                }
+            }
+            PromiseHelper.when.apply(null, promises)
+            .always(deferred.resolve);
+        })
+        .fail(deferred.resolve);
+
+        return deferred.promise();
+    }
+
     // Helpers for cloneTreeWithNewValue
     function findXidByDstTableName(valArray, dstName) {
         for (var i = 0; i<valArray.length; i++) {

@@ -2606,6 +2606,7 @@
                 self.opTime = options.opTime || 0;
                 self.opTimeAdded = options.opTimeAdded || false;
                 self.error = options.error;
+                this.indexTables = []; // used to hold reused indexed tables
             }
 
             return self;
@@ -2703,22 +2704,33 @@
             },
             // excludes src tables
             getAllTableNames: function(force) {
+                var self = this;
                 var tables = [];
-                var subQueries = this.subQueries;
-                if (force || this.state === QueryStatus.Done) {
-                    var finalTable = this.getOutputTableName();
+                var subQueries = self.subQueries;
+                if (force || self.state === QueryStatus.Done) {
+                    var finalTable = self.getOutputTableName();
                     for (var i = subQueries.length - 1; i >= 0; i--) {
-                        tables.push(subQueries[i].dstTable);
-                    }
-                    for (var i = tables.length - 1; i >= 0; i--) {
-                        if (tables[i] === finalTable) {
-                            tables.splice(i, 1);
-                            tables.splice(0, 0, finalTable);
-                            break;
+                        if (subQueries[i].name !== "drop table") {
+                            tables.push(subQueries[i].dstTable);
                         }
+                    }
+                    var indexOfFinalTable = tables.indexOf(finalTable);
+                    if (indexOfFinalTable !== -1) {
+                        tables.splice(indexOfFinalTable, 1);
+                        tables.splice(0, 0, finalTable);
                     }
                 }
                 return tables;
+            },
+
+            addIndexTable: function(tableName) {
+                if (this.indexTables.indexOf(tableName) === -1) {
+                    this.indexTables.push(tableName);
+                }
+            },
+
+            getIndexTables: function(tableName) {
+                return this.indexTables;
             },
 
             getOutputTableState: function() {

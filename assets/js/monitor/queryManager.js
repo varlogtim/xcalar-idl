@@ -629,13 +629,30 @@ window.QueryManager = (function(QueryManager, $) {
         }
     };
 
-    QueryManager.getAllDestTables = function(id, force) {
+    QueryManager.getAllDstTables = function(id, force) {
         var tables = [];
         var query = queryLists[id];
         if (!query) {
             return tables;
         }
         return query.getAllTableNames(force);
+    };
+
+    // stores reused indexed table names
+    QueryManager.addIndexTable = function(id, tableName) {
+        var query = queryLists[id];
+        if (query) {
+            query.addIndexTable(tableName);
+        }
+    };
+
+    QueryManager.getIndexTables = function(id) {
+        var tables = [];
+        var query = queryLists[id];
+        if (!query) {
+            return tables;
+        }
+        return query.getIndexTables();
     };
 
     function runXcQuery(id, mainQuery, subQueries) {

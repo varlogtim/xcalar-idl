@@ -3231,7 +3231,7 @@ describe("Persistent Constructor Test", function() {
 
     // XX incomplete since the change where monitor query bars are working
     describe("XcQuery Constructor Test", function() {
-        it("Should have 20 attributes", function() {
+        it("Should have 21 attributes", function() {
             var xcQuery = new XcQuery({
                 "name": "test",
                 "fullName": "full test",
@@ -3242,7 +3242,7 @@ describe("Persistent Constructor Test", function() {
             });
 
             expect(xcQuery).to.be.an.instanceof(XcQuery);
-            expect(Object.keys(xcQuery).length).to.equal(20);
+            expect(Object.keys(xcQuery).length).to.equal(21);
             expect(xcQuery).to.have.property("version")
             .and.to.equal(currentVersion);
             expect(xcQuery).to.have.property("name")
@@ -3284,6 +3284,7 @@ describe("Persistent Constructor Test", function() {
             expect(xcQuery).to.have.property("opTimeAdded")
             .and.to.be.false;
             expect(xcQuery).to.have.property("error");
+            expect(xcQuery).to.have.property("indexTables");
         });
 
         it("XcQuery OOP function should work", function() {

@@ -1252,6 +1252,7 @@ window.XIApi = (function(XIApi, $) {
                 var indexTableId = xcHelper.getTableId(indexTable);
                 if (gTables.hasOwnProperty(indexTableId)) {
                     console.log("has cached of index table", indexTable);
+                    QueryManager.addIndexTable(txId, indexTable);
                     return PromiseHelper.resolve(indexTable, true, [], true);
                 } else {
                     console.log("cached index table", indexTable, "not exists");
@@ -1292,6 +1293,7 @@ window.XIApi = (function(XIApi, $) {
                     }
                 });
             } else {
+                QueryManager.addIndexTable(txId, unsortedTable);
                 console.log(tableName, "indexed correctly!");
                 deferred.resolve(unsortedTable, shouldIndex, tempTables);
             }
