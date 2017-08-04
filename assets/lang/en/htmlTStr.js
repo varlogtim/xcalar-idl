@@ -423,6 +423,7 @@ module.exports = {
         "UpdateLicense": "Update License",
         "UpdateLicenseInstr": "Update your Xcalar license key here.",
         "Upgrade": "Upgrade",
+        "Uptime": "Up Time",
         "UseAs": "Use Xcalar As",
         "Users": "Users",
         "UserSettings": "User Settings",

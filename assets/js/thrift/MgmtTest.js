@@ -1459,9 +1459,15 @@ PromiseHelper = (function(PromiseHelper, $) {
                 console.log("\tnumGroupNames: " +
                         groupMapOutput.numGroupNames.toString());
 
-                for (var i = 0; i < groupMapOutput.numGroupNames; i ++) {
+                for (var i = 0, groupInfo = null;
+                        i < groupMapOutput.numGroupNames; i ++) {
+                    groupInfo =  groupMapOutput.groupNameInfoArray[i];
                     console.log("\tgroupName[" + i.toString() + "] = " +
-                        groupMapOutput.groupName[i]);
+                                    groupInfo.statsGroupName);
+                    console.log("\tgroupIdNum[" + i.toString() + "] = " +
+                                    groupInfo.groupIdNum);
+                    console.log("\ttotalSingeStats[" + i.toString() + "] = " +
+                                    groupInfo.totalSingleStats);
                 }
 
                 test.pass();
@@ -1471,32 +1477,6 @@ PromiseHelper = (function(PromiseHelper, $) {
             }
         })
         .fail(test.fail);
-    }
-
-    function testGetStatsByGroupId(test) {
-        xcalarGetStatsByGroupId(thriftHandle, [0,1,2], [1,2])
-        .then(function(statOutput) {
-            printResult(statOutput);
-
-            test.assert(statOutput.numStats == 39, undefined,
-                        "Wrong number of stats returned");
-            for (var i = 0, stat = null; i < statOutput.numStats; i ++) {
-                stat = statOutput.stats[i];
-
-                console.log("\tstat[" + i.toString() + "].statName = " +
-                        stat.statName);
-                console.log("\tstat[" + i.toString() + "].statValue = " +
-                        stat.statValue.toString());
-                console.log("\tstat[" + i.toString() + "].statType = " +
-                        stat.statType.toString());
-                console.log("\tstat[" + i.toString() + "].groupId = " +
-                        stat.groupId.toString());
-            }
-            test.pass();
-        })
-        .fail(function (status) {
-            test.fail(StatusTStr[status]);
-        });
     }
 
     function testResetStats(test) {
@@ -3156,6 +3136,9 @@ PromiseHelper = (function(PromiseHelper, $) {
                 console.log("\txdbTotalBytes: ", topOutput.topOutputPerNode[ii].parentCpuUsageInPercent);
                 console.log("\txdbTotalBytes: ", topOutput.topOutputPerNode[ii].childrenCpuUsageInPercent);
                 console.log("\txdbTotalBytes: ", topOutput.topOutputPerNode[ii].numCores);
+                console.log("\tsysSwapUsedInBytes: ", topOutput.topOutputPerNode[ii].sysSwapUsedInBytes);
+                console.log("\tsysSwapTotalInBytes: ", topOutput.topOutputPerNode[ii].sysSwapTotalInBytes);
+                console.log("\tuptimeInSeconds: ", topOutput.topOutputPerNode[ii].uptimeInSeconds);
                 console.log("\n\n");
             }
             test.pass();
@@ -3976,7 +3959,6 @@ PromiseHelper = (function(PromiseHelper, $) {
     addTestCase(testGetStatGroupIdMap, "get stats group id map", defaultTimeout, TestCaseEnabled, "");
 
     addTestCase(testIndexDatasetWithPrefix, "index dataset with prefix", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testGetStatsByGroupId, "get stats group id", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testResetStats, "reset stats", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testMakeResultSetFromDataset, "result set (via dataset)", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testMakeResultSetFromTable, "result set (via tables)", defaultTimeout, TestCaseEnabled, "");

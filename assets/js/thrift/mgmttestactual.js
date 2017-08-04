@@ -18472,10 +18472,92 @@ XcalarApiStartNodesInputT.prototype.write = function(output) {
   return;
 };
 
+XcalarStatGroupInfoT = function(args) {
+  this.groupIdNum = null;
+  this.totalSingleStats = null;
+  this.statsGroupName = null;
+  if (args) {
+    if (args.groupIdNum !== undefined) {
+      this.groupIdNum = args.groupIdNum;
+    }
+    if (args.totalSingleStats !== undefined) {
+      this.totalSingleStats = args.totalSingleStats;
+    }
+    if (args.statsGroupName !== undefined) {
+      this.statsGroupName = args.statsGroupName;
+    }
+  }
+};
+XcalarStatGroupInfoT.prototype = {};
+XcalarStatGroupInfoT.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.I64) {
+        this.groupIdNum = input.readI64().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 2:
+      if (ftype == Thrift.Type.I64) {
+        this.totalSingleStats = input.readI64().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 3:
+      if (ftype == Thrift.Type.STRING) {
+        this.statsGroupName = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+XcalarStatGroupInfoT.prototype.write = function(output) {
+  output.writeStructBegin('XcalarStatGroupInfoT');
+  if (this.groupIdNum !== null && this.groupIdNum !== undefined) {
+    output.writeFieldBegin('groupIdNum', Thrift.Type.I64, 1);
+    output.writeI64(this.groupIdNum);
+    output.writeFieldEnd();
+  }
+  if (this.totalSingleStats !== null && this.totalSingleStats !== undefined) {
+    output.writeFieldBegin('totalSingleStats', Thrift.Type.I64, 2);
+    output.writeI64(this.totalSingleStats);
+    output.writeFieldEnd();
+  }
+  if (this.statsGroupName !== null && this.statsGroupName !== undefined) {
+    output.writeFieldBegin('statsGroupName', Thrift.Type.STRING, 3);
+    output.writeString(this.statsGroupName);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
 XcalarApiGetStatGroupIdMapOutputT = function(args) {
   this.numGroupNames = null;
   this.truncated = null;
-  this.groupName = null;
+  this.groupNameInfoArray = null;
   if (args) {
     if (args.numGroupNames !== undefined) {
       this.numGroupNames = args.numGroupNames;
@@ -18483,8 +18565,8 @@ XcalarApiGetStatGroupIdMapOutputT = function(args) {
     if (args.truncated !== undefined) {
       this.truncated = args.truncated;
     }
-    if (args.groupName !== undefined) {
-      this.groupName = args.groupName;
+    if (args.groupNameInfoArray !== undefined) {
+      this.groupNameInfoArray = args.groupNameInfoArray;
     }
   }
 };
@@ -18520,7 +18602,7 @@ XcalarApiGetStatGroupIdMapOutputT.prototype.read = function(input) {
       if (ftype == Thrift.Type.LIST) {
         var _size104 = 0;
         var _rtmp3108;
-        this.groupName = [];
+        this.groupNameInfoArray = [];
         var _etype107 = 0;
         _rtmp3108 = input.readListBegin();
         _etype107 = _rtmp3108.etype;
@@ -18528,8 +18610,9 @@ XcalarApiGetStatGroupIdMapOutputT.prototype.read = function(input) {
         for (var _i109 = 0; _i109 < _size104; ++_i109)
         {
           var elem110 = null;
-          elem110 = input.readString().value;
-          this.groupName.push(elem110);
+          elem110 = new XcalarStatGroupInfoT();
+          elem110.read(input);
+          this.groupNameInfoArray.push(elem110);
         }
         input.readListEnd();
       } else {
@@ -18557,15 +18640,15 @@ XcalarApiGetStatGroupIdMapOutputT.prototype.write = function(output) {
     output.writeBool(this.truncated);
     output.writeFieldEnd();
   }
-  if (this.groupName !== null && this.groupName !== undefined) {
-    output.writeFieldBegin('groupName', Thrift.Type.LIST, 3);
-    output.writeListBegin(Thrift.Type.STRING, this.groupName.length);
-    for (var iter111 in this.groupName)
+  if (this.groupNameInfoArray !== null && this.groupNameInfoArray !== undefined) {
+    output.writeFieldBegin('groupNameInfoArray', Thrift.Type.LIST, 3);
+    output.writeListBegin(Thrift.Type.STRUCT, this.groupNameInfoArray.length);
+    for (var iter111 in this.groupNameInfoArray)
     {
-      if (this.groupName.hasOwnProperty(iter111))
+      if (this.groupNameInfoArray.hasOwnProperty(iter111))
       {
-        iter111 = this.groupName[iter111];
-        output.writeString(iter111);
+        iter111 = this.groupNameInfoArray[iter111];
+        iter111.write(output);
       }
     }
     output.writeListEnd();
@@ -20691,6 +20774,9 @@ XcalarApiTopOutputPerNodeT = function(args) {
   this.parentCpuUsageInPercent = null;
   this.childrenCpuUsageInPercent = null;
   this.numCores = null;
+  this.sysSwapUsedInBytes = null;
+  this.sysSwapTotalInBytes = null;
+  this.uptimeInSeconds = null;
   if (args) {
     if (args.nodeId !== undefined) {
       this.nodeId = args.nodeId;
@@ -20727,6 +20813,15 @@ XcalarApiTopOutputPerNodeT = function(args) {
     }
     if (args.numCores !== undefined) {
       this.numCores = args.numCores;
+    }
+    if (args.sysSwapUsedInBytes !== undefined) {
+      this.sysSwapUsedInBytes = args.sysSwapUsedInBytes;
+    }
+    if (args.sysSwapTotalInBytes !== undefined) {
+      this.sysSwapTotalInBytes = args.sysSwapTotalInBytes;
+    }
+    if (args.uptimeInSeconds !== undefined) {
+      this.uptimeInSeconds = args.uptimeInSeconds;
     }
   }
 };
@@ -20828,6 +20923,27 @@ XcalarApiTopOutputPerNodeT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 13:
+      if (ftype == Thrift.Type.I64) {
+        this.sysSwapUsedInBytes = input.readI64().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 14:
+      if (ftype == Thrift.Type.I64) {
+        this.sysSwapTotalInBytes = input.readI64().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 15:
+      if (ftype == Thrift.Type.I64) {
+        this.uptimeInSeconds = input.readI64().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -20897,6 +21013,21 @@ XcalarApiTopOutputPerNodeT.prototype.write = function(output) {
   if (this.numCores !== null && this.numCores !== undefined) {
     output.writeFieldBegin('numCores', Thrift.Type.I64, 12);
     output.writeI64(this.numCores);
+    output.writeFieldEnd();
+  }
+  if (this.sysSwapUsedInBytes !== null && this.sysSwapUsedInBytes !== undefined) {
+    output.writeFieldBegin('sysSwapUsedInBytes', Thrift.Type.I64, 13);
+    output.writeI64(this.sysSwapUsedInBytes);
+    output.writeFieldEnd();
+  }
+  if (this.sysSwapTotalInBytes !== null && this.sysSwapTotalInBytes !== undefined) {
+    output.writeFieldBegin('sysSwapTotalInBytes', Thrift.Type.I64, 14);
+    output.writeI64(this.sysSwapTotalInBytes);
+    output.writeFieldEnd();
+  }
+  if (this.uptimeInSeconds !== null && this.uptimeInSeconds !== undefined) {
+    output.writeFieldBegin('uptimeInSeconds', Thrift.Type.I64, 15);
+    output.writeI64(this.uptimeInSeconds);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -30384,7 +30515,10 @@ StatusT = {
   'StatusIpAddrTooLong' : 582,
   'StatusSupportBundleNotSent' : 583,
   'StatusInvalidBlobStreamProtocol' : 584,
-  'StatusStreamPartialFailure' : 585
+  'StatusStreamPartialFailure' : 585,
+  'StatusUnknownProcMemInfoFileFormat' : 586,
+  'StatusApisWorkInvalidSignature' : 587,
+  'StatusApisWorkInvalidLength' : 588
 };
 StatusTStr = {0 : 'Success',
 1 : 'Operation not permitted',
@@ -30971,7 +31105,10 @@ StatusTStr = {0 : 'Success',
 582 : 'IP address is too long',
 583 : 'Support bundle was created but not sent to Xcalar',
 584 : 'Encountered invalid stream protocol, cleaning up',
-585 : 'Encountered partial failure in blob stream, cleaning up'
+585 : 'Encountered partial failure in blob stream, cleaning up',
+586 : 'Encountered unknown format in /proc/meminfo',
+587 : 'API received has invalid signature',
+588 : 'API received has invalid length'
 };
 //
 // Autogenerated by Thrift Compiler (0.9.2)
@@ -31282,9 +31419,9 @@ XcalarApiServiceClient.prototype.recv_queueWork = function() {
 
 
 XcalarApiVersionT = {
-  'XcalarApiVersionSignature' : 198838424
+  'XcalarApiVersionSignature' : 99772069
 };
-XcalarApiVersionTStr = {198838424 : 'bda0898ed68ad47b8f9ecb6bdbdd704a'
+XcalarApiVersionTStr = {99772069 : '5f266a51555bf43f1274b77ff955a02b'
 };
 // Async extension for XcalarApiService.js
 XcalarApiServiceClient.prototype.queueWorkAsync = function(workItem) {
@@ -37232,9 +37369,15 @@ PromiseHelper = (function(PromiseHelper, $) {
                 console.log("\tnumGroupNames: " +
                         groupMapOutput.numGroupNames.toString());
 
-                for (var i = 0; i < groupMapOutput.numGroupNames; i ++) {
+                for (var i = 0, groupInfo = null;
+                        i < groupMapOutput.numGroupNames; i ++) {
+                    groupInfo =  groupMapOutput.groupNameInfoArray[i];
                     console.log("\tgroupName[" + i.toString() + "] = " +
-                        groupMapOutput.groupName[i]);
+                                    groupInfo.statsGroupName);
+                    console.log("\tgroupIdNum[" + i.toString() + "] = " +
+                                    groupInfo.groupIdNum);
+                    console.log("\ttotalSingeStats[" + i.toString() + "] = " +
+                                    groupInfo.totalSingleStats);
                 }
 
                 test.pass();
@@ -37244,32 +37387,6 @@ PromiseHelper = (function(PromiseHelper, $) {
             }
         })
         .fail(test.fail);
-    }
-
-    function testGetStatsByGroupId(test) {
-        xcalarGetStatsByGroupId(thriftHandle, [0,1,2], [1,2])
-        .then(function(statOutput) {
-            printResult(statOutput);
-
-            test.assert(statOutput.numStats == 39, undefined,
-                        "Wrong number of stats returned");
-            for (var i = 0, stat = null; i < statOutput.numStats; i ++) {
-                stat = statOutput.stats[i];
-
-                console.log("\tstat[" + i.toString() + "].statName = " +
-                        stat.statName);
-                console.log("\tstat[" + i.toString() + "].statValue = " +
-                        stat.statValue.toString());
-                console.log("\tstat[" + i.toString() + "].statType = " +
-                        stat.statType.toString());
-                console.log("\tstat[" + i.toString() + "].groupId = " +
-                        stat.groupId.toString());
-            }
-            test.pass();
-        })
-        .fail(function (status) {
-            test.fail(StatusTStr[status]);
-        });
     }
 
     function testResetStats(test) {
@@ -38929,6 +39046,9 @@ PromiseHelper = (function(PromiseHelper, $) {
                 console.log("\txdbTotalBytes: ", topOutput.topOutputPerNode[ii].parentCpuUsageInPercent);
                 console.log("\txdbTotalBytes: ", topOutput.topOutputPerNode[ii].childrenCpuUsageInPercent);
                 console.log("\txdbTotalBytes: ", topOutput.topOutputPerNode[ii].numCores);
+                console.log("\tsysSwapUsedInBytes: ", topOutput.topOutputPerNode[ii].sysSwapUsedInBytes);
+                console.log("\tsysSwapTotalInBytes: ", topOutput.topOutputPerNode[ii].sysSwapTotalInBytes);
+                console.log("\tuptimeInSeconds: ", topOutput.topOutputPerNode[ii].uptimeInSeconds);
                 console.log("\n\n");
             }
             test.pass();
@@ -39749,7 +39869,6 @@ PromiseHelper = (function(PromiseHelper, $) {
     addTestCase(testGetStatGroupIdMap, "get stats group id map", defaultTimeout, TestCaseEnabled, "");
 
     addTestCase(testIndexDatasetWithPrefix, "index dataset with prefix", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testGetStatsByGroupId, "get stats group id", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testResetStats, "reset stats", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testMakeResultSetFromDataset, "result set (via dataset)", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testMakeResultSetFromTable, "result set (via tables)", defaultTimeout, TestCaseEnabled, "");

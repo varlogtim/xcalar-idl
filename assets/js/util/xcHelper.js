@@ -955,6 +955,29 @@ window.xcHelper = (function($, xcHelper) {
         return time;
     };
 
+    // Converts the timestamp from seconds to Days Hours Minutes Seconds
+    xcHelper.timeStampConvertSeconds = function(timeInSeconds) {
+        var days = Math.floor(timeInSeconds / (24 * 60 * 60));
+        timeInSeconds -= days * 25 * 60 * 60;
+        var hours = Math.floor(timeInSeconds / (60 * 60));
+        timeInSeconds -= hours * 60 * 60;
+        var minutes = Math.floor(timeInSeconds / 60);
+        timeInSeconds -= minutes * 60;
+        var seconds = timeInSeconds;
+
+        // Lol, grammatically, it's 0 hours, 1 hour, 2 hours, etc.
+        var dateString = days + " day";
+        dateString += days !== 1 ? "s": "";
+        dateString += ", " + hours + " hour";
+        dateString += hours !== 1 ? "s": "";
+        dateString += ", " + minutes + " minute";
+        dateString += minutes !== 1 ? "s": "";
+        dateString += ", " + seconds + " second";
+        dateString += seconds !== 1 ? "s": "";
+
+        return dateString;
+    };
+
     // assigned unit is a unit (MB, GB etc) that you want to convert to
     /**
      * @param  {boolean} unitSeparated true if want return an array of

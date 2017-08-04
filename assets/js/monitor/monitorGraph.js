@@ -177,6 +177,8 @@ window.MonitorGraph = (function($, MonitorGraph) {
 
         XcalarApiTop()
         .then(function(result) {
+            $("#upTime").text(xcHelper.timeStampConvertSeconds(
+                result.topOutputPerNode[0].uptimeInSeconds));
             if (prevIteration !== curIteration) {
                 return deferred.resolve();
             }
