@@ -1215,6 +1215,8 @@ describe("DSPreview Test", function() {
             expect(validateForm()).not.to.be.null;
 
             // remove UDF checkbox
+            $udfModuleList.find("input").val("");
+            $udfFuncList.find("input").val("");
             $udfCheckbox.find(".checkbox").click();
             expect(validateForm()).not.to.be.null;
         });

@@ -1934,12 +1934,8 @@ table.datasetTable {
         .position(absolute, @right: 20px);
         padding-right: 5px;
 
-        &#dsForm-refresh {
-            top: 7px;
-        }
-
         &#dsForm-detect {
-            top: 51px;
+            top: 7px;
         }
     }
 
@@ -1990,7 +1986,31 @@ table.datasetTable {
             }
 
             #dsForm-dsName {
-                .size(@width: 420px);
+                .size(@width: 475px);
+            }
+        }
+
+        .refreshPreview {
+            .size(@height: 30px);
+            display: inline-block;
+            float: left;
+            margin-left: 20px;
+            cursor: pointer;
+            .font(@line-height: 30px, @color: @color-bg-select-blue);
+
+            i, span {
+                display: inline-block;
+                float: left;
+                height: 30px;
+            }
+
+            .icon {
+                top: 0;
+                margin-right: 5px;
+                &::before {
+                    display: block;
+                    .vertical-align;
+                }
             }
         }
 
@@ -2048,6 +2068,11 @@ table.datasetTable {
             .listSection {
                 display: inline-block;
             }
+
+            .refreshPreview {
+                display: inline-block;
+                margin-top: 60px;
+            }
         }
 
         .checkboxSection {
@@ -2103,6 +2128,10 @@ table.datasetTable {
             .hidden {
                 display: none;
             }
+        }
+
+        .refreshPreview {
+            display: none;
         }
     }
 

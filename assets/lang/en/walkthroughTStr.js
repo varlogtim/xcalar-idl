@@ -40,7 +40,7 @@ var WalkThroughTStr = {
         'w2-dsName': 'A default name for your dataset will be generated after you select the dataset. You may choose your own name if desired. The dataset name maybe 1 to 255 characters in length. The characters A-Z, a-z, 0-9 and ‘_’ are allowed.',
         'w2-dsFormat': 'You can click on the dropdown button to choose the format of your dataset.',
         'w2-dsOptions': 'Depending on the format of the dataset, there may be additional options for you to select.',
-        'w2-refresh': 'If you have chosen a UDF or changed a delimiter and you would like to see how your dataset looks like now, click this button to refresh your tabular preview.',
+        'w2-refresh': 'If you have chosen a UDF or changed advanced optoins and you would like to see how your dataset looks like now, click this button to refresh your tabular preview.',
         'w2-redetect': 'If you want Xcalar to redetect the format for your file and fill in the form, click on this button.',
         'w2-dsConfirm': 'After you are satisfied with your selections, click this button to finalize.'
     },
@@ -81,7 +81,7 @@ var WalkThroughTStr = {
         'w2-dsName': 'A default name for your dataset will be generated after you select the dataset. You may choose your own name if desired. The dataset name maybe 1 to 255 characters in length. The characters A-Z, a-z, 0-9 and ‘_’ are allowed.',
         'w2-dsFormat': 'You can click on the dropdown button to choose the format of your dataset.',
         'w2-dsOptions': 'Depending on the format of the dataset, there may be additional options for you to select.',
-        'w2-refresh': 'If you have chosen a UDF or changed a delimiter and you would like to see how your dataset looks like now, click this button to refresh your tabular preview.',
+        'w2-refresh': 'If you have chosen a UDF or changed advanced optoins and you would like to see how your dataset looks like now, click this button to refresh your tabular preview.',
         'w2-redetect': 'If you want Xcalar to redetect the format for your file and fill in the form, click on this button.',
         'w2-dsConfirm': 'After you are satisfied with your selections, click on refresh preview to make sure that the selection is valid and then click on finalize.'
     },

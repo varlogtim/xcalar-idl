@@ -514,7 +514,7 @@ module.exports = {
         "SkipRowsHint": "Skip the number of rows for each files in the data source",
         "CREATEDS": "CREATE DATASET",
         "CREATETABLE": "CREATE TABLE",
-        "Refresh": "REFRESH PREVIEW",
+        "Refresh": "refresh preview",
         "CreateTableHint": "Create a dataset and create a table from the dataset",
         "REDETECT": "REDETECT FORMAT",
         "Minimize": "Toggle minimization of the form",

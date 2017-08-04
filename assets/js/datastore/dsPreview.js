@@ -297,7 +297,7 @@ window.DSPreview = (function($, DSPreview) {
 
     function setupForm() {
         // setup udf
-        $("#dsForm-refresh").click(function() {
+        $form.on("click", ".refreshPreview", function() {
             $(this).blur();
             var format = loadArgs.getFormat();
             if (format == null) {
@@ -311,8 +311,7 @@ window.DSPreview = (function($, DSPreview) {
         new MenuHelper($("#fileFormat"), {
             "onSelect": function($li) {
                 var format = $li.attr("name");
-                var text = $li.text();
-                toggleFormat(format, text);
+                changeFormat(format);
             },
             "container": "#importDataForm-content",
             "bounds": "#importDataForm-content"
@@ -336,12 +335,8 @@ window.DSPreview = (function($, DSPreview) {
             var $input = $(this);
             $input.removeClass("nullVal");
 
-            var isField = ($input.attr("id") === "fieldText");
-            if (isField) {
-                setFieldDelim();
-            } else {
-                setLineDelim();
-            }
+            var isFieldDelimiter = ($input.attr("id") === "fieldText");
+            changeDelimiter(isFieldDelimiter);
         });
 
         $csvDelim.on("click", ".iconWrapper", function() {
@@ -350,7 +345,10 @@ window.DSPreview = (function($, DSPreview) {
 
         // quote
         $quote.on("input", function() {
-            setQuote();
+            var hasChangeQuote = setQuote();
+            if (hasChangeQuote) {
+                getPreviewTable();
+            }
         });
 
         // header
@@ -364,6 +362,7 @@ window.DSPreview = (function($, DSPreview) {
                 $checkbox.addClass("checked");
                 toggleHeader(true);
             }
+            getPreviewTable();
         });
 
         $genLineNumCheckBox.on("click", function() {
@@ -376,6 +375,11 @@ window.DSPreview = (function($, DSPreview) {
                 $checkbox.addClass("checked");
                 toggleGenLineNum(true);
             }
+        });
+
+        // skip rows
+        $("#dsForm-skipRows").on("input", function() {
+            getPreviewTable();
         });
 
         // auto detect
@@ -427,10 +431,14 @@ window.DSPreview = (function($, DSPreview) {
          // udf checkbox
         $("#udfCheckbox").on("click", function() {
             var $checkbox = $(this).find(".checkbox");
-
             if ($checkbox.hasClass("checked")) {
+                var useUDF = isUseUDFWithFunc();
                 // uncheck box
                 toggleUDF(false);
+                if (useUDF) {
+                    // auto refresh when use UDF before and now uncheck
+                    refreshPreview(true);
+                }
             } else {
                 // check the box
                 toggleUDF(true);
@@ -663,6 +671,9 @@ window.DSPreview = (function($, DSPreview) {
         // to show \t, \ should be escaped
         $("#fieldText").val("Null").addClass("nullVal");
         $("#lineText").val("\\n").removeClass("nullVal");
+
+        $previeWrap.find(".errorSection").addClass("hidden");
+        $previeWrap.find(".loadHidden").removeClass("hidden");
     }
 
     function resetPreviewRows() {
@@ -1211,9 +1222,22 @@ window.DSPreview = (function($, DSPreview) {
         setQuote();
     }
 
+    function changeDelimiter(isFieldDelimiter) {
+        var hasChangeDelimiter = false;
+        if (isFieldDelimiter) {
+            hasChangeDelimiter = setFieldDelim();
+        } else {
+            hasChangeDelimiter = setLineDelim();
+        }
+
+        if (hasChangeDelimiter) {
+            getPreviewTable();
+        }
+    }
+
     function selectDelim($li) {
         var $input = $li.closest(".dropDownList").find(".text");
-        var isField = ($input.attr("id") === "fieldText");
+        var isFieldDelimiter = ($input.attr("id") === "fieldText");
         $input.removeClass("nullVal");
 
         switch ($li.attr("name")) {
@@ -1240,12 +1264,8 @@ window.DSPreview = (function($, DSPreview) {
                 break;
         }
 
-        if (isField) {
-            setFieldDelim();
-        } else {
-            setLineDelim();
-        }
         $input.focus();
+        changeDelimiter(isFieldDelimiter);
     }
 
     function setFieldDelim() {
@@ -1253,10 +1273,11 @@ window.DSPreview = (function($, DSPreview) {
 
         if (typeof fieldDelim === "object") {
             // error case
-            return;
+            return false;
         }
 
         loadArgs.setFieldDelim(fieldDelim);
+        return true;
     }
 
     function setLineDelim() {
@@ -1264,10 +1285,11 @@ window.DSPreview = (function($, DSPreview) {
 
         if (typeof lineDelim === "object") {
             // error case
-            return;
+            return false;
         }
 
         loadArgs.setLineDelim(lineDelim);
+        return true;
     }
 
     function setQuote() {
@@ -1275,19 +1297,20 @@ window.DSPreview = (function($, DSPreview) {
 
         if (typeof quote === "object") {
             // error case
-            return;
+            return false;
         }
 
         if (quote.length > 1) {
-            return;
+            return false;
         }
 
         loadArgs.setQuote(quote);
+        return true;
     }
 
-    function toggleFormat(format, text) {
+    function toggleFormat(format) {
         if (format && $formatText.data("format") === format.toUpperCase()) {
-            return;
+            return false;
         }
 
         var $lineDelim = $("#lineDelim").parent().removeClass("xc-hidden");
@@ -1306,14 +1329,11 @@ window.DSPreview = (function($, DSPreview) {
             $headerRow.addClass("xc-hidden");
             $formatText.data("format", "").val("");
             loadArgs.setFormat(null);
-            return;
+            return false;
         }
 
         format = format.toUpperCase();
-        if (text == null) {
-            text = $('#fileFormatMenu li[name="' + format + '"]').text();
-        }
-
+        var text = $('#fileFormatMenu li[name="' + format + '"]').text();
         $formatText.data("format", format).val(text);
         $form.removeClass("format-excel");
 
@@ -1357,6 +1377,20 @@ window.DSPreview = (function($, DSPreview) {
         }
 
         loadArgs.setFormat(formatMap[format]);
+        return true;
+    }
+
+    function changeFormat(format) {
+        var oldFormat = loadArgs.getFormat();
+        var hasChangeFormat = toggleFormat(format);
+        if (hasChangeFormat) {
+            if (oldFormat.toUpperCase() === "EXCEL" ||
+                format.toUpperCase() === "EXCEL") {
+                refreshPreview(true);
+            } else {
+                getPreviewTable();
+            }
+        }
     }
 
     function isPreviewSingleFile() {
@@ -2720,7 +2754,7 @@ window.DSPreview = (function($, DSPreview) {
                 break;
             }
         }
-        toggleFormat(formatText, null);
+        toggleFormat(formatText);
 
         // ste 2: detect line delimiter
         if (detectArgs.format === formatMap.CSV) {

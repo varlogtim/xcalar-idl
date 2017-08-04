@@ -70,16 +70,6 @@
       <div class="border"></div>
     </div>
     <form id="importDataForm" target="_blank">
-      <!-- refresh -->
-      <% if (dicts.tutor.name == 'datastoreTut1' || dicts.tutor.name == 'datastoreTut1Demo') { %>
-      <button id="dsForm-refresh" type="button" class="fixed btn iconBtn" data-introstep="w2-refresh">
-      <% } else { %>
-      <button id="dsForm-refresh" type="button" class="fixed btn iconBtn">
-      <% } %>
-        <i class="icon xi-refresh fa-17"></i>
-        <%= dicts.dsForm.Refresh %>
-      </button>
-
       <!-- auto detect -->
       <% if (dicts.tutor.name == 'datastoreTut1' || dicts.tutor.name == 'datastoreTut1Demo') { %>
       <button id="dsForm-detect" type="button" class="fixed btn iconBtn" data-introstep="w2-redetect">
@@ -103,9 +93,17 @@
           </div>
         </div>
         <!-- row -->
+        <% if (dicts.tutor.name == 'datastoreTut1' || dicts.tutor.name == 'datastoreTut1Demo') { %>
+        <div id="udfArgs" class="row udf clearfix active">
+        <% } else { %>
         <div id="udfArgs" class="row udf clearfix">
+        <% }%>
           <div id="udfCheckbox" class="checkboxSection">
+            <% if (dicts.tutor.name == 'datastoreTut1' || dicts.tutor.name == 'datastoreTut1Demo') { %>
+            <div class="checkbox checked">
+            <% } else { %>
             <div class="checkbox">
+            <% }%>
               <i class="icon xi-ckbox-empty"></i>
               <i class="icon xi-ckbox-selected"></i>
             </div>
@@ -144,6 +142,14 @@
                 </div>
               </div>
             </div>
+          </div>
+          <% if (dicts.tutor.name == 'datastoreTut1' || dicts.tutor.name == 'datastoreTut1Demo') { %>
+            <div class="xc-action refreshPreview" data-introstep="w2-refresh">
+          <% } else { %>
+          <div class="xc-action refreshPreview">
+          <% }%>
+            <i class="icon xi-refresh fa-14"></i>
+            <span><%= dicts.dsForm.Refresh %></span>
           </div>
         </div>
         <!-- advance option -->
