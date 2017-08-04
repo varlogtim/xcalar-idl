@@ -38,6 +38,7 @@ module.exports = {
         "Header": "Header",
         "Help": "Help",
         "Generate": "Generate",
+        "Hostname": "Hostname",
         "LastUpdated": "Last updated",
         "Loading": "Loading",
         "Location": "Location",
@@ -466,7 +467,8 @@ module.exports = {
         "nfs": "file:///",
         "hdfs": "hdfs://",
         "file": "localfile:///",
-        "s3": "s3://"
+        "s3": "s3://",
+        "mapR": "mapr://"
     },
 
     "dsView": {

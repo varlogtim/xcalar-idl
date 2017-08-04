@@ -47,6 +47,10 @@ window.FileInfoModal = (function($, FileInfoModal) {
         var attrs = ["name", "path", "size", "modified"];
         attrs.forEach(function(attr) {
             var val = options[attr] || "--";
+            if (attr === "path") {
+                val = xcHelper.encodeDisplayURL(val);
+            }
+
             $modal.find("." + attr + " .text").text(val);
         });
     }

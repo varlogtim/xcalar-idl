@@ -3,7 +3,8 @@ module.exports = {
         "file": "file:///",
         "hdfs": "hdfs://",
         "nfs": "file:///",
-        "s3": "s3://"
+        "s3": "s3://",
+        "mapR": "mapr://"
     },
     "MenuTStr": {
         "AddCol": "插入1列",
@@ -288,7 +289,8 @@ module.exports = {
         "XD": "Xcalar Design",
         "of": "的",
         "seconds": "秒",
-        "InBeta": "测试版本"
+        "InBeta": "测试版本",
+        "Hostname": "主机名",
     },
     "dataflow": {
         "DataflowTitle": "批量数据流",

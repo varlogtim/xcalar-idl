@@ -220,6 +220,7 @@ window.DSPreview = (function($, DSPreview) {
     };
 
     DSPreview.changePreviewFile = function(path, noDetect) {
+        path = xcHelper.decodeDisplayURL(loadArgs.getPath(), path);
         loadArgs.setPreviewFile(path);
         refreshPreview(noDetect);
     };
@@ -1511,10 +1512,11 @@ window.DSPreview = (function($, DSPreview) {
 
         def
         .then(function() {
-            if (isFirstTime) {
+            var previewFile = loadArgs.getPreviewFile();
+            if (isFirstTime || previewFile == null) {
                 return getURLToPreview(loadURL, isRecur, pattern, curPreviewId);
             } else {
-                return PromiseHelper.resolve(loadArgs.getPreviewFile());
+                return PromiseHelper.resolve(previewFile);
             }
         })
         .then(function(url) {
@@ -1684,7 +1686,8 @@ window.DSPreview = (function($, DSPreview) {
     }
 
     function setURL(url, pattern) {
-        $("#preview-url").find(".text").text(url);
+        var displayURL = xcHelper.encodeDisplayURL(url);
+        $("#preview-url").find(".text").text(displayURL);
         var $pattern = $("#preview-pattern");
         if (!pattern) {
             $pattern.addClass("xc-hidden");
@@ -1700,7 +1703,7 @@ window.DSPreview = (function($, DSPreview) {
         var fullURL = loadArgs.getPath();
         var enable;
 
-        $file.find(".text").text(path);
+        $file.find(".text").text(xcHelper.encodeDisplayURL(path));
         if (!loadArgs.getPreviewFile()) {
             // set the path to be preview file if not set yet
             loadArgs.setPreviewFile(path);

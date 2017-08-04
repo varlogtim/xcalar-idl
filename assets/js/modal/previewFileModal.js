@@ -67,7 +67,7 @@ window.PreviewFileModal = (function(PreviewFileModal, $) {
 
     function setupInstruction(url, pattern) {
         var $instruct = $modal.find(".modalInstruction");
-        $instruct.find(".url b").text(url);
+        $instruct.find(".url b").text(xcHelper.encodeDisplayURL(url));
 
         if (pattern) {
             $instruct.find(".pattern").removeClass("xc-hidden")
@@ -154,6 +154,7 @@ window.PreviewFileModal = (function(PreviewFileModal, $) {
     }
 
     function loadFiles(url, files, activeFilePath) {
+        url = xcHelper.encodeDisplayURL(url);
         var htmls = ["", "", ""];
         var paths = [];
         var nameMap = {};

@@ -548,7 +548,8 @@ window.FileBrowser = (function($, FileBrowser) {
     }
 
     function getCurrentPath() {
-        return $pathLists.find("li:first-of-type").text();
+        var path = $pathLists.find("li:first-of-type").text();
+        return xcHelper.decodeDisplayURL(defaultPath, path);
     }
 
     function getShortPath(path) {
@@ -573,7 +574,7 @@ window.FileBrowser = (function($, FileBrowser) {
             setPath(shortPath);
         }
 
-        $pathLists.prepend('<li>' + path + '</li>');
+        $pathLists.prepend('<li>' + xcHelper.encodeDisplayURL(path) + '</li>');
     }
 
     function clearAll() {
@@ -629,7 +630,7 @@ window.FileBrowser = (function($, FileBrowser) {
 
         console.error(error);
         var msg = xcHelper.replaceMsg(ErrWRepTStr.NoPathInLoad, {
-            "path": path
+            "path": xcHelper.encodeDisplayURL(path)
         });
         var html = '<div class="error">' +
                         '<div>' + msg + '</div>' +
@@ -670,14 +671,16 @@ window.FileBrowser = (function($, FileBrowser) {
             protocol = FileProtocol.nfs;
         }
 
-        if (protocol === FileProtocol.hdfs) {
+        if (protocol === FileProtocol.hdfs ||
+            protocol === FileProtocol.mapR) {
             // this assume the path follow the hdfs format (has check in dsForm)
             var index = path.indexOf("/");
-            protocol += path.substring(0, index);
-            path = path.substring(index);
+            protocol += path.substring(0, index + 1);
+            path = path.substring(index + 1);
         }
 
-        $pathSection.find(".defaultPath").text(protocol);
+        var displayProtocol = xcHelper.encodeDisplayURL(protocol);
+        $pathSection.find(".defaultPath").text(displayProtocol);
         defaultPath = protocol;
 
         return [protocol, path];
@@ -765,7 +768,7 @@ window.FileBrowser = (function($, FileBrowser) {
 
         var oldPath = getCurrentPath();
         var path = $newPath.text();
-
+        path = xcHelper.decodeDisplayURL(defaultPath, path);
         listFiles(path)
         .then(function() {
             setPath(getShortPath(path));

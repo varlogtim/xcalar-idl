@@ -705,7 +705,7 @@ table.datasetTable {
 /* Path Card */
 #dsForm-path {
     .cardMain {
-        .size(@height: 120px);
+        .size(@min-height: 120px);
         padding-top: 30px;
 
         .content {
@@ -735,6 +735,32 @@ table.datasetTable {
             &.protocol {
                 .size(@height: 30px);
                 line-height: 30px;
+            }
+
+            &.credential {
+                .size(@height: 110px);
+
+                .row {
+                    .size(@height: 55px);
+                    margin-left: 150px;
+                    margin-right: 160px;
+                    .flex-display;
+                    float: none;
+
+                    .field {
+                        .flex(1 1 auto);
+                        margin-left: 50px;
+
+                        &:first-child {
+                            margin-left: 0px;
+                        }
+
+                        .label {
+                            .font(@size: 12px, @color: @color-font-greyish-brown);
+                            margin-bottom: 2px;
+                        }
+                    }
+                }
             }
 
             &.path {

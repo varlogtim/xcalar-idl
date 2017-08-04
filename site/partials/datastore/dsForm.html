@@ -32,6 +32,7 @@
             <li name="file"><%= dicts.FileProtocol.file %></li>
             <li name="nfs"><%= dicts.FileProtocol.nfs %></li>
             <li name="s3"><%= dicts.FileProtocol.s3 %></li>
+            <li name="mapR"><%= dicts.FileProtocol.mapR %></li>
           </ul>
           <div class="scrollArea top">
             <div class="arrow"></div>
@@ -39,6 +40,28 @@
           <div class="scrollArea bottom">
             <div class="arrow"></div>
           </div>
+        </div>
+      </div>
+    </div>
+    <div class="content credential xc-hidden">
+      <div class="row">
+        <div class="field hostname">
+          <div class="label"><%= dicts.common.Hostname %></div>
+          <input type="text" class="xc-input">
+        </div>
+        <div class="field port">
+          <div class="label"><%= dicts.common.Port %></div>
+          <input type="number" class="xc-input" placeholder="<%= dicts.MenuTStr.Optional %>">
+        </div>
+      </div>
+      <div class="row">
+        <div class="field username">
+          <div class="label"><%= dicts.login.usernameLower %></div>
+          <input type="text" class="xc-input">
+        </div>
+        <div class="field password">
+          <div class="label"><%= dicts.login.passwordLower %></div>
+          <input type="password" class="xc-input">
         </div>
       </div>
     </div>

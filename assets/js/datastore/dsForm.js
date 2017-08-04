@@ -111,6 +111,20 @@ window.DSForm = (function($, DSForm) {
                 StatusBox.show(DSTStr.InvalidHDFS, $filePath, true);
                 return false;
             }
+        } else if (protocol === FileProtocol.mapR) {
+            var $credential = $pathCard.find(".credential");
+            var isValid = xcHelper.validate([
+                {
+                    "$ele": $credential.find(".hostname input")
+                },
+                {
+                    "$ele": $credential.find(".username input")
+                },
+                {
+                    "$ele": $credential.find(".password input")
+                }
+            ]);
+            return isValid;
         }
 
         return true;
@@ -134,11 +148,35 @@ window.DSForm = (function($, DSForm) {
 
     function setProtocol(protocol) {
         $("#fileProtocol input").val(protocol);
+        var $credential = $pathCard.find(".credential");
+        if (protocol === FileProtocol.mapR) {
+            $credential.removeClass("xc-hidden");
+        } else {
+            $credential.addClass("xc-hidden");
+        }
     }
 
     function getFilePath() {
         var path = $filePath.val().trim();
         return path;
+    }
+
+    function getCredentials(protocol) {
+        if (protocol !== FileProtocol.mapR) {
+            return null;
+        }
+
+        var $credential = $pathCard.find(".credential");
+        var hostname = $credential.find(".hostname input").val();
+        var port = $credential.find(".port input").val();
+        var username = $credential.find(".username input").val();
+        var password = $credential.find(".password input").val();
+        var host = port ? (hostname + ":" + port) : hostname;
+
+        return {
+            "credential": username + ":" + password,
+            "host": host
+        };
     }
 
     function setupPathCard() {
@@ -177,14 +215,27 @@ window.DSForm = (function($, DSForm) {
         setProtocol(protocol);
     }
 
+    function getFullPath(protocol, path) {
+        var credentials = getCredentials(protocol);
+        var fullPath;
+        if (credentials == null) {
+            fullPath = path;
+        } else {
+            path = path.startsWith("/") ? path.substring(1) : path;
+            fullPath = credentials.credential + "@" +
+                       credentials.host + "/" + path;
+        }
+        return fullPath;
+    }
+
     function goToBrowse() {
         var protocol = getProtocol();
         var path = getFilePath();
         if (!isValidPathToBrowse(protocol, path)) {
             return;
         }
-
-        FileBrowser.show(protocol, path);
+        var fullPath = getFullPath(protocol, path);
+        FileBrowser.show(protocol, fullPath);
     }
 
     function goToPreview() {
@@ -195,7 +246,7 @@ window.DSForm = (function($, DSForm) {
         }
 
         DSPreview.show({
-            "path": protocol + path,
+            "path": protocol + getFullPath(protocol, path),
             "format": xcHelper.getFormat(path),
         }, true);
     }

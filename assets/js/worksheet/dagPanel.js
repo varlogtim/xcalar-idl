@@ -2194,6 +2194,10 @@ window.Dag = (function($, Dag) {
         $schema.find('.numCols').text("");
         var datasets = $dagTable.closest(".dagWrap").data().allDagInfo.datasets;
         var loadInfo = datasets[tableName].loadInfo;
+        if (loadInfo.url) {
+            loadInfo.url = xcHelper.encodeDisplayURL(loadInfo.url);
+        }
+
         if (loadInfo.format !== "csv") {
             delete loadInfo.loadArgs.csv;
         }

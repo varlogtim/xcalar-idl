@@ -1543,9 +1543,39 @@ describe("xcHelper Test", function() {
         expect(res).to.equal("a");
     });
 
-    it("encodeURL should work", function() {
+    it("xcHelper.encodeDisplayURL", function() {
+        var res = xcHelper.encodeDisplayURL("file:///");
+        expect(res).to.equal("file:///");
+        // case 2
+        res = xcHelper.encodeDisplayURL("mapr://wrongPath/");
+        expect(res).to.equal("mapr://wrongPath/")
+        // case 3
+        res = xcHelper.encodeDisplayURL("mapr://username:password@host:port/");
+        expect(res).to.equal("mapr://redacted:redatced@host:port/")
+    });
+
+    it("xcHelper.decodeDisplayURL", function() {
+        var res = xcHelper.decodeDisplayURL(null, "file:///");
+        expect(res).to.equal("file:///");
+        // case 2
+        res = xcHelper.decodeDisplayURL("mapr://username:password@host:port/",
+                                        "mapr://wrongPath/");
+        expect(res).to.equal("mapr://wrongPath/")
+        // case 3
+        res = xcHelper.decodeDisplayURL("mapr://wrongBasePath/",
+                                        "mapr://redacted:redatced@host:port/");
+        expect(res).to.equal("mapr://redacted:redatced@host:port/")
+        // case 4
+        res = xcHelper.decodeDisplayURL("mapr://username:password@host:port/",
+                                       "mapr://redacted:redatced@host:port/a/");
+        expect(res).to.equal("mapr://username:password@host:port/a/");
+    });
+
+    it("xcHelper.encodeURL should work", function() {
         var fn = xcHelper.encodeURL;
         expect(fn("file:///ab?c/d-e#f")).to.equal("file:///ab%3Fc/d-e%23f");
+        // case 2
+        expect(fn("mapr://a:b@c@/")).to.equal("mapr://a:b@c%40/");
     });
 
     it("xcHelper.escapeColName should work", function() {

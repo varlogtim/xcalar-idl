@@ -234,11 +234,12 @@ window.DSTable = (function($, DSTable) {
     }
 
     function updateTableInfo(dsObj, isLoading) {
-        var dsName = dsObj.getName();
-        var path = dsObj.getPathWithPattern() || CommonTxtTstr.NA;
-        var numEntries = dsObj.getNumEntries();
         var $path = $("#dsInfo-path");
+        var dsName = dsObj.getName();
+        var numEntries = dsObj.getNumEntries();
+        var path = dsObj.getPathWithPattern() || CommonTxtTstr.NA;
 
+        path = xcHelper.encodeDisplayURL(path);
         $path.text(path);
         xcTooltip.changeText($path, path);
         xcTooltip.enable($path);

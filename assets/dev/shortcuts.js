@@ -370,6 +370,7 @@ window.Shortcuts = (function($, Shortcuts) {
                     filePath = 'netstore/datasets/' + filePath;
                 }
 
+                $("#dsForm-path .credential").addClass("xc-hidden");
                 $("#fileProtocol input").val(protocol);
                 $filePath.val(filePath);
 

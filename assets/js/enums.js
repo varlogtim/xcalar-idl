@@ -148,7 +148,8 @@ var FileProtocol = {
     "nfs": "file:///",
     "hdfs": "hdfs://",
     "file": "localfile:///",
-    "s3": "s3://"
+    "s3": "s3://",
+    "mapR": "mapr://"
 };
 
 var fakeEvent = {
