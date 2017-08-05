@@ -39,6 +39,8 @@ window.DSPreview = (function($, DSPreview) {
     var isViewFolder = false;
     var tempParserUDF;
     var rowsToFetch = 40;
+    var previewId;
+
     // constant
     var defaultRowsToFech = 40;
     var minRowsToShow = 20;
@@ -47,6 +49,7 @@ window.DSPreview = (function($, DSPreview) {
     var excelModule = "default";
     var excelFunc = "openExcel";
     var colGrabTemplate = '<div class="colGrab" data-sizedtoheader="false"></div>';
+    var oldPreviewError = "old preview error";
 
     var formatMap = {
         "JSON": "JSON",
@@ -1383,6 +1386,7 @@ window.DSPreview = (function($, DSPreview) {
         $previewTable.removeClass("has-delimiter").empty();
         rawData = null;
         resetPreviewRows();
+        resetPreviewId();
 
         if (tableName != null) {
             var dsName = tableName;
@@ -1419,6 +1423,19 @@ window.DSPreview = (function($, DSPreview) {
         }
 
         return deferred.promise();
+    }
+
+    function updatePreviewId() {
+        previewId = new Date().getTime();
+        return previewId;
+    }
+
+    function resetPreviewId() {
+        previewId = null;
+    }
+
+    function isValidPreviewId(id) {
+        return (id === previewId);
     }
 
     function previewData(options, noDetect) {
@@ -1484,6 +1501,7 @@ window.DSPreview = (function($, DSPreview) {
 
         setURL(loadURL, pattern);
 
+        var curPreviewId = updatePreviewId();
         var def = isFirstTime
                   ? checkIsFolder(loadURL)
                   : PromiseHelper.resolve();
@@ -1494,7 +1512,7 @@ window.DSPreview = (function($, DSPreview) {
         def
         .then(function() {
             if (isFirstTime) {
-                return getURLToPreview(loadURL, isRecur, pattern);
+                return getURLToPreview(loadURL, isRecur, pattern, curPreviewId);
             } else {
                 return PromiseHelper.resolve(loadArgs.getPreviewFile());
             }
@@ -1529,6 +1547,12 @@ window.DSPreview = (function($, DSPreview) {
             }
         })
         .then(function(result) {
+            if (!isValidPreviewId(curPreviewId)) {
+                return PromiseHelper.reject({
+                    "error": oldPreviewError
+                });
+            }
+
             if (!result) {
                 var error = DSTStr.NoRecords + '\n' + DSTStr.NoRecrodsHint;
                 return PromiseHelper.reject(error);
@@ -1565,7 +1589,12 @@ window.DSPreview = (function($, DSPreview) {
                 "sql": sql
             });
 
-            errorHandler(error);
+            if (error.error === oldPreviewError) {
+                console.error(error);
+            } else {
+                errorHandler(error);
+            }
+
             deferred.reject(error);
         });
 
@@ -1623,7 +1652,7 @@ window.DSPreview = (function($, DSPreview) {
         }
     }
 
-    function getURLToPreview(url, isRecur, pattern) {
+    function getURLToPreview(url, isRecur, pattern, curPreviewId) {
         if (!isViewFolder) {
             // single file case
             return PromiseHelper.resolve(url);
@@ -1632,6 +1661,12 @@ window.DSPreview = (function($, DSPreview) {
         var deferred = jQuery.Deferred();
         XcalarPreview(url, pattern, isRecur, 1, 0)
         .then(function(res) {
+            if (!isValidPreviewId(curPreviewId)) {
+                return PromiseHelper.reject({
+                    "error": oldPreviewError
+                });
+            }
+
             var path = url.endsWith("/") ? url : url + "/";
             path += res.relPath;
             setPreviewFile(path);
