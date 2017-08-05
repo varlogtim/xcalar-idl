@@ -1,3 +1,8 @@
+/*  
+    Known Issues:
+    - Cannot filter by 'Other' in piechart
+    - How to handle Bucketing with 'Other'
+*/
 window.Profile = (function($, Profile, d3) {
     var $modal;        // $("#profileModal");
     var $rangeSection; // $modal.find(".rangeSection");
@@ -172,14 +177,6 @@ window.Profile = (function($, Profile, d3) {
             return false;
         });
 
-        /*
-        $("#profile-chart").on("mousedown", function(event) {
-            if (event.which !== 1) {
-                return;
-            }
-            createFilterSelection(event.pageX, event.pageY);
-        });
-        */
         $("#profile-chart").on("mousedown", function(event) {
             if (event.which !== 1) {
                 return;
@@ -1312,17 +1309,17 @@ window.Profile = (function($, Profile, d3) {
         return maxWidth;
     }
 
-    function moveOverlappingLabels(labels, labelPositions) {
+    function moveOverlappingLabels(labels, labelPositions, usedPieData) {
         var prevRect;
         var currRect;
         var prevPos;
         var currPos;
         var intersectionLength;
         var maxWidth = maxLabelWidth(labels) * 2;
-
+        var i = 0;
         // method could be cleaner, 
         // some code in 'labels.each' should be moved to separate functions
-        labels.each(function(d, i) {
+        labels.each(function(d) {
             currRect = this;
             currPos = labelPositions[i];
 
@@ -1339,7 +1336,7 @@ window.Profile = (function($, Profile, d3) {
                     .attr("transform", "translate(" + move + ")")
                     .attr("text-anchor", "start");
             }
-
+            var groupByBox = $(".groupbyChart").get(0).getBoundingClientRect();
             if (i > 0) {
                 prevPos = labelPositions[i - 1];
                 currRectXPos = d3.select(this).attr("transform");
@@ -1349,7 +1346,6 @@ window.Profile = (function($, Profile, d3) {
                 var prevTop = prevRect.getBoundingClientRect().top;
                 var currBottom = currRect.getBoundingClientRect().bottom;
                 var currTop = currRect.getBoundingClientRect().top;
-                var groupByBox = $(".groupbyChart").get(0).getBoundingClientRect();
 
                 if (currPos[0] > 0 && prevPos[0] > 0 && prevBottom > currTop) {
                     intersectionLength = currTop - prevBottom;
@@ -1369,7 +1365,15 @@ window.Profile = (function($, Profile, d3) {
                     labelPositions[i] = currPos;
                 }
             }
-            prevRect = this;
+            if (this.getBoundingClientRect().top < groupByBox.top) {
+                this.remove();
+                labelPositions.splice(i, 1);
+                usedPieData.splice(i, 1);
+            }
+            else {
+                prevRect = this;
+                i++;
+            }
         })
         return labels;
     }
@@ -1508,9 +1512,9 @@ window.Profile = (function($, Profile, d3) {
 
         var usedPieData = [];
         chooseAndAppendLabels(usedPieData);
-        var labels = d3.selectAll(".pieLabel");
+        var labels = $(".pieLabel");
         // moves labels that overlap
-        labels = moveOverlappingLabels(labels, labelPositions);
+        labels = moveOverlappingLabels(labels, labelPositions, usedPieData);
         
         // adds lines from pie chart to labels
         var arcCent;
@@ -1524,9 +1528,18 @@ window.Profile = (function($, Profile, d3) {
                 outerArcCent = outerArc.centroid(d);
                 arcCent[0] *= 1.1;
                 arcCent[1] *= 1.1;
+                labelPositions[i][1] += 2;
                 outerArcCent[1] = labelPositions[i][1];
+                if (labelPositions[i][0] > 0) {
+                    labelPositions[i][0] += 2;
+                }
+                else {
+                    labelPositions[i][0] -= 2;
+                }
+
                 return [arcCent, outerArcCent, labelPositions[i]];
             })
+            .style("pointer-events", "none")
             .style("fill", "none")
             .style("stroke", "4f4f4f")
             .style("stroke-width", "1px");
@@ -1633,7 +1646,7 @@ window.Profile = (function($, Profile, d3) {
                 });
 
             g.append("text")
-                .style("font-size", fontSize + "px")
+                .style("font-size", (fontSize - 2) + "px")
                 .style("fill", "9b9b9b")
                 .attr("transform", function(d) {
                     var pos = outerArc.centroid(arc);
@@ -1792,6 +1805,10 @@ window.Profile = (function($, Profile, d3) {
                 intersectsWithRect[i] = true;
                 continue;
             }
+            if (lineIsInArc(rectDimensions, circleCenter, piedata[i])) {
+                intersectsWithRect[i] = true;
+                continue;
+            }
             for (var j = 0; j < corners.length; j++) {
                 if (pointLiesInArc(corners[j], circleCenter, piedata[i])) {
                     intersectsWithRect[i] = true;
@@ -1800,6 +1817,41 @@ window.Profile = (function($, Profile, d3) {
             }
         }
         return intersectsWithRect;
+    }
+
+    // checks if/where the side of the selection box intersects with the piechart
+    function closestRectSideToCircle(rectDimensions, circleCenter) {
+        var topDistance = Math.abs(circleCenter[1] - rectDimensions[0]);
+        var bottomDistance = Math.abs(circleCenter[1] - rectDimensions[1]);
+        var leftDistance = Math.abs(circleCenter[0] - rectDimensions[2]);
+        var rightDistance = Math.abs(circleCenter[0] - rectDimensions[3]);
+        var cornerQuadrants = [getCornerQuadrant([rectDimensions[2], rectDimensions[0]], circleCenter),
+                               getCornerQuadrant([rectDimensions[3], rectDimensions[0]], circleCenter),
+                               getCornerQuadrant([rectDimensions[2], rectDimensions[1]], circleCenter),
+                               getCornerQuadrant([rectDimensions[3], rectDimensions[1]], circleCenter)];
+
+        if (rightDistance <= radius && cornerQuadrants[1] == 4 && cornerQuadrants[3] == 3) {
+            return 3 * Math.PI / 2;
+        } else if (leftDistance <= radius && cornerQuadrants[1] == 1 && cornerQuadrants[3] == 2) {
+            return Math.PI / 2;
+        } else if (topDistance <= radius && cornerQuadrants[0] == 3 && cornerQuadrants[1] == 2) {
+            return Math.PI;
+        } else if (bottomDistance <= radius && cornerQuadrants[2] == 4 && cornerQuadrants[3] == 1) {
+            return 2 * Math.PI;
+        }
+        return -1;
+    }
+
+    // returns true if a side of the rectangle (a line) intersects with the arc 
+    function lineIsInArc(rectDimensions, circleCenter, currArc) {
+        var closestRectSide = closestRectSideToCircle(rectDimensions, circleCenter);
+    
+        if (closestRectSide != -1) {
+            if (currArc["startAngle"] <= closestRectSide && currArc["endAngle"] >= closestRectSide) {
+                return true;
+            }
+        }
+        return false;
     }
 
     // checks if a point (corner of selection box) lies in an arc
@@ -1961,13 +2013,11 @@ window.Profile = (function($, Profile, d3) {
             arcs.each(function() {
                 var arcs = d3.select(this);
                 if (arcs.classed("selecting")) {
-                    arcs
-                        .classed("selecting", false)
+                    arcs.classed("selecting", false)
                         .classed("unselected", false)
                         .classed("selected", true);
                 } else if (!arcs.classed("selected")) {
-                    arcs
-                        .classed("unselected", true)
+                    arcs.classed("unselected", true)
                         .classed("selected", false);
                 }
             });
