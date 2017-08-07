@@ -649,7 +649,8 @@ module.exports = {
         "ip": "进行中",
         "memThreshold": "内存警告阈值",
         "showDataCol": "在新表创建时显示数据列",
-        "enableCreateTable": "显示直接创建表选项"
+        "enableCreateTable": "显示直接创建表选项",
+        "Uptime": "运行时间",
     },
     "opsView": {
         "AddAnotherColumn": "添加另一列",
