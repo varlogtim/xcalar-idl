@@ -594,6 +594,37 @@ describe('OperationsView Test', function() {
             });
         });
 
+        describe("column highlighting", function() {
+            it("something", function(done) {
+                var $argInputs = $operationsView.find(".arg");
+                $argInputs.eq(0).focus().trigger("focus").val("");
+
+                var $header = $('#xcTable-' + tableId).find('th.col1 .header');
+                expect($header.find('input').val()).to.equal('average_stars');
+                $header.click();
+
+                var prefixCol = xcHelper.getPrefixColName(prefix, 'average_stars');
+                expect($argInputs.eq(0).val()).to.equal(gColPrefix + prefixCol);
+                expect($header.closest("th").hasClass("modalHighlighted")).to.be.true;
+
+                var $header2 = $('#xcTable-' + tableId).find('th.col4 .header');
+                expect($header2.find('input').val()).to.equal('four');
+                $header2.click();
+
+                expect($header.closest("th").hasClass("modalHighlighted")).to.be.false;
+                expect($header2.closest("th").hasClass("modalHighlighted")).to.be.true;
+                expect($argInputs.eq(0).data("colnum")).to.equal(4);
+
+                $argInputs.eq(0).val("").trigger("input");
+                UnitTest.testFinish(function() {
+                    return !$header2.closest("th").hasClass("modalHighlighted");
+                })
+                .always(function() {
+                    done();
+                });
+            });
+        });
+
         describe('column select section', function() {
             it('clicking on column should work', function() {
                 $operationsView.find('.mainContent').scrollTop(1000);
@@ -989,7 +1020,6 @@ describe('OperationsView Test', function() {
 
                 var prefixCol = xcHelper.getPrefixColName(prefix, 'average_stars');
                 expect($argInputs.eq(0).val()).to.equal(gColPrefix + prefixCol);
-
 
                 var $allEls = $header.find('*');
                 var count = 0;

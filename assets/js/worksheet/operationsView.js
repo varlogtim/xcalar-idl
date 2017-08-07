@@ -426,6 +426,8 @@ window.OperationsView = (function($, OperationsView) {
                     if (options && options.insertText) {
                         return;
                     }
+                    checkHighlightTableCols($input);
+
                     if (!$input.hasClass('gbOnArg')) {
                         argSuggest($input);
                     }
@@ -799,12 +801,18 @@ window.OperationsView = (function($, OperationsView) {
             "state": opNameNoSpace + "State",
             "colCallback": function($target) {
                 var options = {};
+                var $focusedEl = $(document.activeElement);
+                if ($focusedEl.is("input") &&
+                    !$focusedEl.is($lastInputFocused)) {
+                    return;
+                }
                 if ($lastInputFocused.closest(".row")
                                      .siblings(".addArgWrap").length) {
                     options.append = true;
                 }
                 xcHelper.fillInputFromCell($target, $lastInputFocused,
                                             gColPrefix, options);
+                checkHighlightTableCols($lastInputFocused);
             }
         };
         formHelper.setup({"columnPicker": columnPicker});
@@ -958,6 +966,12 @@ window.OperationsView = (function($, OperationsView) {
             } else {
                 $activeOpSection.find('.functionsInput').focus();
             }
+        } else {
+            if (operatorName === "group by") {
+                $activeOpSection.find(".arg:visible").each(function() {
+                    checkHighlightTableCols($(this));
+                });
+            }
         }
 
         if (operatorName === "map") {
@@ -988,6 +1002,7 @@ window.OperationsView = (function($, OperationsView) {
 
     function populateGroupOnFields(colNums) {
         $activeOpSection.find('.gbOnArg').val(gColPrefix + colName);
+        checkHighlightTableCols($activeOpSection.find('.gbOnArg'));
 
         for (var i = 1; i < colNums.length; i++) {
             var progCol = gTables[tableId].getCol(colNums[i]);
@@ -995,6 +1010,7 @@ window.OperationsView = (function($, OperationsView) {
                 addGroupOnArg(0);
                 var name = progCol.getFrontColName(true);
                 $activeOpSection.find('.gbOnArg').last().val(gColPrefix + name);
+                checkHighlightTableCols($activeOpSection.find('.gbOnArg').last());
             }
         }
         $activeOpSection.find('.gbOnArg').last().blur();
@@ -1955,6 +1971,43 @@ window.OperationsView = (function($, OperationsView) {
         });
 
         updateStrPreview(noHighlight);
+    }
+    function checkArgsHasCol(colNum) {
+        var found = false;
+        $activeOpSection.find(".arg:visible").each(function() {
+            var $arg = $(this);
+            if ($arg.data("colnum") === colNum) {
+                found = true;
+                return false;
+            }
+        });
+        return found;
+    }
+
+    function checkHighlightTableCols($input) {
+        if (operatorName !== "group by") {
+            return;
+        }
+        if (!gTables[tableId]) {
+            return;
+        }
+
+        var arg = $input.val().trim();
+        var prevColNum = $input.data("colnum");
+        $input.data("colnum", null);
+        var $table = $("#xcTable-" + tableId);
+        if (prevColNum > 0 && !checkArgsHasCol(prevColNum)) {
+            $table.find(".col" + prevColNum).removeClass("modalHighlighted");
+        }
+
+        if (xcHelper.hasValidColPrefix(arg)) {
+            arg = parseColPrefixes(arg);
+            var colNum = gTables[tableId].getColNumByFrontName(arg);
+            if (colNum > -1) {
+                $input.data("colnum", colNum);
+                $table.find(".col" + colNum).addClass("modalHighlighted");
+            }
+        }
     }
 
     function updateStrPreview(noHighlight, andOrSwitch) {
@@ -4340,6 +4393,9 @@ window.OperationsView = (function($, OperationsView) {
         var argIndex = $ul.closest('.group').find('.list.hint').index($ul);
 
         suggestLists[groupIndex].splice(argIndex, 1);
+        var $input = $inputWrap.find(".arg");
+        $input.val("");
+        checkHighlightTableCols($input);
         $inputWrap.remove();
         checkIfStringReplaceNeeded();
     }
