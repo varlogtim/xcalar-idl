@@ -590,6 +590,12 @@ window.TestSuite = (function($, TestSuite) {
             return checkExists(header);
         })
         .then(function() {
+            var tableId = $(".tableTitle .tableName[value='" + tableName + "']")
+                            .closest(".xcTableWrap").data("id");
+
+            return checkExists("#dagWrap-" + tableId);
+        })
+        .then(function() {
             if (sorted) {
                 var $table = $(".tableTitle .tableName[value='" + tableName +
                                 "']").closest('.xcTableWrap');
@@ -769,6 +775,10 @@ window.TestSuite = (function($, TestSuite) {
                 $("#operationsView .submit").click();
                 return checkExists(".flexWrap.flex-mid" +
                                     " input[value='uniqueNum']:eq(0)");
+            })
+            .then(function() {
+                return checkExists("#xcTable-" + tableId, null,
+                                    {notExist: true});
             })
             .then(function() {
                 flightTestPart4();
@@ -1105,6 +1115,7 @@ window.TestSuite = (function($, TestSuite) {
 
         if (tableId == null) {
             $header = $(".flexWrap.flex-mid input[value='" + col + "']").eq(0);
+            tableId = $header.closest(".xcTable").data('id');
         } else {
             var $table = $("#xcTable-" + tableId);
             $header = $table
@@ -1119,6 +1130,14 @@ window.TestSuite = (function($, TestSuite) {
                    .trigger(fakeEvent.mouseup);
         checkExists(".flexWrap.flex-mid" +
                     " input[value='" + col + "_integer']:eq(0)")
+        .then(function() {
+            if (tableId) {
+                return checkExists("#xcTable-" + tableId, null,
+                                    {notExist: true});
+            } else {
+                return PromiseHelper.resolve();
+            }
+        })
         .then(deferred.resolve)
         .fail(deferred.reject);
 
@@ -1135,6 +1154,8 @@ window.TestSuite = (function($, TestSuite) {
         var wsId = WSManager.getWSByIndex(1);
         var ws = WSManager.getWSById(wsId);
         var lPrefix;
+        var oldTableId;
+
         loadDS(dsName, url, check)
         .then(function() {
             var innerDeferred = jQuery.Deferred();
@@ -1163,6 +1184,7 @@ window.TestSuite = (function($, TestSuite) {
         })
         .then(function() {
             var rightTableId = ws.tables[0];
+            oldTableId = rightTableId;
             $("#joinRightTableList").find("li[data-id='" + rightTableId + "']")
                                     .trigger(fakeEvent.mouseup);
             var lCol1 = xcHelper.getPrefixColName(lPrefix, "class_id");
@@ -1184,6 +1206,10 @@ window.TestSuite = (function($, TestSuite) {
             $("#joinTables").click();
             return checkExists(".xcTableWrap .tableName[value*='" +
                                 newName + "']", 30000);
+        })
+        .then(function() {
+            return checkExists("#xcTable-" + oldTableId, null,
+                                    {notExist: true});
         })
         .then(function() {
             assert($("#numPages").text().indexOf("1,953") > -1);
