@@ -2091,13 +2091,14 @@ html.microsoft {
 
                     .iconWrapper {
                         // this is to fix a display issue in download PNG
-                        .position(absolute, @right: 30px, @top: 0);
+                        .position(absolute, @right: 0px, @top: 0);
                     }
                 }
 
                 .input {
-                    .flex(1 1 auto);
+                    .flex(1 1 300px);
                     .input-box(@w: 100%, @h: 30px);
+                    margin-right: 20px;
                 }
 
                 .radioButton {
@@ -2119,6 +2120,14 @@ html.microsoft {
                         }
                     }
                 }
+            }
+
+            > .row:last-child {
+                width: 26px;
+            }
+
+            #graphSwitcher {
+                margin-top: 4px;
             }
         }
 
@@ -2321,85 +2330,95 @@ html.microsoft {
             }
         }
 
+        // XXX temporarily using size transform on hover instead
+        // of colors until we implement gray outer block on hover
         .arc {
             opacity: 1;
+            .transition(transform 0.3s);
+            &:hover {
+                .transform(scale(1.1));
+            }
+            &:only-of-type {
+                .transform(none);
+            }
             &.color-1 {
                 fill : @color-arc-1;
                 &:hover  {
-                    fill : darken(@color-arc-1, 20%);
+                    // fill : darken(@color-arc-1, 20%);
                 }
             }
             &.color-2 {
                 fill : @color-arc-2;
                 &:hover  {
-                    fill : darken(@color-arc-2, 20%);
+                    // fill : darken(@color-arc-2, 20%);
                 }
             }
             &.color-3 {
                 fill : @color-arc-3;
                 &:hover  {
-                    fill : darken(@color-arc-3, 20%);
+                    // fill : darken(@color-arc-3, 20%);
                 }
             }
             &.color-4 {
                 fill : @color-arc-4;
                 &:hover  {
-                    fill : darken(@color-arc-4, 20%);
+                    // fill : darken(@color-arc-4, 20%);
                 }
             }
             &.color-5 {
                 fill : @color-arc-5;
                 &:hover  {
-                    fill : darken(@color-arc-5, 20%);
+                    // fill : darken(@color-arc-5, 20%);
                 }
             }
             &.color-6 {
                 fill : @color-arc-6;
                 &:hover  {
-                    fill : darken(@color-arc-6, 20%);
+                    // fill : darken(@color-arc-6, 20%);
                 }
             }
             &.color-7 {
                 fill : @color-arc-7;
                 &:hover  {
-                    fill : darken(@color-arc-7, 20%);
+                    // fill : darken(@color-arc-7, 20%);
                 }
             }
             &.color-8 {
                 fill : @color-arc-8;
                 &:hover  {
-                    fill : darken(@color-arc-8, 20%);
+                    // fill : darken(@color-arc-8, 20%);
                 }
             }
             &.color-9 {
                 fill : @color-arc-9;
                 &:hover  {
-                    fill : darken(@color-arc-9, 20%);
+                    // fill : darken(@color-arc-9, 20%);
                 }
             }
             &.color-10 {
                 fill : @color-arc-10;
                 &:hover  {
-                    fill : darken(@color-arc-10, 20%);
+                    // fill : darken(@color-arc-10, 20%);
                 }
             }
             &.other {
                 fill : @color-arc-other;
                 &:hover  {
-                    fill : darken(@color-arc-other, 20%);
+                    // fill : darken(@color-arc-other, 20%);
                 }
             }
             &.nullVal {
                 fill : @color-profile-bar-null;
                 &:hover  {
-                    fill : darken(@color-profile-bar-null, 20%);
+                    // fill : darken(@color-profile-bar-null, 20%);
                 }
             }
 
             &.selected {
+                .transform(none);
                 &, &.hover {
                     stroke: @color-profile-bar-selected-border;
-                    stroke-width: 2;                        
+                    stroke-width: 2;
                 }
                 &.color-1 {
                     fill : darken(@color-arc-1, 20%);
@@ -2434,7 +2453,7 @@ html.microsoft {
                 &.other {
                     fill : darken(@color-arc-other, 20%);
                 }
-                &.nullVal { 
+                &.nullVal {
                     fill : darken(@color-profile-bar-null, 20%);
                 }
             }
@@ -2459,6 +2478,7 @@ html.microsoft {
             }
 
             &.selecting {
+                .transform(none);
                 &, &.hover {
                     stroke: @color-profile-bar-border-highlight;
                     stroke-width: 2;
@@ -2496,7 +2516,7 @@ html.microsoft {
                 &.other {
                     fill : darken(@color-arc-other, 20%);
                 }
-                &.nullVal { 
+                &.nullVal {
                     fill : darken(@color-profile-bar-null, 20%);
                 }
             }

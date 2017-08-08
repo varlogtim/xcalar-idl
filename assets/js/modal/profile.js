@@ -1,4 +1,4 @@
-/*  
+/*
     Known Issues:
     - Cannot filter by 'Other' in piechart
     - How to handle Bucketing with 'Other'
@@ -433,8 +433,8 @@ window.Profile = (function($, Profile, d3) {
                 if (!isValid) {
                     return;
                 }
-                var bucketSize = (rangeOption === "range") 
-                                 ? val 
+                var bucketSize = (rangeOption === "range")
+                                 ? val
                                  : -val;
                 bucketData(bucketSize, statsCol);
                 cacheBucket(bucketSize);
@@ -1317,7 +1317,7 @@ window.Profile = (function($, Profile, d3) {
         var intersectionLength;
         var maxWidth = maxLabelWidth(labels) * 2;
         var i = 0;
-        // method could be cleaner, 
+        // method could be cleaner,
         // some code in 'labels.each' should be moved to separate functions
         labels.each(function(d) {
             currRect = this;
@@ -1485,7 +1485,7 @@ window.Profile = (function($, Profile, d3) {
                 .attr("d", arc)
                 .attr("class", function(d, i) {
                     var className = getTooltipAndClass.apply(this, arguments) + " ";
-                    if (nextColor == 10) {  
+                    if (nextColor == 10) {
                         nextColor = 0;
                     }
                     if (piedata[i].data["type"] == "nullVal") {
@@ -1515,7 +1515,7 @@ window.Profile = (function($, Profile, d3) {
         var labels = $(".pieLabel");
         // moves labels that overlap
         labels = moveOverlappingLabels(labels, labelPositions, usedPieData);
-        
+
         // adds lines from pie chart to labels
         var arcCent;
         var outerArcCent;
@@ -1528,21 +1528,36 @@ window.Profile = (function($, Profile, d3) {
                 outerArcCent = outerArc.centroid(d);
                 arcCent[0] *= 1.1;
                 arcCent[1] *= 1.1;
-                labelPositions[i][1] += 2;
+                labelPositions[i][1] += 3;
                 outerArcCent[1] = labelPositions[i][1];
                 if (labelPositions[i][0] > 0) {
-                    labelPositions[i][0] += 2;
-                }
-                else {
-                    labelPositions[i][0] -= 2;
+                    labelPositions[i][0] += 3;
+                } else {
+                    labelPositions[i][0] -= 3;
                 }
 
                 return [arcCent, outerArcCent, labelPositions[i]];
             })
             .style("pointer-events", "none")
             .style("fill", "none")
-            .style("stroke", "4f4f4f")
+            .style("stroke", "#4f4f4f")
             .style("stroke-width", "1px");
+
+        var circle = svg.selectAll("circle")
+            .data(usedPieData)
+            .enter()
+            .append("circle")
+            .attr("cx", function(d) {
+                arcCent = arc.centroid(d);
+                return arcCent[0] *= 1.1;
+            })
+            .attr("cy", function(d) {
+                arcCent = arc.centroid(d);
+                return arcCent[1] *= 1.1;
+            })
+            .attr("r", 2)
+            .attr("fill", "#4f4f4f")
+            .style("pointer-events", "none");
 
         // chooses which labels to display
         function chooseAndAppendLabels(usedPieData) {
@@ -1591,7 +1606,7 @@ window.Profile = (function($, Profile, d3) {
                 }
             }
         }
-        
+
         /*
             decides if there is room for a label on an arc
             based on where the last label was placed
@@ -1625,14 +1640,14 @@ window.Profile = (function($, Profile, d3) {
             var mid = midAngle(arc);
             g.append("text")
                 .style("font-size", fontSize + "px")
-                .style("fill", "4f4f4f")
+                .style("fill", "#4f4f4f")
                 .attr("transform", function(d) {
                     var pos = outerArc.centroid(arc);
                     pos[0] = radius * (mid < Math.PI ? 1 : -1);
                     if (mid < Math.PI) {
-                        pos[1] -= (fontSize * 1.5);
+                        pos[1] -= (fontSize * 1.7);
                     } else {
-                        pos[1] -= fontSize * 1.5;
+                        pos[1] -= fontSize * 1.7;
                     }
                     labelPositions.push(pos);
 
@@ -1646,8 +1661,8 @@ window.Profile = (function($, Profile, d3) {
                 });
 
             g.append("text")
-                .style("font-size", (fontSize - 2) + "px")
-                .style("fill", "9b9b9b")
+                .style("font-size", (fontSize - 1) + "px")
+                .style("fill", "#7b7b7b")
                 .attr("transform", function(d) {
                     var pos = outerArc.centroid(arc);
                     pos[0] = radius * (mid < Math.PI ? 1 : -1);
@@ -1766,7 +1781,7 @@ window.Profile = (function($, Profile, d3) {
     }
 
     // gets center of circle by calculating its position
-    // relative to the 'graphBox' 
+    // relative to the 'graphBox'
     function getCenterOfCircle(bound) {
         var profileChart = $("#profile-chart").get(0).getBoundingClientRect();
         var graphBox = $("#profileModal .groupbyChart").get(0).getBoundingClientRect();
@@ -1842,10 +1857,10 @@ window.Profile = (function($, Profile, d3) {
         return -1;
     }
 
-    // returns true if a side of the rectangle (a line) intersects with the arc 
+    // returns true if a side of the rectangle (a line) intersects with the arc
     function lineIsInArc(rectDimensions, circleCenter, currArc) {
         var closestRectSide = closestRectSideToCircle(rectDimensions, circleCenter);
-    
+
         if (closestRectSide != -1) {
             if (currArc["startAngle"] <= closestRectSide && currArc["endAngle"] >= closestRectSide) {
                 return true;
@@ -1896,7 +1911,7 @@ window.Profile = (function($, Profile, d3) {
         }
     }
 
-    // sets a points location to be relative to the location of the circle on the page 
+    // sets a points location to be relative to the location of the circle on the page
     function accountForCircleCenter(point, currArc, circleCenter) {
         var quad = getPointQuadrant(currArc);
 
@@ -3006,8 +3021,8 @@ window.Profile = (function($, Profile, d3) {
 
     function getRangeOption() {
         var $rangeOption = $rangeSection.find(".dropDownList input");
-        var rangeOption = ($rangeOption.val().toLowerCase() === "range") 
-                          ? "range" 
+        var rangeOption = ($rangeOption.val().toLowerCase() === "range")
+                          ? "range"
                           : "rangeLog";
         return rangeOption;
     }
@@ -3100,8 +3115,8 @@ window.Profile = (function($, Profile, d3) {
             "steps": -1
         });
 
-        var bucketSizePromise = isFitAll 
-                                ? getFitAllBucketSize(curStatsCol, txId) 
+        var bucketSizePromise = isFitAll
+                                ? getFitAllBucketSize(curStatsCol, txId)
                                 : PromiseHelper.resolve(newBucketNum);
         bucketSizePromise
         .then(function(bucketSize) {
@@ -3146,8 +3161,8 @@ window.Profile = (function($, Profile, d3) {
             // (max - min) / numRowsToFetch will get bucketSize 5
             // but range [100, 105) is the 21th size,
             // so we should do (max + min + numRowsToFetch) / numRowsToFetch
-            var bucketSize = (curStatsCol.aggInfo.max 
-                              - curStatsCol.aggInfo.min 
+            var bucketSize = (curStatsCol.aggInfo.max
+                              - curStatsCol.aggInfo.min
                               + numRowsToFetch) / numRowsToFetch;
             if (bucketSize >= 0.01) {
                 // have mostly two digits after decimal
