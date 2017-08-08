@@ -9,6 +9,7 @@ window.DFParamModal = (function($, DFParamModal){
     var modalHelper;
     var dropdownHelper;
     var filterFnMap = {}; // stores fnName: numArgs
+    var defaultParam;
 
     var paramListTrLen = 3;
     var trTemplate =
@@ -129,6 +130,7 @@ window.DFParamModal = (function($, DFParamModal){
         }
 
         var paramValue = $currentIcon.data('paramValue');
+        defaultParam = paramValue;
 
         getExportInfo(type)
         .always(function(info) {
@@ -415,12 +417,13 @@ window.DFParamModal = (function($, DFParamModal){
                                 // Query:
         options = options || {};
         if (type === "dataStore") {
+            var encodePath = xcHelper.encodeDisplayURL(paramValue[0]);
             defaultText += '<div class="templateRow">' +
                                 '<div>' +
                                     DFTStr.PointTo + ':' +
                                 '</div>' +
                                 '<div class="boxed large">' +
-                                    xcHelper.escapeHTMLSpecialChar(paramValue[0]) +
+                                    xcHelper.escapeHTMLSpecialChar(encodePath) +
                                 '</div>' +
                             '</div>' +
                             '<div class="templateRow">' +
@@ -1006,6 +1009,26 @@ window.DFParamModal = (function($, DFParamModal){
             };
         }
 
+        function decodeURL(url) {
+            if (url.startsWith(FileProtocol.mapR) &&
+                defaultParam && defaultParam[0])
+            {
+                var defaultPath = defaultParam[0];
+                var index = defaultPath.indexOf("@");
+                if (index > 0) {
+                    // encodePreifx is "mapr://redacted:redatced"
+                    var prefix = defaultPath.substring(0, index + 1);
+                    var encodePrefix = xcHelper.encodeDisplayURL(prefix);
+                    if (url.startsWith(encodePrefix)) {
+                        // if not changed, then restore, otherwise,
+                        // it's the change of user/passowrd
+                        return xcHelper.decodeDisplayURL(defaultPath, url);
+                    }
+                }
+            }
+            return url;
+        }
+
         // will close the modal if passes checks
         function updateRetina() {
             var deferred = jQuery.Deferred();
@@ -1051,6 +1074,7 @@ window.DFParamModal = (function($, DFParamModal){
                 case ("dataStore"):
                     paramType = XcalarApisT.XcalarApiBulkLoad;
                     var url = $.trim($editableDivs.eq(0).val());
+                    url = decodeURL(url);
                     var pattern = $.trim($editableDivs.eq(1).val());
                     paramValues.datasetUrl = url;
                     paramValues.namePattern = pattern;
@@ -1359,6 +1383,7 @@ window.DFParamModal = (function($, DFParamModal){
         $editableRow.empty();
         $dfParamModal.find('.draggableParams').empty();
         $paramLists.empty();
+        defaultParam = null;
     }
 
     /* Unit Test Only */
