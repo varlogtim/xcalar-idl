@@ -3927,25 +3927,6 @@ function XcalarRenameWorkbook(newName, oldName) {
     return (deferred.promise());
 }
 
-// XXX Not used since listworkbooks return the information needed
-function XcalarWorkbookInfo(workbookName) {
-    if ([null, undefined].indexOf(tHandle) !== -1) {
-        return PromiseHelper.resolve(null);
-    }
-    var deferred = jQuery.Deferred();
-
-    xcalarApiSessionInfo(tHandle, workbookName)
-    .then(function(output) {
-        deferred.resolve(output);
-    })
-    .fail(function(error) {
-        var thriftError = thriftLog("XcalarWorkbookInfo", error);
-        SQL.errorLog("Workbook Info", null, null, thriftError);
-        deferred.reject(thriftError);
-    });
-    return (deferred.promise());
-}
-
 function XcalarGetStatGroupIdMap(nodeId, numGroupId) {
     // nodeId is the node (be 0, 1, 2, 3, 4)
     // numGroupId is the max number of statue you want to return

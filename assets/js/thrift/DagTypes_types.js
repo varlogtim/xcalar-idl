@@ -8,7 +8,7 @@
 XcalarApiNamedInputT = function(args) {
   this.isTable = null;
   this.name = null;
-  this.xid = null;
+  this.nodeId = null;
   if (args) {
     if (args.isTable !== undefined) {
       this.isTable = args.isTable;
@@ -16,8 +16,8 @@ XcalarApiNamedInputT = function(args) {
     if (args.name !== undefined) {
       this.name = args.name;
     }
-    if (args.xid !== undefined) {
-      this.xid = args.xid;
+    if (args.nodeId !== undefined) {
+      this.nodeId = args.nodeId;
     }
   }
 };
@@ -51,7 +51,7 @@ XcalarApiNamedInputT.prototype.read = function(input) {
       break;
       case 3:
       if (ftype == Thrift.Type.STRING) {
-        this.xid = input.readString().value;
+        this.nodeId = input.readString().value;
       } else {
         input.skip(ftype);
       }
@@ -77,9 +77,9 @@ XcalarApiNamedInputT.prototype.write = function(output) {
     output.writeString(this.name);
     output.writeFieldEnd();
   }
-  if (this.xid !== null && this.xid !== undefined) {
-    output.writeFieldBegin('xid', Thrift.Type.STRING, 3);
-    output.writeString(this.xid);
+  if (this.nodeId !== null && this.nodeId !== undefined) {
+    output.writeFieldBegin('nodeId', Thrift.Type.STRING, 3);
+    output.writeString(this.nodeId);
     output.writeFieldEnd();
   }
   output.writeFieldStop();

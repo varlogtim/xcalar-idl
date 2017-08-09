@@ -3434,11 +3434,7 @@ PromiseHelper = (function(PromiseHelper, $) {
             test.assert(ret.sessions[0].state.toLowerCase() === "inactive");
             return xcalarApiSessionSwitch(thriftHandle, session2, undefined);
         })
-        .then(function() {
-            return xcalarApiSessionInfo(thriftHandle, session2);
-        })
         .then(function(ret) {
-            test.assert(ret.numNodes === 7);
             printResult(ret);
             test.pass();
         })
