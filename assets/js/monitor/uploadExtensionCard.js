@@ -59,7 +59,7 @@ window.UploadExtensionCard = (function($, UploadExtensionCard) {
         var promise = $.ajax({
             "type": "POST",
             "dataType": "JSON",
-            "url": url + "/uploadExtension",
+            "url": url + "/extension/upload",
             "data": {"targz": str, "name": extName},
         });
         return promise;
