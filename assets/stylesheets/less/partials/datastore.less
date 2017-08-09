@@ -336,36 +336,6 @@
             }
         }
 
-        .advanceSection {
-            .size(@width: 100%, @height: 85px);
-
-            .advanceOption {
-                float: left;
-
-                .listInfo {
-                    display: none;
-                }
-
-                ul {
-                    display: block;
-                }
-
-                .limit {
-                    display: block;
-                    box-shadow: none;
-                    padding: 0;
-                }
-
-                .pattern {
-                    display: none;
-                }
-            }
-
-            .retry {
-                .vertical-align;
-            }
-        }
-
         .retry {
             margin-top: 10px;
             float: left;
@@ -1494,137 +1464,6 @@ table.datasetTable {
 }
 /* End Of File Browser */
 
-/* a specail case */
-#datastore-in-view {
-    .advanceSection {
-        .advanceOption.interactive {
-            .limit {
-                height: 40px;
-
-                .radioButtonGroup {
-                    height: 30px;
-                }
-
-                [data-option="default"] {
-                    display: none;
-                }
-
-                .radio, .radioText {
-                    display: none;
-                }
-
-                .inputWrap {
-                    margin-left: 0;
-                }
-            }
-        }
-
-        .listInfo {
-            margin-bottom: 20px;
-
-            .expand {
-                .icon {
-                    .font(@color: @color-font-greyish-brown);
-                }
-            }
-
-            .text {
-                cursor: pointer;
-                font-weight: 600;
-            }
-        }
-
-        .label {
-            .size(@height: 30px);
-            line-height: 30px;
-            margin-right: 10px;
-            text-align: right;
-        }
-
-        .option {
-            opacity: @opacity-hover;
-            margin-top: 15px;
-            box-shadow: none;
-
-            > div, > input {
-                display: inline-block;
-                float: left;
-            }
-
-            &.pattern {
-                .input-box(@w: ~"calc(100% - 535px)", @h: 30px);
-
-                input {
-                    max-width: 420px;
-                }
-
-                .checkboxSection {
-                    margin-left: 20px;
-                    > div {
-                        .font(@weight: 600, @line-height: 30px);
-
-                        margin-left: 7px;
-
-                        .icon {
-                            top: 55%;
-                        }
-                    }
-                }
-            }
-
-            &.limit {
-                .size(@height: 60px);
-
-                .radioButtonGroup {
-                    .size(@height: 60px);
-                    float: left;
-
-                    .radioButton {
-                        .size(@height: 30px);
-
-                        .radioText, .radio {
-                            .size(@height: 100%);
-                            float: left;
-                        }
-
-                        .radioText {
-                            line-height: 30px;
-                        }
-
-                        .radio .icon {
-                            .vertical-align;
-                        }
-                    }
-                }
-
-                .inputWrap {
-                    .input-box(@w: 80px, @h: 30px);
-                    margin-left: 10px;
-                    float: left;
-                }
-
-                .dropDownList {
-                    margin-left: -1px;
-                    .styleDropDownList(80px, 30px);
-
-                    ul {
-                        margin: 0;
-                    }
-
-                    li {
-                        .size(@height: 20px);
-                        line-height: 20px;
-                        text-align: center;
-                        padding: 0;
-                        box-shadow: none;
-                        opacity: @opacity-hover;
-                    }
-                }
-            }
-        }
-    }
-}
-
 /* Data Form Preview */
 #dsForm-preview {
     .size(@min-width: 750px, @height: ~"calc(100% - 5px)");
@@ -2038,6 +1877,130 @@ table.datasetTable {
 
                     > div {
                         pointer-events: none;
+                    }
+                }
+            }
+
+            .advanceOption.interactive {
+                .limit {
+                    height: 40px;
+
+                    .radioButtonGroup {
+                        height: 30px;
+                    }
+
+                    [data-option="default"] {
+                        display: none;
+                    }
+
+                    .radio, .radioText {
+                        display: none;
+                    }
+
+                    .inputWrap {
+                        margin-left: 0;
+                    }
+                }
+            }
+
+            .listInfo {
+                .expand {
+                    .icon {
+                        .font(@color: @color-font-greyish-brown);
+                    }
+                }
+
+                .text {
+                    cursor: pointer;
+                    font-weight: 600;
+                }
+            }
+
+            .label {
+                .size(@height: 30px);
+                line-height: 30px;
+                margin-right: 10px;
+                text-align: right;
+            }
+
+            .option {
+                opacity: @opacity-hover;
+                margin-top: 15px;
+                box-shadow: none;
+
+                > div, > input {
+                    display: inline-block;
+                    float: left;
+                }
+
+                &.pattern {
+                    .input-box(@w: ~"calc(100% - 535px)", @h: 30px);
+
+                    input {
+                        max-width: 420px;
+                    }
+
+                    .checkboxSection {
+                        margin-left: 20px;
+                        > div {
+                            .font(@weight: 600, @line-height: 30px);
+
+                            margin-left: 7px;
+
+                            .icon {
+                                top: 55%;
+                            }
+                        }
+                    }
+                }
+
+                &.limit {
+                    .size(@height: 60px);
+
+                    .radioButtonGroup {
+                        .size(@height: 60px);
+                        float: left;
+
+                        .radioButton {
+                            .size(@height: 30px);
+
+                            .radioText, .radio {
+                                .size(@height: 100%);
+                                float: left;
+                            }
+
+                            .radioText {
+                                line-height: 30px;
+                            }
+
+                            .radio .icon {
+                                .vertical-align;
+                            }
+                        }
+                    }
+
+                    .inputWrap {
+                        .input-box(@w: 80px, @h: 30px);
+                        margin-left: 10px;
+                        float: left;
+                    }
+
+                    .dropDownList {
+                        margin-left: -1px;
+                        .styleDropDownList(80px, 30px);
+
+                        ul {
+                            margin: 0;
+                        }
+
+                        li {
+                            .size(@height: 20px);
+                            line-height: 20px;
+                            text-align: center;
+                            padding: 0;
+                            box-shadow: none;
+                            opacity: @opacity-hover;
+                        }
                     }
                 }
             }

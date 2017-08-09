@@ -2076,11 +2076,8 @@ window.DSPreview = (function($, DSPreview) {
             return;
         }
 
-        clearPreviewTable()
-        .then(function() {
-            return previewData(formOptions, noDetect);
-        })
-        .fail(errorHandler);
+        clearPreviewTable(); // async remove the old ds
+        return previewData(formOptions, noDetect);
     }
 
     function getPreviewTable() {
