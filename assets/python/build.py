@@ -2,10 +2,12 @@
 # Remember to change include paths in all .html files
 
 import os, shutil, fnmatch, re, tempfile, sys
+from glob import glob
 
 def catFilesTogether():
     sortSubfolder = ["prod/assets/js/constructor"]
     jsRoot = "prod/assets/js/"
+
     for f in os.listdir(jsRoot):
         if os.path.isdir(jsRoot+f):
             subFolder = jsRoot + f
@@ -16,15 +18,12 @@ def catFilesTogether():
             fileList = []
             if subFolder in sortSubfolder:
                 print "Sorting: " + subFolder
-                fileList = sorted(os.listdir(subFolder))
+                fileList = sorted([y for x in os.walk(subFolder) for y in glob(os.path.join(x[0], "*.js"))])
             else:
-                fileList = os.listdir(subFolder)
+                fileList = [y for x in os.walk(subFolder) for y in glob(os.path.join(x[0], "*.js"))]
             for file in fileList:
-                partialJsFile = subFolder+"/"+file
-                extension = file.split(".")[-1]
-
-                if os.path.isfile(partialJsFile) and extension == "js":
-                    inFile = open(partialJsFile, "r")
+                if os.path.isfile(file):
+                    inFile = open(file, "r")
                     for line in inFile:
                         outFile.write(line+"\n")
             shutil.rmtree(subFolder)
