@@ -26,17 +26,7 @@ window.Profile = (function($, Profile, d3) {
         "desc": "desc",
         "ztoa": "ztoa"
     };
-    var tooltipOptions = {
-        "trigger": "manual",
-        "animation": false,
-        "placement": "top",
-        "container": "body",
-        "html": true,
-        "template": '<div class="bartip tooltip" role="tooltip">' +
-                        '<div class="tooltip-arrow"></div>' +
-                        '<div class="tooltip-inner"></div>' +
-                    '</div>'
-    };
+
     var statsColName = "statsGroupBy";
     var bucketColName = "bucketGroupBy";
     var defaultRowsToFetch = 20;
@@ -89,13 +79,26 @@ window.Profile = (function($, Profile, d3) {
         });
 
         // show tootip in barArea and do not let in blink in padding
-        $modal.on("mouseover", ".barArea", function(event) {
+        $modal.on("mouseover", ".area", function(event) {
             event.stopPropagation();
             var rowToHover = null;
-            if (!$modal.hasClass("drawing")) {
+            if (!$modal.hasClass("drawing") && isBarChart()) {
                 rowToHover = d3.select(this).attr("data-rowNum");
             }
-            resetTooltip(rowToHover);
+            resetTooltip(this, rowToHover);
+        });
+
+        $modal.on("mouseout", ".pieChart .area", function() {
+            resetTooltip();
+        });
+
+        $modal.on("mouseover", function() {
+            resetTooltip();
+        });
+
+        // only trigger in padding area btw bars
+        $modal.on("mouseover", ".groupbyChart", function(event) {
+            event.stopPropagation();
         });
 
         $modal.on("click", ".graphSwitch", function() {
@@ -116,28 +119,9 @@ window.Profile = (function($, Profile, d3) {
             buildGroupGraphs(statsCol, true, false);
         });
 
-        $modal.on("mouseover", ".arc", function(event) {
-            event.stopPropagation();
-            resetArcTooltip(this);
-        });
-
-        $modal.on("mouseout", ".arc", function() {
-            resetArcTooltip();
-        });
-
-        // only trigger in padding area btw bars
-        $modal.on("mouseover", ".groupbyChart", function(event) {
-            event.stopPropagation();
-        });
-
-        $modal.on("mouseover", function() {
-            resetTooltip();
-        });
-
         var $groupbySection = $modal.find(".groupbyInfoSection");
 
-        $groupbySection.on("click", ".arc",
-        function(event) {
+        $groupbySection.on("click", ".clickable", function(event) {
             if (event.which !== 1) {
                 return;
             }
@@ -148,20 +132,6 @@ window.Profile = (function($, Profile, d3) {
             }
             percentageLabel = !percentageLabel;
             $(this).tooltip("hide");
-            buildGroupGraphs(statsCol, true);
-        });
-
-        $groupbySection.on("click", ".bar-extra, .bar, .xlabel",
-        function(event) {
-            if (event.which !== 1) {
-                return;
-            }
-
-            if (filterDragging) {
-                filterDragging = false;
-                return;
-            }
-            percentageLabel = !percentageLabel;
             buildGroupGraphs(statsCol);
         });
 
@@ -880,484 +850,33 @@ window.Profile = (function($, Profile, d3) {
         return data;
     }
 
-    function midAngle(d) {
-        return d["startAngle"] + (d["endAngle"] - d["startAngle"]) / 2;
-    }
-
-    function maxLabelWidth(labels) {
-        var maxWidth = 0;
-        labels.each(function() {
-            var labelWidth = this.getBoundingClientRect().width;
-            if (maxWidth < labelWidth) {
-                maxWidth = labelWidth;
-            }
-        });
-
-        return maxWidth;
-    }
-
-    function moveOverlappingLabels(labels, labelPositions, usedPieData) {
-        var prevRect;
-        var currRect;
-        var prevPos;
-        var currPos;
-        var intersectionLength;
-        var maxWidth = maxLabelWidth(labels) * 2;
-        var i = 0;
-        // method could be cleaner,
-        // some code in 'labels.each' should be moved to separate functions
-        labels.each(function() {
-            var move;
-            currRect = this;
-            currPos = labelPositions[i];
-
-            if (currPos[0] > 0) {
-                move = [maxWidth, 0];
-                labelPositions[i][0] += maxWidth;
-                d3.select(this)
-                    .attr("transform", "translate(" + move + ")")
-                    .attr("text-anchor", "end");
-            } else if (currPos[0] < 0) {
-                move = [-1 * maxWidth, 0];
-                labelPositions[i][0] -= maxWidth;
-                d3.select(this)
-                    .attr("transform", "translate(" + move + ")")
-                    .attr("text-anchor", "start");
-            }
-            var groupByBox = $(".groupbyChart").get(0).getBoundingClientRect();
-            if (i > 0) {
-                prevPos = labelPositions[i - 1];
-                currRectXPos = d3.select(this).attr("transform");
-
-                // getting location of top and bottom of current and previous text labels
-                var prevBottom = prevRect.getBoundingClientRect().bottom;
-                var prevTop = prevRect.getBoundingClientRect().top;
-                var currBottom = currRect.getBoundingClientRect().bottom;
-                var currTop = currRect.getBoundingClientRect().top;
-
-                if (currPos[0] > 0 && prevPos[0] > 0 && prevBottom > currTop) {
-                    intersectionLength = currTop - prevBottom;
-                    currPos[1] -= intersectionLength;
-                    move = [maxWidth, -1 * intersectionLength];
-                    d3.select(this)
-                        .attr("transform", "translate(" + move + ")");
-                    // updates position value in array
-                    labelPositions[i] = currPos;
-                } else if (currPos[0] < 0 && prevPos[0] < 0 && prevTop < currBottom) {
-                    intersectionLength = currBottom - prevTop;
-                    currPos[1] -= intersectionLength;
-                    move = [-1 * maxWidth, -1 * intersectionLength];
-                    d3.select(this)
-                        .attr("transform", "translate(" + move + ")");
-                    // updates position value in array
-                    labelPositions[i] = currPos;
-                }
-            }
-            if (this.getBoundingClientRect().top < groupByBox.top) {
-                this.remove();
-                labelPositions.splice(i, 1);
-                usedPieData.splice(i, 1);
-            }
-            else {
-                prevRect = this;
-                i++;
-            }
-        });
-        return labels;
-    }
-
-    function getPieData(curStatsCol) {
-        var gbd = groupByData.slice();
-
-        var total = curStatsCol.groupByInfo.buckets[bucketNum]["sum"];
-        var sum = 0;
-        for (var i = 0; i < gbd.length; i++) {
-            sum += gbd[i]["statsGroupBy"];
-        }
-
-        var otherSum = total - sum;
-
-        if (otherSum > 0) {
-            var other = {
-                "column2": "Other",
-                "statsGroupBy": otherSum,
-                "section": "other"
-            };
-            gbd.push(other);
-        }
-
-        var yName = getYName();
-        var pie = d3.layout.pie()
-        .sort(null)
-        .value(function(d) {
-            return d[yName];
-        });
-
-        return pie(gbd);
-    }
-
-    function getYName() {
-        var noBucket = (bucketNum === 0) ? 1 : 0;
-        return noBucket ? statsColName : bucketColName;
-    }
-
-    function drawPieChart(svg) {
-        var $section = $modal.find(".groupbyInfoSection");
-        var width = $section.width();
-        var height = $section.height();
-        // var radius = (Math.min(width, height) / 2);
-
-        svg = d3.select("#profileModal .groupbyChart")
-            .attr("width", width)
-            .attr("height", height)
-            .attr("style", "")
-            .append("g")
-            .attr("transform", "translate(" + (width / 2) + "," + Math.min(width, height) / 2 + ")");
-
-        return svg;
-    }
-
     function buildGroupGraphs(curStatsCol, initial, resize) {
-        if (chartType === "bar") {
-            buildBarChart(curStatsCol, initial, resize);
-        } else if (chartType === "pie") {
-            buildPieChart(curStatsCol, initial, resize);
-        }
-    }
-
-    // returns max number of labels that will fit
-    function getMaxLabels(height) {
-        var fontSize = 13;
-        return Math.floor(height / (fontSize * 3));
-    }
-
-    // there should be a way to only only re-render the text/polylines
-    // when a rezise happens, right now everything gets re-rendered during resize
-    function buildPieChart(curStatsCol, initial, resize) {
         if (!isModalVisible(curStatsCol)) {
             return;
         }
-        chartType = "pie";
-        var nullCount = curStatsCol.groupByInfo.nullCount;
+
         var tableInfo = curStatsCol.groupByInfo.buckets[bucketNum];
-        var noBucket = (bucketNum === 0) ? 1 : 0;
-        var noSort = (order === sortMap.origin);
-        var xName = tableInfo.colName;
-        var yName = getYName();
-        var $section = $modal.find(".groupbyInfoSection");
-        // var data = groupByData;
-        // var dataLen = data.length;
-        var sectionWidth = $section.width();
-        // var marginBottom = 10;
-        // var marginLeft = 20;
-        var svg;
-        var charLenToFit = 18;
-        var piedata = getPieData(curStatsCol);
-        radius = (Math.min(sectionWidth, $section.height()) / 2) * .9;
-        var arc = d3.svg.arc()
-            .innerRadius(0)
-            .outerRadius(radius);
-        var outerArc = d3.svg.arc()
-            .innerRadius(radius * .8)
-            .outerRadius(radius * .8);
-
-        // could change to only regenerate/color piechart if initial
-        $modal.find(".groupbyChart").empty();
-        svg = drawPieChart(svg, arc);
-        colorPieChart(svg, piedata, arc);
-
-        // appends arcs to 'path' and colors them
-        function colorPieChart(svg, piedata, arc) {
-            var isFirstColor = true;
-            var nextColor = 0;
-            var path = svg.selectAll("path")
-                .data(piedata)
-                .enter()
-                .append("path")
-                .attr("d", arc)
-                .attr("class", function(d, i) {
-                    var className = getTooltipAndClass.apply(this, arguments) + " ";
-                    if (nextColor === 10) {
-                        nextColor = 0;
-                    }
-                    if (piedata[i].data["type"] === "nullVal") {
-                        return className + "nullVal";
-                    }
-                    if (i === piedata.length - 1 && piedata[piedata.length - 1].data["section"] === "other") {
-                        return className + "other";
-                    }
-                    if (!isFirstColor && nextColor === 0) {
-                        return className + getColorClass(nextColor += 2);
-                    }
-                    isFirstColor = false;
-                    return className + getColorClass(++nextColor);
-                });
-
-            return path;
+        var resizeDelay = null;
+        if (resize) {
+            resizeDelay = 60 / defaultRowsToFetch * numRowsToFetch;
         }
 
-        function getColorClass(nextColor) {
-            return "color-" + nextColor;
-        }
-
-        var labelPositions = [];
-
-        var usedPieData = [];
-        chooseAndAppendLabels(usedPieData);
-        var labels = $(".pieLabel");
-        // moves labels that overlap
-        labels = moveOverlappingLabels(labels, labelPositions, usedPieData);
-
-        // adds lines from pie chart to labels
-        var arcCent;
-        var outerArcCent;
-        svg.selectAll("polyline")
-            .data(usedPieData)
-            .enter()
-            .append("polyline")
-            .attr("points", function(d, i) {
-                arcCent = arc.centroid(d);
-                outerArcCent = outerArc.centroid(d);
-                arcCent[0] *= 1.1;
-                arcCent[1] *= 1.1;
-                labelPositions[i][1] += 3;
-                outerArcCent[1] = labelPositions[i][1];
-                if (labelPositions[i][0] > 0) {
-                    labelPositions[i][0] += 3;
-                } else {
-                    labelPositions[i][0] -= 3;
-                }
-
-                return [arcCent, outerArcCent, labelPositions[i]];
-            })
-            .style("pointer-events", "none")
-            .style("fill", "none")
-            .style("stroke", "#4f4f4f")
-            .style("stroke-width", "1px");
-
-        svg.selectAll("circle")
-            .data(usedPieData)
-            .enter()
-            .append("circle")
-            .attr("cx", function(d) {
-                arcCent = arc.centroid(d);
-                return arcCent[0] *= 1.1;
-            })
-            .attr("cy", function(d) {
-                arcCent = arc.centroid(d);
-                return arcCent[1] *= 1.1;
-            })
-            .attr("r", 2)
-            .attr("fill", "#4f4f4f")
-            .style("pointer-events", "none");
-
-        // chooses which labels to display
-        function chooseAndAppendLabels(usedPieData) {
-            var rightCount = 0;
-            var leftCount = 0;
-            for (var i = 0; i < piedata.length; i++) {
-                if (piedata[i]["startAngle"] <= Math.PI) {
-                    rightCount++;
-                } else {
-                    leftCount++;
-                }
-            }
-
-            var maxLabels = getMaxLabels($section.height());
-            var r = 0;
-            var l = 0;
-            var fontSize = 13;
-            if (rightCount > maxLabels) {
-                rightCount = maxLabels;
-            }
-            if (leftCount > maxLabels) {
-                leftCount = maxLabels;
-            }
-            var rightArcDiv = Math.PI / rightCount;
-            var leftArcDiv = Math.PI / leftCount;
-            var lastUsedArc = piedata[0];
-            var currMid;
-            for (var i = 0; i < piedata.length; i++) {
-                if (i > 0) {
-                    if (!roomForLabel(lastUsedArc, piedata[i], rightArcDiv, leftArcDiv , i)) {
-                        continue;
-                    }
-                }
-                currMid = midAngle(piedata[i]);
-                if ((currMid <= Math.PI && r < maxLabels) ||
-                    (currMid > Math.PI && l < maxLabels)) {
-                    var g = svg.append("g").classed("pieLabel", true);
-                    addLabels(g, piedata[i], fontSize);
-                    if (piedata[i]["startAngle"] <= Math.PI) {
-                        r++;
-                    } else {
-                        l++;
-                    }
-                    lastUsedArc = piedata[i];
-                    usedPieData.push(piedata[i]);
-                }
-            }
-        }
-
-        /*
-            decides if there is room for a label on an arc
-            based on where the last label was placed
-        */
-        function roomForLabel(lastUsedArc, currArc, rightArcDiv, leftArcDiv, i) {
-            var lastMid = midAngle(lastUsedArc);
-            var currMid = midAngle(currArc);
-
-            if ((lastMid < Math.PI && currMid < Math.PI) ||
-                (lastMid >= Math.PI && currMid >= Math.PI)) {
-                var rightSpace = (lastMid + rightArcDiv);
-                var leftSpace = (lastMid + leftArcDiv);
-
-                if (currMid < Math.PI &&
-                    i < piedata.length - 1 &&
-                    piedata[i]["endAngle"] < rightSpace) {
-                    return false;
-                }
-                if (currMid >= Math.PI &&
-                    i < piedata.length - 1 &&
-                    piedata[i]["endAngle"] < leftSpace) {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        // appends labels to 'g'
-        // groups the 'value' and 'frequency' together
-        function addLabels(g, arc, fontSize) {
-            var mid = midAngle(arc);
-            g.append("text")
-                .style("font-size", fontSize + "px")
-                .style("fill", "#4f4f4f")
-                .attr("transform", function() {
-                    var pos = outerArc.centroid(arc);
-                    pos[0] = radius * (mid < Math.PI ? 1 : -1);
-                    if (mid < Math.PI) {
-                        pos[1] -= (fontSize * 1.7);
-                    } else {
-                        pos[1] -= fontSize * 1.7;
-                    }
-                    labelPositions.push(pos);
-
-                    return "translate(" + pos + ")";
-                })
-                .text(function() {
-                    if (arc.data["section"] === "other") {
-                        return "Other";
-                    }
-                    return getXAxis(arc);
-                });
-
-            g.append("text")
-                .style("font-size", (fontSize - 1) + "px")
-                .style("fill", "#7b7b7b")
-                .attr("transform", function() {
-                    var pos = outerArc.centroid(arc);
-                    pos[0] = radius * (mid < Math.PI ? 1 : -1);
-                    if (mid < Math.PI) {
-                        pos[1] -= fontSize * 1.5;
-                    } else {
-                        pos[1] -= fontSize * 1.5;
-                    }
-                    pos[1] += fontSize;
-
-                    return "translate(" + pos + ")";
-                })
-                .text(function() {
-                    return getLabel(arc);
-                });
-        }
-
-        function getLabel(d) {
-            var num = d.data[yName];
-
-            if (percentageLabel && tableInfo.sum !== 0) {
-                // show percentage
-                num = (num / (tableInfo.sum + nullCount) * 100);
-
-                var intLenth = String(Math.floor(num)).length;
-                // charFit - integer part - dot - % - 1charPadding
-                var fixLen = Math.max(1, charLenToFit - intLenth - 3);
-                // XXX that's for Citi's request to have maxium 2 digits
-                // in decimal, used to be 3, can change back
-                fixLen = Math.min(fixLen, 2);
-                return (num.toFixed(fixLen) + "%");
-            } else {
-                num = formatNumber(d.data[yName]);
-                if (num.length > charLenToFit) {
-                    return (num.substring(0, charLenToFit) + "..");
-                } else {
-                    return num;
-                }
-            }
-        }
-
-        function getXAxis(d) {
-            var isLogScale = (tableInfo.bucketSize < 0);
-            var lowerBound = getLowerBound(d.data[xName], tableInfo.bucketSize);
-            var name = formatNumber(lowerBound, isLogScale, decimalNum);
-
-            if (!noBucket && !noSort && d.data["type"] !== "nullVal") {
-                var upperBound = getUpperBound(d.data[xName], tableInfo.bucketSize);
-                upperBound = formatNumber(upperBound, isLogScale, decimalNum);
-                name = "[" + name + "-" + upperBound + "]";
-            }
-
-            if (name.length > charLenToFit) {
-                return (name.substring(0, charLenToFit) + "..");
-            } else {
-                return name;
-            }
-        }
-
-        function getTooltipAndClass(d) {
-            // a little weird method to setup tooltip
-            // may have better way
-            var title;
-            var isLogScale = (tableInfo.bucketSize < 0);
-            var lowerBound = getLowerBound(d.data[xName], tableInfo.bucketSize);
-
-            if (d.data["section"] === "other") {
-                title = "Value: Other<br>";
-            } else if (noBucket || d.data["type"] === "nullVal") {
-                // xName is the backColName, may differenet with frontColName
-                title = "Value: " +
-                    formatNumber(lowerBound, isLogScale, decimalNum) +
-                    "<br>";
-            } else {
-                var upperBound = getUpperBound(d.data[xName], tableInfo.bucketSize);
-                title = "Value: [" +
-                    formatNumber(lowerBound, isLogScale, decimalNum) +
-                    ", " +
-                    formatNumber(upperBound, isLogScale, decimalNum) +
-                    ")<br>";
-            }
-
-            if (percentageLabel && tableInfo.sum !== 0) {
-                var num = d.data[yName] / (tableInfo.sum + nullCount) * 100;
-                var per = num.toFixed(3);
-
-                if (num < 0.001) {
-                    // when the percentage is too small
-                    per = num.toExponential(2) + "%";
-                } else {
-                    per += "%";
-                }
-                title += "Percentage: " + per;
-            } else {
-                title += "Frequency: " + formatNumber(d.data[yName]);
-            }
-            var options = $.extend({}, tooltipOptions, {
-                "title": title
-            });
-            $(this).tooltip("destroy");
-            $(this).tooltip(options);
-            return "arc";
-        }
+        ProfileChart.build({
+            "data": groupByData,
+            "type": chartType,
+            "bucketSize": bucketNum,
+            "xName": getXName(tableInfo),
+            "yName": getYName(),
+            "noSort": isNoSort(),
+            "nullCount": curStatsCol.groupByInfo.nullCount,
+            "max": tableInfo.max,
+            "sum": tableInfo.sum,
+            "percentage": percentageLabel,
+            "decimal": decimalNum,
+            "initial": initial,
+            "resize": resize,
+            "resizeDelay": resizeDelay
+        });
     }
 
     // returns the quadrant of the pie that a point lies in
@@ -1594,7 +1113,7 @@ window.Profile = (function($, Profile, d3) {
     function pieDrawFilterRect(bound, top, right, bottom, left) {
         var chart = d3.select("#profile-chart .groupbyChart");
         var arcsToSelect = getSelectedArcs(bound, top, right, bottom, left, getPieData(statsCol));
-        chart.selectAll(".arc").each(function(d, i) {
+        chart.selectAll(".area").each(function(d, i) {
             var arc = d3.select(this);
             if (arcsToSelect[i]) {
                 arc.classed("selecting", true);
@@ -1607,8 +1126,8 @@ window.Profile = (function($, Profile, d3) {
     function pieEndDrawFilterRect() {
         $modal.removeClass("drawing").removeClass("selecting");
         var chart = d3.select("#profile-chart .groupbyChart");
-        var arcToSelect = chart.selectAll(".arc.selecting");
-        var arcs = chart.selectAll(".arc");
+        var arcToSelect = chart.selectAll(".area.selecting");
+        var arcs = chart.selectAll(".area");
         if (arcToSelect.size() === 0) {
             arcs.each(function() {
                 d3.select(this)
@@ -1637,17 +1156,10 @@ window.Profile = (function($, Profile, d3) {
         pieToggleFilterOption();
     }
 
-    function resetArcTooltip(arc) {
-        $(".arc").tooltip("hide");
-        if (arc != null) {
-            $(arc).tooltip("show");
-        }
-    }
-
     function pieToggleFilterOption(isHidden) {
         var $filterOption = $("#profile-filterOption");
         var chart = d3.select("#profile-chart .groupbyChart");
-        var bars = chart.selectAll(".arc.selected");
+        var bars = chart.selectAll(".area.selected");
         var barsSize = bars.size();
 
         if (barsSize === 0) {
@@ -1710,7 +1222,7 @@ window.Profile = (function($, Profile, d3) {
         var prevRowNum;
         var isContinuous = true;
 
-        chart.selectAll(".arc.selected").each(function(d) {
+        chart.selectAll(".area.selected").each(function(d) {
             var rowNum = d.data["rowNum"];
             if (isNaN(rowNum)) {
                 console.error("invalid row num!");
@@ -1756,347 +1268,21 @@ window.Profile = (function($, Profile, d3) {
         }
     }
 
-    function buildBarChart(curStatsCol, initial, resize) {
-        if (!isModalVisible(curStatsCol)) {
-            return;
-        }
-
-        var nullCount = curStatsCol.groupByInfo.nullCount;
-        var tableInfo = curStatsCol.groupByInfo.buckets[bucketNum];
-        var noBucket = (bucketNum === 0) ? 1 : 0;
-        var noSort = (order === sortMap.origin);
-        var xName = tableInfo.colName;
-        var yName = noBucket ? statsColName : bucketColName;
-
-        var $section = $modal.find(".groupbyInfoSection");
-        var data = groupByData;
-        var dataLen = data.length;
-
-        var sectionWidth = $section.width();
-        var marginBottom = 10;
-        var marginLeft = 20;
-
-        var maxRectW = Math.floor(sectionWidth / 706 * 70);
-        var chartWidth = Math.min(sectionWidth, maxRectW * data.length + marginLeft * 2);
-        var chartHeight = $section.height();
-
-        var height = chartHeight - marginBottom;
-        var width = chartWidth - marginLeft * 2;
-
-        // x range and y range
-        var maxHeight = Math.max(tableInfo.max, nullCount);
-        var x = d3.scale.ordinal()
-                        .rangeRoundBands([0, width], 0.1, 0)
-                        .domain(data.map(function(d) { return d[xName]; }));
-        var y = d3.scale.linear()
-                        .range([height, 0])
-                        .domain([-(maxHeight * 0.02), maxHeight]);
-        var xWidth = x.rangeBand();
-        // 6.2 is the width of a char in .xlabel
-        var charLenToFit = Math.max(1, Math.floor(xWidth / 6.2) - 1);
-        var left = (sectionWidth - chartWidth) / 2;
-        var chart;
-        var barAreas;
-        chartType = "bar";
-
-        if (initial) {
-            $modal.find(".groupbyChart").empty();
-
-            chart = d3.select("#profileModal .groupbyChart")
-                .attr("width", chartWidth)
-                .attr("height", chartHeight + 2)
-                .style("position", "relative")
-                .style("left", left + "px")
-                .style("overflow", "visible")
-            .append("g")
-                .attr("class", "barChart")
-                .attr("transform", "translate(" + marginLeft + ", 0)");
-
-            $(".bartip").remove();
-        } else if (resize) {
-            chart = d3.select("#profileModal .groupbyChart .barChart");
-
-            d3.select("#profileModal .groupbyChart")
-                .attr("width", chartWidth)
-                .attr("height", chartHeight + 2)
-                .style("left", left);
-
-            var time = 60 / defaultRowsToFetch * numRowsToFetch;
-            barAreas = chart.selectAll(".barArea");
-
-            barAreas.select(".bar")
-                .attr("y", function(d) { return y(d[yName]); })
-                .attr("height", function(d) { return height - y(d[yName]); })
-                .transition()
-                .duration(time)
-                .attr("x", function(d) { return x(d[xName]); })
-                .attr("width", xWidth);
-
-            barAreas.select(".bar-extra")
-                .attr("height", height)
-                .transition()
-                .duration(time)
-                .attr("x", function(d) { return x(d[xName]); })
-                .attr("width", xWidth);
-
-            barAreas.select(".bar-border")
-                .attr("height", height)
-                .transition()
-                .duration(time)
-                .attr("x", function(d) { return x(d[xName]); })
-                .attr("width", xWidth);
-
-            // label
-            barAreas.select(".xlabel")
-                .transition()
-                .duration(time)
-                .attr("x", function(d) { return x(d[xName]) + xWidth / 2; })
-                .attr("width", xWidth)
-                .text(getLabel);
-
-            // tick
-            barAreas.select(".tick")
-                .attr("y", chartHeight)
-                .transition()
-                .duration(time)
-                .attr("x", function(d) {
-                    if (!noBucket && noSort) {
-                        return x(d[xName]);
-                    } else {
-                        return x(d[xName]) + xWidth / 2;
-                    }
-                })
-                .attr("width", xWidth)
-                .text(getXAxis);
-
-            if (!noBucket && noSort) {
-                barAreas.select(".tick.last")
-                    .attr("y", chartHeight)
-                    .transition()
-                    .duration(time)
-                    .attr("x", function(d) { return x(d[xName]) + xWidth; })
-                    .attr("width", xWidth)
-                    .text(getLastBucketTick);
-            }
-
-            return;
-        }
-
-        chart = d3.select("#profileModal .groupbyChart .barChart");
-        // rect bars
-        barAreas = chart.selectAll(".barArea").data(data);
-        // update
-        barAreas.attr("class", getTooltipAndClass)
-                .attr("data-rowNum", function(d) { return d.rowNum; });
-
-        barAreas.select(".bar")
-                .transition()
-                .duration(150)
-                .attr("y", function(d) { return y(d[yName]); })
-                .attr("height", function(d) { return height - y(d[yName]); })
-                .attr("width", xWidth);
-
-        barAreas.select(".xlabel")
-                .text(getLabel);
-
-        barAreas.select(".tick")
-                .text(getXAxis);
-
-        if (!noBucket && noSort) {
-            barAreas.select(".tick.last")
-                .text(getLastBucketTick);
-        }
-        // enter
-        var newbars = barAreas.enter().append("g")
-                        .attr("class", getTooltipAndClass)
-                        .attr("data-rowNum", function(d) { return d.rowNum; });
-
-        // gray area
-        newbars.append("rect")
-            .attr("class", "bar-extra")
-            .attr("x", function(d) { return x(d[xName]); })
-            .attr("y", 0)
-            .attr("height", height)
-            .attr("width", xWidth);
-
-        // bar area
-        newbars.append("rect")
-            .attr("class", function(d, i) {
-                if (i === 0 && d.type === "nullVal") {
-                    return "bar bar-nullVal";
-                }
-                return "bar";
-            })
-            .attr("x", function(d) { return x(d[xName]); })
-            .attr("height", 0)
-            .attr("y", height)
-            .transition()
-            .delay(function(d, index) { return 25 * index; })
-            .duration(250)
-            .attr("y", function(d) { return y(d[yName]); })
-            .attr("height", function(d) { return height - y(d[yName]); })
-            .attr("width", xWidth);
-
-        // for bar border
-        newbars.append("rect")
-            .attr("class", "bar-border")
-            .attr("x", function(d) { return x(d[xName]); })
-            .attr("y", 0)
-            .attr("height", height)
-            .attr("width", xWidth);
-
-        // label
-        newbars.append("text")
-            .attr("class", "xlabel")
-            .attr("width", xWidth)
-            .attr("x", function(d) { return x(d[xName]) + xWidth / 2; })
-            .attr("y", 11)
-            .text(getLabel);
-
-        // xAxis
-        newbars.append("text")
-            .attr("class", "tick")
-            .attr("width", xWidth)
-            .attr("x", function(d) {
-                if (!noBucket && noSort) {
-                    return x(d[xName]);
-                } else {
-                    return x(d[xName]) + xWidth / 2;
-                }
-            })
-            .attr("y", chartHeight)
-            .text(getXAxis);
-
-        if (!noBucket && noSort) {
-            newbars.filter(function(d, i) { return i === dataLen - 1; })
-                .append("text")
-                .attr("class", "tick last")
-                .attr("width", xWidth)
-                .attr("x", function(d) { return x(d[xName]) + xWidth; })
-                .attr("y", chartHeight)
-                .text(getLastBucketTick);
-        }
-
-        // exit
-        barAreas.exit().remove();
-
-        function getXAxis(d) {
-            var isLogScale = (tableInfo.bucketSize < 0);
-            var lowerBound = getLowerBound(d[xName], tableInfo.bucketSize);
-            var name = formatNumber(lowerBound, isLogScale, decimalNum);
-
-            if (!noBucket && !noSort && d.type !== "nullVal") {
-                var upperBound = getUpperBound(d[xName], tableInfo.bucketSize);
-                upperBound = formatNumber(upperBound, isLogScale, decimalNum);
-                name = name + "-" + upperBound;
-            }
-
-            if (name.length > charLenToFit) {
-                return (name.substring(0, charLenToFit) + "..");
-            } else {
-                return name;
-            }
-        }
-
-        function getLastBucketTick() {
-            var obj = {};
-            obj[xName] = data[dataLen - 1][xName] +
-                         Math.abs(tableInfo.bucketSize);
-            return getXAxis(obj);
-        }
-
-        function getLabel(d) {
-            var num = d[yName];
-
-            if (percentageLabel && tableInfo.sum !== 0) {
-                // show percentage
-                num = (num / (tableInfo.sum + nullCount) * 100);
-
-                var intLenth = String(Math.floor(num)).length;
-                // charFit - integer part - dot - % - 1charPadding
-                var fixLen = Math.max(1, charLenToFit - intLenth - 3);
-                // XXX that's for Citi's request to have maxium 2 digits
-                // in decimal, used to be 3, can change back
-                fixLen = Math.min(fixLen, 2);
-                return (num.toFixed(fixLen) + "%");
-            } else {
-                num = formatNumber(d[yName]);
-                if (num.length > charLenToFit) {
-                    return (num.substring(0, charLenToFit) + "..");
-                } else {
-                    return num;
-                }
-            }
-        }
-
-        function getTooltipAndClass(d) {
-            // a little weird method to setup tooltip
-            // may have better way
-            var title;
-            var isLogScale = (tableInfo.bucketSize < 0);
-            var lowerBound = getLowerBound(d[xName], tableInfo.bucketSize);
-
-            if (noBucket || d.type === "nullVal") {
-                // xName is the backColName, may differenet with frontColName
-                title = "Value: " +
-                        formatNumber(lowerBound, isLogScale, decimalNum) +
-                        "<br>";
-            } else {
-                var upperBound = getUpperBound(d[xName], tableInfo.bucketSize);
-                title = "Value: [" +
-                        formatNumber(lowerBound, isLogScale, decimalNum) +
-                        ", " +
-                        formatNumber(upperBound, isLogScale, decimalNum) +
-                        ")<br>";
-            }
-
-            if (percentageLabel && tableInfo.sum !== 0) {
-                var num = d[yName] / (tableInfo.sum + nullCount) * 100;
-                var per = num.toFixed(3);
-
-                if (num < 0.001) {
-                    // when the percentage is too small
-                    per = num.toExponential(2) + "%";
-                } else {
-                    per += "%";
-                }
-                title += "Percentage: " + per;
-            } else {
-                title += "Frequency: " + formatNumber(d[yName]);
-            }
-
-            var options = $.extend({}, tooltipOptions, {
-                "title": title
-            });
-            $(this).tooltip("destroy");
-            $(this).tooltip(options);
-
-            return "barArea";
-        }
+    function isNoBucket() {
+        return (bucketNum === 0) ? 1 : 0;
     }
 
-    function getNumInScale(num, isLogScale) {
-        if (!isLogScale) {
-            return num;
-        }
-        // log scale;
-        if (num === 0) {
-            return 0;
-        }
-
-        var absNum = Math.abs(num);
-        absNum = Math.pow(10, absNum - 1);
-        return (num > 0) ? absNum : -absNum;
+    function isNoSort() {
+        return (order === sortMap.origin);
     }
 
-    function getLowerBound(num, bucketSize) {
-        var isLogScale = (bucketSize < 0);
-        return getNumInScale(num, isLogScale);
+    function getXName(tableInfo) {
+        return tableInfo.colName;
     }
 
-    function getUpperBound(num, bucketSize) {
-        var isLogScale = (bucketSize < 0);
-        return getNumInScale(num + Math.abs(bucketSize), isLogScale);
+    function getYName() {
+        var noBucket = isNoBucket();
+        return noBucket ? statsColName : bucketColName;
     }
 
     function getChart() {
@@ -2119,29 +1305,6 @@ window.Profile = (function($, Profile, d3) {
                 $scroller.removeClass("scrolling");
             }, 1);
         }
-    }
-
-    function formatNumber(num, isLogScale, decimal) {
-        if (num == null) {
-            console.warn("cannot format empty or null value");
-            return "";
-        } else if (typeof(num) === "string") {
-            return "\"" + num + "\"";
-        } else if (typeof(num) === "boolean") {
-            return num;
-        } else if (isNaN(num)) {
-            return num;
-        } else if (isLogScale) {
-            if (num <= 1 && num >= -1) {
-                return num;
-            } else {
-                return num.toExponential();
-            }
-        } else if (decimal != null && decimal > -1) {
-            return num.toFixed(decimal);
-        }
-        // if not speify maximumFractionDigits, 168711.0001 will be 168,711
-        return xcHelper.numToStr(num, 5);
     }
 
     function resetScrollBar(updateRowInfo) {
@@ -2652,7 +1815,7 @@ window.Profile = (function($, Profile, d3) {
         }
 
         var chart = getChart();
-        chart.selectAll(".barArea")
+        chart.selectAll(".area")
         .each(function(d) {
             var bar = d3.select(this);
             if (d.rowNum === rowNum) {
@@ -2663,28 +1826,31 @@ window.Profile = (function($, Profile, d3) {
         });
     }
 
-    function resetTooltip(rowToHover) {
+    function isBarChart() {
+        return (chartType === "bar");
+    }
+
+    function resetTooltip(area, rowToHover) {
         if (rowToHover != null) {
             rowToHover = Number(rowToHover);
         }
 
-        $(".barArea").tooltip("hide");
+        $modal.find(".groupbyInfoSection .area").tooltip("hide");
 
         var chart = getChart();
-        var barArea = null;
-        chart.selectAll(".barArea")
+
+        chart.selectAll(".area")
         .each(function(d) {
-            var bar = d3.select(this);
+            var ele = d3.select(this);
             if (rowToHover != null && d.rowNum === rowToHover) {
-                barArea = this;
-                bar.classed("hover", true);
+                ele.classed("hover", true);
             } else {
-                bar.classed("hover", false);
+                ele.classed("hover", false);
             }
         });
 
-        if (barArea != null) {
-            $(barArea).tooltip("show");
+        if (area != null) {
+            $(area).tooltip("show");
         }
     }
 
@@ -2704,7 +1870,7 @@ window.Profile = (function($, Profile, d3) {
 
     function drawFilterRect(bound, top, right, bottom, left) {
         var chart = getChart();
-        chart.selectAll(".barArea").each(function() {
+        chart.selectAll(".area").each(function() {
             var barArea = this;
             var barBound = barArea.getBoundingClientRect();
             var barTop = barBound.top - bound.top;
@@ -2724,8 +1890,8 @@ window.Profile = (function($, Profile, d3) {
     function endDrawFilterRect() {
         $modal.removeClass("drawing").removeClass("selecting");
         var chart = getChart();
-        var barToSelect = chart.selectAll(".barArea.selecting");
-        var barAreas = chart.selectAll(".barArea");
+        var barToSelect = chart.selectAll(".area.selecting");
+        var barAreas = chart.selectAll(".area");
         if (barToSelect.size() === 0) {
             barAreas.each(function() {
                 d3.select(this)
@@ -2759,7 +1925,7 @@ window.Profile = (function($, Profile, d3) {
     function toggleFilterOption(isHidden) {
         var $filterOption = $("#profile-filterOption");
         var chart = getChart();
-        var bars = chart.selectAll(".barArea.selected");
+        var bars = chart.selectAll(".area.selected");
         var barsSize = bars.size();
 
         if (barsSize === 0) {
@@ -2822,7 +1988,7 @@ window.Profile = (function($, Profile, d3) {
         var prevRowNum;
         var isContinuous = true;
 
-        chart.selectAll(".barArea.selected").each(function(d) {
+        chart.selectAll(".area.selected").each(function(d) {
             var rowNum = d.rowNum;
             if (isNaN(rowNum)) {
                 console.error("invalid row num!");

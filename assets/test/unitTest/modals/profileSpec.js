@@ -155,13 +155,13 @@ describe("Profile Test", function() {
             // .hasClass not work on svg
             var classList = $barArea.get(0).classList;
             expect(classList.contains("hover")).to.be.true;
-            var tooltipLen = $(".bartip:visible").length;
+            var tooltipLen = $(".chartTip:visible").length;
             expect(tooltipLen).to.be.at.least(1);
             // not hover
             $modal.trigger("mouseenter");
             classList = $barArea.get(0).classList;
             expect(classList.contains("hover")).to.be.false;
-            newTooltipLen = $(".bartip:visible").length;
+            newTooltipLen = $(".chartTip:visible").length;
             expect(newTooltipLen).to.equal(tooltipLen - 1);
         });
 

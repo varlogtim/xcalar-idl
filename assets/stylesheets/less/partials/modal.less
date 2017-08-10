@@ -2330,9 +2330,13 @@ html.microsoft {
             }
         }
 
+        .clickable {
+            cursor: pointer;
+        }
+
         // XXX temporarily using size transform on hover instead
         // of colors until we implement gray outer block on hover
-        .arc {
+        .pieChart .area {
             opacity: 1;
             .transition(transform 0.3s);
             &:hover {
@@ -2343,75 +2347,39 @@ html.microsoft {
             }
             &.color-1 {
                 fill : @color-arc-1;
-                &:hover  {
-                    // fill : darken(@color-arc-1, 20%);
-                }
             }
             &.color-2 {
                 fill : @color-arc-2;
-                &:hover  {
-                    // fill : darken(@color-arc-2, 20%);
-                }
             }
             &.color-3 {
                 fill : @color-arc-3;
-                &:hover  {
-                    // fill : darken(@color-arc-3, 20%);
-                }
             }
             &.color-4 {
                 fill : @color-arc-4;
-                &:hover  {
-                    // fill : darken(@color-arc-4, 20%);
-                }
             }
             &.color-5 {
                 fill : @color-arc-5;
-                &:hover  {
-                    // fill : darken(@color-arc-5, 20%);
-                }
             }
             &.color-6 {
                 fill : @color-arc-6;
-                &:hover  {
-                    // fill : darken(@color-arc-6, 20%);
-                }
             }
             &.color-7 {
                 fill : @color-arc-7;
-                &:hover  {
-                    // fill : darken(@color-arc-7, 20%);
-                }
             }
             &.color-8 {
                 fill : @color-arc-8;
-                &:hover  {
-                    // fill : darken(@color-arc-8, 20%);
-                }
             }
             &.color-9 {
                 fill : @color-arc-9;
-                &:hover  {
-                    // fill : darken(@color-arc-9, 20%);
-                }
             }
             &.color-10 {
                 fill : @color-arc-10;
-                &:hover  {
-                    // fill : darken(@color-arc-10, 20%);
-                }
             }
             &.other {
                 fill : @color-arc-other;
-                &:hover  {
-                    // fill : darken(@color-arc-other, 20%);
-                }
             }
             &.nullVal {
                 fill : @color-profile-bar-null;
-                &:hover  {
-                    // fill : darken(@color-profile-bar-null, 20%);
-                }
             }
 
             &.selected {
@@ -2520,7 +2488,146 @@ html.microsoft {
                     fill : darken(@color-profile-bar-null, 20%);
                 }
             }
+        }
 
+        .pieChart {
+            .xlabel {
+                fill: @color-text-midlightGray;
+            }
+
+            .tick {
+                fill: @color-font-greyish-brown;
+            }
+
+            polyline {
+                pointer-events: none;
+                stroke: @color-font-greyish-brown;
+                stroke-width: 1px;
+                fill: none;
+            }
+
+            circle {
+                fill: @color-font-greyish-brown;
+                pointer-events: none;
+            }
+        }
+
+        .barChart .area {
+            &.highlight {
+                .bar-extra {
+                    fill: @color-profile-bar-extra-highlight;
+                }
+
+                .bar {
+                    fill: @color-profile-bar-highlight;
+                }
+
+                .bar-border {
+                    stroke: @color-profile-bar-border-highlight;
+                    stroke-width: 2;
+                }
+
+                .tick:not(.last) {
+                    fill: @color-profile-tick-highlight;
+                    font-weight: bold;
+                }
+            }
+
+            &.hover {
+                .bar-extra {
+                    fill: @color-black;
+                    opacity: 0.15;
+                }
+
+                .bar {
+                    fill: @color-profile-bar-hover;
+
+                    &.bar-nullVal {
+                        fill: @color-profile-bar-null-hover;
+                    }
+                }
+            }
+
+            &.selected {
+                &, &.hover {
+                    .bar-extra {
+                        fill: @color-profile-selected-bar-extra;
+                        opacity: 1;
+                    }
+
+                    .bar {
+                        fill: @color-profile-bar-hover;
+                        &.bar-nullVal {
+                            fill: @color-profile-selected-bar-null;
+                        }
+                    }
+
+                    .bar-border {
+                        stroke: @color-profile-bar-selected-border;
+                        stroke-width: 2;
+                    }
+                }
+            }
+
+            &.unselected {
+                opacity: 0.7;
+
+                &.hover {
+                    .bar {
+                        fill: @color-profile-bar;
+
+                        &.bar-nullVal {
+                            fill: @color-profile-bar-null;
+                        }
+                    }
+
+                    .bar-extra {
+                        fill: @color-table-col-darkGray;
+                        opacity: 1;
+                    }
+                }
+            }
+
+            &.selecting {
+                &, &.hover {
+                    .bar-border {
+                        stroke: @color-profile-bar-border-highlight;
+                        stroke-width: 2;
+                    }
+                }
+                .bar {
+                    fill: @color-profile-bar-hover;
+
+                    &.bar-nullVal {
+                        fill: darken(@color-profile-bar-null, 20%);
+                    }
+                }
+            }
+
+            .bar {
+                fill: @color-profile-bar;
+
+                &.bar-nullVal {
+                    fill: @color-profile-bar-null;
+                }
+            }
+
+            .bar-extra {
+                fill: @color-profile-bar-extra;
+            }
+
+            .bar-border {
+                fill: none;
+            }
+
+            .tick, .xlabel {
+              font: 11px sans-serif;
+              text-anchor: middle;
+            }
+
+            .tick {
+                cursor: default;
+            }
         }
 
         .errorSection {
@@ -2577,128 +2684,6 @@ html.microsoft {
                 &.right-arrow {
                     right: 9px;
                 }
-            }
-
-            .barArea {
-                &.highlight {
-                    .bar-extra {
-                        fill: @color-profile-bar-extra-highlight;
-                    }
-
-                    .bar {
-                        fill: @color-profile-bar-highlight;
-                    }
-
-                    .bar-border {
-                        stroke: @color-profile-bar-border-highlight;
-                        stroke-width: 2;
-                    }
-
-                    .tick:not(.last) {
-                        fill: @color-profile-tick-highlight;
-                        font-weight: bold;
-                    }
-                }
-
-                &.hover {
-                    .bar-extra {
-                        fill: @color-black;
-                        opacity: 0.15;
-                    }
-
-                    .bar {
-                        fill: @color-profile-bar-hover;
-
-                        &.bar-nullVal {
-                            fill: @color-profile-bar-null-hover;
-                        }
-                    }
-                }
-
-                &.selected {
-                    &, &.hover {
-                        .bar-extra {
-                            fill: @color-profile-selected-bar-extra;
-                            opacity: 1;
-                        }
-
-                        .bar {
-                            fill: @color-profile-bar-hover;
-                            &.bar-nullVal {
-                                fill: @color-profile-selected-bar-null;
-                            }
-                        }
-
-                        .bar-border {
-                            stroke: @color-profile-bar-selected-border;
-                            stroke-width: 2;
-                        }
-                    }
-                }
-
-                &.unselected {
-                    opacity: 0.7;
-
-                    &.hover {
-                        .bar {
-                            fill: @color-profile-bar;
-
-                            &.bar-nullVal {
-                                fill: @color-profile-bar-null;
-                            }
-                        }
-
-                        .bar-extra {
-                            fill: @color-table-col-darkGray;
-                            opacity: 1;
-                        }
-                    }
-                }
-
-                &.selecting {
-                    &, &.hover {
-                        .bar-border {
-                            stroke: @color-profile-bar-border-highlight;
-                            stroke-width: 2;
-                        }
-                    }
-                    .bar {
-                        fill: @color-profile-bar-hover;
-
-                        &.bar-nullVal {
-                            fill: darken(@color-profile-bar-null, 20%);
-                        }
-                    }
-                }
-            }
-
-            .bar {
-                fill: @color-profile-bar;
-
-                &.bar-nullVal {
-                    fill: @color-profile-bar-null;
-                }
-            }
-
-            .bar-extra {
-                fill: @color-profile-bar-extra;
-            }
-
-            .bar-border {
-                fill: none;
-            }
-
-            .tick, .xlabel {
-              font: 11px sans-serif;
-              text-anchor: middle;
-            }
-
-            .tick {
-                cursor: default;
-            }
-
-            .bar, .bar-extra, .xlabel {
-                cursor: pointer;
             }
         }
     }

@@ -460,7 +460,7 @@ window.ProfileEngine = (function(ProfileEngine) {
             })
             .then(deferred.resolve)
             .fail(deferred.reject);
-            
+
             return deferred.promise();
         } else {
             return XIApi.aggregate(txId, aggOp, colName, tableName);

@@ -1303,17 +1303,17 @@ window.TestSuite = (function($, TestSuite) {
         $("#colMenu .profile").trigger(fakeEvent.mouseup);
         checkExists([".modalHeader .text:contains('Profile')",
                      "#profileModal[data-state='finished']"], 30000,
-                     {"asserts": [".barArea .xlabel:contains('205')"]})
+                     {"asserts": [".barChart .area .xlabel:contains('205')"]})
         .then(function() {
-            assert($(".barChart .barArea").length === 8);
-            assert($(".barArea .xlabel:contains('205')").length > 0);
-            assert($(".barArea .xlabel:contains('207')").length > 0);
-            assert($(".barArea .xlabel:contains('193')").length > 0);
-            assert($(".barArea .xlabel:contains('626')").length > 0);
-            assert($(".barArea .xlabel:contains('163')").length > 0);
-            assert($(".barArea .xlabel:contains('134')").length > 0);
-            assert($(".barArea .xlabel:contains('153')").length > 0);
-            assert($(".barArea .xlabel:contains('272')").length > 0);
+            assert($(".barChart .area").length === 8);
+            assert($(".barChart .area .xlabel:contains('205')").length > 0);
+            assert($(".barChart .area .xlabel:contains('207')").length > 0);
+            assert($(".barChart .area .xlabel:contains('193')").length > 0);
+            assert($(".barChart .area .xlabel:contains('626')").length > 0);
+            assert($(".barChart .area .xlabel:contains('163')").length > 0);
+            assert($(".barChart .area .xlabel:contains('134')").length > 0);
+            assert($(".barChart .area .xlabel:contains('153')").length > 0);
+            assert($(".barChart .area .xlabel:contains('272')").length > 0);
             $("#profileModal .genAgg").click();
             return checkExists("#profileModal .genAgg:not(:visible)", 30000);
         })
@@ -1331,12 +1331,12 @@ window.TestSuite = (function($, TestSuite) {
 
             $("#profileModal .sortSection .asc").click();
             return checkExists("#profileModal[data-state='finished']", 30000, {
-                "asserts": [".barArea:first-child .xlabel:contains('134')"]
+                "asserts": [".barChart .area:first-child .xlabel:contains('134')"]
             });
         })
         .then(function() {
-            assert($(".barArea .xlabel").eq(0).text() === "134");
-            assert($(".barArea .xlabel").eq(7).text() === "626");
+            assert($(".barChart .area .xlabel").eq(0).text() === "134");
+            assert($(".barChart .area .xlabel").eq(7).text() === "626");
             $("#profileModal .close").click();
             TestSuite.pass(deferred, testName, currentTestNumber);
         })
