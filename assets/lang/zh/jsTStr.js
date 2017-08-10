@@ -581,7 +581,9 @@ MonitorTStr = {
 'ParamConfigFailMsg': '无法将参数<b><name></b> 设置成 <b><value></b>。',
 'DefaultWithVal': '恢复为默认值：<value>',
 'NodeConfirmMsg': '您确定要打开集群吗？',
-'SwitchUserMsg': '您确定要以<username>登录Xcalar吗？'
+'SwitchUserMsg': '您确定要以<username>登录Xcalar吗？',
+'RestartAlertMsg': '管理员重启了集群',
+'StopAlertMsg': '管理员停止了集群'
 };
 SchedTStr = {
 'DelSched': '永久删除调度器',

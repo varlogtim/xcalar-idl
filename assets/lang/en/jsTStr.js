@@ -692,7 +692,9 @@ MonitorTStr = {
                           '<b><value></b>.',
     'DefaultWithVal': 'Revert to default value: <value>',
     'NodeConfirmMsg': 'Are you sure you want to <type> the cluster?',
-    'SwitchUserMsg': 'Are you sure you want to use Xcalar as <username>?'
+    'SwitchUserMsg': 'Are you sure you want to use Xcalar as <username>?',
+    'RestartAlertMsg': 'The administrator has restarted the cluster.',
+    'StopAlertMsg': 'The administrator has stopped the cluster.'
 };
 
 SchedTStr = {

@@ -813,15 +813,18 @@ window.Admin = (function($, Admin) {
         }
 
         var title;
+        var alertMsg;
         switch (command) {
             case ('startNode'):
                 title = MonitorTStr.StartNodes;
                 break;
             case ('stopNode'):
                 title = MonitorTStr.StopNodes;
+                alertMsg = MonitorTStr.StopAlertMsg;
                 break;
             case ('restartNode'):
                 title = MonitorTStr.RestartNodes;
+                alertMsg = MonitorTStr.RestartAlertMsg;
                 break;
             default:
                 title = AlertTStr.CONFIRMATION;
@@ -835,6 +838,13 @@ window.Admin = (function($, Admin) {
             "title": title,
             "msg": msg,
             "onConfirm": function() {
+                if(alertMsg) {
+                    var alertOption = {
+                        "title": title,
+                        "message": alertMsg
+                    }
+                    XcSocket.sendMessage("adminAlert", alertOption);
+                }
                 $("#initialLoadScreen").show();
                 if (WorkbookManager.getActiveWKBK() != null) {
                     KVStore.commit()

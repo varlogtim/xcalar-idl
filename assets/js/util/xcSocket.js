@@ -65,6 +65,13 @@ window.XcSocket = (function(XcSocket, $) {
         socket.on("refreshDSExport", function() {
             DSExport.refresh();
         });
+        socket.on("adminAlert", function(alertOption) {
+            Alert.show({
+                "title": alertOption.title,
+                "msg": alertOption.message,
+                "isAlert": true
+            });
+        });
     }
 
     /* Unit Test Only */

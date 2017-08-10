@@ -42,5 +42,8 @@ module.exports = function(server) {
         socket.on("refreshDSExport", function() {
             socket.broadcast.emit("refreshDSExport");
         });
+        socket.on("adminAlert", function(alertOption) {
+            socket.broadcast.emit("adminAlert", alertOption);
+        });
     });
 };
