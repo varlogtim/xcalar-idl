@@ -177,6 +177,10 @@ module.exports = function(grunt) {
     genHTML(tmpDest, destMap);
   });
 
+  grunt.registerTask('copyCtorFiles', function() {
+    copyCtor();
+  });
+
   // template to build a version constructor file
   grunt.registerTask('version', function() {
     genCtor();

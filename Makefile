@@ -88,6 +88,7 @@ node_modules/.bin/grunt: node_modules/.bin
 	touch $@
 
 generateHtml: node_modules/.bin/grunt
+	# It's very important that this runs before build
 	@echo "=== Generating html ==="
 	@mkdir -p assets/htmlFiles/walk
 	@grunt render
