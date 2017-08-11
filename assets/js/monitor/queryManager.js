@@ -31,6 +31,10 @@ window.QueryManager = (function(QueryManager, $) {
     // if numSteps is unknown, should take in -1
     // query is only passed in if this is an actual xcalarQuery (not xcFunction)
     QueryManager.addQuery = function(id, name, options) {
+        if (Transaction.isSimulate(id)) {
+            return;
+        }
+
         options = options || {};
         var time = new Date().getTime();
         var fullName = name + "-" + time;
@@ -87,9 +91,12 @@ window.QueryManager = (function(QueryManager, $) {
     // queryName will be empty if subquery doesn't belong to a xcalarQuery
     // options = {exportFileName: string, queryName: string, retName; string}
     QueryManager.addSubQuery = function(id, name, dstTable, query, options) {
-        if (!queryLists[id] || Transaction.checkCanceled(id)) {
+        if (Transaction.isSimulate(id) ||
+            !queryLists[id] ||
+            Transaction.checkCanceled(id)) {
             return;
         }
+
         var mainQuery = queryLists[id];
         var time = new Date().getTime();
         options = options || {};
@@ -134,7 +141,7 @@ window.QueryManager = (function(QueryManager, $) {
     };
 
     QueryManager.queryDone = function(id, sqlNum) {
-        if (!queryLists[id]) {
+        if (Transaction.isSimulate(id) || !queryLists[id]) {
             return;
         }
 
@@ -167,9 +174,10 @@ window.QueryManager = (function(QueryManager, $) {
     };
 
     QueryManager.subQueryDone = function(id, dstTable, time, options) {
-        if (!queryLists[id]) {
+        if (Transaction.isSimulate(id) || !queryLists[id]) {
             return;
         }
+
         options = options || {};
         var mainQuery = queryLists[id];
         if (time != null) {
@@ -236,9 +244,10 @@ window.QueryManager = (function(QueryManager, $) {
         }
 
         ids.forEach(function(id) {
-            if (!queryLists[id]) {
+            if (Transaction.isSimulate(id) || !queryLists[id]) {
                 return;
             }
+
             if (userTriggered) {
                 // do not allow user to click on trash if not started or processing
                 var state = queryLists[id].state;
@@ -267,6 +276,9 @@ window.QueryManager = (function(QueryManager, $) {
     };
 
     QueryManager.cancelQuery = function(id) {
+        if (Transaction.isSimulate(id)) {
+            return;
+        }
         var deferred = jQuery.Deferred();
         var mainQuery = queryLists[id];
         if (mainQuery == null) {
@@ -342,6 +354,9 @@ window.QueryManager = (function(QueryManager, $) {
     };
 
     QueryManager.cancelDS = function(id) {
+        if (Transaction.isSimulate(id)) {
+            return;
+        }
         var mainQuery = queryLists[id];
         var subQuery = mainQuery.subQueries[0];
         if (!subQuery) {
@@ -356,6 +371,9 @@ window.QueryManager = (function(QueryManager, $) {
     };
 
     QueryManager.cancelDF = function(id) {
+        if (Transaction.isSimulate(id)) {
+            return;
+        }
         var mainQuery = queryLists[id];
         if (!mainQuery) {
             return;
@@ -369,7 +387,7 @@ window.QueryManager = (function(QueryManager, $) {
     // this gets called after cancel is successful. It cleans up and updates
     // the query state and views
     QueryManager.confirmCanceledQuery = function(id) {
-        if (!queryLists[id]) {
+        if (Transaction.isSimulate(id) || !queryLists[id]) {
             return;
         }
         clearIntervalHelper(id);
@@ -403,6 +421,9 @@ window.QueryManager = (function(QueryManager, $) {
     };
 
     QueryManager.cleanUpCanceledTables = function(id) {
+        if (Transaction.isSimulate(id)) {
+            return;
+        }
         if (!queryLists[id] && !canceledQueries[id]) {
             return;
         }
@@ -419,7 +440,7 @@ window.QueryManager = (function(QueryManager, $) {
     };
 
     QueryManager.fail = function(id, error) {
-        if (!queryLists[id]) {
+        if (Transaction.isSimulate(id) || !queryLists[id]) {
             return;
         }
 

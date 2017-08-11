@@ -2,11 +2,12 @@ window.Transaction = (function(Transaction, $) {
     var txCache = {};
     var canceledTxCache = {};
     var disabledCancels = {};
-    var txIdCount = 0;
+    var txIdCount = 1;
     var isDeleting = false;
 
     Transaction.start = function(options) {
         options = options || {};
+
         var msgId;
         var operation = options.operation;
 
@@ -16,8 +17,12 @@ window.Transaction = (function(Transaction, $) {
                 "operation": operation
             });
         }
-
+        // options.simulate = true;
         var curId = txIdCount;
+        if (options.simulate) {
+            curId = curId + 0.5; // use float to mark simulate case
+        }
+
         var txLog = new TXLog({
             "msgId": msgId,
             "operation": operation,
@@ -101,6 +106,12 @@ window.Transaction = (function(Transaction, $) {
         }
 
         transactionCleaner();
+        if (Transaction.isSimulate(txId)) {
+            console.log("simuldate", txLog.getCli());
+            return txLog.getCli();
+        } else {
+            return null;
+        }
     };
 
     Transaction.fail = function(txId, options) {
@@ -149,6 +160,13 @@ window.Transaction = (function(Transaction, $) {
 
         transactionCleaner();
         removeTX(txId);
+
+        if (Transaction.isSimulate(txId)) {
+            console.log("simuldate in fail", cli);
+            return cli;
+        } else {
+            return null;
+        }
     };
 
     Transaction.disableCancel = function(txId) {
@@ -163,6 +181,10 @@ window.Transaction = (function(Transaction, $) {
 
     Transaction.isCancelable = function(txId) {
         return (isValidTX(txId) && !disabledCancels.hasOwnProperty(txId));
+    };
+
+    Transaction.isSimulate = function(txId) {
+        return !Number.isInteger(txId);
     };
 
     Transaction.cancel = function(txId, options) {

@@ -160,6 +160,11 @@ function sleep(val) {
     while (Date.now() < end) {}
 }
 
+function fakeApiCall(ret) {
+    ret = ret || {};
+    return PromiseHelper.resolve(ret);
+}
+
 function parseDS(dsName) {
     return (gDSPrefix + dsName);
 }
@@ -235,7 +240,13 @@ function insertError(argCallee, deferred) {
 // ========================== HELPER FUNCTIONS ============================= //
 
 // will only make a backend call if unsorted source table is found but is inactive
-function getUnsortedTableName(tableName, otherTableName) {
+function getUnsortedTableName(tableName, otherTableName, txId) {
+    // XXX this may not right but have to this
+    // or some intermediate table cannot be found
+    if (txId != null && Transaction.isSimulate(txId)) {
+        return PromiseHelper.resolve(tableName, otherTableName);
+    }
+
     var deferred = jQuery.Deferred();
     var deferred1 = XcalarGetDag(tableName);
     var parentChildMap;
@@ -669,9 +680,12 @@ function XcalarLoad(url, format, datasetName, options, txId) {
 
     var workItem = xcalarLoadWorkItem(url, datasetName, formatType,
                                       maxSampleSize, loadArgs);
-
-    var def1 = xcalarLoad(tHandle, url, datasetName, formatType, maxSampleSize,
+    if (Transaction.isSimulate(txId)) {
+        def1 = fakeApiCall();
+    } else {
+        def1 = xcalarLoad(tHandle, url, datasetName, formatType, maxSampleSize,
                           loadArgs);
+    }
     var def2 = XcalarGetQuery(workItem);
 
     def2.then(function(query) {
@@ -981,10 +995,13 @@ function XcalarExport(tableName, exportName, targetName, numColumns,
         var workItem = xcalarExportWorkItem(tableName, target, specInput,
                                   options.createRule, keepOrder, numColumns,
                                   columns, options.handleName);
-        var def1 = xcalarExport(tHandle, tableName, target, specInput,
+        if (Transaction.isSimulate(txId)) {
+            def1 = fakeApiCall();
+        } else {
+            def1 = xcalarExport(tHandle, tableName, target, specInput,
                                 options.createRule, keepOrder, numColumns,
                                 columns, options.handleName);
-
+        }
         var def2 = XcalarGetQuery(workItem);
         def2.then(function(query) {
             Transaction.startSubQuery(txId, 'Export', options.handleName,
@@ -1062,7 +1079,13 @@ function XcalarDestroyDataset(dsName, txId) {
         var innerDeferred = jQuery.Deferred();
         var workItem = xcalarDeleteDagNodesWorkItem(dsName,
                                                 SourceTypeT.SrcDataset);
-        var def1 = xcalarDeleteDagNodes(tHandle, dsName, SourceTypeT.SrcDataset);
+        var def1;
+        if (Transaction.isSimulate(txId)) {
+            def1 = fakeApiCall();
+        } else {
+            def1 = xcalarDeleteDagNodes(tHandle, dsName, SourceTypeT.SrcDataset);
+        }
+
         var def2 = XcalarGetQuery(workItem);
         def2.then(function(query) {
             Transaction.startSubQuery(txId, 'delete dataset', dsName + "drop",
@@ -1132,8 +1155,14 @@ function XcalarIndexFromDataset(datasetName, key, tablename, prefix, txId) {
     var ordering = XcalarOrderingT.XcalarOrderingUnordered;
     var workItem = xcalarIndexDatasetWorkItem(datasetName, key, tablename,
                                               dhtName, prefix, ordering);
-    var def1 = xcalarIndexDataset(tHandle, datasetName, key, tablename,
+    var def1;
+    if (Transaction.isSimulate(txId)) {
+        def1 = fakeApiCall();
+    } else {
+        def1 = xcalarIndexDataset(tHandle, datasetName, key, tablename,
                                   dhtName, ordering, prefix);
+    }
+
     var def2 = XcalarGetQuery(workItem);
 
     def2.then(function(query) {
@@ -1172,7 +1201,7 @@ function XcalarIndexFromTable(srcTablename, key, tablename, ordering,
     if (unsorted) {
         promise = PromiseHelper.resolve(srcTablename);
     } else {
-        promise = getUnsortedTableName(srcTablename);
+        promise = getUnsortedTableName(srcTablename, null, txId);
     }
     var unsortedSrcTablename;
 
@@ -1190,8 +1219,13 @@ function XcalarIndexFromTable(srcTablename, key, tablename, ordering,
                                                     tablename,
                                                 key, dhtName, ordering,
                                                 keyType);
-        var def1 = xcalarIndexTable(tHandle, unsortedSrcTablename, key,
-                                        tablename, dhtName, ordering, keyType);
+        var def1;
+        if (Transaction.isSimulate(txId)) {
+            def1 = fakeApiCall();
+        } else {
+            def1 = xcalarIndexTable(tHandle, unsortedSrcTablename, key,
+                                    tablename, dhtName, ordering, keyType);
+        }
         var def2 = XcalarGetQuery(workItem);
         def2.then(function(query) {
             if (!unsorted) {
@@ -1228,8 +1262,14 @@ function XcalarDeleteTable(tableName, txId, isRetry) {
     }
     var workItem = xcalarDeleteDagNodesWorkItem(tableName,
                                                 SourceTypeT.SrcTable);
-    var def1 = xcalarDeleteDagNodes(tHandle, tableName,
+    var def1;
+    if (Transaction.isSimulate(txId)) {
+        def1 = fakeApiCall();
+    } else {
+        def1 = xcalarDeleteDagNodes(tHandle, tableName,
                                     SourceTypeT.SrcTable);
+    }
+
     var def2 = XcalarGetQuery(workItem);
 
     def2.then(function(query) {
@@ -1297,7 +1337,14 @@ function XcalarRenameTable(oldTableName, newTableName, txId) {
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
     }
     var workItem = xcalarRenameNodeWorkItem(oldTableName, newTableName);
-    var def1 = xcalarRenameNode(tHandle, oldTableName, newTableName);
+
+    var def1;
+    if (Transaction.isSimulate(txId)) {
+        def1 = fakeApiCall();
+    } else {
+        def1 = xcalarRenameNode(tHandle, oldTableName, newTableName);
+    }
+
     var def2 = XcalarGetQuery(workItem);
     jQuery.when(def1, def2)
     .then(function(ret1, ret2) {
@@ -1925,7 +1972,7 @@ function XcalarFilter(evalStr, srcTablename, dstTablename, txId) {
         deferred.reject(thriftLog("XcalarFilter", "Eval string too long"));
         return (deferred.promise());
     }
-    getUnsortedTableName(srcTablename)
+    getUnsortedTableName(srcTablename, null, txId)
     .then(function(unsortedSrcTablename) {
         if (Transaction.checkCanceled(txId)) {
             return (deferred.reject(StatusTStr[StatusT.StatusCanceled])
@@ -1933,9 +1980,13 @@ function XcalarFilter(evalStr, srcTablename, dstTablename, txId) {
         }
         var workItem = xcalarFilterWorkItem(unsortedSrcTablename, dstTablename,
                                             evalStr);
-
-        var def1 = xcalarFilter(tHandle, evalStr, unsortedSrcTablename,
+        var def1;
+        if (Transaction.isSimulate(txId)) {
+            def1 = fakeApiCall();
+        } else {
+            def1 = xcalarFilter(tHandle, evalStr, unsortedSrcTablename,
                                 dstTablename);
+        }
         var def2 = XcalarGetQuery(workItem);
         def2.then(function(query) {
             Transaction.startSubQuery(txId, 'filter', dstTablename, query);
@@ -1970,7 +2021,14 @@ function XcalarMapWithInput(txId, inputStruct) {
     }
     var workItem = xcalarApiMapWorkItem();
     workItem.input.mapInput = inputStruct;
-    var def1 = xcalarApiMapWithWorkItem(tHandle, workItem);
+
+    var def1;
+    if (Transaction.isSimulate(txId)) {
+        def1 = fakeApiCall();
+    } else {
+        def1 = xcalarApiMapWithWorkItem(tHandle, workItem);
+    }
+
     var def2 = XcalarGetQuery(workItem);
     def2.then(function(query) {
         Transaction.startSubQuery(txId, 'map', inputStruct.dstTable.tableName,
@@ -2012,7 +2070,7 @@ function XcalarMap(newFieldName, evalStr, srcTablename, dstTablename,
 
     var d;
     if (!doNotUnsort) {
-        d = getUnsortedTableName(srcTablename);
+        d = getUnsortedTableName(srcTablename, null, txId);
     } else {
         d = PromiseHelper.resolve(srcTablename);
         console.log("Using SORTED table for windowing!");
@@ -2026,10 +2084,14 @@ function XcalarMap(newFieldName, evalStr, srcTablename, dstTablename,
         var workItem = xcalarApiMapWorkItem(evalStr, unsortedSrcTablename,
                                             dstTablename, newFieldName,
                                             icvMode);
-
-        var def1 = xcalarApiMap(tHandle, newFieldName, evalStr,
+        var def1;
+        if (Transaction.isSimulate(txId)) {
+            def1 = fakeApiCall();
+        } else {
+            def1 = xcalarApiMap(tHandle, newFieldName, evalStr,
                                 unsortedSrcTablename, dstTablename,
                                 icvMode);
+        }
         var def2 = XcalarGetQuery(workItem);
         def2.then(function(query) {
             Transaction.startSubQuery(txId, 'map', dstTablename, query);
@@ -2071,7 +2133,7 @@ function XcalarAggregate(evalStr, dstAggName, srcTablename, txId) {
         return (deferred.promise());
     }
 
-    getUnsortedTableName(srcTablename)
+    getUnsortedTableName(srcTablename, null, txId)
     .then(function(unsortedSrcTablename) {
         if (Transaction.checkCanceled(txId)) {
             return (deferred.reject(StatusTStr[StatusT.StatusCanceled])
@@ -2080,8 +2142,13 @@ function XcalarAggregate(evalStr, dstAggName, srcTablename, txId) {
         var workItem = xcalarAggregateWorkItem(unsortedSrcTablename,
                                                dstAggName, evalStr);
 
-        var def1 = xcalarAggregate(tHandle, unsortedSrcTablename, dstAggName,
+        var def1;
+        if (Transaction.isSimulate(txId)) {
+            def1 = fakeApiCall();
+        } else {
+            def1 = xcalarAggregate(tHandle, unsortedSrcTablename, dstAggName,
                                    evalStr);
+        }
         var def2 = XcalarGetQuery(workItem);
         def2.then(function(query) {
             Transaction.startSubQuery(txId, 'aggregate', dstAggName, query);
@@ -2115,7 +2182,7 @@ function XcalarJoin(left, right, dst, joinType, leftRename, rightRename, txId) {
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
     }
 
-    getUnsortedTableName(left, right)
+    getUnsortedTableName(left, right, txId)
     .then(function(unsortedLeft, unsortedRight) {
         if (Transaction.checkCanceled(txId)) {
             return (deferred.reject(StatusTStr[StatusT.StatusCanceled])
@@ -2136,8 +2203,13 @@ function XcalarJoin(left, right, dst, joinType, leftRename, rightRename, txId) {
         var workItem = xcalarJoinWorkItem(unsortedLeft, unsortedRight, dst,
                                           joinType, leftRenameMap,
                                           rightRenameMap, coll);
-        var def1 = xcalarJoin(tHandle, unsortedLeft, unsortedRight, dst,
+        var def1;
+        if (Transaction.isSimulate(txId)) {
+            def1 = fakeApiCall();
+        } else {
+            def1 = xcalarJoin(tHandle, unsortedLeft, unsortedRight, dst,
                               joinType, leftRenameMap, rightRenameMap, coll);
+        }
         var def2 = XcalarGetQuery(workItem);
         def2.then(function(query) {
             Transaction.startSubQuery(txId, 'join', dst, query);
@@ -2177,7 +2249,13 @@ function XcalarGroupByWithInput(txId, inputStruct) {
     var workItem = xcalarGroupByWorkItem();
     workItem.input.groupByInput = inputStruct;
 
-    var def1 = xcalarGroupByWithWorkItem(tHandle, workItem);
+    var def1;
+    if (Transaction.isSimulate(txId)) {
+        def1 = fakeApiCall();
+    } else {
+        def1 = xcalarGroupByWithWorkItem(tHandle, workItem);
+    }
+
     var def2 = XcalarGetQuery(workItem);
 
     def2.then(function(query) {
@@ -2222,7 +2300,7 @@ function XcalarGroupBy(operator, newColName, oldColName, tableName,
             return PromiseHelper.reject("Eval string too long");
         }
 
-        return getUnsortedTableName(tableName);
+        return getUnsortedTableName(tableName, null, txId);
     })
     .then(function(unsortedTableName) {
         if (Transaction.checkCanceled(txId)) {
@@ -2232,9 +2310,16 @@ function XcalarGroupBy(operator, newColName, oldColName, tableName,
         var workItem = xcalarGroupByWorkItem(unsortedTableName, newTableName,
                                              evalStr, newColName, incSample,
                                              icvMode, newKeyFieldName);
-        var def1 = xcalarGroupBy(tHandle, unsortedTableName, newTableName,
+        var def1;
+        if (Transaction.isSimulate(txId)) {
+            def1 = fakeApiCall({
+                "tableName": newTableName
+            });
+        } else {
+            def1 = xcalarGroupBy(tHandle, unsortedTableName, newTableName,
                                  evalStr, newColName, incSample, icvMode,
                                  newKeyFieldName);
+        }
         var def2 = XcalarGetQuery(workItem);
         def2.then(function(query) {
             Transaction.startSubQuery(txId, 'groupBy', newTableName, query);
@@ -2264,7 +2349,7 @@ function XcalarProject(columns, tableName, dstTableName, txId) {
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
     }
 
-    getUnsortedTableName(tableName)
+    getUnsortedTableName(tableName, null, txId)
     .then(function(unsortedTableName) {
         if (Transaction.checkCanceled(txId)) {
             return (deferred.reject(StatusTStr[StatusT.StatusCanceled])
@@ -2272,8 +2357,13 @@ function XcalarProject(columns, tableName, dstTableName, txId) {
         }
         var workItem = xcalarProjectWorkItem(columns.length, columns,
                                              unsortedTableName, dstTableName);
-        var def1 = xcalarProject(tHandle, columns.length, columns,
+        var def1;
+        if (Transaction.isSimulate(txId)) {
+            def1 = fakeApiCall();
+        } else {
+            def1 = xcalarProject(tHandle, columns.length, columns,
                                  unsortedTableName, dstTableName);
+        }
         var def2 = XcalarGetQuery(workItem); // XXX May not work? Have't tested
         def2.then(function(query) {
             Transaction.startSubQuery(txId, 'project', dstTableName, query);
@@ -2305,8 +2395,13 @@ function XcalarGenRowNum(srcTableName, dstTableName, newFieldName, txId) {
     // DO NOT GET THE UNSORTED TABLE NAMEEE! We actually want the sorted order
     var workItem = xcalarApiGetRowNumWorkItem(srcTableName, dstTableName,
                                               newFieldName);
-    var def1 = xcalarApiGetRowNum(tHandle, newFieldName, srcTableName,
+    var def1;
+    if (Transaction.isSimulate(txId)) {
+        def1 = fakeApiCall();
+    } else {
+        def1 = xcalarApiGetRowNum(tHandle, newFieldName, srcTableName,
                                   dstTableName);
+    }
     var def2 = XcalarGetQuery(workItem);
     def2.then(function(query) {
         Transaction.startSubQuery(txId, 'genRowNum', dstTableName, query);
@@ -2912,8 +3007,14 @@ function XcalarExecuteRetina(retName, params, options, txId) {
 
     var workItem = xcalarExecuteRetinaWorkItem(retName, params, activeSession,
                                                newTableName, queryName);
-    var def1 = xcalarExecuteRetina(tHandle, retName, params, activeSession,
+    var def1;
+    if (Transaction.isSimulate(txId)) {
+        def1 = fakeApiCall();
+    } else {
+        def1 = xcalarExecuteRetina(tHandle, retName, params, activeSession,
                                    newTableName, queryName);
+    }
+
     var def2 = XcalarGetQuery(workItem);
     var transactionOptions = {
         retName: retName

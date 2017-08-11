@@ -165,7 +165,7 @@ window.XIApi = (function(XIApi, $) {
         }
     };
 
-    XIApi.checkOrder = function(tableName) {
+    XIApi.checkOrder = function(tableName, txId) {
         if (tableName == null) {
             return PromiseHelper.reject("Invalid args in checkOrder");
         }
@@ -181,6 +181,10 @@ window.XIApi = (function(XIApi, $) {
             if (keyName != null && XcalarOrderingTStr.hasOwnProperty(order)) {
                 return PromiseHelper.resolve(order, keyName);
             }
+        }
+
+        if (txId != null && Transaction.isSimulate(txId)) {
+            return PromiseHelper.resolve(null, null);
         }
 
         var deferred = jQuery.Deferred();
@@ -1050,7 +1054,7 @@ window.XIApi = (function(XIApi, $) {
         var shouldIndex = false;
         var tempTables = [];
 
-        getUnsortedTableName(tableName)
+        getUnsortedTableName(tableName, null, txId)
         .then(function(unsorted) {
             if (unsorted !== tableName) {
                 // this is sorted table, should index a unsorted one
@@ -1117,7 +1121,8 @@ window.XIApi = (function(XIApi, $) {
 
                 deferred.resolve(shouldIndex, tableName, tempTables);
             }
-        });
+        })
+        .fail(deferred.reject);
 
         return deferred.promise();
     }
@@ -1261,7 +1266,7 @@ window.XIApi = (function(XIApi, $) {
             }
         }
 
-        XIApi.checkOrder(tableName)
+        XIApi.checkOrder(tableName, txId)
         .then(function(order, keyName) {
             return checkIfNeedIndex(colName, tableName, keyName, txId);
         })
