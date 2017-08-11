@@ -95,25 +95,32 @@ describe('TableList Test', function() {
             "status": TableType.Orphan
         });
 
-        gTables["ZZ1"] = table;
-        gTables["ZZ2"] = table2;
-        gTables["ZZ3"] = table3;
-        gTables["ZZ4"] = table4;
-        gTables["ZZ5"] = table5;
-        gOrphanTables.push(table5.tableName);
-        TableList.clear();
+        // need to wait for heartbeat check to finish refresh table list
+        setTimeout(function() {
+            // set these fake tables into the tablelist
+            gTables["ZZ1"] = table;
+            gTables["ZZ2"] = table2;
+            gTables["ZZ3"] = table3;
+            gTables["ZZ4"] = table4;
+            gTables["ZZ5"] = table5;
+            gOrphanTables.push(table5.tableName);
+            TableList.clear();
 
-        // constant table
-        getConstCache = XcalarGetConstants;
-        XcalarGetConstants = function() {
-            return PromiseHelper.resolve([{name: "unitTestConst"}]);
-        };
+            // constant table
+            getConstCache = XcalarGetConstants;
+            XcalarGetConstants = function() {
+                return PromiseHelper.resolve([{name: "unitTestConst"}]);
+            };
 
-        // set these fake tables into the tablelist
-        TableList.initialize()
-        .then(function() {
-            done();
-        });
+            $("#tableListSections").find(".tableListSection")
+                        .removeClass("sortedByWS").addClass("sortedByDate")
+                        .data("sort", "date");
+
+            TableList.initialize()
+            .then(function() {
+                done();
+            });
+        }, 1000);
 
     });
 
@@ -613,10 +620,10 @@ describe('TableList Test', function() {
             TableList.moveTable("ZZ2");
 
             // last table
-            expect($("#activeTableListSection").find(".timeLine").length).to.equal(1);
+            expect($("#activeTableListSection").find(".tableGroup").length).to.equal(1);
             expect($('#activeTableListSection').hasClass("empty")).to.be.false;
             TableList.moveTable("ZZ1");
-            expect($("#activeTableListSection").find(".timeLine").length).to.equal(0);
+            expect($("#activeTableListSection").find(".tableGroup").length).to.equal(0);
             expect($('#activeTableListSection').hasClass("empty")).to.be.true;
 
             $('#activeTableListSection').removeClass("empty");
@@ -722,6 +729,23 @@ describe('TableList Test', function() {
             expect($activeListSection.find(".tableInfo").length).to.equal(3);
             expect($activeListSection.find(".tableName").eq(0).text()).to.equal("unitTest#ZZ3");
             expect($activeListSection.find(".tableName").eq(2).text()).to.equal("unitTest#ZZ1");
+
+            var cache1 = WSManager.getWorksheets;
+            WSManager.getWorksheets = function(){ return {"a": {tables: ["ZZ1", "ZZ2", "ZZ3"]}}};
+
+            var cache2 = WSManager.getWSName;
+            WSManager.getWSName = function(){ return ["a"]};
+            $activeListSection.find(".sortWS").click();
+
+            expect($activeListSection.hasClass("sortedByDate")).to.be.false;
+            expect($activeListSection.hasClass("sortedByName")).to.be.false;
+            expect($activeListSection.hasClass("sortedByWS")).to.be.true;
+            expect($activeListSection.find(".tableInfo").length).to.equal(3);
+            expect($activeListSection.find(".tableName").eq(0).text()).to.equal("unitTest#ZZ1");
+            expect($activeListSection.find(".tableName").eq(2).text()).to.equal("unitTest#ZZ3");
+
+            WSManager.getWorksheets = cache1;
+            WSManager.getWSName = cache2;
         });
 
         after(function() {

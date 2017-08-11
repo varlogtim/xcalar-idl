@@ -84,7 +84,8 @@ module.exports = {
         "URL": "URL",
         "UserName": "User name",
         "Val": "Value",
-        "InBeta": "In Beta"
+        "InBeta": "In Beta",
+        "WS": "Worksheet"
     },
 
     "paths": {

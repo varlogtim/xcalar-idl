@@ -239,8 +239,7 @@ window.TblManager = (function($, TblManager) {
             }
             if (options.afterStartup) {
                 var $existingTableList = $('#activeTablesList')
-                                        .find('[data-id="' +
-                                               table.tableId + '"]');
+                                        .find('[data-id="' + tableId + '"]');
                 if ($existingTableList.length) {
                     $existingTableList.closest('.tableInfo')
                                       .removeClass('hiddenWS')
@@ -1593,6 +1592,18 @@ window.TblManager = (function($, TblManager) {
                     WSManager.replaceTable(newTableId);
                 }
             }
+
+            var $existingTableList = $('#activeTablesList').find('[data-id="' +
+                                              newTableId + '"]');
+            if ($existingTableList.length) {
+                $existingTableList.closest('.tableInfo')
+                                  .removeClass('hiddenWS');
+                xcTooltip.remove($existingTableList.closest('.tableInfo'));
+            } else {
+                TableList.addTables([gTables[newTableId]], IsActive.Active);
+            }
+            // in case table showed up in temp list during its formation
+            TableList.removeTable(newTableName, TableType.Orphan);
 
             if (tablesToRemove) {
                 var noFocusWS = tablesToRemove.length > 1;

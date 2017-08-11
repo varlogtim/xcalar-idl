@@ -205,7 +205,6 @@ window.TblMenu = (function(TblMenu, $) {
                 var wsId = $option.data("ws");
 
                 WSManager.moveTable(tableId, wsId);
-
                 $input.val("");
                 $input.blur();
                 xcMenu.close($allMenus);

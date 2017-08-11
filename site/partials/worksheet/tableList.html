@@ -20,7 +20,7 @@
   <!-- Sections -->
   <section id="tableListSections">
     <!-- active list -->
-    <div id="activeTableListSection" class="tableListSection sortedByDate">
+    <div id="activeTableListSection" class="tableListSection sortedByWS" data-sort="ws">
       <div class="buttonSection">
         <div class="submit archive xc-hidden" title="<%= dicts.ws.archive %>" data-toggle="tooltip" data-placement="top" data-container="body">
           <i class="icon xi-archive"></i>
@@ -30,9 +30,11 @@
       </div>
       <div class="sortSection">
         <span class="label"><%= dicts.common.SortBy %>:&nbsp;</span>
-        <span class="sortDate sortOption"><%= dicts.common.LastUpdated %></span>
+         <span class="sortWS sortOption" data-sort="ws"><%= dicts.common.WS %></span>
         <span class="divider"></span>
-        <span class="sortName sortOption"><%= dicts.common.Name %></span>
+        <span class="sortDate sortOption" data-sort="date"><%= dicts.common.LastUpdated %></span>
+        <span class="divider"></span>
+        <span class="sortName sortOption" data-sort="name"><%= dicts.common.Name %></span>
       </div>
       <ul id="activeTablesList" class="tableLists"></ul>
       <div class="listInstructions">
@@ -40,7 +42,7 @@
       </div>
     </div>
     <!-- archived list -->
-    <div id="archivedTableListSection" class="tableListSection sortedByDate">
+    <div id="archivedTableListSection" class="tableListSection sortedByWS" data-sort="ws">
       <div class="buttonSection">
         <div id="submitTablesBtn" class="submit active xc-hidden" title="<%= dicts.ws.active %>" data-toggle="tooltip" data-placement="top" data-container="body">
            <i class="icon xi-back-to-worksheet fa-17"></i>
@@ -53,9 +55,11 @@
       </div>
       <div class="sortSection">
         <span class="label"><%= dicts.common.SortBy %>:&nbsp;</span>
-        <span class="sortDate sortOption"><%= dicts.common.LastUpdated %></span>
+         <span class="sortWS sortOption" data-sort="ws"><%= dicts.common.WS %></span>
         <span class="divider"></span>
-        <span class="sortName sortOption"><%= dicts.common.Name %></span>
+        <span class="sortDate sortOption" data-sort="date"><%= dicts.common.LastUpdated %></span>
+        <span class="divider"></span>
+        <span class="sortName sortOption" data-sort="name"><%= dicts.common.Name %></span>
       </div>
       <ul id="inactiveTablesList" class="tableLists"></ul>
       <div class="listInstructions">

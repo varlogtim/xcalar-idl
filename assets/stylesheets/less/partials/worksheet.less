@@ -908,16 +908,22 @@ ul.CodeMirror-hints {
                 display: none;
             }
         }
+        &.sortedByWS {
+            .sortWS {
+                opacity: @opacity-hint !important;
+                cursor: default;
+            }
+        }
         &.sortedByDate {
-            .sortName {
-                opacity: @opacity-unhover;
-                cursor: pointer;
+            .sortDate {
+                opacity: @opacity-hint !important;
+                cursor: default;
             }
         }
         &.sortedByName {
-            .sortDate {
-                opacity: @opacity-unhover;
-                cursor: pointer;
+            .sortName {
+                opacity: @opacity-hint !important;
+                cursor: default;
             }
 
             .tableLists {
@@ -1011,7 +1017,10 @@ ul.CodeMirror-hints {
         }
 
         .sortOption {
-            opacity: @opacity-hint;
+            cursor: pointer;
+            &:hover {
+                opacity: 1;
+            }
         }
 
         .divider {
@@ -1035,7 +1044,7 @@ ul.CodeMirror-hints {
         overflow-y: auto;
         color: @color-white;
 
-        .timeLine {
+        .tableGroup {
             .size(@width: 100%);
             margin-top: -1px;
             .font(@line-height: 25px, @size: 13px);

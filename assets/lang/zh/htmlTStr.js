@@ -291,6 +291,7 @@ module.exports = {
         "seconds": "秒",
         "InBeta": "测试版本",
         "Hostname": "主机名",
+        "WS": "Worksheet"
     },
     "dataflow": {
         "DataflowTitle": "批量数据流",

@@ -537,7 +537,7 @@ window.TblFunc = (function(TblFunc, $) {
     //options:
     // moveHtml: boolean, if true we replace html (for undo/redo or
     // through table menu)
-    TblFunc.reorderAfterTableDrop = function(tableId, srcIndex,desIndex, options) {
+    TblFunc.reorderAfterTableDrop = function(tableId, srcIndex, desIndex, options) {
         WSManager.reorderTable(tableId, srcIndex, desIndex);
         options = options || {};
         var moveHtml = options.moveHtml;
@@ -569,6 +569,8 @@ window.TblFunc = (function(TblFunc, $) {
                 $tableWraps.eq(newIndex).before($tableWrap);
             }
         }
+
+        TableList.reorderTable(tableId, srcIndex, desIndex);
 
         if (moveHtml) {
             xcHelper.centerFocusedTable(tableId);

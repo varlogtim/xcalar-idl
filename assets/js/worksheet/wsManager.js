@@ -250,6 +250,8 @@ window.WSManager = (function($, WSManager) {
         // use worksheet class to find table lists in right side bar
         $("#tableListSections .worksheetInfo.worksheet-" + worksheetId)
         .text(name);
+        $("#tableListSections .tableGroup.ws" + worksheetId)
+                                                    .find(".wsName").text(name);
 
         SQL.add(SQLTStr.RenameWS, {
             "operation": SQLOps.RenameWS,
@@ -558,6 +560,7 @@ window.WSManager = (function($, WSManager) {
                 $worksheetInfo.text(wsName);
             }
         });
+        TableList.reorderTable(tableId);
 
         if (tableType !== WSTableType.Active) {
             return;

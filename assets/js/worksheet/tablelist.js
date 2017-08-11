@@ -49,7 +49,7 @@ window.TableList = (function($, TableList) {
 
         // focus on table
         $("#activeTableListSection").on("click", ".tableListBox .tableName",
-        function() {
+                                                                function() {
             if ($(this).closest('.hiddenWS').length) {
                 return;
             }
@@ -106,6 +106,7 @@ window.TableList = (function($, TableList) {
             return false;
         });
 
+        // select all table checkboxes
         $tableListSections.on("click", ".selectAll", function() {
             var $section = $(this).closest(".tableListSection");
             var $btns = $section.find(".tableInfo:not(.hiddenWS):not(.locked)" +
@@ -126,28 +127,34 @@ window.TableList = (function($, TableList) {
             focusedListNum = null;
         });
 
+        // clear all table checkboxes
         $tableListSections.on("click", ".clearAll", function() {
             clearAll($(this).closest(".tableListSection"));
         });
 
+        // refresh orphan list
         $("#orphanedTableListSection .refresh").click(function() {
             TableList.refreshOrphanList(true);
         });
 
+        // refresh constants list
         $("#constantsListSection .refresh").click(function() {
             TableList.refreshConstantList(true);
         });
 
+        // overflow tooltip
         $tableListSections.on("mouseenter", ".tableName", function(){
             if (!$(this).closest("." + TableType.Undone).length) {
                 xcTooltip.auto(this);
             }
         });
 
+        // overflow tooltip
         $tableListSections.on("mouseenter", ".constName", function(){
             xcTooltip.auto(this);
         });
 
+        // submit selected active tables to archive
         $tableListSections.on("click", ".submit.archive", function() {
             var tableIds = [];
             $("#activeTableListSection").find(".addTableBtn.selected")
@@ -160,6 +167,7 @@ window.TableList = (function($, TableList) {
             focusedListNum = null;
         });
 
+        // submit selected archived tables to active
         $tableListSections.on("click", ".submit.active", function() {
             if ($(this).hasClass('xc-unavailable')) {
                 return;
@@ -173,6 +181,7 @@ window.TableList = (function($, TableList) {
             focusedListNum = null;
         });
 
+        // delete selected tables
         $tableListSections.on("click", ".submit.delete", function() {
             var $section = $(this).closest(".tableListSection");
             var tableType;
@@ -198,21 +207,24 @@ window.TableList = (function($, TableList) {
             focusedListNum = null;
         });
 
+        // sort
         $tableListSections.on("click", ".sortOption", function() {
-            var sortByName = $(this).hasClass("sortName");
+            var type = $(this).data("sort");
             var $section = $(this).closest(".tableListSection");
-            if (sortByName) {
-                if ($section.hasClass("sortedByName")) {
-                    return;
-                } else {
-                    $section.addClass("sortedByName").removeClass("sortedByDate");
-                }
+            if  ($section.data("sort") === type) {
+                return;
+            } else {
+                $section.data("sort", type);
+            }
+            if (type === "name") {
+                $section.addClass("sortedByName")
+                        .removeClass("sortedByDate sortedByWS");
+            } else if (type === "ws") {
+                $section.addClass("sortedByWS")
+                        .removeClass("sortedByDate sortedByName");
             } else { // sort by date
-                if ($section.hasClass("sortedByDate")) {
-                    return;
-                } else {
-                    $section.addClass("sortedByDate").removeClass("sortedByName");
-                }
+                $section.addClass("sortedByDate")
+                        .removeClass("sortedByName sortedByWS");
             }
 
             var isActive = false;
@@ -223,7 +235,10 @@ window.TableList = (function($, TableList) {
             $section.find(".tableLists").empty();
 
             var tables = getAllTables(isActive);
-            generateTableLists(tables, isActive, {noAnimate: true, sortByName: sortByName, bulkAdd: true});
+            var options = {noAnimate: true,
+                           sortType: type,
+                           bulkAdd: true};
+            generateTableList(tables, isActive, options);
         });
 
         // XXX make this public in case we need to reuse elsewhere
@@ -299,7 +314,6 @@ window.TableList = (function($, TableList) {
                 archivedTables.push(table);
             }
         }
-
         TableList.addTables(activeTables, IsActive.Active, {bulkAdd: true});
         TableList.addTables(archivedTables, IsActive.Inactive, {bulkAdd: true});
 
@@ -319,7 +333,7 @@ window.TableList = (function($, TableList) {
 
     TableList.addTables = function(tables, active, options) {
         // tables is an array of metaTables;
-        generateTableLists(tables, active, options);
+        generateTableList(tables, active, options);
     };
 
     // move table to inactive list
@@ -327,7 +341,7 @@ window.TableList = (function($, TableList) {
         var $activeTableListSection = $('#activeTableListSection');
         var $tableList = $activeTableListSection.find('.tableInfo[data-id="' +
                                         tableId + '"]');
-        var $timeLine = $tableList.closest(".timeLine");
+        var $timeLine = $tableList.closest(".tableGroup");
         var table = gTables[tableId];
 
         TableList.addTables([table], IsActive.Inactive);
@@ -394,7 +408,6 @@ window.TableList = (function($, TableList) {
             }
         }
     };
-
 
     TableList.activeTables = function(tableType, noSheetTables, wsToSent,
                                       destWS) {
@@ -564,7 +577,7 @@ window.TableList = (function($, TableList) {
             if (hiddenWS) {
                 return;
             }
-            var $timeLine = $li.closest(".timeLine");
+            var $timeLine = $li.closest(".tableGroup");
             if (gMinModeOn) {
                 handlerCallback();
             } else {
@@ -594,6 +607,13 @@ window.TableList = (function($, TableList) {
         function failHandler($li, tableName, error) {
             $li.find(".addTableBtn.selected").removeClass("selected");
             failures.push(tableName + ": {" + error.error + "}");
+        }
+    };
+
+    TableList.reorderTable = function(tableId, srcIndex, desIndex) {
+        // currently just reprinting whole list
+        if ($("#activeTableListSection").hasClass("sortedByWS")) {
+            TableList.addTables([gTables[tableId]], IsActive.Active);
         }
     };
 
@@ -811,7 +831,7 @@ window.TableList = (function($, TableList) {
             $li = $listWrap.find('.tableInfo[data-id="' + tableIdOrName + '"]');
         }
 
-        var $timeLine = $li.closest(".timeLine");
+        var $timeLine = $li.closest(".tableGroup");
         if (lock) {
             $li.addClass("locked").find(".addTableBtn").removeClass("selected");
         } else {
@@ -1054,21 +1074,28 @@ window.TableList = (function($, TableList) {
         return res;
     }
 
-
     // for active and archived tables only
-    function generateTableLists(tables, active, options) {
+    function generateTableList(tables, active, options) {
         options = options || {};
 
         var $listSection = (active === true) ? $("#activeTableListSection") :
                                                $("#archivedTableListSection");
         var $tableList = (active === true) ? $("#activeTablesList") :
                                              $("#inactiveTablesList");
-
-        if ($listSection.hasClass('sortedByName')) {
-            options.sortByName = true;
+        var sortType;
+        if (!options.sortType) {
+            sortType = $listSection.data("sort");
+        } else {
+            sortType = options.sortType;
+        }
+        // if sorted by WS, we'll just replace the list
+        if (sortType === "ws" && !options.hasOwnProperty("position")) {
+            options.bulkAdd = true;
+            options.noAnimate = true;
+            $tableList.empty();
         }
 
-        var sortedTables = sortTables(tables, !options.sortByName);
+        var sortedTables = sortTables(tables, active, sortType, options);
         var dates = getTwoWeeksDate();
         var p = dates.length - 1;    // the length should be 8
 
@@ -1080,8 +1107,9 @@ window.TableList = (function($, TableList) {
 
         var totalHtml = "";
         for (var i = 0; i < sortedTables.length; i++) {
-            var table = sortedTables[i][0];
-            var timeStamp = sortedTables[i][1];
+            var table = sortedTables[i].table;
+            var timeStamp = sortedTables[i].time;
+            var wsId = sortedTables[i].ws;
 
             // pointer to a day after at 0:00 am
             while (p >= 0 && (timeStamp >= dates[p].getTime())) {
@@ -1089,19 +1117,31 @@ window.TableList = (function($, TableList) {
             }
 
             var dateIndex = p + 1;
+            var $divider;
 
-            if (!options.sortByName) {
+            if (sortType === "date") {
                 // when no such date exists
                 if ($tableList.find("> li.date" + p).length === 0) {
                     var date = formatDate(dates, dateIndex);
                     var timeLineHTML =
-                    '<li class="clearfix timeLine date' + p + '">' +
+                    '<li class="clearfix tableGroup date' + p + '">' +
                         '<div class="timeStamp">' + date + '</div>' +
                         '<ul class="tableList"></ul>' +
                     '</li>';
                     $tableList.prepend(timeLineHTML);
                 }
-                var $dateDivider = $tableList.find(".date" + p + " .tableList");
+                $divider = $tableList.find(".date" + p + " .tableList");
+            } else if (sortType === "ws") {
+                if ($tableList.find("> li.ws" + wsId).length === 0) {
+                    var wsName = WSManager.getWSName(wsId);
+                    var groupHTML =
+                    '<li class="clearfix tableGroup ws' + wsId + '">' +
+                        '<div class="timeStamp wsName" >' + wsName + '</div>' +
+                        '<ul class="tableList"></ul>' +
+                    '</li>';
+                    $tableList.prepend(groupHTML);
+                }
+                $divider = $tableList.find(".ws" + wsId + " .tableList");
             }
 
             var numCols;
@@ -1171,14 +1211,14 @@ window.TableList = (function($, TableList) {
                 '</li>';
             totalHtml += html;
 
-            if (!options.sortByName) {
+            if (sortType === "date" || sortType === "ws") {
                 if (gMinModeOn || options.noAnimate) {
                     if (options.hasOwnProperty('position') &&
                         options.position > 0) {
-                        $dateDivider.children().eq(options.position - 1)
+                        $divider.children().eq(options.position - 1)
                                                .after(html);
                     } else {
-                        $dateDivider.prepend(html);
+                        $divider.prepend(html);
                     }
 
                 } else {
@@ -1188,10 +1228,10 @@ window.TableList = (function($, TableList) {
 
                     if (options.hasOwnProperty('position') &&
                         options.position > 0) {
-                        $dateDivider.children().eq(options.position - 1)
+                        $divider.children().eq(options.position - 1)
                                                .after($li);
                     } else {
-                        $li.prependTo($dateDivider);
+                        $li.prependTo($divider);
                     }
 
                     $li.slideDown(150, function() {
@@ -1200,7 +1240,7 @@ window.TableList = (function($, TableList) {
                 }
             }
         }
-        if (options.sortByName) {
+        if (sortType === "name") {
             if (options.bulkAdd) {
                 $tableList.html(totalHtml);
             } else {
@@ -1225,7 +1265,6 @@ window.TableList = (function($, TableList) {
                                   .before(totalHtml);
                     }
                 }
-
             }
         }
         // set hiddenWS class to tables belonging to hidden worksheets
@@ -1675,22 +1714,55 @@ window.TableList = (function($, TableList) {
     }
 
     // default by name
-    function sortTables(tables, byTime) {
+    function sortTables(tables, active, type, options) {
         var sortedTables = [];
 
-        tables.forEach(function(table) {
-            sortedTables.push([table, table.getTimeStamp()]);
-        });
+        if (type !== "ws") {
+            tables.forEach(function(table) {
+                sortedTables.push({
+                    table: table,
+                    time: table.getTimeStamp(),
+                    ws: WSManager.getWSFromTable(table.tableId)
+                });
+            });
+        }
 
         var sortFn;
-        if (byTime) {
+        if (type === "date") {
             // sort by time, from the oldest to newset
             sortFn = function(a, b) {
-                return (a[1] - b[1]);
+                return (a.time - b.time);
             };
+        } else if (type === "ws") {
+            if (tables.length > 1 || options.bulkAdd) {
+                // sheet tables will get appended in reverse
+                var sheets = WSManager.getWorksheets();
+                var sheetOrder = WSManager.getWSList();
+                var tableType = active ? "tables" : "archivedTables";
+                for (var i = sheetOrder.length - 1; i >= 0; i--) {
+                    var sheet = sheets[sheetOrder[i]];
+                    var sheetTableIds = sheet[tableType];
+                    for (var j = sheetTableIds.length - 1; j >= 0; j--) {
+                        var table = gTables[sheetTableIds[j]];
+                        sortedTables.push({
+                            table: table,
+                            time: table.getTimeStamp(),
+                            ws: sheetOrder[i]
+                        });
+                    }
+                }
+            } else {
+                tables.forEach(function(table) {
+                    sortedTables.push({
+                        table: table,
+                        time: table.getTimeStamp(),
+                        ws: WSManager.getWSFromTable(table.tableId)
+                    });
+                });
+            }
         } else {
             sortFn = function(a, b) {
-                return xcHelper.sortVals(a[0].getName(), b[0].getName());
+                return xcHelper.sortVals(a.table.getName(), b.table.getName());
             };
         }
         sortedTables.sort(sortFn);
