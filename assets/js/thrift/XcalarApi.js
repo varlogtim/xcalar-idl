@@ -1401,6 +1401,48 @@ xcalarListDatasets = runEntity.xcalarListDatasets = function(thriftHandle) {
     return (deferred.promise());
 };
 
+xcalarListDatasetUsersWorkItem = runEntity.xcalarListDatasetUsersWorkItem = function(datasetName) {
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiInputT();
+    workItem.api = XcalarApisT.XcalarApiListDatasetUsers;
+
+    workItem.input.listDatasetUsersInput = new XcalarApiListDatasetUsersInputT();
+    workItem.input.listDatasetUsersInput.datasetName = datasetName;
+
+    return (workItem);
+};
+
+xcalarListDatasetUsers = runEntity.xcalarListDatasetUsers = function(thriftHandle, datasetName) {
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarListDatasetUsers(datasetName = " + datasetName + ")");
+    }
+
+    var workItem = xcalarListDatasetUsersWorkItem(datasetName);
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        var listDatasetUsersOutput = result.output.outputResult.listDatasetUsersOutput;
+        var log = result.output.hdr.log;
+        // No job specific status
+        if (result.jobStatus != StatusT.StatusOk) {
+            deferred.reject(result.jobStatus, log);
+        }
+        deferred.resolve(listDatasetUsersOutput);
+    })
+    .fail(function(error) {
+        console.log("xcalarListDatasetUsers() caught exception:", error);
+
+        var listDatasetUsersOutput = new XcalarApiListDatasetUsersOutputT();
+        // XXX FIXME should add StatusT.StatusThriftProtocolError
+        listDatasetUsersOutput.usersCount = 0;
+
+        deferred.reject(listDatasetUsersOutput);
+    });
+
+    return (deferred.promise());
+};
+
 xcalarMakeResultSetFromTableWorkItem = runEntity.xcalarMakeResultSetFromTableWorkItem = function(tableName) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
@@ -4259,7 +4301,8 @@ xcalarLogLevelSet = runEntity.xcalarLogLevelSet = function(thriftHandle, logLeve
 
     return (deferred.promise());
 };
-
+// XXX
+//
 xcalarGetIpAddrWorkItem = runEntity.xcalarGetIpAddrWorkItem = function(nodeId) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();

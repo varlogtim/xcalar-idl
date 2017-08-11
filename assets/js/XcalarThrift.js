@@ -1545,6 +1545,30 @@ function XcalarGetDatasets() {
     return (deferred.promise());
 }
 
+function XcalarGetDatasetUsers(dsName) {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return PromiseHelper.resolve(null);
+    }
+
+    var deferred = jQuery.Deferred();
+    if (insertError(arguments.callee, deferred)) {
+        return (deferred.promise());
+    }
+
+    xcalarListDatasetUsers(tHandle, dsName)
+    .then(function(listDatasetUsersOutput) {
+        deferred.resolve(listDatasetUsersOutput.user); // Array of users
+        // Empty array if no users
+    })
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarGetDatasetUsers", error);
+        SQL.errorLog("Get Dataset Users", null, null, thriftError);
+        deferred.reject(thriftError);
+    });
+
+    return (deferred.promise());
+}
+
 function XcalarGetConstants(constantName) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);

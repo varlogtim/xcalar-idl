@@ -866,6 +866,29 @@ PromiseHelper = (function(PromiseHelper, $) {
         .fail(test.fail);
     }
 
+    function testListDatasetUsers(test) {
+        var datasetName = ".XcalarDS.yelp";
+        xcalarListDatasetUsers(thriftHandle, datasetName)
+            .then(function(listDatasetUsersOutput) {
+                printResult(listDatasetUsersOutput);
+
+                for (var i = 0, user = null;
+                    i < listDatasetUsersOutput.usersCount; i++) {
+
+                    user = listDatasetUsersOutput.user[i];
+
+                    console.log("\tuser[" + i.toString() + "].userIdName = " +
+                                user.userId.userIdName);
+                    console.log("\tuser[" + i.toString() + "].referenceCount = " +
+                                user.referenceCount);
+                }
+
+                test.pass();
+            })
+        .fail(test.fail);
+    }
+
+
     function testIndexDatasetIntSync(test) {
         test.trivial(xcalarIndexDataset(thriftHandle,
                      loadOutput.dataset.name, "review_count",
@@ -3929,6 +3952,7 @@ PromiseHelper = (function(PromiseHelper, $) {
 
     addTestCase(testLoadBogus, "bogus load", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testListDatasets, "list datasets", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testListDatasetUsers, "list dataset users", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testGetQueryIndex, "test get query Index", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testGetQueryLoad, "test get query Load", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testIndexDatasetIntSync, "index dataset (int) Sync", defaultTimeout, TestCaseEnabled, "");

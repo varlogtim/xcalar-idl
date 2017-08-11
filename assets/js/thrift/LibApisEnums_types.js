@@ -118,7 +118,8 @@ XcalarApisT = {
   'XcalarApiGetIpAddr' : 109,
   'XcalarApiTagDagNodes' : 110,
   'XcalarApiCommentDagNodes' : 111,
-  'XcalarApiFunctionInvalid' : 112
+  'XcalarApiListDatasetUsers' : 112,
+  'XcalarApiFunctionInvalid' : 113
 };
 XcalarApisTStr = {0 : 'XcalarApiUnknown',
 1 : 'XcalarApiGetVersion',
@@ -232,5 +233,6 @@ XcalarApisTStr = {0 : 'XcalarApiUnknown',
 109 : 'XcalarApiGetIpAddr',
 110 : 'XcalarApiTagDagNodes',
 111 : 'XcalarApiCommentDagNodes',
-112 : 'XcalarApiFunctionInvalid'
+112 : 'XcalarApiListDatasetUsers',
+113 : 'XcalarApiFunctionInvalid'
 };

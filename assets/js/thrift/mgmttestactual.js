@@ -24990,6 +24990,59 @@ XcalarApiCommentDagNodesInputT.prototype.write = function(output) {
   return;
 };
 
+XcalarApiListDatasetUsersInputT = function(args) {
+  this.datasetName = null;
+  if (args) {
+    if (args.datasetName !== undefined) {
+      this.datasetName = args.datasetName;
+    }
+  }
+};
+XcalarApiListDatasetUsersInputT.prototype = {};
+XcalarApiListDatasetUsersInputT.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.STRING) {
+        this.datasetName = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 0:
+        input.skip(ftype);
+        break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+XcalarApiListDatasetUsersInputT.prototype.write = function(output) {
+  output.writeStructBegin('XcalarApiListDatasetUsersInputT');
+  if (this.datasetName !== null && this.datasetName !== undefined) {
+    output.writeFieldBegin('datasetName', Thrift.Type.STRING, 1);
+    output.writeString(this.datasetName);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
 XcalarApiInputT = function(args) {
   this.loadInput = null;
   this.indexInput = null;
@@ -25066,6 +25119,7 @@ XcalarApiInputT = function(args) {
   this.supportGenerateInput = null;
   this.tagDagNodesInput = null;
   this.commentDagNodesInput = null;
+  this.listDatasetUsersInput = null;
   if (args) {
     if (args.loadInput !== undefined) {
       this.loadInput = args.loadInput;
@@ -25291,6 +25345,9 @@ XcalarApiInputT = function(args) {
     }
     if (args.commentDagNodesInput !== undefined) {
       this.commentDagNodesInput = args.commentDagNodesInput;
+    }
+    if (args.listDatasetUsersInput !== undefined) {
+      this.listDatasetUsersInput = args.listDatasetUsersInput;
     }
   }
 };
@@ -25908,6 +25965,14 @@ XcalarApiInputT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 79:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.listDatasetUsersInput = new XcalarApiListDatasetUsersInputT();
+        this.listDatasetUsersInput.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -26292,6 +26357,11 @@ XcalarApiInputT.prototype.write = function(output) {
   if (this.commentDagNodesInput !== null && this.commentDagNodesInput !== undefined) {
     output.writeFieldBegin('commentDagNodesInput', Thrift.Type.STRUCT, 78);
     this.commentDagNodesInput.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.listDatasetUsersInput !== null && this.listDatasetUsersInput !== undefined) {
+    output.writeFieldBegin('listDatasetUsersInput', Thrift.Type.STRUCT, 79);
+    this.listDatasetUsersInput.write(output);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -28401,6 +28471,162 @@ XcalarApiGetNumNodesOutputT.prototype.write = function(output) {
   return;
 };
 
+XcalarApiDatasetUserT = function(args) {
+  this.userId = null;
+  this.referenceCount = null;
+  if (args) {
+    if (args.userId !== undefined) {
+      this.userId = args.userId;
+    }
+    if (args.referenceCount !== undefined) {
+      this.referenceCount = args.referenceCount;
+    }
+  }
+};
+XcalarApiDatasetUserT.prototype = {};
+XcalarApiDatasetUserT.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.userId = new XcalarApiUserIdT();
+        this.userId.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 2:
+      if (ftype == Thrift.Type.I64) {
+        this.referenceCount = input.readI64().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+XcalarApiDatasetUserT.prototype.write = function(output) {
+  output.writeStructBegin('XcalarApiDatasetUserT');
+  if (this.userId !== null && this.userId !== undefined) {
+    output.writeFieldBegin('userId', Thrift.Type.STRUCT, 1);
+    this.userId.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.referenceCount !== null && this.referenceCount !== undefined) {
+    output.writeFieldBegin('referenceCount', Thrift.Type.I64, 2);
+    output.writeI64(this.referenceCount);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
+XcalarApiListDatasetUsersOutputT = function(args) {
+  this.usersCount = null;
+  this.user = null;
+  if (args) {
+    if (args.usersCount !== undefined) {
+      this.usersCount = args.usersCount;
+    }
+    if (args.user !== undefined) {
+      this.user = args.user;
+    }
+  }
+};
+XcalarApiListDatasetUsersOutputT.prototype = {};
+XcalarApiListDatasetUsersOutputT.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.I64) {
+        this.usersCount = input.readI64().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 2:
+      if (ftype == Thrift.Type.LIST) {
+        var _size352 = 0;
+        var _rtmp3356;
+        this.user = [];
+        var _etype355 = 0;
+        _rtmp3356 = input.readListBegin();
+        _etype355 = _rtmp3356.etype;
+        _size352 = _rtmp3356.size;
+        for (var _i357 = 0; _i357 < _size352; ++_i357)
+        {
+          var elem358 = null;
+          elem358 = new XcalarApiDatasetUserT();
+          elem358.read(input);
+          this.user.push(elem358);
+        }
+        input.readListEnd();
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+XcalarApiListDatasetUsersOutputT.prototype.write = function(output) {
+  output.writeStructBegin('XcalarApiListDatasetUsersOutputT');
+  if (this.usersCount !== null && this.usersCount !== undefined) {
+    output.writeFieldBegin('usersCount', Thrift.Type.I64, 1);
+    output.writeI64(this.usersCount);
+    output.writeFieldEnd();
+  }
+  if (this.user !== null && this.user !== undefined) {
+    output.writeFieldBegin('user', Thrift.Type.LIST, 2);
+    output.writeListBegin(Thrift.Type.STRUCT, this.user.length);
+    for (var iter359 in this.user)
+    {
+      if (this.user.hasOwnProperty(iter359))
+      {
+        iter359 = this.user[iter359];
+        iter359.write(output);
+      }
+    }
+    output.writeListEnd();
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
 XcalarApiOutputResultT = function(args) {
   this.getVersionOutput = null;
   this.statusOutput = null;
@@ -28458,6 +28684,7 @@ XcalarApiOutputResultT = function(args) {
   this.getNumNodesOutput = null;
   this.sessionGenericOutput = null;
   this.sessionNewOutput = null;
+  this.listDatasetUsersOutput = null;
   if (args) {
     if (args.getVersionOutput !== undefined) {
       this.getVersionOutput = args.getVersionOutput;
@@ -28626,6 +28853,9 @@ XcalarApiOutputResultT = function(args) {
     }
     if (args.sessionNewOutput !== undefined) {
       this.sessionNewOutput = args.sessionNewOutput;
+    }
+    if (args.listDatasetUsersOutput !== undefined) {
+      this.listDatasetUsersOutput = args.listDatasetUsersOutput;
     }
   }
 };
@@ -29090,6 +29320,14 @@ XcalarApiOutputResultT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 58:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.listDatasetUsersOutput = new XcalarApiListDatasetUsersOutputT();
+        this.listDatasetUsersOutput.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -29379,6 +29617,11 @@ XcalarApiOutputResultT.prototype.write = function(output) {
   if (this.sessionNewOutput !== null && this.sessionNewOutput !== undefined) {
     output.writeFieldBegin('sessionNewOutput', Thrift.Type.STRUCT, 57);
     this.sessionNewOutput.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.listDatasetUsersOutput !== null && this.listDatasetUsersOutput !== undefined) {
+    output.writeFieldBegin('listDatasetUsersOutput', Thrift.Type.STRUCT, 58);
+    this.listDatasetUsersOutput.write(output);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -29916,7 +30159,8 @@ XcalarApisT = {
   'XcalarApiGetIpAddr' : 109,
   'XcalarApiTagDagNodes' : 110,
   'XcalarApiCommentDagNodes' : 111,
-  'XcalarApiFunctionInvalid' : 112
+  'XcalarApiListDatasetUsers' : 112,
+  'XcalarApiFunctionInvalid' : 113
 };
 XcalarApisTStr = {0 : 'XcalarApiUnknown',
 1 : 'XcalarApiGetVersion',
@@ -30030,7 +30274,8 @@ XcalarApisTStr = {0 : 'XcalarApiUnknown',
 109 : 'XcalarApiGetIpAddr',
 110 : 'XcalarApiTagDagNodes',
 111 : 'XcalarApiCommentDagNodes',
-112 : 'XcalarApiFunctionInvalid'
+112 : 'XcalarApiListDatasetUsers',
+113 : 'XcalarApiFunctionInvalid'
 };
 //
 // Autogenerated by Thrift Compiler (0.9.2)
@@ -31589,9 +31834,9 @@ XcalarApiServiceClient.prototype.recv_queueWork = function() {
 
 
 XcalarApiVersionT = {
-  'XcalarApiVersionSignature' : 42340
+  'XcalarApiVersionSignature' : 105805035
 };
-XcalarApiVersionTStr = {42340 : '000a56408e38649abcd195f75a95ddd6'
+XcalarApiVersionTStr = {105805035 : '64e74eba23daeaa357a2bd6fa4c7ef27'
 };
 // Async extension for XcalarApiService.js
 XcalarApiServiceClient.prototype.queueWorkAsync = function(workItem) {
@@ -33092,6 +33337,48 @@ xcalarListDatasets = runEntity.xcalarListDatasets = function(thriftHandle) {
         listDatasetsOutput.numDatasets = 0;
 
         deferred.reject(listDatasetsOutput);
+    });
+
+    return (deferred.promise());
+};
+
+xcalarListDatasetUsersWorkItem = runEntity.xcalarListDatasetUsersWorkItem = function(datasetName) {
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiInputT();
+    workItem.api = XcalarApisT.XcalarApiListDatasetUsers;
+
+    workItem.input.listDatasetUsersInput = new XcalarApiListDatasetUsersInputT();
+    workItem.input.listDatasetUsersInput.datasetName = datasetName;
+
+    return (workItem);
+};
+
+xcalarListDatasetUsers = runEntity.xcalarListDatasetUsers = function(thriftHandle, datasetName) {
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarListDatasetUsers(datasetName = " + datasetName + ")");
+    }
+
+    var workItem = xcalarListDatasetUsersWorkItem(datasetName);
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        var listDatasetUsersOutput = result.output.outputResult.listDatasetUsersOutput;
+        var log = result.output.hdr.log;
+        // No job specific status
+        if (result.jobStatus != StatusT.StatusOk) {
+            deferred.reject(result.jobStatus, log);
+        }
+        deferred.resolve(listDatasetUsersOutput);
+    })
+    .fail(function(error) {
+        console.log("xcalarListDatasetUsers() caught exception:", error);
+
+        var listDatasetUsersOutput = new XcalarApiListDatasetUsersOutputT();
+        // XXX FIXME should add StatusT.StatusThriftProtocolError
+        listDatasetUsersOutput.usersCount = 0;
+
+        deferred.reject(listDatasetUsersOutput);
     });
 
     return (deferred.promise());
@@ -35955,7 +36242,8 @@ xcalarLogLevelSet = runEntity.xcalarLogLevelSet = function(thriftHandle, logLeve
 
     return (deferred.promise());
 };
-
+// XXX
+//
 xcalarGetIpAddrWorkItem = runEntity.xcalarGetIpAddrWorkItem = function(nodeId) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
@@ -36907,6 +37195,29 @@ PromiseHelper = (function(PromiseHelper, $) {
         })
         .fail(test.fail);
     }
+
+    function testListDatasetUsers(test) {
+        var datasetName = ".XcalarDS.yelp";
+        xcalarListDatasetUsers(thriftHandle, datasetName)
+            .then(function(listDatasetUsersOutput) {
+                printResult(listDatasetUsersOutput);
+
+                for (var i = 0, user = null;
+                    i < listDatasetUsersOutput.usersCount; i++) {
+
+                    user = listDatasetUsersOutput.user[i];
+
+                    console.log("\tuser[" + i.toString() + "].userIdName = " +
+                                user.userId.userIdName);
+                    console.log("\tuser[" + i.toString() + "].referenceCount = " +
+                                user.referenceCount);
+                }
+
+                test.pass();
+            })
+        .fail(test.fail);
+    }
+
 
     function testIndexDatasetIntSync(test) {
         test.trivial(xcalarIndexDataset(thriftHandle,
@@ -39971,6 +40282,7 @@ PromiseHelper = (function(PromiseHelper, $) {
 
     addTestCase(testLoadBogus, "bogus load", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testListDatasets, "list datasets", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testListDatasetUsers, "list dataset users", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testGetQueryIndex, "test get query Index", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testGetQueryLoad, "test get query Load", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testIndexDatasetIntSync, "index dataset (int) Sync", defaultTimeout, TestCaseEnabled, "");
