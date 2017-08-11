@@ -315,7 +315,6 @@ window.DF = (function($, DF) {
     DF.updateScheduleForDataflow = function(dataflowName) {
         var deferred = jQuery.Deferred();
         var dataflow = dataflows[dataflowName];
-
         var options = getOptions(dataflow.schedule);
         var timingInfo = getTimingInfo(dataflow.schedule);
         var substitutions = getSubstitutions(dataflowName);
@@ -477,6 +476,31 @@ window.DF = (function($, DF) {
         return timingInfo;
     }
 
+    DF.getExportTarget = function(activeSession, dataflowName) {
+        var options = {};
+        options.exportTarget = null;
+        options.exportLocation = null;
+        if (activeSession) {
+            options.exportLocation = "N/A";
+            options.exportTable = "XcalarForTable";
+            return options;
+        } else {
+            var exportTarget = "Default";
+            var df = DF.getDataflow(dataflowName);
+            if (df) {
+                var retinaNodes = df.retinaNodes;
+                try {
+                    exportTarget = retinaNodes[0].input.exportInput.meta.target.name;
+                    exportTargetObj = DSExport.getTarget(exportTarget);
+                    options.exportTarget = exportTargetObj.info.name;
+                    options.exportLocation = exportTargetObj.info.formatArg;
+                } catch (error) {
+                    console.log(error);
+                }
+            }
+            return options;
+        }
+    };
     return (DF);
 
 }(jQuery, {}));

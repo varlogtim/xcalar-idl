@@ -365,6 +365,7 @@ window.MainMenu = (function($, MainMenu) {
                     $curTab.removeClass("firstTouch");
                     var $dfList = $("#dfMenu .dfList");
                     $dfList.addClass("disabled");
+                    DSExport.refresh(true);
                     var promise = DF.restore();
                     xcHelper.showRefreshIcon($dfList, false, promise);
 
