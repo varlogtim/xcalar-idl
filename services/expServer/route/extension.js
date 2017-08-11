@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var xcConsole = require('../expServerXcConsole.js').xcConsole;
-var httpStatus = require('../../../assets/js/httpStatus.js').httpStatus;
+var Status = require('../supportStatusFile').Status;
 var fs = require("fs");
 var exec = require("child_process").exec;
 var guiDir = (process.env.XCE_HTTP_ROOT ?
@@ -80,7 +80,7 @@ function downloadExtension(extName, version) {
             deferred.reject(err);
         } else {
             var ret = {
-                status: httpStatus.OK,
+                status: Status.Ok,
                 data: data.Body.toString('base64')
             };
             deferred.resolve(ret);
@@ -226,7 +226,7 @@ function removeExtension(extName) {
 
 function processItem(ret, fileName) {
     var deferredOnProcessItem = jQuery.Deferred();
-    var get = function(file) {
+    var getExtension = function(file) {
         var deferredOnGetFile = jQuery.Deferred();
         var params = {
             Bucket: 'marketplace.xcalar.com', /* required */
@@ -242,7 +242,7 @@ function processItem(ret, fileName) {
         return deferredOnGetFile.promise();
     };
     if (fileName.endsWith(".txt")) {
-        get(fileName)
+        getExtension(fileName)
         .then(function(data) {
             ret.push(JSON.parse(data));
             deferredOnProcessItem.resolve("processItem succeeds");
@@ -309,12 +309,12 @@ router.post("/extension/upload", function(req, res) {
     })
     .then(function() {
         xcConsole.log("Enable installed extension finishes");
-        res.jsonp({status: httpStatus.OK});
+        res.jsonp({status: Status.Ok});
     })
     .fail(function(err) {
         xcConsole.log("Error: " + err);
         res.jsonp({
-            status: httpStatus.InternalServerError,
+            status: Status.Error,
             error: err
         });
     });
@@ -323,7 +323,7 @@ router.post("/extension/upload", function(req, res) {
 router.post("/extension/download", function(req, res) {
     if (!s3) {
         return res.jsonp({
-            status: httpStatus.InternalServerError,
+            status: Status.Error,
             error: "s3 package not setup correctly!"
         });
     }
@@ -332,15 +332,15 @@ router.post("/extension/download", function(req, res) {
     xcConsole.log(pkg);
     downloadExtension(pkg.name, pkg.version)
     .then(function(ret) {
-        writeTarGzWithCleanup(ret, pkg.name, pkg.version);
+        writeTarGzWithCleanup(ret.data, pkg.name, pkg.version);
     })
     .then(function() {
-        res.jsonp({status: httpStatus.OK});
+        res.jsonp({status: Status.Ok});
     })
     .fail(function() {
         xcConsole.log("Failure: " + arguments);
         res.jsonp({
-            status: httpStatus.InternalServerError,
+            status: Status.Error,
             error: JSON.stringify(arguments)
         });
     });
@@ -351,12 +351,12 @@ router.delete("/extension/remove", function(req, res) {
     xcConsole.log("Removing extension: " + extName);
     removeExtension(extName)
     .then(function() {
-        res.jsonp({status: httpStatus.OK});
+        res.jsonp({status: Status.Ok});
     })
     .fail(function(err) {
         xcConsole.log("remove extension failed with error: " + err);
         res.jsonp({
-            status: httpStatus.InternalServerError,
+            status: Status.Error,
             error: err
         });
     });
@@ -367,12 +367,12 @@ router.post("/extension/enable", function(req, res) {
     xcConsole.log("Enabling extension: " + extName);
     enableExtension(extName)
     .then(function() {
-        res.jsonp({status: httpStatus.OK});
+        res.jsonp({status: Status.Ok});
     })
     .fail(function(err) {
         xcConsole.log("Error: " + err);
         res.jsonp({
-            status: httpStatus.InternalServerError,
+            status: Status.Error,
             error: err
         });
     });
@@ -383,12 +383,12 @@ router.post("/extension/disable", function(req, res) {
     xcConsole.log("Disabling extension: " + extName);
     disableExtension(extName)
     .then(function() {
-        res.jsonp({status: httpStatus.OK});
+        res.jsonp({status: Status.Ok});
     })
     .fail(function(err) {
         xcConsole.log("Error: " + err);
         res.jsonp({
-            status: httpStatus.InternalServerError,
+            status: Status.Error,
             error: err
         });
     });
@@ -407,13 +407,13 @@ router.get("/extension/getAvailable", function(req, res) {
             fileObj[files[i].substr(0, files[i].length - 7)] = true;
         }
         res.jsonp({
-            status: httpStatus.OK,
+            status: Status.Ok,
             extensionsAvailable: Object.keys(fileObj)
         });
     })
     .fail(function(err) {
         res.jsonp({
-            status: httpStatus.InternalServerError,
+            status: Status.Error,
             error: err
         });
     });
@@ -424,8 +424,8 @@ router.get("/extension/getEnabled", function(req, res) {
     fs.readdir(basePath + "ext-enabled/", function(err, allNames) {
         if (err) {
             res.jsonp({
-                status: httpStatus.InternalServerError,
-                log: JSON.stringify(err)
+                status: Status.Error,
+                error: JSON.stringify(err)
             });
             return;
         }
@@ -442,7 +442,7 @@ router.get("/extension/getEnabled", function(req, res) {
                       '  </body>\n' +
                       '</html>';
         res.jsonp({
-            status: httpStatus.OK,
+            status: Status.Ok,
             data: htmlString
         });
     });
@@ -451,7 +451,7 @@ router.get("/extension/getEnabled", function(req, res) {
 router.get("/extension/listPackage", function(req, res) {
     if (!s3) {
         return res.jsonp({
-            status: httpStatus.InternalServerError,
+            status: Status.Error,
             error: "s3 package not setup correctly!"
         });
     }
@@ -460,7 +460,7 @@ router.get("/extension/listPackage", function(req, res) {
         return res.send(data);
     })
     .fail(function() {
-        return res.send({"status": httpStatus.InternalServerError, "error": error});
+        return res.send({"status": Status.Error, "error": error});
     });
 });
 /*
@@ -516,12 +516,12 @@ function fakeGetExtensionFiles() {
 }
 function fakeFetchAllExtensions() {
     fetchAllExtensions = function() {
-        return jQuery.Deferred().resolve({"status": httpStatus.OK}).promise();
+        return jQuery.Deferred().resolve({"status": Status.Ok}).promise();
     };
 }
 function fakeUploadContent() {
     upload.uploadContent = function(req, res) {
-        res.send({"status": httpStatus.OK});
+        res.send({"status": Status.Ok});
     };
 }
 if (process.env.NODE_ENV === "test") {

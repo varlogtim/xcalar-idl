@@ -106,7 +106,7 @@ describe('ExpServer Extension Test', function() {
         testDownloadName = "distinct";
         extension.downloadExtension(testDownloadName, testVersion)
         .then(function(ret) {
-            expect(ret.status).to.equal(200);
+            expect(ret.status).to.equal(1);
             done();
         })
         .fail(function() {
@@ -256,7 +256,7 @@ describe('ExpServer Extension Test', function() {
         extension.fakeEnableExtension();
         postRequest("POST", "/extension/upload", testData)
         .then(function(ret) {
-            expect(ret.status).to.equal(200);
+            expect(ret.status).to.equal(1);
             done();
         })
         .fail(function() {
@@ -269,7 +269,7 @@ describe('ExpServer Extension Test', function() {
         extension.fakeWriteTarGzWithCleanup();
         postRequest("POST", "/extension/download", testData)
         .then(function(ret) {
-            expect(ret.status).to.equal(200);
+            expect(ret.status).to.equal(1);
             done();
         })
         .fail(function() {
@@ -281,7 +281,7 @@ describe('ExpServer Extension Test', function() {
         extension.fakeRemoveExtension();
         postRequest("DELETE", "/extension/remove", testData)
         .then(function(ret) {
-            expect(ret.status).to.equal(200);
+            expect(ret.status).to.equal(1);
             done();
         })
         .fail(function() {
@@ -293,7 +293,7 @@ describe('ExpServer Extension Test', function() {
         extension.fakeEnableExtension();
         postRequest("POST", "/extension/enable", testData)
         .then(function(ret) {
-            expect(ret.status).to.equal(200);
+            expect(ret.status).to.equal(1);
             done();
         })
         .fail(function() {
@@ -306,7 +306,7 @@ describe('ExpServer Extension Test', function() {
         extension.fakeEnableExtension();
         postRequest("POST", "/extension/upload", testData)
         .then(function(ret) {
-            expect(ret.status).to.equal(200);
+            expect(ret.status).to.equal(1);
             done();
         })
         .fail(function() {
@@ -318,7 +318,7 @@ describe('ExpServer Extension Test', function() {
         extension.fakeGetExtensionFiles();
         postRequest("GET", "/extension/getAvailable", testData)
         .then(function(ret) {
-            expect(ret.status).to.equal(200);
+            expect(ret.status).to.equal(1);
             done();
         })
         .fail(function() {
@@ -329,7 +329,7 @@ describe('ExpServer Extension Test', function() {
     it('GetEnabled router shoud work', function(done) {
         postRequest("GET", "/extension/getEnabled", testData)
         .then(function(ret) {
-            expect(ret.status).to.equal(200);
+            expect(ret.status).to.equal(1);
             done();
         })
         .fail(function() {
@@ -341,7 +341,7 @@ describe('ExpServer Extension Test', function() {
         extension.fakeFetchAllExtensions();
         postRequest("GET", "/extension/listPackage", testData)
         .then(function(ret) {
-            expect(ret.status).to.equal(200);
+            expect(ret.status).to.equal(1);
             done();
         })
         .fail(function() {
@@ -353,7 +353,7 @@ describe('ExpServer Extension Test', function() {
         extension.fakeUploadContent();
         postRequest("POST", "/extension/publish", testData)
         .then(function(ret) {
-            expect(ret.status).to.equal(200);
+            expect(ret.status).to.equal(1);
             done();
         })
         .fail(function() {
