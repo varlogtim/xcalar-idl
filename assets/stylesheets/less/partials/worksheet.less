@@ -913,6 +913,12 @@ ul.CodeMirror-hints {
                 opacity: @opacity-hint !important;
                 cursor: default;
             }
+            .timeStampWrap {
+                top: 7px;
+            }
+            .worksheetInfo {
+                display: none;
+            }
         }
         &.sortedByDate {
             .sortDate {
@@ -1052,6 +1058,12 @@ ul.CodeMirror-hints {
 
             > .timeStamp {
                 padding: 0 10px;
+            }
+
+            &.hiddenWSGroup {
+                .wsName {
+                    opacity: 0.6;
+                }
             }
         }
 

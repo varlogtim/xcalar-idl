@@ -471,11 +471,16 @@ window.TableList = (function($, TableList) {
             tableIds = WSManager.getWorksheets()[wsId].tables;
             $tablesSelected = $tableList.find(".worksheet-" + wsId)
                                         .closest(".tableInfo");
-            $('#archivedTableListSection').find('.worksheet-' + wsId)
-                                   .closest('.tableInfo')
-                                   .removeAttr('data-toggle data-container ' +
-                                               'title data-original-title')
-                                   .removeClass('hiddenWS');
+            var $activeList = $('#activeTableListSection');
+            var $inactiveList = $('#archivedTableListSection');
+            var $bothLists = $activeList.add($inactiveList);
+            $inactiveList.find('.worksheet-' + wsId)
+                           .closest('.tableInfo')
+                           .removeAttr('data-toggle data-container ' +
+                                       'title data-original-title')
+                           .removeClass('hiddenWS');
+            $bothLists.find(".tableGroup.ws" + wsId)
+                      .removeClass("hiddenWSGroup");
         } else {
             $tablesSelected = $tableList.find(".addTableBtn.selected")
                                         .closest(".tableInfo");
@@ -742,6 +747,7 @@ window.TableList = (function($, TableList) {
                         })
                         .find('.addTableBtn')
                         .removeClass('selected');
+            $bothLists.find(".tableGroup.ws" + wsId).addClass("hiddenWSGroup");
         }
 
         $bothLists.each(function() {
@@ -1751,6 +1757,21 @@ window.TableList = (function($, TableList) {
                         });
                     }
                 }
+
+                WSManager.getHiddenWSList().forEach(function(wsId) {
+                    var ws = WSManager.getWSById(wsId);
+                    var wsTables = active
+                                   ? ws.tempHiddenTables
+                                   : ws.archivedTables;
+                    for (var j = 0; j < wsTables.length; j++) {
+                        var table = gTables[wsTables[j]];
+                        sortedTables.push({
+                            table: table,
+                            time: table.getTimeStamp(),
+                            ws: wsId
+                        });
+                    }
+                });
             } else {
                 tables.forEach(function(table) {
                     sortedTables.push({

@@ -1071,6 +1071,7 @@ window.TestSuite = (function($, TestSuite) {
     function multiGroupByTest(deferred, testName, currentTestNumber) {
         var wsId = WSManager.getWSByIndex(1);
         var tableId = getFirstTableInWS(1);
+        var newTableName;
         trigOpModal(tableId, "ArrDelay_integer", "groupby")
         .then(function() {
             var $section = $("#operationsView .opSection.groupby");
@@ -1095,13 +1096,19 @@ window.TestSuite = (function($, TestSuite) {
             $section.find(".functionsList .functionsInput").val("count")
                         .trigger(fakeEvent.enterKeydown);
             $section.find(".arg").eq(2).val(gColPrefix + "ArrDelay_integer");
-            var newTableName = 'GB' + randInt();
+            newTableName = 'GB' + randInt();
             $section.find('.newTableName').val(newTableName);
             $("#operationsView .submit").click();
             // need to check in this worksheet because
             // there is another groupby table
             return checkExists(".xcTableWrap.worksheet-" + wsId +
                                " .tableName[value*='" + newTableName + "']");
+        })
+        .then(function() {
+            var tId = $(".xcTableWrap.worksheet-" + wsId +
+                    " .tableName[value*='" + newTableName + "']")
+                    .closest(".xcTableWrap").data('id');
+            return checkExists(('#dagWrap-' + tId));
         })
         .then(function() {
             TestSuite.pass(deferred, testName, currentTestNumber);
