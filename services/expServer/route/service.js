@@ -229,7 +229,47 @@ function unitTest() {
         return deferred.resolve(retMsg).promise();
     }
 }
-exports.unitTest = unitTest;
+// Below part is only for Unit Test
+function fakeMasterExecuteAction() {
+    support.masterExecuteAction = function() {
+        return jQuery.Deferred().resolve({status:200}).promise();
+    }
+}
+function fakeSlaveExecuteAction() {
+    support.slaveExecuteAction = function() {
+        return jQuery.Deferred().resolve({status:200}).promise();
+    }
+}
+
+function fakeRemoveSessionFiles() {
+    support.removeSessionFiles = function() {
+        return jQuery.Deferred().resolve({status:200}).promise();
+    }
+}
+function fakeRemoveSHM() {
+    support.removeSHM = function() {
+        return jQuery.Deferred().resolve({status:200}).promise();
+    }
+}
+function fakeGetLicense() {
+    support.getLicense = function() {
+        return jQuery.Deferred().resolve({status:200}).promise();
+    }
+}
+function fakeSubmitTicket() {
+    support.submitTicket = function() {
+        return jQuery.Deferred().resolve({status:200}).promise();
+    }
+}
+if (process.env.NODE_ENV === "test") {
+    exports.convertToBase64 = convertToBase64;
+    exports.fakeMasterExecuteAction = fakeMasterExecuteAction;
+    exports.fakeSlaveExecuteAction = fakeSlaveExecuteAction;
+    exports.fakeRemoveSessionFiles = fakeRemoveSessionFiles;
+    exports.fakeRemoveSHM = fakeRemoveSHM;
+    exports.fakeGetLicense = fakeGetLicense;
+    exports.fakeSubmitTicket = fakeSubmitTicket;
+}
 
 // Export router
 exports.router = router;

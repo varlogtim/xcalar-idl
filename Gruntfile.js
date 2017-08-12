@@ -157,7 +157,7 @@ module.exports = function(grunt) {
     },
 
     exec: {
-      expServer: 'node_modules/istanbul/lib/cli.js cover node_modules/mocha/bin/_mocha services/test/expServerSpec/extensionSpec.js services/expServer/*.js --dir services/test/report'
+      expServer: 'node_modules/istanbul/lib/cli.js cover node_modules/mocha/bin/_mocha services/test/expServerSpec/*.js services/expServer/*.js --dir services/test/report'
     }
   });
 
