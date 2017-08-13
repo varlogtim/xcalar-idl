@@ -20,6 +20,8 @@ window.JSONModal = (function($, JSONModal) {
         project: 'project'
     };
     var lastMode = modes.single;
+    var selectedCols = []; // holds arrays of cols selected by user, 1 array per
+                        // split json panel
 
     // constant
     var jsonAreaMinWidth = 340;
@@ -35,24 +37,23 @@ window.JSONModal = (function($, JSONModal) {
         var minHeight = 300;
         var minWidth = 300;
 
-        // use it's own resize function
         modalHelper = new ModalHelper($jsonModal, {
             "minHeight": minHeight,
             "minWidth": minWidth,
-            "noResize": true,
+            "noResize": true, // use it's own resize function
             "noTabFocus": true,
             "noEsc": true
         });
 
         $('#jsonModal .closeJsonModal').click(function() {
             if ($('#jsonModal').css('display') === 'block') {
-                closeJSONModal();
+                closeModal();
             }
         });
 
         $modalBg.click(function() {
             if (!isDataCol && $('#jsonModal').css('display') === 'block') {
-                closeJSONModal();
+                closeModal();
             }
         });
 
@@ -255,7 +256,7 @@ window.JSONModal = (function($, JSONModal) {
                 rowNum = RowScroller.getFirstVisibleRowNum() - 1;
             }
 
-            closeJSONModal(modes.single);
+            closeModal(modes.single);
             //set timeout to allow modal to close before unnesting many cols
             setTimeout(function() {
                 ColManager.unnest(tableId, colNum, rowNum);
@@ -301,6 +302,7 @@ window.JSONModal = (function($, JSONModal) {
             }
 
             jsonData.splice(index, 1);
+            selectedCols.splice(index, 1);
             delete comparisonObjs[index];
 
             var numJsons = jsonData.length;
@@ -341,11 +343,11 @@ window.JSONModal = (function($, JSONModal) {
 
         $jsonArea.on("click", ".submitProject", function() {
             var $jsonWrap = $(this).closest('.jsonWrap');
+            var index = $jsonWrap.index();
             if ($jsonWrap.hasClass('projectMode')) {
-                var index = $jsonWrap.index();
                 submitProject(index);
             } else {
-                submitPullSome($jsonWrap);
+                submitPullSome($jsonWrap, index);
             }
         });
 
@@ -528,6 +530,7 @@ window.JSONModal = (function($, JSONModal) {
                                  .data('numTotalFields');
         $jsonWrap.find('.multiSelectModeBar .numColsSelected')
                  .text('0/' + numTotalFields + ' ' + JsonModalTStr.FieldsPull);
+        selectedCols[$jsonWrap.index()] = [];
     }
 
     function togglePrefixProject($checkbox) {
@@ -591,6 +594,7 @@ window.JSONModal = (function($, JSONModal) {
 
         if ($jsonWrap.hasClass('projectMode') ||
             $jsonWrap.hasClass('multiSelectMode')) {
+            var index = $jsonWrap.index();
 
             var toSelect = false;
             if (!$el.hasClass('keySelected')) {
@@ -617,19 +621,31 @@ window.JSONModal = (function($, JSONModal) {
                 var curIndex = $els.index($el);
                 var start = Math.min(lastIndex, curIndex);
                 var end = Math.max(lastIndex, curIndex);
-                for (var i = start; i <= end; i++) {
-                    if (toSelect) {
-                        selectField($els.eq(i), $jsonWrap);
-                    } else {
-                        deselectField($els.eq(i), $jsonWrap);
+
+                // select in the correct order
+                if (curIndex > lastIndex) {
+                    for (var i = start; i <= end; i++) {
+                        if (toSelect) {
+                            selectField($els.eq(i), $jsonWrap, index);
+                        } else {
+                            deselectField($els.eq(i), $jsonWrap, index);
+                        }
+                    }
+                } else {
+                    for (var i = end - 1; i >= start; i--) {
+                        if (toSelect) {
+                            selectField($els.eq(i), $jsonWrap, index);
+                        } else {
+                            deselectField($els.eq(i), $jsonWrap, index);
+                        }
                     }
                 }
             }
 
             if (toSelect) {
-                selectField($el, $jsonWrap);
+                selectField($el, $jsonWrap, index);
             } else {
-                deselectField($el, $jsonWrap);
+                deselectField($el, $jsonWrap, index);
             }
 
             $lastKeySelected = $el;
@@ -663,7 +679,7 @@ window.JSONModal = (function($, JSONModal) {
             var checkedColNum = table.getColNumByBackName(backColName);
             if (checkedColNum >= 0) {
                 // if the column already exists
-                closeJSONModal(modes.single);
+                closeModal(modes.single);
                 xcHelper.centerFocusedColumn(tableId, checkedColNum, animation);
                 return;
             }
@@ -676,26 +692,40 @@ window.JSONModal = (function($, JSONModal) {
 
             ColManager.pullCol(colNum, tableId, options)
             .always(function(newColNum) {
-                closeJSONModal(modes.single);
+                closeModal(modes.single);
                 xcHelper.centerFocusedColumn(tableId, newColNum, animation);
             });
         }
     }
 
-    function selectField($el, $jsonWrap) {
+    function selectField($el, $jsonWrap, index) {
+        if ($el.hasClass("keySelected")) {
+            return;
+        }
+
         $el.addClass('keySelected');
         $el.siblings('.jsonCheckbox').addClass('checked');
         $jsonWrap.find('.submitProject').removeClass('disabled');
         $jsonWrap.find('.clearAll').removeClass('disabled');
+
+        var nameInfo = createJsonSelectionExpression($el);
+        var colName = nameInfo.escapedName;
+        selectedCols[index].push(colName);
     }
 
-    function deselectField($el, $jsonWrap) {
+    function deselectField($el, $jsonWrap, index) {
+        if (!$el.hasClass("keySelected")) {
+            return;
+        }
         $el.removeClass('keySelected');
         $el.siblings('.jsonCheckbox').removeClass('checked');
         if ($jsonWrap.find('.keySelected').length === 0) {
             $jsonWrap.find('.submitProject').addClass('disabled');
             $jsonWrap.find('.clearAll').addClass('disabled');
         }
+        var nameInfo = createJsonSelectionExpression($el);
+        var colName = nameInfo.escapedName;
+        selectedCols[index].splice(selectedCols[index].indexOf(colName), 1);
     }
 
     function duplicateView($jsonWrap) {
@@ -711,6 +741,10 @@ window.JSONModal = (function($, JSONModal) {
 
         var index = $jsonWrap.index();
         jsonData.splice(index + 1, 0, jsonData[index]);
+
+        var cols = xcHelper.deepCopy(selectedCols[index]);
+        selectedCols.splice(index + 1, 0, cols);
+
         $jsonWrap.after($jsonClone);
         $jsonClone.removeClass('active comparison');
         $jsonClone.find('.selected').removeClass('selected');
@@ -871,7 +905,7 @@ window.JSONModal = (function($, JSONModal) {
     function jsonModalDocumentEvent() {
         $(document).on("keydown.jsonModal", function(event) {
             if (event.which === keyCode.Escape) {
-                closeJSONModal();
+                closeModal();
                 return false;
             }
         });
@@ -932,7 +966,7 @@ window.JSONModal = (function($, JSONModal) {
         }
     }
 
-    function closeJSONModal(mode) {
+    function closeModal(mode) {
         modalHelper.clear({"close": function() {
             // json modal use its own closer
             $('.modalHighlighted').removeClass('modalHighlighted');
@@ -968,6 +1002,7 @@ window.JSONModal = (function($, JSONModal) {
         comparisonObjs = {};
         $jsonText = null;
         $lastKeySelected = null;
+        selectedCols = [];
     }
 
     // if mode isn't provided, will default to single "select mode" if a single
@@ -1015,7 +1050,7 @@ window.JSONModal = (function($, JSONModal) {
                 jsonObj = JSON.parse(text);
             } catch (error) {
                 console.error(error, text);
-                closeJSONModal();
+                closeModal();
                 return;
             }
             if (type === ColumnType.mixed) {
@@ -1050,6 +1085,7 @@ window.JSONModal = (function($, JSONModal) {
         }
 
         jsonData.push(dataObj);
+        selectedCols.push([]);
 
         if (!isModalOpen) {
             var height = Math.min(500, $(window).height());
@@ -1656,6 +1692,9 @@ window.JSONModal = (function($, JSONModal) {
         var json = jsonData.splice(initialIndex, 1)[0];
         jsonData.splice(newIndex, 0, json);
 
+        var cols = selectedCols.splice(initialIndex, 1)[0];
+        selectedCols.splice(newIndex, 0, cols);
+
         // var min = Math.min(initialIndex, newIndex);
         // var max = Math.max(initialIndex, newIndex);
         // var keys = Object.keys(comparisonObjs);
@@ -1828,14 +1867,14 @@ window.JSONModal = (function($, JSONModal) {
         if (colNames.length) {
             var tableId = $jsonWrap.data('tableid');
             xcFunction.project(colNames, tableId);
-            closeJSONModal(modes.project);
+            closeModal(modes.project);
         } else {
             // shouldn't have been able to submit anyways
             console.warn('no columns selected');
         }
     }
 
-    function submitPullSome($jsonWrap) {
+    function submitPullSome($jsonWrap, index) {
         var rowNum = $jsonWrap.data('rownum');
         var tableId = $jsonWrap.data('tableid');
         var colNum = $jsonWrap.data('colnum');
@@ -1846,9 +1885,12 @@ window.JSONModal = (function($, JSONModal) {
             // take the jsonData from the first visibile row
             rowNum = RowScroller.getFirstVisibleRowNum() - 1;
         }
-        var colNames = getSelectedCols($jsonWrap, tableId, colNum);
+        var colNames = [];
+        for (var i = 0; i < selectedCols[index].length; i++) {
+            colNames.push(selectedCols[index][i]);
+        }
 
-        closeJSONModal(modes.multiple);
+        closeModal(modes.multiple);
         //set timeout to allow modal to close before unnesting many cols
         setTimeout(function() {
             ColManager.unnest(tableId, colNum, rowNum, colNames);
@@ -1891,14 +1933,16 @@ window.JSONModal = (function($, JSONModal) {
                 $jsonWrap.addClass('projectMode');
                 autoSelectFieldsToProject($jsonWrap);
                 selectTab($jsonWrap.find('.seeAll'));
-                xcTooltip.changeText($jsonWrap.find('.submitProject'), JsonModalTStr.SubmitProjection);
+                xcTooltip.changeText($jsonWrap.find('.submitProject'),
+                                     JsonModalTStr.SubmitProjection);
                 if ($jsonWrap.find('.compareIcon.selected').length) {
                     compareIconSelect($jsonWrap.find('.compareIcon'));
                 }
             } else if ($li.hasClass('multiSelectionOpt')) {
                 $jsonWrap.addClass('multiSelectMode');
                 selectTab($jsonWrap.find('.seeAll'));
-                xcTooltip.changeText($jsonWrap.find('.submitProject'), JsonModalTStr.SubmitPull);
+                xcTooltip.changeText($jsonWrap.find('.submitProject'),
+                                     JsonModalTStr.SubmitPull);
                 if ($jsonWrap.find('.compareIcon.selected').length) {
                     compareIconSelect($jsonWrap.find('.compareIcon'));
                 }
@@ -1947,7 +1991,7 @@ window.JSONModal = (function($, JSONModal) {
     /* Unit Test Only */
     if (window.unitTestMode) {
         JSONModal.__testOnly__ = {};
-        JSONModal.__testOnly__.closeJSONModal = closeJSONModal;
+        JSONModal.__testOnly__.closeJSONModal = closeModal;
         JSONModal.__testOnly__.compareIconSelect = compareIconSelect;
         JSONModal.__testOnly__.duplicateView = duplicateView;
         JSONModal.__testOnly__.selectTab = selectTab;

@@ -918,6 +918,9 @@ window.TestSuite = (function($, TestSuite) {
                                     "']");
             })
             .then(function() {
+                return checkExists("#xcTable-" + tableId, null, {notExist: true});
+            })
+            .then(function() {
                 flightTestPart8();
             })
             .fail(function(error) {
@@ -1273,6 +1276,9 @@ window.TestSuite = (function($, TestSuite) {
                 .trigger(fakeEvent.mouseup);
             return (checkExists(".flexWrap.flex-mid" +
                                 " input[value='Month_integer']:eq(0)"));
+        })
+        .then(function() {
+            return checkExists(("#xcTable-" + tableId), null, {notExist: true});
         })
         .then(function() {
             TestSuite.pass(deferred, testName, currentTestNumber);
