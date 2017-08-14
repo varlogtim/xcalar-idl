@@ -309,8 +309,34 @@ window.XcSDK.Extension.prototype = (function() {
             return deferred.promise();
         },
 
-        getNumRows: function(tableName) {
-            return XIApi.getNumRows(tableName);
+        getNumRows: function(tableName, options) {
+            var deferred = jQuery.Deferred();
+            var self = this;
+            var useConstant = options.useConstant;
+            var isTempConstant = false;
+
+            options = options || {};
+            options.txId = this.txId;
+
+            if (useConstant && options.constantName == null) {
+                options.constantName = self.createTempConstant();
+                isTempConstant = true;
+            }
+
+            XIApi.getNumRows(tableName, options)
+            .then(function(res, dstAggName) {
+                if (useConstant) {
+                    if (isTempConstant) {
+                        self.tempAggs.push(dstAggName);
+                    }
+                    deferred.resolve(self.getConstant(dstAggName));
+                } else {
+                    deferred.resolve(res);
+                }
+            })
+            .fail(deferred.reject);
+
+            return deferred.promise();
         },
 
         // Row numbers start at 1

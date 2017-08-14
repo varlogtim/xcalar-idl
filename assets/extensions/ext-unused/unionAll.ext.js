@@ -230,7 +230,10 @@ window.UExtUnionAll = (function(UExtUnionAll) {
                     // store table with row numbers
                     tableOneUniqueRowNum = tableOneAfterRowNum;
                     // resolve with number of rows in table One
-                    return ext.getNumRows(tableOneUniqueRowNum);
+                    return ext.getNumRows(tableOneUniqueRowNum, {
+                        "useConstant": true,
+                        "colName": rowColOne
+                    });
                 });
 
             // generate row numbers for table two

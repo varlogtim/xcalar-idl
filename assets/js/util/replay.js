@@ -1184,7 +1184,7 @@ window.Replay = (function($, Replay) {
         Profile.show(tableId, colNum)
         .then(function() {
             var checkFunc = function() {
-                return ($("#profileModal .groupbyChart .barArea").length > 0);
+                return ($("#profileModal .groupbyChart .area").length > 0);
             };
 
             return (checkHelper(checkFunc));

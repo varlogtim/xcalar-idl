@@ -173,6 +173,10 @@ window.XcSDK.Extension.prototype = (function() {
             return xcHelper.stripColName(colName);
         },
 
+        createTempConstant: function() {
+            return xcHelper.randName("tempAgg");
+        },
+
         getConstant: function(aggName) {
             return gAggVarPrefix + aggName;
         },
@@ -192,6 +196,7 @@ window.XcSDK.Extension.prototype = (function() {
             this.tableNameRoot = nameSplits[0];
             this.tableId = nameSplits[1];
             this.newTables = [];
+            this.tempAggs = [];
             this.attrs = {};
         },
 
@@ -271,6 +276,7 @@ window.XcSDK.Extension.prototype = (function() {
             var self = this;
             var txId = self.txId;
             var newTables = self.newTables;
+            var tempAggs = self.tempAggs;
 
             if (afterFinishDeferred == null ||
                 !jQuery.isFunction(afterFinishDeferred.promise))
@@ -284,6 +290,10 @@ window.XcSDK.Extension.prototype = (function() {
                 var finalActiveTables = [];
                 var finalReplaces = {};
                 var promises = [];
+
+                tempAggs.forEach(function(tempAgg) {
+                    promises.push(deleteTempTable(txId, tempAgg));
+                });
 
                 for (var i = 0, len = newTables.length; i < len; i++) {
                     var xcTable = newTables[i];

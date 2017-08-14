@@ -292,7 +292,7 @@ window.XIApi = (function(XIApi, $) {
 
         var deferred = jQuery.Deferred();
         // Check for case where table is already sorted
-        XIApi.checkOrder(tableName)
+        XIApi.checkOrder(tableName, txId)
         .then(function(sortOrder, sortKey) {
             if (order === sortOrder && colName === sortKey) {
                 return PromiseHelper.reject(null, true);
@@ -664,10 +664,24 @@ window.XIApi = (function(XIApi, $) {
         return deferred.promise();
     };
 
-    XIApi.getNumRows = function(tableName) {
+    XIApi.getNumRows = function(tableName, options) {
         if (tableName == null) {
             return PromiseHelper.reject("Invalid args in getNumRows");
         }
+        options = options || {};
+        if (options.useConstant) {
+            // when use constant
+            var txId = options.txId;
+            var colName = options.colName;
+            var aggOp = AggrOp.Count;
+            var dstAggName = options.constantName;
+            if (dstAggName == null) {
+                return PromiseHelper.reject("Invalid args in getNumRows");
+            }
+
+            return XIApi.aggregate(txId, aggOp, colName, tableName, dstAggName);
+        }
+
         var tableId = xcHelper.getTableId(tableName);
         if (tableId && gTables[tableId] &&
             gTables[tableId].resultSetCount > -1) {
@@ -1058,7 +1072,7 @@ window.XIApi = (function(XIApi, $) {
         .then(function(unsorted) {
             if (unsorted !== tableName) {
                 // this is sorted table, should index a unsorted one
-                XIApi.checkOrder(unsorted)
+                XIApi.checkOrder(unsorted, txId)
                 .then(function(parentOrder, parentKey) {
                     if (parentKey !== colToIndex) {
                         if (tableKey != null && parentKey !== tableKey) {
