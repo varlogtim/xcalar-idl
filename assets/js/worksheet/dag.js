@@ -2305,7 +2305,7 @@ window.Dag = (function($, Dag) {
 
     function adjustNodePositionsHelper(node, amount, expandAmount, storedInfo,
                                        seen) {
-        if (seen[node.index]) {
+        if (seen[node.value.name]) {
             return;
         }
         seen[node.value.name] = true;
