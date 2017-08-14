@@ -269,7 +269,7 @@ function getUnsortedTableName(tableName, otherTableName, txId) {
                     xcAssert(indexInput.source.isTable);
 
                     node = DagFunction.construct(nodeArray.node).tree;
-                    srcTablename = node.getSourceNames()[0];
+                    srcTableName = node.getSourceNames()[0];
                     var hasReadyState = checkIfTableHasReadyState(node
                                                                   .parents[0]);
 
