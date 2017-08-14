@@ -1420,8 +1420,9 @@ describe("Dag Panel Test", function() {
                 var $icon = $dagTable.find(".dagTableIcon");
                 var origId = $dagTable.data("id");
                 var origTablename = $dagTable.data("tablename");
-                var prevId = $dagTable.closest(".dagTableWrap").prev()
+                var prevId = $dagTable.closest(".dagTableWrap").next()
                             .find(".dagTable").data("id");
+                expect(prevId).to.not.be.null;
                 $icon.click();
                 expect($menu.find("li.complementTable").hasClass("unavailable"))
                 .to.be.false;

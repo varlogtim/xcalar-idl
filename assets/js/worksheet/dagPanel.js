@@ -1111,9 +1111,12 @@ window.DagPanel = (function($, DagPanel) {
             filterString: evalStr,
             complement: true
         };
-        // find previous dagTable and get id;
-        var srcTableId = $tableWrap.prevAll(".dagTableWrap:first")
-                                   .find(".dagTable").data("id");
+        var nodeId = $tableIcon.data("index");
+        var nodeIdMap = $tableWrap.closest(".dagWrap").data("allDagInfo")
+                                                      .nodeIdMap;
+        var node = nodeIdMap[nodeId];
+        var parentNode = node.parents[0];
+        var srcTableId = xcHelper.getTableId(parentNode.value.name);
         $tableIcon.addClass("generatingComplement");
 
         xcFunction.filter(1, srcTableId, fltOption)
