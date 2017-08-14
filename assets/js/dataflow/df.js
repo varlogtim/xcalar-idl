@@ -270,12 +270,13 @@ window.DF = (function($, DF) {
     DF.addScheduleToDataflow = function(dataflowName, allOptions) {
         var deferred = jQuery.Deferred();
         var dataflow = dataflows[dataflowName];
+        var schedule;
         var substitutions;
         var options;
         var timingInfo;
         if (dataflow) {
             if (!dataflow.schedule) {
-                dataflow.schedule = new SchedObj(allOptions);
+                schedule = new SchedObj(allOptions);
                 substitutions = getSubstitutions(dataflowName,
                                     allOptions.activeSession);
                 options = getOptions(allOptions);
@@ -283,13 +284,13 @@ window.DF = (function($, DF) {
                 XcalarCreateSched(dataflowName, dataflowName,
                     substitutions, options, timingInfo)
                 .then(function() {
+                    dataflow.schedule = schedule;
                     DF.commitAndBroadCast(dataflowName);
                     deferred.resolve();
                 })
                 .fail(deferred.reject);
             } else {
-                var schedule = dataflow.schedule;
-                schedule.update(allOptions);
+                schedule = dataflow.schedule;
                 XcalarDeleteSched(dataflowName)
                 .then(function() {
                     substitutions = getSubstitutions(dataflowName,
@@ -300,6 +301,7 @@ window.DF = (function($, DF) {
                         substitutions, options, timingInfo);
                 })
                 .then(function() {
+                    schedule.update(allOptions);
                     DF.commitAndBroadCast(dataflowName);
                     deferred.resolve();
                 })
@@ -315,6 +317,12 @@ window.DF = (function($, DF) {
     DF.updateScheduleForDataflow = function(dataflowName) {
         var deferred = jQuery.Deferred();
         var dataflow = dataflows[dataflowName];
+
+        option = DFCard.getAdvancedExportOption(dataflowName, true);
+        var exportOptions = DF.getExportTarget(option.activeSession, dataflowName);
+        dataflow.schedule.exportTarget = exportOptions.exportTarget;
+        dataflow.schedule.exportLocation = exportOptions.exportLocation;
+
         var options = getOptions(dataflow.schedule);
         var timingInfo = getTimingInfo(dataflow.schedule);
         var substitutions = getSubstitutions(dataflowName);
@@ -460,7 +468,9 @@ window.DF = (function($, DF) {
             "newTableName": allOptions.newTableName,
             "usePremadeCronString": allOptions.usePremadeCronString,
             "premadeCronString": allOptions.premadeCronString,
-            "isPaused": allOptions.isPaused
+            "isPaused": allOptions.isPaused,
+            "exportTarget": allOptions.exportTarget,
+            "exportLocation": allOptions.exportLocation
         };
         return options;
     }

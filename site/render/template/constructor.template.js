@@ -2544,6 +2544,8 @@
             premadeCronString: (String) cron defined by the user
         newAttr:
             isPaused: (boolean) when the schedule is paused or not
+            exportTarget: (String) export target
+            exportLocation: (String) path for export Location
         */
         function SchedObj<%= v %>(options) {
             options = options || {};
@@ -2552,6 +2554,8 @@
 
             if (<%= checkFunc %>(options)) {
                 self.isPaused = options.isPaused || false;
+                self.exportTarget = options.exportTarget || null;
+                self.exportLocation = options.exportLocation || null;
             }
             return self;
         }
@@ -2570,6 +2574,8 @@
                 this.usePremadeCronString = options.usePremadeCronString;
                 this.premadeCronString = options.premadeCronString;
                 this.isPaused = options.isPaused || false;
+                this.exportTarget = options.exportTarget || null;
+                this.exportLocation = options.exportLocation || null;
             }
             <%}%>
         });

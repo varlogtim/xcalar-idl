@@ -10,7 +10,6 @@ window.Scheduler = (function(Scheduler, $) {
 
     var currentDataFlowName;
     var displayServerTimeCycle;
-    var outputLocation;
 
     // constant
     var scheduleFreq = {
@@ -626,7 +625,6 @@ window.Scheduler = (function(Scheduler, $) {
 
         if (isSimpleMode()) {
             // Simple mode
-
             isValid = xcHelper.validate([{
                 "$ele": $dateInput,
                 "text": ErrTStr.NoEmpty,
@@ -716,21 +714,31 @@ window.Scheduler = (function(Scheduler, $) {
             };
         }
 
-        checkExportFileName(currentDataFlowName)
+        if (dataflowName === currentDataFlowName) {
+            $scheduleDetail.addClass("locked");
+        }
+        var exportOptions = DF.getExportTarget(options.activeSession, dataflowName);
+        var dataflow = DF.getDataflow(dataflowName);
+        options.exportTarget = exportOptions.exportTarget;
+        options.exportLocation = exportOptions.exportLocation;
+        checkExportFileName(dataflowName)
         .then(function() {
             if (isSimpleMode()) {
                 setSimulationInfos();
             }
-
-            DF.addScheduleToDataflow(dataflowName, options);
+            return DF.addScheduleToDataflow(dataflowName, options);
+        })
+        .then(function() {
             xcHelper.showSuccess(SuccessTStr.Sched);
             existScheduleIcon(dataflowName);
-
             deferred.resolve();
         })
-        .fail(deferred.reject);
-
-
+        .fail(deferred.reject)
+        .always(function() {
+            if (dataflowName === currentDataFlowName) {
+                $scheduleDetail.removeClass("locked");
+            }
+        })
         return deferred.promise();
     }
 
@@ -789,7 +797,6 @@ window.Scheduler = (function(Scheduler, $) {
 
         var deferred = jQuery.Deferred();
         var $refreshBtn = $("#modScheduleForm-refresh");
-        var outputStr = "";
 
         $historySection.html("");
         $detailsSection.html("");
@@ -798,23 +805,18 @@ window.Scheduler = (function(Scheduler, $) {
         var dataflowName = currentDataFlowName;
         $scheduleResults.addClass("loading").data("df", dataflowName);
 
-        getOutputLocation()
-        .then(function(res) {
-            outputStr = res;
-            return XcalarListSchedules(currentDataFlowName, true);
-        })
+        XcalarListSchedules(currentDataFlowName, true)
         .then(function(data) {
             if (dataflowName !== currentDataFlowName) {
                 return;
             }
-
             var scheduleInfo = data[0];
             histories = "";
             infos = "";
             if (scheduleInfo && scheduleInfo.scheduleResults &&
                 scheduleInfo.scheduleResults.length) {
                 scheduleInfo.scheduleResults.forEach(function(res, index) {
-                    var record = getOneRecordHtml(res, outputStr, index);
+                    var record = getOneRecordHtml(res, index);
                     histories = record.history + histories;
                     infos = record.info + infos;
                 });
@@ -860,13 +862,15 @@ window.Scheduler = (function(Scheduler, $) {
         return deferred.promise();
     }
 
-    function getOneRecordHtml (res, outputStr, index) {
+    function getOneRecordHtml(res,index) {
         var result = {};
         var startTimeStr = getUTCStr(res.startTime, true);
         var endTimeStr = (res.endTime ? getUTCStr(res.endTime, true) : "-");
         var parameters = getParameterStr(res.parameters);
         var systemParameterStr = parameters.systemParameterStr;
         var customizedParameterStr = parameters.customizedParameterStr;
+        var exportTarget = res.exportTarget;
+        var exportLocation = res.exportLocation;
         // console.log("systemParameterStr", systemParameterStr)
         // console.log("customizedParameterStr", customizedParameterStr)
         var statusStr = (res.endTime ? StatusTStr[res.status]: "Running");
@@ -900,9 +904,13 @@ window.Scheduler = (function(Scheduler, $) {
                         '<div Class="item">Status:</div>' +
                         '<div Class="content">' + statusStr + '</div>' +
                     '</div>' +
+                    '<div class="row exportTargetContent">' +
+                        '<div Class="item">Export Target Name:</div>' +
+                        '<div Class="content">' + exportTarget + '</div>' +
+                    '</div>'+
                     '<div class="row outputLocationContent">' +
-                        '<div Class="item">Output Location:</div>' +
-                        '<div Class="content">' + outputStr + '</div>' +
+                        '<div Class="item">Export Location:</div>' +
+                        '<div Class="content">' + exportLocation + '</div>' +
                     '</div>'+
                     '</div>';
 
@@ -961,26 +969,6 @@ window.Scheduler = (function(Scheduler, $) {
                                  SchedTStr.noParam : (customizedParameterStr
                                  +'</div>');
         return res;
-    }
-
-    function getOutputLocation() {
-        if (outputLocation != null) {
-            return PromiseHelper.resolve(outputLocation);
-        }
-
-        var deferred = jQuery.Deferred();
-        DSExport.getDefaultPath()
-        .then(function(res) {
-            if (res) {
-                outputLocation = res;
-                deferred.resolve(res);
-            } else {
-                deferred.reject(SchedTStr.unknown);
-            }
-        })
-        .fail(deferred.reject);
-
-        return deferred.promise();
     }
 
     function toggleTimePicker(display) {
