@@ -178,6 +178,8 @@ window.Dag = (function($, Dag) {
         var dagDepth;
         var dagImageHtml = "";
         var nodeIdMap = {};
+        var yCoors = [0]; // stores list of depths of branch nodes
+        // [0, 3, 5] corresponds to these coordinates: {0, 0}, {1, 3}, {2, 5}
         try {
             var lineageStruct = DagFunction.construct(nodes, options.tableId);
             tree = lineageStruct.tree;
@@ -208,15 +210,17 @@ window.Dag = (function($, Dag) {
             var group = [];
 
             try {
-                setNodePositions(tree, storedInfo, depth,
-                                 condensedDepth, isChildHidden, group, initialY,
-                                 null, dagOptions);
+                setNodePositions(tree, storedInfo, depth, condensedDepth,
+                                isChildHidden, group, initialY, null,
+                                dagOptions);
                 if (!storedInfo.heightsDrawn[storedInfo.height]) {
                     storedInfo.height--;
                 }
                 // adjust positions of nodes so that descendents will never be to
                 // the left or parallel of their ancestors
                 adjustNodePositions(tree, storedInfo);
+
+                condenseHeight(tree, {}, yCoors, 0);
                 // get new dagDepth after repositioning
                 dagDepth = getDagDepth(tree);
                 dagImageHtml += drawDagNode(tree, storedInfo, dagOptions, {});
@@ -226,7 +230,7 @@ window.Dag = (function($, Dag) {
             }
         }
 
-        var height = (storedInfo.height + 1) * dagTableOuterHeight + 30;
+        var height = yCoors.length * dagTableOuterHeight + 30;
         var width = storedInfo.condensedWidth * dagTableWidth - 150;
 
         if (hasError) {
@@ -250,7 +254,7 @@ window.Dag = (function($, Dag) {
         }
 
         if (!$container.hasClass('error')) {
-            var numNodes = Object.keys(tree).length;
+            var numNodes = Object.keys(nodeIdMap).length;
             drawAllLines($container, tree, numNodes, width, options);
         }
 
@@ -1522,6 +1526,39 @@ window.Dag = (function($, Dag) {
         return (maxDepth);
     }
 
+    // gets the depth of a branch after the initial positioning
+    function getDagDepthPostPositioning(node, seen) {
+        var origNode = node;
+        var maxDepth = 0;
+        var depth;
+        getDepthHelper(node, 0);
+
+        function getDepthHelper(node) {
+            // this parent has already been seen but may be a lot further left
+            // than its children so we take it's depth - 1 and subtract the
+            // diff between the orig node's depth
+            if (seen[node.value.dagNodeId]) {
+                depth = node.value.display.depth - 1 -
+                        (origNode.value.display.depth - 1);
+                maxDepth = Math.max(maxDepth, depth);
+                return;
+            }
+
+            for (var i = 0; i < node.parents.length; i++) {
+                getDepthHelper(node.parents[i]);
+            }
+
+            // leaf node so we us the full expanded depth as the depth
+            if (!node.parents.length) {
+                depth = node.value.display.expandedDepth -
+                        (origNode.value.display.expandedDepth - 1);
+                maxDepth = Math.max(maxDepth, depth);
+            }
+        }
+
+        return (maxDepth);
+    }
+
     function drawSavableCanvasBackground(canvas, ctx, $dagWrap, canvasClone) {
         var deferred = jQuery.Deferred();
         var img = new Image();
@@ -2212,13 +2249,13 @@ window.Dag = (function($, Dag) {
 
             // first node in a group of hidden nodes
             if (!isChildHidden) {
-                newCondensedDepth = condensedDepth + condenseOffset;
+                newCondensedDepth += condenseOffset;
                 for (var i = 0; i < node.children.length; i++) {
                     node.children[i].value.display.isParentHidden = true;
                 }
             }
         } else if (!node.value.display.isHiddenTag) {
-            newCondensedDepth = condensedDepth + 1;
+            newCondensedDepth++;
             node.value.display.isHidden = false;
         } //  if hiddenTag, do not increase depth
 
@@ -2233,12 +2270,12 @@ window.Dag = (function($, Dag) {
 
         // recursive call of setNodePosition on node's parents
         for (var i = 0; i < numParents; i++) {
-            var parent = node.parents[i];
-            if (!storedInfo.drawn[parent.value.dagNodeId]) {
+            var parentNode = node.parents[i];
+            if (!storedInfo.drawn[parentNode.value.dagNodeId]) {
                 if (i > 0 && storedInfo.heightsDrawn[storedInfo.height]) {
                     storedInfo.height++;
                 }
-                setNodePositions(parent, storedInfo, newDepth,
+                setNodePositions(parentNode, storedInfo, newDepth,
                                newCondensedDepth, node.value.display.isHidden,
                                group, storedInfo.height, currTag, options);
             }
@@ -2246,12 +2283,9 @@ window.Dag = (function($, Dag) {
 
         storedInfo.drawn[node.value.dagNodeId] = true;
 
-        var top = Math.round(yCoor * dagTableOuterHeight);
-        var expandedRight = Math.round(depth * dagTableWidth);
-        var condensedRight = Math.round(condensedDepth * dagTableWidth);
 
-        node.value.display.x = condensedRight;
-        node.value.display.y = top;
+        node.value.display.x = Math.round(condensedDepth * dagTableWidth);
+        node.value.display.y = Math.round(yCoor * dagTableOuterHeight);
         node.value.display.depth = condensedDepth;
         node.value.display.expandedDepth = depth;
         node.value.display.condensedDepth = condensedDepth;
@@ -2305,11 +2339,11 @@ window.Dag = (function($, Dag) {
 
     function adjustNodePositionsHelper(node, amount, expandAmount, storedInfo,
                                        seen) {
-        if (seen[node.value.name]) {
+        if (seen[node.value.dagNodeId]) {
             return;
         }
-        seen[node.value.name] = true;
-        node.condensedDepth += amount;
+        seen[node.value.dagNodeId] = true;
+        node.value.display.condensedDepth += amount;
         node.value.display.depth += amount;
         node.value.display.expandedDepth += expandAmount;
         node.value.display.x += (amount * dagTableWidth);
@@ -2319,6 +2353,35 @@ window.Dag = (function($, Dag) {
         for (var i = 0; i < node.parents.length; i++) {
             adjustNodePositionsHelper(node.parents[i], amount, expandAmount,
                                       storedInfo, seen);
+        }
+    }
+
+    // this function allows separate branches to share the same y coor as long
+    // as none of the nodes overlap. We check to see if the left side of a
+    // branch overlaps with the right side of an existing branch
+    // "coors" stores list of depths of branch nodes
+    // [0, 3, 5] corresponds to these coordinates: {0, 0}, {1, 3}, {2, 5}
+    function condenseHeight(node, seen, coors, YCoor) {
+        seen[node.value.dagNodeId] = true;
+        node.value.display.y = Math.round((YCoor + 0.2) * dagTableOuterHeight);
+        for (var i = 0; i < node.parents.length; i++) {
+            var parentNode = node.parents[i];
+            var nextYCoor = YCoor + i;
+            if (!seen[parentNode.value.dagNodeId]) {
+                if (i > 0) {
+                    var branchDepth = getDagDepthPostPositioning(parentNode,
+                                                                 seen);
+                    var leafDepth = branchDepth + node.value.display.depth;
+                    for (var j = coors.length - 1; j >= 0; j--) {
+                        if (leafDepth + 1 > coors[j]) {
+                            nextYCoor = j + 1;
+                            break;
+                        }
+                    }
+                    coors[nextYCoor] = parentNode.value.display.depth;
+                }
+                condenseHeight(parentNode, seen, coors, nextYCoor);
+            }
         }
     }
 
