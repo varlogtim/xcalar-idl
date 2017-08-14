@@ -289,6 +289,10 @@ module.exports = {
         "Udfs": "UDFs"
     },
 
+    "SQL": {
+        "EXECUTE": "EXECUTE SQL"
+    },
+
     "bottomMenu": {
         "popOutBtn": "Undock",
         "toggleLog": "Toggle machine/human Log",

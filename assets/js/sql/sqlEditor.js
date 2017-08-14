@@ -1,0 +1,46 @@
+window.SQLEditor = (function(SQLEditor, $) {
+    var editor;
+
+    SQLEditor.setup = function() {
+        // setupEditor();
+        // addEventListeners();
+    };
+
+    SQLEditor.getEditor = function() {
+        return editor;
+    };
+
+    function setupEditor() {
+        var textArea = document.getElementById("sqlEditor");
+
+        editor = CodeMirror.fromTextArea(textArea, {
+            "mode": "text/x-sql",
+            "theme": "rubyblue",
+            "lineNumbers": true,
+            "lineWrapping": true,
+            "smartIndent": true,
+            "indentWithTabs": false,
+            // "indentUnit": 4,
+            "matchBrackets": true,
+            "autofocus": true,
+            // "autoCloseBrackets": true,
+            // "search": true
+            "extraKeys": {"Ctrl-Space": "autocomplete"},
+        });
+
+        editor.refresh();
+    }
+
+    function addEventListeners() {
+        $("#sqlExecute").click(function() {
+            executeSQL();
+        });
+    }
+
+    function executeSQL() {
+        var sql = editor.getValue();
+        // console.log(sql)
+    }
+
+    return SQLEditor;
+}({}, jQuery));

@@ -501,11 +501,11 @@ window.DF = (function($, DF) {
                 var retinaNodes = df.retinaNodes;
                 try {
                     exportTarget = retinaNodes[0].input.exportInput.meta.target.name;
-                    exportTargetObj = DSExport.getTarget(exportTarget);
+                    var exportTargetObj = DSExport.getTarget(exportTarget);
                     options.exportTarget = exportTargetObj.info.name;
                     options.exportLocation = exportTargetObj.info.formatArg;
                 } catch (error) {
-                    console.log(error);
+                    console.error(error);
                 }
             }
             return options;

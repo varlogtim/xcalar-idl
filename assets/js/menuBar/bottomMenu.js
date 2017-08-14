@@ -11,6 +11,7 @@ window.BottomMenu = (function($, BottomMenu) {
         Log.setup();
         UDF.setup();
         Help.setup();
+        SQLEditor.setup();
     };
 
     BottomMenu.initialize = function() {
@@ -96,10 +97,6 @@ window.BottomMenu = (function($, BottomMenu) {
         var poppedOut = false;
         var menuIsSmall = false;
         var smallWidth = 425;
-        var udfEditorVisible = false;
-        var $udfSection = $("#udfSection");
-        var $udfFnSection = $("#udf-fnSection");
-        var editor; // cannot assign it here because may not be ready
 
         $menuPanel.resizable({
             "handles": "n, e, s, w, se",
@@ -110,12 +107,6 @@ window.BottomMenu = (function($, BottomMenu) {
                     poppedOut = false;
                 } else {
                     poppedOut = true;
-                }
-
-                udfEditorVisible = $udfSection.hasClass("active") &&
-                                   !$udfFnSection.hasClass("hidden");
-                if (udfEditorVisible) {
-                    editor = UDF.getEditor();
                 }
 
                 // set boundaries so it can't resize past window
@@ -161,9 +152,7 @@ window.BottomMenu = (function($, BottomMenu) {
                 } else {
                     $menuPanel.addClass("small");
                 }
-                if (udfEditorVisible) {
-                    editor.refresh();
-                }
+                refreshEditor();
             },
             "resize": function(event, ui) {
                 if (ui.size.width > smallWidth) {
@@ -175,9 +164,7 @@ window.BottomMenu = (function($, BottomMenu) {
                     menuIsSmall = true;
                     $menuPanel.addClass("small");
                 }
-                if (udfEditorVisible) {
-                    editor.refresh();
-                }
+                refreshEditor();
 
                 if (!poppedOut) {
                     return;
@@ -312,9 +299,7 @@ window.BottomMenu = (function($, BottomMenu) {
             $("#helpButtonWrap").addClass("xc-hidden");
         }
 
-        if (sectionId === "udfSection") {
-            UDF.getEditor().refresh();
-        }
+        refreshEditor();
 
         OperationsView.close();
         JoinView.close();
@@ -377,6 +362,7 @@ window.BottomMenu = (function($, BottomMenu) {
         xcTooltip.hideAll();
         $("#container").removeClass("bottomMenuOut");
         isPoppedOut = false;
+        refreshEditor();
 
         // will move table titles if menu was popped out
         if (adjustTables && $("#workspacePanel").hasClass("active")) {
@@ -391,6 +377,18 @@ window.BottomMenu = (function($, BottomMenu) {
             }
         }
         menuAnimCheckers = [];
+    }
+
+    function refreshEditor() {
+        if ($("#udfSection").hasClass("active") &&
+            !$("#udf-fnSection").hasClass("xc-hidden"))
+        {
+            UDF.getEditor().refresh();
+        }
+
+        if ($("#sqlSection").hasClass("active")) {
+            SQLEditor.getEditor().refresh();
+        }
     }
 
     return (BottomMenu);

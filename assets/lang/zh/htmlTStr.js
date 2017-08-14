@@ -161,6 +161,9 @@ module.exports = {
         "Udf": "UDF",
         "Udfs": "UDFs"
     },
+     "SQL": {
+        "EXECUTE": "运行SQL"
+    },
     "about": {
         "BuildNumber": "版本号码",
         "IDLVersion": "IDL 版本",

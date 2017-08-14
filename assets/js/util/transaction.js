@@ -107,7 +107,7 @@ window.Transaction = (function(Transaction, $) {
 
         transactionCleaner();
         if (Transaction.isSimulate(txId)) {
-            console.log("simuldate", txLog.getCli());
+            // console.log("simuldate", txLog.getCli());
             return txLog.getCli();
         } else {
             return null;

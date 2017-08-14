@@ -1108,6 +1108,36 @@ ul.CodeMirror-hints {
 
 /* ========== End Of UDF Section========== */
 
+/* ========== SQL Section========== */
+
+
+/* ========== End of SQL Section========== */
+#sqlSection {
+    .menuContent {
+        .editSection {
+            .size(@width: 100%, @height: ~"calc(100% - 60px)");
+            .position(relative);
+            overflow: hidden;
+
+            .editArea {
+                .size(@width: 100%, @height: 100%);
+                .position(relative);
+
+                .CodeMirror {
+                    .size(@height: 100%);
+                }
+            }
+        }
+
+        .bottomSection {
+            .size(@height: 60px);
+
+            .btn {
+                .center-align;
+            }
+        }
+    }
+}
 /* ========== Help Section========== */
 #helpSection {
     .border {
