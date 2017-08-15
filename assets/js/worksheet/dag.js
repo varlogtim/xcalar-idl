@@ -112,8 +112,7 @@ window.Dag = (function($, Dag) {
 
             var $dagWrap = $('#dagWrap-' + tableId);
 
-            DagDraw.createDagImage(dagObj.node, $dagWrap, {savable: true,
-                                                       tableId: tableId});
+            DagDraw.createDagImage(dagObj.node, $dagWrap, {tableId: tableId});
 
             Dag.focusDagForActiveTable(tableId);
 
@@ -160,6 +159,7 @@ window.Dag = (function($, Dag) {
     Dag.renameAllOccurrences = function(oldTableName, newTableName) {
         var $dagPanel = $('#dagPanel');
 
+        // rename dagWrap header
         $dagPanel.find('.tableName').filter(function() {
             return ($(this).text() === oldTableName);
         }).text(newTableName);
@@ -170,6 +170,14 @@ window.Dag = (function($, Dag) {
         $dagTableTitles.text(newTableName);
         xcTooltip.changeText($dagTableTitles, newTableName);
         $dagTableTitles.parent().data('tablename', newTableName);
+
+        var nodeId = $dagTableTitles.parent().data("index");
+        $dagTableTitles.each(function() {
+            var $dagWrap = $(this).closest(".dagWrap");
+            var nodeIdMap = $dagWrap.data("allDagInfo").nodeIdMap;
+            nodeIdMap[nodeId].value.name = newTableName;
+        });
+
         var $dagOpText = $dagPanel.find(".opInfoText").filter(function() {
             return ($(this).text().indexOf(oldTableName) > -1);
         });
@@ -261,6 +269,54 @@ window.Dag = (function($, Dag) {
         }
     };
 
+    // expands or collapses a tagged group
+    Dag.toggleTaggedGroup = function($dagWrap, $dagOperation) {
+        var expand = $dagOperation.hasClass("collapsed");
+        var tag = $dagOperation.data("tag");
+        var tagId = xcHelper.getTableId(tag);
+        var allDagInfo = $dagWrap.data("allDagInfo");
+        var nodeIdMap = allDagInfo.nodeIdMap;
+        var tagGroups = allDagInfo.tagGroups;
+        var group = tagGroups[tagId].group;
+
+        if (expand) {
+            $dagOperation.removeClass("collapsed").addClass("expanded");
+        } else {
+            $dagOperation.addClass("collapsed").removeClass("expanded");
+        }
+
+        var dagNodeId = $dagOperation.data("id");
+        nodeIdMap[dagNodeId].value.display.tagCollapsed = !expand;
+
+        for (var i = 0; i < group.length; i++) {
+            var nodeId = group[i];
+            var $dagTable = $dagWrap.find('.dagTable[data-index="' + nodeId +
+                                            '"]').parent();
+            if (expand) {
+                $dagTable.removeClass("tagHidden");
+            } else {
+                $dagTable.addClass("tagHidden");
+            }
+
+            nodeIdMap[nodeId].value.display.isHiddenTag = !expand;
+        }
+
+        var $imageWrap = $dagWrap.find(".dagImageWrap");
+        var prevScrollRight = $imageWrap[0].scrollWidth -
+                            $imageWrap.outerWidth() - $imageWrap.scrollLeft();
+
+        DagDraw.recreateDagImage($dagWrap, allDagInfo, nodeIdMap[dagNodeId]);
+
+
+        var scrollLeft = $imageWrap[0].scrollWidth - prevScrollRight -
+                         $imageWrap.outerWidth();
+        $imageWrap.scrollLeft(scrollLeft);
+
+        xcTooltip.hideAll();
+        $('.menu').hide();
+        xcMenu.removeKeyboardNavigation();
+    };
+
     Dag.expandAll = function($dagWrap) {
         var allDagInfo = $dagWrap.data('allDagInfo');
         var idMap = allDagInfo.nodeIdMap;
@@ -283,7 +339,7 @@ window.Dag = (function($, Dag) {
         // move the group outlines and icons
         for (var i in groups) {
             groups[i].collapsed = false;
-            var node = idMap[i];
+            node = idMap[i];
             depth = node.value.display.depth + 1;
             right = groups[i].group[0].value.display.x + 190;
             $expandWrap = $dagImage.find('.expandWrap[data-index="' + i + '"]');
@@ -673,8 +729,6 @@ window.Dag = (function($, Dag) {
             var groupInfo = $dagWrap.data('allDagInfo').groups[index];
             var group = groupInfo.group;
             var $groupOutline = $expandIcon.next();
-            var expandIconRight;
-            var newRight;
 
             if (!$expandIcon.hasClass('expanded')) {
                 var canExpand = checkCanExpand(group, depth, index, $dagWrap);
@@ -683,7 +737,7 @@ window.Dag = (function($, Dag) {
                     xcTooltip.hideAll();
                     StatusBox.show(ErrTStr.DFNoExpand, $expandIcon, false, {
                         type: "info"
-                    }) ;
+                    });
                 } else {
                     $expandIcon.addClass('expanded');
                     $groupOutline.addClass('expanded');
@@ -729,6 +783,10 @@ window.Dag = (function($, Dag) {
             groupOutlineTimeout = setTimeout(function() {
                 $groupOutline.hide();
             }, 300);
+        });
+
+        $dagWrap.on("click", ".tagHeader", function() {
+            Dag.toggleTaggedGroup($dagWrap, $(this));
         });
 
         dagScrollListeners($dagWrap.find('.dagImageWrap'));
@@ -985,7 +1043,7 @@ window.Dag = (function($, Dag) {
         var collapse = false;
         var all = false;
         DagDraw.updateCanvasAfterWidthChange($dagWrap, tree, newWidth, collapse,
-                                            all);
+                                             all);
 
         var discoverTimeout;
         var glowTimeout = setTimeout(function() {
@@ -1120,7 +1178,6 @@ window.Dag = (function($, Dag) {
         for (var i = 0; i < group.length; i++) {
             groupCopy.push(group[i]);
         }
-
         collapseGroupHelper(groupCopy, group[numGroupNodes - 1], $dagWrap,
                           horzShift, storedInfo);
 
@@ -1471,7 +1528,7 @@ window.Dag = (function($, Dag) {
                     var srcNames;
                     var backColName = cols[j].getBackColName() ||
                                       cols[j].getFrontColName();
-                    //XX backColName could be blank
+                    // XXX backColName could be blank
 
                     // check if table has column of the same name
                     if (!foundSameColName && backColName === curColName) {

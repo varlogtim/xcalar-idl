@@ -2717,6 +2717,9 @@
                     var droppedTables = [];
                     var finalTable = self.getOutputTableName();
                     for (var i = subQueries.length - 1; i >= 0; i--) {
+                        if (!subQueries[i].dstTable) {
+                            continue;
+                        }
                         if (subQueries[i].name.indexOf("drop") !== 0) {
                             tables.push(subQueries[i].dstTable);
                         } else {

@@ -33,14 +33,20 @@ window.DagDraw = (function($, DagDraw) {
         var nodeIdMap = {};
         var yCoors = [0]; // stores list of depths of branch nodes
         // [0, 3, 5] corresponds to these coordinates: {0, 0}, {1, 3}, {2, 5}
-        try {
-            var lineageStruct = DagFunction.construct(nodes, options.tableId);
-            tree = lineageStruct.tree;
-            nodeIdMap = lineageStruct.nodeIdMap;
-        } catch (err) {
-            console.error(err);
-            hasError = true;
+        if (options.refresh) {
+            tree = nodes.tree;
+            nodeIdMap = nodes.nodeIdMap;
+        } else {
+            try {
+                var lineageStruct = DagFunction.construct(nodes, options.tableId);
+                tree = lineageStruct.tree;
+                nodeIdMap = lineageStruct.nodeIdMap;
+            } catch (err) {
+                console.error(err);
+                hasError = true;
+            }
         }
+
         var initialY = 0.2;
         var storedInfo = {
             x: 0,
@@ -48,8 +54,9 @@ window.DagDraw = (function($, DagDraw) {
             height: initialY,
             width: 0,
             heightsDrawn: {0.2: true},
-            condensedWidth: 0,
+            condensedDepth: 0,
             groups: {},
+            tagGroups: {},
             datasets: {},
             drawn: {}
         };
@@ -61,10 +68,11 @@ window.DagDraw = (function($, DagDraw) {
             var dagOptions = {condensed: dagDepth > condenseLimit};
             var isChildHidden = false; // is parent node in a collapsed state
             var group = [];
+            var tagGroup = [];
 
             try {
                 setNodePositions(tree, storedInfo, depth, condensedDepth,
-                                isChildHidden, group, initialY, null,
+                                isChildHidden, group, tagGroup, initialY,
                                 dagOptions);
                 if (!storedInfo.heightsDrawn[storedInfo.height]) {
                     storedInfo.height--;
@@ -76,7 +84,7 @@ window.DagDraw = (function($, DagDraw) {
                 condenseHeight(tree, {}, yCoors, 0);
                 // get new dagDepth after repositioning
                 dagDepth = getDagDepth(tree);
-                dagImageHtml += drawDagNode(tree, storedInfo, dagOptions, {});
+                dagImageHtml += drawDagNode(tree, storedInfo, {});
             } catch (err) {
                 console.error(err);
                 hasError = true;
@@ -84,7 +92,8 @@ window.DagDraw = (function($, DagDraw) {
         }
 
         var height = yCoors.length * dagTableOuterHeight + 30;
-        var width = storedInfo.condensedWidth * Dag.tableWidth - 150;
+        // var height = (storedInfo.height + 1) * dagTableOuterHeight + 30;
+        var width = storedInfo.condensedDepth * Dag.tableWidth - 150;
 
         if (hasError) {
             dagImageHtml = '<div class="errorMsg">' + DFTStr.DFDrawError +
@@ -101,6 +110,10 @@ window.DagDraw = (function($, DagDraw) {
                         'px;">' + dagImageHtml + '</div></div>';
         }
 
+        if (options.refresh) {
+            $container.find(".dagImageWrap").remove();
+        }
+
         $container.append(dagImageHtml);
         if ($container.find(".unexpectedNode").length) {
             $container.addClass("hasUnexpectedNode");
@@ -108,7 +121,7 @@ window.DagDraw = (function($, DagDraw) {
 
         if (!$container.hasClass('error')) {
             var numNodes = Object.keys(nodeIdMap).length;
-            drawAllLines($container, tree, numNodes, width, options);
+            drawAllLines($container, tree, numNodes, width);
         }
 
         var allDagInfo = {
@@ -116,10 +129,88 @@ window.DagDraw = (function($, DagDraw) {
             nodeIdMap: nodeIdMap,
             depth: dagDepth,
             groups: storedInfo.groups,
+            tagGroups: storedInfo.tagGroups,
             condensedWidth: width,
             datasets: storedInfo.datasets
         };
         $container.data('allDagInfo', allDagInfo);
+    };
+
+    // used for expanding / collapsing tagged group with "node" as header
+    DagDraw.recreateDagImage = function($dagWrap, dagInfo, node) {
+        var tree = dagInfo.tree;
+        var initialY = 0.2;
+        var yCoors = [0]; // stores list of depths of branch nodes
+        var storedInfo = {
+            x: 0,
+            y: 0,
+            height: initialY,
+            depth: 0,
+            heightsDrawn: {0.2: true},
+            condensedDepth: 0,
+            drawn: {},
+            datasets: {}
+        };
+
+        var isChildHidden = false;
+        resetNodePositions(tree, storedInfo, 0, 0, 0,
+                                isChildHidden, initialY);
+        if (!storedInfo.heightsDrawn[storedInfo.height]) {
+            storedInfo.height--;
+        }
+
+        adjustNodePositions(tree, storedInfo);
+        condenseHeight(tree, {}, yCoors, 0);
+        dagDepth = getDagDepth(tree);
+        storedInfo.groups = dagInfo.groups;
+
+
+        var width = storedInfo.depth * Dag.tableWidth - 150;
+        var height = yCoors.length * dagTableOuterHeight + 30;
+        repositionAllNodes($dagWrap, dagInfo.nodeIdMap, storedInfo);
+        refreshNodeInfo($dagWrap, node);
+        // another option is to redrawDagNodee
+        // dagImageHtml += drawDagNode(tree, storedInfo, {});
+
+        $dagWrap.find(".dagImage").css({
+            height: height,
+            width: width
+        });
+        if ($dagWrap.find(".unexpectedNode").length) {
+            $dagWrap.addClass("hasUnexpectedNode");
+        }
+
+        $dagWrap.find(".canvas").remove();
+        var numNodes = Object.keys(dagInfo.nodeIdMap).length;
+        drawAllLines($dagWrap, tree, numNodes, width);
+
+        dagInfo.depth = dagDepth;
+        dagInfo.condensedWidth = storedInfo.condensedDepth * Dag.tableWidth -
+                                 150;
+    };
+
+    // used to replace dagImage with tagged version
+    DagDraw.refreshDagImage = function(tableId, tagName, tables) {
+        var $dagWrap = $("#dagWrap-" + tableId);
+        var dagInfo = $dagWrap.data("allDagInfo");
+        var nodeIdMap = dagInfo.nodeIdMap;
+        for (var i = 0; i < tables.length; i++) {
+            var $dagTable = $dagWrap.find(".dagTable[data-tablename='" +
+                                          tables[i] + "']");
+            if (!$dagTable.length) {
+                continue;
+            }
+            var id = $dagTable.data("index");
+            var node = nodeIdMap[id];
+            if (node.value.tag) {
+                node.value.tag += ",";
+            }
+            node.value.tag += tagName;
+        }
+        var options = {
+            refresh: true
+        };
+        DagDraw.createDagImage(dagInfo, $dagWrap, options);
     };
 
     DagDraw.createSavableCanvas = function($dagWrap) {
@@ -219,45 +310,6 @@ window.DagDraw = (function($, DagDraw) {
 
         ctx.stroke();
     };
-
-    function parseAggFromEvalStr(evalStr) {
-        var tables = [];
-        if (!evalStr) {
-            return tables;
-        }
-        var func = {args: []};
-        try {
-            ColManager.parseFuncString(evalStr, func);
-            tables = getAggNamesFromFunc(func);
-        } catch (err) {
-            console.error("could not parse eval str", evalStr);
-        }
-        return tables;
-    }
-
-    function getAggNamesFromFunc(func) {
-        var names = [];
-
-        getNames(func.args);
-
-        function getNames(args) {
-            for (var i = 0; i < args.length; i++) {
-                if (typeof args[i] === "string") {
-                    if (args[i][0] !== "\"" &&
-                        args[i][args.length - 1] !== "\"" &&
-                        names.indexOf(args[i]) === -1 &&
-                        args[i][0] === gAggVarPrefix &&
-                        args[i].length > 1) {
-                        names.push(args[i].slice(1));
-                    }
-                } else if (typeof args[i] === "object") {
-                    getNames(args[i].args);
-                }
-            }
-        }
-
-        return (names);
-    }
 
     function loadImage(img) {
         var deferred = jQuery.Deferred();
@@ -547,26 +599,6 @@ window.DagDraw = (function($, DagDraw) {
         return (names);
     }
 
-    function getRenamedColName(colName, node) {
-        if (node.value.struct.renameMap && node.value.struct.renameMap.length) {
-            var renameMap = node.value.struct.renameMap;
-            var parsedName = xcHelper.parsePrefixColName(colName);
-
-            for (var i = 0; i < renameMap.length; i++) {
-                if (renameMap[i].type === DfFieldTypeT.DfFatptr) {
-                    if (parsedName.prefix &&
-                        renameMap[i].newName === parsedName.prefix) {
-                        return xcHelper.getPrefixColName(renameMap[i].oldName,
-                                                         parsedName.name);
-                    }
-                } else if (renameMap[i].newName === colName) {
-                    return renameMap[i].oldName;
-                }
-            }
-        }
-        return colName;
-    }
-
     function getTags(node) {
         if (!node.value.tag) {
             return [];
@@ -626,36 +658,89 @@ window.DagDraw = (function($, DagDraw) {
             node.children[0].parents.length === 1);
     }
 
+    function saveTagGroup(currTag, tagGroup, storedInfo) {
+        var groupId = xcHelper.getTableId(currTag);
+        var groupCopy = [];
+        for (var i = 0; i < tagGroup.length; i++) {
+            groupCopy.push(tagGroup[i]);
+        }
+
+        storedInfo.tagGroups[groupId] = {
+            "collapsed": true,
+            "group": groupCopy
+        };
+    }
+
+    function saveCondensedGroup(node, group, storedInfo) {
+        // furthest to the right of all the hidden tables in its group
+        node.value.display.hiddenLeader = true;
+        node.value.display.x += (Dag.condenseOffset * Dag.tableWidth);
+        var groupId = node.children[0].value.dagNodeId;
+        var groupCopy = [];
+        var numHiddenTags = 0;
+        for (var i = 0; i < group.length; i++) {
+            groupCopy.push(group[i]);
+            if (group[i].value.display.isHiddenTag) {
+                numHiddenTags++;
+            }
+        }
+        storedInfo.groups[groupId] = {
+            "collapsed": true,
+            "group": groupCopy,
+            numHiddenTags: numHiddenTags
+        };
+        group.length = 0; // empty out group array
+    }
+
+    function setTagGroup(tagName, node, storedInfo) {
+        var group = [];
+        var seen = {};
+        addToGroup(node);
+
+        function addToGroup(node) {
+            for (var i = 0; i < node.parents.length; i++) {
+                var parentNode = node.parents[i];
+                var tags = getTags(parentNode);
+                if (!seen[parentNode.value.dagNodeId] &&
+                    tags.indexOf(tagName) > -1) {
+                    var isHiddenTag = checkIsNodeHiddenTag(tags, parentNode);
+                    parentNode.value.display.isHiddenTag = isHiddenTag;
+                    if (isHiddenTag) {
+                        group.push(parentNode.value.dagNodeId);
+                        seen[parentNode.value.dagNodeId] = true;
+                        parentNode.value.display.isInTagGroup = true;
+
+
+                        addToGroup(parentNode);
+                    }
+                }
+            }
+        }
+        if (group.length) {
+            node.value.display.tagHeader = true;
+            node.value.display.tagCollapsed = true;
+            saveTagGroup(tagName, group, storedInfo);
+        }
+    }
+
     // calculates position of nodes and if they're hidden
     function setNodePositions(node, storedInfo, depth, condensedDepth,
-                             isChildHidden, group, yCoor, currTag, options) {
+                             isChildHidden, group, tagGroup, yCoor, options) {
         var numParents = node.parents.length;
-        var numChildren = node.children.length;
-        var accumulatedDrawings = "";
         var newCondensedDepth = condensedDepth;
-        var isTagHeader = false;
         var tags = getTags(node);
         var tagHeader = checkIsTagHeader(tags, node.value.name);
         node.value.tags = tags;
         node.value.display.isChildHidden = isChildHidden;
 
         if (tagHeader) {
-            isTagHeader = true;
-            currTag = tagHeader;
-            node.value.display.tagHeader = true;
-        } else if (tags.indexOf(currTag) === -1) {
-            currTag = null;
-        }
-
-        if ((tags.indexOf(currTag) > -1) && !isTagHeader) {
-            node.value.display.isHiddenTag = checkIsNodeHiddenTag(tags, node);
-        } else {
-            node.value.display.isHiddenTag = false;
+            setTagGroup(tagHeader, node, storedInfo);
         }
 
         // do not hide if child is hidden
         if (options.condensed && nodeShouldBeCondensed(node)) {
             node.value.display.isHidden = true;
+            node.value.display.isCollapsible = true;
 
             // first node in a group of hidden nodes
             if (!isChildHidden) {
@@ -675,7 +760,7 @@ window.DagDraw = (function($, DagDraw) {
             storedInfo.heightsDrawn[yCoor] = true;
         }
 
-        storedInfo.condensedWidth = Math.max(storedInfo.condensedWidth,
+        storedInfo.condensedDepth = Math.max(storedInfo.condensedDepth,
                                              newCondensedDepth);
 
         // recursive call of setNodePosition on node's parents
@@ -686,8 +771,8 @@ window.DagDraw = (function($, DagDraw) {
                     storedInfo.height++;
                 }
                 setNodePositions(parentNode, storedInfo, newDepth,
-                               newCondensedDepth, node.value.display.isHidden,
-                               group, storedInfo.height, currTag, options);
+                               newCondensedDepth, node.value.display.isCollapsible,
+                               group, tagGroup, storedInfo.height, options);
             }
         }
 
@@ -703,27 +788,62 @@ window.DagDraw = (function($, DagDraw) {
         if (node.value.display.isHidden) {
             group.push(node); // push hidden node into group
             if (!isChildHidden) {
-                // furthest to the right of all the hidden tables in its group
-                node.value.display.hiddenLeader = true;
-                node.value.display.x += (Dag.condenseOffset * Dag.tableWidth);
-                var groupId = node.children[0].value.dagNodeId;
-                var groupCopy = [];
-                var numHiddenTags = 0;
-                for (var i = 0; i < group.length; i++) {
-                    groupCopy.push(group[i]);
-                    if (group[i].value.display.isHiddenTag) {
-                        numHiddenTags++;
-                    }
-                }
-                storedInfo.groups[groupId] = {
-                    "collapsed": true,
-                    "group": groupCopy,
-                    numHiddenTags: numHiddenTags
-                };
-                group.length = 0; // empty out group array
+                saveCondensedGroup(node, group, storedInfo);
             }
         }
     }
+
+    function resetNodePositions(node, storedInfo, expandedDepth, condensedDepth,
+                             currDepth, isChildHidden, yCoor) {
+        var numParents = node.parents.length;
+        storedInfo.drawn[node.value.dagNodeId] = true;
+        node.value.display.x = Math.round(currDepth * Dag.tableWidth);
+        node.value.display.y = Math.round(yCoor * dagTableOuterHeight);
+        node.value.display.depth = currDepth;
+        node.value.display.expandedDepth = expandedDepth;
+        node.value.display.condensedDepth = condensedDepth;
+
+        if (node.value.display.isHidden) {
+            if (!isChildHidden) {
+                node.value.display.x += (Dag.condenseOffset * Dag.tableWidth);
+                condensedDepth += Dag.condenseOffset;
+                currDepth += Dag.condenseOffset;
+            }
+        } else if (!node.value.display.isHiddenTag) {
+            if (node.value.display.isCollapsible) {
+                if (!isChildHidden) {
+                    condensedDepth += Dag.condenseOffset;
+                }
+            } else {
+                condensedDepth++;
+            }
+            currDepth++;
+        }//  if hiddenTag, do not increase depth
+
+        if (!node.value.display.isHiddenTag) {
+            expandedDepth++;
+            storedInfo.heightsDrawn[yCoor] = true;
+        }
+
+        storedInfo.condensedDepth = Math.max(storedInfo.condensedDepth,
+                                             condensedDepth);
+        storedInfo.depth = Math.max(storedInfo.depth, currDepth);
+
+        // recursive call of setNodePosition on node's parents
+        for (var i = 0; i < numParents; i++) {
+            var parentNode = node.parents[i];
+            if (!storedInfo.drawn[parentNode.value.dagNodeId]) {
+                if (i > 0 && storedInfo.heightsDrawn[storedInfo.height]) {
+                    storedInfo.height++;
+                }
+                resetNodePositions(parentNode, storedInfo, expandedDepth,
+                               condensedDepth, currDepth,
+                                node.value.display.isCollapsible,
+                                storedInfo.height);
+            }
+        }
+    }
+
 
     // XXX can optimize this function
     // adjust positions of nodes so that descendents will never be to the left
@@ -736,50 +856,83 @@ window.DagDraw = (function($, DagDraw) {
                 node.value.display.depth > parent.value.display.depth - 1) {
                 var diff = node.value.display.depth -
                            parent.value.display.depth;
+                var condDiff = node.value.display.condensedDepth -
+                                parent.value.display.condensedDepth;
                 var expandDiff = node.value.display.expandedDepth -
                                  parent.value.display.expandedDepth;
                 var seen = {};
                 adjustNodePositionsHelper(parent, diff + 1,
-                                          expandDiff + 1, storedInfo, seen);
+                                          expandDiff + 1, condDiff + 1,
+                                          storedInfo, seen);
             }
             adjustNodePositions(parent, storedInfo);
         }
     }
 
 
-    function adjustNodePositionsHelper(node, amount, expandAmount, storedInfo,
-                                       seen) {
+    function adjustNodePositionsHelper(node, amount, expandAmount, condAmount,
+                                        storedInfo, seen) {
         if (seen[node.value.dagNodeId]) {
             return;
         }
         seen[node.value.dagNodeId] = true;
-        node.value.display.condensedDepth += amount;
+        node.value.display.condensedDepth += condAmount;
         node.value.display.depth += amount;
         node.value.display.expandedDepth += expandAmount;
         node.value.display.x += (amount * Dag.tableWidth);
 
-        storedInfo.condensedWidth = Math.max(storedInfo.condensedWidth,
-                                             node.value.display.depth + 1);
+        storedInfo.condensedDepth = Math.max(storedInfo.condensedDepth,
+                                        node.value.display.condensedDepth + 1);
+        storedInfo.depth = Math.max(storedInfo.depth,
+                                    node.value.display.depth + 1);
 
+        // we calculate the amount of shifting needed for the depth,
+        // expandedDepth, and condensedDepth values
         for (var i = 0; i < node.parents.length; i++) {
             var parentNode = node.parents[i];
-            var amountDiff = parentNode.value.display.depth -
-                             node.value.display.depth;
-            var expandAmountDiff = parentNode.value.display.expandedDepth -
-                                    node.value.display.expandedDepth;
             var newAmount = amount;
             var newExpandAmount = expandAmount;
-            // decrease the amount we're shifting each table if there's extra
-            // space between 2 tables
-            if (amountDiff + amount > 1) {
-                newAmount = amount - (amountDiff + amount - 1);
+            var newCondAmount = condAmount;
+
+            if (parentNode.value.display.depth >= node.value.display.depth +
+                                                 newAmount) {
+                // no need to shift if parentnode already positioned enough
+                // to the left
+                newAmount = 0;
+            } else if (parentNode.value.display.depth + newAmount >
+                                            node.value.display.depth + 1) {
+                // decrease amount of shift if shift would result in extra
+                // space
+                newAmount = (node.value.display.depth + 1) -
+                            parentNode.value.display.depth;
             }
-            if (expandAmountDiff + expandAmount > 1) {
-                newExpandAmount = expandAmount - (expandAmountDiff + expandAmount - 1);
+
+            if (parentNode.value.display.condensedDepth >=
+                        node.value.display.condensedDepth + newCondAmount) {
+                newCondAmount = 0;
+            } else if (parentNode.value.display.condensedDepth +
+                    newCondAmount > node.value.display.condensedDepth + 1) {
+                newCondAmount = (node.value.display.condensedDepth + 1) -
+                                parentNode.value.display.condensedDepth;
             }
-            if (newAmount && newExpandAmount) {
-                adjustNodePositionsHelper(node.parents[i], newAmount, newExpandAmount,
-                                      storedInfo, seen);
+
+            if (parentNode.value.display.expandedDepth >=
+                node.value.display.expandedDepth + newExpandAmount) {
+                newExpandAmount = 0;
+            } else if (parentNode.value.display.expandedDepth +
+                    newExpandAmount > node.value.display.expandedDepth + 1) {
+                newExpandAmount = (node.value.display.expandedDepth + 1) -
+                                  parentNode.value.display.expandedDepth;
+            }
+
+            if (newAmount > 0.1 || newCondAmount > 0.1 ||
+                newExpandAmount > 0.1) {
+                newAmount = Math.max(0, newAmount);
+                newExpandAmount = Math.max(0, newExpandAmount);
+                newCondAmount = Math.max(0, newCondAmount);
+                adjustNodePositionsHelper(node.parents[i], newAmount,
+                                        newExpandAmount,
+                                      newCondAmount, storedInfo, seen);
             }
         }
     }
@@ -808,7 +961,8 @@ window.DagDraw = (function($, DagDraw) {
                     }
                     var depth = node.value.display.depth;
                     for (var j = 0; j < parentNode.children.length; j++) {
-                        if (parentNode.children[j].value.display.depth < depth){
+                        if (parentNode.children[j].value.display.depth < depth)
+                        {
                             depth = parentNode.children[j].value.display.depth;
                         }
                     }
@@ -819,13 +973,83 @@ window.DagDraw = (function($, DagDraw) {
         }
     }
 
-    function drawDagNode(node, storedInfo, options, drawn) {
+    function refreshNodeInfo($dagWrap, node) {
+        var $operation = $dagWrap.find('.actionType[data-id="' +
+                                            node.value.dagNodeId + '"]');
+        var key = DagFunction.getInputType(XcalarApisTStr[node.value.api]);
+        var info = getDagNodeInfo(node, key);
+        var operation = info.operation;
+
+        if (info.type === "sort") {
+            operation = "sort";
+        } else if (info.type === "createTable") {
+            operation = "Create Table";
+        }
+        var classes = "actionType dropdownBox tagHeader " + info.opType;
+        if (node.value.display.tagCollapsed) {
+            classes += " collapsed ";
+        } else {
+            classes += " expanded ";
+        }
+        $operation.attr("class", classes);
+        $operation.data("type", operation);
+        $operation.data("info", info.text);
+        $operation.data("column", info.column);
+        xcTooltip.changeText($operation, info.tooltip, true);
+        $operation.find(".dagIcon").attr("class", "dagIcon " + operation + " " +
+                                        info.type)
+                                .html(getIconHtml(info.opType, info));
+        $operation.find(".typeTitle").text(operation);
+        $operation.find(".opInfoText").text(info.opText);
+    }
+
+    function repositionAllNodes($dagWrap, nodeIdMap, storedInfo) {
+        $dagWrap.find(".dagTableWrap").each(function() {
+            var $tableWrap = $(this);
+            var nodeId = $tableWrap.find(".dagTable").data("index");
+            var node = nodeIdMap[nodeId];
+            $tableWrap.css({
+                            "right": node.value.display.x,
+                            "top": node.value.display.y
+                        });
+            if (node.value.display.isCollapsible &&
+                !node.value.display.isChildHidden) {
+                var groupId = node.children[0].value.dagNodeId;
+                var $expandIcon = $dagWrap.find('.expandWrap[data-index="' +
+                                                groupId + '"]');
+
+                var top = node.value.display.y;
+                var right;
+                var outlineOffset;
+
+                if (!node.value.display.isHidden) {
+                    var group = storedInfo.groups[groupId].group;
+                    right = group[0].value.display.x + 190;
+                    outlineOffset = (right + 15) - (group.length *
+                                                    Dag.tableWidth + 11);
+                } else {
+                    outlineOffset = right - Dag.groupOutlineOffset;
+                    right = node.value.display.x - (Dag.condenseOffset *
+                                                    Dag.tableWidth);
+                }
+                $expandIcon.css({
+                    top: top + 5,
+                    right: right
+                });
+                $expandIcon.next().css({
+                    top: top,
+                    right: outlineOffset
+                });
+            }
+        });
+    }
+
+    function drawDagNode(node, storedInfo, drawn) {
         var html = "";
         html += drawDagTable(node, node.value.display.isChildHidden, storedInfo,
-                                node.value.display.y, node.value.display.x,
-                                options);
+                                node.value.display.y, node.value.display.x);
         drawn[node.value.dagNodeId] = true;
-        if (node.value.display.isHidden && !node.value.display.isChildHidden) {
+        if (node.value.display.isCollapsible && !node.value.display.isChildHidden) {
             var groupId = node.children[0].value.dagNodeId;
             var group = storedInfo.groups[groupId];
             var numHidden = group.numHiddenTags;
@@ -833,21 +1057,21 @@ window.DagDraw = (function($, DagDraw) {
             var right = node.value.display.x - (Dag.condenseOffset * Dag.tableWidth);
             html += getCollapsedHtml(group, node.value.display.y, right,
                                         node.value.display.condensedDepth,
-                                         groupId, numHidden);
+                                         groupId, numHidden,
+                                         node.value.display.isHidden);
         }
 
         for (var i = 0; i < node.parents.length; i++) {
             var parent = node.parents[i];
             if (!drawn[parent.value.dagNodeId]) {
-                html += drawDagNode(parent, storedInfo, options, drawn);
+                html += drawDagNode(parent, storedInfo, drawn);
             }
         }
 
         return html;
     }
 
-    function drawDagTable(node, isChildHidden, storedInfo, top, right, options)
-    {
+    function drawDagTable(node, isChildHidden, storedInfo, top, right) {
         var key = DagFunction.getInputType(XcalarApisTStr[node.value.api]);
         var dagInfo = getDagNodeInfo(node, key);
         var tableName = node.value.name;
@@ -864,17 +1088,17 @@ window.DagDraw = (function($, DagDraw) {
         var extraTitle = "";
         var tooltipTxt = "";
 
-        if (options.condensed && node.value.display.isHidden) {
+        if (node.value.display.isHidden) {
             outerClasses += "hidden ";
         }
         if (node.value.display.isHiddenTag) {
-            outerClasses += "tagHidden ";
+            outerClasses += "tagHidden tagged ";
         }
 
         var dagOpHtml = getDagOperationHtml(node, dagInfo);
         html += '<div class="dagTableWrap clearfix ' + outerClasses + '" ' +
                         'style="top:' + top + 'px;' +
-                        'right: ' + right + 'px;">'+
+                        'right: ' + right + 'px;">' +
                         dagOpHtml;
 
         if (dagInfo.state === DgDagStateTStr[DgDagStateT.DgDagStateDropped]) {
@@ -888,7 +1112,7 @@ window.DagDraw = (function($, DagDraw) {
         // check for datastes
         if (dagOpHtml === "") {
             var pattern = "";
-            var tId = dagInfo.id;
+            var tId = node.value.dagNodeId;
             var originalTableName = tableName;
             var dsText = "";
             if (tableName.indexOf(gDSPrefix) === 0) {
@@ -949,7 +1173,7 @@ window.DagDraw = (function($, DagDraw) {
         html += '<div class="dagTable ' + tableClasses + '" ' +
                     'data-tablename="' + tableName + '" ' +
                     'data-index="' + node.value.dagNodeId + '" ' +
-                    'data-nodeid="' + dagInfo.id + '" ' +
+                    'data-nodeid="' + node.value.dagNodeId + '" ' +
                     dataAttrs + '>' +
                         '<div class="' + iconClasses + '" ' +
                         'data-toggle="tooltip" ' +
@@ -958,13 +1182,13 @@ window.DagDraw = (function($, DagDraw) {
                         'title="' + tooltipTxt + '"' +
                         '></div>' +
                         extraIcon +
-                        '<i class="icon ' + icon + '"></i>'+
+                        '<i class="icon ' + icon + '"></i>' +
                         '<span class="tableTitle ' + titleClasses + '" ' +
                             'data-toggle="tooltip" ' +
                             'data-placement="bottom" ' +
                             'data-container="body" ' +
                             'data-original-title="' + tableTitleTip + '">' +
-                            tableTitle+
+                            tableTitle +
                         '</span>' +
                         extraTitle +
                     '</div>';
@@ -980,9 +1204,10 @@ window.DagDraw = (function($, DagDraw) {
             return originHTML;
         }
 
-        var key = info.tag;
         var opText = info.opText;
         var operation = info.operation;
+        var classes = "";
+        var dataAttr = "";
 
         var resultTableName = node.value.name;
         if (info.type === "sort") {
@@ -990,19 +1215,31 @@ window.DagDraw = (function($, DagDraw) {
         } else if (info.type === "createTable") {
             operation = "Create Table";
         }
+        if (node.value.display.tagHeader) {
+            classes += " tagHeader ";
+            if (node.value.display.tagCollapsed) {
+                classes += " collapsed ";
+            } else {
+                classes += " expanded ";
+            }
+            dataAttr += " data-tag='" + node.value.tags[0] + "' ";
+        }
 
-        originHTML += '<div class="actionType dropdownBox ' + operation + '" ' +
+        classes += " " + info.opType + " ";
+
+        originHTML += '<div class="actionType dropdownBox ' + classes + '" ' +
+                    dataAttr +
                     'data-type="' + operation + '" ' +
                     'data-info="' + info.text + '" ' +
                     'data-column="' + info.column + '" ' +
                     'data-table="' + resultTableName + '"' +
-                    'data-id="' + info.id + '" ' +
+                    'data-id="' + node.value.dagNodeId + '" ' +
                     'data-toggle="tooltip" data-placement="top" ' +
                     'data-container="body" title="' + info.tooltip + '">' +
                         '<div class="actionTypeWrap" >' +
                             '<div class="dagIcon ' + operation + ' ' +
                                 info.type + '">' +
-                                getIconHtml(operation, info) +
+                                getIconHtml(info.opType, info) +
                             '</div>' +
                             '<span class="typeTitle">' + operation + '</span>' +
                             '<span class="opInfoText">' + opText + '</span>' +
@@ -1012,15 +1249,23 @@ window.DagDraw = (function($, DagDraw) {
         return (originHTML);
     }
 
-    function getCollapsedHtml(group, top, right, depth, groupId, numHidden) {
+    function getCollapsedHtml(group, top, right, depth, groupId, numHidden,
+                             isHidden) {
         var html = "";
         var tooltip;
         var groupLength = group.length - numHidden;
         if (groupLength === 0) {
             return "";
         }
+        var outlineOffset = right - Dag.groupOutlineOffset;
+        var classes = "";
 
-        if (groupLength === 1) {
+        if (!isHidden) {
+            tooltip = TooltipTStr.ClickCollapse;
+            right = group[0].value.display.x + 190;
+            outlineOffset = (right + 15) - (group.length * Dag.tableWidth + 11);
+            classes += " expanded ";
+        } else if (groupLength === 1) {
             tooltip = TooltipTStr.CollapsedTable;
         } else {
             tooltip = xcHelper.replaceMsg(TooltipTStr.CollapsedTables,
@@ -1030,7 +1275,7 @@ window.DagDraw = (function($, DagDraw) {
         var groupWidth = groupLength * Dag.tableWidth + 11;
         // condensedId comes from the index of the child of rightmost
         // hidden table
-        html += '<div class="expandWrap horz" ' +
+        html += '<div class="expandWrap horz' + classes + '" ' +
                         'style="top:' + (top + 5) + 'px;right:' + right +
                         'px;" ' +
                         'data-depth="' + depth + '" ' +
@@ -1039,10 +1284,10 @@ window.DagDraw = (function($, DagDraw) {
                         'data-placement="top" ' +
                         'data-container="body" ' +
                         'data-size=' + groupLength + ' ' +
-                        'title="' + tooltip + '">...</div>';
-        html += '<div class="groupOutline" ' +
+                        'title="' + tooltip + '">...</div>' +
+                    '<div class="groupOutline" ' +
                         'style="top:' + top + 'px;right:' +
-                            (right - Dag.groupOutlineOffset) +
+                            outlineOffset +
                             'px;width:' + groupWidth + 'px;" ' +
                         'data-index="' + groupId + '"></div>';
 
@@ -1053,18 +1298,18 @@ window.DagDraw = (function($, DagDraw) {
         var type = info.type;
         var iconClass = "";
         switch (operation) {
-            case ("map"):
+            case (SQLOps.Map):
             case (SQLOps.SplitCol):
             case (SQLOps.ChangeType):
                 iconClass = "data-update";
                 break;
-            case ("filter"):
+            case (SQLOps.Filter):
                 iconClass = getFilterIconClass(type);
                 break;
-            case ("groupBy"):
+            case (SQLOps.GroupBy):
                 iconClass = "groupby";
                 break;
-            case ("aggregate"):
+            case (SQLOps.Aggr):
                 iconClass = "aggregate";
                 break;
             case ("Create Table"):
@@ -1073,13 +1318,13 @@ window.DagDraw = (function($, DagDraw) {
             case ("index"):
                 iconClass = "index";
                 break;
-            case ("join"):
+            case (SQLOps.Join):
                 iconClass = getJoinIconClass(type);
                 break;
-            case ("project"):
+            case (SQLOps.Project):
                 iconClass = "delete-column";
                 break;
-            case ("sort"):
+            case (SQLOps.Sort):
                 if (info.order === "ascending") {
                     iconClass = "arrowtail-up";
                 } else {
@@ -1087,7 +1332,10 @@ window.DagDraw = (function($, DagDraw) {
                 }
                 break;
             case ("export"):
-                iconClass="pull-all-field";
+                iconClass = "pull-all-field";
+                break;
+            case (SQLOps.Ext):
+                iconClass = "menu-extension";
                 break;
             default:
                 iconClass = "unknown";
@@ -1172,17 +1420,18 @@ window.DagDraw = (function($, DagDraw) {
             operation: "",
             tooltip: "",
             column: "",
-            id: node.value.dagNodeId,
             state: DgDagStateTStr[node.value.state],
             tag: node.value.tag
         };
         var parentNames = node.getSourceNames(true);
         var taggedInfo;
-        if (node.value.display.tagHeader && node.value.tags.length === 1) {
+        if (node.value.display.tagHeader && node.value.display.tagCollapsed &&
+            node.value.tags.length === 1) {
             taggedInfo = setTaggedOpInfo(info, value, node);
         } else {
             info.operation = DagFunction.getInputType(XcalarApisTStr[node.value.api]);
             info.operation = info.operation.slice(0, info.operation.length - 5);
+            info.opType = info.operation;
         }
 
         if (!taggedInfo) {
@@ -1242,7 +1491,7 @@ window.DagDraw = (function($, DagDraw) {
                         if (filterType === "regex") {
                             info.tooltip = "Filtered table &quot;" + parentNames[0] +
                                            "&quot; using regex: &quot;" +
-                                           filterValue + "&quot; " + "on " +
+                                           filterValue + "&quot; on " +
                                            filteredOn + ".";
                         } else if (filterType === "not") {
                             filteredOn = filteredOn.slice(filteredOn.indexOf("(") + 1);
@@ -1368,7 +1617,7 @@ window.DagDraw = (function($, DagDraw) {
                     info.opText = info.column;
                     break;
                 case ('mapInput'):
-                    //XX there is a "newFieldName" property that stores the name of
+                    // XXX there is a "newFieldName" property that stores the name of
                     // the new column. Currently, we are not using or displaying
                     // the name of this new column anywhere.
                     evalStr = value.evalStr;
@@ -1435,7 +1684,6 @@ window.DagDraw = (function($, DagDraw) {
         var taggedOp = getOpFromTag(node.value.tags[0]);
         var opFound = true;
         var evalStr;
-        var parenIndex;
         info.operation = taggedOp;
 
         switch (taggedOp) {
@@ -1473,8 +1721,6 @@ window.DagDraw = (function($, DagDraw) {
                 break;
             case (SQLOps.GroupBy):
                 var ancestors = getTaggedAncestors(node, true);
-                var key = DagFunction.getInputType(XcalarApisTStr[
-                                                XcalarApisT.XcalarApiGroupBy]);
                 var gbOnCols = {};
                 var aggs = [];
                 var tooltip = "";
@@ -1510,10 +1756,19 @@ window.DagDraw = (function($, DagDraw) {
                 info.tooltip = tooltip;
                 break;
             default:
-                opFound = false;
+                if (taggedOp.indexOf(SQLOps.Ext) === 0) {
+                    info.tooltip = taggedOp;
+                    info.text = taggedOp;
+                    info.opType = SQLOps.Ext;
+                } else {
+                    opFound = false;
+                }
                 break;
         }
 
+        if (!info.opType) {
+            info.opType = info.operation;
+        }
         if (opFound) {
             info.type = taggedOp;
             return info;
@@ -1635,8 +1890,7 @@ window.DagDraw = (function($, DagDraw) {
         return (canvasHTML[0]);
     }
 
-    // options: {savable: boolean}
-    function drawAllLines($container, node, numNodes, width, options) {
+    function drawAllLines($container, node, numNodes, width) {
         var $dagImage = $container.find('.dagImage');
         var canvas = createCanvas($container);
         var ctx = canvas.getContext('2d');
@@ -1646,17 +1900,15 @@ window.DagDraw = (function($, DagDraw) {
         traverseAndDrawLines($dagImage, ctx, node, width, {});
         ctx.stroke();
 
-        if (options.savable) {
-            // if more than 1000 nodes, do not make savable, too much lag
-            // also canvas limit is 32,767 pixels height  or width
-            var canvasWidth = $(canvas).width();
-            var canvasHeight = $(canvas).height();
+        // if more than 1000 nodes, do not make savable, too much lag
+        // also canvas limit is 32,767 pixels height  or width
+        var canvasWidth = $(canvas).width();
+        var canvasHeight = $(canvas).height();
 
-            if (numNodes > 1000 || canvasWidth > Dag.canvasLimit ||
-                canvasHeight > Dag.canvasLimit || (canvasWidth * canvasHeight) >
-                Dag.canvasAreaLimit) {
-                $dagImage.closest(".dagWrap").addClass('unsavable');
-            }
+        if (numNodes > 1000 || canvasWidth > Dag.canvasLimit ||
+            canvasHeight > Dag.canvasLimit || (canvasWidth * canvasHeight) >
+            Dag.canvasAreaLimit) {
+            $dagImage.closest(".dagWrap").addClass('unsavable');
         }
     }
 
@@ -1695,6 +1947,7 @@ window.DagDraw = (function($, DagDraw) {
         var upperParent = parents[0];
         var upperParentX = canvasWidth - upperParent.value.display.x;
         var upperParentY = upperParent.value.display.y + dagTableHeight / 2;
+        var curvedLineCoor;
 
         // line from table to operation
         drawLine(ctx, tableX, tableY, tableX - 50, tableY);
@@ -1704,7 +1957,7 @@ window.DagDraw = (function($, DagDraw) {
             drawLine(ctx, tableX - 108, tableY, upperParentX + smallTableWidth,
                      upperParentY);
         } else {
-            var curvedLineCoor = {
+            curvedLineCoor = {
                 x1: tableX - 140,
                 y1: tableY,
                 x2: upperParentX + (smallTableWidth / 2), // middle of blue table
@@ -1718,7 +1971,7 @@ window.DagDraw = (function($, DagDraw) {
             var lowerParentX = canvasWidth - lowerParent.value.display.x;
             var lowerParentY = lowerParent.value.display.y + dagTableHeight / 2;
 
-            var curvedLineCoor = {
+            curvedLineCoor = {
                 x1: tableX - 102,
                 y1: tableY,
                 x2: lowerParentX + smallTableWidth, // right of blue table
@@ -1742,7 +1995,6 @@ window.DagDraw = (function($, DagDraw) {
         if (node.value.display.tagHeader &&
             getOpFromTag(node.value.tags[0]) === SQLOps.GroupBy) {
 
-            var sameParents = true;
             for (var i = 1; i < parents.length; i++) {
                 if (parents[i].value.dagNodeId !== parents[0].value.dagNodeId) {
                     return true;
@@ -1759,7 +2011,7 @@ window.DagDraw = (function($, DagDraw) {
         var y1 = coor.y1; // upper table y
         var x2 = coor.x2; // child table x
         var y2 = coor.y2; // child table y
-        var bendX1, bendY2, bendX2, bendY2;
+        var bendX1, bendY1, bendX2, bendY2;
 
         if (inverted) {
             // curve style option

@@ -221,8 +221,7 @@ window.TblManager = (function($, TblManager) {
         options = options || {};
         var deferred  = jQuery.Deferred();
         var deferred1 = startBuildTable(tableId, tableToReplace, options);
-        // var deferred2 = createDag(tableId, tableToReplace, options);
-        var deferred2 = Dag.construct(tableId, tableToReplace, options);
+        var deferred2 = createDag(tableId, tableToReplace, options);
         var table = gTables[tableId];
 
         PromiseHelper.when(deferred1, deferred2)
@@ -1716,12 +1715,11 @@ window.TblManager = (function($, TblManager) {
         });
     }
 
-    // XXX not in use yet
     function createDag(tableId, tableToReplace, options) {
         var deferred = jQuery.Deferred();
         var promise;
         if (options.txId != null) {
-            promise = DagFunction.tagNodes(options.txId, tableId);
+            promise = DagFunction.tagNodes(options.txId);
         } else {
             promise = PromiseHelper.resolve();
         }

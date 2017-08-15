@@ -687,6 +687,21 @@ html.firefox, html.microsoft {
         margin-right: 36px;
         z-index: 1;
 
+        &.tagHeader {
+            cursor: pointer;
+            &.collapsed {
+                .actionTypeWrap {
+                    border: 1px solid @color-bg-select-blue;
+                }
+            }
+
+            &.expanded {
+                .actionTypeWrap {
+                    border: 1px solid @color-bg-pinkish-grey;
+                }
+            }
+        }
+
         span {
             .size(@width: ~"calc(100% - 20px)");
             display: block;
@@ -710,12 +725,6 @@ html.firefox, html.microsoft {
             font-size: 14px;
             line-height: 30px;
             text-align: center;
-        }
-
-        .duplicateColumn {
-            .icon {
-                .image("../../images/dagIcons/duplicate-column.png", 40%, 45%);
-            }
         }
 
         .filter {

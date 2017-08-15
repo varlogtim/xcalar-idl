@@ -2024,7 +2024,7 @@ describe("Dag Panel Test", function() {
             var joinId = $joinDagWrap.data("id");
             // join group
             expect(node.value.display.tagHeader).to.be.true;
-            expect(node.value.display.isHiddenTag).to.be.false;
+            expect(node.value.display.isHiddenTag).to.be.undefined;
             expect(node.value.tags.length).to.equal(1);
             expect(node.value.tags[0]).to.equal("join#" + joinId);
 
@@ -2043,8 +2043,8 @@ describe("Dag Panel Test", function() {
 
             node = oldNode.parents[0].parents[0];
             //  not part of group
-            expect(node.value.display.tagHeader).to.be.true;
-            expect(node.value.display.isHiddenTag).to.be.false;
+            expect(node.value.display.tagHeader).to.be.undefined;
+            expect(node.value.display.isHiddenTag).to.be.undefined;
             expect(node.value.tags.length).to.equal(1);
             expect(node.value.tags[0].indexOf("join#")).to.equal(-1);
         });

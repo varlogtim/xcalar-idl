@@ -376,6 +376,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         var table;
         var tableName;
         var notTableDependent = extMap[module]._configParams.notTableDependent;
+        var finalTableId;
 
         if (!notTableDependent) {
             worksheet = WSManager.getWSFromTable(tableId);
@@ -483,12 +484,22 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                     }
                 }
 
+                finalTableId = xcHelper.getTableId(finalTableName);
                 Transaction.done(txId, {
-                    "msgTable": xcHelper.getTableId(finalTableName),
+                    "msgTable": finalTableId,
                     "sql": sql,
                     "noNotification": options.noNotification,
                     "noSql": options.noSql
                 });
+
+                return DagFunction.tagNodes(txId, finalTableId);
+            })
+            .then(function(ret) {
+                if (ret && ret.tagName) {
+                    DagDraw.refreshDagImage(finalTableId, ret.tagName,
+                                            ret.tables);
+                }
+
                 deferred.resolve(runBeforeStartRet);
             })
             .fail(function(error) {

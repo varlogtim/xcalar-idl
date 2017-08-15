@@ -201,7 +201,7 @@ window.DagPanel = (function($, DagPanel) {
 
             if (lnk.length < 8) {
                 // was not able to make url because image is
-                //probably too large
+                // probably too large
                 saveImgError(canvas);
                 deferred.reject(ErrTStr.LargeImgText);
             } else {
@@ -503,7 +503,7 @@ window.DagPanel = (function($, DagPanel) {
             // if active table, hide "addTable" and show "focusTable"
             $('#activeTablesList').find('.tableInfo').each(function() {
                 var $li = $(this);
-                if ($li.data('id')=== tableId) {
+                if ($li.data('id') === tableId) {
                     $menu.find('.addTable, .revertTable').addClass('hidden');
                     $menu.find('.focusTable, .archiveTable')
                          .removeClass('hidden');
@@ -733,13 +733,13 @@ window.DagPanel = (function($, DagPanel) {
 
     function downloadImage(canvas, filename) {
         if (filename.split(".").pop().toLowerCase !== "png") {
-            filename = filename += ".png";
+            filename += ".png";
         }
-        /// create an "off-screen" anchor tag
+        // create an "off-screen" anchor tag
         var lnk = document.createElement('a');
         var e;
 
-        /// the key here is to set the download attribute of the a tag
+        // the key here is to set the download attribute of the a tag
         lnk.download = filename;
 
         canvas.toBlob(function(blob) {

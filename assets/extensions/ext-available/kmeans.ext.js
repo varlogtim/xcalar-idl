@@ -293,7 +293,7 @@ window.UExtKMeans = (function(UExtKMeans) {
 
             // Step 5: Cluster assignment
             var centroidTableSorted = ext.createTableName("sorted_centroids_" +
-                                      iteration. null, tmpTableTag);
+                                      iteration, null, tmpTableTag);
             var concatDelimTable = ext.createTableName("concat_" + iteration,
                                                         null, tmpTableTag);
             var concatDelimCol = "concat_" + iteration;

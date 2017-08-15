@@ -285,23 +285,38 @@ window.DagFunction = (function($, DagFunction) {
 
     // will always resolve
     // used after a transaction is complete and before constructing dag
-    DagFunction.tagNodes = function(txId, tableId) {
+    // finalTableId is optional
+    DagFunction.tagNodes = function(txId, finalTableId) {
+        return PromiseHelper.resolve(); // temporarily disabling tagging
         var deferred = jQuery.Deferred();
         var tables = QueryManager.getAllDstTables(txId, true);
+
         if (!tables.length) {
             return PromiseHelper.resolve();
         }
 
         var tagName = QueryManager.getQuery(txId).getName();
-        var tId = xcHelper.getTableId(tables[0]);
+        var tId;
+        if (finalTableId) {
+            tId = finalTableId;
+        } else {
+            tId = xcHelper.getTableId(tables[0]);
+        }
         if (tId) {
             tagName += "#" + tId;
         }
+        tagName = tagName.replace(/ /g, "");
         retagIndexedTables(txId, tagName)
         .then(function() {
             return XcalarTagDagNodes(tagName, tables);
         })
-        .always(deferred.resolve);
+        .then(function() {
+            deferred.resolve({
+                                tagName: tagName,
+                                tables: tables
+                             });
+        })
+        .fail(deferred.resolve);
 
         return deferred.promise();
     };
