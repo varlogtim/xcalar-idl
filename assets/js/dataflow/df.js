@@ -318,14 +318,17 @@ window.DF = (function($, DF) {
         var deferred = jQuery.Deferred();
         var dataflow = dataflows[dataflowName];
 
-        option = DFCard.getAdvancedExportOption(dataflowName, true);
+        if (!dataflow) {
+            return;
+        }
+        var option = DF.getAdvancedExportOption(dataflowName, true);
         var exportOptions = DF.getExportTarget(option.activeSession, dataflowName);
         dataflow.schedule.exportTarget = exportOptions.exportTarget;
         dataflow.schedule.exportLocation = exportOptions.exportLocation;
 
         var options = getOptions(dataflow.schedule);
         var timingInfo = getTimingInfo(dataflow.schedule);
-        var substitutions = getSubstitutions(dataflowName);
+        var substitutions = getSubstitutions(dataflowName, option.activeSession);
 
         XcalarUpdateSched(dataflowName, dataflowName,
             substitutions, options, timingInfo)
@@ -492,7 +495,7 @@ window.DF = (function($, DF) {
         options.exportLocation = null;
         if (activeSession) {
             options.exportLocation = "N/A";
-            options.exportTable = "XcalarForTable";
+            options.exportTarget = "XcalarForTable";
             return options;
         } else {
             var exportTarget = "Default";
@@ -509,6 +512,42 @@ window.DF = (function($, DF) {
                 }
             }
             return options;
+        }
+    };
+
+    DF.saveAdvancedExportOption = function(dataflowName, activeSessionOptions) {
+        var df = DF.getDataflow(dataflowName);
+        if (df) {
+            df.activeSession = activeSessionOptions.activeSession;
+            df.newTableName = activeSessionOptions.newTableName;
+            df.nameWithHash = df.newTableName + Authentication.getHashId();
+        }
+    }
+
+    DF.getAdvancedExportOption = function(dataflowName, withoutHashId) {
+        var df = DF.getDataflow(dataflowName);
+        var res = {
+            "activeSession": false,
+            "newTableName": ""
+        };
+        if (df) {
+            if (df.activeSession) {
+                res.activeSession = df.activeSession;
+                res.newTableName = withoutHashId? df.newTableName : df.nameWithHash;
+            }
+            return res;
+        } else {
+            return null;
+        }
+    };
+
+    DF.deleteActiveSessionOption = function(dataflowName) {
+        var df = DF.getDataflow(dataflowName);
+
+        if (df) {
+            delete df.activeSession;
+            delete df.newTableName;
+            delete df.nameWithHash;
         }
     };
     return (DF);

@@ -2382,11 +2382,12 @@
                     return;
                 }
                 if (paramInfo.paramType === XcalarApisT.XcalarApiExport) {
-                    var $elem = $tableNode.find(".tableTitle");
-                    var expName = xcHelper.stripCSVExt(paramInfo.paramValue[0]);
-                    $elem.text(expName);
-                    var text = xcHelper.convertToHtmlEntity(expName);
-                    xcTooltip.changeText($elem, text);
+                    if (this.activeSession) {
+                        updateExportName($tableNode, this.newTableName);
+                        return;
+                    } else {
+                        updateExportName($tableNode, paramInfo.paramValue[0]);
+                    }
                 } else if (paramInfo.paramType === XcalarApisT.XcalarApiFilter)
                 {
                     if (noParams) {
@@ -2398,6 +2399,14 @@
                     }
                 }
                 $tableNode.data("paramValue", paramInfo.paramValue);
+
+                function updateExportName($tableNode, exportName) {
+                    var $elem = $tableNode.find(".tableTitle");
+                    var expName = xcHelper.stripCSVExt(exportName);
+                    $elem.text(expName);
+                    var text = xcHelper.convertToHtmlEntity(expName);
+                    xcTooltip.changeText($elem, text);
+                }
             },
 
             getParameterizedNode: function(dagNodeId) {

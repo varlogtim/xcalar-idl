@@ -291,9 +291,6 @@ window.DFCard = (function($, DFCard) {
                     } else {
                         saveParam(currentDataflow);
                         closeRetTab();
-                        if ($target.closest(".advancedOpts").length === 0) {
-                            $dfCard.find(".advancedOpts.active").removeClass("active");
-                        }
                         $("#container").off("mousedown.retTab");
                     }
                 });
@@ -537,39 +534,6 @@ window.DFCard = (function($, DFCard) {
                 });
             }
         });
-
-        var optsSelector = ".advancedOpts > .text, .advancedOpts > .icon";
-        $dfCard.on("click", optsSelector, function() {
-            if (xdpMode === XcalarMode.Mod) {
-                return showLicenseTooltip(this);
-            }
-            if ($dfCard.hasClass("hasUnexpectedNode")) {
-                return showUnexpectedNodeTip(this);
-            }
-            $(this).closest(".advancedOpts").toggleClass("active");
-        });
-
-        $dfCard.on("keydown", ".advancedOpts input", function(event) {
-            if (event.which === keyCode.Enter) {
-                $(this).closest(".advancedOpts").removeClass("active");
-            }
-        });
-
-        $dfCard.on("input", ".advancedOpts input", function() {
-            var $name = $(this).closest(".dagWrap")
-                              .find(".dagTable.export .exportTableName");
-            $name.html($(this).val());
-            xcTooltip.changeText($name, $(this).val());
-        });
-
-        $dfCard.on("focus", ".advancedOpts input", function() {
-            $(this).closest(".advancedOpts").find('[data-option="import"]')
-                   .click();
-            var $name = $(this).closest(".dagWrap")
-                              .find(".dagTable.export .exportTableName");
-            $name.html($(this).val());
-            xcTooltip.changeText($name, $(this).val());
-        });
     }
 
     function deleteDataflow(dfName) {
@@ -650,33 +614,6 @@ window.DFCard = (function($, DFCard) {
                     '<i class="icon xi-close"></i>' +
                     '<div class="spin"></div>' +
                 '</button>' +
-                '<div class="advancedOpts ' + xdpMode + '">' +
-                    '<span class="text">' + DFTStr.AdvancedOpts + '</span>' +
-                    '<i class="icon fa-10 xi-arrow-down xc-action"></i>' +
-                    '<div class="optionBox radioButtonGroup">' +
-                        '<div class="radioButton active"' +
-                        ' data-option="default">' +
-                            '<div class="radio">' +
-                                '<i class="icon xi-radio-selected"></i>' +
-                                '<i class="icon xi-radio-empty"></i>' +
-                            '</div>' +
-                            '<div class="label">' +
-                                DFTStr.Default +
-                            '</div>' +
-                        '</div>' +
-                        '<div class="radioButton" data-option="import">' +
-                            '<div class="radio">' +
-                                '<i class="icon xi-radio-selected"></i>' +
-                                '<i class="icon xi-radio-empty"></i>' +
-                            '</div>' +
-                            '<div class="label">' +
-                                DFTStr.Import +
-                            '</div>' +
-                            '<input type="text" spellcheck="false"' +
-                            ' placeholder="' + DSTStr.TableName + '">' +
-                        '</div>' +
-                    '</div>' +
-                '</div>' +
             '</div>' +
         '</div>';
 
@@ -684,12 +621,6 @@ window.DFCard = (function($, DFCard) {
         var $dagWrap = getDagWrap(dataflowName);
         $dagWrap.remove();
         $dfCard.find('.cardMain').append(html);
-
-        if (XVM.getLicenseMode() === XcalarMode.Demo) {
-            xcHelper.disableMenuItem($dfCard
-                                 .find(".advancedOpts [data-option='default']"),
-                                          {"title": TooltipTStr.NotInDemoMode});
-        }
 
         var nodes = DF.getDataflow(dataflowName).retinaNodes;
         $dagWrap = getDagWrap(dataflowName);
@@ -709,23 +640,6 @@ window.DFCard = (function($, DFCard) {
         .fail(deferred.reject);
 
         Dag.addEventListeners($dagWrap);
-        xcHelper.optionButtonEvent($dfCard.find(".advancedOpts"),
-            function(selOption, $selRadioButton) {
-                var $dagNode = getDagWrap(dataflowName)
-                               .find(".dagTable.export");
-                $dagNode.attr("data-advancedopts", selOption);
-                if (selOption === "import") {
-                    $(".advancedOpts input").focus();
-                    $dagNode.removeClass("parameterizable");
-                } else {
-                    $dagNode.addClass("parameterizable");
-                    setTimeout(function() {
-                        $selRadioButton.closest(".advancedOpts")
-                                       .toggleClass("active");
-                    }, 200);
-                }
-            }
-        );
         if (XVM.getLicenseMode() === XcalarMode.Mod) {
             $dagWrap.find('.parameterizable:not(.export)')
                     .addClass('noDropdown');
@@ -1131,7 +1045,7 @@ window.DFCard = (function($, DFCard) {
         var targetName = exportInfo.meta.target.name;
         var targetType = exportInfo.meta.target.type;
         var fileName = parseFileName(exportInfo, paramsArray);
-        var advancedOpts = DFCard.getAdvancedExportOption(retName);
+        var advancedOpts = DF.getAdvancedExportOption(retName);
         if (advancedOpts == null) {
             // error case
             return PromiseHelper.reject();
@@ -1139,7 +1053,6 @@ window.DFCard = (function($, DFCard) {
 
         var $dagWrap = getDagWrap(retName);
         var txId;
-        $dagWrap.find(".advancedOpts").removeClass("active");
 
         var passedCheckBeforeRunDF = false;
         checkBeforeRunDF(advancedOpts.activeSession)
@@ -1529,37 +1442,6 @@ window.DFCard = (function($, DFCard) {
         return fileName;
     }
 
-    DFCard.getAdvancedExportOption = function(dataflowName, withoutHashId) {
-        var activeSession = false;
-        var newTableName = "";
-
-        var $dagWrap = getDagWrap(dataflowName);
-        var $advancedOpts = $dagWrap.find(".advancedOpts");
-        var $radioButton = $advancedOpts.find(".radioButton.active");
-
-        if ($radioButton.data("option") === "import") {
-            var $input = $radioButton.find("input");
-            activeSession = true;
-            newTableName = $input.val().trim();
-
-            var isValid = checkExistingTableName($input);
-            if (!isValid) {
-                return null;
-            }
-        }
-
-        if (newTableName) {
-            if (!withoutHashId) {
-                newTableName += Authentication.getHashId();
-            }
-        }
-
-        return {
-            "activeSession": activeSession,
-            "newTableName": newTableName
-        };
-    };
-
     function projectAfterRunDF(tableName, exportInfo, txId) {
         var deferred = jQuery.Deferred();
         var worksheet = WSManager.getActiveWS();
@@ -1606,16 +1488,6 @@ window.DFCard = (function($, DFCard) {
 
         progCols.push(ColManager.newDATACol());
         return progCols;
-    }
-
-    function checkExistingTableName($input) {
-        var isValid = xcHelper.tableNameInputChecker($input, {
-            "onErr": function() {
-                $input.closest(".advancedOpts").addClass("active");
-            },
-            side: "left"
-        });
-        return isValid;
     }
 
     // returns promise with boolean True if duplicate found
@@ -1827,18 +1699,6 @@ window.DFCard = (function($, DFCard) {
                 $dagWrap.removeClass("xc-hidden");
                 var width = $dagWrap.find('canvas').attr('width');
                 $dagWrap.find('.dagImageWrap').scrollLeft(width);
-                if (XVM.getLicenseMode() === XcalarMode.Demo &&
-                    dataflowName === currentDataflow) {
-                    var $name = $dagWrap.find(".dagTable.export " +
-                                             ".exportTableName");
-                    var exportName = xcHelper.getTableName($name.text());
-                    var $option = $dagWrap.find(".advancedOpts " +
-                                                "[data-option='import']");
-                    $option.click();
-                    $option.find("input").val(exportName);
-                    $name.text(exportName);
-                    xcTooltip.changeText($name, exportName);
-                }
             } else {
                 if ($dagWrap.hasClass("hasUnexpectedNode")) {
                     $dfCard.addClass("hasUnexpectedNode");

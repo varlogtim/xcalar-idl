@@ -2946,6 +2946,42 @@ html.microsoft {
                 }
             }
         }
+        .advancedOpts {
+            .size(@height: 100%);
+            .position(relative);
+            float: right;
+            margin-right: 3px;
+            z-index: @z-index-dfAdvancedOpts;
+
+            &.active {
+                .optionBox {
+                    display: block;
+                }
+            }
+
+            > .text {
+                cursor: pointer;
+                .font(@size: 12px);
+            }
+
+            > .icon {
+                cursor: pointer;
+                padding-left: 5px;
+                .font(@color: @color-font-greyish-brown);
+            }
+
+            .optionBox {
+                .size(@width: 100%, @height: 66px);
+                .flex-direction(column);
+                background-color: @color-bg-white-three;
+                padding: 10px;
+                z-index: 3;
+                input {
+                    margin-top: 3px;
+                    font-size: 12px;
+                }
+            }
+        }
     }
 
     .flexContainer {
@@ -3265,6 +3301,38 @@ html.microsoft {
             background-color: @color-bg-pinkish-grey2;
             float: left;
             display: inline-block;
+        }
+    }
+
+    &.export {
+        .advancedOpts {
+            display: block;
+        }
+        .editableTable, .advancedOpts {
+            width: 49%;
+            display: inline-block;
+        }
+        .editableTable {
+            min-height: 70px;
+        }
+        &.default {
+        }
+        &.import {
+            .parameterList {
+                pointer-events: none;
+                .xc-disabled;
+            }
+            .target {
+                display: none;
+            }
+            .defaultParam {
+                display: none;
+            }
+        }
+        .radioButton {
+            &.unavailable {
+                pointer-events: none;
+            }
         }
     }
 }

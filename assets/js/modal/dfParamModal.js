@@ -1,8 +1,8 @@
 window.DFParamModal = (function($, DFParamModal){
     var $dfParamModal; // $("#dfParamModal")
-
     var $paramLists;    // $("#dagModleParamList")
     var $editableRow;   // $dfParamModal.find(".editableRow")
+    var $advancedOpts;
     var type;   // dataStore, filter, or export
 
     var validParams = [];
@@ -10,6 +10,8 @@ window.DFParamModal = (function($, DFParamModal){
     var dropdownHelper;
     var filterFnMap = {}; // stores fnName: numArgs
     var defaultParam;
+    var $optsSelector;
+    var xdpMode;
 
     var paramListTrLen = 3;
     var trTemplate =
@@ -40,6 +42,9 @@ window.DFParamModal = (function($, DFParamModal){
         $dfParamModal = $("#dfParamModal");
         $paramLists = $("#dagModleParamList");
         $editableRow = $dfParamModal.find(".editableRow");
+        $advancedOpts = $dfParamModal.find(".advancedOpts");
+        $optsSelector = $dfParamModal.find("optsSelector");
+        xdpMode = XVM.getLicenseMode();
         modalHelper = new ModalHelper($dfParamModal, {
             resizeCallback: function() {
                 var tableW = $paramLists.closest(".tableContainer").width();
@@ -103,6 +108,35 @@ window.DFParamModal = (function($, DFParamModal){
             var $target = $(event.target);
             if ($target.closest('.dropDownList').length === 0) {
                 $dfParamModal.find('.list').hide();
+            }
+        });
+
+        $dfParamModal.on("click", ".advancedOpts .radioButton", function(event) {
+            if (xdpMode === XcalarMode.Mod) {
+                return showLicenseTooltip(this);
+            }
+            if ($('#dfViz').hasClass("hasUnexpectedNode")) {
+                return showUnexpectedNodeTip(this);
+            }
+            $(this).closest(".radioButtonGroup").find(".radioButton").removeClass("active");
+            $(this).closest(".radioButton").addClass("active");
+            var $input = $dfParamModal.find(".innerEditableRow.filename input");
+            if ($(this).closest(".radioButton").data("option") === "default") {
+                $dfParamModal.removeClass("import").addClass("default");
+                $dfParamModal.find(".innerEditableRow.filename .static").text("Export As:");
+                checkInputForParam($input);
+            } else {
+                $dfParamModal.removeClass("default").addClass("import");
+                $dfParamModal.find(".innerEditableRow.filename .static").text("Export As Table:");
+                var retName = $dfParamModal.data("df");
+                var df = DF.getDataflow(retName);
+                if (df && df.activeSession) {
+                    $($input).val(df.newTableName);
+                } else {
+                    $($input).val("");
+                }
+                $paramLists.empty();
+                fillUpRows();
             }
         });
     };
@@ -174,6 +208,16 @@ window.DFParamModal = (function($, DFParamModal){
                 .then(deferred.resolve)
                 .fail(deferred.reject);
             } else {
+                if (type === "export") {
+                    exportSetup();
+                    var retName = $dfParamModal.data("df");
+                    var df = DF.getDataflow(retName);
+                    if (df && df.activeSession) {
+                        $dfParamModal.find(".innerEditableRow.filename input").val(df.newTableName);
+                        $paramLists.empty();
+                        fillUpRows();
+                    }
+                }
                 dropdownHelper = null;
                 deferred.resolve();
             }
@@ -409,12 +453,59 @@ window.DFParamModal = (function($, DFParamModal){
         return deferred.promise();
     }
 
+    function exportSetup() {
+        var deferred = jQuery.Deferred();
+        var $list = $dfParamModal.find('.tdWrapper.dropDownList');
+
+        var dropdownHelper = new MenuHelper($list, {
+            "onSelect": function($li) {
+                var func = $li.text();
+                var $input = $list.find("input.editableParamDiv");
+
+                if (func === $.trim($input.val())) {
+                    return;
+                }
+
+                $input.val(func);
+                updateNumArgs(func);
+            },
+            "onOpen": function() {
+                var $lis = $list.find('li')
+                                .sort(sortHTML)
+                                .show();
+                $lis.prependTo($list.find('ul'));
+                $list.find('ul').width($list.width() - 1);
+
+                $list.find('.scrollArea.bottom').css('bottom', 1);
+                setTimeout(function() {
+                    $list.find('.scrollArea.bottom').css('bottom', 0);
+                });
+            },
+            "container": "#dfParamModal",
+            "bounds": "#dfParamModal .modalTopMain",
+            "bottomPadding": 2,
+            "exclude": '.draggableDiv, .defaultParam'
+        });
+        dropdownHelper.setupListeners();
+
+        $list.find("input").change(function() {
+            var func = $.trim($(this).val());
+            updateNumArgs(func);
+        });
+
+        $list.find('ul').html(getExportTargetList());
+        var $input = $list.find("input.editableParamDiv");
+        var func = $.trim($input.val());
+        updateNumArgs(func);
+    }
+
     // options:
     //      defaultPath: string, for export
     function setupInputText(paramValue, options) {
         var defaultText = ""; // The html corresponding to Current Query:
         var editableText = ""; // The html corresponding to Parameterized
                                 // Query:
+        var advancedOpts = "";
         options = options || {};
         if (type === "dataStore") {
             var encodePath = xcHelper.encodeDisplayURL(paramValue[0]);
@@ -435,7 +526,7 @@ window.DFParamModal = (function($, DFParamModal){
                                 '</div>' +
                             '</div>';
 
-            editableText += '<div class="innerEditableRow">' +
+            editableText += '<div class="innerEditableRow filename">' +
                                 '<div class="static">' +
                                     DFTStr.PointTo + ':' +
                                 '</div>' +
@@ -471,17 +562,40 @@ window.DFParamModal = (function($, DFParamModal){
                                     xcHelper.escapeHTMLSpecialChar(paramValue[1]) +
                                 '</div>' +
                             '</div>';
-            editableText += '<div class="innerEditableRow">' +
+            editableText +=
+                            '<div class="innerEditableRow filename">' +
                                 '<div class="static">' +
                                     DFTStr.ExportTo + ':' +
                                 '</div>' +
                                 getParameterInputHTML(0, "medium-small") +
                             '</div>' +
-                            '<div class="innerEditableRow">' +
+                            '<div class="innerEditableRow target">' +
                                 '<div class="static">' +
                                     'Target' + ':' +
                                 '</div>' +
-                                getParameterInputHTML(1, "medium-small") +
+                                getParameterInputHTML(1, "medium-small", {export: true}) +
+                            '</div>' +
+                            '</div>';
+            advancedOpts =  '<div class="optionBox radioButtonGroup">' +
+                                '<div class="radioButton"' +
+                                ' data-option="default">' +
+                                    '<div class="radio">' +
+                                        '<i class="icon xi-radio-selected"></i>' +
+                                        '<i class="icon xi-radio-empty"></i>' +
+                                    '</div>' +
+                                    '<div class="label">' +
+                                        DFTStr.Default +
+                                    '</div>' +
+                                '</div>' +
+                                '<div class="radioButton" data-option="import">' +
+                                    '<div class="radio">' +
+                                        '<i class="icon xi-radio-selected"></i>' +
+                                        '<i class="icon xi-radio-empty"></i>' +
+                                    '</div>' +
+                                    '<div class="label">' +
+                                        DFTStr.Import +
+                                    '</div>' +
+                                '</div>' +
                             '</div>';
         } else { // not a datastore but a table
             paramValue = paramValue[0];
@@ -540,6 +654,26 @@ window.DFParamModal = (function($, DFParamModal){
 
         $dfParamModal.find('.template').html(defaultText);
         $editableRow.html(editableText);
+        if (type === "export") {
+            $advancedOpts.html(advancedOpts);
+            $dfParamModal.addClass("export");
+            if (xdpMode === XcalarMode.Demo) {
+                xcHelper.disableMenuItem($dfParamModal.find(".advancedOpts [data-option='default']"),
+                    {"title": TooltipTStr.NotInDemoMode});
+                $dfParamModal.find(".advancedOpts [data-option='import']").click();
+            } else {
+                var retName = $dfParamModal.data("df");
+                var df = DF.getDataflow(retName);
+                if (df && df.activeSession) {
+                    $dfParamModal.find(".advancedOpts [data-option='import']").click();
+                } else {
+                    $dfParamModal.find(".advancedOpts [data-option='default']").click();
+                }
+            }
+        } else {
+            $dfParamModal.removeClass("export");
+            $advancedOpts.html("");
+        }
     }
 
     // returns true if exactly 1 open paren exists
@@ -751,6 +885,9 @@ window.DFParamModal = (function($, DFParamModal){
     }
 
     function checkInputForParam($input) {
+        if ($dfParamModal.hasClass("export") && $dfParamModal.hasClass("import")) {
+            return;
+        }
         var params = getParamsInInput($input);
         var param;
         var $paramNames = $paramLists.find(".paramName");
@@ -827,143 +964,173 @@ window.DFParamModal = (function($, DFParamModal){
         var $paramInputs = $dfParamModal.find('input.editableParamDiv');
         var isValid = true;
         var params;
-        // check for valid brackets or invalid characters
-        $paramInputs.each(function() {
-            isValid = checkValidBrackets($(this));
+        var dagNodeId = $dfParamModal.data("id");
+        var retName = $dfParamModal.data("df");
+        var radioButton = $dfParamModal.find(".radioButton.active");
+        if (radioButton.length == 1 && $(radioButton).data("option") === "import") {
+            storeExportToTableNode();
+        } else {
+            storeOtherNodes();
+        }
+        return deferred.promise();
+
+        function storeExportToTableNode() {
+            var activeSession = true;
+            var newTableName = $paramInputs.val().trim();
+            var isValid = checkExistingTableName($paramInputs);
             if (!isValid) {
-                StatusBox.show(ErrTStr.UnclosedParamBracket, $(this));
-                return false;
+                deferred.reject();
+                return;
+            } else {
+                var activeSessionOptions = {
+                    "activeSession": activeSession,
+                    "newTableName": newTableName
+                };
+                DF.saveAdvancedExportOption(retName, activeSessionOptions);
+                df = DF.getDataflow(retName);
+                df.updateParameterizedNode(dagNodeId, {"paramType": XcalarApisT.XcalarApiExport}, true);
+                closeDFParamModal();
+                deferred.resolve();
+                return;
             }
-            params = getParamsInInput($(this));
-            for (var i = 0; i < params.length; i++) {
-                isValid = xcHelper.checkNamePattern("param", "check",
-                                                    params[i]);
+        }
+        function storeOtherNodes() {
+            // check for valid brackets or invalid characters
+            $paramInputs.each(function() {
+                isValid = checkValidBrackets($(this));
                 if (!isValid) {
-                    StatusBox.show(ErrTStr.NoSpecialCharInParam, $(this));
-                    var paramIndex = $(this).val().indexOf(params[i]);
-                    this.setSelectionRange(paramIndex,
-                                           paramIndex + params[i].length);
+                    StatusBox.show(ErrTStr.UnclosedParamBracket, $(this));
                     return false;
                 }
-            }
-        });
-
-        if (!isValid) {
-            deferred.reject();
-            return deferred.promise();
-        }
-
-        // check for empty param values
-        $editableDivs.each(function() {
-            var $div = $(this);
-            if (!$div.hasClass("allowEmpty") && $.trim($div.val()) === "") {
-                isValid = false;
-                StatusBox.show(ErrTStr.NoEmptyMustRevert, $div);
-                return false;
-            }
-        });
-
-        if (!isValid) {
-            deferred.reject();
-            return deferred.promise();
-        }
-
-        params = [];
-        var $invalidTr;
-        $paramLists.find(".row:not(.unfilled)").each(function() {
-            var $row = $(this);
-            var name = $row.find(".paramName").text();
-            var val = $.trim($row.find(".paramVal").val());
-            var check = $row.find(".checkbox").hasClass("checked");
-
-            if ($row.hasClass("currParams")) {
-                if (val === "" && !check) {
-                    isValid = false;
-                    $invalidTr = $row;
-                    return false; // stop iteration
+                params = getParamsInInput($(this));
+                for (var i = 0; i < params.length; i++) {
+                    isValid = xcHelper.checkNamePattern("param", "check",
+                                                        params[i]);
+                    if (!isValid) {
+                        StatusBox.show(ErrTStr.NoSpecialCharInParam, $(this));
+                        var paramIndex = $(this).val().indexOf(params[i]);
+                        this.setSelectionRange(paramIndex,
+                                               paramIndex + params[i].length);
+                        return false;
+                    }
                 }
+            });
 
-                params.push({
-                    "name": name,
-                    "val": val
-                });
-            } else if ($row.hasClass("systemParams")) {
-                if (systemParams.hasOwnProperty(name)) {
+            if (!isValid) {
+                deferred.reject();
+                return;
+            }
+
+            // check for empty param values
+            $editableDivs.each(function() {
+                var $div = $(this);
+                if (!$div.hasClass("allowEmpty") && $.trim($div.val()) === "") {
+                    isValid = false;
+                    StatusBox.show(ErrTStr.NoEmptyMustRevert, $div);
+                    return false;
+                }
+            });
+
+            if (!isValid) {
+                deferred.reject();
+                return;
+            }
+
+            params = [];
+            var $invalidTr;
+            $paramLists.find(".row:not(.unfilled)").each(function() {
+                var $row = $(this);
+                var name = $row.find(".paramName").text();
+                var val = $.trim($row.find(".paramVal").val());
+                var check = $row.find(".checkbox").hasClass("checked");
+
+                if ($row.hasClass("currParams")) {
+                    if (val === "" && !check) {
+                        isValid = false;
+                        $invalidTr = $row;
+                        return false; // stop iteration
+                    }
+
                     params.push({
                         "name": name,
-                        "val": systemParams[name]
+                        "val": val
                     });
-                } else {
-                    isValid = false;
-                    $invalidTr = $row;
-                    return false; // stop iteration
+                } else if ($row.hasClass("systemParams")) {
+                    if (systemParams.hasOwnProperty(name)) {
+                        params.push({
+                            "name": name,
+                            "val": systemParams[name]
+                        });
+                    } else {
+                        isValid = false;
+                        $invalidTr = $row;
+                        return false; // stop iteration
+                    }
                 }
-            }
-        });
+            });
 
-        if (!isValid) {
-            var $paramVal = $invalidTr.find(".paramVal");
-            StatusBox.show(ErrTStr.NoEmptyOrCheck, $paramVal);
-            deferred.reject();
-            return deferred.promise();
+            if (!isValid) {
+                var $paramVal = $invalidTr.find(".paramVal");
+                StatusBox.show(ErrTStr.NoEmptyOrCheck, $paramVal);
+                deferred.reject();
+                return;
+            }
+
+            if (hasInvalidExportPath(params)) {
+                deferred.reject();
+                return;
+            }
+
+            if (hasInvalidExportTarget(params)) {
+                deferred.reject();
+                return;
+            }
+
+            var retName = $dfParamModal.data("df");
+            var df = DF.getDataflow(retName);
+            var paramInfo;
+            updateRetina()
+            .then(function(paramInformation) {
+                // store meta
+                paramInfo = paramInformation;
+                df.updateParameters(params);
+                DF.deleteActiveSessionOption(retName);
+                return PromiseHelper.alwaysResolve(df.updateParamMapInUsed());
+            })
+            .then(function() {
+                DFCard.updateRetinaTab(retName);
+                var noParams = params.length === 0;
+                if (!df.getParameterizedNode(dagNodeId)) {
+                    var val = genOrigQueryStruct();
+                    df.addParameterizedNode(dagNodeId, val, paramInfo, noParams);
+                } else {
+                    // Only updates view. Doesn't change any stored information
+                    df.updateParameterizedNode(dagNodeId, paramInfo, noParams);
+                }
+
+                if (DF.hasSchedule(retName)) {
+                    return DF.updateScheduleForDataflow(retName);
+                } else {
+                    return PromiseHelper.resolve();
+                }
+            })
+            .then(function() {
+                // show success message??
+                DF.commitAndBroadCast(retName);
+                var successMsg;
+                if (params.length) {
+                    successMsg = SuccessTStr.OperationParameterized;
+                } else {
+                    successMsg = SuccessTStr.ChangesSaved;
+                }
+                xcHelper.showSuccess(successMsg);
+                deferred.resolve();
+            })
+            .fail(function(error) {
+                updateRetinaErrorHandler(error);
+                deferred.reject();
+            });
         }
-
-        if (hasInvalidExportPath(params)) {
-            deferred.reject();
-            return deferred.promise();
-        }
-
-        if (hasInvalidExportTarget(params)) {
-            deferred.reject();
-            return deferred.promise();
-        }
-
-        var retName = $dfParamModal.data("df");
-        var df = DF.getDataflow(retName);
-        var dagNodeId = $dfParamModal.data("id");
-        var paramInfo;
-        updateRetina()
-        .then(function(paramInformation) {
-            // store meta
-            paramInfo = paramInformation;
-            df.updateParameters(params);
-            return PromiseHelper.alwaysResolve(df.updateParamMapInUsed());
-        })
-        .then(function() {
-            DFCard.updateRetinaTab(retName);
-            var noParams = params.length === 0;
-            if (!df.getParameterizedNode(dagNodeId)) {
-                var val = genOrigQueryStruct();
-                df.addParameterizedNode(dagNodeId, val, paramInfo, noParams);
-            } else {
-                // Only updates view. Doesn't change any stored information
-                df.updateParameterizedNode(dagNodeId, paramInfo, noParams);
-            }
-
-            if (DF.hasSchedule(retName)) {
-                return DF.updateScheduleForDataflow(retName);
-            } else {
-                return PromiseHelper.resolve();
-            }
-        })
-        .then(function() {
-            // show success message??
-            DF.commitAndBroadCast(retName);
-            var successMsg;
-            if (params.length) {
-                successMsg = SuccessTStr.OperationParameterized;
-            } else {
-                successMsg = SuccessTStr.ChangesSaved;
-            }
-            xcHelper.showSuccess(successMsg);
-            deferred.resolve();
-        })
-        .fail(function(error) {
-            updateRetinaErrorHandler(error);
-            deferred.reject();
-        });
-
-        return deferred.promise();
 
         function genOrigQueryStruct() {
 
@@ -1127,6 +1294,14 @@ window.DFParamModal = (function($, DFParamModal){
         }
     }
 
+    function checkExistingTableName($input) {
+        var isValid = xcHelper.tableNameInputChecker($input, {
+            "onErr": function() {},
+            side: "left"
+        });
+        return isValid;
+    }
+
     function updateRetinaErrorHandler(error) {
         if (error === ErrTStr.FilterTypeNoSupport) {
             // modal would still be open
@@ -1227,7 +1402,7 @@ window.DFParamModal = (function($, DFParamModal){
             divClass += " " + extraClass;
         }
         var td = '';
-        if (options.filter) {
+        if (options.filter || options.export) {
             td += '<div class="tdWrapper dropDownList boxed ' + extraClass + '">';
         } else {
             td += '<div class="tdWrapper boxed ' + extraClass + '">';
@@ -1241,7 +1416,7 @@ window.DFParamModal = (function($, DFParamModal){
                 'ondragover="DFParamModal.allowParamDrop(event)" ' +
                 'data-target="' + inputNum + '"></div></div>';
 
-        if (options.filter) {
+        if (options.filter || options.export) {
             td += '<div class="list">' +
                     '<ul><li>first item</li></ul>' +
                     '<div class="scrollArea top">' +
@@ -1252,7 +1427,6 @@ window.DFParamModal = (function($, DFParamModal){
                     '</div>' +
                   '</div>';
         }
-
         td += '<div title="' + CommonTxtTstr.DefaultVal + '" ' +
                 'class="defaultParam iconWrap xc-action" ' +
                 'data-toggle="tooltip" ' +
@@ -1261,6 +1435,21 @@ window.DFParamModal = (function($, DFParamModal){
                 '</div>' +
                 '</div>';
         return (td);
+    }
+
+    function getExportTargetList() {
+        var res = "";
+        var exportTargetObj = DSExport.getTargets();
+        if (exportTargetObj) {
+            var targets = exportTargetObj[0].targets;
+            for (var i = 0; i < targets.length; i++) {
+                var target = targets[i];
+                if (target) {
+                    res += "<li name=" + target.name + ">" + target.name + "</li>";
+                }
+            }
+        }
+        return res;
     }
 
     function populateSavedFields(dagNodeId, retName) {

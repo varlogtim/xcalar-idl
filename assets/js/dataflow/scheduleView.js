@@ -676,7 +676,7 @@ window.Scheduler = (function(Scheduler, $) {
                 return PromiseHelper.reject();
             }
 
-            exportOption = DFCard.getAdvancedExportOption(dataflowName, true);
+            exportOption = DF.getAdvancedExportOption(dataflowName, true);
             options = {
                 "startTime": startTime, // In milliseconds
                 "dateText": dateStr,       // String
@@ -698,7 +698,7 @@ window.Scheduler = (function(Scheduler, $) {
                 return PromiseHelper.reject();
             }
             currentTime = new Date().getTime();
-            exportOption = DFCard.getAdvancedExportOption(dataflowName, true);
+            exportOption = DF.getAdvancedExportOption(dataflowName, true);
             options = {
                 "startTime": currentTime,  // In milliseconds
                 "dateText": "", // String
