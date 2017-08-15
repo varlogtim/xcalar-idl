@@ -173,7 +173,7 @@ window.DagPanel = (function($, DagPanel) {
 
     DagPanel.saveImageAction = function($dagWrap, tableName) {
         var deferred = PromiseHelper.deferred();
-        Dag.createSavableCanvas($dagWrap, tableName)
+        DagDraw.createSavableCanvas($dagWrap, tableName)
         .then(function() {
             var success = false;
             var canvas = $dagWrap.find('canvas').eq(1)[0];
@@ -194,7 +194,7 @@ window.DagPanel = (function($, DagPanel) {
 
     DagPanel.newTabImageAction = function($dagWrap) {
         var deferred = PromiseHelper.deferred();
-        Dag.createSavableCanvas($dagWrap)
+        DagDraw.createSavableCanvas($dagWrap)
         .then(function() {
             var canvas = $dagWrap.find('canvas').eq(1)[0];
             var lnk = canvas.toDataURL("image/png");

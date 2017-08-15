@@ -693,7 +693,7 @@ window.DFCard = (function($, DFCard) {
 
         var nodes = DF.getDataflow(dataflowName).retinaNodes;
         $dagWrap = getDagWrap(dataflowName);
-        Dag.createDagImage(nodes, $dagWrap);
+        DagDraw.createDagImage(nodes, $dagWrap);
 
         if ($dagWrap.hasClass("hasUnexpectedNode")) {
             $dfCard.addClass("hasUnexpectedNode");

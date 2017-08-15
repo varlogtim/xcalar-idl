@@ -449,9 +449,9 @@ describe("Dag Panel Test", function() {
 
     describe("dagWrap action icons", function() {
         it("save image btn should work", function(done) {
-            var cachedFn = Dag.createSavableCanvas;
+            var cachedFn = DagDraw.createSavableCanvas;
             var cachedFnTriggered = false;
-            Dag.createSavableCanvas = function($el) {
+            DagDraw.createSavableCanvas = function($el) {
                 expect($el.length).to.equal(1);
                 cachedFnTriggered = true;
                 return PromiseHelper.reject();
@@ -460,15 +460,15 @@ describe("Dag Panel Test", function() {
             $dagPanel.find(".saveImageBtn").eq(0).click();
             setTimeout(function() {
                 expect(cachedFnTriggered).to.be.true;
-                Dag.createSavableCanvas = cachedFn;
+                DagDraw.createSavableCanvas = cachedFn;
                 done();
             }, 1);
         });
 
         it("new tab image btn should work", function(done) {
-            var cachedFn = Dag.createSavableCanvas;
+            var cachedFn = DagDraw.createSavableCanvas;
             var cachedFnTriggered = false;
-            Dag.createSavableCanvas = function($el) {
+            DagDraw.createSavableCanvas = function($el) {
                 expect($el.length).to.equal(1);
                 cachedFnTriggered = true;
                 return PromiseHelper.reject();
@@ -477,7 +477,7 @@ describe("Dag Panel Test", function() {
             $dagPanel.find(".newTabImageBtn").eq(0).click();
             setTimeout(function() {
                 expect(cachedFnTriggered).to.be.true;
-                Dag.createSavableCanvas = cachedFn;
+                DagDraw.createSavableCanvas = cachedFn;
                 done();
             }, 1);
 
@@ -760,9 +760,9 @@ describe("Dag Panel Test", function() {
 
         describe("right click actions", function() {
             it("save image li should work", function(done) {
-                var save = Dag.createSavableCanvas;
+                var save = DagDraw.createSavableCanvas;
                 var saveTriggered = false;
-                Dag.createSavableCanvas = function($dagWrap) {
+                DagDraw.createSavableCanvas = function($dagWrap) {
                     expect($dagWrap.length).to.equal(1);
                     saveTriggered = true;
                     return PromiseHelper.reject();
@@ -771,15 +771,15 @@ describe("Dag Panel Test", function() {
                 $menu.find(".saveImage").trigger(fakeEvent.mouseup);
                 setTimeout(function() {
                     expect(saveTriggered).to.be.true;
-                    Dag.createSavableCanvas = save;
+                    DagDraw.createSavableCanvas = save;
                     done();
                 }, 1);
             });
 
             it("new tab image li should work", function(done) {
-                var save = Dag.createSavableCanvas;
+                var save = DagDraw.createSavableCanvas;
                 var saveTriggered = false;
-                Dag.createSavableCanvas = function($dagWrap) {
+                DagDraw.createSavableCanvas = function($dagWrap) {
                     expect($dagWrap.length).to.equal(1);
                     saveTriggered = true;
                     return PromiseHelper.reject();
@@ -788,7 +788,7 @@ describe("Dag Panel Test", function() {
                 $menu.find(".newTabImage").trigger(fakeEvent.mouseup);
                 setTimeout(function() {
                     expect(saveTriggered).to.be.true;
-                    Dag.createSavableCanvas = save;
+                    DagDraw.createSavableCanvas = save;
                     done();
                 }, 1);
             });
@@ -1697,7 +1697,7 @@ describe("Dag Panel Test", function() {
         });
 
         it("getIconHtml", function() {
-            var fn = Dag.__testOnly__.getIconHtml;
+            var fn = DagDraw.__testOnly__.getIconHtml;
             var res = fn("filter", {type: "filtergt"});
             expect(res.indexOf("filter-greaterthan")).to.be.gt(-1);
 
@@ -1724,7 +1724,7 @@ describe("Dag Panel Test", function() {
         });
 
         it("getJoinIconClass", function() {
-            var fn = Dag.__testOnly__.getJoinIconClass;
+            var fn = DagDraw.__testOnly__.getJoinIconClass;
             var res = fn("fullOuter");
             expect(res).to.equal("join-outer");
 
@@ -1739,7 +1739,7 @@ describe("Dag Panel Test", function() {
         });
 
         it("getDagNodeInfo", function() {
-            var fn = Dag.__testOnly__.getDagNodeInfo;
+            var fn = DagDraw.__testOnly__.getDagNodeInfo;
             var node = {value:
                             {
                                 struct: {filterStr: "not(eq(col, 2))"},
@@ -2050,7 +2050,7 @@ describe("Dag Panel Test", function() {
         });
 
         it("getAllAncestors should work", function() {
-            var fn = Dag.__testOnly__.getTaggedAncestors;
+            var fn = DagDraw.__testOnly__.getTaggedAncestors;
             node = origNode;
             // join operation group
             var group = fn(node, true);
@@ -2061,7 +2061,7 @@ describe("Dag Panel Test", function() {
         });
 
         it("checkIsNodeHiddenTag() should work", function() {
-            var fn = Dag.__testOnly__.checkIsNodeHiddenTag;
+            var fn = DagDraw.__testOnly__.checkIsNodeHiddenTag;
             var child1 = {
                 value: {tag: "a"}
             };
