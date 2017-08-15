@@ -1063,7 +1063,7 @@ window.XIApi = (function(XIApi, $) {
         return [deferred1.promise(), deferred2.promise()];
     }
 
-    function checkIfNeedIndex(colToIndex, tableName, tableKey, txId) {
+    function checkIfNeedIndex(colToIndex, tableName, tableKey, order, txId) {
         var deferred = jQuery.Deferred();
         var shouldIndex = false;
         var tempTables = [];
@@ -1130,6 +1130,10 @@ window.XIApi = (function(XIApi, $) {
             } else {
                 // this is the unsorted table
                 if (colToIndex !== tableKey) {
+                    shouldIndex = true;
+                } else if (!XcalarOrderingTStr.hasOwnProperty(order) ||
+                          order === XcalarOrderingT.XcalarOrderingInvalid) {
+                    console.error("invalid ordering");
                     shouldIndex = true;
                 }
 
@@ -1282,7 +1286,7 @@ window.XIApi = (function(XIApi, $) {
 
         XIApi.checkOrder(tableName, txId)
         .then(function(order, keyName) {
-            return checkIfNeedIndex(colName, tableName, keyName, txId);
+            return checkIfNeedIndex(colName, tableName, keyName, order, txId);
         })
         .then(function(shouldIndex, unsortedTable, tempTables) {
             if (shouldIndex) {
