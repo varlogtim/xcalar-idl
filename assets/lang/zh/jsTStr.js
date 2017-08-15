@@ -583,7 +583,8 @@ MonitorTStr = {
 'NodeConfirmMsg': '您确定要打开集群吗？',
 'SwitchUserMsg': '您确定要以<username>登录Xcalar吗？',
 'RestartAlertMsg': '管理员重启了集群',
-'StopAlertMsg': '管理员停止了集群'
+'StopAlertMsg': '管理员停止了集群',
+'AdminAlert': '管理员提醒'
 };
 SchedTStr = {
 'DelSched': '永久删除调度器',

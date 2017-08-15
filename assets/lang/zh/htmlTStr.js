@@ -655,6 +655,9 @@ module.exports = {
         "showDataCol": "在新表创建时显示数据列",
         "enableCreateTable": "显示直接创建表选项",
         "Uptime": "运行时间",
+        "AdminAlert": "管理员提醒",
+        "AdminAlertInstruc": "以管理员身份向其他用户发送提醒消息",
+        "AlertMessageTitle": "提醒消息："
     },
     "opsView": {
         "AddAnotherColumn": "添加另一列",

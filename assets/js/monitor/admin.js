@@ -37,6 +37,7 @@ window.Admin = (function($, Admin) {
             refreshUserList(true);
             setupAdminStatusBar();
             MonitorLog.setup();
+            AdminAlertCard.setup();
         }
     };
 

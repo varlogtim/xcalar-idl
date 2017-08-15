@@ -437,7 +437,10 @@ module.exports = {
         "VIEWOUTPUT": "VIEW OUTPUT",
         "VirtualNode": "Virtual Node",
         "SupportTools": "Support Tools",
-        "XDB": "XDB"
+        "XDB": "XDB",
+        "AdminAlert": "Admin Alert",
+        "AdminAlertInstruc": "Send an alert to all other users as an administrator",
+        "AlertMessageTitle": "Alert Message:"
     },
 
     "supportTicket": {
