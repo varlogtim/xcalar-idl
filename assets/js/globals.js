@@ -32,8 +32,8 @@ var gMinTableWidth = 30;
   "USER": user infos like ds info and preference (XXX this should be XcalarApiKeyScopeUser, no support yet!)
   "WKBK": Workbook info (XXX this should be XcalarApiKeyScopeUser, no support yet!)
   "META": all meta data need for UI (XXX this should be XcalarApiKeyScopeSession, no support yet!)
-  "LOG" : SQL Log (this use append) (XXX this should be XcalarApiKeyScopeSession, no support yet!)
-  "Err" : SQL Error (this use append) (XXX this should be XcalarApiKeyScopeUser, no support yet!)
+  "LOG" : Log (this use append) (XXX this should be XcalarApiKeyScopeSession, no support yet!)
+  "Err" : Error log (this use append) (XXX this should be XcalarApiKeyScopeUser, no support yet!)
   "FLAG": special commitFlag to make sure UI have right to write (should be XcalarApiKeyScopeSession),
   "VER" : For KVVersion (XXX this should be XcalarApiKeyScopeUser, no support yet!)
   "GLOB": general global

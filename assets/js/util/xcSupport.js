@@ -313,7 +313,7 @@ window.XcSupport = (function(XcSupport, $) {
                 "lockScreen": true,
                 "noLogout": true
             });
-            SQL.backup();
+            Log.backup();
 
             checkConnectionTrigger(10, id);
         });
@@ -536,7 +536,7 @@ window.XcSupport = (function(XcSupport, $) {
     }
 
     function autoSave() {
-        if (SQL.hasUnCommitChange() ||
+        if (Log.hasUncommitChange() ||
             KVStore.hasUnCommitChange()) {
             return KVStore.commit();
         } else {

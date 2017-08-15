@@ -1,7 +1,7 @@
-describe("SQL Test", function() {
+describe("Log Test", function() {
     describe("Basic Function Test", function() {
         it("isBackendOperation should work", function() {
-            var isBackendOperation = SQL.__testOnly__.isBackendOperation;
+            var isBackendOperation = Log.__testOnly__.isBackendOperation;
 
             var testCases = [{
                 "operation": SQLOps.DestroyDS,
@@ -17,15 +17,15 @@ describe("SQL Test", function() {
                         "operation": test.operation
                     }
                 };
-                var sql = new XcLog(args);
-                var res = isBackendOperation(sql);
+                var log = new XcLog(args);
+                var res = isBackendOperation(log);
                 expect(res).to.equal(test.expect);
             });
         });
 
         it("getUndoType should work", function() {
-            var getUndoType = SQL.__testOnly__.getUndoType;
-            var UndoType = SQL.__testOnly__.UndoType;
+            var getUndoType = Log.__testOnly__.getUndoType;
+            var UndoType = Log.__testOnly__.UndoType;
             var testCases = [{
                 "operation": null,
                 "expect": UndoType.Invalid
@@ -43,14 +43,14 @@ describe("SQL Test", function() {
                         "operation": test.operation
                     }
                 };
-                var sql = new XcLog(args);
-                var res = getUndoType(sql);
+                var xcLog = new XcLog(args);
+                var res = getUndoType(xcLog);
                 expect(res).to.equal(test.expect);
             });
         });
 
         it("getCliMachine should work", function() {
-            var getCliMachine = SQL.__testOnly__.getCliMachine;
+            var getCliMachine = Log.__testOnly__.getCliMachine;
 
             var testCases = [{
                 "operation": SQLOps.DestroyDS,
@@ -66,14 +66,14 @@ describe("SQL Test", function() {
                         "operation": test.operation
                     }
                 };
-                var sql = new XcLog(args);
-                var res = getCliMachine(sql, 1);
+                var xcLog = new XcLog(args);
+                var res = getCliMachine(xcLog, 1);
                 expect(res).to.equal(test.expect);
             });
         });
 
         it("getCliHTML should work", function() {
-            var getCliHTML = SQL.__testOnly__.getCliHTML;
+            var getCliHTML = Log.__testOnly__.getCliHTML;
 
             var testCases = [{
                 "operation": SQLOps.PreviewDS, // cannot undoable
@@ -89,14 +89,14 @@ describe("SQL Test", function() {
                         "key": test.key
                     }
                 };
-                var sql = new XcLog(args);
-                var res = getCliHTML(sql, 1);
+                var xcLog = new XcLog(args);
+                var res = getCliHTML(xcLog, 1);
                 if (test.isValid) {
                     expect(res).not.to.equal("");
-                    var $sql = $('<div>' + res + '</div>');
-                    expect($sql.find(".sqlContentWrap").data("sql"))
+                    var $log = $('<div>' + res + '</div>');
+                    expect($log.find(".logContentWrap").data("log"))
                     .to.equal(1);
-                    expect($sql.find(".key").length).to.equal(1);
+                    expect($log.find(".key").length).to.equal(1);
                 } else {
                     expect(res).to.equal("");
                 }
@@ -105,111 +105,111 @@ describe("SQL Test", function() {
     });
 
     describe("Public API Test", function() {
-        it("SQL.hasUnCommitChange should work", function() {
-            var res = SQL.hasUnCommitChange();
+        it("Log.hasUncommitChange should work", function() {
+            var res = Log.hasUncommitChange();
             expect(typeof res).to.equal("boolean");
         });
 
-        it("SQL.getCursor should work", function() {
-            var res = SQL.getCursor();
+        it("Log.getCursor should work", function() {
+            var res = Log.getCursor();
             expect(typeof res).to.equal("number");
         });
 
-        it("SQL.getLogs should work", function() {
-            var res = SQL.getLogs();
+        it("Log.getLogs should work", function() {
+            var res = Log.getLogs();
             expect(res instanceof Array).to.be.true;
         });
 
-        it("SQL.getErrorLogs should work", function() {
-            var res = SQL.getErrorLogs();
+        it("Log.getErrorLogs should work", function() {
+            var res = Log.getErrorLogs();
             expect(res instanceof Array).to.be.true;
         });
 
-        it("SQL.getAllLogs should work", function() {
-            var res = SQL.getAllLogs();
+        it("Log.getAllLogs should work", function() {
+            var res = Log.getAllLogs();
             expect(res).to.an("object");
-            expect(res.logs).to.equal(SQL.getLogs());
-            expect(res.errors).to.equal(SQL.getErrorLogs());
+            expect(res.logs).to.equal(Log.getLogs());
+            expect(res.errors).to.equal(Log.getErrorLogs());
         });
 
-        it("SQL.getLocalStorage should work", function() {
-            var cachedSQL = SQL.getLocalStorage();
-            expect(cachedSQL == null || typeof cachedSQL === "string");
+        it("Log.getLocalStorage should work", function() {
+            var cachedLog = Log.getLocalStorage();
+            expect(cachedLog == null || typeof cachedLog === "string");
         });
 
-        it("should backup sql", function() {
-            SQL.backup();
-            var cachedSQL = SQL.getBackup();
-            expect(cachedSQL).not.to.be.null;
-            expect(typeof cachedSQL === "string");
+        it("should backup log", function() {
+            Log.backup();
+            var cachedLog = Log.getBackup();
+            expect(cachedLog).not.to.be.null;
+            expect(typeof cachedLog === "string");
         });
 
-        it("SQL.getConsoleErrors should work", function() {
-            var res = SQL.getConsoleErrors();
+        it("Log.getConsoleErrors should work", function() {
+            var res = Log.getConsoleErrors();
             expect(res).to.be.an("array");
         });
 
-        it("SQL.viewLastAction should work", function() {
-            var res = SQL.viewLastAction();
-            var res2 = SQL.viewLastAction(true);
+        it("Log.viewLastAction should work", function() {
+            var res = Log.viewLastAction();
+            var res2 = Log.viewLastAction(true);
             if (res !== "none") {
                 expect(res).not.to.equal(res2);
             }
         });
 
-        it("SQL.upgrade should work", function() {
+        it("Log.upgrade should work", function() {
             // null case
-            var res = SQL.upgrade(null);
+            var res = Log.upgrade(null);
             expect(res).to.equal("");
 
             // error case
-            res = SQL.upgrade("abc");
+            res = Log.upgrade("abc");
             expect(res).to.equal(null);
 
             // empty case
-            res = SQL.upgrade("");
+            res = Log.upgrade("");
             expect(res).to.equal("");
 
             // normal case
-            var sql = new XcLog({"title": "test"});
-            res = SQL.upgrade(JSON.stringify(sql));
+            var xcLog = new XcLog({"title": "test"});
+            res = Log.upgrade(JSON.stringify(xcLog));
             expect(res.length).not.to.equal(0);
         });
     });
 
-    describe("Clean, Add, Restore SQL Test", function() {
+    describe("Clean, Add, Restore Log Test", function() {
         before(function() {
             // should not have any auto commit during test
             XcSupport.stopHeartbeatCheck();
         });
 
-        it("SQL.add should work", function() {
-            var logs = SQL.getLogs();
+        it("Log.add should work", function() {
+            var logs = Log.getLogs();
             var len = logs.length;
             // error case
-            SQL.add("test", {}, "testCli", true);
+            Log.add("test", {}, "testCli", true);
             expect(logs.length - len).to.equal(0);
 
         });
 
-        it("SQL.errorLog should work", function() {
-            var errors = SQL.getErrorLogs();
+        it("Log.errorLog should work", function() {
+            var errors = Log.getErrorLogs();
             var len = errors.length;
 
-            SQL.errorLog("test", null, "testCli", "testError");
+            Log.errorLog("test", null, "testCli", "testError");
             expect(errors.length - len).to.equal(1);
         });
 
-        it("Should clear sql", function() {
-            SQL.clear();
-            expect(SQL.getLogs().length).to.equal(0);
+        it("Should clear log", function() {
+            Log.clear();
+            expect(Log.getLogs().length).to.equal(0);
         });
 
-        it("Should restore sql in empty state", function(done) {
-            var logs = SQL.getLogs();
+        it("Should restore log in empty state", function(done) {
+            var logs = Log.getLogs();
             var len = logs.length;
 
-            SQL.restore(null, true)
+            Log.restore(null, true)
             .then(function() {
                 expect(logs.length).to.equal(len);
                 done();
@@ -225,7 +225,7 @@ describe("SQL Test", function() {
                 return PromiseHelper.reject({"error": "test"});
             };
 
-            SQL.restore()
+            Log.restore()
             .then(function() {
                 done("fail");
             })
@@ -239,11 +239,11 @@ describe("SQL Test", function() {
             });
         });
 
-        it("Should restore old sql", function(done) {
-            var logs = SQL.getLogs();
+        it("Should restore old log", function(done) {
+            var logs = Log.getLogs();
             var len = logs.length;
 
-            SQL.restore()
+            Log.restore()
             .then(function() {
                 if (len !== 0) {
                     expect(logs.length).not.to.equal(len);
@@ -277,16 +277,16 @@ describe("SQL Test", function() {
             };
 
             XcSupport.stopHeartbeatCheck();
-            SQL.add("test", {"operation": SQLOps.MinimizeCols}, "testCli", true);
+            Log.add("test", {"operation": SQLOps.MinimizeCols}, "testCli", true);
         });
 
         it("should click to trigger undo", function() {
-            var curUndo = SQL.undo;
+            var curUndo = Log.undo;
             var $undo = $("#undo");
             var isDisabled = $undo.hasClass("disabled");
             var test = false;
 
-            SQL.undo = function() {
+            Log.undo = function() {
                 test = true;
             };
 
@@ -301,16 +301,16 @@ describe("SQL Test", function() {
             if (isDisabled) {
                 $undo.addClass("disabled");
             }
-            SQL.undo = curUndo;
+            Log.undo = curUndo;
         });
 
         it("should click to trigger redo", function() {
-            var curRedo = SQL.redo;
+            var curRedo = Log.redo;
             var $redo = $("#redo");
             var isDisabled = $redo.hasClass("disabled");
             var test = false;
 
-            SQL.redo = function() {
+            Log.redo = function() {
                 test = true;
             };
 
@@ -326,25 +326,25 @@ describe("SQL Test", function() {
                 $redo.addClass("disabled");
             }
 
-            SQL.redo = curRedo;
+            Log.redo = curRedo;
         });
 
-        it("SQL.isUndo should work", function() {
-            var res = SQL.isUndo();
+        it("Log.isUndo should work", function() {
+            var res = Log.isUndo();
             expect(typeof res).to.equal("boolean");
         });
 
-        it("SQL.isRedo should work", function() {
-            var res = SQL.isRedo();
+        it("Log.isRedo should work", function() {
+            var res = Log.isRedo();
             expect(typeof res).to.equal("boolean");
         });
 
         it("Should lock and unlock undo redo", function() {
             var $undo = $("#undo");
             var $redo = $("#redo");
-            SQL.lockUndoRedo();
+            Log.lockUndoRedo();
             expect($undo.hasClass("disabled")).to.be.true;
-            SQL.unlockUndoRedo();
+            Log.unlockUndoRedo();
             expect($redo.hasClass("disabled")).to.be.true;
         });
 
@@ -353,7 +353,7 @@ describe("SQL Test", function() {
                 return PromiseHelper.reject({"error": "test"});
             };
 
-            SQL.undo()
+            Log.undo()
             .then(function() {
                 done("fail");
             })
@@ -369,10 +369,10 @@ describe("SQL Test", function() {
                 return PromiseHelper.resolve();
             };
 
-            var cursor = SQL.getCursor();
-            SQL.undo()
+            var cursor = Log.getCursor();
+            Log.undo()
             .then(function() {
-                expect(SQL.getCursor()).to.equal(cursor - 1);
+                expect(Log.getCursor()).to.equal(cursor - 1);
                 done();
             })
             .fail(function() {
@@ -385,7 +385,7 @@ describe("SQL Test", function() {
                 return PromiseHelper.reject({"error": "test"});
             };
 
-            SQL.redo()
+            Log.redo()
             .then(function() {
                 done("fail");
             })
@@ -401,10 +401,10 @@ describe("SQL Test", function() {
                 return PromiseHelper.resolve();
             };
 
-            var cursor = SQL.getCursor();
-            SQL.redo()
+            var cursor = Log.getCursor();
+            Log.redo()
             .then(function() {
-                expect(SQL.getCursor()).to.equal(cursor + 1);
+                expect(Log.getCursor()).to.equal(cursor + 1);
                 done();
             })
             .fail(function() {
@@ -414,8 +414,8 @@ describe("SQL Test", function() {
 
         after(function(done) {
             xcTooltip.hideAll();
-            SQL.clear();
-            SQL.restore()
+            Log.clear();
+            Log.restore()
             .then(function() {
                 done();
             })
@@ -430,53 +430,53 @@ describe("SQL Test", function() {
         });
     });
 
-    describe("SQl Menu Behavior Test", function() {
-        var $sqlButtons;
+    describe("Log Menu Behavior Test", function() {
+        var $logButtons;
         var $textarea;
         var $machineTextarea;
-        var $sqlMenu;
+        var $logMenu;
         var wasOpen;
 
         before(function() {
-            $sqlButtons = $("#sqlButtonWrap");
-            $textarea = $("#sql-TextArea");
-            $machineTextarea = $("#sql-MachineTextArea");
-            $sqlMenu = $("#sqlMenu");
+            $logButtons = $("#logButtonWrap");
+            $textarea = $("#log-TextArea");
+            $machineTextarea = $("#log-MachineTextArea");
+            $logMenu = $("#logMenu");
 
-            wasOpen = $("#sqlTab").hasClass("active");
+            wasOpen = $("#logTab").hasClass("active");
             if (!wasOpen) {
-                $("#sqlTab").click();
+                $("#logTab").click();
             }
         });
 
-        it("Should view machine SQL", function() {
-            $sqlButtons.find(".humanLog").click();
+        it("Should view machine Log", function() {
+            $logButtons.find(".humanLog").click();
             expect($machineTextarea.get(0).style.display)
             .to.equal("block");
             expect($textarea.get(0).style.display)
             .to.equal("none");
         });
 
-        it("should open sql menu in machine SQL", function() {
+        it("should open log menu in machine Log", function() {
             openContextMenu();
-            assert.isTrue($sqlMenu.is(":visible"));
-            expect($sqlMenu.find("li:visible").length).to.equal(1);
-            $sqlMenu.hide();
+            assert.isTrue($logMenu.is(":visible"));
+            expect($logMenu.find("li:visible").length).to.equal(1);
+            $logMenu.hide();
         });
 
-        it("Should view human SQL", function() {
-            $sqlButtons.find(".machineLog").click();
+        it("Should view human Log", function() {
+            $logButtons.find(".machineLog").click();
             expect($machineTextarea.get(0).style.display)
             .to.equal("none");
             expect($textarea.get(0).style.display)
             .to.equal("block");
         });
 
-        it("should open sql menu in human SQL", function() {
+        it("should open log menu in human Log", function() {
             openContextMenu();
-            assert.isTrue($sqlMenu.is(":visible"));
-            expect($sqlMenu.find("li:visible").length).to.equal(3);
-            $sqlMenu.hide();
+            assert.isTrue($logMenu.is(":visible"));
+            expect($logMenu.find("li:visible").length).to.equal(3);
+            $logMenu.hide();
         });
 
         it("Should copy log", function(done) {
@@ -484,7 +484,7 @@ describe("SQL Test", function() {
             // it will fail the test
             xcAssert = function() { return true; };
 
-            $sqlButtons.find(".copyLog").click();
+            $logButtons.find(".copyLog").click();
             var $successMessageWrap = $("#successMessageWrap");
             assert.isTrue($successMessageWrap.is(":visible"));
 
@@ -504,20 +504,20 @@ describe("SQL Test", function() {
             });
         });
 
-        it("should toggle sql size", function() {
-            var $sql = $textarea.find(".sqlContentWrap.expanded:first-child");
-            if ($sql.length === 0) {
+        it("should toggle log size", function() {
+            var $log = $textarea.find(".logContentWrap.expanded:first-child");
+            if ($log.length === 0) {
                 // cannot test in this case
                 return;
             }
 
-            $sql.find(".title").click();
-            expect($sql.hasClass("expanded")).to.equal(false);
-            expect($sql.hasClass("collapsed")).to.equal(true);
+            $log.find(".title").click();
+            expect($log.hasClass("expanded")).to.equal(false);
+            expect($log.hasClass("collapsed")).to.equal(true);
             // toggle back
-            $sql.click();
-            expect($sql.hasClass("expanded")).to.equal(true);
-            expect($sql.hasClass("collapsed")).to.equal(false);
+            $log.click();
+            expect($log.hasClass("expanded")).to.equal(true);
+            expect($log.hasClass("collapsed")).to.equal(false);
         });
 
         it("should right click to copy log", function() {
@@ -527,7 +527,7 @@ describe("SQL Test", function() {
                 test = true;
             };
 
-            var $li = $sqlMenu.find("li.copy");
+            var $li = $logMenu.find("li.copy");
             $li.mouseup();
             expect(test).to.be.false;
 
@@ -538,29 +538,29 @@ describe("SQL Test", function() {
         });
 
         it("should right click to collapse all", function() {
-            var $li = $sqlMenu.find("li.collapseAll");
+            var $li = $logMenu.find("li.collapseAll");
             $li.trigger(fakeEvent.mouseup);
-            expect($textarea.find(".sqlContentWrap.expanded").length)
+            expect($textarea.find(".logContentWrap.expanded").length)
             .to.equal(0);
         });
 
         it("should right click to expand all", function() {
-            var $li = $sqlMenu.find("li.expandAll");
+            var $li = $logMenu.find("li.expandAll");
             $li.trigger(fakeEvent.mouseup);
-            expect($textarea.find(".sqlContentWrap.collapsed").length)
+            expect($textarea.find(".logContentWrap.collapsed").length)
             .to.equal(0);
         });
 
         function openContextMenu() {
             var e = jQuery.Event("contextmenu", {
-                "target": $sqlMenu
+                "target": $logMenu
             });
             $textarea.parent().trigger(e);
         }
 
         after(function() {
             if (!wasOpen) {
-                $("#sqlTab").click();
+                $("#logTab").click();
             }
         });
     });

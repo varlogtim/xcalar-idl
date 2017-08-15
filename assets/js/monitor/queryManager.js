@@ -447,7 +447,7 @@ window.QueryManager = (function(QueryManager, $) {
         var mainQuery = queryLists[id];
         mainQuery.state = QueryStatus.Error;
         mainQuery.outputTableState = "unavailable";
-        mainQuery.sqlNum = SQL.getErrorLogs().length - 1;
+        mainQuery.sqlNum = Log.getErrorLogs().length - 1;
         if (error) {
             if (typeof error === "object" && error.error) {
                 error = error.error;
@@ -530,7 +530,7 @@ window.QueryManager = (function(QueryManager, $) {
         var abbrQueryObj;
         var queryObj;
         var queryMap = {}; // we store queries into a map first to overwrite any
-        // queries with duplicate sqlNums due to sql.undo/redo operations
+        // queries with duplicate sqlNums due to Log.undo/redo operations
         // then sort in an array
         for (var id in queryLists) {
             queryObj = queryLists[id];
@@ -574,9 +574,9 @@ window.QueryManager = (function(QueryManager, $) {
             return;
         }
 
-        var logs = SQL.getLogs();
-        var errorLogs = SQL.getErrorLogs();
-        var sqlLog;
+        var logs = Log.getLogs();
+        var errorLogs = Log.getErrorLogs();
+        var xcLog;
         var query;
         var numQueries = queries.length;
         var html = "";
@@ -585,24 +585,24 @@ window.QueryManager = (function(QueryManager, $) {
         var cli;
         for (var i = 0; i < numQueries; i++) {
             if (queries[i].state === QueryStatus.Error) {
-                sqlLog = errorLogs[queries[i].sqlNum];
+                xcLog = errorLogs[queries[i].sqlNum];
             } else {
-                sqlLog = logs[queries[i].sqlNum];
+                xcLog = logs[queries[i].sqlNum];
             }
 
-            if (sqlLog) {
-                name = sqlLog.options.operation;
+            if (xcLog) {
+                name = xcLog.options.operation;
                 if (queries[i].state === QueryStatus.Error) {
                     cli = queries[i].queryStr;
                 } else {
-                    cli = sqlLog.cli;
+                    cli = xcLog.cli;
                 }
             } else {
                 name = queries[i].name;
                 cli = queries[i].queryStr;
             }
             if (!name) {
-                continue; // info is not stored in sql due to an overwritten
+                continue; // info is not stored in log due to an overwritten
                           // undo so we skip
             }
 

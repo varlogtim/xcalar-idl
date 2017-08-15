@@ -264,7 +264,7 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
             firstRowText: $('.xcTable tbody').find('tr:first').text(),
             tableListText: tableListText,
             dagText: $('#dagPanel .dagWrap').text().replace(/\s\s/g, ""),
-            lastAction: SQL.viewLastAction()
+            lastAction: Log.viewLastAction()
         };
 
         for (var ws in info.wsMeta.wsInfos) {
@@ -348,7 +348,7 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
             console.log('undo ' + step + ' passing', stepInfo[step].lastAction);
         }
 
-        SQL.undo()
+        Log.undo()
         .then(function() {
             deferred.resolve();
         });
@@ -368,7 +368,7 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
 
     function redoAndCheck(step) {
         var deferred = jQuery.Deferred();
-        SQL.redo()
+        Log.redo()
         .then(function() {
             var activeTables = xcHelper.deepCopy(getActiveTables());
             for (var i = 0; i < activeTables.length; i++) {

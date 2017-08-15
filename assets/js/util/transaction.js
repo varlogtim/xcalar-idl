@@ -91,8 +91,8 @@ window.Transaction = (function(Transaction, $) {
             var sql = options.sql || txLog.getSQL();
             var title = options.title || txLog.getOperation();
             title = xcHelper.capitalize(title);
-            SQL.add(title, sql, cli, willCommit);
-            queryNum = SQL.getCursor();
+            Log.add(title, sql, cli, willCommit);
+            queryNum = Log.getCursor();
         }
 
         QueryManager.queryDone(txId, queryNum);
@@ -149,7 +149,7 @@ window.Transaction = (function(Transaction, $) {
         }
         title = xcHelper.capitalize(title);
 
-        SQL.errorLog(title, sql, cli, error);
+        Log.errorLog(title, sql, cli, error);
         QueryManager.fail(txId, error);
 
         // add alert(optional)
@@ -213,7 +213,7 @@ window.Transaction = (function(Transaction, $) {
             var title = options.title || txLog.getOperation();
             title = xcHelper.capitalize(title);
 
-            SQL.errorLog(title, sql, cli, SQLType.Cancel);
+            Log.errorLog(title, sql, cli, SQLType.Cancel);
         }
 
         cancelTX(txId);

@@ -78,7 +78,7 @@ TooltipTStr = {
 'AddDataflow': '创建批量数据流',
 'Bookmark': '点击此处,添加书签',
 'Bookmarked': '已添加书签',
-'CopyLog': '将sql日志复制到剪贴板上',
+'CopyLog': '将日志复制到剪贴板上',
 'GenTicket': '生成服务支持券',
 'ColPrefix': '列将添加前缀，以唯一标识表中的列。前缀默认自动生成。',
 'ToGridView': '网格视图',

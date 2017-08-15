@@ -164,7 +164,7 @@ window.TblAnim = (function($, TblAnim) {
         TblFunc.moveFirstColumn();
 
         if (!isDatastore && wasResized) {
-            SQL.add(SQLTStr.ResizeCol, {
+            Log.add(SQLTStr.ResizeCol, {
                 "operation": SQLOps.DragResizeTableCol,
                 "tableName": gTables[rescol.tableId].tableName,
                 "tableId": rescol.tableId,
@@ -291,7 +291,7 @@ window.TblAnim = (function($, TblAnim) {
             if (target !== "datastore") {
                 var table = gTables[tableId];
 
-                SQL.add(SQLTStr.ResizeCols, {
+                Log.add(SQLTStr.ResizeCols, {
                     "operation": SQLOps.ResizeTableCols,
                     "tableName": table.tableName,
                     "tableId": tableId,
@@ -339,7 +339,7 @@ window.TblAnim = (function($, TblAnim) {
         }
         TblFunc.matchHeaderSizes($table);
 
-        SQL.add(SQLTStr.ResizeCol, {
+        Log.add(SQLTStr.ResizeCol, {
             "operation": SQLOps.DragResizeTableCol,
             "tableName": gTables[tableId].tableName,
             "tableId": tableId,
@@ -480,7 +480,7 @@ window.TblAnim = (function($, TblAnim) {
         }, 0);
 
 
-        SQL.add(SQLTStr.ResizeRow, {
+        Log.add(SQLTStr.ResizeRow, {
             "operation": SQLOps.DragResizeRow,
             "tableName": gTables[rowInfo.tableId].tableName,
             "tableId": rowInfo.tableId,
@@ -529,7 +529,7 @@ window.TblAnim = (function($, TblAnim) {
                                      .css('max-height', 16);
         }
 
-        SQL.add(SQLTStr.ResizeRow, {
+        Log.add(SQLTStr.ResizeRow, {
             "operation": SQLOps.DragResizeRow,
             "tableName": gTables[tableId].tableName,
             "tableId": tableId,

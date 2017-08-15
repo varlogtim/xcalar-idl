@@ -948,8 +948,8 @@ describe("xcHelper Test", function() {
 
     it("xcHelper.supportButton should work", function() {
         // caase 1
-        var $btn = xcHelper.supportButton("sql");
-        expect($btn.hasClass("copySql")).to.be.true;
+        var $btn = xcHelper.supportButton("log");
+        expect($btn.hasClass("copyLog")).to.be.true;
         // case 2
         $btn = xcHelper.supportButton("support");
         expect($btn.hasClass("genSub")).to.be.true;

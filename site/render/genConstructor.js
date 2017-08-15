@@ -29,7 +29,7 @@ function genCtor(isCurrentConstructor) {
         version = currentVersion;
         dest = genDest(currentVersion);
     }
-
+    console.log("src", src)
     var str = fs.readFileSync(src).toString();
     var template = _.template(str);
     var parsedStr = template({

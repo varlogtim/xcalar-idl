@@ -338,7 +338,7 @@ window.TblManager = (function($, TblManager) {
         }
 
         // add sql
-        SQL.add(SQLTStr.HideTable, {
+        Log.add(SQLTStr.HideTable, {
             "operation": SQLOps.ArchiveTable,
             "tableIds": orderedTIds,
             "tableNames": tableNames,
@@ -887,7 +887,7 @@ window.TblManager = (function($, TblManager) {
         TblFunc.matchHeaderSizes($table);
         TblFunc.moveFirstColumn();
 
-        SQL.add(SQLTStr.MinimizeTable, {
+        Log.add(SQLTStr.MinimizeTable, {
             "operation": SQLOps.HideTable,
             "tableName": tableName,
             "tableId": tableId
@@ -909,7 +909,7 @@ window.TblManager = (function($, TblManager) {
         TblFunc.matchHeaderSizes($table);
         TblFunc.moveFirstColumn();
 
-        SQL.add(SQLTStr.MaximizeTable, {
+        Log.add(SQLTStr.MaximizeTable, {
             "operation": SQLOps.UnhideTable,
             "tableName": gTables[tableId].tableName,
             "tableId": tableId
@@ -997,7 +997,7 @@ window.TblManager = (function($, TblManager) {
 
         TableList.updateTableInfo(tableId);
 
-        SQL.add(SQLTStr.SortTableCols, {
+        Log.add(SQLTStr.SortTableCols, {
             "operation": SQLOps.SortTableCols,
             "tableName": table.tableName,
             "tableId": tableId,
@@ -1117,7 +1117,7 @@ window.TblManager = (function($, TblManager) {
 
         TblFunc.matchHeaderSizes($table);
 
-        SQL.add(SQLTStr.ResizeCols, {
+        Log.add(SQLTStr.ResizeCols, {
             "operation": SQLOps.ResizeTableCols,
             "tableName": table.tableName,
             "tableId": tableId,
@@ -1190,7 +1190,7 @@ window.TblManager = (function($, TblManager) {
         RowScroller.addBookmark(rowNum, tableId);
         table.addBookmark(rowNum);
 
-        SQL.add(SQLTStr.BookmarkRow, {
+        Log.add(SQLTStr.BookmarkRow, {
             "operation": SQLOps.BookmarkRow,
             "tableId": tableId,
             "tableName": table.getName(),
@@ -1209,7 +1209,7 @@ window.TblManager = (function($, TblManager) {
         RowScroller.removeBookmark(rowNum, tableId);
         table.removeBookmark(rowNum);
 
-        SQL.add(SQLTStr.RemoveBookmark, {
+        Log.add(SQLTStr.RemoveBookmark, {
             "operation": SQLOps.RemoveBookmark,
             "tableId": tableId,
             "tableName": table.getName(),

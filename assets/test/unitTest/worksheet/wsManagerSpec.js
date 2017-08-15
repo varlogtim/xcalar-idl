@@ -130,8 +130,8 @@ describe("Worksheet Test", function() {
 
         it("Should add worksheet in undo/redo", function() {
             var numWorksheets = WSManager.getNumOfWS();
-            var oldIsUndo = SQL.isUndo;
-            SQL.isUndo = function() { return true; };
+            var oldIsUndo = Log.isUndo;
+            Log.isUndo = function() { return true; };
             // invalid case
             var wsId = WSManager.addWS();
             var curNumWorksheet = WSManager.getNumOfWS();
@@ -146,7 +146,7 @@ describe("Worksheet Test", function() {
             curNumWorksheet = WSManager.getNumOfWS();
             expect(curNumWorksheet - numWorksheets).to.equal(1);
 
-            SQL.isUndo = oldIsUndo;
+            Log.isUndo = oldIsUndo;
             WSManager.delWS(wsId, DelWSType.Empty);
         });
 
@@ -659,7 +659,7 @@ describe("Worksheet Test", function() {
             WSManager.delWS(worksheetId1, DelWSType.Archive);
             expect(WSManager.getWSById(worksheetId1) == null).to.be.true;
             // undo it
-            SQL.undo()
+            Log.undo()
             .then(function() {
                 worksheet1 = WSManager.getWSById(worksheetId1);
                 expect(worksheet1 == null).to.be.false;

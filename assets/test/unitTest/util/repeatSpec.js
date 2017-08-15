@@ -45,13 +45,13 @@ describe("Repeat Test", function() {
             .then(function() {
                 indexCalled = false;
                 TblManager.highlightColumn($table.find("th.col4"));
-                return SQL.repeat();
+                return Log.repeat();
             })
             .then(function() {
-                var lastSql = SQL.viewLastAction(true);
+                var lastLog = Log.viewLastAction(true);
                 expect(indexCalled).to.be.true;
-                expect(lastSql.title).to.equal("Sort");
-                expect(lastSql.options.colNum).to.equal(4);
+                expect(lastLog.title).to.equal("Sort");
+                expect(lastLog.options.colNum).to.equal(4);
                 done();
             })
             .fail(function() {
@@ -72,7 +72,7 @@ describe("Repeat Test", function() {
             };
 
             TblManager.highlightColumn($table.find("th.col2"));
-            SQL.repeat()
+            Log.repeat()
             .then(function() {
                 expect(sortCalled).to.be.false;
                 done();
@@ -96,7 +96,7 @@ describe("Repeat Test", function() {
             TblManager.highlightColumn($table.find("th.col1"));
             TblManager.highlightColumn($table.find("th.col4"), true);
 
-            SQL.repeat()
+            Log.repeat()
             .then(function() {
                 expect(sortCalled).to.be.false;
                 done();
@@ -134,14 +134,14 @@ describe("Repeat Test", function() {
             .then(function() {
                 mapCalled = false;
                 TblManager.highlightColumn($table.find("th.col10"));
-                return SQL.repeat();
+                return Log.repeat();
             })
             .then(function() {
-                var lastSql = SQL.viewLastAction(true);
+                var lastLog = Log.viewLastAction(true);
                 expect(mapCalled).to.be.true;
-                expect(lastSql.title).to.equal("SplitCol");
-                expect(lastSql.options.colNum).to.equal(10);
-                expect(lastSql.options.delimiter).to.equal(".");
+                expect(lastLog.title).to.equal("SplitCol");
+                expect(lastLog.options.colNum).to.equal(10);
+                expect(lastLog.options.delimiter).to.equal(".");
                 done();
             })
             .fail(function() {
@@ -164,7 +164,7 @@ describe("Repeat Test", function() {
             };
 
             TblManager.highlightColumn($table.find("th.col1"));
-            SQL.repeat()
+            Log.repeat()
             .then(function() {
                 expect(mapCalled).to.be.false;
                 done();
@@ -179,13 +179,13 @@ describe("Repeat Test", function() {
 
         it("column operation without selected column should not work", function(done) {
             $(".selectedCell").removeClass("selectedCell");
-            var logsLen = SQL.getLogs().length;
-            SQL.repeat()
+            var logsLen = Log.getLogs().length;
+            Log.repeat()
             .then(function() {
                 done("failed");
             })
             .fail(function() {
-                expect(SQL.getLogs().length).to.equal(logsLen);
+                expect(Log.getLogs().length).to.equal(logsLen);
                 done();
             })
             .always(function() {
@@ -203,7 +203,7 @@ describe("Repeat Test", function() {
 
             TblManager.highlightColumn($table.find("th.col7"));
             TblManager.highlightColumn($table.find("th.col10"), true);
-            SQL.repeat()
+            Log.repeat()
             .then(function() {
                 expect(mapCalled).to.be.false;
                 done();
@@ -234,13 +234,13 @@ describe("Repeat Test", function() {
             .then(function() {
                 mapCalled = false;
                 TblManager.highlightColumn($table.find("th.col4"));
-                return SQL.repeat();
+                return Log.repeat();
             })
             .then(function() {
-                var lastSql = SQL.viewLastAction(true);
+                var lastLog = Log.viewLastAction(true);
                 expect(mapCalled).to.be.true;
-                expect(lastSql.title).to.equal("ChangeType");
-                expect(lastSql.options.colTypeInfos[0].colNum).to.equal(4);
+                expect(lastLog.title).to.equal("ChangeType");
+                expect(lastLog.options.colTypeInfos[0].colNum).to.equal(4);
                 done();
             })
             .fail(function() {
@@ -257,13 +257,13 @@ describe("Repeat Test", function() {
             .then(function() {
                 TblManager.highlightColumn($table.find("th.col3"));
                 TblManager.highlightColumn($table.find("th.col4"), true);
-                return SQL.repeat();
+                return Log.repeat();
             })
             .then(function() {
-                var lastSql = SQL.viewLastAction(true);
-                expect(lastSql.title).to.equal("Minimize Columns");
-                expect(lastSql.options.colNums[0]).to.equal(3);
-                expect(lastSql.options.colNums[1]).to.equal(4);
+                var lastLog = Log.viewLastAction(true);
+                expect(lastLog.title).to.equal("Minimize Columns");
+                expect(lastLog.options.colNums[0]).to.equal(3);
+                expect(lastLog.options.colNums[1]).to.equal(4);
                 done();
             })
             .fail(function() {
@@ -276,13 +276,13 @@ describe("Repeat Test", function() {
             .then(function() {
                 TblManager.highlightColumn($table.find("th.col3"));
                 TblManager.highlightColumn($table.find("th.col4"), true);
-                return SQL.repeat();
+                return Log.repeat();
             })
             .then(function() {
-                var lastSql = SQL.viewLastAction(true);
-                expect(lastSql.title).to.equal("Maximize Columns");
-                expect(lastSql.options.colNums[0]).to.equal(3);
-                expect(lastSql.options.colNums[1]).to.equal(4);
+                var lastLog = Log.viewLastAction(true);
+                expect(lastLog.title).to.equal("Maximize Columns");
+                expect(lastLog.options.colNums[0]).to.equal(3);
+                expect(lastLog.options.colNums[1]).to.equal(4);
                 done();
             })
             .fail(function() {
@@ -293,12 +293,12 @@ describe("Repeat Test", function() {
         it("add new col should work", function(done) {
             ColManager.addNewCol(1, tableId, 1);
             TblManager.highlightColumn($table.find("th.col2"));
-            SQL.repeat()
+            Log.repeat()
             .then(function() {
-                var lastSql = SQL.viewLastAction(true);
-                expect(lastSql.title).to.equal("Add New Column");
-                expect(lastSql.options.colNum).to.equal(2);
-                expect(lastSql.options.direction).to.equal(1);
+                var lastLog = Log.viewLastAction(true);
+                expect(lastLog.title).to.equal("Add New Column");
+                expect(lastLog.options.colNum).to.equal(2);
+                expect(lastLog.options.direction).to.equal(1);
                 done();
             })
             .fail(function() {
@@ -310,12 +310,12 @@ describe("Repeat Test", function() {
             ColManager.delCol([3], tableId)
             .then(function() {
                 TblManager.highlightColumn($table.find("th.col2"));
-                SQL.repeat();
+                Log.repeat();
             })
             .then(function() {
-                var lastSql = SQL.viewLastAction(true);
-                expect(lastSql.title).to.equal("Delete Column");
-                expect(lastSql.options.colNums[0]).to.equal(2);
+                var lastLog = Log.viewLastAction(true);
+                expect(lastLog.title).to.equal("Delete Column");
+                expect(lastLog.options.colNums[0]).to.equal(2);
 
                 done();
             })
@@ -329,11 +329,11 @@ describe("Repeat Test", function() {
 
             TblManager.highlightColumn($table.find("th.col2"));
 
-            SQL.repeat()
+            Log.repeat()
             .then(function() {
-                var lastSql = SQL.viewLastAction(true);
-                expect(lastSql.title).to.equal("Text Align");
-                expect(lastSql.options.alignment).to.equal("Right");
+                var lastLog = Log.viewLastAction(true);
+                expect(lastLog.title).to.equal("Text Align");
+                expect(lastLog.options.alignment).to.equal("Right");
 
                 done();
             })
@@ -347,11 +347,11 @@ describe("Repeat Test", function() {
 
             TblManager.highlightColumn($table.find("th.col2"));
 
-            SQL.repeat()
+            Log.repeat()
             .then(function() {
-                var lastSql = SQL.viewLastAction(true);
-                expect(lastSql.title).to.equal("Change Format");
-                expect(lastSql.options.formats[0]).to.equal("percent");
+                var lastLog = Log.viewLastAction(true);
+                expect(lastLog.title).to.equal("Change Format");
+                expect(lastLog.options.formats[0]).to.equal("percent");
                 done();
             })
             .fail(function() {
@@ -364,12 +364,12 @@ describe("Repeat Test", function() {
 
             TblManager.highlightColumn($table.find("th.col1"));
 
-            SQL.repeat()
+            Log.repeat()
             .then(function() {
-                var lastSql = SQL.viewLastAction(true);
-                expect(lastSql.title).to.equal("Round To Fixed");
-                expect(lastSql.options.colNums[0]).to.equal(1);
-                expect(lastSql.options.decimals[0]).to.equal(4);
+                var lastLog = Log.viewLastAction(true);
+                expect(lastLog.title).to.equal("Round To Fixed");
+                expect(lastLog.options.colNums[0]).to.equal(1);
+                expect(lastLog.options.decimals[0]).to.equal(4);
                 done();
             })
             .fail(function() {
@@ -395,14 +395,14 @@ describe("Repeat Test", function() {
         it("archive table should work", function(done) {
             TblManager.archiveTables(tableId);
             TblFunc.focusTable(tableId2);
-            SQL.repeat()
+            Log.repeat()
             .then(function() {
-                var lastSql = SQL.viewLastAction(true);
-                expect(lastSql.title).to.equal("Hide Table");
-                expect(lastSql.options.tableIds[0]).to.equal(tableId2);
-                return SQL.undo();
+                var lastLog = Log.viewLastAction(true);
+                expect(lastLog.title).to.equal("Hide Table");
+                expect(lastLog.options.tableIds[0]).to.equal(tableId2);
+                return Log.undo();
             })
-            .then(SQL.undo)
+            .then(Log.undo)
             .then(function() {
                 done();
             })
@@ -412,11 +412,11 @@ describe("Repeat Test", function() {
         });
 
         it("table operation without focuse table should not  work", function(done) {
-            var logsLen = SQL.getLogs().length;
+            var logsLen = Log.getLogs().length;
             $(".tblTitleSelected").removeClass("tblTitleSelected");
-            SQL.repeat()
+            Log.repeat()
             .then(function(){
-                expect(SQL.getLogs().length).to.equal(logsLen);
+                expect(Log.getLogs().length).to.equal(logsLen);
                 done();
             })
             .fail(function() {
@@ -427,11 +427,11 @@ describe("Repeat Test", function() {
         it("hide table should work", function(done) {
             TblManager.hideTable(tableId);
             TblFunc.focusTable(tableId2);
-            SQL.repeat()
+            Log.repeat()
             .then(function() {
-                var lastSql = SQL.viewLastAction(true);
-                expect(lastSql.title).to.equal("Minimize Table");
-                expect(lastSql.options.tableId).to.equal(tableId2);
+                var lastLog = Log.viewLastAction(true);
+                expect(lastLog.title).to.equal("Minimize Table");
+                expect(lastLog.options.tableId).to.equal(tableId2);
                 done();
             })
             .fail(function() {
@@ -442,11 +442,11 @@ describe("Repeat Test", function() {
         it("hide table should work", function(done) {
             TblManager.unHideTable(tableId);
             TblFunc.focusTable(tableId2);
-            SQL.repeat()
+            Log.repeat()
             .then(function() {
-                var lastSql = SQL.viewLastAction(true);
-                expect(lastSql.title).to.equal("Maximize Table");
-                expect(lastSql.options.tableId).to.equal(tableId2);
+                var lastLog = Log.viewLastAction(true);
+                expect(lastLog.title).to.equal("Maximize Table");
+                expect(lastLog.options.tableId).to.equal(tableId2);
                 done();
             })
             .fail(function() {
@@ -457,11 +457,11 @@ describe("Repeat Test", function() {
         it("mark prefix should work", function(done) {
             TPrefix.markColor(prefix, "green");
             TblManager.highlightColumn($table2.find("th.col1"));
-            SQL.repeat()
+            Log.repeat()
             .then(function() {
-                var lastSql = SQL.viewLastAction(true);
-                expect(lastSql.title).to.equal("Mark Prefix");
-                expect(lastSql.options.prefix).to.equal(prefix2);
+                var lastLog = Log.viewLastAction(true);
+                expect(lastLog.title).to.equal("Mark Prefix");
+                expect(lastLog.options.prefix).to.equal(prefix2);
                 done();
             })
             .fail(function() {
@@ -472,13 +472,13 @@ describe("Repeat Test", function() {
         it("sort table cols should work", function(done) {
             TblManager.sortColumns(tableId, "name", "reverse");
             TblFunc.focusTable(tableId2);
-            SQL.repeat()
+            Log.repeat()
             .then(function() {
-                var lastSql = SQL.viewLastAction(true);
-                expect(lastSql.title).to.equal("Sort Table Columns");
-                expect(lastSql.options.tableId).to.equal(tableId2);
-                expect(lastSql.options.sortKey).to.equal("name");
-                expect(lastSql.options.direction).to.equal("reverse");
+                var lastLog = Log.viewLastAction(true);
+                expect(lastLog.title).to.equal("Sort Table Columns");
+                expect(lastLog.options.tableId).to.equal(tableId2);
+                expect(lastLog.options.sortKey).to.equal("name");
+                expect(lastLog.options.direction).to.equal("reverse");
                 done();
             })
             .fail(function() {
@@ -491,12 +491,12 @@ describe("Repeat Test", function() {
             TblFunc.focusTable(tableId2);
             $(".selectedCell").removeClass("selectedCell");
 
-            SQL.repeat()
+            Log.repeat()
             .then(function() {
-                var lastSql = SQL.viewLastAction(true);
-                expect(lastSql.title).to.equal("Resize Columns");
-                expect(lastSql.options.tableId).to.equal(tableId2);
-                expect(lastSql.options.sizeTo).to.equal("contents");
+                var lastLog = Log.viewLastAction(true);
+                expect(lastLog.title).to.equal("Resize Columns");
+                expect(lastLog.options.tableId).to.equal(tableId2);
+                expect(lastLog.options.sizeTo).to.equal("contents");
                 done();
             })
             .fail(function() {
@@ -509,12 +509,12 @@ describe("Repeat Test", function() {
 
         it("add ws should work", function(done) {
             newWSId = WSManager.addWS();
-            SQL.repeat()
+            Log.repeat()
             .then(function() {
-                var lastSql = SQL.viewLastAction(true);
-                expect(lastSql.title).to.equal("Create Worksheet");
-                expect(lastSql.options.worksheetId).to.not.equal(newWSId);
-                secondWSId = lastSql.options.worksheetId;
+                var lastLog = Log.viewLastAction(true);
+                expect(lastLog.title).to.equal("Create Worksheet");
+                expect(lastLog.options.worksheetId).to.not.equal(newWSId);
+                secondWSId = lastLog.options.worksheetId;
                 done();
             })
             .fail(function() {
@@ -531,15 +531,15 @@ describe("Repeat Test", function() {
             }
             TblFunc.focusTable(tableId2);
 
-            SQL.repeat()
+            Log.repeat()
             .then(function() {
-                var lastSql = SQL.viewLastAction(true);
-                expect(lastSql.title).to.equal("Move Table To Worksheet");
-                expect(lastSql.options.newWorksheetId).to.equal(newWSId);
-                expect(lastSql.options.tableId).to.equal(tableId2);
-                return SQL.undo();
+                var lastLog = Log.viewLastAction(true);
+                expect(lastLog.title).to.equal("Move Table To Worksheet");
+                expect(lastLog.options.newWorksheetId).to.equal(newWSId);
+                expect(lastLog.options.tableId).to.equal(tableId2);
+                return Log.undo();
             })
-            .then(SQL.undo)
+            .then(Log.undo)
             .then(function() {
                 done();
             })
@@ -554,14 +554,14 @@ describe("Repeat Test", function() {
             if (secondWSId !== activeWS) {
                 $("#worksheetTab-" + secondWSId).trigger(fakeEvent.mousedown);
             }
-            SQL.repeat()
+            Log.repeat()
             .then(function() {
-                var lastSql = SQL.viewLastAction(true);
-                expect(lastSql.title).to.equal("Hide Worksheet");
-                expect(lastSql.options.worksheetId).to.equal(secondWSId);
-                return SQL.undo();
+                var lastLog = Log.viewLastAction(true);
+                expect(lastLog.title).to.equal("Hide Worksheet");
+                expect(lastLog.options.worksheetId).to.equal(secondWSId);
+                return Log.undo();
             })
-            .then(SQL.undo)
+            .then(Log.undo)
             .then(function() {
                 done();
             })
@@ -583,7 +583,7 @@ describe("Repeat Test", function() {
                     $("#worksheetTab-" + wsToFocus).trigger(fakeEvent.mousedown);
                 }
                 TblFunc.focusTable(tableId2);
-                SQL.repeat()
+                Log.repeat()
                 .then(deferred.resolve)
                 .fail(deferred.reject);
 
@@ -592,9 +592,9 @@ describe("Repeat Test", function() {
                 return deferred.promise();
             })
             .then(function() {
-                var lastSql = SQL.viewLastAction(true);
-                expect(lastSql.title).to.equal("Drop Tables");
-                expect(lastSql.options.tables[0]).to.equal(tableId2);
+                var lastLog = Log.viewLastAction(true);
+                expect(lastLog.title).to.equal("Drop Tables");
+                expect(lastLog.options.tables[0]).to.equal(tableId2);
                 done();
             })
             .fail(function() {

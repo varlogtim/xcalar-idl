@@ -505,7 +505,7 @@ describe("TableManager Test", function() {
             TblManager.resizeColumns(tableId, "contents", 1);
             expect(progCol.sizedTo).to.equal("contents");
 
-            SQL.undo()
+            Log.undo()
             .then(function() {
                 expect(progCol.sizedTo).to.equal("all");
                 done();

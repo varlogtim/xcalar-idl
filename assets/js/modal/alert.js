@@ -61,7 +61,7 @@ window.Alert = (function($, Alert){
                 func: callback to trigger when click,
                 tooltip: tooltip to add
             hideButtons: array of button class names to hide,
-                        values can be: logout, copySql, or cancel
+                        values can be: logout, copyLog, or cancel
             onConfirm: callback to trigger when click confirm button
             onCancel:  callback to trigger when click cancel button
             lockScreen: if screen should be frozen
@@ -233,7 +233,7 @@ window.Alert = (function($, Alert){
 
     function clean() {
         $btnSection.find(".funcBtn").remove();
-        $btnSection.find(".copySql, .logout, .genSub, .adminSupport").remove();
+        $btnSection.find(".copyLog, .logout, .genSub, .adminSupport").remove();
         // remove all event listener
         $modal.off(".alert");
         $modal.find(".confirm, .cancel, .close").show();
@@ -392,7 +392,7 @@ window.Alert = (function($, Alert){
             $modal.find(".close, .cancel").hide();
             $confirmBtn.hide();
 
-            var $copySqlBtn = xcHelper.supportButton("sql");
+            var $copyLogBtn = xcHelper.supportButton("log");
             var $logoutBtn = xcHelper.supportButton();
             var $adminSupportBtn = xcHelper.supportButton("adminSupport");
             var $supportBtn = xcHelper.supportButton("support");
@@ -400,14 +400,14 @@ window.Alert = (function($, Alert){
             if (options.expired) {
                 $btnSection.prepend($logoutBtn);
             } else if (options.disconnect) {
-                $btnSection.prepend($adminSupportBtn, $copySqlBtn, $supportBtn);
+                $btnSection.prepend($adminSupportBtn, $copyLogBtn, $supportBtn);
             } else if (options.logout) {
-                $btnSection.prepend($adminSupportBtn, $logoutBtn, $copySqlBtn,
+                $btnSection.prepend($adminSupportBtn, $logoutBtn, $copyLogBtn,
                                     $supportBtn);
             } else if (options.noLogout) {
-                $btnSection.prepend($adminSupportBtn, $copySqlBtn, $supportBtn);
+                $btnSection.prepend($adminSupportBtn, $copyLogBtn, $supportBtn);
             } else {
-                $btnSection.prepend($adminSupportBtn, $copySqlBtn, $logoutBtn,
+                $btnSection.prepend($adminSupportBtn, $copyLogBtn, $logoutBtn,
                                     $supportBtn);
             }
         }

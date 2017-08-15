@@ -25,7 +25,7 @@ window.TPrefix = (function(TPrefix, $) {
         });
         addColor(prefix, newColor);
 
-        SQL.add(SQLTStr.MarkPrefix, {
+        Log.add(SQLTStr.MarkPrefix, {
             "operation": SQLOps.MarkPrefix,
             "prefix": prefix,
             "oldColor": oldColor,

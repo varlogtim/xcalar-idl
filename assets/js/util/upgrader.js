@@ -220,13 +220,13 @@ window.Upgrader = (function(Upgrader, $) {
         return deferred.promise();
     }
 
-    // Special case: after upgrade, SQL.upgrade already return a string
+    // Special case: after upgrade, Log.upgrade already return a string
     function upgradeLogMeta(gLogKey, wkbkContainer) {
         var deferred = jQuery.Deferred();
 
         KVStore.get(gLogKey, gKVScope.LOG)
         .then(function(oldLog) {
-            wkbkContainer.log = SQL.upgrade(oldLog);
+            wkbkContainer.log = Log.upgrade(oldLog);
             deferred.resolve();
         })
         .fail(deferred.reject);
@@ -234,13 +234,13 @@ window.Upgrader = (function(Upgrader, $) {
         return deferred.promise();
     }
 
-    // Special case: after upgrade, SQL.upgrade already return a string
+    // Special case: after upgrade, Log.upgrade already return a string
     function upgradeErrorLogMeta(gErrKey, wkbkContainer) {
         var deferred = jQuery.Deferred();
 
         KVStore.get(gErrKey, gKVScope.ERR)
         .then(function(oldErrorLog) {
-            wkbkContainer.errorLog = SQL.upgrade(oldErrorLog);
+            wkbkContainer.errorLog = Log.upgrade(oldErrorLog);
             deferred.resolve();
         })
         .fail(deferred.reject);

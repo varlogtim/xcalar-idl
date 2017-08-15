@@ -742,7 +742,7 @@ describe("JoinView Test", function() {
                     var tableId = xcHelper.getTableId(newTableName);
                     expect(tableId).to.not.be.null;
                     expect(gTables[tableId].resultSetCount).to.equal(14878);
-                    SQL.undo()
+                    Log.undo()
                     .always(function() {
                         done();
                     });

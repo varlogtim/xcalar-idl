@@ -1,22 +1,22 @@
-window.SQL = (function($, SQL) {
-    var $sqlButtons;      // $("#sqlButtonWrap");
-    var $textarea;        // $("#sql-TextArea");
-    var $machineTextarea; // $("#sql-MachineTextArea");
-    var $sqlMenu; // $("#sqlMenu");
+window.Log = (function($, Log) {
+    var $logButtons;      // $("#logButtonWrap");
+    var $textarea;        // $("#log-TextArea");
+    var $machineTextarea; // $("#log-MachineTextArea");
+    var $logMenu; // $("#logMenu");
 
     var $undo; // $("#undo");
     var $redo; // $("#redo");
 
     // keep in sync with initialize
     var logCursor = -1;
-    var sqlToCommit = "";
+    var logToCommit = "";
     var errToCommit = "";
-    var sqlCache = {
+    var logCache = {
         "logs": [],
         "errors": []
     };
-    var logs = sqlCache.logs;
-    var errors = sqlCache.errors;
+    var logs = logCache.logs;
+    var errors = logCache.errors;
     // mark if it's in a undo redo action
     var isUndo = false;
     var isRedo = false;
@@ -24,8 +24,8 @@ window.SQL = (function($, SQL) {
     var lastSavedCursor = logCursor;
 
     // constant
-    var sqlLocalStoreKey = "xcalar-query";
-    var sqlRestoreError = "restore sql error";
+    var logLocalStoreKey = "xcalar-query";
+    var logRestoreError = "restore log error";
     var UndoType = {
         "Valid": 0,   // can undo/redo
         "Skip": 1,   // should skip undo/redo
@@ -36,43 +36,43 @@ window.SQL = (function($, SQL) {
     var infList;
     var infListMachine;
 
-    SQL.setup = function() {
-        $sqlButtons = $("#sqlButtonWrap");
-        $textarea = $("#sql-TextArea");
-        $machineTextarea = $("#sql-MachineTextArea");
-        $sqlMenu = $("#sqlMenu");
+    Log.setup = function() {
+        $logButtons = $("#logButtonWrap");
+        $textarea = $("#log-TextArea");
+        $machineTextarea = $("#log-MachineTextArea");
+        $logMenu = $("#logMenu");
 
         $undo = $("#undo");
         $redo = $("#redo");
 
         initialize();
-        // show human readabl SQL as default
+        // show human readabl Log as default
         $machineTextarea.hide();
 
-        // set up the sql section
-        $sqlButtons.on("click", ".machineLog", function() {
+        // set up the log section
+        $logButtons.on("click", ".machineLog", function() {
             $(this).removeClass("machineLog xi-android-dot")
                     .addClass("humanLog xi-human-dot");
             $machineTextarea.hide();
             $textarea.show();
             if (hasTriggerScrollToBottom) {
-                SQL.scrollToBottom();
+                Log.scrollToBottom();
                 hasTriggerScrollToBottom = false;
             }
         });
 
-        $sqlButtons.on("click", ".humanLog", function() {
+        $logButtons.on("click", ".humanLog", function() {
             $(this).removeClass("humanLog xi-human-dot")
                     .addClass("machineLog xi-android-dot");
             $machineTextarea.show();
             $textarea.hide();
             if (hasTriggerScrollToBottom) {
-                SQL.scrollToBottom();
+                Log.scrollToBottom();
                 hasTriggerScrollToBottom = false;
             }
         });
 
-        $sqlButtons.on("click", ".copyLog", function() {
+        $logButtons.on("click", ".copyLog", function() {
             copyLog();
         });
 
@@ -81,7 +81,7 @@ window.SQL = (function($, SQL) {
                 return;
             }
 
-            SQL.undo();
+            Log.undo();
         });
 
         $redo.click(function() {
@@ -89,61 +89,61 @@ window.SQL = (function($, SQL) {
                 return;
             }
 
-            SQL.redo();
+            Log.redo();
         });
 
         $textarea.on("click", ".collapsed", function(event) {
             if ($(event.target).closest(".title").length) {
                 return;
             }
-            toggleSQLSize($(this));
+            toggleLogSize($(this));
         });
 
         $textarea.on("click", ".title", function() {
-            toggleSQLSize($(this).parent());
+            toggleLogSize($(this).parent());
         });
 
         infList = new InfList($textarea);
         infListMachine = new InfList($machineTextarea);
 
-        xcMenu.add($sqlMenu);
+        xcMenu.add($logMenu);
         setupMenuActions();
 
         $textarea.parent().contextmenu(function(event) {
             var $target = $(event.target);
-            xcHelper.dropdownOpen($target, $sqlMenu, {
+            xcHelper.dropdownOpen($target, $logMenu, {
                 "mouseCoors": {"x": event.pageX, "y": event.pageY + 10},
                 "floating": true
             });
 
             if ($machineTextarea.is(":visible")) {
-                $sqlMenu.find(".expandAll, .collapseAll").hide();
+                $logMenu.find(".expandAll, .collapseAll").hide();
                 return false;
             } else {
-                $sqlMenu.find(".expandAll, .collapseAll").show();
+                $logMenu.find(".expandAll, .collapseAll").show();
             }
 
             if ($textarea.find(".collapsed").length) {
-                $sqlMenu.find(".expandAll").removeClass("unavailable");
+                $logMenu.find(".expandAll").removeClass("unavailable");
             } else {
-                $sqlMenu.find(".expandAll").addClass("unavailable");
+                $logMenu.find(".expandAll").addClass("unavailable");
             }
 
             if ($textarea.find(".expanded").length) {
-                $sqlMenu.find(".collapseAll").removeClass("unavailable");
+                $logMenu.find(".collapseAll").removeClass("unavailable");
             } else {
-                $sqlMenu.find(".collapseAll").addClass("unavailable");
+                $logMenu.find(".collapseAll").addClass("unavailable");
             }
 
             return false;
         });
     };
 
-    SQL.hasUnCommitChange = function() {
-        return (sqlToCommit !== "") || (logCursor !== logs.length - 1);
+    Log.hasUncommitChange = function() {
+        return (logToCommit !== "") || (logCursor !== logs.length - 1);
     };
 
-    SQL.restore = function(oldLogCursor, isKVEmpty) {
+    Log.restore = function(oldLogCursor, isKVEmpty) {
         var deferred = jQuery.Deferred();
 
         if (isKVEmpty) {
@@ -163,8 +163,8 @@ window.SQL = (function($, SQL) {
             deferred.resolve();
         })
         .fail(function(error) {
-            if (error === sqlRestoreError) {
-                SQL.clear();
+            if (error === logRestoreError) {
+                Log.clear();
                 deferred.resolve();
             } else {
                 deferred.reject(error);
@@ -172,13 +172,13 @@ window.SQL = (function($, SQL) {
         })
         .always(function() {
             updateUndoRedoState();
-            SQL.scrollToBottom();
+            Log.scrollToBottom();
         });
 
         return deferred.promise();
     };
 
-    SQL.upgrade = function(oldRawLogs) {
+    Log.upgrade = function(oldRawLogs) {
         var oldLogs = parseRawLog(oldRawLogs);
         if (oldLogs == null) {
             return null;
@@ -197,7 +197,7 @@ window.SQL = (function($, SQL) {
         }
     };
 
-    SQL.add = function(title, options, cli, willCommit) {
+    Log.add = function(title, options, cli, willCommit) {
         options = options || {};
         if ($.isEmptyObject(options)) {
             console.warn("Options for", title, "is empty!");
@@ -205,47 +205,46 @@ window.SQL = (function($, SQL) {
         }
 
         if (isUndo || isRedo) {
-            // console.info("In undo redo, do not add sql");
             return;
         }
 
-        var sql = new XcLog({
+        var xcLog = new XcLog({
             "title": title,
             "options": options,
             "cli": cli
         });
 
-        addLog(sql, false, willCommit);
+        addLog(xcLog, false, willCommit);
 
-        SQL.scrollToBottom();
+        Log.scrollToBottom();
         updateUndoRedoState();
 
-        if (!isBackendOperation(sql)) {
+        if (!isBackendOperation(xcLog)) {
             // we use this to mark unsave state
             KVStore.logChange();
         }
     };
 
-    SQL.errorLog = function(title, options, cli, error) {
-        var sql = new XcLog({
+    Log.errorLog = function(title, options, cli, error) {
+        var xcLog = new XcLog({
             "title": title,
             "options": options,
             "cli": cli,
             "error": error
         });
-        errors.push(sql);
+        errors.push(xcLog);
 
-        errToCommit += JSON.stringify(sql) + ",";
+        errToCommit += JSON.stringify(xcLog) + ",";
         localCommit();
     };
 
-    SQL.commit = function() {
+    Log.commit = function() {
         var deferred = jQuery.Deferred();
 
         commitLogs()
         .then(function() {
             lastSavedCursor = logCursor;
-            return SQL.commitErrors();
+            return Log.commitErrors();
         })
         .then(deferred.resolve)
         .fail(deferred.reject);
@@ -253,38 +252,38 @@ window.SQL = (function($, SQL) {
         return deferred.promise();
     };
 
-    SQL.commitErrors = function() {
+    Log.commitErrors = function() {
         if (errToCommit === "") {
             return PromiseHelper.resolve();
         }
 
         var deferred = jQuery.Deferred();
-        var tmpSql = errToCommit;
+        var tmpLog = errToCommit;
         errToCommit = "";
 
-        KVStore.append(KVStore.gErrKey, tmpSql, true, gKVScope.ERR)
+        KVStore.append(KVStore.gErrKey, tmpLog, true, gKVScope.ERR)
         .then(deferred.resolve)
         .fail(function(error) {
-            errToCommit = tmpSql;
+            errToCommit = tmpLog;
             deferred.reject(error);
         });
 
         return deferred.promise();
     };
 
-    SQL.getCursor = function() {
+    Log.getCursor = function() {
         return logCursor;
     };
 
-    SQL.getLogs = function() {
+    Log.getLogs = function() {
         return logs;
     };
 
-    SQL.getErrorLogs = function() {
+    Log.getErrorLogs = function() {
         return errors;
     };
 
-    SQL.getConsoleErrors = function() {
+    Log.getConsoleErrors = function() {
         var consoleErrors = [];
         for (var err in errors) {
             if (errors[err].title === "Console error") {
@@ -294,37 +293,37 @@ window.SQL = (function($, SQL) {
         return consoleErrors;
     };
 
-    SQL.getAllLogs = function() {
-        return sqlCache;
+    Log.getAllLogs = function() {
+        return logCache;
     };
 
-    SQL.getLocalStorage = function() {
-        return xcLocalStorage.getItem(sqlLocalStoreKey);
+    Log.getLocalStorage = function() {
+        return xcLocalStorage.getItem(logLocalStoreKey);
     };
 
-    SQL.getBackup = function() {
-        var key = sqlLocalStoreKey + "-backup";
+    Log.getBackup = function() {
+        var key = logLocalStoreKey + "-backup";
         return xcLocalStorage.getItem(key);
     };
 
-    SQL.backup = function() {
+    Log.backup = function() {
         if (xcManager.isInSetup()) {
             // start up time error don't trigger backup
             // or it may overwrite old log backup
             return;
         }
 
-        var key = sqlLocalStoreKey + "-backup";
-        xcLocalStorage.setItem(key, JSON.stringify(sqlCache));
+        var key = logLocalStoreKey + "-backup";
+        xcLocalStorage.setItem(key, JSON.stringify(logCache));
     };
 
-    SQL.clear = function() {
+    Log.clear = function() {
         $textarea.html("");
         $machineTextarea.html("");
         initialize();
     };
 
-    SQL.scrollToBottom = function() {
+    Log.scrollToBottom = function() {
         xcHelper.scrollToBottom($textarea);
         xcHelper.scrollToBottom($machineTextarea);
         // when one panel scroll to bottom,
@@ -333,7 +332,7 @@ window.SQL = (function($, SQL) {
         hasTriggerScrollToBottom = true;
     };
 
-    SQL.undo = function(step) {
+    Log.undo = function(step) {
         var deferred = jQuery.Deferred();
         xcAssert((isUndo === false), "Doing other undo/redo operation?");
 
@@ -358,22 +357,22 @@ window.SQL = (function($, SQL) {
 
             if (c < 0) {
                 // this is an error case
-                console.warn("Cannot find sql to undo");
+                console.warn("Cannot find log to undo");
                 break;
             }
 
-            var sql = logs[c];
-            if (getUndoType(sql) !== UndoType.Valid) {
+            var xcLog = logs[c];
+            if (getUndoType(xcLog) !== UndoType.Valid) {
                 // cannot undo
                 break;
             }
 
-            promises.push(undoLog.bind(this, sql, c));
+            promises.push(undoLog.bind(this, xcLog, c));
             c--;
         }
 
         isUndo = true;
-        SQL.lockUndoRedo();
+        Log.lockUndoRedo();
         var passed = false;
         PromiseHelper.chain(promises)
         .then(function() {
@@ -393,7 +392,7 @@ window.SQL = (function($, SQL) {
         })
         .always(function() {
             isUndo = false;
-            SQL.unlockUndoRedo();
+            Log.unlockUndoRedo();
             updateUndoRedoState();
             xcTooltip.refresh($undo);
             if (passed) {
@@ -403,7 +402,7 @@ window.SQL = (function($, SQL) {
         return deferred.promise();
     };
 
-    SQL.repeat = function() {
+    Log.repeat = function() {
         if ($("#redo").hasClass("locked")) {
             return;
         }
@@ -412,8 +411,8 @@ window.SQL = (function($, SQL) {
         if (!logLen || logCursor !== logLen - 1) {
             return PromiseHelper.resolve();
         } else {
-            var sql = logs[logCursor];
-            Repeat.run(sql)
+            var xcLog = logs[logCursor];
+            Repeat.run(xcLog)
             .then(deferred.resolve)
             .fail(deferred.reject);
             // if fails do nothing
@@ -421,7 +420,7 @@ window.SQL = (function($, SQL) {
         }
     };
 
-    SQL.redo = function(step) {
+    Log.redo = function(step) {
         var deferred = jQuery.Deferred();
         xcAssert((isRedo === false), "Doing other undo/redo operation?");
 
@@ -439,13 +438,13 @@ window.SQL = (function($, SQL) {
                 break;
             }
 
-            var sql = logs[c];
-            if (getUndoType(sql) !== UndoType.Valid) {
-                console.warn("Invalid sql to redo", sql);
+            var xcLog = logs[c];
+            if (getUndoType(xcLog) !== UndoType.Valid) {
+                console.warn("Invalid log to redo", xcLog);
                 break;
             }
 
-            promises.push(redoLog.bind(this, sql, c));
+            promises.push(redoLog.bind(this, xcLog, c));
             c++;
 
             // also get back the skipped log
@@ -455,7 +454,7 @@ window.SQL = (function($, SQL) {
         }
 
         isRedo = true;
-        SQL.lockUndoRedo();
+        Log.lockUndoRedo();
         var passed = false;
         PromiseHelper.chain(promises)
         .then(function() {
@@ -474,7 +473,7 @@ window.SQL = (function($, SQL) {
         })
         .always(function() {
             isRedo = false;
-            SQL.unlockUndoRedo();
+            Log.unlockUndoRedo();
             updateUndoRedoState();
             xcTooltip.refresh($redo);
             if (passed) {
@@ -484,28 +483,28 @@ window.SQL = (function($, SQL) {
         return deferred.promise();
     };
 
-    SQL.isUndo = function() {
+    Log.isUndo = function() {
         return isUndo;
     };
 
-    SQL.isRedo = function() {
+    Log.isRedo = function() {
         return isRedo;
     };
 
-    SQL.viewLastAction = function(detailed) {
-        var curSql = logs[logCursor];
+    Log.viewLastAction = function(detailed) {
+        var curLog = logs[logCursor];
         if (logCursor !== -1) {
             if (detailed) {
-                return curSql;
+                return curLog;
             } else {
-                return curSql.getTitle();
+                return curLog.getTitle();
             }
         } else {
             return "none";
         }
     };
 
-    SQL.lockUndoRedo = function() {
+    Log.lockUndoRedo = function() {
         $undo.addClass("disabled locked");
         xcTooltip.changeText($undo, TooltipTStr.LockedTableUndo);
 
@@ -513,7 +512,7 @@ window.SQL = (function($, SQL) {
         xcTooltip.changeText($redo, TooltipTStr.LockedTableRedo);
     };
 
-    SQL.unlockUndoRedo = function() {
+    Log.unlockUndoRedo = function() {
         var hasLockedTables = false;
         var allWS = WSManager.getWorksheets();
         for (var ws in allWS) {
@@ -545,37 +544,35 @@ window.SQL = (function($, SQL) {
 
     function initialize() {
         logCursor = -1;
-        sqlToCommit = "";
+        logToCommit = "";
         errToCommit = "";
-        sqlCache = {
+        logCache = {
             "logs": [],
             "errors": []
         };
 
         // a quick reference
-        logs = sqlCache.logs;
-        errors = sqlCache.errors;
+        logs = logCache.logs;
+        errors = logCache.errors;
 
         isUndo = false;
         isRedo = false;
     }
 
     function commitLogs() {
-        if (sqlToCommit === "") {
+        if (logToCommit === "") {
             return PromiseHelper.resolve();
         }
 
         var deferred = jQuery.Deferred();
-        var tmpSql = sqlToCommit;
-        sqlToCommit = "";
-        // should change sqlToCommit before async call
+        var tmpLog = logToCommit;
+        logToCommit = "";
+        // should change logToCommit before async call
 
-        KVStore.append(KVStore.gLogKey, tmpSql, true, gKVScope.LOG)
-        .then(function() {
-            deferred.resolve();
-        })
+        KVStore.append(KVStore.gLogKey, tmpLog, true, gKVScope.LOG)
+        .then(deferred.resolve)
         .fail(function(error) {
-            sqlToCommit = tmpSql;
+            logToCommit = tmpLog;
             deferred.reject(error);
         });
 
@@ -594,8 +591,8 @@ window.SQL = (function($, SQL) {
             if (rawLog.charAt(len - 1) === ",") {
                 rawLog = rawLog.substring(0, len - 1);
             }
-            var sqlStr = "[" + rawLog + "]";
-            parsedLogs = JSON.parse(sqlStr);
+            var logStr = "[" + rawLog + "]";
+            parsedLogs = JSON.parse(logStr);
             return parsedLogs;
         } catch (error) {
             xcConsole.error("parse log failed", error);
@@ -622,13 +619,12 @@ window.SQL = (function($, SQL) {
                     xcConsole.error("Loose old cursor track");
                     oldLogCursor = oldLogs.length - 1;
                 }
-                var sqls = [];
+                var logs = [];
                 for (var i = 0; i <= oldLogCursor; i++) {
-                    var sql = new XcLog(oldLogs[i]);
-                    sqls.push(sql);
+                    logs.push(new XcLog(oldLogs[i]));
                 }
-                addLog(sqls, true);
-                infList.restore(".sqlContentWrap");
+                addLog(logs, true);
+                infList.restore(".logContentWrap");
                 infListMachine.restore(".cliWrap");
 
                 lastSavedCursor = logCursor;
@@ -641,7 +637,7 @@ window.SQL = (function($, SQL) {
                 }
                 deferred.resolve();
             } else {
-                deferred.reject(sqlRestoreError);
+                deferred.reject(logRestoreError);
             }
         })
         .fail(deferred.reject);
@@ -657,7 +653,7 @@ window.SQL = (function($, SQL) {
             var oldErrors = parseRawLog(rawLog);
 
             if (oldErrors == null) {
-                return PromiseHelper.reject(sqlRestoreError);
+                return PromiseHelper.reject(logRestoreError);
             }
 
             if (errors.length > 0) {
@@ -677,19 +673,19 @@ window.SQL = (function($, SQL) {
         return deferred.promise();
     }
 
-    // if restore, sql is an array
-    function addLog(sql, isRestore, willCommit) {
+    // if restore, log is an array
+    function addLog(log, isRestore, willCommit) {
         // normal log
         if (shouldOverWrite || logCursor !== logs.length - 1) {
             // when user do a undo before
             logCursor++;
-            logs[logCursor] = sql;
+            logs[logCursor] = log;
             logs.length = logCursor + 1;
 
             localCommit();
             // must set to "" before async call, other wise KVStore.commit
             // may mess it up
-            sqlToCommit = "";
+            logToCommit = "";
             var logStr = stringifyLog(logs);
             KVStore.put(KVStore.gLogKey, logStr, true, gKVScope.LOG)
             .then(function() {
@@ -704,35 +700,35 @@ window.SQL = (function($, SQL) {
             })
             .then(function() {
                 // XXX test
-                console.info("Overwrite sql log");
+                console.info("Overwrite log");
                 WSManager.dropUndoneTables();
                 shouldOverWrite = false;
             })
             .fail(function(error) {
-                console.error("Overwrite Sql fails!", error);
+                console.error("Overwrite log fails!", error);
             });
         } else {
-            if (isRestore) { // if restore, sql is an array
-                for (var i = 0; i < sql.length; i++) {
+            if (isRestore) { // if restore, log is an array
+                for (var i = 0; i < log.length; i++) {
                     logCursor++;
-                    logs[logCursor] = sql[i];
+                    logs[logCursor] = log[i];
                 }
             } else {
                 logCursor++;
-                logs[logCursor] = sql;
-                sqlToCommit += JSON.stringify(sql) + ",";
+                logs[logCursor] = log;
+                logToCommit += JSON.stringify(log) + ",";
                 // XXX FIXME: uncomment it if commit on errorLog only has bug
                 // localCommit();
             }
         }
 
-        showSQL(sql, logCursor, isRestore);
+        showLog(log, logCursor, isRestore);
     }
 
-    function getUndoType(sql) {
-        var operation = sql.getOperation();
+    function getUndoType(xcLog) {
+        var operation = xcLog.getOperation();
         if (operation == null) {
-            console.error("Invalid sql!", sql);
+            console.error("Invalid log", xcLog);
             return UndoType.Invalid;
         }
 
@@ -769,14 +765,14 @@ window.SQL = (function($, SQL) {
         }
     }
 
-    function undoLog(sql, cursor) {
-        xcAssert((sql != null), "invalid sql");
+    function undoLog(xcLog, cursor) {
+        xcAssert((xcLog != null), "invalid log");
 
         var deferred = jQuery.Deferred();
 
         var logLen = logs.length;
         var isMostRecent = (cursor === (logLen - 1));
-        Undo.run(sql, isMostRecent)
+        Undo.run(xcLog, isMostRecent)
         .then(function() {
             if (logs.length !== logLen) {
                 // XXX debug use
@@ -791,13 +787,13 @@ window.SQL = (function($, SQL) {
         return deferred.promise();
     }
 
-    function redoLog(sql, cursor) {
-        xcAssert((sql != null), "invalid sql");
+    function redoLog(xcLog, cursor) {
+        xcAssert((xcLog != null), "invalid log");
 
         var deferred = jQuery.Deferred();
 
         var logLen = logs.length;
-        Redo.run(sql)
+        Redo.run(xcLog)
         .then(function() {
             if (logs.length !== logLen) {
                 // XXX debug use
@@ -900,16 +896,16 @@ window.SQL = (function($, SQL) {
     }
 
     function updateLogPanel(cursor) {
-        // the idea is: we use an id the mark the sql and cli,
-        // so all sqls/clis before logCurosor's position should show
+        // the idea is: we use an id the mark the log and cli,
+        // so all logs/clis before logCurosor's position should show
         // others should hide
-        var $sqls = $($textarea.find(".sqlContentWrap").get().reverse());
-        $sqls.show();
-        $sqls.each(function() {
-            var $sql = $(this);
-            var sqlId = $sql.data("sql");
-            if (sqlId > cursor) {
-                $sql.hide();
+        var $logs = $($textarea.find(".ContentWrap").get().reverse());
+        $logs.show();
+        $logs.each(function() {
+            var $log = $(this);
+            var id = $log.data("log");
+            if (id > cursor) {
+                $log.hide();
             } else {
                 return false; // stop loop
             }
@@ -927,29 +923,29 @@ window.SQL = (function($, SQL) {
             }
         });
 
-        SQL.scrollToBottom();
+        Log.scrollToBottom();
     }
 
     function resetLoclStore() {
-        xcLocalStorage.removeItem(sqlLocalStoreKey);
+        xcLocalStorage.removeItem(logLocalStoreKey);
     }
 
     function localCommit() {
-        xcLocalStorage.setItem(sqlLocalStoreKey, JSON.stringify(sqlCache));
+        xcLocalStorage.setItem(logLocalStoreKey, JSON.stringify(logCache));
     }
 
-    // if isRestore, sql is an array of sqls
-    function showSQL(sql, cursor, isRestore) {
-        // some sql is overwritten because of undo and redo, should remove them
+    // if isRestore, log is an array of logs
+    function showLog(log, cursor, isRestore) {
+        // some log is overwritten because of undo and redo, should remove them
         var cliHtml = "";
         var cliMachine = "";
         if (!isRestore) {
-            var $sqls = $($textarea.find(".sqlContentWrap").get().reverse());
-            $sqls.each(function() {
-                var $sql = $(this);
-                var sqlId = $sql.data("sql");
-                if (sqlId >= cursor) {
-                    $sql.remove();
+            var $logs = $($textarea.find(".logContentWrap").get().reverse());
+            $logs.each(function() {
+                var $log = $(this);
+                var id = $log.data("log");
+                if (id >= cursor) {
+                    $log.remove();
                 } else {
                     return false; // stop loop
                 }
@@ -965,12 +961,12 @@ window.SQL = (function($, SQL) {
                     return false; // stop loop
                 }
             });
-            cliHtml = getCliHTML(sql, logCursor);
-            cliMachine = getCliMachine(sql, logCursor);
+            cliHtml = getCliHTML(log, logCursor);
+            cliMachine = getCliMachine(log, logCursor);
         } else {
-            for (var i = 0; i < sql.length; i++) {
-                cliHtml += getCliHTML(sql[i], i);
-                cliMachine += getCliMachine(sql[i], i);
+            for (var i = 0; i < log.length; i++) {
+                cliHtml += getCliHTML(log[i], i);
+                cliMachine += getCliMachine(log[i], i);
             }
         }
 
@@ -978,13 +974,13 @@ window.SQL = (function($, SQL) {
         $machineTextarea.append(cliMachine);
     }
 
-    function getCliHTML(sql, id) {
-        var options = sql.options;
-        if (sql.sqlType === SQLType.Error) {
+    function getCliHTML(xcLog, id) {
+        var options = xcLog.options;
+        if (xcLog.sqlType === SQLType.Error) {
             return "";
         }
 
-        var undoType = getUndoType(sql);
+        var undoType = getUndoType(xcLog);
         if (undoType === UndoType.Skip) {
             // not display it
             return "";
@@ -998,9 +994,9 @@ window.SQL = (function($, SQL) {
         } else {
             collapseClass = " expanded";
         }
-        var html = '<div class="sqlContentWrap '+ collapseClass +
-                    '" data-sql=' + id + '>' +
-                    '<div class="title"> >>' + sql.title +
+        var html = '<div class="logContentWrap '+ collapseClass +
+                    '" data-log=' + id + '>' +
+                    '<div class="title"> >>' + xcLog.title +
                         '<span class="colon">:</span>' +
                         '<span class="expand">' +
                             '<i class="icon xi-arrow-down"></i>' +
@@ -1023,9 +1019,9 @@ window.SQL = (function($, SQL) {
             }
             var val = JSON.stringify(options[key]);
             html += '<span class="' + key + '">' +
-                        '<span class="sqlKey">' + key + '</span>' +
-                        '<span class="sqlColon">:</span>' +
-                        '<span class="sqlVal">' + val + '</span>' +
+                        '<span class="logKey">' + key + '</span>' +
+                        '<span class="logColon">:</span>' +
+                        '<span class="logVal">' + val + '</span>' +
                     '</span>';
             count++;
         }
@@ -1036,13 +1032,13 @@ window.SQL = (function($, SQL) {
         return (html);
     }
 
-    function getCliMachine(sql, id) {
+    function getCliMachine(xcLog, id) {
         // Here's the real code
-        if (sql.sqlType === SQLType.Error) {
+        if (xcLog.sqlType === SQLType.Error) {
             return "";
         }
 
-        var isBackOp = isBackendOperation(sql);
+        var isBackOp = isBackendOperation(xcLog);
 
         if (isBackOp == null || isBackOp === false) {
             // unsupport operation or front end operation
@@ -1050,7 +1046,7 @@ window.SQL = (function($, SQL) {
         } else {
             // thrift operation
             var string = '<span class="cliWrap" data-cli=' + id + '>' +
-                            sql.cli +
+                            xcLog.cli +
                          '</span>';
             return string;
         }
@@ -1069,7 +1065,7 @@ window.SQL = (function($, SQL) {
                     "human and android cannot coexist!");
             xcAssert($textarea.is(":visible"),
                     "At least one bar should be showing");
-            value = JSON.stringify(SQL.getAllLogs());
+            value = JSON.stringify(Log.getAllLogs());
         }
 
         $hiddenInput.val(value).select();
@@ -1078,9 +1074,9 @@ window.SQL = (function($, SQL) {
         xcHelper.showSuccess(SuccessTStr.Copy);
     }
 
-    function toggleSQLSize($sql) {
-        $sql.toggleClass("collapsed");
-        $sql.toggleClass("expanded");
+    function toggleLogSize($section) {
+        $section.toggleClass("collapsed");
+        $section.toggleClass("expanded");
         if ($textarea.find(".expanded").length) {
             isCollapsed = false;
         } else if ($textarea.find(".collapsed").length) {
@@ -1089,7 +1085,7 @@ window.SQL = (function($, SQL) {
     }
 
     function setupMenuActions() {
-        $sqlMenu.on("mouseup", "li", function(event) {
+        $logMenu.on("mouseup", "li", function(event) {
             if (event.which !== 1) {
                 return;
             }
@@ -1103,13 +1099,13 @@ window.SQL = (function($, SQL) {
                     copyLog();
                     break;
                 case ("collapseAll"):
-                    $textarea.find(".sqlContentWrap").addClass("collapsed");
-                    $textarea.find(".sqlContentWrap").removeClass("expanded");
+                    $textarea.find(".logContentWrap").addClass("collapsed")
+                                                     .removeClass("expanded");
                     isCollapsed = true;
                     break;
                 case ("expandAll"):
-                    $textarea.find(".sqlContentWrap").removeClass("collapsed");
-                    $textarea.find(".sqlContentWrap").addClass("expanded");
+                    $textarea.find(".logContentWrap").removeClass("collapsed")
+                                                     .addClass("expanded");
                     isCollapsed = false;
                     break;
                 default:
@@ -1119,8 +1115,8 @@ window.SQL = (function($, SQL) {
         });
     }
 
-    function isBackendOperation(sql) {
-        var operation = sql.getOperation();
+    function isBackendOperation(xcLog) {
+        var operation = xcLog.getOperation();
 
         switch (operation) {
             // front end opeartion
@@ -1204,14 +1200,14 @@ window.SQL = (function($, SQL) {
 
     /* Unit Test Only */
     if (window.unitTestMode) {
-        SQL.__testOnly__ = {};
-        SQL.__testOnly__.isBackendOperation = isBackendOperation;
-        SQL.__testOnly__.getCliMachine = getCliMachine;
-        SQL.__testOnly__.getCliHTML = getCliHTML;
-        SQL.__testOnly__.getUndoType = getUndoType;
-        SQL.__testOnly__.UndoType = UndoType;
+        Log.__testOnly__ = {};
+        Log.__testOnly__.isBackendOperation = isBackendOperation;
+        Log.__testOnly__.getCliMachine = getCliMachine;
+        Log.__testOnly__.getCliHTML = getCliHTML;
+        Log.__testOnly__.getUndoType = getUndoType;
+        Log.__testOnly__.UndoType = UndoType;
     }
     /* End Of Unit Test Only */
 
-    return (SQL);
+    return (Log);
 }(jQuery, {}));

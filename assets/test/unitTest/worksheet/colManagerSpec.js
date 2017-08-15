@@ -453,7 +453,7 @@ describe('ColManager Test', function() {
             expect($th.find('.prefix').hasClass('immediate')).to.be.false;
 
             // exec a pullcol
-            SQL.undo()
+            Log.undo()
             .then(function() {
                 expect($th.hasClass('newColumn')).to.be.true;
                 expect($th.find('.prefix').hasClass('immediate')).to.be.true;
@@ -769,7 +769,7 @@ describe('ColManager Test', function() {
         });
 
         it("Should undo the split", function(done) {
-            SQL.undo()
+            Log.undo()
             .then(function() {
                 var table = gTables[tableId];
                 expect(table.getType()).to.equal(TableType.Active);
@@ -806,7 +806,7 @@ describe('ColManager Test', function() {
         });
 
         it("Should undo change type of column", function(done) {
-            SQL.undo()
+            Log.undo()
             .then(function() {
                 var table = gTables[tableId];
                 expect(table.getType()).to.equal(TableType.Active);

@@ -430,7 +430,7 @@ window.TableList = (function($, TableList) {
             if (ws) {
                 sql.ws = ws;
             }
-            SQL.add(TblTStr.Active, sql);
+            Log.add(TblTStr.Active, sql);
 
             deferred.resolve();
         })

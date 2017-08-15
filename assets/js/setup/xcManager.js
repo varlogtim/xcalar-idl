@@ -187,7 +187,7 @@ window.xcManager = (function(xcManager, $) {
                         WorkbookManager.inActiveAllWKBK();
                     }
                 }],
-                "hideButtons": ['copySql']
+                "hideButtons": ['copyLog']
             });
         } else if (isNotNullObj &&
                    error.status != null &&
@@ -801,7 +801,7 @@ window.xcManager = (function(xcManager, $) {
 
         window.onbeforeunload = function() {
             xcManager.unload(true);
-            if (SQL.hasUnCommitChange() || KVStore.hasUnCommitChange()) {
+            if (Log.hasUncommitChange() || KVStore.hasUnCommitChange()) {
                 return CommonTxtTstr.LogoutWarn;
             } else if (backspaceIsPressed) {
                 // when no commit change but may caused by backSapce
@@ -1137,7 +1137,7 @@ window.xcManager = (function(xcManager, $) {
             };
             xcConsole.log(msg, url + ":" + line + ":" + column);
 
-            SQL.errorLog("Console error", null, null, info);
+            Log.errorLog("Console error", null, null, info);
 
             // if debugOn, xcConsole.log will show it's own error
             // if no stack, then it's a custom error, don't show message
@@ -1145,7 +1145,7 @@ window.xcManager = (function(xcManager, $) {
                 !(isBrowserIE && (msg === "Unspecified error." ||
                     (stack[1] && stack[1].indexOf("__BROWSERTOOLS") > -1)))) {
 
-                var promise = SQL.commitErrors();
+                var promise = Log.commitErrors();
 
                 Alert.error(ErrTStr.RefreshBrowser, ErrTStr.RefreshBrowserDesc, {
                     "lockScreen": true,
@@ -1286,7 +1286,7 @@ window.xcManager = (function(xcManager, $) {
                     $('#undo').click();
                 } else if (event.which === keyCode.Y) {
                     if ($("#redo").hasClass("disabled")) {
-                        SQL.repeat();
+                        Log.repeat();
                     } else {
                         $('#redo').click();
                     }

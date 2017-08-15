@@ -1906,10 +1906,10 @@ describe('OperationsView Test', function() {
                     orgCellText = $tableWrap.find('.row15 .col13 .originalData').text();
                     newCellText = $tableWrap.find('.row15 .col1 .originalData').text();
                     expect(newCellText).to.equal(options.transform(orgCellText));
-                    var sqlCli = SQL.viewLastAction(true).cli;
+                    var cli = Log.viewLastAction(true).cli;
 
-                    expect(sqlCli).to.contain(JSON.stringify(expectedCliMapStr));
-                    SQL.undo()
+                    expect(cli).to.contain(JSON.stringify(expectedCliMapStr));
+                    Log.undo()
                     .always(function() {
                         deferred.resolve();
                     });

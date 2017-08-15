@@ -33,8 +33,8 @@ describe('QueryManager Test', function() {
 
     describe("restore", function() {
         it("restore should work", function() {
-            var cachedGetLogs = SQL.getLogs;
-            SQL.getLogs = function() {
+            var cachedGetLogs = Log.getLogs;
+            Log.getLogs = function() {
                 return [];
             };
             QueryManager.restore([{name: "unitTest2"}]);
@@ -44,7 +44,7 @@ describe('QueryManager Test', function() {
             $queryList.find(".xcQuery").filter(function() {
                 return $(this).find('.name') === "unitTest2";
             }).remove();
-            SQL.getLogs = cachedGetLogs;
+            Log.getLogs = cachedGetLogs;
         });
     });
 
@@ -420,8 +420,9 @@ describe('QueryManager Test', function() {
         it("confirmCanceledQuery should work", function() {
             var list = queryLists;
             var fakeQuery = new XcQuery({});
-            list["fakeId"] = fakeQuery;
-            QueryManager.confirmCanceledQuery("fakeId");
+            var id = 65535;
+            list[id] = fakeQuery;
+            QueryManager.confirmCanceledQuery(id);
             expect(fakeQuery.outputTableState).to.equal("deleted");
             expect(fakeQuery.state).to.equal("canceled");
 
@@ -436,19 +437,20 @@ describe('QueryManager Test', function() {
                 }
             };
 
-            QueryManager.confirmCanceledQuery("fakeId");
+            QueryManager.confirmCanceledQuery(id);
             expect(fnCalled).to.be.true;
 
             DSCart.queryDone = cachedFn;
-            delete list["fakeId"];
+            delete list[id];
         });
 
         it("cleanup canceled tables should work", function() {
             var fakeQuery = new XcQuery({});
             var list = QueryManager.__testOnly__.canceledQueries;
-            list["fakeId"] = fakeQuery;
-            QueryManager.cleanUpCanceledTables("fakeId");
-            expect(list["fakeId"]).to.be.undefined;
+            var id = 65535;
+            list[id] = fakeQuery;
+            QueryManager.cleanUpCanceledTables(id);
+            expect(list[id]).to.be.undefined;
         });
     });
 

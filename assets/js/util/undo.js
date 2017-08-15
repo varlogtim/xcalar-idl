@@ -2,13 +2,13 @@ window.Undo = (function($, Undo) {
     var undoFuncs = {};
 
     // isMostRecent - boolean, true if it's the most recent operation performed
-    Undo.run = function(sql, isMostRecent) {
-        xcAssert((sql != null), "invalid sql");
+    Undo.run = function(xcLog, isMostRecent) {
+        xcAssert((xcLog != null), "invalid log");
 
         var deferred = jQuery.Deferred();
 
-        var options = sql.getOptions();
-        var operation = sql.getOperation();
+        var options = xcLog.getOptions();
+        var operation = xcLog.getOperation();
 
         if (undoFuncs.hasOwnProperty(operation)) {
             var minModeCache = gMinModeOn;

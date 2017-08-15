@@ -56,7 +56,7 @@
                 this[METAKeys.AGGS] = Aggregates.getAggs();
                 this[METAKeys.CART] = DSCart.getCarts();
                 this[METAKeys.STATS] = Profile.getCache();
-                this[METAKeys.LOGC] = SQL.getCursor();
+                this[METAKeys.LOGC] = Log.getCursor();
                 this[METAKeys.TPFX] = TPrefix.getCache();
                 this[METAKeys.QUERY] = QueryManager.getCache();
                 return this;
@@ -238,7 +238,7 @@
         return XcAuth<%= v %>;
     }());
 
-    // sql.js
+    // log.js
     win.XcLog<%= v %> = (function() {
         var _super = __getConstructor("XcLog", parentVersion);
         /* Attr:
@@ -1280,9 +1280,9 @@
                 this.keepJoinTables = $("#joinView").find(".keepTablesCBWrap")
                                                      .find(".checkbox")
                                                      .hasClass("checked");
-                this.sqlCollapsed = $("#sql-TextArea")
+                this.sqlCollapsed = $("#log-TextArea")
                                      .find(".expanded").length === 0 &&
-                                     $("#sql-TextArea")
+                                     $("#log-TextArea")
                                      .find(".collapsed").length !== 0;
                 return this;
             }
@@ -2600,7 +2600,7 @@
             outputTableName: (string) output table
             outputTableState: (string) output table state
             queryStr: (string) query string
-            sqlNum: sql's id
+            sqlNum: log's id
             state: (string) enums in QueryStateT
             cancelable: (boolean) can cancel or not
             subQueries: (array, not persist) list of XcSubQuery

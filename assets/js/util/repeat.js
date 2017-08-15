@@ -6,13 +6,13 @@ window.Repeat = (function($, Repeat) {
                            SQLOps.DeleteTable, SQLOps.SortTableCols,
                            SQLOps.ResizeTableCols];
 
-    Repeat.run = function(sql) {
-        xcAssert((sql != null), "invalid sql");
+    Repeat.run = function(xcLog) {
+        xcAssert((xcLog != null), "invalid log");
 
         var deferred = jQuery.Deferred();
 
-        var options = sql.getOptions();
-        var operation = sql.getOperation();
+        var options = xcLog.getOptions();
+        var operation = xcLog.getOperation();
         var colNums = [];
         var tableId;
 

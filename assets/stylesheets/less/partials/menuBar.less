@@ -536,7 +536,7 @@
             display: block !important;
         }
 
-        #extension-ops, #sqlSection {
+        #extension-ops, #logSection {
             .menuContent {
                 .size(@width: auto, @height: ~"calc(100% - 55px)");
             }
@@ -603,7 +603,7 @@
             font-size: 18px;
         }
 
-        #sqlButtonWrap {
+        #logButtonWrap {
             .icon {
                 margin-top: 7px;
             }
@@ -653,8 +653,8 @@
         overflow: hidden;
     }
 }
-/* ========== SQL Section ========== */
-#sqlSection {
+/* ========== Log Section ========== */
+#logSection {
     .size(@height: ~"calc(100% - 10px)");
 
     .container {
@@ -662,17 +662,17 @@
         .position(relative);
         overflow: hidden;
 
-        .sqlTextArea {
+        .logTextArea {
             .position(absolute, @top: 0);
             .size(@width: 100%, @height: 100%);
             overflow-y: scroll;
 
-            .sqlContentWrap, .cliWrap {
+            .logContentWrap, .cliWrap {
                 .size(@width: 100%);
                 .font(@size: 13px, @color: @color-white);
             }
 
-            .sqlContentWrap {
+            .logContentWrap {
                 padding: 2px 2px 2px 10px;
                 &:last-child {
                     padding-bottom: 10px;
@@ -682,17 +682,17 @@
     }
 }
 
-#sql-MachineTextArea {
+#log-MachineTextArea {
     padding: 10px;
     padding-top: 6px;
     word-wrap: break-word;
 }
 
-#sql-TextArea {
-    .sqlContentWrap {
+#log-TextArea {
+    .logContentWrap {
         div, span {
             &::selection {
-                background-color: @color-sql-select;
+                background-color: @color-log-select;
             }
         }
 
@@ -721,16 +721,16 @@
             }
         }
 
-        .sqlKey {
-            color: @color-sql-lightGray;
+        .logKey {
+            color: @color-log-lightGray;
         }
-        .sqlColon {
+        .logColon {
             margin-left: 1px;
             margin-right: 3px;
         }
 
         .title {
-            color: @color-sql-blue;
+            color: @color-log-blue;
             cursor: pointer;
             &:hover {
                 .expand {
@@ -751,36 +751,36 @@
 
         .content {
             .operation {
-                .sqlKey {
-                    color: @color-sql-brown;
+                .logKey {
+                    color: @color-log-brown;
                 }
-                .sqlVal {
-                    color: @color-sql-lightGreen;
+                .logVal {
+                    color: @color-log-lightGreen;
                 }
             }
 
             .tableName, .leftTable, .rightTable, .dsName {
-                .sqlKey {
-                    color: @color-sql-darkGreen;
+                .logKey {
+                    color: @color-log-darkGreen;
                 }
-                .sqlVal {
-                    color: @color-sql-orange;
+                .logVal {
+                    color: @color-log-orange;
                 }
             }
 
             .key {
-                .sqlKey {
-                    color: @color-sql-pink;
+                .logKey {
+                    color: @color-log-pink;
                 }
             }
         }
 
         &:hover {
-            background-color: @color-sql-hover;
+            background-color: @color-log-hover;
         }
     }
 }
-/* ========== End Of SQL Section ========== */
+/* ========== End Of Log Section ========== */
 
 /* ========== UDF Section ========== */
 #udfSection {

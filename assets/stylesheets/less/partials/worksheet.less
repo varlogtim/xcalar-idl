@@ -465,16 +465,16 @@
     &:not(.searching) {
         .CodeMirror:not(.disabled) {
             .cm-keyword {
-                color: @color-sql-blue;
+                color: @color-log-blue;
             }
             .cm-xckeyword {
-                color: @color-sql-blue;
+                color: @color-log-blue;
             }
             .cm-xcspecial { // booleans and null
-                color: @color-sql-orange;
+                color: @color-log-orange;
             }
             .cm-string {
-                color: @color-sql-pink;
+                color: @color-log-pink;
             }
             .cm-backslash { // not actually a string
                 color: @color-font-select-blue;
@@ -483,7 +483,7 @@
                 }
             }
             .cm-number {
-                color: @color-sql-orange;
+                color: @color-log-orange;
             }
             .cm-bracket {
                 color: @color-font-warm-grey-two;
@@ -492,9 +492,9 @@
                 color: red;
             }
             .cm-variable-2, .cm-error {
-                color: @color-sql-brown;
+                color: @color-log-brown;
                 &+ .cm-operator, &+ .cm-atom, &+ .cm-unknown {
-                    color: @color-sql-brown;
+                    color: @color-log-brown;
                 }
             }
             .cm-atom {
@@ -505,7 +505,7 @@
             }
 
             .cm-udfColon {
-                color: @color-sql-blue;
+                color: @color-log-blue;
             }
             .argDesc {
                 background-color: @color-bg-white-eight;
@@ -571,7 +571,7 @@ ul.CodeMirror-hints {
             background-color: @color-selectedCell-light;
         }
         &.operator {
-            color: @color-sql-blue;
+            color: @color-log-blue;
             &.mainOperator {
                 .template {
                     padding-right: 4px;
@@ -579,7 +579,7 @@ ul.CodeMirror-hints {
             }
         }
         &.colName {
-            color: @color-sql-brown;
+            color: @color-log-brown;
             padding-right: 20px;
         }
     }

@@ -121,6 +121,7 @@ module.exports = {
         "tutorUser": "John Smith",
         "unknown": "Unknown",
         "LogOut": "Log out",
+        "Logs": "Logs",
         "About": "About",
         "Help": "Help",
         "HelpDocs": "Help docs"
@@ -290,9 +291,8 @@ module.exports = {
 
     "bottomMenu": {
         "popOutBtn": "Undock",
-        "toggleSqlBtn": "Toggle machine/human Log",
-        "copySqlBtn": "Copy Log",
-        "copySqlBtnTip": "Copy log",
+        "toggleLog": "Toggle machine/human Log",
+        "copyLogBtn": "Copy Log",
         "helpCategories": "Categories",
         "Help": "Help",
         "HelpSupport": "HELP & SUPPORT",

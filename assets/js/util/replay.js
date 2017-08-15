@@ -204,7 +204,7 @@ window.Replay = (function($, Replay) {
                 "firstRowText": $('.xcTable tbody').find('tr:first').text(),
                 "tableListText": tableListText,
                 "dagText": $('#dagPanel .dagWrap:not(.inActive)').text().replace(/\s\s/g, ""),
-                "lastAction": SQL.viewLastAction()
+                "lastAction": Log.viewLastAction()
             };
 
             function getActiveTables() {
@@ -851,7 +851,7 @@ window.Replay = (function($, Replay) {
         TblManager.refreshTable([newTableName], null, [oldTableName],
                                 wsId, null, {isUndo: true})
         .then(function() {
-            SQL.add(SQLTStr.RevertTable, {
+            Log.add(SQLTStr.RevertTable, {
                 "operation": SQLOps.RevertTable,
                 "tableName": newTableName,
                 "oldTableName": oldTableName,

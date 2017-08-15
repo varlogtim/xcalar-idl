@@ -8,7 +8,7 @@ window.BottomMenu = (function($, BottomMenu) {
     BottomMenu.setup = function() {
         $menuPanel = $("#bottomMenu");
         setupButtons();
-        SQL.setup();
+        Log.setup();
         UDF.setup();
         Help.setup();
     };
@@ -33,7 +33,7 @@ window.BottomMenu = (function($, BottomMenu) {
 
     // BottomMenu.clear = function() {
     //     UDF.clear();
-    //     SQL.clear();
+    //     Log.clear();
     // };
 
     BottomMenu.close = function(topMenuOpening) {
@@ -296,14 +296,14 @@ window.BottomMenu = (function($, BottomMenu) {
         }
 
         var sectionId = $section.attr("id");
-        if (sectionId === "sqlSection") {
+        if (sectionId === "logSection") {
             if ($section.hasClass("firstTouch")) {
                 $section.removeClass("firstTouch");
-                SQL.scrollToBottom();
+                Log.scrollToBottom();
             }
-            $("#sqlButtonWrap").removeClass("xc-hidden");
+            $("#logButtonWrap").removeClass("xc-hidden");
         } else {
-            $("#sqlButtonWrap").addClass("xc-hidden");
+            $("#logButtonWrap").addClass("xc-hidden");
         }
 
         if (sectionId === "helpSection") {

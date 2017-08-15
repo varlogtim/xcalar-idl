@@ -208,7 +208,7 @@ window.KVStore = (function($, KVStore) {
             }
         })
         .then(function() {
-            return SQL.commit();
+            return Log.commit();
         })
         .then(function() {
             if (!atStartUp) {
@@ -343,11 +343,11 @@ window.KVStore = (function($, KVStore) {
                     console.info("KVStore is empty!");
                 } else {
                     var oldLogCursor = metaInfos.getLogCMeta();
-                    return SQL.restore(oldLogCursor);
+                    return Log.restore(oldLogCursor);
                 }
             })
             .then(function() {
-                // must come after sql.restore
+                // must come after Log.restore
                 QueryManager.restore(metaInfos.getQueryMeta());
                 innerDeferred.resolve();
             })

@@ -1,13 +1,13 @@
 window.Redo = (function($, Redo) {
     var redoFuncs = {};
 
-    Redo.run = function(sql) {
-        xcAssert((sql != null), "invalid sql");
+    Redo.run = function(xcLog) {
+        xcAssert((xcLog != null), "invalid log");
 
         var deferred = jQuery.Deferred();
 
-        var options = sql.getOptions();
-        var operation = sql.getOperation();
+        var options = xcLog.getOptions();
+        var operation = xcLog.getOperation();
 
         if (redoFuncs.hasOwnProperty(operation)) {
             var minModeCache = gMinModeOn;

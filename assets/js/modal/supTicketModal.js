@@ -68,7 +68,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
             "type": issueType,
             "server": document.location.href,
             "comment": comment,
-            "xiLog": SQL.getAllLogs(),
+            "xiLog": Log.getAllLogs(),
             "userIdName": userIdName,
             "userIdUnique": userIdUnique,
             "sessionName": WorkbookManager.getActiveWKBK(),

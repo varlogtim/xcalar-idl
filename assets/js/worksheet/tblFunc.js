@@ -346,7 +346,7 @@ window.TblFunc = (function(TblFunc, $) {
 
     TblFunc.focusTable = function(tableId, focusDag) {
         if (WSManager.getWSFromTable(tableId) !== WSManager.getActiveWS()) {
-            if ((SQL.isRedo() || SQL.isUndo()) && SQL.viewLastAction() !== "Join") {
+            if ((Log.isRedo() || Log.isUndo()) && Log.viewLastAction() !== "Join") {
                 var wsToFocus = WSManager.getWSFromTable(tableId);
                 var activeWS = WSManager.getActiveWS();
                 if (wsToFocus !== activeWS) {
@@ -577,7 +577,7 @@ window.TblFunc = (function(TblFunc, $) {
             TblManager.alignTableEls($tableWrap);
         }
 
-        SQL.add(SQLTStr.ReorderTable, {
+        Log.add(SQLTStr.ReorderTable, {
             "operation": "reorderTable",
             "tableId": tableId,
             "tableName": gTables[tableId].tableName,

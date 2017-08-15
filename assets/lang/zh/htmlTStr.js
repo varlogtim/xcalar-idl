@@ -194,15 +194,14 @@ module.exports = {
         "InPageHelp": "页内帮助",
         "Walkthrough": "教程",
         "collapseAll": "收缩",
-        "copySqlBtn": "复制日志",
-        "copySqlBtnTip": "复制日志",
+        "copyLogBtn": "复制日志",
         "dsTutor1": "数据集教程 - 第1部分",
         "dsTutor2": "数据集教程 - 第2部分",
         "expandAll": "展开",
         "helpCategories": "类别",
         "noRes": "无帮助结果",
         "popOutBtn": "弹出",
-        "toggleSqlBtn": "切换人/机日志",
+        "toggleLog": "切换人/机日志",
         "useSearch": "搜索主题或",
         "visitHelp": "点击这里访问我们的帮助指南",
         "wkbkTutor": "工作簿教程"
@@ -577,7 +576,8 @@ module.exports = {
         "unknown": "未知",
         "user": "用户",
         "wb": "工作簿",
-        "ws": "工作表"
+        "ws": "工作表",
+        "Logs": "日志"
     },
     "monitor": {
         "AutoRefresh": "自动刷新",

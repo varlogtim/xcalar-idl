@@ -1236,9 +1236,9 @@ window.xcHelper = (function($, xcHelper) {
         var html;
 
         switch (type) {
-            case "sql":
-                // copy sql button
-                html = '<button type="button" class="btn copySql" ' +
+            case "log":
+                // copy log button
+                html = '<button type="button" class="btn copyLog" ' +
                         'data-toggle="tooltip" title="' + TooltipTStr.CopyLog + '">' +
                             CommonTxtTstr.CopyLog +
                         '</button>';
@@ -1248,20 +1248,20 @@ window.xcHelper = (function($, xcHelper) {
                     var $hiddenInput = $("<input>");
                     $("body").append($hiddenInput);
 
-                    var sqlCaches = SQL.getAllLogs();
-                    var sql;
-                    if (sqlCaches.logs.length === 0 &&
-                        sqlCaches.errors.length === 0)
+                    var logCaches = Log.getAllLogs();
+                    var log;
+                    if (logCaches.logs.length === 0 &&
+                        logCaches.errors.length === 0)
                     {
-                        sql = SQL.getLocalStorage() || SQL.getBackup();
-                        if (sql == null) {
-                            sql = "";
+                        log = Log.getLocalStorage() || Log.getBackup();
+                        if (log == null) {
+                            log = "";
                         }
                     } else {
-                        sql = JSON.stringify(sqlCaches);
+                        log = JSON.stringify(logCaches);
                     }
 
-                    $hiddenInput.val(sql).select();
+                    $hiddenInput.val(log).select();
                     document.execCommand("copy");
                     $hiddenInput.remove();
                     xcHelper.showSuccess(SuccessTStr.Copy);
@@ -1561,7 +1561,7 @@ window.xcHelper = (function($, xcHelper) {
 
         gTables[tableId].lock();
         WSManager.lockTable(tableId);
-        SQL.lockUndoRedo();
+        Log.lockUndoRedo();
     };
 
     xcHelper.unlockTable = function(tableId) {
@@ -1573,7 +1573,7 @@ window.xcHelper = (function($, xcHelper) {
 
         if (!table) {
             // case if table was deleted before unlock is called;
-            SQL.unlockUndoRedo();
+            Log.unlockUndoRedo();
             $dagTables.removeClass('locked');
             $dagTables.find('.lockIcon').remove();
             return;
@@ -1597,7 +1597,7 @@ window.xcHelper = (function($, xcHelper) {
         }
         TableList.unlockTable(tableId);
         WSManager.unlockTable(tableId);
-        SQL.unlockUndoRedo();
+        Log.unlockUndoRedo();
     };
 
     xcHelper.disableSubmit = function($submitBtn) {
