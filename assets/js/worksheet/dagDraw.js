@@ -727,7 +727,7 @@ window.DagDraw = (function($, DagDraw) {
 
     // XXX can optimize this function
     // adjust positions of nodes so that descendents will never be to the left
-    // or parallel of their ancestors
+    // of their ancestors
     function adjustNodePositions(node, storedInfo) {
         for (var i = 0; i < node.parents.length; i++) {
             var parent = node.parents[i];
@@ -760,9 +760,27 @@ window.DagDraw = (function($, DagDraw) {
 
         storedInfo.condensedWidth = Math.max(storedInfo.condensedWidth,
                                              node.value.display.depth + 1);
+
         for (var i = 0; i < node.parents.length; i++) {
-            adjustNodePositionsHelper(node.parents[i], amount, expandAmount,
+            var parentNode = node.parents[i];
+            var amountDiff = parentNode.value.display.depth -
+                             node.value.display.depth;
+            var expandAmountDiff = parentNode.value.display.expandedDepth -
+                                    node.value.display.expandedDepth;
+            var newAmount = amount;
+            var newExpandAmount = expandAmount;
+            // decrease the amount we're shifting each table if there's extra
+            // space between 2 tables
+            if (amountDiff + amount > 1) {
+                newAmount = amount - (amountDiff + amount - 1);
+            }
+            if (expandAmountDiff + expandAmount > 1) {
+                newExpandAmount = expandAmount - (expandAmountDiff + expandAmount - 1);
+            }
+            if (newAmount && newExpandAmount) {
+                adjustNodePositionsHelper(node.parents[i], newAmount, newExpandAmount,
                                       storedInfo, seen);
+            }
         }
     }
 
@@ -783,12 +801,18 @@ window.DagDraw = (function($, DagDraw) {
                                                                  seen);
                     var leafDepth = branchDepth + node.value.display.depth;
                     for (var j = coors.length - 1; j >= 0; j--) {
-                        if (leafDepth + 1 > coors[j]) {
+                        if (leafDepth > coors[j]) {
                             nextYCoor = j + 1;
                             break;
                         }
                     }
-                    coors[nextYCoor] = parentNode.value.display.depth;
+                    var depth = node.value.display.depth;
+                    for (var j = 0; j < parentNode.children.length; j++) {
+                        if (parentNode.children[j].value.display.depth < depth){
+                            depth = parentNode.children[j].value.display.depth;
+                        }
+                    }
+                    coors[nextYCoor] = depth;
                 }
                 condenseHeight(parentNode, seen, coors, nextYCoor);
             }
@@ -1756,9 +1780,15 @@ window.DagDraw = (function($, DagDraw) {
             bendY2 = y2 - 40;
 
         } else {
+            // curve style option
+            // bendX1 = x1;
+            // bendY1 = y1 + ((y2 - y1) / 2);
+            // bendX2 = x2 + ((x1 - x2) / 2);
+            // bendY2 = y2;
+
             bendX1 = x1;
-            bendY1 = y1 + ((y2 - y1) / 2);
-            bendX2 = x2 + ((x1 - x2) / 2);
+            bendY1 = y2;
+            bendX2 = x1;
             bendY2 = y2;
         }
         bendX1 = Math.round(bendX1);
@@ -1778,12 +1808,14 @@ window.DagDraw = (function($, DagDraw) {
             var parent = parents[i];
             var x2 = canvasWidth - parent.value.display.x + smallTableWidth;
             var y2 = parent.value.display.y + dagTableHeight / 2;
+            var bendX1 = x1;
+            var bendY1 = y2;
+            var bendX2 = x1;
+            var bendY2 = y2;
 
-            var bendY1 = y1 + ((y2 - y1) / 2);
-            var bendX2 = x2 + ((x1 - x2) / 2);
             ctx.moveTo(x1, y1);
-            ctx.bezierCurveTo(x1, bendY1,
-                              bendX2, y2,
+            ctx.bezierCurveTo(bendX1, bendY1,
+                              bendX2, bendY2,
                               x2, y2);
         }
     }
