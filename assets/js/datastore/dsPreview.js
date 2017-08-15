@@ -1413,6 +1413,7 @@ window.DSPreview = (function($, DSPreview) {
         $previeWrap.find(".errorSection")
                 .html(error).removeClass("hidden");
         $previeWrap.find(".loadHidden").addClass("hidden");
+        $previeWrap.find(".errorShow").removeClass("hidden");
     }
 
     function clearPreviewTable() {
@@ -1619,6 +1620,10 @@ window.DSPreview = (function($, DSPreview) {
             deferred.resolve();
         })
         .fail(function(error) {
+            if (urlToPreview != null) {
+                setPreviewFile(urlToPreview);
+            }
+
             Transaction.fail(txId, {
                 "error": error,
                 "noAlert": true,
