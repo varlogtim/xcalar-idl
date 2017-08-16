@@ -1280,7 +1280,7 @@ describe("xcHelper Test", function() {
             "action": "fix",
             "name": "a(F-_ &$38)",
             "replace": "0",
-            "expect": "a(F00 0038)"
+            "expect": "a(F-_ 0038)"
         }, {
             "category": "param",
             "action": "fix",

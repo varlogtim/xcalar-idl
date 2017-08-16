@@ -1992,7 +1992,7 @@ window.xcHelper = (function($, xcHelper) {
                 antiNamePattern = /[^a-zA-Z0-9_-]/;
                 break;
             case "folder":
-                antiNamePattern = /[^a-zA-Z0-9\(\)\s:]/;
+                antiNamePattern = /[^a-zA-Z0-9\(\)\s:_-]/;
                 break;
             case "param":
                 antiNamePattern = /[^a-zA-Z0-9]/;
