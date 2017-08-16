@@ -93,6 +93,11 @@ window.MonitorConfig = (function(MonitorConfig, $) {
             $(this).blur();
             resetAllDefaultParams();
         });
+
+
+        $configCard.on("mouseenter", ".tooltipOverflow", function() {
+            xcTooltip.auto(this);
+        });
     }
 
     function resetAllDefaultParams() {
@@ -151,6 +156,7 @@ window.MonitorConfig = (function(MonitorConfig, $) {
                       .prop('readonly', true)
                       .val(paramObj.paramName);
             $curValInput.val(paramObj.paramValue);
+            xcTooltip.changeText($curValInput, paramObj.paramValue);
             $formRow.addClass('nameIsSet');
 
             if (paramObj.changeable) {
@@ -171,6 +177,7 @@ window.MonitorConfig = (function(MonitorConfig, $) {
         } else {
             $nameInput.attr('data-value', val);
             $curValInput.val('');
+            xcTooltip.changeText($curValInput, "");
             if (!onChangeTriggered) {
                 showAddParamError(ErrTStr.ConfigParamNotFound, $nameInput);
             }
@@ -335,7 +342,9 @@ window.MonitorConfig = (function(MonitorConfig, $) {
             paramObj = getParamObjFromInput($nameInput);
             if (paramObj) {
                 $nameInput.val(paramObj.paramName);
-                $row.find('.curVal').val(paramObj.paramValue);
+                var $curValInput = $row.find('.curVal');
+                $curValInput.val(paramObj.paramValue);
+                xcTooltip.changeText($curValInput, paramObj.paramValue);
             }
         }
     }
@@ -398,8 +407,11 @@ window.MonitorConfig = (function(MonitorConfig, $) {
                       '<label class="argWrap">' +
                         '<span class="text">' + MonitorTStr.CurVal +
                         ':</span>' +
-                        '<input type="text" class="xc-input curVal readonly" ' +
-                        'readonly value="' + curVal + '" spellcheck="false">' +
+                        '<input type="text" readonly ' +
+                        'class="xc-input curVal readonly tooltipOverflow" ' +
+                        'value="' + curVal + '" spellcheck="false" ' +
+                        'data-toggle="tooltip" data-container="body" ' +
+                        'data-original-title="' + curVal + '">' +
                       '</label>' +
                       '<label class="argWrap">' +
                         '<span class="text">' + MonitorTStr.NewVal +
